@@ -3159,7 +3159,7 @@
     "t2Name": "LinkHub",
     "t2Desc": "<strong>一条 URL 集中所有 Bio 链接</strong>。聚合全部优惠、商品、社交账号。主题、实时预览、点击追踪。Stan Store 替代品——Pro 免费。",
     "t2Meta": "<strong>8</strong> 个主题",
-    "t3Name": "Link Tools",
+    "t3Name": "链接工具",
     "t3Desc": "短链接、<strong>轮换、分流测试、每个 URL 点击上限</strong>。每条链接带二维码和像素追踪。掌控自己的流量数据。",
     "t3Meta": "<strong>实时</strong>分析",
     "t4Name": "SuperLeads · CRM",
@@ -3177,7 +3177,7 @@
     "lhLink3": "关于",
     "lhStatClicks": "点击",
     "lhStatClicksDelta": "↑ 本周 12%",
-    "lhStatCtr": "CTR",
+    "lhStatCtr": "点击率",
     "lhStatCtrDelta": "↑ 2.1 点",
     "ltRotating": "轮换中",
     "leadColLead": "线索",
@@ -3194,132 +3194,132 @@
     "footerLine1": "七款工具。一个平台。",
     "footerLine2": "你需要的全都有,不需要的一概没有。",
     "footerCta": "开始创作",
-    "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "pageTitle": "工具",
+    "heroEyebrow": "您的工具",
+    "activeSince": "活跃于",
+    "backToDashboard": "返回仪表盘",
+    "scrollLeft": "向左滚动",
+    "scrollRight": "向右滚动",
+    "locked": "已锁定",
+    "categoriesSection": "您的工具类别",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
-      "basic": "Basic Membership",
-      "pro": "Pro Membership"
+      "overview": "概览",
+      "free": "免费工具",
+      "basic": "基础会员",
+      "pro": "专业会员"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "对所有人开放",
+        "title": "免费工具",
+        "desc": "横幅生成器、梗图生成器、二维码生成器。随时可用的潜客磁铁工具。",
+        "count": "3 个工具"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "基础计划及以上",
+        "eyebrowLocked": "升级以解锁",
+        "title": "基础会员工具",
+        "desc": "创意工作室、内容创作者、LinkHub、链接工具、SuperDeck。日常建设工具。",
+        "count": "5 个工具",
+        "countLocked": "5 个工具 · 已锁定"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "专业计划已解锁",
+        "eyebrowLocked": "升级以解锁",
+        "title": "专业会员工具",
+        "desc": "SuperPages、AutoResponder、Lead Finder、Niche Finder、ProSeller。严肃的业务增长工具。",
+        "count": "5 个工具",
+        "countLocked": "5 个工具 · 已锁定"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "打开",
+      "upgrade": "升级"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "免费工具 · 向所有人开放",
+      "basicUnlocked": "基础会员工具 · 5 个工具已解锁，仅需 $20/月",
+      "basicLocked": "基础会员工具 · 升级以解锁",
+      "proUnlocked": "Pro 会员工具 · 5 个工具已解锁，仅需 $97/月",
+      "proLocked": "Pro 会员工具 · 升级以解锁"
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "name": "Banner 创建器",
+        "desc": "为社交平台生成 AI Banner 和个人资料图片。"
       },
       "meme": {
-        "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "name": "Meme 生成器",
+        "desc": "快速基于模板的 Meme 和病毒式图片。"
       },
       "qr": {
-        "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "name": "二维码生成器",
+        "desc": "任何链接的自定义二维码。可追踪。"
       },
-      "pageTitle": "Free Tools"
+      "pageTitle": "免费工具"
     },
     "basic": {
       "studio": {
-        "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "name": "创意工作室",
+        "desc": "AI 图像、视频、音乐、语音、唇形同步、字幕。您的创意动力源。"
       },
       "content": {
-        "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "name": "内容创建者",
+        "desc": "AI 生成文章、博客文章、图文说明、脚本。"
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Linktree 风格的页面，在一个地方托管您的所有链接。"
       },
       "links": {
-        "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "name": "链接工具",
+        "desc": "缩短器、隐蔽器、像素追踪、A/B 重定向。"
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "具有 18 种字体和演示模式的 AI 演示文稿构建器。"
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "基础工具"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "拖放式落地页构建器。已托管、移动就绪、专注转化。"
       },
       "auto": {
-        "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "name": "自动回复器",
+        "desc": "电子邮件序列、广播、潜在客户培养。由 Brevo 提供支持。"
       },
       "leads": {
-        "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "name": "潜在客户查找器",
+        "desc": "由 Outscraper 提供支持的本地企业和网络潜在客户查找器。"
       },
       "niche": {
-        "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "name": "细分市场查找器",
+        "desc": "通过AI动力分析发现未被充分开发的利基市场。"
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "个人AI销售教练。策略、文案、异议处理。"
       },
-      "pageTitle": "Pro Tools"
+      "pageTitle": "Pro工具"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "立即升级",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "解锁5个建筑工具",
+        "title": "升级到基础会员",
+        "desc": "创建业务内容所需的一切：AI图像和视频、文案内容、链接管理、演示文稿。"
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "解锁5个更多专业工具",
+        "title": "升级到Pro会员",
+        "desc": "获得严肃的业务增长工具包：托管登陆页面、电子邮件自动化、潜在客户发现、利基分析、AI销售教练。"
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "返回工具",
+    "yourReferralLink": "你的推荐链接",
+    "copy": "复制",
+    "copied": "已复制！"
   },
   "explore": {
     "navHome": "首页",
@@ -4105,71 +4105,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "会员流",
+    "backToIncome": "返回收入",
+    "earningsSection": "您的会员收益",
+    "qualitySection": "质量指标 — 您在建立真实业务吗？",
+    "streamSection": "会员与您其他收入流的对比",
+    "upgradeSection": "升级您的会员资格 · 从每个直接推荐中赚取更多",
+    "errorLoading": "无法加载会员数据。请重试。",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "终身收益",
+      "lifetimeSub": "自您加入以来 {{date}}",
+      "lifetimeSubEmpty": "在您首次获得佣金后更新",
+      "thisMonth": "本月",
+      "thisMonthSub": "由 {{n}} 个活跃直接推荐支付",
+      "thisMonthSubEmpty": "佣金到账时实时更新",
+      "mrr": "当前月经常性收入",
+      "mrrSub": "保证每月经常性收入",
+      "mrrSubEmpty": "每月经常性收入",
+      "projection": "下一个预测",
+      "projectionSubEmpty": "基于您的活跃直接推荐"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "您的第一个直接推荐只需分享一次",
+    "coachingSub": "您推荐的每个 Pro 会员每月向您支付 $17.50，只要他们保持会员身份。5 个直接推荐 = 每月自动 $87.50。让我们获得您的第一个。",
+    "openSocialShare": "打开联盟分享",
+    "copyReferralLink": "复制推荐链接",
+    "linkCopied": "已复制！",
+    "firstStepsSection": "获得首次佣金的前 3 个步骤",
+    "step1Title": "让您的链接易于找到",
+    "step1Desc": "设置您的 LinkHub 页面，这样无论您在哪里发布链接 — 个人简介、资料、签名 — 都会导向一个精美的页面。",
+    "step1Cta": "设置 LinkHub →",
+    "step2Title": "与您最亲密的 5 人分享",
+    "step2Desc": "不要群发 — 从 5 个真正受益的人开始。电子邮件模板中有预写的信息。",
+    "step2Cta": "查看电子邮件模板 →",
+    "step3Title": "发布社交分享帖子",
+    "step3Desc": "一条帖子，广泛传播。AI生成的文案，4种风格（专业/随意/激烈/故事）。",
+    "step3Cta": "打开社交分享 →",
+    "quickMathTitle": "快速计算",
+    "quickMathText": "10位Pro直属=175美元/月保证 · 50位Pro直属=875美元/月 · 100位Pro直属=1,750美元/月。这些每月复合增长，自动进行。",
+    "encourageEyebrow": "你正在积累动力",
+    "encourageTitle": "你有{{n}}个直属——让我们达到{{target}}",
+    "encourageSub": "{{target}}个付费直属意味着真实的经常性收入。继续做有效的事——本周再与{{remaining}}个人分享你的链接。",
+    "handoffTitle": "详细查看你的直属转介",
+    "handoffTitle5plus": "管理你的{{n}}个直属转介",
+    "handoffSub": "状态、名称、发送广播和再次吸引行动都在你的命令中心。",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "激活率",
+      "activationHeadline": "{{paid}}/{{total}}付费用户",
+      "activationDetail": "注册后成为付费用户的成员",
+      "retention": "留存率",
+      "retentionHeadline": "{{active}}/{{paid}}仍在付费",
+      "retentionDetail": "最近30天内{{n}}个已流失",
+      "tenure": "平均任期",
+      "tenureDetail": "当前付费直属的"
     },
     "stream": {
-      "membership": "Membership",
+      "membership": "会员资格",
       "grid": "Grid",
-      "course": "Course",
+      "course": "课程",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "本月收入",
+    "streamCompareSubtitle": "跨越所有4个渠道",
+    "upgradeEyebrow": "你是Basic会员",
+    "upgradeTitle": "升级到Pro可每个直属赚取$17.50",
+    "upgradeDesc": "作为Basic会员，你目前每个直属每月赚取$10。Pro会员每个直属每月赚取$17.50——对于每个现有和未来的转介来说都是75%的加薪。按你目前{{n}}个活跃用户计算，这立即增加+${{upside}}/月。",
+    "upgradeBtn": "立即升级 →"
   },
   "gridVis": {
     "title": "Income Grid",

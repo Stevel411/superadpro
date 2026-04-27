@@ -3194,132 +3194,132 @@
     "footerLine1": "Zana saba. Jukwaa moja.",
     "footerLine2": "Kila unachohitaji, hakuna ambacho huhitaji.",
     "footerCta": "Anza kuunda",
-    "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "pageTitle": "Zana",
+    "heroEyebrow": "Zana Zako",
+    "activeSince": "Kumfanya kazi tangu",
+    "backToDashboard": "Rudi kwenye Dashboard",
+    "scrollLeft": "Geeza kushoto",
+    "scrollRight": "Geeza kulia",
+    "locked": "Imefungwa",
+    "categoriesSection": "Kategoria za zana zako",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
+      "overview": "Muhtasari",
+      "free": "Zana za Bure",
       "basic": "Basic Membership",
       "pro": "Pro Membership"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "Wazi kwa kila mtu",
+        "title": "Zana za Bure",
+        "desc": "Banner Creator, Meme Generator, QR Generator. Zana za lead-magnet unazoweza kutumia kwa wakati wowote.",
+        "count": "Zana 3"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
+        "eyebrowOpen": "Basic plan & zaidi",
+        "eyebrowLocked": "Boresha ili kufungua",
         "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Zana za kujenga kila siku.",
+        "count": "Zana 5",
+        "countLocked": "Zana 5 · imefungwa"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
+        "eyebrowOpen": "Pro plan imefunguliwa",
+        "eyebrowLocked": "Boresha ili kufungua",
         "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Zana za ukuaji wa biashara sawa.",
+        "count": "Zana 5",
+        "countLocked": "Zana 5 · imefungwa"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "Fungua",
+      "upgrade": "Kuboresha"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Zana Bure · wazi kwa kila mtu",
+      "basicUnlocked": "Zana za Basic Membership · zana 5 zilizofunguliwa kwa $20/mwezi",
+      "basicLocked": "Zana za Basic Membership · kuboresha ili kufungua",
+      "proUnlocked": "Zana za Pro Membership · zana 5 zilizofunguliwa kwa $97/mwezi",
+      "proLocked": "Zana za Pro Membership · kuboresha ili kufungua"
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "name": "Mwundaji wa Benari",
+        "desc": "Benari na picha za wasifu zilizozalishwa na AI kwa منصات ya mitandao."
       },
       "meme": {
-        "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "name": "Mwundaji wa Meme",
+        "desc": "Meme na picha za viral zinazotegemea template haraka."
       },
       "qr": {
-        "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "name": "Mwundaji wa QR",
+        "desc": "Nambari za QR za kaida kwa kiungo chochote. Inayoweza kufuatiliwa."
       },
-      "pageTitle": "Free Tools"
+      "pageTitle": "Zana Bure"
     },
     "basic": {
       "studio": {
-        "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "name": "Studi ya Ubunifu",
+        "desc": "Picha, video, muziki, sauti, lipsync, captions ya AI. Kituo chako cha ubunifu."
       },
       "content": {
-        "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "name": "Mwundaji wa Maudhui",
+        "desc": "Machapisho, makala, captions, hati zilizosomwa na AI."
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Ukurasa wa mtindo wa Linktree unaoandika kiungo chako chote mahali pamoja."
       },
       "links": {
-        "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "name": "Zana za Kiungo",
+        "desc": "Kuvipunguza, kuvichafu, ufuatiliaji wa pixel, A/B kupiga upinde."
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "Mwundaji wa wasilisho wa AI wenye fonti 18 na modi ya kuandaa."
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "Zana za Kimsingi"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "Mwundaji wa ukurasa wa kutua wenye drag-and-drop. Uliohifadhi, unaostawi kwenye simu, unazingatia ubadiliko."
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "Mfuatano wa barua pepe, matangazo, kulea viongezi. Inayoungwa na Brevo."
       },
       "leads": {
-        "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "name": "Mtafiti wa Viongezi",
+        "desc": "Kifua cha utafutaji wa biashaa za ndani na mtandao inayotumiwa Outscraper."
       },
       "niche": {
-        "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "name": "Utafutaji wa Niche",
+        "desc": "Gundua niches zisizohidimwa kwa uchambuzi unaotumia AI."
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "Kocha wa mauzo wa AI binafsi. Mkakati, maandishi, kushughulikia pingamizi."
       },
-      "pageTitle": "Pro Tools"
+      "pageTitle": "Zana za Pro"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "Boresha sasa",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "Fungua zana 5 za kujenga",
+        "title": "Boresha hadi Uanachama wa Basic",
+        "desc": "Kila kitu unachohitaji kuunda maudhui ya biashaa yako: picha na video ya AI, maudhui yaliyoandikwa, usimamizi wa kiungo, uwasilishaji."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "Fungua zana 5 zaidi za pro",
+        "title": "Boresha hadi Uanachama wa Pro",
+        "desc": "Pata toolbox ya kukua kwa negosio kubwa: kurasa za kutua zilizokaa, automatisering ya barua pepe, utafutaji wa risashi, uchambuzi wa niche, kocha wa mauzo ya AI."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Rudi kwenye Zana",
+    "yourReferralLink": "Kiungo chako cha kukamatia",
+    "copy": "Nakili",
+    "copied": "Kunakiliwa!"
   },
   "explore": {
     "navHome": "Nyumbani",
@@ -4105,71 +4105,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "Mtiririko wa Uanachama",
+    "backToIncome": "Rudi kwenye Mapato",
+    "earningsSection": "Mapato yako ya Uanachama",
+    "qualitySection": "Vipimo vya ubora — je, unajengeza biashara halisi?",
+    "streamSection": "Jinsi Uanachama unavyolinganisha na mtiririko wako mwingine",
+    "upgradeSection": "Boresha uanachama wako · kumikamata zaidi kutoka kila mtajiri moja kwa moja",
+    "errorLoading": "Haiwezi kupakia data ya Uanachama. Tafadhali jaribu tena.",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "Jumla ya Kupata",
+      "lifetimeSub": "tangu uliaanza {{date}}",
+      "lifetimeSubEmpty": "Sasisho baada ya kamisheni yako ya kwanza",
+      "thisMonth": "Mwezi Huu",
+      "thisMonthSub": "kulipwa na {{n}} watajiri wanaopatikana",
+      "thisMonthSubEmpty": "Muda halisi kadri kamisheni zinavyoingeza",
+      "mrr": "MRR ya Sasa",
+      "mrrSub": "inakamatia kila mwezi",
+      "mrrSubEmpty": "Mapato ya Kila Mwezi yanayojirudisha",
+      "projection": "Mbinu Ijayo",
+      "projectionSubEmpty": "Kulingana na watajiri wako wanaopatikana"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "Mtajiri wako wa kwanza ni mbali tu haba kwa kushiriki",
+    "coachingSub": "Kila mwanachama wa Pro unayemfanyisha utajiri hukumlipa $17.50/mwezi kwa muda mrefu wanatakaposalia. Watajiri 5 = $87.50 kila mwezi, kiotomatiki. Hebu tupate mmoja wako wa kwanza.",
+    "openSocialShare": "Fungua Shiriki la Kiurafiki",
+    "copyReferralLink": "Nakili kiungo cha utajiri",
+    "linkCopied": "Kunakiliwa!",
+    "firstStepsSection": "Hatua zako za kwanza tatu kuelekea kamisheni yako ya kwanza",
+    "step1Title": "Fanya kiungo chako kuwe rahisi kupata",
+    "step1Desc": "Sanidi ukurasa wako wa LinkHub ili mahali popote utakapoposha kiungo chako — wasifu, profaili, sahihi — inaongoza kwenye ukurasa mmoja mzuri.",
+    "step1Cta": "Sanidi LinkHub →",
+    "step2Title": "Shiriki na watu wako wa joto 5",
+    "step2Desc": "Usisambaze — anza na watu 5 ambao wangefikiri kuwa na faida halisi. Ujumbe uliotengenezwa awali katika Email Swipes.",
+    "step2Cta": "Tazama Email Swipes →",
+    "step3Title": "Tupa chauki ya kumshirikisha",
+    "step3Desc": "Chauki moja, mwanzo mkubwa. Nakala inayotokana na AI katika toni 4 (professional / casual / hype / story).",
+    "step3Cta": "Fungua Kumshirikisha →",
+    "quickMathTitle": "Hesabu haraka",
+    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. Hii inaongezeka kila mwezi, kiotomati.",
+    "encourageEyebrow": "Unajenga momentum",
+    "encourageTitle": "Una {{n}} directs — tuende kwa {{target}}",
+    "encourageSub": "{{target}} paying directs ina maana ya mapato halisi ya mara kwa mara. Endelea kufanya lile ambalo linafanya kazi — shiriki kiungo chako na {{remaining}} watu zaidi wiki hii.",
+    "handoffTitle": "Ona directs zako za kurejesha kwa undani",
+    "handoffTitle5plus": "Simamia {{n}} direct referrals zako",
+    "handoffSub": "Hali, majina, kutuma maaliko, na vitendo vya kujiangusha vya uokolezi viko hai katika Command Centre yako.",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "Kiwango cha Uanzishaji",
+      "activationHeadline": "{{paid}} kati ya {{total}} paid",
+      "activationDetail": "Wanachama ambao walikuwa wanapokea baada ya kusajili",
+      "retention": "Kiwango cha Kudumisha",
+      "retentionHeadline": "{{active}} kati ya {{paid}} bado wanapokea",
+      "retentionDetail": "{{n}} waligundua katika siku 30 za mwisho",
+      "tenure": "Muda Wastani wa Kuishi",
+      "tenureDetail": "Wa directs wanaopokea kwa sasa"
     },
     "stream": {
-      "membership": "Membership",
+      "membership": "Uanachama",
       "grid": "Grid",
-      "course": "Course",
+      "course": "Kozi",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "Mapato ya mwezi huu",
+    "streamCompareSubtitle": "katika mito yote 4",
+    "upgradeEyebrow": "Uko kwenye Basic",
+    "upgradeTitle": "Boresha hadi Pro kupata $17.50 kwa kila direct",
+    "upgradeDesc": "Kama mwanachama wa Basic kwa sasa unapata $10/mo kwa kila direct. Wanachama wa Pro wanapata $17.50/mo kwa kila direct — kuongeza mishahara ya 75% katika kila tukio na baada ya hilo. Na sasa na {{n}} yako aktibiti hiyo ni +${{upside}}/mo haraka sana.",
+    "upgradeBtn": "Boresha sasa →"
   },
   "gridVis": {
     "title": "Income Grid",

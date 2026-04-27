@@ -3159,7 +3159,7 @@
     "t2Name": "LinkHub",
     "t2Desc": "<strong>رابط السيرة في رابط واحد</strong>. كل العروض والمنتجات ووسائل التواصل. سمات، معاينات حية، تتبع نقرات. بديل Stan Store — مجاني في Pro.",
     "t2Meta": "<strong>8</strong> سمات",
-    "t3Name": "Link Tools",
+    "t3Name": "أدوات الروابط",
     "t3Desc": "مختصِرات، <strong>مُدوِّرات، اختبارات مقسَّمة، سقف نقرات لكل رابط</strong>. رموز QR وتتبع بكسل على كل رابط. تمتلك بيانات الترافيك الخاصة بك.",
     "t3Meta": "تحليلات <strong>مباشرة</strong>",
     "t4Name": "SuperLeads · CRM",
@@ -3177,7 +3177,7 @@
     "lhLink3": "عني",
     "lhStatClicks": "نقرات",
     "lhStatClicksDelta": "↑ 12% هذا الأسبوع",
-    "lhStatCtr": "CTR",
+    "lhStatCtr": "معدل النقر",
     "lhStatCtrDelta": "↑ 2.1 نقطة",
     "ltRotating": "تدوير",
     "leadColLead": "ليد",
@@ -3194,132 +3194,132 @@
     "footerLine1": "سبع أدوات. منصة واحدة.",
     "footerLine2": "كل ما تحتاجه، ولا شيء مما لا تحتاجه.",
     "footerCta": "ابدأ الإنشاء",
-    "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "pageTitle": "الأدوات",
+    "heroEyebrow": "أدواتك",
+    "activeSince": "نشطة منذ",
+    "backToDashboard": "العودة إلى لوحة التحكم",
+    "scrollLeft": "التمرير لليسار",
+    "scrollRight": "التمرير لليمين",
+    "locked": "مقفلة",
+    "categoriesSection": "فئات أدواتك",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
-      "basic": "Basic Membership",
-      "pro": "Pro Membership"
+      "overview": "نظرة عامة",
+      "free": "أدوات مجانية",
+      "basic": "عضوية أساسية",
+      "pro": "عضوية Pro"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "مفتوح للجميع",
+        "title": "أدوات مجانية",
+        "desc": "منشئ البانرات، منشئ الميمز، مولد رمز QR. أدوات جذب العملاء المحتملين التي يمكنك استخدامها في أي وقت.",
+        "count": "3 أدوات"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "الخطة الأساسية وما فوقها",
+        "eyebrowLocked": "ترقية لفتح الميزات",
+        "title": "أدوات العضوية الأساسية",
+        "desc": "Creative Studio، Content Creator، LinkHub، Link Tools، SuperDeck. أدوات البناء اليومية.",
+        "count": "5 أدوات",
+        "countLocked": "5 أدوات · مقفلة"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "خطة Pro مفتوحة",
+        "eyebrowLocked": "ترقية لفتح الميزات",
+        "title": "أدوات عضوية Pro",
+        "desc": "SuperPages، AutoResponder، Lead Finder، Niche Finder، ProSeller. أدوات نمو الأعمال الجادة.",
+        "count": "5 أدوات",
+        "countLocked": "5 أدوات · مقفلة"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "فتح",
+      "upgrade": "ترقية"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "أدوات مجانية · متاحة للجميع",
+      "basicUnlocked": "أدوات العضوية الأساسية · 5 أدوات مفتوحة بـ $20/شهر",
+      "basicLocked": "أدوات العضوية الأساسية · ترقية للفتح",
+      "proUnlocked": "أدوات العضوية Pro · 5 أدوات مفتوحة بـ $97/شهر",
+      "proLocked": "أدوات العضوية Pro · ترقية للفتح"
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "name": "منشئ البنرات",
+        "desc": "بنرات وصور ملف شخصي تم إنشاؤها بالذكاء الاصطناعي لمنصات التواصل الاجتماعي."
       },
       "meme": {
-        "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "name": "منشئ الميمز",
+        "desc": "قوالب سريعة وصور فيروسية للميمز."
       },
       "qr": {
-        "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "name": "منشئ رمز QR",
+        "desc": "رموز QR مخصصة لأي رابط. قابلة للتتبع."
       },
-      "pageTitle": "Free Tools"
+      "pageTitle": "أدوات مجانية"
     },
     "basic": {
       "studio": {
-        "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "name": "استوديو الإبداع",
+        "desc": "صور وفيديو وموسيقى وتعليق صوتي وتزامن شفاه وكاتب اختيار بالذكاء الاصطناعي. قوتك الإبداعية."
       },
       "content": {
-        "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "name": "منشئ المحتوى",
+        "desc": "منشورات وموضوعات وتعليقات وسيناريوهات مكتوبة بالذكاء الاصطناعي."
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "صفحة بنمط Linktree تستضيف جميع روابطك في مكان واحد."
       },
       "links": {
-        "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "name": "أدوات الروابط",
+        "desc": "مختصرات وأداة إخفاء وتتبع البكسل وإعادة التوجيه A/B."
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "منشئ عروض توضيحية بالذكاء الاصطناعي بـ 18 خطاً ووضع العرض."
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "الأدوات الأساسية"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "منشئ صفحات هبوط بسحب وإفلات. مستضاف وجاهز للجوال وموجه نحو التحويل."
       },
       "auto": {
-        "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "name": "المستجيب التلقائي",
+        "desc": "تسلسلات البريد الإلكتروني والبث والعناية بالعملاء المتوقعين. مدعوم من Brevo."
       },
       "leads": {
-        "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "name": "مكتشف العملاء المتوقعين",
+        "desc": "مكتشف العملاء والمتوقعين في الويب والشركات المحلية بقوة Outscraper."
       },
       "niche": {
-        "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "name": "مكتشف المجال",
+        "desc": "اكتشف المزيد من النوافذ غير المستغلة باستخدام تحليل مدعوم بالذكاء الاصطناعي."
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "مدرب مبيعات AI شخصي. الاستراتيجية والنسخ ومعالجة الاعتراضات."
       },
       "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "ترقية الآن",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "فتح 5 أدوات بناء",
+        "title": "الترقية إلى عضوية Basic",
+        "desc": "كل ما تحتاجه لإنشاء محتوى لعملك: صور وفيديو بالذكاء الاصطناعي والمحتوى المكتوب وإدارة الروابط والعروض التقديمية."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "فتح 5 أدوات احترافية إضافية",
+        "title": "الترقية إلى عضوية Pro",
+        "desc": "احصل على مجموعة أدوات نمو العمل الجادة: صفحات هبوط مستضافة وأتمتة البريد الإلكتروني والعثور على العملاء المحتملين وتحليل المجالات وتدريب مبيعات AI."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "العودة إلى الأدوات",
+    "yourReferralLink": "رابط الإحالة الخاص بك",
+    "copy": "نسخ",
+    "copied": "تم النسخ!"
   },
   "explore": {
     "navHome": "الرئيسية",
@@ -3950,73 +3950,73 @@
     "reengagement_lapsed_message": "شبكتك وأرباحك لا تزال هنا في انتظارك. اضغط أدناه للتفعيل من جديد."
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "الدخل",
+    "heroEyebrow": "دخلك",
+    "activeSince": "نشط منذ",
+    "backToDashboard": "العودة إلى لوحة التحكم",
+    "scrollLeft": "التمرير لليسار",
+    "scrollRight": "التمرير لليمين",
+    "earningsSection": "أرباحك",
+    "streamsSection": "مجاري دخلك الأربعة",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
-      "compPlan": "Comp Plan",
-      "membership": "Membership",
-      "grid": "Campaign Grid",
+      "overview": "نظرة عامة",
+      "wallet": "المحفظة",
+      "compPlan": "خطة العمولة",
+      "membership": "العضوية",
+      "grid": "شبكة الحملات",
       "nexus": "Profit Nexus",
-      "courses": "Course Academy",
-      "history": "Earnings History"
+      "courses": "أكاديمية الدورات",
+      "history": "سجل الأرباح"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "متاح",
+      "availableCaption": "في محفظتك الآن",
+      "thisMonth": "هذا الشهر",
+      "thisMonthCaption": "عمولات مكتسبة هذا الشهر",
+      "nextPayout": "الدفعة التالية",
+      "nextPayoutValue": "عند الطلب",
+      "nextPayoutCaption": "سحب العملات المشفرة في أي وقت",
+      "allTime": "طوال الوقت",
+      "allTimeCaption": "إجمالي الأرباح مدى الحياة",
+      "allTimeCaptionSince": "منذ {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "نشط",
+      "tier": "نشط",
+      "available": "متاح"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "المباشرون يدفعون",
+      "team": "في فريقك",
+      "earnedAllTime": "أرباح الكل الوقت"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
-      "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "membership": "راعي العضوية",
+      "membershipSub": "25% على رسوم العضو المباشر الشهرية",
+      "membershipDormant": "شارك رابطك لتفعيل أسهل تدفق — يتم الدفع كل شهر يبقون فيه.",
+      "grid": "شبكة مستوى الحملة",
+      "gridSub": "مصفوفة 8×8 قسرية · أعلن واكسب",
+      "gridDormant": "اشتر مستوى Grid للإعلان والكسب من مصفوفة 8×8 الإضافية.",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
-      "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "nexusSub": "مصفوفة رصيد 3×3 · عمولات متتالية",
+      "nexusDormant": "اشتر حزمة رصيد لتأخذ موضعك في مصفوفة 3×3.",
+      "courses": "أكاديمية الدورات",
+      "coursesSub": "عمولات Pass-up · عمق لا نهائي",
+      "coursesDormant": "اشتر مستوى دورة للتأهل للعمولات من الخط الأعلى على كل عملية بيع."
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
-      "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "myReferrals": "إحالاتي",
+      "shareLink": "احصل على رابط المشاركة",
+      "compPlan": "خطة التعويض",
+      "myGrid": "شبكتي",
+      "watchAds": "شاهد الإعلانات",
+      "calculator": "حاسبة",
+      "upgradeTier": "ترقية المستوى",
+      "buyCredits": "شراء أرصدة",
+      "myNexus": "Nexus الخاص بي",
+      "howItWorks": "كيف يعمل",
+      "browseCourses": "استعرض الدورات",
+      "passUp": "كيف يعمل Pass-up"
     }
   },
   "learn": {
@@ -4105,71 +4105,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "تدفق العضويات",
+    "backToIncome": "العودة إلى الدخل",
+    "earningsSection": "أرباحك من العضويات",
+    "qualitySection": "مقاييس الجودة — هل تبني عملاً حقيقياً؟",
+    "streamSection": "مقارنة العضويات بمصادر دخلك الأخرى",
+    "upgradeSection": "ترقية عضويتك · اكسب أكثر من كل مرجع مباشر",
+    "errorLoading": "تعذر تحميل بيانات العضويات. يرجى المحاولة مرة أخرى.",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "الإجمالي المكتسب مدى الحياة",
+      "lifetimeSub": "منذ انضممت {{date}}",
+      "lifetimeSubEmpty": "التحديثات بعد عمولتك الأولى",
+      "thisMonth": "هذا الشهر",
+      "thisMonthSub": "يدفعه {{n}} مراجع مباشر نشط",
+      "thisMonthSubEmpty": "فوري عند استلام العمولات",
+      "mrr": "إجمالي الإيرادات الشهرية الحالي",
+      "mrrSub": "دخل شهري متكرر مضمون",
+      "mrrSubEmpty": "الدخل الشهري المتكرر",
+      "projection": "التوقع التالي",
+      "projectionSubEmpty": "بناءً على المراجع المباشرة النشطة لديك"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "مرجعك المباشر الأول بعيد جداً عن مشاركة واحدة فقط",
+    "coachingSub": "كل عضو Pro تحيله إليك يدفع لك 17.50 دولار/شهر طالما بقي. 5 مراجع = 87.50 دولار كل شهر، تلقائياً. دعنا نحصل على الأول.",
+    "openSocialShare": "فتح مشاركة الشراكة",
+    "copyReferralLink": "نسخ رابط الإحالة",
+    "linkCopied": "تم النسخ!",
+    "firstStepsSection": "خطواتك الثلاث الأولى للحصول على أول عمولة",
+    "step1Title": "اجعل رابطك سهل البحث عنه",
+    "step1Desc": "أنشئ صفحة LinkHub الخاصة بك بحيث يؤدي أي مكان تنشر رابطك فيه — السيرة الذاتية، الملف الشخصي، التوقيع — إلى صفحة رائعة واحدة.",
+    "step1Cta": "إعداد LinkHub →",
+    "step2Title": "شارك مع أدفأ 5 أشخاص",
+    "step2Desc": "لا تبث — ابدأ بـ 5 أشخاص سيستفيدون حقاً. رسائل مكتوبة مسبقاً في Email Swipes.",
+    "step2Cta": "عرض Email Swipes →",
+    "step3Title": "أسقط منشور مشاركة اجتماعية",
+    "step3Desc": "منشور واحد، وصول كبير. نصوص مُولّدة بالذكاء الاصطناعي بـ 4 أنماط (احترافي / غير رسمي / متحمس / قصة).",
+    "step3Cta": "فتح المشاركة الاجتماعية →",
+    "quickMathTitle": "حساب سريع",
+    "quickMathText": "10 توصيات Pro = 175 دولار/شهر مضمون · 50 توصية Pro = 875 دولار/شهر · 100 توصية Pro = 1,750 دولار/شهر. هذا يتراكم شهراً بعد شهر، تلقائياً.",
+    "encourageEyebrow": "أنت تبني زخماً",
+    "encourageTitle": "لديك {{n}} توصية — دعنا نصل إلى {{target}}",
+    "encourageSub": "{{target}} توصية دفع تعني دخلاً متكررًا حقيقياً. استمر في فعل ما ينجح — شارك رابطك مع {{remaining}} شخصاً آخر هذا الأسبوع.",
+    "handoffTitle": "انظر إلى توصياتك المباشرة بالتفصيل",
+    "handoffTitle5plus": "إدارة {{n}} من توصياتك المباشرة",
+    "handoffSub": "الحالة والأسماء والبث والإجراءات إعادة التفاعل تعيش في مركز القيادة الخاص بك.",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "معدل التفعيل",
+      "activationHeadline": "{{paid}} من {{total}} مدفوع",
+      "activationDetail": "الأعضاء الذين أصبحوا مدفوعين بعد التسجيل",
+      "retention": "معدل الاحتفاظ",
+      "retentionHeadline": "{{active}} من {{paid}} لا يزالون يدفعون",
+      "retentionDetail": "{{n}} انقطع في آخر 30 يوم",
+      "tenure": "متوسط الفترة",
+      "tenureDetail": "من التوصيات المدفوعة الحالية"
     },
     "stream": {
-      "membership": "Membership",
-      "grid": "Grid",
-      "course": "Course",
-      "nexus": "Nexus"
+      "membership": "العضوية",
+      "grid": "شبكة",
+      "course": "دورة",
+      "nexus": "نيكسس"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "أرباح هذا الشهر",
+    "streamCompareSubtitle": "عبر جميع الـ 4 مسارات",
+    "upgradeEyebrow": "أنت على Basic",
+    "upgradeTitle": "ارقَ إلى Pro واحصل على 17.50 دولار لكل توصية",
+    "upgradeDesc": "كعضو Basic أنت تكسب حالياً 10 دولار/شهر لكل توصية. أعضاء Pro يكسبون 17.50 دولار/شهر لكل توصية — زيادة راتب بنسبة 75٪ في كل توصية موجودة ومستقبلية. مع {{n}} نشيط حالياً ذلك +${{upside}}/شهر على الفور.",
+    "upgradeBtn": "ارقَ الآن →"
   },
   "gridVis": {
     "title": "Income Grid",

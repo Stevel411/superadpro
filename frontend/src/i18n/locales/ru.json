@@ -3156,7 +3156,7 @@
     "studioTabImages": "Изображения",
     "studioTabMusic": "Музыка",
     "studioTabVoice": "Озвучка",
-    "studioTabLipSync": "Lip Sync",
+    "studioTabLipSync": "Синхронизация губ",
     "studioTabGallery": "Галерея",
     "studioPrompt": "Кинематографичный закат над Токио, плёночное зерно",
     "studioFooterModel": "flux-pro · по 4 секунды",
@@ -3202,132 +3202,132 @@
     "footerLine1": "Семь инструментов. Одна платформа.",
     "footerLine2": "Всё, что нужно, и ничего лишнего.",
     "footerCta": "Начать создавать",
-    "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "pageTitle": "Инструменты",
+    "heroEyebrow": "Ваши инструменты",
+    "activeSince": "Активен с",
+    "backToDashboard": "Вернуться на панель",
+    "scrollLeft": "Прокрутить влево",
+    "scrollRight": "Прокрутить вправо",
+    "locked": "Заблокировано",
+    "categoriesSection": "Ваши категории инструментов",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
+      "overview": "Обзор",
+      "free": "Бесплатные инструменты",
       "basic": "Basic Membership",
       "pro": "Pro Membership"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "Доступно всем",
+        "title": "Бесплатные инструменты",
+        "desc": "Banner Creator, Meme Generator, QR Generator. Инструменты для привлечения лидов, доступные в любое время.",
+        "count": "3 инструмента"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Basic план и выше",
+        "eyebrowLocked": "Обновите, чтобы разблокировать",
+        "title": "Инструменты Basic Membership",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Инструменты для ежедневного создания контента.",
+        "count": "5 инструментов",
+        "countLocked": "5 инструментов · заблокировано"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Pro план разблокирован",
+        "eyebrowLocked": "Обновите, чтобы разблокировать",
+        "title": "Инструменты Pro Membership",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Инструменты для роста бизнеса.",
+        "count": "5 инструментов",
+        "countLocked": "5 инструментов · заблокировано"
       },
-      "open": "Open",
+      "open": "Открыть",
       "upgrade": "Upgrade"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Free Tools · доступно всем",
+      "basicUnlocked": "Basic Membership Tools · 5 инструментов разблокировано за $20/мес",
+      "basicLocked": "Basic Membership Tools · upgrade для разблокировки",
+      "proUnlocked": "Pro Membership Tools · 5 инструментов разблокировано за $97/мес",
+      "proLocked": "Pro Membership Tools · upgrade для разблокировки"
     },
     "free": {
       "banner": {
         "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "desc": "AI-генерируемые баннеры и изображения профиля для социальных платформ."
       },
       "meme": {
         "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "desc": "Быстрые шаблонные мемы и вирусные изображения."
       },
       "qr": {
         "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "desc": "Пользовательские QR-коды для любой ссылки. Отслеживаемые."
       },
       "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
         "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "desc": "AI изображения, видео, музыка, закадровый голос, лип-синк, субтитры. Ваша творческая электростанция."
       },
       "content": {
         "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "desc": "AI-написанные посты, статьи, подписи, сценарии."
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Страница в стиле Linktree со всеми вашими ссылками в одном месте."
       },
       "links": {
         "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "desc": "Сокращатели, маскировщики, пиксель-трекинг, A/B редирект."
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "AI построитель презентаций с 18 шрифтами и режимом презентации."
       },
       "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "Конструктор целевых страниц с перетаскиванием. Размещение, мобильность, ориентация на конверсию."
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "Почтовые последовательности, рассылки, воспитание лидов. На базе Brevo."
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "Поиск локальных компаний и веб-перспектив на базе Outscraper."
       },
       "niche": {
-        "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "name": "Поиск ниш",
+        "desc": "Откройте недостаточно развитые ниши с помощью AI-анализа."
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "Персональный AI-помощник по продажам. Стратегия, копирайтинг, возражения."
       },
-      "pageTitle": "Pro Tools"
+      "pageTitle": "Pro инструменты"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "Обновить сейчас",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "Разблокировать 5 инструментов",
+        "title": "Обновить до Basic Membership",
+        "desc": "Всё необходимое для создания контента: AI-изображения и видео, текстовый контент, управление ссылками, презентации."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "Разблокировать 5 дополнительных pro-инструментов",
+        "title": "Обновить до Pro Membership",
+        "desc": "Полный набор инструментов для роста бизнеса: landing pages, email-автоматизация, поиск клиентов, анализ ниш, AI-коучинг по продажам."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Вернуться к инструментам",
+    "yourReferralLink": "Ваша реферальная ссылка",
+    "copy": "Копировать",
+    "copied": "Скопировано!"
   },
   "explore": {
     "navHome": "Главная",
@@ -4113,71 +4113,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "Поток подписок",
+    "backToIncome": "Вернуться к доходам",
+    "earningsSection": "Ваши доходы от подписок",
+    "qualitySection": "Метрики качества — создаёте ли вы реальный бизнес?",
+    "streamSection": "Сравнение подписок с другими источниками дохода",
+    "upgradeSection": "Повысьте доход от подписок · зарабатывайте больше с каждого прямого реферала",
+    "errorLoading": "Не удалось загрузить данные подписок. Попробуйте ещё раз.",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "Всего заработано",
+      "lifetimeSub": "с {{date}}",
+      "lifetimeSubEmpty": "Обновляется после вашей первой комиссии",
+      "thisMonth": "В этом месяце",
+      "thisMonthSub": "выплачено {{n}} активными рефералами",
+      "thisMonthSubEmpty": "В реальном времени по мере получения комиссий",
+      "mrr": "Текущий MRR",
+      "mrrSub": "гарантированный ежемесячный повторяющийся доход",
+      "mrrSubEmpty": "Ежемесячный повторяющийся доход",
+      "projection": "Прогноз на следующий месяц",
+      "projectionSubEmpty": "На основе ваших активных рефералов"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "Ваш первый реферал всего в одной ссылке от вас",
+    "coachingSub": "Каждый Pro-участник, которого вы привлечёте, платит вам $17.50/месяц столько, сколько останется. 5 рефералов = $87.50 каждый месяц, автоматически. Давайте получим вашего первого.",
+    "openSocialShare": "Открыть ссылку реферала",
+    "copyReferralLink": "Скопировать реферальную ссылку",
+    "linkCopied": "Скопировано!",
+    "firstStepsSection": "Первые 3 шага к вашей первой комиссии",
+    "step1Title": "Сделайте вашу ссылку легко найти",
+    "step1Desc": "Настройте страницу LinkHub, чтобы везде, где вы размещаете ссылку — в био, профиль, подпись — она вела на одну красивую страницу.",
+    "step1Cta": "Настроить LinkHub →",
+    "step2Title": "Поделитесь с вашей ближайшей пятёркой",
+    "step2Desc": "Не рассылайте всем — начните с 5 человек, которым это действительно пригодится. Готовые сообщения в Email Swipes.",
+    "step2Cta": "Просмотреть Email Swipes →",
+    "step3Title": "Поделитесь постом в соцсетях",
+    "step3Desc": "Один пост, большой охват. AI-генерированный текст в 4 стилях (профессиональный / casual / hype / story).",
+    "step3Cta": "Открыть Social Share →",
+    "quickMathTitle": "Быстрый расчёт",
+    "quickMathText": "10 Pro directs = $175/mo гарантированно · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. Это растёт месяц за месяцем автоматически.",
+    "encourageEyebrow": "Вы набираете обороты",
+    "encourageTitle": "У вас {{n}} directs — давайте дойдём до {{target}}",
+    "encourageSub": "{{target}} платящих directs — это реальный постоянный доход. Продолжайте делать то, что работает — поделитесь своей ссылкой ещё с {{remaining}} людьми на этой неделе.",
+    "handoffTitle": "Подробнее о ваших прямых рефералах",
+    "handoffTitle5plus": "Управляйте {{n}} прямыми рефералами",
+    "handoffSub": "Статус, имена, отправка рассылок и действия по переактивации — всё в вашем Command Centre.",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "Уровень активации",
+      "activationHeadline": "{{paid}} из {{total}} платящих",
+      "activationDetail": "Члены, ставшие платящими после регистрации",
+      "retention": "Уровень удержания",
+      "retentionHeadline": "{{active}} из {{paid}} продолжают платить",
+      "retentionDetail": "{{n}} неактивных за последние 30 дней",
+      "tenure": "Среднее время участия",
+      "tenureDetail": "Среди текущих платящих directs"
     },
     "stream": {
-      "membership": "Membership",
+      "membership": "Членство",
       "grid": "Grid",
       "course": "Course",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "Заработки в этом месяце",
+    "streamCompareSubtitle": "по всем 4 источникам",
+    "upgradeEyebrow": "Вы на плане Basic",
+    "upgradeTitle": "Перейдите на Pro и зарабатывайте $17.50 на каждого direct",
+    "upgradeDesc": "Как член Basic вы сейчас зарабатываете $10/мес на каждого direct. Pro члены зарабатывают $17.50/мес на каждого direct — это повышение на 75% для каждого текущего и будущего реферала. С вашими {{n}} активными это +${{upside}}/мес сразу.",
+    "upgradeBtn": "Перейти на Pro →"
   },
   "gridVis": {
     "title": "Income Grid",

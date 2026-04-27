@@ -3127,7 +3127,7 @@
     "navExplore": "Galugarin"
   },
   "tools": {
-    "navHome": "Home",
+    "navHome": "Tahanan",
     "navHow": "Paano ito gumagana",
     "navIncome": "Kita",
     "navSignin": "Mag-sign in",
@@ -3195,13 +3195,13 @@
     "footerLine2": "Lahat ng kailangan mo, walang hindi kailangan.",
     "footerCta": "Simulang gumawa",
     "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
+    "heroEyebrow": "Iyong Tools",
     "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
+    "backToDashboard": "Bumalik sa Dashboard",
+    "scrollLeft": "I-scroll pakaliwa",
+    "scrollRight": "I-scroll pakanan",
     "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "categoriesSection": "Iyong tool categories",
     "tabs": {
       "overview": "Overview",
       "free": "Free Tools",
@@ -3212,22 +3212,22 @@
       "free": {
         "eyebrow": "Open to everyone",
         "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
+        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools na maaari mong gamitin anumang oras.",
         "count": "3 tools"
       },
       "basic": {
         "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
+        "eyebrowLocked": "Mag-upgrade upang i-unlock",
         "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Pang-araw-araw na tools sa pagbuo.",
         "count": "5 tools",
         "countLocked": "5 tools · locked"
       },
       "pro": {
         "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
+        "eyebrowLocked": "Upgrade para i-unlock",
         "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Seryosong tools para sa paglaki ng negosyo.",
         "count": "5 tools",
         "countLocked": "5 tools · locked"
       },
@@ -3235,31 +3235,31 @@
       "upgrade": "Upgrade"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Free Tools · bukas para sa lahat",
+      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked sa $20/mo",
+      "basicLocked": "Basic Membership Tools · upgrade para i-unlock",
+      "proUnlocked": "Pro Membership Tools · 5 tools unlocked sa $97/mo",
+      "proLocked": "Pro Membership Tools · upgrade para i-unlock"
     },
     "free": {
       "banner": {
         "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "desc": "AI-generated na banners at profile images para sa social platforms."
       },
       "meme": {
         "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "desc": "Mabilis na template-based memes at viral images."
       },
       "qr": {
         "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "desc": "Custom QR codes para sa anumang link. Trackable."
       },
       "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
         "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "desc": "AI image, video, music, voiceover, lipsync, captions. Ang iyong creative powerhouse."
       },
       "content": {
         "name": "Content Creator",
@@ -3267,7 +3267,7 @@
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Linktree-style na page na nag-host ng lahat ng iyong links sa isang lugar."
       },
       "links": {
         "name": "Link Tools",
@@ -3275,7 +3275,7 @@
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "AI presentation builder na may 18 fonts at present mode."
       },
       "pageTitle": "Basic Tools"
     },
@@ -3290,11 +3290,11 @@
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "Outscraper-powered local business at web prospect finder."
       },
       "niche": {
         "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "desc": "Discover under-served niches gamit ang AI-powered analysis."
       },
       "seller": {
         "name": "ProSeller",
@@ -3308,12 +3308,12 @@
       "basic": {
         "eyebrow": "Unlock 5 building tools",
         "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "desc": "Lahat ng kailangan mo para lumikha ng content para sa iyong business: AI image at video, written content, link management, presentations."
       },
       "pro": {
         "eyebrow": "Unlock 5 more pro tools",
         "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "desc": "Kunin ang serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
       }
     },
     "backToTools": "Back to Tools",
@@ -4106,57 +4106,57 @@
   },
   "membership": {
     "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "backToIncome": "Bumalik sa Income",
+    "earningsSection": "Ang iyong Membership earnings",
+    "qualitySection": "Quality metrics — bumubuo ka ba ng tunay na negosyo?",
+    "streamSection": "Paano ang Membership ay sumusugal sa iyong ibang streams",
+    "upgradeSection": "I-upgrade ang iyong membership · kumita ng higit pa sa bawat direkta",
+    "errorLoading": "Hindi ma-load ang Membership data. Mangyaring subukan ulit.",
     "stat": {
       "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
+      "lifetimeSub": "mula nang sumali ka {{date}}",
+      "lifetimeSubEmpty": "Updates pagkatapos ng iyong unang commission",
+      "thisMonth": "Ngayong Buwan",
+      "thisMonthSub": "binayaran ng {{n}} aktibong directs",
+      "thisMonthSubEmpty": "Real-time habang dumarating ang commissions",
       "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
+      "mrrSub": "garantisadong monthly recurring",
       "mrrSubEmpty": "Recurring monthly income",
       "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "projectionSubEmpty": "Batay sa iyong aktibong directs"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
+    "coachingTitle": "Ang iyong unang direktang referral ay isang share lang ang layo",
+    "coachingSub": "Bawat Pro member na iyong ire-refer ay nagbabayad sa iyo ng $17.50/month habang sila ay nananatili. 5 directs = $87.50 bawat buwan, automatically. Kunin natin ang iyong unang isa.",
     "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "copyReferralLink": "Kopya ang referral link",
+    "linkCopied": "Kinopya!",
+    "firstStepsSection": "Ang iyong unang 3 hakbang tungo sa iyong unang commission",
+    "step1Title": "Gawing madaling hanapin ang iyong link",
+    "step1Desc": "I-set up ang iyong LinkHub page upang kahit saan mo i-post ang iyong link — bio, profile, signature — humantong sa isang magandang pahina.",
+    "step1Cta": "I-set up ang LinkHub →",
+    "step2Title": "Ibahagi sa iyong pinainit na 5",
+    "step2Desc": "Huwag mag-blast — magsimula sa 5 taong talagang makikinabang. Pre-written messages sa Email Swipes.",
+    "step2Cta": "Tingnan ang Email Swipes →",
+    "step3Title": "Magdrop ng social share post",
+    "step3Desc": "Isang post, malaking reach. AI-generated na copy sa 4 tones (professional / casual / hype / story).",
+    "step3Cta": "Buksan ang Social Share →",
+    "quickMathTitle": "Mabilis na math",
+    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. Ito ay compound month after month, automatically.",
+    "encourageEyebrow": "Bumubuo ka ng momentum",
+    "encourageTitle": "Mayroon kang {{n}} directs — puntahan natin ang {{target}}",
+    "encourageSub": "{{target}} paying directs ay nangangahulugan ng tunay na recurring income. Patuloy na gawin ang gumagana — ibahagi ang iyong link sa {{remaining}} pang tao ngayong linggo.",
+    "handoffTitle": "Tingnan ang iyong direct referrals nang detalyado",
+    "handoffTitle5plus": "Pamahalaan ang iyong {{n}} direct referrals",
+    "handoffSub": "Status, names, send broadcasts, at re-engagement actions ay live sa iyong Command Centre.",
     "metric": {
       "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
+      "activationHeadline": "{{paid}} ng {{total}} paid",
+      "activationDetail": "Members na naging paying pagkatapos mag-sign-up",
       "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
+      "retentionHeadline": "{{active}} ng {{paid}} pa ring paying",
+      "retentionDetail": "{{n}} lapsed sa nakaraang 30 days",
       "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "tenureDetail": "Ng currently-paying directs"
     },
     "stream": {
       "membership": "Membership",
@@ -4164,12 +4164,12 @@
       "course": "Course",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "Earnings ngayong buwan",
+    "streamCompareSubtitle": "sa lahat ng 4 streams",
+    "upgradeEyebrow": "Nandito ka sa Basic",
+    "upgradeTitle": "I-upgrade to Pro para kumita ng $17.50 per direct",
+    "upgradeDesc": "Bilang Basic member ikaw ay kumikita ng $10/mo per direct. Pro members ay kumikita ng $17.50/mo per direct — 75% pay raise sa bawat existing at future referral. Sa iyong current {{n}} actives iyan ay +${{upside}}/mo kaagad.",
+    "upgradeBtn": "I-upgrade na ngayon →"
   },
   "gridVis": {
     "title": "Income Grid",

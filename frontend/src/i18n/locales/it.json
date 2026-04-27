@@ -3203,131 +3203,131 @@
     "footerLine2": "Tutto ciò che serve, niente di più.",
     "footerCta": "Inizia a creare",
     "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "heroEyebrow": "I tuoi strumenti",
+    "activeSince": "Attivo da",
+    "backToDashboard": "Torna alla Dashboard",
+    "scrollLeft": "Scorri a sinistra",
+    "scrollRight": "Scorri a destra",
+    "locked": "Bloccato",
+    "categoriesSection": "Le tue categorie di strumenti",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
+      "overview": "Panoramica",
+      "free": "Strumenti Gratuiti",
       "basic": "Basic Membership",
       "pro": "Pro Membership"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "Aperto a tutti",
+        "title": "Strumenti Gratuiti",
+        "desc": "Banner Creator, Meme Generator, QR Generator. Strumenti lead-magnet che puoi usare in qualsiasi momento.",
+        "count": "3 strumenti"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Piano Basic e superiori",
+        "eyebrowLocked": "Esegui l'upgrade per sbloccare",
+        "title": "Strumenti Basic Membership",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Strumenti per la creazione quotidiana.",
+        "count": "5 strumenti",
+        "countLocked": "5 strumenti · bloccato"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Piano Pro sbloccato",
+        "eyebrowLocked": "Aggiorna per sbloccare",
+        "title": "Strumenti Pro Membership",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Strumenti seri per la crescita del business.",
+        "count": "5 strumenti",
+        "countLocked": "5 strumenti · bloccati"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "Apri",
+      "upgrade": "Aggiorna"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Strumenti Gratuiti · disponibili per tutti",
+      "basicUnlocked": "Strumenti Basic Membership · 5 strumenti sbloccati a $20/mese",
+      "basicLocked": "Strumenti Basic Membership · aggiorna per sbloccare",
+      "proUnlocked": "Strumenti Pro Membership · 5 strumenti sbloccati a $97/mese",
+      "proLocked": "Strumenti Pro Membership · aggiorna per sbloccare"
     },
     "free": {
       "banner": {
         "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "desc": "Banner e immagini di profilo generati da AI per social platform."
       },
       "meme": {
         "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "desc": "Meme e immagini virali basati su template rapidi."
       },
       "qr": {
         "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "desc": "Codici QR personalizzati per qualsiasi link. Tracciabili."
       },
-      "pageTitle": "Free Tools"
+      "pageTitle": "Strumenti Gratuiti"
     },
     "basic": {
       "studio": {
         "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "desc": "Immagini, video, musica, voiceover, lipsync, sottotitoli con AI. La tua centrale creativa."
       },
       "content": {
         "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "desc": "Post, articoli, caption e script scritti con AI."
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Pagina in stile Linktree che ospita tutti i tuoi link in un unico posto."
       },
       "links": {
         "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "desc": "Accorciatori, cloaker, pixel-tracking, redirect A/B."
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "Generatore di presentazioni con AI con 18 font e modalità presentazione."
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "Strumenti Basic"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "Generatore landing page drag-and-drop. Ospitato, responsive, focalizzato sulla conversione."
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "Sequenze email, broadcast, lead nurture. Powered by Brevo."
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "Prospect finder locale e web powered by Outscraper."
       },
       "niche": {
         "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "desc": "Scopri nicchie sottosviluppate con analisi AI."
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "Coach di vendita AI personale. Strategia, copy, gestione delle obiezioni."
       },
       "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "Upgrade ora",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "Sblocca 5 strumenti di creazione",
+        "title": "Upgrade a Basic Membership",
+        "desc": "Tutto ciò che serve per creare contenuti per il tuo business: immagini e video AI, contenuti scritti, gestione link, presentazioni."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "Sblocca 5 pro tools in più",
+        "title": "Upgrade a Pro Membership",
+        "desc": "Ottieni il toolkit serio per la crescita del business: landing page ospitate, automazione email, ricerca lead, analisi nicchia, coaching vendite AI."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Torna a Strumenti",
+    "yourReferralLink": "Il tuo link di referral",
+    "copy": "Copia",
+    "copied": "Copiato!"
   },
   "explore": {
     "navHome": "Home",
@@ -3958,73 +3958,73 @@
     "reengagement_lapsed_message": "La tua rete e i tuoi guadagni ti stanno ancora aspettando. Clicca qui sotto per riattivare."
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "Guadagni",
+    "heroEyebrow": "I tuoi guadagni",
+    "activeSince": "Attivo dal",
+    "backToDashboard": "Torna alla Dashboard",
+    "scrollLeft": "Scorri a sinistra",
+    "scrollRight": "Scorri a destra",
+    "earningsSection": "I tuoi guadagni",
+    "streamsSection": "I tuoi quattro flussi di reddito",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
-      "compPlan": "Comp Plan",
-      "membership": "Membership",
-      "grid": "Campaign Grid",
+      "overview": "Panoramica",
+      "wallet": "Portafoglio",
+      "compPlan": "Piano Compensi",
+      "membership": "Iscrizione",
+      "grid": "Griglia Campagne",
       "nexus": "Profit Nexus",
-      "courses": "Course Academy",
-      "history": "Earnings History"
+      "courses": "Accademia Corsi",
+      "history": "Storico Guadagni"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "Disponibile",
+      "availableCaption": "nel tuo portafoglio adesso",
+      "thisMonth": "Questo mese",
+      "thisMonthCaption": "commissioni guadagnate questo mese",
+      "nextPayout": "Prossimo pagamento",
+      "nextPayoutValue": "Su richiesta",
+      "nextPayoutCaption": "prelievo crypto in qualsiasi momento",
+      "allTime": "Da sempre",
+      "allTimeCaption": "guadagni a vita",
+      "allTimeCaptionSince": "dal {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "Attivo",
+      "tier": "Attivo",
+      "available": "Disponibile"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Diretti paganti",
+      "team": "Nel tuo team",
+      "earnedAllTime": "Guadagnato in totale"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
+      "membership": "Sponsore di iscrizione",
+      "membershipSub": "25% sulla quota mensile di ogni diretto",
+      "membershipDormant": "Condividi il tuo link per attivare il flusso più semplice — pagato ogni mese che rimangono.",
       "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "gridSub": "Matrice forzata 8×8 · pubblica + guadagna",
+      "gridDormant": "Acquista un tier Grid per pubblicare E guadagnare dallo spillover della matrice 8×8.",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
+      "nexusSub": "Matrice di crediti 3×3 · commissioni a cascata",
+      "nexusDormant": "Acquista un pacchetto di crediti per prendere la tua posizione nella matrice 3×3.",
       "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "coursesSub": "Commissioni pass-up · profondità infinita",
+      "coursesDormant": "Acquista un tier corso per qualificarti per i pass-up dell'upline su ogni vendita."
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
+      "myReferrals": "I miei referral",
+      "shareLink": "Ottieni link di condivisione",
+      "compPlan": "Piano di compensazione",
+      "myGrid": "Il mio Grid",
+      "watchAds": "Guarda annunci",
+      "calculator": "Calcolatore",
       "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
-      "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "buyCredits": "Acquista crediti",
+      "myNexus": "Il mio Nexus",
+      "howItWorks": "Come funziona",
+      "browseCourses": "Sfoglia corsi",
+      "passUp": "Come funziona il pass-up"
     }
   },
   "learn": {
@@ -4113,71 +4113,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "Flusso di Iscrizioni",
+    "backToIncome": "Torna a Guadagni",
+    "earningsSection": "I tuoi guadagni da Iscrizioni",
+    "qualitySection": "Metriche di qualità — stai costruendo un vero business?",
+    "streamSection": "Come Iscrizioni si confronta con i tuoi altri flussi",
+    "upgradeSection": "Upgrade la tua iscrizione · guadagna di più da ogni diretto",
+    "errorLoading": "Impossibile caricare i dati di Iscrizioni. Per favore riprova.",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "Guadagnato a Vita",
+      "lifetimeSub": "da quando ti sei iscritto {{date}}",
+      "lifetimeSubEmpty": "Aggiornamenti dopo la tua prima commissione",
+      "thisMonth": "Questo Mese",
+      "thisMonthSub": "pagato da {{n}} diretti attivi",
+      "thisMonthSubEmpty": "In tempo reale quando le commissioni arrivano",
+      "mrr": "MRR Attuale",
+      "mrrSub": "ricorrente mensile garantito",
+      "mrrSubEmpty": "Reddito ricorrente mensile",
+      "projection": "Prossima Proiezione",
+      "projectionSubEmpty": "Basato sui tuoi diretti attivi"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "Il tuo primo referral diretto è a soli una condivisione di distanza",
+    "coachingSub": "Ogni membro Pro che porti riceve $17.50/mese per tutto il tempo che rimangono. 5 diretti = $87.50 ogni mese, automaticamente. Iniziamo a ottenere il tuo primo.",
+    "openSocialShare": "Apri Condivisione Affiliate",
+    "copyReferralLink": "Copia link referral",
+    "linkCopied": "Copiato!",
+    "firstStepsSection": "I tuoi primi 3 step per la tua prima commissione",
+    "step1Title": "Rendi il tuo link facile da trovare",
+    "step1Desc": "Configura la tua pagina LinkHub in modo che ovunque pubblichi il tuo link — bio, profilo, firma — porti a una bella pagina.",
+    "step1Cta": "Configura LinkHub →",
+    "step2Title": "Condividi con i tuoi 5 più caldi",
+    "step2Desc": "Non fare spam — inizia con 5 persone che trarrebbero genuino beneficio. Messaggi pre-scritti in Email Swipes.",
+    "step2Cta": "Visualizza Email Swipes →",
+    "step3Title": "Condividi un post sui social",
+    "step3Desc": "Un post, grande portata. Testo generato dall'IA in 4 toni (professionale / informale / entusiasta / storia).",
+    "step3Cta": "Apri Social Share →",
+    "quickMathTitle": "Calcolo veloce",
+    "quickMathText": "10 Pro directs = $175/mese garantiti · 50 Pro directs = $875/mese · 100 Pro directs = $1.750/mese. Questo aumenta mese dopo mese, automaticamente.",
+    "encourageEyebrow": "Stai creando slancio",
+    "encourageTitle": "Hai {{n}} directs — arriviamo a {{target}}",
+    "encourageSub": "{{target}} directs paganti significa reddito ricorrente reale. Continua a fare quello che funziona — condividi il tuo link con {{remaining}} altre persone questa settimana.",
+    "handoffTitle": "Visualizza i tuoi referral diretti nel dettaglio",
+    "handoffTitle5plus": "Gestisci i tuoi {{n}} referral diretti",
+    "handoffSub": "Stato, nomi, invia broadcast e azioni di re-engagement live nel tuo Command Centre.",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "Tasso di Attivazione",
+      "activationHeadline": "{{paid}} di {{total}} paganti",
+      "activationDetail": "Membri che sono diventati paganti dopo la registrazione",
+      "retention": "Tasso di Retention",
+      "retentionHeadline": "{{active}} di {{paid}} ancora paganti",
+      "retentionDetail": "{{n}} scaduti negli ultimi 30 giorni",
+      "tenure": "Permanenza Media",
+      "tenureDetail": "Dei directs attualmente paganti"
     },
     "stream": {
-      "membership": "Membership",
-      "grid": "Grid",
-      "course": "Course",
+      "membership": "Iscrizione",
+      "grid": "Griglia",
+      "course": "Corso",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "Guadagni di questo mese",
+    "streamCompareSubtitle": "su tutti e 4 i flussi",
+    "upgradeEyebrow": "Sei su Basic",
+    "upgradeTitle": "Passa a Pro per guadagnare $17,50 per direct",
+    "upgradeDesc": "Come membro Basic attualmente guadagni $10/mese per direct. I membri Pro guadagnano $17,50/mese per direct — un aumento di stipendio del 75% su ogni referral esistente e futuro. Con i tuoi attuali {{n}} attivi sono +${{upside}}/mese subito.",
+    "upgradeBtn": "Upgrade ora →"
   },
   "gridVis": {
     "title": "Income Grid",

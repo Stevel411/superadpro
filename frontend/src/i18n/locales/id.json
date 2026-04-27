@@ -3195,13 +3195,13 @@
     "footerLine2": "Semua yang Anda butuhkan, tidak ada yang tidak.",
     "footerCta": "Mulai membuat",
     "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "heroEyebrow": "Tools Anda",
+    "activeSince": "Aktif sejak",
+    "backToDashboard": "Kembali ke Dashboard",
+    "scrollLeft": "Geser ke kiri",
+    "scrollRight": "Geser ke kanan",
+    "locked": "Terkunci",
+    "categoriesSection": "Kategori tool Anda",
     "tabs": {
       "overview": "Overview",
       "free": "Free Tools",
@@ -3210,116 +3210,116 @@
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
+        "eyebrow": "Terbuka untuk semua orang",
         "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
+        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools yang bisa Anda gunakan kapan saja.",
         "count": "3 tools"
       },
       "basic": {
         "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
+        "eyebrowLocked": "Upgrade untuk membuka",
         "title": "Basic Membership Tools",
         "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
         "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "countLocked": "5 tools · terkunci"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
+        "eyebrowOpen": "Pro plan dibuka",
+        "eyebrowLocked": "Upgrade untuk membuka",
         "title": "Pro Membership Tools",
         "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
         "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "countLocked": "5 tools · terkunci"
       },
-      "open": "Open",
+      "open": "Buka",
       "upgrade": "Upgrade"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Free Tools · terbuka untuk semua orang",
+      "basicUnlocked": "Basic Membership Tools · 5 tools dibuka dengan $20/bln",
+      "basicLocked": "Basic Membership Tools · upgrade untuk membuka",
+      "proUnlocked": "Pro Membership Tools · 5 tools dibuka dengan $97/bln",
+      "proLocked": "Pro Membership Tools · upgrade untuk membuka"
     },
     "free": {
       "banner": {
         "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "desc": "Banner dan gambar profil yang dihasilkan AI untuk platform media sosial."
       },
       "meme": {
         "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "desc": "Meme dan gambar viral berbasis template yang cepat."
       },
       "qr": {
         "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "desc": "Kode QR khusus untuk tautan apa pun. Dapat dilacak."
       },
       "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
         "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "desc": "Gambar, video, musik, voiceover, lipsync, caption AI. Pusat kreativitas Anda."
       },
       "content": {
         "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "desc": "Postingan, artikel, caption, skrip yang ditulis AI."
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Halaman gaya Linktree yang mengumpulkan semua tautan Anda di satu tempat."
       },
       "links": {
         "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "desc": "Shortener, cloaker, pixel-tracking, A/B redirect."
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "Pembuat presentasi AI dengan 18 font dan mode presentasi."
       },
       "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "Pembuat landing page drag-and-drop. Hosted, mobile-ready, conversion-focused."
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "Urutan email, siaran, nurtur prospek. Didukung oleh Brevo."
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "Pencari prospek bisnis lokal dan web yang didukung Outscraper."
       },
       "niche": {
         "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "desc": "Temukan niche yang kurang terlayani dengan analisis bertenaga AI."
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "Pelatih penjualan AI pribadi. Strategi, copy, penanganan keberatan."
       },
       "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "Upgrade sekarang",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "Buka kunci 5 alat pembangun",
+        "title": "Upgrade ke Keanggotaan Basic",
+        "desc": "Semua yang Anda butuhkan untuk membuat konten untuk bisnis Anda: gambar dan video AI, konten tertulis, manajemen tautan, presentasi."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "Buka kunci 5 pro tools lagi",
+        "title": "Upgrade ke Keanggotaan Pro",
+        "desc": "Dapatkan toolkit pertumbuhan bisnis serius: landing page yang dihosting, otomasi email, pencarian prospek, analisis niche, pelatihan penjualan AI."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Kembali ke Tools",
+    "yourReferralLink": "Tautan rujukan Anda",
+    "copy": "Salin",
+    "copied": "Disalin!"
   },
   "explore": {
     "navHome": "Beranda",
@@ -3950,73 +3950,73 @@
     "reengagement_lapsed_message": "Jaringan dan penghasilan Anda masih menunggu. Klik di bawah untuk mengaktifkan kembali."
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "Pendapatan",
+    "heroEyebrow": "Pendapatan Anda",
+    "activeSince": "Aktif sejak",
+    "backToDashboard": "Kembali ke Dashboard",
+    "scrollLeft": "Gulir ke kiri",
+    "scrollRight": "Gulir ke kanan",
+    "earningsSection": "Penghasilan Anda",
+    "streamsSection": "Empat aliran pendapatan Anda",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
-      "compPlan": "Comp Plan",
-      "membership": "Membership",
+      "overview": "Ikhtisar",
+      "wallet": "Dompet",
+      "compPlan": "Rencana Komisi",
+      "membership": "Keanggotaan",
       "grid": "Campaign Grid",
       "nexus": "Profit Nexus",
       "courses": "Course Academy",
-      "history": "Earnings History"
+      "history": "Riwayat Penghasilan"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "Tersedia",
+      "availableCaption": "di dompet Anda sekarang",
+      "thisMonth": "Bulan ini",
+      "thisMonthCaption": "komisi yang diperoleh bulan ini",
+      "nextPayout": "Pembayaran berikutnya",
+      "nextPayoutValue": "Atas permintaan",
+      "nextPayoutCaption": "penarikan crypto kapan saja",
+      "allTime": "Sepanjang waktu",
+      "allTimeCaption": "penghasilan seumur hidup",
+      "allTimeCaptionSince": "sejak {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "Aktif",
+      "tier": "Aktif",
+      "available": "Tersedia"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Directs membayar",
+      "team": "Di tim Anda",
+      "earnedAllTime": "Diperoleh selamanya"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
+      "membership": "Sponsor Keanggotaan",
+      "membershipSub": "25% dari biaya bulanan setiap direct",
+      "membershipDormant": "Bagikan link Anda untuk mengaktifkan aliran termudah — dibayar setiap bulan mereka tetap.",
       "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "gridSub": "Matriks paksa 8×8 · iklankan + hasilkan",
+      "gridDormant": "Beli tier Grid untuk beriklan DAN hasilkan dari matriks spillover 8×8.",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
+      "nexusSub": "Matriks kredit 3×3 · komisi berjenjang",
+      "nexusDormant": "Beli paket kredit untuk mengambil posisi Anda di matriks 3×3.",
       "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "coursesSub": "Komisi pass-up · kedalaman tak terbatas",
+      "coursesDormant": "Beli tier kursus untuk memenuhi syarat pass-up upline pada setiap penjualan."
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
-      "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "myReferrals": "Referral saya",
+      "shareLink": "Dapatkan link berbagi",
+      "compPlan": "Rencana kompensasi",
+      "myGrid": "Grid saya",
+      "watchAds": "Tonton iklan",
+      "calculator": "Kalkulator",
+      "upgradeTier": "Tingkatkan tier",
+      "buyCredits": "Beli kredit",
+      "myNexus": "Nexus saya",
+      "howItWorks": "Cara kerjanya",
+      "browseCourses": "Jelajahi kursus",
+      "passUp": "Cara kerja pass-up"
     }
   },
   "learn": {
@@ -4105,71 +4105,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "Aliran Keanggotaan",
+    "backToIncome": "Kembali ke Pendapatan",
+    "earningsSection": "Penghasilan Keanggotaan Anda",
+    "qualitySection": "Metrik kualitas — apakah Anda membangun bisnis yang nyata?",
+    "streamSection": "Bagaimana Keanggotaan dibandingkan dengan aliran lainnya",
+    "upgradeSection": "Tingkatkan keanggotaan Anda · dapatkan lebih banyak dari setiap referral langsung",
+    "errorLoading": "Tidak dapat memuat data Keanggotaan. Silakan coba lagi.",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "Penghasilan Seumur Hidup",
+      "lifetimeSub": "sejak Anda bergabung {{date}}",
+      "lifetimeSubEmpty": "Pembaruan setelah komisi pertama Anda",
+      "thisMonth": "Bulan Ini",
+      "thisMonthSub": "dibayar oleh {{n}} referral aktif",
+      "thisMonthSubEmpty": "Real-time saat komisi diterima",
+      "mrr": "MRR Saat Ini",
+      "mrrSub": "pendapatan berulang bulanan terjamin",
+      "mrrSubEmpty": "Pendapatan berulang bulanan",
+      "projection": "Proyeksi Berikutnya",
+      "projectionSubEmpty": "Berdasarkan referral aktif Anda"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "Referral langsung pertama Anda hanya tinggal satu bagian lagi",
+    "coachingSub": "Setiap anggota Pro yang Anda referensikan membayar Anda $17,50/bulan selama mereka tetap menjadi anggota. 5 referral = $87,50 setiap bulan, otomatis. Mari dapatkan yang pertama.",
+    "openSocialShare": "Buka Bagian Afiliasi",
+    "copyReferralLink": "Salin tautan referral",
+    "linkCopied": "Disalin!",
+    "firstStepsSection": "3 langkah pertama Anda menuju komisi pertama",
+    "step1Title": "Buat tautan Anda mudah ditemukan",
+    "step1Desc": "Atur halaman LinkHub Anda sehingga di mana pun Anda membagikan tautan — bio, profil, tanda tangan — mengarah ke satu halaman yang indah.",
+    "step1Cta": "Atur LinkHub →",
+    "step2Title": "Bagikan dengan 5 orang terdekat Anda",
+    "step2Desc": "Jangan menyebarkan — mulai dengan 5 orang yang benar-benar akan mendapat manfaat. Pesan pra-tulis tersedia di Email Swipes.",
+    "step2Cta": "Lihat Email Swipes →",
+    "step3Title": "Buat postingan social share",
+    "step3Desc": "Satu postingan, jangkauan besar. Copy buatan AI dalam 4 tone (profesional / santai / hype / cerita).",
+    "step3Cta": "Buka Social Share →",
+    "quickMathTitle": "Perhitungan cepat",
+    "quickMathText": "10 Pro directs = $175/bulan dijamin · 50 Pro directs = $875/bulan · 100 Pro directs = $1.750/bulan. Ini berkembang bulan demi bulan, otomatis.",
+    "encourageEyebrow": "Anda membangun momentum",
+    "encourageTitle": "Anda memiliki {{n}} directs — mari capai {{target}}",
+    "encourageSub": "{{target}} paying directs berarti pendapatan berulang nyata. Lanjutkan apa yang berhasil — bagikan link Anda ke {{remaining}} orang lagi minggu ini.",
+    "handoffTitle": "Lihat referral langsung Anda secara detail",
+    "handoffTitle5plus": "Kelola {{n}} referral langsung Anda",
+    "handoffSub": "Status, nama, kirim broadcast, dan aksi re-engagement aktif di Command Centre Anda.",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "Tingkat Aktivasi",
+      "activationHeadline": "{{paid}} dari {{total}} paid",
+      "activationDetail": "Anggota yang menjadi paying setelah sign-up",
+      "retention": "Tingkat Retensi",
+      "retentionHeadline": "{{active}} dari {{paid}} masih paying",
+      "retentionDetail": "{{n}} lapsed dalam 30 hari terakhir",
+      "tenure": "Masa Kerja Rata-rata",
+      "tenureDetail": "Dari directs yang saat ini membayar"
     },
     "stream": {
-      "membership": "Membership",
+      "membership": "Keanggotaan",
       "grid": "Grid",
-      "course": "Course",
+      "course": "Kursus",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "Pendapatan bulan ini",
+    "streamCompareSubtitle": "di seluruh 4 stream",
+    "upgradeEyebrow": "Anda menggunakan Basic",
+    "upgradeTitle": "Upgrade ke Pro untuk hasilkan $17.50 per direct",
+    "upgradeDesc": "Sebagai anggota Basic Anda saat ini menghasilkan $10/bulan per direct. Anggota Pro menghasilkan $17.50/bulan per direct — kenaikan gaji 75% di setiap referral yang ada dan yang akan datang. Dengan {{n}} aktif Anda saat ini, itu +${{upside}}/bulan langsung.",
+    "upgradeBtn": "Upgrade sekarang →"
   },
   "gridVis": {
     "title": "Income Grid",

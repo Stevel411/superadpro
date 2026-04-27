@@ -3159,7 +3159,7 @@
     "t2Name": "LinkHub",
     "t2Desc": "あなたの<strong>バイオリンクを 1 つの URL に</strong>。オファー、商品、SNS をまとめて。テーマ、ライブプレビュー、クリック計測。Stan Store 代替 — Pro で無料。",
     "t2Meta": "<strong>8</strong> テーマ",
-    "t3Name": "Link Tools",
+    "t3Name": "リンクツール",
     "t3Desc": "短縮、<strong>ローテーター、スプリットテスト、URL ごとのクリック上限</strong>。全リンクに QR コードとピクセル計測。トラフィックデータを自分のものに。",
     "t3Meta": "<strong>ライブ</strong>解析",
     "t4Name": "SuperLeads · CRM",
@@ -3177,7 +3177,7 @@
     "lhLink3": "プロフィール",
     "lhStatClicks": "クリック",
     "lhStatClicksDelta": "↑ 今週 12%",
-    "lhStatCtr": "CTR",
+    "lhStatCtr": "クリック率",
     "lhStatCtrDelta": "↑ 2.1 pt",
     "ltRotating": "ローテーション中",
     "leadColLead": "リード",
@@ -3194,132 +3194,132 @@
     "footerLine1": "7 つのツール。1 つのプラットフォーム。",
     "footerLine2": "必要なものはすべて、不要なものは一切。",
     "footerCta": "作り始める",
-    "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "pageTitle": "ツール",
+    "heroEyebrow": "あなたのツール",
+    "activeSince": "アクティブ開始日",
+    "backToDashboard": "ダッシュボードに戻る",
+    "scrollLeft": "左にスクロール",
+    "scrollRight": "右にスクロール",
+    "locked": "ロック済み",
+    "categoriesSection": "ツールカテゴリ",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
+      "overview": "概要",
+      "free": "無料ツール",
       "basic": "Basic Membership",
       "pro": "Pro Membership"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "すべてのユーザーに公開",
+        "title": "無料ツール",
+        "desc": "Banner Creator、Meme Generator、QR Generator。いつでも使えるリード獲得ツール。",
+        "count": "3つのツール"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Basic プラン以上",
+        "eyebrowLocked": "アップグレードしてロック解除",
+        "title": "Basic Membership ツール",
+        "desc": "Creative Studio、Content Creator、LinkHub、Link Tools、SuperDeck。日常のビルディングツール。",
+        "count": "5つのツール",
+        "countLocked": "5つのツール · ロック済み"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Pro プランでアンロック",
+        "eyebrowLocked": "アップグレードしてロック解除",
+        "title": "Pro Membership ツール",
+        "desc": "SuperPages、AutoResponder、Lead Finder、Niche Finder、ProSeller。ビジネス成長を加速させるツール。",
+        "count": "5つのツール",
+        "countLocked": "5つのツール · ロック中"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "開く",
+      "upgrade": "アップグレード"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "無料ツール · 誰でも利用可能",
+      "basicUnlocked": "Basic Membershipツール · 5つのツール無料 ($20/月)",
+      "basicLocked": "Basic Membershipツール · アップグレードでロック解除",
+      "proUnlocked": "Pro Membershipツール · 5つのツール無料 ($97/月)",
+      "proLocked": "Pro Membershipツール · アップグレードでロック解除"
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "name": "バナークリエイター",
+        "desc": "SNスプラットフォーム向けのAI生成バナーとプロフィール画像。"
       },
       "meme": {
-        "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "name": "ミームジェネレーター",
+        "desc": "テンプレートベースのミームとバイラル画像をすばやく作成。"
       },
       "qr": {
-        "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "name": "QRジェネレーター",
+        "desc": "任意のリンク用のカスタムQRコード。トラッキング可能。"
       },
-      "pageTitle": "Free Tools"
+      "pageTitle": "無料ツール"
     },
     "basic": {
       "studio": {
         "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "desc": "AI画像、動画、音楽、ボイスオーバー、リップシンク、キャプション。あなたの創造的パワーハウス。"
       },
       "content": {
         "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "desc": "AIが書いた投稿、記事、キャプション、スクリプト。"
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Linktreeスタイルのページですべてのリンクを1箇所にホスト。"
       },
       "links": {
-        "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "name": "リンクツール",
+        "desc": "ショートナー、クローカー、ピクセルトラッキング、A/Bリダイレクト。"
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "18フォントとプレゼンテーションモード搭載のAIプレゼンテーションビルダー。"
       },
       "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "ドラッグアンドドロップのランディングページビルダー。ホスト済み、モバイル対応、コンバージョン重視。"
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "Brevo搭載のメールシーケンス、ブロードキャスト、リードナーチャー。"
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "Outscraper搭載のローカルビジネスとウェブプロスペクトファインダー。"
       },
       "niche": {
-        "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "name": "ニッチファインダー",
+        "desc": "AI搭載分析で過小評価されているニッチを発見"
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "個人用AI営業コーチ。戦略、コピーライティング、異議対応。"
       },
       "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "今すぐアップグレード",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "5つのビルディングツールをアンロック",
+        "title": "Basic Membershipにアップグレード",
+        "desc": "ビジネス向けコンテンツ作成に必要なすべて：AI画像・動画、ライティングコンテンツ、リンク管理、プレゼンテーション。"
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "5つの追加Proツールをアンロック",
+        "title": "Pro Membershipにアップグレード",
+        "desc": "本格的なビジネス成長ツールキットを取得：ホスティング済みランディングページ、メールオートメーション、リード検索、ニッチ分析、AI営業コーチング。"
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "ツールに戻る",
+    "yourReferralLink": "あなたの紹介リンク",
+    "copy": "コピー",
+    "copied": "コピーしました！"
   },
   "explore": {
     "navHome": "ホーム",
@@ -3950,73 +3950,73 @@
     "reengagement_lapsed_message": "あなたのネットワークと収益はまだここで待っています。下をクリックして再アクティブ化してください。"
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "収入",
+    "heroEyebrow": "あなたの収入",
+    "activeSince": "アクティブ開始日",
+    "backToDashboard": "ダッシュボードに戻る",
+    "scrollLeft": "左にスクロール",
+    "scrollRight": "右にスクロール",
+    "earningsSection": "あなたの収益",
+    "streamsSection": "あなたの4つの収入源",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
+      "overview": "概要",
+      "wallet": "ウォレット",
       "compPlan": "Comp Plan",
-      "membership": "Membership",
+      "membership": "メンバーシップ",
       "grid": "Campaign Grid",
       "nexus": "Profit Nexus",
       "courses": "Course Academy",
-      "history": "Earnings History"
+      "history": "収益履歴"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "利用可能",
+      "availableCaption": "あなたのウォレット内に今すぐ",
+      "thisMonth": "今月",
+      "thisMonthCaption": "今月獲得したコミッション",
+      "nextPayout": "次の支払い",
+      "nextPayoutValue": "リクエスト時",
+      "nextPayoutCaption": "いつでも暗号通貨引き出し",
+      "allTime": "全期間",
+      "allTimeCaption": "生涯獲得額",
+      "allTimeCaptionSince": "{{since}}以降"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "アクティブ",
+      "tier": "アクティブ",
+      "available": "利用可能"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "支払い中のダイレクト",
+      "team": "チーム内",
+      "earnedAllTime": "通算報酬"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
-      "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "membership": "メンバーシップスポンサー",
+      "membershipSub": "紹介者の月額利用料の25%",
+      "membershipDormant": "あなたのリンクをシェアして最も簡単な収入源を開始 — 毎月受け取り、彼らが利用し続ける限り報酬が続きます。",
+      "grid": "キャンペーンティアグリッド",
+      "gridSub": "8×8強制マトリックス・広告掲載と報酬獲得",
+      "gridDormant": "グリッドティアを購入して広告掲載と8×8溢出マトリックスからの報酬獲得を行います。",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
-      "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "nexusSub": "3×3クレジットマトリックス・カスケード型コミッション",
+      "nexusDormant": "クレジットパックを購入して3×3マトリックスのポジションを獲得します。",
+      "courses": "コースアカデミー",
+      "coursesSub": "パスアップコミッション・無限の深さ",
+      "coursesDormant": "コースティアを購入してすべての売上からのアップラインパスアップの適格者になります。"
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
+      "myReferrals": "紹介者一覧",
+      "shareLink": "シェアリンク取得",
+      "compPlan": "コンププラン",
+      "myGrid": "マイグリッド",
+      "watchAds": "広告を見る",
+      "calculator": "計算機",
+      "upgradeTier": "ティアアップグレード",
+      "buyCredits": "クレジット購入",
       "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "howItWorks": "仕組み",
+      "browseCourses": "コース閲覧",
+      "passUp": "パスアップの仕組み"
     }
   },
   "learn": {
@@ -4105,71 +4105,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "メンバーシップストリーム",
+    "backToIncome": "収入に戻る",
+    "earningsSection": "メンバーシップの収益",
+    "qualitySection": "品質指標 — 本当のビジネスを構築していますか？",
+    "streamSection": "メンバーシップと他の収入源の比較",
+    "upgradeSection": "メンバーシップをアップグレード · 各直接紹介から更に稼ぐ",
+    "errorLoading": "メンバーシップデータを読み込めませんでした。もう一度お試しください。",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "生涯獲得額",
+      "lifetimeSub": "{{date}}にご参加いただいてから",
+      "lifetimeSubEmpty": "初回コミッション後に更新",
+      "thisMonth": "今月",
+      "thisMonthSub": "{{n}}人のアクティブな直接紹介により支払い済み",
+      "thisMonthSubEmpty": "コミッションが発生した時点でリアルタイム",
+      "mrr": "現在のMRR",
+      "mrrSub": "毎月の保証サブスクリプション",
+      "mrrSubEmpty": "月間のサブスクリプション収入",
+      "projection": "次の予測",
+      "projectionSubEmpty": "アクティブな直接紹介に基づいて"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "初めての直接紹介は、1回のシェアだけで実現します",
+    "coachingSub": "紹介するProメンバー1人につき、彼らがメンバーである限り月々$17.50の報酬を獲得できます。直接紹介5人 = 毎月自動で$87.50。初めての1人を獲得しましょう。",
+    "openSocialShare": "アフィリエイトシェアを開く",
+    "copyReferralLink": "紹介リンクをコピー",
+    "linkCopied": "コピーしました！",
+    "firstStepsSection": "初回コミッション獲得までの最初の3ステップ",
+    "step1Title": "リンクを見つけやすくする",
+    "step1Desc": "LinkHubページを設定して、リンクを投稿する場所（プロフィール、プロフィール、署名など）をどこでも1つの美しいページに導きます。",
+    "step1Cta": "LinkHubを設定 →",
+    "step2Title": "最も親しい5人にシェア",
+    "step2Desc": "大量送信ではなく、本当に役立つ5人から始めましょう。メールスワイプに事前作成されたメッセージがあります。",
+    "step2Cta": "メールスワイプを表示 →",
+    "step3Title": "ソーシャルシェア投稿を作成",
+    "step3Desc": "1つの投稿で大きなリーチ。AI生成コピー4つのトーン（プロフェッショナル／カジュアル／ハイプ／ストーリー）。",
+    "step3Cta": "ソーシャルシェアを開く →",
+    "quickMathTitle": "簡単な計算",
+    "quickMathText": "10人のProダイレクト = $175/月保証 · 50人のProダイレクト = $875/月 · 100人のProダイレクト = $1,750/月。これは毎月自動的に複合します。",
+    "encourageEyebrow": "勢いをつけています",
+    "encourageTitle": "{{n}}人のダイレクトを獲得しました — {{target}}人に到達しましょう",
+    "encourageSub": "{{target}}人の有料ダイレクトは本当の継続収入です。うまくいっていることを続けてください — 今週さらに{{remaining}}人にリンクをシェアしましょう。",
+    "handoffTitle": "ダイレクト紹介の詳細を確認",
+    "handoffTitle5plus": "{{n}}個のダイレクト紹介を管理",
+    "handoffSub": "ステータス、名前、ブロードキャスト送信、再エンゲージメントアクションはCommand Centreで行えます。",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "アクティベーション率",
+      "activationHeadline": "{{total}}人中{{paid}}人が有料",
+      "activationDetail": "サインアップ後に有料になったメンバー",
+      "retention": "リテンション率",
+      "retentionHeadline": "{{paid}}人中{{active}}人がまだ有料",
+      "retentionDetail": "過去30日間に{{n}}人が休止",
+      "tenure": "平均契約期間",
+      "tenureDetail": "現在有料のダイレクト"
     },
     "stream": {
-      "membership": "Membership",
-      "grid": "Grid",
-      "course": "Course",
-      "nexus": "Nexus"
+      "membership": "メンバーシップ",
+      "grid": "グリッド",
+      "course": "コース",
+      "nexus": "ネクサス"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "今月の収入",
+    "streamCompareSubtitle": "4つのストリーム全体",
+    "upgradeEyebrow": "あなたはBasicです",
+    "upgradeTitle": "Proにアップグレードしてダイレクト1人につき$17.50を稼ぐ",
+    "upgradeDesc": "Basicメンバーとして、現在ダイレクト1人につき$10/月を稼いでいます。Proメンバーはダイレクト1人につき$17.50/月を稼ぎます — 既存および将来のすべての紹介で75%の給与アップです。現在の{{n}}人のアクティブで、すぐに+${{upside}}/月です。",
+    "upgradeBtn": "今すぐアップグレード →"
   },
   "gridVis": {
     "title": "Income Grid",

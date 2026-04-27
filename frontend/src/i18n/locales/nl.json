@@ -3163,7 +3163,7 @@
     "studioFooterCredits": "Credits · 124 over",
     "t1Name": "SuperPages",
     "t1Desc": "<strong>Landingspagina's en opt-in-funnels</strong> met slepen-en-neerzetten. Vang leads direct in SuperLeads op. Of laat AI de hele pagina uit vier vragen opbouwen.",
-    "t1Meta": "<strong>24</strong> templates",
+    "t1Meta": "<strong>24</strong> sjablonen",
     "t2Name": "LinkHub",
     "t2Desc": "Je <strong>biolink in één URL</strong>. Alle aanbiedingen, producten, socials. Thema's, live previews, kliktracking. Stan-Store-vervanger — gratis op Pro.",
     "t2Meta": "<strong>8</strong> thema's",
@@ -3179,7 +3179,7 @@
     "t6Name": "SuperLink",
     "t6Desc": "<strong>Merk-korte links</strong> op je eigen domein. Snelle redirects, geo-/apparaat-targeting, deep links naar native apps. Affiliate-safe by default.",
     "t6Meta": "<strong>Eigen</strong> domeinen",
-    "openLabel": "Open",
+    "openLabel": "Openen",
     "lhLink1": "Shop",
     "lhLink2": "Tracks",
     "lhLink3": "Over",
@@ -3203,131 +3203,131 @@
     "footerLine2": "Alles wat je nodig hebt, niets wat je niet hebt.",
     "footerCta": "Begin met maken",
     "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "heroEyebrow": "Jouw Tools",
+    "activeSince": "Actief sinds",
+    "backToDashboard": "Terug naar Dashboard",
+    "scrollLeft": "Naar links scrollen",
+    "scrollRight": "Naar rechts scrollen",
+    "locked": "Vergrendeld",
+    "categoriesSection": "Jouw toolcategorieën",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
+      "overview": "Overzicht",
+      "free": "Gratis Tools",
       "basic": "Basic Membership",
       "pro": "Pro Membership"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
+        "eyebrow": "Open voor iedereen",
+        "title": "Gratis Tools",
+        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools die je altijd kunt gebruiken.",
         "count": "3 tools"
       },
       "basic": {
         "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
+        "eyebrowLocked": "Upgrade om unlock",
         "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Dagelijkse buildingstools.",
         "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "countLocked": "5 tools · vergrendeld"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
+        "eyebrowOpen": "Pro plan unlock",
+        "eyebrowLocked": "Upgrade om unlock",
         "title": "Pro Membership Tools",
         "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
         "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "countLocked": "5 tools · vergrendeld"
       },
       "open": "Open",
       "upgrade": "Upgrade"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Free Tools · open voor iedereen",
+      "basicUnlocked": "Basic Membership Tools · 5 tools unlock voor $20/mnd",
+      "basicLocked": "Basic Membership Tools · upgrade om unlock",
+      "proUnlocked": "Pro Membership Tools · 5 tools unlock voor $97/mnd",
+      "proLocked": "Pro Membership Tools · upgrade om unlock"
     },
     "free": {
       "banner": {
         "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "desc": "AI-gegenereerde banners en profielafbeeldingen voor social platforms."
       },
       "meme": {
         "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "desc": "Snelle op sjabloon gebaseerde memes en virale afbeeldingen."
       },
       "qr": {
         "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "desc": "Aangepaste QR-codes voor elke link. Traceerbaar."
       },
       "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
         "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "desc": "AI-afbeelding, video, muziek, voiceover, lipsync, ondertitels. Je creatieve powerhouse."
       },
       "content": {
         "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "desc": "AI-geschreven posts, artikelen, onderschriften, scripts."
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Linktree-achtige paginahosting met al je links op één plaats."
       },
       "links": {
         "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "desc": "Verkorters, cloakers, pixel-tracking, A/B-omleiding."
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "AI-presentatiemaker met 18 lettertypen en presentatiemodus."
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "Basistools"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "Drag-and-drop landingspagina-builder. Gehost, mobiel-optimized, conversie-gericht."
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "E-mailsequenties, uitzendingen, lead-nurturing. Aangedreven door Brevo."
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "Outscraper-aangedreven lokale bedrijfs- en web-prospectzoeker."
       },
       "niche": {
         "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "desc": "Ontdek onderbedeelde niches met AI-powered analyse."
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "Persoonlijke AI-verkoopcoach. Strategie, copywriting, inwerphantering."
       },
       "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "Upgrade nu",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "Ontgrendel 5 bouwtools",
+        "title": "Upgrade naar Basic Membership",
+        "desc": "Alles wat u nodig hebt om content voor uw bedrijf te maken: AI-afbeelding en video, geschreven content, linkbeheer, presentaties."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "Ontgrendel 5 meer pro tools",
+        "title": "Upgrade naar Pro Membership",
+        "desc": "Krijg de serieuze bedrijfsgroei-toolkit: gehoste landingspagina's, e-mailautomatisering, lead-finding, niche-analyse, AI-verkoopcoaching."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Terug naar Tools",
+    "yourReferralLink": "Uw referrallink",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd!"
   },
   "explore": {
     "navHome": "Home",
@@ -3958,73 +3958,73 @@
     "reengagement_lapsed_message": "Je netwerk en inkomsten staan nog op je te wachten. Klik hieronder om te reactiveren."
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "Inkomsten",
+    "heroEyebrow": "Jouw inkomsten",
+    "activeSince": "Actief sinds",
+    "backToDashboard": "Terug naar dashboard",
+    "scrollLeft": "Scroll links",
+    "scrollRight": "Scroll rechts",
+    "earningsSection": "Jouw verdiensten",
+    "streamsSection": "Jouw vier inkomstenstromen",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
+      "overview": "Overzicht",
+      "wallet": "Portefeuille",
       "compPlan": "Comp Plan",
-      "membership": "Membership",
+      "membership": "Lidmaatschap",
       "grid": "Campaign Grid",
       "nexus": "Profit Nexus",
       "courses": "Course Academy",
-      "history": "Earnings History"
+      "history": "Inkomstengeschiedenis"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "Beschikbaar",
+      "availableCaption": "in jouw portefeuille nu",
+      "thisMonth": "Deze maand",
+      "thisMonthCaption": "commissies verdiend deze maand",
+      "nextPayout": "Volgende uitbetaling",
+      "nextPayoutValue": "Op aanvraag",
+      "nextPayoutCaption": "crypto-opname op elk moment",
+      "allTime": "Totaal",
+      "allTimeCaption": "inkomsten uit alle tijd",
+      "allTimeCaptionSince": "sinds {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "Actief",
+      "tier": "Actief",
+      "available": "Beschikbaar"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Directen die betalen",
+      "team": "In jouw team",
+      "earnedAllTime": "Totaal verdiend"
     },
     "stream": {
       "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
+      "membershipSub": "25% op maandelijkse vergoeding van elke direct",
+      "membershipDormant": "Deel je link om de eenvoudigste stream te activeren — maandelijks betaald zolang zij actief blijven.",
       "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "gridSub": "8×8 geforceerde matrix · adverteer + verdien",
+      "gridDormant": "Koop een Grid tier om te adverteren EN te verdienen van de 8×8 spillover matrix.",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
+      "nexusSub": "3×3 credit matrix · cascaderende commissies",
+      "nexusDormant": "Koop een credit pack om je positie in de 3×3 matrix in te nemen.",
       "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "coursesSub": "Pass-up commissies · oneindige diepte",
+      "coursesDormant": "Koop een course tier om gekwalificeerd te zijn voor upline pass-ups op elke verkoop."
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
+      "myReferrals": "Mijn referrals",
+      "shareLink": "Deel link ophalen",
       "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
+      "myGrid": "Mijn Grid",
+      "watchAds": "Bekijk advertenties",
       "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
-      "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "upgradeTier": "Tier upgraden",
+      "buyCredits": "Credits kopen",
+      "myNexus": "Mijn Nexus",
+      "howItWorks": "Hoe het werkt",
+      "browseCourses": "Blader door cursussen",
+      "passUp": "Hoe pass-up werkt"
     }
   },
   "learn": {
@@ -4114,57 +4114,57 @@
   },
   "membership": {
     "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "backToIncome": "Terug naar Inkomsten",
+    "earningsSection": "Uw Membership-inkomsten",
+    "qualitySection": "Kwaliteitsmetrieken — bouw je een echt bedrijf?",
+    "streamSection": "Hoe Membership zich verhoudt tot uw andere streams",
+    "upgradeSection": "Upgrade uw membership · verdien meer van elke direct",
+    "errorLoading": "Kon Membership-gegevens niet laden. Probeer het opnieuw.",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "Totaal Verdiend",
+      "lifetimeSub": "sinds u lid bent geworden {{date}}",
+      "lifetimeSubEmpty": "Updates na uw eerste commissie",
+      "thisMonth": "Deze Maand",
+      "thisMonthSub": "betaald door {{n}} actieve directs",
+      "thisMonthSubEmpty": "Real-time wanneer commissies binnenkomen",
+      "mrr": "Huidge MRR",
+      "mrrSub": "gegarandeerde maandelijkse terugkeer",
+      "mrrSubEmpty": "Maandelijks terugkerend inkomen",
+      "projection": "Volgende Projectie",
+      "projectionSubEmpty": "Gebaseerd op uw actieve directs"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
+    "coachingTitle": "Uw eerste directe referral is slechts één deel weg",
+    "coachingSub": "Elke Pro-lid die je aanmeldt betaalt je $17,50/maand zolang ze lid blijven. 5 directs = $87,50 elke maand, automatisch. Laten we uw eerste krijgen.",
     "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
+    "copyReferralLink": "Koppelingscode kopiëren",
+    "linkCopied": "Gekopieerd!",
+    "firstStepsSection": "Uw eerste 3 stappen naar uw eerste commissie",
+    "step1Title": "Maak uw link gemakkelijk te vinden",
+    "step1Desc": "Stel uw LinkHub-pagina in, zodat waar u uw link ook plaatst — bio, profiel, handtekening — leidt naar één prachtige pagina.",
+    "step1Cta": "LinkHub instellen →",
+    "step2Title": "Deel met uw warmste 5",
+    "step2Desc": "Niet uitzenden — begin met 5 mensen die echt baat zouden hebben. Voorgeschreven berichten in Email Swipes.",
+    "step2Cta": "Email Swipes bekijken →",
+    "step3Title": "Post een social share",
+    "step3Desc": "Eén post, groot bereik. AI-gegenereerde tekst in 4 tonen (professioneel / casual / hype / verhaal).",
     "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "quickMathTitle": "Snel rekenen",
+    "quickMathText": "10 Pro directs = $175/mnd gegarandeerd · 50 Pro directs = $875/mnd · 100 Pro directs = $1.750/mnd. Dit groeit maand na maand, automatisch.",
+    "encourageEyebrow": "Je bouwt momentum op",
+    "encourageTitle": "Je hebt {{n}} directs — laten we naar {{target}} gaan",
+    "encourageSub": "{{target}} betalende directs betekent echt terugkerend inkomen. Ga door met wat werkt — deel je link met {{remaining}} meer mensen deze week.",
+    "handoffTitle": "Bekijk je directe verwijzingen in detail",
+    "handoffTitle5plus": "Beheer je {{n}} directe verwijzingen",
+    "handoffSub": "Status, namen, broadcasts verzenden en heraanpassingsacties live in je Command Centre.",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "Activeringspercentage",
+      "activationHeadline": "{{paid}} van {{total}} betaald",
+      "activationDetail": "Leden die na registratie betalend werden",
+      "retention": "Retentiepercentage",
+      "retentionHeadline": "{{active}} van {{paid}} betalen nog steeds",
+      "retentionDetail": "{{n}} vervallen in de afgelopen 30 dagen",
+      "tenure": "Gemiddelde actieve periode",
+      "tenureDetail": "Van huidige betalende directs"
     },
     "stream": {
       "membership": "Membership",
@@ -4172,12 +4172,12 @@
       "course": "Course",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "Inkomsten deze maand",
+    "streamCompareSubtitle": "in alle 4 streams",
+    "upgradeEyebrow": "Je bent Basic",
+    "upgradeTitle": "Upgrade naar Pro om $17,50 per direct te verdienen",
+    "upgradeDesc": "Als Basic-lid verdien je momenteel $10/mnd per direct. Pro-leden verdienen $17,50/mnd per direct — een salarisverhoging van 75% op elke bestaande en toekomstige verwijzing. Met je huidige {{n}} actieve directs is dat meteen +${{upside}}/mnd.",
+    "upgradeBtn": "Nu upgraden →"
   },
   "gridVis": {
     "title": "Income Grid",

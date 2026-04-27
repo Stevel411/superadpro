@@ -3159,7 +3159,7 @@
     "t2Name": "LinkHub",
     "t2Desc": "<strong>Tek URL'de biyo-link</strong>. Tüm teklifler, ürünler, sosyaller. Temalar, canlı önizleme, tıklama takibi. Stan Store yerine — Pro'da ücretsiz.",
     "t2Meta": "<strong>8</strong> tema",
-    "t3Name": "Link Tools",
+    "t3Name": "Link Araçları",
     "t3Desc": "Kısaltıcılar, <strong>rotatörler, split-test, URL başına tıklama tavanı</strong>. Her linkte QR kod ve pixel takibi. Trafik verinin sahibi sen ol.",
     "t3Meta": "<strong>Canlı</strong> analitik",
     "t4Name": "SuperLeads · CRM",
@@ -3194,132 +3194,132 @@
     "footerLine1": "Yedi araç. Tek platform.",
     "footerLine2": "İhtiyacın olan her şey, olmayan hiçbir şey.",
     "footerCta": "Oluşturmaya başla",
-    "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "pageTitle": "Araçlar",
+    "heroEyebrow": "Araçlarınız",
+    "activeSince": "Aktif olduğu tarih",
+    "backToDashboard": "Panoya Dön",
+    "scrollLeft": "Sola kaydır",
+    "scrollRight": "Sağa kaydır",
+    "locked": "Kilitli",
+    "categoriesSection": "Araç kategorileriniz",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
-      "basic": "Basic Membership",
-      "pro": "Pro Membership"
+      "overview": "Özet",
+      "free": "Ücretsiz Araçlar",
+      "basic": "Basic Üyelik",
+      "pro": "Pro Üyelik"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "Herkes için açık",
+        "title": "Ücretsiz Araçlar",
+        "desc": "Banner Creator, Meme Generator, QR Generator. İstediğiniz zaman kullanabileceğiniz lead-magnet araçları.",
+        "count": "3 araç"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Basic plan ve üstü",
+        "eyebrowLocked": "Kilidini açmak için yükselt",
+        "title": "Basic Üyelik Araçları",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Araçları, SuperDeck. Her gün kullanabileceğiniz oluşturma araçları.",
+        "count": "5 araç",
+        "countLocked": "5 araç · kilitli"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Pro plan kilidinin açılmış hali",
+        "eyebrowLocked": "Kilidini açmak için yükselt",
+        "title": "Pro Üyelik Araçları",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Ciddi işletme büyüme araçları.",
+        "count": "5 araç",
+        "countLocked": "5 araç · kilitli"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "Aç",
+      "upgrade": "Yükselt"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Ücretsiz Araçlar · herkese açık",
+      "basicUnlocked": "Temel Üyelik Araçları · $20/ay karşılığında 5 araç kilidini aç",
+      "basicLocked": "Temel Üyelik Araçları · kilidini açmak için yükselt",
+      "proUnlocked": "Pro Üyelik Araçları · $97/ay karşılığında 5 araç kilidini aç",
+      "proLocked": "Pro Üyelik Araçları · kilidini açmak için yükselt"
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "name": "Banner Oluşturucu",
+        "desc": "Sosyal platformlar için yapay zeka tarafından oluşturulan banner ve profil resimleri."
       },
       "meme": {
-        "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "name": "Meme Üreteci",
+        "desc": "Hızlı şablon tabanlı meme ve viral görseller."
       },
       "qr": {
-        "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "name": "QR Üreteci",
+        "desc": "Herhangi bir bağlantı için özel QR kodları. İzlenebilir."
       },
-      "pageTitle": "Free Tools"
+      "pageTitle": "Ücretsiz Araçlar"
     },
     "basic": {
       "studio": {
-        "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "name": "Yaratıcı Studio",
+        "desc": "Yapay zeka görüntü, video, müzik, seslendirme, dudak senkronizasyonu, altyazılar. Senin yaratıcı güç merkezin."
       },
       "content": {
-        "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "name": "İçerik Oluşturucu",
+        "desc": "Yapay zeka tarafından yazılan yazılar, makaleler, başlıklar, senaryolar."
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Tüm bağlantılarınızı tek bir yerde barındıran Linktree tarzı sayfa."
       },
       "links": {
-        "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "name": "Bağlantı Araçları",
+        "desc": "Kısaltıcılar, maskeleyiciler, piksel izleme, A/B yönlendirmesi."
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "18 yazı tipi ve sunuş modu ile yapay zeka sunuş oluşturucu."
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "Temel Araçlar"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "Sürükle ve bırak inişletme sayfası oluşturucu. Barındırılan, mobil uyumlu, dönüştürme odaklı."
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "E-posta dizileri, yayınlar, potansiyel müşteri beslemesi. Brevo tarafından desteklenmektedir."
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "Outscraper tarafından desteklenen yerel işletme ve web müşteri potansiyeli bulucu."
       },
       "niche": {
-        "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "name": "Niş Bulucu",
+        "desc": "AI destekli analiz ile yetersiz hizmet alan niş alanlarını keşfedin."
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "Kişisel AI satış koçu. Strateji, kopya, itiraz yönetimi."
       },
-      "pageTitle": "Pro Tools"
+      "pageTitle": "Pro Araçlar"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "Şimdi yükselt",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "5 oluşturma aracının kilidini aç",
+        "title": "Basic Üyeliğe yükseltin",
+        "desc": "İşletmeniz için içerik oluşturmak için gerekli her şey: AI görüntü ve video, yazılı içerik, bağlantı yönetimi, sunumlar."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "5 daha pro aracın kilidini aç",
+        "title": "Pro Üyeliğe yükseltin",
+        "desc": "Ciddi işletme büyümesi araç seti: barındırılan açılış sayfaları, e-posta otomasyonu, müşteri potansiyeli bulma, niş analizi, AI satış koçluğu."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Araçlara Geri Dön",
+    "yourReferralLink": "Referral bağlantınız",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı!"
   },
   "explore": {
     "navHome": "Ana Sayfa",
@@ -4105,71 +4105,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "Üyelik Akışı",
+    "backToIncome": "Gelire Geri Dön",
+    "earningsSection": "Üyelik kazançlarınız",
+    "qualitySection": "Kalite metrikleri — gerçek bir işletme inşa ediyor musunuz?",
+    "streamSection": "Üyeliğin diğer akışlarınızla nasıl karşılaştırıldığı",
+    "upgradeSection": "Üyeliğinizi yükseltin · her doğrudan kişiden daha fazla kazanın",
+    "errorLoading": "Üyelik verileri yüklenemedi. Lütfen tekrar deneyin.",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "Ömür Boyu Kazanılan",
+      "lifetimeSub": "katıldığınızdan beri {{date}}",
+      "lifetimeSubEmpty": "İlk komisyonunuzdan sonra güncellemeler",
+      "thisMonth": "Bu Ay",
+      "thisMonthSub": "{{n}} aktif direkt tarafından ödenen",
+      "thisMonthSubEmpty": "Komisyonlar geldiğinde gerçek zamanlı",
+      "mrr": "Mevcut MRR",
+      "mrrSub": "garantili aylık yinelenen",
+      "mrrSubEmpty": "Aylık yinelenen gelir",
+      "projection": "Sonraki Projeksiyon",
+      "projectionSubEmpty": "Aktif doğrudan referanslarınıza göre"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "İlk doğrudan referansınız sadece bir paylaşım uzağında",
+    "coachingSub": "Gönderdiğiniz her Pro üyesi, kaldıkları sürece aylık $17,50 kazandırır. 5 direkt = her ay otomatik olarak $87,50. İlkini bulalım.",
+    "openSocialShare": "Ortaklık Payını Aç",
+    "copyReferralLink": "Referral bağlantısını kopyala",
+    "linkCopied": "Kopyalandı!",
+    "firstStepsSection": "İlk komisyonunuza giden ilk 3 adım",
+    "step1Title": "Bağlantınızı bulması kolay hale getirin",
+    "step1Desc": "LinkHub sayfanızı ayarlayın, böylece bağlantınızı nerede paylaşırsanız — bio, profil, imza — güzel bir sayfaya yönlendirir.",
+    "step1Cta": "LinkHub'ı Ayarla →",
+    "step2Title": "En yakın 5 kişiyle paylaş",
+    "step2Desc": "Spam yapma — gerçekten faydalanacak 5 kişiyle başla. Email Swipes'ta önceden yazılmış mesajlar.",
+    "step2Cta": "Email Swipes'ı Görüntüle →",
+    "step3Title": "Sosyal medya paylaşım postu bırak",
+    "step3Desc": "Bir post, geniş erişim. 4 tonda AI tarafından üretilen metin (profesyonel / rahat / heyecanlı / hikaye).",
+    "step3Cta": "Sosyal Paylaşımı Aç →",
+    "quickMathTitle": "Hızlı matematik",
+    "quickMathText": "10 Pro direkti = $175/ay garantili · 50 Pro direkti = $875/ay · 100 Pro direkti = $1.750/ay. Bu ay geçtikçe otomatik olarak bileşenlenir.",
+    "encourageEyebrow": "Momentum kazanıyorsun",
+    "encourageTitle": "{{n}} direktin var — {{target}}'a gidelim",
+    "encourageSub": "{{target}} ödeme yapan direkt, gerçek yinelenen gelir anlamına geliyor. İşe yarayan şeyi yapmaya devam et — bağlantını bu hafta {{remaining}} kişiye daha paylaş.",
+    "handoffTitle": "Doğrudan yönlendirmelerinizi detaylı olarak görün",
+    "handoffTitle5plus": "{{n}} doğrudan yönlendirmelerinizi yönetin",
+    "handoffSub": "Durum, isimler, yayın gönderme ve yeniden bağlanma eylemleri Komuta Merkezinizde aktiftir.",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "Aktivasyon Oranı",
+      "activationHeadline": "{{paid}} / {{total}} ödeme yapılan",
+      "activationDetail": "Kayıt sonrası ödeme yapan hale gelen üyeler",
+      "retention": "Saklama Oranı",
+      "retentionHeadline": "{{active}} / {{paid}} hala ödeme yapan",
+      "retentionDetail": "Son 30 günde {{n}} zaman aşımına uğradı",
+      "tenure": "Ortalama Süre",
+      "tenureDetail": "Şu anda ödeme yapan direktlerin"
     },
     "stream": {
-      "membership": "Membership",
+      "membership": "Üyelik",
       "grid": "Grid",
-      "course": "Course",
+      "course": "Kurs",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "Bu ay kazançları",
+    "streamCompareSubtitle": "4 akışın tümü arasında",
+    "upgradeEyebrow": "Temel planda varsınız",
+    "upgradeTitle": "Pro'ya yükselt ve direkt başına $17.50 kazanın",
+    "upgradeDesc": "Temel üye olarak şu anda direkt başına $10/ay kazanıyorsunuz. Pro üyeleri direkt başına $17.50/ay kazanırlar — her mevcut ve gelecekteki yönlendirmede %75 zam. Şu anki {{n}} aktifiyle bu +${{upside}}/ay hemen.",
+    "upgradeBtn": "Şimdi yükselt →"
   },
   "gridVis": {
     "title": "Income Grid",

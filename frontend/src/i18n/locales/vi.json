@@ -3195,131 +3195,131 @@
     "footerLine2": "Tất cả những gì bạn cần, không có thứ gì bạn không cần.",
     "footerCta": "Bắt đầu tạo",
     "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "heroEyebrow": "Công cụ của bạn",
+    "activeSince": "Hoạt động từ",
+    "backToDashboard": "Quay lại Dashboard",
+    "scrollLeft": "Cuộn sang trái",
+    "scrollRight": "Cuộn sang phải",
+    "locked": "Bị khóa",
+    "categoriesSection": "Danh mục công cụ của bạn",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
+      "overview": "Tổng quan",
+      "free": "Công cụ miễn phí",
       "basic": "Basic Membership",
       "pro": "Pro Membership"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "Mở cho tất cả mọi người",
+        "title": "Công cụ miễn phí",
+        "desc": "Banner Creator, Meme Generator, QR Generator. Công cụ lead-magnet bạn có thể sử dụng bất kỳ lúc nào.",
+        "count": "3 công cụ"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Basic plan & trở lên",
+        "eyebrowLocked": "Nâng cấp để mở khóa",
+        "title": "Công cụ Basic Membership",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Công cụ xây dựng hàng ngày.",
+        "count": "5 công cụ",
+        "countLocked": "5 công cụ · bị khóa"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Pro plan đã mở khóa",
+        "eyebrowLocked": "Nâng cấp để mở khóa",
+        "title": "Công cụ Pro Membership",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Các công cụ tăng trưởng kinh doanh chuyên nghiệp.",
+        "count": "5 công cụ",
+        "countLocked": "5 công cụ · bị khóa"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "Mở",
+      "upgrade": "Nâng cấp"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Free Tools · mở cho tất cả mọi người",
+      "basicUnlocked": "Basic Membership Tools · 5 công cụ mở khóa với $20/tháng",
+      "basicLocked": "Basic Membership Tools · nâng cấp để mở khóa",
+      "proUnlocked": "Pro Membership Tools · 5 công cụ mở khóa với $97/tháng",
+      "proLocked": "Pro Membership Tools · nâng cấp để mở khóa"
     },
     "free": {
       "banner": {
         "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "desc": "Banner và hình ảnh hồ sơ được tạo bằng AI cho các nền tảng xã hội."
       },
       "meme": {
         "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "desc": "Meme dựa trên mẫu nhanh chóng và hình ảnh viral."
       },
       "qr": {
         "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "desc": "Mã QR tùy chỉnh cho bất kỳ liên kết nào. Có thể theo dõi."
       },
       "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
         "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "desc": "Hình ảnh, video, âm nhạc, voiceover, lipsync, caption được tạo bằng AI. Nhà máy sáng tạo của bạn."
       },
       "content": {
         "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "desc": "Bài viết, bài báo, chú thích, kịch bản được viết bằng AI."
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Trang kiểu Linktree lưu trữ tất cả các liên kết của bạn ở một nơi."
       },
       "links": {
         "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "desc": "Rút gọn, cloaker, pixel-tracking, A/B redirect."
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "Trình tạo bản trình bày AI với 18 phông chữ và chế độ trình bày."
       },
       "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "Trình tạo trang đích kéo và thả. Được lưu trữ, sẵn sàng cho thiết bị di động, tập trung vào chuyển đổi."
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "Chuỗi email, quảng bá, nuôi dưỡng khách hàng tiềm năng. Được cung cấp bởi Brevo."
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "Công cụ tìm kiếm khách hàng tiềm năng tại địa phương và trên web được hỗ trợ bởi Outscraper."
       },
       "niche": {
         "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "desc": "Khám phá những ngách thị trường chưa được khai thác với phân tích hỗ trợ AI."
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "Huấn luyện viên bán hàng AI cá nhân. Chiến lược, bản sao, xử lý phản đối."
       },
       "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "Nâng cấp ngay",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "Mở khóa 5 công cụ xây dựng",
+        "title": "Nâng cấp lên Thành viên Basic",
+        "desc": "Mọi thứ bạn cần để tạo nội dung cho doanh nghiệp của mình: AI hình ảnh và video, nội dung viết, quản lý liên kết, bài thuyết trình."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "Mở khóa 5 công cụ pro khác",
+        "title": "Nâng cấp lên Thành viên Pro",
+        "desc": "Nhận bộ công cụ tăng trưởng kinh doanh nghiêm túc: trang đích được lưu trữ, tự động hóa email, tìm kiếm khách hàng tiềm năng, phân tích ngách thị trường, huấn luyện viên bán hàng AI."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Quay lại Công cụ",
+    "yourReferralLink": "Liên kết giới thiệu của bạn",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép!"
   },
   "explore": {
     "navHome": "Trang chủ",
@@ -4105,58 +4105,58 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "Dòng Thành Viên",
+    "backToIncome": "Quay lại Thu Nhập",
+    "earningsSection": "Thu nhập Thành viên của bạn",
+    "qualitySection": "Chỉ số chất lượng — bạn có xây dựng một doanh nghiệp thực sự?",
+    "streamSection": "Thành viên so với các dòng thu nhập khác của bạn",
+    "upgradeSection": "Nâng cấp thành viên của bạn · kiếm nhiều hơn từ mỗi người trực tiếp",
+    "errorLoading": "Không thể tải dữ liệu Thành viên. Vui lòng thử lại.",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "Tổng Thu Nhập Suốt Đời",
+      "lifetimeSub": "kể từ khi bạn tham gia {{date}}",
+      "lifetimeSubEmpty": "Cập nhật sau hoa hồng đầu tiên của bạn",
+      "thisMonth": "Tháng Này",
+      "thisMonthSub": "được thanh toán bởi {{n}} người trực tiếp hoạt động",
+      "thisMonthSubEmpty": "Thực tế khi hoa hồng đến",
+      "mrr": "MRR Hiện Tại",
+      "mrrSub": "thu nhập định kỳ hàng tháng được đảm bảo",
+      "mrrSubEmpty": "Thu nhập định kỳ hàng tháng",
+      "projection": "Dự Phóng Tiếp Theo",
+      "projectionSubEmpty": "Dựa trên những người trực tiếp hoạt động của bạn"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "Người giới thiệu trực tiếp đầu tiên của bạn chỉ cách một chia sẻ",
+    "coachingSub": "Mỗi thành viên Pro bạn giới thiệu sẽ trả cho bạn $17.50/tháng miễn là họ ở lại. 5 người = $87.50 mỗi tháng, tự động. Hãy có được người đầu tiên của bạn.",
+    "openSocialShare": "Mở Chia Sẻ Liên Kết",
+    "copyReferralLink": "Sao chép liên kết giới thiệu",
+    "linkCopied": "Đã sao chép!",
+    "firstStepsSection": "3 bước đầu tiên của bạn để nhận hoa hồng đầu tiên",
+    "step1Title": "Làm cho liên kết của bạn dễ tìm",
+    "step1Desc": "Thiết lập trang LinkHub của bạn để bất cứ nơi nào bạn đăng liên kết — bio, hồ sơ, chữ ký — đều dẫn đến một trang đẹp.",
+    "step1Cta": "Thiết lập LinkHub →",
+    "step2Title": "Chia sẻ với 5 người thân thiết nhất của bạn",
+    "step2Desc": "Đừng phát tán — hãy bắt đầu với 5 người sẽ thực sự được hưởng lợi. Tin nhắn được viết sẵn trong Email Swipes.",
+    "step2Cta": "Xem Email Swipes →",
+    "step3Title": "Chia sẻ bài viết trên mạng xã hội",
+    "step3Desc": "Một bài viết, tầm tiếp cận lớn. Copy do AI tạo ra với 4 phong cách (chuyên nghiệp / thân mật / sôi động / câu chuyện).",
+    "step3Cta": "Mở Social Share →",
+    "quickMathTitle": "Tính nhanh",
+    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. Điều này tăng lũy tiến tháng sau tháng, tự động.",
+    "encourageEyebrow": "Bạn đang xây dựng động lực",
+    "encourageTitle": "Bạn có {{n}} directs — hãy đạt {{target}}",
+    "encourageSub": "{{target}} paying directs có nghĩa là thu nhập tái diễn thực sự. Tiếp tục làm những gì đang hoạt động — chia sẻ liên kết của bạn với {{remaining}} người khác trong tuần này.",
+    "handoffTitle": "Xem chi tiết referral trực tiếp của bạn",
+    "handoffTitle5plus": "Quản lý {{n}} direct referral của bạn",
+    "handoffSub": "Trạng thái, tên, gửi broadcast và các hành động tái kích hoạt nằm trong Command Centre của bạn.",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "Tỷ lệ kích hoạt",
+      "activationHeadline": "{{paid}} / {{total}} paid",
+      "activationDetail": "Những thành viên trở thành khách hàng trả phí sau khi đăng ký",
+      "retention": "Tỷ lệ giữ chân",
+      "retentionHeadline": "{{active}} / {{paid}} vẫn đang trả phí",
+      "retentionDetail": "{{n}} lapsed trong 30 ngày qua",
+      "tenure": "Thời gian sử dụng trung bình",
+      "tenureDetail": "Của những directs đang trả phí hiện tại"
     },
     "stream": {
       "membership": "Membership",
@@ -4164,12 +4164,12 @@
       "course": "Course",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "Lợi tức tháng này",
+    "streamCompareSubtitle": "trên tất cả 4 luồng",
+    "upgradeEyebrow": "Bạn đang dùng Basic",
+    "upgradeTitle": "Nâng cấp lên Pro để kiếm $17.50 cho mỗi direct",
+    "upgradeDesc": "Là thành viên Basic, bạn hiện kiếm $10/mo cho mỗi direct. Pro members kiếm $17.50/mo cho mỗi direct — tăng lương 75% cho mọi referral hiện tại và tương lai. Với {{n}} actives hiện tại của bạn, đó là +${{upside}}/mo ngay lập tức.",
+    "upgradeBtn": "Nâng cấp ngay →"
   },
   "gridVis": {
     "title": "Income Grid",

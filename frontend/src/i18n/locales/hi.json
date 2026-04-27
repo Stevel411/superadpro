@@ -3159,7 +3159,7 @@
     "t2Name": "LinkHub",
     "t2Desc": "आपका <strong>बायो-लिंक एक ही URL में</strong>। सभी ऑफ़र, प्रोडक्ट, सोशल। थीम, लाइव प्रीव्यू, क्लिक ट्रैकिंग। Stan Store का विकल्प — Pro में मुफ़्त।",
     "t2Meta": "<strong>8</strong> थीम",
-    "t3Name": "Link Tools",
+    "t3Name": "लिंक टूल्स",
     "t3Desc": "शॉर्टनर, <strong>रोटेटर, स्प्लिट-टेस्ट, प्रति-URL क्लिक कैप</strong>। हर लिंक पर QR कोड और पिक्सेल ट्रैकिंग। अपने ट्रैफ़िक डेटा के मालिक बनें।",
     "t3Meta": "<strong>लाइव</strong> एनालिटिक्स",
     "t4Name": "SuperLeads · CRM",
@@ -3194,132 +3194,132 @@
     "footerLine1": "सात टूल। एक प्लेटफ़ॉर्म।",
     "footerLine2": "जो चाहिए वो सब, जो नहीं चाहिए वो कुछ नहीं।",
     "footerCta": "बनाना शुरू करें",
-    "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "pageTitle": "टूल्स",
+    "heroEyebrow": "आपके टूल्स",
+    "activeSince": "सक्रिय है",
+    "backToDashboard": "डैशबोर्ड पर वापस जाएं",
+    "scrollLeft": "बाईं ओर स्क्रॉल करें",
+    "scrollRight": "दाईं ओर स्क्रॉल करें",
+    "locked": "लॉक्ड",
+    "categoriesSection": "आपकी टूल श्रेणियां",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
+      "overview": "अवलोकन",
+      "free": "फ्री टूल्स",
       "basic": "Basic Membership",
       "pro": "Pro Membership"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "सभी के लिए खुला",
+        "title": "फ्री टूल्स",
+        "desc": "Banner Creator, Meme Generator, QR Generator। लीड-मैग्नेट टूल्स जो आप कभी भी उपयोग कर सकते हैं।",
+        "count": "3 टूल्स"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Basic plan और ऊपर",
+        "eyebrowLocked": "अनलॉक करने के लिए अपग्रेड करें",
+        "title": "Basic Membership टूल्स",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck। रोज़मर्रा की बिल्डिंग टूल्स।",
+        "count": "5 टूल्स",
+        "countLocked": "5 टूल्स · लॉक्ड"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "Pro plan अनलॉक किया गया",
+        "eyebrowLocked": "अनलॉक करने के लिए अपग्रेड करें",
+        "title": "Pro Membership टूल्स",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller। गंभीर व्यावसायिक वृद्धि के टूल्स।",
+        "count": "5 टूल्स",
+        "countLocked": "5 टूल्स · बंद"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "खोलें",
+      "upgrade": "अपग्रेड करें"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "फ्री टूल्स · सभी के लिए खुला",
+      "basicUnlocked": "बेसिक मेंबरशिप टूल्स · 5 टूल्स $20/माह पर अनलॉक",
+      "basicLocked": "बेसिक मेंबरशिप टूल्स · अनलॉक करने के लिए अपग्रेड करें",
+      "proUnlocked": "प्रो मेंबरशिप टूल्स · 5 टूल्स $97/माह पर अनलॉक",
+      "proLocked": "प्रो मेंबरशिप टूल्स · अनलॉक करने के लिए अपग्रेड करें"
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "name": "बैनर क्रिएटर",
+        "desc": "सोशल प्लेटफॉर्म के लिए AI द्वारा जेनरेट किए गए बैनर और प्रोफाइल इमेज।"
       },
       "meme": {
-        "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "name": "मेम जेनरेटर",
+        "desc": "त्वरित टेम्पलेट-आधारित मेम और वायरल इमेज।"
       },
       "qr": {
-        "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "name": "QR जेनरेटर",
+        "desc": "किसी भी लिंक के लिए कस्टम QR कोड। ट्रैकेबल।"
       },
-      "pageTitle": "Free Tools"
+      "pageTitle": "फ्री टूल्स"
     },
     "basic": {
       "studio": {
-        "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "name": "क्रिएटिव स्टूडियो",
+        "desc": "AI इमेज, वीडियो, म्यूजिक, वॉयसओवर, लिपसिंक, कैप्शन। आपकी क्रिएटिव पावरहाउस।"
       },
       "content": {
-        "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "name": "कंटेंट क्रिएटर",
+        "desc": "AI द्वारा लिखी गई पोस्ट, आर्टिकल, कैप्शन, स्क्रिप्ट।"
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "Linktree-स्टाइल पेज जो आपके सभी लिंक को एक जगह होस्ट करता है।"
       },
       "links": {
-        "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "name": "लिंक टूल्स",
+        "desc": "शॉर्टनर, क्लोकर, पिक्सल-ट्रैकिंग, A/B रीडायरेक्ट।"
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "18 फॉन्ट और प्रेजेंट मोड के साथ AI प्रेजेंटेशन बिल्डर।"
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "बेसिक टूल्स"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "ड्रैग-एंड-ड्रॉप लैंडिंग पेज बिल्डर। होस्टेड, मोबाइल-रेडी, कन्वर्जन-फोकस्ड।"
       },
       "auto": {
-        "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "name": "ऑटोरेस्पॉन्डर",
+        "desc": "ईमेल सीक्वेंस, ब्रॉडकास्ट, लीड नर्चर। Brevo द्वारा संचालित।"
       },
       "leads": {
-        "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "name": "लीड फाइंडर",
+        "desc": "Outscraper द्वारा संचालित स्थानीय व्यवसाय और वेब प्रॉस्पेक्ट फाइंडर।"
       },
       "niche": {
-        "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "name": "निच फाइंडर",
+        "desc": "AI-संचालित विश्लेषण के साथ कम सेवा वाली niches खोजें।"
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "व्यक्तिगत AI विक्रय कोच। रणनीति, कॉपी, आपत्ति प्रबंधन।"
       },
       "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "अभी अपग्रेड करें",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "5 बिल्डिंग टूल्स अनलॉक करें",
+        "title": "Basic Membership में अपग्रेड करें",
+        "desc": "आपके व्यवसाय के लिए कंटेंट बनाने के लिए आपको जो कुछ चाहिए: AI छवि और वीडियो, लिखित कंटेंट, लिंक प्रबंधन, प्रस्तुतियां।"
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "5 और pro tools अनलॉक करें",
+        "title": "Pro Membership में अपग्रेड करें",
+        "desc": "गंभीर व्यावसायिक विकास टूलकिट प्राप्त करें: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching।"
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Tools पर वापस जाएं",
+    "yourReferralLink": "आपका रेफरल लिंक",
+    "copy": "कॉपी करें",
+    "copied": "कॉपी हो गया!"
   },
   "explore": {
     "navHome": "होम",
@@ -3950,73 +3950,73 @@
     "reengagement_lapsed_message": "आपका नेटवर्क और कमाई अभी भी आपका इंतज़ार कर रहे हैं। पुनः सक्रिय करने के लिए नीचे क्लिक करें।"
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "आय",
+    "heroEyebrow": "आपकी आय",
+    "activeSince": "सक्रिय के बाद से",
+    "backToDashboard": "डैशबोर्ड पर वापस जाएं",
+    "scrollLeft": "बाईं ओर स्क्रॉल करें",
+    "scrollRight": "दाईं ओर स्क्रॉल करें",
+    "earningsSection": "आपकी कमाई",
+    "streamsSection": "आपकी चार आय धाराएं",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
+      "overview": "अवलोकन",
+      "wallet": "वॉलेट",
       "compPlan": "Comp Plan",
-      "membership": "Membership",
+      "membership": "सदस्यता",
       "grid": "Campaign Grid",
       "nexus": "Profit Nexus",
       "courses": "Course Academy",
-      "history": "Earnings History"
+      "history": "आय इतिहास"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "उपलब्ध",
+      "availableCaption": "आपके वॉलेट में अभी",
+      "thisMonth": "इस महीने",
+      "thisMonthCaption": "इस महीने अर्जित कमीशन",
+      "nextPayout": "अगला भुगतान",
+      "nextPayoutValue": "अनुरोध पर",
+      "nextPayoutCaption": "कभी भी क्रिप्टो निकासी करें",
+      "allTime": "सर्वकालीन",
+      "allTimeCaption": "आजीवन कमाई",
+      "allTimeCaptionSince": "{{since}} के बाद से"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "सक्रिय",
+      "tier": "सक्रिय",
+      "available": "उपलब्ध"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Direct सदस्य भुगतान कर रहे हैं",
+      "team": "आपकी टीम में",
+      "earnedAllTime": "हमेशा के लिए कमाई"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
+      "membership": "सदस्यता प्रायोजक",
+      "membershipSub": "हर सीधे सदस्य की मासिक फीस पर 25%",
+      "membershipDormant": "अपना लिंक शेयर करें सबसे आसान स्ट्रीम को सक्रिय करने के लिए — जब तक वे रहें हर महीने भुगतान पाएं।",
       "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "gridSub": "8×8 forced matrix · विज्ञापन दें + कमाएं",
+      "gridDormant": "Grid tier खरीदें विज्ञापन देने और 8×8 spillover matrix से कमाने के लिए।",
       "nexus": "Profit Nexus",
       "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
+      "nexusDormant": "अपना स्थान 3×3 matrix में लेने के लिए credit pack खरीदें।",
       "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "coursesSub": "Pass-up commissions · असीम गहराई",
+      "coursesDormant": "हर बिक्री पर upline pass-ups के लिए योग्य होने के लिए course tier खरीदें।"
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
+      "myReferrals": "मेरे रेफरल",
+      "shareLink": "शेयर लिंक प्राप्त करें",
       "compPlan": "Comp plan",
       "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
+      "watchAds": "विज्ञापन देखें",
+      "calculator": "कैलकुलेटर",
+      "upgradeTier": "Tier अपग्रेड करें",
+      "buyCredits": "Credits खरीदें",
       "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "howItWorks": "यह कैसे काम करता है",
+      "browseCourses": "कोर्स ब्राउज़ करें",
+      "passUp": "Pass-up कैसे काम करता है"
     }
   },
   "learn": {
@@ -4105,71 +4105,71 @@
     "scrollRight": "Scroll right"
   },
   "membership": {
-    "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "heroEyebrow": "सदस्यता प्रवाह",
+    "backToIncome": "आय पर वापस जाएं",
+    "earningsSection": "आपकी सदस्यता आय",
+    "qualitySection": "गुणवत्ता मेट्रिक्स — क्या आप एक वास्तविक व्यवसाय बना रहे हैं?",
+    "streamSection": "सदस्यता आपकी अन्य आय स्रोतों से कैसे तुलना करती है",
+    "upgradeSection": "अपनी सदस्यता अपग्रेड करें · प्रत्येक सीधे संदर्भ से अधिक कमाएं",
+    "errorLoading": "सदस्यता डेटा लोड नहीं कर सके। कृपया पुनः प्रयास करें।",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
-      "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "lifetime": "आजीवन अर्जित",
+      "lifetimeSub": "जब से आप {{date}} को शामिल हुए हैं",
+      "lifetimeSubEmpty": "आपके पहले कमीशन के बाद अपडेट",
+      "thisMonth": "इस महीने",
+      "thisMonthSub": "{{n}} सक्रिय सीधे संदर्भों द्वारा भुगतान किया गया",
+      "thisMonthSubEmpty": "कमीशन आने पर वास्तविक समय में",
+      "mrr": "वर्तमान MRR",
+      "mrrSub": "गारंटीकृत मासिक आवर्ती",
+      "mrrSubEmpty": "आवर्ती मासिक आय",
+      "projection": "अगला अनुमान",
+      "projectionSubEmpty": "आपके सक्रिय सीधे संदर्भों के आधार पर"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "आपका पहला सीधा संदर्भ केवल एक शेयर दूर है",
+    "coachingSub": "हर Pro सदस्य जिसे आप संदर्भित करते हैं, आप $17.50/माह का भुगतान करता है जब तक वे रहते हैं। 5 सीधे = $87.50 हर महीने, स्वचालित रूप से। आपका पहला पाएं।",
+    "openSocialShare": "संबद्ध शेयर खोलें",
+    "copyReferralLink": "रेफरल लिंक कॉपी करें",
+    "linkCopied": "कॉपी किया गया!",
+    "firstStepsSection": "आपका पहला कमीशन पाने के लिए आपके पहले 3 कदम",
+    "step1Title": "अपने लिंक को खोजना आसान बनाएं",
+    "step1Desc": "अपना LinkHub पृष्ठ सेट करें ताकि आप अपना लिंक जहां भी पोस्ट करें — बायो, प्रोफाइल, हस्ताक्षर — एक सुंदर पृष्ठ पर जाएं।",
+    "step1Cta": "LinkHub सेट करें →",
+    "step2Title": "अपने सबसे गर्म 5 के साथ शेयर करें",
+    "step2Desc": "विस्फोट न करें — 5 लोगों के साथ शुरू करें जिन्हें वास्तव में लाभ होगा। Email Swipes में पूर्व-लिखित संदेश।",
+    "step2Cta": "Email Swipes देखें →",
+    "step3Title": "एक सोशल शेयर पोस्ट करें",
+    "step3Desc": "एक पोस्ट, बड़ी पहुंच। AI-जनित कॉपी 4 टोन में (professional / casual / hype / story)।",
+    "step3Cta": "सोशल शेयर खोलें →",
+    "quickMathTitle": "त्वरित गणना",
+    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo। यह महीने दर महीने स्वचालित रूप से बढ़ता है।",
+    "encourageEyebrow": "आप गति बना रहे हैं",
+    "encourageTitle": "आपके पास {{n}} directs हैं — आइए {{target}} तक पहुंचें",
+    "encourageSub": "{{target}} paying directs का मतलब वास्तविक आवर्ती आय है। जो काम कर रहा है उसे करते रहें — इस हफ्ते अपनी लिंक {{remaining}} और लोगों के साथ साझा करें।",
+    "handoffTitle": "अपने direct referrals को विस्तार से देखें",
+    "handoffTitle5plus": "अपने {{n}} direct referrals को प्रबंधित करें",
+    "handoffSub": "Status, names, broadcast भेजें, और re-engagement actions आपके Command Centre में लाइव हैं।",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "सक्रियकरण दर",
+      "activationHeadline": "{{paid}} का {{total}} भुगतान किया गया",
+      "activationDetail": "वे सदस्य जो साइन-अप के बाद paying बन गए",
+      "retention": "बरकरारी दर",
+      "retentionHeadline": "{{active}} of {{paid}} अभी भी paying हैं",
+      "retentionDetail": "पिछले 30 दिनों में {{n}} lapsed हुए",
+      "tenure": "औसत कार्यकाल",
+      "tenureDetail": "वर्तमान में paying directs में से"
     },
     "stream": {
-      "membership": "Membership",
+      "membership": "सदस्यता",
       "grid": "Grid",
-      "course": "Course",
+      "course": "पाठ्यक्रम",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "इस महीने की कमाई",
+    "streamCompareSubtitle": "सभी 4 streams में",
+    "upgradeEyebrow": "आप Basic पर हैं",
+    "upgradeTitle": "Pro में अपग्रेड करें और प्रति direct $17.50 अर्जित करें",
+    "upgradeDesc": "Basic सदस्य के रूप में आप वर्तमान में प्रति direct $10/mo अर्जित करते हैं। Pro सदस्य $17.50/mo प्रति direct अर्जित करते हैं — हर मौजूदा और भविष्य के रेफरल पर 75% वेतन वृद्धि। आपके वर्तमान {{n}} actives के साथ यह तुरंत +${{upside}}/mo है।",
+    "upgradeBtn": "अभी अपग्रेड करें →"
   },
   "gridVis": {
     "title": "Income Grid",

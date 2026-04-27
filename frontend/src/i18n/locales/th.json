@@ -3159,7 +3159,7 @@
     "t2Name": "LinkHub",
     "t2Desc": "<strong>Bio-link ใน URL เดียว</strong> รวมข้อเสนอ สินค้า โซเชียล ธีม พรีวิวสด ติดตามคลิก แทน Stan Store — ฟรีบน Pro",
     "t2Meta": "<strong>8</strong> ธีม",
-    "t3Name": "Link Tools",
+    "t3Name": "เครื่องมือลิงก์",
     "t3Desc": "ย่อลิงก์, <strong>โรเตเตอร์, split-test, เพดานคลิกต่อ URL</strong> QR และพิกเซลติดตามทุกลิงก์ ข้อมูลทราฟฟิกเป็นของคุณ",
     "t3Meta": "วิเคราะห์ <strong>สด</strong>",
     "t4Name": "SuperLeads · CRM",
@@ -3194,132 +3194,132 @@
     "footerLine1": "เจ็ดเครื่องมือ หนึ่งแพลตฟอร์ม",
     "footerLine2": "ทุกสิ่งที่คุณต้องการ ไม่มีสิ่งที่ไม่ต้องการ",
     "footerCta": "เริ่มสร้าง",
-    "pageTitle": "Tools",
-    "heroEyebrow": "Your Tools",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "locked": "Locked",
-    "categoriesSection": "Your tool categories",
+    "pageTitle": "เครื่องมือ",
+    "heroEyebrow": "เครื่องมือของคุณ",
+    "activeSince": "ใช้งานตั้งแต่",
+    "backToDashboard": "กลับไปที่แดชบอร์ด",
+    "scrollLeft": "เลื่อนไปทางซ้าย",
+    "scrollRight": "เลื่อนไปทางขวา",
+    "locked": "ล็อกอยู่",
+    "categoriesSection": "หมวดหมู่เครื่องมือของคุณ",
     "tabs": {
-      "overview": "Overview",
-      "free": "Free Tools",
-      "basic": "Basic Membership",
-      "pro": "Pro Membership"
+      "overview": "ภาพรวม",
+      "free": "เครื่องมือฟรี",
+      "basic": "สมาชิก Basic",
+      "pro": "สมาชิก Pro"
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
-        "title": "Free Tools",
-        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
-        "count": "3 tools"
+        "eyebrow": "เปิดให้ทุกคน",
+        "title": "เครื่องมือฟรี",
+        "desc": "Banner Creator, Meme Generator, QR Generator เครื่องมือสร้างลีดแม่เหล็กที่คุณใช้ได้ตลอดเวลา",
+        "count": "3 เครื่องมือ"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "แผน Basic ขึ้นไป",
+        "eyebrowLocked": "อัปเกรดเพื่อปลดล็อก",
+        "title": "เครื่องมือสมาชิก Basic",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck เครื่องมือการสร้างสรรค์ที่ใช้ในแต่วัน",
+        "count": "5 เครื่องมือ",
+        "countLocked": "5 เครื่องมือ · ล็อกอยู่"
       },
       "pro": {
-        "eyebrowOpen": "Pro plan unlocked",
-        "eyebrowLocked": "Upgrade to unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
-        "count": "5 tools",
-        "countLocked": "5 tools · locked"
+        "eyebrowOpen": "ปลดล็อก Pro plan",
+        "eyebrowLocked": "อัปเกรดเพื่อปลดล็อก",
+        "title": "เครื่องมือสมาชิก Pro",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller เครื่องมือการเติบโตธุรกิจขั้นสูง",
+        "count": "เครื่องมือ 5 แบบ",
+        "countLocked": "เครื่องมือ 5 แบบ · ถูกล็อก"
       },
-      "open": "Open",
-      "upgrade": "Upgrade"
+      "open": "เปิด",
+      "upgrade": "อัปเกรด"
     },
     "section": {
-      "free": "Free Tools · open to everyone",
-      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
-      "basicLocked": "Basic Membership Tools · upgrade to unlock",
-      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
-      "proLocked": "Pro Membership Tools · upgrade to unlock"
+      "free": "Free Tools · เปิดให้ทุกคนใช้",
+      "basicUnlocked": "Basic Membership Tools · ปลดล็อก 5 เครื่องมือที่ $20/เดือน",
+      "basicLocked": "Basic Membership Tools · อัปเกรดเพื่อปลดล็อก",
+      "proUnlocked": "Pro Membership Tools · ปลดล็อก 5 เครื่องมือที่ $97/เดือน",
+      "proLocked": "Pro Membership Tools · อัปเกรดเพื่อปลดล็อก"
     },
     "free": {
       "banner": {
         "name": "Banner Creator",
-        "desc": "AI-generated banners and profile images for social platforms."
+        "desc": "แบนเนอร์และรูปโปรไฟล์ที่สร้างโดย AI สำหรับแพลตฟอร์มโซเชียล"
       },
       "meme": {
         "name": "Meme Generator",
-        "desc": "Quick template-based memes and viral images."
+        "desc": "สร้างมีมจากแม่แบบและรูปภาพไวรัลอย่างรวดเร็ว"
       },
       "qr": {
         "name": "QR Generator",
-        "desc": "Custom QR codes for any link. Trackable."
+        "desc": "QR code แบบกำหนดเอง สำหรับลิงก์ใดก็ได้ สามารถติดตามได้"
       },
       "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
         "name": "Creative Studio",
-        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+        "desc": "AI image, video, music, voiceover, lipsync, captions ศูนย์กลางสร้างสรรค์ของคุณ"
       },
       "content": {
         "name": "Content Creator",
-        "desc": "AI-written posts, articles, captions, scripts."
+        "desc": "โพสต์, บทความ, คำอธิบายรูป, สคริปต์เขียนด้วย AI"
       },
       "linkhub": {
         "name": "LinkHub",
-        "desc": "Linktree-style page hosting all your links in one place."
+        "desc": "หน้าจัดเก็บลิงก์แบบ Linktree ที่รวมลิงก์ทั้งหมดของคุณไว้ในที่เดียว"
       },
       "links": {
         "name": "Link Tools",
-        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+        "desc": "ตัวย่อลิงก์, ตัวซ่อนลิงก์, pixel-tracking, A/B redirect"
       },
       "deck": {
         "name": "SuperDeck",
-        "desc": "AI presentation builder with 18 fonts and present mode."
+        "desc": "AI presentation builder ที่มีฟอนต์ 18 แบบและโหมดนำเสนอ"
       },
       "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
         "name": "SuperPages",
-        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+        "desc": "Drag-and-drop landing page builder โฮสต์แล้ว พร้อมมือถือ มุ่งเน้นการแปลงเป็นลูกค้า"
       },
       "auto": {
         "name": "AutoResponder",
-        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+        "desc": "ลำดับอีเมล, การออกอากาศ, บ่มเพาะลีด ขับเคลื่อนโดย Brevo"
       },
       "leads": {
         "name": "Lead Finder",
-        "desc": "Outscraper-powered local business and web prospect finder."
+        "desc": "ตัวค้นหาลูกค้าโดย Outscraper สำหรับธุรกิจท้องถิ่นและแนวโน้มเว็บ"
       },
       "niche": {
         "name": "Niche Finder",
-        "desc": "Discover under-served niches with AI-powered analysis."
+        "desc": "ค้นหาช่องตลาดที่ยังไม่มีการให้บริการด้วยการวิเคราะห์ที่ขับเคลื่อนด้วย AI"
       },
       "seller": {
         "name": "ProSeller",
-        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+        "desc": "โค้ชขายของ AI ส่วนตัว กลยุทธ์ คัดลอก การจัดการคำคัดค้าน"
       },
       "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "อัปเกรดตอนนี้",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
-        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+        "eyebrow": "ปลดล็อก 5 เครื่องมือการสร้าง",
+        "title": "อัปเกรดเป็น Basic Membership",
+        "desc": "ทุกอย่างที่คุณต้องการเพื่อสร้างเนื้อหาสำหรับธุรกิจของคุณ: ภาพและวิดีโอ AI, เนื้อหาลายลักษณ์อักษร, การจัดการลิงก์, การนำเสนอ"
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
-        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+        "eyebrow": "ปลดล็อก 5 pro tools เพิ่มเติม",
+        "title": "อัปเกรดเป็น Pro Membership",
+        "desc": "รับชุดเครื่องมือเพื่อการเติบโตของธุรกิจที่จริงจัง: หน้าแรกที่โฮสต์, ระบบอัตโนมัติอีเมล, การค้นหาลีด, การวิเคราะห์ช่องตลาด, โค้ชขายของ AI"
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "กลับไปที่เครื่องมือ",
+    "yourReferralLink": "ลิงก์การอ้างอิงของคุณ",
+    "copy": "คัดลอก",
+    "copied": "คัดลอกแล้ว!"
   },
   "explore": {
     "navHome": "หน้าแรก",
@@ -4106,70 +4106,70 @@
   },
   "membership": {
     "heroEyebrow": "Membership Stream",
-    "backToIncome": "Back to Income",
-    "earningsSection": "Your Membership earnings",
-    "qualitySection": "Quality metrics — are you building a real business?",
-    "streamSection": "How Membership compares to your other streams",
-    "upgradeSection": "Upgrade your membership · earn more from each direct",
-    "errorLoading": "Could not load Membership data. Please try again.",
+    "backToIncome": "กลับไปที่รายได้",
+    "earningsSection": "รายได้จาก Membership ของคุณ",
+    "qualitySection": "Quality metrics — คุณกำลังสร้างธุรกิจจริงหรือ?",
+    "streamSection": "Membership เปรียบเทียบกับ Stream อื่นของคุณ",
+    "upgradeSection": "อัปเกรด Membership ของคุณ · รับรายได้มากขึ้นจากแต่ละ Direct",
+    "errorLoading": "ไม่สามารถโหลดข้อมูล Membership ได้ โปรดลองอีกครั้ง",
     "stat": {
-      "lifetime": "Lifetime Earned",
-      "lifetimeSub": "since you joined {{date}}",
-      "lifetimeSubEmpty": "Updates after your first commission",
-      "thisMonth": "This Month",
-      "thisMonthSub": "paid by {{n}} active directs",
-      "thisMonthSubEmpty": "Real-time as commissions land",
+      "lifetime": "รายได้ตลอดอายุ",
+      "lifetimeSub": "ตั้งแต่คุณเข้าร่วมเมื่อ {{date}}",
+      "lifetimeSubEmpty": "อัปเดตหลังจากคอมมิชชันแรกของคุณ",
+      "thisMonth": "เดือนนี้",
+      "thisMonthSub": "จ่ายโดย {{n}} active directs",
+      "thisMonthSubEmpty": "แบบ real-time เมื่อมีการรับคอมมิชชัน",
       "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
-      "mrrSubEmpty": "Recurring monthly income",
-      "projection": "Next Projection",
-      "projectionSubEmpty": "Based on your active directs"
+      "mrrSub": "รับประกันรายได้ประจำเดือน",
+      "mrrSubEmpty": "รายได้ที่เกิดซ้ำทุกเดือน",
+      "projection": "การคาดการณ์ครั้งถัดไป",
+      "projectionSubEmpty": "ตามจำนวน active directs ของคุณ"
     },
-    "coachingTitle": "Your first direct referral is just one share away",
-    "coachingSub": "Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let's get your first one.",
-    "openSocialShare": "Open Affiliate Share",
-    "copyReferralLink": "Copy referral link",
-    "linkCopied": "Copied!",
-    "firstStepsSection": "Your first 3 steps to your first commission",
-    "step1Title": "Make your link easy to find",
-    "step1Desc": "Set up your LinkHub page so anywhere you post your link — bio, profile, signature — leads to one beautiful page.",
-    "step1Cta": "Set up LinkHub →",
-    "step2Title": "Share with your warmest 5",
-    "step2Desc": "Don't blast — start with 5 people who'd genuinely benefit. Pre-written messages in Email Swipes.",
-    "step2Cta": "View Email Swipes →",
-    "step3Title": "Drop a social share post",
-    "step3Desc": "One post, big reach. AI-generated copy in 4 tones (professional / casual / hype / story).",
-    "step3Cta": "Open Social Share →",
-    "quickMathTitle": "Quick math",
-    "quickMathText": "10 Pro directs = $175/mo guaranteed · 50 Pro directs = $875/mo · 100 Pro directs = $1,750/mo. This compounds month after month, automatically.",
-    "encourageEyebrow": "You're building momentum",
-    "encourageTitle": "You've got {{n}} directs — let's get to {{target}}",
-    "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
-    "handoffTitle": "See your direct referrals in detail",
-    "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "coachingTitle": "Direct referral แรกของคุณคือเพียงแค่หนึ่งการแชร์เท่านั้น",
+    "coachingSub": "สมาชิก Pro ทุกคนที่คุณแนะนำจะจ่ายให้คุณ $17.50/เดือน ตราบเท่าที่พวกเขาอยู่ 5 directs = $87.50 ทุกเดือน โดยอัตโนมัติ มาเริ่มต้นกับคนแรกกันเถอะ",
+    "openSocialShare": "เปิด Affiliate Share",
+    "copyReferralLink": "คัดลอกลิงก์ referral",
+    "linkCopied": "คัดลอกแล้ว!",
+    "firstStepsSection": "3 ขั้นตอนแรกของคุณเพื่อรับคอมมิชชันแรก",
+    "step1Title": "ทำให้ลิงก์ของคุณหาง่าย",
+    "step1Desc": "ตั้งค่าหน้า LinkHub ของคุณ เพื่อให้ที่ใดก็ตามที่คุณโพสต์ลิงก์ของคุณ — bio, profile, signature — นำไปยังหน้าที่สวยงามหน้าเดียว",
+    "step1Cta": "ตั้งค่า LinkHub →",
+    "step2Title": "แชร์กับ 5 คนที่อบอุ่นที่สุดของคุณ",
+    "step2Desc": "อย่ากระจายไปทั่ว — เริ่มต้นด้วย 5 คนที่จะได้ประโยชน์จริงๆ มีข้อความที่เขียนไว้ล่วงหน้าใน Email Swipes",
+    "step2Cta": "ดู Email Swipes →",
+    "step3Title": "วางโพสต์แชร์โซเชียล",
+    "step3Desc": "หนึ่งโพสต์ ความเдосягเมือง ใหญ่ สำเนา AI ใน 4 โทน (ระดับมืออาชีพ / ลำลอง / ตื่นเต้น / เรื่องราว)",
+    "step3Cta": "เปิด Social Share →",
+    "quickMathTitle": "คณิตศาสตร์ด่วน",
+    "quickMathText": "10 Pro directs = $175/เดือน รับประกัน · 50 Pro directs = $875/เดือน · 100 Pro directs = $1,750/เดือน ซ้ำแล้วซ้ำอีกทุกเดือน โดยอัตโนมัติ",
+    "encourageEyebrow": "คุณกำลังสร้างโมเมนตัม",
+    "encourageTitle": "คุณมี {{n}} directs — ไปถึง {{target}} กัน",
+    "encourageSub": "{{target}} paying directs หมายถึงรายได้ที่เกิดขึ้นซ้ำอย่างแท้จริง ทำต่อไปสิ่งที่ได้ผล — แชร์ลิงก์ของคุณกับคนอีก {{remaining}} คนในสัปดาห์นี้",
+    "handoffTitle": "ดูการอ้างอิง direct ของคุณโดยละเอียด",
+    "handoffTitle5plus": "จัดการการอ้างอิง direct {{n}} ของคุณ",
+    "handoffSub": "สถานะ ชื่อ ส่งการออกอากาศ และการดำเนินการสร้างความสัมพันธ์ที่ยั่งยืนอยู่ในศูนย์กลางการสั่งการของคุณ",
     "metric": {
-      "activation": "Activation Rate",
-      "activationHeadline": "{{paid}} of {{total}} paid",
-      "activationDetail": "Members who became paying after sign-up",
-      "retention": "Retention Rate",
-      "retentionHeadline": "{{active}} of {{paid}} still paying",
-      "retentionDetail": "{{n}} lapsed in last 30 days",
-      "tenure": "Average Tenure",
-      "tenureDetail": "Of currently-paying directs"
+      "activation": "อัตราการเปิดใช้งาน",
+      "activationHeadline": "{{paid}} จาก {{total}} ที่ชำระแล้ว",
+      "activationDetail": "สมาชิกที่กลายเป็นผู้ชำระเงินหลังการลงทะเบียน",
+      "retention": "อัตราการเก็บรักษา",
+      "retentionHeadline": "{{active}} จาก {{paid}} ยังคงชำระเงิน",
+      "retentionDetail": "{{n}} หมดอายุในช่วง 30 วันที่ผ่านมา",
+      "tenure": "ระยะเวลาเฉลี่ย",
+      "tenureDetail": "ของ directs ที่ชำระเงินในปัจจุบัน"
     },
     "stream": {
-      "membership": "Membership",
+      "membership": "สมาชิกภาพ",
       "grid": "Grid",
       "course": "Course",
       "nexus": "Nexus"
     },
-    "streamCompareTitle": "This month earnings",
-    "streamCompareSubtitle": "across all 4 streams",
-    "upgradeEyebrow": "You're on Basic",
-    "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
-    "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
-    "upgradeBtn": "Upgrade now →"
+    "streamCompareTitle": "รายได้เดือนนี้",
+    "streamCompareSubtitle": "ทั่วทั้ง 4 สตรีม",
+    "upgradeEyebrow": "คุณอยู่ใน Basic",
+    "upgradeTitle": "อัปเกรดเป็น Pro เพื่อรับเงิน $17.50 ต่อ direct",
+    "upgradeDesc": "ในฐานะสมาชิก Basic คุณมีรายได้ $10/เดือน ต่อ direct ในปัจจุบัน สมาชิก Pro มีรายได้ $17.50/เดือน ต่อ direct — เพิ่มเงินเดือน 75% ในทุกการอ้างอิงที่มีอยู่และในอนาคต ด้วยจำนวน {{n}} active ปัจจุบันของคุณ นั่นคือ +${{upside}}/เดือน ทันที",
+    "upgradeBtn": "อัปเกรดตอนนี้ →"
   },
   "gridVis": {
     "title": "Income Grid",
