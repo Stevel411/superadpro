@@ -1192,7 +1192,7 @@
     "model": "Mô hình",
     "titleLabel": "Tiêu đề",
     "vocalGender": "Giới tính giọng hát",
-    "instrumentalLabel": "Instrumental",
+    "instrumentalLabel": "Công cụ",
     "noVocals": "Không giọng hát — chỉ nhạc nền",
     "generatingVoiceover": "Đang tạo giọng đọc...",
     "voiceoverReady": "✓ Giọng đọc sẵn sàng",
@@ -3159,7 +3159,7 @@
     "t2Name": "LinkHub",
     "t2Desc": "<strong>Bio-link trong một URL</strong> duy nhất. Tất cả ưu đãi, sản phẩm, mạng xã hội. Theme, xem trước trực tiếp, theo dõi nhấp chuột. Thay thế Stan Store — miễn phí trên Pro.",
     "t2Meta": "<strong>8</strong> theme",
-    "t3Name": "Link Tools",
+    "t3Name": "Công Cụ Liên Kết",
     "t3Desc": "Rút gọn, <strong>rotator, split-test, giới hạn nhấp chuột cho mỗi URL</strong>. QR code và pixel trên mọi liên kết. Sở hữu dữ liệu traffic của bạn.",
     "t3Meta": "Phân tích <strong>trực tiếp</strong>",
     "t4Name": "SuperLeads · CRM",
@@ -3194,7 +3194,7 @@
     "footerLine1": "Bảy công cụ. Một nền tảng.",
     "footerLine2": "Tất cả những gì bạn cần, không có thứ gì bạn không cần.",
     "footerCta": "Bắt đầu tạo",
-    "pageTitle": "Tools",
+    "pageTitle": "Công Cụ",
     "heroEyebrow": "Công cụ của bạn",
     "activeSince": "Hoạt động từ",
     "backToDashboard": "Quay lại Dashboard",
@@ -3243,15 +3243,15 @@
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
+        "name": "Công Cụ Tạo Banner",
         "desc": "Banner và hình ảnh hồ sơ được tạo bằng AI cho các nền tảng xã hội."
       },
       "meme": {
-        "name": "Meme Generator",
+        "name": "Trình Tạo Meme",
         "desc": "Meme dựa trên mẫu nhanh chóng và hình ảnh viral."
       },
       "qr": {
-        "name": "QR Generator",
+        "name": "Trình Tạo QR",
         "desc": "Mã QR tùy chỉnh cho bất kỳ liên kết nào. Có thể theo dõi."
       },
       "pageTitle": "Free Tools"
@@ -3262,7 +3262,7 @@
         "desc": "Hình ảnh, video, âm nhạc, voiceover, lipsync, caption được tạo bằng AI. Nhà máy sáng tạo của bạn."
       },
       "content": {
-        "name": "Content Creator",
+        "name": "Công Cụ Tạo Nội Dung",
         "desc": "Bài viết, bài báo, chú thích, kịch bản được viết bằng AI."
       },
       "linkhub": {
@@ -3270,14 +3270,14 @@
         "desc": "Trang kiểu Linktree lưu trữ tất cả các liên kết của bạn ở một nơi."
       },
       "links": {
-        "name": "Link Tools",
+        "name": "Công Cụ Liên Kết",
         "desc": "Rút gọn, cloaker, pixel-tracking, A/B redirect."
       },
       "deck": {
         "name": "SuperDeck",
         "desc": "Trình tạo bản trình bày AI với 18 phông chữ và chế độ trình bày."
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "Công Cụ Cơ Bản"
     },
     "pro": {
       "pages": {
@@ -3293,7 +3293,7 @@
         "desc": "Công cụ tìm kiếm khách hàng tiềm năng tại địa phương và trên web được hỗ trợ bởi Outscraper."
       },
       "niche": {
-        "name": "Niche Finder",
+        "name": "Công Cụ Tìm Kiếm Thị Trường",
         "desc": "Khám phá những ngách thị trường chưa được khai thác với phân tích hỗ trợ AI."
       },
       "seller": {
@@ -3368,7 +3368,7 @@
     "showcaseVisit": "Xem",
     "toolAutoResponderName": "Auto-responder",
     "toolAutoResponderBody": "Gửi chuỗi email tự động đến khách hàng tiềm năng của bạn.",
-    "toolContentCreatorName": "Content Creator",
+    "toolContentCreatorName": "Công Cụ Tạo Nội Dung",
     "toolContentCreatorBody": "Tạo bài viết, chú thích và nội dung quảng cáo bằng AI.",
     "toolCreativeStudioName": "Creative Studio",
     "toolCreativeStudioBody": "Tạo video, hình ảnh, âm nhạc và lời nói trong một bộ công cụ.",
@@ -3376,9 +3376,9 @@
     "toolLeadFinderBody": "Khám phá khách hàng tiềm năng từ Maps và web mở.",
     "toolLinklyName": "Linkly",
     "toolLinklyBody": "Theo dõi và xoay các liên kết liên kết của bạn với thống kê thời gian thực.",
-    "toolRotatorName": "Link Rotator",
+    "toolRotatorName": "Trình Quay Vòng Liên Kết",
     "toolRotatorBody": "Chia sẻ lưu lượng truy cập trên nhiều đích đến.",
-    "toolShortenerName": "Link Shortener",
+    "toolShortenerName": "Trình Rút Gọn Liên Kết",
     "toolShortenerBody": "Liên kết ngắn được đặt tên thương hiệu trông chuyên nghiệp.",
     "toolSuperDeckName": "SuperDeck",
     "toolSuperDeckBody": "Xây dựng bài thuyết trình slide bằng trợ giúp AI.",
@@ -3513,10 +3513,10 @@
     "watch": "Xem",
     "createCampaign": "Tạo",
     "myCampaigns": "Video",
-    "campaignAnalytics": "Stats",
+    "campaignAnalytics": "Thống Kê",
     "basicTools": "Cơ bản",
-    "linkHub": "Links",
-    "linkTools": "Tools",
+    "linkHub": "Liên Kết",
+    "linkTools": "Công Cụ",
     "contentCreator": "Nội dung",
     "creativeStudio": "Studio",
     "superDeck": "Deck",
@@ -4034,19 +4034,19 @@
       "education": {
         "eyebrow": "Nâng Cao Kỹ Năng",
         "title": "Giáo Dục",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
+        "desc": "Đào tạo, giải thích kế hoạch bù thụ, hướng dẫn nền tảng, hướng dẫn tiền điện tử. Nắm vững cách nền tảng hoạt động.",
         "count": "4 mục"
       },
       "assets": {
         "eyebrow": "Chia Sẻ & Quảng Bá",
         "title": "Tài Liệu Quảng Bá",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
+        "desc": "Tài liệu tiếp thị, email swipes, bài đăng chia sẻ xã hội. Mọi thứ bạn cần để phát triển đội ngũ của mình.",
         "count": "3 mục"
       },
       "community": {
         "eyebrow": "Kết Nối & Ăn Mừng",
         "title": "Cộng Đồng",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
+        "desc": "Xếp hạng bảng xếp hạng và gửi câu chuyện thành công của riêng bạn. Được nhìn thấy, lấy cảm hứng.",
         "count": "2 mục"
       }
     },
@@ -4056,18 +4056,18 @@
       "section": "Giáo Dục · 4 cách nâng cao kỹ năng",
       "training": {
         "name": "Trung Tâm Đào Tạo",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "desc": "Các bài học từng bước bao gồm mọi thứ từ cơ bản đến các chiến lược nâng cao."
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "Giải Thích Kế Hoạch Bù Thụ",
+        "desc": "Phân tích đầy đủ về cách kế hoạch bù thụ hoạt động. Mọi hoa hồng, mọi tầng."
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "Hướng Dẫn Nền Tảng",
+        "desc": "Hướng dẫn nhanh toàn bộ nền tảng. Tìm mọi thứ trong 5 phút."
       },
       "crypto": {
-        "name": "Crypto Guide",
+        "name": "Hướng Dẫn Tiền Điện Tử",
         "desc": "Cách thiết lập ví, nhận thanh toán USDT và giữ an toàn với tiền điện tử."
       }
     },

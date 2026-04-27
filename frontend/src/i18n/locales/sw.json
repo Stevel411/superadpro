@@ -3159,7 +3159,7 @@
     "t2Name": "LinkHub",
     "t2Desc": "<strong>Bio-link katika URL moja</strong>. Matoleo yote, bidhaa, mitandao. Mandhari, onyesho la moja kwa moja, ufuatiliaji wa mibofyo. Mbadala wa Stan Store — bure kwenye Pro.",
     "t2Meta": "Mandhari <strong>8</strong>",
-    "t3Name": "Link Tools",
+    "t3Name": "Zana za Kiungo",
     "t3Desc": "Vifupisho, <strong>vizungusha, split-tests, mipaka ya mibofyo kwa URL</strong>. QR codes na pixels kwenye kila link. Miliki data ya trafiki yako.",
     "t3Meta": "Uchanganuzi <strong>wa moja kwa moja</strong>",
     "t4Name": "SuperLeads · CRM",
@@ -3205,8 +3205,8 @@
     "tabs": {
       "overview": "Muhtasari",
       "free": "Zana za Bure",
-      "basic": "Basic Membership",
-      "pro": "Pro Membership"
+      "basic": "Uanachama wa Basic",
+      "pro": "Uanachama wa Pro"
     },
     "door": {
       "free": {
@@ -3218,7 +3218,7 @@
       "basic": {
         "eyebrowOpen": "Basic plan & zaidi",
         "eyebrowLocked": "Boresha ili kufungua",
-        "title": "Basic Membership Tools",
+        "title": "Zana za Uanachama wa Basic",
         "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Zana za kujenga kila siku.",
         "count": "Zana 5",
         "countLocked": "Zana 5 · imefungwa"
@@ -3226,7 +3226,7 @@
       "pro": {
         "eyebrowOpen": "Pro plan imefunguliwa",
         "eyebrowLocked": "Boresha ili kufungua",
-        "title": "Pro Membership Tools",
+        "title": "Zana za Uanachama wa Pro",
         "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Zana za ukuaji wa biashara sawa.",
         "count": "Zana 5",
         "countLocked": "Zana 5 · imefungwa"

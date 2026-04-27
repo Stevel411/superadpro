@@ -1212,7 +1212,7 @@
     "uploadingFile": "Enviando…",
     "fileReady": "✓ Pronto",
     "removeUpload": "✕ Remover",
-    "downloadMp3": "⬇ Download MP3",
+    "downloadMp3": "⬇ Baixar MP3",
     "styleLabel": "Estilo",
     "scriptStep": "① Roteiro",
     "downloadVoiceVideo": "⬇ Baixar vídeo",
@@ -3251,15 +3251,15 @@
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
+        "name": "Criador de Banner",
         "desc": "Banners e imagens de perfil gerados por IA para plataformas sociais."
       },
       "meme": {
-        "name": "Meme Generator",
+        "name": "Gerador de Meme",
         "desc": "Memes baseados em templates e imagens virais rápidas."
       },
       "qr": {
-        "name": "QR Generator",
+        "name": "Gerador de QR",
         "desc": "Códigos QR personalizados para qualquer link. Rastreáveis."
       },
       "pageTitle": "Ferramentas Gratuitas"
@@ -3270,7 +3270,7 @@
         "desc": "Imagem, vídeo, música, voz, sincronização labial, legendas por IA. Sua potência criativa."
       },
       "content": {
-        "name": "Content Creator",
+        "name": "Criador de Conteúdo",
         "desc": "Posts, artigos, captions, scripts escritos por IA."
       },
       "linkhub": {
@@ -3278,7 +3278,7 @@
         "desc": "Página estilo Linktree hospedando todos os seus links em um só lugar."
       },
       "links": {
-        "name": "Link Tools",
+        "name": "Ferramentas de Link",
         "desc": "Encurtadores, cloakers, pixel-tracking, redirecionamento A/B."
       },
       "deck": {
@@ -3376,7 +3376,7 @@
     "showcaseVisit": "Visitar",
     "toolAutoResponderName": "Auto-responder",
     "toolAutoResponderBody": "Envie sequências de e-mail automatizadas para seus leads.",
-    "toolContentCreatorName": "Content Creator",
+    "toolContentCreatorName": "Criador de Conteúdo",
     "toolContentCreatorBody": "Gere posts, legendas e copy com IA.",
     "toolCreativeStudioName": "Creative Studio",
     "toolCreativeStudioBody": "Crie vídeos, imagens, músicas e voiceovers em um único lugar.",
@@ -3386,7 +3386,7 @@
     "toolLinklyBody": "Rastreie e alterne seus links de afiliados com estatísticas em tempo real.",
     "toolRotatorName": "Link Rotator",
     "toolRotatorBody": "Distribua tráfego entre múltiplos destinos.",
-    "toolShortenerName": "Link Shortener",
+    "toolShortenerName": "Encurtador de Link",
     "toolShortenerBody": "Links curtos com marca que parecem profissionais.",
     "toolSuperDeckName": "SuperDeck",
     "toolSuperDeckBody": "Crie apresentações de slides com assistência de IA.",
@@ -3514,7 +3514,7 @@
     "teamMessenger": "Chat",
     "account": "Conta",
     "myProfile": "Perfil",
-    "wallet": "Wallet",
+    "wallet": "Carteira",
     "cryptoGuide": "Cripto",
     "support": "Ajuda",
     "watchToEarn": "Ganhar",
@@ -4092,7 +4092,7 @@
         "desc": "Templates de email gerados por IA para campanhas de divulgação. Prontos para copiar e colar."
       },
       "social": {
-        "name": "Social Share",
+        "name": "Compartilhamento Social",
         "desc": "Compartilhe com um clique no Facebook, X, LinkedIn, WhatsApp com copy gerado por IA."
       }
     },

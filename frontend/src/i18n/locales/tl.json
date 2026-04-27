@@ -594,7 +594,7 @@
     "totalClicks": "Kabuuang Clicks",
     "noShortLinksYet": "Wala pang mga short link",
     "createFirstShortLink": "Gumawa ng unang short link para magsimulang mag-track ng mga click",
-    "expired": "EXPIRED",
+    "expired": "NATAPOS NA",
     "clicksLabel": "MGA CLICK",
     "deleteConfirm": "I-delete?",
     "yes": "Oo",
@@ -3196,7 +3196,7 @@
     "footerCta": "Simulang gumawa",
     "pageTitle": "Tools",
     "heroEyebrow": "Iyong Tools",
-    "activeSince": "Active since",
+    "activeSince": "Active mula",
     "backToDashboard": "Bumalik sa Dashboard",
     "scrollLeft": "I-scroll pakaliwa",
     "scrollRight": "I-scroll pakanan",
@@ -3210,7 +3210,7 @@
     },
     "door": {
       "free": {
-        "eyebrow": "Open to everyone",
+        "eyebrow": "Bukas para sa lahat",
         "title": "Free Tools",
         "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools na maaari mong gamitin anumang oras.",
         "count": "3 tools"
@@ -3231,7 +3231,7 @@
         "count": "5 tools",
         "countLocked": "5 tools · locked"
       },
-      "open": "Open",
+      "open": "Bukas",
       "upgrade": "Upgrade"
     },
     "section": {
@@ -3277,7 +3277,7 @@
         "name": "SuperDeck",
         "desc": "AI presentation builder na may 18 fonts at present mode."
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "Mga Pangunahing Tool"
     },
     "pro": {
       "pages": {
@@ -3304,22 +3304,22 @@
     },
     "upgrade": {
       "perMonth": "/mo",
-      "cta": "Upgrade now",
+      "cta": "Mag-upgrade ngayon",
       "basic": {
-        "eyebrow": "Unlock 5 building tools",
-        "title": "Upgrade to Basic Membership",
+        "eyebrow": "I-unlock ang 5 building tools",
+        "title": "Mag-upgrade sa Basic Membership",
         "desc": "Lahat ng kailangan mo para lumikha ng content para sa iyong business: AI image at video, written content, link management, presentations."
       },
       "pro": {
-        "eyebrow": "Unlock 5 more pro tools",
-        "title": "Upgrade to Pro Membership",
+        "eyebrow": "I-unlock ang 5 pang pro tools",
+        "title": "Mag-upgrade sa Pro Membership",
         "desc": "Kunin ang serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
       }
     },
-    "backToTools": "Back to Tools",
-    "yourReferralLink": "Your referral link",
-    "copy": "Copy",
-    "copied": "Copied!"
+    "backToTools": "Bumalik sa Tools",
+    "yourReferralLink": "Ang iyong referral link",
+    "copy": "Kopyahin",
+    "copied": "Nakopya na!"
   },
   "explore": {
     "navHome": "Home",
@@ -4077,7 +4077,7 @@
       "section": "Promotional Assets · 3 ways to share & grow",
       "materials": {
         "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "desc": "Mga banner, graphics, at social posts na handa nang i-download at i-share."
       },
       "swipes": {
         "name": "Email Swipes",
@@ -4089,20 +4089,20 @@
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "Komunidad",
+      "heroEyebrow": "Komunidad",
+      "section": "Komunidad · makita, magpainspire",
       "leaderboard": {
         "name": "Leaderboard",
         "desc": "Top earners at top recruiters across the platform. Tingnan kung saan ka naka-rank."
       },
       "story": {
-        "name": "Share Your Story",
+        "name": "Ibahagi ang Iyong Kuwento",
         "desc": "I-submit ang iyong success milestone. Mag-inspire ng iba, maging featured sa homepage."
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Mag-scroll sa kaliwa",
+    "scrollRight": "Mag-scroll sa kanan"
   },
   "membership": {
     "heroEyebrow": "Membership Stream",

@@ -49,20 +49,39 @@ LANG_NAMES = {
     "tr": "Turkish", "vi": "Vietnamese", "zh": "Chinese (Simplified)",
 }
 
-# Brand and technical terms that should NEVER be translated. Same set as
-# translate_all.py keeps consistent with the existing curated translations.
+# Brand and technical terms that should NEVER be translated. Expanded set
+# covers SuperAdPro brand vocab so the script doesn't re-translate strings
+# that are correctly staying in English.
 KEEP_ENGLISH = {
     "SuperAdPro", "Banxa", "NOWPayments", "USDT", "USDC", "USD", "EUR", "GBP",
     "Polygon", "MetaMask", "Brevo", "Cloudflare", "AI", "API", "URL", "PDF",
-    "QR", "HTML", "CSS", "MP3", "MP4", "PNG", "SVG", "JSON",
+    "QR", "HTML", "CSS", "MP3", "MP4", "PNG", "SVG", "JSON", "CRM", "CTA",
+    "CTR", "SEO", "ROI", "KPI", "UTM", "DM", "FAQ", "UI", "UX", "FX", "VS",
+    "ID", "TBD", "N/A", "FYI", "OK", "On", "Off",
     "SuperPages", "SuperLeads", "SuperDeck", "SuperMarket", "SuperCut",
     "SuperLink", "SuperScene", "SuperSeller", "ProSeller", "LinkHub",
     "AdBoost", "EvoLink", "OmniHuman", "Kling", "Sora", "Grok", "Suno",
     "YouTube", "Vimeo", "Loom", "Google Authenticator", "Google Play",
     "App Store", "Coinbase Wallet", "Trust Wallet", "Pay It Forward",
     "Watch to Earn", "Watch & Earn", "Income Grid", "Profit Nexus",
-    "Credit Nexus", "Command Centre", "Pro", "Basic", "Free",
+    "Credit Nexus", "Command Centre", "Creative Studio", "Lead Finder",
+    "Pro", "Basic", "Free", "Tier", "Tiers",
+    "Starter", "Builder", "Advanced", "Elite", "Premium", "Executive", "Ultimate",
+    "Nexus", "Spillover", "Uni-Level",
+    "Pro Tools", "Free Tools", "SuperLeads · CRM",
+    "Membership · Basic", "Membership · Pro",
 }
+
+
+def _is_brand_compound(s):
+    """Strings made of brand parts joined by separators (e.g. 'SuperPages · Pro')."""
+    parts = re.split(r'[\s\·\-/+&]+', s.strip())
+    if not parts:
+        return False
+    return all(
+        p in KEEP_ENGLISH or not re.search(r"[a-zA-Z]", p)
+        for p in parts if p
+    )
 
 
 def is_legit_same_as_en(value):
@@ -76,6 +95,8 @@ def is_legit_same_as_en(value):
     if not re.search(r"[a-zA-Z]", s):
         return True
     if s in KEEP_ENGLISH:
+        return True
+    if _is_brand_compound(s):
         return True
     if len(s) <= 2:
         return True

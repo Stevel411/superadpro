@@ -106,7 +106,7 @@
     "income": "Inkomsten",
     "tools": "Tools",
     "learn": "Leren",
-    "bannerCreator": "Banner Creator",
+    "bannerCreator": "Bannerontwerper",
     "memeGenerator": "Meme Generator",
     "qrGenerator": "QR Generator",
     "nicheFinder": "Niche Finder",
@@ -2574,7 +2574,7 @@
     "pageBackground": "Pagina-achtergrond",
     "gradientStart": "Begin",
     "gradientEnd": "Einde",
-    "presets": "Presets",
+    "presets": "Voorinstellingen",
     "backgroundSet": "Achtergrond ingesteld",
     "askAiPlaceholder": "Vraag AI...",
     "previewMode": "👁 Voorbeeldmodus",
@@ -3180,7 +3180,7 @@
     "t6Desc": "<strong>Merk-korte links</strong> op je eigen domein. Snelle redirects, geo-/apparaat-targeting, deep links naar native apps. Affiliate-safe by default.",
     "t6Meta": "<strong>Eigen</strong> domeinen",
     "openLabel": "Openen",
-    "lhLink1": "Shop",
+    "lhLink1": "Winkel",
     "lhLink2": "Tracks",
     "lhLink3": "Over",
     "lhStatClicks": "Kliks",
@@ -3213,8 +3213,8 @@
     "tabs": {
       "overview": "Overzicht",
       "free": "Gratis Tools",
-      "basic": "Basic Membership",
-      "pro": "Pro Membership"
+      "basic": "Basic Lidmaatschap",
+      "pro": "Pro Lidmaatschap"
     },
     "door": {
       "free": {
@@ -3224,9 +3224,9 @@
         "count": "3 tools"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
+        "eyebrowOpen": "Basic plan en hoger",
         "eyebrowLocked": "Upgrade om unlock",
-        "title": "Basic Membership Tools",
+        "title": "Basic Lidmaatschap Tools",
         "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Dagelijkse buildingstools.",
         "count": "5 tools",
         "countLocked": "5 tools · vergrendeld"
@@ -3234,13 +3234,13 @@
       "pro": {
         "eyebrowOpen": "Pro plan unlock",
         "eyebrowLocked": "Upgrade om unlock",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
+        "title": "Pro Lidmaatschap Tools",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serieuze bedrijfsgroei tools.",
         "count": "5 tools",
         "countLocked": "5 tools · vergrendeld"
       },
       "open": "Open",
-      "upgrade": "Upgrade"
+      "upgrade": "Upgraden"
     },
     "section": {
       "free": "Free Tools · open voor iedereen",

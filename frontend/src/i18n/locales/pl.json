@@ -3243,15 +3243,15 @@
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
+        "name": "Kreator Banerów",
         "desc": "Bannery i obrazy profilowe generowane przez AI dla platform społecznościowych."
       },
       "meme": {
-        "name": "Meme Generator",
+        "name": "Generator Memów",
         "desc": "Memy i wirusowe obrazy oparte na szablonach."
       },
       "qr": {
-        "name": "QR Generator",
+        "name": "Generator Kodów QR",
         "desc": "Niestandardowe kody QR do dowolnego linku. Śledzone."
       },
       "pageTitle": "Bezpłatne narzędzia"
@@ -3262,7 +3262,7 @@
         "desc": "AI - obrazy, wideo, muzyka, voice over, lip-sync, napisy. Twoja kreatywna potęga."
       },
       "content": {
-        "name": "Content Creator",
+        "name": "Kreator Treści",
         "desc": "Posty, artykuły, opisy, scenariusze napisane przez AI."
       },
       "linkhub": {
@@ -3270,7 +3270,7 @@
         "desc": "Strona w stylu Linktree hostująca wszystkie Twoje linki w jednym miejscu."
       },
       "links": {
-        "name": "Link Tools",
+        "name": "Narzędzia Linków",
         "desc": "Skracaczy, kloacze, śledzenia pikseli, przekierowanie A/B."
       },
       "deck": {
@@ -3503,7 +3503,7 @@
   "navShort": {
     "dashboard": "Strona główna",
     "platformTour": "Przewodnik",
-    "teamMessenger": "Chat",
+    "teamMessenger": "Czat",
     "account": "Konto",
     "myProfile": "Profil",
     "wallet": "Portfel",

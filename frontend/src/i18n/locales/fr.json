@@ -2566,7 +2566,7 @@
     "imageUrl": "URL de l'image",
     "orUploadImage": "Ou téléchargez une image",
     "urlPlaceholder": "https://...",
-    "slugPlaceholder": "my-landing-page",
+    "slugPlaceholder": "ma-page-de-destination",
     "linkUrl": "URL du lien",
     "buttonText": "Texte du bouton",
     "formFields": "Champs du formulaire",
@@ -2847,13 +2847,13 @@
     "blkVideo": "Vidéo",
     "blkAudio": "Audio",
     "blkButton": "Bouton",
-    "blkOptIn": "Opt-In",
+    "blkOptIn": "Inscription",
     "blkBanner": "Bannière",
     "blkReview": "Avis",
     "blkBadge": "Badge",
     "blkTestimonial": "Témoignage",
     "blkFAQ": "FAQ",
-    "blkStat": "Stat",
+    "blkStat": "Statistique",
     "blkProgress": "Progrès",
     "blkCountdown": "Compte à rebours",
     "blkSocials": "Réseaux",
@@ -3188,8 +3188,8 @@
     "lhStatCtr": "CTR",
     "lhStatCtrDelta": "↑ 2,1 pts",
     "ltRotating": "en rotation",
-    "leadColLead": "Lead",
-    "leadColTag": "Tag",
+    "leadColLead": "Prospect",
+    "leadColTag": "Étiquette",
     "leadTagHot": "CHAUD",
     "leadTagNew": "NOUVEAU",
     "leadTagCold": "FROID",
@@ -4088,11 +4088,11 @@
         "desc": "Bannières, graphiques, publications sociales prêts à télécharger et partager."
       },
       "swipes": {
-        "name": "Email Swipes",
+        "name": "Modèles Email",
         "desc": "Modèles d'emails générés par IA pour les campagnes de sensibilisation. Prêts à copier-coller."
       },
       "social": {
-        "name": "Social Share",
+        "name": "Partage Social",
         "desc": "Partage en un clic vers Facebook, X, LinkedIn, WhatsApp avec copie de publication générée par IA."
       }
     },

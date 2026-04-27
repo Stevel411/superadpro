@@ -3189,7 +3189,7 @@
     "lhStatCtrDelta": "↑ 2,1 pt",
     "ltRotating": "in rotazione",
     "leadColLead": "Lead",
-    "leadColTag": "Tag",
+    "leadColTag": "Etichetta",
     "leadTagHot": "CALDO",
     "leadTagNew": "NUOVO",
     "leadTagCold": "FREDDO",
@@ -3202,7 +3202,7 @@
     "footerLine1": "Sette strumenti. Una piattaforma.",
     "footerLine2": "Tutto ciò che serve, niente di più.",
     "footerCta": "Inizia a creare",
-    "pageTitle": "Tools",
+    "pageTitle": "Strumenti",
     "heroEyebrow": "I tuoi strumenti",
     "activeSince": "Attivo da",
     "backToDashboard": "Torna alla Dashboard",
@@ -3213,8 +3213,8 @@
     "tabs": {
       "overview": "Panoramica",
       "free": "Strumenti Gratuiti",
-      "basic": "Basic Membership",
-      "pro": "Pro Membership"
+      "basic": "Iscrizione Basic",
+      "pro": "Iscrizione Pro"
     },
     "door": {
       "free": {
@@ -3251,15 +3251,15 @@
     },
     "free": {
       "banner": {
-        "name": "Banner Creator",
+        "name": "Creatore di Banner",
         "desc": "Banner e immagini di profilo generati da AI per social platform."
       },
       "meme": {
-        "name": "Meme Generator",
+        "name": "Generatore di Meme",
         "desc": "Meme e immagini virali basati su template rapidi."
       },
       "qr": {
-        "name": "QR Generator",
+        "name": "Generatore QR",
         "desc": "Codici QR personalizzati per qualsiasi link. Tracciabili."
       },
       "pageTitle": "Strumenti Gratuiti"
@@ -3278,7 +3278,7 @@
         "desc": "Pagina in stile Linktree che ospita tutti i tuoi link in un unico posto."
       },
       "links": {
-        "name": "Link Tools",
+        "name": "Strumenti Link",
         "desc": "Accorciatori, cloaker, pixel-tracking, redirect A/B."
       },
       "deck": {

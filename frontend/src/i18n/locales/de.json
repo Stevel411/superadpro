@@ -580,9 +580,9 @@
     "cancel": "Abbrechen",
     "baseUrl": "Basis-URL",
     "baseUrlPlaceholder": "https://beispiel.de/landing",
-    "sourcePlaceholder": "facebook, google, newsletter",
+    "sourcePlaceholder": "Facebook, Google, Newsletter",
     "medium": "Medium",
-    "mediumPlaceholder": "cpc, email, social",
+    "mediumPlaceholder": "CPC, Email, Social",
     "campaign": "Kampagne",
     "campaignPlaceholder": "frühlings_angebot, launch",
     "term": "Begriff (optional)",
@@ -4080,15 +4080,15 @@
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
+      "pageTitle": "Werbematerialien",
+      "heroEyebrow": "Werbematerialien",
       "section": "Promotional Assets · 3 Wege zum Teilen und Wachsen",
       "materials": {
         "name": "Marketing-Materialien",
         "desc": "Banner, Grafiken und Social Posts zum Herunterladen und Teilen."
       },
       "swipes": {
-        "name": "Email Swipes",
+        "name": "E-Mail-Vorlagen",
         "desc": "KI-generierte Email-Vorlagen für Outreach-Kampagnen. Kopieren und einfügen – fertig."
       },
       "social": {
@@ -4101,7 +4101,7 @@
       "heroEyebrow": "Community",
       "section": "Community · sei sichtbar, lass dich inspirieren",
       "leaderboard": {
-        "name": "Leaderboard",
+        "name": "Bestenliste",
         "desc": "Top-Verdiener und Top-Recruiter auf der Plattform. Sehe dein Ranking."
       },
       "story": {

@@ -1206,18 +1206,18 @@
     "uploadPhotoOfPerson": "Unggah foto seseorang",
     "generatedFromVoiceover": "Dibuat dari tab Sulih Suara",
     "songTitlePlaceholder": "Judul lagu",
-    "downloadFile": "⬇ Download",
-    "clearResult": "✕ Clear",
+    "downloadFile": "⬇ Unduh",
+    "clearResult": "✕ Bersihkan",
     "aiBuilderBtn": "✦ Pembangun AI",
     "uploadingFile": "Mengunggah…",
     "fileReady": "✓ Siap",
-    "removeUpload": "✕ Remove",
-    "downloadMp3": "⬇ Download MP3",
+    "removeUpload": "✕ Hapus",
+    "downloadMp3": "⬇ Unduh MP3",
     "styleLabel": "Gaya",
     "scriptStep": "① Skrip",
     "downloadVoiceVideo": "⬇ Unduh video",
     "personPhoto": "① Foto orang",
-    "changePhoto": "✕ Change",
+    "changePhoto": "✕ Ubah",
     "audioSource": "② Sumber audio",
     "noAudioYet": "Belum ada audio",
     "goToVoiceover": "Buka tab Sulih Suara →",
@@ -2845,7 +2845,7 @@
     "blkBadge": "Lencana",
     "blkTestimonial": "Testimoni",
     "blkFAQ": "FAQ",
-    "blkStat": "Stat",
+    "blkStat": "Statistik",
     "blkProgress": "Progres",
     "blkCountdown": "Hitung mundur",
     "blkSocials": "Sosial",
@@ -3194,7 +3194,7 @@
     "footerLine1": "Tujuh alat. Satu platform.",
     "footerLine2": "Semua yang Anda butuhkan, tidak ada yang tidak.",
     "footerCta": "Mulai membuat",
-    "pageTitle": "Tools",
+    "pageTitle": "Alat",
     "heroEyebrow": "Tools Anda",
     "activeSince": "Aktif sejak",
     "backToDashboard": "Kembali ke Dashboard",
@@ -3205,8 +3205,8 @@
     "tabs": {
       "overview": "Overview",
       "free": "Free Tools",
-      "basic": "Basic Membership",
-      "pro": "Pro Membership"
+      "basic": "Keanggotaan Dasar",
+      "pro": "Keanggotaan Pro"
     },
     "door": {
       "free": {
@@ -3216,18 +3216,18 @@
         "count": "3 tools"
       },
       "basic": {
-        "eyebrowOpen": "Basic plan & up",
+        "eyebrowOpen": "Paket Dasar & ke atas",
         "eyebrowLocked": "Upgrade untuk membuka",
-        "title": "Basic Membership Tools",
-        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
+        "title": "Tools Keanggotaan Dasar",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Tools bangunan sehari-hari.",
         "count": "5 tools",
         "countLocked": "5 tools · terkunci"
       },
       "pro": {
         "eyebrowOpen": "Pro plan dibuka",
         "eyebrowLocked": "Upgrade untuk membuka",
-        "title": "Pro Membership Tools",
-        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
+        "title": "Tools Keanggotaan Pro",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Tools pertumbuhan bisnis serius.",
         "count": "5 tools",
         "countLocked": "5 tools · terkunci"
       },
@@ -3277,7 +3277,7 @@
         "name": "SuperDeck",
         "desc": "Pembuat presentasi AI dengan 18 font dan mode presentasi."
       },
-      "pageTitle": "Basic Tools"
+      "pageTitle": "Tools Dasar"
     },
     "pro": {
       "pages": {
@@ -3503,7 +3503,7 @@
   "navShort": {
     "dashboard": "Beranda",
     "platformTour": "Tur",
-    "teamMessenger": "Chat",
+    "teamMessenger": "Obrolan",
     "account": "Akun",
     "myProfile": "Profil",
     "wallet": "Dompet",
@@ -3513,10 +3513,10 @@
     "watch": "Tonton",
     "createCampaign": "Buat",
     "myCampaigns": "Video",
-    "campaignAnalytics": "Stats",
+    "campaignAnalytics": "Statistik",
     "basicTools": "Basic",
     "linkHub": "Link",
-    "linkTools": "Tools",
+    "linkTools": "Alat",
     "contentCreator": "Konten",
     "creativeStudio": "Studio",
     "superDeck": "Deck",
