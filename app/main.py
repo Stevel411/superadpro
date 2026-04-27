@@ -17769,6 +17769,7 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
 @app.get("/api/leaderboard")
 def api_leaderboard(db: Session = Depends(get_db)):
     """JSON leaderboard data with full user info + recent activity feed. Cached 5 min."""
+    from sqlalchemy import func
 
     # Check cache first (leaderboard is same for everyone)
     cache_key = "leaderboard:main"
