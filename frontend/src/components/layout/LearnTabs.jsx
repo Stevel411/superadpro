@@ -138,8 +138,8 @@ export default function LearnTabs() {
           onClick={() => scrollTabsStrip('left')}
           aria-label={t('learn.scrollLeft', { defaultValue: 'Scroll left' })}
           style={{
-            position: 'absolute', top: '50%', left: -8, transform: 'translateY(-50%)',
-            width: 36, height: 36, borderRadius: '50%',
+            position: 'absolute', top: '50%', left: 0, transform: 'translateY(-50%)',
+            width: 30, height: 30, borderRadius: '50%',
             background: '#fff', border: '1px solid #e2e8f0',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', zIndex: 2,
@@ -151,10 +151,10 @@ export default function LearnTabs() {
         </button>
 
         <div id="learn-tabs-scroll" style={{
-          display: 'flex', gap: 10,
+          display: 'flex', gap: 8,
           overflowX: 'auto', overflowY: 'hidden',
           scrollBehavior: 'smooth',
-          padding: '4px 44px 4px 4px',
+          padding: '4px 44px',
           scrollbarWidth: 'none', msOverflowStyle: 'none',
         }}>
           {tabs.map((tab) => {
@@ -166,41 +166,39 @@ export default function LearnTabs() {
                 key={tab.id}
                 to={tab.path}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
+                  display: 'flex', alignItems: 'center', gap: 10,
                   flexShrink: 0,
-                  padding: '10px 18px 10px 10px',
-                  background: '#fff',
-                  border: isActive
-                    ? '1.5px solid ' + activeTone.activeBorder
-                    : '1.5px solid #e2e8f0',
-                  borderRadius: 14,
-                  fontSize: 15, fontWeight: 700,
-                  color: isActive ? tone.color : '#0f172a',
+                  padding: '6px 14px 6px 6px',
+                  background: isActive ? 'var(--sap-cobalt-deep, #172554)' : 'var(--sap-cobalt-mid, #1e3a8a)',
+                  border: isActive ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 12,
+                  fontSize: 13, fontWeight: 700,
+                  color: '#fff',
                   transition: 'all 0.15s',
                   whiteSpace: 'nowrap',
                   textDecoration: 'none',
-                  boxShadow: isActive ? '0 0 0 3px ' + activeTone.activeHalo : 'none',
+                  boxShadow: isActive ? '0 0 0 2px ' + activeTone.activeHalo : 'none',
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.borderColor = '#94a3b8';
+                    e.currentTarget.style.background = 'var(--sap-cobalt-deep, #172554)';
                     e.currentTarget.style.transform = 'translateY(-1px)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.borderColor = '#e2e8f0';
+                    e.currentTarget.style.background = 'var(--sap-cobalt-mid, #1e3a8a)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }
                 }}
               >
                 <span style={{
-                  width: 36, height: 36, borderRadius: 10,
+                  width: 26, height: 26, borderRadius: 8,
                   background: tone.bg, color: tone.color,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
                 }}>
-                  <TabIcon size={18} strokeWidth={2.2} />
+                  <TabIcon size={14} strokeWidth={2.2} />
                 </span>
                 {tab.label}
               </Link>
@@ -213,8 +211,8 @@ export default function LearnTabs() {
           onClick={() => scrollTabsStrip('right')}
           aria-label={t('learn.scrollRight', { defaultValue: 'Scroll right' })}
           style={{
-            position: 'absolute', top: '50%', right: -8, transform: 'translateY(-50%)',
-            width: 36, height: 36, borderRadius: '50%',
+            position: 'absolute', top: '50%', right: 0, transform: 'translateY(-50%)',
+            width: 30, height: 30, borderRadius: '50%',
             background: '#fff', border: '1px solid #e2e8f0',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', zIndex: 2,
