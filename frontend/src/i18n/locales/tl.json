@@ -843,7 +843,12 @@
     "paidOut": "ibinayad bilang komisyon",
     "wantToBeOnBoard": "Gusto mo bang mapasama dito?",
     "shareAndClimb": "Ibahagi ang link mo, buuin ang team, at umakyat sa ranggo.",
-    "shareYourLink": "Ibahagi ang link mo"
+    "shareYourLink": "Ibahagi ang link mo",
+    "heroEyebrow": "Affiliate Leaderboard",
+    "heroTitle": "Mga nangungunang performer",
+    "heroSubtitle": "Sa buong SuperAdPro network",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Nexus team"
   },
   "upgrade": {
     "title": "⚡ Upgrade",

@@ -843,7 +843,12 @@
     "paidOut": "uitbetaald aan commissies",
     "wantToBeOnBoard": "Wil je op deze lijst?",
     "shareAndClimb": "Deel je link, bouw je team en stijg in de ranglijst.",
-    "shareYourLink": "Link delen"
+    "shareYourLink": "Link delen",
+    "heroEyebrow": "Affiliate Ranglijst",
+    "heroTitle": "Topperformers",
+    "heroSubtitle": "Across the SuperAdPro network",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Nexus team"
   },
   "upgrade": {
     "title": "⚡ Upgraden",

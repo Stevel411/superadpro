@@ -843,7 +843,12 @@
     "paidOut": "imelipwa kama kamisheni",
     "wantToBeOnBoard": "Unataka kuwa kwenye ubao huu?",
     "shareAndClimb": "Shiriki kiungo chako, jenga timu, na panda orodha.",
-    "shareYourLink": "Shiriki kiungo chako"
+    "shareYourLink": "Shiriki kiungo chako",
+    "heroEyebrow": "Ubao wa Washirikiano Walio Juu",
+    "heroTitle": "Waendeshaji Bora",
+    "heroSubtitle": "Kote katika mtandao wa SuperAdPro",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Nexus team"
   },
   "upgrade": {
     "title": "⚡ Boresha",

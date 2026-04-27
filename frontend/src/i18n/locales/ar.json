@@ -843,7 +843,12 @@
     "paidOut": "مدفوع كعمولات",
     "wantToBeOnBoard": "تريد أن تكون هنا؟",
     "shareAndClimb": "شارك رابطك وابنِ فريقك وتسلق الترتيب.",
-    "shareYourLink": "شارك رابطك"
+    "shareYourLink": "شارك رابطك",
+    "heroEyebrow": "لوحة ترتيب الشركاء",
+    "heroTitle": "الأفضلون أداءً",
+    "heroSubtitle": "عبر شبكة SuperAdPro",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "فريق Nexus"
   },
   "upgrade": {
     "title": "⚡ ترقية",

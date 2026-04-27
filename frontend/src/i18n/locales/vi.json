@@ -843,7 +843,12 @@
     "paidOut": "đã trả hoa hồng",
     "wantToBeOnBoard": "Muốn lên bảng này?",
     "shareAndClimb": "Chia sẻ link, xây dựng đội và leo hạng.",
-    "shareYourLink": "Chia sẻ link"
+    "shareYourLink": "Chia sẻ link",
+    "heroEyebrow": "Bảng xếp hạng Liên kết",
+    "heroTitle": "Những người dẫn đầu",
+    "heroSubtitle": "Trên toàn bộ mạng SuperAdPro",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Nexus team"
   },
   "upgrade": {
     "title": "⚡ Nâng cấp",

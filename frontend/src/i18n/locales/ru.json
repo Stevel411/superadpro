@@ -843,7 +843,12 @@
     "paidOut": "выплачено комиссий",
     "wantToBeOnBoard": "Хотите попасть в рейтинг?",
     "shareAndClimb": "Делитесь ссылкой, стройте команду и поднимайтесь.",
-    "shareYourLink": "Поделиться ссылкой"
+    "shareYourLink": "Поделиться ссылкой",
+    "heroEyebrow": "Таблица лидеров партнёров",
+    "heroTitle": "Лучшие исполнители",
+    "heroSubtitle": "По всей сети SuperAdPro",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Nexus team"
   },
   "upgrade": {
     "title": "⚡ Улучшение",

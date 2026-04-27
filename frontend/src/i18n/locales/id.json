@@ -843,7 +843,12 @@
     "paidOut": "dibayarkan sebagai komisi",
     "wantToBeOnBoard": "Ingin ada di papan ini?",
     "shareAndClimb": "Bagikan link, bangun tim, dan naik peringkat.",
-    "shareYourLink": "Bagikan link"
+    "shareYourLink": "Bagikan link",
+    "heroEyebrow": "Papan Peringkat Afiliasi",
+    "heroTitle": "Performa terbaik",
+    "heroSubtitle": "Di seluruh jaringan SuperAdPro",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Tim Nexus"
   },
   "upgrade": {
     "title": "⚡ Tingkatkan",

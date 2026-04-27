@@ -843,7 +843,13 @@
     "paidOut": "paid out in commissions",
     "wantToBeOnBoard": "Want to be on this board?",
     "shareAndClimb": "Share your referral link, build your team, and climb the rankings.",
-    "shareYourLink": "Share your link"
+    "shareYourLink": "Share your link",
+    "heroEyebrow": "Affiliate Leaderboard",
+    "heroTitle": "Top performers",
+    "heroSubtitle": "Across the SuperAdPro network",
+    "profitGridLabel": "Profit Grid",
+    "nexusLabel": "Nexus",
+    "nexusMetric": "Nexus team"
   },
   "upgrade": {
     "title": "⚡ Upgrade",

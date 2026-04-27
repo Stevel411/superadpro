@@ -843,7 +843,12 @@
     "paidOut": "수수료 지급",
     "wantToBeOnBoard": "이 보드에 오르고 싶으세요?",
     "shareAndClimb": "링크를 공유하고, 팀을 만들고, 순위를 올리세요.",
-    "shareYourLink": "링크 공유"
+    "shareYourLink": "링크 공유",
+    "heroEyebrow": "제휴사 리더보드",
+    "heroTitle": "상위 실적자",
+    "heroSubtitle": "SuperAdPro 네트워크 전체",
+    "profitGridLabel": "수익 Grid",
+    "nexusMetric": "Nexus team"
   },
   "upgrade": {
     "title": "⚡ 업그레이드",

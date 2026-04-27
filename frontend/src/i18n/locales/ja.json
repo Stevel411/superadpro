@@ -843,7 +843,12 @@
     "paidOut": "コミッション支払済",
     "wantToBeOnBoard": "ボードに載りたいですか？",
     "shareAndClimb": "リンクを共有し、チームを作り、ランクを上げましょう。",
-    "shareYourLink": "リンクを共有"
+    "shareYourLink": "リンクを共有",
+    "heroEyebrow": "アフィリエイトリーダーボード",
+    "heroTitle": "トップパフォーマー",
+    "heroSubtitle": "SuperAdProネットワーク全体",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Nexusチーム"
   },
   "upgrade": {
     "title": "⚡ アップグレード",

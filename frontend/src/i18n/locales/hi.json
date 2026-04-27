@@ -843,7 +843,12 @@
     "paidOut": "कमीशन में भुगतान",
     "wantToBeOnBoard": "इस बोर्ड पर आना चाहते हैं?",
     "shareAndClimb": "अपना लिंक शेयर करें, टीम बनाएं और रैंकिंग में चढ़ें।",
-    "shareYourLink": "अपना लिंक शेयर करें"
+    "shareYourLink": "अपना लिंक शेयर करें",
+    "heroEyebrow": "एफिलिएट लीडरबोर्ड",
+    "heroTitle": "शीर्ष प्रदर्शनकर्ता",
+    "heroSubtitle": "SuperAdPro नेटवर्क भर में",
+    "profitGridLabel": "प्रॉफिट Grid",
+    "nexusMetric": "Nexus टीम"
   },
   "upgrade": {
     "title": "⚡ अपग्रेड",

@@ -843,7 +843,12 @@
     "paidOut": "已支付佣金",
     "wantToBeOnBoard": "想上榜吗？",
     "shareAndClimb": "分享你的链接，建立团队，提升排名。",
-    "shareYourLink": "分享你的链接"
+    "shareYourLink": "分享你的链接",
+    "heroEyebrow": "联盟排行榜",
+    "heroTitle": "顶级表现者",
+    "heroSubtitle": "遍布 SuperAdPro 网络",
+    "profitGridLabel": "利润网格",
+    "nexusMetric": "Nexus 团队"
   },
   "upgrade": {
     "title": "⚡ 升级",

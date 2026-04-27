@@ -843,7 +843,12 @@
     "paidOut": "จ่ายเป็นค่าคอมมิชชั่น",
     "wantToBeOnBoard": "อยากอยู่บนกระดานนี้?",
     "shareAndClimb": "แชร์ลิงก์ สร้างทีม และไต่อันดับ",
-    "shareYourLink": "แชร์ลิงก์ของคุณ"
+    "shareYourLink": "แชร์ลิงก์ของคุณ",
+    "heroEyebrow": "บอร์ดผู้ร่วมสัญญา",
+    "heroTitle": "ผู้ทำผลสำเร็จยอดเยี่ยม",
+    "heroSubtitle": "ทั่วเครือข่าย SuperAdPro",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "ทีม Nexus"
   },
   "upgrade": {
     "title": "⚡ อัปเกรด",

@@ -17690,6 +17690,13 @@ def api_leaderboard(db: Session = Depends(get_db)):
         grid_tier = active_grid.package_tier if active_grid else 0
         grid_count = active_grid.positions_filled if active_grid else 0
 
+        # Total Nexus team size — unique users across all matrixes the user
+        # owns, minus self (CreditMatrix seeds owner at root, so distinct
+        # count includes them).
+        nexus_team = max(0, db.query(CreditMatrixPosition.user_id).join(
+            CreditMatrix, CreditMatrixPosition.matrix_id == CreditMatrix.id
+        ).filter(CreditMatrix.owner_id == u.id).distinct().count() - 1)
+
         return {
             "id": u.id,
             "username": u.username,
@@ -17702,6 +17709,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
             "grid_tier": grid_tier,
             "_grid_count": grid_count,
             "_course_count": u.course_sale_count or 0,
+            "_nexus_count": nexus_team,
             "membership_tier": u.membership_tier or "basic",
         }
 
@@ -17719,6 +17727,27 @@ def api_leaderboard(db: Session = Depends(get_db)):
     course_users = db.query(User).filter(
         User.is_active == True, User.course_sale_count > 0
     ).order_by(User.course_sale_count.desc()).limit(20).all()
+
+    # Top Nexus builders — by unique users across all owned matrixes.
+    # Computed via a subquery so we can ORDER BY the count.
+    from sqlalchemy import func as sa_func
+    nexus_team_subq = (
+        db.query(
+            CreditMatrix.owner_id.label("owner_id"),
+            sa_func.count(sa_func.distinct(CreditMatrixPosition.user_id)).label("team_count"),
+        )
+        .join(CreditMatrixPosition, CreditMatrixPosition.matrix_id == CreditMatrix.id)
+        .group_by(CreditMatrix.owner_id)
+        .subquery()
+    )
+    nexus_users_q = (
+        db.query(User)
+        .join(nexus_team_subq, nexus_team_subq.c.owner_id == User.id)
+        .filter(User.is_active == True, nexus_team_subq.c.team_count > 1)
+        .order_by(nexus_team_subq.c.team_count.desc())
+        .limit(20)
+        .all()
+    )
 
     # ── Recent activity feed (last 20 events) ──
     from datetime import timedelta
@@ -17767,6 +17796,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
     result = {
         "ref_leaders": [user_data(u) for u in ref_leaders],
         "grid_users": [user_data(u) for u in grid_users],
+        "nexus_users": [user_data(u) for u in nexus_users_q],
         "course_users": [user_data(u) for u in course_users],
         "activity": activity,
         "stats": {

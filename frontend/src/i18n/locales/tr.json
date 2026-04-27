@@ -843,7 +843,12 @@
     "paidOut": "komisyon olarak ödendi",
     "wantToBeOnBoard": "Bu sıralamada olmak ister misin?",
     "shareAndClimb": "Linkini paylaş, ekibini kur ve sıralamada yüksel.",
-    "shareYourLink": "Linkini paylaş"
+    "shareYourLink": "Linkini paylaş",
+    "heroEyebrow": "Affiliate Liderler Tablosu",
+    "heroTitle": "En başarılı performansçılar",
+    "heroSubtitle": "SuperAdPro ağı genelinde",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Nexus ekibi"
   },
   "upgrade": {
     "title": "⚡ Yükselt",

@@ -843,7 +843,12 @@
     "paidOut": "pago em comissões",
     "wantToBeOnBoard": "Quer estar neste ranking?",
     "shareAndClimb": "Compartilhe seu link, construa sua equipe e suba no ranking.",
-    "shareYourLink": "Compartilhar link"
+    "shareYourLink": "Compartilhar link",
+    "heroEyebrow": "Ranking de Afiliados",
+    "heroTitle": "Melhores desempenhos",
+    "heroSubtitle": "Em toda a rede SuperAdPro",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Equipe Nexus"
   },
   "upgrade": {
     "title": "⚡ Atualizar",

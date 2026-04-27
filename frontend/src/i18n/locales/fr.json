@@ -843,7 +843,12 @@
     "paidOut": "versé en commissions",
     "wantToBeOnBoard": "Envie d'être au classement ?",
     "shareAndClimb": "Partagez votre lien, construisez votre équipe et grimpez.",
-    "shareYourLink": "Partager votre lien"
+    "shareYourLink": "Partager votre lien",
+    "heroEyebrow": "Classement des affiliés",
+    "heroTitle": "Meilleurs performeurs",
+    "heroSubtitle": "À travers le réseau SuperAdPro",
+    "profitGridLabel": "Profit Grid",
+    "nexusMetric": "Équipe Nexus"
   },
   "upgrade": {
     "title": "⚡ Mise à Niveau",
