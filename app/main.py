@@ -19329,16 +19329,24 @@ def api_team_messages(request: Request, user: User = Depends(get_current_user),
     def msg_to_dict(m, direction):
         other_id = m.from_user_id if direction == "received" else m.to_user_id
         other = db.query(User).filter(User.id == other_id).first()
+        # Defensive: created_at can be NULL on older rows where the database
+        # default didn't fire (manual inserts, very early platform data).
+        # Without this guard, ONE bad row blows up the whole endpoint and
+        # the contacts list never loads in the UI - members see "No team yet"
+        # even when they have a full team. Found 27 Apr 2026.
+        created_iso = m.created_at.isoformat() if m.created_at else ""
         return {
             "id": m.id, "direction": direction,
             "other_user": {"id": other.id, "name": other.first_name or other.username,
                            "username": other.username, "avatar": other.avatar_url} if other else None,
             "message": m.message, "is_read": m.is_read,
-            "created_at": m.created_at.isoformat(),
+            "created_at": created_iso,
         }
 
     messages = [msg_to_dict(m, "received") for m in received] + [msg_to_dict(m, "sent") for m in sent]
-    messages.sort(key=lambda x: x["created_at"], reverse=True)
+    # Sort key tolerates the empty-string fallback above (empty strings sort
+    # to the bottom which is reasonable for messages with missing timestamps).
+    messages.sort(key=lambda x: x["created_at"] or "", reverse=True)
 
     # Mark received as read
     for m in received:
