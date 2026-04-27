@@ -192,9 +192,9 @@ export default function IncomeTabs() {
             const TabIcon = tab.icon;
             const tone = TONE[tab.tone] || TONE.gray;
             const isActive = tab.id === activeId;
-            // Cobalt-themed pill. Inactive = cobalt-mid bg, slight transparency
-            // to feel softer; active = cobalt-deep bg with halo + brighter
-            // icon to give "you are here" stand-out.
+            // White pill, cobalt-blue text, soft dark shadow for lift.
+            // Active pill gets a cobalt border + stronger shadow so the
+            // "you are here" cue reads clearly against the same colour scheme.
             return (
               <Link
                 key={tab.id}
@@ -203,26 +203,28 @@ export default function IncomeTabs() {
                   display: 'flex', alignItems: 'center', gap: 10,
                   flexShrink: 0,
                   padding: '6px 14px 6px 6px',
-                  background: isActive ? 'var(--sap-cobalt-deep, #172554)' : 'var(--sap-cobalt-mid, #1e3a8a)',
-                  border: isActive ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.08)',
+                  background: '#fff',
+                  border: isActive ? '1px solid var(--sap-cobalt-deep, #172554)' : '1px solid #e2e8f0',
                   borderRadius: 12,
                   fontSize: 13, fontWeight: 700,
-                  color: '#fff',
+                  color: 'var(--sap-cobalt-deep, #172554)',
                   transition: 'all 0.15s',
                   whiteSpace: 'nowrap',
                   textDecoration: 'none',
-                  boxShadow: isActive ? '0 0 0 2px rgba(124,58,237,0.35)' : 'none',
+                  boxShadow: isActive
+                    ? '0 4px 12px rgba(15,23,42,0.12), 0 1px 3px rgba(15,23,42,0.08)'
+                    : '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.background = 'var(--sap-cobalt-deep, #172554)';
                     e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 6px 14px rgba(15,23,42,0.1), 0 2px 4px rgba(15,23,42,0.06)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.background = 'var(--sap-cobalt-mid, #1e3a8a)';
                     e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)';
                   }
                 }}
               >
