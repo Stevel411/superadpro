@@ -47,7 +47,8 @@
     "alreadyHaveAccount": "Já tem uma conta?",
     "tapToUnmute": "Toque para ativar o som",
     "loading": "Loading…",
-    "notFound": "Not found"
+    "notFound": "Not found",
+    "disclaimerLink": "Disclaimer"
   },
   "nav": {
     "dashboard": "Painel",
@@ -115,7 +116,8 @@
     "showcases": "Showcases",
     "memberStories": "Member Stories",
     "leadFinder": "Lead Finder",
-    "commandCentre": "Command Centre"
+    "commandCentre": "Command Centre",
+    "faq": "FAQ"
   },
   "dashboard": {
     "title": "Painel",
@@ -246,7 +248,11 @@
     "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
     "exploreSection": "Explore",
     "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership."
+    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
+    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
+    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
+    "annualUpsellCta": "View plans",
+    "annualUpsellDismiss": "Dismiss"
   },
   "compPlan": {
     "title": "Plano de Compensação",
@@ -3093,7 +3099,20 @@
     "navTools": "Ferramentas",
     "navSignin": "Entrar",
     "navCta": "Iniciar campanha",
-    "navExplore": "Explore"
+    "navExplore": "Explore",
+    "earnCardPill": "If you're watching",
+    "earnCardLabel": "YOU EARN",
+    "earnCardTitle": "Watch a few. Keep qualifying.",
+    "earnCardDesc": "<strong>A few minutes a day</strong> keeps your qualification active and your commissions flowing. Watch to the end to count — no skipping, no autoplay in a tab. You're the audience that makes the platform valuable, and you get paid to stay.",
+    "earnCardBullets": "<li>Keep qualification alive daily</li><li>Few minutes — not hours</li><li>Must watch to end to count</li><li>Discover new offers first</li>",
+    "reachCardPill": "If you're advertising",
+    "reachCardLabel": "YOU REACH",
+    "reachCardTitle": "Your pitch. In front of networkers.",
+    "reachCardDesc": "<strong>Activate a campaign tier from $20 to $1,000</strong> and get 2,000 to 170,000 real 30-second views per cycle. Submit a 30-second video from YouTube, Rumble, or Vimeo. Add targeting at Advanced tier 4 and up. Track CTR, country, time-of-day — then repurchase and scale what works.",
+    "reachCardBullets": "<li>$20 to $1,000 tier range</li><li>2,000–170,000 views/cycle</li><li>YouTube / Rumble / Vimeo</li><li>Targeting at Advanced tier 4+</li>",
+    "step4Verb": "cycle",
+    "step4Title": "Repurchase and scale.",
+    "step4Desc": "When your cycle completes, repurchase the tier to keep views flowing — or step up to a higher tier for more reach and better targeting."
   },
   "homePage": {
     "navHow": "Como funciona",
@@ -3379,7 +3398,8 @@
     "toolsProBadge": "Pro",
     "toolsProLabel": "Pro plan",
     "toolsSub": "Free, Basic, and Pro tools to power your campaigns.",
-    "toolsTitle": "AI marketing tools for $20/month"
+    "toolsTitle": "AI marketing tools for $20/month",
+    "navExplore": "Explore"
   },
   "shareStory": {
     "title": "Compartilhe sua história",
@@ -3460,7 +3480,9 @@
     "cardCompPlanTitle": "How you earn",
     "cardCompPlanBody": "Walk through the compensation plan and see how every stream works.",
     "cardWatchEarnTitle": "Watch to qualify",
-    "cardWatchEarnBody": "Watch a few short videos a day to keep your commissions active."
+    "cardWatchEarnBody": "Watch a few short videos a day to keep your commissions active.",
+    "videoTitle": "Watch the 90-second tour",
+    "videoSub": "Everything SuperAdPro can do for you, in under two minutes"
   },
   "freeTools": {
     "backToHub": "Voltar ao Explorar",
@@ -3541,7 +3563,8 @@
     "proSeller": "Pro Sell",
     "qrGenerator": "QR Codes",
     "tools": "Tools",
-    "training": "Training"
+    "training": "Training",
+    "faq": "FAQ"
   },
   "pwa": {
     "installPromptAria": "Instalar SuperAdPro",
@@ -3845,6 +3868,35 @@
       "headlineBreak": "Every pack has its own Nexus.",
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
+    },
+    "section3": {
+      "tag": "§ 03 · The honest moment",
+      "headline1": "Not every Nexus fills.",
+      "headline2": "Here’s what that means.",
+      "sub": "Every Nexus starts the same way — you buy the pack, you earn 15% on everyone you personally bring in, and 10% on anyone they bring in. The question is how far the structure fills.",
+      "partial": {
+        "label": "Partial fill",
+        "num": "3 + 9",
+        "desc": "3 directs, 9 spillover. You’ve earned 15% on every direct, plus 10% on every spillover — paid in credits you can use or withdraw."
+      },
+      "mid": {
+        "label": "Mid fill",
+        "num": "12+",
+        "desc": "Twelve positions filled across Levels 1 and 2. At this point, credits earned typically cover the pack price several times over."
+      },
+      "full": {
+        "label": "Full cycle",
+        "num": "39 / 39",
+        "desc": "All 39 positions filled. Your 35% share materialises as credits to withdraw, plus a 10% completion bonus paid on the full Nexus value."
+      },
+      "close": "The structure rewards activity, not enrolment. If you bring people in and they bring people in, your Nexus fills. If no one moves, nothing moves. That’s the trade."
+    },
+    "section4": {
+      "tag": "§ 04 · Start a Nexus",
+      "headline": "Ready when you are.",
+      "sub": "Pick a pack. Share it. Let the structure work.",
+      "primary": "Create an account",
+      "secondary": "Back to compensation overview"
     }
   },
   "commandCentre": {
@@ -4130,5 +4182,17 @@
   "gridVis": {
     "title": "Income Grid",
     "subtitle": "Your 8x8 spillover grid"
+  },
+  "faqPage": {
+    "title": "FAQ",
+    "subtitle": "Answers to the most common questions",
+    "heroTitle": "Frequently Asked Questions",
+    "heroSubtitle": "Tap any question to see the answer. Still stuck? Contact support any time.",
+    "searchPlaceholder": "Search questions…",
+    "noResultsTitle": "No questions match your search",
+    "noResultsSub": "Try different keywords or clear the search.",
+    "stillStuckTitle": "Still have questions?",
+    "stillStuckSub": "Our support team usually replies within a few hours.",
+    "contactSupport": "Contact Support"
   }
 }
