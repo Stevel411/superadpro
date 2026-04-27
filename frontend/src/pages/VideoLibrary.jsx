@@ -36,12 +36,21 @@ export default function VideoLibrary() {
   var statusIcon = function(s) {
     if (s === 'active') return <CheckCircle size={12} color="var(--sap-green)"/>;
     if (s === 'pending') return <Clock size={12} color="var(--sap-amber)"/>;
+    if (s === 'paused_no_tier') return <AlertCircle size={12} color="#b45309"/>;
     return <AlertCircle size={12} color="var(--sap-text-muted)"/>;
   };
   var statusColor = function(s) {
     if (s === 'active') return {bg:'rgba(22,163,74,.08)',color:'var(--sap-green)',border:'rgba(22,163,74,.15)'};
     if (s === 'pending') return {bg:'rgba(245,158,11,.08)',color:'var(--sap-amber)',border:'rgba(245,158,11,.15)'};
+    if (s === 'paused_no_tier') return {bg:'#fef3c7',color:'#b45309',border:'#fde68a'};
     return {bg:'var(--sap-bg-input)',color:'var(--sap-text-muted)',border:'var(--sap-border-light)'};
+  };
+  // Friendly label for the status badge (raw status strings like 'paused_no_tier'
+  // are too technical for a member). Falls back to title-cased raw status.
+  var statusLabel = function(s) {
+    if (s === 'paused_no_tier') return 'No Tier';
+    if (!s) return '';
+    return s.charAt(0).toUpperCase() + s.slice(1);
   };
   function getThumb(c) {
     if (c.platform === 'youtube' && c.embed_url) {
@@ -120,9 +129,17 @@ export default function VideoLibrary() {
                       <div style={{fontSize:15,fontWeight:700,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.title || 'Untitled'}</div>
                       <span style={{display:'inline-flex',alignItems:'center',gap:3,fontSize:13,fontWeight:700,padding:'2px 8px',borderRadius:6,
                         background:sc.bg,color:sc.color,border:'1px solid '+sc.border,textTransform:'capitalize',flexShrink:0}}>
-                        {statusIcon(c.status)} {c.status}
+                        {statusIcon(c.status)} {statusLabel(c.status)}
                       </span>
                     </div>
+                    {c.status === 'paused_no_tier' && (
+                      <div style={{fontSize:13, color:'#b45309', marginBottom:6, display:'flex', alignItems:'center', gap:6}}>
+                        <span>Your campaign needs an active Campaign Tier.</span>
+                        <Link to="/campaign-tiers" style={{color:'#b45309', fontWeight:700, textDecoration:'underline'}}>
+                          Purchase tier to reactivate →
+                        </Link>
+                      </div>
+                    )}
                     <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:8}}>
                       {c.platform || '—'} · {c.category || 'General'}
                       {c.target_country ? ' · 🎯 ' + c.target_country : ''}

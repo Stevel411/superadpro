@@ -276,6 +276,68 @@ async def startup_event():
     except Exception as e:
         print(f"⚠️ Migrations skipped: {e}")
 
+    # ── One-time cleanup (Apr 2026): pause Tier-0 campaigns ──
+    # Before today, the create-campaign endpoint had a `or 1` fallback that
+    # let users with no Campaign Tier purchase silently create campaigns
+    # treated as Tier 1 - bypassing the entire monetization model. This
+    # cleanup pauses any active campaigns whose owner has no active tier
+    # so they stop appearing in the watch rotation. Members will see a
+    # "Paused - no Campaign Tier" badge with a CTA to purchase. Admin-owned
+    # seed campaigns are skipped (admins effectively have all tiers).
+    # Idempotent - re-running does nothing because already-paused campaigns
+    # don't match the WHERE clause.
+    try:
+        from .database import SessionLocal, VideoCampaign, User, Grid
+        from sqlalchemy import and_, or_
+        cleanup_db = SessionLocal()
+        try:
+            # Find user IDs with at least one active grid (= has paid tier)
+            from sqlalchemy import distinct
+            paid_ids = {r[0] for r in cleanup_db.query(distinct(Grid.owner_id)).filter(
+                Grid.is_complete == False
+            ).all()}
+            # Plus admins always count as paid
+            admin_ids = {u.id for u in cleanup_db.query(User).filter(User.is_admin == True).all()}
+            qualified_owners = paid_ids | admin_ids
+
+            # Find active campaigns whose owner is NOT in the qualified set.
+            # If qualified_owners is empty (extreme edge case: no one on the
+            # platform has a tier), we want to pause ALL active campaigns.
+            stuck_query = cleanup_db.query(VideoCampaign).filter(
+                VideoCampaign.status == "active",
+            )
+            if qualified_owners:
+                stuck_query = stuck_query.filter(
+                    ~VideoCampaign.user_id.in_(qualified_owners)
+                )
+            stuck = stuck_query.all()
+
+            paused_count = 0
+            notified_users = set()
+            for c in stuck:
+                c.status = "paused_no_tier"
+                paused_count += 1
+                # Notify owner once (not once per campaign)
+                if c.user_id not in notified_users:
+                    try:
+                        send_notification(cleanup_db, c.user_id, "campaign_paused", "⏸️",
+                            "Your campaign is paused",
+                            "You need an active Campaign Tier to keep your campaigns running. "
+                            "Visit Campaign Tiers to purchase a tier and reactivate your campaign.")
+                        notified_users.add(c.user_id)
+                    except Exception:
+                        # Notification failure doesn't block the pause itself
+                        pass
+            cleanup_db.commit()
+            if paused_count > 0:
+                print(f"✅ Paused {paused_count} Tier-0 campaign(s); notified {len(notified_users)} owner(s)")
+            else:
+                print("✅ No Tier-0 campaigns to pause")
+        finally:
+            cleanup_db.close()
+    except Exception as e:
+        print(f"⚠️ Tier-0 cleanup skipped: {e}")
+
     # ── Daily backup scheduler ──
     import asyncio, threading
     def _daily_backup_loop():
@@ -4093,8 +4155,23 @@ def upload_video_post(
     category    = sanitize(category)[:50]
     video_url   = video_url.strip()
 
-    user_tier = get_user_highest_tier(db, user.id) or 1
+    user_tier = get_user_highest_tier(db, user.id) or 0
     from .database import CAMPAIGN_TIER_FEATURES, GRID_TIER_NAMES
+
+    # ── Money-flow gate (Apr 2026) ──
+    # Block campaign creation for users without an active Campaign Tier.
+    # Previously this silently fell through to Tier 1's allowance via `or 1`
+    # which let unpaid members create campaigns for free - the entire point
+    # of paying for a Campaign Tier was being bypassed. Their videos would
+    # then enter the watch rotation alongside paying members' campaigns,
+    # diluting the pool. Admin users bypass this gate (get_user_highest_tier
+    # returns 8 for is_admin=true).
+    if user_tier <= 0:
+        return err(
+            "You need an active Campaign Tier to create a campaign. "
+            "Purchase a Campaign Tier from /campaign-tiers to get started."
+        )
+
     tier_features = CAMPAIGN_TIER_FEATURES.get(user_tier, CAMPAIGN_TIER_FEATURES[1])
 
     # Enforce campaign limit
@@ -6550,6 +6627,14 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
             continue
         # Check owner has active membership
         if not owner.is_active:
+            continue
+        # ── Money-flow gate (Apr 2026) ──
+        # Filter out campaigns from owners with no active Campaign Tier.
+        # Belt-and-braces alongside the create-endpoint block: even if a
+        # Tier-0 campaign slipped through (legacy data, edge case), it
+        # won't appear in the watch rotation. get_user_highest_tier
+        # returns 0 for users with no active tier, 8 for admins.
+        if get_user_highest_tier(db, owner.id) <= 0:
             continue
         # Check grace period hasn't expired for completed campaigns
         if c.grace_expires_at and c.grace_expires_at < datetime.utcnow():
