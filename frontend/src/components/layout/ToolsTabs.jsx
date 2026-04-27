@@ -166,6 +166,13 @@ export default function ToolsTabs() {
       position: 'relative',
     }}>
       <div style={{ position: 'relative', maxWidth: 1200, margin: '0 auto' }}>
+        {/* Left fade mask — see IncomeTabs for full explanation. */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', top: 0, bottom: 0, left: 0,
+          width: 60, pointerEvents: 'none', zIndex: 1,
+          background: 'linear-gradient(90deg, #f0f3f9 0%, #f0f3f9 35%, rgba(240,243,249,0) 100%)',
+        }} />
+
         {/* Left scroll arrow */}
         <button
           type="button"
@@ -253,6 +260,13 @@ export default function ToolsTabs() {
             );
           })}
         </div>
+
+        {/* Right fade mask. */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', top: 0, bottom: 0, right: 0,
+          width: 60, pointerEvents: 'none', zIndex: 1,
+          background: 'linear-gradient(270deg, #f0f3f9 0%, #f0f3f9 35%, rgba(240,243,249,0) 100%)',
+        }} />
 
         {/* Right scroll arrow */}
         <button
