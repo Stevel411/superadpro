@@ -681,7 +681,7 @@
     "deleteConfirm": "Supprimer \"{{title}}\" ? Irréversible."
   },
   "support": {
-    "title": "Support",
+    "title": "Assistance",
     "subtitle": "Obtenez de l'aide, trouvez des réponses ou soumettez un ticket",
     "trainingCentre": "Centre de Formation",
     "trainingCentreDesc": "Guides étape par étape pour chaque fonction",
@@ -1455,7 +1455,7 @@
     "freeBannerCreator": "Créateur de Bannières Gratuit",
     "terms": "Conditions",
     "privacy": "Confidentialité",
-    "support": "Support"
+    "support": "Assistance"
   },
   "creditMatrix": {
     "title": "Matrice de Crédits",
@@ -1740,7 +1740,7 @@
     "createFreeAccount": "Créez votre compte gratuit →",
     "terms": "Conditions",
     "privacy": "Confidentialité",
-    "support": "Support",
+    "support": "Assistance",
     "freeToJoin": "Gratuit · Sans carte de crédit · 60 secondes"
   },
   "joinFunnel": {
@@ -2412,7 +2412,7 @@
     "pro": "Pro",
     "terms": "Conditions",
     "privacy": "Confidentialité",
-    "support": "Support",
+    "support": "Assistance",
     "nowYourTurn": "Maintenant c'est votre tour.",
     "profitGrid": "Grille de Profits",
     "perMonth": "/mois",

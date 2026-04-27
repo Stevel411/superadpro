@@ -1020,7 +1020,7 @@
     "step5P2": "没有支付处理器可以冻结您的资金。没有银行参与。您的钱，您做主。",
     "securityTitle": "您的钱，您做主",
     "securityDesc": "没有处理器能冻结您的资金。佣金直接支付到您的钱包。没有银行、没有中间人、没有延迟。",
-    "ethereum": "Ethereum",
+    "ethereum": "以太坊",
     "polygon": "Polygon",
     "ethereumCost": "$8.50/转账",
     "polygonCost": "<$0.01/转账"

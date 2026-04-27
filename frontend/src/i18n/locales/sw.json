@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — toa uanachama wa Basic wa $20 kwa mtu yeyote. Unakuwa mdhamini wao na kupata kamisheni. Wanapopata $20+, wanashauriwa kutoa kwa mtu mwingine — kuunda msururu wa ukuaji wa virusi.",
     "s6_link": "Tazama pochi",
     "stepXofY": "Hatua {{num}} ya {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Suka kushoto",
+    "scrollRight": "Suka kulia"
   },
   "howItWorks": {
     "getStarted": "Anza Bure",
@@ -3436,7 +3436,7 @@
     "modalSubtitle": "Kazi yako inaweza kuvutia mwanachama ajaye. Ikiidhinishwa, kadi hii itatokea kwenye kichupo cha 3 cha /explore kwa wageni wapya.",
     "titleLabel": "Kichwa cha onyesho",
     "titlePlaceholder": "mf. Uboreshaji wa lishe bora · siku 7",
-    "nicheLabel": "Niche",
+    "nicheLabel": "Sehemu maalum",
     "nichePlaceholder": "mf. Lishe, Biashara, Fitness",
     "metricLabelLabel": "Lebo ya metriki",
     "metricLabelPlaceholder": "mf. Wanachama waliojiandikisha",
@@ -3570,7 +3570,7 @@
     "backLink": "Muhtasari wa Fidia",
     "hero": {
       "tag": "Stream 02 · Injini",
-      "word1": "The",
+      "word1": "Zile",
       "word2": "8×8",
       "word3": "Grid.",
       "word4": "Tazama",
