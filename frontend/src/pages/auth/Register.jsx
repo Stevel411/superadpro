@@ -57,10 +57,20 @@ export default function Register() {
 
   return (
     <div style={styles.page}>
+      <style>{`
+        /* Mobile breakpoint matches the rest of the platform (767px).
+           At this width, the firstName/lastName grid collapses to a
+           single column for cleaner stacking, and the card's horizontal
+           padding tightens so the form has more room. */
+        @media (max-width: 767px) {
+          .reg-card { padding: 32px 20px !important; }
+          .reg-row { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       <div style={styles.bg} />
       <div style={styles.bgGlow1} />
 
-      <div style={styles.card}>
+      <div className="reg-card" style={styles.card}>
         <div style={styles.logoRow}>
           <div style={styles.logoMark}>
             <span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span>
@@ -80,7 +90,7 @@ export default function Register() {
         {error && <div style={styles.errorBox}>{error}</div>}
 
         <form onSubmit={submit} style={styles.form}>
-          <div style={styles.row}>
+          <div className="reg-row" style={styles.row}>
             <div style={styles.field}>
               <label style={styles.label}>{t('auth.firstName')}</label>
               <input value={form.first_name} onChange={set('first_name')} placeholder={t("auth.firstNamePlaceholder")} autoFocus style={styles.input} />
@@ -175,9 +185,9 @@ const styles = {
   errorBox: { background: 'rgba(239,68,68,.12)', border: '1px solid rgba(239,68,68,.3)', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#fca5a5', marginBottom: 20 },
   form: { display: 'flex', flexDirection: 'column', gap: 16 },
   row: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
-  field: { display: 'flex', flexDirection: 'column', gap: 6 },
+  field: { display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 },
   label: { fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '.05em' },
-  input: { padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)', color: '#fff', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none' },
+  input: { padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)', color: '#fff', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none', width: '100%', boxSizing: 'border-box' },
   eyeBtn: { position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 0, lineHeight: 1 },
   btn: { marginTop: 6, padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" },
   btnDisabled: { marginTop: 6, padding: '14px', borderRadius: 12, border: 'none', background: 'rgba(14,165,233,.4)', color: 'rgba(255,255,255,.5)', fontSize: 15, fontWeight: 700, cursor: 'not-allowed', fontFamily: "'DM Sans', sans-serif" },
