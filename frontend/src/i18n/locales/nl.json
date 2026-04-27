@@ -3685,6 +3685,20 @@
       "title": "Het raster is klaar.",
       "titleAccent": "Jouw eerste plaats wacht.",
       "button": "Vandaag Registreren"
+    },
+    "explainer": {
+      "headline": "Wat koop ik eigenlijk?",
+      "subtitle": "Videocampagnes • Profit Grid",
+      "p1Pre": "Een Profit Grid is een videoadcampagne met",
+      "p1Bold": "gegarandeerde weergaven",
+      "p1Post": ". Activeer op een van 8 tier-niveaus ($20 → $1.000) en je video wordt uitgezonden op de SuperAdPro Watch & Earn-pagina — waar leden dagelijks kijken om beloningen te verdienen. Echte ogen, elke dag, op automatisch.",
+      "p2": "Terwijl je video verkeer naar je aanbod stuurt, opent je tier een grid met 64 plaatsen die zich vult met doorverwijzingen van jou en overloopfers van je team — betaalt directe provisies, uni-level provisies en een afsluitingbonus wanneer alle 64 plaatsen vol zijn.",
+      "buyingLabel": "Je koopt",
+      "buyingText": "Gegarandeerde videoadweergaven van een betrokken ledenpubliek, plus een gridpositie die uitkeert naarmate deze zich vult.",
+      "tiersLabel": "Hoe tiers werken",
+      "tiersText": "Elke tier opent zijn eigen grid. Om inkomsten te verdienen uit de aankoop van een doorverwijzing op een bepaald tier, moet je dat tier zelf bezitten. Koop hogere tiers naarmate je groeit — bezit alle 8 en je verdient op elke aankoop die je team doet.",
+      "expand": "Lees meer",
+      "collapse": "Minder weergeven"
     }
   },
   "membershipStream": {

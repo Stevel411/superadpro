@@ -3677,6 +3677,20 @@
       "title": "Gridi iko tayari.",
       "titleAccent": "Kiti chako cha kwanza kinakusubiri.",
       "button": "Jisajili Leo"
+    },
+    "explainer": {
+      "headline": "Nini haswa ninachokinunua?",
+      "subtitle": "Video Campaigns • Profit Grid",
+      "p1Pre": "Profit Grid ni kampeni ya video ad yenye",
+      "p1Bold": "angavu zilizohakikishwa",
+      "p1Post": ". Anzisha katika kiwango kimoja cha 8 ($20 → $1,000), na video yako inaendeshwa kwenye ukurasa wa SuperAdPro Watch & Earn — ambapo wanachama huangalia kila siku kupata zawadi. Macho halisi, kila siku, kwa otomeni.",
+      "p2": "Wakati video yako inapoadhani harakati kwa hifadhi yako, kiwango chako kinafungua grid ya vitengo 64 ambayo hujazwa na marejeleo kutoka kwako na kusambazwa kutoka timu yako — inalipa kamisheni za moja kwa moja, kamisheni za uni-level, na bonus ya kumaliza wakati viti vyote 64 vijazwe.",
+      "buyingLabel": "Unakula",
+      "buyingText": "Angavu za video ad zilizohakikishwa kutoka kwa hadhira ya wanachama wanaojishughulisha, pamoja na nafasi ya grid ambayo inalipa kadri inavyojazwa.",
+      "tiersLabel": "Kiwango kinafanya kazi vipi",
+      "tiersText": "Kiwango kila kimoja kinafungua grid yake. Kupata pesa kutoka kwa ununuzi wa marejeleo katika kiwango fulani, lazima uimiliki kiwango hicho mwenyewe. Nuni kiwango cha juu kadri unavyokua — uimiliki vyote 8 na kupata pesa katika kila ununuzi timu yako inafanya.",
+      "expand": "Soma zaidi",
+      "collapse": "Onyesha kidogo"
     }
   },
   "membershipStream": {

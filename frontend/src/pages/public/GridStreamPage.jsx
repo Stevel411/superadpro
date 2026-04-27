@@ -22,6 +22,10 @@ export default function GridStreamPage() {
   var [captionShown, setCaptionShown] = useState(false);
   var [tipsShown, setTipsShown] = useState({tip1: false, tip2: false, tip3: false});
   var [statsRevealed, setStatsRevealed] = useState(false);
+  // Explainer card — open by default so first-time visitors immediately see
+  // what they're buying. Returning visitors can collapse it. Could persist
+  // to localStorage later but launching simple.
+  var [explainerOpen, setExplainerOpen] = useState(true);
 
   var gridWrapRef = useRef(null);
   var animationTimeoutsRef = useRef([]);
@@ -261,6 +265,52 @@ export default function GridStreamPage() {
           </div>
         </div>
         <div className="hero-scroll">{t('gridStream.hero.scroll')}</div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          EXPLAINER CARD — "What am I actually buying?"
+          Sits in a transition zone between the dark hero
+          and the rest of the page. Expanded by default
+          so first-time visitors immediately see the
+          product description; click chevron to collapse.
+          ═══════════════════════════════════════════════ */}
+      <section className="explainer-section">
+        <div className={'explainer-card' + (explainerOpen ? ' open' : '')}>
+          <button
+            type="button"
+            className="explainer-toggle"
+            onClick={function() { setExplainerOpen(function(v) { return !v; }); }}
+            aria-expanded={explainerOpen}
+          >
+            <div className="explainer-toggle-left">
+              <div className="explainer-icon" aria-hidden="true">?</div>
+              <div className="explainer-titles">
+                <div className="explainer-headline">{t('gridStream.explainer.headline')}</div>
+                <div className="explainer-subtitle">{t('gridStream.explainer.subtitle')}</div>
+              </div>
+            </div>
+            <div className="explainer-chevron" aria-hidden="true">▾</div>
+          </button>
+
+          <div className="explainer-body">
+            <p className="explainer-p">
+              {t('gridStream.explainer.p1Pre')}
+              <strong>{t('gridStream.explainer.p1Bold')}</strong>
+              {t('gridStream.explainer.p1Post')}
+            </p>
+            <p className="explainer-p">{t('gridStream.explainer.p2')}</p>
+
+            <div className="explainer-callout buying">
+              <div className="explainer-callout-label">{t('gridStream.explainer.buyingLabel')}</div>
+              <div className="explainer-callout-text">{t('gridStream.explainer.buyingText')}</div>
+            </div>
+
+            <div className="explainer-callout tiers">
+              <div className="explainer-callout-label">{t('gridStream.explainer.tiersLabel')}</div>
+              <div className="explainer-callout-text">{t('gridStream.explainer.tiersText')}</div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* SECTION 1 — THE GRID IN ACTION */}
@@ -701,6 +751,44 @@ html{scroll-behavior:smooth}
 @keyframes scrollNudge{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(8px);opacity:.95}}
 
 /* ════════════════════════════════════════
+   EXPLAINER CARD — "What am I actually buying?"
+   Drops between hero and section 1. Dark theme.
+   Expanded by default; click chevron to collapse.
+   ════════════════════════════════════════ */
+.explainer-section{position:relative;z-index:2;padding:0 32px;margin:-32px auto 0;max-width:920px}
+.explainer-card{background:linear-gradient(180deg,rgba(23,37,84,.78),rgba(11,18,48,.62));border:1px solid var(--ink-10);border-radius:18px;backdrop-filter:blur(14px);overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.35),0 0 0 1px rgba(56,189,248,.05) inset;transition:border-color .3s}
+.explainer-card:hover{border-color:rgba(56,189,248,.25)}
+
+.explainer-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px 26px;background:transparent;border:none;cursor:pointer;font-family:inherit;color:#fff;text-align:left;transition:background .2s}
+.explainer-toggle:hover{background:rgba(56,189,248,.04)}
+.explainer-toggle-left{display:flex;align-items:center;gap:18px;min-width:0;flex:1}
+.explainer-icon{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,rgba(14,165,233,.25),rgba(79,70,229,.25));border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:900;font-size:20px;color:var(--sky-bright);flex-shrink:0;box-shadow:0 0 24px rgba(56,189,248,.18)}
+.explainer-titles{min-width:0}
+.explainer-headline{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:-.01em;line-height:1.3}
+.explainer-subtitle{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--sky-bright);font-weight:600;margin-top:4px;opacity:.85}
+.explainer-chevron{font-size:18px;color:var(--ink-50);transition:transform .3s cubic-bezier(.2,.9,.3,1);flex-shrink:0}
+.explainer-card.open .explainer-chevron{transform:rotate(180deg);color:var(--sky-bright)}
+
+.explainer-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.2,.9,.3,1)}
+.explainer-card.open .explainer-body{max-height:800px}
+.explainer-body > *{padding-left:26px;padding-right:26px}
+.explainer-body > *:first-child{padding-top:8px;border-top:1px solid var(--ink-10);margin-top:0}
+.explainer-body > *:last-child{padding-bottom:24px}
+
+.explainer-p{font-size:15px;line-height:1.7;color:var(--ink-80);margin:18px 0 0}
+.explainer-p strong{color:var(--sky-bright);font-weight:600}
+
+.explainer-callout{margin:18px 26px 0;padding:14px 18px;border-radius:10px}
+.explainer-callout-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.explainer-callout-text{font-size:14px;line-height:1.6;color:var(--ink-80)}
+
+.explainer-callout.buying{background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-left:3px solid var(--sky-bright)}
+.explainer-callout.buying .explainer-callout-label{color:var(--sky-bright)}
+
+.explainer-callout.tiers{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-left:3px solid var(--amber)}
+.explainer-callout.tiers .explainer-callout-label{color:var(--amber)}
+
+/* ════════════════════════════════════════
    SECTION 1 — THE MECHANIC (3-STEP EXPLAINER)
    Grid illustration FIRST (on top), text BELOW
    ════════════════════════════════════════ */
@@ -1043,6 +1131,17 @@ html{scroll-behavior:smooth}
   .grid-action-section{padding:60px 0 80px}
   .honest{padding:60px 20px 40px}
   .cta{padding:40px 20px 80px}
+
+  /* Explainer card — tighter on mobile */
+  .explainer-section{padding:0 16px;margin-top:-20px}
+  .explainer-toggle{padding:16px 18px;gap:12px}
+  .explainer-toggle-left{gap:14px}
+  .explainer-icon{width:36px;height:36px;font-size:17px}
+  .explainer-headline{font-size:15px}
+  .explainer-subtitle{font-size:10px}
+  .explainer-body > *{padding-left:18px;padding-right:18px}
+  .explainer-callout{margin-left:18px;margin-right:18px;padding:12px 14px}
+  .explainer-p{font-size:14px}
 
   /* Top nav — minimal back link, stays floating */
   .stream-nav{position:absolute;padding:16px 0}

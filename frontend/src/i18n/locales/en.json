@@ -3677,6 +3677,20 @@
       "title": "The grid is ready.",
       "titleAccent": "Your first seat is waiting.",
       "button": "Register Today"
+    },
+    "explainer": {
+      "headline": "What am I actually buying?",
+      "subtitle": "Video Campaigns • Profit Grid",
+      "p1Pre": "A Profit Grid is a video ad campaign with ",
+      "p1Bold": "guaranteed views",
+      "p1Post": ". Activate at one of 8 tier levels ($20 → $1,000), and your video runs on the SuperAdPro Watch & Earn page — where members watch daily to earn rewards. Real eyes, every day, on autopilot.",
+      "p2": "While your video drives traffic to your offer, your tier opens a 64-seat grid that fills with referrals from you and spillover from your team — paying direct commissions, uni-level commissions, and a completion bonus when all 64 seats fill.",
+      "buyingLabel": "You're buying",
+      "buyingText": "Guaranteed video ad views from an engaged member audience, plus a grid position that pays out as it fills.",
+      "tiersLabel": "How tiers work",
+      "tiersText": "Each tier opens its own grid. To earn from a referral's purchase at a given tier, you must own that tier yourself. Buy higher tiers as you grow — own all 8 and you earn on every purchase your team makes.",
+      "expand": "Read more",
+      "collapse": "Show less"
     }
   },
   "membershipStream": {

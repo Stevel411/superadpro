@@ -3677,6 +3677,20 @@
       "title": "Siatka jest gotowa.",
       "titleAccent": "Twoje pierwsze miejsce czeka.",
       "button": "Zarejestruj się dziś"
+    },
+    "explainer": {
+      "headline": "Co dokładnie kupuję?",
+      "subtitle": "Kampanie Wideo • Profit Grid",
+      "p1Pre": "Profit Grid to kampania reklamy wideo z",
+      "p1Bold": "gwarantowanymi wyświetleniami",
+      "p1Post": ". Aktywuj jeden z 8 poziomów tier ($20 → $1,000), a Twoje wideo pojawi się na stronie SuperAdPro Watch & Earn — gdzie członkowie oglądają codziennie, aby zarabiać nagrody. Rzeczywiste oczy, codziennie, na autopilot.",
+      "p2": "Podczas gdy Twoje wideo generuje ruch na Twoją ofertę, Twój tier otwiera grid z 64 miejscami, który wypełnia się referal'ami od Ciebie i przeniesieniami z Twojego zespołu — płacąc bezpośrednie prowizje, wielopoziomowe prowizje i bonus uzupełnienia, gdy wszystkie 64 miejsca się wypełnią.",
+      "buyingLabel": "Kupujesz",
+      "buyingText": "Gwarantowane wyświetlenia reklamy wideo od zaangażowanej publiczności członków, plus pozycję w gridzie, która przynosi dochód w miarę jego wypełniania.",
+      "tiersLabel": "Jak działają tiery",
+      "tiersText": "Każdy tier otwiera swój własny grid. Aby zarabiać z zakupu referala na danym tierze, musisz posiadać ten tier sam. Kupuj wyższe tiery w miarę wzrostu — posiadaj wszystkie 8 i zarabiaj z każdego zakupu, jaki robi Twój zespół.",
+      "expand": "Przeczytaj więcej",
+      "collapse": "Pokaż mniej"
     }
   },
   "membershipStream": {

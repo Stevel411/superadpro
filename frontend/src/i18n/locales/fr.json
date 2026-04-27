@@ -3685,6 +3685,20 @@
       "title": "La grille est prête.",
       "titleAccent": "Votre première place vous attend.",
       "button": "Inscrivez-vous Aujourd'hui"
+    },
+    "explainer": {
+      "headline": "Qu'est-ce que j'achète vraiment ?",
+      "subtitle": "Campagnes Vidéo • Profit Grid",
+      "p1Pre": "Un Profit Grid est une campagne de publicité vidéo avec",
+      "p1Bold": "vues garanties",
+      "p1Post": ". Activez à l'un des 8 niveaux de tier ($20 → $1 000), et votre vidéo s'exécute sur la page SuperAdPro Watch & Earn — où les membres regardent quotidiennement pour gagner des récompenses. De vrais regards, chaque jour, en pilotage automatique.",
+      "p2": "Pendant que votre vidéo génère du trafic vers votre offre, votre tier ouvre une grille de 64 places qui se remplit avec vos parrainages et le débordement de votre équipe — générant des commissions directes, des commissions uni-niveaux et une prime de completion quand les 64 places sont remplies.",
+      "buyingLabel": "Vous achetez",
+      "buyingText": "Des vues publicitaires vidéo garanties d'une audience de membres engagés, plus une position dans une grille qui vous rapporte au fur et à mesure qu'elle se remplit.",
+      "tiersLabel": "Comment fonctionnent les tiers",
+      "tiersText": "Chaque tier ouvre sa propre grille. Pour gagner sur l'achat d'un parrainage à un tier donné, vous devez posséder ce tier vous-même. Achetez des tiers plus élevés en grandissant — possédez les 8 et vous gagnez sur chaque achat que fait votre équipe.",
+      "expand": "Lire la suite",
+      "collapse": "Afficher moins"
     }
   },
   "membershipStream": {

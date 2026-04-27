@@ -3685,6 +3685,20 @@
       "title": "La cuadrícula está lista.",
       "titleAccent": "Tu primer asiento te espera.",
       "button": "Regístrate Hoy"
+    },
+    "explainer": {
+      "headline": "¿Qué estoy comprando realmente?",
+      "subtitle": "Campañas de Video • Profit Grid",
+      "p1Pre": "Un Profit Grid es una campaña de anuncios de video con",
+      "p1Bold": "visualizaciones garantizadas",
+      "p1Post": ". Actívalo en uno de 8 niveles de tier ($20 → $1,000), y tu video se ejecuta en la página SuperAdPro Watch & Earn — donde los miembros ven diariamente para ganar recompensas. Ojos reales, cada día, en piloto automático.",
+      "p2": "Mientras tu video atrae tráfico a tu oferta, tu tier abre una grid de 64 asientos que se llena con referidos tuyos y desbordamiento de tu equipo — pagando comisiones directas, comisiones uni-nivel, y una bonificación de finalización cuando se llenen los 64 asientos.",
+      "buyingLabel": "Estás comprando",
+      "buyingText": "Visualizaciones garantizadas de anuncios de video de una audiencia de miembros comprometidos, más una posición en la grid que paga a medida que se llena.",
+      "tiersLabel": "Cómo funcionan los tiers",
+      "tiersText": "Cada tier abre su propia grid. Para ganar de la compra de un referido en un tier determinado, debes poseer ese tier tú mismo. Compra tiers más altos a medida que crezcas — posee los 8 y gana en cada compra que tu equipo realice.",
+      "expand": "Leer más",
+      "collapse": "Mostrar menos"
     }
   },
   "membershipStream": {

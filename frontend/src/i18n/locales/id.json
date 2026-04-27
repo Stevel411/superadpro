@@ -3677,6 +3677,20 @@
       "title": "Grid sudah siap.",
       "titleAccent": "Kursi pertama Anda menunggu.",
       "button": "Daftar Hari Ini"
+    },
+    "explainer": {
+      "headline": "Apa yang sebenarnya saya beli?",
+      "subtitle": "Video Campaigns • Profit Grid",
+      "p1Pre": "Profit Grid adalah kampanye iklan video dengan",
+      "p1Bold": "tayangan yang dijamin",
+      "p1Post": ". Aktifkan di salah satu dari 8 tingkat tier ($20 → $1.000), dan video Anda berjalan di halaman SuperAdPro Watch & Earn — tempat anggota menonton setiap hari untuk mendapatkan reward. Mata nyata, setiap hari, secara otomatis.",
+      "p2": "Sementara video Anda mendorong traffic ke penawaran Anda, tier Anda membuka grid 64-kursi yang terisi dengan referral dari Anda dan spillover dari tim Anda — membayar komisi langsung, komisi uni-level, dan bonus penyelesaian saat semua 64 kursi terisi.",
+      "buyingLabel": "Anda membeli",
+      "buyingText": "Tayangan iklan video yang dijamin dari audiens anggota yang engaged, ditambah posisi grid yang membayar saat terisi.",
+      "tiersLabel": "Cara kerja tier",
+      "tiersText": "Setiap tier membuka gridnya sendiri. Untuk mendapatkan penghasilan dari pembelian referral pada tier tertentu, Anda harus memiliki tier tersebut sendiri. Beli tier yang lebih tinggi seiring pertumbuhan Anda — miliki semua 8 dan Anda mendapatkan penghasilan dari setiap pembelian tim Anda.",
+      "expand": "Baca selengkapnya",
+      "collapse": "Tampilkan lebih sedikit"
     }
   },
   "membershipStream": {

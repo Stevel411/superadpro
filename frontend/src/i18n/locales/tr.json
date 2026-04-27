@@ -3677,6 +3677,20 @@
       "title": "Grid hazır.",
       "titleAccent": "İlk koltuğunuz sizi bekliyor.",
       "button": "Bugün Kaydol"
+    },
+    "explainer": {
+      "headline": "Ne satın alıyorum tam olarak?",
+      "subtitle": "Video Kampanyaları • Profit Grid",
+      "p1Pre": "Profit Grid, garantili görüntüleme ile bir video reklam kampanyasıdır",
+      "p1Bold": "garantili görüntülemeler",
+      "p1Post": ". 8 katman seviyesinden birinde etkinleştirin ($20 → $1.000) ve videonuz SuperAdPro Watch & Earn sayfasında çalışır — üyeler ödül kazanmak için her gün buraya girer. Gerçek gözler, her gün, otomatik olarak.",
+      "p2": "Videonuz trafiği teklifinize yönlendirirken, katmanınız 64 koltuklu bir ızgara açar ve bu ızgara sizden ve ekibinizden yapılan yönlendirmelerle doldurulur — doğrudan komisyon, uni-seviye komisyon ve tüm 64 koltuk dolduğunda tamamlama bonusu öder.",
+      "buyingLabel": "Satın alıyorum",
+      "buyingText": "Meşgul bir üye kitlesinden garantili video reklam görüntülemeleri, artı doldukça ödeme yapan bir ızgara pozisyonu.",
+      "tiersLabel": "Katmanlar nasıl çalışır",
+      "tiersText": "Her katman kendi ızgarasını açar. Belirli bir katmandaki bir yönlendirmenin satın alımından kazanç elde etmek için, o katmanı kendiniz de sahip olmanız gerekir. Büyüdükçe daha yüksek katmanlar satın alın — 8'inin tamamına sahip olun ve ekibinizin yaptığı her satın almadan kazanç elde edin.",
+      "expand": "Daha fazlasını oku",
+      "collapse": "Daha az göster"
     }
   },
   "membershipStream": {

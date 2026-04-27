@@ -3677,6 +3677,20 @@
       "title": "Lưới đã sẵn sàng.",
       "titleAccent": "Chỗ đầu tiên của bạn đang chờ.",
       "button": "Đăng ký hôm nay"
+    },
+    "explainer": {
+      "headline": "Tôi thực sự đang mua cái gì?",
+      "subtitle": "Chiến dịch Video • Profit Grid",
+      "p1Pre": "Profit Grid là một chiến dịch quảng cáo video với",
+      "p1Bold": "lượt xem được đảm bảo",
+      "p1Post": ". Kích hoạt ở một trong 8 mức tier ($20 → $1,000), video của bạn sẽ chạy trên trang SuperAdPro Watch & Earn — nơi các thành viên xem hàng ngày để kiếm phần thưởng. Những đôi mắt thực sự, mỗi ngày, tự động.",
+      "p2": "Khi video của bạn thu hút traffic đến lời đề nghị của bạn, tier của bạn mở một grid 64 chỗ ngồi sẽ được lấp đầy bởi những người giới thiệu từ bạn và tràn từ team của bạn — thanh toán hoa hồng trực tiếp, hoa hồng uni-level, và tiền thưởng hoàn thành khi tất cả 64 chỗ ngồi được lấp đầy.",
+      "buyingLabel": "Bạn đang mua",
+      "buyingText": "Lượt xem quảng cáo video được đảm bảo từ một khán giả thành viên tích cực, cộng với một vị trí trong grid trả tiền khi nó được lấp đầy.",
+      "tiersLabel": "Các tier hoạt động như thế nào",
+      "tiersText": "Mỗi tier mở grid riêng của nó. Để kiếm từ lần mua của người giới thiệu ở một tier nhất định, bạn phải sở hữu tier đó. Mua các tier cao hơn khi bạn phát triển — sở hữu cả 8 và bạn kiếm trên mỗi lần mua team của bạn thực hiện.",
+      "expand": "Đọc thêm",
+      "collapse": "Hiển thị ít hơn"
     }
   },
   "membershipStream": {

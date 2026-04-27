@@ -3677,6 +3677,20 @@
       "title": "Handa na ang grid.",
       "titleAccent": "Ang iyong unang upuan ay naghihintay.",
       "button": "Mag-register Ngayon"
+    },
+    "explainer": {
+      "headline": "Ano ang aktwal na binibili ko?",
+      "subtitle": "Video Campaigns • Profit Grid",
+      "p1Pre": "Ang Profit Grid ay isang video ad campaign na may",
+      "p1Bold": "garantisadong views",
+      "p1Post": ". I-activate sa isa sa 8 tier levels ($20 → $1,000), at ang iyong video ay tatakbo sa SuperAdPro Watch & Earn page — kung saan ang mga miyembro ay nanonood araw-araw para kumita ng rewards. Real eyes, araw-araw, sa autopilot.",
+      "p2": "Habang ang iyong video ay nagdadrive ng traffic sa iyong offer, ang iyong tier ay nagsasabuka ng 64-seat grid na puno ng mga referrals mula sa iyo at spillover mula sa iyong team — nagbabayad ng direct commissions, uni-level commissions, at completion bonus kapag puno ang lahat ng 64 seats.",
+      "buyingLabel": "Binibili mo",
+      "buyingText": "Garantisadong video ad views mula sa engaged member audience, plus isang grid position na nagbabayad habang napupuno.",
+      "tiersLabel": "Paano gumagana ang tiers",
+      "tiersText": "Bawat tier ay nagsasabuka ng sariling grid. Para kumita mula sa referral's purchase sa isang tiyak na tier, dapat ikaw mismo ay may-ari ng tier na iyon. Bumili ng mas mataas na tiers habang lumalaki ka — may-ari ng lahat ng 8 at kikita ka sa bawat purchase ng iyong team.",
+      "expand": "Magbasa pa",
+      "collapse": "Ipakita ang mas kaunti"
     }
   },
   "membershipStream": {

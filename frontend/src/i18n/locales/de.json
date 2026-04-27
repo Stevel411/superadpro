@@ -3685,6 +3685,20 @@
       "title": "Das Raster ist bereit.",
       "titleAccent": "Dein erster Platz wartet.",
       "button": "Heute Registrieren"
+    },
+    "explainer": {
+      "headline": "Was kaufe ich eigentlich?",
+      "subtitle": "Video Kampagnen • Profit Grid",
+      "p1Pre": "Ein Profit Grid ist eine Video-Werbekampagne mit",
+      "p1Bold": "garantierten Aufrufen",
+      "p1Post": ". Aktivieren Sie auf einer von 8 Tier-Stufen ($20 → $1.000), und Ihr Video läuft auf der SuperAdPro Watch & Earn Seite — wo Mitglieder täglich schauen, um Rewards zu verdienen. Echte Augen, jeden Tag, auf Autopilot.",
+      "p2": "Während Ihr Video Traffic zu Ihrem Angebot führt, öffnet Ihr Tier ein 64er-Grid, das sich mit Empfehlungen von Ihnen und Spillover von Ihrem Team füllt — zahlt direkte Provisionen, Uni-Level-Provisionen und einen Abschlussbonus, wenn alle 64 Plätze voll sind.",
+      "buyingLabel": "Sie kaufen",
+      "buyingText": "Garantierte Video-Werbeaufrufe von einem engagierten Mitgliederpublikum plus eine Grid-Position, die auszahlt, während sie sich füllt.",
+      "tiersLabel": "Wie Tier funktionieren",
+      "tiersText": "Jeder Tier öffnet sein eigenes Grid. Um von einem Kauf eines Empfohlenen auf einem bestimmten Tier zu verdienen, müssen Sie diesen Tier selbst besitzen. Kaufen Sie höhere Tier, während Sie wachsen — besitzen Sie alle 8 und Sie verdienen bei jedem Kauf, den Ihr Team macht.",
+      "expand": "Mehr lesen",
+      "collapse": "Weniger anzeigen"
     }
   },
   "membershipStream": {
