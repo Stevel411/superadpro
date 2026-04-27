@@ -348,11 +348,15 @@ export default function Dashboard() {
                 }}>{user.membership_tier}</span>
               )}
               {/* Active since — date from user.created_at, added server-side
-                  to /api/dashboard as d.active_since (format: "Mar 2026") */}
+                  to /api/dashboard as d.active_since (format: "Mar 2026").
+                  Pass `date` to t() so i18next interpolates the {{date}}
+                  placeholder. Concatenating d.active_since after t() (the
+                  earlier approach) caused the literal string "{{date}}" to
+                  render before the actual date. */}
               {d.active_since && (
                 <>
                   <span style={{ opacity: 0.4 }}>·</span>
-                  <span>{t('dashboard.activeSince', { defaultValue: 'Active since' })} {d.active_since}</span>
+                  <span>{t('dashboard.activeSince', { date: d.active_since, defaultValue: 'Active since {{date}}' })}</span>
                 </>
               )}
             </div>
