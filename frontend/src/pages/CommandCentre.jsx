@@ -39,7 +39,7 @@ import { formatMoney } from '../utils/money';
 import { TYPE } from '../styles/typography';
 import { SubPageHero } from './tools-shared';
 import {
-  Users, UserCheck, UserMinus, UserX,
+  UserCheck, UserMinus, UserX,
   LayoutGrid, Star,
   DollarSign, TrendingUp, TrendingDown,
   MessageSquare, Award, BarChart3,
@@ -153,14 +153,14 @@ export default function CommandCentre() {
   // ── Outbound action cards (existing pages) ──
   const actions = [
     {
-      title: t('commandCentre.viewFullTeamTitle'),
-      desc: t('commandCentre.viewFullTeamDesc'),
-      link: '/team-messenger',
-      icon: Users,
-      color: 'var(--sap-accent)',
-      accentPale: '#cffafe',
-      bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
-      pillBg: '#cffafe', pillBgHover: '#a5f3fc', pillColor: '#0e7490',
+      title: t('commandCentre.fullAnalyticsTitle'),
+      desc: t('commandCentre.fullAnalyticsDesc'),
+      link: '/analytics',
+      icon: BarChart3,
+      color: 'var(--sap-indigo)',
+      accentPale: '#c7d2fe',
+      bg: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
+      pillBg: '#e0e7ff', pillBgHover: '#c7d2fe', pillColor: '#4338ca',
     },
     {
       title: t('commandCentre.sendBroadcastTitle'),
@@ -506,68 +506,6 @@ export default function CommandCentre() {
           );
         })}
       </div>
-
-      {/* ── FULL ANALYTICS LINK ─────────────────────────── */}
-      <Link to="/analytics" className="action-card" style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 18,
-        background: '#fff',
-        border: '1px solid var(--sap-border)',
-        borderRadius: 14,
-        padding: '20px 24px 20px 28px',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
-        textDecoration: 'none',
-        transition: 'all 0.15s',
-        position: 'relative',
-        overflow: 'hidden',
-        marginBottom: 24,
-      }}
-      onMouseEnter={(e) => {
-        const pill = e.currentTarget.querySelector('.cc-pill');
-        if (pill) {
-          pill.style.background = '#c7d2fe';
-          const arrow = pill.querySelector('.cc-pill-arrow');
-          if (arrow) { arrow.style.transform = 'translateX(2px)'; arrow.style.opacity = '1'; }
-        }
-      }}
-      onMouseLeave={(e) => {
-        const pill = e.currentTarget.querySelector('.cc-pill');
-        if (pill) {
-          pill.style.background = '#e0e7ff';
-          const arrow = pill.querySelector('.cc-pill-arrow');
-          if (arrow) { arrow.style.transform = 'translateX(0)'; arrow.style.opacity = '0.65'; }
-        }
-      }}>
-        <div style={{
-          position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
-          background: 'var(--sap-indigo)',
-        }} />
-        <div style={{ width: 56, height: 56, borderRadius: 14, background: 'linear-gradient(135deg,#eef2ff,#e0e7ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <BarChart3 size={24} color="var(--sap-indigo)" />
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={TYPE.cardTitleBold}>{t('commandCentre.fullAnalyticsTitle')}</div>
-          <div style={{...TYPE.bodyMuted, marginTop: 4}}>{t('commandCentre.fullAnalyticsDesc')}</div>
-        </div>
-        <span className="cc-pill" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 4,
-          padding: '6px 12px',
-          borderRadius: 99,
-          fontSize: 12, fontWeight: 700,
-          background: '#e0e7ff',
-          color: '#4338ca',
-          transition: 'background 0.12s',
-          flexShrink: 0,
-        }}>
-          {t('commandCentre.view')}
-          <span className="cc-pill-arrow" style={{
-            fontSize: 11, opacity: 0.65,
-            transition: 'transform 0.12s, opacity 0.12s',
-            display: 'inline-block',
-          }}>→</span>
-        </span>
-      </Link>
 
       {/* ── RESPONSIVE ─────────────────────────────────────
           Same 767px breakpoint as the rest of the platform.
