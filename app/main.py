@@ -6693,7 +6693,8 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
         month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         monthly_views = db.query(func.count(VideoWatch.id)).filter(
             VideoWatch.campaign_id == c.id,
-            VideoWatch.watched_at >= month_start
+            VideoWatch.watched_at >= month_start,
+            VideoWatch.is_complete == True,  # noqa: E712
         ).scalar() or 0
         if monthly_views >= monthly_cap:
             continue  # skip — monthly cap reached, don't show this campaign
@@ -6805,6 +6806,7 @@ def watch_page(request: Request):
     return RedirectResponse(url="/watch", status_code=302)
 
 @app.post("/api/record-watch")
+@limiter.limit("12/minute")
 def record_watch(
     request:     Request,
     campaign_id: int = Form(),
@@ -6833,30 +6835,37 @@ def record_watch(
     if campaign.user_id == user.id and not user.is_admin:
         return {"success": False, "error": "You can't watch your own campaign"}
 
-    # ── Anti-cheat: prevent duplicate-day watches ──
-    # Without this, a member could call this endpoint multiple times with
-    # the same campaign_id to artificially complete their daily quota
-    # without watching distinct videos.
-    existing_watch = db.query(VideoWatch).filter(
+    # ── Server-side anti-cheat: assignment + 30-second timer check ──
+    # Same pattern as /api/watch/complete - keep aligned so cheaters can't
+    # switch endpoints to bypass. Requires the user was assigned this video
+    # by hitting /api/watch first (creates a VideoWatch row with started_at
+    # and is_complete=False). Verifies >=30s have passed since assignment.
+    watch_row = db.query(VideoWatch).filter(
         VideoWatch.user_id == user.id,
         VideoWatch.campaign_id == campaign_id,
         VideoWatch.watch_date == today_str,
     ).first()
-    if existing_watch:
+
+    if not watch_row:
+        return {"success": False, "error": "Video not assigned to you. Get a video from the rotation first."}
+
+    if watch_row.is_complete:
         return {"success": False, "error": "You've already watched this video today"}
+
+    if not user.is_admin and watch_row.started_at:
+        elapsed = (datetime.utcnow() - watch_row.started_at).total_seconds()
+        if elapsed < WATCH_DURATION:
+            remaining = int(WATCH_DURATION - elapsed)
+            return {"success": False, "error": f"Please watch for {remaining} more seconds to qualify"}
 
     # Check quota not already met today
     if quota.today_watched >= quota.daily_required:
         return {"success": False, "error": "Daily quota already completed", "quota_met": True}
 
-    # Record the watch
-    watch = VideoWatch(
-        user_id     = user.id,
-        campaign_id = campaign_id,
-        watch_date  = today_str,
-        duration_secs = WATCH_DURATION,
-    )
-    db.add(watch)
+    # Mark the started row complete (don't create a new row)
+    watch_row.is_complete = True
+    watch_row.watched_at = datetime.utcnow()
+    watch_row.duration_secs = WATCH_DURATION
 
     # Update quota counter
     quota.today_watched += 1
@@ -17840,6 +17849,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
 # longer written to.
 
 @app.get("/api/watch")
+@limiter.limit("30/minute")
 def api_watch_data(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
     """JSON watch-to-earn data — uses smart rotation from get_next_content()."""
@@ -17860,19 +17870,79 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
         next_content = None
         next_video = None
         if not quota_reached:
-            next_content = get_next_content(db, user.id)
-            if next_content:
-                if next_content["type"] == "video":
-                    c = next_content["data"]
-                    next_video = {"id": c.id, "title": c.title, "platform": c.platform or "youtube",
-                                  "category": c.category or "General", "embed_url": c.embed_url,
-                                  "cta_url": c.cta_url or None, "is_watched": False}
-                elif next_content["type"] == "adboard":
-                    a = next_content["data"]
-                    next_video = {"id": a.id, "title": a.title, "platform": "adboard",
-                                  "category": a.category or "Ad", "embed_url": "",
-                                  "image_url": a.image_url or "", "link_url": a.link_url or "",
-                                  "description": a.description or "", "is_watched": False, "type": "adboard"}
+            # ── Server-side anti-cheat: one-at-a-time enforcement ──
+            # If the user has an existing started-but-not-complete VideoWatch
+            # row from today, force them to finish THAT video first instead
+            # of letting them get assigned a new one. Without this, an attacker
+            # could pre-load N started rows in quick succession then wait 30s
+            # and complete them all - bypassing the per-video timing intent.
+            # This forces serial-watch: one video at a time, each timed.
+            existing_started = db.query(VideoWatch).filter(
+                VideoWatch.user_id == user.id,
+                VideoWatch.watch_date == today_str,
+                VideoWatch.is_complete == False,  # noqa: E712
+            ).first()
+            if existing_started:
+                # Look up the campaign and serve that one (still active?)
+                forced_c = db.query(VideoCampaign).filter(
+                    VideoCampaign.id == existing_started.campaign_id,
+                    VideoCampaign.status == "active",
+                ).first()
+                if forced_c:
+                    next_video = {
+                        "id": forced_c.id, "title": forced_c.title,
+                        "platform": forced_c.platform or "youtube",
+                        "category": forced_c.category or "General",
+                        "embed_url": forced_c.embed_url,
+                        "cta_url": forced_c.cta_url or None,
+                        "is_watched": False,
+                    }
+                else:
+                    # Campaign no longer active - clean up the orphan started
+                    # row so the user can be assigned a different video
+                    db.delete(existing_started)
+                    db.commit()
+
+            if not next_video:
+                next_content = get_next_content(db, user.id)
+                if next_content:
+                    if next_content["type"] == "video":
+                        c = next_content["data"]
+                        next_video = {"id": c.id, "title": c.title, "platform": c.platform or "youtube",
+                                      "category": c.category or "General", "embed_url": c.embed_url,
+                                      "cta_url": c.cta_url or None, "is_watched": False}
+                        # ── Server-side anti-cheat: record assignment timestamp ──
+                        # When the rotation gives the user a video, create a
+                        # VideoWatch row with started_at=now and is_complete=False.
+                        # /api/watch/complete checks this row to verify >=30s have
+                        # passed since assignment before accepting the completion.
+                        # Without this row existing, the completion is rejected -
+                        # blocking the curl-the-completion-endpoint exploit.
+                        # If a started row already exists for this campaign today
+                        # (user refreshed the page mid-watch), reuse it - don't
+                        # reset the timer.
+                        existing = db.query(VideoWatch).filter(
+                            VideoWatch.user_id == user.id,
+                            VideoWatch.campaign_id == c.id,
+                            VideoWatch.watch_date == today_str,
+                        ).first()
+                        if not existing:
+                            started_row = VideoWatch(
+                                user_id=user.id,
+                                campaign_id=c.id,
+                                watch_date=today_str,
+                                started_at=datetime.utcnow(),
+                                duration_secs=0,
+                                is_complete=False,
+                            )
+                            db.add(started_row)
+                            db.commit()
+                    elif next_content["type"] == "adboard":
+                        a = next_content["data"]
+                        next_video = {"id": a.id, "title": a.title, "platform": "adboard",
+                                      "category": a.category or "Ad", "embed_url": "",
+                                      "image_url": a.image_url or "", "link_url": a.link_url or "",
+                                      "description": a.description or "", "is_watched": False, "type": "adboard"}
 
         # Build videos list: the next video to watch (if any)
         videos = [next_video] if next_video else []
@@ -18020,6 +18090,7 @@ async def api_support_ticket(request: Request, user: User = Depends(get_current_
         db.commit()
     return {"ok": True}
 @app.post("/api/watch/complete")
+@limiter.limit("12/minute")
 async def api_watch_complete(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
     """Mark a video as watched, update quota, and return the next video via smart rotation."""
@@ -18045,19 +18116,44 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
         if campaign.user_id == user.id and not user.is_admin:
             return JSONResponse({"error": "You can't watch your own campaign"}, status_code=403)
 
-        # ── Anti-cheat: prevent duplicate-day watches ──
-        # Without this, a member could call this endpoint multiple times with
-        # the same video_id to artificially complete their daily quota
-        # without actually watching different videos. Each campaign can only
-        # count once per watcher per day.
         today_str = str(date.today())
-        existing_watch = db.query(VideoWatch).filter(
+
+        # ── Server-side anti-cheat: assignment + 30-second timer check ──
+        # The user must have been ASSIGNED this video by hitting /api/watch
+        # first (which creates a VideoWatch row with started_at=now and
+        # is_complete=False). If no started row exists, they're trying to
+        # mark-complete a video they were never assigned (curl-the-API exploit).
+        # If the started row is less than 30 seconds old, the timer hasn't
+        # elapsed (script trying to bypass the watch duration). If the row
+        # is already complete, this is a duplicate-day attempt.
+        watch_row = db.query(VideoWatch).filter(
             VideoWatch.user_id == user.id,
             VideoWatch.campaign_id == video_id,
             VideoWatch.watch_date == today_str,
         ).first()
-        if existing_watch:
-            return JSONResponse({"error": "You've already watched this video today"}, status_code=409)
+
+        if not watch_row:
+            return JSONResponse(
+                {"error": "Video not assigned to you. Get a video from the rotation first."},
+                status_code=400
+            )
+
+        # Already-complete = duplicate-day attempt
+        if watch_row.is_complete:
+            return JSONResponse(
+                {"error": "You've already watched this video today"},
+                status_code=409
+            )
+
+        # 30-second timing check - admin bypasses for testing
+        if not user.is_admin and watch_row.started_at:
+            elapsed = (datetime.utcnow() - watch_row.started_at).total_seconds()
+            if elapsed < WATCH_DURATION:
+                remaining = int(WATCH_DURATION - elapsed)
+                return JSONResponse(
+                    {"error": f"Please watch for {remaining} more seconds to qualify"},
+                    status_code=425  # 425 Too Early
+                )
 
         # Use the proper quota system (handles day reset, tier sync, streak)
         quota = get_or_create_quota(db, user)
@@ -18066,14 +18162,11 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
         if quota.today_watched >= quota.daily_required:
             return {"success": False, "error": "Daily quota already completed", "quota_met": True}
 
-        # Record the watch
-        watch = VideoWatch(
-            user_id=user.id,
-            campaign_id=video_id,
-            watch_date=today_str,
-            duration_secs=WATCH_DURATION,
-        )
-        db.add(watch)
+        # Mark the started row complete (don't create a new row - the
+        # started row already exists from the assignment endpoint)
+        watch_row.is_complete = True
+        watch_row.watched_at = datetime.utcnow()
+        watch_row.duration_secs = WATCH_DURATION
 
         # Update quota counter
         quota.today_watched += 1
@@ -22798,10 +22891,11 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
     # Total views
     total_views = sum(c.views_delivered or 0 for c in campaigns)
 
-    # Views today
+    # Views today (only count complete watches, not started-but-not-finished)
     views_today = db.query(func.count(VideoWatch.id)).filter(
         VideoWatch.campaign_id.in_(campaign_ids),
         VideoWatch.watch_date == today_str,
+        VideoWatch.is_complete == True,  # noqa: E712
     ).scalar() or 0
 
     # Views this week
@@ -22863,21 +22957,24 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
         except (TypeError, ValueError):
             continue
 
-    # Per-campaign stats
+    # Per-campaign stats (only count complete watches, not started-but-not-finished)
     campaign_data = []
     for c in campaigns:
         c_views_today = db.query(func.count(VideoWatch.id)).filter(
             VideoWatch.campaign_id == c.id,
             VideoWatch.watch_date == today_str,
+            VideoWatch.is_complete == True,  # noqa: E712
         ).scalar() or 0
 
         c_views_week = db.query(func.count(VideoWatch.id)).filter(
             VideoWatch.campaign_id == c.id,
             VideoWatch.watch_date >= week_ago,
+            VideoWatch.is_complete == True,  # noqa: E712
         ).scalar() or 0
 
         c_unique = db.query(func.count(func.distinct(VideoWatch.user_id))).filter(
             VideoWatch.campaign_id == c.id,
+            VideoWatch.is_complete == True,  # noqa: E712
         ).scalar() or 0
 
         # ── NEW: Velocity — recent 7-day view rate, used to estimate days-to-completion ──
@@ -22885,6 +22982,7 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
         recent_7d_views = db.query(func.count(VideoWatch.id)).filter(
             VideoWatch.campaign_id == c.id,
             VideoWatch.watch_date >= week_ago,
+            VideoWatch.is_complete == True,  # noqa: E712
         ).scalar() or 0
 
         daily_rate = round(recent_7d_views / 7.0, 1) if recent_7d_views else 0

@@ -393,6 +393,15 @@ class VideoWatch(Base):
     watched_at      = Column(DateTime, default=datetime.utcnow)
     watch_date      = Column(String, index=True)   # YYYY-MM-DD for daily quota checks
     duration_secs   = Column(Integer, default=30)  # seconds watched
+    # ── Apr 2026: server-side anti-cheat columns ──
+    # started_at records when the user was ASSIGNED this video (a row gets
+    # created at assignment time, before they've watched anything). Used to
+    # enforce server-side that >= 30 seconds have actually passed before
+    # accepting a "mark watched" request. is_complete distinguishes started
+    # rows (False) from completed rows (True). Quota only counts complete.
+    # Existing data is all completed (default True for migration compat).
+    started_at      = Column(DateTime, nullable=True)
+    is_complete     = Column(Boolean, default=True, nullable=False)
 
 
 class WatchQuota(Base):
@@ -1482,6 +1491,17 @@ def run_migrations():
         # so the UI can render a small "Broadcast" tag on them. Existing
         # rows default to false (regular 1-on-1 messages).
         "ALTER TABLE team_messages ADD COLUMN IF NOT EXISTS is_broadcast BOOLEAN DEFAULT FALSE",
+        # ── Apr 2026: server-side watch-cheat protection ──
+        # started_at records when the user was assigned the video (so we
+        # can verify server-side that >=30s passed before accepting mark-
+        # complete). is_complete=true for all existing rows (they're all
+        # genuine completed watches; only the new assignment endpoint
+        # creates is_complete=false rows).
+        "ALTER TABLE video_watches ADD COLUMN IF NOT EXISTS started_at TIMESTAMP",
+        "ALTER TABLE video_watches ADD COLUMN IF NOT EXISTS is_complete BOOLEAN DEFAULT TRUE",
+        # Make sure existing rows are flagged complete (handles the case
+        # where the column already existed but with NULL defaults)
+        "UPDATE video_watches SET is_complete = TRUE WHERE is_complete IS NULL",
     ]
     results = []
     with engine.connect() as conn:
