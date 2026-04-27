@@ -29,7 +29,7 @@ import Upgrade from './pages/Upgrade';
 import CompensationPlan from './pages/CompensationPlan';
 import IncomeDisclaimer from './pages/IncomeDisclaimer';
 import AiTool from './pages/AiTool';
-import MyNetwork from './pages/MyNetwork';
+// MyNetwork retired Apr 2026 - file archived to pages/archived_pages/. Routes /network and /courses/commissions now redirect to /income and /wallet respectively.
 import IncomeChains from './pages/IncomeChains';
 import IncomePage from './pages/IncomePage';
 import ToolsPage from './pages/ToolsPage';
@@ -234,7 +234,7 @@ function AppRoutes() {
       <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
       <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />
-      <Route path="/network" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
+      <Route path="/network" element={<Navigate to="/income" replace />} />
       <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
       <Route path="/income/membership" element={<ProtectedRoute><IncomeMembershipPage /></ProtectedRoute>} />
       <Route path="/tools" element={<ProtectedRoute><ToolsPage /></ProtectedRoute>} />
@@ -246,7 +246,7 @@ function AppRoutes() {
       <Route path="/learn/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
       <Route path="/learn/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
       <Route path="/income-chains" element={<ProtectedRoute><IncomeChains /></ProtectedRoute>} />
-      <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
+      <Route path="/courses/commissions" element={<Navigate to="/wallet" replace />} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
 
       {/* Public pages — no auth required, no sidebar */}

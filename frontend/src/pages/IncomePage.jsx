@@ -223,7 +223,7 @@ export default function IncomePage() {
             ] : null}
             statusLine={!membershipActive ? t('income.stream.membershipDormant', { defaultValue: 'Share your link to activate the easiest stream — paid every month they stay.' }) : null}
             actions={[
-              { label: t('income.action.myReferrals', { defaultValue: 'My referrals' }), to: '/network' },
+              { label: t('income.action.myReferrals', { defaultValue: 'My referrals' }), to: '/command-centre' },
               { label: t('income.action.shareLink', { defaultValue: 'Get share link' }), to: '/social-share' },
               { label: t('income.action.compPlan', { defaultValue: 'Comp plan' }), to: '/compensation-plan' },
             ]}

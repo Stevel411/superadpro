@@ -16,8 +16,10 @@
  *   6. "Performance" — single full-analytics CTA card
  *
  * Layer 1 is read-only — clicking a stat card today navigates to the
- * existing /network page. Layer 2 will add proper drill-down lists,
- * Layer 3 will add per-member actions (message, re-activation email).
+ * team-messenger (for full team list and messaging). Layer 2 will add
+ * proper drill-down lists, Layer 3 will add per-member actions (message,
+ * re-activation email). The old /network page was retired Apr 2026 once
+ * Command Centre + Income door + Wallet covered everything it showed.
  *
  * Translations: all visible strings via t('commandCentre.X'). Namespace
  * exists in all 20 locale files.
@@ -153,7 +155,7 @@ export default function CommandCentre() {
     {
       title: t('commandCentre.viewFullTeamTitle'),
       desc: t('commandCentre.viewFullTeamDesc'),
-      link: '/network',
+      link: '/team-messenger',
       icon: Users,
       color: 'var(--sap-accent)',
       accentPale: '#cffafe',
@@ -201,7 +203,7 @@ export default function CommandCentre() {
       {/* ── DIRECT REFERRALS PANEL — 3 columns ───────────────
           Three buckets in one panel because they answer the same
           conceptual question ("how is my direct line composed?").
-          Each column is clickable; Layer 1 navigates to /network,
+          Each column is clickable; Layer 1 navigates to team-messenger,
           Layer 2 will route to bucket-filtered drill-downs. */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>
         {t('commandCentre.directsHeader')}
