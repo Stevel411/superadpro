@@ -3575,84 +3575,84 @@
     "installDismiss": "Chiudi"
   },
   "gridStream": {
-    "backLink": "Compensation Overview",
+    "backLink": "Panoramica del Piano Compensi",
     "hero": {
-      "tag": "Stream 02 · The Engine",
-      "word1": "The",
+      "tag": "Stream 02 · Il Motore",
+      "word1": "La",
       "word2": "8×8",
-      "word3": "Grid.",
-      "word4": "Watch",
-      "word5": "it build.",
-      "promiseLabel": "Maximum per cycle · All 8 tiers active",
-      "promiseSub": "Real platform math · The ceiling is real · Getting there is on you",
-      "sub": "Every campaign tier activates a fresh 64-seat grid. Directs seed it. Spillover fills it. Completion pays the bonus. Four grids running together makes money. Eight makes freedom.",
-      "stat1Label": "Seats per grid",
-      "stat2Label": "Tier levels",
-      "stat3Label": "Grids per tier",
-      "scroll": "Scroll to watch it build"
+      "word3": "Griglia.",
+      "word4": "Guardala",
+      "word5": "costruirsi.",
+      "promiseLabel": "Massimo per ciclo · Tutti gli 8 livelli attivi",
+      "promiseSub": "Vera matematica della piattaforma · Il tetto è reale · Arrivarci dipende da te",
+      "sub": "Ogni livello campagna attiva una nuova griglia da 64 posti. I tuoi diretti la seminano. Lo spillover la riempie. Il completamento paga il bonus. Quattro griglie attive fanno soldi. Otto fanno libertà.",
+      "stat1Label": "Posti per griglia",
+      "stat2Label": "Livelli disponibili",
+      "stat3Label": "Griglie per livello",
+      "scroll": "Scorri per vederla costruirsi"
     },
     "section1": {
-      "tag": "§ 01 · Live simulation",
-      "title": "The grid, in action.",
-      "titleAccent": "Tier 5 Elite · $400/seat",
-      "sub": "Below is exactly how your grid fills over time. Your directs seed it. Spillover from your sponsor's team fills the rest. When the 64th seat locks in, the completion bonus drops. Watch once. You'll see why this works."
+      "tag": "§ 01 · Simulazione live",
+      "title": "La griglia, in azione.",
+      "titleAccent": "Tier 5 Elite · $400/posto",
+      "sub": "Qui sotto vedi esattamente come la tua griglia si riempie nel tempo. I tuoi diretti la seminano. Lo spillover dalla squadra del tuo sponsor riempie il resto. Quando il 64º posto si blocca, il bonus di completamento cade. Guarda una volta. Capirai perché funziona."
     },
     "gridStat": {
-      "seats": "Total seats to fill",
-      "direct": "Paid on each direct referral",
-      "uni": "Paid across spillover seats",
-      "bonus": "Paid on grid completion"
+      "seats": "Posti totali da riempire",
+      "direct": "Pagato su ogni referente diretto",
+      "uni": "Pagato sui posti di spillover",
+      "bonus": "Pagato al completamento griglia"
     },
     "btn": {
       "reset": "Reset",
-      "play": "Play again"
+      "play": "Riproduci di nuovo"
     },
     "caption": {
-      "start": "Ready when you are...",
-      "you": "You activate your tier — the grid opens",
-      "directs": "Your directs seed the first row",
-      "spillover": "Spillover starts flowing in from above",
-      "fills": "The grid fills from every direction",
-      "complete": "Grid complete — the bonus drops"
+      "start": "Pronto quando lo sei tu...",
+      "you": "Attivi il tuo livello — la griglia si apre",
+      "directs": "I tuoi diretti seminano la prima fila",
+      "spillover": "Lo spillover comincia a fluire dall'alto",
+      "fills": "La griglia si riempie da ogni direzione",
+      "complete": "Griglia completa — il bonus cade"
     },
     "section2": {
-      "tag": "§ 02 · The mechanic",
-      "title": "How the 64 seats",
-      "titleAccent": "actually get filled.",
-      "sub": "Three things happen, in order. Every grid. Every tier. No exceptions."
+      "tag": "§ 02 · Il meccanismo",
+      "title": "Come i 64 posti",
+      "titleAccent": "si riempiono davvero.",
+      "sub": "Tre cose accadono, in ordine. Ogni griglia. Ogni livello. Senza eccezioni."
     },
     "mechanic": {
-      "step1Title": "Your directs seed the grid",
-      "step1Desc": "When you refer someone and they activate the same tier as you, they take a seat in your grid. That's how the first few seats get filled — by the people you personally brought in. Every direct pays you 40% of the tier price instantly.",
-      "step2Title": "Spillover fills the rest",
-      "step2DescPre": "When your directs refer their own people — and when overflow comes from your sponsor's team above you — those seats drop into your grid. Most of your 64 seats come from",
-      "step2DescPost": ", not from you.",
-      "step3Title": "The 64th seat triggers the bonus",
-      "step3Desc": "When the final seat locks in, the grid completes. A lump-sum bonus drops into your wallet — 5% of the total seat value across all 64 members. Then a fresh grid opens and the cycle begins again."
+      "step1Title": "I tuoi diretti seminano la griglia",
+      "step1Desc": "Quando referenzi qualcuno e attiva il tuo stesso livello, prende un posto nella tua griglia. È così che si riempiono i primi posti — dalle persone che hai portato personalmente. Ogni diretto ti paga il 40% del prezzo del livello istantaneamente.",
+      "step2Title": "Lo spillover riempie il resto",
+      "step2DescPre": "Quando i tuoi diretti referenziano le proprie persone — e quando l'eccedenza arriva dalla squadra del tuo sponsor sopra di te — quei posti cadono nella tua griglia. La maggior parte dei tuoi 64 posti viene dallo",
+      "step2DescPost": ", non da te.",
+      "step3Title": "Il 64º posto attiva il bonus",
+      "step3Desc": "Quando l'ultimo posto si blocca, la griglia si completa. Un bonus a somma forfettaria cade nel tuo wallet — il 5% del valore totale dei posti su tutti i 64 membri. Poi si apre una nuova griglia e il ciclo ricomincia."
     },
     "section3": {
-      "tag": "§ 03 · Your grid math",
-      "title": "Pick your tier.",
-      "titleAccent": "See what fills your bank.",
-      "sub": "Choose a tier. Set your activity level. Watch the math. Every number is pulled directly from the platform — nothing inflated."
+      "tag": "§ 03 · La matematica della tua griglia",
+      "title": "Scegli il tuo livello.",
+      "titleAccent": "Guarda cosa riempie il tuo conto.",
+      "sub": "Scegli un livello. Imposta il tuo livello di attività. Guarda la matematica. Ogni numero viene direttamente dalla piattaforma — niente gonfiato."
     },
     "calc": {
-      "tierLabel": "Active campaign tier",
-      "refsLabel": "Your direct referrals in this grid",
-      "cyclesLabel": "Grids completed per year",
-      "annualLabel": "Annual potential · Selected tier only",
-      "annualSub": "Tiers stack when activated together · Real platform math",
-      "cycleLabel": "Per-cycle commissions",
-      "cycleSubPre": "Direct +",
-      "cycleSubPost": " · 64 seats",
+      "tierLabel": "Livello campagna attivo",
+      "refsLabel": "I tuoi referenti diretti in questa griglia",
+      "cyclesLabel": "Griglie completate per anno",
+      "annualLabel": "Potenziale annuo · Solo livello selezionato",
+      "annualSub": "I livelli si sommano se attivati insieme · Vera matematica della piattaforma",
+      "cycleLabel": "Commissioni per ciclo",
+      "cycleSubPre": "Diretto +",
+      "cycleSubPost": " · 64 posti",
       "bonusBadge": "Bonus",
-      "bonusLabel": "Completion payout",
-      "bonusSub": "5% × 64 × tier price"
+      "bonusLabel": "Pagamento di completamento",
+      "bonusSub": "5% × 64 × prezzo livello"
     },
     "tip": {
-      "directLabel": "Direct Referral · Tier 5",
-      "uniLabel": "Uni-Level · Per Seat",
-      "bonusLabel": "Grid Completion · Tier 5"
+      "directLabel": "Referente Diretto · Tier 5",
+      "uniLabel": "Uni-Level · Per Posto",
+      "bonusLabel": "Griglia Completata · Tier 5"
     },
     "tier": {
       "starter": "Starter",
@@ -3667,24 +3667,24 @@
     "term": {
       "spillover": "spillover",
       "spilloverTitle": "Spillover",
-      "spilloverDef": "When someone above or below you in the structure refers more people than they need, those extra members \"spill over\" into your grid — filling your seats and earning you uni-level commissions.",
+      "spilloverDef": "Quando qualcuno sopra o sotto di te nella struttura referenzia più persone di quante ne servano, quei membri in eccesso \"traboccano\" nella tua griglia — riempiendo i tuoi posti e generandoti commissioni uni-level.",
       "unilevel": "uni-level",
       "unilevelTitle": "Uni-Level",
-      "unilevelDef": "A small commission paid to you for every seat in your grid that's filled by someone other than your direct referrals — typically from spillover. 6.25% of the tier price per seat."
+      "unilevelDef": "Una piccola commissione che ti viene pagata per ogni posto della tua griglia riempito da qualcuno diverso dai tuoi referenti diretti — tipicamente da spillover. 6,25% del prezzo del livello per posto."
     },
     "section4": {
-      "tag": "§ 04 · The honest part",
-      "title": "This is not a shortcut.",
-      "titleAccent": "It's a system that rewards real work.",
-      "p1": "No grid fills itself. Spillover <strong>only happens when the people above and below you are actively referring</strong>. If your upline is quiet and your downline is quiet, your grid sits there and nothing happens.",
-      "p2": "The grid is a powerful engine — but it's still an engine. It needs fuel. Your activity, your network, your consistency. Put those in, the math works. Don't, and the math tells you exactly the same thing every month: zero.",
-      "keyLabel": "The bottom line",
-      "keyText": "Show up, bring people in, stay consistent. The grid takes care of the rest."
+      "tag": "§ 04 · La parte onesta",
+      "title": "Questa non è una scorciatoia.",
+      "titleAccent": "È un sistema che premia il vero lavoro.",
+      "p1": "Nessuna griglia si riempie da sola. Lo spillover <strong>accade solo quando le persone sopra e sotto di te referenziano attivamente</strong>. Se la tua upline è in silenzio e la tua downline è in silenzio, la tua griglia resta ferma e non succede niente.",
+      "p2": "La griglia è un motore potente — ma è pur sempre un motore. Ha bisogno di carburante. La tua attività, la tua rete, la tua costanza. Mettili dentro, la matematica funziona. Non farlo, e la matematica ti dirà ogni mese esattamente la stessa cosa: zero.",
+      "keyLabel": "Il punto chiave",
+      "keyText": "Presentati, porta persone, mantieni la costanza. La griglia pensa al resto."
     },
     "cta": {
-      "title": "The grid is ready.",
-      "titleAccent": "Your first seat is waiting.",
-      "button": "Register Today"
+      "title": "La griglia è pronta.",
+      "titleAccent": "Il tuo primo posto ti aspetta.",
+      "button": "Registrati Oggi"
     }
   },
   "membershipStream": {
