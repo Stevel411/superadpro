@@ -1266,7 +1266,21 @@
     "yourReferral": "إحالتك",
     "sponsor": "راعي",
     "referral": "إحالة",
-    "noMsgPreview": "لا رسائل"
+    "noMsgPreview": "لا رسائل",
+    "broadcastBtn": "Broadcast to all",
+    "broadcastTag": "Broadcast",
+    "broadcastTitle": "Broadcast to your team",
+    "broadcastSubtitle": "{{n}} direct referrals will receive this message",
+    "broadcastSent": "Broadcast sent!",
+    "broadcastSentDetail": "Delivered to {{n}} team members.",
+    "broadcastPlaceholder": "Write your broadcast message…\n\nMarkdown supported: **bold**, *italic*, [links](https://example.com)",
+    "broadcastPreview": "Preview",
+    "broadcastSend": "Send to {{n}}",
+    "bold": "Bold",
+    "italic": "Italic",
+    "link": "Link",
+    "cancel": "Cancel",
+    "sending": "Sending…"
   },
   "auth": {
     "welcomeBack": "مرحباً بعودتك",

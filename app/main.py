@@ -19340,6 +19340,7 @@ def api_team_messages(request: Request, user: User = Depends(get_current_user),
             "other_user": {"id": other.id, "name": other.first_name or other.username,
                            "username": other.username, "avatar": other.avatar_url} if other else None,
             "message": m.message, "is_read": m.is_read,
+            "is_broadcast": bool(getattr(m, 'is_broadcast', False)),
             "created_at": created_iso,
         }
 
@@ -19431,6 +19432,74 @@ async def api_send_team_message(request: Request, user: User = Depends(get_curre
         message_text[:100])
 
     return {"success": True, "message_id": msg.id}
+
+
+@app.post("/api/team-messages/broadcast")
+async def api_broadcast_team_message(request: Request, user: User = Depends(get_current_user),
+                                      db: Session = Depends(get_db)):
+    """Broadcast the same message to ALL direct referrals (Apr 2026).
+
+    Each recipient gets their own TeamMessage row marked is_broadcast=True so
+    the UI can flag the message visually, but the row otherwise behaves like
+    a normal 1-on-1 message: shows up in the recipients inbox thread, replies
+    route back to the sender's thread as normal.
+
+    Rate limited stricter than 1-on-1 sends (5 broadcasts/hour for non-admins)
+    because a single broadcast already creates N messages and could be abused
+    to flood the team. The leads broadcast endpoint at /api/leads/broadcast is
+    a separate system (email autoresponder) — this is in-app messenger only.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import TeamMessage
+    body = await request.json()
+    message_text = (body.get("message") or "").strip()[:2000]
+    if not message_text:
+        return JSONResponse({"error": "Message required"}, status_code=400)
+
+    # Recipients = all direct referrals. Sponsor (upline) NOT included since a
+    # broadcast is fundamentally a downline-team announcement, not a way to
+    # spam your sponsor. If you want to message your sponsor, use the 1-on-1.
+    recipients = db.query(User).filter(User.sponsor_id == user.id).all()
+    if not recipients:
+        return JSONResponse({"error": "You have no direct referrals to broadcast to"}, status_code=400)
+
+    # Rate limit: 5 broadcasts/hour. Each broadcast can fan out to dozens of
+    # recipients, so the cap is much tighter than the 20/hour single-send cap.
+    from datetime import timedelta
+    hour_ago = datetime.utcnow() - timedelta(hours=1)
+    recent_broadcasts = db.query(TeamMessage).filter(
+        TeamMessage.from_user_id == user.id,
+        TeamMessage.is_broadcast == True,  # noqa: E712
+        TeamMessage.created_at >= hour_ago
+    ).count()
+    if recent_broadcasts >= 5 and not user.is_admin:
+        return JSONResponse({"error": "Broadcast limit reached (5/hour). Try again later."}, status_code=429)
+
+    # Fan out — one row per recipient so each thread sees the broadcast naturally
+    sent_count = 0
+    for r in recipients:
+        msg = TeamMessage(
+            from_user_id=user.id,
+            to_user_id=r.id,
+            message=message_text,
+            is_read=False,
+            is_broadcast=True,
+        )
+        db.add(msg)
+        sent_count += 1
+    db.commit()
+
+    # Notify all recipients
+    for r in recipients:
+        send_notification(db, r.id, "message", "📢",
+            f"Broadcast from {user.first_name or user.username}",
+            message_text[:100])
+
+    return {"success": True, "sent_count": sent_count}
+
+
 @app.get("/api/team-messages/unread-count")
 def api_unread_messages(request: Request, user: User = Depends(get_current_user),
                         db: Session = Depends(get_db)):

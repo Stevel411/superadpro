@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
-import { Send, MessageCircle, User, Users, ArrowLeft, CheckCheck, Search } from 'lucide-react';
+import { Send, MessageCircle, User, Users, ArrowLeft, CheckCheck, Search, Megaphone, Bold, Italic, Link as LinkIcon, X } from 'lucide-react';
 
 export default function TeamMessenger() {
   var { t } = useTranslation();
@@ -14,8 +14,15 @@ export default function TeamMessenger() {
   var [sending, setSending] = useState(false);
   var [unread, setUnread] = useState(0);
   var [search, setSearch] = useState('');
+  // Broadcast composer state — modal opens from header button, message text
+  // sent to /api/team-messages/broadcast which fans out to all directs.
+  var [broadcastOpen, setBroadcastOpen] = useState(false);
+  var [broadcastText, setBroadcastText] = useState('');
+  var [broadcastSending, setBroadcastSending] = useState(false);
+  var [broadcastResult, setBroadcastResult] = useState(null);  // { sent_count } | { error }
   var bottomRef = useRef(null);
   var inputRef = useRef(null);
+  var broadcastTextareaRef = useRef(null);
 
   useEffect(function() { window.scrollTo(0, 0); }, []);
 
@@ -38,6 +45,81 @@ export default function TeamMessenger() {
     apiPost('/api/team-messages/send', { to_user_id: activeContact.id, message: text.trim() })
       .then(function() { setText(''); setSending(false); loadData(); })
       .catch(function() { setSending(false); });
+  }
+
+  function sendBroadcast() {
+    if (!broadcastText.trim() || broadcastSending) return;
+    setBroadcastSending(true);
+    setBroadcastResult(null);
+    apiPost('/api/team-messages/broadcast', { message: broadcastText.trim() })
+      .then(function(r) {
+        setBroadcastSending(false);
+        setBroadcastResult({ sent_count: r.sent_count });
+        loadData();
+        // Auto-close after 2.5s on success so the user sees confirmation then returns to inbox
+        setTimeout(function() {
+          setBroadcastOpen(false);
+          setBroadcastText('');
+          setBroadcastResult(null);
+        }, 2500);
+      })
+      .catch(function(err) {
+        setBroadcastSending(false);
+        setBroadcastResult({ error: (err && err.message) || 'Broadcast failed' });
+      });
+  }
+
+  // Insert markdown formatting at the cursor position in the broadcast textarea.
+  // wrap='**' for bold, '*' for italic, or null for link (which is handled
+  // specially by inserting [text](url) syntax).
+  function insertMarkdown(wrap) {
+    var ta = broadcastTextareaRef.current;
+    if (!ta) return;
+    var start = ta.selectionStart, end = ta.selectionEnd;
+    var before = broadcastText.slice(0, start);
+    var selected = broadcastText.slice(start, end);
+    var after = broadcastText.slice(end);
+    var inserted, newCursor;
+    if (wrap === 'link') {
+      var label = selected || 'link text';
+      inserted = '[' + label + '](https://)';
+      newCursor = start + inserted.length - 1;  // place cursor at end so user finishes the URL
+    } else {
+      inserted = wrap + (selected || (wrap === '**' ? 'bold' : 'italic')) + wrap;
+      newCursor = start + inserted.length;
+    }
+    setBroadcastText(before + inserted + after);
+    setTimeout(function() {
+      ta.focus();
+      ta.setSelectionRange(newCursor, newCursor);
+    }, 0);
+  }
+
+  // Safe markdown -> HTML renderer. Escapes ALL input first then applies
+  // a tiny set of regex transforms for bold/italic/links/linebreaks. Cannot
+  // be exploited because raw < > & " ' are escaped before any markdown
+  // transformation runs - any HTML tags a sender types appear as literal
+  // text. Existing plain-text messages render unchanged (no markdown
+  // syntax in them, so the regexes match nothing).
+  function renderMarkdown(raw) {
+    if (!raw) return '';
+    var escaped = String(raw)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+    // Links: [text](url) — only http/https URLs allowed, javascript: et al rejected
+    escaped = escaped.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function(_m, label, url) {
+      return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">' + label + '</a>';
+    });
+    // Bold: **text**
+    escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text* (after bold to avoid the ** patterns matching here)
+    escaped = escaped.replace(/(^|[^*])\*([^*\n]+)\*([^*]|$)/g, '$1<em>$2</em>$3');
+    // Linebreaks: preserve them as <br/>
+    escaped = escaped.replace(/\n/g, '<br/>');
+    return escaped;
   }
 
   var convoMsgs = activeContact ? messages.filter(function(m) {
@@ -83,6 +165,27 @@ export default function TeamMessenger() {
         <div style={{width:300,borderRight:'1px solid #e2e8f0',display:'flex',flexDirection:'column',flexShrink:0,minHeight:0}}>
           {/* Header */}
           <div style={{padding:'16px 18px',borderBottom:'1px solid #f1f5f9'}}>
+            {/* Broadcast button — top of the contacts panel so it's the visual
+                focal point. Disabled when there are no recipients. Uses
+                amber/orange styling so it stands apart from the cobalt 1-on-1
+                send button further down. */}
+            <button
+              type="button"
+              onClick={function(){ setBroadcastOpen(true); setBroadcastResult(null); }}
+              disabled={contacts.filter(function(c){return c.relationship==='referral';}).length === 0}
+              style={{
+                width:'100%', padding:'10px 14px', borderRadius:10,
+                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                color:'#1f1300', border:'none', cursor:'pointer',
+                fontSize:13, fontWeight:800, fontFamily:'inherit',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                marginBottom:14,
+                boxShadow:'0 2px 6px rgba(245,158,11,0.25)',
+                opacity: contacts.filter(function(c){return c.relationship==='referral';}).length === 0 ? 0.4 : 1,
+              }}>
+              <Megaphone size={15} strokeWidth={2.5}/>
+              {t('teamMessenger.broadcastBtn', { defaultValue: 'Broadcast to all' })}
+            </button>
             <div style={{fontSize:15,fontWeight:800,color:'#0f172a',display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
               <Users size={16} color="#0ea5e9"/> {t('teamMessenger.contacts')}
               {unread > 0 && <span style={{fontSize:13,fontWeight:800,padding:'2px 7px',borderRadius:10,background:'#ef4444',color:'#fff',marginLeft:'auto'}}>{unread}</span>}
@@ -192,7 +295,20 @@ export default function TeamMessenger() {
                       color:mine?'#fff':'#1e293b',fontSize:14,lineHeight:1.6,
                       boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
                       border:mine?'none':'1px solid #e2e8f0'}}>
-                      <div>{m.message}</div>
+                      {m.is_broadcast && (
+                        <div style={{
+                          display:'inline-flex', alignItems:'center', gap:5,
+                          padding:'2px 8px', marginBottom:6,
+                          background:mine?'rgba(255,255,255,0.18)':'#fef3c7',
+                          color:mine?'rgba(255,255,255,0.9)':'#b45309',
+                          borderRadius:99, fontSize:11, fontWeight:700,
+                          letterSpacing:'0.04em',
+                        }}>
+                          <Megaphone size={11} strokeWidth={2.5}/>
+                          {t('teamMessenger.broadcastTag', { defaultValue: 'Broadcast' })}
+                        </div>
+                      )}
+                      <div dangerouslySetInnerHTML={{ __html: renderMarkdown(m.message) }}/>
                       <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:4,marginTop:3}}>
                         <span style={{fontSize:13,color:mine?'rgba(255,255,255,.55)':'#7a8899'}}>
                           {m.created_at?new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}
@@ -234,6 +350,209 @@ export default function TeamMessenger() {
           )}
         </div>
       </div>
+
+      {/* ═══ BROADCAST COMPOSER MODAL ═══ */}
+      {broadcastOpen && (
+        <div
+          onClick={function(e){ if (e.target === e.currentTarget) setBroadcastOpen(false); }}
+          style={{
+            position:'fixed', inset:0, zIndex:1000,
+            background:'rgba(15,23,42,0.6)', backdropFilter:'blur(3px)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            padding:24,
+          }}>
+          <div style={{
+            background:'#fff', borderRadius:18,
+            width:'100%', maxWidth:580,
+            maxHeight:'90vh', display:'flex', flexDirection:'column',
+            boxShadow:'0 20px 60px rgba(0,0,0,0.3)',
+            overflow:'hidden',
+          }}>
+            {/* Modal header */}
+            <div style={{
+              padding:'20px 24px', borderBottom:'1px solid #f1f5f9',
+              display:'flex', alignItems:'center', gap:12,
+            }}>
+              <div style={{
+                width:40, height:40, borderRadius:12,
+                background:'linear-gradient(135deg, #f59e0b, #d97706)',
+                color:'#fff',
+                display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <Megaphone size={20} strokeWidth={2}/>
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:"'Sora', sans-serif", fontSize:18, fontWeight:800, color:'#0f172a', lineHeight:1.2}}>
+                  {t('teamMessenger.broadcastTitle', { defaultValue: 'Broadcast to your team' })}
+                </div>
+                <div style={{fontSize:13, color:'#64748b', marginTop:2}}>
+                  {t('teamMessenger.broadcastSubtitle', {
+                    defaultValue: '{{n}} direct referrals will receive this message',
+                    n: contacts.filter(function(c){return c.relationship==='referral';}).length,
+                  })}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={function(){ setBroadcastOpen(false); }}
+                style={{background:'none', border:'none', cursor:'pointer', padding:6, color:'#64748b', display:'flex'}}>
+                <X size={20}/>
+              </button>
+            </div>
+
+            {/* Modal body */}
+            <div style={{padding:'20px 24px', overflowY:'auto', flex:1}}>
+              {broadcastResult && broadcastResult.sent_count !== undefined ? (
+                /* Success state */
+                <div style={{textAlign:'center', padding:'30px 20px'}}>
+                  <div style={{
+                    width:64, height:64, borderRadius:'50%',
+                    background:'#dcfce7', color:'#15803d',
+                    display:'inline-flex', alignItems:'center', justifyContent:'center',
+                    marginBottom:16,
+                  }}>
+                    <CheckCheck size={32} strokeWidth={2.5}/>
+                  </div>
+                  <div style={{fontFamily:"'Sora', sans-serif", fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:6}}>
+                    {t('teamMessenger.broadcastSent', { defaultValue: 'Broadcast sent!' })}
+                  </div>
+                  <div style={{fontSize:14, color:'#475569'}}>
+                    {t('teamMessenger.broadcastSentDetail', {
+                      defaultValue: 'Delivered to {{n}} team members.',
+                      n: broadcastResult.sent_count,
+                    })}
+                  </div>
+                </div>
+              ) : (
+                /* Composer */
+                <>
+                  {/* Formatting toolbar */}
+                  <div style={{display:'flex', gap:6, marginBottom:10}}>
+                    <button type="button" onClick={function(){ insertMarkdown('**'); }}
+                      title={t('teamMessenger.bold', { defaultValue: 'Bold' })}
+                      style={toolbarBtnStyle}>
+                      <Bold size={15} strokeWidth={2.5}/>
+                    </button>
+                    <button type="button" onClick={function(){ insertMarkdown('*'); }}
+                      title={t('teamMessenger.italic', { defaultValue: 'Italic' })}
+                      style={toolbarBtnStyle}>
+                      <Italic size={15} strokeWidth={2.5}/>
+                    </button>
+                    <button type="button" onClick={function(){ insertMarkdown('link'); }}
+                      title={t('teamMessenger.link', { defaultValue: 'Link' })}
+                      style={toolbarBtnStyle}>
+                      <LinkIcon size={15} strokeWidth={2.5}/>
+                    </button>
+                    <div style={{flex:1}}/>
+                    <span style={{fontSize:11, color:'#94a3b8', alignSelf:'center'}}>
+                      {broadcastText.length}/2000
+                    </span>
+                  </div>
+                  <textarea
+                    ref={broadcastTextareaRef}
+                    value={broadcastText}
+                    onChange={function(e){ setBroadcastText(e.target.value.slice(0, 2000)); }}
+                    placeholder={t('teamMessenger.broadcastPlaceholder', {
+                      defaultValue: "Write your broadcast message…\n\nMarkdown supported: **bold**, *italic*, [links](https://example.com)",
+                    })}
+                    style={{
+                      width:'100%', minHeight:160, padding:14,
+                      borderRadius:10, border:'1.5px solid #e2e8f0',
+                      background:'#f8fafc', fontSize:14, fontFamily:'inherit',
+                      lineHeight:1.5, resize:'vertical', outline:'none',
+                      color:'#0f172a', boxSizing:'border-box',
+                    }}/>
+
+                  {/* Live preview */}
+                  {broadcastText.trim() && (
+                    <div style={{marginTop:14}}>
+                      <div style={{fontSize:11, fontWeight:800, letterSpacing:'0.1em', textTransform:'uppercase', color:'#64748b', marginBottom:6}}>
+                        {t('teamMessenger.broadcastPreview', { defaultValue: 'Preview' })}
+                      </div>
+                      <div style={{
+                        background:'#fff', border:'1px solid #e2e8f0',
+                        borderRadius:12, padding:'12px 14px',
+                        fontSize:14, lineHeight:1.6, color:'#1e293b',
+                      }}>
+                        <div style={{
+                          display:'inline-flex', alignItems:'center', gap:5,
+                          padding:'2px 8px', marginBottom:6,
+                          background:'#fef3c7', color:'#b45309',
+                          borderRadius:99, fontSize:11, fontWeight:700,
+                        }}>
+                          <Megaphone size={11} strokeWidth={2.5}/>
+                          {t('teamMessenger.broadcastTag', { defaultValue: 'Broadcast' })}
+                        </div>
+                        <div dangerouslySetInnerHTML={{ __html: renderMarkdown(broadcastText) }}/>
+                      </div>
+                    </div>
+                  )}
+
+                  {broadcastResult && broadcastResult.error && (
+                    <div style={{
+                      marginTop:12, padding:'10px 14px',
+                      background:'#fee2e2', border:'1px solid #fecaca',
+                      borderRadius:10, color:'#b91c1c', fontSize:13, fontWeight:600,
+                    }}>
+                      {broadcastResult.error}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Modal footer */}
+            {!(broadcastResult && broadcastResult.sent_count !== undefined) && (
+              <div style={{
+                padding:'16px 24px', borderTop:'1px solid #f1f5f9',
+                display:'flex', justifyContent:'flex-end', gap:10,
+              }}>
+                <button
+                  type="button"
+                  onClick={function(){ setBroadcastOpen(false); }}
+                  style={{
+                    padding:'10px 20px', borderRadius:10,
+                    background:'#fff', color:'#475569',
+                    border:'1.5px solid #e2e8f0',
+                    fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit',
+                  }}>
+                  {t('teamMessenger.cancel', { defaultValue: 'Cancel' })}
+                </button>
+                <button
+                  type="button"
+                  onClick={sendBroadcast}
+                  disabled={!broadcastText.trim() || broadcastSending}
+                  style={{
+                    padding:'10px 20px', borderRadius:10,
+                    background:'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color:'#1f1300', border:'none',
+                    fontSize:14, fontWeight:800,
+                    cursor:(!broadcastText.trim() || broadcastSending)?'not-allowed':'pointer',
+                    fontFamily:'inherit',
+                    opacity:(!broadcastText.trim() || broadcastSending)?0.5:1,
+                    boxShadow:'0 4px 12px rgba(245,158,11,0.3)',
+                    display:'inline-flex', alignItems:'center', gap:8,
+                  }}>
+                  <Megaphone size={15} strokeWidth={2.5}/>
+                  {broadcastSending
+                    ? t('teamMessenger.sending', { defaultValue: 'Sending…' })
+                    : t('teamMessenger.broadcastSend', {
+                        defaultValue: 'Send to {{n}}',
+                        n: contacts.filter(function(c){return c.relationship==='referral';}).length,
+                      })}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }
+
+const toolbarBtnStyle = {
+  padding:'7px 10px', borderRadius:8,
+  background:'#f8fafc', border:'1px solid #e2e8f0',
+  cursor:'pointer', color:'#475569',
+  display:'flex', alignItems:'center', justifyContent:'center',
+};

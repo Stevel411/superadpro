@@ -887,6 +887,7 @@ class TeamMessage(Base):
     to_user_id    = Column(Integer, ForeignKey("users.id"), index=True)
     message       = Column(Text, nullable=False)
     is_read       = Column(Boolean, default=False)
+    is_broadcast  = Column(Boolean, default=False)  # True when this row was created by the broadcast endpoint, surfaced in UI as a small "Broadcast" tag so recipients know the message wasn't personally written to them
     created_at    = Column(DateTime, default=datetime.utcnow)
 
 
@@ -1476,6 +1477,11 @@ def run_migrations():
         # the user's language. Falls back to literal title/message
         # columns when null (backwards-compatible with existing data).
         "ALTER TABLE notifications ADD COLUMN IF NOT EXISTS translation_key VARCHAR",
+        # ── Apr 2026: broadcast support in Team Messenger ──
+        # Marks rows created by the /api/team-messages/broadcast endpoint
+        # so the UI can render a small "Broadcast" tag on them. Existing
+        # rows default to false (regular 1-on-1 messages).
+        "ALTER TABLE team_messages ADD COLUMN IF NOT EXISTS is_broadcast BOOLEAN DEFAULT FALSE",
     ]
     results = []
     with engine.connect() as conn:

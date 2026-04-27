@@ -1338,7 +1338,21 @@
     "yourReferral": "Your Referral",
     "sponsor": "Sponsor",
     "referral": "Referral",
-    "noMsgPreview": "No messages yet"
+    "noMsgPreview": "No messages yet",
+    "broadcastBtn": "Broadcast to all",
+    "broadcastTag": "Broadcast",
+    "broadcastTitle": "Broadcast to your team",
+    "broadcastSubtitle": "{{n}} direct referrals will receive this message",
+    "broadcastSent": "Broadcast sent!",
+    "broadcastSentDetail": "Delivered to {{n}} team members.",
+    "broadcastPlaceholder": "Write your broadcast message…\n\nMarkdown supported: **bold**, *italic*, [links](https://example.com)",
+    "broadcastPreview": "Preview",
+    "broadcastSend": "Send to {{n}}",
+    "bold": "Bold",
+    "italic": "Italic",
+    "link": "Link",
+    "cancel": "Cancel",
+    "sending": "Sending…"
   },
   "auth": {
     "welcomeBack": "Welcome back",

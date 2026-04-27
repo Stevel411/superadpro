@@ -1266,7 +1266,21 @@
     "yourReferral": "당신의 추천인",
     "sponsor": "스폰서",
     "referral": "추천인",
-    "noMsgPreview": "메시지 없음"
+    "noMsgPreview": "메시지 없음",
+    "broadcastBtn": "Broadcast to all",
+    "broadcastTag": "Broadcast",
+    "broadcastTitle": "Broadcast to your team",
+    "broadcastSubtitle": "{{n}} direct referrals will receive this message",
+    "broadcastSent": "Broadcast sent!",
+    "broadcastSentDetail": "Delivered to {{n}} team members.",
+    "broadcastPlaceholder": "Write your broadcast message…\n\nMarkdown supported: **bold**, *italic*, [links](https://example.com)",
+    "broadcastPreview": "Preview",
+    "broadcastSend": "Send to {{n}}",
+    "bold": "Bold",
+    "italic": "Italic",
+    "link": "Link",
+    "cancel": "Cancel",
+    "sending": "Sending…"
   },
   "auth": {
     "welcomeBack": "다시 오신 것을 환영합니다",
