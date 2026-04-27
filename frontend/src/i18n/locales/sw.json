@@ -45,7 +45,9 @@
     "yourImages": "Picha Zako",
     "videoNotSupported": "URL ya video haitumiki.",
     "alreadyHaveAccount": "Una akaunti tayari?",
-    "tapToUnmute": "Gonga ili kuondoa kimya"
+    "tapToUnmute": "Gonga ili kuondoa kimya",
+    "loading": "Loading…",
+    "notFound": "Not found"
   },
   "nav": {
     "dashboard": "Dashibodi",
@@ -226,7 +228,25 @@
     "affiliateShareLabel": "Grow your team",
     "affiliateShare": "Affiliate Share",
     "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share"
+    "affiliateShareCta": "Open share",
+    "activeSince": "Active since {{date}}",
+    "doorBuildLabel": "Build",
+    "doorCockpitLabel": "Cockpit",
+    "doorCommandCentre": "Command Centre",
+    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
+    "doorEarnLabel": "Earn",
+    "doorIncome": "Income",
+    "doorIncomeDesc": "All four income streams in one place.",
+    "doorItems": "{{count}} items",
+    "doorLearn": "Learn",
+    "doorLearnDesc": "Education, assets, and community to help you grow.",
+    "doorLearnLabel": "Learn",
+    "doorOpen": "Open",
+    "doorTools": "Tools",
+    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
+    "exploreSection": "Explore",
+    "payItForward": "Pay it forward",
+    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership."
   },
   "compPlan": {
     "title": "Mpango wa Fidia",
@@ -485,7 +505,9 @@
     "dismiss": "Dismiss",
     "progressSaved": "Your progress is saved",
     "createACampaign": "+ Create a campaign",
-    "buyACampaignTier": "Buy a Campaign Tier"
+    "buyACampaignTier": "Buy a Campaign Tier",
+    "ctaPrompt": "Interested? Visit the advertiser's site.",
+    "visitWebsite": "Visit Website"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -904,7 +926,15 @@
     "uniLevelSplit": "50% Uni-Level",
     "teamSalesFull": "Mauzo ya timu ya 2, 4, 6, 8",
     "entireNetworkFull": "mtandao wako wote",
-    "gridAdvancesBody": "Gridi inasonga hadi raundi inayofuata. Mapato ya baadaye yanahitaji shughuli mpya za mtandao."
+    "gridAdvancesBody": "Gridi inasonga hadi raundi inayofuata. Mapato ya baadaye yanahitaji shughuli mpya za mtandao.",
+    "accruedSoFar": "Accrued so far",
+    "advancesComplete": "Advances complete",
+    "bonusAccrued": "Bonus accrued",
+    "completionBonusPool": "Completion bonus pool",
+    "currentTier": "Current tier",
+    "gridDescFull": "An 8x8 grid that fills with your direct referrals plus spillover from your sponsor. Complete each tier to unlock its bonus and advance.",
+    "incomeGrid": "Income Grid",
+    "positionsFilled": "Positions filled"
   },
   "campaignTiers": {
     "title": "Viwango vya Kampeni",
@@ -1032,7 +1062,11 @@
     "realViewsDesc": "Wanachama wanaangalia video yako yote. Hakuna roboti, hakuna ushirikishwaji wa uongo. Watu halisi, umakini halisi.",
     "liveAnalytics": "Uchambuzi Moja kwa Moja",
     "liveAnalyticsDesc": "Fuatilia mionekano iliyotolewa, kiwango cha kukamilika, na maendeleo ya kampeni kwa wakati halisi kwenye dashibodi yako.",
-    "previewLabel": "onyesho"
+    "previewLabel": "onyesho",
+    "ctaUrl": "Call-to-action URL",
+    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrlPlaceholder": "https://yoursite.com/landing",
+    "errCtaUrl": "Please enter a valid URL starting with https://"
   },
   "campaignAnalytics": {
     "title": "Uchambuzi wa Kampeni",
@@ -1060,7 +1094,19 @@
     "recentCommissions": "Kamisheni za hivi karibuni",
     "noCommissions": "Hakuna kamisheni bado. Shiriki SuperLink yako!",
     "unique": "ya kipekee",
-    "analyticsTitle": "Uchambuzi"
+    "analyticsTitle": "Uchambuzi",
+    "completePace": "Days to complete at current pace",
+    "ctr": "CTR",
+    "daysToGo": "{{count}} days to go",
+    "heatmapSub": "Hour-by-hour view distribution this week",
+    "noCountryData": "No country data yet",
+    "noCta": "No CTA link set",
+    "pace": "Pace",
+    "topCountries": "Top countries",
+    "viewersBy": "Viewers by country",
+    "viewsPerDay": "Views per day",
+    "whenViewersWatch": "When viewers watch",
+    "whenWatched": "When watched"
   },
   "contentCreator": {
     "title": "Muundaji wa Maudhui",
@@ -1545,7 +1591,9 @@
     "s6_tip4": "Weka MetaMask au Coinbase Wallet kwa kutumia Mwongozo wa Crypto (katika Akaunti)",
     "s6_tip5": "Pay It Forward — toa uanachama wa Basic wa $20 kwa mtu yeyote. Unakuwa mdhamini wao na kupata kamisheni. Wanapopata $20+, wanashauriwa kutoa kwa mtu mwingine — kuunda msururu wa ukuaji wa virusi.",
     "s6_link": "Tazama pochi",
-    "stepXofY": "Hatua {{num}} ya {{total}}"
+    "stepXofY": "Hatua {{num}} ya {{total}}",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
   },
   "howItWorks": {
     "getStarted": "Anza Bure",
@@ -3036,7 +3084,8 @@
     "navIncome": "Mapato",
     "navTools": "Zana",
     "navSignin": "Ingia",
-    "navCta": "Anzisha kampeni"
+    "navCta": "Anzisha kampeni",
+    "navExplore": "Explore"
   },
   "homePage": {
     "navHow": "Jinsi inavyofanya kazi",
@@ -3162,7 +3211,9 @@
         "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
         "count": "5 tools",
         "countLocked": "5 tools · locked"
-      }
+      },
+      "open": "Open",
+      "upgrade": "Upgrade"
     },
     "section": {
       "free": "Free Tools · open to everyone",
@@ -3183,7 +3234,8 @@
       "qr": {
         "name": "QR Generator",
         "desc": "Custom QR codes for any link. Trackable."
-      }
+      },
+      "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
@@ -3205,7 +3257,8 @@
       "deck": {
         "name": "SuperDeck",
         "desc": "AI presentation builder with 18 fonts and present mode."
-      }
+      },
+      "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
@@ -3227,7 +3280,8 @@
       "seller": {
         "name": "ProSeller",
         "desc": "Personal AI sales coach. Strategy, copy, objection handling."
-      }
+      },
+      "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
@@ -3292,7 +3346,32 @@
     "showcaseTypeBio": "Kiungo cha Bio",
     "showcaseTypeLanding": "Ukurasa wa Kutua",
     "showcaseTypeCampaign": "Kampeni",
-    "showcaseVisit": "Tembelea"
+    "showcaseVisit": "Tembelea",
+    "toolAutoResponderName": "Auto-responder",
+    "toolAutoResponderBody": "Send automated email sequences to your leads.",
+    "toolContentCreatorName": "Content Creator",
+    "toolContentCreatorBody": "Generate posts, captions, and ad copy with AI.",
+    "toolCreativeStudioName": "Creative Studio",
+    "toolCreativeStudioBody": "Make videos, images, music, and voiceovers in one suite.",
+    "toolLeadFinderName": "Lead Finder",
+    "toolLeadFinderBody": "Discover business leads from Maps and the open web.",
+    "toolLinklyName": "Linkly",
+    "toolLinklyBody": "Track and rotate your affiliate links with real-time stats.",
+    "toolRotatorName": "Link Rotator",
+    "toolRotatorBody": "Split traffic across multiple destinations.",
+    "toolShortenerName": "Link Shortener",
+    "toolShortenerBody": "Branded short links that look professional.",
+    "toolSuperDeckName": "SuperDeck",
+    "toolSuperDeckBody": "Build slide presentations with AI assistance.",
+    "toolSuperPagesName": "SuperPages",
+    "toolSuperPagesBody": "Drag-and-drop landing pages with built-in templates.",
+    "toolsBasicBadge": "Basic",
+    "toolsBasicLabel": "Basic plan",
+    "toolsEyebrow": "Marketing tools",
+    "toolsProBadge": "Pro",
+    "toolsProLabel": "Pro plan",
+    "toolsSub": "Free, Basic, and Pro tools to power your campaigns.",
+    "toolsTitle": "AI marketing tools for $20/month"
   },
   "shareStory": {
     "title": "Shiriki Hadithi Yako",
@@ -3369,7 +3448,11 @@
     "cardLink": "Tazama moja kwa moja",
     "footerLine1": "Tayari kuanza kupata pesa?",
     "footerLine2": "Fungua akaunti yako ya bure kwa sekunde 30.",
-    "footerCta": "Fungua akaunti bure"
+    "footerCta": "Fungua akaunti bure",
+    "cardCompPlanTitle": "How you earn",
+    "cardCompPlanBody": "Walk through the compensation plan and see how every stream works.",
+    "cardWatchEarnTitle": "Watch to qualify",
+    "cardWatchEarnBody": "Watch a few short videos a day to keep your commissions active."
   },
   "freeTools": {
     "backToHub": "Rudi kwa Chunguza",
@@ -3439,7 +3522,18 @@
     "admin": "Admin",
     "adminDashboard": "Admin",
     "adminStories": "Hadithi",
-    "adminShowcase": "Onesho"
+    "adminShowcase": "Onesho",
+    "bannerCreator": "Banners",
+    "commandCentre": "Centre",
+    "emailSwipes": "Swipes",
+    "income": "Income",
+    "learn": "Learn",
+    "memeGenerator": "Memes",
+    "nicheFinder": "Niches",
+    "proSeller": "Pro Sell",
+    "qrGenerator": "QR Codes",
+    "tools": "Tools",
+    "training": "Training"
   },
   "pwa": {
     "installPromptAria": "Sakinisha SuperAdPro",
@@ -3796,7 +3890,8 @@
     "nudgeButtonPending": "Tayari wana kikumbusho ambacho hakijasomwa",
     "nudgeButtonError": "Imeshindwa kutuma",
     "viewList": "View list",
-    "viewTeam": "View team"
+    "viewTeam": "View team",
+    "fetchFailed": "Couldn't load command centre data. Try refreshing."
   },
   "notification": {
     "reengagement_lapsed_title": "Uanachama wako wa SuperAdPro umemalizika",
@@ -4023,5 +4118,9 @@
     "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
     "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
     "upgradeBtn": "Upgrade now →"
+  },
+  "gridVis": {
+    "title": "Income Grid",
+    "subtitle": "Your 8x8 spillover grid"
   }
 }

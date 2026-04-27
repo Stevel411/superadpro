@@ -45,7 +45,9 @@
     "yourImages": "आपकी छवियां",
     "videoNotSupported": "वीडियो URL समर्थित नहीं है।",
     "alreadyHaveAccount": "पहले से खाता है?",
-    "tapToUnmute": "ध्वनि चालू करने के लिए टैप करें"
+    "tapToUnmute": "ध्वनि चालू करने के लिए टैप करें",
+    "loading": "Loading…",
+    "notFound": "Not found"
   },
   "nav": {
     "dashboard": "डैशबोर्ड",
@@ -226,7 +228,25 @@
     "affiliateShareLabel": "Grow your team",
     "affiliateShare": "Affiliate Share",
     "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share"
+    "affiliateShareCta": "Open share",
+    "activeSince": "Active since {{date}}",
+    "doorBuildLabel": "Build",
+    "doorCockpitLabel": "Cockpit",
+    "doorCommandCentre": "Command Centre",
+    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
+    "doorEarnLabel": "Earn",
+    "doorIncome": "Income",
+    "doorIncomeDesc": "All four income streams in one place.",
+    "doorItems": "{{count}} items",
+    "doorLearn": "Learn",
+    "doorLearnDesc": "Education, assets, and community to help you grow.",
+    "doorLearnLabel": "Learn",
+    "doorOpen": "Open",
+    "doorTools": "Tools",
+    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
+    "exploreSection": "Explore",
+    "payItForward": "Pay it forward",
+    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership."
   },
   "compPlan": {
     "title": "मुआवजा योजना",
@@ -485,7 +505,9 @@
     "dismiss": "Dismiss",
     "progressSaved": "Your progress is saved",
     "createACampaign": "+ Create a campaign",
-    "buyACampaignTier": "Buy a Campaign Tier"
+    "buyACampaignTier": "Buy a Campaign Tier",
+    "ctaPrompt": "Interested? Visit the advertiser's site.",
+    "visitWebsite": "Visit Website"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -904,7 +926,15 @@
     "uniLevelSplit": "50% Uni-Level",
     "teamSalesFull": "टीम की बिक्री दूसरी, चौथी, छठी, आठवीं",
     "entireNetworkFull": "आपका पूरा नेटवर्क",
-    "gridAdvancesBody": "ग्रिड अगले राउंड में आगे बढ़ता है। भविष्य की कमाई के लिए नई नेटवर्क गतिविधि आवश्यक है।"
+    "gridAdvancesBody": "ग्रिड अगले राउंड में आगे बढ़ता है। भविष्य की कमाई के लिए नई नेटवर्क गतिविधि आवश्यक है।",
+    "accruedSoFar": "Accrued so far",
+    "advancesComplete": "Advances complete",
+    "bonusAccrued": "Bonus accrued",
+    "completionBonusPool": "Completion bonus pool",
+    "currentTier": "Current tier",
+    "gridDescFull": "An 8x8 grid that fills with your direct referrals plus spillover from your sponsor. Complete each tier to unlock its bonus and advance.",
+    "incomeGrid": "Income Grid",
+    "positionsFilled": "Positions filled"
   },
   "campaignTiers": {
     "title": "कैम्पेन टियर",
@@ -1032,7 +1062,11 @@
     "realViewsDesc": "सदस्य आपका पूरा वीडियो देखते हैं। कोई बोट्स नहीं, कोई नकली जुड़ाव नहीं। वास्तविक लोग, वास्तविक ध्यान।",
     "liveAnalytics": "लाइव एनालिटिक्स",
     "liveAnalyticsDesc": "अपने डैशबोर्ड पर वास्तविक समय में वितरित दृश्य, समाप्ति दर और अभियान प्रगति ट्रैक करें।",
-    "previewLabel": "पूर्वावलोकन"
+    "previewLabel": "पूर्वावलोकन",
+    "ctaUrl": "Call-to-action URL",
+    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrlPlaceholder": "https://yoursite.com/landing",
+    "errCtaUrl": "Please enter a valid URL starting with https://"
   },
   "campaignAnalytics": {
     "title": "कैम्पेन विश्लेषण",
@@ -1060,7 +1094,19 @@
     "recentCommissions": "हाल की कमीशन",
     "noCommissions": "अभी तक कोई कमीशन नहीं। अपना SuperLink शेयर करें!",
     "unique": "अद्वितीय",
-    "analyticsTitle": "एनालिटिक्स"
+    "analyticsTitle": "एनालिटिक्स",
+    "completePace": "Days to complete at current pace",
+    "ctr": "CTR",
+    "daysToGo": "{{count}} days to go",
+    "heatmapSub": "Hour-by-hour view distribution this week",
+    "noCountryData": "No country data yet",
+    "noCta": "No CTA link set",
+    "pace": "Pace",
+    "topCountries": "Top countries",
+    "viewersBy": "Viewers by country",
+    "viewsPerDay": "Views per day",
+    "whenViewersWatch": "When viewers watch",
+    "whenWatched": "When watched"
   },
   "contentCreator": {
     "title": "कंटेंट क्रिएटर",
@@ -1545,7 +1591,9 @@
     "s6_tip4": "Crypto Guide (अकाउंट में) से MetaMask या Coinbase Wallet सेट करें",
     "s6_tip5": "Pay It Forward — किसी को $20 Basic मेम्बरशिप गिफ्ट करें। आप उनके स्पॉन्सर बन जाते हैं। जब वे $20+ कमाएं, उन्हें भी किसी को गिफ्ट करने का सुझाव मिलता है — वायरल चेन।",
     "s6_link": "अपना वॉलेट देखें",
-    "stepXofY": "चरण {{num}} / {{total}}"
+    "stepXofY": "चरण {{num}} / {{total}}",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
   },
   "howItWorks": {
     "getStarted": "मुफ़्त शुरू करें",
@@ -3036,7 +3084,8 @@
     "navIncome": "आय",
     "navTools": "टूल्स",
     "navSignin": "साइन इन",
-    "navCta": "कैंपेन शुरू करें"
+    "navCta": "कैंपेन शुरू करें",
+    "navExplore": "Explore"
   },
   "homePage": {
     "navHow": "यह कैसे काम करता है",
@@ -3162,7 +3211,9 @@
         "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
         "count": "5 tools",
         "countLocked": "5 tools · locked"
-      }
+      },
+      "open": "Open",
+      "upgrade": "Upgrade"
     },
     "section": {
       "free": "Free Tools · open to everyone",
@@ -3183,7 +3234,8 @@
       "qr": {
         "name": "QR Generator",
         "desc": "Custom QR codes for any link. Trackable."
-      }
+      },
+      "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
@@ -3205,7 +3257,8 @@
       "deck": {
         "name": "SuperDeck",
         "desc": "AI presentation builder with 18 fonts and present mode."
-      }
+      },
+      "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
@@ -3227,7 +3280,8 @@
       "seller": {
         "name": "ProSeller",
         "desc": "Personal AI sales coach. Strategy, copy, objection handling."
-      }
+      },
+      "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
@@ -3292,7 +3346,32 @@
     "showcaseTypeBio": "बायो लिंक",
     "showcaseTypeLanding": "लैंडिंग पेज",
     "showcaseTypeCampaign": "कैंपेन",
-    "showcaseVisit": "देखें"
+    "showcaseVisit": "देखें",
+    "toolAutoResponderName": "Auto-responder",
+    "toolAutoResponderBody": "Send automated email sequences to your leads.",
+    "toolContentCreatorName": "Content Creator",
+    "toolContentCreatorBody": "Generate posts, captions, and ad copy with AI.",
+    "toolCreativeStudioName": "Creative Studio",
+    "toolCreativeStudioBody": "Make videos, images, music, and voiceovers in one suite.",
+    "toolLeadFinderName": "Lead Finder",
+    "toolLeadFinderBody": "Discover business leads from Maps and the open web.",
+    "toolLinklyName": "Linkly",
+    "toolLinklyBody": "Track and rotate your affiliate links with real-time stats.",
+    "toolRotatorName": "Link Rotator",
+    "toolRotatorBody": "Split traffic across multiple destinations.",
+    "toolShortenerName": "Link Shortener",
+    "toolShortenerBody": "Branded short links that look professional.",
+    "toolSuperDeckName": "SuperDeck",
+    "toolSuperDeckBody": "Build slide presentations with AI assistance.",
+    "toolSuperPagesName": "SuperPages",
+    "toolSuperPagesBody": "Drag-and-drop landing pages with built-in templates.",
+    "toolsBasicBadge": "Basic",
+    "toolsBasicLabel": "Basic plan",
+    "toolsEyebrow": "Marketing tools",
+    "toolsProBadge": "Pro",
+    "toolsProLabel": "Pro plan",
+    "toolsSub": "Free, Basic, and Pro tools to power your campaigns.",
+    "toolsTitle": "AI marketing tools for $20/month"
   },
   "shareStory": {
     "title": "अपनी कहानी साझा करें",
@@ -3369,7 +3448,11 @@
     "cardLink": "लाइव देखें",
     "footerLine1": "कमाई शुरू करने को तैयार?",
     "footerLine2": "30 सेकंड में अपना फ्री अकाउंट बनाएं।",
-    "footerCta": "फ्री अकाउंट बनाएं"
+    "footerCta": "फ्री अकाउंट बनाएं",
+    "cardCompPlanTitle": "How you earn",
+    "cardCompPlanBody": "Walk through the compensation plan and see how every stream works.",
+    "cardWatchEarnTitle": "Watch to qualify",
+    "cardWatchEarnBody": "Watch a few short videos a day to keep your commissions active."
   },
   "freeTools": {
     "backToHub": "वापस एक्सप्लोर पर",
@@ -3439,7 +3522,18 @@
     "admin": "एडमिन",
     "adminDashboard": "एडमिन",
     "adminStories": "कहानियां",
-    "adminShowcase": "शोकेस"
+    "adminShowcase": "शोकेस",
+    "bannerCreator": "Banners",
+    "commandCentre": "Centre",
+    "emailSwipes": "Swipes",
+    "income": "Income",
+    "learn": "Learn",
+    "memeGenerator": "Memes",
+    "nicheFinder": "Niches",
+    "proSeller": "Pro Sell",
+    "qrGenerator": "QR Codes",
+    "tools": "Tools",
+    "training": "Training"
   },
   "pwa": {
     "installPromptAria": "SuperAdPro इंस्टॉल करें",
@@ -3796,7 +3890,8 @@
     "nudgeButtonPending": "उनके पास पहले से एक अपठित अनुस्मारक है",
     "nudgeButtonError": "भेज नहीं सका",
     "viewList": "View list",
-    "viewTeam": "View team"
+    "viewTeam": "View team",
+    "fetchFailed": "Couldn't load command centre data. Try refreshing."
   },
   "notification": {
     "reengagement_lapsed_title": "आपकी SuperAdPro सदस्यता समाप्त हो गई है",
@@ -4023,5 +4118,9 @@
     "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
     "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
     "upgradeBtn": "Upgrade now →"
+  },
+  "gridVis": {
+    "title": "Income Grid",
+    "subtitle": "Your 8x8 spillover grid"
   }
 }

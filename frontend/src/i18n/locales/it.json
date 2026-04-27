@@ -45,7 +45,9 @@
     "yourImages": "Le Tue Immagini",
     "videoNotSupported": "URL video non supportato.",
     "alreadyHaveAccount": "Hai già un account?",
-    "tapToUnmute": "Tocca per attivare l'audio"
+    "tapToUnmute": "Tocca per attivare l'audio",
+    "loading": "Loading…",
+    "notFound": "Not found"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -226,7 +228,25 @@
     "affiliateShareLabel": "Grow your team",
     "affiliateShare": "Affiliate Share",
     "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share"
+    "affiliateShareCta": "Open share",
+    "activeSince": "Active since {{date}}",
+    "doorBuildLabel": "Build",
+    "doorCockpitLabel": "Cockpit",
+    "doorCommandCentre": "Command Centre",
+    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
+    "doorEarnLabel": "Earn",
+    "doorIncome": "Income",
+    "doorIncomeDesc": "All four income streams in one place.",
+    "doorItems": "{{count}} items",
+    "doorLearn": "Learn",
+    "doorLearnDesc": "Education, assets, and community to help you grow.",
+    "doorLearnLabel": "Learn",
+    "doorOpen": "Open",
+    "doorTools": "Tools",
+    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
+    "exploreSection": "Explore",
+    "payItForward": "Pay it forward",
+    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership."
   },
   "compPlan": {
     "title": "Piano di Compensazione",
@@ -485,7 +505,9 @@
     "dismiss": "Dismiss",
     "progressSaved": "Your progress is saved",
     "createACampaign": "+ Create a campaign",
-    "buyACampaignTier": "Buy a Campaign Tier"
+    "buyACampaignTier": "Buy a Campaign Tier",
+    "ctaPrompt": "Interested? Visit the advertiser's site.",
+    "visitWebsite": "Visit Website"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -904,7 +926,15 @@
     "uniLevelSplit": "50% Uni-Level",
     "teamSalesFull": "Vendite del team 2ª, 4ª, 6ª, 8ª",
     "entireNetworkFull": "tutta la tua rete",
-    "gridAdvancesBody": "La griglia avanza al turno successivo. I guadagni futuri richiedono nuova attività di rete."
+    "gridAdvancesBody": "La griglia avanza al turno successivo. I guadagni futuri richiedono nuova attività di rete.",
+    "accruedSoFar": "Accrued so far",
+    "advancesComplete": "Advances complete",
+    "bonusAccrued": "Bonus accrued",
+    "completionBonusPool": "Completion bonus pool",
+    "currentTier": "Current tier",
+    "gridDescFull": "An 8x8 grid that fills with your direct referrals plus spillover from your sponsor. Complete each tier to unlock its bonus and advance.",
+    "incomeGrid": "Income Grid",
+    "positionsFilled": "Positions filled"
   },
   "campaignTiers": {
     "title": "Livelli Campagna",
@@ -1032,7 +1062,11 @@
     "realViewsDesc": "I membri guardano il tuo video completo. Niente bot, niente engagement falso. Persone reali, attenzione reale.",
     "liveAnalytics": "Analisi in Tempo Reale",
     "liveAnalyticsDesc": "Monitora visualizzazioni consegnate, tasso di completamento e progresso della campagna in tempo reale nella tua dashboard.",
-    "previewLabel": "anteprima"
+    "previewLabel": "anteprima",
+    "ctaUrl": "Call-to-action URL",
+    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrlPlaceholder": "https://yoursite.com/landing",
+    "errCtaUrl": "Please enter a valid URL starting with https://"
   },
   "campaignAnalytics": {
     "title": "Analisi Campagne",
@@ -1060,7 +1094,19 @@
     "recentCommissions": "Commissioni recenti",
     "noCommissions": "Nessuna commissione ancora. Condividi il tuo SuperLink!",
     "unique": "unici",
-    "analyticsTitle": "Analisi"
+    "analyticsTitle": "Analisi",
+    "completePace": "Days to complete at current pace",
+    "ctr": "CTR",
+    "daysToGo": "{{count}} days to go",
+    "heatmapSub": "Hour-by-hour view distribution this week",
+    "noCountryData": "No country data yet",
+    "noCta": "No CTA link set",
+    "pace": "Pace",
+    "topCountries": "Top countries",
+    "viewersBy": "Viewers by country",
+    "viewsPerDay": "Views per day",
+    "whenViewersWatch": "When viewers watch",
+    "whenWatched": "When watched"
   },
   "contentCreator": {
     "title": "Creatore di Contenuti",
@@ -1545,7 +1591,9 @@
     "s6_tip4": "Configura MetaMask o Coinbase Wallet con la Guida Crypto (in Account)",
     "s6_tip5": "Pay It Forward — regala un'iscrizione Basic da $20. Diventi lo sponsor e guadagni commissioni. Quando guadagnano $20+, regalano a loro volta — creando una catena virale.",
     "s6_link": "Visualizza portafoglio",
-    "stepXofY": "Passo {{num}} di {{total}}"
+    "stepXofY": "Passo {{num}} di {{total}}",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
   },
   "howItWorks": {
     "getStarted": "Inizia Gratis",
@@ -3044,7 +3092,8 @@
     "navIncome": "Entrate",
     "navTools": "Strumenti",
     "navSignin": "Accedi",
-    "navCta": "Avvia campagna"
+    "navCta": "Avvia campagna",
+    "navExplore": "Explore"
   },
   "homePage": {
     "navHow": "Come funziona",
@@ -3170,7 +3219,9 @@
         "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
         "count": "5 tools",
         "countLocked": "5 tools · locked"
-      }
+      },
+      "open": "Open",
+      "upgrade": "Upgrade"
     },
     "section": {
       "free": "Free Tools · open to everyone",
@@ -3191,7 +3242,8 @@
       "qr": {
         "name": "QR Generator",
         "desc": "Custom QR codes for any link. Trackable."
-      }
+      },
+      "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
@@ -3213,7 +3265,8 @@
       "deck": {
         "name": "SuperDeck",
         "desc": "AI presentation builder with 18 fonts and present mode."
-      }
+      },
+      "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
@@ -3235,7 +3288,8 @@
       "seller": {
         "name": "ProSeller",
         "desc": "Personal AI sales coach. Strategy, copy, objection handling."
-      }
+      },
+      "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
@@ -3300,7 +3354,32 @@
     "showcaseTypeBio": "Bio Link",
     "showcaseTypeLanding": "Landing Page",
     "showcaseTypeCampaign": "Campagna",
-    "showcaseVisit": "Visita"
+    "showcaseVisit": "Visita",
+    "toolAutoResponderName": "Auto-responder",
+    "toolAutoResponderBody": "Send automated email sequences to your leads.",
+    "toolContentCreatorName": "Content Creator",
+    "toolContentCreatorBody": "Generate posts, captions, and ad copy with AI.",
+    "toolCreativeStudioName": "Creative Studio",
+    "toolCreativeStudioBody": "Make videos, images, music, and voiceovers in one suite.",
+    "toolLeadFinderName": "Lead Finder",
+    "toolLeadFinderBody": "Discover business leads from Maps and the open web.",
+    "toolLinklyName": "Linkly",
+    "toolLinklyBody": "Track and rotate your affiliate links with real-time stats.",
+    "toolRotatorName": "Link Rotator",
+    "toolRotatorBody": "Split traffic across multiple destinations.",
+    "toolShortenerName": "Link Shortener",
+    "toolShortenerBody": "Branded short links that look professional.",
+    "toolSuperDeckName": "SuperDeck",
+    "toolSuperDeckBody": "Build slide presentations with AI assistance.",
+    "toolSuperPagesName": "SuperPages",
+    "toolSuperPagesBody": "Drag-and-drop landing pages with built-in templates.",
+    "toolsBasicBadge": "Basic",
+    "toolsBasicLabel": "Basic plan",
+    "toolsEyebrow": "Marketing tools",
+    "toolsProBadge": "Pro",
+    "toolsProLabel": "Pro plan",
+    "toolsSub": "Free, Basic, and Pro tools to power your campaigns.",
+    "toolsTitle": "AI marketing tools for $20/month"
   },
   "shareStory": {
     "title": "Condividi la tua storia",
@@ -3377,7 +3456,11 @@
     "cardLink": "Guarda dal vivo",
     "footerLine1": "Pronto a iniziare a guadagnare?",
     "footerLine2": "Crea il tuo account gratuito in 30 secondi.",
-    "footerCta": "Crea account gratis"
+    "footerCta": "Crea account gratis",
+    "cardCompPlanTitle": "How you earn",
+    "cardCompPlanBody": "Walk through the compensation plan and see how every stream works.",
+    "cardWatchEarnTitle": "Watch to qualify",
+    "cardWatchEarnBody": "Watch a few short videos a day to keep your commissions active."
   },
   "freeTools": {
     "backToHub": "Torna a Esplora",
@@ -3447,7 +3530,18 @@
     "admin": "Admin",
     "adminDashboard": "Admin",
     "adminStories": "Storie",
-    "adminShowcase": "Vetrina"
+    "adminShowcase": "Vetrina",
+    "bannerCreator": "Banners",
+    "commandCentre": "Centre",
+    "emailSwipes": "Swipes",
+    "income": "Income",
+    "learn": "Learn",
+    "memeGenerator": "Memes",
+    "nicheFinder": "Niches",
+    "proSeller": "Pro Sell",
+    "qrGenerator": "QR Codes",
+    "tools": "Tools",
+    "training": "Training"
   },
   "pwa": {
     "installPromptAria": "Installa SuperAdPro",
@@ -3804,7 +3898,8 @@
     "nudgeButtonPending": "Hanno già un promemoria non letto",
     "nudgeButtonError": "Impossibile inviare",
     "viewList": "View list",
-    "viewTeam": "View team"
+    "viewTeam": "View team",
+    "fetchFailed": "Couldn't load command centre data. Try refreshing."
   },
   "notification": {
     "reengagement_lapsed_title": "La tua iscrizione SuperAdPro è scaduta",
@@ -4031,5 +4126,9 @@
     "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
     "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
     "upgradeBtn": "Upgrade now →"
+  },
+  "gridVis": {
+    "title": "Income Grid",
+    "subtitle": "Your 8x8 spillover grid"
   }
 }

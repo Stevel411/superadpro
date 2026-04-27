@@ -45,7 +45,9 @@
     "yourImages": "あなたの画像",
     "videoNotSupported": "ビデオURLはサポートされていません。",
     "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
-    "tapToUnmute": "タップしてミュート解除"
+    "tapToUnmute": "タップしてミュート解除",
+    "loading": "Loading…",
+    "notFound": "Not found"
   },
   "nav": {
     "dashboard": "ダッシュボード",
@@ -226,7 +228,25 @@
     "affiliateShareLabel": "Grow your team",
     "affiliateShare": "Affiliate Share",
     "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share"
+    "affiliateShareCta": "Open share",
+    "activeSince": "Active since {{date}}",
+    "doorBuildLabel": "Build",
+    "doorCockpitLabel": "Cockpit",
+    "doorCommandCentre": "Command Centre",
+    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
+    "doorEarnLabel": "Earn",
+    "doorIncome": "Income",
+    "doorIncomeDesc": "All four income streams in one place.",
+    "doorItems": "{{count}} items",
+    "doorLearn": "Learn",
+    "doorLearnDesc": "Education, assets, and community to help you grow.",
+    "doorLearnLabel": "Learn",
+    "doorOpen": "Open",
+    "doorTools": "Tools",
+    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
+    "exploreSection": "Explore",
+    "payItForward": "Pay it forward",
+    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership."
   },
   "compPlan": {
     "title": "報酬プラン",
@@ -485,7 +505,9 @@
     "dismiss": "Dismiss",
     "progressSaved": "Your progress is saved",
     "createACampaign": "+ Create a campaign",
-    "buyACampaignTier": "Buy a Campaign Tier"
+    "buyACampaignTier": "Buy a Campaign Tier",
+    "ctaPrompt": "Interested? Visit the advertiser's site.",
+    "visitWebsite": "Visit Website"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -904,7 +926,15 @@
     "uniLevelSplit": "50% Uni-Level",
     "teamSalesFull": "チーム売上 2番目、4番目、6番目、8番目",
     "entireNetworkFull": "ネットワーク全体",
-    "gridAdvancesBody": "グリッドは次のラウンドに進みます。今後の収益には新しいネットワーク活動が必要です。"
+    "gridAdvancesBody": "グリッドは次のラウンドに進みます。今後の収益には新しいネットワーク活動が必要です。",
+    "accruedSoFar": "Accrued so far",
+    "advancesComplete": "Advances complete",
+    "bonusAccrued": "Bonus accrued",
+    "completionBonusPool": "Completion bonus pool",
+    "currentTier": "Current tier",
+    "gridDescFull": "An 8x8 grid that fills with your direct referrals plus spillover from your sponsor. Complete each tier to unlock its bonus and advance.",
+    "incomeGrid": "Income Grid",
+    "positionsFilled": "Positions filled"
   },
   "campaignTiers": {
     "title": "キャンペーンティア",
@@ -1032,7 +1062,11 @@
     "realViewsDesc": "メンバーがあなたの動画を最後まで視聴します。ボットなし、偽のエンゲージメントなし。本物の人々、本物の注目。",
     "liveAnalytics": "ライブ分析",
     "liveAnalyticsDesc": "配信されたビュー、完了率、キャンペーンの進捗をダッシュボードでリアルタイムで追跡できます。",
-    "previewLabel": "プレビュー"
+    "previewLabel": "プレビュー",
+    "ctaUrl": "Call-to-action URL",
+    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrlPlaceholder": "https://yoursite.com/landing",
+    "errCtaUrl": "Please enter a valid URL starting with https://"
   },
   "campaignAnalytics": {
     "title": "キャンペーン分析",
@@ -1060,7 +1094,19 @@
     "recentCommissions": "最近のコミッション",
     "noCommissions": "まだコミッションがありません。SuperLinkを共有しましょう！",
     "unique": "ユニーク",
-    "analyticsTitle": "アナリティクス"
+    "analyticsTitle": "アナリティクス",
+    "completePace": "Days to complete at current pace",
+    "ctr": "CTR",
+    "daysToGo": "{{count}} days to go",
+    "heatmapSub": "Hour-by-hour view distribution this week",
+    "noCountryData": "No country data yet",
+    "noCta": "No CTA link set",
+    "pace": "Pace",
+    "topCountries": "Top countries",
+    "viewersBy": "Viewers by country",
+    "viewsPerDay": "Views per day",
+    "whenViewersWatch": "When viewers watch",
+    "whenWatched": "When watched"
   },
   "contentCreator": {
     "title": "コンテンツクリエイター",
@@ -1545,7 +1591,9 @@
     "s6_tip4": "暗号ガイド（アカウント内）でMetaMaskまたはCoinbase Walletをセットアップ",
     "s6_tip5": "Pay It Forward — $20 Basicメンバーシップを贈る。あなたがスポンサーになり、コミッションを獲得。$20+稼いだら次の人へ贈る——バイラル成長チェーン。",
     "s6_link": "ウォレットを見る",
-    "stepXofY": "ステップ {{num}} / {{total}}"
+    "stepXofY": "ステップ {{num}} / {{total}}",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
   },
   "howItWorks": {
     "getStarted": "無料で始める",
@@ -3036,7 +3084,8 @@
     "navIncome": "収入",
     "navTools": "ツール",
     "navSignin": "サインイン",
-    "navCta": "キャンペーン開始"
+    "navCta": "キャンペーン開始",
+    "navExplore": "Explore"
   },
   "homePage": {
     "navHow": "仕組み",
@@ -3162,7 +3211,9 @@
         "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
         "count": "5 tools",
         "countLocked": "5 tools · locked"
-      }
+      },
+      "open": "Open",
+      "upgrade": "Upgrade"
     },
     "section": {
       "free": "Free Tools · open to everyone",
@@ -3183,7 +3234,8 @@
       "qr": {
         "name": "QR Generator",
         "desc": "Custom QR codes for any link. Trackable."
-      }
+      },
+      "pageTitle": "Free Tools"
     },
     "basic": {
       "studio": {
@@ -3205,7 +3257,8 @@
       "deck": {
         "name": "SuperDeck",
         "desc": "AI presentation builder with 18 fonts and present mode."
-      }
+      },
+      "pageTitle": "Basic Tools"
     },
     "pro": {
       "pages": {
@@ -3227,7 +3280,8 @@
       "seller": {
         "name": "ProSeller",
         "desc": "Personal AI sales coach. Strategy, copy, objection handling."
-      }
+      },
+      "pageTitle": "Pro Tools"
     },
     "upgrade": {
       "perMonth": "/mo",
@@ -3292,7 +3346,32 @@
     "showcaseTypeBio": "バイオリンク",
     "showcaseTypeLanding": "ランディングページ",
     "showcaseTypeCampaign": "キャンペーン",
-    "showcaseVisit": "見る"
+    "showcaseVisit": "見る",
+    "toolAutoResponderName": "Auto-responder",
+    "toolAutoResponderBody": "Send automated email sequences to your leads.",
+    "toolContentCreatorName": "Content Creator",
+    "toolContentCreatorBody": "Generate posts, captions, and ad copy with AI.",
+    "toolCreativeStudioName": "Creative Studio",
+    "toolCreativeStudioBody": "Make videos, images, music, and voiceovers in one suite.",
+    "toolLeadFinderName": "Lead Finder",
+    "toolLeadFinderBody": "Discover business leads from Maps and the open web.",
+    "toolLinklyName": "Linkly",
+    "toolLinklyBody": "Track and rotate your affiliate links with real-time stats.",
+    "toolRotatorName": "Link Rotator",
+    "toolRotatorBody": "Split traffic across multiple destinations.",
+    "toolShortenerName": "Link Shortener",
+    "toolShortenerBody": "Branded short links that look professional.",
+    "toolSuperDeckName": "SuperDeck",
+    "toolSuperDeckBody": "Build slide presentations with AI assistance.",
+    "toolSuperPagesName": "SuperPages",
+    "toolSuperPagesBody": "Drag-and-drop landing pages with built-in templates.",
+    "toolsBasicBadge": "Basic",
+    "toolsBasicLabel": "Basic plan",
+    "toolsEyebrow": "Marketing tools",
+    "toolsProBadge": "Pro",
+    "toolsProLabel": "Pro plan",
+    "toolsSub": "Free, Basic, and Pro tools to power your campaigns.",
+    "toolsTitle": "AI marketing tools for $20/month"
   },
   "shareStory": {
     "title": "あなたのストーリーをシェア",
@@ -3369,7 +3448,11 @@
     "cardLink": "ライブで見る",
     "footerLine1": "稼ぎ始める準備はできた?",
     "footerLine2": "30秒で無料アカウントを作成。",
-    "footerCta": "無料アカウント作成"
+    "footerCta": "無料アカウント作成",
+    "cardCompPlanTitle": "How you earn",
+    "cardCompPlanBody": "Walk through the compensation plan and see how every stream works.",
+    "cardWatchEarnTitle": "Watch to qualify",
+    "cardWatchEarnBody": "Watch a few short videos a day to keep your commissions active."
   },
   "freeTools": {
     "backToHub": "探索に戻る",
@@ -3439,7 +3522,18 @@
     "admin": "管理",
     "adminDashboard": "管理",
     "adminStories": "物語",
-    "adminShowcase": "展示"
+    "adminShowcase": "展示",
+    "bannerCreator": "Banners",
+    "commandCentre": "Centre",
+    "emailSwipes": "Swipes",
+    "income": "Income",
+    "learn": "Learn",
+    "memeGenerator": "Memes",
+    "nicheFinder": "Niches",
+    "proSeller": "Pro Sell",
+    "qrGenerator": "QR Codes",
+    "tools": "Tools",
+    "training": "Training"
   },
   "pwa": {
     "installPromptAria": "SuperAdProをインストール",
@@ -3796,7 +3890,8 @@
     "nudgeButtonPending": "すでに未読のリマインダーがあります",
     "nudgeButtonError": "送信できませんでした",
     "viewList": "View list",
-    "viewTeam": "View team"
+    "viewTeam": "View team",
+    "fetchFailed": "Couldn't load command centre data. Try refreshing."
   },
   "notification": {
     "reengagement_lapsed_title": "あなたの SuperAdPro メンバーシップが失効しました",
@@ -4023,5 +4118,9 @@
     "upgradeTitle": "Upgrade to Pro to earn $17.50 per direct",
     "upgradeDesc": "As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that's +${{upside}}/mo right away.",
     "upgradeBtn": "Upgrade now →"
+  },
+  "gridVis": {
+    "title": "Income Grid",
+    "subtitle": "Your 8x8 spillover grid"
   }
 }
