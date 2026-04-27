@@ -480,7 +480,9 @@
     "general": "Общее",
     "loading": "Загрузка...",
     "playing": "▶ Воспроизведение",
-    "watchOneToQualify": "Посмотрите 1 видео, чтобы квалифицироваться сегодня"
+    "watchOneToQualify": "Посмотрите 1 видео, чтобы квалифицироваться сегодня",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

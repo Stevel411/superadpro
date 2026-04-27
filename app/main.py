@@ -17889,6 +17889,15 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
                     VideoCampaign.status == "active",
                 ).first()
                 if forced_c:
+                    # Compute seconds remaining server-side so the frontend
+                    # timer can resume from the actual elapsed time, not
+                    # always restart at 30. Without this, a user who walked
+                    # away mid-watch and came back could be locked out: the
+                    # server would accept their mark-complete (>=30s elapsed)
+                    # but the frontend timer is showing 30s remaining and
+                    # the button stays disabled.
+                    elapsed = (datetime.utcnow() - existing_started.started_at).total_seconds() if existing_started.started_at else 0
+                    seconds_remaining = max(0, int(WATCH_DURATION - elapsed))
                     next_video = {
                         "id": forced_c.id, "title": forced_c.title,
                         "platform": forced_c.platform or "youtube",
@@ -17896,6 +17905,8 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
                         "embed_url": forced_c.embed_url,
                         "cta_url": forced_c.cta_url or None,
                         "is_watched": False,
+                        "seconds_remaining": seconds_remaining,
+                        "is_resumed": True,
                     }
                 else:
                     # Campaign no longer active - clean up the orphan started
@@ -17910,7 +17921,9 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
                         c = next_content["data"]
                         next_video = {"id": c.id, "title": c.title, "platform": c.platform or "youtube",
                                       "category": c.category or "General", "embed_url": c.embed_url,
-                                      "cta_url": c.cta_url or None, "is_watched": False}
+                                      "cta_url": c.cta_url or None, "is_watched": False,
+                                      "seconds_remaining": WATCH_DURATION,
+                                      "is_resumed": False}
                         # ── Server-side anti-cheat: record assignment timestamp ──
                         # When the rotation gives the user a video, create a
                         # VideoWatch row with started_at=now and is_complete=False.

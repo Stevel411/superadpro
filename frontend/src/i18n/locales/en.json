@@ -486,7 +486,9 @@
     "general": "General",
     "loading": "Loading...",
     "playing": "▶ Playing",
-    "watchOneToQualify": "Watch 1 video to qualify for today"
+    "watchOneToQualify": "Watch 1 video to qualify for today",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

@@ -480,7 +480,9 @@
     "general": "عام",
     "loading": "جارٍ التحميل...",
     "playing": "▶ تشغيل",
-    "watchOneToQualify": "شاهد فيديو واحد للتأهل اليوم"
+    "watchOneToQualify": "شاهد فيديو واحد للتأهل اليوم",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

@@ -480,7 +480,9 @@
     "general": "일반",
     "loading": "로딩 중...",
     "playing": "▶ 재생 중",
-    "watchOneToQualify": "오늘 자격을 얻으려면 1개 비디오 시청"
+    "watchOneToQualify": "오늘 자격을 얻으려면 1개 비디오 시청",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

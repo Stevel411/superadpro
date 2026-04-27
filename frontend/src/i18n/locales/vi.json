@@ -480,7 +480,9 @@
     "general": "Chung",
     "loading": "Đang tải...",
     "playing": "▶ Đang phát",
-    "watchOneToQualify": "Xem 1 video để đủ điều kiện hôm nay"
+    "watchOneToQualify": "Xem 1 video để đủ điều kiện hôm nay",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

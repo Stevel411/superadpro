@@ -480,7 +480,9 @@
     "general": "ทั่วไป",
     "loading": "กำลังโหลด...",
     "playing": "▶ กำลังเล่น",
-    "watchOneToQualify": "ดูวิดีโอ 1 รายการเพื่อมีคุณสมบัติวันนี้"
+    "watchOneToQualify": "ดูวิดีโอ 1 รายการเพื่อมีคุณสมบัติวันนี้",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

@@ -480,7 +480,9 @@
     "general": "Algemeen",
     "loading": "Laden...",
     "playing": "▶ Afspelen",
-    "watchOneToQualify": "Bekijk 1 video om je vandaag te kwalificeren"
+    "watchOneToQualify": "Bekijk 1 video om je vandaag te kwalificeren",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

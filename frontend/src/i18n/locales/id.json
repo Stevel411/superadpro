@@ -480,7 +480,9 @@
     "general": "Umum",
     "loading": "Memuat...",
     "playing": "▶ Memutar",
-    "watchOneToQualify": "Tonton 1 video untuk memenuhi syarat hari ini"
+    "watchOneToQualify": "Tonton 1 video untuk memenuhi syarat hari ini",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

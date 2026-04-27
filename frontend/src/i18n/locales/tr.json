@@ -480,7 +480,9 @@
     "general": "Genel",
     "loading": "Yükleniyor...",
     "playing": "▶ Oynatılıyor",
-    "watchOneToQualify": "Bugün hak kazanmak için 1 video izleyin"
+    "watchOneToQualify": "Bugün hak kazanmak için 1 video izleyin",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

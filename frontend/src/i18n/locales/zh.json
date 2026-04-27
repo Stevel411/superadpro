@@ -480,7 +480,9 @@
     "general": "通用",
     "loading": "加载中...",
     "playing": "▶ 播放中",
-    "watchOneToQualify": "观看1个视频即可获得今日资格"
+    "watchOneToQualify": "观看1个视频即可获得今日资格",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

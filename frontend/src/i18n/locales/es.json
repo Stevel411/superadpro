@@ -480,7 +480,9 @@
     "general": "General",
     "loading": "Cargando...",
     "playing": "▶ Reproduciendo",
-    "watchOneToQualify": "Mira 1 video para calificar hoy"
+    "watchOneToQualify": "Mira 1 video para calificar hoy",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

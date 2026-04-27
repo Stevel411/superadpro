@@ -118,8 +118,22 @@ export default function Watch() {
   useEffect(() => {
     if (currentIdx < 0 || !data?.videos?.length) return;
     const cur = data.videos[currentIdx];
-    if (cur?.is_watched) { setTimerDone(true); setSecondsLeft(0); }
-    else { setSecondsLeft(30); setTimerDone(false); setSubmitted(false); setMuted(true); }
+    if (cur?.is_watched) {
+      setTimerDone(true);
+      setSecondsLeft(0);
+    } else {
+      // If the server told us how many seconds are remaining (resumed watch
+      // session), use that. Otherwise default to a full 30s. This handles the
+      // resume-after-walking-away case where the server has already counted
+      // some of the 30s as elapsed - frontend would otherwise restart from 30
+      // and lock the user out from completing a video they actually qualified
+      // for.
+      const remaining = (typeof cur?.seconds_remaining === 'number') ? cur.seconds_remaining : 30;
+      setSecondsLeft(remaining);
+      setTimerDone(remaining <= 0);
+      setSubmitted(false);
+      setMuted(true);
+    }
   }, [currentIdx, data]);
 
   useEffect(() => {
@@ -145,11 +159,13 @@ export default function Watch() {
     };
   }, []);
 
+  const [markError, setMarkError] = useState(null);
   const markAsWatched = async () => {
     if (submitted || currentIdx < 0) return;
     const video = data.videos[currentIdx];
     if (!video) return;
     setSubmitted(true);
+    setMarkError(null);
     try {
       await apiPost('/api/watch/complete', { video_id: video.id });
       const newData = await apiGet('/api/watch');
@@ -158,7 +174,23 @@ export default function Watch() {
         setCurrentIdx(-1); setData(newData);
         setTimeout(() => setCurrentIdx(nextIdx), 50);
       } else { setData(newData); setSubmitted(false); }
-    } catch (e) { setSubmitted(false); alert(e.message); }
+    } catch (e) {
+      setSubmitted(false);
+      // Try to parse server-provided remaining-seconds if this is a timing error
+      const errMsg = (e && e.message) || 'Could not save your watch';
+      const match = errMsg.match(/(\d+)\s*more\s*seconds/i);
+      if (match) {
+        // Sync the local timer to what the server says
+        const remaining = parseInt(match[1], 10);
+        if (!isNaN(remaining) && remaining > 0) {
+          setSecondsLeft(remaining);
+          setTimerDone(false);
+          setMarkError(null);
+          return;
+        }
+      }
+      setMarkError(errMsg);
+    }
   };
 
   const toggleMute = () => {
@@ -562,6 +594,22 @@ export default function Watch() {
                   style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 16px',background:'var(--sap-accent)',color:'#fff',borderRadius:8,fontSize:14,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
                   {t('watch.visitWebsite', { defaultValue: 'Visit Website' })} →
                 </a>
+              </div>
+            )}
+
+            {/* Resume banner — when user came back to a started watch session */}
+            {current?.is_resumed && !timerDone && !isCurrentWatched && (
+              <div style={{padding:'10px 16px',background:'rgba(245,158,11,0.08)',borderTop:'1px solid rgba(245,158,11,0.2)',display:'flex',alignItems:'center',gap:10,fontSize:13,color:'#92400e',fontWeight:600}}>
+                <span>↻</span>
+                <span>{t('watch.resumedWatch', { defaultValue: 'Resuming earlier watch — finish to qualify' })}</span>
+              </div>
+            )}
+
+            {/* Mark-as-watched error feedback — inline, dismissable */}
+            {markError && (
+              <div style={{padding:'10px 16px',background:'rgba(239,68,68,0.08)',borderTop:'1px solid rgba(239,68,68,0.2)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,fontSize:13,color:'#b91c1c',fontWeight:600}}>
+                <span>⚠ {markError}</span>
+                <button onClick={() => setMarkError(null)} style={{background:'none',border:'none',color:'#b91c1c',cursor:'pointer',padding:'4px 8px',fontSize:13,fontWeight:700}}>{t('watch.dismiss', { defaultValue: 'Dismiss' })}</button>
               </div>
             )}
 

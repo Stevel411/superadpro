@@ -480,7 +480,9 @@
     "general": "Pangkalahatan",
     "loading": "Naglo-load...",
     "playing": "▶ Nagpe-play",
-    "watchOneToQualify": "Panoorin ang 1 video para mag-qualify ngayon"
+    "watchOneToQualify": "Panoorin ang 1 video para mag-qualify ngayon",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

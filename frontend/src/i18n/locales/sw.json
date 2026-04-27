@@ -480,7 +480,9 @@
     "general": "Kawaida",
     "loading": "Inapakia...",
     "playing": "▶ Inacheza",
-    "watchOneToQualify": "Tazama video 1 ili kustahiki leo"
+    "watchOneToQualify": "Tazama video 1 ili kustahiki leo",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",

@@ -480,7 +480,9 @@
     "general": "सामान्य",
     "loading": "लोड हो रहा है...",
     "playing": "▶ चल रहा है",
-    "watchOneToQualify": "आज योग्य होने के लिए 1 वीडियो देखें"
+    "watchOneToQualify": "आज योग्य होने के लिए 1 वीडियो देखें",
+    "resumedWatch": "Resuming earlier watch — finish to qualify",
+    "dismiss": "Dismiss"
   },
   "linkHub": {
     "title": "LinkHub",
