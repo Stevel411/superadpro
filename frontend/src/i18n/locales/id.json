@@ -507,13 +507,13 @@
     "loading": "Memuat...",
     "playing": "▶ Memutar",
     "watchOneToQualify": "Tonton 1 video untuk memenuhi syarat hari ini",
-    "resumedWatch": "Resuming earlier watch — finish to qualify",
-    "dismiss": "Dismiss",
-    "progressSaved": "Your progress is saved",
-    "createACampaign": "+ Create a campaign",
-    "buyACampaignTier": "Buy a Campaign Tier",
-    "ctaPrompt": "Interested? Visit the advertiser's site.",
-    "visitWebsite": "Visit Website"
+    "resumedWatch": "Melanjutkan tontonan sebelumnya — selesaikan untuk memenuhi syarat",
+    "dismiss": "Tutup",
+    "progressSaved": "Kemajuan Anda tersimpan",
+    "createACampaign": "+ Buat kampanye",
+    "buyACampaignTier": "Beli Tier Kampanye",
+    "ctaPrompt": "Tertarik? Kunjungi situs pengiklan.",
+    "visitWebsite": "Kunjungi Website"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -3469,12 +3469,12 @@
     "footerLine1": "Siap mulai menghasilkan?",
     "footerLine2": "Buat akun gratismu dalam 30 detik.",
     "footerCta": "Buat akun gratis",
-    "cardCompPlanTitle": "How you earn",
-    "cardCompPlanBody": "Walk through the compensation plan and see how every stream works.",
-    "cardWatchEarnTitle": "Watch to qualify",
-    "cardWatchEarnBody": "Watch a few short videos a day to keep your commissions active.",
-    "videoTitle": "Watch the 90-second tour",
-    "videoSub": "Everything SuperAdPro can do for you, in under two minutes"
+    "cardCompPlanTitle": "Cara Anda menghasilkan",
+    "cardCompPlanBody": "Pelajari rencana kompensasi dan lihat cara setiap aliran bekerja.",
+    "cardWatchEarnTitle": "Tonton untuk memenuhi syarat",
+    "cardWatchEarnBody": "Tonton beberapa video pendek setiap hari untuk menjaga komisi Anda tetap aktif.",
+    "videoTitle": "Tonton tur 90 detik",
+    "videoSub": "Semua yang bisa dilakukan SuperAdPro untuk Anda, dalam waktu kurang dari dua menit"
   },
   "freeTools": {
     "backToHub": "Kembali ke Jelajahi",
@@ -4177,14 +4177,14 @@
   },
   "faqPage": {
     "title": "FAQ",
-    "subtitle": "Answers to the most common questions",
-    "heroTitle": "Frequently Asked Questions",
-    "heroSubtitle": "Tap any question to see the answer. Still stuck? Contact support any time.",
-    "searchPlaceholder": "Search questions…",
-    "noResultsTitle": "No questions match your search",
-    "noResultsSub": "Try different keywords or clear the search.",
-    "stillStuckTitle": "Still have questions?",
-    "stillStuckSub": "Our support team usually replies within a few hours.",
-    "contactSupport": "Contact Support"
+    "subtitle": "Jawaban untuk pertanyaan yang paling sering diajukan",
+    "heroTitle": "Pertanyaan yang Sering Diajukan",
+    "heroSubtitle": "Ketuk pertanyaan apa pun untuk melihat jawabannya. Masih butuh bantuan? Hubungi support kapan saja.",
+    "searchPlaceholder": "Cari pertanyaan…",
+    "noResultsTitle": "Tidak ada pertanyaan yang cocok dengan pencarian Anda",
+    "noResultsSub": "Coba kata kunci berbeda atau hapus pencarian.",
+    "stillStuckTitle": "Masih ada pertanyaan?",
+    "stillStuckSub": "Tim support kami biasanya merespons dalam beberapa jam.",
+    "contactSupport": "Hubungi Support"
   }
 }
