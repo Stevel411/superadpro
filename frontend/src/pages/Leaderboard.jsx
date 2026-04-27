@@ -520,22 +520,94 @@ export default function Leaderboard() {
           </div>
         </div>
 
-        {/* Platform Stats */}
+        {/* Platform Stats — clean white cards matching the rest of the page.
+            Removed the heavy cobalt-navy and emerald-green gradient backgrounds
+            that felt out of place against the white podium and table. */}
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:16, padding:'24px 20px', textAlign:'center' }}>
-            <div style={{ fontSize:13, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('leaderboard.activeMembers')}</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color:'#fff' }}>{(d.stats||{}).total_members||0}</div>
-            <div style={{ fontSize:13, color:'rgba(255,255,255,.3)', marginTop:4 }}>{t('leaderboard.andGrowing')}</div>
+          <div style={{
+            background: '#fff',
+            border: '1px solid #e8ecf2',
+            borderRadius: 16,
+            padding: '20px 22px',
+            textAlign: 'center',
+            boxShadow: '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
+            position: 'relative',
+          }}>
+            <div style={{
+              position: 'absolute', top: 14, left: 14,
+              width: 6, height: 6, borderRadius: '50%',
+              background: 'var(--sap-cobalt-mid, #1e3a8a)',
+            }} />
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: 1.5,
+              textTransform: 'uppercase',
+              color: 'var(--sap-text-muted)',
+              marginBottom: 8,
+            }}>{t('leaderboard.activeMembers')}</div>
+            <div style={{
+              fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900,
+              color: 'var(--sap-cobalt-deep, #172554)',
+              lineHeight: 1,
+            }}>{(d.stats||{}).total_members||0}</div>
+            <div style={{
+              fontSize: 12, color: 'var(--sap-text-muted)',
+              marginTop: 6,
+            }}>{t('leaderboard.andGrowing')}</div>
           </div>
-          <div style={{ background:'linear-gradient(135deg,#065f46,#059669)', borderRadius:16, padding:'24px 20px', textAlign:'center' }}>
-            <div style={{ fontSize:13, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('leaderboard.totalEarnedByMembers')}</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:900, color:'#fff' }}>${Math.round((d.stats||{}).total_earned||0).toLocaleString()}</div>
-            <div style={{ fontSize:13, color:'rgba(255,255,255,.3)', marginTop:4 }}>{t('leaderboard.paidOut')}</div>
+          <div style={{
+            background: '#fff',
+            border: '1px solid #e8ecf2',
+            borderRadius: 16,
+            padding: '20px 22px',
+            textAlign: 'center',
+            boxShadow: '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
+            position: 'relative',
+          }}>
+            <div style={{
+              position: 'absolute', top: 14, left: 14,
+              width: 6, height: 6, borderRadius: '50%',
+              background: 'var(--sap-green-mid, #10b981)',
+            }} />
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: 1.5,
+              textTransform: 'uppercase',
+              color: 'var(--sap-text-muted)',
+              marginBottom: 8,
+            }}>{t('leaderboard.totalEarnedByMembers')}</div>
+            <div style={{
+              fontFamily: 'Sora, sans-serif', fontSize: 30, fontWeight: 900,
+              color: 'var(--sap-green-mid, #10b981)',
+              lineHeight: 1,
+            }}>${Math.round((d.stats||{}).total_earned||0).toLocaleString()}</div>
+            <div style={{
+              fontSize: 12, color: 'var(--sap-text-muted)',
+              marginTop: 6,
+            }}>{t('leaderboard.paidOut')}</div>
           </div>
-          <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', padding:'20px', textAlign:'center' }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-primary)', marginBottom:8 }}>{t('leaderboard.wantToBeOnBoard')}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', lineHeight:1.6, marginBottom:12 }}>{t('leaderboard.shareAndClimb')}</div>
-            <a href="/affiliate" style={{ display:'inline-block', padding:'10px 24px', background:'linear-gradient(135deg,#8b5cf6,#7c3aed)', color:'#fff', borderRadius:10, fontSize:13, fontWeight:800, textDecoration:'none' }}>{t('leaderboard.shareYourLink')}</a>
+          <div style={{
+            background: '#fff',
+            border: '1px solid #e8ecf2',
+            borderRadius: 16,
+            padding: '20px',
+            textAlign: 'center',
+            boxShadow: '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
+          }}>
+            <div style={{
+              fontSize: 14, fontWeight: 800,
+              color: 'var(--sap-text-primary)',
+              marginBottom: 6,
+            }}>{t('leaderboard.wantToBeOnBoard')}</div>
+            <div style={{
+              fontSize: 12, color: 'var(--sap-text-muted)',
+              lineHeight: 1.6, marginBottom: 14,
+            }}>{t('leaderboard.shareAndClimb')}</div>
+            <a href="/affiliate" style={{
+              display: 'inline-block',
+              padding: '10px 22px', borderRadius: 10,
+              background: 'var(--sap-cobalt-deep, #172554)',
+              color: '#fff', fontSize: 13, fontWeight: 700,
+              textDecoration: 'none',
+            }}>{t('leaderboard.shareYourLink')}</a>
           </div>
         </div>
       </div>
