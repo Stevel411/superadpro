@@ -4872,7 +4872,7 @@ def _build_copilot_context(user, db) -> dict:
 
     return {
         "name": user.first_name or user.username,
-        "tier": user.membership_tier or "pro",
+        "tier": user.membership_tier or "basic",
         "total_earned": float(user.total_earned or 0),
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_team": user.total_team or 0,
@@ -6681,7 +6681,12 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 
         # ── FIX #3: Monthly view cap enforcement ──
         from .database import CAMPAIGN_TIER_FEATURES
-        tier_features = CAMPAIGN_TIER_FEATURES.get(c.owner_tier or 1, CAMPAIGN_TIER_FEATURES[1])
+        # Defensive: campaigns without an owner_tier set should never reach
+        # this point (owner-tier filter earlier filters them out) but if
+        # they somehow did, skip rather than silently fall back to Tier 1.
+        if not c.owner_tier or c.owner_tier <= 0:
+            continue
+        tier_features = CAMPAIGN_TIER_FEATURES.get(c.owner_tier, CAMPAIGN_TIER_FEATURES[1])
         monthly_cap = tier_features.get("monthly_views", 500)
         # Count views delivered this calendar month
         from datetime import datetime
@@ -6820,6 +6825,25 @@ def record_watch(
 
     if not campaign:
         return {"success": False, "error": "Campaign not found"}
+
+    # ── Anti-cheat: prevent self-watches (Apr 2026) ──
+    # Without this, a campaign owner could call this endpoint with their
+    # own campaign_id to inflate views and complete the campaign without
+    # real audience.
+    if campaign.user_id == user.id and not user.is_admin:
+        return {"success": False, "error": "You can't watch your own campaign"}
+
+    # ── Anti-cheat: prevent duplicate-day watches ──
+    # Without this, a member could call this endpoint multiple times with
+    # the same campaign_id to artificially complete their daily quota
+    # without watching distinct videos.
+    existing_watch = db.query(VideoWatch).filter(
+        VideoWatch.user_id == user.id,
+        VideoWatch.campaign_id == campaign_id,
+        VideoWatch.watch_date == today_str,
+    ).first()
+    if existing_watch:
+        return {"success": False, "error": "You've already watched this video today"}
 
     # Check quota not already met today
     if quota.today_watched >= quota.daily_required:
@@ -18012,9 +18036,31 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
         if not campaign:
             return JSONResponse({"error": "Video not found"}, status_code=404)
 
+        # ── Anti-cheat: prevent self-watches (Apr 2026) ──
+        # Without this, a campaign owner could call this endpoint with their
+        # OWN video_id to inflate their view count and complete the campaign
+        # without real audience. The rotation logic earlier excludes own
+        # campaigns from being shown, but the API endpoint itself accepts
+        # any video_id, so we need a server-side guard here too.
+        if campaign.user_id == user.id and not user.is_admin:
+            return JSONResponse({"error": "You can't watch your own campaign"}, status_code=403)
+
+        # ── Anti-cheat: prevent duplicate-day watches ──
+        # Without this, a member could call this endpoint multiple times with
+        # the same video_id to artificially complete their daily quota
+        # without actually watching different videos. Each campaign can only
+        # count once per watcher per day.
+        today_str = str(date.today())
+        existing_watch = db.query(VideoWatch).filter(
+            VideoWatch.user_id == user.id,
+            VideoWatch.campaign_id == video_id,
+            VideoWatch.watch_date == today_str,
+        ).first()
+        if existing_watch:
+            return JSONResponse({"error": "You've already watched this video today"}, status_code=409)
+
         # Use the proper quota system (handles day reset, tier sync, streak)
         quota = get_or_create_quota(db, user)
-        today_str = str(date.today())
 
         # Check quota not already met
         if quota.today_watched >= quota.daily_required:
