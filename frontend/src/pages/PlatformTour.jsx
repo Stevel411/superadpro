@@ -69,6 +69,13 @@ export default function PlatformTour() {
   var SECTIONS = getSections(t);
   var s = SECTIONS[activeIdx];
 
+  // Scroll to top on mount. Without this, navigating to /platform-tour from
+  // a page where the user had scrolled down (e.g., a long Dashboard or
+  // Tools page) would land on the tour with the page already partially
+  // scrolled, hiding the hero/title and the tab strip. Same fix applied
+  // across Wallet, CreateCampaign, CompensationPlan etc.
+  useEffect(function() { window.scrollTo(0, 0); }, []);
+
   // Preload: posters with HIGH fetchpriority (visual placeholder appears instantly),
   // videos in the background (faststart makes them start fast anyway)
   useEffect(function() {
