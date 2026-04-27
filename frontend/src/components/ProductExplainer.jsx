@@ -95,8 +95,8 @@ export default function ProductExplainer({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, minWidth: 0 }}>
           <div style={{
-            width: compact ? 36 : 42,
-            height: compact ? 36 : 42,
+            width: compact ? 42 : 48,
+            height: compact ? 42 : 48,
             borderRadius: '50%',
             background: palette.iconBg,
             display: 'flex',
@@ -107,13 +107,13 @@ export default function ProductExplainer({
             <span style={{
               fontFamily: "'Sora', sans-serif",
               fontWeight: 800,
-              fontSize: compact ? 17 : 20,
+              fontSize: compact ? 20 : 24,
               color: palette.iconColor,
             }}>?</span>
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{
-              fontSize: compact ? 15 : 17,
+              fontSize: compact ? 17 : 19,
               fontWeight: 700,
               color: 'var(--sap-text, #0f172a)',
               letterSpacing: '-0.005em',
@@ -121,17 +121,17 @@ export default function ProductExplainer({
             }}>{t(`${tNamespace}.explainer.headline`)}</div>
             <div style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
               letterSpacing: '0.16em',
               textTransform: 'uppercase',
               color: palette.subtitleColor,
-              marginTop: 4,
+              marginTop: 5,
             }}>{t(`${tNamespace}.explainer.subtitle`)}</div>
           </div>
         </div>
         <div style={{
-          fontSize: 16,
+          fontSize: 18,
           color: open ? palette.iconColor : 'var(--sap-text-muted, #64748b)',
           transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
           transition: 'transform 0.3s, color 0.2s',
@@ -145,10 +145,10 @@ export default function ProductExplainer({
           borderTop: '1px solid var(--sap-border, #e2e8f0)',
         }}>
           <p style={{
-            fontSize: 14,
+            fontSize: 16,
             lineHeight: 1.7,
             color: 'var(--sap-text, #0f172a)',
-            margin: '14px 0 0',
+            margin: '16px 0 0',
           }}>
             {t(`${tNamespace}.explainer.p1Pre`)}
             <strong style={{ color: palette.iconColor, fontWeight: 600 }}>
@@ -157,15 +157,15 @@ export default function ProductExplainer({
             {t(`${tNamespace}.explainer.p1Post`)}
           </p>
           <p style={{
-            fontSize: 14,
+            fontSize: 16,
             lineHeight: 1.7,
             color: 'var(--sap-text, #0f172a)',
-            margin: '12px 0 0',
+            margin: '14px 0 0',
           }}>{t(`${tNamespace}.explainer.p2`)}</p>
 
           <div style={{
-            marginTop: 16,
-            padding: '12px 14px',
+            marginTop: 18,
+            padding: '16px 18px',
             background: palette.accentBoxBg,
             border: `1px solid ${palette.accentBoxBorder}`,
             borderLeft: `3px solid ${palette.iconColor}`,
@@ -173,23 +173,23 @@ export default function ProductExplainer({
           }}>
             <div style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
               color: palette.accentBoxLabelColor,
-              marginBottom: 4,
+              marginBottom: 6,
             }}>{t(`${tNamespace}.explainer.buyingLabel`)}</div>
             <div style={{
-              fontSize: 13,
+              fontSize: 15,
               color: 'var(--sap-text, #0f172a)',
               lineHeight: 1.6,
             }}>{t(`${tNamespace}.explainer.buyingText`)}</div>
           </div>
 
           <div style={{
-            marginTop: 12,
-            padding: '12px 14px',
+            marginTop: 14,
+            padding: '16px 18px',
             background: tiersCallout.bg,
             border: `1px solid ${tiersCallout.border}`,
             borderLeft: `3px solid #f59e0b`,
@@ -197,15 +197,15 @@ export default function ProductExplainer({
           }}>
             <div style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
               color: tiersCallout.labelColor,
-              marginBottom: 4,
+              marginBottom: 6,
             }}>⚡ {t(`${tNamespace}.explainer.tiersLabel`)}</div>
             <div style={{
-              fontSize: 13,
+              fontSize: 15,
               color: tiersCallout.textColor,
               lineHeight: 1.6,
             }}>{t(`${tNamespace}.explainer.tiersText`)}</div>
