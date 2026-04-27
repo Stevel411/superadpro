@@ -568,9 +568,9 @@ export default function Dashboard() {
           },
           {
             id: 'watchVideo',
-            label: t('dashboard.todaysWatchLabel', { defaultValue: 'Earn today' }),
+            label: t('dashboard.todaysWatchLabel', { defaultValue: 'Stay qualified' }),
             title: t('dashboard.todaysWatch', { defaultValue: "Today's Watch Video" }),
-            desc: t('dashboard.todaysWatchDesc', { defaultValue: 'Watch your daily campaign-grid video to earn credits and grow your team.' }),
+            desc: t('dashboard.todaysWatchDesc', { defaultValue: 'Watch your daily campaign-grid video to activate Grid Payouts.' }),
             cta: t('dashboard.todaysWatchCta', { defaultValue: 'Watch now' }),
             colourVar: 'var(--sap-accent)',
             icon: Eye,
