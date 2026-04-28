@@ -276,6 +276,20 @@ function UsersTab() {
                 </button>
               )}
 
+              {/* Reset 2FA — for members who have lost their authenticator device */}
+              {detail.two_factor_enabled && (
+                <button onClick={function() {
+                  if (!window.confirm('Reset 2FA for ' + detail.username + '?\n\nThis disables their two-factor authentication and clears their stored secret. They will need to set up 2FA again from their Account page before they can make withdrawals.\n\nUse only when the member has confirmed they have lost access to their authenticator app.')) return;
+                  apiPost('/admin/api/user/' + selected + '/reset-2fa', {}).then(function(r) {
+                    if (r.success) { setMsg('2FA reset for ' + detail.username + '. They have been notified in-app.'); openUser(selected); loadUsers(); }
+                    else setMsg(r.error || 'Reset failed');
+                  }).catch(function(e) { setMsg(e.message || 'Reset failed'); });
+                }}
+                style={{width:'100%',padding:'10px',borderRadius:8,border:'1px solid #fde68a',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,background:'var(--sap-amber-bg)',color:'var(--sap-amber-dark)',marginBottom:8}}>
+                  🔐 Reset 2FA (Lost Authenticator)
+                </button>
+              )}
+
               {/* Delete user */}
               {!detail.is_admin && (
                 <button onClick={function() {

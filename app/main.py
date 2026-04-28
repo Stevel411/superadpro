@@ -7270,6 +7270,42 @@ def admin_api_toggle_active(
     db.commit()
     logger.info(f"Admin toggle active: {target.username} → {'active' if target.is_active else 'inactive'}")
     return {"success": True, "username": target.username, "is_active": target.is_active}
+@app.post("/admin/api/user/{user_id}/reset-2fa")
+def admin_api_reset_2fa(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Reset a member's 2FA — used when they have lost their authenticator device.
+    Clears totp_secret and disables 2FA. Member must set up fresh from /2fa-setup.
+    Sends an in-app notification so the member sees the change immediately.
+    Logs the action with the admin's username for audit trail."""
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    was_enabled = bool(target.totp_enabled)
+    target.totp_enabled = False
+    target.totp_secret = None
+    db.commit()
+    # Notify the affected member so a malicious reset would be visible to the real user
+    try:
+        from .database import Notification
+        notif = Notification(
+            user_id=target.id,
+            type="security",
+            title="Two-factor authentication reset",
+            message=("Your 2FA has been reset by an administrator. "
+                     "Set up two-factor authentication again from the Account page before your next withdrawal."),
+            icon="🔐",
+        )
+        db.add(notif)
+        db.commit()
+    except Exception as e:
+        logger.warning(f"Failed to send 2FA-reset notification to user {target.id}: {e}")
+        db.rollback()
+    logger.warning(f"ADMIN 2FA RESET: admin={user.username} target={target.username} target_id={target.id} was_enabled={was_enabled}")
+    return {"success": True, "username": target.username, "was_enabled": was_enabled}
 @app.post("/admin/api/user/{user_id}/change-tier")
 async def admin_api_change_tier(
     user_id: int, request: Request,
