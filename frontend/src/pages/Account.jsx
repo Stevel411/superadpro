@@ -34,7 +34,42 @@ export default function Account() {
   var [kycFile, setKycFile] = useState(null);
   var [savingKyc, setSavingKyc] = useState(false);
 
+  var [disable2faCode, setDisable2faCode] = useState('');
+  var [disabling2fa, setDisabling2fa] = useState(false);
+
   function showToast(msg, type) { setToast({msg, type}); setTimeout(function(){setToast(null);}, 4000); }
+
+  async function handleDisable2FA() {
+    var code = (disable2faCode || '').trim();
+    if (!/^[0-9]{6}$/.test(code)) {
+      showToast('Please enter a valid 6-digit 2FA code.', 'err');
+      return;
+    }
+    setDisabling2fa(true);
+    try {
+      var formData = new URLSearchParams();
+      formData.append('totp_code', code);
+      var res = await fetch('/account/2fa-disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString(),
+        credentials: 'include',
+      });
+      var data;
+      try { data = await res.json(); }
+      catch (e) { data = { success: false, error: 'Server returned an unexpected response.' }; }
+      if (data.success) {
+        setDisable2faCode('');
+        showToast(data.message || 'Two-factor authentication disabled.', 'ok');
+        if (typeof refreshUser === 'function') refreshUser();
+      } else {
+        showToast(data.error || 'Could not disable 2FA. Please try again.', 'err');
+      }
+    } catch (e) {
+      showToast(e.message || 'Network error. Please try again.', 'err');
+    }
+    setDisabling2fa(false);
+  }
 
   function handleAvatarUpload(e) {
     var file = e.target.files[0]; if (!file) return;
@@ -174,9 +209,9 @@ export default function Account() {
         <Card title={t("account.twoFA")} chip={user.totp_enabled?{t:t('account.twoFAEnabled'),c:'var(--sap-green)'}:{t:t('account.twoFADisabled'),c:'var(--sap-text-muted)'}}>
           {user.totp_enabled?<>
             <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔒</div><div style={{fontSize:16,fontWeight:700,color:'var(--sap-green)'}}>{t("account.twoFAActive")}</div><div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{t("account.accountProtected")}</div></div>
-            <form method="POST" action="/account/2fa-disable" style={{marginTop:'auto'}}>
-              <div style={{marginBottom:10}}><label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.enterCodeDisable")}</label><input type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required style={Object.assign({},iS,{textAlign:'center',letterSpacing:6,fontWeight:800,fontSize:18})}/></div>
-              <button type="submit" style={Object.assign({},btnS,{background:'linear-gradient(135deg,#f59e0b,#ef4444)'})}>{t("account.disable2FA")}</button>
+            <form onSubmit={function(e){e.preventDefault(); handleDisable2FA();}} style={{marginTop:'auto'}}>
+              <div style={{marginBottom:10}}><label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.enterCodeDisable")}</label><input type="text" name="totp_code" value={disable2faCode} onChange={function(e){setDisable2faCode(e.target.value);}} maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required disabled={disabling2fa} style={Object.assign({},iS,{textAlign:'center',letterSpacing:6,fontWeight:800,fontSize:18})}/></div>
+              <button type="submit" disabled={disabling2fa} style={Object.assign({},btnS,{background:'linear-gradient(135deg,#f59e0b,#ef4444)',opacity:disabling2fa?0.6:1,cursor:disabling2fa?'wait':'pointer'})}>{disabling2fa ? t('account.submitting') : t("account.disable2FA")}</button>
             </form>
           </>:<>
             <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔓</div><div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-muted)'}}>{t("account.notEnabled")}</div><div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{t("account.requiredWithdrawals")}</div></div>

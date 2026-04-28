@@ -10748,19 +10748,24 @@ def totp_disable(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    """Disable 2FA after verifying current code."""
-    if not user: return RedirectResponse(url="/?login=1", status_code=302)
+    """Disable 2FA after verifying current code. Returns JSON for SPA consumption.
+    On success: {success: true, message}
+    On failure: {success: false, error}
+    """
+    if not user:
+        return JSONResponse({"success": False, "error": "Not signed in"}, status_code=401)
     import pyotp
     if not user.totp_secret or not user.totp_enabled:
-        return RedirectResponse(url="/account?error=2fa_not_enabled", status_code=303)
+        return JSONResponse({"success": False, "error": "Two-factor authentication is not currently enabled on this account."}, status_code=400)
     totp = pyotp.TOTP(user.totp_secret)
-    if totp.verify(totp_code, valid_window=1):
+    if not totp_code or not totp_code.strip():
+        return JSONResponse({"success": False, "error": "Please enter your current 2FA code to disable two-factor authentication."}, status_code=400)
+    if totp.verify(totp_code.strip(), valid_window=1):
         user.totp_enabled = False
         user.totp_secret = None
         db.commit()
-        return RedirectResponse(url="/account?saved=2fa_disabled", status_code=303)
-    else:
-        return RedirectResponse(url="/account?error=invalid_2fa_code", status_code=303)
+        return JSONResponse({"success": True, "message": "Two-factor authentication has been disabled. You can re-enable it any time from this page."})
+    return JSONResponse({"success": False, "error": "Invalid 2FA code. Please try again."}, status_code=400)
 @app.post("/api/onboarding/complete")
 def onboarding_complete(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Mark onboarding wizard as completed."""
