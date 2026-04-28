@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
@@ -179,7 +180,7 @@ export default function Account() {
             </form>
           </>:<>
             <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔓</div><div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-muted)'}}>{t("account.notEnabled")}</div><div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{t("account.requiredWithdrawals")}</div></div>
-            <a href="/account/2fa-setup" style={Object.assign({},btnS,{display:'block',textAlign:'center',textDecoration:'none',background:'var(--sap-accent)',marginTop:'auto'})}>{t("account.setup2FA")}</a>
+            <Link to="/2fa-setup" style={Object.assign({},btnS,{display:'block',textAlign:'center',textDecoration:'none',background:'var(--sap-accent)',marginTop:'auto'})}>{t("account.setup2FA")}</Link>
           </>}
         </Card>
 

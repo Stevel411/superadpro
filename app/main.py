@@ -10703,8 +10703,20 @@ def kyc_submit(
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/account/2fa-setup")
+def totp_setup_page_legacy(request: Request):
+    """Legacy URL — redirects to canonical React route at /2fa-setup.
+    Kept for any old links, bookmarks, or stale email templates that still
+    point to /account/2fa-setup. The actual React route is registered as
+    /2fa-setup in App.jsx, so serving index.html here would fall through
+    to the SPA's catch-all <Navigate to="/" /> and dump users on the
+    dashboard. 301 permanent redirect tells clients to update."""
+    return RedirectResponse(url="/2fa-setup", status_code=301)
+@app.get("/2fa-setup")
 def totp_setup_page(request: Request):
-    """Phase 2: serve React SPA — 2FA setup is at /2fa-setup in React."""
+    """Serve React SPA — 2FA setup page is at /2fa-setup in App.jsx.
+    Required because there is no global SPA catch-all; every React route
+    needs an explicit FastAPI handler that returns index.html so the SPA
+    boots and React Router takes over."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/account", status_code=302)
@@ -10726,7 +10738,7 @@ def totp_verify(
         db.commit()
         return RedirectResponse(url="/account?saved=2fa_enabled", status_code=303)
     else:
-        return RedirectResponse(url="/account/2fa-setup?error=invalid_code", status_code=303)
+        return RedirectResponse(url="/2fa-setup?error=invalid_code", status_code=303)
 @app.post("/account/2fa-disable")
 def totp_disable(
     request: Request,
