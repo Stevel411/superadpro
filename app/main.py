@@ -7828,12 +7828,14 @@ async def admin_withdrawal_refund(
         from .database import Notification
         db.add(Notification(
             user_id=target_user.id,
+            type="withdrawal",
             title="Withdrawal refunded",
             message=f"Your ${amount:.2f} withdrawal could not be sent and has been refunded to your {wallet_type} balance. You can try again from the Wallet page.",
             icon="money_bag",
         ))
     except Exception as e:
         logger.warning(f"Refund notification failed: {e}")
+        db.rollback()
 
     db.commit()
     logger.info(f"Admin {user.username} refunded withdrawal #{withdrawal_id} (${amount} to user {target_user.username} {wallet_type} balance) — {reason}")
@@ -10554,14 +10556,14 @@ async def api_register(
         try:
             notif = Notification(
                 user_id=user.id,
+                type="system",
                 title="Welcome to SuperAdPro!",
                 message=f"Hey {first_name}, welcome aboard! Start by setting up your profile and exploring the dashboard.",
-                notification_type="system",
             )
             db.add(notif)
             db.commit()
         except Exception:
-            pass
+            db.rollback()
 
         # Enrol in nurture sequence — first email fires 24hrs after registration
         try:

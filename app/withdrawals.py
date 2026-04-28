@@ -295,19 +295,25 @@ def process_withdrawal(db, withdrawal_id):
 
         logger.info(f"Withdrawal #{withdrawal_id} paid: ${net_amount} USDT to {withdrawal.wallet_address}")
 
-        # Send notification to member
+        # Send notification to member (best-effort — withdrawal already committed)
         try:
             from .database import Notification
             notif = Notification(
                 user_id=user.id,
+                type="withdrawal",
                 title="Withdrawal Processed",
                 message=f"${net_amount:.2f} USDT sent to your wallet. Tx: {result['tx_hash'][:16]}...",
                 icon="money_bag",
             )
             db.add(notif)
             db.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            # Notification failure must not poison the session for downstream
+            # callers — explicit rollback restores the session to a usable state.
+            # The withdrawal itself is already committed above (line 294) and is
+            # safe; we only lose the convenience notification.
+            logger.warning(f"Failed to create withdrawal notification for user {user.id}: {e}")
+            db.rollback()
 
         return {
             "success": True,
