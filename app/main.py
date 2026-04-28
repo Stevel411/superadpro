@@ -6477,33 +6477,40 @@ def withdraw(
     db:          Session = Depends(get_db),
     user:        User = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/?login=1", status_code=302)
+    """Process withdrawal request. Returns JSON for SPA consumption.
+    On success: {success: true, message, tx_hash, net_amount, fee, remaining, wallet_type}
+    On failure: {success: false, error}
+    """
+    if not user:
+        return JSONResponse({"success": False, "error": "Not signed in"}, status_code=401)
     # ── KYC Gate ──
     if getattr(user, 'kyc_status', 'none') != 'approved':
-        return RedirectResponse(url="/wallet?error=KYC_verification_required_before_withdrawal._Go_to_Account_to_complete.", status_code=303)
+        return JSONResponse({"success": False, "error": "KYC verification required before withdrawal. Go to Account to complete."}, status_code=403)
     # ── 2FA Gate — must be enabled AND code must be valid ──
     if not getattr(user, 'totp_enabled', False):
-        return RedirectResponse(url="/wallet?error=Two-factor_authentication_required_before_withdrawal._Go_to_Account_to_enable.", status_code=303)
+        return JSONResponse({"success": False, "error": "Two-factor authentication required before withdrawal. Go to Account to enable."}, status_code=403)
     import pyotp
     if not totp_code or not totp_code.strip():
-        return RedirectResponse(url="/wallet?error=Please_enter_your_2FA_code_to_authorise_this_withdrawal.", status_code=303)
+        return JSONResponse({"success": False, "error": "Please enter your 2FA code to authorise this withdrawal."}, status_code=400)
     totp = pyotp.TOTP(user.totp_secret)
     if not totp.verify(totp_code.strip(), valid_window=1):
-        return RedirectResponse(url="/wallet?error=Invalid_2FA_code._Please_try_again.", status_code=303)
+        return JSONResponse({"success": False, "error": "Invalid 2FA code. Please try again."}, status_code=400)
     # ── Validate wallet_type ──
     if wallet_type not in ("affiliate", "campaign"):
         wallet_type = "affiliate"
     # ── 2FA verified — process withdrawal ──
     result = request_withdrawal(db, user.id, amount, wallet_type=wallet_type)
     if result["success"]:
-        tx = result.get("tx_hash", "")
-        msg = result.get("message", "Withdrawal processed")
-        redirect_url = f"/wallet?withdrawn=true&msg={msg}"
-        if tx:
-            redirect_url += f"&tx={tx}"
-    else:
-        redirect_url = f"/wallet?error={result['error']}"
-    return RedirectResponse(url=redirect_url, status_code=303)
+        return JSONResponse({
+            "success":     True,
+            "message":     result.get("message", "Withdrawal processed"),
+            "tx_hash":     result.get("tx_hash", ""),
+            "net_amount":  result.get("net_amount"),
+            "fee":         result.get("fee"),
+            "remaining":   result.get("remaining"),
+            "wallet_type": result.get("wallet_type", wallet_type),
+        })
+    return JSONResponse({"success": False, "error": result.get("error", "Withdrawal failed")}, status_code=400)
 # ═══════════════════════════════════════════════════════════════
 #  PASSWORD RESET ROUTES
 # ═══════════════════════════════════════════════════════════════

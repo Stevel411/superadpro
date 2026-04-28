@@ -76,33 +76,24 @@ export default function Wallet() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString(),
         credentials: 'include',
-        redirect: 'follow',
       });
 
-      // The endpoint redirects to /wallet?withdrawn=true or /wallet?error=...
-      // We need to parse the redirect URL
-      const finalUrl = res.url || '';
-      const params = new URLSearchParams(finalUrl.split('?')[1] || '');
+      let json;
+      try { json = await res.json(); }
+      catch (parseErr) { json = { success: false, error: 'Server returned an unexpected response. If your wallet balance dropped, the withdrawal likely succeeded — refresh to verify.' }; }
 
-      if (params.get('withdrawn') === 'true') {
-        const msg = (params.get('msg') || 'Withdrawal processed').replace(/_/g, ' ');
-        const tx = params.get('tx') || '';
-        setWithdrawResult({ type: 'success', msg: msg + (tx ? ' TX: ' + tx.substring(0, 12) + '...' : '') });
+      if (json.success) {
+        setWithdrawResult({
+          type: 'success',
+          msg: json.message || 'Withdrawal sent successfully',
+          tx_hash: json.tx_hash || '',
+        });
         if (amountEl) amountEl.value = '';
         if (totpEl) totpEl.value = '';
-        // Refresh wallet data after 2 seconds
+        // Refresh wallet data after 2 seconds so balance updates
         setTimeout(() => { apiGet('/api/wallet').then(d => setData(d)); }, 2000);
-      } else if (params.get('error')) {
-        setWithdrawResult({ type: 'error', msg: params.get('error').replace(/_/g, ' ') });
       } else {
-        // Try to parse response body
-        const text = await res.text();
-        if (text.includes('error') || text.includes('Error')) {
-          setWithdrawResult({ type: 'error', msg: 'Withdrawal failed. Please try again.' });
-        } else {
-          setWithdrawResult({ type: 'success', msg: 'Withdrawal submitted successfully!' });
-          setTimeout(() => { apiGet('/api/wallet').then(d => setData(d)); }, 2000);
-        }
+        setWithdrawResult({ type: 'error', msg: json.error || 'Withdrawal failed. Please try again.' });
       }
     } catch (e) {
       setWithdrawResult({ type: 'error', msg: e.message || 'Network error. Please try again.' });
@@ -163,7 +154,16 @@ export default function Wallet() {
                   )}
                   <button onClick={() => handleWithdraw('affiliate')} disabled={withdrawing} style={{...btnPrimary, opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawAffiliate')}</button>
                   <div style={{ fontSize:15, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
-                  {withdrawResult && <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>{withdrawResult.msg}</div>}
+                  {withdrawResult && (
+                    <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>
+                      <div>{withdrawResult.type==='success' ? '✅ ' : '❌ '}{withdrawResult.msg}</div>
+                      {withdrawResult.tx_hash && (
+                        <div style={{ marginTop:8, fontSize:14, fontWeight:500 }}>
+                          Transaction: <a href={`https://polygonscan.com/tx/${withdrawResult.tx_hash}`} target="_blank" rel="noopener noreferrer" style={{ color:'#15803d', textDecoration:'underline', fontFamily:'monospace' }}>{withdrawResult.tx_hash.substring(0, 10)}…{withdrawResult.tx_hash.substring(withdrawResult.tx_hash.length - 8)}</a>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div style={{ textAlign:'center', fontSize:15, color:'var(--sap-text-muted)' }}>{t('wallet.minToWithdraw')} ${formatMoney(d.balance)}</div>
@@ -198,7 +198,16 @@ export default function Wallet() {
                   )}
                   <button onClick={() => handleWithdraw('campaign')} disabled={withdrawing} style={{...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)', opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawCampaign')}</button>
                   <div style={{ fontSize:15, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
-                  {withdrawResult && <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>{withdrawResult.msg}</div>}
+                  {withdrawResult && (
+                    <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>
+                      <div>{withdrawResult.type==='success' ? '✅ ' : '❌ '}{withdrawResult.msg}</div>
+                      {withdrawResult.tx_hash && (
+                        <div style={{ marginTop:8, fontSize:14, fontWeight:500 }}>
+                          Transaction: <a href={`https://polygonscan.com/tx/${withdrawResult.tx_hash}`} target="_blank" rel="noopener noreferrer" style={{ color:'#15803d', textDecoration:'underline', fontFamily:'monospace' }}>{withdrawResult.tx_hash.substring(0, 10)}…{withdrawResult.tx_hash.substring(withdrawResult.tx_hash.length - 8)}</a>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div style={{ textAlign:'center', fontSize:15, color:'var(--sap-text-muted)' }}>
