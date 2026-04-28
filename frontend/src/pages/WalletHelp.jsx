@@ -19,7 +19,7 @@ var HELP_SECTIONS = [
     items: [
       { title: 'How do I withdraw from my Affiliate Wallet?', desc: 'Go to your Wallet page, find the green Affiliate Wallet card, enter the amount you want to withdraw (minimum $10), enter your 2FA code, and click Withdraw. The USDT is sent automatically to your Polygon wallet address.' },
       { title: 'How do I withdraw from my Campaign Wallet?', desc: 'Same process, but using the purple Campaign Wallet card. You must have an active Campaign Tier and be meeting your daily Watch-to-Earn video quota. If either requirement is not met, you will see a clear error message explaining what to do.' },
-      { title: 'What are the withdrawal requirements?', desc: 'For both wallets: KYC identity verification must be approved, 2FA must be enabled, minimum withdrawal is $10, there is a $1 flat fee per withdrawal, maximum $500 per day, and your account must be at least 7 days old.' },
+      { title: 'What are the withdrawal requirements?', desc: 'For both wallets: KYC identity verification must be approved, 2FA must be enabled, minimum withdrawal is $10, there is a $1 flat fee per withdrawal, and the maximum is $500 per day.' },
       { title: 'What additional requirements does the Campaign Wallet have?', desc: 'You must have at least one active (non-complete) Campaign Tier grid, and your Watch-to-Earn daily video quota must not be paused. If you miss your quota for 5 or more consecutive days, campaign withdrawals are temporarily blocked until you resume watching.' },
       { title: 'Where does my withdrawal go?', desc: 'Withdrawals are sent as USDT on the Polygon network to the wallet address you have saved in your Account settings. Make sure your wallet supports Polygon (MetaMask, Trust Wallet, Coinbase Wallet all do). Sending to the wrong network will result in lost funds.' },
       { title: 'How long does a withdrawal take?', desc: 'Withdrawals are processed automatically and typically arrive within 1-2 minutes. In rare cases, if the treasury needs a top-up, withdrawals are queued and processed within 24 hours.' },
@@ -42,7 +42,6 @@ var HELP_SECTIONS = [
       { title: 'What fees are there?', desc: 'A flat $1 fee is deducted from every withdrawal to cover Polygon network gas costs. There are no percentage-based fees. What you see in your wallet is what you earn — the $1 is only taken at withdrawal.' },
       { title: 'What is the minimum withdrawal?', desc: '$10 minimum per withdrawal (before the $1 fee, so you receive $9 minimum). This applies to both wallets.' },
       { title: 'Is there a daily limit?', desc: 'Yes — maximum $500 per day across both wallets combined. This is a security measure to protect your account.' },
-      { title: 'What is the cooldown period?', desc: 'New accounts must wait 7 days after registration before their first withdrawal. This prevents fraud and protects the community.' },
     ],
   },
   {

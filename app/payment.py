@@ -446,7 +446,7 @@ def request_withdrawal(db: Session, user_id: int, amount: float, wallet_type: st
 
     amount_d = D(str(amount))
 
-    # Run base security validation (KYC, 2FA, cooldown, daily cap, wallet address)
+    # Run base security validation (KYC, 2FA, daily cap, wallet address)
     from .withdrawals import validate_withdrawal, validate_campaign_withdrawal, WITHDRAWAL_FEE
     validation = validate_withdrawal(db, user, amount_d)
     if not validation["valid"]:

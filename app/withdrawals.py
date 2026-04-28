@@ -13,7 +13,6 @@ Security guardrails:
   - Minimum $10 withdrawal
   - $1 flat fee
   - Daily cap per user: $500
-  - Account cooldown: 7 days after registration before first withdrawal
   - Insufficient treasury balance -> queues for retry
 """
 
@@ -33,7 +32,6 @@ USDT_DECIMALS    = 6
 WITHDRAWAL_FEE    = Decimal("1.00")
 MIN_WITHDRAWAL    = Decimal("10.00")
 DAILY_CAP_PER_USER = Decimal("500.00")
-COOLDOWN_DAYS      = 7
 
 # Minimal ERC-20 ABI for transfer + balanceOf
 ERC20_ABI = [
@@ -145,13 +143,6 @@ def validate_withdrawal(db, user, amount):
     # 2FA check
     if not getattr(user, 'totp_enabled', False):
         return {"valid": False, "error": "Two-factor authentication required before withdrawals. Go to Account to enable 2FA."}
-
-    # Cooldown check
-    if user.created_at:
-        account_age = datetime.utcnow() - user.created_at
-        if account_age < timedelta(days=COOLDOWN_DAYS):
-            days_left = COOLDOWN_DAYS - account_age.days
-            return {"valid": False, "error": f"New account cooldown: withdrawals available in {days_left} day{'s' if days_left != 1 else ''}"}
 
     # Daily cap check
     today_total = check_daily_withdrawal_total(db, user.id)
