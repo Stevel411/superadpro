@@ -71,6 +71,12 @@ export default function ForAdvertisers() {
 
         <section className="page-section">
 
+          <div className="section-tag">{t('forAdvertisers.sectionTag')}</div>
+          <h2 className="section-h2">
+            {t('forAdvertisers.headlineLine1')}
+            <span className="accent">{t('forAdvertisers.headlineLine2')}</span>
+          </h2>
+
           <div className="hero-badge">
             <div className="hero-badge-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -85,12 +91,6 @@ export default function ForAdvertisers() {
               </div>
             </div>
           </div>
-
-          <div className="section-tag">{t('forAdvertisers.sectionTag')}</div>
-          <h2 className="section-h2">
-            {t('forAdvertisers.headlineLine1')}
-            <span className="accent">{t('forAdvertisers.headlineLine2')}</span>
-          </h2>
 
           <div className="hero-stage">
             <div className="hero-stage-caption">{t('forAdvertisers.heroCaption')}</div>
@@ -311,7 +311,7 @@ var CSS_FOR_ADVERTISERS = `
 }
 
 .for-advertisers-page .page-bg{position:absolute;top:0;left:0;right:0;height:780px;z-index:0;background-image:url("/static/images/advertisers-hero.jpg");background-size:cover;background-position:center top;background-repeat:no-repeat}
-.for-advertisers-page .page-bg-overlay{position:absolute;top:0;left:0;right:0;height:780px;z-index:1;background:linear-gradient(180deg,rgba(11,18,48,.35) 0%,rgba(11,18,48,.5) 35%,rgba(11,18,48,.6) 60%,rgba(11,18,48,.85) 88%,rgba(11,18,48,.96) 100%);pointer-events:none}
+.for-advertisers-page .page-bg-overlay{position:absolute;top:0;left:0;right:0;height:780px;z-index:1;background:linear-gradient(180deg,rgba(11,18,48,0) 0%,rgba(11,18,48,0) 78%,rgba(11,18,48,.55) 88%,rgba(11,18,48,.96) 100%);pointer-events:none}
 
 /* FLOATING NAV + BRAND (from mockup) */
 .for-advertisers-page .float-nav{position:fixed;top:28px;right:32px;z-index:100;display:flex;align-items:center;gap:10px}
@@ -340,7 +340,7 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .float-brand-text{font-family:'Sora',sans-serif;font-size:15px;font-weight:900;letter-spacing:-.03em;color:var(--ink)}
 .for-advertisers-page .float-brand-text em{color:var(--sky-bright);font-style:normal}
 
-.for-advertisers-page .page-section{padding:140px 48px 100px;max-width:1320px;margin:0 auto;position:relative;z-index:2}
+.for-advertisers-page .page-section{padding:80px 48px 100px;max-width:1320px;margin:0 auto;position:relative;z-index:2}
 .for-advertisers-page .section-tag{display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink-40);letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px}
 .for-advertisers-page .section-tag::before{content:'';width:32px;height:1px;background:var(--amber)}
 .for-advertisers-page .section-h2{font-family:'Sora',sans-serif;font-size:clamp(48px,6vw,88px);font-weight:900;line-height:.95;letter-spacing:-.045em;margin-bottom:20px}
