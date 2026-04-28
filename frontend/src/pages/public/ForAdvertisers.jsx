@@ -340,7 +340,7 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .float-brand-text{font-family:'Sora',sans-serif;font-size:15px;font-weight:900;letter-spacing:-.03em;color:var(--ink)}
 .for-advertisers-page .float-brand-text em{color:var(--sky-bright);font-style:normal}
 
-.for-advertisers-page .page-section{padding:80px 48px 100px;max-width:1320px;margin:0 auto;position:relative;z-index:2}
+.for-advertisers-page .page-section{padding:110px 48px 100px;max-width:1320px;margin:0 auto;position:relative;z-index:2}
 .for-advertisers-page .section-tag{display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink-40);letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px}
 .for-advertisers-page .section-tag::before{content:'';width:32px;height:1px;background:var(--amber)}
 .for-advertisers-page .section-h2{font-family:'Sora',sans-serif;font-size:clamp(48px,6vw,88px);font-weight:900;line-height:.95;letter-spacing:-.045em;margin-bottom:20px}
