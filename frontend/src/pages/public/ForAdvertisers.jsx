@@ -311,7 +311,7 @@ var CSS_FOR_ADVERTISERS = `
 }
 
 .for-advertisers-page .page-bg{position:absolute;top:0;left:0;right:0;height:780px;z-index:0;background-image:url("/static/images/advertisers-hero.jpg");background-size:cover;background-position:center top;background-repeat:no-repeat}
-.for-advertisers-page .page-bg-overlay{position:absolute;top:0;left:0;right:0;height:780px;z-index:1;background:linear-gradient(180deg,rgba(11,18,48,0) 0%,rgba(11,18,48,0) 78%,rgba(11,18,48,.55) 88%,rgba(11,18,48,.96) 100%);pointer-events:none}
+.for-advertisers-page .page-bg-overlay{position:absolute;top:0;left:0;right:0;height:780px;z-index:1;background:linear-gradient(180deg,rgba(11,18,48,.35) 0%,rgba(11,18,48,.5) 35%,rgba(11,18,48,.6) 60%,rgba(11,18,48,.85) 88%,rgba(11,18,48,.96) 100%);pointer-events:none}
 
 /* FLOATING NAV + BRAND (from mockup) */
 .for-advertisers-page .float-nav{position:fixed;top:28px;right:32px;z-index:100;display:flex;align-items:center;gap:10px}
