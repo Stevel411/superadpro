@@ -793,7 +793,7 @@ function UpgradeToProCard({ data, t }) {
           fontFamily: "'Sora', sans-serif", fontSize: 22, fontWeight: 800,
           color: 'var(--sap-text-primary, #0f172a)', lineHeight: 1, marginBottom: 4,
         }}>
-          $97<small style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>/mo</small>
+          $35<small style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>/mo</small>
         </div>
         <Link to="/wallet" style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,

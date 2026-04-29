@@ -55,7 +55,7 @@ export default function ProToolsPage() {
           marginBottom: 14,
         }}>
           {isPro
-            ? t('tools.section.proUnlocked', { defaultValue: 'Pro Membership Tools · 5 tools unlocked at $97/mo' })
+            ? t('tools.section.proUnlocked', { defaultValue: 'Pro Membership Tools · 5 tools unlocked at $35/mo' })
             : t('tools.section.proLocked', { defaultValue: 'Pro Membership Tools · upgrade to unlock' })
           }
         </div>
@@ -70,7 +70,7 @@ export default function ProToolsPage() {
             title={t('tools.upgrade.pro.title', { defaultValue: 'Upgrade to Pro Membership' })}
             desc={t('tools.upgrade.pro.desc', { defaultValue: 'Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching.' })}
             items={tools.map(tool => tool.name)}
-            price="$97"
+            price="$35"
             period={t('tools.upgrade.perMonth', { defaultValue: '/mo' })}
             ctaLabel={t('tools.upgrade.cta', { defaultValue: 'Upgrade now' })}
           />
