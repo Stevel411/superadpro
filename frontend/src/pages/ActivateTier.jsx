@@ -81,26 +81,26 @@ export default function ActivateTier() {
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          {/* Crypto button FIRST — bright purple */}
-          <button onClick={function(){ setCryptoCheckout(true); }} style={{
+          {/* NOWPayments primary — accepts 350+ cryptos, easiest for new users */}
+          <button onClick={handleNowPayments} disabled={paying} style={{
             display:'flex',alignItems:'center',justifyContent:'center',gap:10,
             width:'100%', padding:16, borderRadius:12,
-            fontSize:16, fontWeight:800, border:'none', cursor:'pointer',
+            fontSize:16, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
             fontFamily:'inherit',
             background:'linear-gradient(135deg,#8b5cf6,#7c3aed,#6d28d9)',
             color:'#fff',
             boxShadow:'0 4px 0 #5b21b6,0 6px 20px rgba(124,58,237,.3)',
             letterSpacing:0.3, transition:'all 0.2s',
           }}>
-            <Coins size={18} />
-            {"\u26A1"} Pay with Crypto (USDT / USDC)
+            <Globe size={18} />
+            {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${tier.price.toLocaleString()}`}
           </button>
 
-          {/* 350+ Cryptos button SECOND — outline style */}
-          <button onClick={handleNowPayments} disabled={paying} style={{
+          {/* Direct USDT secondary — for users who already hold USDT on Polygon */}
+          <button onClick={function(){ setCryptoCheckout(true); }} style={{
             display:'flex',alignItems:'center',justifyContent:'center',gap:10,
             width:'100%', padding:15, borderRadius:12,
-            fontSize:15, fontWeight:700, cursor:paying?'wait':'pointer',
+            fontSize:15, fontWeight:700, cursor:'pointer',
             fontFamily:'inherit',
             background:'#fff', color:'var(--sap-text-muted)',
             border:'1.5px solid #e2e8f0',
@@ -109,8 +109,8 @@ export default function ActivateTier() {
             onMouseOver={function(e){ e.currentTarget.style.borderColor='var(--sap-accent)'; e.currentTarget.style.color='var(--sap-accent)'; }}
             onMouseOut={function(e){ e.currentTarget.style.borderColor='var(--sap-border)'; e.currentTarget.style.color='var(--sap-text-muted)'; }}
           >
-            <Globe size={17} />
-            {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${tier.price.toLocaleString()}`}
+            <Coins size={17} />
+            {"\u26A1"} Pay with Crypto (USDT / USDC)
           </button>
 
           <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>

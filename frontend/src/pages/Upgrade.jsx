@@ -125,16 +125,16 @@ export default function Upgrade() {
 
     return (
       <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-        <button onClick={function(){ openCryptoCheckout(tier); }}
-          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor:'pointer', fontFamily:'inherit', background:btnGrad, color:'#fff', boxShadow:btnShadow, transition:'all .2s' }}>
-          <Coins size={17} /> {t('upgrade.payWithCrypto')}
-        </button>
         <button onClick={function(){ nowPaymentsCheckout(tier); }} disabled={loading === tier + '_np'}
-          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:14, borderRadius:14, fontSize:14, fontWeight:700, border:'1.5px solid #e2e8f0', cursor: loading === tier + '_np' ? 'default' : 'pointer', fontFamily:'inherit', background:'#fff', color:'var(--sap-text-muted)', transition:'all .2s' }}
+          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor: loading === tier + '_np' ? 'default' : 'pointer', fontFamily:'inherit', background:btnGrad, color:'#fff', boxShadow:btnShadow, transition:'all .2s' }}>
+          <Globe size={17} />
+          {loading === tier + '_np' ? t('upgrade.loadingCheckout') : t('upgrade.payWith350', {price})}
+        </button>
+        <button onClick={function(){ openCryptoCheckout(tier); }}
+          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:14, borderRadius:14, fontSize:14, fontWeight:700, border:'1.5px solid #e2e8f0', cursor:'pointer', fontFamily:'inherit', background:'#fff', color:'var(--sap-text-muted)', transition:'all .2s' }}
           onMouseOver={function(e){e.currentTarget.style.borderColor='var(--sap-accent)';e.currentTarget.style.color='var(--sap-accent)'}}
           onMouseOut={function(e){e.currentTarget.style.borderColor='var(--sap-border)';e.currentTarget.style.color='var(--sap-text-muted)'}}>
-          <Globe size={16} />
-          {loading === tier + '_np' ? t('upgrade.loadingCheckout') : t('upgrade.payWith350', {price})}
+          <Coins size={16} /> {t('upgrade.payWithCrypto')}
         </button>
         <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)' }}>{t('upgrade.securePayment')}</div>
       </div>
