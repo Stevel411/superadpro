@@ -7406,6 +7406,48 @@ def admin_api_reset_2fa(
         db.rollback()
     logger.warning(f"ADMIN 2FA RESET: admin={user.username} target={target.username} target_id={target.id} was_enabled={was_enabled}")
     return {"success": True, "username": target.username, "was_enabled": was_enabled}
+@app.get("/admin/api/stuck-orders")
+def admin_api_stuck_orders(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List NOWPayments orders that are 'stuck' — created but never reached
+    'finished' status. Surfaces orders that may need manual recovery (e.g.
+    treasury received funds but our IPN handler failed and the user wasn't
+    activated). Used by the Admin → Health tab Recovery section.
+
+    Returns enough info to make a recovery decision without leaking secrets.
+    Ordered most-recent-first because operationally those are usually the
+    ones a human is hunting for.
+    """
+    _require_admin(user)
+    from .database import NowPaymentsOrder
+    from datetime import timedelta
+
+    cutoff = datetime.utcnow() - timedelta(minutes=10)  # ignore brand-new orders still settling
+    rows = db.query(NowPaymentsOrder).filter(
+        NowPaymentsOrder.status.notin_(["finished", "confirmed", "abandoned"]),
+        NowPaymentsOrder.created_at <= cutoff,
+    ).order_by(NowPaymentsOrder.id.desc()).limit(50).all()
+
+    out = []
+    for o in rows:
+        target = db.query(User).filter(User.id == o.user_id).first()
+        out.append({
+            "id": o.id,
+            "internal_order_id": f"SAP-{o.user_id}-{o.id}",
+            "user_id": o.user_id,
+            "username": target.username if target else None,
+            "product_type": o.product_type,
+            "product_key": o.product_key,
+            "price_usd": float(o.price_usd or 0),
+            "status": o.status,
+            "np_payment_id": o.np_payment_id,
+            "created_at": o.created_at.isoformat() if o.created_at else None,
+            "age_hours": round((datetime.utcnow() - o.created_at).total_seconds() / 3600, 1) if o.created_at else None,
+        })
+
+    return {"count": len(out), "orders": out}
 @app.get("/admin/api/user/{user_id}/grid-state")
 def admin_user_grid_state(
     user_id: int,

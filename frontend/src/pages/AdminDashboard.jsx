@@ -674,9 +674,21 @@ function CommissionsTab() {
 
 function HealthTab() {
   var [data, setData] = useState(null);
+  var [stuckOrders, setStuckOrders] = useState(null);
   var [fixing, setFixing] = useState('');
   var [fixMsg, setFixMsg] = useState('');
-  useEffect(function() { apiGet('/admin/api/health').then(setData).catch(function(){}); }, []);
+  var [recovering, setRecovering] = useState(0);
+  var [recoveryMsg, setRecoveryMsg] = useState('');
+
+  function loadStuckOrders() {
+    apiGet('/admin/api/stuck-orders').then(setStuckOrders).catch(function(){ setStuckOrders({orders:[],count:0}); });
+  }
+
+  useEffect(function() {
+    apiGet('/admin/api/health').then(setData).catch(function(){});
+    loadStuckOrders();
+  }, []);
+
   if (!data) return <Spin/>;
 
   function fixIssue(type) {
@@ -686,6 +698,24 @@ function HealthTab() {
       setFixing('');
       apiGet('/admin/api/health').then(setData);
     }).catch(function() { setFixing(''); });
+  }
+
+  function recoverOrder(orderId) {
+    if (!confirm('Recover order ' + orderId + '? This will verify with NOWPayments that the payment is genuinely complete, then re-run activation. Refuses if already finished.')) return;
+    setRecovering(orderId);
+    setRecoveryMsg('');
+    apiPost('/admin/api/nowpayments-order/' + orderId + '/recover', {}).then(function(r) {
+      setRecovering(0);
+      if (r.success) {
+        setRecoveryMsg('✓ Recovered order ' + orderId + ' — activated ' + (r.product_key || r.product_type) + ' for ' + (r.username || 'user ' + r.user_id));
+      } else {
+        setRecoveryMsg('✗ ' + (r.error || 'Unknown error'));
+      }
+      loadStuckOrders();
+    }).catch(function(e) {
+      setRecovering(0);
+      setRecoveryMsg('✗ Recovery failed: ' + (e.message || 'Network error'));
+    });
   }
 
   return (
@@ -735,6 +765,50 @@ function HealthTab() {
           })}
         </div>
       )}
+
+      {/* ── Stuck NOWPayments Orders / Recovery panel ── */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginTop:16}}>
+        <div style={{background:'var(--sap-indigo)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Stuck NOWPayments Orders {stuckOrders ? ('(' + stuckOrders.count + ')') : ''}</div>
+          <button onClick={loadStuckOrders} style={{padding:'6px 12px',borderRadius:6,border:'1px solid rgba(255,255,255,0.3)',background:'rgba(255,255,255,0.1)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+            ↻ Refresh
+          </button>
+        </div>
+        {recoveryMsg && (
+          <div style={{padding:'10px 20px',background:recoveryMsg.startsWith('✓')?'var(--sap-green-bg-mid)':'var(--sap-red-bg-soft)',borderBottom:'1px solid #f5f6f8',fontSize:12,fontWeight:700,color:recoveryMsg.startsWith('✓')?'var(--sap-green)':'var(--sap-red)'}}>
+            {recoveryMsg}
+          </div>
+        )}
+        {stuckOrders === null ? (
+          <div style={{padding:'20px',textAlign:'center',color:'var(--sap-text-faint)',fontSize:13}}>Loading…</div>
+        ) : stuckOrders.count === 0 ? (
+          <div style={{padding:'20px',textAlign:'center',color:'var(--sap-text-faint)',fontSize:13}}>No stuck orders. ✓</div>
+        ) : (
+          <>
+            <div style={{padding:'10px 20px',background:'var(--sap-bg-elevated)',borderBottom:'1px solid #f5f6f8',fontSize:11,color:'var(--sap-text-muted)'}}>
+              Click Recover to verify with NOWPayments and complete activation. Orders confirmed-paid on their side will be activated; abandoned/expired orders refused.
+            </div>
+            {stuckOrders.orders.map(function(o) {
+              return (
+                <div key={o.id} style={{padding:'14px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>
+                      {o.internal_order_id} — {o.username || ('user ' + o.user_id)}
+                    </div>
+                    <div style={{fontSize:12,color:'var(--sap-text-faint)',marginTop:2}}>
+                      {o.product_type}/{o.product_key} · ${o.price_usd.toFixed(2)} · status: {o.status} · {o.age_hours}h old
+                    </div>
+                  </div>
+                  <button onClick={function() { recoverOrder(o.id); }} disabled={recovering === o.id}
+                    style={{padding:'8px 16px',borderRadius:6,border:'none',background:recovering===o.id?'var(--sap-text-muted)':'var(--sap-accent)',color:'#fff',fontSize:13,fontWeight:700,cursor:recovering===o.id?'wait':'pointer',fontFamily:'inherit',flexShrink:0}}>
+                    {recovering === o.id ? 'Recovering…' : 'Recover'}
+                  </button>
+                </div>
+              );
+            })}
+          </>
+        )}
+      </div>
     </div>
   );
 }
