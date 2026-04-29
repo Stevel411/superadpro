@@ -513,7 +513,10 @@
     "createACampaign": "+ Crear una campaña",
     "buyACampaignTier": "Compra un Campaign Tier",
     "ctaPrompt": "¿Interesado? Visita el sitio del anunciante.",
-    "visitWebsite": "Visitar sitio web"
+    "visitWebsite": "Visitar sitio web",
+    "lockedTitle": "Watch-to-Earn está bloqueado",
+    "lockedDesc": "Watch-to-Earn se desbloquea cuando activas un Nivel de Campaña. Tu nivel determina cuántos vídeos ves al día y lo que ganas con cada uno.",
+    "lockedCta": "Ver Niveles de Campaña"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "URL de llamada a la acción",
     "ctaUrlHelp": "Opcional. Dónde van los espectadores cuando hacen clic en 'Visitar sitio web' después de ver.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Por favor ingresa una URL válida que comience con https://"
+    "errCtaUrl": "Por favor ingresa una URL válida que comience con https://",
+    "lockedTitle": "La creación de campañas está bloqueada",
+    "lockedDesc": "Activa un Nivel de Campaña para crear tus propias campañas de vídeo y llegar a la red Watch-to-Earn.",
+    "lockedCta": "Ver Niveles de Campaña"
   },
   "campaignAnalytics": {
     "title": "Analíticas de Campaña",

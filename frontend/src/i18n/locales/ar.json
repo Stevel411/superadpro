@@ -513,7 +513,10 @@
     "createACampaign": "+ إنشاء حملة",
     "buyACampaignTier": "اشتر مستوى حملة",
     "ctaPrompt": "مهتم؟ قم بزيارة موقع المعلن.",
-    "visitWebsite": "زيارة الموقع"
+    "visitWebsite": "زيارة الموقع",
+    "lockedTitle": "Watch-to-Earn is locked",
+    "lockedDesc": "Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.",
+    "lockedCta": "View Campaign Tiers"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "عنوان URL للدعوة",
     "ctaUrlHelp": "اختياري. حيث سينتقل المشاهدون عند النقر على \"زيارة الموقع\" بعد المشاهدة.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "يرجى إدخال عنوان URL صحيح يبدأ بـ https://"
+    "errCtaUrl": "يرجى إدخال عنوان URL صحيح يبدأ بـ https://",
+    "lockedTitle": "Campaign creation is locked",
+    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
+    "lockedCta": "View Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "تحليل الحملات",

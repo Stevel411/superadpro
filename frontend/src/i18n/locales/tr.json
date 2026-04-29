@@ -513,7 +513,10 @@
     "createACampaign": "+ Kampanya Oluştur",
     "buyACampaignTier": "Kampanya Seviyesi Satın Al",
     "ctaPrompt": "İlgilendiniz mi? Reklam verenin sitesini ziyaret edin.",
-    "visitWebsite": "Web Sitesini Ziyaret Et"
+    "visitWebsite": "Web Sitesini Ziyaret Et",
+    "lockedTitle": "Watch-to-Earn is locked",
+    "lockedDesc": "Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.",
+    "lockedCta": "View Campaign Tiers"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "Harekete Geçirici URL",
     "ctaUrlHelp": "İsteğe bağlı. İzleyicilerin 'Web Sitesini Ziyaret Et'e tıkladıktan sonra gittikleri yer.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Lütfen https:// ile başlayan geçerli bir URL girin"
+    "errCtaUrl": "Lütfen https:// ile başlayan geçerli bir URL girin",
+    "lockedTitle": "Campaign creation is locked",
+    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
+    "lockedCta": "View Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "Kampanya Analizi",

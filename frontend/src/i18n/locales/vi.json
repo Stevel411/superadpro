@@ -513,7 +513,10 @@
     "createACampaign": "+ Tạo chiến dịch",
     "buyACampaignTier": "Mua một Tier Chiến dịch",
     "ctaPrompt": "Có quan tâm? Hãy ghé thăm trang web của nhà quảng cáo.",
-    "visitWebsite": "Truy cập Trang Web"
+    "visitWebsite": "Truy cập Trang Web",
+    "lockedTitle": "Watch-to-Earn is locked",
+    "lockedDesc": "Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.",
+    "lockedCta": "View Campaign Tiers"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "URL Lời kêu gọi hành động",
     "ctaUrlHelp": "Tùy chọn. Nơi người xem được chuyển hướng khi nhấp 'Truy cập Website' sau khi xem xong.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Vui lòng nhập URL hợp lệ bắt đầu bằng https://"
+    "errCtaUrl": "Vui lòng nhập URL hợp lệ bắt đầu bằng https://",
+    "lockedTitle": "Campaign creation is locked",
+    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
+    "lockedCta": "View Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "Phân tích Chiến dịch",

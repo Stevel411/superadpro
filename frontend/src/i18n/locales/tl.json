@@ -513,7 +513,10 @@
     "createACampaign": "+ Lumikha ng kampanya",
     "buyACampaignTier": "Bumili ng Campaign Tier",
     "ctaPrompt": "Interesado? Bisitahin ang website ng advertiser.",
-    "visitWebsite": "Bisitahin ang Website"
+    "visitWebsite": "Bisitahin ang Website",
+    "lockedTitle": "Watch-to-Earn is locked",
+    "lockedDesc": "Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.",
+    "lockedCta": "View Campaign Tiers"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "Call-to-action URL",
     "ctaUrlHelp": "Opsyonal. Kung saan napupunta ang mga manonood kapag nag-click sila ng 'Bisitahin ang Website' pagkatapos manood.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Mangyaring magpasok ng valid na URL na nagsisimula sa https://"
+    "errCtaUrl": "Mangyaring magpasok ng valid na URL na nagsisimula sa https://",
+    "lockedTitle": "Campaign creation is locked",
+    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
+    "lockedCta": "View Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "Campaign Analytics",

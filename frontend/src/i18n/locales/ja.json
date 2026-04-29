@@ -513,7 +513,10 @@
     "createACampaign": "+ キャンペーンを作成",
     "buyACampaignTier": "キャンペーンティアを購入",
     "ctaPrompt": "興味がありますか？広告主のサイトをご覧ください。",
-    "visitWebsite": "ウェブサイトにアクセス"
+    "visitWebsite": "ウェブサイトにアクセス",
+    "lockedTitle": "Watch-to-Earnはロックされています",
+    "lockedDesc": "キャンペーン階層を有効にすると、Watch-to-Earnが解除されます。階層によって、毎日視聴する動画数と各動画から得られる収益が決まります。",
+    "lockedCta": "キャンペーン階層を見る"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "行動喚起URL",
     "ctaUrlHelp": "オプション。視聴者が視聴後に「ウェブサイトにアクセス」をクリックしたときの移動先。",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "https://で始まる有効なURLを入力してください"
+    "errCtaUrl": "https://で始まる有効なURLを入力してください",
+    "lockedTitle": "キャンペーン作成はロックされています",
+    "lockedDesc": "キャンペーン階層を有効にして、独自のビデオキャンペーンを作成し、Watch-to-Earnネットワークにリーチしましょう。",
+    "lockedCta": "キャンペーン階層を見る"
   },
   "campaignAnalytics": {
     "title": "キャンペーン分析",

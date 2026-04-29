@@ -513,7 +513,10 @@
     "createACampaign": "+ 创建活动",
     "buyACampaignTier": "购买活动等级",
     "ctaPrompt": "感兴趣？访问广告商的网站。",
-    "visitWebsite": "访问网站"
+    "visitWebsite": "访问网站",
+    "lockedTitle": "Watch-to-Earn 已锁定",
+    "lockedDesc": "激活活动等级即可解锁 Watch-to-Earn。您的等级决定您每天观看多少视频以及每个视频的收益。",
+    "lockedCta": "查看活动等级"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "行动号召URL",
     "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "请输入以 https:// 开头的有效网址"
+    "errCtaUrl": "请输入以 https:// 开头的有效网址",
+    "lockedTitle": "广告活动创建已锁定",
+    "lockedDesc": "激活活动等级以创建您自己的视频广告活动并接触 Watch-to-Earn 网络。",
+    "lockedCta": "查看活动等级"
   },
   "campaignAnalytics": {
     "title": "广告分析",

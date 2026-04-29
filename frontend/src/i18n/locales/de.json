@@ -513,7 +513,10 @@
     "createACampaign": "+ Kampagne erstellen",
     "buyACampaignTier": "Kaufe einen Campaign Tier",
     "ctaPrompt": "Interessiert? Besuchen Sie die Website des Werbetreibenden.",
-    "visitWebsite": "Website besuchen"
+    "visitWebsite": "Website besuchen",
+    "lockedTitle": "Watch-to-Earn ist gesperrt",
+    "lockedDesc": "Watch-to-Earn wird freigeschaltet, wenn du eine Kampagnen-Stufe aktivierst. Deine Stufe bestimmt, wie viele Videos du täglich anschaust und was du pro Video verdienst.",
+    "lockedCta": "Kampagnen-Stufen ansehen"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "Call-to-Action-URL",
     "ctaUrlHelp": "Optional. Hier werden Zuschauer hingeleitet, wenn sie nach dem Ansehen auf ‚Website besuchen' klicken.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Bitte geben Sie eine gültige URL ein, die mit https:// beginnt"
+    "errCtaUrl": "Bitte geben Sie eine gültige URL ein, die mit https:// beginnt",
+    "lockedTitle": "Kampagnen-Erstellung ist gesperrt",
+    "lockedDesc": "Aktiviere eine Kampagnen-Stufe, um eigene Video-Kampagnen zu erstellen und das Watch-to-Earn-Netzwerk zu erreichen.",
+    "lockedCta": "Kampagnen-Stufen ansehen"
   },
   "campaignAnalytics": {
     "title": "Kampagnenanalyse",

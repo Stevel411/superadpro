@@ -513,7 +513,10 @@
     "createACampaign": "+ किसी अभियान को बनाएं",
     "buyACampaignTier": "एक Campaign Tier खरीदें",
     "ctaPrompt": "रुचि है? विज्ञापनदाता की साइट पर जाएं।",
-    "visitWebsite": "वेबसाइट देखें"
+    "visitWebsite": "वेबसाइट देखें",
+    "lockedTitle": "Watch-to-Earn लॉक है",
+    "lockedDesc": "जब आप एक अभियान स्तर सक्रिय करते हैं, तो Watch-to-Earn अनलॉक हो जाता है। आपका स्तर तय करता है कि आप दैनिक कितने वीडियो देखते हैं और प्रत्येक से कितना कमाते हैं।",
+    "lockedCta": "अभियान स्तर देखें"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "कॉल-टू-एक्शन URL",
     "ctaUrlHelp": "वैकल्पिक। वह स्थान जहां दर्शक 'वेबसाइट पर जाएं' पर क्लिक करने के बाद जाते हैं।",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "कृपया https:// से शुरू होने वाला वैध URL दर्ज करें"
+    "errCtaUrl": "कृपया https:// से शुरू होने वाला वैध URL दर्ज करें",
+    "lockedTitle": "अभियान निर्माण लॉक है",
+    "lockedDesc": "अपने स्वयं के वीडियो अभियान बनाने और Watch-to-Earn नेटवर्क तक पहुंचने के लिए एक अभियान स्तर सक्रिय करें।",
+    "lockedCta": "अभियान स्तर देखें"
   },
   "campaignAnalytics": {
     "title": "कैम्पेन विश्लेषण",

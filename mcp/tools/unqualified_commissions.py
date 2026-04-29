@@ -32,8 +32,12 @@ def unqualified_commissions(db, hours: int = 24):
 
     issues: list[dict] = []
 
-    # Grid: direct_sponsor commissions where recipient has no active campaign at that tier
-    # (campaign qualifies if tier >= package_tier, is_completed=False OR grace_expires_at > now)
+    # Grid: direct_sponsor / uni_level commissions where recipient is not qualified.
+    #
+    # Qualification rule (per app/grid.py:_user_is_qualified):
+    #   admin OR active Grid at tier+ OR active VideoCampaign at tier+ (incl. grace period)
+    # Active Grid = exists Grid row at tier_level >= package_tier with is_complete = false.
+    # We mirror that rule here so audit doesn't false-flag legitimately-qualified members.
     grid_unqual = db.execute(text("""
         SELECT c.id, c.to_user_id, c.package_tier, c.amount_usdt
         FROM commissions c
@@ -42,6 +46,12 @@ def unqualified_commissions(db, hours: int = 24):
           AND c.commission_type IN ('direct_sponsor', 'uni_level')
           AND c.to_user_id IS NOT NULL
           AND u.is_admin = false
+          AND NOT EXISTS (
+            SELECT 1 FROM grids g
+            WHERE g.owner_id = c.to_user_id
+              AND g.package_tier >= c.package_tier
+              AND g.is_complete = false
+          )
           AND NOT EXISTS (
             SELECT 1 FROM video_campaigns vc
             WHERE vc.user_id = c.to_user_id

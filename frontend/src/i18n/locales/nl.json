@@ -513,7 +513,10 @@
     "createACampaign": "+ Campagne maken",
     "buyACampaignTier": "Een Campaign Tier kopen",
     "ctaPrompt": "Geïnteresseerd? Bezoek de website van de adverteerder.",
-    "visitWebsite": "Website bezoeken"
+    "visitWebsite": "Website bezoeken",
+    "lockedTitle": "Watch-to-Earn is locked",
+    "lockedDesc": "Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.",
+    "lockedCta": "View Campaign Tiers"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "Call-to-action URL",
     "ctaUrlHelp": "Optioneel. Waar kijkers terechtkomen wanneer ze op 'Website bezoeken' klikken na het kijken.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Voer een geldige URL in die begint met https://"
+    "errCtaUrl": "Voer een geldige URL in die begint met https://",
+    "lockedTitle": "Campaign creation is locked",
+    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
+    "lockedCta": "View Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "Campagne Analyse",

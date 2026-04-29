@@ -513,7 +513,10 @@
     "createACampaign": "+ Buat kampanye",
     "buyACampaignTier": "Beli Tier Kampanye",
     "ctaPrompt": "Tertarik? Kunjungi situs pengiklan.",
-    "visitWebsite": "Kunjungi Website"
+    "visitWebsite": "Kunjungi Website",
+    "lockedTitle": "Watch-to-Earn is locked",
+    "lockedDesc": "Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.",
+    "lockedCta": "View Campaign Tiers"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "URL Call-to-action",
     "ctaUrlHelp": "Opsional. Kemana penonton pergi saat mereka mengklik 'Kunjungi Website' setelah menonton.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Masukkan URL yang valid dimulai dengan https://"
+    "errCtaUrl": "Masukkan URL yang valid dimulai dengan https://",
+    "lockedTitle": "Campaign creation is locked",
+    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
+    "lockedCta": "View Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "Analisis Kampanye",

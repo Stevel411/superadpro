@@ -513,7 +513,10 @@
     "createACampaign": "+ Tengeneza kampeni",
     "buyACampaignTier": "Nunua Kampeni Tier",
     "ctaPrompt": "Uko na nia? Tembelea tovuti ya mwanapublikiti.",
-    "visitWebsite": "Tembelea Tovuti"
+    "visitWebsite": "Tembelea Tovuti",
+    "lockedTitle": "Watch-to-Earn is locked",
+    "lockedDesc": "Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.",
+    "lockedCta": "View Campaign Tiers"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "URL ya Wito wa Vitendo",
     "ctaUrlHelp": "Ya hiari. Mahali ambapo waangalizi huenda wanapokamatia 'Tembelea Tovuti' baada ya kuangalia.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Tafadhali ingiza URL halali inayoanza na https://"
+    "errCtaUrl": "Tafadhali ingiza URL halali inayoanza na https://",
+    "lockedTitle": "Campaign creation is locked",
+    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
+    "lockedCta": "View Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "Uchambuzi wa Kampeni",

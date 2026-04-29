@@ -513,7 +513,10 @@
     "createACampaign": "+ สร้างแคมเปญ",
     "buyACampaignTier": "ซื้อชั้นแคมเปญ",
     "ctaPrompt": "สนใจหรือ? เยี่ยมชมเว็บไซต์ของผู้โฆษณา",
-    "visitWebsite": "เยี่ยมชมเว็บไซต์"
+    "visitWebsite": "เยี่ยมชมเว็บไซต์",
+    "lockedTitle": "Watch-to-Earn is locked",
+    "lockedDesc": "Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.",
+    "lockedCta": "View Campaign Tiers"
   },
   "linkHub": {
     "title": "LinkHub",
@@ -1080,7 +1083,10 @@
     "ctaUrl": "URL Call-to-action",
     "ctaUrlHelp": "ไม่จำเป็น เป็นหน้าที่จะพาผู้ชมไปหลังจากที่พวกเขากด 'Visit Website' เสร็จสิ้น",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "กรุณากรอก URL ที่ถูกต้องโดยขึ้นต้นด้วย https://"
+    "errCtaUrl": "กรุณากรอก URL ที่ถูกต้องโดยขึ้นต้นด้วย https://",
+    "lockedTitle": "Campaign creation is locked",
+    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
+    "lockedCta": "View Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "วิเคราะห์แคมเปญ",
