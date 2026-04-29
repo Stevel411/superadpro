@@ -413,7 +413,7 @@ export default function Dashboard() {
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 28 }}>
         {[
           { color: 'var(--sap-green)',       val: d.membership_earned,            name: t('dashboard.membership') },
-          { color: 'var(--sap-amber-dark)',  val: d.boost_earned,                 name: t('dashboard.campaigns') },
+          { color: 'var(--sap-amber-dark)',  val: d.grid_earned || 0,             name: t('dashboard.campaigns') },
           { color: 'var(--sap-purple)',      val: d.creative_studio_earned || 0,  name: t('dashboard.creditNexus', { defaultValue: 'Credit Nexus' }) },
           { color: 'var(--sap-accent)',      val: d.course_earnings || 0,         name: t('dashboard.courseIncome', { defaultValue: 'Courses' }) },
         ].map((s, i) => (

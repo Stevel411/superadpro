@@ -520,6 +520,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     # ── Earnings breakdown by stream ──
     membership_earned = 0
     boost_earned = 0
+    grid_earned = 0
     gen_comms = db.query(Commission).filter(Commission.to_user_id == user.id).all()
     for c in gen_comms:
         ct = (c.commission_type or "").lower()
@@ -527,6 +528,11 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
             membership_earned += float(c.amount_usdt or 0)
         elif ct == "boost":
             boost_earned += float(c.amount_usdt or 0)
+        elif ct in ("direct_sponsor", "uni_level"):
+            # Campaign Tier (grid) commissions — direct 40% to sponsor + 6.25%
+            # uni-level chain. Excludes platform/company-absorb rows because
+            # those have to_user_id = NULL and don't appear in this query.
+            grid_earned += float(c.amount_usdt or 0)
 
     # ── Recent activity feed (last 8 from all streams) ──
     activity = []
@@ -590,6 +596,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "course_earnings":   float(user.course_earnings or 0),
         "membership_earned": membership_earned,
         "boost_earned":      boost_earned,
+        "grid_earned":       grid_earned,
         "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.commission_type.in_(["matrix_level", "matrix_completion"]), Commission.amount_usdt > 0).scalar() or 0),
         "personal_referrals":user.personal_referrals or 0,
         "direct_referrals_count": db.query(User).filter(User.sponsor_id == user.id).count(),
