@@ -69,6 +69,13 @@ def payment_integrity(db):
         })
 
     # 3. NOWPayments orders stuck (if table exists)
+    # Excludes status='abandoned' which is set by /cron/cleanup-abandoned-orders
+    # for orders that were created via 'click pay button, walk away' — the
+    # NOWPayments hosted invoice page has no cancel button, so users escape
+    # by closing the tab and we never get an IPN. The cleanup cron polls
+    # NOWPayments status before marking abandoned, so any order still in
+    # 'pending'/'waiting' here represents either a fresh order or a real
+    # missed-IPN payment that the cleanup flagged for manual review.
     stuck_np = 0
     try:
         stuck_np = db.execute(text("""

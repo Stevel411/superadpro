@@ -11071,6 +11071,133 @@ def cron_process_renewals_get(request: Request, secret: str = "", db: Session = 
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+# ── Cleanup abandoned NOWPayments orders ─────────────────────────
+# When a user clicks 'Pay with crypto', SuperAdPro creates a NowPaymentsOrder
+# row and redirects to the NOWPayments hosted invoice page. The hosted page
+# has no 'cancel' button — users escape by closing the tab. This leaves
+# orders sitting in 'pending'/'waiting' status forever, polluting the
+# stuck-orders monitor and confusing financial dashboards.
+#
+# This cron sweeps such orders periodically. For each candidate it polls
+# NOWPayments to confirm the actual current status before marking abandoned,
+# so we never accidentally clear a real payment we missed the IPN for.
+def _cleanup_abandoned_orders(db: Session) -> dict:
+    """Sweep stale NowPaymentsOrder rows and mark genuine abandons.
+    Returns a counts dict for logging/response."""
+    from .nowpayments_service import get_payment_status
+    from .database import NowPaymentsOrder
+    from datetime import datetime, timedelta
+    cutoff_24h = datetime.utcnow() - timedelta(hours=24)
+    cutoff_48h = datetime.utcnow() - timedelta(hours=48)
+    candidates = (
+        db.query(NowPaymentsOrder)
+        .filter(NowPaymentsOrder.status.in_(["pending", "waiting"]))
+        .filter(NowPaymentsOrder.created_at < cutoff_24h)
+        .order_by(NowPaymentsOrder.created_at.asc())
+        .limit(100)
+        .all()
+    )
+    counts = {
+        "candidates": len(candidates),
+        "marked_abandoned": 0,
+        "still_open_under_48h": 0,
+        "real_payments_flagged": 0,
+        "no_payment_id": 0,
+        "errors": 0,
+    }
+    for order in candidates:
+        try:
+            # Orders that never reached the "waiting" state on NP side never had a payment_id.
+            # Safe to abandon after 24h — there's nothing for NP to complete.
+            if not order.np_payment_id:
+                if order.created_at < cutoff_48h:
+                    order.status = "abandoned"
+                    order.updated_at = datetime.utcnow()
+                    counts["marked_abandoned"] += 1
+                    logger.info(f"[ABANDON] order {order.id} (no payment_id) marked abandoned, age={datetime.utcnow() - order.created_at}")
+                else:
+                    counts["no_payment_id"] += 1
+                continue
+            # Poll NOWPayments to confirm actual status before any state change
+            np_resp = get_payment_status(int(order.np_payment_id))
+            np_status = (np_resp or {}).get("payment_status") or (np_resp or {}).get("status")
+            if not np_status:
+                counts["errors"] += 1
+                logger.warning(f"[ABANDON] order {order.id} np_payment_id={order.np_payment_id}: NP status check returned no status, skipping. Resp: {np_resp}")
+                continue
+            np_status = str(np_status).lower()
+            # Real payment we missed — DO NOT abandon. Log loudly for manual review.
+            if np_status in ("confirming", "confirmed", "sending", "partially_paid", "finished"):
+                counts["real_payments_flagged"] += 1
+                logger.error(
+                    f"[ABANDON-MANUAL-REVIEW] order {order.id} user={order.user_id} "
+                    f"product={order.product_key} price=${order.price_usd} "
+                    f"np_payment_id={order.np_payment_id} np_status={np_status} — "
+                    f"DB shows {order.status} but NOWPayments shows {np_status}. IPN may have failed."
+                )
+                continue
+            # NP-side terminal failures — safe to mark abandoned
+            if np_status in ("failed", "expired", "refunded"):
+                order.status = "abandoned"
+                order.updated_at = datetime.utcnow()
+                counts["marked_abandoned"] += 1
+                logger.info(f"[ABANDON] order {order.id} marked abandoned, NP status={np_status}")
+                continue
+            # Still 'waiting' on NP side — only abandon if past 48h (well past NP's 24h TTL)
+            if np_status == "waiting":
+                if order.created_at < cutoff_48h:
+                    order.status = "abandoned"
+                    order.updated_at = datetime.utcnow()
+                    counts["marked_abandoned"] += 1
+                    logger.info(f"[ABANDON] order {order.id} marked abandoned, NP still waiting after 48h+")
+                else:
+                    counts["still_open_under_48h"] += 1
+                continue
+            # Unknown status — skip with warning
+            counts["errors"] += 1
+            logger.warning(f"[ABANDON] order {order.id} unexpected NP status: {np_status}, skipping")
+        except Exception as e:
+            counts["errors"] += 1
+            logger.error(f"[ABANDON] error processing order {order.id}: {e}")
+    db.commit()
+    return counts
+@app.post("/cron/cleanup-abandoned-orders")
+def cron_cleanup_abandoned_orders(request: Request, db: Session = Depends(get_db)):
+    """Auto-mark abandoned NOWPayments orders. Runs hourly via cron-job.org.
+    Protected by CRON_SECRET. Idempotent — safe to run as often as you like."""
+    from fastapi.responses import JSONResponse
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    auth_header = request.headers.get("Authorization", "")
+    provided = auth_header.replace("Bearer ", "").strip()
+    if not cron_secret or provided != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    started_at = datetime.utcnow()
+    try:
+        counts = _cleanup_abandoned_orders(db)
+        duration_ms = int((datetime.utcnow() - started_at).total_seconds() * 1000)
+        logger.info(f"[CRON] cleanup-abandoned-orders complete: {counts} duration={duration_ms}ms")
+        return {"success": True, "duration_ms": duration_ms, **counts}
+    except Exception as e:
+        logger.error(f"[CRON] cleanup-abandoned-orders FAILED: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+@app.get("/cron/cleanup-abandoned-orders")
+def cron_cleanup_abandoned_orders_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
+    """GET version — auth via ?secret= query param for cron-job.org and manual triggers."""
+    from fastapi.responses import JSONResponse
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    started_at = datetime.utcnow()
+    try:
+        counts = _cleanup_abandoned_orders(db)
+        duration_ms = int((datetime.utcnow() - started_at).total_seconds() * 1000)
+        logger.info(f"[CRON] cleanup-abandoned-orders (GET) complete: {counts} duration={duration_ms}ms")
+        return {"success": True, "duration_ms": duration_ms, **counts}
+    except Exception as e:
+        logger.error(f"[CRON] cleanup-abandoned-orders (GET) FAILED: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
 # ── Re-engagement notification (Layer 3) ─────────────────────────
 # Sends a single notification to lapsed members nudging them to come
 # back. Translation key handled client-side so each user sees the
