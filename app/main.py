@@ -6386,6 +6386,69 @@ def _nowpayments_activate_product(db, user, order, meta):
         result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier)
         if not result["success"]:
             logger.error(f"NOWPayments grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
+        else:
+            # ── Buyer notification: tier active + daily quota reminder ──
+            # The daily quota system already enforces watch requirements via
+            # WatchQuota.consecutive_missed; this notification simply tells
+            # the buyer the rule so they don't lose commissions by missing
+            # their daily watches. DAILY_VIDEO_QUOTA[tier] is the per-day
+            # video count required (1 per tier).
+            try:
+                daily_count = DAILY_VIDEO_QUOTA.get(package_tier, package_tier)
+                buyer_notif = Notification(
+                    user_id=user.id,
+                    type="commission",
+                    icon="⚡",
+                    title=f"Campaign Tier {package_tier} activated!",
+                    message=(f"Watch {daily_count} video{'s' if daily_count > 1 else ''} every day "
+                             f"to keep your commissions flowing. Miss too many days in a row "
+                             f"and commissions pause until you catch up."),
+                    link="/watch",
+                )
+                db.add(buyer_notif)
+                db.flush()
+            except Exception as e:
+                logger.warning(f"Failed to create buyer activation notification for user {user.id}: {e}")
+                db.rollback()
+            # ── Sponsor notifications: commission + grid placement ──
+            # process_tier_purchase returns grids_filled — list of dicts with
+            # owner_id (the upline whose grid the buyer landed in), level,
+            # position. Fire one notification per upline whose grid was
+            # filled. Direct sponsor (40% of price) gets a slightly different
+            # message than uni-level uplines (6.25% of price).
+            try:
+                grids_filled = result.get("grids_filled", [])
+                buyer_username = user.username or f"User {user.id}"
+                price = float(order.price_usd or 0)
+                direct_sponsor_id = user.sponsor_id
+                for entry in grids_filled:
+                    owner_id = entry.get("owner_id")
+                    if not owner_id:
+                        continue
+                    is_direct = (owner_id == direct_sponsor_id)
+                    if is_direct:
+                        commission = round(price * 0.40, 2)
+                        title = f"💰 New direct referral! +${commission}"
+                        message = (f"{buyer_username} just bought Tier {package_tier}. "
+                                   f"You earned ${commission} commission and a seat opened in your Tier {package_tier} grid.")
+                    else:
+                        commission = round(price * 0.0625, 2)
+                        title = f"💰 Downline activity! +${commission}"
+                        message = (f"{buyer_username} bought Tier {package_tier}. "
+                                   f"You earned ${commission} uni-level commission and a seat opened in your Tier {package_tier} grid.")
+                    sp_notif = Notification(
+                        user_id=owner_id,
+                        type="commission",
+                        icon="💰",
+                        title=title,
+                        message=message,
+                        link="/grid-visualiser",
+                    )
+                    db.add(sp_notif)
+                db.flush()
+            except Exception as e:
+                logger.warning(f"Failed to create sponsor notifications for tier purchase user {user.id}: {e}")
+                db.rollback()
 
     # ── Email Boost ──
     elif order.product_type == "email_boost":

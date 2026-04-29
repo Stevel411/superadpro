@@ -136,9 +136,11 @@ def create_invoice(
         product = PRODUCT_CATALOG[product_key]
         price_amount = float(product["price"])
         description = product["desc"]
+        product_type_for_redirect = product.get("type", "membership")
     elif custom_price is not None:
         price_amount = float(custom_price)
         description = custom_description or f"SuperAdPro Purchase: {product_key}"
+        product_type_for_redirect = "superscene" if product_key.startswith("superscene_") else "membership"
     else:
         return {"success": False, "error": f"Unknown product: {product_key}"}
 
@@ -151,8 +153,12 @@ def create_invoice(
     # IPN callback URL — NOWPayments will POST status updates here
     ipn_callback_url = f"{SITE_URL}/api/webhook/nowpayments"
 
-    # Success/cancel redirect URLs
-    success_url = f"{SITE_URL}/payment-success?source=nowpayments&order_id={order_id}"
+    # Success/cancel redirect URLs. type= is read by /payment-success page
+    # to render the right confirmation copy (Tier vs Membership vs Credit
+    # Pack vs Email Boost). Without it the page defaults to "Membership
+    # Activated" regardless of product, which previously caused user
+    # confusion after Campaign Tier purchases.
+    success_url = f"{SITE_URL}/payment-success?source=nowpayments&order_id={order_id}&type={product_type_for_redirect}"
     cancel_url = f"{SITE_URL}/payment-cancelled?source=nowpayments"
 
     payload = {
