@@ -6387,13 +6387,16 @@ def _nowpayments_activate_product(db, user, order, meta):
         if not result["success"]:
             logger.error(f"NOWPayments grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
         else:
-            # ── Buyer notification: tier active + daily quota reminder ──
-            # The daily quota system already enforces watch requirements via
-            # WatchQuota.consecutive_missed; this notification simply tells
-            # the buyer the rule so they don't lose commissions by missing
-            # their daily watches. DAILY_VIDEO_QUOTA[tier] is the per-day
-            # video count required (1 per tier).
+            # ── Notifications: best-effort, MUST NOT break the activation transaction ──
+            # process_tier_purchase calls db.commit() internally so commissions and
+            # grid placements are already persisted. Notifications below are pure
+            # add-on. Any exception is logged and swallowed — we explicitly DO NOT
+            # call db.rollback() because the IPN handler's outer transaction still
+            # needs to commit the order.status='finished' and Payment row that
+            # were added BEFORE this function was called.
             try:
+                from .database import Commission
+                # Buyer notification — tier active + daily quota reminder
                 daily_count = DAILY_VIDEO_QUOTA.get(package_tier, package_tier)
                 buyer_notif = Notification(
                     user_id=user.id,
@@ -6406,38 +6409,40 @@ def _nowpayments_activate_product(db, user, order, meta):
                     link="/watch",
                 )
                 db.add(buyer_notif)
-                db.flush()
-            except Exception as e:
-                logger.warning(f"Failed to create buyer activation notification for user {user.id}: {e}")
-                db.rollback()
-            # ── Sponsor notifications: commission + grid placement ──
-            # process_tier_purchase returns grids_filled — list of dicts with
-            # owner_id (the upline whose grid the buyer landed in), level,
-            # position. Fire one notification per upline whose grid was
-            # filled. Direct sponsor (40% of price) gets a slightly different
-            # message than uni-level uplines (6.25% of price).
-            try:
-                grids_filled = result.get("grids_filled", [])
+
+                # Sponsor notifications — read the ACTUAL Commission rows just created
+                # for this buyer at this tier. Only notify uplines whose commission
+                # was actually paid (to_user_id IS NOT NULL). Commissions where the
+                # 40% / 6.25% was company-absorbed (sponsor unqualified) intentionally
+                # do not generate notifications — telling someone "you earned $8"
+                # when they didn't would be a lie. Yesterday's session ate $9 of
+                # company absorb on this exact path because test1 had no active
+                # video campaign at Tier 1 — the qualification rule.
+                #
+                # Once the commission flow is changed (so tier purchase alone
+                # qualifies), this query will start finding paid commissions and
+                # firing notifications naturally.
+                paid_commissions = db.query(Commission).filter(
+                    Commission.from_user_id == user.id,
+                    Commission.package_tier == package_tier,
+                    Commission.to_user_id.isnot(None),
+                    Commission.commission_type.in_(["direct_sponsor", "uni_level"]),
+                ).order_by(Commission.id.desc()).limit(10).all()
+
                 buyer_username = user.username or f"User {user.id}"
-                price = float(order.price_usd or 0)
-                direct_sponsor_id = user.sponsor_id
-                for entry in grids_filled:
-                    owner_id = entry.get("owner_id")
-                    if not owner_id:
-                        continue
-                    is_direct = (owner_id == direct_sponsor_id)
+                for comm in paid_commissions:
+                    is_direct = (comm.commission_type == "direct_sponsor")
+                    amount = float(comm.amount_usdt or 0)
                     if is_direct:
-                        commission = round(price * 0.40, 2)
-                        title = f"💰 New direct referral! +${commission}"
+                        title = f"💰 New direct referral! +${amount:.2f}"
                         message = (f"{buyer_username} just bought Tier {package_tier}. "
-                                   f"You earned ${commission} commission and a seat opened in your Tier {package_tier} grid.")
+                                   f"You earned ${amount:.2f} commission and a seat opened in your Tier {package_tier} grid.")
                     else:
-                        commission = round(price * 0.0625, 2)
-                        title = f"💰 Downline activity! +${commission}"
+                        title = f"💰 Downline activity! +${amount:.2f}"
                         message = (f"{buyer_username} bought Tier {package_tier}. "
-                                   f"You earned ${commission} uni-level commission and a seat opened in your Tier {package_tier} grid.")
+                                   f"You earned ${amount:.2f} uni-level commission.")
                     sp_notif = Notification(
-                        user_id=owner_id,
+                        user_id=comm.to_user_id,
                         type="commission",
                         icon="💰",
                         title=title,
@@ -6445,10 +6450,15 @@ def _nowpayments_activate_product(db, user, order, meta):
                         link="/grid-visualiser",
                     )
                     db.add(sp_notif)
-                db.flush()
+                # No db.flush() / db.rollback() — let the outer IPN handler's
+                # commit() handle these alongside order.status and Payment row.
             except Exception as e:
-                logger.warning(f"Failed to create sponsor notifications for tier purchase user {user.id}: {e}")
-                db.rollback()
+                # Log only — DO NOT rollback. Notifications failing should not
+                # take down the activation transaction.
+                logger.warning(
+                    f"Failed to create activation notifications for user {user.id} "
+                    f"tier {package_tier}: {e}"
+                )
 
     # ── Email Boost ──
     elif order.product_type == "email_boost":
