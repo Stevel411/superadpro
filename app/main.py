@@ -7397,6 +7397,73 @@ def admin_api_reset_2fa(
         db.rollback()
     logger.warning(f"ADMIN 2FA RESET: admin={user.username} target={target.username} target_id={target.id} was_enabled={was_enabled}")
     return {"success": True, "username": target.username, "was_enabled": was_enabled}
+@app.get("/admin/api/user/{user_id}/grid-state")
+def admin_user_grid_state(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Diagnostic: dump all Grid + GridPosition rows for a user.
+
+    Used to diagnose 'I bought a tier but my grid is empty' scenarios where
+    the visualiser shows 0 but commissions paid. Returns ground-truth DB
+    state of the grid + positions tables for the user.
+    """
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    grids = db.query(Grid).filter(Grid.owner_id == user_id).all()
+    grid_data = []
+    for g in grids:
+        positions = db.query(GridPosition).filter(GridPosition.grid_id == g.id).all()
+        position_data = []
+        for p in positions:
+            member = db.query(User).filter(User.id == p.member_id).first()
+            position_data.append({
+                "id": p.id,
+                "member_id": p.member_id,
+                "member_username": member.username if member else None,
+                "grid_level": p.grid_level,
+                "position_num": p.position_num,
+                "is_overspill": bool(p.is_overspill),
+            })
+        grid_data.append({
+            "id": g.id,
+            "owner_id": g.owner_id,
+            "package_tier": g.package_tier,
+            "advance_number": g.advance_number,
+            "positions_filled": g.positions_filled,
+            "is_complete": bool(g.is_complete),
+            "revenue_total": float(g.revenue_total or 0),
+            "bonus_pool_accrued": float(g.bonus_pool_accrued or 0),
+            "positions": position_data,
+        })
+
+    # Also: any GridPositions where this user is a SEATED MEMBER (i.e. they
+    # were placed in someone else's grid as spillover)
+    seated_in = db.query(GridPosition).filter(GridPosition.member_id == user_id).all()
+    seated_data = []
+    for gp in seated_in:
+        grid = db.query(Grid).filter(Grid.id == gp.grid_id).first()
+        owner = db.query(User).filter(User.id == grid.owner_id).first() if grid else None
+        seated_data.append({
+            "grid_id": gp.grid_id,
+            "grid_owner_id": grid.owner_id if grid else None,
+            "grid_owner_username": owner.username if owner else None,
+            "grid_tier": grid.package_tier if grid else None,
+            "grid_level": gp.grid_level,
+            "position_num": gp.position_num,
+        })
+
+    return {
+        "user_id": target.id,
+        "username": target.username,
+        "sponsor_id": target.sponsor_id,
+        "owns_grids": grid_data,
+        "seated_in_grids": seated_data,
+    }
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
