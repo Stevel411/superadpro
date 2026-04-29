@@ -2258,6 +2258,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
 
     # Bonus pool
     bonus_accrued = float(grid_record.bonus_pool_accrued or 0) if grid_record else 0
+    from .database import GRID_COMPLETION_BONUS
     bonus_max = float(GRID_COMPLETION_BONUS.get(tier, 0))
 
     return JSONResponse({
