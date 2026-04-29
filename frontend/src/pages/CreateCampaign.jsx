@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
+import { useAuth } from '../hooks/useAuth';
 import { Video, Globe, BarChart3, Zap, ChevronRight } from 'lucide-react';
 
 export default function CreateCampaign() {
   var { t } = useTranslation();
+  var { user } = useAuth();
   var [title, setTitle] = useState('');
   var [videoUrl, setVideoUrl] = useState('');
   var [category, setCategory] = useState('business');
@@ -73,6 +75,32 @@ export default function CreateCampaign() {
 
   var inputStyle = { width:'100%', padding:'12px 16px', borderRadius:12, border:'1.5px solid #e2e8f0', fontSize:14, fontFamily:'inherit', outline:'none', background:'#f8fafc', boxSizing:'border-box', transition:'border-color 0.2s', color:'#0f172a' };
   var labelStyle = { display:'block', fontSize:12, fontWeight:700, color:'#475569', marginBottom:6, marginTop:18, textTransform:'uppercase', letterSpacing:0.5 };
+
+  // Tier-locked screen — Create Campaign requires an active Campaign Tier.
+  // Admins and existing tier holders bypass; everyone else gets a clean CTA
+  // straight to /campaign-tiers rather than seeing a form that fails on submit.
+  // Mirrors the pattern shipped on Watch.jsx in commit 1472d316.
+  if (user && !user.is_admin && !(user.highest_tier && user.highest_tier > 0)) return (
+    <AppLayout title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
+      <div style={{maxWidth:520,margin:'80px auto',textAlign:'center',padding:'48px 32px',background:'#fff',borderRadius:20,border:'1px solid #e2e8f0',boxShadow:'0 8px 32px rgba(0,0,0,0.06)'}}>
+        <div style={{fontSize:64,marginBottom:16,lineHeight:1}}>🔒</div>
+        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,marginBottom:12,color:'var(--sap-text-primary)'}}>
+          {t('createCampaign.lockedTitle', {defaultValue: 'Campaign creation is locked'})}
+        </h2>
+        <p style={{fontSize:15,color:'var(--sap-text-muted)',lineHeight:1.6,marginBottom:28,maxWidth:380,margin:'0 auto 28px'}}>
+          {t('createCampaign.lockedDesc', {defaultValue: 'Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.'})}
+        </p>
+        <Link to="/campaign-tiers" style={{
+          display:'inline-flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,
+          background:'linear-gradient(135deg,#0ea5e9,#0284c7)',color:'#fff',
+          fontWeight:800,fontSize:14,fontFamily:'Sora,sans-serif',
+          textDecoration:'none',boxShadow:'0 6px 20px rgba(14,165,233,0.4)',
+        }}>
+          {t('createCampaign.lockedCta', {defaultValue: 'View Campaign Tiers'})} →
+        </Link>
+      </div>
+    </AppLayout>
+  );
 
   return (
     <AppLayout title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>

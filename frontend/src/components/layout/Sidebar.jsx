@@ -44,7 +44,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet' },
       { label: t('nav.profitGrid'), shortLabel: t('navShort.profitGrid', { defaultValue: 'Grid' }), icon: Target, path: '/campaign-tiers' },
       { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch', tierLocked: true },
-      { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign' },
+      { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign', tierLocked: true },
       { label: t('nav.myCampaigns'), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Videos' }), icon: Film, path: '/video-library' },
       { label: t('nav.campaignAnalytics'), shortLabel: t('navShort.campaignAnalytics', { defaultValue: 'Stats' }), icon: BarChart3, path: '/campaign-analytics' },
       { label: t('nav.gridCalculator'), shortLabel: t('navShort.gridCalculator', { defaultValue: 'Calc' }), icon: Zap, path: '/grid-calculator' },
