@@ -43,7 +43,7 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.income', { defaultValue: 'Income' }), shortLabel: t('navShort.income', { defaultValue: 'Income' }), key: 'income', icon: DollarSign, items: [
       { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet' },
       { label: t('nav.profitGrid'), shortLabel: t('navShort.profitGrid', { defaultValue: 'Grid' }), icon: Target, path: '/campaign-tiers' },
-      { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch' },
+      { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch', tierLocked: true },
       { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign' },
       { label: t('nav.myCampaigns'), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Videos' }), icon: Film, path: '/video-library' },
       { label: t('nav.campaignAnalytics'), shortLabel: t('navShort.campaignAnalytics', { defaultValue: 'Stats' }), icon: BarChart3, path: '/campaign-analytics' },
@@ -418,15 +418,17 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                     {item.items.map(function(sub, j) {
                       var SubIcon = sub.icon;
                       var isPro = sub.pro && !(user && user.is_admin) && (user?.membership_tier || 'basic') !== 'pro';
+                      var isTierLocked = sub.tierLocked && !(user && user.is_admin) && !(user?.highest_tier && user.highest_tier > 0);
+                      var locked = isPro || isTierLocked;
                       var subActive = isActive(sub.path);
                       return (
                         <Link key={j} to={sub.path}
-                          data-tooltip={sub.label + (isPro ? ' 🔒' : '')}
+                          data-tooltip={sub.label + (locked ? ' 🔒' : '')}
                           className={'sb-item sb-item-collapsed' + (subActive ? ' sb-active' : '')}
                           style={{
                             display:'flex', flexDirection:'column', alignItems:'center', gap:4,
                             padding:'9px 2px', fontSize:9, fontWeight: subActive ? 700 : 600,
-                            color: subActive ? '#38bdf8' : (isPro ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.85)'),
+                            color: subActive ? '#38bdf8' : (locked ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.85)'),
                             textDecoration:'none', transition:'all .15s',
                             background: subActive ? 'rgba(56,189,248,0.12)' : 'transparent',
                             borderRadius: 10, margin: '1px 6px', textAlign:'center',
@@ -437,7 +439,7 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                           <span style={{lineHeight:1.1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'100%'}}>
                             {sub.shortLabel || sub.label}
                           </span>
-                          {isPro && <Lock style={{width:8,height:8,color:'rgba(255,255,255,0.35)',position:'absolute',top:4,right:4}}/>}
+                          {locked && <Lock style={{width:8,height:8,color:'rgba(255,255,255,0.35)',position:'absolute',top:4,right:4}}/>}
                         </Link>
                       );
                     })}
@@ -476,19 +478,21 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                       {item.items.map(function(sub, j) {
                         var SubIcon = sub.icon;
                         var isPro = sub.pro && !(user && user.is_admin) && (user?.membership_tier || 'basic') !== 'pro';
+                        var isTierLocked = sub.tierLocked && !(user && user.is_admin) && !(user?.highest_tier && user.highest_tier > 0);
+                        var locked = isPro || isTierLocked;
                         var subActive = isActive(sub.path);
                         return (
                           <Link key={j} to={sub.path} className={'sb-item' + (subActive ? ' sb-active' : '')} style={{
                             display:'flex', alignItems:'center', gap:10,
                             padding:'9px 16px 9px 24px', fontSize:13, fontWeight: subActive ? 700 : 600,
-                            color: subActive ? '#38bdf8' : isPro ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.9)',
+                            color: subActive ? '#38bdf8' : locked ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.9)',
                             textDecoration:'none', transition:'all .15s',
                             background: subActive ? 'rgba(56,189,248,0.08)' : 'transparent',
                             borderRadius: 8, margin: '1px 8px',
                           }}>
                             <SubIcon style={{width:15,height:15,flexShrink:0}}/>
                             <span style={{flex:1}}>{sub.label}</span>
-                            {isPro && <Lock style={{width:11,height:11,color:'rgba(255,255,255,0.2)',flexShrink:0}}/>}
+                            {locked && <Lock style={{width:11,height:11,color:'rgba(255,255,255,0.2)',flexShrink:0}}/>}
                           </Link>
                         );
                       })}

@@ -1981,6 +1981,9 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "wallet_address": user.wallet_address or "",
         "sending_wallet": getattr(user, "sending_wallet", "") or "",
         "member_id": getattr(user, "member_id", None),
+        # Highest active Campaign Tier (0 if none). Drives Watch-to-Earn access
+        # gate on the frontend so members without a tier see the lock UI.
+        "highest_tier": get_user_highest_tier(db, user.id),
     }
 @app.get("/api/notifications")
 def api_notifications(request: Request, db: Session = Depends(get_db)):
@@ -6934,6 +6937,8 @@ def record_watch(
     from datetime import date
     if not user or not user.is_active:
         return {"success": False, "error": "Not authorised"}
+    if get_user_highest_tier(db, user.id) <= 0:
+        return {"success": False, "error": "tier_required", "redirect": "/campaign-tiers"}
 
     today_str = str(date.today())
     quota     = get_or_create_quota(db, user)
@@ -18380,6 +18385,17 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
     """JSON watch-to-earn data — uses smart rotation from get_next_content()."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    # ── Tier gate (Apr 2026) ──
+    # Watch-to-Earn is a product unlocked by buying a Campaign Tier.
+    # Without an active tier there's no campaign in the system to earn from,
+    # so basic-only members can't access this endpoint. Admin users bypass
+    # via get_user_highest_tier returning 8 for is_admin=true.
+    if get_user_highest_tier(db, user.id) <= 0:
+        return JSONResponse({
+            "error": "tier_required",
+            "message": "Watch-to-Earn unlocks when you activate a Campaign Tier. Visit /campaign-tiers to get started.",
+            "redirect": "/campaign-tiers",
+        }, status_code=403)
     try:
         quota = get_or_create_quota(db, user)
         db.commit()
@@ -18641,6 +18657,8 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
     """Mark a video as watched, update quota, and return the next video via smart rotation."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if get_user_highest_tier(db, user.id) <= 0:
+        return JSONResponse({"error": "tier_required", "redirect": "/campaign-tiers"}, status_code=403)
     try:
         from datetime import date
         body = await request.json()
