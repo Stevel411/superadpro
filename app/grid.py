@@ -376,9 +376,21 @@ def _complete_grid(db: Session, grid: Grid):
 def _user_is_qualified(db: Session, user_id: int, package_tier: int) -> bool:
     """
     Check if a user is qualified to earn commissions at this tier.
-    Qualified means: has an active campaign at this tier OR ABOVE,
-    OR has a completed campaign within the 14-day grace period at this tier or above.
-    Admin/master affiliate always qualifies.
+
+    Qualified means ANY of:
+      - User is admin/master affiliate (qualifies for all tiers)
+      - User owns an active Grid at this tier or above (i.e. they have purchased
+        a Campaign Tier — purchase alone qualifies them, no campaign needed)
+      - User has an active video campaign at this tier or above (legacy path,
+        retained so existing qualified users don't lose their status)
+      - User has a completed campaign still in the 14-day grace period at this
+        tier or above (legacy grace-period path)
+
+    Updated 29 Apr 2026 — Steve confirmed product rule: tier purchase alone
+    triggers full Watch-to-Earn activation including commission qualification.
+    Members can earn from downline tier purchases the moment they buy their
+    own tier; creating a video campaign is a separate optional action that
+    lets THEM earn from watchers but isn't required to earn commissions.
     """
     # Master affiliate bypass — qualifies for all tiers
     user = db.query(User).filter(User.id == user_id).first()
@@ -387,7 +399,19 @@ def _user_is_qualified(db: Session, user_id: int, package_tier: int) -> bool:
 
     now = datetime.utcnow()
 
-    # Check for active (non-completed) campaign at this tier or above
+    # Primary path (Apr 2026): an active Grid at this tier or above means
+    # the user has paid for a Campaign Tier and is qualified to earn.
+    has_active_grid = db.query(Grid).filter(
+        Grid.owner_id == user_id,
+        Grid.package_tier >= package_tier,
+        Grid.is_complete == False,
+    ).first()
+    if has_active_grid:
+        return True
+
+    # Legacy path: active video campaign at this tier or above. Kept so users
+    # who qualified pre-Apr-2026 retain their status; harmless overlap with
+    # the Grid path above for users who have both.
     active = db.query(VideoCampaign).filter(
         VideoCampaign.user_id == user_id,
         VideoCampaign.campaign_tier >= package_tier,
@@ -397,7 +421,7 @@ def _user_is_qualified(db: Session, user_id: int, package_tier: int) -> bool:
     if active:
         return True
 
-    # Check for completed campaign still within grace period at this tier or above
+    # Legacy path: completed campaign still within grace period at this tier or above
     in_grace = db.query(VideoCampaign).filter(
         VideoCampaign.user_id == user_id,
         VideoCampaign.campaign_tier >= package_tier,
