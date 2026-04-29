@@ -8169,7 +8169,7 @@ async def admin_withdrawal_refund(
             type="withdrawal",
             title="Withdrawal refunded",
             message=f"Your ${amount:.2f} withdrawal could not be sent and has been refunded to your {wallet_type} balance. You can try again from the Wallet page.",
-            icon="money_bag",
+            icon="💰",
         ))
     except Exception as e:
         logger.warning(f"Refund notification failed: {e}")

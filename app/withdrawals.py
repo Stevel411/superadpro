@@ -303,7 +303,7 @@ def process_withdrawal(db, withdrawal_id):
                 type="withdrawal",
                 title="Withdrawal Processed",
                 message=f"${net_amount:.2f} USDT sent to your wallet. Tx: {result['tx_hash'][:16]}...",
-                icon="money_bag",
+                icon="💰",
             )
             db.add(notif)
             db.commit()
