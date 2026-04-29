@@ -2189,60 +2189,65 @@ def matrix_visualiser(request: Request):
 
 @app.get("/api/grid-visualiser")
 def api_grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db), tier: int = 1):
-    """Return spillover grid data for the current user at a given tier."""
+    """Return spillover grid data for the current user at a given tier.
+
+    Reads from the ACTUAL GridPosition table — that's where _spillover_fill in
+    grid.py writes seats when someone buys a tier. Previous version inferred
+    seats from sponsor-chain walks + Payment lookups for `grid_tier_{tier}`
+    rows, but that payment_type isn't what the IPN handler writes (it writes
+    `nowpayments_grid`), so seats appeared empty even though the grid was
+    populated. Fixed 29 Apr 2026.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # Recursively find all downline members
-    downline = []
-    queue = [user.id]
-    visited = {user.id}
-    depth_map = {user.id: 0}
-
-    while queue:
-        current_id = queue.pop(0)
-        children = db.query(User).filter(User.sponsor_id == current_id).all()
-        for child in children:
-            if child.id not in visited:
-                visited.add(child.id)
-                d = depth_map[current_id] + 1
-                depth_map[child.id] = d
-                # Check if this member has purchased this tier
-                has_tier = db.query(Payment).filter(
-                    Payment.from_user_id == child.id,
-                    Payment.payment_type == f"grid_tier_{tier}",
-                    Payment.status == "confirmed"
-                ).first() is not None
-                if has_tier:
-                    downline.append({
-                        "id": child.id,
-                        "username": child.username,
-                        "depth": d,
-                        "sponsor_id": child.sponsor_id,
-                    })
-                queue.append(child.id)
-
-    # Sort by depth then by id (join order)
-    downline.sort(key=lambda x: (x["depth"], x["id"]))
-
-    # Build the 8x8 grid (64 seats) from downline
-    grid_seats = []
-    for i, member in enumerate(downline[:64]):
-        grid_seats.append({
-            "position": i + 1,
-            "username": member["username"],
-            "depth": member["depth"],
-            "id": member["id"],
-            "member_id": "SAP-" + str(member["id"]).zfill(5),
-            "is_direct": member["sponsor_id"] == user.id,
-        })
-
-    # Get actual grid record
+    # Get the active grid record for this user at this tier
     grid_record = db.query(Grid).filter(
         Grid.owner_id == user.id,
         Grid.package_tier == tier,
         Grid.is_complete == False
     ).first()
+
+    grid_seats = []
+    if grid_record:
+        # Read the actual seats from GridPosition — these were written by
+        # _spillover_fill when downline members purchased the tier.
+        positions = db.query(GridPosition).filter(
+            GridPosition.grid_id == grid_record.id
+        ).order_by(GridPosition.grid_level.asc(), GridPosition.position_num.asc()).all()
+
+        for i, gp in enumerate(positions[:64]):
+            member = db.query(User).filter(User.id == gp.member_id).first()
+            if not member:
+                continue
+            grid_seats.append({
+                "position": i + 1,
+                "username": member.username,
+                "depth": gp.grid_level,
+                "id": member.id,
+                "member_id": "SAP-" + str(member.id).zfill(5),
+                "is_direct": (member.sponsor_id == user.id),
+            })
+
+    # Total downline (everyone in the sponsor chain who has a Grid at this tier)
+    # — separate from seats-in-this-grid, gives a sense of network size.
+    total_downline = 0
+    queue = [user.id]
+    visited_dl = {user.id}
+    while queue:
+        cid = queue.pop(0)
+        children = db.query(User).filter(User.sponsor_id == cid).all()
+        for child in children:
+            if child.id in visited_dl:
+                continue
+            visited_dl.add(child.id)
+            has_grid = db.query(Grid).filter(
+                Grid.owner_id == child.id,
+                Grid.package_tier == tier,
+            ).first()
+            if has_grid:
+                total_downline += 1
+            queue.append(child.id)
 
     # Completed advances
     completed = db.query(Grid).filter(
@@ -2263,7 +2268,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         "price": GRID_PACKAGES.get(tier, 0),
         "advance": grid_record.advance_number if grid_record else completed + 1,
         "completed_advances": completed,
-        "total_downline": len(downline),
+        "total_downline": total_downline,
         "bonus_accrued": bonus_accrued,
         "bonus_max": bonus_max,
     })
