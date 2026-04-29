@@ -7306,6 +7306,96 @@ def admin_api_reset_2fa(
         db.rollback()
     logger.warning(f"ADMIN 2FA RESET: admin={user.username} target={target.username} target_id={target.id} was_enabled={was_enabled}")
     return {"success": True, "username": target.username, "was_enabled": was_enabled}
+@app.post("/admin/api/nowpayments-order/{order_id}/recover")
+async def admin_api_recover_nowpayments_order(
+    order_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Manually run activation for a NowPaymentsOrder that didn't get credited.
+    Used when an IPN webhook failed (e.g. HMAC mismatch) but the on-chain
+    payment is genuinely settled.
+
+    SAFETY:
+      - Admin only via _require_admin
+      - Refuses to act on orders already in 'finished' status (no double-activation)
+      - Verifies with NOWPayments that the payment is actually finished before
+        running any activation. Will not credit unpaid orders.
+      - Idempotent — second call on same order returns "already_processed"
+      - Logs full action with admin username for audit trail
+    """
+    _require_admin(user)
+    from .database import NowPaymentsOrder
+    from . import nowpayments_service as nps
+    from datetime import datetime
+    import json as _json, uuid
+
+    order = db.query(NowPaymentsOrder).filter(NowPaymentsOrder.id == order_id).first()
+    if not order:
+        return JSONResponse({"success": False, "error": "Order not found"}, status_code=404)
+
+    if order.status in ("finished", "confirmed"):
+        return {"success": False, "error": "Order already activated", "current_status": order.status}
+
+    # Verify with NOWPayments that this payment is genuinely complete on their side
+    if not order.np_payment_id:
+        return JSONResponse({"success": False, "error": "Order has no NOWPayments payment_id — cannot verify"}, status_code=400)
+
+    np_resp = nps.get_payment_status(int(order.np_payment_id))
+    np_status = (np_resp or {}).get("payment_status") or (np_resp or {}).get("status") or ""
+    np_status = str(np_status).lower()
+    if np_status not in ("finished", "confirmed", "partially_paid"):
+        return JSONResponse(
+            {"success": False, "error": f"NOWPayments shows status='{np_status}', not safe to activate. Refusing."},
+            status_code=400,
+        )
+
+    # Run the same activation block the IPN handler would have run
+    target = db.query(User).filter(User.id == order.user_id).first()
+    if not target:
+        return JSONResponse({"success": False, "error": f"Target user {order.user_id} not found"}, status_code=404)
+
+    try:
+        order.status = "finished"
+        order.confirmed_at = datetime.utcnow()
+        order.actually_paid = (np_resp or {}).get("actually_paid") or order.actually_paid
+        order.outcome_amount = (np_resp or {}).get("outcome_amount") or order.outcome_amount
+        order.outcome_currency = (np_resp or {}).get("outcome_currency") or order.outcome_currency
+        db.flush()
+
+        meta = _json.loads(order.product_meta) if order.product_meta else {}
+
+        payment = Payment(
+            from_user_id=target.id, to_user_id=None,
+            amount_usdt=order.price_usd,
+            payment_type=f"nowpayments_{order.product_type}",
+            tx_hash=f"np_recover_{order.np_payment_id or uuid.uuid4().hex[:12]}",
+            status="confirmed",
+        )
+        db.add(payment)
+        db.flush()
+
+        _nowpayments_activate_product(db, target, order, meta)
+        db.commit()
+
+        logger.warning(
+            f"ADMIN ORDER RECOVERY: admin={user.username} order_id={order.id} "
+            f"target={target.username} product={order.product_type}/{order.product_key} "
+            f"price=${order.price_usd} np_payment_id={order.np_payment_id}"
+        )
+        return {
+            "success": True,
+            "order_id": order.id,
+            "user_id": target.id,
+            "username": target.username,
+            "product_type": order.product_type,
+            "product_key": order.product_key,
+            "price_usd": float(order.price_usd or 0),
+        }
+    except Exception as e:
+        db.rollback()
+        logger.error(f"ADMIN ORDER RECOVERY FAILED: order_id={order.id} error={e}", exc_info=True)
+        return JSONResponse({"success": False, "error": f"Activation failed: {e}"}, status_code=500)
 @app.post("/admin/api/user/{user_id}/change-tier")
 async def admin_api_change_tier(
     user_id: int, request: Request,

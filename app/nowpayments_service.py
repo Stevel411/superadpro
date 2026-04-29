@@ -214,9 +214,16 @@ def verify_ipn_signature(body_bytes: bytes, signature: str) -> bool:
     Process:
       1. Parse body as JSON
       2. Sort all keys alphabetically (recursively)
-      3. JSON.stringify with sorted keys (no spaces, no escaping slashes)
+      3. JSON.stringify with sorted keys, no spaces, preserving UTF-8 as-is
       4. HMAC-SHA512 with IPN secret
       5. Compare hex digest with x-nowpayments-sig header
+
+    CRITICAL: ensure_ascii=False is required. Python's default escapes any
+    non-ASCII character to \\uXXXX form, but NOWPayments' Node.js
+    JSON.stringify outputs raw UTF-8 bytes. Any em-dash (—), accented
+    character or emoji in the IPN body causes mismatched HMAC otherwise.
+    Found 29 Apr 2026 — 403'd every Campaign Tier (e.g. "Campaign Tier 1 — Starter")
+    and annual membership IPN since the Custody → non-custodial migration.
     """
     if not NOWPAYMENTS_IPN_SECRET:
         logger.error("NOWPAYMENTS_IPN_SECRET not configured")
@@ -229,8 +236,9 @@ def verify_ipn_signature(body_bytes: bytes, signature: str) -> bool:
     try:
         body_data = json.loads(body_bytes)
         sorted_data = _sort_object(body_data)
-        # Use separators without spaces to match JS JSON.stringify
-        sorted_json = json.dumps(sorted_data, separators=(",", ":"))
+        # ensure_ascii=False keeps UTF-8 as-is to match Node JSON.stringify
+        # separators removes the default ', ' and ': ' Python adds, also matching JS
+        sorted_json = json.dumps(sorted_data, separators=(",", ":"), ensure_ascii=False)
 
         computed = hmac.new(
             NOWPAYMENTS_IPN_SECRET.strip().encode("utf-8"),
@@ -238,7 +246,17 @@ def verify_ipn_signature(body_bytes: bytes, signature: str) -> bool:
             hashlib.sha512,
         ).hexdigest()
 
-        return hmac.compare_digest(computed, signature)
+        ok = hmac.compare_digest(computed, signature)
+        if not ok:
+            # Log just enough to diagnose without leaking the secret or full body
+            order_id = body_data.get("order_id", "?") if isinstance(body_data, dict) else "?"
+            logger.warning(
+                f"NOWPayments IPN HMAC mismatch order_id={order_id} "
+                f"body_len={len(body_bytes)} sorted_len={len(sorted_json)} "
+                f"computed_prefix={computed[:8]} received_prefix={signature[:8]} "
+                f"non_ascii_chars={sum(1 for c in sorted_json if ord(c) > 127)}"
+            )
+        return ok
     except Exception as e:
         logger.error(f"IPN signature verification failed: {e}")
         return False
