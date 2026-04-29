@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { apiPost } from '../../utils/api';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -15,6 +16,16 @@ export default function Register() {
     return m ? decodeURIComponent(m[1]) : '';
   }
   const refCode = params.get('ref') || params.get('r') || readCookie('ref') || '';
+
+  // Pre-launch gate: hit /api/registration-status and only show the form if open.
+  // null = still checking, true = open (or admin bypass), false = closed.
+  const [registrationOpen, setRegistrationOpen] = useState(null);
+  useEffect(function() {
+    fetch('/api/registration-status', { credentials: 'include' })
+      .then(function(r) { return r.json(); })
+      .then(function(d) { setRegistrationOpen(!!d.open); })
+      .catch(function() { setRegistrationOpen(false); }); // err on side of closed
+  }, []);
 
   const [form, setForm] = useState({ first_name: '', last_name: '', username: '', email: '', password: '', confirm_password: '', ref: refCode });
   const [error, setError] = useState('');
@@ -54,6 +65,57 @@ export default function Register() {
   const strength = !form.password ? 0 : form.password.length < 8 ? 1 : form.password.length < 12 ? 2 : /[^a-zA-Z0-9]/.test(form.password) ? 4 : 3;
   const strengthLabel = ['', t('auth.weak'), t('auth.fair'), t('auth.good'), t('auth.strong')];
   const strengthColor = ['', 'var(--sap-red-bright)', 'var(--sap-amber)', 'var(--sap-green-bright)', 'var(--sap-accent)'];
+
+  // ── Pre-launch gate ──
+  // Show "Launching soon" screen when public registration is closed.
+  // Loading state intentionally minimal (just a thin spinner area) so the
+  // page doesn't flash form-then-gate.
+  if (registrationOpen === null) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.bg} />
+        <div style={{ display:'flex', justifyContent:'center', alignItems:'center', minHeight:'80vh' }}>
+          <div style={{ width:32, height:32, border:'3px solid rgba(255,255,255,.2)', borderTopColor:'#fff', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
+          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+        </div>
+      </div>
+    );
+  }
+
+  if (registrationOpen === false) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.bg} />
+        <div style={styles.bgGlow1} />
+        <div className="reg-card" style={{ ...styles.card, textAlign:'center' }}>
+          <div style={styles.logoRow}>
+            <div style={styles.logoMark}>
+              <span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span>
+            </div>
+            <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
+          </div>
+          <div style={{ fontSize:64, marginTop:24, marginBottom:16, lineHeight:1 }}>🚀</div>
+          <h1 style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fff', marginBottom:16, letterSpacing:-.5 }}>
+            Launching soon
+          </h1>
+          <p style={{ fontSize:15, color:'rgba(255,255,255,.7)', lineHeight:1.6, marginBottom:32, maxWidth:380, marginLeft:'auto', marginRight:'auto' }}>
+            SuperAdPro is in final testing with a closed group. We'll be opening to the public very soon — keep an eye out.
+          </p>
+          <Link to="/login" style={{
+            display:'inline-flex', alignItems:'center', gap:8, padding:'14px 28px', borderRadius:12,
+            background:'linear-gradient(135deg,#0ea5e9,#0284c7)', color:'#fff',
+            fontWeight:800, fontSize:14, fontFamily:'Sora,sans-serif',
+            textDecoration:'none', boxShadow:'0 6px 20px rgba(14,165,233,0.4)',
+          }}>
+            Sign in →
+          </Link>
+          <div style={{ marginTop:20, fontSize:13, color:'rgba(255,255,255,.5)' }}>
+            Already have an account? Use the sign in link above.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.page}>

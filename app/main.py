@@ -2541,8 +2541,16 @@ def register_process(
     password:         str  = Form(),
     confirm_password: str  = Form(),
     ref:              str  = Form(""),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    # Pre-launch registration gate (see /api/register comment for context).
+    if not (current_user and getattr(current_user, "is_admin", False)):
+        return JSONResponse({
+            "error": "Registration is currently closed. We're launching soon.",
+            "registration_closed": True,
+        }, status_code=403)
+
     username   = sanitize(username)
     email      = sanitize(email)
     first_name = sanitize(first_name)
@@ -10748,14 +10756,40 @@ def admin_process_renewals(
     results = process_auto_renewals(db)
     return JSONResponse({"success": True, "results": results})
 
+@app.get("/api/registration-status")
+def api_registration_status(
+    current_user: User = Depends(get_current_user),
+):
+    """Tells the frontend whether new public registration is open.
+
+    Admins always see open=True (so they can create test accounts via the
+    register form). Everyone else gets the current public state. To re-open
+    registration globally, change `closed` to False below.
+    """
+    closed = True  # Pre-launch — flip to False at launch time
+    if current_user and getattr(current_user, "is_admin", False):
+        return {"open": True, "admin_bypass": True}
+    return {"open": not closed, "admin_bypass": False}
 @app.post("/api/register")
 @limiter.limit("5/minute")
 async def api_register(
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """JSON register endpoint for the modal."""
     from fastapi.responses import JSONResponse
+
+    # ── Pre-launch registration gate ──
+    # Public registration is closed until launch. Existing users (the 10
+    # testers + admin) can still log in normally via /login. Admins can
+    # bypass this gate to create new test accounts when needed.
+    # To re-open: remove this block (or wrap it in an env-var check).
+    if not (current_user and getattr(current_user, "is_admin", False)):
+        return JSONResponse({
+            "error": "Registration is currently closed. We're launching soon — check back later or follow our updates.",
+            "registration_closed": True,
+        }, status_code=403)
 
     try:
         body = await request.json()
