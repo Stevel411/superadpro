@@ -121,11 +121,15 @@ export default function Wallet() {
       </div>
 
       {/* Earnings Breakdown */}
-      {(d.superscene_earnings > 0 || d.grid_earnings > 0) && (
+      {(d.creative_studio_earnings > 0 || d.grid_earnings > 0 || d.level_earnings > 0) && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
-          <EarningsCard icon="👥" label={t("wallet.membership")} value={d.total_earned - (d.grid_earnings || 0) - (d.course_earnings || 0) - (d.superscene_earnings || 0)} color="var(--sap-green-bright)" />
-          <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={d.grid_earnings || 0} color="var(--sap-accent)" />
-          <EarningsCard icon="🎬" label={t("wallet.creditNexus", { defaultValue: 'Credit Nexus' })} value={d.superscene_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
+          {/* Income Grid combines direct-sponsor (grid_earnings) and uni-level
+              (level_earnings) — both are grid commissions from Campaign Tier
+              purchases by downline. Without this they were under-reported by
+              the uni-level amount. */}
+          <EarningsCard icon="👥" label={t("wallet.membership")} value={(d.total_earned || 0) - (d.grid_earnings || 0) - (d.level_earnings || 0) - (d.course_earnings || 0) - (d.creative_studio_earnings || 0)} color="var(--sap-green-bright)" />
+          <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={(d.grid_earnings || 0) + (d.level_earnings || 0)} color="var(--sap-accent)" />
+          <EarningsCard icon="🎬" label={t("wallet.creditNexus", { defaultValue: 'Credit Nexus' })} value={d.creative_studio_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
           <EarningsCard icon="📚" label={t("wallet.coursesMarket")} value={d.course_earnings || 0} color="var(--sap-amber)" />
         </div>
       )}
