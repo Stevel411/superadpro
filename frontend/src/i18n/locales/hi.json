@@ -973,7 +973,7 @@
     "earningsDisclaimer": "5 व्यक्तिगत रेफरल पर आधारित कमाई। आय आपके ग्रिड में रेफर किए गए व्यक्तियों की संख्या के अनुसार भिन्न हो सकती है।",
     "gridProgress": "ग्रिड प्रगति",
     "tierIsActive": "यह टियर सक्रिय है",
-    "activate": "सक्रिय करें {{name}} — ${price} USDT",
+    "activate": "सक्रिय करें {{name}} — ${{price}} USDT",
     "feat1Campaign": "1 कैम्पेन",
     "feat3Campaigns": "3 कैम्पेन",
     "feat5Campaigns": "5 कैम्पेन",

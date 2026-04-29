@@ -973,7 +973,7 @@
     "earningsDisclaimer": "Ganhos baseados em 5 indicações pessoais. A renda pode variar dependendo do número de indicações em sua grade.",
     "gridProgress": "Progresso da grade",
     "tierIsActive": "Este nível está ativo",
-    "activate": "Ativar {{name}} — ${price} USDT",
+    "activate": "Ativar {{name}} — ${{price}} USDT",
     "feat1Campaign": "1 campanha",
     "feat3Campaigns": "3 campanhas",
     "feat5Campaigns": "5 campanhas",

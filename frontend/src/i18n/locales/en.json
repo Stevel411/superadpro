@@ -974,7 +974,7 @@
     "earningsDisclaimer": "Earnings based on 5 personal referrals. Income may vary depending on the number of personals referred into your grid.",
     "gridProgress": "Grid progress",
     "tierIsActive": "This tier is active",
-    "activate": "Activate {{name}} — ${price} USDT",
+    "activate": "Activate {{name}} — ${{price}} USDT",
     "feat1Campaign": "1 campaign",
     "feat3Campaigns": "3 campaigns",
     "feat5Campaigns": "5 campaigns",

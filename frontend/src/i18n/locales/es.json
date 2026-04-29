@@ -973,7 +973,7 @@
     "earningsDisclaimer": "Ganancias basadas en 5 referidos personales. Los ingresos pueden variar según el número de referidos en tu cuadrícula.",
     "gridProgress": "Progreso de cuadrícula",
     "tierIsActive": "Este nivel está activo",
-    "activate": "Activar {{name}} — ${price} USDT",
+    "activate": "Activar {{name}} — ${{price}} USDT",
     "feat1Campaign": "1 campaña",
     "feat3Campaigns": "3 campañas",
     "feat5Campaigns": "5 campañas",
