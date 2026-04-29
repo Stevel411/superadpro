@@ -325,22 +325,29 @@ def _record_platform_fee(db: Session, price: float, package_tier: int, buyer_id:
 
 def _complete_grid(db: Session, grid: Grid):
     """
-    Mark complete. Check if owner has active campaign at this tier.
+    Mark complete. Check if owner is qualified at this tier.
     If yes: pay completion bonus from this grid's accrued pool.
     If no: roll bonus pool into next advance.
-    Then auto-spawn next advance.
-    
+    Then auto-spawn next advance + send completion notification.
+
     Note: If there was a rollover from a previous advance, it was already
     pre-loaded into this grid's bonus_pool_accrued when the grid was spawned.
+
+    Order fixed 29 Apr 2026 — qualification check now runs BEFORE the grid is
+    marked complete. Under the new tier-ownership-qualifies rule, the grid
+    being completed itself counts toward qualification (because the owner has
+    an active Grid at this tier — *this* grid). If we marked it complete first,
+    the qualification check would miss it and roll over even when it shouldn't.
     """
+    # Capture qualification BEFORE setting is_complete so the grid being
+    # completed still counts as the owner's active grid for qualification.
+    has_active_campaign = _owner_has_active_campaign(db, grid.owner_id, grid.package_tier)
+
     grid.is_complete  = True
     grid.completed_at = datetime.utcnow()
 
     owner = db.query(User).filter(User.id == grid.owner_id).first()
     bonus_amount = float(grid.bonus_pool_accrued or 0)
-
-    # Does owner have an active campaign at this tier?
-    has_active_campaign = _owner_has_active_campaign(db, grid.owner_id, grid.package_tier)
 
     if has_active_campaign and owner and bonus_amount > 0:
         # Pay the completion bonus
@@ -355,7 +362,7 @@ def _complete_grid(db: Session, grid: Grid):
                            f"Grid completion bonus tier {grid.package_tier} advance {grid.advance_number}",
                            grid.package_tier)
     else:
-        # No active campaign — roll bonus into next advance
+        # No active qualification — roll bonus into next advance
         grid.bonus_rolled_over = True
         grid.owner_paid = False
 
@@ -371,6 +378,45 @@ def _complete_grid(db: Session, grid: Grid):
         new_grid.bonus_pool_accrued = bonus_amount
     db.add(new_grid)
     db.flush()
+
+    # ── Completion notification ──
+    # Best-effort, never breaks the parent transaction (mirrors the pattern
+    # in main.py for tier-purchase notifications). Log on failure, no rollback.
+    try:
+        from .database import Notification
+        if owner and grid.bonus_paid:
+            # Bonus paid out — celebratory notification with amount
+            notif_title = f"🎉 Grid Tier {grid.package_tier} complete!"
+            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
+                         f"all 64 seats. ${bonus_amount:.2f} completion bonus added to your Campaign Wallet. "
+                         f"Advance {grid.advance_number + 1} is now open and ready for new spillover.")
+        elif owner and grid.bonus_rolled_over:
+            # Bonus rolled over because not qualified
+            notif_title = f"🔄 Grid Tier {grid.package_tier} complete — bonus rolled over"
+            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all 64 seats. "
+                         f"Because qualification wasn't active, the ${bonus_amount:.2f} bonus rolled into "
+                         f"advance {grid.advance_number + 1}. Get qualified to claim it on the next completion.")
+        else:
+            # Edge: no bonus accrued and no rollover — still notify completion
+            notif_title = f"🎉 Grid Tier {grid.package_tier} complete!"
+            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled. "
+                         f"Advance {grid.advance_number + 1} is now open.")
+        if owner:
+            db.add(Notification(
+                user_id=grid.owner_id,
+                type="commission",
+                icon="🎉" if grid.bonus_paid else "🔄",
+                title=notif_title,
+                message=notif_msg,
+                link="/grid-visualiser",
+            ))
+    except Exception as e:
+        # Notifications are best-effort. Do NOT rollback — the bonus payment
+        # and grid completion must persist regardless.
+        import logging
+        logging.getLogger(__name__).warning(
+            f"Grid completion notification failed for grid {grid.id} owner {grid.owner_id}: {e}"
+        )
 
 
 def _user_is_qualified(db: Session, user_id: int, package_tier: int) -> bool:
