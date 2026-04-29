@@ -5416,6 +5416,31 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     except Exception as exc:
         logger.warning(f"Welcome email failed for user {user.id} ({user.username}): {exc}")
 
+    # In-app notification for the buyer — confirms activation in the bell.
+    # Best-effort, won't break the activation transaction if it fails.
+    try:
+        from .database import Notification
+        if is_upgrade:
+            title = f"⚡ Upgraded to Pro!"
+            message = f"Welcome to Pro membership. All Pro tools are now unlocked. Next step: activate a Campaign Tier to start earning."
+        elif is_annual:
+            title = f"✅ {tier.title()} membership activated (annual)"
+            message = f"Annual {tier} membership active until {user.membership_expires_at.strftime('%d %b %Y')}. Next step: activate a Campaign Tier to start earning."
+        else:
+            title = f"✅ {tier.title()} membership activated"
+            message = f"Your {tier} membership is active until {user.membership_expires_at.strftime('%d %b %Y')}. Next step: activate a Campaign Tier to start earning."
+        notif = Notification(
+            user_id=user.id,
+            type="system",
+            icon="✅",
+            title=title,
+            message=message,
+            link="/campaign-tiers",
+        )
+        db.add(notif)
+    except Exception as exc:
+        logger.warning(f"Membership activation notification failed for user {user.id}: {exc}")
+
     db.commit()
     return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
 def _stripe_activate_membership(db, user, tier, subscription_id, billing="monthly"):
@@ -10966,13 +10991,18 @@ async def api_register(
             except Exception:
                 pass
 
-        # Create in-app notification for the new user
+        # Create in-app notification for the new user — surfaces actionable
+        # first step (activate Basic membership) plus link straight to /upgrade.
         try:
             notif = Notification(
                 user_id=user.id,
                 type="system",
+                icon="👋",
                 title="Welcome to SuperAdPro!",
-                message=f"Hey {first_name}, welcome aboard! Start by setting up your profile and exploring the dashboard.",
+                message=(f"Hey {first_name}, welcome aboard! Your account is set up. "
+                         f"To unlock the AI tools and start earning, activate a Basic membership. "
+                         f"Then activate a Campaign Tier to enable Watch-to-Earn and start earning commissions."),
+                link="/upgrade",
             )
             db.add(notif)
             db.commit()
