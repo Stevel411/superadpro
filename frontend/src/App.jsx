@@ -85,6 +85,9 @@ const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
 const MemeGenerator = React.lazy(() => import('./pages/free/MemeGenerator'));
 const QRCodeGen = React.lazy(() => import('./pages/free/QRCodeGen'));
 const BannerCreator = React.lazy(() => import('./pages/free/BannerCreator'));
+const QRCodeGenInternal = React.lazy(() => import('./pages/tools/QRCodeGenerator'));
+const MemeGeneratorInternal = React.lazy(() => import('./pages/tools/MemeGenerator'));
+const BannerCreatorInternal = React.lazy(() => import('./pages/tools/BannerCreator'));
 
 // Suspense wrapper for remaining lazy routes
 function Lazy({ children }) { return <Suspense fallback={<div style={{minHeight:'60vh'}}/>}>{children}</Suspense>; }
@@ -284,6 +287,10 @@ function AppRoutes() {
       <Route path="/free/meme-generator" element={<Lazy><MemeGenerator /></Lazy>} />
       <Route path="/free/qr-code-generator" element={<Lazy><QRCodeGen /></Lazy>} />
       <Route path="/free/banner-creator" element={<Lazy><BannerCreator /></Lazy>} />
+      {/* Internal tool versions — same engine, light theme + AppLayout, login required */}
+      <Route path="/tools/qr-code-generator" element={<ProtectedRoute><Lazy><QRCodeGenInternal /></Lazy></ProtectedRoute>} />
+      <Route path="/tools/meme-generator" element={<ProtectedRoute><Lazy><MemeGeneratorInternal /></Lazy></ProtectedRoute>} />
+      <Route path="/tools/banner-creator" element={<ProtectedRoute><Lazy><BannerCreatorInternal /></Lazy></ProtectedRoute>}/>
       <Route path="/join/:username" element={<SuperLinkPage />} />
 
       {/* Phase 4 member pages */}
