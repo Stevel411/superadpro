@@ -7391,6 +7391,59 @@ def admin_api_reset_2fa(
         db.rollback()
     logger.warning(f"ADMIN 2FA RESET: admin={user.username} target={target.username} target_id={target.id} was_enabled={was_enabled}")
     return {"success": True, "username": target.username, "was_enabled": was_enabled}
+@app.get("/admin/api/user/{user_id}/commission-state")
+def admin_user_commission_state(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Diagnostic: inspect a user's stored balance fields + recent Commission rows.
+
+    Returns the actual database state of the user's earnings columns and the
+    last 20 commissions where to_user_id == user_id. Useful for diagnosing
+    "balance shows wrong number" issues — separates 'commission row exists
+    but balance not incremented' (data bug) from 'balance is correct but
+    UI reads wrong field' (display bug).
+    """
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    from .database import Commission
+    recent = db.query(Commission).filter(
+        Commission.to_user_id == user_id
+    ).order_by(Commission.id.desc()).limit(20).all()
+
+    return {
+        "user_id": target.id,
+        "username": target.username,
+        "is_admin": bool(target.is_admin),
+        "is_active": bool(target.is_active),
+        "membership_tier": target.membership_tier,
+        "balance_fields": {
+            "balance": float(target.balance or 0),
+            "campaign_balance": float(target.campaign_balance or 0),
+            "total_earned": float(target.total_earned or 0),
+            "total_withdrawn": float(target.total_withdrawn or 0),
+            "grid_earnings": float(target.grid_earnings or 0),
+            "level_earnings": float(target.level_earnings or 0),
+            "upline_earnings": float(target.upline_earnings or 0),
+            "course_earnings": float(target.course_earnings or 0),
+            "marketplace_earnings": float(target.marketplace_earnings or 0),
+            "bonus_earnings": float(target.bonus_earnings or 0),
+        },
+        "recent_commissions": [{
+            "id": c.id,
+            "from_user_id": c.from_user_id,
+            "amount_usdt": float(c.amount_usdt or 0),
+            "commission_type": c.commission_type,
+            "package_tier": c.package_tier,
+            "status": c.status,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+            "notes": c.notes,
+        } for c in recent],
+    }
 @app.post("/admin/api/nowpayments-order/{order_id}/recover")
 async def admin_api_recover_nowpayments_order(
     order_id: int,
