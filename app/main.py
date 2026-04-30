@@ -533,10 +533,17 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     renewal = get_renewal_status(db, user.id)
 
     # ── Earnings breakdown by stream ──
+    # NOTE: filter status != 'reversed' so admin-reversed commissions
+    # (e.g. duplicate-activation cleanups) don't continue to show in
+    # the user's earnings tiles. Without this, the dashboard returns
+    # pre-reversal totals indefinitely.
     membership_earned = 0
     boost_earned = 0
     grid_earned = 0
-    gen_comms = db.query(Commission).filter(Commission.to_user_id == user.id).all()
+    gen_comms = db.query(Commission).filter(
+        Commission.to_user_id == user.id,
+        Commission.status != "reversed",
+    ).all()
     for c in gen_comms:
         ct = (c.commission_type or "").lower()
         if "membership" in ct and "company" not in ct:
@@ -564,9 +571,10 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
             "amount": float(c.amount),
             "date": c.created_at
         })
-    # General commissions
+    # General commissions (excludes reversed admin cleanups)
     gen_recent = db.query(Commission).filter(
         Commission.to_user_id == user.id,
+        Commission.status != "reversed",
         Commission.commission_type.notin_(["admin_adjustment", "admin_fix", "boost_platform_fee", "membership_company"])
     ).order_by(Commission.created_at.desc()).limit(5).all()
     for c in gen_recent:
@@ -3462,7 +3470,8 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
 
     # ── Recent commissions ──
     recent_grid = db.query(Commission).filter(
-        Commission.to_user_id == user.id
+        Commission.to_user_id == user.id,
+        Commission.status != "reversed",
     ).order_by(Commission.created_at.desc()).limit(15).all()
 
     recent_course = db.query(CourseCommission).filter(
@@ -5026,6 +5035,7 @@ def _build_copilot_context(user, db) -> dict:
         week_ago = datetime.utcnow() - timedelta(days=7)
         comms = db.query(Commission).filter(
             Commission.to_user_id == user.id,
+            Commission.status != "reversed",
             Commission.created_at >= week_ago
         ).all()
         recent_earned = sum(float(c.amount_usdt or 0) for c in comms)
@@ -7831,6 +7841,12 @@ def admin_diagnostic_recompute_wallet(
     target.level_earnings   = _D(str(unilevel_sum))
 
     db.commit()
+
+    # Invalidate dashboard cache so the user sees updated values immediately
+    try:
+        cache_delete(f"dash:{user_id}:main")
+    except Exception:
+        pass
 
     after = {
         "balance": float(target.balance or 0),
@@ -13362,8 +13378,10 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
     ).order_by(CourseCommission.created_at.desc()).limit(100).all()
 
     # ── 2. General commissions (Commission table) — membership, boost, grid ──
+    # Exclude reversed rows so admin-reversed duplicates don't show in flow.
     general_comms = db.query(Commission).filter(
         Commission.to_user_id == user.id,
+        Commission.status != "reversed",
         Commission.commission_type.notin_(["admin_adjustment", "admin_fix", "boost_platform_fee", "membership_company"])
     ).order_by(Commission.created_at.desc()).limit(200).all()
 
