@@ -6786,12 +6786,48 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
         if quota.today_date and quota.today_watched < quota.daily_required:
             quota.consecutive_missed = (quota.consecutive_missed or 0) + 1
             quota.streak_days = 0  # Reset streak on missed day
+            # Transition into paused state — notify user once so they know
+            # withdrawals are blocked and how to recover. Only fire when
+            # crossing the threshold (was False, now True), not every subsequent
+            # day. Best-effort, never breaks the quota update.
+            was_paused = bool(quota.commissions_paused)
             if quota.consecutive_missed >= GRACE_DAYS:
                 quota.commissions_paused = True
+                if not was_paused:
+                    try:
+                        from .database import Notification
+                        db.add(Notification(
+                            user_id=user_id,
+                            type="commission",
+                            icon="⚠️",
+                            title="Commissions paused — daily watch quota missed",
+                            message=(f"You missed your daily Watch-to-Earn quota for {GRACE_DAYS} days in a row, "
+                                     f"so commission withdrawals are paused until you catch up. "
+                                     f"Watch today's videos to reactivate."),
+                            link="/watch",
+                        ))
+                    except Exception as exc:
+                        logger.warning(f"commissions_paused notification failed for user {user_id}: {exc}")
         else:
+            # Catch-up path — notify if we're transitioning OUT of paused state
+            was_paused = bool(quota.commissions_paused)
             quota.consecutive_missed = 0
             quota.commissions_paused = False
             quota.last_quota_met = quota.today_date
+            if was_paused:
+                try:
+                    from .database import Notification
+                    db.add(Notification(
+                        user_id=user_id,
+                        type="commission",
+                        icon="✅",
+                        title="Commissions reactivated",
+                        message=("You caught up on Watch-to-Earn — withdrawals are unblocked. "
+                                 "Keep watching daily to maintain your streak."),
+                        link="/wallet",
+                    ))
+                except Exception as exc:
+                    logger.warning(f"commissions_resumed notification failed for user {user_id}: {exc}")
             # Increment streak if yesterday's quota was met
             if quota.today_date and quota.today_watched >= quota.daily_required:
                 quota.streak_days = (quota.streak_days or 0) + 1

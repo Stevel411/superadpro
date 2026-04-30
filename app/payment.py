@@ -593,6 +593,22 @@ def process_auto_renewals(db: Session) -> dict:
             if user.balance < MEMBERSHIP_FEE and not user.low_balance_warned:
                 user.low_balance_warned = True
                 results["warned"].append(user.id)
+                # Notify the user — best-effort, won't break the renewal cron
+                try:
+                    from .database import Notification
+                    db.add(Notification(
+                        user_id=user.id,
+                        type="system",
+                        icon="⏰",
+                        title="Membership renewal in 3 days — top up your balance",
+                        message=(f"Your membership renews on {renewal.next_renewal_date.strftime('%d %b')}. "
+                                 f"Your wallet balance is below ${MEMBERSHIP_FEE:.0f} — top up or your "
+                                 f"membership will enter a 5-day grace period."),
+                        link="/wallet",
+                    ))
+                except Exception as exc:
+                    import logging
+                    logging.getLogger(__name__).warning(f"Renewal warning notification failed for user {user.id}: {exc}")
 
         # ── Renewal due ─────────────────────────────────────────
         if now >= renewal.next_renewal_date and not renewal.in_grace_period:
@@ -629,6 +645,21 @@ def process_auto_renewals(db: Session) -> dict:
                 renewal.in_grace_period    = True
                 renewal.grace_period_start = now
                 results["grace_extended"].append(user.id)
+                try:
+                    from .database import Notification
+                    db.add(Notification(
+                        user_id=user.id,
+                        type="system",
+                        icon="⚠️",
+                        title="Membership in grace period — 5 days to renew",
+                        message=(f"Your membership renewal failed (insufficient wallet balance). "
+                                 f"You have 5 days to top up before your account becomes inactive. "
+                                 f"Active membership is required for commissions and withdrawals."),
+                        link="/wallet",
+                    ))
+                except Exception as exc:
+                    import logging
+                    logging.getLogger(__name__).warning(f"Grace period notification failed for user {user.id}: {exc}")
 
         # ── Grace period expired (5 days) ───────────────────────
         elif renewal.in_grace_period and renewal.grace_period_start:
@@ -637,6 +668,20 @@ def process_auto_renewals(db: Session) -> dict:
                 user.is_active          = False
                 renewal.in_grace_period = False
                 results["lapsed"].append(user.id)
+                try:
+                    from .database import Notification
+                    db.add(Notification(
+                        user_id=user.id,
+                        type="system",
+                        icon="🔒",
+                        title="Membership lapsed",
+                        message=("Your membership has lapsed because the grace period ended without renewal. "
+                                 "Reactivate any time on /upgrade — your existing data is preserved."),
+                        link="/upgrade",
+                    ))
+                except Exception as exc:
+                    import logging
+                    logging.getLogger(__name__).warning(f"Lapse notification failed for user {user.id}: {exc}")
 
     db.commit()
     return results

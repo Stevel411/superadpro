@@ -124,7 +124,7 @@ export default function ActivateTier() {
           <CryptoCheckout
             productKey={'grid_' + n}
             productLabel={tier.name + ' Campaign — $' + tier.price.toLocaleString()}
-            onSuccess={function(){ setCryptoCheckout(false); window.location.href='/app/campaign-tiers'; }}
+            onSuccess={function(){ setCryptoCheckout(false); window.location.href='/campaign-tiers'; }}
             onCancel={function(){ setCryptoCheckout(false); }}
           />
         )}
