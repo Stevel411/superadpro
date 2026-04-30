@@ -36,9 +36,9 @@ import {
 
 export function getFreeTools(t) {
   return [
-    { id: 'banner', icon: Image,  name: t('tools.free.banner.name', { defaultValue: 'Banner Creator' }),  desc: t('tools.free.banner.desc', { defaultValue: 'AI-generated banners and profile images for social platforms.' }), to: '/free/banner-creator' },
-    { id: 'meme',   icon: Smile,  name: t('tools.free.meme.name', { defaultValue: 'Meme Generator' }),     desc: t('tools.free.meme.desc', { defaultValue: 'Quick template-based memes and viral images.' }),                  to: '/free/meme-generator' },
-    { id: 'qr',     icon: QrCode, name: t('tools.free.qr.name', { defaultValue: 'QR Generator' }),         desc: t('tools.free.qr.desc', { defaultValue: 'Custom QR codes for any link. Trackable.' }),                          to: '/free/qr-code-generator' },
+    { id: 'banner', icon: Image,  name: t('tools.free.banner.name', { defaultValue: 'Banner Creator' }),  desc: t('tools.free.banner.desc', { defaultValue: 'AI-generated banners and profile images for social platforms.' }), to: '/tools/banner-creator' },
+    { id: 'meme',   icon: Smile,  name: t('tools.free.meme.name', { defaultValue: 'Meme Generator' }),     desc: t('tools.free.meme.desc', { defaultValue: 'Quick template-based memes and viral images.' }),                  to: '/tools/meme-generator' },
+    { id: 'qr',     icon: QrCode, name: t('tools.free.qr.name', { defaultValue: 'QR Generator' }),         desc: t('tools.free.qr.desc', { defaultValue: 'Custom QR codes for any link. Trackable.' }),                          to: '/tools/qr-code-generator' },
   ];
 }
 
