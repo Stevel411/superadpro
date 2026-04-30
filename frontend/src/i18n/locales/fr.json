@@ -1176,7 +1176,16 @@
     "adCopy": "Texte Publicitaire",
     "nicheFinder": "Chercheur de Niches",
     "qrCode": "Code QR",
-    "aiSalesChat": "Chat Commercial IA"
+    "aiSalesChat": "Chat Commercial IA",
+    "tab": {
+      "posts": "Créez des publications qui captent l'attention, adaptées à chaque plateforme.",
+      "scripts": "Écrivez des scripts captivants pour tout format vidéo.",
+      "emails": "Rédigez séquences email et templates à fort taux de conversion.",
+      "ads": "Créez des accroches, copy et CTA publicitaires percutants.",
+      "niche": "Recherchez des niches rentables avec insights audience et stratégies de monétisation.",
+      "qr": "Générez des codes QR pour vos liens de parrainage et landing pages.",
+      "salesAgent": "Votre assistant IA ventes pour pitches, objections et closing."
+    }
   },
   "creativeStudio": {
     "title": "Studio Créatif",
@@ -1279,7 +1288,38 @@
     "reimagineFailed": "Réimagination échouée",
     "uploadFailed": "Téléchargement échoué",
     "preview": "Aperçu",
-    "cost": "Coût :"
+    "cost": "Coût :",
+    "ratio": {
+      "landscape": "Paysage",
+      "portrait": "Portrait",
+      "square": "Carré",
+      "classic": "Classique"
+    },
+    "cam": {
+      "zoomIn": "Zoom Avant",
+      "zoomOut": "Zoom Arrière",
+      "panLeft": "Pano Gauche",
+      "panRight": "Pano Droite",
+      "tiltUp": "Inclin. Haut",
+      "tiltDown": "Inclin. Bas",
+      "orbit": "Orbite",
+      "dollyIn": "Dolly In",
+      "tracking": "Tracking",
+      "craneUp": "Grue Haut",
+      "static": "Statique",
+      "handheld": "Caméra à Main"
+    },
+    "tab": {
+      "videoClips": "Clips Vidéo",
+      "fullVideo": "Vidéo Complète",
+      "images": "Images",
+      "reimagine": "Réimaginer",
+      "music": "Musique",
+      "voiceover": "Voix-Off",
+      "lipSync": "Sync Labial",
+      "gallery": "Galerie",
+      "credits": "Crédits"
+    }
   },
   "socialShare": {
     "title": "Partage Social",
@@ -2334,7 +2374,19 @@
     "describeBody": "Décrivez ce que vous voulez — l'IA gère tout.",
     "downloadMp4Btn": "⬇ Télécharger MP4",
     "createAnotherBtn": "✕ Créer un autre",
-    "beSpecificLabel": "✦ Soyez précis pour de meilleurs résultats"
+    "beSpecificLabel": "✦ Soyez précis pour de meilleurs résultats",
+    "vibe": {
+      "professional": "Professionnel",
+      "professionalDesc": "Propre, soigné, prêt pour business",
+      "energetic": "Énergique",
+      "energeticDesc": "Rythmé, dynamique, haute énergie",
+      "cinematic": "Cinématique",
+      "cinematicDesc": "Dramatique, filmique, narratif",
+      "minimal": "Minimaliste",
+      "minimalDesc": "Simple, épuré, sobre",
+      "playful": "Joueur",
+      "playfulDesc": "Fun, coloré, léger"
+    }
   },
   "superDeck": {
     "addSlide": "Ajouter une diapositive",
@@ -4364,7 +4416,17 @@
     "chooseTemplate": "Choisissez un modèle",
     "yourMemeText": "Votre texte de mème",
     "textColour": "Couleur du texte",
-    "pageTitle": "Générateur de Mèmes"
+    "pageTitle": "Générateur de Mèmes",
+    "font": {
+      "classic": "Police de mème classique",
+      "bold": "Gras et propre",
+      "fun": "Fun et joueur",
+      "elegant": "Serif élégant",
+      "wide": "Large et lisible",
+      "modern": "Humaniste moderne",
+      "typewriter": "Machine à écrire monospace",
+      "compact": "Compact et net"
+    }
   },
   "bannerTool": {
     "background": "Arrière-plan",

@@ -1176,7 +1176,16 @@
     "adCopy": "广告文案",
     "nicheFinder": "利基发现",
     "qrCode": "二维码",
-    "aiSalesChat": "AI 销售聊天"
+    "aiSalesChat": "AI 销售聊天",
+    "tab": {
+      "posts": "Create scroll-stopping posts tailored to each platform.",
+      "scripts": "Write compelling scripts for any video format.",
+      "emails": "Write high-converting email sequences and swipes.",
+      "ads": "Create compelling ad headlines, copy, and CTAs.",
+      "niche": "Research profitable niches with audience insights and monetisation strategies.",
+      "qr": "Generate QR codes for your referral links and landing pages.",
+      "salesAgent": "Your AI sales assistant for pitches, objections, and closing."
+    }
   },
   "creativeStudio": {
     "title": "创意工作室",
@@ -1279,7 +1288,38 @@
     "reimagineFailed": "重新构想失败",
     "uploadFailed": "上传失败",
     "preview": "预览",
-    "cost": "费用："
+    "cost": "费用：",
+    "ratio": {
+      "landscape": "Landscape",
+      "portrait": "Portrait",
+      "square": "Square",
+      "classic": "Classic"
+    },
+    "cam": {
+      "zoomIn": "Zoom In",
+      "zoomOut": "Zoom Out",
+      "panLeft": "Pan Left",
+      "panRight": "Pan Right",
+      "tiltUp": "Tilt Up",
+      "tiltDown": "Tilt Down",
+      "orbit": "Orbit",
+      "dollyIn": "Dolly In",
+      "tracking": "Tracking",
+      "craneUp": "Crane Up",
+      "static": "Static",
+      "handheld": "Handheld"
+    },
+    "tab": {
+      "videoClips": "Video Clips",
+      "fullVideo": "Full Video",
+      "images": "Images",
+      "reimagine": "Reimagine",
+      "music": "Music",
+      "voiceover": "Voiceover",
+      "lipSync": "Lip Sync",
+      "gallery": "Gallery",
+      "credits": "Credits"
+    }
   },
   "socialShare": {
     "title": "社交分享",
@@ -2322,7 +2362,19 @@
     "describeBody": "描述您想要的 — AI处理一切。",
     "downloadMp4Btn": "⬇ 下载MP4",
     "createAnotherBtn": "✕ 创建另一个",
-    "beSpecificLabel": "✦ 越具体，效果越好"
+    "beSpecificLabel": "✦ 越具体，效果越好",
+    "vibe": {
+      "professional": "Professional",
+      "professionalDesc": "Clean, polished, business-ready",
+      "energetic": "Energetic",
+      "energeticDesc": "Fast-paced, dynamic, high-energy",
+      "cinematic": "Cinematic",
+      "cinematicDesc": "Dramatic, filmic, storytelling",
+      "minimal": "Minimal",
+      "minimalDesc": "Simple, clean, understated",
+      "playful": "Playful",
+      "playfulDesc": "Fun, colourful, lighthearted"
+    }
   },
   "superDeck": {
     "addSlide": "添加幻灯片",
@@ -4356,7 +4408,17 @@
     "chooseTemplate": "Choose a template",
     "yourMemeText": "Your meme text",
     "textColour": "Text colour",
-    "pageTitle": "Meme Generator"
+    "pageTitle": "Meme Generator",
+    "font": {
+      "classic": "Classic meme font",
+      "bold": "Bold and clean",
+      "fun": "Fun and playful",
+      "elegant": "Elegant serif",
+      "wide": "Wide and readable",
+      "modern": "Modern humanist",
+      "typewriter": "Typewriter monospace",
+      "compact": "Compact and sharp"
+    }
   },
   "bannerTool": {
     "background": "Background",

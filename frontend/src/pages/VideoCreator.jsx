@@ -4,13 +4,15 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiPost, apiGet } from '../utils/api';
 import { Film, Sparkles, Download, Clock, CheckCircle, AlertCircle, Loader2, RefreshCw, Upload, X, Mic, ImagePlus, ChevronDown, Layers, Timer, HelpCircle, Monitor } from 'lucide-react';
 
-var STYLES = [
-  { value: 'professional', label: 'Professional', desc: 'Clean, polished, business-ready', color: 'var(--sap-indigo)' },
-  { value: 'energetic', label: 'Energetic', desc: 'Fast-paced, dynamic, high-energy', color: '#f97316' },
-  { value: 'cinematic', label: 'Cinematic', desc: 'Dramatic, filmic, storytelling', color: 'var(--sap-accent)' },
-  { value: 'minimal', label: 'Minimal', desc: 'Simple, clean, understated', color: 'var(--sap-text-muted)' },
-  { value: 'playful', label: 'Playful', desc: 'Fun, colourful, lighthearted', color: 'var(--sap-pink)' },
-];
+function getStyles(t) {
+  return [
+    { value: 'professional', label: t('videoCreator.vibe.professional'), desc: t('videoCreator.vibe.professionalDesc'), color: 'var(--sap-indigo)' },
+    { value: 'energetic', label: t('videoCreator.vibe.energetic'), desc: t('videoCreator.vibe.energeticDesc'), color: '#f97316' },
+    { value: 'cinematic', label: t('videoCreator.vibe.cinematic'), desc: t('videoCreator.vibe.cinematicDesc'), color: 'var(--sap-accent)' },
+    { value: 'minimal', label: t('videoCreator.vibe.minimal'), desc: t('videoCreator.vibe.minimalDesc'), color: 'var(--sap-text-muted)' },
+    { value: 'playful', label: t('videoCreator.vibe.playful'), desc: t('videoCreator.vibe.playfulDesc'), color: 'var(--sap-pink)' },
+  ];
+}
 
 var DURATIONS = [
   { value: 30, label: '30 seconds', desc: '~4 scenes, ~4 credits', color: 'var(--sap-accent)' },
@@ -183,6 +185,7 @@ export default function VideoCreator() {
 export function VideoCreatorContent() {
 
   var { t } = useTranslation();
+  var STYLES = getStyles(t);
   var [prompt, setPrompt] = useState('');
   var [style, setStyle] = useState('professional');
   var [duration, setDuration] = useState(60);

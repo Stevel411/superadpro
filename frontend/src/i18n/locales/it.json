@@ -1176,7 +1176,16 @@
     "adCopy": "Testo Pubblicitario",
     "nicheFinder": "Trova Nicchie",
     "qrCode": "Codice QR",
-    "aiSalesChat": "Chat Vendite IA"
+    "aiSalesChat": "Chat Vendite IA",
+    "tab": {
+      "posts": "Crea post che fermano lo scroll, su misura per ogni piattaforma.",
+      "scripts": "Scrivi script avvincenti per qualsiasi formato video.",
+      "emails": "Scrivi sequenze email e swipe ad alta conversione.",
+      "ads": "Crea headline, copy e CTA pubblicitari accattivanti.",
+      "niche": "Ricerca nicchie redditizie con insights di audience e strategie di monetizzazione.",
+      "qr": "Genera codici QR per i tuoi link di referral e landing page.",
+      "salesAgent": "Il tuo assistente IA per pitch, obiezioni e chiusura."
+    }
   },
   "creativeStudio": {
     "title": "Studio Creativo",
@@ -1279,7 +1288,38 @@
     "reimagineFailed": "Reimmaginazione fallita",
     "uploadFailed": "Caricamento fallito",
     "preview": "Anteprima",
-    "cost": "Costo:"
+    "cost": "Costo:",
+    "ratio": {
+      "landscape": "Orizzontale",
+      "portrait": "Verticale",
+      "square": "Quadrato",
+      "classic": "Classico"
+    },
+    "cam": {
+      "zoomIn": "Zoom Avanti",
+      "zoomOut": "Zoom Indietro",
+      "panLeft": "Pan Sinistra",
+      "panRight": "Pan Destra",
+      "tiltUp": "Inclina Su",
+      "tiltDown": "Inclina Giù",
+      "orbit": "Orbita",
+      "dollyIn": "Dolly In",
+      "tracking": "Tracking",
+      "craneUp": "Crane Su",
+      "static": "Statica",
+      "handheld": "A Mano"
+    },
+    "tab": {
+      "videoClips": "Clip Video",
+      "fullVideo": "Video Completo",
+      "images": "Immagini",
+      "reimagine": "Reinterpreta",
+      "music": "Musica",
+      "voiceover": "Voiceover",
+      "lipSync": "Sync Labiale",
+      "gallery": "Galleria",
+      "credits": "Crediti"
+    }
   },
   "socialShare": {
     "title": "Condivisione Social",
@@ -2334,7 +2374,19 @@
     "describeBody": "Descrivi — l'AI fa il resto.",
     "downloadMp4Btn": "⬇ Scarica MP4",
     "createAnotherBtn": "✕ Crea un altro",
-    "beSpecificLabel": "✦ Sii specifico per risultati migliori"
+    "beSpecificLabel": "✦ Sii specifico per risultati migliori",
+    "vibe": {
+      "professional": "Professionale",
+      "professionalDesc": "Pulito, lucidato, pronto per business",
+      "energetic": "Energico",
+      "energeticDesc": "Veloce, dinamico, alta energia",
+      "cinematic": "Cinematografico",
+      "cinematicDesc": "Drammatico, filmico, narrativo",
+      "minimal": "Minimale",
+      "minimalDesc": "Semplice, pulito, discreto",
+      "playful": "Giocoso",
+      "playfulDesc": "Divertente, colorato, spensierato"
+    }
   },
   "superDeck": {
     "addSlide": "Aggiungi diapositiva",
@@ -4364,7 +4416,17 @@
     "chooseTemplate": "Scegli un modello",
     "yourMemeText": "Il tuo testo del meme",
     "textColour": "Colore testo",
-    "pageTitle": "Generatore di Meme"
+    "pageTitle": "Generatore di Meme",
+    "font": {
+      "classic": "Font classico per meme",
+      "bold": "Grassetto e pulito",
+      "fun": "Divertente e giocoso",
+      "elegant": "Serif elegante",
+      "wide": "Largo e leggibile",
+      "modern": "Umanista moderno",
+      "typewriter": "Macchina da scrivere monospace",
+      "compact": "Compatto e nitido"
+    }
   },
   "bannerTool": {
     "background": "Sfondo",

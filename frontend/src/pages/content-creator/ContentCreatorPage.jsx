@@ -26,18 +26,21 @@ const TONES = ["Professional", "Casual", "Funny", "Bold", "Inspirational"];
 const COUNTS = [1, 3, 5, 10];
 const VIDEO_FORMATS = ["Short-form (30-60s)", "Long-form (2-5 min)", "YouTube Intro", "Ad Script (15-30s)", "Tutorial"];
 
-const TOOL_CONFIG = {
-  social:        { title: "Social Post Generator",   desc: "Create scroll-stopping posts tailored to each platform.", showPlatform: true, showTone: true, showCount: true, placeholder: "What product, service, or opportunity are you promoting?" },
-  video_scripts: { title: "Video Script Generator",  desc: "Write compelling scripts for any video format.", showTone: true, showFormat: true, placeholder: "What is the video about? What message do you want to deliver?" },
-  email:         { title: "Email Copy Generator",     desc: "Write high-converting email sequences and swipes.", showTone: true, showCount: true, placeholder: "What product or opportunity are you emailing about?" },
-  ad_copy:       { title: "Ad Copy Generator",        desc: "Create compelling ad headlines, copy, and CTAs.", showTone: true, showCount: true, placeholder: "What are you advertising? Who is your target audience?" },
-  niche:         { title: "Niche Finder",             desc: "Research profitable niches with audience insights and monetisation strategies.", placeholder: "Enter a niche, topic, or industry to analyse..." },
-  qr:            { title: "QR Code Generator",        desc: "Generate QR codes for your referral links and landing pages.", isQR: true, placeholder: "Enter the URL for your QR code..." },
-  chat:          { title: "AI Sales Chat",            desc: "Your AI sales assistant for pitches, objections, and closing.", isChat: true },
-};
+function getToolConfig(t) {
+  return {
+    social:        { title: "Social Post Generator",   desc: t('contentCreator.tab.posts'), showPlatform: true, showTone: true, showCount: true, placeholder: "What product, service, or opportunity are you promoting?" },
+    video_scripts: { title: "Video Script Generator",  desc: t('contentCreator.tab.scripts'), showTone: true, showFormat: true, placeholder: "What is the video about? What message do you want to deliver?" },
+    email:         { title: "Email Copy Generator",     desc: t('contentCreator.tab.emails'), showTone: true, showCount: true, placeholder: "What product or opportunity are you emailing about?" },
+    ad_copy:       { title: "Ad Copy Generator",        desc: t('contentCreator.tab.ads'), showTone: true, showCount: true, placeholder: "What are you advertising? Who is your target audience?" },
+    niche:         { title: "Niche Finder",             desc: t('contentCreator.tab.niche'), placeholder: "Enter a niche, topic, or industry to analyse..." },
+    qr:            { title: "QR Code Generator",        desc: t('contentCreator.tab.qr'), isQR: true, placeholder: "Enter the URL for your QR code..." },
+    chat:          { title: "AI Sales Chat",            desc: t('contentCreator.tab.salesAgent'), isChat: true },
+  };
+}
 
 export default function ContentCreatorPage() {
   const { t } = useTranslation();
+  const TOOL_CONFIG = getToolConfig(t);
   const [tool, setTool] = useState("social");
   const [prompt, setPrompt] = useState("");
   const [platform, setPlatform] = useState("Facebook");

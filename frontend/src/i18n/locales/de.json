@@ -1176,7 +1176,16 @@
     "adCopy": "Werbetext",
     "nicheFinder": "Nischenfinder",
     "qrCode": "QR-Code",
-    "aiSalesChat": "KI-Verkaufschat"
+    "aiSalesChat": "KI-Verkaufschat",
+    "tab": {
+      "posts": "Erstelle scroll-stoppende Posts für jede Plattform.",
+      "scripts": "Schreibe überzeugende Skripte für jedes Videoformat.",
+      "emails": "Schreibe konvertierungsstarke E-Mail-Sequenzen und Vorlagen.",
+      "ads": "Erstelle überzeugende Anzeigen-Headlines, Texte und CTAs.",
+      "niche": "Recherchiere profitable Nischen mit Audience-Insights und Monetarisierungsstrategien.",
+      "qr": "Generiere QR-Codes für deine Empfehlungslinks und Landing Pages.",
+      "salesAgent": "Dein KI-Vertriebsassistent für Pitches, Einwände und Abschluss."
+    }
   },
   "creativeStudio": {
     "title": "Kreativstudio",
@@ -1279,7 +1288,38 @@
     "reimagineFailed": "Neugestaltung fehlgeschlagen",
     "uploadFailed": "Hochladen fehlgeschlagen",
     "preview": "Vorschau",
-    "cost": "Kosten:"
+    "cost": "Kosten:",
+    "ratio": {
+      "landscape": "Querformat",
+      "portrait": "Hochformat",
+      "square": "Quadrat",
+      "classic": "Klassisch"
+    },
+    "cam": {
+      "zoomIn": "Heranzoomen",
+      "zoomOut": "Herauszoomen",
+      "panLeft": "Schwenk Links",
+      "panRight": "Schwenk Rechts",
+      "tiltUp": "Neigung Oben",
+      "tiltDown": "Neigung Unten",
+      "orbit": "Orbit",
+      "dollyIn": "Dolly In",
+      "tracking": "Tracking",
+      "craneUp": "Kran nach oben",
+      "static": "Statisch",
+      "handheld": "Handgeführt"
+    },
+    "tab": {
+      "videoClips": "Video-Clips",
+      "fullVideo": "Komplett-Video",
+      "images": "Bilder",
+      "reimagine": "Neuinterpretieren",
+      "music": "Musik",
+      "voiceover": "Voiceover",
+      "lipSync": "Lippensynchron",
+      "gallery": "Galerie",
+      "credits": "Credits"
+    }
   },
   "socialShare": {
     "title": "Social Teilen",
@@ -2334,7 +2374,19 @@
     "describeBody": "Beschreiben Sie, was Sie möchten — KI erledigt alles.",
     "downloadMp4Btn": "⬇ MP4 herunterladen",
     "createAnotherBtn": "✕ Weiteres erstellen",
-    "beSpecificLabel": "✦ Sei spezifisch für beste Ergebnisse"
+    "beSpecificLabel": "✦ Sei spezifisch für beste Ergebnisse",
+    "vibe": {
+      "professional": "Professionell",
+      "professionalDesc": "Sauber, poliert, geschäftstauglich",
+      "energetic": "Energisch",
+      "energeticDesc": "Schnell, dynamisch, energiegeladen",
+      "cinematic": "Cinematisch",
+      "cinematicDesc": "Dramatisch, filmisch, erzählerisch",
+      "minimal": "Minimal",
+      "minimalDesc": "Einfach, sauber, zurückhaltend",
+      "playful": "Verspielt",
+      "playfulDesc": "Lustig, bunt, locker"
+    }
   },
   "superDeck": {
     "addSlide": "Folie hinzufügen",
@@ -4364,7 +4416,17 @@
     "chooseTemplate": "Wähle eine Vorlage",
     "yourMemeText": "Dein Meme-Text",
     "textColour": "Textfarbe",
-    "pageTitle": "Meme-Generator"
+    "pageTitle": "Meme-Generator",
+    "font": {
+      "classic": "Klassische Meme-Schrift",
+      "bold": "Fett und sauber",
+      "fun": "Spaßig und verspielt",
+      "elegant": "Eleganter Serif",
+      "wide": "Breit und lesbar",
+      "modern": "Moderner Humanist",
+      "typewriter": "Schreibmaschine monospace",
+      "compact": "Kompakt und scharf"
+    }
   },
   "bannerTool": {
     "background": "Hintergrund",

@@ -19,27 +19,31 @@ const MODELS = [
   { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K + audio",       badge: "4K",       cost: 16, color: "var(--sap-amber)", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
 ];
 
-const RATIOS = [
-  { key: "16:9", label: "Landscape" },
-  { key: "9:16", label: "Portrait" },
-  { key: "1:1",  label: "Square" },
-  { key: "4:3",  label: "Classic" },
-];
+function getRatios(t) {
+  return [
+    { key: "16:9", label: t('creativeStudio.ratio.landscape') },
+    { key: "9:16", label: t('creativeStudio.ratio.portrait') },
+    { key: "1:1",  label: t('creativeStudio.ratio.square') },
+    { key: "4:3",  label: t('creativeStudio.ratio.classic') },
+  ];
+}
 
-const CAMERA_MOTIONS = [
-  { key: "zoom-in",   label: "Zoom In",   icon: "⊕", prompt: "slow cinematic zoom in" },
-  { key: "zoom-out",  label: "Zoom Out",  icon: "⊖", prompt: "slow zoom out revealing the full scene" },
-  { key: "pan-left",  label: "Pan Left",  icon: "←", prompt: "smooth camera pan to the left" },
-  { key: "pan-right", label: "Pan Right", icon: "→", prompt: "smooth camera pan to the right" },
-  { key: "tilt-up",   label: "Tilt Up",   icon: "↑", prompt: "gentle camera tilt upward" },
-  { key: "tilt-down", label: "Tilt Down", icon: "↓", prompt: "gentle camera tilt downward" },
-  { key: "orbit",     label: "Orbit",     icon: "◎", prompt: "slow orbital camera movement around subject" },
-  { key: "dolly-in",  label: "Dolly In",  icon: "⟼", prompt: "steady dolly push toward subject" },
-  { key: "tracking",  label: "Tracking",  icon: "⟿", prompt: "smooth tracking shot following motion" },
-  { key: "crane-up",  label: "Crane Up",  icon: "⤴", prompt: "dramatic crane shot rising upward" },
-  { key: "static",    label: "Static",    icon: "▪", prompt: "static camera, subtle ambient motion only" },
-  { key: "handheld",  label: "Handheld",  icon: "≋", prompt: "slight handheld camera shake, natural feel" },
-];
+function getCameraMotions(t) {
+  return [
+    { key: "zoom-in",   label: t('creativeStudio.cam.zoomIn'),   icon: "⊕", prompt: "slow cinematic zoom in" },
+    { key: "zoom-out",  label: t('creativeStudio.cam.zoomOut'),  icon: "⊖", prompt: "slow zoom out revealing the full scene" },
+    { key: "pan-left",  label: t('creativeStudio.cam.panLeft'),  icon: "←", prompt: "smooth camera pan to the left" },
+    { key: "pan-right", label: t('creativeStudio.cam.panRight'), icon: "→", prompt: "smooth camera pan to the right" },
+    { key: "tilt-up",   label: t('creativeStudio.cam.tiltUp'),   icon: "↑", prompt: "gentle camera tilt upward" },
+    { key: "tilt-down", label: t('creativeStudio.cam.tiltDown'), icon: "↓", prompt: "gentle camera tilt downward" },
+    { key: "orbit",     label: t('creativeStudio.cam.orbit'),    icon: "◎", prompt: "slow orbital camera movement around subject" },
+    { key: "dolly-in",  label: t('creativeStudio.cam.dollyIn'),  icon: "⟼", prompt: "steady dolly push toward subject" },
+    { key: "tracking",  label: t('creativeStudio.cam.tracking'), icon: "⟿", prompt: "smooth tracking shot following motion" },
+    { key: "crane-up",  label: t('creativeStudio.cam.craneUp'),  icon: "⤴", prompt: "dramatic crane shot rising upward" },
+    { key: "static",    label: t('creativeStudio.cam.static'),   icon: "▪", prompt: "static camera, subtle ambient motion only" },
+    { key: "handheld",  label: t('creativeStudio.cam.handheld'), icon: "≋", prompt: "slight handheld camera shake, natural feel" },
+  ];
+}
 
 const AUDIO_EXTRA_PER_5S = 1;
 
@@ -53,17 +57,19 @@ function calcCost(modelKey, dur, withAudio) {
 }
 
 // ── Tab definitions ──
-var TABS = [
-  { key: 'video-clips', label: 'Video Clips', icon: 'video' },
-  { key: 'full-video',  label: 'Full Video',  icon: 'film' },
-  { key: 'images',      label: 'Images',      icon: 'image' },
-  { key: 'reimagine',   label: 'Reimagine',   icon: 'wand' },
-  { key: 'music',       label: 'Music',       icon: 'music' },
-  { key: 'voiceover',   label: 'Voiceover',   icon: 'mic' },
-  { key: 'lip-sync',    label: 'Lip Sync',    icon: 'edit' },
-  { key: 'gallery',     label: 'Gallery',     icon: 'grid' },
-  { key: 'credits',     label: 'Credits',     icon: 'clock' },
-];
+function getTabs(t) {
+  return [
+    { key: 'video-clips', label: t('creativeStudio.tab.videoClips'), icon: 'video' },
+    { key: 'full-video',  label: t('creativeStudio.tab.fullVideo'),  icon: 'film' },
+    { key: 'images',      label: t('creativeStudio.tab.images'),     icon: 'image' },
+    { key: 'reimagine',   label: t('creativeStudio.tab.reimagine'),  icon: 'wand' },
+    { key: 'music',       label: t('creativeStudio.tab.music'),      icon: 'music' },
+    { key: 'voiceover',   label: t('creativeStudio.tab.voiceover'),  icon: 'mic' },
+    { key: 'lip-sync',    label: t('creativeStudio.tab.lipSync'),    icon: 'edit' },
+    { key: 'gallery',     label: t('creativeStudio.tab.gallery'),    icon: 'grid' },
+    { key: 'credits',     label: t('creativeStudio.tab.credits'),    icon: 'clock' },
+  ];
+}
 
 function TabIcon({ type }) {
   var s = { width: 15, height: 15 };
@@ -84,6 +90,9 @@ function TabIcon({ type }) {
 // ══════════════════════════════════════════════════════
 export default function CreativeStudio() {
   var { t } = useTranslation();
+  var RATIOS = getRatios(t);
+  var CAMERA_MOTIONS = getCameraMotions(t);
+  var TABS = getTabs(t);
   var [searchParams, setSearchParams] = useSearchParams();
   var initialTab = searchParams.get('tab') || 'video-clips';
   var [tab, setTab] = useState(initialTab);

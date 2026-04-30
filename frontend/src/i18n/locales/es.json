@@ -1176,7 +1176,16 @@
     "adCopy": "Texto Publicitario",
     "nicheFinder": "Buscador de Nichos",
     "qrCode": "Código QR",
-    "aiSalesChat": "Chat de Ventas IA"
+    "aiSalesChat": "Chat de Ventas IA",
+    "tab": {
+      "posts": "Crea publicaciones que detienen el scroll, adaptadas a cada plataforma.",
+      "scripts": "Escribe guiones cautivadores para cualquier formato de vídeo.",
+      "emails": "Escribe secuencias y plantillas de email de alta conversión.",
+      "ads": "Crea titulares, copy y CTAs publicitarios cautivadores.",
+      "niche": "Investiga nichos rentables con insights de audiencia y estrategias de monetización.",
+      "qr": "Genera códigos QR para tus enlaces de referido y landing pages.",
+      "salesAgent": "Tu asistente IA de ventas para pitches, objeciones y cierre."
+    }
   },
   "creativeStudio": {
     "title": "Estudio Creativo",
@@ -1279,7 +1288,38 @@
     "reimagineFailed": "Reimaginación fallida",
     "uploadFailed": "Subida fallida",
     "preview": "Vista previa",
-    "cost": "Coste:"
+    "cost": "Coste:",
+    "ratio": {
+      "landscape": "Horizontal",
+      "portrait": "Vertical",
+      "square": "Cuadrado",
+      "classic": "Clásico"
+    },
+    "cam": {
+      "zoomIn": "Acercar",
+      "zoomOut": "Alejar",
+      "panLeft": "Paneo Izq.",
+      "panRight": "Paneo Der.",
+      "tiltUp": "Inclinar Arr.",
+      "tiltDown": "Inclinar Aba.",
+      "orbit": "Órbita",
+      "dollyIn": "Dolly In",
+      "tracking": "Seguimiento",
+      "craneUp": "Grúa Arriba",
+      "static": "Estática",
+      "handheld": "Cámara en Mano"
+    },
+    "tab": {
+      "videoClips": "Clips de Vídeo",
+      "fullVideo": "Vídeo Completo",
+      "images": "Imágenes",
+      "reimagine": "Reimaginar",
+      "music": "Música",
+      "voiceover": "Locución",
+      "lipSync": "Sincronía Labial",
+      "gallery": "Galería",
+      "credits": "Créditos"
+    }
   },
   "socialShare": {
     "title": "Compartir Social",
@@ -2334,7 +2374,19 @@
     "describeBody": "Describe lo que quieres — la IA se encarga de todo.",
     "downloadMp4Btn": "⬇ Descargar MP4",
     "createAnotherBtn": "✕ Crear otro",
-    "beSpecificLabel": "✦ Sé específico para mejores resultados"
+    "beSpecificLabel": "✦ Sé específico para mejores resultados",
+    "vibe": {
+      "professional": "Profesional",
+      "professionalDesc": "Limpio, pulido, listo para negocios",
+      "energetic": "Enérgico",
+      "energeticDesc": "Ritmo rápido, dinámico, alta energía",
+      "cinematic": "Cinematográfico",
+      "cinematicDesc": "Dramático, fílmico, narrativo",
+      "minimal": "Minimalista",
+      "minimalDesc": "Simple, limpio, discreto",
+      "playful": "Divertido",
+      "playfulDesc": "Divertido, colorido, alegre"
+    }
   },
   "superDeck": {
     "addSlide": "Agregar diapositiva",
@@ -4364,7 +4416,17 @@
     "chooseTemplate": "Elige una plantilla",
     "yourMemeText": "Tu texto de meme",
     "textColour": "Color del texto",
-    "pageTitle": "Generador de Memes"
+    "pageTitle": "Generador de Memes",
+    "font": {
+      "classic": "Fuente clásica de meme",
+      "bold": "Negrita y limpia",
+      "fun": "Divertida y juguetona",
+      "elegant": "Serif elegante",
+      "wide": "Ancha y legible",
+      "modern": "Humanista moderna",
+      "typewriter": "Máquina de escribir monoespaciada",
+      "compact": "Compacta y nítida"
+    }
   },
   "bannerTool": {
     "background": "Fondo",

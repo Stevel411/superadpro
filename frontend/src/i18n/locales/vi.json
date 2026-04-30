@@ -1176,7 +1176,16 @@
     "adCopy": "Nội dung quảng cáo",
     "nicheFinder": "Tìm thị trường ngách",
     "qrCode": "Mã QR",
-    "aiSalesChat": "Chat bán hàng AI"
+    "aiSalesChat": "Chat bán hàng AI",
+    "tab": {
+      "posts": "Create scroll-stopping posts tailored to each platform.",
+      "scripts": "Write compelling scripts for any video format.",
+      "emails": "Write high-converting email sequences and swipes.",
+      "ads": "Create compelling ad headlines, copy, and CTAs.",
+      "niche": "Research profitable niches with audience insights and monetisation strategies.",
+      "qr": "Generate QR codes for your referral links and landing pages.",
+      "salesAgent": "Your AI sales assistant for pitches, objections, and closing."
+    }
   },
   "creativeStudio": {
     "title": "Studio Sáng tạo",
@@ -1279,7 +1288,38 @@
     "reimagineFailed": "Tái tưởng tượng thất bại",
     "uploadFailed": "Tải lên thất bại",
     "preview": "Xem trước",
-    "cost": "Chi phí:"
+    "cost": "Chi phí:",
+    "ratio": {
+      "landscape": "Landscape",
+      "portrait": "Portrait",
+      "square": "Square",
+      "classic": "Classic"
+    },
+    "cam": {
+      "zoomIn": "Zoom In",
+      "zoomOut": "Zoom Out",
+      "panLeft": "Pan Left",
+      "panRight": "Pan Right",
+      "tiltUp": "Tilt Up",
+      "tiltDown": "Tilt Down",
+      "orbit": "Orbit",
+      "dollyIn": "Dolly In",
+      "tracking": "Tracking",
+      "craneUp": "Crane Up",
+      "static": "Static",
+      "handheld": "Handheld"
+    },
+    "tab": {
+      "videoClips": "Video Clips",
+      "fullVideo": "Full Video",
+      "images": "Images",
+      "reimagine": "Reimagine",
+      "music": "Music",
+      "voiceover": "Voiceover",
+      "lipSync": "Lip Sync",
+      "gallery": "Gallery",
+      "credits": "Credits"
+    }
   },
   "socialShare": {
     "title": "Chia sẻ Mạng xã hội",
@@ -2322,7 +2362,19 @@
     "describeBody": "Mô tả — AI xử lý.",
     "downloadMp4Btn": "⬇ Tải MP4",
     "createAnotherBtn": "✕ Tạo cái khác",
-    "beSpecificLabel": "✦ Cụ thể để có kết quả tốt nhất"
+    "beSpecificLabel": "✦ Cụ thể để có kết quả tốt nhất",
+    "vibe": {
+      "professional": "Professional",
+      "professionalDesc": "Clean, polished, business-ready",
+      "energetic": "Energetic",
+      "energeticDesc": "Fast-paced, dynamic, high-energy",
+      "cinematic": "Cinematic",
+      "cinematicDesc": "Dramatic, filmic, storytelling",
+      "minimal": "Minimal",
+      "minimalDesc": "Simple, clean, understated",
+      "playful": "Playful",
+      "playfulDesc": "Fun, colourful, lighthearted"
+    }
   },
   "superDeck": {
     "addSlide": "Thêm slide",
@@ -4356,7 +4408,17 @@
     "chooseTemplate": "Choose a template",
     "yourMemeText": "Your meme text",
     "textColour": "Text colour",
-    "pageTitle": "Meme Generator"
+    "pageTitle": "Meme Generator",
+    "font": {
+      "classic": "Classic meme font",
+      "bold": "Bold and clean",
+      "fun": "Fun and playful",
+      "elegant": "Elegant serif",
+      "wide": "Wide and readable",
+      "modern": "Modern humanist",
+      "typewriter": "Typewriter monospace",
+      "compact": "Compact and sharp"
+    }
   },
   "bannerTool": {
     "background": "Background",

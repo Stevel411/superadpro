@@ -9,16 +9,18 @@ import { Download, RefreshCw, Upload, Search, ChevronDown } from 'lucide-react';
    Same Imgflip API + canvas rendering as /free version.
    ═══════════════════════════════════════════════════════════ */
 
-const FONTS = [
-  { id: 'impact', name: 'Impact', desc: 'Classic meme font' },
-  { id: 'arial', name: 'Arial Black', desc: 'Bold and clean' },
-  { id: 'comic', name: 'Comic Sans MS', desc: 'Fun and playful' },
-  { id: 'georgia', name: 'Georgia', desc: 'Elegant serif' },
-  { id: 'verdana', name: 'Verdana Bold', desc: 'Wide and readable' },
-  { id: 'trebuchet', name: 'Trebuchet MS', desc: 'Modern humanist' },
-  { id: 'courier', name: 'Courier New', desc: 'Typewriter' },
-  { id: 'tahoma', name: 'Tahoma', desc: 'Compact and sharp' },
-];
+function getFonts(t) {
+  return [
+    { id: 'impact', name: 'Impact', desc: t('memeTool.font.classic') },
+    { id: 'arial', name: 'Arial Black', desc: t('memeTool.font.bold') },
+    { id: 'comic', name: 'Comic Sans MS', desc: t('memeTool.font.fun') },
+    { id: 'georgia', name: 'Georgia', desc: t('memeTool.font.elegant') },
+    { id: 'verdana', name: 'Verdana Bold', desc: t('memeTool.font.wide') },
+    { id: 'trebuchet', name: 'Trebuchet MS', desc: t('memeTool.font.modern') },
+    { id: 'courier', name: 'Courier New', desc: t('memeTool.font.typewriter') },
+    { id: 'tahoma', name: 'Tahoma', desc: t('memeTool.font.compact') },
+  ];
+}
 const FONT_FAMILIES = {
   impact: 'Impact, Haettenschweiler, sans-serif',
   arial: '"Arial Black", Gadget, sans-serif',
