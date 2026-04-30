@@ -8,7 +8,7 @@ import DisclaimerLink from '../../components/DisclaimerLink';
  * ExploreHub — the new public /explore landing page.
  * Reuses the same design tokens (deep-space theme, JetBrains Mono badges,
  * Sora headings) as the other public pages for visual consistency.
- * Welcome video is a PLACEHOLDER — TODO: swap in real embed URL when Steve provides one.
+ * Welcome video served from /static/images/explore-welcome.mp4 (autoPlay muted, user can unmute).
  */
 export default function ExploreHub() {
   var tr = useTranslation();
