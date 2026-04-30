@@ -647,7 +647,8 @@
     "currentlySet": "(attualmente impostato)",
     "linkToolsHelp": "Aiuto strumenti link",
     "searchHelpTopics": "Cerca argomenti di aiuto...",
-    "helpDesc": "Tutto quello che devi sapere su link, tracciamento e altro"
+    "helpDesc": "Tutto quello che devi sapere su link, tracciamento e altro",
+    "protected": "Protetto"
   },
   "courses": {
     "title": "Corsi",
@@ -1132,7 +1133,12 @@
     "viewersBy": "Spettatori per paese",
     "viewsPerDay": "Visualizzazioni al giorno",
     "whenViewersWatch": "Quando gli spettatori guardano",
-    "whenWatched": "Quando è stato guardato"
+    "whenWatched": "Quando è stato guardato",
+    "totalViews": "Visualizzazioni Totali",
+    "viewsToday": "Visualizzazioni Oggi",
+    "thisWeek": "Questa Settimana",
+    "uniqueViewers": "Spettatori Unici",
+    "avgDuration": "Durata Media"
   },
   "contentCreator": {
     "title": "Creatore di Contenuti",
@@ -1561,7 +1567,29 @@
     "backLabel": "← Indietro",
     "openFullTour": "Apri tour completo ↗",
     "bioPlaceholderFull": "es. Marketer digitale che aiuta a costruire reddito online...",
-    "accountReadyBody": "Account pronto. Prossimi passi:"
+    "accountReadyBody": "Account pronto. Prossimi passi:",
+    "tour": {
+      "dashboardTitle": "Dashboard",
+      "dashboardDesc": "La tua base — vedi guadagni, crescita team e azioni rapide",
+      "howEarnTitle": "Come Guadagni",
+      "howEarnDesc": "4 fonti di reddito: referral, grid campagna, Profit Nexus, corsi",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "Video IA, immagini, musica, voiceover — 9 modelli video, 11 immagini",
+      "proToolsTitle": "Strumenti Pro",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (passa a Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Guarda video giornalieri per mantenere attive le tue commissioni campagna",
+      "walletTitle": "Wallet",
+      "walletDesc": "Due wallet — preleva quando vuoi via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Crea un video in Creative Studio",
+      "videoDesc": "Usa l'IA per generare video marketing, immagini e musica",
+      "linkhubTitle": "Costruisci la tua pagina LinkHub",
+      "linkhubDesc": "Crea la tua pagina link-in-bio personale da condividere ovunque",
+      "shareTitle": "Condividi il tuo link di referral",
+      "shareDesc": "Pubblica sui social e inizia a costruire il tuo team"
+    }
   },
   "platformTour": {
     "title": "Tour della Piattaforma",
@@ -1878,7 +1906,27 @@
     "body_L68": "La partecipazione al piano di compensazione di SuperAdPro non crea un rapporto datore di lavoro-dipendente. I membri sono partecipanti indipendenti e sono gli unici responsabili dei propri obblighi fiscali, spese aziendali e conformità alle leggi e regolamenti locali.",
     "body_L72": "Come in qualsiasi opportunità di business, c'è un rischio coinvolto. Non dovresti investire più di quanto puoi permetterti di perdere. Non fare affidamento sul reddito di SuperAdPro come unica fonte di reddito. Incoraggiamo tutti i membri a trattare questo come un'opportunità di reddito supplementare e a prendere decisioni informate basate sulle proprie circostanze finanziarie.",
     "body_L76": "SuperAdPro è impegnata in pratiche commerciali etiche. I membri non devono fare affermazioni di reddito ingannevoli quando promuovono la piattaforma. Eventuali proiezioni di reddito condivise devono essere accompagnate da un chiaro disclaimer che i risultati non sono tipici e i risultati individuali varieranno.",
-    "body_L80": "Ultimo aggiornamento: aprile 2026. Questo disclaimer si applica a tutti i programmi di reddito gestiti da SuperAdPro."
+    "body_L80": "Ultimo aggiornamento: aprile 2026. Questo disclaimer si applica a tutti i programmi di reddito gestiti da SuperAdPro.",
+    "creditPack": {
+      "directLabel": "Commissione Referral Diretto",
+      "directDesc": "Pagato al membro che ha personalmente reclutato l'acquirente",
+      "autoLabel": "Commissione Auto-Posizionamento",
+      "autoDesc": "Pagato sulle posizioni piazzate dalla crescita della rete (spillover)",
+      "completionLabel": "Bonus di Completamento",
+      "completionDesc": "Pagato al proprietario del nexus quando tutte le 39 posizioni si riempiono"
+    },
+    "campaignTier": {
+      "directLabel": "Commissione Sponsor Diretto",
+      "directDesc": "Pagato al membro che ti ha referenziato",
+      "unilevelLabel": "Commissioni Uni-livello",
+      "unilevelDesc": "6,25% × 8 livelli di profondità nella rete",
+      "completionLabel": "Pool Bonus di Completamento",
+      "completionDesc": "Pagato quando tutte le 64 posizioni della grid si riempiono"
+    },
+    "membership": {
+      "sponsorLabel": "Commissione Sponsor",
+      "sponsorDesc": "Pagato al membro che ha referenziato ogni mese che rimane attivo"
+    }
   },
   "incomeGrid3D": {
     "interactive3D": "Visualizzazione 3D interattiva",
@@ -2253,7 +2301,16 @@
     "tabBroadcast": "Trasmissione",
     "tabImport": "Importa",
     "tabBoost": "Boost",
-    "statusUnsubscribed": "Disiscritto"
+    "statusUnsubscribed": "Disiscritto",
+    "allLists": "Tutte le liste",
+    "nurturing": "In nurturing",
+    "noSequence": "Nessuna sequenza",
+    "boost": {
+      "targeted": "Perfetto per una campagna mirata",
+      "multiple": "Esegui più sequenze",
+      "scale": "Scala la tua outreach",
+      "enterprise": "Volume livello enterprise"
+    }
   },
   "videoCreator": {
     "aspectRatio": "Rapporto d'aspetto",
@@ -2575,7 +2632,11 @@
     "paymentComplete": "Pagamento completato",
     "paymentConfirmed": "Pagamento confermato",
     "confirming": "Conferma del pagamento…",
-    "pleaseWaitFull": "Attendere mentre attiviamo il tuo acquisto."
+    "pleaseWaitFull": "Attendere mentre attiviamo il tuo acquisto.",
+    "membership": "La tua iscrizione SuperAdPro è attiva. Benvenuto nella rete!",
+    "creditsReady": "I tuoi crediti Creative Studio sono pronti.",
+    "courseReady": "Il tuo corso è ora disponibile nella Course Library.",
+    "emailCredits": "I tuoi crediti email sono stati aggiunti. Inizia a inviare!"
   },
   "superPagesEditor": {
     "preview": "Anteprima",
@@ -2933,7 +2994,8 @@
     "recruitToMsg": "Recluta qualcuno per iniziare a inviare messaggi",
     "salesPassUps": "Vendite + pass-up",
     "teamGrowth": "Crescita del Team",
-    "dailyWatchLog": "Registro Giornaliero Visualizzazioni"
+    "dailyWatchLog": "Registro Giornaliero Visualizzazioni",
+    "remaining": "Rimanente"
   },
   "leadFinder": {
     "title": "Trova contatti",
@@ -4316,7 +4378,8 @@
     "positions": "Posizioni",
     "liveCommissionFeed": "Feed Commissioni Live",
     "pressStart": "Premi Avvia per iniziare la simulazione",
-    "pageTitle": "Calcolatore Grid Profitti"
+    "pageTitle": "Calcolatore Grid Profitti",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "La tua campagna ha bisogno di un Livello Campagna attivo."
@@ -4334,7 +4397,8 @@
     "recentCascades": "Cascate Recenti",
     "theInfiniteCascade": "La Cascata Infinita",
     "pageTitle": "Catene di Reddito",
-    "noCascadesYet": "Ancora nessuna cascata"
+    "noCascadesYet": "Ancora nessuna cascata",
+    "subtitle": "I tuoi quattro flussi infiniti di reddito passivo da corsi"
   },
   "marketingMaterials": {
     "pageTitle": "Materiali di Marketing"
@@ -4355,5 +4419,21 @@
     "fontFamily": "Carattere",
     "presetSizes": "Dimensioni predefinite",
     "textColour": "Colore testo"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Tassa di Piattaforma",
+    "platformFeeDesc": "Trattenuto da SuperAdPro per gestire il servizio",
+    "directDescPublic": "Pagato al membro che ha personalmente referenziato l'acquirente"
+  },
+  "featureMetric": {
+    "clicks": "Click questo mese",
+    "subscribers": "Iscritti attivi",
+    "conversion": "Tasso di conversione",
+    "salesTotal": "Vendite totali",
+    "viewsDelivered": "Visualizzazioni consegnate"
+  },
+  "walletGuide": {
+    "getMetamask": "Ottieni MetaMask",
+    "addPolygon": "Aggiungi Polygon"
   }
 }

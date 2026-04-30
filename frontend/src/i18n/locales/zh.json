@@ -647,7 +647,8 @@
     "currentlySet": "（当前设置）",
     "linkToolsHelp": "链接工具帮助",
     "searchHelpTopics": "搜索帮助主题...",
-    "helpDesc": "关于链接、追踪等一切您需要知道的"
+    "helpDesc": "关于链接、追踪等一切您需要知道的",
+    "protected": "Protected"
   },
   "courses": {
     "title": "课程",
@@ -1132,7 +1133,12 @@
     "viewersBy": "按国家划分的观看者",
     "viewsPerDay": "每日观看次数",
     "whenViewersWatch": "观看者的观看时间",
-    "whenWatched": "观看时间"
+    "whenWatched": "观看时间",
+    "totalViews": "Total Views",
+    "viewsToday": "Views Today",
+    "thisWeek": "This Week",
+    "uniqueViewers": "Unique Viewers",
+    "avgDuration": "Avg Duration"
   },
   "contentCreator": {
     "title": "内容创作器",
@@ -1561,7 +1567,29 @@
     "backLabel": "← 返回",
     "openFullTour": "打开完整导览 ↗",
     "bioPlaceholderFull": "例如 帮助建立在线收入的数字营销人员...",
-    "accountReadyBody": "您的账户已就绪。下一步："
+    "accountReadyBody": "您的账户已就绪。下一步：",
+    "tour": {
+      "dashboardTitle": "Dashboard",
+      "dashboardDesc": "Your home base — see earnings, team growth, and quick actions",
+      "howEarnTitle": "How You Earn",
+      "howEarnDesc": "4 income streams: referrals, campaign grid, Profit Nexus, courses",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "AI video, images, music, voiceover — 9 video models, 11 image models",
+      "proToolsTitle": "Pro Tools",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (upgrade to Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Watch daily videos to keep your campaign commissions active",
+      "walletTitle": "Wallet",
+      "walletDesc": "Two wallets — withdraw anytime via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Create a video in Creative Studio",
+      "videoDesc": "Use AI to generate marketing videos, images, and music",
+      "linkhubTitle": "Build your LinkHub page",
+      "linkhubDesc": "Create your personal link-in-bio page to share everywhere",
+      "shareTitle": "Share your referral link",
+      "shareDesc": "Post on social media and start building your team"
+    }
   },
   "platformTour": {
     "title": "平台导览",
@@ -1878,7 +1906,27 @@
     "body_L68": "参与 SuperAdPro 的薪酬计划不会产生雇主-雇员关系。会员是独立参与者，并对自己的税务义务、业务支出以及遵守当地法律法规负全部责任。",
     "body_L72": "与任何商业机会一样，都存在风险。您不应投资超过您能承受损失的金额。不要将 SuperAdPro 的收入作为您唯一的收入来源。我们鼓励所有会员将此视为补充收入机会，并根据自身的财务状况做出明智的决定。",
     "body_L76": "SuperAdPro 致力于道德商业实践。会员在推广平台时不得做出误导性的收入声明。共享的任何收入预测必须附带明确的免责声明，说明结果不具代表性，个人结果会有所不同。",
-    "body_L80": "最后更新：2026 年 4 月。本免责声明适用于 SuperAdPro 运营的所有收入计划。"
+    "body_L80": "最后更新：2026 年 4 月。本免责声明适用于 SuperAdPro 运营的所有收入计划。",
+    "creditPack": {
+      "directLabel": "Direct Referral Commission",
+      "directDesc": "Paid to the member who personally recruited the buyer",
+      "autoLabel": "Auto-Place Commission",
+      "autoDesc": "Paid on positions placed by network growth (spillover)",
+      "completionLabel": "Completion Bonus",
+      "completionDesc": "Paid to the nexus owner when all 39 positions fill"
+    },
+    "campaignTier": {
+      "directLabel": "Direct Sponsor Commission",
+      "directDesc": "Paid to the member who referred you",
+      "unilevelLabel": "Uni-level Commissions",
+      "unilevelDesc": "6.25% × 8 levels deep in the network",
+      "completionLabel": "Completion Bonus Pool",
+      "completionDesc": "Paid when all 64 grid positions fill"
+    },
+    "membership": {
+      "sponsorLabel": "Sponsor Commission",
+      "sponsorDesc": "Paid to the referring member every month they remain active"
+    }
   },
   "incomeGrid3D": {
     "interactive3D": "交互式3D可视化",
@@ -2241,7 +2289,16 @@
     "tabBroadcast": "广播",
     "tabImport": "导入",
     "tabBoost": "加速",
-    "statusUnsubscribed": "已退订"
+    "statusUnsubscribed": "已退订",
+    "allLists": "All lists",
+    "nurturing": "Nurturing",
+    "noSequence": "No sequence",
+    "boost": {
+      "targeted": "Perfect for a targeted campaign",
+      "multiple": "Run multiple sequences",
+      "scale": "Scale your outreach",
+      "enterprise": "Enterprise-level volume"
+    }
   },
   "videoCreator": {
     "aspectRatio": "宽高比",
@@ -2563,7 +2620,11 @@
     "paymentComplete": "支付完成",
     "paymentConfirmed": "付款已确认",
     "confirming": "正在确认您的付款…",
-    "pleaseWaitFull": "请稍候，我们正在激活您的购买。"
+    "pleaseWaitFull": "请稍候，我们正在激活您的购买。",
+    "membership": "Your SuperAdPro membership is now active. Welcome to the network!",
+    "creditsReady": "Your Creative Studio credits are ready to use.",
+    "courseReady": "Your course is now available in the Course Library.",
+    "emailCredits": "Your email credits have been added. Start sending!"
   },
   "superPagesEditor": {
     "preview": "预览",
@@ -2925,7 +2986,8 @@
     "recruitToMsg": "招募某人开始发送消息",
     "salesPassUps": "销售 + 上传",
     "teamGrowth": "Team Growth",
-    "dailyWatchLog": "Daily Watch Log"
+    "dailyWatchLog": "Daily Watch Log",
+    "remaining": "Remaining"
   },
   "leadFinder": {
     "title": "客户查找器",
@@ -4308,7 +4370,8 @@
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
     "pressStart": "Press Start to begin simulation",
-    "pageTitle": "Profit Grid Calculator"
+    "pageTitle": "Profit Grid Calculator",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
@@ -4326,7 +4389,8 @@
     "recentCascades": "Recent Cascades",
     "theInfiniteCascade": "The Infinite Cascade",
     "pageTitle": "Income Chains",
-    "noCascadesYet": "No cascades yet"
+    "noCascadesYet": "No cascades yet",
+    "subtitle": "Your four infinite streams of passive course income"
   },
   "marketingMaterials": {
     "pageTitle": "Marketing Materials"
@@ -4347,5 +4411,21 @@
     "fontFamily": "Font family",
     "presetSizes": "Preset sizes",
     "textColour": "Text colour"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Platform Fee",
+    "platformFeeDesc": "Retained by SuperAdPro to operate the service",
+    "directDescPublic": "Paid to the member who personally referred the buyer"
+  },
+  "featureMetric": {
+    "clicks": "Clicks this month",
+    "subscribers": "Active subscribers",
+    "conversion": "Conversion rate",
+    "salesTotal": "Sales total",
+    "viewsDelivered": "Views delivered"
+  },
+  "walletGuide": {
+    "getMetamask": "Get MetaMask",
+    "addPolygon": "Add Polygon"
   }
 }

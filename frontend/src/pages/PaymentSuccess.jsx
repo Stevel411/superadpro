@@ -5,11 +5,12 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { CheckCircle, XCircle, Loader, ArrowRight, Home } from 'lucide-react';
 
-var TYPE_CONFIG = {
+function getTypeConfig(t) {
+  return {
   membership: {
     icon: '🎉',
     title: 'Membership Activated!',
-    desc: 'Your SuperAdPro membership is now active. Welcome to the network!',
+    desc: t('paymentSuccess.membership'),
     action: '/dashboard',
     actionLabel: 'Go to Dashboard',
     color: 'var(--sap-green-mid)',
@@ -33,7 +34,7 @@ var TYPE_CONFIG = {
   superscene: {
     icon: '🎬',
     title: 'Credits Added!',
-    desc: 'Your Creative Studio credits are ready to use.',
+    desc: t('paymentSuccess.creditsReady'),
     action: '/creative-studio',
     actionLabel: 'Go to Creative Studio',
     color: 'var(--sap-purple)',
@@ -41,7 +42,7 @@ var TYPE_CONFIG = {
   course: {
     icon: '🎓',
     title: 'Course Unlocked!',
-    desc: 'Your course is now available in the Course Library.',
+    desc: t('paymentSuccess.courseReady'),
     action: '/courses',
     actionLabel: 'Go to Course Library',
     color: 'var(--sap-purple)',
@@ -49,12 +50,13 @@ var TYPE_CONFIG = {
   email_boost: {
     icon: '🚀',
     title: 'Email Boost Activated!',
-    desc: 'Your email credits have been added. Start sending!',
+    desc: t('paymentSuccess.emailCredits'),
     action: '/pro/leads',
     actionLabel: 'Go to SuperLeads',
     color: 'var(--sap-red-bright)',
   },
-};
+  };
+}
 
 export default function PaymentSuccess() {
   var { t } = useTranslation();
@@ -64,6 +66,7 @@ export default function PaymentSuccess() {
   var [status, setStatus] = useState('loading'); // loading | success | error
 
   var type = params.get('type') || 'membership';
+  var TYPE_CONFIG = getTypeConfig(t);
   var config = TYPE_CONFIG[type] || TYPE_CONFIG.membership;
 
   useEffect(function() {

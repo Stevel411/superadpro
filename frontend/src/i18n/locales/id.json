@@ -647,7 +647,8 @@
     "currentlySet": "(saat ini diatur)",
     "linkToolsHelp": "Bantuan Alat Tautan",
     "searchHelpTopics": "Cari topik bantuan...",
-    "helpDesc": "Semua yang perlu Anda ketahui tentang tautan, pelacakan, dan lainnya"
+    "helpDesc": "Semua yang perlu Anda ketahui tentang tautan, pelacakan, dan lainnya",
+    "protected": "Protected"
   },
   "courses": {
     "title": "Kursus",
@@ -1132,7 +1133,12 @@
     "viewersBy": "Penonton berdasarkan negara",
     "viewsPerDay": "Tampilan per hari",
     "whenViewersWatch": "Kapan penonton menonton",
-    "whenWatched": "Kapan ditonton"
+    "whenWatched": "Kapan ditonton",
+    "totalViews": "Total Views",
+    "viewsToday": "Views Today",
+    "thisWeek": "This Week",
+    "uniqueViewers": "Unique Viewers",
+    "avgDuration": "Avg Duration"
   },
   "contentCreator": {
     "title": "Pembuat Konten",
@@ -1561,7 +1567,29 @@
     "backLabel": "← Kembali",
     "openFullTour": "Buka tur lengkap ↗",
     "bioPlaceholderFull": "mis. Pemasar digital membantu membangun pendapatan online...",
-    "accountReadyBody": "Akun siap. Langkah berikutnya:"
+    "accountReadyBody": "Akun siap. Langkah berikutnya:",
+    "tour": {
+      "dashboardTitle": "Dashboard",
+      "dashboardDesc": "Your home base — see earnings, team growth, and quick actions",
+      "howEarnTitle": "How You Earn",
+      "howEarnDesc": "4 income streams: referrals, campaign grid, Profit Nexus, courses",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "AI video, images, music, voiceover — 9 video models, 11 image models",
+      "proToolsTitle": "Pro Tools",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (upgrade to Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Watch daily videos to keep your campaign commissions active",
+      "walletTitle": "Wallet",
+      "walletDesc": "Two wallets — withdraw anytime via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Create a video in Creative Studio",
+      "videoDesc": "Use AI to generate marketing videos, images, and music",
+      "linkhubTitle": "Build your LinkHub page",
+      "linkhubDesc": "Create your personal link-in-bio page to share everywhere",
+      "shareTitle": "Share your referral link",
+      "shareDesc": "Post on social media and start building your team"
+    }
   },
   "platformTour": {
     "title": "Tour Platform",
@@ -1878,7 +1906,27 @@
     "body_L68": "Partisipasi dalam rencana kompensasi SuperAdPro tidak menciptakan hubungan majikan-karyawan. Anggota adalah peserta independen dan sepenuhnya bertanggung jawab atas kewajiban pajak, pengeluaran bisnis, dan kepatuhan terhadap hukum dan peraturan setempat mereka sendiri.",
     "body_L72": "Seperti halnya peluang bisnis, ada risiko yang terlibat. Anda tidak boleh berinvestasi lebih dari yang mampu Anda rugi. Jangan bergantung pada pendapatan dari SuperAdPro sebagai satu-satunya sumber pendapatan Anda. Kami mendorong semua anggota untuk memperlakukan ini sebagai peluang pendapatan tambahan dan membuat keputusan yang tepat berdasarkan keadaan keuangan mereka sendiri.",
     "body_L76": "SuperAdPro berkomitmen pada praktik bisnis yang etis. Anggota tidak boleh membuat klaim pendapatan yang menyesatkan saat mempromosikan platform. Setiap proyeksi pendapatan yang dibagikan harus disertai dengan penafian yang jelas bahwa hasilnya tidak khas dan hasil individu akan bervariasi.",
-    "body_L80": "Terakhir diperbarui: April 2026. Penafian ini berlaku untuk semua program pendapatan yang dioperasikan oleh SuperAdPro."
+    "body_L80": "Terakhir diperbarui: April 2026. Penafian ini berlaku untuk semua program pendapatan yang dioperasikan oleh SuperAdPro.",
+    "creditPack": {
+      "directLabel": "Direct Referral Commission",
+      "directDesc": "Paid to the member who personally recruited the buyer",
+      "autoLabel": "Auto-Place Commission",
+      "autoDesc": "Paid on positions placed by network growth (spillover)",
+      "completionLabel": "Completion Bonus",
+      "completionDesc": "Paid to the nexus owner when all 39 positions fill"
+    },
+    "campaignTier": {
+      "directLabel": "Direct Sponsor Commission",
+      "directDesc": "Paid to the member who referred you",
+      "unilevelLabel": "Uni-level Commissions",
+      "unilevelDesc": "6.25% × 8 levels deep in the network",
+      "completionLabel": "Completion Bonus Pool",
+      "completionDesc": "Paid when all 64 grid positions fill"
+    },
+    "membership": {
+      "sponsorLabel": "Sponsor Commission",
+      "sponsorDesc": "Paid to the referring member every month they remain active"
+    }
   },
   "incomeGrid3D": {
     "interactive3D": "Visualisasi 3D interaktif",
@@ -2241,7 +2289,16 @@
     "tabBroadcast": "Siaran",
     "tabImport": "Impor",
     "tabBoost": "Boost",
-    "statusUnsubscribed": "Berhenti Berlangganan"
+    "statusUnsubscribed": "Berhenti Berlangganan",
+    "allLists": "All lists",
+    "nurturing": "Nurturing",
+    "noSequence": "No sequence",
+    "boost": {
+      "targeted": "Perfect for a targeted campaign",
+      "multiple": "Run multiple sequences",
+      "scale": "Scale your outreach",
+      "enterprise": "Enterprise-level volume"
+    }
   },
   "videoCreator": {
     "aspectRatio": "Rasio aspek",
@@ -2563,7 +2620,11 @@
     "paymentComplete": "Pembayaran selesai",
     "paymentConfirmed": "Pembayaran dikonfirmasi",
     "confirming": "Mengonfirmasi pembayaran Anda…",
-    "pleaseWaitFull": "Harap tunggu sementara kami mengaktifkan pembelian Anda."
+    "pleaseWaitFull": "Harap tunggu sementara kami mengaktifkan pembelian Anda.",
+    "membership": "Your SuperAdPro membership is now active. Welcome to the network!",
+    "creditsReady": "Your Creative Studio credits are ready to use.",
+    "courseReady": "Your course is now available in the Course Library.",
+    "emailCredits": "Your email credits have been added. Start sending!"
   },
   "superPagesEditor": {
     "preview": "Pratinjau",
@@ -2925,7 +2986,8 @@
     "recruitToMsg": "Rekrut seseorang untuk mulai mengirim pesan",
     "salesPassUps": "Penjualan + pass-up",
     "teamGrowth": "Team Growth",
-    "dailyWatchLog": "Daily Watch Log"
+    "dailyWatchLog": "Daily Watch Log",
+    "remaining": "Remaining"
   },
   "leadFinder": {
     "title": "Pencari Prospek",
@@ -4308,7 +4370,8 @@
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
     "pressStart": "Press Start to begin simulation",
-    "pageTitle": "Profit Grid Calculator"
+    "pageTitle": "Profit Grid Calculator",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
@@ -4326,7 +4389,8 @@
     "recentCascades": "Recent Cascades",
     "theInfiniteCascade": "The Infinite Cascade",
     "pageTitle": "Income Chains",
-    "noCascadesYet": "No cascades yet"
+    "noCascadesYet": "No cascades yet",
+    "subtitle": "Your four infinite streams of passive course income"
   },
   "marketingMaterials": {
     "pageTitle": "Marketing Materials"
@@ -4347,5 +4411,21 @@
     "fontFamily": "Font family",
     "presetSizes": "Preset sizes",
     "textColour": "Text colour"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Platform Fee",
+    "platformFeeDesc": "Retained by SuperAdPro to operate the service",
+    "directDescPublic": "Paid to the member who personally referred the buyer"
+  },
+  "featureMetric": {
+    "clicks": "Clicks this month",
+    "subscribers": "Active subscribers",
+    "conversion": "Conversion rate",
+    "salesTotal": "Sales total",
+    "viewsDelivered": "Views delivered"
+  },
+  "walletGuide": {
+    "getMetamask": "Get MetaMask",
+    "addPolygon": "Add Polygon"
   }
 }

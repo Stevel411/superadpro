@@ -647,7 +647,8 @@
     "currentlySet": "(hiện tại đang đặt)",
     "linkToolsHelp": "Trợ giúp công cụ liên kết",
     "searchHelpTopics": "Tìm chủ đề trợ giúp...",
-    "helpDesc": "Mọi thứ bạn cần biết về liên kết, theo dõi và hơn thế"
+    "helpDesc": "Mọi thứ bạn cần biết về liên kết, theo dõi và hơn thế",
+    "protected": "Protected"
   },
   "courses": {
     "title": "Khóa học",
@@ -1132,7 +1133,12 @@
     "viewersBy": "Người xem theo quốc gia",
     "viewsPerDay": "Lượt xem mỗi ngày",
     "whenViewersWatch": "Khi người xem xem",
-    "whenWatched": "Khi được xem"
+    "whenWatched": "Khi được xem",
+    "totalViews": "Total Views",
+    "viewsToday": "Views Today",
+    "thisWeek": "This Week",
+    "uniqueViewers": "Unique Viewers",
+    "avgDuration": "Avg Duration"
   },
   "contentCreator": {
     "title": "Tạo Nội dung",
@@ -1561,7 +1567,29 @@
     "backLabel": "← Quay lại",
     "openFullTour": "Mở tour đầy đủ ↗",
     "bioPlaceholderFull": "vd. Chuyên gia marketing giúp xây dựng thu nhập trực tuyến...",
-    "accountReadyBody": "Tài khoản sẵn sàng. Bước tiếp:"
+    "accountReadyBody": "Tài khoản sẵn sàng. Bước tiếp:",
+    "tour": {
+      "dashboardTitle": "Dashboard",
+      "dashboardDesc": "Your home base — see earnings, team growth, and quick actions",
+      "howEarnTitle": "How You Earn",
+      "howEarnDesc": "4 income streams: referrals, campaign grid, Profit Nexus, courses",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "AI video, images, music, voiceover — 9 video models, 11 image models",
+      "proToolsTitle": "Pro Tools",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (upgrade to Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Watch daily videos to keep your campaign commissions active",
+      "walletTitle": "Wallet",
+      "walletDesc": "Two wallets — withdraw anytime via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Create a video in Creative Studio",
+      "videoDesc": "Use AI to generate marketing videos, images, and music",
+      "linkhubTitle": "Build your LinkHub page",
+      "linkhubDesc": "Create your personal link-in-bio page to share everywhere",
+      "shareTitle": "Share your referral link",
+      "shareDesc": "Post on social media and start building your team"
+    }
   },
   "platformTour": {
     "title": "Tour Nền tảng",
@@ -1878,7 +1906,27 @@
     "body_L68": "Tham gia chương trình đãi ngộ của SuperAdPro không tạo ra mối quan hệ người sử dụng lao động-nhân viên. Các thành viên là những người tham gia độc lập và chịu trách nhiệm duy nhất đối với nghĩa vụ thuế, chi phí kinh doanh và việc tuân thủ luật pháp và quy định địa phương của mình.",
     "body_L72": "Giống như bất kỳ cơ hội kinh doanh nào, đều có rủi ro. Bạn không nên đầu tư nhiều hơn số tiền bạn có thể chấp nhận mất. Không dựa vào thu nhập từ SuperAdPro làm nguồn thu nhập duy nhất của bạn. Chúng tôi khuyến khích tất cả thành viên coi đây là cơ hội thu nhập bổ sung và đưa ra quyết định sáng suốt dựa trên hoàn cảnh tài chính của chính mình.",
     "body_L76": "SuperAdPro cam kết thực hiện các thông lệ kinh doanh có đạo đức. Các thành viên không được đưa ra tuyên bố thu nhập gây hiểu lầm khi quảng bá nền tảng. Bất kỳ dự báo thu nhập nào được chia sẻ đều phải kèm theo một tuyên bố từ chối rõ ràng rằng kết quả không điển hình và kết quả cá nhân sẽ khác nhau.",
-    "body_L80": "Cập nhật lần cuối: Tháng 4 năm 2026. Tuyên bố từ chối này áp dụng cho tất cả chương trình thu nhập do SuperAdPro vận hành."
+    "body_L80": "Cập nhật lần cuối: Tháng 4 năm 2026. Tuyên bố từ chối này áp dụng cho tất cả chương trình thu nhập do SuperAdPro vận hành.",
+    "creditPack": {
+      "directLabel": "Direct Referral Commission",
+      "directDesc": "Paid to the member who personally recruited the buyer",
+      "autoLabel": "Auto-Place Commission",
+      "autoDesc": "Paid on positions placed by network growth (spillover)",
+      "completionLabel": "Completion Bonus",
+      "completionDesc": "Paid to the nexus owner when all 39 positions fill"
+    },
+    "campaignTier": {
+      "directLabel": "Direct Sponsor Commission",
+      "directDesc": "Paid to the member who referred you",
+      "unilevelLabel": "Uni-level Commissions",
+      "unilevelDesc": "6.25% × 8 levels deep in the network",
+      "completionLabel": "Completion Bonus Pool",
+      "completionDesc": "Paid when all 64 grid positions fill"
+    },
+    "membership": {
+      "sponsorLabel": "Sponsor Commission",
+      "sponsorDesc": "Paid to the referring member every month they remain active"
+    }
   },
   "incomeGrid3D": {
     "interactive3D": "Trực quan 3D tương tác",
@@ -2241,7 +2289,16 @@
     "tabBroadcast": "Phát sóng",
     "tabImport": "Nhập",
     "tabBoost": "Tăng cường",
-    "statusUnsubscribed": "Đã hủy đăng ký"
+    "statusUnsubscribed": "Đã hủy đăng ký",
+    "allLists": "All lists",
+    "nurturing": "Nurturing",
+    "noSequence": "No sequence",
+    "boost": {
+      "targeted": "Perfect for a targeted campaign",
+      "multiple": "Run multiple sequences",
+      "scale": "Scale your outreach",
+      "enterprise": "Enterprise-level volume"
+    }
   },
   "videoCreator": {
     "aspectRatio": "Tỷ lệ khung hình",
@@ -2563,7 +2620,11 @@
     "paymentComplete": "Thanh toán hoàn tất",
     "paymentConfirmed": "Thanh toán đã xác nhận",
     "confirming": "Đang xác nhận thanh toán…",
-    "pleaseWaitFull": "Vui lòng đợi trong khi chúng tôi kích hoạt mua hàng."
+    "pleaseWaitFull": "Vui lòng đợi trong khi chúng tôi kích hoạt mua hàng.",
+    "membership": "Your SuperAdPro membership is now active. Welcome to the network!",
+    "creditsReady": "Your Creative Studio credits are ready to use.",
+    "courseReady": "Your course is now available in the Course Library.",
+    "emailCredits": "Your email credits have been added. Start sending!"
   },
   "superPagesEditor": {
     "preview": "Xem trước",
@@ -2925,7 +2986,8 @@
     "recruitToMsg": "Tuyển dụng ai đó để bắt đầu gửi tin nhắn",
     "salesPassUps": "Bán hàng + chuyển qua",
     "teamGrowth": "Team Growth",
-    "dailyWatchLog": "Daily Watch Log"
+    "dailyWatchLog": "Daily Watch Log",
+    "remaining": "Remaining"
   },
   "leadFinder": {
     "title": "Tìm khách hàng",
@@ -4308,7 +4370,8 @@
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
     "pressStart": "Press Start to begin simulation",
-    "pageTitle": "Profit Grid Calculator"
+    "pageTitle": "Profit Grid Calculator",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
@@ -4326,7 +4389,8 @@
     "recentCascades": "Recent Cascades",
     "theInfiniteCascade": "The Infinite Cascade",
     "pageTitle": "Income Chains",
-    "noCascadesYet": "No cascades yet"
+    "noCascadesYet": "No cascades yet",
+    "subtitle": "Your four infinite streams of passive course income"
   },
   "marketingMaterials": {
     "pageTitle": "Marketing Materials"
@@ -4347,5 +4411,21 @@
     "fontFamily": "Font family",
     "presetSizes": "Preset sizes",
     "textColour": "Text colour"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Platform Fee",
+    "platformFeeDesc": "Retained by SuperAdPro to operate the service",
+    "directDescPublic": "Paid to the member who personally referred the buyer"
+  },
+  "featureMetric": {
+    "clicks": "Clicks this month",
+    "subscribers": "Active subscribers",
+    "conversion": "Conversion rate",
+    "salesTotal": "Sales total",
+    "viewsDelivered": "Views delivered"
+  },
+  "walletGuide": {
+    "getMetamask": "Get MetaMask",
+    "addPolygon": "Add Polygon"
   }
 }

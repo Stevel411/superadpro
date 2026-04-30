@@ -36,8 +36,8 @@ export default function WalletGuideCard({ compact }) {
         {/* Quick steps */}
         <div style={{ display: 'flex', gap: 8 }}>
           {[
-            { num: '1', label: 'Get MetaMask', color: '#0ea5e9' },
-            { num: '2', label: 'Add Polygon', color: '#10b981' },
+            { num: '1', label: t('walletGuide.getMetamask'), color: '#0ea5e9' },
+            { num: '2', label: t('walletGuide.addPolygon'), color: '#10b981' },
             { num: '3', label: 'Buy USDT/USDC', color: '#f59e0b' },
           ].map(s => (
             <div key={s.num} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e8ecf2' }}>

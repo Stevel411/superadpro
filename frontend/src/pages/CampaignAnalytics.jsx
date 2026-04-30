@@ -72,11 +72,11 @@ export default function CampaignAnalytics() {
         {/* Stats cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
           {[
-            { label: 'Total Views', value: (totals.total_views || 0).toLocaleString(), icon: Eye, color: 'var(--sap-green-bright)' },
-            { label: 'Views Today', value: (totals.views_today || 0).toLocaleString(), icon: TrendingUp, color: 'var(--sap-accent)' },
-            { label: 'This Week', value: (totals.views_this_week || 0).toLocaleString(), icon: Calendar, color: 'var(--sap-purple)' },
-            { label: 'Unique Viewers', value: (totals.unique_viewers || 0).toLocaleString(), icon: Users, color: 'var(--sap-amber)' },
-            { label: 'Avg Duration', value: (totals.avg_watch_duration || 30) + 's', icon: Clock, color: 'var(--sap-pink)' },
+            { label: t('campaignAnalytics.totalViews'), value: (totals.total_views || 0).toLocaleString(), icon: Eye, color: 'var(--sap-green-bright)' },
+            { label: t('campaignAnalytics.viewsToday'), value: (totals.views_today || 0).toLocaleString(), icon: TrendingUp, color: 'var(--sap-accent)' },
+            { label: t('campaignAnalytics.thisWeek'), value: (totals.views_this_week || 0).toLocaleString(), icon: Calendar, color: 'var(--sap-purple)' },
+            { label: t('campaignAnalytics.uniqueViewers'), value: (totals.unique_viewers || 0).toLocaleString(), icon: Users, color: 'var(--sap-amber)' },
+            { label: t('campaignAnalytics.avgDuration'), value: (totals.avg_watch_duration || 30) + 's', icon: Clock, color: 'var(--sap-pink)' },
           ].map(function(card, i) {
             return (
               <div key={i} style={{ background: '#fff', borderRadius: 10, padding: '14px 16px' }}>

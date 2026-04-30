@@ -44,10 +44,10 @@ export default function PublicIncomeDisclosure() {
           <Section title={t('incomeDisclaimer.campaignTierPricing', { defaultValue: 'Campaign Tier commission structure' })}>
             <p>{t('incomeDisclaimer.campaignTierAlloc', { defaultValue: 'When a member purchases a campaign tier, the fee is distributed as follows:' })}</p>
             <CostBreakdown items={[
-              { pct: '40%', label: 'Direct Sponsor Commission', desc: 'Paid to the member who personally referred the buyer' },
-              { pct: '50%', label: 'Uni-level Commissions', desc: '6.25% × 8 levels deep in the network' },
-              { pct: '5%', label: 'Completion Bonus Pool', desc: 'Paid when all 64 grid positions fill' },
-              { pct: '5%', label: 'Platform Fee', desc: 'Retained by SuperAdPro to operate the service' },
+              { pct: '40%', label: t('incomeDisclaimer.campaignTier.directLabel'), desc: t('publicIncomeDisclosure.directDescPublic') },
+              { pct: '50%', label: t('incomeDisclaimer.campaignTier.unilevelLabel'), desc: t('incomeDisclaimer.campaignTier.unilevelDesc') },
+              { pct: '5%', label: t('incomeDisclaimer.campaignTier.completionLabel'), desc: t('incomeDisclaimer.campaignTier.completionDesc') },
+              { pct: '5%', label: t('publicIncomeDisclosure.platformFeeLabel'), desc: t('publicIncomeDisclosure.platformFeeDesc') },
             ]}/>
             <p style={{ fontSize: 14, color: 'rgba(200,220,255,0.55)', marginTop: 14 }}>
               Maximum earnings scenario: A member who personally refers 64 direct referrals, all of whom purchase all 8 tiers ($20 to $1,000), earns 46.25% of each tier price per referral (40% direct sponsor + 6.25% Level-1 uni-level) plus all 8 completion bonuses ($64 to $3,200). Total: <strong style={{ color: '#fff' }}>$103,976 per completed cycle</strong>. This is the absolute theoretical maximum. Virtually no member will achieve this. Most members who earn do so at a small fraction of this level.
@@ -57,7 +57,7 @@ export default function PublicIncomeDisclosure() {
           <Section title={t('incomeDisclaimer.membershipPricing', { defaultValue: 'Membership commission structure' })}>
             <p>{t('incomeDisclaimer.membershipAlloc', { defaultValue: 'Members earn 50% recurring commission on each active membership in their direct referral line:' })}</p>
             <CostBreakdown items={[
-              { pct: '50%', label: 'Sponsor Commission', desc: 'Paid to the referring member every month they remain active — $10 per Basic, $17.50 per Pro' },
+              { pct: '50%', label: t('incomeDisclaimer.membership.sponsorLabel'), desc: t('incomeDisclaimer.membership.sponsorDesc') },
             ]}/>
           </Section>
 

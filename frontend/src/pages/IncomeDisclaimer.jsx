@@ -29,9 +29,9 @@ export default function IncomeDisclaimer() {
           <Section title={t('incomeDisclaimer.creditPricing')}>
             <p>{t("incomeDisclaimer.creditPackAlloc")}</p>
             <CostBreakdown items={[
-              { pct:'15%', label:'Direct Referral Commission', desc:'Paid to the member who personally recruited the buyer' },
-              { pct:'10%', label:'Auto-Place Commission', desc:'Paid on positions placed by network growth (spillover)' },
-              { pct:'10%', label:'Completion Bonus', desc:'Paid to the nexus owner when all 39 positions fill' },
+              { pct:'15%', label:t('incomeDisclaimer.creditPack.directLabel'), desc:t('incomeDisclaimer.creditPack.directDesc') },
+              { pct:'10%', label:t('incomeDisclaimer.creditPack.autoLabel'), desc:t('incomeDisclaimer.creditPack.autoDesc') },
+              { pct:'10%', label:t('incomeDisclaimer.creditPack.completionLabel'), desc:t('incomeDisclaimer.creditPack.completionDesc') },
             ]}/>
             <p>{t("incomeDisclaimer.creditPackNote")}</p>
           </Section>
@@ -39,9 +39,9 @@ export default function IncomeDisclaimer() {
           <Section title={t('incomeDisclaimer.campaignTierPricing')}>
             <p>{t("incomeDisclaimer.campaignTierAlloc")}</p>
             <CostBreakdown items={[
-              { pct:'40%', label:'Direct Sponsor Commission', desc:'Paid to the member who referred you' },
-              { pct:'50%', label:'Uni-level Commissions', desc:'6.25% × 8 levels deep in the network' },
-              { pct:'5%', label:'Completion Bonus Pool', desc:'Paid when all 64 grid positions fill' },
+              { pct:'40%', label:t('incomeDisclaimer.campaignTier.directLabel'), desc:t('incomeDisclaimer.campaignTier.directDesc') },
+              { pct:'50%', label:t('incomeDisclaimer.campaignTier.unilevelLabel'), desc:t('incomeDisclaimer.campaignTier.unilevelDesc') },
+              { pct:'5%', label:t('incomeDisclaimer.campaignTier.completionLabel'), desc:t('incomeDisclaimer.campaignTier.completionDesc') },
             ]}/>
             <p>{t('incomeDisclaimer.body_L47')}</p>
           </Section>
@@ -49,7 +49,7 @@ export default function IncomeDisclaimer() {
           <Section title={t('incomeDisclaimer.membershipPricing')}>
             <p>{t("incomeDisclaimer.membershipAlloc")}</p>
             <CostBreakdown items={[
-              { pct:'50%', label:'Sponsor Commission', desc:'Paid to the referring member every month they remain active' },
+              { pct:'50%', label:t('incomeDisclaimer.membership.sponsorLabel'), desc:t('incomeDisclaimer.membership.sponsorDesc') },
             ]}/>
           </Section>
 

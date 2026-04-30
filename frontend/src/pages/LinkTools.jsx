@@ -281,8 +281,8 @@ export default function LinkTools() {
         {[
           {label:t('linkTools.shortLinks'),val:links.length,sub:'active links',grad:'linear-gradient(135deg,#0284c7 0%,#0ea5e9 50%,#38bdf8 100%)',shadow:'rgba(14,165,233,.45)',icon:Link2,emoji:'🔗',delay:0},
           {label:t('linkTools.rotators'),val:rotators.length,sub:'traffic splitters',grad:'linear-gradient(135deg,#6d28d9 0%,#8b5cf6 50%,#a78bfa 100%)',shadow:'rgba(139,92,246,.45)',icon:Shuffle,emoji:'🔀',delay:.08},
-          {label:'Total Clicks',val:totalClicks,sub:'all time',grad:'linear-gradient(135deg,#065f46 0%,#10b981 50%,#34d399 100%)',shadow:'rgba(16,185,129,.45)',icon:MousePointer,emoji:'👆',delay:.16},
-          {label:'Protected',val:links.filter(l=>l.has_password).length,sub:'password locked',grad:'linear-gradient(135deg,#92400e 0%,#f59e0b 50%,#fbbf24 100%)',shadow:'rgba(245,158,11,.45)',icon:Shield,emoji:'🔒',delay:.24},
+          {label:t('linkTools.totalClicks'),val:totalClicks,sub:'all time',grad:'linear-gradient(135deg,#065f46 0%,#10b981 50%,#34d399 100%)',shadow:'rgba(16,185,129,.45)',icon:MousePointer,emoji:'👆',delay:.16},
+          {label:t('linkTools.protected'),val:links.filter(l=>l.has_password).length,sub:'password locked',grad:'linear-gradient(135deg,#92400e 0%,#f59e0b 50%,#fbbf24 100%)',shadow:'rgba(245,158,11,.45)',icon:Shield,emoji:'🔒',delay:.24},
         ].map((s,i) => (
           <div key={i} className="lt-stat" style={{
             background:s.grad,borderRadius:20,padding:'28px 26px 24px',

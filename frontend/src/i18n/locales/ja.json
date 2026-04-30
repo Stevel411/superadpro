@@ -647,7 +647,8 @@
     "currentlySet": "（現在設定中）",
     "linkToolsHelp": "リンクツールヘルプ",
     "searchHelpTopics": "ヘルプトピックを検索...",
-    "helpDesc": "リンク、トラッキングなどについて知っておくべきすべて"
+    "helpDesc": "リンク、トラッキングなどについて知っておくべきすべて",
+    "protected": "Protected"
   },
   "courses": {
     "title": "コース",
@@ -1132,7 +1133,12 @@
     "viewersBy": "国別ビューワー数",
     "viewsPerDay": "1日あたりのビュー数",
     "whenViewersWatch": "ビューワーが視聴する時間",
-    "whenWatched": "視聴時間"
+    "whenWatched": "視聴時間",
+    "totalViews": "Total Views",
+    "viewsToday": "Views Today",
+    "thisWeek": "This Week",
+    "uniqueViewers": "Unique Viewers",
+    "avgDuration": "Avg Duration"
   },
   "contentCreator": {
     "title": "コンテンツクリエイター",
@@ -1561,7 +1567,29 @@
     "backLabel": "← 戻る",
     "openFullTour": "フルツアーを開く ↗",
     "bioPlaceholderFull": "例：オンライン収入構築を支援するマーケター...",
-    "accountReadyBody": "アカウント準備完了。次のステップ："
+    "accountReadyBody": "アカウント準備完了。次のステップ：",
+    "tour": {
+      "dashboardTitle": "Dashboard",
+      "dashboardDesc": "Your home base — see earnings, team growth, and quick actions",
+      "howEarnTitle": "How You Earn",
+      "howEarnDesc": "4 income streams: referrals, campaign grid, Profit Nexus, courses",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "AI video, images, music, voiceover — 9 video models, 11 image models",
+      "proToolsTitle": "Pro Tools",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (upgrade to Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Watch daily videos to keep your campaign commissions active",
+      "walletTitle": "Wallet",
+      "walletDesc": "Two wallets — withdraw anytime via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Create a video in Creative Studio",
+      "videoDesc": "Use AI to generate marketing videos, images, and music",
+      "linkhubTitle": "Build your LinkHub page",
+      "linkhubDesc": "Create your personal link-in-bio page to share everywhere",
+      "shareTitle": "Share your referral link",
+      "shareDesc": "Post on social media and start building your team"
+    }
   },
   "platformTour": {
     "title": "プラットフォームツアー",
@@ -1878,7 +1906,27 @@
     "body_L68": "SuperAdProの報酬プランへの参加は、雇用主と従業員の関係を生み出すものではありません。メンバーは独立した参加者であり、自らの税務義務、事業費用、および地域の法令遵守について単独で責任を負います。",
     "body_L72": "他のビジネス機会と同様に、リスクが伴います。失ってもいい以上の金額を投資すべきではありません。SuperAdProからの収入を唯一の収入源として頼るべきではありません。すべてのメンバーに、これを補完的な収入機会として扱い、自身の財務状況に基づいて情報に基づいた決定を下すことを奨励します。",
     "body_L76": "SuperAdProは倫理的なビジネス慣行に取り組んでいます。メンバーはプラットフォームを宣伝する際に誤解を招く収入の主張をしてはいけません。共有される収入予測には、結果が典型的ではなく、個々の結果は異なるという明確な免責事項が添付されなければなりません。",
-    "body_L80": "最終更新: 2026年4月。この免責事項はSuperAdProが運営するすべての収入プログラムに適用されます。"
+    "body_L80": "最終更新: 2026年4月。この免責事項はSuperAdProが運営するすべての収入プログラムに適用されます。",
+    "creditPack": {
+      "directLabel": "Direct Referral Commission",
+      "directDesc": "Paid to the member who personally recruited the buyer",
+      "autoLabel": "Auto-Place Commission",
+      "autoDesc": "Paid on positions placed by network growth (spillover)",
+      "completionLabel": "Completion Bonus",
+      "completionDesc": "Paid to the nexus owner when all 39 positions fill"
+    },
+    "campaignTier": {
+      "directLabel": "Direct Sponsor Commission",
+      "directDesc": "Paid to the member who referred you",
+      "unilevelLabel": "Uni-level Commissions",
+      "unilevelDesc": "6.25% × 8 levels deep in the network",
+      "completionLabel": "Completion Bonus Pool",
+      "completionDesc": "Paid when all 64 grid positions fill"
+    },
+    "membership": {
+      "sponsorLabel": "Sponsor Commission",
+      "sponsorDesc": "Paid to the referring member every month they remain active"
+    }
   },
   "incomeGrid3D": {
     "interactive3D": "インタラクティブ3Dビジュアライゼーション",
@@ -2241,7 +2289,16 @@
     "tabBroadcast": "ブロードキャスト",
     "tabImport": "インポート",
     "tabBoost": "ブースト",
-    "statusUnsubscribed": "登録解除済み"
+    "statusUnsubscribed": "登録解除済み",
+    "allLists": "All lists",
+    "nurturing": "Nurturing",
+    "noSequence": "No sequence",
+    "boost": {
+      "targeted": "Perfect for a targeted campaign",
+      "multiple": "Run multiple sequences",
+      "scale": "Scale your outreach",
+      "enterprise": "Enterprise-level volume"
+    }
   },
   "videoCreator": {
     "aspectRatio": "アスペクト比",
@@ -2563,7 +2620,11 @@
     "paymentComplete": "支払い完了",
     "paymentConfirmed": "支払い確認済み",
     "confirming": "お支払いを確認中…",
-    "pleaseWaitFull": "購入のアクティベーション中です。しばらくお待ちください。"
+    "pleaseWaitFull": "購入のアクティベーション中です。しばらくお待ちください。",
+    "membership": "Your SuperAdPro membership is now active. Welcome to the network!",
+    "creditsReady": "Your Creative Studio credits are ready to use.",
+    "courseReady": "Your course is now available in the Course Library.",
+    "emailCredits": "Your email credits have been added. Start sending!"
   },
   "superPagesEditor": {
     "preview": "プレビュー",
@@ -2925,7 +2986,8 @@
     "recruitToMsg": "メッセージ送信を開始するには誰かを採用してください",
     "salesPassUps": "販売 + パスアップ",
     "teamGrowth": "Team Growth",
-    "dailyWatchLog": "Daily Watch Log"
+    "dailyWatchLog": "Daily Watch Log",
+    "remaining": "Remaining"
   },
   "leadFinder": {
     "title": "リード検索",
@@ -4308,7 +4370,8 @@
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
     "pressStart": "Press Start to begin simulation",
-    "pageTitle": "Profit Grid Calculator"
+    "pageTitle": "Profit Grid Calculator",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
@@ -4326,7 +4389,8 @@
     "recentCascades": "Recent Cascades",
     "theInfiniteCascade": "The Infinite Cascade",
     "pageTitle": "Income Chains",
-    "noCascadesYet": "No cascades yet"
+    "noCascadesYet": "No cascades yet",
+    "subtitle": "Your four infinite streams of passive course income"
   },
   "marketingMaterials": {
     "pageTitle": "Marketing Materials"
@@ -4347,5 +4411,21 @@
     "fontFamily": "Font family",
     "presetSizes": "Preset sizes",
     "textColour": "Text colour"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Platform Fee",
+    "platformFeeDesc": "Retained by SuperAdPro to operate the service",
+    "directDescPublic": "Paid to the member who personally referred the buyer"
+  },
+  "featureMetric": {
+    "clicks": "Clicks this month",
+    "subscribers": "Active subscribers",
+    "conversion": "Conversion rate",
+    "salesTotal": "Sales total",
+    "viewsDelivered": "Views delivered"
+  },
+  "walletGuide": {
+    "getMetamask": "Get MetaMask",
+    "addPolygon": "Add Polygon"
   }
 }

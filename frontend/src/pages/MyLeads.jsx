@@ -272,8 +272,8 @@ function BcastTab({leads,lists,flash}) {
     <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>{t('myLeads.broadcastTitle')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('myLeads.broadcastDesc')}</div></div>
     <div style={{padding:'20px 24px'}}>
       <div style={{display:'flex',gap:10,marginBottom:16}}>
-        <div style={{flex:1}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.listLabel')}</label><CustomSelect value={fL} onChange={setFL} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
-        <div style={{flex:1}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.statusLabel')}</label><CustomSelect value={fS} onChange={setFS} options={[{value:'all',label:'All'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'}]}/></div>
+        <div style={{flex:1}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.listLabel')}</label><CustomSelect value={fL} onChange={setFL} options={[{value:'',label:t('myLeads.allLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
+        <div style={{flex:1}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.statusLabel')}</label><CustomSelect value={fS} onChange={setFS} options={[{value:'all',label:'All'},{value:'new',label:'New'},{value:'nurturing',label:t('myLeads.nurturing')},{value:'hot',label:'Hot'}]}/></div>
         <div style={{display:'flex',alignItems:'flex-end',paddingBottom:2}}><span style={{fontSize:14,fontWeight:800,color:'var(--sap-indigo)'}}>{ct} recipients</span></div>
       </div>
       <div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.subjectLabel')}</label><input value={sub} onChange={function(e){setSub(e.target.value);}} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
@@ -340,7 +340,7 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
       {/* Import settings */}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
         <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.assignToList')}</label><CustomSelect value={listId} onChange={setListId} options={[{value:'',label:'No list (unsorted)'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
-        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.autoAssignSequence')}</label><CustomSelect value={seqId} onChange={setSeqId} options={[{value:'',label:'No sequence'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></div>
+        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.autoAssignSequence')}</label><CustomSelect value={seqId} onChange={setSeqId} options={[{value:'',label:t('myLeads.noSequence')}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></div>
         <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.importAsStatus')}</label><CustomSelect value={impStatus} onChange={setImpStatus} options={[{value:'new',label:'New'},{value:'hot',label:'Hot'},{value:'nurturing',label:'Nurturing'}]}/></div>
         <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.sourceLabel')}</label><input value={source} onChange={function(e){setSource(e.target.value);}} placeholder={t('myLeads.importPlaceholder')} style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
       </div>
@@ -400,7 +400,7 @@ function BoostTab({emailStats,refresh,flash}) {
 
   var { t } = useTranslation();
   var [buying,setBuying]=useState('');
-  var packs=emailStats.boost_packs||[{id:'boost_1k',credits:1000,price:5,label:'1,000 Emails',desc:'Perfect for a targeted campaign'},{id:'boost_5k',credits:5000,price:19,label:'5,000 Emails',desc:'Run multiple sequences'},{id:'boost_10k',credits:10000,price:29,label:'10,000 Emails',desc:'Scale your outreach'},{id:'boost_50k',credits:50000,price:99,label:'50,000 Emails',desc:'Enterprise-level volume'}];
+  var packs=emailStats.boost_packs||[{id:'boost_1k',credits:1000,price:5,label:'1,000 Emails',desc:t('myLeads.boost.targeted')},{id:'boost_5k',credits:5000,price:19,label:'5,000 Emails',desc:t('myLeads.boost.multiple')},{id:'boost_10k',credits:10000,price:29,label:'10,000 Emails',desc:t('myLeads.boost.scale')},{id:'boost_50k',credits:50000,price:99,label:'50,000 Emails',desc:t('myLeads.boost.enterprise')}];
   function buy(pid){setBuying(pid);apiPost('/api/leads/buy-boost',{pack_id:pid}).then(function(r){setBuying('');flash('+'+(r.credits_added||0)+' email credits added');refresh();}).catch(function(e){setBuying('');flash(e.message,'err');});}
 
   return <div>

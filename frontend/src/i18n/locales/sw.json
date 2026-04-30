@@ -647,7 +647,8 @@
     "currentlySet": "(imewekwa sasa)",
     "linkToolsHelp": "Msaada wa Zana za Viungo",
     "searchHelpTopics": "Tafuta mada za msaada...",
-    "helpDesc": "Kila kitu unachohitaji kujua kuhusu viungo, ufuatiliaji na zaidi"
+    "helpDesc": "Kila kitu unachohitaji kujua kuhusu viungo, ufuatiliaji na zaidi",
+    "protected": "Protected"
   },
   "courses": {
     "title": "Kozi",
@@ -1132,7 +1133,12 @@
     "viewersBy": "Waonaji kwa nchi",
     "viewsPerDay": "Mandhari kwa kila siku",
     "whenViewersWatch": "Wakati waonaji huangalia",
-    "whenWatched": "Wakati iliyoangaliwa"
+    "whenWatched": "Wakati iliyoangaliwa",
+    "totalViews": "Total Views",
+    "viewsToday": "Views Today",
+    "thisWeek": "This Week",
+    "uniqueViewers": "Unique Viewers",
+    "avgDuration": "Avg Duration"
   },
   "contentCreator": {
     "title": "Muundaji wa Maudhui",
@@ -1561,7 +1567,29 @@
     "backLabel": "← Rudi",
     "openFullTour": "Fungua ziara kamili ↗",
     "bioPlaceholderFull": "mf. Mtaalamu wa masoko ya dijitali anayesaidia kujenga mapato...",
-    "accountReadyBody": "Akaunti tayari. Hatua zifuatazo:"
+    "accountReadyBody": "Akaunti tayari. Hatua zifuatazo:",
+    "tour": {
+      "dashboardTitle": "Dashboard",
+      "dashboardDesc": "Your home base — see earnings, team growth, and quick actions",
+      "howEarnTitle": "How You Earn",
+      "howEarnDesc": "4 income streams: referrals, campaign grid, Profit Nexus, courses",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "AI video, images, music, voiceover — 9 video models, 11 image models",
+      "proToolsTitle": "Pro Tools",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (upgrade to Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Watch daily videos to keep your campaign commissions active",
+      "walletTitle": "Wallet",
+      "walletDesc": "Two wallets — withdraw anytime via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Create a video in Creative Studio",
+      "videoDesc": "Use AI to generate marketing videos, images, and music",
+      "linkhubTitle": "Build your LinkHub page",
+      "linkhubDesc": "Create your personal link-in-bio page to share everywhere",
+      "shareTitle": "Share your referral link",
+      "shareDesc": "Post on social media and start building your team"
+    }
   },
   "platformTour": {
     "title": "Ziara ya Jukwaa",
@@ -1878,7 +1906,27 @@
     "body_L68": "Kushiriki katika mpango wa fidia wa SuperAdPro hakuundi uhusiano wa mwajiri-mfanyakazi. Wanachama ni washiriki huru na wanabeba jukumu pekee kwa majukumu yao ya kodi, gharama za biashara, na kufuata sheria na kanuni za mitaa.",
     "body_L72": "Kama ilivyo kwa fursa yoyote ya biashara, kuna hatari inayohusika. Hupaswi kuwekeza zaidi ya kile unachoweza kumudu kupoteza. Usitegemee mapato kutoka SuperAdPro kama chanzo chako pekee cha mapato. Tunahamasisha wanachama wote kuyachukulia haya kama fursa ya mapato ya nyongeza na kufanya maamuzi yaliyoelimishwa kulingana na hali zao za kifedha.",
     "body_L76": "SuperAdPro imejitolea kwa mazoea ya kimaadili ya biashara. Wanachama hawapaswi kutoa madai ya mapato yanayopotosha wakati wa kukuza jukwaa. Makadirio yoyote ya mapato yanayoshirikiwa lazima yaambatane na kanusho wazi kwamba matokeo si ya kawaida na matokeo ya mtu binafsi yatatofautiana.",
-    "body_L80": "Imesasishwa mwisho: Aprili 2026. Kanusho hili linatumika kwa mipango yote ya mapato inayoendeshwa na SuperAdPro."
+    "body_L80": "Imesasishwa mwisho: Aprili 2026. Kanusho hili linatumika kwa mipango yote ya mapato inayoendeshwa na SuperAdPro.",
+    "creditPack": {
+      "directLabel": "Direct Referral Commission",
+      "directDesc": "Paid to the member who personally recruited the buyer",
+      "autoLabel": "Auto-Place Commission",
+      "autoDesc": "Paid on positions placed by network growth (spillover)",
+      "completionLabel": "Completion Bonus",
+      "completionDesc": "Paid to the nexus owner when all 39 positions fill"
+    },
+    "campaignTier": {
+      "directLabel": "Direct Sponsor Commission",
+      "directDesc": "Paid to the member who referred you",
+      "unilevelLabel": "Uni-level Commissions",
+      "unilevelDesc": "6.25% × 8 levels deep in the network",
+      "completionLabel": "Completion Bonus Pool",
+      "completionDesc": "Paid when all 64 grid positions fill"
+    },
+    "membership": {
+      "sponsorLabel": "Sponsor Commission",
+      "sponsorDesc": "Paid to the referring member every month they remain active"
+    }
   },
   "incomeGrid3D": {
     "interactive3D": "Taswira ya 3D inayoshirikisha",
@@ -2241,7 +2289,16 @@
     "tabBroadcast": "Matangazo",
     "tabImport": "Ingiza",
     "tabBoost": "Ongeza",
-    "statusUnsubscribed": "Alijitoa"
+    "statusUnsubscribed": "Alijitoa",
+    "allLists": "All lists",
+    "nurturing": "Nurturing",
+    "noSequence": "No sequence",
+    "boost": {
+      "targeted": "Perfect for a targeted campaign",
+      "multiple": "Run multiple sequences",
+      "scale": "Scale your outreach",
+      "enterprise": "Enterprise-level volume"
+    }
   },
   "videoCreator": {
     "aspectRatio": "Uwiano wa pande",
@@ -2563,7 +2620,11 @@
     "paymentComplete": "Malipo yamekamilika",
     "paymentConfirmed": "Malipo yamethibitishwa",
     "confirming": "Kuthibitisha malipo yako…",
-    "pleaseWaitFull": "Tafadhali subiri tunapowasha ununuzi wako."
+    "pleaseWaitFull": "Tafadhali subiri tunapowasha ununuzi wako.",
+    "membership": "Your SuperAdPro membership is now active. Welcome to the network!",
+    "creditsReady": "Your Creative Studio credits are ready to use.",
+    "courseReady": "Your course is now available in the Course Library.",
+    "emailCredits": "Your email credits have been added. Start sending!"
   },
   "superPagesEditor": {
     "preview": "Hakiki",
@@ -2925,7 +2986,8 @@
     "recruitToMsg": "Ajiri mtu ili kuanza kutuma ujumbe",
     "salesPassUps": "Mauzo + kupitisha",
     "teamGrowth": "Team Growth",
-    "dailyWatchLog": "Daily Watch Log"
+    "dailyWatchLog": "Daily Watch Log",
+    "remaining": "Remaining"
   },
   "leadFinder": {
     "title": "Kitafuta Wateja",
@@ -4308,7 +4370,8 @@
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
     "pressStart": "Press Start to begin simulation",
-    "pageTitle": "Profit Grid Calculator"
+    "pageTitle": "Profit Grid Calculator",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
@@ -4326,7 +4389,8 @@
     "recentCascades": "Recent Cascades",
     "theInfiniteCascade": "The Infinite Cascade",
     "pageTitle": "Income Chains",
-    "noCascadesYet": "No cascades yet"
+    "noCascadesYet": "No cascades yet",
+    "subtitle": "Your four infinite streams of passive course income"
   },
   "marketingMaterials": {
     "pageTitle": "Marketing Materials"
@@ -4347,5 +4411,21 @@
     "fontFamily": "Font family",
     "presetSizes": "Preset sizes",
     "textColour": "Text colour"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Platform Fee",
+    "platformFeeDesc": "Retained by SuperAdPro to operate the service",
+    "directDescPublic": "Paid to the member who personally referred the buyer"
+  },
+  "featureMetric": {
+    "clicks": "Clicks this month",
+    "subscribers": "Active subscribers",
+    "conversion": "Conversion rate",
+    "salesTotal": "Sales total",
+    "viewsDelivered": "Views delivered"
+  },
+  "walletGuide": {
+    "getMetamask": "Get MetaMask",
+    "addPolygon": "Add Polygon"
   }
 }

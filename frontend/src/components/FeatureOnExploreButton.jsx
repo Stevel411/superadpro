@@ -11,14 +11,16 @@ var COLOUR_SWATCHES = [
   { key: 'pink',   hex: '#ec4899' },
 ];
 
-var METRIC_PRESETS = [
-  { key: 'clicks',      label: 'Clicks this month' },
-  { key: 'subscribers', label: 'Active subscribers' },
-  { key: 'conversion',  label: 'Conversion rate' },
-  { key: 'sales',       label: 'Sales total' },
-  { key: 'views',       label: 'Views delivered' },
-  { key: 'custom',      label: 'Custom…' },
-];
+function getMetricPresets(t) {
+  return [
+    { key: 'clicks',      label: t('featureMetric.clicks') },
+    { key: 'subscribers', label: t('featureMetric.subscribers') },
+    { key: 'conversion',  label: t('featureMetric.conversion') },
+    { key: 'sales',       label: t('featureMetric.salesTotal') },
+    { key: 'views',       label: t('featureMetric.viewsDelivered') },
+    { key: 'custom',      label: 'Custom…' },
+  ];
+}
 
 var MAX = {
   display_title: 160,
@@ -43,6 +45,7 @@ var MAX = {
  */
 export default function FeatureOnExploreButton(props) {
   var { t } = useTranslation();
+  var METRIC_PRESETS = getMetricPresets(t);
   var artifactType = props.artifactType;
 
   var _state = useState({ loaded: false, submitted: null, resolvedId: null }); var state = _state[0]; var setState = _state[1];
@@ -168,7 +171,7 @@ function ShowcaseModal(props) {
   var _title = useState(props.artifactTitle || ''); var title = _title[0]; var setTitle = _title[1];
   var _niche = useState(''); var niche = _niche[0]; var setNiche = _niche[1];
   var _metricPreset = useState('clicks'); var metricPreset = _metricPreset[0]; var setMetricPreset = _metricPreset[1];
-  var _metricLabel = useState('Clicks this month'); var metricLabel = _metricLabel[0]; var setMetricLabel = _metricLabel[1];
+  var _metricLabel = useState(t('featureMetric.clicks')); var metricLabel = _metricLabel[0]; var setMetricLabel = _metricLabel[1];
   var _metricValue = useState(''); var metricValue = _metricValue[0]; var setMetricValue = _metricValue[1];
   var _colour = useState('sky'); var colour = _colour[0]; var setColour = _colour[1];
 

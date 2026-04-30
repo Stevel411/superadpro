@@ -647,7 +647,8 @@
     "currentlySet": "(kasalukuyang naka-set)",
     "linkToolsHelp": "Tulong para sa Link Tools",
     "searchHelpTopics": "Maghanap ng mga help topic...",
-    "helpDesc": "Lahat ng kailangan mong malaman tungkol sa mga link, tracking, at iba pa"
+    "helpDesc": "Lahat ng kailangan mong malaman tungkol sa mga link, tracking, at iba pa",
+    "protected": "Protected"
   },
   "courses": {
     "title": "Mga Kurso",
@@ -1132,7 +1133,12 @@
     "viewersBy": "Mga manonood ayon sa bansa",
     "viewsPerDay": "Mga views bawat araw",
     "whenViewersWatch": "Kailan nanonood ang mga manonood",
-    "whenWatched": "Kailan napanood"
+    "whenWatched": "Kailan napanood",
+    "totalViews": "Total Views",
+    "viewsToday": "Views Today",
+    "thisWeek": "This Week",
+    "uniqueViewers": "Unique Viewers",
+    "avgDuration": "Avg Duration"
   },
   "contentCreator": {
     "title": "Tagapaglikha ng Nilalaman",
@@ -1561,7 +1567,29 @@
     "backLabel": "← Bumalik",
     "openFullTour": "Buksan ang buong tour ↗",
     "bioPlaceholderFull": "hal. Digital marketer na tumutulong bumuo ng online income...",
-    "accountReadyBody": "Handa na. Susunod na hakbang:"
+    "accountReadyBody": "Handa na. Susunod na hakbang:",
+    "tour": {
+      "dashboardTitle": "Dashboard",
+      "dashboardDesc": "Your home base — see earnings, team growth, and quick actions",
+      "howEarnTitle": "How You Earn",
+      "howEarnDesc": "4 income streams: referrals, campaign grid, Profit Nexus, courses",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "AI video, images, music, voiceover — 9 video models, 11 image models",
+      "proToolsTitle": "Pro Tools",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (upgrade to Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Watch daily videos to keep your campaign commissions active",
+      "walletTitle": "Wallet",
+      "walletDesc": "Two wallets — withdraw anytime via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Create a video in Creative Studio",
+      "videoDesc": "Use AI to generate marketing videos, images, and music",
+      "linkhubTitle": "Build your LinkHub page",
+      "linkhubDesc": "Create your personal link-in-bio page to share everywhere",
+      "shareTitle": "Share your referral link",
+      "shareDesc": "Post on social media and start building your team"
+    }
   },
   "platformTour": {
     "title": "Platform Tour",
@@ -1878,7 +1906,27 @@
     "body_L68": "Ang pakikilahok sa plano ng kompensasyon ng SuperAdPro ay hindi lumilikha ng relasyon ng employer-empleyado. Ang mga miyembro ay mga independiyenteng kalahok at tanging sila ang may pananagutan sa kanilang sariling mga obligasyon sa buwis, mga gastos sa negosyo, at pagsunod sa mga lokal na batas at regulasyon.",
     "body_L72": "Tulad ng anumang pagkakataon sa negosyo, may kasamang panganib. Hindi ka dapat mag-invest ng higit pa sa kaya mong mawala. Huwag umasa sa kita mula sa SuperAdPro bilang iyong tanging mapagkukunan ng kita. Hinihikayat namin ang lahat ng mga miyembro na ituring ito bilang isang karagdagang pagkakataon sa kita at gumawa ng matalinong desisyon batay sa kanilang sariling mga pangyayari sa pananalapi.",
     "body_L76": "Ang SuperAdPro ay nakatuon sa etikal na mga kasanayan sa negosyo. Ang mga miyembro ay hindi dapat gumawa ng mga mapanlinlang na pag-aangkin sa kita kapag nag-promote ng platform. Ang anumang mga projection ng kita na ibinahagi ay dapat samahan ng isang malinaw na disclaimer na ang mga resulta ay hindi pangkaraniwan at mag-iiba ang mga indibidwal na resulta.",
-    "body_L80": "Huling na-update: Abril 2026. Ang disclaimer na ito ay naaangkop sa lahat ng programa ng kita na pinapatakbo ng SuperAdPro."
+    "body_L80": "Huling na-update: Abril 2026. Ang disclaimer na ito ay naaangkop sa lahat ng programa ng kita na pinapatakbo ng SuperAdPro.",
+    "creditPack": {
+      "directLabel": "Direct Referral Commission",
+      "directDesc": "Paid to the member who personally recruited the buyer",
+      "autoLabel": "Auto-Place Commission",
+      "autoDesc": "Paid on positions placed by network growth (spillover)",
+      "completionLabel": "Completion Bonus",
+      "completionDesc": "Paid to the nexus owner when all 39 positions fill"
+    },
+    "campaignTier": {
+      "directLabel": "Direct Sponsor Commission",
+      "directDesc": "Paid to the member who referred you",
+      "unilevelLabel": "Uni-level Commissions",
+      "unilevelDesc": "6.25% × 8 levels deep in the network",
+      "completionLabel": "Completion Bonus Pool",
+      "completionDesc": "Paid when all 64 grid positions fill"
+    },
+    "membership": {
+      "sponsorLabel": "Sponsor Commission",
+      "sponsorDesc": "Paid to the referring member every month they remain active"
+    }
   },
   "incomeGrid3D": {
     "interactive3D": "Interactive na 3D Visualisation",
@@ -2241,7 +2289,16 @@
     "tabBroadcast": "Broadcast",
     "tabImport": "Mag-import",
     "tabBoost": "Boost",
-    "statusUnsubscribed": "Nag-unsubscribe"
+    "statusUnsubscribed": "Nag-unsubscribe",
+    "allLists": "All lists",
+    "nurturing": "Nurturing",
+    "noSequence": "No sequence",
+    "boost": {
+      "targeted": "Perfect for a targeted campaign",
+      "multiple": "Run multiple sequences",
+      "scale": "Scale your outreach",
+      "enterprise": "Enterprise-level volume"
+    }
   },
   "videoCreator": {
     "aspectRatio": "Aspect ratio",
@@ -2563,7 +2620,11 @@
     "paymentComplete": "Kumpleto na ang bayad",
     "paymentConfirmed": "Na-confirm ang bayad",
     "confirming": "Kinukumpirma ang iyong bayad…",
-    "pleaseWaitFull": "Maghintay habang ina-activate ang iyong pagbili."
+    "pleaseWaitFull": "Maghintay habang ina-activate ang iyong pagbili.",
+    "membership": "Your SuperAdPro membership is now active. Welcome to the network!",
+    "creditsReady": "Your Creative Studio credits are ready to use.",
+    "courseReady": "Your course is now available in the Course Library.",
+    "emailCredits": "Your email credits have been added. Start sending!"
   },
   "superPagesEditor": {
     "preview": "Preview",
@@ -2925,7 +2986,8 @@
     "recruitToMsg": "Mag-recruit ng isang tao upang magsimulang magpadala ng mga mensahe",
     "salesPassUps": "Mga benta + pass-up",
     "teamGrowth": "Team Growth",
-    "dailyWatchLog": "Daily Watch Log"
+    "dailyWatchLog": "Daily Watch Log",
+    "remaining": "Remaining"
   },
   "leadFinder": {
     "title": "Tagahanap ng Lead",
@@ -4308,7 +4370,8 @@
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
     "pressStart": "Press Start to begin simulation",
-    "pageTitle": "Profit Grid Calculator"
+    "pageTitle": "Profit Grid Calculator",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
@@ -4326,7 +4389,8 @@
     "recentCascades": "Recent Cascades",
     "theInfiniteCascade": "The Infinite Cascade",
     "pageTitle": "Income Chains",
-    "noCascadesYet": "No cascades yet"
+    "noCascadesYet": "No cascades yet",
+    "subtitle": "Your four infinite streams of passive course income"
   },
   "marketingMaterials": {
     "pageTitle": "Marketing Materials"
@@ -4347,5 +4411,21 @@
     "fontFamily": "Font family",
     "presetSizes": "Preset sizes",
     "textColour": "Text colour"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Platform Fee",
+    "platformFeeDesc": "Retained by SuperAdPro to operate the service",
+    "directDescPublic": "Paid to the member who personally referred the buyer"
+  },
+  "featureMetric": {
+    "clicks": "Clicks this month",
+    "subscribers": "Active subscribers",
+    "conversion": "Conversion rate",
+    "salesTotal": "Sales total",
+    "viewsDelivered": "Views delivered"
+  },
+  "walletGuide": {
+    "getMetamask": "Get MetaMask",
+    "addPolygon": "Add Polygon"
   }
 }

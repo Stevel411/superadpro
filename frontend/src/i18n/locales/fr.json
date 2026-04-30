@@ -647,7 +647,8 @@
     "currentlySet": "(actuellement défini)",
     "linkToolsHelp": "Aide des outils de liens",
     "searchHelpTopics": "Rechercher des sujets d'aide...",
-    "helpDesc": "Tout ce que vous devez savoir sur les liens, le suivi et plus"
+    "helpDesc": "Tout ce que vous devez savoir sur les liens, le suivi et plus",
+    "protected": "Protégé"
   },
   "courses": {
     "title": "Bibliothèque de cours",
@@ -1132,7 +1133,12 @@
     "viewersBy": "Spectateurs par pays",
     "viewsPerDay": "Vues par jour",
     "whenViewersWatch": "Quand les spectateurs regardent",
-    "whenWatched": "Quand regardé"
+    "whenWatched": "Quand regardé",
+    "totalViews": "Vues Totales",
+    "viewsToday": "Vues Aujourd'hui",
+    "thisWeek": "Cette Semaine",
+    "uniqueViewers": "Spectateurs Uniques",
+    "avgDuration": "Durée Moyenne"
   },
   "contentCreator": {
     "title": "Créateur de Contenu",
@@ -1561,7 +1567,29 @@
     "backLabel": "← Retour",
     "openFullTour": "Ouvrir le tour complet ↗",
     "bioPlaceholderFull": "ex. Marketeur digital aidant à construire des revenus en ligne...",
-    "accountReadyBody": "Votre compte est prêt. Voici quoi faire :"
+    "accountReadyBody": "Votre compte est prêt. Voici quoi faire :",
+    "tour": {
+      "dashboardTitle": "Tableau de bord",
+      "dashboardDesc": "Votre base — voyez gains, croissance d'équipe et actions rapides",
+      "howEarnTitle": "Comment Vous Gagnez",
+      "howEarnDesc": "4 flux de revenus : parrainages, grid campagne, Profit Nexus, cours",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "Vidéo IA, images, musique, voix off — 9 modèles vidéo, 11 modèles image",
+      "proToolsTitle": "Outils Pro",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (passez à Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Regardez des vidéos chaque jour pour garder vos commissions actives",
+      "walletTitle": "Portefeuille",
+      "walletDesc": "Deux portefeuilles — retirez à tout moment via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Créez une vidéo dans Creative Studio",
+      "videoDesc": "Utilisez l'IA pour générer vidéos marketing, images et musique",
+      "linkhubTitle": "Créez votre page LinkHub",
+      "linkhubDesc": "Créez votre page bio-link personnelle à partager partout",
+      "shareTitle": "Partagez votre lien de parrainage",
+      "shareDesc": "Publiez sur les réseaux sociaux et bâtissez votre équipe"
+    }
   },
   "platformTour": {
     "title": "Tour de la Plateforme",
@@ -2187,7 +2215,16 @@
     "tabBroadcast": "Diffusion",
     "tabImport": "Importer",
     "tabBoost": "Boost",
-    "statusUnsubscribed": "Désabonné"
+    "statusUnsubscribed": "Désabonné",
+    "allLists": "Toutes les listes",
+    "nurturing": "En nurturing",
+    "noSequence": "Aucune séquence",
+    "boost": {
+      "targeted": "Parfait pour une campagne ciblée",
+      "multiple": "Lancez plusieurs séquences",
+      "scale": "Mettez à l'échelle votre prospection",
+      "enterprise": "Volume niveau entreprise"
+    }
   },
   "comingSoon": {
     "whatYouGet": "Ce que vous obtiendrez",
@@ -2232,7 +2269,27 @@
     "body_L68": "La participation au plan de rémunération de SuperAdPro ne crée pas de relation employeur-employé. Les membres sont des participants indépendants et sont seuls responsables de leurs propres obligations fiscales, dépenses professionnelles et du respect des lois et réglementations locales.",
     "body_L72": "Comme toute opportunité commerciale, un risque est impliqué. Vous ne devez pas investir plus que ce que vous pouvez vous permettre de perdre. Ne comptez pas sur les revenus de SuperAdPro comme votre seule source de revenus. Nous encourageons tous les membres à considérer cela comme une opportunité de revenu complémentaire et à prendre des décisions éclairées en fonction de leur propre situation financière.",
     "body_L76": "SuperAdPro s'engage à adopter des pratiques commerciales éthiques. Les membres ne doivent pas faire de déclarations de revenus trompeuses lors de la promotion de la plateforme. Toute projection de revenus partagée doit être accompagnée d'une clause de non-responsabilité claire indiquant que les résultats ne sont pas typiques et que les résultats individuels varieront.",
-    "body_L80": "Dernière mise à jour : avril 2026. Cette clause s'applique à tous les programmes de revenus gérés par SuperAdPro."
+    "body_L80": "Dernière mise à jour : avril 2026. Cette clause s'applique à tous les programmes de revenus gérés par SuperAdPro.",
+    "creditPack": {
+      "directLabel": "Commission Parrainage Direct",
+      "directDesc": "Versé au membre qui a personnellement recruté l'acheteur",
+      "autoLabel": "Commission Placement Auto",
+      "autoDesc": "Versé pour les positions placées par croissance du réseau (spillover)",
+      "completionLabel": "Bonus de Complétion",
+      "completionDesc": "Versé au propriétaire du nexus quand les 39 positions sont remplies"
+    },
+    "campaignTier": {
+      "directLabel": "Commission Sponsor Direct",
+      "directDesc": "Versé au membre qui vous a parrainé",
+      "unilevelLabel": "Commissions Uni-niveau",
+      "unilevelDesc": "6,25% × 8 niveaux de profondeur dans le réseau",
+      "completionLabel": "Pool de Bonus de Complétion",
+      "completionDesc": "Versé quand les 64 positions de la grid sont remplies"
+    },
+    "membership": {
+      "sponsorLabel": "Commission Sponsor",
+      "sponsorDesc": "Versé au membre parrain chaque mois qu'il reste actif"
+    }
   },
   "walletHelp": {
     "needWallet": "Besoin d'un portefeuille crypto ?",
@@ -2575,7 +2632,11 @@
     "paymentComplete": "Paiement terminé",
     "paymentConfirmed": "Paiement confirmé",
     "confirming": "Confirmation de votre paiement…",
-    "pleaseWaitFull": "Veuillez patienter pendant l'activation de votre achat."
+    "pleaseWaitFull": "Veuillez patienter pendant l'activation de votre achat.",
+    "membership": "Votre adhésion SuperAdPro est active. Bienvenue dans le réseau !",
+    "creditsReady": "Vos crédits Creative Studio sont prêts à utiliser.",
+    "courseReady": "Votre cours est disponible dans la Course Library.",
+    "emailCredits": "Vos crédits email ont été ajoutés. Commencez à envoyer !"
   },
   "superPagesEditor": {
     "preview": "Aperçu",
@@ -2933,7 +2994,8 @@
     "recruitToMsg": "Recrutez quelqu'un pour commencer à envoyer des messages",
     "salesPassUps": "Ventes + passages",
     "teamGrowth": "Croissance de l'Équipe",
-    "dailyWatchLog": "Journal Quotidien de Visionnage"
+    "dailyWatchLog": "Journal Quotidien de Visionnage",
+    "remaining": "Restant"
   },
   "leadFinder": {
     "title": "Chercheur de prospects",
@@ -4316,7 +4378,8 @@
     "positions": "Positions",
     "liveCommissionFeed": "Flux de Commissions en Direct",
     "pressStart": "Appuyez sur Démarrer pour commencer la simulation",
-    "pageTitle": "Calculateur de Grid de Profit"
+    "pageTitle": "Calculateur de Grid de Profit",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Votre campagne a besoin d'un Niveau de Campagne actif."
@@ -4334,7 +4397,8 @@
     "recentCascades": "Cascades Récentes",
     "theInfiniteCascade": "La Cascade Infinie",
     "pageTitle": "Chaînes de Revenus",
-    "noCascadesYet": "Pas encore de cascades"
+    "noCascadesYet": "Pas encore de cascades",
+    "subtitle": "Vos quatre flux infinis de revenus passifs de cours"
   },
   "marketingMaterials": {
     "pageTitle": "Matériel Marketing"
@@ -4355,5 +4419,21 @@
     "fontFamily": "Police",
     "presetSizes": "Tailles prédéfinies",
     "textColour": "Couleur du texte"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Frais de Plateforme",
+    "platformFeeDesc": "Conservé par SuperAdPro pour opérer le service",
+    "directDescPublic": "Versé au membre qui a personnellement parrainé l'acheteur"
+  },
+  "featureMetric": {
+    "clicks": "Clics ce mois",
+    "subscribers": "Abonnés actifs",
+    "conversion": "Taux de conversion",
+    "salesTotal": "Total des ventes",
+    "viewsDelivered": "Vues livrées"
+  },
+  "walletGuide": {
+    "getMetamask": "Obtenir MetaMask",
+    "addPolygon": "Ajouter Polygon"
   }
 }

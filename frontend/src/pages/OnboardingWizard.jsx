@@ -211,12 +211,12 @@ export default function OnboardingWizard() {
 
           <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 12, padding: '20px', marginBottom: 20 }}>
             {[
-              { icon: '📊', title: 'Dashboard', desc: 'Your home base — see earnings, team growth, and quick actions' },
-              { icon: '💰', title: 'How You Earn', desc: '4 income streams: referrals, campaign grid, Profit Nexus, courses' },
-              { icon: '🎬', title: 'Creative Studio', desc: 'AI video, images, music, voiceover — 9 video models, 11 image models' },
-              { icon: '🛠️', title: 'Pro Tools', desc: 'SuperPages, SuperDeck, AutoResponder, SuperSeller (upgrade to Pro)' },
-              { icon: '👁️', title: 'Watch to Earn', desc: 'Watch daily videos to keep your campaign commissions active' },
-              { icon: '💳', title: 'Wallet', desc: 'Two wallets — withdraw anytime via USDT crypto' },
+              { icon: '📊', title: t('onboarding.tour.dashboardTitle'), desc: t('onboarding.tour.dashboardDesc') },
+              { icon: '💰', title: t('onboarding.tour.howEarnTitle'), desc: t('onboarding.tour.howEarnDesc') },
+              { icon: '🎬', title: t('onboarding.tour.creativeStudioTitle'), desc: t('onboarding.tour.creativeStudioDesc') },
+              { icon: '🛠️', title: t('onboarding.tour.proToolsTitle'), desc: t('onboarding.tour.proToolsDesc') },
+              { icon: '👁️', title: t('onboarding.tour.watchToEarnTitle'), desc: t('onboarding.tour.watchToEarnDesc') },
+              { icon: '💳', title: t('onboarding.tour.walletTitle'), desc: t('onboarding.tour.walletDesc') },
             ].map(function(item, i) {
               return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 5 ? '1px solid #e2e8f0' : 'none', textAlign: 'left' }}>
                 <div style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</div>
@@ -243,9 +243,9 @@ export default function OnboardingWizard() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
             {[
-              { icon: '🎬', title: 'Create a video in Creative Studio', desc: 'Use AI to generate marketing videos, images, and music', link: '/creative-studio', color: 'var(--sap-purple)' },
-              { icon: '🔗', title: 'Build your LinkHub page', desc: 'Create your personal link-in-bio page to share everywhere', link: '/linkhub', color: 'var(--sap-accent)' },
-              { icon: '📢', title: 'Share your referral link', desc: 'Post on social media and start building your team', link: '/affiliate', color: 'var(--sap-green-bright)' },
+              { icon: '🎬', title: t('onboarding.create.videoTitle'), desc: t('onboarding.create.videoDesc'), link: '/creative-studio', color: 'var(--sap-purple)' },
+              { icon: '🔗', title: t('onboarding.create.linkhubTitle'), desc: t('onboarding.create.linkhubDesc'), link: '/linkhub', color: 'var(--sap-accent)' },
+              { icon: '📢', title: t('onboarding.create.shareTitle'), desc: t('onboarding.create.shareDesc'), link: '/affiliate', color: 'var(--sap-green-bright)' },
             ].map(function(item) {
               return <div key={item.title} onClick={function() { completeOnboarding(); setTimeout(function() { window.location.href = item.link; }, 200); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderRadius: 12, border: '1px solid #e2e8f0', cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}

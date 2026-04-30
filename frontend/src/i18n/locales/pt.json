@@ -647,7 +647,8 @@
     "currentlySet": "(atualmente definido)",
     "linkToolsHelp": "Ajuda de ferramentas de links",
     "searchHelpTopics": "Pesquisar tópicos de ajuda...",
-    "helpDesc": "Tudo o que você precisa saber sobre links, rastreamento e mais"
+    "helpDesc": "Tudo o que você precisa saber sobre links, rastreamento e mais",
+    "protected": "Protegido"
   },
   "courses": {
     "title": "Cursos",
@@ -1132,7 +1133,12 @@
     "viewersBy": "Espectadores por país",
     "viewsPerDay": "Visualizações por dia",
     "whenViewersWatch": "Quando os espectadores assistem",
-    "whenWatched": "Quando foi assistido"
+    "whenWatched": "Quando foi assistido",
+    "totalViews": "Visualizações Totais",
+    "viewsToday": "Visualizações Hoje",
+    "thisWeek": "Esta Semana",
+    "uniqueViewers": "Espectadores Únicos",
+    "avgDuration": "Duração Média"
   },
   "contentCreator": {
     "title": "Criador de Conteúdo",
@@ -1561,7 +1567,29 @@
     "backLabel": "← Voltar",
     "openFullTour": "Abrir tour completo ↗",
     "bioPlaceholderFull": "ex. Profissional de marketing digital ajudando a construir renda online...",
-    "accountReadyBody": "Sua conta está pronta. O que fazer:"
+    "accountReadyBody": "Sua conta está pronta. O que fazer:",
+    "tour": {
+      "dashboardTitle": "Painel",
+      "dashboardDesc": "Sua base — veja ganhos, crescimento da equipe e ações rápidas",
+      "howEarnTitle": "Como Você Ganha",
+      "howEarnDesc": "4 fontes de renda: indicações, grid de campanhas, Profit Nexus, cursos",
+      "creativeStudioTitle": "Creative Studio",
+      "creativeStudioDesc": "Vídeo IA, imagens, música, locução — 9 modelos de vídeo, 11 de imagem",
+      "proToolsTitle": "Ferramentas Pro",
+      "proToolsDesc": "SuperPages, SuperDeck, AutoResponder, SuperSeller (atualize para Pro)",
+      "watchToEarnTitle": "Watch to Earn",
+      "watchToEarnDesc": "Assista vídeos diários para manter suas comissões de campanha ativas",
+      "walletTitle": "Carteira",
+      "walletDesc": "Duas carteiras — saque a qualquer momento via USDT crypto"
+    },
+    "create": {
+      "videoTitle": "Crie um vídeo no Creative Studio",
+      "videoDesc": "Use IA para gerar vídeos de marketing, imagens e música",
+      "linkhubTitle": "Crie sua página LinkHub",
+      "linkhubDesc": "Crie sua página pessoal de link-in-bio para compartilhar em todo lugar",
+      "shareTitle": "Compartilhe seu link de indicação",
+      "shareDesc": "Poste nas redes sociais e comece a construir sua equipe"
+    }
   },
   "platformTour": {
     "title": "Tour da Plataforma",
@@ -1878,7 +1906,27 @@
     "body_L68": "A participação no plano de compensação da SuperAdPro não cria uma relação empregador-empregado. Os membros são participantes independentes e são os únicos responsáveis por suas próprias obrigações fiscais, despesas comerciais e conformidade com as leis e regulamentos locais.",
     "body_L72": "Como qualquer oportunidade de negócio, há risco envolvido. Você não deve investir mais do que pode se dar ao luxo de perder. Não dependa da renda da SuperAdPro como sua única fonte de renda. Incentivamos todos os membros a tratar isso como uma oportunidade de renda suplementar e tomar decisões informadas com base em suas próprias circunstâncias financeiras.",
     "body_L76": "A SuperAdPro está comprometida com práticas comerciais éticas. Os membros não devem fazer alegações enganosas de renda ao promover a plataforma. Quaisquer projeções de renda compartilhadas devem ser acompanhadas de um aviso claro de que os resultados não são típicos e os resultados individuais variarão.",
-    "body_L80": "Última atualização: abril de 2026. Este aviso se aplica a todos os programas de renda operados pela SuperAdPro."
+    "body_L80": "Última atualização: abril de 2026. Este aviso se aplica a todos os programas de renda operados pela SuperAdPro.",
+    "creditPack": {
+      "directLabel": "Comissão por Indicação Direta",
+      "directDesc": "Pago ao membro que pessoalmente recrutou o comprador",
+      "autoLabel": "Comissão por Auto-Colocação",
+      "autoDesc": "Pago por posições colocadas pelo crescimento da rede (spillover)",
+      "completionLabel": "Bônus de Conclusão",
+      "completionDesc": "Pago ao proprietário do nexus quando as 39 posições são preenchidas"
+    },
+    "campaignTier": {
+      "directLabel": "Comissão de Patrocinador Direto",
+      "directDesc": "Pago ao membro que te indicou",
+      "unilevelLabel": "Comissões Uni-level",
+      "unilevelDesc": "6,25% × 8 níveis de profundidade na rede",
+      "completionLabel": "Pool de Bônus de Conclusão",
+      "completionDesc": "Pago quando todas as 64 posições do grid são preenchidas"
+    },
+    "membership": {
+      "sponsorLabel": "Comissão Patrocinador",
+      "sponsorDesc": "Pago ao membro que indicou todo mês que permanecer ativo"
+    }
   },
   "incomeGrid3D": {
     "interactive3D": "Visualização 3D interativa",
@@ -2253,7 +2301,16 @@
     "tabBroadcast": "Transmissão",
     "tabImport": "Importar",
     "tabBoost": "Impulsionar",
-    "statusUnsubscribed": "Cancelou inscrição"
+    "statusUnsubscribed": "Cancelou inscrição",
+    "allLists": "Todas as listas",
+    "nurturing": "Em nurturing",
+    "noSequence": "Sem sequência",
+    "boost": {
+      "targeted": "Perfeito para uma campanha direcionada",
+      "multiple": "Execute várias sequências",
+      "scale": "Escale seu alcance",
+      "enterprise": "Volume nível empresarial"
+    }
   },
   "videoCreator": {
     "aspectRatio": "Proporção",
@@ -2575,7 +2632,11 @@
     "paymentComplete": "Pagamento concluído",
     "paymentConfirmed": "Pagamento confirmado",
     "confirming": "Confirmando seu pagamento…",
-    "pleaseWaitFull": "Aguarde enquanto ativamos sua compra."
+    "pleaseWaitFull": "Aguarde enquanto ativamos sua compra.",
+    "membership": "Sua membership SuperAdPro está ativa. Bem-vindo à rede!",
+    "creditsReady": "Seus créditos do Creative Studio estão prontos para usar.",
+    "courseReady": "Seu curso está disponível na Course Library.",
+    "emailCredits": "Seus créditos de email foram adicionados. Comece a enviar!"
   },
   "superPagesEditor": {
     "preview": "Pré-visualizar",
@@ -2933,7 +2994,8 @@
     "recruitToMsg": "Recrute alguém para começar a enviar mensagens",
     "salesPassUps": "Vendas + pass-ups",
     "teamGrowth": "Crescimento da Equipe",
-    "dailyWatchLog": "Registro Diário de Visualizações"
+    "dailyWatchLog": "Registro Diário de Visualizações",
+    "remaining": "Restante"
   },
   "leadFinder": {
     "title": "Localizador de leads",
@@ -4316,7 +4378,8 @@
     "positions": "Posições",
     "liveCommissionFeed": "Feed de Comissões ao Vivo",
     "pressStart": "Pressione Iniciar para começar a simulação",
-    "pageTitle": "Calculadora do Grid de Lucro"
+    "pageTitle": "Calculadora do Grid de Lucro",
+    "spillover": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Sua campanha precisa de um Nível de Campanha ativo."
@@ -4334,7 +4397,8 @@
     "recentCascades": "Cascatas Recentes",
     "theInfiniteCascade": "A Cascata Infinita",
     "pageTitle": "Cadeias de Renda",
-    "noCascadesYet": "Ainda sem cascatas"
+    "noCascadesYet": "Ainda sem cascatas",
+    "subtitle": "Seus quatro fluxos infinitos de renda passiva de cursos"
   },
   "marketingMaterials": {
     "pageTitle": "Materiais de Marketing"
@@ -4355,5 +4419,21 @@
     "fontFamily": "Família de fonte",
     "presetSizes": "Tamanhos predefinidos",
     "textColour": "Cor do texto"
+  },
+  "publicIncomeDisclosure": {
+    "platformFeeLabel": "Taxa de Plataforma",
+    "platformFeeDesc": "Retido pelo SuperAdPro para operar o serviço",
+    "directDescPublic": "Pago ao membro que pessoalmente indicou o comprador"
+  },
+  "featureMetric": {
+    "clicks": "Cliques este mês",
+    "subscribers": "Inscritos ativos",
+    "conversion": "Taxa de conversão",
+    "salesTotal": "Total de vendas",
+    "viewsDelivered": "Visualizações entregues"
+  },
+  "walletGuide": {
+    "getMetamask": "Obter MetaMask",
+    "addPolygon": "Adicionar Polygon"
   }
 }

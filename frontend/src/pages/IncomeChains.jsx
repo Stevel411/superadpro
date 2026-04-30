@@ -33,7 +33,7 @@ export default function IncomeChains() {
   var cobaltGradient = 'linear-gradient(90deg,#172554,#1e3a8a)';
 
   return (
-    <AppLayout title="Income Chains" subtitle="Your four infinite streams of passive course income">
+    <AppLayout title={t('incomeChains.pageTitle')} subtitle={t('incomeChains.subtitle')}>
 
       {/* ── Hero / Headline Banner ── */}
       <div style={{background:'linear-gradient(135deg,#0b1e4c,#1e3a8a 60%,#2563eb)',borderRadius:16,padding:'28px 32px',marginBottom:28,
