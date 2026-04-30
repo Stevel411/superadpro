@@ -252,7 +252,10 @@
     "annualUpsellTitle": "Переходите на ежегодное выставление счетов и экономьте до $70/год",
     "annualUpsellBody": "Платите ежегодно и экономьте 17% — это $40/год для Basic или $70/год для Pro. Переключайтесь в любое время, без хлопот.",
     "annualUpsellCta": "Посмотреть планы",
-    "annualUpsellDismiss": "Закрыть"
+    "annualUpsellDismiss": "Закрыть",
+    "tierNudgeTitle": "Activate a Campaign Tier to start earning",
+    "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
+    "tierNudgeCta": "View Campaign Tiers"
   },
   "compPlan": {
     "title": "План вознаграждений",
@@ -854,7 +857,8 @@
     "nexusMetric": "Команда Nexus",
     "signupsLabel": "Регистрации",
     "signupsMetric": "Регистрации",
-    "activeMembersLabel": "Активные участники"
+    "activeMembersLabel": "Активные участники",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ Улучшение",
@@ -4269,5 +4273,42 @@
       "title": "Активируйте вашу подписку бесплатно",
       "message": "Вы заработали $20 в виде комиссий! Активируйте подписку Basic сейчас, используя ваши доходы, или оставьте их в кошельке для снятия позже."
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Enter any text...",
+    "wifiNetwork": "WiFi Network Name",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "Network password",
+    "encryption": "Encryption",
+    "emailAddress": "Email Address",
+    "subjectPlaceholder": "Subject line",
+    "phoneNumber": "Phone Number",
+    "customisation": "Customisation",
+    "foreground": "Foreground",
+    "background": "Background",
+    "errorCorrection": "Error Correction",
+    "alt": "Generated QR Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choose a template",
+    "yourMemeText": "Your meme text",
+    "textColour": "Text colour"
+  },
+  "bannerTool": {
+    "background": "Background",
+    "headlinePlaceholder": "Your headline",
+    "headlineColour": "Headline colour",
+    "subtitlePlaceholder": "Optional subtitle",
+    "subtitleColour": "Subtitle colour"
+  },
+  "gridCalc": {
+    "totalEarnings": "Total Grid Earnings",
+    "positions": "Positions",
+    "liveCommissionFeed": "Live Commission Feed",
+    "pressStart": "Press Start to begin simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
   }
 }

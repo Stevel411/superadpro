@@ -252,7 +252,10 @@
     "annualUpsellTitle": "वार्षिक बिलिंग पर स्विच करें और $70/year तक बचाएं",
     "annualUpsellBody": "साल भर के लिए भुगतान करें और 17% बचाएं — यानी Basic पर $40/year या Pro पर $70/year की छूट। कभी भी स्विच करें, कोई परेशानी नहीं।",
     "annualUpsellCta": "प्लान देखें",
-    "annualUpsellDismiss": "खारिज करें"
+    "annualUpsellDismiss": "खारिज करें",
+    "tierNudgeTitle": "कमाई शुरू करने के लिए एक कैम्पेन टियर सक्रिय करें",
+    "tierNudgeBody": "आपकी मेम्बरशिप एक्टिव है — अब Watch-to-Earn अनलॉक करने, अपनी खुद की वीडियो कैम्पेन बनाने, और अपनी डाउनलाइन की हर टियर खरीद पर कमीशन कमाने के लिए एक कैम्पेन टियर सक्रिय करें।",
+    "tierNudgeCta": "कैम्पेन टियर देखें"
   },
   "compPlan": {
     "title": "मुआवजा योजना",
@@ -854,7 +857,8 @@
     "nexusMetric": "Nexus टीम",
     "signupsLabel": "साइन-अप",
     "signupsMetric": "साइन-अप",
-    "activeMembersLabel": "सक्रिय सदस्य"
+    "activeMembersLabel": "सक्रिय सदस्य",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ अपग्रेड",
@@ -4261,5 +4265,42 @@
       "title": "अपनी सदस्यता को मुफ्त में सक्रिय करें",
       "message": "आपने कमीशन में $20 अर्जित किए हैं! अभी अपनी कमाई का उपयोग करके Basic सदस्यता सक्रिय करें, या बाद में निकालने के लिए उन्हें अपने वॉलेट में रखें।"
     }
+  },
+  "qrTool": {
+    "text": "टेक्स्ट",
+    "textPlaceholder": "कोई भी टेक्स्ट दर्ज करें...",
+    "wifiNetwork": "WiFi नेटवर्क का नाम",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "नेटवर्क पासवर्ड",
+    "encryption": "एन्क्रिप्शन",
+    "emailAddress": "ईमेल पता",
+    "subjectPlaceholder": "विषय पंक्ति",
+    "phoneNumber": "फ़ोन नंबर",
+    "customisation": "कस्टमाइज़ेशन",
+    "foreground": "फ़ोरग्राउंड",
+    "background": "बैकग्राउंड",
+    "errorCorrection": "त्रुटि सुधार",
+    "alt": "जेनरेट किया गया QR कोड"
+  },
+  "memeTool": {
+    "chooseTemplate": "एक टेम्प्लेट चुनें",
+    "yourMemeText": "आपका मीम टेक्स्ट",
+    "textColour": "टेक्स्ट का रंग"
+  },
+  "bannerTool": {
+    "background": "बैकग्राउंड",
+    "headlinePlaceholder": "आपका हेडलाइन",
+    "headlineColour": "हेडलाइन का रंग",
+    "subtitlePlaceholder": "वैकल्पिक उपशीर्षक",
+    "subtitleColour": "उपशीर्षक का रंग"
+  },
+  "gridCalc": {
+    "totalEarnings": "कुल ग्रिड कमाई",
+    "positions": "पोज़िशन्स",
+    "liveCommissionFeed": "लाइव कमीशन फ़ीड",
+    "pressStart": "सिमुलेशन शुरू करने के लिए Start दबाएँ"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "आपकी कैम्पेन को एक सक्रिय कैम्पेन टियर की ज़रूरत है।"
   }
 }

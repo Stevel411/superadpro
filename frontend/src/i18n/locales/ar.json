@@ -252,7 +252,10 @@
     "annualUpsellTitle": "انتقل إلى الفواتير السنوية واوفر ما يصل إلى 70 دولار/السنة",
     "annualUpsellBody": "ادفع سنويًا واوفر 17% — أي 40 دولار/السنة على الخطة Basic أو 70 دولار/السنة على Pro. يمكنك التبديل في أي وقت، بدون متاعب.",
     "annualUpsellCta": "عرض الخطط",
-    "annualUpsellDismiss": "إغلاق"
+    "annualUpsellDismiss": "إغلاق",
+    "tierNudgeTitle": "Activate a Campaign Tier to start earning",
+    "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
+    "tierNudgeCta": "View Campaign Tiers"
   },
   "compPlan": {
     "title": "خطة التعويضات",
@@ -854,7 +857,8 @@
     "nexusMetric": "فريق Nexus",
     "signupsLabel": "التسجيلات",
     "signupsMetric": "التسجيلات",
-    "activeMembersLabel": "الأعضاء النشطون"
+    "activeMembersLabel": "الأعضاء النشطون",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ ترقية",
@@ -4261,5 +4265,42 @@
       "title": "فعّل عضويتك مجاناً",
       "message": "لقد حققت 20$ من العمولات! فعّل عضوية Basic الآن باستخدام أرباحك، أو احتفظ بها في محفظتك للسحب لاحقاً."
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Enter any text...",
+    "wifiNetwork": "WiFi Network Name",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "Network password",
+    "encryption": "Encryption",
+    "emailAddress": "Email Address",
+    "subjectPlaceholder": "Subject line",
+    "phoneNumber": "Phone Number",
+    "customisation": "Customisation",
+    "foreground": "Foreground",
+    "background": "Background",
+    "errorCorrection": "Error Correction",
+    "alt": "Generated QR Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choose a template",
+    "yourMemeText": "Your meme text",
+    "textColour": "Text colour"
+  },
+  "bannerTool": {
+    "background": "Background",
+    "headlinePlaceholder": "Your headline",
+    "headlineColour": "Headline colour",
+    "subtitlePlaceholder": "Optional subtitle",
+    "subtitleColour": "Subtitle colour"
+  },
+  "gridCalc": {
+    "totalEarnings": "Total Grid Earnings",
+    "positions": "Positions",
+    "liveCommissionFeed": "Live Commission Feed",
+    "pressStart": "Press Start to begin simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
   }
 }

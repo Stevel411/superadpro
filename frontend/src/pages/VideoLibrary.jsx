@@ -134,7 +134,7 @@ export default function VideoLibrary() {
                     </div>
                     {c.status === 'paused_no_tier' && (
                       <div style={{fontSize:13, color:'#b45309', marginBottom:6, display:'flex', alignItems:'center', gap:6}}>
-                        <span>Your campaign needs an active Campaign Tier.</span>
+                        <span>{t('videoLibrary.needActiveCampaign')}</span>
                         <Link to="/campaign-tiers" style={{color:'#b45309', fontWeight:700, textDecoration:'underline'}}>
                           Purchase tier to reactivate →
                         </Link>

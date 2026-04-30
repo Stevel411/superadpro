@@ -281,7 +281,7 @@ export default function GridCalculator() {
           <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
             <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:16, padding:24, textAlign:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:-30, right:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.03)' }}/>
-              <div style={{ fontSize:13, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Total Grid Earnings</div>
+              <div style={{ fontSize:13, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('gridCalc.totalEarnings')}</div>
               <div style={{ fontFamily:"'Sora',sans-serif", fontSize:44, fontWeight:900, color:'#4ade80', lineHeight:1 }}>${total.toFixed(2)}</div>
               <div style={{ fontSize:13, color:'rgba(255,255,255,.35)', marginTop:8 }}>T{tier.t} {tier.name} — ${price}/position</div>
             </div>
@@ -303,16 +303,16 @@ export default function GridCalculator() {
                 <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>{complete ? 'Unlocked!' : 'Fills at 64/64'}</div>
               </div>
               <div style={{ background:'#fff', borderRadius:12, padding:16, border:'1px solid #e2e8f0', textAlign:'center' }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>Positions</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>{t('gridCalc.positions')}</div>
                 <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color:'#0f172a', marginTop:4 }}>{filled}/64</div>
                 <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>{64-filled} remaining</div>
               </div>
             </div>
 
             <div style={{ background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', overflow:'hidden', flex:1, minHeight:200 }}>
-              <div style={{ padding:'12px 16px', borderBottom:'1px solid #f1f5f9', fontSize:12, fontWeight:700, color:'#475569' }}>Live Commission Feed</div>
+              <div style={{ padding:'12px 16px', borderBottom:'1px solid #f1f5f9', fontSize:12, fontWeight:700, color:'#475569' }}>{t('gridCalc.liveCommissionFeed')}</div>
               <div style={{ maxHeight:300, overflowY:'auto', padding:'6px 10px' }}>
-                {feed.length === 0 && <div style={{ textAlign:'center', padding:24, fontSize:13, color:'#7a8899' }}>Press Start to begin simulation</div>}
+                {feed.length === 0 && <div style={{ textAlign:'center', padding:24, fontSize:13, color:'#7a8899' }}>{t('gridCalc.pressStart')}</div>}
                 {feed.map(function(entry, i) {
                   var isBonus = entry.type === 'bonus';
                   var isPersonal = entry.isPersonal;

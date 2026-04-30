@@ -252,7 +252,10 @@
     "annualUpsellTitle": "Chuyển sang lập hoá hàng năm và tiết kiệm tới $70/năm",
     "annualUpsellBody": "Thanh toán hàng năm và tiết kiệm 17% — đó là $40/năm cho Basic hoặc $70/năm cho Pro. Chuyển đổi bất cứ lúc nào, không phức tạp.",
     "annualUpsellCta": "Xem các gói",
-    "annualUpsellDismiss": "Loại bỏ"
+    "annualUpsellDismiss": "Loại bỏ",
+    "tierNudgeTitle": "Activate a Campaign Tier to start earning",
+    "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
+    "tierNudgeCta": "View Campaign Tiers"
   },
   "compPlan": {
     "title": "Kế hoạch Bồi thường",
@@ -854,7 +857,8 @@
     "nexusMetric": "Nhóm Nexus",
     "signupsLabel": "Đăng ký",
     "signupsMetric": "Đăng ký",
-    "activeMembersLabel": "Thành viên Hoạt động"
+    "activeMembersLabel": "Thành viên Hoạt động",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ Nâng cấp",
@@ -4261,5 +4265,42 @@
       "title": "Kích hoạt tư cách thành viên của bạn miễn phí",
       "message": "Bạn đã kiếm được $20 hoa hồng! Kích hoạt tư cách thành viên Basic ngay bây giờ bằng thu nhập của mình, hoặc giữ chúng trong ví để rút sau."
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Enter any text...",
+    "wifiNetwork": "WiFi Network Name",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "Network password",
+    "encryption": "Encryption",
+    "emailAddress": "Email Address",
+    "subjectPlaceholder": "Subject line",
+    "phoneNumber": "Phone Number",
+    "customisation": "Customisation",
+    "foreground": "Foreground",
+    "background": "Background",
+    "errorCorrection": "Error Correction",
+    "alt": "Generated QR Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choose a template",
+    "yourMemeText": "Your meme text",
+    "textColour": "Text colour"
+  },
+  "bannerTool": {
+    "background": "Background",
+    "headlinePlaceholder": "Your headline",
+    "headlineColour": "Headline colour",
+    "subtitlePlaceholder": "Optional subtitle",
+    "subtitleColour": "Subtitle colour"
+  },
+  "gridCalc": {
+    "totalEarnings": "Total Grid Earnings",
+    "positions": "Positions",
+    "liveCommissionFeed": "Live Commission Feed",
+    "pressStart": "Press Start to begin simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
   }
 }

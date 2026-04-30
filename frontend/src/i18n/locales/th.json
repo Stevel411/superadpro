@@ -252,7 +252,10 @@
     "annualUpsellTitle": "เปลี่ยนเป็นการจ่ายรายปีและประหยัดสูงสุด $70/ปี",
     "annualUpsellBody": "จ่ายแบบรายปีและประหยัด 17% — ได้ $40/ปีสำหรับ Basic หรือ $70/ปีสำหรับ Pro จ่ายเปลี่ยนได้ตลอด ไม่มีปัญหา",
     "annualUpsellCta": "ดูแผน",
-    "annualUpsellDismiss": "ปิด"
+    "annualUpsellDismiss": "ปิด",
+    "tierNudgeTitle": "Activate a Campaign Tier to start earning",
+    "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
+    "tierNudgeCta": "View Campaign Tiers"
   },
   "compPlan": {
     "title": "แผนค่าตอบแทน",
@@ -854,7 +857,8 @@
     "nexusMetric": "ทีม Nexus",
     "signupsLabel": "ลงทะเบียน",
     "signupsMetric": "ลงทะเบียน",
-    "activeMembersLabel": "สมาชิกที่ใช้งาน"
+    "activeMembersLabel": "สมาชิกที่ใช้งาน",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ อัปเกรด",
@@ -4261,5 +4265,42 @@
       "title": "เปิดใช้งานสมาชิกของคุณฟรี",
       "message": "คุณได้รับรายได้ $20 จากค่าคอมมิชชั่น! เปิดใช้งานสมาชิก Basic ตอนนี้โดยใช้รายได้ของคุณ หรือเก็บไว้ในกระเป๋าเพื่อถอนได้ในภายหลัง"
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Enter any text...",
+    "wifiNetwork": "WiFi Network Name",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "Network password",
+    "encryption": "Encryption",
+    "emailAddress": "Email Address",
+    "subjectPlaceholder": "Subject line",
+    "phoneNumber": "Phone Number",
+    "customisation": "Customisation",
+    "foreground": "Foreground",
+    "background": "Background",
+    "errorCorrection": "Error Correction",
+    "alt": "Generated QR Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choose a template",
+    "yourMemeText": "Your meme text",
+    "textColour": "Text colour"
+  },
+  "bannerTool": {
+    "background": "Background",
+    "headlinePlaceholder": "Your headline",
+    "headlineColour": "Headline colour",
+    "subtitlePlaceholder": "Optional subtitle",
+    "subtitleColour": "Subtitle colour"
+  },
+  "gridCalc": {
+    "totalEarnings": "Total Grid Earnings",
+    "positions": "Positions",
+    "liveCommissionFeed": "Live Commission Feed",
+    "pressStart": "Press Start to begin simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
   }
 }

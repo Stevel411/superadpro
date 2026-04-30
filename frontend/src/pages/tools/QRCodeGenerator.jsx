@@ -122,7 +122,7 @@ export default function QRCodeGeneratorInternal() {
         return (
           <div>
             <label style={labelStyle}>Text</label>
-            <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Enter any text..." rows={3}
+            <textarea value={text} onChange={e => setText(e.target.value)} placeholder={t('qrTool.textPlaceholder')} rows={3}
               style={{ ...inputStyle, resize: 'vertical', minHeight: 70 }}
               onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
           </div>
@@ -131,17 +131,17 @@ export default function QRCodeGeneratorInternal() {
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
-              <label style={labelStyle}>WiFi Network Name</label>
-              <input type="text" value={wifiName} onChange={e => setWifiName(e.target.value)} placeholder="MyHomeWiFi" style={inputStyle}
+              <label style={labelStyle}>{t('qrTool.wifiNetwork')}</label>
+              <input type="text" value={wifiName} onChange={e => setWifiName(e.target.value)} placeholder={t('qrTool.wifiNetworkPlaceholder')} style={inputStyle}
                 onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
             <div>
               <label style={labelStyle}>Password</label>
-              <input type="text" value={wifiPass} onChange={e => setWifiPass(e.target.value)} placeholder="Network password" style={inputStyle}
+              <input type="text" value={wifiPass} onChange={e => setWifiPass(e.target.value)} placeholder={t('qrTool.wifiPassword')} style={inputStyle}
                 onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
             <div>
-              <label style={labelStyle}>Encryption</label>
+              <label style={labelStyle}>{t('qrTool.encryption')}</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {['WPA', 'WEP', 'nopass'].map(opt => (
                   <button key={opt} onClick={() => setWifiType(opt)}
@@ -163,13 +163,13 @@ export default function QRCodeGeneratorInternal() {
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
-              <label style={labelStyle}>Email Address</label>
+              <label style={labelStyle}>{t('qrTool.emailAddress')}</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="hello@example.com" style={inputStyle}
                 onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
             <div>
               <label style={labelStyle}>Subject (optional)</label>
-              <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject line" style={inputStyle}
+              <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder={t('qrTool.subjectPlaceholder')} style={inputStyle}
                 onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function QRCodeGeneratorInternal() {
       case 'phone':
         return (
           <div>
-            <label style={labelStyle}>Phone Number</label>
+            <label style={labelStyle}>{t('qrTool.phoneNumber')}</label>
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+44 7700 900000" style={inputStyle}
               onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
           </div>
@@ -237,11 +237,11 @@ export default function QRCodeGeneratorInternal() {
 
           {/* Style options */}
           <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--sap-border)' }}>
-            <label style={{ ...labelStyle, marginBottom: 12 }}>Customisation</label>
+            <label style={{ ...labelStyle, marginBottom: 12 }}>{t('qrTool.customisation')}</label>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
               <div>
-                <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Foreground</label>
+                <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>{t('qrTool.foreground')}</label>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <input type="color" value={fgColor} onChange={e => setFgColor(e.target.value)}
                     style={{ width: 40, height: 36, padding: 0, borderRadius: 8, border: '1px solid var(--sap-border)', cursor: 'pointer' }} />
@@ -249,7 +249,7 @@ export default function QRCodeGeneratorInternal() {
                 </div>
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Background</label>
+                <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>{t('qrTool.background')}</label>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)}
                     style={{ width: 40, height: 36, padding: 0, borderRadius: 8, border: '1px solid var(--sap-border)', cursor: 'pointer' }} />
@@ -265,7 +265,7 @@ export default function QRCodeGeneratorInternal() {
             </div>
 
             <div>
-              <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Error Correction</label>
+              <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>{t('qrTool.errorCorrection')}</label>
               <div style={{ display: 'flex', gap: 6 }}>
                 {EC_LEVELS.map(l => (
                   <button key={l.id} onClick={() => setEcLevel(l.id)}
@@ -310,7 +310,7 @@ export default function QRCodeGeneratorInternal() {
             border: '1px dashed var(--sap-border)',
           }}>
             {qrDataUrl ? (
-              <img src={qrDataUrl} alt="Generated QR Code"
+              <img src={qrDataUrl} alt={t('qrTool.alt')}
                 style={{ maxWidth: '100%', maxHeight: 280, display: 'block' }} />
             ) : (
               <div style={{ color: 'var(--sap-text-faint)', fontSize: 13 }}>Generating…</div>

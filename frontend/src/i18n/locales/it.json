@@ -252,7 +252,10 @@
     "annualUpsellTitle": "Passa alla fatturazione annuale e risparmi fino a $70/anno",
     "annualUpsellBody": "Paga annualmente e risparmia il 17% — sono $40/anno su Basic oppure $70/anno su Pro. Cambia quando vuoi, senza problemi.",
     "annualUpsellCta": "Visualizza piani",
-    "annualUpsellDismiss": "Chiudi"
+    "annualUpsellDismiss": "Chiudi",
+    "tierNudgeTitle": "Attiva un Livello Campagna per iniziare a guadagnare",
+    "tierNudgeBody": "La tua iscrizione è attiva — ora attiva un Livello Campagna per sbloccare Watch-to-Earn, creare le tue campagne video, e guadagnare commissioni su ogni acquisto di livello della tua downline.",
+    "tierNudgeCta": "Vedi Livelli Campagna"
   },
   "compPlan": {
     "title": "Piano di Compensazione",
@@ -854,7 +857,8 @@
     "nexusMetric": "Team Nexus",
     "signupsLabel": "Iscrizioni",
     "signupsMetric": "Iscrizioni",
-    "activeMembersLabel": "Membri Attivi"
+    "activeMembersLabel": "Membri Attivi",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ Aggiornamento",
@@ -4269,5 +4273,42 @@
       "title": "Attiva la tua iscrizione gratuitamente",
       "message": "Hai guadagnato $20 in commissioni! Attiva l'iscrizione Basic ora utilizzando i tuoi guadagni, oppure mantienili nel tuo portafoglio per prelevare in seguito."
     }
+  },
+  "qrTool": {
+    "text": "Testo",
+    "textPlaceholder": "Inserisci un testo...",
+    "wifiNetwork": "Nome rete WiFi",
+    "wifiNetworkPlaceholder": "MioWiFiCasa",
+    "wifiPassword": "Password della rete",
+    "encryption": "Crittografia",
+    "emailAddress": "Indirizzo email",
+    "subjectPlaceholder": "Oggetto",
+    "phoneNumber": "Numero di telefono",
+    "customisation": "Personalizzazione",
+    "foreground": "Colore del codice",
+    "background": "Sfondo",
+    "errorCorrection": "Correzione errori",
+    "alt": "Codice QR generato"
+  },
+  "memeTool": {
+    "chooseTemplate": "Scegli un modello",
+    "yourMemeText": "Il tuo testo del meme",
+    "textColour": "Colore testo"
+  },
+  "bannerTool": {
+    "background": "Sfondo",
+    "headlinePlaceholder": "Il tuo titolo",
+    "headlineColour": "Colore titolo",
+    "subtitlePlaceholder": "Sottotitolo opzionale",
+    "subtitleColour": "Colore sottotitolo"
+  },
+  "gridCalc": {
+    "totalEarnings": "Guadagni Totali della Grid",
+    "positions": "Posizioni",
+    "liveCommissionFeed": "Feed Commissioni Live",
+    "pressStart": "Premi Avvia per iniziare la simulazione"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "La tua campagna ha bisogno di un Livello Campagna attivo."
   }
 }

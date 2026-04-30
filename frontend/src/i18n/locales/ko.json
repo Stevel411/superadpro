@@ -252,7 +252,10 @@
     "annualUpsellTitle": "연간 청구로 전환하고 연간 최대 $70 절약하세요",
     "annualUpsellBody": "연간 결제 시 17% 절약 — Basic은 연간 $40 할인, Pro는 연간 $70 할인입니다. 언제든지 전환 가능, 번거로움 없음.",
     "annualUpsellCta": "요금제 보기",
-    "annualUpsellDismiss": "닫기"
+    "annualUpsellDismiss": "닫기",
+    "tierNudgeTitle": "Activate a Campaign Tier to start earning",
+    "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
+    "tierNudgeCta": "View Campaign Tiers"
   },
   "compPlan": {
     "title": "보상 플랜",
@@ -854,7 +857,8 @@
     "nexusMetric": "Nexus 팀",
     "signupsLabel": "가입",
     "signupsMetric": "가입",
-    "activeMembersLabel": "활성 멤버"
+    "activeMembersLabel": "활성 멤버",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ 업그레이드",
@@ -4261,5 +4265,42 @@
       "title": "멤버십을 무료로 활성화하세요",
       "message": "지금까지 $20의 수수료 수익을 얻었습니다! 이제 수익으로 Basic 멤버십을 활성화하거나 나중에 출금하기 위해 지갑에 보관하세요."
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Enter any text...",
+    "wifiNetwork": "WiFi Network Name",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "Network password",
+    "encryption": "Encryption",
+    "emailAddress": "Email Address",
+    "subjectPlaceholder": "Subject line",
+    "phoneNumber": "Phone Number",
+    "customisation": "Customisation",
+    "foreground": "Foreground",
+    "background": "Background",
+    "errorCorrection": "Error Correction",
+    "alt": "Generated QR Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choose a template",
+    "yourMemeText": "Your meme text",
+    "textColour": "Text colour"
+  },
+  "bannerTool": {
+    "background": "Background",
+    "headlinePlaceholder": "Your headline",
+    "headlineColour": "Headline colour",
+    "subtitlePlaceholder": "Optional subtitle",
+    "subtitleColour": "Subtitle colour"
+  },
+  "gridCalc": {
+    "totalEarnings": "Total Grid Earnings",
+    "positions": "Positions",
+    "liveCommissionFeed": "Live Commission Feed",
+    "pressStart": "Press Start to begin simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
   }
 }

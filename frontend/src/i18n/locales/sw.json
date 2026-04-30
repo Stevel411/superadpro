@@ -252,7 +252,10 @@
     "annualUpsellTitle": "Badili kuwa kila mwaka na kuokoa hadi $70/mwaka",
     "annualUpsellBody": "Lipa kila mwaka na kuokoa 17% — hiyo ni $40/mwaka mbali na Basic au $70/mwaka mbali na Pro. Badili anywani, hakuna matatizo.",
     "annualUpsellCta": "Tazama mipango",
-    "annualUpsellDismiss": "Ondoa"
+    "annualUpsellDismiss": "Ondoa",
+    "tierNudgeTitle": "Activate a Campaign Tier to start earning",
+    "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
+    "tierNudgeCta": "View Campaign Tiers"
   },
   "compPlan": {
     "title": "Mpango wa Fidia",
@@ -854,7 +857,8 @@
     "nexusMetric": "Timu ya Nexus",
     "signupsLabel": "Wajisajili",
     "signupsMetric": "Wajisajili",
-    "activeMembersLabel": "Wanachama Hai"
+    "activeMembersLabel": "Wanachama Hai",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ Boresha",
@@ -4261,5 +4265,42 @@
       "title": "Aktivisha uzikwata wako bila malipo",
       "message": "Umepata $20 katika kamisheni! Aktivisha uzikwata wa Basic sasa kwa kutumia mapato yako, au kuweka katika pochi yako ili kuyarudisha baadaye."
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Enter any text...",
+    "wifiNetwork": "WiFi Network Name",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "Network password",
+    "encryption": "Encryption",
+    "emailAddress": "Email Address",
+    "subjectPlaceholder": "Subject line",
+    "phoneNumber": "Phone Number",
+    "customisation": "Customisation",
+    "foreground": "Foreground",
+    "background": "Background",
+    "errorCorrection": "Error Correction",
+    "alt": "Generated QR Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choose a template",
+    "yourMemeText": "Your meme text",
+    "textColour": "Text colour"
+  },
+  "bannerTool": {
+    "background": "Background",
+    "headlinePlaceholder": "Your headline",
+    "headlineColour": "Headline colour",
+    "subtitlePlaceholder": "Optional subtitle",
+    "subtitleColour": "Subtitle colour"
+  },
+  "gridCalc": {
+    "totalEarnings": "Total Grid Earnings",
+    "positions": "Positions",
+    "liveCommissionFeed": "Live Commission Feed",
+    "pressStart": "Press Start to begin simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
   }
 }

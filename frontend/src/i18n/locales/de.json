@@ -252,7 +252,10 @@
     "annualUpsellTitle": "Wechseln Sie zur jährlichen Abrechnung und sparen Sie bis zu 70 $/Jahr",
     "annualUpsellBody": "Zahlen Sie jährlich und sparen Sie 17 % – das sind 40 $/Jahr bei Basic oder 70 $/Jahr bei Pro. Wechseln Sie jederzeit, ohne Probleme.",
     "annualUpsellCta": "Pläne anzeigen",
-    "annualUpsellDismiss": "Verwerfen"
+    "annualUpsellDismiss": "Verwerfen",
+    "tierNudgeTitle": "Aktiviere eine Kampagnen-Stufe, um zu verdienen",
+    "tierNudgeBody": "Deine Mitgliedschaft ist aktiv — aktiviere jetzt eine Kampagnen-Stufe, um Watch-to-Earn freizuschalten, eigene Video-Kampagnen zu erstellen und Provisionen auf jeden Stufen-Kauf in deiner Downline zu verdienen.",
+    "tierNudgeCta": "Kampagnen-Stufen ansehen"
   },
   "compPlan": {
     "title": "Vergütungsplan",
@@ -854,7 +857,8 @@
     "nexusMetric": "Nexus-Team",
     "signupsLabel": "Anmeldungen",
     "signupsMetric": "Anmeldungen",
-    "activeMembersLabel": "Aktive Mitglieder"
+    "activeMembersLabel": "Aktive Mitglieder",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ Upgrade",
@@ -4269,5 +4273,42 @@
       "title": "Aktivieren Sie Ihre Mitgliedschaft kostenlos",
       "message": "Sie haben $20 in Provisionen verdient! Aktivieren Sie jetzt die Basic-Mitgliedschaft mit Ihren Einnahmen, oder behalten Sie diese in Ihrem Portemonnaie, um sie später abzuheben."
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Beliebigen Text eingeben...",
+    "wifiNetwork": "WLAN-Netzwerkname",
+    "wifiNetworkPlaceholder": "MeinHeimWLAN",
+    "wifiPassword": "Netzwerk-Passwort",
+    "encryption": "Verschlüsselung",
+    "emailAddress": "E-Mail-Adresse",
+    "subjectPlaceholder": "Betreff",
+    "phoneNumber": "Telefonnummer",
+    "customisation": "Anpassung",
+    "foreground": "Vordergrund",
+    "background": "Hintergrund",
+    "errorCorrection": "Fehlerkorrektur",
+    "alt": "Generierter QR-Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Wähle eine Vorlage",
+    "yourMemeText": "Dein Meme-Text",
+    "textColour": "Textfarbe"
+  },
+  "bannerTool": {
+    "background": "Hintergrund",
+    "headlinePlaceholder": "Deine Überschrift",
+    "headlineColour": "Überschriftfarbe",
+    "subtitlePlaceholder": "Optionaler Untertitel",
+    "subtitleColour": "Untertitelfarbe"
+  },
+  "gridCalc": {
+    "totalEarnings": "Gesamte Grid-Einnahmen",
+    "positions": "Positionen",
+    "liveCommissionFeed": "Live-Provisions-Feed",
+    "pressStart": "Drücke Start, um die Simulation zu beginnen"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Deine Kampagne benötigt eine aktive Kampagnen-Stufe."
   }
 }

@@ -250,7 +250,7 @@ export default function BannerCreatorInternal() {
 
           {/* Background */}
           <div style={{ background: '#fff', borderRadius: 16, border: '1px solid var(--sap-border)', padding: 20, boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
-            <label style={{ ...labelStyle, marginBottom: 10 }}>Background</label>
+            <label style={{ ...labelStyle, marginBottom: 10 }}>{t('bannerTool.background')}</label>
             <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
               {[{id:'gradient',label:'Gradient'},{id:'solid',label:'Solid'},{id:'image',label:'Image'}].map(m => (
                 <button key={m.id} onClick={() => setBgMode(m.id)}
@@ -308,7 +308,7 @@ export default function BannerCreatorInternal() {
 
             <div style={{ marginBottom: 12 }}>
               <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Headline</label>
-              <input type="text" value={mainText} onChange={e => setMainText(e.target.value)} placeholder="Your headline" style={inputStyle}
+              <input type="text" value={mainText} onChange={e => setMainText(e.target.value)} placeholder={t('bannerTool.headlinePlaceholder')} style={inputStyle}
                 onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'}
                 onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
@@ -319,7 +319,7 @@ export default function BannerCreatorInternal() {
                   style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Headline colour</label>
+                <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>{t('bannerTool.headlineColour')}</label>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <input type="color" value={mainColor} onChange={e => setMainColor(e.target.value)}
                     style={{ width: 36, height: 32, padding: 0, borderRadius: 6, border: '1px solid var(--sap-border)', cursor: 'pointer' }} />
@@ -330,7 +330,7 @@ export default function BannerCreatorInternal() {
 
             <div style={{ marginBottom: 12 }}>
               <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Subtitle</label>
-              <input type="text" value={subText} onChange={e => setSubText(e.target.value)} placeholder="Optional subtitle" style={inputStyle}
+              <input type="text" value={subText} onChange={e => setSubText(e.target.value)} placeholder={t('bannerTool.subtitlePlaceholder')} style={inputStyle}
                 onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'}
                 onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
@@ -341,7 +341,7 @@ export default function BannerCreatorInternal() {
                   style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>Subtitle colour</label>
+                <label style={{ ...labelStyle, fontSize: 11, marginBottom: 4 }}>{t('bannerTool.subtitleColour')}</label>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <input type="color" value={subColor} onChange={e => setSubColor(e.target.value)}
                     style={{ width: 36, height: 32, padding: 0, borderRadius: 6, border: '1px solid var(--sap-border)', cursor: 'pointer' }} />

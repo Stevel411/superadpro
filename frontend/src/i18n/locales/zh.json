@@ -252,7 +252,10 @@
     "annualUpsellTitle": "按年计费，每年可节省高达 $70",
     "annualUpsellBody": "按年支付可节省 17% — 即 Basic 每年减少 $40 或 Pro 每年减少 $70。随时切换，无需麻烦。",
     "annualUpsellCta": "查看计划",
-    "annualUpsellDismiss": "关闭"
+    "annualUpsellDismiss": "关闭",
+    "tierNudgeTitle": "Activate a Campaign Tier to start earning",
+    "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
+    "tierNudgeCta": "View Campaign Tiers"
   },
   "compPlan": {
     "title": "薪酬计划",
@@ -854,7 +857,8 @@
     "nexusMetric": "Nexus 团队",
     "signupsLabel": "注册用户",
     "signupsMetric": "注册用户",
-    "activeMembersLabel": "活跃成员"
+    "activeMembersLabel": "活跃成员",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ 升级",
@@ -4261,5 +4265,42 @@
       "title": "免费激活您的会员资格",
       "message": "您已赚取 $20 的佣金！立即使用您的收入激活 Basic 会员，或将其保留在钱包中以供稍后提取。"
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Enter any text...",
+    "wifiNetwork": "WiFi Network Name",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "Network password",
+    "encryption": "Encryption",
+    "emailAddress": "Email Address",
+    "subjectPlaceholder": "Subject line",
+    "phoneNumber": "Phone Number",
+    "customisation": "Customisation",
+    "foreground": "Foreground",
+    "background": "Background",
+    "errorCorrection": "Error Correction",
+    "alt": "Generated QR Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choose a template",
+    "yourMemeText": "Your meme text",
+    "textColour": "Text colour"
+  },
+  "bannerTool": {
+    "background": "Background",
+    "headlinePlaceholder": "Your headline",
+    "headlineColour": "Headline colour",
+    "subtitlePlaceholder": "Optional subtitle",
+    "subtitleColour": "Subtitle colour"
+  },
+  "gridCalc": {
+    "totalEarnings": "Total Grid Earnings",
+    "positions": "Positions",
+    "liveCommissionFeed": "Live Commission Feed",
+    "pressStart": "Press Start to begin simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
   }
 }

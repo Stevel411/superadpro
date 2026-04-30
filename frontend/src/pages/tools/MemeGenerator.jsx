@@ -200,7 +200,7 @@ export default function MemeGeneratorInternal() {
           {/* Templates panel */}
           <div style={{ background: '#fff', borderRadius: 16, border: '1px solid var(--sap-border)', padding: 20, boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, gap: 12, flexWrap: 'wrap' }}>
-              <label style={{ ...labelStyle, marginBottom: 0 }}>Choose a template</label>
+              <label style={{ ...labelStyle, marginBottom: 0 }}>{t('memeTool.chooseTemplate')}</label>
               <button onClick={() => fileRef.current?.click()}
                 style={{
                   padding: '8px 14px', borderRadius: 8,
@@ -246,7 +246,7 @@ export default function MemeGeneratorInternal() {
 
           {/* Text inputs */}
           <div style={{ background: '#fff', borderRadius: 16, border: '1px solid var(--sap-border)', padding: 20, boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
-            <label style={{ ...labelStyle, marginBottom: 12 }}>Your meme text</label>
+            <label style={{ ...labelStyle, marginBottom: 12 }}>{t('memeTool.yourMemeText')}</label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {labels.map((lbl, i) => (
                 <input key={i} type="text" value={gt(i)} onChange={e => st(i, e.target.value)}
@@ -269,7 +269,7 @@ export default function MemeGeneratorInternal() {
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <label style={{ ...labelStyle, fontSize: 11, marginBottom: 6 }}>Text colour</label>
+              <label style={{ ...labelStyle, fontSize: 11, marginBottom: 6 }}>{t('memeTool.textColour')}</label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
                 {COLORS.map(c => (
                   <button key={c.id} onClick={() => setColorId(c.id)} title={c.name}

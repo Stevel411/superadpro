@@ -252,7 +252,10 @@
     "annualUpsellTitle": "Passez à la facturation annuelle et économisez jusqu'à 70 $/an",
     "annualUpsellBody": "Payez annuellement et économisez 17 % — c'est 40 $/an sur Basic ou 70 $/an sur Pro. Changez à tout moment, sans tracas.",
     "annualUpsellCta": "Voir les plans",
-    "annualUpsellDismiss": "Fermer"
+    "annualUpsellDismiss": "Fermer",
+    "tierNudgeTitle": "Activez un Niveau de Campagne pour commencer à gagner",
+    "tierNudgeBody": "Votre adhésion est active — activez maintenant un Niveau de Campagne pour débloquer Watch-to-Earn, créer vos propres campagnes vidéo, et gagner des commissions sur chaque achat de niveau de votre downline.",
+    "tierNudgeCta": "Voir les Niveaux de Campagne"
   },
   "compPlan": {
     "title": "Plan de Rémunération",
@@ -854,7 +857,8 @@
     "nexusMetric": "Équipe Nexus",
     "signupsLabel": "Inscriptions",
     "signupsMetric": "Inscriptions",
-    "activeMembersLabel": "Membres Actifs"
+    "activeMembersLabel": "Membres Actifs",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ Mise à Niveau",
@@ -4269,5 +4273,42 @@
       "title": "Activez votre adhésion gratuitement",
       "message": "Vous avez gagné $20 en commissions ! Activez maintenant l'adhésion Basic en utilisant vos revenus, ou gardez-les dans votre portefeuille pour les retirer plus tard."
     }
+  },
+  "qrTool": {
+    "text": "Texte",
+    "textPlaceholder": "Entrez du texte...",
+    "wifiNetwork": "Nom du réseau WiFi",
+    "wifiNetworkPlaceholder": "MonWiFiMaison",
+    "wifiPassword": "Mot de passe du réseau",
+    "encryption": "Chiffrement",
+    "emailAddress": "Adresse email",
+    "subjectPlaceholder": "Objet",
+    "phoneNumber": "Numéro de téléphone",
+    "customisation": "Personnalisation",
+    "foreground": "Couleur du code",
+    "background": "Arrière-plan",
+    "errorCorrection": "Correction d'erreurs",
+    "alt": "Code QR généré"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choisissez un modèle",
+    "yourMemeText": "Votre texte de mème",
+    "textColour": "Couleur du texte"
+  },
+  "bannerTool": {
+    "background": "Arrière-plan",
+    "headlinePlaceholder": "Votre titre",
+    "headlineColour": "Couleur du titre",
+    "subtitlePlaceholder": "Sous-titre optionnel",
+    "subtitleColour": "Couleur du sous-titre"
+  },
+  "gridCalc": {
+    "totalEarnings": "Gains Totaux de la Grid",
+    "positions": "Positions",
+    "liveCommissionFeed": "Flux de Commissions en Direct",
+    "pressStart": "Appuyez sur Démarrer pour commencer la simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Votre campagne a besoin d'un Niveau de Campagne actif."
   }
 }

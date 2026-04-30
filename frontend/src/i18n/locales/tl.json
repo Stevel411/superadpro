@@ -252,7 +252,10 @@
     "annualUpsellTitle": "Lumipat sa taunang pagbabayad at makatipid ng hanggang $70/taon",
     "annualUpsellBody": "Magbayad bawat taon at makatipid ng 17% — iyan ay $40/taon na diskwento sa Basic o $70/taon sa Pro. Lumipat anumang oras, walang hassle.",
     "annualUpsellCta": "Tingnan ang mga plano",
-    "annualUpsellDismiss": "Pagsara"
+    "annualUpsellDismiss": "Pagsara",
+    "tierNudgeTitle": "Activate a Campaign Tier to start earning",
+    "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
+    "tierNudgeCta": "View Campaign Tiers"
   },
   "compPlan": {
     "title": "Plano ng Kompensasyon",
@@ -854,7 +857,8 @@
     "nexusMetric": "Nexus team",
     "signupsLabel": "Mga Sign-ups",
     "signupsMetric": "Mga Sign-ups",
-    "activeMembersLabel": "Mga Aktibong Miyembro"
+    "activeMembersLabel": "Mga Aktibong Miyembro",
+    "nexusLabel": "Nexus"
   },
   "upgrade": {
     "title": "⚡ Upgrade",
@@ -4261,5 +4265,42 @@
       "title": "I-activate ang iyong membership nang libre",
       "message": "Nakakuha ka na ng $20 sa commissions! I-activate ang Basic membership ngayon gamit ang iyong earnings, o panatilihin ang mga ito sa iyong wallet upang i-withdraw mamaya."
     }
+  },
+  "qrTool": {
+    "text": "Text",
+    "textPlaceholder": "Enter any text...",
+    "wifiNetwork": "WiFi Network Name",
+    "wifiNetworkPlaceholder": "MyHomeWiFi",
+    "wifiPassword": "Network password",
+    "encryption": "Encryption",
+    "emailAddress": "Email Address",
+    "subjectPlaceholder": "Subject line",
+    "phoneNumber": "Phone Number",
+    "customisation": "Customisation",
+    "foreground": "Foreground",
+    "background": "Background",
+    "errorCorrection": "Error Correction",
+    "alt": "Generated QR Code"
+  },
+  "memeTool": {
+    "chooseTemplate": "Choose a template",
+    "yourMemeText": "Your meme text",
+    "textColour": "Text colour"
+  },
+  "bannerTool": {
+    "background": "Background",
+    "headlinePlaceholder": "Your headline",
+    "headlineColour": "Headline colour",
+    "subtitlePlaceholder": "Optional subtitle",
+    "subtitleColour": "Subtitle colour"
+  },
+  "gridCalc": {
+    "totalEarnings": "Total Grid Earnings",
+    "positions": "Positions",
+    "liveCommissionFeed": "Live Commission Feed",
+    "pressStart": "Press Start to begin simulation"
+  },
+  "videoLibrary": {
+    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
   }
 }
