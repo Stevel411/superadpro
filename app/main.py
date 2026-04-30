@@ -6370,17 +6370,27 @@ async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db
 
             meta = _json.loads(order.product_meta) if order.product_meta else {}
 
-            # Record payment in main payments table
+            # Record payment in main payments table.
+            # Idempotent: if a Payment with this tx_hash already exists (e.g.
+            # from a prior IPN retry where the engine committed but we rolled
+            # back), reuse it rather than creating a duplicate. Same retry
+            # protection as the prev_status guard, but at row-level.
             import uuid
-            payment = Payment(
-                from_user_id=user.id, to_user_id=None,
-                amount_usdt=order.price_usd,
-                payment_type=f"nowpayments_{order.product_type}",
-                tx_hash=f"np_{np_payment_id or uuid.uuid4().hex[:12]}",
-                status="confirmed",
-            )
-            db.add(payment)
-            db.flush()
+            tx_ref = f"np_{np_payment_id}" if np_payment_id else f"np_{uuid.uuid4().hex[:12]}"
+            existing_payment = db.query(Payment).filter(Payment.tx_hash == tx_ref).first()
+            if existing_payment:
+                logger.info(f"NOWPayments IPN: Payment row already exists for tx_hash={tx_ref}, reusing")
+                payment = existing_payment
+            else:
+                payment = Payment(
+                    from_user_id=user.id, to_user_id=None,
+                    amount_usdt=order.price_usd,
+                    payment_type=f"nowpayments_{order.product_type}",
+                    tx_hash=tx_ref,
+                    status="confirmed",
+                )
+                db.add(payment)
+                db.flush()
 
             # ── Activate product using same shared logic as crypto payments ──
             _nowpayments_activate_product(db, user, order, meta)
