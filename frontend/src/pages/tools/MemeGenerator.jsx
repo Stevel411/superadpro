@@ -197,8 +197,14 @@ export default function MemeGeneratorInternal() {
           </div>
         </div>
 
-        {/* RIGHT: controls */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* RIGHT: controls — independently scrollable so the canvas stays in view */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: 16,
+          position: 'sticky', top: 20,
+          maxHeight: 'calc(100vh - 40px)',
+          overflowY: 'auto',
+          paddingRight: 4,
+        }}>
 
           {/* Templates panel */}
           <div style={{ background: '#fff', borderRadius: 16, border: '1px solid var(--sap-border)', padding: 20, boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
