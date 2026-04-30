@@ -7684,6 +7684,71 @@ def admin_user_commission_state(
             "notes": c.notes,
         } for c in recent],
     }
+
+
+# ── Temporary diagnostic for commission-duplicate investigation (30 Apr 2026) ──
+# Read-only. Returns Payment rows + Commission rows + recent NowPaymentsOrder
+# rows for a given user_id, with timestamps and tx_hash patterns so we can
+# distinguish IPN-driven vs Recover-button activations. Secret-gated, no PII
+# leaked. To be removed after the incident is resolved.
+@app.get("/admin/diagnostic/payment-trace/{user_id}")
+def admin_diagnostic_payment_trace(
+    user_id: int,
+    secret: str = "",
+    db: Session = Depends(get_db),
+):
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    from .database import Payment, Commission, NowPaymentsOrder
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    payments = db.query(Payment).filter(
+        (Payment.from_user_id == user_id) | (Payment.to_user_id == user_id)
+    ).order_by(Payment.id.desc()).limit(30).all()
+    comms_received = db.query(Commission).filter(
+        Commission.to_user_id == user_id
+    ).order_by(Commission.id.desc()).limit(30).all()
+    comms_caused = db.query(Commission).filter(
+        Commission.from_user_id == user_id
+    ).order_by(Commission.id.desc()).limit(30).all()
+    orders = db.query(NowPaymentsOrder).filter(
+        NowPaymentsOrder.user_id == user_id
+    ).order_by(NowPaymentsOrder.id.desc()).limit(20).all()
+    return {
+        "user_id": target.id,
+        "username": target.username,
+        "payments": [{
+            "id": p.id, "from_user_id": p.from_user_id, "to_user_id": p.to_user_id,
+            "amount_usdt": float(p.amount_usdt or 0),
+            "payment_type": p.payment_type, "tx_hash": p.tx_hash,
+            "status": p.status,
+            "created_at": p.created_at.isoformat() if p.created_at else None,
+        } for p in payments],
+        "commissions_received": [{
+            "id": c.id, "from_user_id": c.from_user_id, "amount_usdt": float(c.amount_usdt or 0),
+            "commission_type": c.commission_type, "package_tier": c.package_tier,
+            "status": c.status, "notes": c.notes,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+            "paid_at": c.paid_at.isoformat() if c.paid_at else None,
+        } for c in comms_received],
+        "commissions_caused": [{
+            "id": c.id, "to_user_id": c.to_user_id, "amount_usdt": float(c.amount_usdt or 0),
+            "commission_type": c.commission_type, "package_tier": c.package_tier,
+            "notes": c.notes,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        } for c in comms_caused],
+        "orders": [{
+            "id": o.id, "internal_order_id": o.internal_order_id,
+            "product_type": o.product_type, "product_key": o.product_key,
+            "price_usd": float(o.price_usd or 0), "status": o.status,
+            "np_payment_id": o.np_payment_id,
+            "created_at": o.created_at.isoformat() if o.created_at else None,
+            "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None,
+        } for o in orders],
+    }
+
+
 @app.post("/admin/api/nowpayments-order/{order_id}/recover")
 async def admin_api_recover_nowpayments_order(
     order_id: int,
