@@ -18763,6 +18763,19 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     ).all()
     active_campaign_tiers = {c.campaign_tier for c in active_campaigns}
 
+    # Per-tier campaign progress: sum views_delivered across active campaigns
+    # at each tier. Used by the active-tier card's progress bar so the member
+    # can see how close they are to campaign completion (which is also the
+    # gate for repurchasing the tier per product rule).
+    progress_by_tier = {}
+    for c in active_campaigns:
+        tier = c.campaign_tier or 0
+        if tier <= 0:
+            continue
+        agg = progress_by_tier.setdefault(tier, {"views_delivered": 0, "views_target": 0})
+        agg["views_delivered"] += int(c.views_delivered or 0)
+        agg["views_target"]    += int(c.views_target or 0)
+
     # Check grids
     active_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == False).all()
     completed_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == True).all()
@@ -18788,6 +18801,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
         views = CAMPAIGN_VIEW_TARGETS.get(tier_num, 0)
         is_active = is_admin or (tier_num in active_campaign_tiers) or (tier_num in grid_by_tier) or (tier_num in completed_tier_set)
         grid_info = grid_by_tier.get(tier_num)
+        progress = progress_by_tier.get(tier_num)
 
         tiers.append({
             "tier": tier_num,
@@ -18799,6 +18813,10 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
             "completion_bonus": bonus,
             "is_active": is_active,
             "grid": grid_info,
+            # Campaign progress on the user's active campaigns at this tier
+            # (used by the active-tier card's progress bar). None when the
+            # user has no active campaign at this tier.
+            "campaign_progress": progress,
         })
 
     return {

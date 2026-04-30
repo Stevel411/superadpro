@@ -163,25 +163,73 @@ export default function CampaignTiers() {
                     borderRadius:14, padding:20,
                     display:'flex', flexDirection:'column', gap:10,
                     position:'relative', textAlign:'center', overflow:'hidden',
-                    boxShadow:'0 2px 8px rgba(0,0,0,.1)',
+                    // Halo ring + soft glow on active tier card. Uses tier accent
+                    // for both ring (2px solid) and outer glow (5px low-opacity).
+                    boxShadow: active
+                      ? ('0 0 0 2px ' + a.color + ', 0 0 0 5px ' + a.color + '40, 0 2px 8px rgba(0,0,0,.1)')
+                      : '0 2px 8px rgba(0,0,0,.1)',
                   }}>
 
                   {/* Decorative circle */}
                   <div style={{ position:'absolute', top:-30, right:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
 
-                  {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.popular')}</span>}
-                  {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.max')}</span>}
+                  {/* ── Active corner ribbon (Hybrid v1: tucked into top-right) ── */}
+                  {/* Sits ABOVE Popular/Max badges in z-order so it wins the corner. */}
+                  {/* pointerEvents:none keeps the whole card clickable through the ribbon. */}
+                  {active && (
+                    <span style={{
+                      position:'absolute', top:0, right:0,
+                      background: a.darkText ? '#1f2937' : '#fff',
+                      color: a.darkText ? '#fff' : a.dark,
+                      fontSize:11, fontWeight:700,
+                      padding:'5px 10px',
+                      borderRadius:'0 14px 0 8px',
+                      letterSpacing:'0.4px',
+                      pointerEvents:'none',
+                      display:'inline-flex', alignItems:'center', gap:4,
+                      zIndex:2,
+                    }}>
+                      <span style={{ width:6, height:6, borderRadius:'50%', background: a.darkText ? '#fff' : a.dark }}/>
+                      {(t('campaignTiers.active') || 'Active').toUpperCase()}
+                    </span>
+                  )}
+
+                  {/* Popular / Max badges only show when tier is NOT active.
+                      When active, the corner ribbon takes that slot. */}
+                  {isPopular && !active && <span style={{ position:'absolute', top:10, right:10, fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.popular')}</span>}
+                  {isMax && !active && <span style={{ position:'absolute', top:10, right:10, fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.max')}</span>}
 
                   <div style={{ fontSize:16, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>{tier.name}</div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>${tier.price.toLocaleString()}</div>
                   <div style={{ fontSize:14, color: a.darkText ? 'rgba(0,0,0,.55)' : 'rgba(255,255,255,.7)', position:'relative' }}>{tier.views_target.toLocaleString()} views</div>
 
                   {active ? (
-                    <div style={{ padding:9, borderRadius:8, background: a.darkText ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.12)', border:'1px solid ' + (a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)'), marginTop:'auto', position:'relative' }}>
-                      <span style={{ display:'inline-flex', alignItems:'center', gap:4, color: a.darkText ? '#1f2937' : '#fff', fontSize:12, fontWeight:700 }}>
-                        <Check size={12}/> {t('campaignTiers.active')}
-                      </span>
-                    </div>
+                    /* ── Active card bottom: progress bar (replaces the old "Active" pill) ── */
+                    /* Shows campaign progress when tier.campaign_progress is set.
+                       When unavailable (admin sees all tiers active with no real campaign,
+                       or member's tier is qualified-via-grid but no campaign created yet),
+                       the bar shows 0% — honest visual reflecting "not started yet". */
+                    (function() {
+                      var prog = tier.campaign_progress;
+                      var delivered = (prog && prog.views_delivered) || 0;
+                      var target = (prog && prog.views_target) || tier.views_target || 0;
+                      var pct = target > 0 ? Math.min(100, Math.round((delivered / target) * 100)) : 0;
+                      // White elements on dark gradients; dark elements on the silver tier
+                      var trackBg = a.darkText ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.2)';
+                      var fillBg  = a.darkText ? '#1f2937' : '#fff';
+                      var labelColor = a.darkText ? 'rgba(0,0,0,.65)' : 'rgba(255,255,255,.85)';
+                      return (
+                        <div style={{ marginTop:'auto', position:'relative', paddingTop:4 }}>
+                          <div style={{ display:'flex', justifyContent:'space-between', fontSize:10, color: labelColor, marginBottom:4, fontWeight:600 }}>
+                            <span>{delivered.toLocaleString()} / {target.toLocaleString()}</span>
+                            <span>{pct}%</span>
+                          </div>
+                          <div style={{ height:6, background: trackBg, borderRadius:999, overflow:'hidden' }}>
+                            <div style={{ width: pct + '%', height:'100%', background: fillBg, transition:'width 0.4s ease' }}/>
+                          </div>
+                        </div>
+                      );
+                    })()
                   ) : (
                     <div style={{ padding:9, borderRadius:8, background: a.darkText ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.1)', border:'1px solid ' + (a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.12)'), color: a.darkText ? '#1f2937' : 'rgba(255,255,255,.8)', fontSize:12, fontWeight:600, marginTop:'auto', position:'relative' }}>
                       View Details
