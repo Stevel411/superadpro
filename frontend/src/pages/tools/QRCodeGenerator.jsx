@@ -206,13 +206,10 @@ export default function QRCodeGeneratorInternal() {
     <AppLayout title={t('qrTool.pageTitle')} subtitle={t('qrTool.pageSubtitle')}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
 
-        {/* LEFT: configuration — independently scrollable so the QR preview on the right stays in view */}
+        {/* LEFT: configuration */}
         <div style={{
           background: '#fff', borderRadius: 16, border: '1px solid var(--sap-border)', padding: 24,
           boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-          position: 'sticky', top: 20,
-          maxHeight: 'calc(100vh - 40px)',
-          overflowY: 'auto',
         }}>
           {/* Mode tabs */}
           <label style={{ ...labelStyle, marginBottom: 10 }}>QR Type</label>
