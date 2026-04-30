@@ -246,7 +246,7 @@ export default function GridCalculator() {
                 {[
                   { label:'Filled', val:filled+'/64', color:'#0f172a' },
                   { label:'Personal', val:Math.min(filled,personalCount)+'/'+personalCount, color:'#b45309' },
-                  { label:'Spillover', val:Math.max(0,filled-personalCount)+'/'+spillCount, color:'#047857' },
+                  { label:t('gridCalc.spilloverLabel'), val:Math.max(0,filled-personalCount)+'/'+spillCount, color:'#047857' },
                   { label:'Progress', val:pct+'%', color: complete ? '#4ade80' : '#0ea5e9' },
                 ].map(function(s, i) {
                   return <div key={i} style={{ background:'#fff', padding:'14px 10px', textAlign:'center' }}>

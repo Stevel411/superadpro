@@ -567,6 +567,9 @@
     },
     "section": {
       "socialMedia": "Réseaux Sociaux"
+    },
+    "cat": {
+      "socialMedia": "Réseaux Sociaux"
     }
   },
   "linkTools": {
@@ -2295,7 +2298,8 @@
       "multiple": "Lancez plusieurs séquences",
       "scale": "Mettez à l'échelle votre prospection",
       "enterprise": "Volume niveau entreprise"
-    }
+    },
+    "chartNurturing": "Nurturing"
   },
   "comingSoon": {
     "whatYouGet": "Ce que vous obtiendrez",
@@ -3089,7 +3093,20 @@
     "salesPassUps": "Ventes + passages",
     "teamGrowth": "Croissance de l'Équipe",
     "dailyWatchLog": "Journal Quotidien de Visionnage",
-    "remaining": "Restant"
+    "remaining": "Restant",
+    "chart": {
+      "filled": "Rempli",
+      "remaining": "Restant",
+      "membership": "Adhésion",
+      "grid": "Grid",
+      "nexus": "Nexus",
+      "courses": "Cours",
+      "creditNexus": "Credit Nexus",
+      "noData": "Aucune donnée",
+      "new": "Nouveaux",
+      "watched": "Regardés",
+      "videos": "vidéos"
+    }
   },
   "leadFinder": {
     "title": "Chercheur de prospects",
@@ -4491,7 +4508,8 @@
     "liveCommissionFeed": "Flux de Commissions en Direct",
     "pressStart": "Appuyez sur Démarrer pour commencer la simulation",
     "pageTitle": "Calculateur de Grid de Profit",
-    "spillover": "Spillover"
+    "spillover": "Spillover",
+    "spilloverLabel": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Votre campagne a besoin d'un Niveau de Campagne actif."

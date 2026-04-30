@@ -567,6 +567,9 @@
     },
     "section": {
       "socialMedia": "सोशल मीडिया"
+    },
+    "cat": {
+      "socialMedia": "सोशल मीडिया"
     }
   },
   "linkTools": {
@@ -2370,7 +2373,8 @@
       "multiple": "कई सीक्वेंस चलाएँ",
       "scale": "अपनी पहुँच बढ़ाएँ",
       "enterprise": "एंटरप्राइज़-स्तर का वॉल्यूम"
-    }
+    },
+    "chartNurturing": "नर्चरिंग"
   },
   "videoCreator": {
     "aspectRatio": "पहलू अनुपात",
@@ -3081,7 +3085,20 @@
     "salesPassUps": "बिक्री + पास-अप",
     "teamGrowth": "टीम की वृद्धि",
     "dailyWatchLog": "दैनिक वॉच लॉग",
-    "remaining": "शेष"
+    "remaining": "शेष",
+    "chart": {
+      "filled": "भरा हुआ",
+      "remaining": "शेष",
+      "membership": "मेम्बरशिप",
+      "grid": "ग्रिड",
+      "nexus": "Nexus",
+      "courses": "कोर्स",
+      "creditNexus": "Credit Nexus",
+      "noData": "कोई डेटा नहीं",
+      "new": "नया",
+      "watched": "देखे गए",
+      "videos": "वीडियो"
+    }
   },
   "leadFinder": {
     "title": "लीड खोजक",
@@ -4483,7 +4500,8 @@
     "liveCommissionFeed": "लाइव कमीशन फ़ीड",
     "pressStart": "सिमुलेशन शुरू करने के लिए Start दबाएँ",
     "pageTitle": "प्रॉफ़िट ग्रिड कैलकुलेटर",
-    "spillover": "स्पिलओवर"
+    "spillover": "स्पिलओवर",
+    "spilloverLabel": "स्पिलओवर"
   },
   "videoLibrary": {
     "needActiveCampaign": "आपकी कैम्पेन को एक सक्रिय कैम्पेन टियर की ज़रूरत है।"

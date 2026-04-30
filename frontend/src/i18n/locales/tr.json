@@ -567,6 +567,9 @@
     },
     "section": {
       "socialMedia": "Social Media"
+    },
+    "cat": {
+      "socialMedia": "Social Media"
     }
   },
   "linkTools": {
@@ -2370,7 +2373,8 @@
       "multiple": "Run multiple sequences",
       "scale": "Scale your outreach",
       "enterprise": "Enterprise-level volume"
-    }
+    },
+    "chartNurturing": "Nurturing"
   },
   "videoCreator": {
     "aspectRatio": "En boy oranı",
@@ -3081,7 +3085,20 @@
     "salesPassUps": "Satışlar + devretmeler",
     "teamGrowth": "Team Growth",
     "dailyWatchLog": "Daily Watch Log",
-    "remaining": "Remaining"
+    "remaining": "Remaining",
+    "chart": {
+      "filled": "Filled",
+      "remaining": "Remaining",
+      "membership": "Membership",
+      "grid": "Grid",
+      "nexus": "Nexus",
+      "courses": "Courses",
+      "creditNexus": "Credit Nexus",
+      "noData": "No data",
+      "new": "New",
+      "watched": "Watched",
+      "videos": "videos"
+    }
   },
   "leadFinder": {
     "title": "Müşteri Bulucu",
@@ -4483,7 +4500,8 @@
     "liveCommissionFeed": "Live Commission Feed",
     "pressStart": "Press Start to begin simulation",
     "pageTitle": "Profit Grid Calculator",
-    "spillover": "Spillover"
+    "spillover": "Spillover",
+    "spilloverLabel": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."

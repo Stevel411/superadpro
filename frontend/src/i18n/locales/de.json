@@ -567,6 +567,9 @@
     },
     "section": {
       "socialMedia": "Soziale Medien"
+    },
+    "cat": {
+      "socialMedia": "Soziale Medien"
     }
   },
   "linkTools": {
@@ -2382,7 +2385,8 @@
       "multiple": "Mehrere Sequenzen ausführen",
       "scale": "Skaliere deine Reichweite",
       "enterprise": "Unternehmensvolumen"
-    }
+    },
+    "chartNurturing": "Nurturing"
   },
   "videoCreator": {
     "aspectRatio": "Seitenverhältnis",
@@ -3089,7 +3093,20 @@
     "salesPassUps": "Verkäufe + Pass-ups",
     "teamGrowth": "Team-Wachstum",
     "dailyWatchLog": "Tägliches Watch-Protokoll",
-    "remaining": "Verbleibend"
+    "remaining": "Verbleibend",
+    "chart": {
+      "filled": "Gefüllt",
+      "remaining": "Verbleibend",
+      "membership": "Mitgliedschaft",
+      "grid": "Grid",
+      "nexus": "Nexus",
+      "courses": "Kurse",
+      "creditNexus": "Credit Nexus",
+      "noData": "Keine Daten",
+      "new": "Neu",
+      "watched": "Geschaut",
+      "videos": "Videos"
+    }
   },
   "leadFinder": {
     "title": "Lead Finder",
@@ -4491,7 +4508,8 @@
     "liveCommissionFeed": "Live-Provisions-Feed",
     "pressStart": "Drücke Start, um die Simulation zu beginnen",
     "pageTitle": "Profit-Grid-Rechner",
-    "spillover": "Spillover"
+    "spillover": "Spillover",
+    "spilloverLabel": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Deine Kampagne benötigt eine aktive Kampagnen-Stufe."

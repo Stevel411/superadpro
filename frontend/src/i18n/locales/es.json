@@ -567,6 +567,9 @@
     },
     "section": {
       "socialMedia": "Redes Sociales"
+    },
+    "cat": {
+      "socialMedia": "Redes Sociales"
     }
   },
   "linkTools": {
@@ -2295,7 +2298,8 @@
       "multiple": "Ejecuta múltiples secuencias",
       "scale": "Escala tu alcance",
       "enterprise": "Volumen de nivel empresarial"
-    }
+    },
+    "chartNurturing": "Nurturing"
   },
   "comingSoon": {
     "whatYouGet": "Lo que obtendrás",
@@ -3089,7 +3093,20 @@
     "salesPassUps": "Ventas + pass-ups",
     "teamGrowth": "Crecimiento del Equipo",
     "dailyWatchLog": "Registro Diario de Visualizaciones",
-    "remaining": "Restante"
+    "remaining": "Restante",
+    "chart": {
+      "filled": "Llenado",
+      "remaining": "Restante",
+      "membership": "Membresía",
+      "grid": "Grid",
+      "nexus": "Nexus",
+      "courses": "Cursos",
+      "creditNexus": "Credit Nexus",
+      "noData": "Sin datos",
+      "new": "Nuevos",
+      "watched": "Vistos",
+      "videos": "vídeos"
+    }
   },
   "leadFinder": {
     "title": "Buscador de clientes",
@@ -4491,7 +4508,8 @@
     "liveCommissionFeed": "Feed de Comisiones en Vivo",
     "pressStart": "Pulsa Iniciar para empezar la simulación",
     "pageTitle": "Calculadora del Grid de Ganancias",
-    "spillover": "Spillover"
+    "spillover": "Spillover",
+    "spilloverLabel": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Tu campaña necesita un Nivel de Campaña activo."

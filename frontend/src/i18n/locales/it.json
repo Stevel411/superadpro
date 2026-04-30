@@ -567,6 +567,9 @@
     },
     "section": {
       "socialMedia": "Social Media"
+    },
+    "cat": {
+      "socialMedia": "Social Media"
     }
   },
   "linkTools": {
@@ -2382,7 +2385,8 @@
       "multiple": "Esegui più sequenze",
       "scale": "Scala la tua outreach",
       "enterprise": "Volume livello enterprise"
-    }
+    },
+    "chartNurturing": "Nurturing"
   },
   "videoCreator": {
     "aspectRatio": "Rapporto d'aspetto",
@@ -3089,7 +3093,20 @@
     "salesPassUps": "Vendite + pass-up",
     "teamGrowth": "Crescita del Team",
     "dailyWatchLog": "Registro Giornaliero Visualizzazioni",
-    "remaining": "Rimanente"
+    "remaining": "Rimanente",
+    "chart": {
+      "filled": "Riempito",
+      "remaining": "Rimanente",
+      "membership": "Iscrizione",
+      "grid": "Grid",
+      "nexus": "Nexus",
+      "courses": "Corsi",
+      "creditNexus": "Credit Nexus",
+      "noData": "Nessun dato",
+      "new": "Nuovi",
+      "watched": "Guardati",
+      "videos": "video"
+    }
   },
   "leadFinder": {
     "title": "Trova contatti",
@@ -4491,7 +4508,8 @@
     "liveCommissionFeed": "Feed Commissioni Live",
     "pressStart": "Premi Avvia per iniziare la simulazione",
     "pageTitle": "Calcolatore Grid Profitti",
-    "spillover": "Spillover"
+    "spillover": "Spillover",
+    "spilloverLabel": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "La tua campagna ha bisogno di un Livello Campagna attivo."

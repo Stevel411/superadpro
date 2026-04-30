@@ -567,6 +567,9 @@
     },
     "section": {
       "socialMedia": "Redes Sociais"
+    },
+    "cat": {
+      "socialMedia": "Redes Sociais"
     }
   },
   "linkTools": {
@@ -2382,7 +2385,8 @@
       "multiple": "Execute várias sequências",
       "scale": "Escale seu alcance",
       "enterprise": "Volume nível empresarial"
-    }
+    },
+    "chartNurturing": "Nurturing"
   },
   "videoCreator": {
     "aspectRatio": "Proporção",
@@ -3089,7 +3093,20 @@
     "salesPassUps": "Vendas + pass-ups",
     "teamGrowth": "Crescimento da Equipe",
     "dailyWatchLog": "Registro Diário de Visualizações",
-    "remaining": "Restante"
+    "remaining": "Restante",
+    "chart": {
+      "filled": "Preenchido",
+      "remaining": "Restante",
+      "membership": "Membership",
+      "grid": "Grid",
+      "nexus": "Nexus",
+      "courses": "Cursos",
+      "creditNexus": "Credit Nexus",
+      "noData": "Sem dados",
+      "new": "Novos",
+      "watched": "Assistidos",
+      "videos": "vídeos"
+    }
   },
   "leadFinder": {
     "title": "Localizador de leads",
@@ -4491,7 +4508,8 @@
     "liveCommissionFeed": "Feed de Comissões ao Vivo",
     "pressStart": "Pressione Iniciar para começar a simulação",
     "pageTitle": "Calculadora do Grid de Lucro",
-    "spillover": "Spillover"
+    "spillover": "Spillover",
+    "spilloverLabel": "Spillover"
   },
   "videoLibrary": {
     "needActiveCampaign": "Sua campanha precisa de um Nível de Campanha ativo."
