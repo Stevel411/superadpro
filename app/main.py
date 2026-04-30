@@ -18509,10 +18509,18 @@ def _get_react_index_html():
     global _react_index_html_cache
     if _react_index_html_cache is None:
         try:
-            _react_index_html_cache = _get_react_index_html() or ""
+            _react_index_html_cache = _react_index.read_text()
         except Exception:
             return None
     return _react_index_html_cache
+
+# Pre-warm at module import so the first request after a Railway restart
+# doesn't pay the disk-read cost. Moves ~700ms from "first user's load"
+# to "Railway startup time" which is invisible.
+try:
+    _get_react_index_html()
+except Exception:
+    pass
 
 @app.get("/app/{full_path:path}")
 async def serve_react_app(full_path: str):
