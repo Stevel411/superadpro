@@ -153,8 +153,6 @@ export default function CampaignTiers() {
             {row.map(function(tier) {
               var a = TIER_ACCENTS[tier.tier] || TIER_ACCENTS[1];
               var active = tier.is_active;
-              var isPopular = tier.tier === 3;
-              var isMax = tier.tier === 8;
 
               return (
                 <div key={tier.tier} className="ct-card" onClick={function() { setSelected(tier.tier); }}
@@ -194,10 +192,6 @@ export default function CampaignTiers() {
                     </span>
                   )}
 
-                  {/* Popular / Max badges only show when tier is NOT active.
-                      When active, the corner ribbon takes that slot. */}
-                  {isPopular && !active && <span style={{ position:'absolute', top:10, right:10, fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.popular')}</span>}
-                  {isMax && !active && <span style={{ position:'absolute', top:10, right:10, fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.max')}</span>}
 
                   <div style={{ fontSize:16, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>{tier.name}</div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>${tier.price.toLocaleString()}</div>
