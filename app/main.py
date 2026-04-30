@@ -7735,6 +7735,13 @@ def admin_diagnostic_payment_trace(
     return {
         "user_id": target.id,
         "username": target.username,
+        "balance_fields": {
+            "balance": float(target.balance or 0),
+            "campaign_balance": float(target.campaign_balance or 0),
+            "total_earned": float(target.total_earned or 0),
+            "grid_earnings": float(target.grid_earnings or 0),
+            "level_earnings": float(target.level_earnings or 0),
+        },
         "payments": [{
             "id": p.id, "from_user_id": p.from_user_id, "to_user_id": p.to_user_id,
             "amount_usdt": float(p.amount_usdt or 0),
@@ -7771,6 +7778,83 @@ def admin_diagnostic_payment_trace(
 # reversed, decrements test1's wallet fields, marks Payment 83 reversed.
 # Idempotent: refuses to run if commissions are already reversed.
 # Secret-gated. To be removed after the incident is resolved.
+@app.post("/admin/diagnostic/recompute-wallet/{user_id}")
+def admin_diagnostic_recompute_wallet(
+    user_id: int,
+    secret: str = "",
+    db: Session = Depends(get_db),
+):
+    """Recompute a user's wallet fields from the ground truth: non-reversed
+    Commission rows. Authoritative + idempotent. Use after any commission
+    reversal to guarantee wallet matches ledger."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    from .database import Commission as _C
+    from decimal import Decimal as _D
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+
+    # Pull all non-reversed commissions credited to this user
+    comms = db.query(_C).filter(
+        _C.to_user_id == user_id,
+        _C.status != "reversed",
+    ).all()
+
+    # Bucket by commission type to derive each wallet column
+    membership_sum = sum(float(c.amount_usdt or 0) for c in comms
+                        if "membership" in (c.commission_type or "").lower()
+                        and "company" not in (c.commission_type or "").lower())
+    direct_sum = sum(float(c.amount_usdt or 0) for c in comms
+                    if c.commission_type == "direct_sponsor")
+    unilevel_sum = sum(float(c.amount_usdt or 0) for c in comms
+                      if c.commission_type == "uni_level")
+    # campaign_balance = grid commissions (direct + uni-level) — does NOT include membership
+    campaign_total = direct_sum + unilevel_sum
+    # main balance = membership commissions go here
+    membership_total = membership_sum
+    total_earned = membership_total + campaign_total
+
+    before = {
+        "balance": float(target.balance or 0),
+        "campaign_balance": float(target.campaign_balance or 0),
+        "total_earned": float(target.total_earned or 0),
+        "grid_earnings": float(target.grid_earnings or 0),
+        "level_earnings": float(target.level_earnings or 0),
+    }
+
+    target.balance          = _D(str(membership_total))
+    target.campaign_balance = _D(str(campaign_total))
+    target.total_earned     = _D(str(total_earned))
+    target.grid_earnings    = _D(str(direct_sum))
+    target.level_earnings   = _D(str(unilevel_sum))
+
+    db.commit()
+
+    after = {
+        "balance": float(target.balance or 0),
+        "campaign_balance": float(target.campaign_balance or 0),
+        "total_earned": float(target.total_earned or 0),
+        "grid_earnings": float(target.grid_earnings or 0),
+        "level_earnings": float(target.level_earnings or 0),
+    }
+
+    return {
+        "status": "completed",
+        "user_id": user_id,
+        "username": target.username,
+        "before": before,
+        "after": after,
+        "ledger_summary": {
+            "membership_sum": membership_sum,
+            "direct_sponsor_sum": direct_sum,
+            "uni_level_sum": unilevel_sum,
+            "non_reversed_commission_count": len(comms),
+        },
+    }
+
+
 @app.post("/admin/diagnostic/cleanup-test1-duplicate")
 def admin_cleanup_test1_duplicate(
     secret: str = "",
