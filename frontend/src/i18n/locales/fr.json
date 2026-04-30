@@ -4452,7 +4452,8 @@
     "alt": "Code QR généré",
     "smsTextPlaceholder": "Texte SMS prérempli",
     "pageTitle": "Générateur de Code QR",
-    "messageOptional": "Message (optionnel)"
+    "messageOptional": "Message (optionnel)",
+    "pageSubtitle": "Générez des codes QR personnalisés pour URLs, WiFi, contacts et plus"
   },
   "memeTool": {
     "chooseTemplate": "Choisissez un modèle",
@@ -4472,14 +4473,17 @@
     "outline": {
       "black": "Contour noir",
       "white": "Contour blanc"
-    }
+    },
+    "pageSubtitle": "Créez des mèmes à partir de 100+ modèles ou téléchargez votre image"
   },
   "bannerTool": {
     "background": "Arrière-plan",
     "headlinePlaceholder": "Votre titre",
     "headlineColour": "Couleur du titre",
     "subtitlePlaceholder": "Sous-titre optionnel",
-    "subtitleColour": "Couleur du sous-titre"
+    "subtitleColour": "Couleur du sous-titre",
+    "pageTitle": "Créateur de Bannières & Profils",
+    "pageSubtitle": "Créez bannières et photos de profil aux dimensions exactes de chaque plateforme"
   },
   "gridCalc": {
     "totalEarnings": "Gains Totaux de la Grid",

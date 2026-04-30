@@ -164,7 +164,7 @@ export default function BannerCreatorInternal() {
   const filtered = PLATFORMS.filter(p => p.cat === catFilter);
 
   return (
-    <AppLayout title="Banner & Profile Creator" subtitle="Create social media banners and profile pictures at exact platform dimensions">
+    <AppLayout title={t('bannerTool.pageTitle')} subtitle={t('bannerTool.pageSubtitle')}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
 
         {/* LEFT: preview + downloads */}

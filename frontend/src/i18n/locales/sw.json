@@ -4444,7 +4444,8 @@
     "alt": "Generated QR Code",
     "smsTextPlaceholder": "Pre-filled SMS text",
     "pageTitle": "QR Code Generator",
-    "messageOptional": "Message (optional)"
+    "messageOptional": "Message (optional)",
+    "pageSubtitle": "Generate custom QR codes for URLs, WiFi, contact info, and more"
   },
   "memeTool": {
     "chooseTemplate": "Choose a template",
@@ -4464,14 +4465,17 @@
     "outline": {
       "black": "Black outline",
       "white": "White outline"
-    }
+    },
+    "pageSubtitle": "Create memes from 100+ templates or upload your own image"
   },
   "bannerTool": {
     "background": "Background",
     "headlinePlaceholder": "Your headline",
     "headlineColour": "Headline colour",
     "subtitlePlaceholder": "Optional subtitle",
-    "subtitleColour": "Subtitle colour"
+    "subtitleColour": "Subtitle colour",
+    "pageTitle": "Banner & Profile Creator",
+    "pageSubtitle": "Create social media banners and profile pictures at exact platform dimensions"
   },
   "gridCalc": {
     "totalEarnings": "Total Grid Earnings",

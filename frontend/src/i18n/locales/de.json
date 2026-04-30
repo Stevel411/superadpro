@@ -4452,7 +4452,8 @@
     "alt": "Generierter QR-Code",
     "smsTextPlaceholder": "Vorausgefüllter SMS-Text",
     "pageTitle": "QR-Code-Generator",
-    "messageOptional": "Nachricht (optional)"
+    "messageOptional": "Nachricht (optional)",
+    "pageSubtitle": "Erstelle individuelle QR-Codes für URLs, WLAN, Kontaktdaten und mehr"
   },
   "memeTool": {
     "chooseTemplate": "Wähle eine Vorlage",
@@ -4472,14 +4473,17 @@
     "outline": {
       "black": "Schwarzer Umriss",
       "white": "Weißer Umriss"
-    }
+    },
+    "pageSubtitle": "Erstelle Memes aus 100+ Vorlagen oder lade dein eigenes Bild hoch"
   },
   "bannerTool": {
     "background": "Hintergrund",
     "headlinePlaceholder": "Deine Überschrift",
     "headlineColour": "Überschriftfarbe",
     "subtitlePlaceholder": "Optionaler Untertitel",
-    "subtitleColour": "Untertitelfarbe"
+    "subtitleColour": "Untertitelfarbe",
+    "pageTitle": "Banner- & Profil-Ersteller",
+    "pageSubtitle": "Erstelle Social-Media-Banner und Profilbilder in exakten Plattform-Dimensionen"
   },
   "gridCalc": {
     "totalEarnings": "Gesamte Grid-Einnahmen",

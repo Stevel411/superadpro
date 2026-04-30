@@ -4444,7 +4444,8 @@
     "alt": "जेनरेट किया गया QR कोड",
     "smsTextPlaceholder": "पूर्व-भरा SMS टेक्स्ट",
     "pageTitle": "QR कोड जेनरेटर",
-    "messageOptional": "संदेश (वैकल्पिक)"
+    "messageOptional": "संदेश (वैकल्पिक)",
+    "pageSubtitle": "URL, WiFi, संपर्क जानकारी और अधिक के लिए कस्टम QR कोड जेनरेट करें"
   },
   "memeTool": {
     "chooseTemplate": "एक टेम्प्लेट चुनें",
@@ -4464,14 +4465,17 @@
     "outline": {
       "black": "काला आउटलाइन",
       "white": "सफ़ेद आउटलाइन"
-    }
+    },
+    "pageSubtitle": "100+ टेम्पलेट से मीम बनाएँ या अपनी इमेज अपलोड करें"
   },
   "bannerTool": {
     "background": "बैकग्राउंड",
     "headlinePlaceholder": "आपका हेडलाइन",
     "headlineColour": "हेडलाइन का रंग",
     "subtitlePlaceholder": "वैकल्पिक उपशीर्षक",
-    "subtitleColour": "उपशीर्षक का रंग"
+    "subtitleColour": "उपशीर्षक का रंग",
+    "pageTitle": "बैनर और प्रोफ़ाइल निर्माता",
+    "pageSubtitle": "सटीक प्लेटफ़ॉर्म आयामों पर सोशल मीडिया बैनर और प्रोफ़ाइल फ़ोटो बनाएँ"
   },
   "gridCalc": {
     "totalEarnings": "कुल ग्रिड कमाई",

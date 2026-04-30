@@ -22,20 +22,23 @@ function getFonts(t) {
 }
 const FONT_FAMILIES = { impact: 'Impact, Haettenschweiler, sans-serif', arial: '"Arial Black", Gadget, sans-serif', comic: '"Comic Sans MS", cursive', georgia: 'Georgia, serif', verdana: 'Verdana, Geneva, sans-serif', trebuchet: '"Trebuchet MS", sans-serif', courier: '"Courier New", monospace', tahoma: 'Tahoma, Geneva, sans-serif' };
 
-const COLORS = [
-  { id: 'white', name: 'White', desc: 'Black outline', fill: '#fff', stroke: '#000', swatch: '#ffffff', badge: 'CLASSIC' },
-  { id: 'black', name: 'Black', desc: 'White outline', fill: '#000', stroke: '#fff', swatch: '#000000', badge: null },
-  { id: 'yellow', name: 'Yellow', desc: 'Black outline', fill: '#FFD700', stroke: '#000', swatch: '#FFD700', badge: null },
-  { id: 'red', name: 'Red', desc: 'Black outline', fill: '#FF3333', stroke: '#000', swatch: '#FF3333', badge: null },
-  { id: 'lime', name: 'Lime', desc: 'Black outline', fill: '#00FF00', stroke: '#000', swatch: '#00FF00', badge: null },
-  { id: 'cyan', name: 'Cyan', desc: 'Black outline', fill: '#00E5FF', stroke: '#000', swatch: '#00E5FF', badge: null },
-  { id: 'pink', name: 'Hot Pink', desc: 'Black outline', fill: '#FF69B4', stroke: '#000', swatch: '#FF69B4', badge: null },
-  { id: 'orange', name: 'Orange', desc: 'Black outline', fill: '#FF8C00', stroke: '#000', swatch: '#FF8C00', badge: null },
-];
+function getColors(t) {
+  return [
+    { id: 'white', name: 'White', desc: t('memeTool.outline.black'), fill: '#fff', stroke: '#000', swatch: '#ffffff', badge: 'CLASSIC' },
+    { id: 'black', name: 'Black', desc: t('memeTool.outline.white'), fill: '#000', stroke: '#fff', swatch: '#000000', badge: null },
+    { id: 'yellow', name: 'Yellow', desc: t('memeTool.outline.black'), fill: '#FFD700', stroke: '#000', swatch: '#FFD700', badge: null },
+    { id: 'red', name: 'Red', desc: t('memeTool.outline.black'), fill: '#FF3333', stroke: '#000', swatch: '#FF3333', badge: null },
+    { id: 'lime', name: 'Lime', desc: t('memeTool.outline.black'), fill: '#00FF00', stroke: '#000', swatch: '#00FF00', badge: null },
+    { id: 'cyan', name: 'Cyan', desc: t('memeTool.outline.black'), fill: '#00E5FF', stroke: '#000', swatch: '#00E5FF', badge: null },
+    { id: 'pink', name: 'Hot Pink', desc: t('memeTool.outline.black'), fill: '#FF69B4', stroke: '#000', swatch: '#FF69B4', badge: null },
+    { id: 'orange', name: 'Orange', desc: t('memeTool.outline.black'), fill: '#FF8C00', stroke: '#000', swatch: '#FF8C00', badge: null },
+  ];
+}
 
 export default function MemeGenerator() {
   var { t } = useTranslation();
   const FONTS = getFonts(t);
+  const COLORS = getColors(t);
   useEffect(() => {
     document.title = 'Free Meme Generator — Create Memes Online | SuperAdPro';
     const meta = document.querySelector('meta[name="description"]') || document.createElement('meta');

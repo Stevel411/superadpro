@@ -203,7 +203,7 @@ export default function QRCodeGeneratorInternal() {
   };
 
   return (
-    <AppLayout title={t('qrTool.pageTitle')} subtitle="Generate custom QR codes for URLs, WiFi, contact info, and more">
+    <AppLayout title={t('qrTool.pageTitle')} subtitle={t('qrTool.pageSubtitle')}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
 
         {/* LEFT: configuration */}
