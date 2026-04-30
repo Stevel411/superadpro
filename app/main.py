@@ -82,14 +82,29 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="SuperAdPro")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Cache headers for static assets — 1 year for images/fonts, 1 hour for CSS/JS
+# Cache headers for static assets.
+# Strategy:
+#   - /static/app/assets/* — Vite-built, content-hashed filenames. Immutable
+#     forever for a given URL. 1-year cache means returning users skip the
+#     re-download entirely.
+#   - /static/app/index.html — entry HTML must NOT be long-cached or new
+#     deployments wouldn't propagate. 5min cache is reasonable.
+#   - Images, fonts — 1 year (filenames don't change often, but if they do
+#     you'd rename for cache busting anyway).
+#   - Other CSS/JS at /static/* — 1 hour (legacy Jinja2-served assets).
 from starlette.middleware.base import BaseHTTPMiddleware
 class CacheHeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
         path = request.url.path
-        if path.startswith("/static/"):
-            if any(path.endswith(ext) for ext in [".png",".jpg",".jpeg",".gif",".webp",".woff2",".woff",".ttf",".ico",".svg"]):
+        if path.startswith("/static/app/assets/"):
+            # Vite hashed assets — immutable, cache forever
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif path == "/static/app/index.html" or path.endswith("/index.html"):
+            # SPA entry HTML — short cache so deploys land fast
+            response.headers["Cache-Control"] = "public, max-age=300, must-revalidate"
+        elif path.startswith("/static/"):
+            if any(path.endswith(ext) for ext in [".png",".jpg",".jpeg",".gif",".webp",".woff2",".woff",".ttf",".ico",".svg",".mp4"]):
                 response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
             elif any(path.endswith(ext) for ext in [".css",".js",".json"]):
                 response.headers["Cache-Control"] = "public, max-age=3600"
