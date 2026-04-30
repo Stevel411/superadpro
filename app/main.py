@@ -6364,6 +6364,23 @@ async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db
 
     prev_status = order.status
 
+    # ── CRITICAL GUARD: refuse status downgrades from a terminal state ──
+    # NOWPayments sometimes delivers IPNs out-of-order or retries late.
+    # Without this guard, a late "sending"/"confirming" IPN arriving AFTER
+    # "finished" overwrites status back to "sending". The order then
+    # appears in the Stuck Orders monitor; an admin clicks Recover and
+    # the activation runs a SECOND time, paying duplicate commissions.
+    # Confirmed root cause of the test1 $18.50 duplicate on 30 Apr 2026.
+    TERMINAL_STATES = ("finished", "confirmed")
+    if prev_status in TERMINAL_STATES and payment_status not in TERMINAL_STATES:
+        logger.warning(
+            f"NOWPayments IPN: refused to downgrade order {order_id_str} from "
+            f"prev_status={prev_status} to payment_status={payment_status}. "
+            f"NP IPN arrived out-of-order or as a retry. Ignoring."
+        )
+        return {"status": "ignored", "reason": "would_downgrade_terminal_state",
+                "prev_status": prev_status, "incoming_status": payment_status}
+
     # ── Handle status transitions ──
     if payment_status in ("waiting", "confirming", "sending"):
         order.status = payment_status
@@ -7749,6 +7766,83 @@ def admin_diagnostic_payment_trace(
     }
 
 
+# ── Temporary one-shot cleanup for the test1 duplicate (30 Apr 2026) ──
+# Reverses commissions 105+106 (test1's duplicate $9.25), marks 105-114 as
+# reversed, decrements test1's wallet fields, marks Payment 83 reversed.
+# Idempotent: refuses to run if commissions are already reversed.
+# Secret-gated. To be removed after the incident is resolved.
+@app.post("/admin/diagnostic/cleanup-test1-duplicate")
+def admin_cleanup_test1_duplicate(
+    secret: str = "",
+    db: Session = Depends(get_db),
+):
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    from .database import Commission, Payment
+
+    # Idempotency: if commissions 105/106 are already reversed, no-op
+    c105 = db.query(Commission).filter(Commission.id == 105).first()
+    c106 = db.query(Commission).filter(Commission.id == 106).first()
+    if not c105 or not c106:
+        return {"status": "error", "reason": "commissions 105/106 not found"}
+    if c105.status == "reversed" or c106.status == "reversed":
+        return {"status": "noop", "reason": "already reversed"}
+
+    target = db.query(User).filter(User.id == 161).first()
+    if not target:
+        return {"status": "error", "reason": "test1 (user 161) not found"}
+
+    before = {
+        "campaign_balance": float(target.campaign_balance or 0),
+        "total_earned": float(target.total_earned or 0),
+        "grid_earnings": float(target.grid_earnings or 0),
+        "level_earnings": float(target.level_earnings or 0),
+    }
+
+    # Reverse wallet impact ($9.25 total — $8 direct + $1.25 uni-level)
+    from decimal import Decimal as _D
+    target.campaign_balance = _D(str(target.campaign_balance or 0)) - _D("9.25")
+    target.total_earned    = _D(str(target.total_earned or 0))    - _D("9.25")
+    target.grid_earnings   = _D(str(target.grid_earnings or 0))   - _D("8.00")
+    target.level_earnings  = _D(str(target.level_earnings or 0))  - _D("1.25")
+
+    # Mark all 10 duplicate commissions as reversed
+    duplicate_ids = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114]
+    reversed_count = 0
+    for cid in duplicate_ids:
+        c = db.query(Commission).filter(Commission.id == cid).first()
+        if c and c.status != "reversed":
+            c.status = "reversed"
+            c.notes = (c.notes or "") + " [REVERSED 30 Apr 2026 — Recover-button duplicate-activation bug]"
+            reversed_count += 1
+
+    # Mark Payment 83 reversed (the np_recover_ row)
+    p83 = db.query(Payment).filter(Payment.id == 83).first()
+    payment_reversed = False
+    if p83 and p83.status != "reversed":
+        p83.status = "reversed"
+        payment_reversed = True
+
+    db.commit()
+
+    after = {
+        "campaign_balance": float(target.campaign_balance or 0),
+        "total_earned": float(target.total_earned or 0),
+        "grid_earnings": float(target.grid_earnings or 0),
+        "level_earnings": float(target.level_earnings or 0),
+    }
+
+    return {
+        "status": "completed",
+        "user_id": 161,
+        "username": target.username,
+        "before": before,
+        "after": after,
+        "commissions_reversed": reversed_count,
+        "payment_83_reversed": payment_reversed,
+    }
+
+
 @app.post("/admin/api/nowpayments-order/{order_id}/recover")
 async def admin_api_recover_nowpayments_order(
     order_id: int,
@@ -7779,6 +7873,31 @@ async def admin_api_recover_nowpayments_order(
 
     if order.status in ("finished", "confirmed"):
         return {"success": False, "error": "Order already activated", "current_status": order.status}
+
+    # ── DEFENSE-IN-DEPTH: even if order.status is corrupted (e.g. NOWPayments
+    # delivered a late "sending" IPN that downgraded status from "finished"),
+    # the Payment row written during the original activation is permanent.
+    # Look it up — if it exists, this order was already activated. Refusing.
+    if order.np_payment_id:
+        from .database import Payment
+        existing_payment = db.query(Payment).filter(
+            Payment.tx_hash == f"np_{order.np_payment_id}"
+        ).first()
+        if existing_payment:
+            logger.error(
+                f"ADMIN ORDER RECOVERY REFUSED: order {order.id} status={order.status} "
+                f"BUT Payment {existing_payment.id} already exists for np_payment_id="
+                f"{order.np_payment_id} (created {existing_payment.created_at}). "
+                f"This order was already activated and order.status was corrupted "
+                f"(likely by an out-of-order IPN). Refusing to double-activate."
+            )
+            return {
+                "success": False,
+                "error": "Activation already happened — Payment row exists for this np_payment_id. Refusing to double-activate. The order's status field appears to have been corrupted by a late/out-of-order IPN. Manual investigation recommended.",
+                "existing_payment_id": existing_payment.id,
+                "existing_payment_created_at": existing_payment.created_at.isoformat() if existing_payment.created_at else None,
+                "current_status": order.status,
+            }
 
     # Verify with NOWPayments that this payment is genuinely complete on their side
     if not order.np_payment_id:
