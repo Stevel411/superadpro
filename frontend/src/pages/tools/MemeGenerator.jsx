@@ -230,7 +230,7 @@ export default function MemeGeneratorInternal() {
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(4, 1fr)',
-              gridAutoRows: '1fr',
+              gridAutoRows: 'minmax(110px, auto)',
               gap: 8,
               maxHeight: 360,
               overflowY: 'auto',
@@ -244,8 +244,8 @@ export default function MemeGeneratorInternal() {
                       padding: 0, borderRadius: 8,
                       border: sel ? '2px solid var(--sap-accent)' : '1.5px solid var(--sap-border)',
                       background: '#fff', cursor: 'pointer', overflow: 'hidden',
-                      transition: 'all .15s', aspectRatio: '1 / 1', position: 'relative',
-                      width: '100%', height: 'auto',
+                      transition: 'all .15s', position: 'relative',
+                      width: '100%', height: '110px',
                     }}>
                     <img src={t.url} alt={t.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
