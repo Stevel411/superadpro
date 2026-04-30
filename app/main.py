@@ -7713,81 +7713,12 @@ def admin_user_commission_state(
     }
 
 
-# ── Temporary diagnostic for commission-duplicate investigation (30 Apr 2026) ──
-# Read-only. Returns Payment rows + Commission rows + recent NowPaymentsOrder
-# rows for a given user_id, with timestamps and tx_hash patterns so we can
-# distinguish IPN-driven vs Recover-button activations. Secret-gated, no PII
-# leaked. To be removed after the incident is resolved.
-@app.get("/admin/diagnostic/payment-trace/{user_id}")
-def admin_diagnostic_payment_trace(
-    user_id: int,
-    secret: str = "",
-    db: Session = Depends(get_db),
-):
-    if secret != "superadpro-owner-2026":
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
-    from .database import Payment, Commission, NowPaymentsOrder
-    target = db.query(User).filter(User.id == user_id).first()
-    if not target:
-        return JSONResponse({"error": "user not found"}, status_code=404)
-    payments = db.query(Payment).filter(
-        (Payment.from_user_id == user_id) | (Payment.to_user_id == user_id)
-    ).order_by(Payment.id.desc()).limit(30).all()
-    comms_received = db.query(Commission).filter(
-        Commission.to_user_id == user_id
-    ).order_by(Commission.id.desc()).limit(30).all()
-    comms_caused = db.query(Commission).filter(
-        Commission.from_user_id == user_id
-    ).order_by(Commission.id.desc()).limit(30).all()
-    orders = db.query(NowPaymentsOrder).filter(
-        NowPaymentsOrder.user_id == user_id
-    ).order_by(NowPaymentsOrder.id.desc()).limit(20).all()
-    return {
-        "user_id": target.id,
-        "username": target.username,
-        "balance_fields": {
-            "balance": float(target.balance or 0),
-            "campaign_balance": float(target.campaign_balance or 0),
-            "total_earned": float(target.total_earned or 0),
-            "grid_earnings": float(target.grid_earnings or 0),
-            "level_earnings": float(target.level_earnings or 0),
-        },
-        "payments": [{
-            "id": p.id, "from_user_id": p.from_user_id, "to_user_id": p.to_user_id,
-            "amount_usdt": float(p.amount_usdt or 0),
-            "payment_type": p.payment_type, "tx_hash": p.tx_hash,
-            "status": p.status,
-            "created_at": p.created_at.isoformat() if p.created_at else None,
-        } for p in payments],
-        "commissions_received": [{
-            "id": c.id, "from_user_id": c.from_user_id, "amount_usdt": float(c.amount_usdt or 0),
-            "commission_type": c.commission_type, "package_tier": c.package_tier,
-            "status": c.status, "notes": c.notes,
-            "created_at": c.created_at.isoformat() if c.created_at else None,
-            "paid_at": c.paid_at.isoformat() if c.paid_at else None,
-        } for c in comms_received],
-        "commissions_caused": [{
-            "id": c.id, "to_user_id": c.to_user_id, "amount_usdt": float(c.amount_usdt or 0),
-            "commission_type": c.commission_type, "package_tier": c.package_tier,
-            "notes": c.notes,
-            "created_at": c.created_at.isoformat() if c.created_at else None,
-        } for c in comms_caused],
-        "orders": [{
-            "id": o.id, "internal_order_id": o.internal_order_id,
-            "product_type": o.product_type, "product_key": o.product_key,
-            "price_usd": float(o.price_usd or 0), "status": o.status,
-            "np_payment_id": o.np_payment_id,
-            "created_at": o.created_at.isoformat() if o.created_at else None,
-            "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None,
-        } for o in orders],
-    }
 
-
-# ── Temporary one-shot cleanup for the test1 duplicate (30 Apr 2026) ──
-# Reverses commissions 105+106 (test1's duplicate $9.25), marks 105-114 as
-# reversed, decrements test1's wallet fields, marks Payment 83 reversed.
-# Idempotent: refuses to run if commissions are already reversed.
-# Secret-gated. To be removed after the incident is resolved.
+# ── Admin: recompute a user wallet from the Commission ledger ──
+# Authoritative + idempotent. Use after any commission status change
+# (e.g. admin reversal) to make wallet columns match the ledger.
+# Also invalidates the dashboard cache so the user sees the corrected
+# values immediately rather than waiting up to 60s for cache expiry.
 @app.post("/admin/diagnostic/recompute-wallet/{user_id}")
 def admin_diagnostic_recompute_wallet(
     user_id: int,
@@ -7868,78 +7799,6 @@ def admin_diagnostic_recompute_wallet(
             "uni_level_sum": unilevel_sum,
             "non_reversed_commission_count": len(comms),
         },
-    }
-
-
-@app.post("/admin/diagnostic/cleanup-test1-duplicate")
-def admin_cleanup_test1_duplicate(
-    secret: str = "",
-    db: Session = Depends(get_db),
-):
-    if secret != "superadpro-owner-2026":
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
-    from .database import Commission, Payment
-
-    # Idempotency: if commissions 105/106 are already reversed, no-op
-    c105 = db.query(Commission).filter(Commission.id == 105).first()
-    c106 = db.query(Commission).filter(Commission.id == 106).first()
-    if not c105 or not c106:
-        return {"status": "error", "reason": "commissions 105/106 not found"}
-    if c105.status == "reversed" or c106.status == "reversed":
-        return {"status": "noop", "reason": "already reversed"}
-
-    target = db.query(User).filter(User.id == 161).first()
-    if not target:
-        return {"status": "error", "reason": "test1 (user 161) not found"}
-
-    before = {
-        "campaign_balance": float(target.campaign_balance or 0),
-        "total_earned": float(target.total_earned or 0),
-        "grid_earnings": float(target.grid_earnings or 0),
-        "level_earnings": float(target.level_earnings or 0),
-    }
-
-    # Reverse wallet impact ($9.25 total — $8 direct + $1.25 uni-level)
-    from decimal import Decimal as _D
-    target.campaign_balance = _D(str(target.campaign_balance or 0)) - _D("9.25")
-    target.total_earned    = _D(str(target.total_earned or 0))    - _D("9.25")
-    target.grid_earnings   = _D(str(target.grid_earnings or 0))   - _D("8.00")
-    target.level_earnings  = _D(str(target.level_earnings or 0))  - _D("1.25")
-
-    # Mark all 10 duplicate commissions as reversed
-    duplicate_ids = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114]
-    reversed_count = 0
-    for cid in duplicate_ids:
-        c = db.query(Commission).filter(Commission.id == cid).first()
-        if c and c.status != "reversed":
-            c.status = "reversed"
-            c.notes = (c.notes or "") + " [REVERSED 30 Apr 2026 — Recover-button duplicate-activation bug]"
-            reversed_count += 1
-
-    # Mark Payment 83 reversed (the np_recover_ row)
-    p83 = db.query(Payment).filter(Payment.id == 83).first()
-    payment_reversed = False
-    if p83 and p83.status != "reversed":
-        p83.status = "reversed"
-        payment_reversed = True
-
-    db.commit()
-
-    after = {
-        "campaign_balance": float(target.campaign_balance or 0),
-        "total_earned": float(target.total_earned or 0),
-        "grid_earnings": float(target.grid_earnings or 0),
-        "level_earnings": float(target.level_earnings or 0),
-    }
-
-    return {
-        "status": "completed",
-        "user_id": 161,
-        "username": target.username,
-        "before": before,
-        "after": after,
-        "commissions_reversed": reversed_count,
-        "payment_83_reversed": payment_reversed,
     }
 
 
