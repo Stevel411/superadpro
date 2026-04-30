@@ -227,7 +227,15 @@ export default function MemeGeneratorInternal() {
                 onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, maxHeight: 240, overflowY: 'auto', padding: 2 }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gridAutoRows: '1fr',
+              gap: 8,
+              maxHeight: 360,
+              overflowY: 'auto',
+              padding: 2,
+            }}>
               {vis.map(t => {
                 const sel = !uploadSrc && selected?.id === t.id;
                 return (
@@ -236,7 +244,8 @@ export default function MemeGeneratorInternal() {
                       padding: 0, borderRadius: 8,
                       border: sel ? '2px solid var(--sap-accent)' : '1.5px solid var(--sap-border)',
                       background: '#fff', cursor: 'pointer', overflow: 'hidden',
-                      transition: 'all .15s', aspectRatio: '1', position: 'relative',
+                      transition: 'all .15s', aspectRatio: '1 / 1', position: 'relative',
+                      width: '100%', height: 'auto',
                     }}>
                     <img src={t.url} alt={t.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
