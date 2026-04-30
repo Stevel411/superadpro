@@ -60,7 +60,7 @@ function ArtifactPreview(props) {
           : 'linear-gradient(135deg,' + meta.accent + '33,' + meta.accent + '11)',
       }}>
         {art.banner_url && (
-          <img src={art.banner_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
+          <img src={art.banner_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} loading="lazy" />
         )}
         <div style={{
           position:'absolute', top:10, left:10,
@@ -76,7 +76,7 @@ function ArtifactPreview(props) {
       <div style={{ padding:16 }}>
         <div style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
           {s.artifact_type === 'bio-link' && art.avatar_url && (
-            <img src={art.avatar_url} alt="" style={{ width:40, height:40, borderRadius:'50%', flexShrink:0, background:'#1e293b' }}/>
+            <img src={art.avatar_url} alt="" style={{ width:40, height:40, borderRadius:'50%', flexShrink:0, background:'#1e293b' }} loading="lazy" />
           )}
           <div style={{ minWidth:0, flex:1 }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:15, color:'#fff', letterSpacing:'-.01em' }}>

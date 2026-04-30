@@ -869,18 +869,26 @@ async def health_check():
     return {"status": "ok"}
 @app.get("/api/public/stats")
 def api_public_stats(db: Session = Depends(get_db)):
-    """Public stats for homepage — member count, total earned. No auth required."""
+    """Public stats for homepage — member count, total earned. No auth required.
+    Cached 60s to avoid 3x DB aggregation queries on every homepage load."""
+    cache_key = "public:stats"
+    cached = cache_get(cache_key)
+    if cached:
+        return cached
+
     from sqlalchemy import func
     total_members = db.query(User).filter(User.is_active == True).count()
     total_registered = db.query(User).count()
     total_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
         Commission.status == "paid"
     ).scalar() or 0)
-    return {
+    result = {
         "members": total_members,
         "registered": total_registered,
         "total_earned": total_earned,
     }
+    cache_set(cache_key, result, ttl=60)
+    return result
 
 # In-memory cache for the public payouts feed (30 s window)
 _recent_payouts_cache = {"ts": 0.0, "data": []}

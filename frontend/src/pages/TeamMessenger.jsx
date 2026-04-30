@@ -221,7 +221,7 @@ export default function TeamMessenger() {
                   <div style={{width:40,height:40,borderRadius:'50%',flexShrink:0,
                     background:isSponsor?'linear-gradient(135deg,#0369a1,#0ea5e9)':'linear-gradient(135deg,#1e40af,#3b82f6)',
                     display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
-                    {c.avatar?<img src={c.avatar} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:
+                    {c.avatar?<img src={c.avatar} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" loading="lazy" />:
                       <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>{initials(c.name)}</span>}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
@@ -257,7 +257,7 @@ export default function TeamMessenger() {
               <div style={{width:38,height:38,borderRadius:'50%',flexShrink:0,
                 background:activeContact.relationship==='sponsor'?'linear-gradient(135deg,#0369a1,#0ea5e9)':'linear-gradient(135deg,#1e40af,#3b82f6)',
                 display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
-                {activeContact.avatar?<img src={activeContact.avatar} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:
+                {activeContact.avatar?<img src={activeContact.avatar} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" loading="lazy" />:
                   <span style={{fontSize:13,fontWeight:800,color:'#fff'}}>{initials(activeContact.name)}</span>}
               </div>
               <div>

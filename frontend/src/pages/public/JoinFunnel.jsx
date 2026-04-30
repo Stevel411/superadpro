@@ -29,7 +29,7 @@ export default function JoinFunnel() {
           {!loading && sponsor && (
             <>
               {sponsor.avatar_url ? (
-                <img src={sponsor.avatar_url} alt={firstName} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid rgba(14,165,233,0.4)', marginBottom: 16, objectFit: 'cover' }}/>
+                <img src={sponsor.avatar_url} alt={firstName} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid rgba(14,165,233,0.4)', marginBottom: 16, objectFit: 'cover' }} loading="lazy" />
               ) : (
                 <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 900, marginBottom: 16, color: '#fff', fontFamily: "'Sora',sans-serif" }}>
                   {firstName[0].toUpperCase()}

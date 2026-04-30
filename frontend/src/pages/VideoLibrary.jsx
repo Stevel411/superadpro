@@ -107,7 +107,7 @@ export default function VideoLibrary() {
                   {/* Thumbnail */}
                   <div style={{width:160,height:90,borderRadius:8,overflow:'hidden',background:'var(--sap-text-primary)',flexShrink:0,position:'relative'}}>
                     {thumb ? (
-                      <img src={thumb} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                      <img src={thumb} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} loading="lazy" />
                     ) : (
                       <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>
                         <Film size={24} color="#334155"/>

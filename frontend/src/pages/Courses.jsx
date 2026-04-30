@@ -48,7 +48,7 @@ export default function Courses() {
               {/* Thumbnail */}
               <div style={{width:'100%',aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240,#0e1c30)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
                 {c.thumbnail_url ? (
-                  <img src={c.thumbnail_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt={c.title}/>
+                  <img src={c.thumbnail_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt={c.title} loading="lazy" />
                 ) : (
                   <div style={{width:56,height:56,borderRadius:'50%',background:'rgba(14,165,233,0.7)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 30px rgba(14,165,233,0.3)'}}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21"/></svg>

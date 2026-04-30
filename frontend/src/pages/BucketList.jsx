@@ -425,7 +425,7 @@ export default function BucketList(props) {
                     <img src={m.avatar_url} alt="" style={{
                       width: 42, height: 42, borderRadius: '50%',
                       objectFit: 'cover', flexShrink: 0,
-                    }} />
+                    }}  loading="lazy" />
                   ) : (
                     <div style={{
                       width: 42, height: 42, borderRadius: '50%',

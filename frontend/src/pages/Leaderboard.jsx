@@ -44,7 +44,7 @@ function PodiumCard({ user, place, tab }) {
               boxShadow: '0 0 ' + (isFirst ? 32 : 18) + 'px ' + rs.glow,
               display: 'block',
             }}
-          />
+           loading="lazy" />
         ) : (
           <div style={{
             width: sizes[place], height: sizes[place],
@@ -405,7 +405,7 @@ export default function Leaderboard() {
                                 flexShrink: 0,
                                 boxShadow: i < 3 ? '0 2px 8px ' + activeTab.color + '30' : 'none',
                               }}
-                            />
+                             loading="lazy" />
                           ) : (
                             <div style={{
                               width: 40, height: 40, borderRadius: 12,
