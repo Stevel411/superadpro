@@ -93,6 +93,81 @@ const QRCodeGenInternal = React.lazy(() => import('./pages/tools/QRCodeGenerator
 const MemeGeneratorInternal = React.lazy(() => import('./pages/tools/MemeGenerator'));
 const BannerCreatorInternal = React.lazy(() => import('./pages/tools/BannerCreator'));
 
+// ── Background-preload all lazy chunks after first paint ──────────────────
+// Without this, every route navigation triggers a fresh network fetch for
+// that page's chunk, showing a spinner each time. With this, the chunks load
+// silently in the background once the user is on the dashboard, so subsequent
+// navigations resolve Suspense instantly. Staggered to avoid network thrash;
+// excludes the giant 3D grid (loaded only on demand).
+const PRELOAD_IMPORTS = [
+  () => import('./pages/CommandCentre'),
+  () => import('./pages/BucketList'),
+  () => import('./pages/Analytics'),
+  () => import('./pages/CreateCampaign'),
+  () => import('./pages/UpgradeFromBalance'),
+  () => import('./pages/Courses'),
+  () => import('./pages/Leaderboard'),
+  () => import('./pages/Affiliate'),
+  () => import('./pages/MarketingMaterials'),
+  () => import('./pages/LeadFinder'),
+  () => import('./pages/CampaignTiers'),
+  () => import('./pages/Watch'),
+  () => import('./pages/Support'),
+  () => import('./pages/VideoLibrary'),
+  () => import('./pages/Upgrade'),
+  () => import('./pages/CompensationPlan'),
+  () => import('./pages/IncomeDisclaimer'),
+  () => import('./pages/AiTool'),
+  () => import('./pages/IncomeChains'),
+  () => import('./pages/IncomePage'),
+  () => import('./pages/ToolsPage'),
+  () => import('./pages/FreeToolsPage'),
+  () => import('./pages/BasicToolsPage'),
+  () => import('./pages/ProToolsPage'),
+  () => import('./pages/IncomeMembershipPage'),
+  () => import('./pages/LearnPage'),
+  () => import('./pages/EducationPage'),
+  () => import('./pages/AssetsPage'),
+  () => import('./pages/CommunityPage'),
+  () => import('./pages/HowCommissionsWork'),
+  () => import('./pages/MyLeads'),
+  () => import('./pages/LinkTools'),
+  () => import('./pages/PassupVisualiser'),
+  () => import('./pages/ProSeller'),
+  () => import('./pages/Funnels'),
+  () => import('./pages/LinkHub'),
+  () => import('./pages/ActivateTier'),
+  () => import('./pages/TrainingCentre'),
+  () => import('./pages/CryptoGuide'),
+  () => import('./pages/PlatformTour'),
+  () => import('./pages/TeamMessenger'),
+  () => import('./pages/QRGenerator'),
+  () => import('./pages/SuperLink'),
+  () => import('./pages/CampaignAnalytics'),
+  () => import('./pages/CreditMatrix'),
+  () => import('./pages/GridVisualiser'),
+  () => import('./pages/GridCalculator'),
+  () => import('./pages/CreditMatrixVisualiser'),
+  () => import('./pages/tools/QRCodeGenerator'),
+  () => import('./pages/tools/MemeGenerator'),
+  () => import('./pages/tools/BannerCreator'),
+];
+
+let preloadStarted = false;
+function preloadRouteChunks() {
+  if (preloadStarted) return;
+  preloadStarted = true;
+  const idle = window.requestIdleCallback || function(cb) { return setTimeout(cb, 1); };
+  PRELOAD_IMPORTS.forEach(function(fn, i) {
+    // Stagger by 100ms each so we don't flood the network with 50 parallel requests.
+    // The browser will queue + cache them. By the time the user clicks a sidebar
+    // link (typically 5-30s after landing), the chunk is in the cache.
+    setTimeout(function() {
+      idle(function() { fn().catch(function(){}); });
+    }, 1000 + i * 100);
+  });
+}
+
 // Suspense wrapper for remaining lazy routes
 function Lazy({ children }) { return <Suspense fallback={<div style={{minHeight:'60vh'}}/>}>{children}</Suspense>; }
 
@@ -341,6 +416,7 @@ function AppPrefixRedirect() {
 }
 
 export default function App() {
+  React.useEffect(function() { preloadRouteChunks(); }, []);
   return (
     <ErrorBoundary>
       <BrowserRouter future={{ v7_startTransition: true }}>
