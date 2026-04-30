@@ -20685,93 +20685,52 @@ def api_unread_messages(request: Request, user: User = Depends(get_current_user)
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/api/training")
-def api_training_centre(request: Request, user: User = Depends(get_current_user)):
-    """Return the training centre content — curated guides and tutorials."""
+def api_training_centre(request: Request, lang: str = "en", user: User = Depends(get_current_user)):
+    """Return the training centre content in the user's locale.
+
+    Content lives in app/training_content/{lang}.json — one file per locale.
+    To translate into a new language: copy en.json, translate the title +
+    duration + content fields per lesson, save as {lang_code}.json. No code
+    changes needed.
+
+    Falls back to EN if the requested locale file is missing or malformed —
+    so even a 100% untranslated locale still shows useful content rather
+    than an error page.
+
+    Locale precedence: query string `?lang=` (frontend passes user's i18n
+    setting) > 'en'. Sanitised against path traversal.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    modules = [
-        {
-            "id": "getting-started",
-            "title": "Getting Started",
-            "emoji": "🚀",
-            "color": "#0ea5e9",
-            "lessons": [
-                {"id": "gs-1", "title": "Welcome to SuperAdPro", "type": "guide", "duration": "3 min",
-                 "content": "Welcome to SuperAdPro! This platform gives you multiple ways to earn: referral commissions (50% recurring), campaign tier grid bonuses, and course sales. At the heart of it all is Watch & Earn — the engine that delivers views to campaign tier holders and keeps the entire grid commission system running. Your dashboard is your command centre — it shows your earnings, team growth, and available tools at a glance. Start by setting up your profile, then share your referral link to begin building your network."},
-                {"id": "gs-2", "title": "Understanding Your Dashboard", "type": "guide", "duration": "4 min",
-                 "content": "Your dashboard has four key sections: Income Streams (showing your earnings from each source), Network Overview (your team and grid progress), Quick Actions (shortcuts to your most-used tools), and Recent Activity (latest commissions and team updates). The wallet balance at the top shows your current earnings ready for withdrawal."},
-                {"id": "gs-3", "title": "Setting Up Your Profile", "type": "guide", "duration": "2 min",
-                 "content": "Head to Account > Profile to add your name, avatar, and bio. A complete profile builds trust when referrals check you out. Your member ID (shown on your profile) is unique — team members can use it to find and contact you."},
-                {"id": "gs-4", "title": "Your Referral Link Explained", "type": "guide", "duration": "3 min",
-                 "content": "Your referral link is www.superadpro.com/join/[your-username]. Anyone who signs up through this link becomes your direct referral. You earn 50% commission on their membership fee every month they stay active. Share it on social media, in messages, on your LinkHub page, or via QR code."},
-            ]
-        },
-        {
-            "id": "earning",
-            "title": "How to Earn",
-            "emoji": "💰",
-            "color": "#16a34a",
-            "lessons": [
-                {"id": "earn-1", "title": "Referral Commissions (50%)", "type": "guide", "duration": "4 min",
-                 "content": "When someone joins through your link and pays their membership ($20 Basic or $35 Pro), you earn 50% commission — $10 or $17.50 per month, every month they stay active. This is recurring income. Focus on finding people who will use the platform, not just sign up."},
-                {"id": "earn-2", "title": "The 8-Tier Campaign Grid", "type": "guide", "duration": "8 min",
-                 "content": "The grid system has 8 tiers from Starter ($20) to Ultimate ($1,000). When you purchase a campaign tier, you submit a video ad that receives a set number of views delivered by the Watch & Earn community. You are also placed in your sponsor's grid — each grid holds 64 members across 8 levels. As the grid fills through referrals and auto-placement, commissions flow: 40% direct to your sponsor, 6.25% per level across 8 levels of your upline, and 5% into a completion bonus pool. When a grid reaches 64 members, it COMPLETES and the owner receives the completion bonus (up to $3,200 on the Ultimate tier). Then a new grid opens automatically and the process starts again. Once your campaign's view target has been delivered, you can repurchase the same tier — this reactivates your qualification to earn commissions at that level and submits a fresh video ad for a new round of views. This is genuine long-term recurring income: as long as you and your team keep repurchasing tiers, the commissions keep flowing. The key principle is that you must have an active campaign at a tier to earn commissions from that tier. Repurchasing keeps you qualified and keeps your income active."},
-                {"id": "earn-3", "title": "Course Academy", "type": "guide", "duration": "3 min",
-                 "content": "Pro members can create and sell courses on the marketplace. You set the price, create lessons with text, video, and quizzes, and earn from every sale. All courses go through AI review before publishing to maintain quality. The marketplace is open to all members as buyers."},
-                {"id": "earn-4", "title": "Watch & Earn — The Grid Engine", "type": "guide", "duration": "4 min",
-                 "content": "Watch & Earn is the engine that powers the entire campaign tier and grid system. When you watch videos, you're delivering real views to other members' campaign tiers. Every campaign tier purchase comes with a view target — those views are delivered by the community through Watch & Earn. This is what keeps campaign tiers active, which is what qualifies members to earn commissions from the grid. Without Watch & Earn, campaign tiers would never complete their view targets, and the commission structure wouldn't function. So when you watch, you're not just earning — you're powering the entire affiliate network. Your daily watch allocation depends on your membership tier, and every completed watch counts towards a campaign holder's view target."},
-            ]
-        },
-        {
-            "id": "marketing-tools",
-            "title": "Marketing Tools",
-            "emoji": "🛠️",
-            "color": "#8b5cf6",
-            "lessons": [
-                {"id": "mkt-1", "title": "LinkHub — Your Bio Link Page", "type": "guide", "duration": "4 min",
-                 "content": "LinkHub lets you create a beautiful one-page website with all your links, social profiles, and referral links. Think of it as your personal landing page. Customise colours, fonts, and layout. Share a single LinkHub URL instead of multiple links. Perfect for social media bios."},
-                {"id": "mkt-2", "title": "Link Tools — Shortener, Rotator, Geo-Redirect", "type": "guide", "duration": "5 min",
-                 "content": "Link Tools gives you three powerful utilities: Short Links (branded shortlinks that track clicks), Link Rotators (split traffic across multiple URLs — great for A/B testing), and Geo-Redirects (send visitors to different pages based on their country). All links include click analytics."},
-                {"id": "mkt-3", "title": "The Marketing Suite", "type": "guide", "duration": "4 min",
-                 "content": "The Marketing Suite includes AI-powered tools for content creation: Niche Finder (discover profitable niches), Social Post Generator (30 days of posts), Video Script Generator (hooks + scripts), Email Swipe File (ready-to-send templates), and Launch Wizard (step-by-step launch plan). All content is generated specifically for your niche."},
-            ]
-        },
-        {
-            "id": "pro-features",
-            "title": "Pro Member Tools",
-            "emoji": "⚡",
-            "color": "#f59e0b",
-            "lessons": [
-                {"id": "pro-1", "title": "SuperSeller — AI Sales Autopilot", "type": "guide", "duration": "6 min",
-                 "content": "SuperSeller is your AI-powered marketing machine. Enter your niche, and it generates a complete campaign: landing page, 30 social posts, 5-email nurture sequence, 3 video scripts, ad copy, and a 30-day strategy. Leads captured through your landing page automatically enter the email autoresponder. You can edit your page, add a sales video, customise the CTA, and inject tracking pixels."},
-                {"id": "pro-2", "title": "SuperPages — Landing Page Builder", "type": "guide", "duration": "5 min",
-                 "content": "SuperPages is a drag-and-drop landing page builder with 24 block types, 8 templates, gradient builder, responsive preview, and form editor. Build professional funnels without any coding. Pages are hosted on your SuperAdPro account and include lead capture forms that feed into your CRM."},
-                {"id": "pro-3", "title": "Email Autoresponder", "type": "guide", "duration": "4 min",
-                 "content": "When leads sign up through your SuperSeller or SuperPages funnels, they automatically receive a drip email sequence — 5 emails over 7 days. Each email is AI-generated for your niche and includes your referral link. The autoresponder runs automatically via the cron system. Track opens, clicks, and conversions in your Leads dashboard."},
-                {"id": "pro-4", "title": "ProSeller CRM & Lead Dashboard", "type": "guide", "duration": "3 min",
-                 "content": "Your Leads dashboard shows every email lead captured through your funnels. See their status (new, nurturing, hot, converted), how many emails they've opened, and which links they clicked. Hot leads (2+ opens or any click) are auto-flagged so you can follow up personally."},
-            ]
-        },
-        {
-            "id": "growth-tips",
-            "title": "Growth Strategies",
-            "emoji": "📈",
-            "color": "#ec4899",
-            "lessons": [
-                {"id": "tip-1", "title": "The 3-3-3 Method", "type": "guide", "duration": "3 min",
-                 "content": "Share 3 social posts per day, reach out to 3 new people, and follow up with 3 existing contacts. Consistency beats intensity. Most successful affiliates earn through steady daily action, not viral moments. Use the Social Post Generator to create your daily content in seconds."},
-                {"id": "tip-2", "title": "Leveraging Your SuperSeller Page", "type": "guide", "duration": "4 min",
-                 "content": "Your SuperSeller landing page is your 24/7 salesperson. Add a personal sales video to build trust. Share the link in your social bios, email signatures, and WhatsApp messages. The AI chat agent handles objections while you sleep. Check your leads dashboard daily for hot prospects."},
-                {"id": "tip-3", "title": "Building a Team That Stays", "type": "guide", "duration": "4 min",
-                 "content": "Retention is more valuable than recruitment. Help your referrals set up their profiles and create their first SuperSeller campaign within 24 hours of joining. Send them a welcome message through Team Messenger. Members who earn in their first week are 5x more likely to stay active."},
-                {"id": "tip-4", "title": "Using QR Codes for Offline Marketing", "type": "guide", "duration": "2 min",
-                 "content": "Generate QR codes for your referral link, LinkHub page, or SuperSeller funnel. Print them on business cards, flyers, or stickers. Place them in coffee shops, gyms, and co-working spaces. QR codes bridge the gap between offline networking and online signup."},
-            ]
-        },
-    ]
+    # Sanitise locale code — must be 2-3 lowercase letters only
+    import re as _re
+    safe_lang = lang.lower() if _re.match(r'^[a-z]{2,3}$', lang or '') else 'en'
 
-    return {"modules": modules}
+    import json as _json
+    content_dir = pathlib.Path(__file__).parent / "training_content"
+
+    def _load_locale(code):
+        f = content_dir / f"{code}.json"
+        if not f.exists():
+            return None
+        try:
+            return _json.loads(f.read_text(encoding='utf-8'))
+        except Exception:
+            return None
+
+    data = _load_locale(safe_lang)
+    if data is None and safe_lang != 'en':
+        # Fall back to English silently
+        data = _load_locale('en')
+
+    if data is None:
+        # If even EN is missing something has gone very wrong — return empty
+        # rather than 500 so the page still renders with empty state
+        logger.error("Training content: en.json missing or unreadable!")
+        return {"modules": []}
+
+    return data
 # ═══════════════════════════════════════════════════════════════════════════════
 # SUPERSCENE — AI Video Creator
 # Routes: credits, generate, poll, history, buy (Stripe + Crypto)

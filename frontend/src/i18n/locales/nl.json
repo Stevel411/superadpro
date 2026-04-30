@@ -1294,7 +1294,10 @@
     "subtitle": "Leer je inkomsten te maximaliseren",
     "loadingTraining": "Laden...",
     "yourProgress": "Uw voortgang",
-    "complete": "VOLTOOID"
+    "complete": "VOLTOOID",
+    "lessonsLabel": "lessen",
+    "completedLabel": "voltooid",
+    "markComplete": "Markeer als voltooid"
   },
   "payItForward": {
     "title": "Betaal het Voort",

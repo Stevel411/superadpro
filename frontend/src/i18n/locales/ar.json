@@ -1294,7 +1294,10 @@
     "subtitle": "تعلم كيف تزيد أرباحك",
     "loadingTraining": "جارٍ التحميل...",
     "yourProgress": "تقدمك",
-    "complete": "مكتمل"
+    "complete": "مكتمل",
+    "lessonsLabel": "دروس",
+    "completedLabel": "مكتمل",
+    "markComplete": "وضع علامة مكتمل"
   },
   "payItForward": {
     "title": "ادفع للأمام",

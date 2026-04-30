@@ -1294,7 +1294,10 @@
     "subtitle": "Lernen Sie Ihre SuperAdPro-Einnahmen zu maximieren",
     "loadingTraining": "Laden...",
     "yourProgress": "Ihr Fortschritt",
-    "complete": "ABGESCHLOSSEN"
+    "complete": "ABGESCHLOSSEN",
+    "lessonsLabel": "Lektionen",
+    "completedLabel": "abgeschlossen",
+    "markComplete": "Als abgeschlossen markieren"
   },
   "payItForward": {
     "title": "Weitergeben",

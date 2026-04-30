@@ -1294,7 +1294,10 @@
     "subtitle": "Узнайте как увеличить доходы",
     "loadingTraining": "Загрузка...",
     "yourProgress": "Ваш прогресс",
-    "complete": "ЗАВЕРШЕНО"
+    "complete": "ЗАВЕРШЕНО",
+    "lessonsLabel": "уроков",
+    "completedLabel": "завершено",
+    "markComplete": "Отметить как завершённое"
   },
   "payItForward": {
     "title": "Передай Дальше",

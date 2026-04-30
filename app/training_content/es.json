@@ -1,0 +1,158 @@
+{
+  "modules": [
+    {
+      "id": "getting-started",
+      "emoji": "🚀",
+      "color": "#0ea5e9",
+      "title": "Primeros Pasos",
+      "lessons": [
+        {
+          "id": "gs-1",
+          "duration": "3 min",
+          "title": "Bienvenido a SuperAdPro",
+          "content": "¡Bienvenido a SuperAdPro! Esta plataforma te ofrece múltiples formas de ganar: comisiones por referidos (50% recurrente), bonos del grid de niveles de campaña, y ventas de cursos. En el corazón de todo está Watch & Earn — el motor que entrega vistas a los titulares de niveles de campaña y mantiene en marcha todo el sistema de comisiones del grid. Tu panel es tu centro de control — muestra tus ganancias, el crecimiento de tu equipo y las herramientas disponibles de un vistazo. Empieza configurando tu perfil, luego comparte tu enlace de referido para empezar a construir tu red."
+        },
+        {
+          "id": "gs-2",
+          "duration": "4 min",
+          "title": "Entendiendo Tu Panel",
+          "content": "Tu panel tiene cuatro secciones clave: Fuentes de Ingresos (mostrando tus ganancias por cada fuente), Resumen de la Red (tu equipo y progreso del grid), Acciones Rápidas (atajos a tus herramientas más usadas), y Actividad Reciente (últimas comisiones y novedades del equipo). El balance de la billetera arriba muestra tus ganancias actuales listas para retirar."
+        },
+        {
+          "id": "gs-3",
+          "duration": "2 min",
+          "title": "Configurando Tu Perfil",
+          "content": "Ve a Cuenta > Perfil para añadir tu nombre, avatar y biografía. Un perfil completo genera confianza cuando los referidos te revisan. Tu ID de miembro (mostrado en tu perfil) es único — los miembros del equipo pueden usarlo para encontrarte y contactarte."
+        },
+        {
+          "id": "gs-4",
+          "duration": "3 min",
+          "title": "Tu Enlace de Referido Explicado",
+          "content": "Tu enlace de referido es www.superadpro.com/join/[tu-usuario]. Cualquiera que se registre a través de este enlace se convierte en tu referido directo. Ganas el 50% de comisión sobre la cuota de membresía cada mes que estén activos. Compártelo en redes sociales, en mensajes, en tu página LinkHub, o por código QR."
+        }
+      ]
+    },
+    {
+      "id": "earning",
+      "emoji": "💰",
+      "color": "#16a34a",
+      "title": "Cómo Ganar",
+      "lessons": [
+        {
+          "id": "earn-1",
+          "duration": "4 min",
+          "title": "Comisiones por Referidos (50%)",
+          "content": "Cuando alguien se une a través de tu enlace y paga su membresía ($20 Basic o $35 Pro), ganas el 50% de comisión — $10 o $17.50 al mes, cada mes que estén activos. Esto es ingreso recurrente. Concéntrate en encontrar personas que vayan a usar la plataforma, no solo registrarse."
+        },
+        {
+          "id": "earn-2",
+          "duration": "8 min",
+          "title": "El Grid de Campaña de 8 Niveles",
+          "content": "El sistema de grid tiene 8 niveles desde Starter ($20) hasta Ultimate ($1,000). Cuando compras un nivel de campaña, envías un anuncio de vídeo que recibe un número determinado de vistas entregadas por la comunidad Watch & Earn. También quedas colocado en el grid de tu patrocinador — cada grid contiene 64 miembros distribuidos en 8 niveles. A medida que el grid se llena por referidos y colocación automática, las comisiones fluyen: 40% directo a tu patrocinador, 6.25% por nivel a través de los 8 niveles superiores, y 5% al fondo de bono de finalización. Cuando un grid alcanza los 64 miembros, se COMPLETA y el propietario recibe el bono de finalización (hasta $3,200 en el nivel Ultimate). Luego se abre automáticamente un nuevo grid y el proceso vuelve a empezar. Una vez entregada la meta de vistas de tu campaña, puedes recomprar el mismo nivel — esto reactiva tu cualificación para ganar comisiones en ese nivel y envía un nuevo anuncio de vídeo para una nueva ronda de vistas. Esto es genuino ingreso recurrente a largo plazo: mientras tú y tu equipo sigan recomprando niveles, las comisiones siguen fluyendo. El principio clave es que debes tener una campaña activa en un nivel para ganar comisiones de ese nivel. Recomprar te mantiene cualificado y mantiene tu ingreso activo."
+        },
+        {
+          "id": "earn-3",
+          "duration": "3 min",
+          "title": "Course Academy",
+          "content": "Los miembros Pro pueden crear y vender cursos en el marketplace. Tú estableces el precio, creas lecciones con texto, vídeo y cuestionarios, y ganas con cada venta. Todos los cursos pasan por revisión de IA antes de publicarse para mantener la calidad. El marketplace está abierto a todos los miembros como compradores."
+        },
+        {
+          "id": "earn-4",
+          "duration": "4 min",
+          "title": "Watch & Earn — El Motor del Grid",
+          "content": "Watch & Earn es el motor que impulsa todo el sistema de niveles de campaña y grid. Cuando ves vídeos, estás entregando vistas reales a los niveles de campaña de otros miembros. Cada compra de nivel de campaña viene con una meta de vistas — esas vistas se entregan a través de la comunidad mediante Watch & Earn. Esto es lo que mantiene activos los niveles de campaña, lo que cualifica a los miembros para ganar comisiones del grid. Sin Watch & Earn, los niveles de campaña nunca completarían sus metas de vistas, y la estructura de comisiones no funcionaría. Así que cuando ves vídeos, no solo estás ganando — estás impulsando toda la red de afiliados. Tu asignación diaria de visualizaciones depende de tu nivel de membresía, y cada visualización completada cuenta para la meta de vistas de un titular de campaña."
+        }
+      ]
+    },
+    {
+      "id": "marketing-tools",
+      "emoji": "🛠️",
+      "color": "#8b5cf6",
+      "title": "Herramientas de Marketing",
+      "lessons": [
+        {
+          "id": "mkt-1",
+          "duration": "4 min",
+          "title": "LinkHub — Tu Página de Enlaces en Bio",
+          "content": "LinkHub te permite crear un sitio web de una sola página con todos tus enlaces, perfiles sociales y enlaces de referido. Piénsalo como tu landing page personal. Personaliza colores, tipografías y diseño. Comparte una sola URL de LinkHub en lugar de múltiples enlaces. Perfecto para biografías de redes sociales."
+        },
+        {
+          "id": "mkt-2",
+          "duration": "5 min",
+          "title": "Link Tools — Acortador, Rotador, Geo-Redirección",
+          "content": "Link Tools te ofrece tres utilidades potentes: Enlaces Cortos (shortlinks de marca que rastrean clics), Rotadores de Enlaces (divide tráfico entre múltiples URLs — ideal para pruebas A/B), y Geo-Redirecciones (envía a los visitantes a páginas distintas según su país). Todos los enlaces incluyen analíticas de clics."
+        },
+        {
+          "id": "mkt-3",
+          "duration": "4 min",
+          "title": "La Suite de Marketing",
+          "content": "La Suite de Marketing incluye herramientas con IA para crear contenido: Buscador de Nichos (descubre nichos rentables), Generador de Posts Sociales (30 días de publicaciones), Generador de Guiones de Vídeo (ganchos + guiones), Archivo de Plantillas de Email (listas para enviar), y Asistente de Lanzamiento (plan de lanzamiento paso a paso). Todo el contenido se genera específicamente para tu nicho."
+        }
+      ]
+    },
+    {
+      "id": "pro-features",
+      "emoji": "⚡",
+      "color": "#f59e0b",
+      "title": "Herramientas para Miembros Pro",
+      "lessons": [
+        {
+          "id": "pro-1",
+          "duration": "6 min",
+          "title": "SuperSeller — Piloto Automático de Ventas con IA",
+          "content": "SuperSeller es tu máquina de marketing impulsada por IA. Introduces tu nicho y genera una campaña completa: landing page, 30 publicaciones sociales, secuencia de 5 emails de nurturing, 3 guiones de vídeo, copy publicitario y una estrategia de 30 días. Los leads capturados por tu landing page entran automáticamente en el autoresponder de email. Puedes editar tu página, añadir un vídeo de ventas, personalizar el CTA e inyectar píxeles de seguimiento."
+        },
+        {
+          "id": "pro-2",
+          "duration": "5 min",
+          "title": "SuperPages — Constructor de Landing Pages",
+          "content": "SuperPages es un constructor de landing pages drag-and-drop con 24 tipos de bloques, 8 plantillas, constructor de gradientes, vista previa responsive y editor de formularios. Construye embudos profesionales sin programar. Las páginas se alojan en tu cuenta SuperAdPro e incluyen formularios de captura que alimentan tu CRM."
+        },
+        {
+          "id": "pro-3",
+          "duration": "4 min",
+          "title": "Autoresponder de Email",
+          "content": "Cuando los leads se registran a través de tus embudos SuperSeller o SuperPages, reciben automáticamente una secuencia de emails de goteo — 5 emails durante 7 días. Cada email se genera con IA para tu nicho e incluye tu enlace de referido. El autoresponder funciona automáticamente vía el sistema cron. Rastrea aperturas, clics y conversiones en tu panel de Leads."
+        },
+        {
+          "id": "pro-4",
+          "duration": "3 min",
+          "title": "CRM ProSeller y Panel de Leads",
+          "content": "Tu panel de Leads muestra cada lead de email capturado por tus embudos. Ve su estado (nuevo, nurturing, caliente, convertido), cuántos emails han abierto, y qué enlaces han pulsado. Los leads calientes (2+ aperturas o cualquier clic) se marcan automáticamente para que puedas hacer seguimiento personal."
+        }
+      ]
+    },
+    {
+      "id": "growth-tips",
+      "emoji": "📈",
+      "color": "#ec4899",
+      "title": "Estrategias de Crecimiento",
+      "lessons": [
+        {
+          "id": "tip-1",
+          "duration": "3 min",
+          "title": "El Método 3-3-3",
+          "content": "Comparte 3 publicaciones sociales al día, contacta con 3 personas nuevas, y haz seguimiento con 3 contactos existentes. La consistencia gana a la intensidad. La mayoría de afiliados exitosos ganan mediante acción diaria constante, no momentos virales. Usa el Generador de Posts Sociales para crear tu contenido diario en segundos."
+        },
+        {
+          "id": "tip-2",
+          "duration": "4 min",
+          "title": "Aprovechando Tu Página SuperSeller",
+          "content": "Tu landing page SuperSeller es tu vendedor 24/7. Añade un vídeo de ventas personal para generar confianza. Comparte el enlace en tus bios sociales, firmas de email y mensajes de WhatsApp. El agente de chat con IA maneja objeciones mientras duermes. Revisa tu panel de leads diariamente en busca de prospectos calientes."
+        },
+        {
+          "id": "tip-3",
+          "duration": "4 min",
+          "title": "Construyendo un Equipo que Permanece",
+          "content": "La retención vale más que la captación. Ayuda a tus referidos a configurar su perfil y crear su primera campaña SuperSeller en las primeras 24 horas. Envíales un mensaje de bienvenida por Team Messenger. Los miembros que ganan en su primera semana tienen 5 veces más probabilidades de mantenerse activos."
+        },
+        {
+          "id": "tip-4",
+          "duration": "2 min",
+          "title": "Usando Códigos QR para Marketing Offline",
+          "content": "Genera códigos QR para tu enlace de referido, página LinkHub o embudo SuperSeller. Imprímelos en tarjetas de visita, flyers o pegatinas. Colócalos en cafeterías, gimnasios y espacios de coworking. Los códigos QR conectan el networking offline con el registro online."
+        }
+      ]
+    }
+  ]
+}

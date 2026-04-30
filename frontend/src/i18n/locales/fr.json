@@ -1294,7 +1294,10 @@
     "subtitle": "Apprenez à maximiser vos revenus SuperAdPro",
     "loadingTraining": "Chargement...",
     "yourProgress": "Votre progression",
-    "complete": "TERMINÉ"
+    "complete": "TERMINÉ",
+    "lessonsLabel": "leçons",
+    "completedLabel": "terminés",
+    "markComplete": "Marquer comme Terminé"
   },
   "payItForward": {
     "title": "Payer au Suivant",

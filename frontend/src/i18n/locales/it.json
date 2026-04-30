@@ -1294,7 +1294,10 @@
     "subtitle": "Impara a massimizzare i guadagni",
     "loadingTraining": "Caricamento...",
     "yourProgress": "Il tuo progresso",
-    "complete": "COMPLETATO"
+    "complete": "COMPLETATO",
+    "lessonsLabel": "lezioni",
+    "completedLabel": "completati",
+    "markComplete": "Segna come Completato"
   },
   "payItForward": {
     "title": "Passa il Favore",

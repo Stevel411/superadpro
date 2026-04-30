@@ -1294,7 +1294,10 @@
     "subtitle": "Aprenda a maximizar seus ganhos",
     "loadingTraining": "Carregando...",
     "yourProgress": "Seu progresso",
-    "complete": "CONCLUÍDO"
+    "complete": "CONCLUÍDO",
+    "lessonsLabel": "aulas",
+    "completedLabel": "concluídos",
+    "markComplete": "Marcar como Concluído"
   },
   "payItForward": {
     "title": "Pagar Adiante",

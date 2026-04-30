@@ -1294,7 +1294,10 @@
     "subtitle": "Tìm hiểu cách tối đa hóa thu nhập",
     "loadingTraining": "Đang tải...",
     "yourProgress": "Tiến trình của bạn",
-    "complete": "HOÀN THÀNH"
+    "complete": "HOÀN THÀNH",
+    "lessonsLabel": "bài học",
+    "completedLabel": "đã hoàn thành",
+    "markComplete": "Đánh dấu hoàn thành"
   },
   "payItForward": {
     "title": "Lan tỏa Yêu thương",

@@ -1294,7 +1294,10 @@
     "subtitle": "Jifunze jinsi ya kuongeza mapato",
     "loadingTraining": "Inapakia...",
     "yourProgress": "Maendeleo yako",
-    "complete": "KAMILI"
+    "complete": "KAMILI",
+    "lessonsLabel": "masomo",
+    "completedLabel": "zilizokamilika",
+    "markComplete": "Weka Alama Imekamilika"
   },
   "payItForward": {
     "title": "Lipa Mbele",

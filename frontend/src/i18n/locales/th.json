@@ -1294,7 +1294,10 @@
     "subtitle": "เรียนรู้วิธีเพิ่มรายได้สูงสุด",
     "loadingTraining": "กำลังโหลด...",
     "yourProgress": "ความคืบหน้าของคุณ",
-    "complete": "เสร็จสมบูรณ์"
+    "complete": "เสร็จสมบูรณ์",
+    "lessonsLabel": "บทเรียน",
+    "completedLabel": "เสร็จสิ้น",
+    "markComplete": "ทำเครื่องหมายว่าเสร็จสิ้น"
   },
   "payItForward": {
     "title": "ส่งต่อความดี",

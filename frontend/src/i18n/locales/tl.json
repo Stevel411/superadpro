@@ -1294,7 +1294,10 @@
     "subtitle": "Matutunan kung paano i-maximize ang kita",
     "loadingTraining": "Naglo-load...",
     "yourProgress": "Iyong progreso",
-    "complete": "KUMPLETO"
+    "complete": "KUMPLETO",
+    "lessonsLabel": "mga aralin",
+    "completedLabel": "natapos",
+    "markComplete": "Markahan Bilang Tapos"
   },
   "payItForward": {
     "title": "Pay It Forward",

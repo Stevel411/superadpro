@@ -1294,7 +1294,10 @@
     "subtitle": "学习如何最大化您的收入",
     "loadingTraining": "加载中...",
     "yourProgress": "您的进度",
-    "complete": "已完成"
+    "complete": "已完成",
+    "lessonsLabel": "课程",
+    "completedLabel": "已完成",
+    "markComplete": "标记为已完成"
   },
   "payItForward": {
     "title": "传递善意",

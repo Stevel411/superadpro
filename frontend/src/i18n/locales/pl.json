@@ -1294,7 +1294,10 @@
     "subtitle": "Naucz się maksymalizować zarobki",
     "loadingTraining": "Ładowanie...",
     "yourProgress": "Twój postęp",
-    "complete": "ZAKOŃCZONE"
+    "complete": "ZAKOŃCZONE",
+    "lessonsLabel": "lekcji",
+    "completedLabel": "ukończono",
+    "markComplete": "Oznacz jako ukończone"
   },
   "payItForward": {
     "title": "Przekaż Dalej",

@@ -1294,7 +1294,10 @@
     "subtitle": "수익을 극대화하는 방법 학습",
     "loadingTraining": "로딩 중...",
     "yourProgress": "나의 진행률",
-    "complete": "완료"
+    "complete": "완료",
+    "lessonsLabel": "강의",
+    "completedLabel": "완료",
+    "markComplete": "완료로 표시"
   },
   "payItForward": {
     "title": "선행 전달",

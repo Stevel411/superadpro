@@ -1294,7 +1294,10 @@
     "subtitle": "Kazançlarınızı nasıl artıracağınızı öğrenin",
     "loadingTraining": "Yükleniyor...",
     "yourProgress": "İlerlemeniz",
-    "complete": "TAMAMLANDI"
+    "complete": "TAMAMLANDI",
+    "lessonsLabel": "ders",
+    "completedLabel": "tamamlandı",
+    "markComplete": "Tamamlandı olarak işaretle"
   },
   "payItForward": {
     "title": "İyiliği İlet",

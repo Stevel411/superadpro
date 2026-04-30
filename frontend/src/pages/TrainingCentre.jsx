@@ -13,7 +13,11 @@ export default function TrainingCentre() {
   var [completed, setCompleted] = useState({});
 
   useEffect(function() {
-    apiGet('/api/training').then(function(r) {
+    // Pass current i18n language so backend serves locale-matched content.
+    var lang = (typeof window !== 'undefined' && window.localStorage)
+      ? (localStorage.getItem('superadpro-lang') || 'en')
+      : 'en';
+    apiGet('/api/training?lang=' + encodeURIComponent(lang)).then(function(r) {
       setModules(r.modules || []);
       setLoading(false);
       if (r.modules && r.modules.length > 0) setOpenModule(r.modules[0].id);
@@ -42,7 +46,7 @@ export default function TrainingCentre() {
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'20px 24px',marginBottom:20,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
           <div style={{fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('training.yourProgress')}</div>
-          <div style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>{doneLessons}/{totalLessons} lessons</div>
+          <div style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>{doneLessons}/{totalLessons} {t('training.lessonsLabel', {defaultValue: 'lessons'})}</div>
         </div>
         <div style={{height:8,background:'var(--sap-bg-page)',borderRadius:4,overflow:'hidden'}}>
           <div style={{height:'100%',width:(totalLessons>0?doneLessons/totalLessons*100:0)+'%',background:'linear-gradient(90deg,#0ea5e9,#38bdf8)',borderRadius:4,transition:'width .5s ease'}}/>
@@ -63,7 +67,7 @@ export default function TrainingCentre() {
                   <div style={{fontSize:24}}>{mod.emoji}</div>
                   <div>
                     <div style={{fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{mod.title}</div>
-                    <div style={{fontSize:12,color:'var(--sap-text-muted)',fontWeight:600}}>{modDone}/{mod.lessons.length} completed</div>
+                    <div style={{fontSize:12,color:'var(--sap-text-muted)',fontWeight:600}}>{modDone}/{mod.lessons.length} {t('training.completedLabel', {defaultValue: 'completed'})}</div>
                   </div>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
@@ -105,7 +109,7 @@ export default function TrainingCentre() {
                                 style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 18px',borderRadius:8,border:'none',
                                   background:'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',fontSize:12,fontWeight:700,
                                   cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(22,163,74,.3)'}}>
-                                <CheckCircle size={13}/> Mark as Complete
+                                <CheckCircle size={13}/> {t('training.markComplete', {defaultValue: 'Mark as Complete'})}
                               </button>
                             )}
                           </div>

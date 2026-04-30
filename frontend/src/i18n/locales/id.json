@@ -1294,7 +1294,10 @@
     "subtitle": "Pelajari cara memaksimalkan penghasilan",
     "loadingTraining": "Memuat...",
     "yourProgress": "Kemajuan Anda",
-    "complete": "SELESAI"
+    "complete": "SELESAI",
+    "lessonsLabel": "pelajaran",
+    "completedLabel": "selesai",
+    "markComplete": "Tandai Selesai"
   },
   "payItForward": {
     "title": "Bayar ke Depan",

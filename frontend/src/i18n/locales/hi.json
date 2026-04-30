@@ -1294,7 +1294,10 @@
     "subtitle": "अपनी कमाई अधिकतम करना सीखें",
     "loadingTraining": "लोड हो रहा है...",
     "yourProgress": "आपकी प्रगति",
-    "complete": "पूर्ण"
+    "complete": "पूर्ण",
+    "lessonsLabel": "पाठ",
+    "completedLabel": "पूर्ण",
+    "markComplete": "पूर्ण के रूप में चिह्नित करें"
   },
   "payItForward": {
     "title": "आगे बढ़ाएं",
