@@ -139,7 +139,7 @@ export default function AnalyticsPage(){
         </WC>
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <WC title={t('analytics.incomeBreakdown')} subtitle={t('analytics.byStream')} style={{flex:1}}><div style={{height:200}}><canvas ref={breakdownRef}/></div></WC>
-          <WC title="Team Growth" subtitle="Last 12 weeks"><div style={{height:130}}><canvas ref={teamRef}/></div></WC>
+          <WC title={t('analytics.teamGrowth')} subtitle="Last 12 weeks"><div style={{height:130}}><canvas ref={teamRef}/></div></WC>
         </div>
       </div>
 
@@ -197,7 +197,7 @@ export default function AnalyticsPage(){
             {!data.watch_stats.commissions_paused&&data.watch_stats.consecutive_missed>0&&<div style={{marginTop:10,padding:'10px 14px',borderRadius:10,background:'#fffbeb',border:'1px solid #fde68a',fontSize:12,fontWeight:600,color:'#b45309'}}>{data.watch_stats.consecutive_missed} day{data.watch_stats.consecutive_missed>1?'s':''} missed — watch today to maintain qualification</div>}
             {!data.watch_stats.commissions_paused&&data.watch_stats.consecutive_missed===0&&data.watch_stats.today_watched>=data.watch_stats.daily_required&&<div style={{marginTop:10,padding:'10px 14px',borderRadius:10,background:'#f0fdf4',border:'1px solid #bbf7d0',fontSize:12,fontWeight:600,color:'#15803d'}}>Quota met today — withdrawals qualified</div>}
           </WC>
-          <WC title="Daily Watch Log" subtitle="Videos watched per day — last 30 days"><div style={{height:180}}><canvas ref={watchRef}/></div></WC>
+          <WC title={t('analytics.dailyWatchLog')} subtitle="Videos watched per day — last 30 days"><div style={{height:180}}><canvas ref={watchRef}/></div></WC>
         </div>
       </>}
 

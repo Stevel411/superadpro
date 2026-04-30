@@ -187,7 +187,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
 
               <button onClick={handleContinue} disabled={status === 'creating'}
                 style={{ width: '100%', padding: 12, fontSize: 14, fontWeight: 700, color: '#fff', background: status === 'creating' ? '#94a3b8' : '#06b6d4', border: 'none', borderRadius: 10, cursor: status === 'creating' ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}>
-                {status === 'creating' ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> ${t('common.creatingOrder')}</> : <>Continue <ArrowRight size={16} /></>}
+                {status === 'creating' ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> ${t('common.creatingOrder')}</> : <>{t('cryptoCheckout.continueBtn')} <ArrowRight size={16} /></>}
               </button>
             </>
           )}

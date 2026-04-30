@@ -186,13 +186,13 @@ export default function QRCodeGeneratorInternal() {
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
-              <label style={labelStyle}>Phone Number</label>
+              <label style={labelStyle}>{t('qrTool.phoneNumber')}</label>
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+44 7700 900000" style={inputStyle}
                 onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
             <div>
-              <label style={labelStyle}>Message (optional)</label>
-              <textarea value={smsBody} onChange={e => setSmsBody(e.target.value)} placeholder="Pre-filled SMS text" rows={2}
+              <label style={labelStyle}>{t('qrTool.messageOptional')}</label>
+              <textarea value={smsBody} onChange={e => setSmsBody(e.target.value)} placeholder={t('qrTool.smsTextPlaceholder')} rows={2}
                 style={{ ...inputStyle, resize: 'vertical', minHeight: 60 }}
                 onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-border)'} />
             </div>
@@ -203,7 +203,7 @@ export default function QRCodeGeneratorInternal() {
   };
 
   return (
-    <AppLayout title="QR Code Generator" subtitle="Generate custom QR codes for URLs, WiFi, contact info, and more">
+    <AppLayout title={t('qrTool.pageTitle')} subtitle="Generate custom QR codes for URLs, WiFi, contact info, and more">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
 
         {/* LEFT: configuration */}

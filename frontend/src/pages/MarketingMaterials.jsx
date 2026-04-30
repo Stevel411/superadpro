@@ -60,13 +60,13 @@ export default function MarketingMaterials() {
     setTimeout(function() { setCopied(false); }, 2000);
   }
 
-  return <AppLayout title="Marketing Materials" activePage="marketing-materials">
+  return <AppLayout title={t('marketingMaterials.pageTitle')} activePage="marketing-materials">
     <style>{'.mm-lang-option:hover{background:#f8fafc !important}'}</style>
     <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
       {/* Page header */}
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 26, fontWeight: 800, color: '#0f172a', margin: 0 }}>Marketing Materials</h1>
+        <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 26, fontWeight: 800, color: '#0f172a', margin: 0 }}>{t('marketingMaterials.pageTitle')}</h1>
         <p style={{ fontSize: 14, color: '#475569', marginTop: 6, lineHeight: 1.6 }}>Download ready-made presentations to share with prospects. Available in 20 languages.</p>
       </div>
 
@@ -179,13 +179,13 @@ export default function MarketingMaterials() {
 
       {/* Coming Soon */}
       <div style={{ marginTop: 32 }}>
-        <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#475569', marginBottom: 14 }}>Coming Soon</div>
+        <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#475569', marginBottom: 14 }}>{t('common.comingSoon')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           {[['🎬', 'Platform Tour Video'], ['📱', 'Social Media Graphics'], ['📄', 'One-Page Flyer']].map(function(item, i) {
             return <div key={i} style={{ padding: 20, borderRadius: 12, background: '#fff', border: '1px solid #e2e8f0', textAlign: 'center', opacity: .6 }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>{item[0]}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>{item[1]}</div>
-              <div style={{ fontSize: 13, color: '#7a8899', marginTop: 4, fontWeight: 600 }}>Coming Soon</div>
+              <div style={{ fontSize: 13, color: '#7a8899', marginTop: 4, fontWeight: 600 }}>{t('common.comingSoon')}</div>
             </div>;
           })}
         </div>

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Zap, Info, TrendingUp, ArrowUpRight } from 'lucide-react';
 import { formatMoney } from '../utils/money';
 
 export default function IncomeChains() {
+  var { t } = useTranslation();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [showExplainer, setShowExplainer] = useState(false);
@@ -13,7 +15,7 @@ export default function IncomeChains() {
     apiGet('/api/income-chains').then(function(r) { setData(r); setLoading(false); }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="Income Chains"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t('incomeChains.pageTitle')}><Spin/></AppLayout>;
 
   var d = data || {};
   var chains = d.chains || [];
@@ -92,7 +94,7 @@ export default function IncomeChains() {
             🎯
           </div>
           <div style={{flex:1}}>
-            <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:2}}>Direct Course Sales</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:2}}>{t('incomeChains.directCourseSales')}</div>
             <div style={{fontSize:12,color:'#475569'}}>
               {directSales.count} sales where you kept 100% — doesn't flow through any Income Chain
             </div>
@@ -109,7 +111,7 @@ export default function IncomeChains() {
         <div style={{background:cobaltGradient,padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:8,height:8,borderRadius:4,background:'#0ea5e9',boxShadow:'0 0 8px rgba(14,165,233,.5)'}}/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>Recent Cascades</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('incomeChains.recentCascades')}</div>
           </div>
           <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.55)'}}>
             {recentCascades.length} entries
@@ -156,7 +158,7 @@ export default function IncomeChains() {
         ) : (
           <EmptyState
             icon="⛓️"
-            title="No cascades yet"
+            title={t('incomeChains.noCascadesYet')}
             subtitle="As your team grows and they recruit their 2nd, 4th, 6th, and 8th members, those commissions will cascade up to you here"
           />
         )}
@@ -251,7 +253,7 @@ function ExplainerBlock() {
       </div>
 
       <div style={{padding:'16px 20px',background:'#f8fafc',borderRadius:10,border:'1px solid #e8ecf2'}}>
-        <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:8}}>The Infinite Cascade</div>
+        <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:8}}>{t('incomeChains.theInfiniteCascade')}</div>
         <div style={{fontSize:12,color:'#475569',lineHeight:1.6}}>
           Your team's 2nd, 4th, 6th, and 8th referrals also pass up — to the same chains, flowing through generations.
           A sale 10 levels deep in your organisation can still cascade all the way up to you, as long as it

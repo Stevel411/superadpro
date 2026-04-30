@@ -48,7 +48,8 @@
     "tapToUnmute": "ध्वनि चालू करने के लिए टैप करें",
     "loading": "लोड हो रहा है…",
     "notFound": "नहीं मिला",
-    "disclaimerLink": "अस्वीकरण"
+    "disclaimerLink": "अस्वीकरण",
+    "comingSoon": "जल्द आ रहा है"
   },
   "nav": {
     "dashboard": "डैशबोर्ड",
@@ -668,7 +669,8 @@
     "myCommissions": "मेरे कमीशन",
     "openDirectly": "सीधे खोलें →",
     "owned": "✓ स्वामित्व",
-    "checkBackSoon": "जल्दी वापस आएं — नए कोर्स जोड़े जा रहे हैं।"
+    "checkBackSoon": "जल्दी वापस आएं — नए कोर्स जोड़े जा रहे हैं।",
+    "courseAcademy": "Course Academy"
   },
   "videos": {
     "title": "वीडियो लाइब्रेरी",
@@ -2433,7 +2435,8 @@
     "fullAiAutomation": "पूर्ण AI ऑटोमेशन",
     "freeNoCreditCard": "मुफ़्त · कार्ड नहीं · कभी भी रद्द करें",
     "incomeDisclaimerBody": "आंकड़े कम्पेंसेशन प्लान की संरचना दर्शाते हैं। वास्तविक परिणाम भिन्न होते हैं।",
-    "buildReal": "सच में बनाएं"
+    "buildReal": "सच में बनाएं",
+    "watchYour": "देखें अपना"
   },
   "publicPages": {
     "faq": "सामान्य प्रश्न",
@@ -2920,7 +2923,9 @@
     "noResults": "कोई परिणाम नहीं",
     "noTeamYet": "अभी तक कोई टीम नहीं",
     "recruitToMsg": "संदेश भेजना शुरू करने के लिए किसी को भर्ती करें",
-    "salesPassUps": "बिक्री + पास-अप"
+    "salesPassUps": "बिक्री + पास-अप",
+    "teamGrowth": "टीम की वृद्धि",
+    "dailyWatchLog": "दैनिक वॉच लॉग"
   },
   "leadFinder": {
     "title": "लीड खोजक",
@@ -4280,12 +4285,16 @@
     "foreground": "फ़ोरग्राउंड",
     "background": "बैकग्राउंड",
     "errorCorrection": "त्रुटि सुधार",
-    "alt": "जेनरेट किया गया QR कोड"
+    "alt": "जेनरेट किया गया QR कोड",
+    "smsTextPlaceholder": "पूर्व-भरा SMS टेक्स्ट",
+    "pageTitle": "QR कोड जेनरेटर",
+    "messageOptional": "संदेश (वैकल्पिक)"
   },
   "memeTool": {
     "chooseTemplate": "एक टेम्प्लेट चुनें",
     "yourMemeText": "आपका मीम टेक्स्ट",
-    "textColour": "टेक्स्ट का रंग"
+    "textColour": "टेक्स्ट का रंग",
+    "pageTitle": "मीम जेनरेटर"
   },
   "bannerTool": {
     "background": "बैकग्राउंड",
@@ -4298,9 +4307,45 @@
     "totalEarnings": "कुल ग्रिड कमाई",
     "positions": "पोज़िशन्स",
     "liveCommissionFeed": "लाइव कमीशन फ़ीड",
-    "pressStart": "सिमुलेशन शुरू करने के लिए Start दबाएँ"
+    "pressStart": "सिमुलेशन शुरू करने के लिए Start दबाएँ",
+    "pageTitle": "प्रॉफ़िट ग्रिड कैलकुलेटर"
   },
   "videoLibrary": {
     "needActiveCampaign": "आपकी कैम्पेन को एक सक्रिय कैम्पेन टियर की ज़रूरत है।"
+  },
+  "cryptoCheckout": {
+    "continueBtn": "जारी रखें"
+  },
+  "voiceGuide": {
+    "platformGuide": "प्लेटफ़ॉर्म गाइड",
+    "youAsked": "आपने पूछा",
+    "askPlaceholder": "एक प्रश्न पूछें..."
+  },
+  "incomeChains": {
+    "directCourseSales": "डायरेक्ट कोर्स बिक्री",
+    "recentCascades": "हाल की कैस्केड्स",
+    "theInfiniteCascade": "अनंत कैस्केड",
+    "pageTitle": "इनकम चेन्स",
+    "noCascadesYet": "अभी तक कोई कैस्केड नहीं"
+  },
+  "marketingMaterials": {
+    "pageTitle": "मार्केटिंग मटेरियल्स"
+  },
+  "bucketList": {
+    "commandCentre": "कमांड सेंटर"
+  },
+  "editor": {
+    "aiCommands": "AI कमांड्स",
+    "strikethrough": "स्ट्राइकथ्रू",
+    "highlight": "हाइलाइट",
+    "alignLeft": "बाईं ओर संरेखित करें",
+    "alignCenter": "केंद्र में संरेखित करें",
+    "alignRight": "दाईं ओर संरेखित करें",
+    "bulletList": "बुलेट सूची",
+    "numberedList": "क्रमांकित सूची",
+    "aiRewrite": "AI द्वारा पुनर्लेखन",
+    "fontFamily": "फ़ॉन्ट फ़ैमिली",
+    "presetSizes": "प्रीसेट साइज़",
+    "textColour": "टेक्स्ट का रंग"
   }
 }

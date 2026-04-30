@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useEditor, useEditorState, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -57,6 +58,7 @@ export default function TiptapText({
   aiBusy,
   onHeightChange,
 }) {
+  const { t } = useTranslation();
   const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [aiCustom, setAiCustom] = useState('');
   // Manual bubble-menu positioning. Replaces Tiptap's BubbleMenu component
@@ -375,7 +377,7 @@ export default function TiptapText({
             <BubBtn active={tbState?.underline} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline (Ctrl+U)">
               <UnderlineIcon size={13}/>
             </BubBtn>
-            <BubBtn active={tbState?.strike} onClick={() => editor.chain().focus().toggleStrike().run()} title="Strikethrough">
+            <BubBtn active={tbState?.strike} onClick={() => editor.chain().focus().toggleStrike().run()} title={t('editor.strikethrough')}>
               <Strikethrough size={13}/>
             </BubBtn>
 
@@ -383,28 +385,28 @@ export default function TiptapText({
 
             <ColorPicker editor={editor} currentColor={tbState?.color} />
 
-            <BubBtn active={tbState?.highlight} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} title="Highlight">
+            <BubBtn active={tbState?.highlight} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} title={t('editor.highlight')}>
               <Highlighter size={13}/>
             </BubBtn>
 
             <Divider/>
 
-            <BubBtn active={tbState?.alignLeft} onClick={() => editor.chain().focus().setTextAlign('left').run()} title="Align left">
+            <BubBtn active={tbState?.alignLeft} onClick={() => editor.chain().focus().setTextAlign('left').run()} title={t('editor.alignLeft')}>
               <AlignLeft size={13}/>
             </BubBtn>
-            <BubBtn active={tbState?.alignCenter} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Align center">
+            <BubBtn active={tbState?.alignCenter} onClick={() => editor.chain().focus().setTextAlign('center').run()} title={t('editor.alignCenter')}>
               <AlignCenter size={13}/>
             </BubBtn>
-            <BubBtn active={tbState?.alignRight} onClick={() => editor.chain().focus().setTextAlign('right').run()} title="Align right">
+            <BubBtn active={tbState?.alignRight} onClick={() => editor.chain().focus().setTextAlign('right').run()} title={t('editor.alignRight')}>
               <AlignRight size={13}/>
             </BubBtn>
 
             <Divider/>
 
-            <BubBtn active={tbState?.bulletList} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list">
+            <BubBtn active={tbState?.bulletList} onClick={() => editor.chain().focus().toggleBulletList().run()} title={t('editor.bulletList')}>
               <List size={13}/>
             </BubBtn>
-            <BubBtn active={tbState?.orderedList} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list">
+            <BubBtn active={tbState?.orderedList} onClick={() => editor.chain().focus().toggleOrderedList().run()} title={t('editor.numberedList')}>
               <ListOrdered size={13}/>
             </BubBtn>
 
@@ -448,7 +450,7 @@ export default function TiptapText({
                 <button
                   className="sp-tt-btn sp-tt-ai"
                   onClick={() => setAiMenuOpen(v => !v)}
-                  title="AI rewrite"
+                  title={t('editor.aiRewrite')}
                   disabled={aiBusy}
                 >
                   <Sparkles size={11}/>
@@ -460,7 +462,7 @@ export default function TiptapText({
 
           {showAi && aiMenuOpen && (
             <div className="sp-tt-ai-pop" onMouseDown={(e) => e.preventDefault()}>
-              <div style={{fontSize:13,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>AI commands</div>
+              <div style={{fontSize:13,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>{t('editor.aiCommands')}</div>
               <AiCmd onClick={() => handleAiCommand('rewrite')}>✨ Rewrite for clarity</AiCmd>
               <AiCmd onClick={() => handleAiCommand('shorten')}>📏 Make it shorter</AiCmd>
               <AiCmd onClick={() => handleAiCommand('sharper')}>🎯 Sharper hook</AiCmd>
@@ -716,7 +718,7 @@ function FontSelect({ editor, currentFont }) {
       <button
         className="sp-tt-select"
         onClick={() => setOpen(v => !v)}
-        title="Font family"
+        title={t('editor.fontFamily')}
       >
         <span style={{maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: currentFont || 'inherit'}}>
           {currentLabel}
@@ -804,7 +806,7 @@ function SizeInput({ editor, currentSize }) {
       <button
         className="sp-tt-btn"
         onClick={() => setOpen(v => !v)}
-        title="Preset sizes"
+        title={t('editor.presetSizes')}
         style={{width: 18, marginLeft: -2}}
       >
         <ChevronDown size={11}/>
@@ -861,7 +863,7 @@ function ColorPicker({ editor, currentColor }) {
   ];
   return (
     <div style={{position: 'relative'}}>
-      <button className="sp-tt-btn" onClick={() => setOpen(v => !v)} title="Text colour">
+      <button className="sp-tt-btn" onClick={() => setOpen(v => !v)} title={t('editor.textColour')}>
         <Palette size={13} style={{color: current}}/>
       </button>
       {open && (

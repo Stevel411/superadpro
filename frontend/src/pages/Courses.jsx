@@ -18,7 +18,7 @@ export default function Courses() {
   if (loading) return <AppLayout title={t('courses.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
 
   return (
-    <AppLayout title="Course Academy" subtitle="Resell SuperAdPro courses and keep 100% commissions"
+    <AppLayout title={t('courses.courseAcademy')} subtitle="Resell SuperAdPro courses and keep 100% commissions"
       topbarActions={<>
         <Link to="/courses/how-it-works" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:14,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.howCommissionsWork')}</Link>
         <Link to="/courses/commissions" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:14,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.myCommissions')}</Link>
@@ -28,9 +28,9 @@ export default function Courses() {
       <div style={{maxWidth:680,margin:'40px auto 32px',textAlign:'center'}}>
         <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 16px',borderRadius:20,background:'linear-gradient(135deg,rgba(251,191,36,.1),rgba(251,191,36,.04))',border:'1px solid rgba(251,191,36,.15)',marginBottom:20}}>
           <span style={{fontSize:16}}>🚀</span>
-          <span style={{fontSize:13,fontWeight:700,color:'#f59e0b',letterSpacing:1,textTransform:'uppercase'}}>Coming Soon</span>
+          <span style={{fontSize:13,fontWeight:700,color:'#f59e0b',letterSpacing:1,textTransform:'uppercase'}}>{t('common.comingSoon')}</span>
         </div>
-        <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:28,fontWeight:800,color:'#0f172a',margin:'0 0 12px'}}>Course Academy</h2>
+        <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:28,fontWeight:800,color:'#0f172a',margin:'0 0 12px'}}>{t('courses.courseAcademy')}</h2>
         <p style={{fontSize:16,color:'#475569',lineHeight:1.7,maxWidth:520,margin:'0 auto 24px'}}>Resell professionally-built SuperAdPro courses to your audience. Keep 100% of your first sale, with a pass-up system that creates ongoing team income.</p>
         <div style={{display:'flex',justifyContent:'center',gap:24,flexWrap:'wrap'}}>
           {[['📚','Ready-made courses to resell'],['💰','100% first sale commission'],['⬆️','Infinite pass-up cascade']].map(function(item,i){

@@ -48,7 +48,8 @@
     "tapToUnmute": "انقر لتشغيل الصوت",
     "loading": "جاري التحميل…",
     "notFound": "لم يتم العثور عليه",
-    "disclaimerLink": "إخلاء المسؤولية"
+    "disclaimerLink": "إخلاء المسؤولية",
+    "comingSoon": "Coming Soon"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -668,7 +669,8 @@
     "myCommissions": "عمولاتي",
     "openDirectly": "فتح مباشرة →",
     "owned": "✓ مملوك",
-    "checkBackSoon": "تحقق قريباً — يتم إضافة دورات جديدة."
+    "checkBackSoon": "تحقق قريباً — يتم إضافة دورات جديدة.",
+    "courseAcademy": "Course Academy"
   },
   "videos": {
     "title": "مكتبة الفيديو",
@@ -2433,7 +2435,8 @@
     "fullAiAutomation": "أتمتة AI كاملة",
     "freeNoCreditCard": "مجاني · بدون بطاقة · إلغاء في أي وقت",
     "incomeDisclaimerBody": "الأرقام تمثل هيكل خطة التعويض. النتائج الفعلية تختلف.",
-    "buildReal": "بناء حقيقي"
+    "buildReal": "بناء حقيقي",
+    "watchYour": "Watch Your"
   },
   "publicPages": {
     "faq": "الأسئلة الشائعة",
@@ -2920,7 +2923,9 @@
     "noResults": "لا توجد نتائج",
     "noTeamYet": "لا يوجد فريق بعد",
     "recruitToMsg": "جنّد شخصاً ما لتبدأ في إرسال الرسائل",
-    "salesPassUps": "المبيعات + التمرير"
+    "salesPassUps": "المبيعات + التمرير",
+    "teamGrowth": "Team Growth",
+    "dailyWatchLog": "Daily Watch Log"
   },
   "leadFinder": {
     "title": "باحث العملاء المحتملين",
@@ -4280,12 +4285,16 @@
     "foreground": "Foreground",
     "background": "Background",
     "errorCorrection": "Error Correction",
-    "alt": "Generated QR Code"
+    "alt": "Generated QR Code",
+    "smsTextPlaceholder": "Pre-filled SMS text",
+    "pageTitle": "QR Code Generator",
+    "messageOptional": "Message (optional)"
   },
   "memeTool": {
     "chooseTemplate": "Choose a template",
     "yourMemeText": "Your meme text",
-    "textColour": "Text colour"
+    "textColour": "Text colour",
+    "pageTitle": "Meme Generator"
   },
   "bannerTool": {
     "background": "Background",
@@ -4298,9 +4307,45 @@
     "totalEarnings": "Total Grid Earnings",
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
-    "pressStart": "Press Start to begin simulation"
+    "pressStart": "Press Start to begin simulation",
+    "pageTitle": "Profit Grid Calculator"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
+  },
+  "cryptoCheckout": {
+    "continueBtn": "Continue"
+  },
+  "voiceGuide": {
+    "platformGuide": "Platform Guide",
+    "youAsked": "You asked",
+    "askPlaceholder": "Ask a question..."
+  },
+  "incomeChains": {
+    "directCourseSales": "Direct Course Sales",
+    "recentCascades": "Recent Cascades",
+    "theInfiniteCascade": "The Infinite Cascade",
+    "pageTitle": "Income Chains",
+    "noCascadesYet": "No cascades yet"
+  },
+  "marketingMaterials": {
+    "pageTitle": "Marketing Materials"
+  },
+  "bucketList": {
+    "commandCentre": "Command Centre"
+  },
+  "editor": {
+    "aiCommands": "AI commands",
+    "strikethrough": "Strikethrough",
+    "highlight": "Highlight",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "bulletList": "Bullet list",
+    "numberedList": "Numbered list",
+    "aiRewrite": "AI rewrite",
+    "fontFamily": "Font family",
+    "presetSizes": "Preset sizes",
+    "textColour": "Text colour"
   }
 }

@@ -48,7 +48,8 @@
     "tapToUnmute": "点击取消静音",
     "loading": "加载中…",
     "notFound": "未找到",
-    "disclaimerLink": "免责声明"
+    "disclaimerLink": "免责声明",
+    "comingSoon": "Coming Soon"
   },
   "nav": {
     "dashboard": "控制面板",
@@ -668,7 +669,8 @@
     "myCommissions": "我的佣金",
     "openDirectly": "直接打开 →",
     "owned": "✓ 已拥有",
-    "checkBackSoon": "请稍后再来 — 新课程正在添加中。"
+    "checkBackSoon": "请稍后再来 — 新课程正在添加中。",
+    "courseAcademy": "Course Academy"
   },
   "videos": {
     "title": "视频库",
@@ -2433,7 +2435,8 @@
     "fullAiAutomation": "完整AI自动化",
     "freeNoCreditCard": "免费 · 无需卡 · 随时取消",
     "incomeDisclaimerBody": "收入数字代表薪酬计划结构。实际结果可能不同。",
-    "buildReal": "真正构建"
+    "buildReal": "真正构建",
+    "watchYour": "Watch Your"
   },
   "publicPages": {
     "faq": "常见问题",
@@ -2920,7 +2923,9 @@
     "noResults": "无结果",
     "noTeamYet": "暂无团队",
     "recruitToMsg": "招募某人开始发送消息",
-    "salesPassUps": "销售 + 上传"
+    "salesPassUps": "销售 + 上传",
+    "teamGrowth": "Team Growth",
+    "dailyWatchLog": "Daily Watch Log"
   },
   "leadFinder": {
     "title": "客户查找器",
@@ -4280,12 +4285,16 @@
     "foreground": "Foreground",
     "background": "Background",
     "errorCorrection": "Error Correction",
-    "alt": "Generated QR Code"
+    "alt": "Generated QR Code",
+    "smsTextPlaceholder": "Pre-filled SMS text",
+    "pageTitle": "QR Code Generator",
+    "messageOptional": "Message (optional)"
   },
   "memeTool": {
     "chooseTemplate": "Choose a template",
     "yourMemeText": "Your meme text",
-    "textColour": "Text colour"
+    "textColour": "Text colour",
+    "pageTitle": "Meme Generator"
   },
   "bannerTool": {
     "background": "Background",
@@ -4298,9 +4307,45 @@
     "totalEarnings": "Total Grid Earnings",
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
-    "pressStart": "Press Start to begin simulation"
+    "pressStart": "Press Start to begin simulation",
+    "pageTitle": "Profit Grid Calculator"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
+  },
+  "cryptoCheckout": {
+    "continueBtn": "Continue"
+  },
+  "voiceGuide": {
+    "platformGuide": "Platform Guide",
+    "youAsked": "You asked",
+    "askPlaceholder": "Ask a question..."
+  },
+  "incomeChains": {
+    "directCourseSales": "Direct Course Sales",
+    "recentCascades": "Recent Cascades",
+    "theInfiniteCascade": "The Infinite Cascade",
+    "pageTitle": "Income Chains",
+    "noCascadesYet": "No cascades yet"
+  },
+  "marketingMaterials": {
+    "pageTitle": "Marketing Materials"
+  },
+  "bucketList": {
+    "commandCentre": "Command Centre"
+  },
+  "editor": {
+    "aiCommands": "AI commands",
+    "strikethrough": "Strikethrough",
+    "highlight": "Highlight",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "bulletList": "Bullet list",
+    "numberedList": "Numbered list",
+    "aiRewrite": "AI rewrite",
+    "fontFamily": "Font family",
+    "presetSizes": "Preset sizes",
+    "textColour": "Text colour"
   }
 }

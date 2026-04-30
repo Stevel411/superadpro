@@ -144,7 +144,7 @@ export default function VoiceGuide() {
       <div style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Volume2 size={18} color="#fff"/>
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Platform Guide</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{t('voiceGuide.platformGuide')}</span>
         </div>
         <button onClick={function() { setOpen(false); stopSpeaking(); stopListening(); }}
           style={{ background: 'rgba(255,255,255,.15)', border: 'none', borderRadius: 8, padding: 4, cursor: 'pointer', display: 'flex' }}>
@@ -162,7 +162,7 @@ export default function VoiceGuide() {
 
         {transcript && (
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>You asked</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{t('voiceGuide.youAsked')}</div>
             <div style={{ fontSize: 14, color: 'var(--sap-text-primary)', lineHeight: 1.5 }}>{transcript}</div>
           </div>
         )}
@@ -201,7 +201,7 @@ export default function VoiceGuide() {
             value={textInput}
             onChange={function(e) { setTextInput(e.target.value); }}
             onKeyDown={function(e) { if (e.key === 'Enter' && textInput.trim() && !thinking) { setTranscript(textInput.trim()); askGuide(textInput.trim()); setTextInput(''); } }}
-            placeholder="Ask a question..."
+            placeholder={t('voiceGuide.askPlaceholder')}
             disabled={thinking || listening}
             style={{ flex: 1, padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
           />

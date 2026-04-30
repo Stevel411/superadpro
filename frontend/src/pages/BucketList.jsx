@@ -236,7 +236,7 @@ export default function BucketList(props) {
 
   if (!config) {
     return (
-      <AppLayout title="Command Centre">
+      <AppLayout title={t('bucketList.commandCentre')}>
         <div style={{ padding: 24 }}>{t('common.notFound', { defaultValue: 'Page not found' })}</div>
       </AppLayout>
     );

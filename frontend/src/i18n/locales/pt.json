@@ -48,7 +48,8 @@
     "tapToUnmute": "Toque para ativar o som",
     "loading": "Carregando…",
     "notFound": "Não encontrado",
-    "disclaimerLink": "Aviso legal"
+    "disclaimerLink": "Aviso legal",
+    "comingSoon": "Em Breve"
   },
   "nav": {
     "dashboard": "Painel",
@@ -668,7 +669,8 @@
     "myCommissions": "Minhas comissões",
     "openDirectly": "Abrir diretamente →",
     "owned": "✓ ADQUIRIDO",
-    "checkBackSoon": "Volte em breve — novos cursos estão sendo adicionados."
+    "checkBackSoon": "Volte em breve — novos cursos estão sendo adicionados.",
+    "courseAcademy": "Course Academy"
   },
   "videos": {
     "title": "Biblioteca de Vídeos",
@@ -2445,7 +2447,8 @@
     "fullAiAutomation": "Automação AI completa",
     "freeNoCreditCard": "Grátis · Sem cartão · Cancele quando quiser",
     "incomeDisclaimerBody": "Os valores representam a estrutura do plano. Resultados reais variam.",
-    "buildReal": "Construir de verdade"
+    "buildReal": "Construir de verdade",
+    "watchYour": "Veja seu"
   },
   "publicPages": {
     "faq": "FAQ",
@@ -2928,7 +2931,9 @@
     "noResults": "Nenhum resultado",
     "noTeamYet": "Ainda sem equipe",
     "recruitToMsg": "Recrute alguém para começar a enviar mensagens",
-    "salesPassUps": "Vendas + pass-ups"
+    "salesPassUps": "Vendas + pass-ups",
+    "teamGrowth": "Crescimento da Equipe",
+    "dailyWatchLog": "Registro Diário de Visualizações"
   },
   "leadFinder": {
     "title": "Localizador de leads",
@@ -4288,12 +4293,16 @@
     "foreground": "Cor do código",
     "background": "Fundo",
     "errorCorrection": "Correção de erros",
-    "alt": "Código QR gerado"
+    "alt": "Código QR gerado",
+    "smsTextPlaceholder": "Texto SMS pré-preenchido",
+    "pageTitle": "Gerador de Código QR",
+    "messageOptional": "Mensagem (opcional)"
   },
   "memeTool": {
     "chooseTemplate": "Escolha um modelo",
     "yourMemeText": "Seu texto do meme",
-    "textColour": "Cor do texto"
+    "textColour": "Cor do texto",
+    "pageTitle": "Gerador de Memes"
   },
   "bannerTool": {
     "background": "Fundo",
@@ -4306,9 +4315,45 @@
     "totalEarnings": "Ganhos Totais do Grid",
     "positions": "Posições",
     "liveCommissionFeed": "Feed de Comissões ao Vivo",
-    "pressStart": "Pressione Iniciar para começar a simulação"
+    "pressStart": "Pressione Iniciar para começar a simulação",
+    "pageTitle": "Calculadora do Grid de Lucro"
   },
   "videoLibrary": {
     "needActiveCampaign": "Sua campanha precisa de um Nível de Campanha ativo."
+  },
+  "cryptoCheckout": {
+    "continueBtn": "Continuar"
+  },
+  "voiceGuide": {
+    "platformGuide": "Guia da Plataforma",
+    "youAsked": "Você perguntou",
+    "askPlaceholder": "Faça uma pergunta..."
+  },
+  "incomeChains": {
+    "directCourseSales": "Vendas Diretas de Cursos",
+    "recentCascades": "Cascatas Recentes",
+    "theInfiniteCascade": "A Cascata Infinita",
+    "pageTitle": "Cadeias de Renda",
+    "noCascadesYet": "Ainda sem cascatas"
+  },
+  "marketingMaterials": {
+    "pageTitle": "Materiais de Marketing"
+  },
+  "bucketList": {
+    "commandCentre": "Central de Comando"
+  },
+  "editor": {
+    "aiCommands": "Comandos IA",
+    "strikethrough": "Tachado",
+    "highlight": "Destacar",
+    "alignLeft": "Alinhar à esquerda",
+    "alignCenter": "Centralizar",
+    "alignRight": "Alinhar à direita",
+    "bulletList": "Lista com marcadores",
+    "numberedList": "Lista numerada",
+    "aiRewrite": "Reescrever com IA",
+    "fontFamily": "Família de fonte",
+    "presetSizes": "Tamanhos predefinidos",
+    "textColour": "Cor do texto"
   }
 }

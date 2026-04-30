@@ -127,7 +127,7 @@ export default function GridCalculator() {
   var complete = filled >= 64;
 
   return (
-    <AppLayout title="Profit Grid Calculator" subtitle="See how your 8×8 income grid fills and earns">
+    <AppLayout title={t('gridCalc.pageTitle')} subtitle="See how your 8×8 income grid fills and earns">
       <style>{`
         @keyframes popIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
         @keyframes glowGold{0%,100%{box-shadow:0 0 10px rgba(251,191,36,.3)}50%{box-shadow:0 0 22px rgba(251,191,36,.6)}}

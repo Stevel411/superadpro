@@ -48,7 +48,8 @@
     "tapToUnmute": "Нажмите, чтобы включить звук",
     "loading": "Загрузка…",
     "notFound": "Не найдено",
-    "disclaimerLink": "Дисклеймер"
+    "disclaimerLink": "Дисклеймер",
+    "comingSoon": "Coming Soon"
   },
   "nav": {
     "dashboard": "Панель",
@@ -668,7 +669,8 @@
     "myCommissions": "Мои комиссии",
     "openDirectly": "Открыть напрямую →",
     "owned": "✓ ПРИОБРЕТЕНО",
-    "checkBackSoon": "Заходите позже — добавляются новые курсы."
+    "checkBackSoon": "Заходите позже — добавляются новые курсы.",
+    "courseAcademy": "Course Academy"
   },
   "videos": {
     "title": "Видеотека",
@@ -2445,7 +2447,8 @@
     "fullAiAutomation": "Полная ИИ-автоматизация",
     "freeNoCreditCard": "Бесплатно · Без карты · Отмена в любое время",
     "incomeDisclaimerBody": "Цифры доходов — структура плана вознаграждений. Фактические результаты различаются.",
-    "buildReal": "Реально строить"
+    "buildReal": "Реально строить",
+    "watchYour": "Watch Your"
   },
   "publicPages": {
     "faq": "ЧаВо",
@@ -2928,7 +2931,9 @@
     "noResults": "Нет результатов",
     "noTeamYet": "Пока нет команды",
     "recruitToMsg": "Наберите кого-нибудь, чтобы начать отправлять сообщения",
-    "salesPassUps": "Продажи + пас-апы"
+    "salesPassUps": "Продажи + пас-апы",
+    "teamGrowth": "Team Growth",
+    "dailyWatchLog": "Daily Watch Log"
   },
   "leadFinder": {
     "title": "Поиск клиентов",
@@ -4288,12 +4293,16 @@
     "foreground": "Foreground",
     "background": "Background",
     "errorCorrection": "Error Correction",
-    "alt": "Generated QR Code"
+    "alt": "Generated QR Code",
+    "smsTextPlaceholder": "Pre-filled SMS text",
+    "pageTitle": "QR Code Generator",
+    "messageOptional": "Message (optional)"
   },
   "memeTool": {
     "chooseTemplate": "Choose a template",
     "yourMemeText": "Your meme text",
-    "textColour": "Text colour"
+    "textColour": "Text colour",
+    "pageTitle": "Meme Generator"
   },
   "bannerTool": {
     "background": "Background",
@@ -4306,9 +4315,45 @@
     "totalEarnings": "Total Grid Earnings",
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
-    "pressStart": "Press Start to begin simulation"
+    "pressStart": "Press Start to begin simulation",
+    "pageTitle": "Profit Grid Calculator"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
+  },
+  "cryptoCheckout": {
+    "continueBtn": "Continue"
+  },
+  "voiceGuide": {
+    "platformGuide": "Platform Guide",
+    "youAsked": "You asked",
+    "askPlaceholder": "Ask a question..."
+  },
+  "incomeChains": {
+    "directCourseSales": "Direct Course Sales",
+    "recentCascades": "Recent Cascades",
+    "theInfiniteCascade": "The Infinite Cascade",
+    "pageTitle": "Income Chains",
+    "noCascadesYet": "No cascades yet"
+  },
+  "marketingMaterials": {
+    "pageTitle": "Marketing Materials"
+  },
+  "bucketList": {
+    "commandCentre": "Command Centre"
+  },
+  "editor": {
+    "aiCommands": "AI commands",
+    "strikethrough": "Strikethrough",
+    "highlight": "Highlight",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "bulletList": "Bullet list",
+    "numberedList": "Numbered list",
+    "aiRewrite": "AI rewrite",
+    "fontFamily": "Font family",
+    "presetSizes": "Preset sizes",
+    "textColour": "Text colour"
   }
 }

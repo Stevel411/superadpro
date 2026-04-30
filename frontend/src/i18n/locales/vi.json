@@ -48,7 +48,8 @@
     "tapToUnmute": "Chạm để bật tiếng",
     "loading": "Đang tải…",
     "notFound": "Không tìm thấy",
-    "disclaimerLink": "Miễn trừ trách nhiệm"
+    "disclaimerLink": "Miễn trừ trách nhiệm",
+    "comingSoon": "Coming Soon"
   },
   "nav": {
     "dashboard": "Bảng điều khiển",
@@ -668,7 +669,8 @@
     "myCommissions": "Hoa hồng của tôi",
     "openDirectly": "Mở trực tiếp →",
     "owned": "✓ ĐÃ SỞ HỮU",
-    "checkBackSoon": "Hãy quay lại sớm — đang thêm khóa học mới."
+    "checkBackSoon": "Hãy quay lại sớm — đang thêm khóa học mới.",
+    "courseAcademy": "Course Academy"
   },
   "videos": {
     "title": "Thư viện Video",
@@ -2433,7 +2435,8 @@
     "fullAiAutomation": "Tự động hóa AI hoàn toàn",
     "freeNoCreditCard": "Miễn phí · Không thẻ · Hủy bất kỳ lúc nào",
     "incomeDisclaimerBody": "Số liệu thu nhập thể hiện cấu trúc kế hoạch. Kết quả thực tế khác nhau.",
-    "buildReal": "Xây dựng thực sự"
+    "buildReal": "Xây dựng thực sự",
+    "watchYour": "Watch Your"
   },
   "publicPages": {
     "faq": "Câu hỏi thường gặp",
@@ -2920,7 +2923,9 @@
     "noResults": "Không có kết quả",
     "noTeamYet": "Chưa có nhóm",
     "recruitToMsg": "Tuyển dụng ai đó để bắt đầu gửi tin nhắn",
-    "salesPassUps": "Bán hàng + chuyển qua"
+    "salesPassUps": "Bán hàng + chuyển qua",
+    "teamGrowth": "Team Growth",
+    "dailyWatchLog": "Daily Watch Log"
   },
   "leadFinder": {
     "title": "Tìm khách hàng",
@@ -4280,12 +4285,16 @@
     "foreground": "Foreground",
     "background": "Background",
     "errorCorrection": "Error Correction",
-    "alt": "Generated QR Code"
+    "alt": "Generated QR Code",
+    "smsTextPlaceholder": "Pre-filled SMS text",
+    "pageTitle": "QR Code Generator",
+    "messageOptional": "Message (optional)"
   },
   "memeTool": {
     "chooseTemplate": "Choose a template",
     "yourMemeText": "Your meme text",
-    "textColour": "Text colour"
+    "textColour": "Text colour",
+    "pageTitle": "Meme Generator"
   },
   "bannerTool": {
     "background": "Background",
@@ -4298,9 +4307,45 @@
     "totalEarnings": "Total Grid Earnings",
     "positions": "Positions",
     "liveCommissionFeed": "Live Commission Feed",
-    "pressStart": "Press Start to begin simulation"
+    "pressStart": "Press Start to begin simulation",
+    "pageTitle": "Profit Grid Calculator"
   },
   "videoLibrary": {
     "needActiveCampaign": "Your campaign needs an active Campaign Tier."
+  },
+  "cryptoCheckout": {
+    "continueBtn": "Continue"
+  },
+  "voiceGuide": {
+    "platformGuide": "Platform Guide",
+    "youAsked": "You asked",
+    "askPlaceholder": "Ask a question..."
+  },
+  "incomeChains": {
+    "directCourseSales": "Direct Course Sales",
+    "recentCascades": "Recent Cascades",
+    "theInfiniteCascade": "The Infinite Cascade",
+    "pageTitle": "Income Chains",
+    "noCascadesYet": "No cascades yet"
+  },
+  "marketingMaterials": {
+    "pageTitle": "Marketing Materials"
+  },
+  "bucketList": {
+    "commandCentre": "Command Centre"
+  },
+  "editor": {
+    "aiCommands": "AI commands",
+    "strikethrough": "Strikethrough",
+    "highlight": "Highlight",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "bulletList": "Bullet list",
+    "numberedList": "Numbered list",
+    "aiRewrite": "AI rewrite",
+    "fontFamily": "Font family",
+    "presetSizes": "Preset sizes",
+    "textColour": "Text colour"
   }
 }

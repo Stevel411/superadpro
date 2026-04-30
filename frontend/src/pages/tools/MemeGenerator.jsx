@@ -149,7 +149,7 @@ export default function MemeGeneratorInternal() {
   const vis = search.trim() ? templates.filter(t => t.name.toLowerCase().includes(search.toLowerCase())) : templates.slice(0, 100);
 
   return (
-    <AppLayout title="Meme Generator" subtitle="Create memes from 100+ templates or upload your own image">
+    <AppLayout title={t('memeTool.pageTitle')} subtitle="Create memes from 100+ templates or upload your own image">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
 
         {/* LEFT: canvas + downloads */}
