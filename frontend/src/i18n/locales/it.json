@@ -557,7 +557,17 @@
     "customizeStyle": "Personalizza stile",
     "bioLabel": "Bio",
     "copiedLabel": "Copiato!",
-    "copyUrlBtn": "Copia URL"
+    "copyUrlBtn": "Copia URL",
+    "color": {
+      "background": "Colore di Sfondo",
+      "button": "Colore Pulsante",
+      "buttonText": "Colore Testo Pulsante",
+      "name": "Colore Nome",
+      "bioText": "Colore Testo Bio"
+    },
+    "section": {
+      "socialMedia": "Social Media"
+    }
   },
   "linkTools": {
     "title": "Strumenti Link",
@@ -1319,6 +1329,21 @@
       "lipSync": "Sync Labiale",
       "gallery": "Galleria",
       "credits": "Crediti"
+    },
+    "modelDesc": {
+      "kling25Pro": "Economico, buona qualità",
+      "kling25Master": "Qualità cinematografica master",
+      "veo31Fast": "Realismo cinematografico, movimento fluido",
+      "hailuo": "Creativo con audio integrato",
+      "wan22": "Nitido, dettagliato, veloce",
+      "veo31Pro": "Nuova generazione, dettaglio eccezionale",
+      "sora2": "Modello di punta di OpenAI, fotorealistico",
+      "sora2Max": "Senza filigrana, OpenAI premium",
+      "veo31Pro4K": "Qualità massima, 4K + audio"
+    },
+    "image": {
+      "flux": "Migliore qualità, resa del testo",
+      "imagen": "Fotorealistico, professionale"
     }
   },
   "socialShare": {
@@ -1836,7 +1861,13 @@
   },
   "joinFunnel": {
     "quickAnswers": "Risposte rapide",
-    "noCreditCard": "Nessuna carta di credito · Iscrizione gratuita"
+    "noCreditCard": "Nessuna carta di credito · Iscrizione gratuita",
+    "coursesDesc": "Vendi corsi e guadagna commissioni dirette con una potente catena pass-up.",
+    "membershipCommissionTitle": "50% Commissione Iscrizione",
+    "membershipCommissionDesc": "Guadagna $10–$17.50/mese per ogni membro che referenzi, finché resta attivo.",
+    "gridBonusTitle": "Bonus di Completamento Grid",
+    "gridBonusDesc": "I grid campagna pagano $64–$3,200 quando le 64 posizioni si riempiono. I team lo fanno in fretta.",
+    "courseSalesTitle": "Pass-Up Vendite Corsi"
   },
   "affiliatePlan": {
     "pro": "Pro",
@@ -1997,7 +2028,8 @@
     "needMoreDetail": "Hai bisogno di più dettagli?",
     "walletGuide": "Guida al portafoglio",
     "walletGuideDesc": "Comprendere i portafogli affiliato e campagna",
-    "searchWalletHelp": "Cerca aiuto portafoglio..."
+    "searchWalletHelp": "Cerca aiuto portafoglio...",
+    "preserveBalance": "No. Il tuo saldo campagna è sempre preservato. Non puoi solo prelevare finché non riattivi."
   },
   "superPages": {
     "title": "SuperPages",
@@ -2386,6 +2418,10 @@
       "minimalDesc": "Semplice, pulito, discreto",
       "playful": "Giocoso",
       "playfulDesc": "Divertente, colorato, spensierato"
+    },
+    "aspect": {
+      "youtube": "YouTube, siti web",
+      "shorts": "TikTok, Reels, Shorts"
     }
   },
   "superDeck": {
@@ -2557,7 +2593,13 @@
     "freeNoCreditCard": "Gratuito · Senza carta · Annulla quando vuoi",
     "incomeDisclaimerBody": "Le cifre rappresentano la struttura del piano compensi. I risultati effettivi variano.",
     "buildReal": "Costruire davvero",
-    "watchYour": "Guarda il tuo"
+    "watchYour": "Guarda il tuo",
+    "marketing": {
+      "aiContent": "Genera post social, sequenze email e copy pubblicitario con l'IA",
+      "autoFollowup": "Sequenze di follow-up automatiche che convertono mentre dormi",
+      "smartLinks": "Smart link, codici QR, tracking click, pixel di retargeting",
+      "readyMade": "Post pronti, stories, swipe copy per ogni piattaforma"
+    }
   },
   "publicPages": {
     "faq": "FAQ",
@@ -4426,6 +4468,10 @@
       "modern": "Umanista moderno",
       "typewriter": "Macchina da scrivere monospace",
       "compact": "Compatto e nitido"
+    },
+    "outline": {
+      "black": "Contorno nero",
+      "white": "Contorno bianco"
     }
   },
   "bannerTool": {
@@ -4497,5 +4543,48 @@
   "walletGuide": {
     "getMetamask": "Ottieni MetaMask",
     "addPolygon": "Aggiungi Polygon"
+  },
+  "spDefaults": {
+    "formTitle": "Ottieni Accesso Gratis",
+    "formSubtitle": "Inserisci i tuoi dati di seguito",
+    "firstNamePh": "Il tuo nome",
+    "emailPh": "La tua email",
+    "faqQ": "Come funziona?",
+    "faqA": "Clicca su modifica per personalizzare domanda e risposta di questo elemento FAQ.",
+    "featureHeading": "Titolo Caratteristica",
+    "featureDesc": "Descrivi il beneficio o la caratteristica qui. Mantienilo chiaro e convincente."
+  },
+  "passupVis": {
+    "tabPassUp": "Visualizzatore Pass-Up",
+    "tabGrid": "Visualizzatore Grid",
+    "yourSponsor": "Il tuo Sponsor",
+    "keepsCommission": "Trattiene la Commissione",
+    "passupCount": "I pass-up ricevuti contano nel tuo schema",
+    "noLevelCap": "Nessun limite di livello sulle cascate"
+  },
+  "qrGen": {
+    "preset": {
+      "referralLink": "Link di Referral",
+      "linkhubPage": "Pagina LinkHub",
+      "publicProfile": "Profilo Pubblico"
+    }
+  },
+  "superdeck": {
+    "theme": {
+      "textImage": "Testo a sinistra, immagine a destra",
+      "imageText": "Immagine a destra, testo a sinistra",
+      "bigNumbers": "Grandi numeri con etichette",
+      "bigQuote": "Citazione grande centrata"
+    }
+  },
+  "appForm": {
+    "yourNiche": "La Tua Nicchia",
+    "targetAudience": "Pubblico Target",
+    "campaignGoal": "Obiettivo Campagna",
+    "yourInterests": "I Tuoi Interessi",
+    "budgetRange": "Fascia Budget",
+    "experienceLevel": "Livello di Esperienza",
+    "videoTopic": "Argomento Video",
+    "targetDuration": "Durata Target"
   }
 }

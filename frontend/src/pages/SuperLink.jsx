@@ -91,17 +91,19 @@ var TIERS = [
   { tier:5, price:400, payout:2880, color:'var(--sap-amber)' }, { tier:6, price:600, payout:4320, color:'#f97316' },
   { tier:7, price:800, payout:5760, color:'var(--sap-red-bright)' }, { tier:8, price:1000, payout:7200, color:'var(--sap-amber-bright)' },
 ];
-var TOOLS = [
-  { name:'AI Content Creator', desc:'Generate social posts, email sequences, and ad copy with AI', badge:'PRO', color:'var(--sap-accent-light)', icon:'M13,2 L3,14 L12,14 L11,22 L21,10 L12,10Z' },
-  { name:'Campaign Studio', desc:'AI content for any niche — captions, blogs, emails, ad copy', badge:'BASIC', color:'#818cf8', grid:true },
-  { name:'LinkHub', desc:'Your bio link page — all your offers, one URL', badge:'BASIC', color:'#34d399', people:true },
-  { name:'SuperPages', desc:'Drag-and-drop landing pages, funnels, opt-ins — no code', badge:'PRO', color:'var(--sap-purple-light)', check:true },
-  { name:'Email Autoresponder', desc:'Automated follow-up sequences that convert while you sleep', badge:'PRO', color:'#f43f5e', screen:true },
-  { name:'Training Centre', desc:'Step-by-step from zero to earning — marketing mastery', badge:'BASIC', color:'var(--sap-amber-bright)', cap:true },
-  { name:'Link Tools', desc:'Smart links, QR codes, click tracking, retargeting pixels', badge:'BASIC', color:'var(--sap-pink)', icon:'M15,3 L21,3 L21,9 M9,21 L3,21 L3,15 M21,3 L14,10 M3,21 L10,14' },
-  { name:'Social Share Suite', desc:'Ready-made posts, stories, swipe copy for every platform', badge:'BASIC', color:'#22d3ee', clock:true },
-  { name:'ProSeller AI', desc:'AI sales assistant — handles prospect objections 24/7', badge:'PRO', color:'#a855f7', chat:true },
-];
+function getTools(t) {
+  return [
+    { name:'AI Content Creator', desc:t('superLink.marketing.aiContent'), badge:'PRO', color:'var(--sap-accent-light)', icon:'M13,2 L3,14 L12,14 L11,22 L21,10 L12,10Z' },
+    { name:'Campaign Studio', desc:'AI content for any niche — captions, blogs, emails, ad copy', badge:'BASIC', color:'#818cf8', grid:true },
+    { name:'LinkHub', desc:'Your bio link page — all your offers, one URL', badge:'BASIC', color:'#34d399', people:true },
+    { name:'SuperPages', desc:'Drag-and-drop landing pages, funnels, opt-ins — no code', badge:'PRO', color:'var(--sap-purple-light)', check:true },
+    { name:'Email Autoresponder', desc:t('superLink.marketing.autoFollowup'), badge:'PRO', color:'#f43f5e', screen:true },
+    { name:'Training Centre', desc:'Step-by-step from zero to earning — marketing mastery', badge:'BASIC', color:'var(--sap-amber-bright)', cap:true },
+    { name:'Link Tools', desc:t('superLink.marketing.smartLinks'), badge:'BASIC', color:'var(--sap-pink)', icon:'M15,3 L21,3 L21,9 M9,21 L3,21 L3,15 M21,3 L14,10 M3,21 L10,14' },
+    { name:'Social Share Suite', desc:t('superLink.marketing.readyMade'), badge:'BASIC', color:'#22d3ee', clock:true },
+    { name:'ProSeller AI', desc:'AI sales assistant — handles prospect objections 24/7', badge:'PRO', color:'#a855f7', chat:true },
+  ];
+}
 var STREAMS = [
   { name:'Membership Commissions', rate:'50% recurring', rc:'#34d399', desc:'Earn $10 to $29.50 per member every month — for as long as they stay active. Three tiers: Basic, Pro, and Creator.', ac:'var(--sap-green-mid)' },
   { name:'8×8 Profit Grid', rate:'Up to $7,200 per cycle', rc:'#818cf8', desc:'8 campaign tiers from $20 to $1,000. Your grid has 64 positions — each one pays you 6.25%. Grids auto-renew on completion.', ac:'var(--sap-indigo)' },
@@ -117,6 +119,7 @@ function R({children,delay}){var ref=useRef(null);var[v,setV]=useState(false);us
 export default function SuperLinkPage() {
 
   var { t } = useTranslation();
+  var TOOLS = getTools(t);
   var [sponsor, setSponsor] = useState('Steve');
   var [si, setSi] = useState('S');
   var [tk, setTk] = useState('space');

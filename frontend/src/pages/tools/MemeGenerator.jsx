@@ -57,6 +57,7 @@ const labelStyle = {
 
 export default function MemeGeneratorInternal() {
   const { t } = useTranslation();
+  const FONTS = getFonts(t);
 
   const [templates, setTemplates] = useState([]);
   const [selected, setSelected] = useState(null);

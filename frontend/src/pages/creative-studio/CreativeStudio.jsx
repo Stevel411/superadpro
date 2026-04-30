@@ -7,17 +7,19 @@ import { VideoCreatorContent } from '../VideoCreator';
 import './creative-studio.css';
 
 // ── Video Models ──────────────────────────────────────
-const MODELS = [
-  { key: "wan26",      name: "WAN 2.6",          desc: "Budget-friendly, good quality",    badge: "CHEAPEST", cost: 1,  color: "var(--sap-green-mid)", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],       resolutions: ["480p","720p"],        durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
-  { key: "seedance",   name: "Seedance 1.5 Pro", desc: "Great quality + native audio",     badge: "VALUE",    cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12], resolutions: ["480p","720p","1080p"],durationLabel: "4-12s",  pricePer10s: "$1.00",  tier: "standard" },
-  { key: "kling3",     name: "Kling 3.0",        desc: "Cinematic realism, smooth motion",  badge: "POPULAR",  cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$1.20",  tier: "standard" },
-  { key: "grok-video", name: "Grok Imagine",     desc: "Creative with built-in audio",      badge: "AUDIO",    cost: 4,  color: "var(--sap-red-bright)", i2v: true,  audio: false, negPrompt: false, durations: [6,10],        resolutions: ["480p","720p"],        durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
-  { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, fast + fine detail",        badge: "NEW",      cost: 4,  color: "var(--sap-accent-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
-  { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",      badge: "BEST",     cost: 5,  color: "var(--sap-purple)", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
-  { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",   badge: "PREMIUM",  cost: 8,  color: "var(--sap-purple-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],      resolutions: ["720p","1080p"],      durationLabel: "4/8/12s",pricePer10s: "$3.00",  tier: "premium" },
-  { key: "sora2-max",  name: "Sora 2 Max",       desc: "No watermark, premium OpenAI",      badge: "PRO",      cost: 10, color: "#c084fc", i2v: false, audio: false, negPrompt: false, durations: [10,15],       resolutions: ["720p","1080p"],      durationLabel: "10/15s", pricePer10s: "$4.00",  tier: "ultra" },
-  { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K + audio",       badge: "4K",       cost: 16, color: "var(--sap-amber)", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
-];
+function getModels(t) {
+  return [
+    { key: "wan26",      name: "WAN 2.6",          desc: t('creativeStudio.modelDesc.kling25Pro'),   badge: "CHEAPEST", cost: 1,  color: "var(--sap-green-mid)", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],       resolutions: ["480p","720p"],        durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
+    { key: "seedance",   name: "Seedance 1.5 Pro", desc: t('creativeStudio.modelDesc.kling25Master'),badge: "VALUE",    cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12], resolutions: ["480p","720p","1080p"],durationLabel: "4-12s",  pricePer10s: "$1.00",  tier: "standard" },
+    { key: "kling3",     name: "Kling 3.0",        desc: t('creativeStudio.modelDesc.veo31Fast'),    badge: "POPULAR",  cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$1.20",  tier: "standard" },
+    { key: "grok-video", name: "Grok Imagine",     desc: t('creativeStudio.modelDesc.hailuo'),       badge: "AUDIO",    cost: 4,  color: "var(--sap-red-bright)", i2v: true,  audio: false, negPrompt: false, durations: [6,10],        resolutions: ["480p","720p"],        durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
+    { key: "veo31",      name: "VEO 3.1 Fast",     desc: t('creativeStudio.modelDesc.wan22'),        badge: "NEW",      cost: 4,  color: "var(--sap-accent-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
+    { key: "kling-o3",   name: "Kling O3",         desc: t('creativeStudio.modelDesc.veo31Pro'),     badge: "BEST",     cost: 5,  color: "var(--sap-purple)", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
+    { key: "sora2",      name: "Sora 2 Pro",       desc: t('creativeStudio.modelDesc.sora2'),        badge: "PREMIUM",  cost: 8,  color: "var(--sap-purple-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],      resolutions: ["720p","1080p"],      durationLabel: "4/8/12s",pricePer10s: "$3.00",  tier: "premium" },
+    { key: "sora2-max",  name: "Sora 2 Max",       desc: t('creativeStudio.modelDesc.sora2Max'),     badge: "PRO",      cost: 10, color: "#c084fc", i2v: false, audio: false, negPrompt: false, durations: [10,15],       resolutions: ["720p","1080p"],      durationLabel: "10/15s", pricePer10s: "$4.00",  tier: "ultra" },
+    { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: t('creativeStudio.modelDesc.veo31Pro4K'),   badge: "4K",       cost: 16, color: "var(--sap-amber)", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
+  ];
+}
 
 function getRatios(t) {
   return [
@@ -47,7 +49,7 @@ function getCameraMotions(t) {
 
 const AUDIO_EXTRA_PER_5S = 1;
 
-function calcCost(modelKey, dur, withAudio) {
+function calcCost(modelKey, dur, withAudio, MODELS) {
   var m = MODELS.find(function(x) { return x.key === modelKey; });
   if (!m) return 0;
   var segs = dur / 5;
@@ -91,6 +93,7 @@ function TabIcon({ type }) {
 export default function CreativeStudio() {
   var { t } = useTranslation();
   var RATIOS = getRatios(t);
+  var MODELS = getModels(t);
   var CAMERA_MOTIONS = getCameraMotions(t);
   var TABS = getTabs(t);
   var [searchParams, setSearchParams] = useSearchParams();
@@ -402,7 +405,7 @@ export default function CreativeStudio() {
   }
 
   var selectedModel = MODELS.find(function(m) { return m.key === model; }) || MODELS[2];
-  var cost = calcCost(model, duration, genAudio);
+  var cost = calcCost(model, duration, genAudio, MODELS);
 
   // ── Load credits + videos on mount ──
   useEffect(function() {

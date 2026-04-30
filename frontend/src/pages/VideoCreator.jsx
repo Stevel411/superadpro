@@ -21,10 +21,12 @@ var DURATIONS = [
   { value: 120, label: '2 minutes', desc: '~15 scenes, ~15 credits', color: 'var(--sap-accent)' },
 ];
 
-var ASPECTS = [
-  { value: 'landscape', label: '16:9', desc: 'YouTube, websites', color: 'var(--sap-text-muted)' },
-  { value: 'portrait', label: '9:16', desc: 'TikTok, Reels, Shorts', color: 'var(--sap-text-muted)' },
-];
+function getAspects(t) {
+  return [
+    { value: 'landscape', label: '16:9', desc: t('videoCreator.aspect.youtube'), color: 'var(--sap-text-muted)' },
+    { value: 'portrait', label: '9:16', desc: t('videoCreator.aspect.shorts'), color: 'var(--sap-text-muted)' },
+  ];
+}
 
 var VOICES = [
   { value: 'en-GB-SoniaNeural', label: 'Sonia', desc: 'British female — warm, professional', color: 'var(--sap-purple-light)', tag: 'DEFAULT', tagColor: 'var(--sap-purple-light)' },
@@ -186,6 +188,7 @@ export function VideoCreatorContent() {
 
   var { t } = useTranslation();
   var STYLES = getStyles(t);
+  var ASPECTS = getAspects(t);
   var [prompt, setPrompt] = useState('');
   var [style, setStyle] = useState('professional');
   var [duration, setDuration] = useState(60);

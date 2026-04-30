@@ -9,13 +9,16 @@ import { formatMoney } from '../utils/money';
 // COMBINED VISUALISER PAGE — Grid + Pass-Up
 // ══════════════════════════════════════════════════════════════
 
-var TABS = [
-  { key: 'passup', label: 'Pass-Up Visualiser', icon: GraduationCap, color: 'var(--sap-purple)' },
-  { key: 'grid', label: 'Grid Visualiser', icon: Zap, color: 'var(--sap-accent)' },
-];
+function getTabs(t) {
+  return [
+    { key: 'passup', label: t('passupVis.tabPassUp'), icon: GraduationCap, color: 'var(--sap-purple)' },
+    { key: 'grid',   label: t('passupVis.tabGrid'),   icon: Zap, color: 'var(--sap-accent)' },
+  ];
+}
 
 export default function PassupVisualiser() {
   var { t } = useTranslation();
+  var TABS = getTabs(t);
   var [tab, setTab] = useState('passup');
 
   return (
@@ -478,9 +481,9 @@ function PassUpSection() {
 
           <div style={{padding:'12px 20px',borderTop:'1px solid #e8ecf2',display:'flex',gap:14,flexWrap:'wrap'}}>
             {[
-              {label:'Your Sponsor',bg:'var(--sap-indigo)',border:'#818cf8'},
+              {label:t('passupVis.yourSponsor'),bg:'var(--sap-indigo)',border:'#818cf8'},
               {label:'You',bg:'var(--sap-accent)',border:'var(--sap-accent-light)'},
-              {label:'Keeps Commission',bg:'#d1fae5',border:'var(--sap-green-mid)'},
+              {label:t('passupVis.keepsCommission'),bg:'#d1fae5',border:'var(--sap-green-mid)'},
               {label:'Pass-Up',bg:'var(--sap-amber-bg)',border:'var(--sap-amber)'},
             ].map(function(l, i) {
               return (
@@ -548,8 +551,8 @@ function PassUpSection() {
               {[
                 {n:'1',title:'Keep',desc:'Sales 1,3,5,7,9+',color:'var(--sap-green-mid)'},
                 {n:'2',title:'Pass Up',desc:'Sales 2,4,6,8',color:'var(--sap-amber)'},
-                {n:'3',title:'Cascade',desc:'Received pass-ups count in your pattern',color:'var(--sap-purple)'},
-                {n:'4',title:'Infinite',desc:'No level cap on cascades',color:'var(--sap-pink)'},
+                {n:'3',title:'Cascade',desc:t('passupVis.passupCount'),color:'var(--sap-purple)'},
+                {n:'4',title:'Infinite',desc:t('passupVis.noLevelCap'),color:'var(--sap-pink)'},
               ].map(function(s, i) {
                 return (
                   <div key={i} style={{padding:10,background:'var(--sap-bg-input)',borderRadius:8,border:'1px solid #e8ecf2',textAlign:'center'}}>

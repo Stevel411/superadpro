@@ -557,7 +557,17 @@
     "customizeStyle": "ปรับแต่งสไตล์",
     "bioLabel": "ชีวประวัติ",
     "copiedLabel": "คัดลอกแล้ว!",
-    "copyUrlBtn": "คัดลอก URL"
+    "copyUrlBtn": "คัดลอก URL",
+    "color": {
+      "background": "Background Color",
+      "button": "Button Color",
+      "buttonText": "Button Text Color",
+      "name": "Name Color",
+      "bioText": "Bio Text Color"
+    },
+    "section": {
+      "socialMedia": "Social Media"
+    }
   },
   "linkTools": {
     "title": "เครื่องมือลิงก์",
@@ -1319,6 +1329,21 @@
       "lipSync": "Lip Sync",
       "gallery": "Gallery",
       "credits": "Credits"
+    },
+    "modelDesc": {
+      "kling25Pro": "Budget-friendly, good quality",
+      "kling25Master": "Master-level cinematic quality",
+      "veo31Fast": "Cinematic realism, smooth motion",
+      "hailuo": "Creative with built-in audio",
+      "wan22": "Sharp, detailed, fast",
+      "veo31Pro": "Next-gen, exceptional detail",
+      "sora2": "OpenAI flagship, photorealistic",
+      "sora2Max": "No watermark, premium OpenAI",
+      "veo31Pro4K": "Maximum quality, 4K + audio"
+    },
+    "image": {
+      "flux": "Best quality, text rendering",
+      "imagen": "Photo-realistic, professional"
     }
   },
   "socialShare": {
@@ -1836,7 +1861,13 @@
   },
   "joinFunnel": {
     "quickAnswers": "คำตอบด่วน",
-    "noCreditCard": "ไม่ต้องใช้บัตรเครดิต · สมัครฟรี"
+    "noCreditCard": "ไม่ต้องใช้บัตรเครดิต · สมัครฟรี",
+    "coursesDesc": "Sell courses and earn direct commissions with a powerful pass-up chain.",
+    "membershipCommissionTitle": "50% Membership Commission",
+    "membershipCommissionDesc": "Earn $10–$17.50/month for every member you refer, as long as they stay active.",
+    "gridBonusTitle": "Grid Completion Bonuses",
+    "gridBonusDesc": "Campaign grids pay $64–$3,200 when 64 positions fill. Teams make this happen fast.",
+    "courseSalesTitle": "Course Sales Pass-Up"
   },
   "affiliatePlan": {
     "pro": "Pro",
@@ -1997,7 +2028,8 @@
     "needMoreDetail": "ต้องการรายละเอียดเพิ่มเติม?",
     "walletGuide": "คู่มือกระเป๋าเงิน",
     "walletGuideDesc": "ทำความเข้าใจกระเป๋าเงินพันธมิตรและแคมเปญ",
-    "searchWalletHelp": "ค้นหาความช่วยเหลือกระเป๋าเงิน..."
+    "searchWalletHelp": "ค้นหาความช่วยเหลือกระเป๋าเงิน...",
+    "preserveBalance": "No. Your campaign balance is always preserved. You just cannot withdraw until you reactivate."
   },
   "superPages": {
     "title": "SuperPages",
@@ -2374,6 +2406,10 @@
       "minimalDesc": "Simple, clean, understated",
       "playful": "Playful",
       "playfulDesc": "Fun, colourful, lighthearted"
+    },
+    "aspect": {
+      "youtube": "YouTube, websites",
+      "shorts": "TikTok, Reels, Shorts"
     }
   },
   "superDeck": {
@@ -2545,7 +2581,13 @@
     "freeNoCreditCard": "ฟรี · ไม่ต้องใช้บัตร · ยกเลิกได้ตลอดเวลา",
     "incomeDisclaimerBody": "ตัวเลขรายได้แสดงโครงสร้างแผน ผลลัพธ์จริงแตกต่างกัน",
     "buildReal": "สร้างจริงๆ",
-    "watchYour": "Watch Your"
+    "watchYour": "Watch Your",
+    "marketing": {
+      "aiContent": "Generate social posts, email sequences, and ad copy with AI",
+      "autoFollowup": "Automated follow-up sequences that convert while you sleep",
+      "smartLinks": "Smart links, QR codes, click tracking, retargeting pixels",
+      "readyMade": "Ready-made posts, stories, swipe copy for every platform"
+    }
   },
   "publicPages": {
     "faq": "คำถามที่พบบ่อย",
@@ -4418,6 +4460,10 @@
       "modern": "Modern humanist",
       "typewriter": "Typewriter monospace",
       "compact": "Compact and sharp"
+    },
+    "outline": {
+      "black": "Black outline",
+      "white": "White outline"
     }
   },
   "bannerTool": {
@@ -4489,5 +4535,48 @@
   "walletGuide": {
     "getMetamask": "Get MetaMask",
     "addPolygon": "Add Polygon"
+  },
+  "spDefaults": {
+    "formTitle": "Get Free Access",
+    "formSubtitle": "Enter your details below",
+    "firstNamePh": "Your first name",
+    "emailPh": "Your email",
+    "faqQ": "How does this work?",
+    "faqA": "Click the edit button to customise the question and answer text for this FAQ item.",
+    "featureHeading": "Feature Heading",
+    "featureDesc": "Describe the benefit or feature here. Keep it clear and compelling."
+  },
+  "passupVis": {
+    "tabPassUp": "Pass-Up Visualiser",
+    "tabGrid": "Grid Visualiser",
+    "yourSponsor": "Your Sponsor",
+    "keepsCommission": "Keeps Commission",
+    "passupCount": "Received pass-ups count in your pattern",
+    "noLevelCap": "No level cap on cascades"
+  },
+  "qrGen": {
+    "preset": {
+      "referralLink": "Referral Link",
+      "linkhubPage": "LinkHub Page",
+      "publicProfile": "Public Profile"
+    }
+  },
+  "superdeck": {
+    "theme": {
+      "textImage": "Text left, image right",
+      "imageText": "Image right, text left",
+      "bigNumbers": "Big numbers with labels",
+      "bigQuote": "Large centred quote"
+    }
+  },
+  "appForm": {
+    "yourNiche": "Your Niche",
+    "targetAudience": "Target Audience",
+    "campaignGoal": "Campaign Goal",
+    "yourInterests": "Your Interests",
+    "budgetRange": "Budget Range",
+    "experienceLevel": "Experience Level",
+    "videoTopic": "Video Topic",
+    "targetDuration": "Target Duration"
   }
 }

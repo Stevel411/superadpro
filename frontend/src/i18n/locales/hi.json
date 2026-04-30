@@ -557,7 +557,17 @@
     "customizeStyle": "शैली अनुकूलित करें",
     "bioLabel": "बायो",
     "copiedLabel": "कॉपी हो गया!",
-    "copyUrlBtn": "URL कॉपी करें"
+    "copyUrlBtn": "URL कॉपी करें",
+    "color": {
+      "background": "बैकग्राउंड रंग",
+      "button": "बटन का रंग",
+      "buttonText": "बटन टेक्स्ट रंग",
+      "name": "नाम का रंग",
+      "bioText": "बायो टेक्स्ट रंग"
+    },
+    "section": {
+      "socialMedia": "सोशल मीडिया"
+    }
   },
   "linkTools": {
     "title": "लिंक टूल्स",
@@ -1319,6 +1329,21 @@
       "lipSync": "लिप सिंक",
       "gallery": "गैलरी",
       "credits": "क्रेडिट्स"
+    },
+    "modelDesc": {
+      "kling25Pro": "बजट-फ्रेंडली, अच्छी गुणवत्ता",
+      "kling25Master": "मास्टर-स्तर सिनेमाई गुणवत्ता",
+      "veo31Fast": "सिनेमाई यथार्थवाद, सहज गति",
+      "hailuo": "अंतर्निर्मित ऑडियो के साथ रचनात्मक",
+      "wan22": "तेज़, विस्तृत, तीव्र",
+      "veo31Pro": "नई पीढ़ी, असाधारण विवरण",
+      "sora2": "OpenAI फ़्लैगशिप, फ़ोटोरियलिस्टिक",
+      "sora2Max": "बिना वॉटरमार्क, प्रीमियम OpenAI",
+      "veo31Pro4K": "अधिकतम गुणवत्ता, 4K + ऑडियो"
+    },
+    "image": {
+      "flux": "सर्वोत्तम गुणवत्ता, टेक्स्ट रेंडरिंग",
+      "imagen": "फ़ोटोरियलिस्टिक, पेशेवर"
     }
   },
   "socialShare": {
@@ -1836,7 +1861,13 @@
   },
   "joinFunnel": {
     "quickAnswers": "त्वरित उत्तर",
-    "noCreditCard": "क्रेडिट कार्ड की ज़रूरत नहीं · मुफ़्त रजिस्ट्रेशन"
+    "noCreditCard": "क्रेडिट कार्ड की ज़रूरत नहीं · मुफ़्त रजिस्ट्रेशन",
+    "coursesDesc": "शक्तिशाली पास-अप चेन के साथ कोर्स बेचें और सीधे कमीशन कमाएँ।",
+    "membershipCommissionTitle": "50% मेम्बरशिप कमीशन",
+    "membershipCommissionDesc": "रेफर किए गए हर सक्रिय सदस्य के लिए $10–$17.50/माह कमाएँ।",
+    "gridBonusTitle": "ग्रिड पूर्णता बोनस",
+    "gridBonusDesc": "ग्रिड कैम्पेन 64 पोजीशन भरने पर $64–$3,200 देते हैं। टीमें यह तेज़ी से करती हैं।",
+    "courseSalesTitle": "कोर्स बिक्री पास-अप"
   },
   "affiliatePlan": {
     "pro": "Pro",
@@ -1997,7 +2028,8 @@
     "needMoreDetail": "और विवरण चाहिए?",
     "walletGuide": "वॉलेट गाइड",
     "walletGuideDesc": "अपने सहबद्ध और अभियान वॉलेट को समझें",
-    "searchWalletHelp": "वॉलेट सहायता खोजें..."
+    "searchWalletHelp": "वॉलेट सहायता खोजें...",
+    "preserveBalance": "नहीं। आपका कैम्पेन बैलेंस हमेशा सुरक्षित रहता है। आप केवल पुनः सक्रिय करने तक निकाल नहीं सकते।"
   },
   "superPages": {
     "title": "SuperPages",
@@ -2374,6 +2406,10 @@
       "minimalDesc": "सरल, साफ़, संयमित",
       "playful": "चंचल",
       "playfulDesc": "मज़ेदार, रंगीन, हल्का-फुल्का"
+    },
+    "aspect": {
+      "youtube": "YouTube, वेबसाइट्स",
+      "shorts": "TikTok, Reels, Shorts"
     }
   },
   "superDeck": {
@@ -2545,7 +2581,13 @@
     "freeNoCreditCard": "मुफ़्त · कार्ड नहीं · कभी भी रद्द करें",
     "incomeDisclaimerBody": "आंकड़े कम्पेंसेशन प्लान की संरचना दर्शाते हैं। वास्तविक परिणाम भिन्न होते हैं।",
     "buildReal": "सच में बनाएं",
-    "watchYour": "देखें अपना"
+    "watchYour": "देखें अपना",
+    "marketing": {
+      "aiContent": "AI के साथ सोशल पोस्ट, ईमेल सीक्वेंस और विज्ञापन कॉपी जेनरेट करें",
+      "autoFollowup": "स्वचालित फॉलो-अप सीक्वेंस जो आपके सोते समय कन्वर्ट करते हैं",
+      "smartLinks": "स्मार्ट लिंक, QR कोड, क्लिक ट्रैकिंग, रीटार्गेटिंग पिक्सेल",
+      "readyMade": "हर प्लेटफ़ॉर्म के लिए तैयार पोस्ट, स्टोरीज़, स्वाइप कॉपी"
+    }
   },
   "publicPages": {
     "faq": "सामान्य प्रश्न",
@@ -4418,6 +4460,10 @@
       "modern": "आधुनिक मानवीय",
       "typewriter": "टाइपराइटर मोनोस्पेस",
       "compact": "कॉम्पैक्ट और तेज़"
+    },
+    "outline": {
+      "black": "काला आउटलाइन",
+      "white": "सफ़ेद आउटलाइन"
     }
   },
   "bannerTool": {
@@ -4489,5 +4535,48 @@
   "walletGuide": {
     "getMetamask": "MetaMask प्राप्त करें",
     "addPolygon": "Polygon जोड़ें"
+  },
+  "spDefaults": {
+    "formTitle": "मुफ़्त एक्सेस प्राप्त करें",
+    "formSubtitle": "नीचे अपना विवरण दर्ज करें",
+    "firstNamePh": "आपका पहला नाम",
+    "emailPh": "आपका ईमेल",
+    "faqQ": "यह कैसे काम करता है?",
+    "faqA": "इस FAQ आइटम के प्रश्न और उत्तर पाठ को कस्टमाइज़ करने के लिए संपादित बटन पर क्लिक करें।",
+    "featureHeading": "फ़ीचर शीर्षक",
+    "featureDesc": "यहाँ लाभ या फ़ीचर का वर्णन करें। इसे स्पष्ट और सम्मोहक रखें।"
+  },
+  "passupVis": {
+    "tabPassUp": "पास-अप विज़ुअलाइज़र",
+    "tabGrid": "ग्रिड विज़ुअलाइज़र",
+    "yourSponsor": "आपका स्पॉन्सर",
+    "keepsCommission": "कमीशन रखता है",
+    "passupCount": "प्राप्त पास-अप आपके पैटर्न में गिने जाते हैं",
+    "noLevelCap": "कैस्केड पर कोई स्तर सीमा नहीं"
+  },
+  "qrGen": {
+    "preset": {
+      "referralLink": "रेफरल लिंक",
+      "linkhubPage": "LinkHub पेज",
+      "publicProfile": "सार्वजनिक प्रोफ़ाइल"
+    }
+  },
+  "superdeck": {
+    "theme": {
+      "textImage": "बायीं ओर टेक्स्ट, दायीं ओर इमेज",
+      "imageText": "दायीं ओर इमेज, बायीं ओर टेक्स्ट",
+      "bigNumbers": "लेबल के साथ बड़े नंबर",
+      "bigQuote": "बड़ा केंद्रित उद्धरण"
+    }
+  },
+  "appForm": {
+    "yourNiche": "आपका Niche",
+    "targetAudience": "लक्ष्य दर्शक",
+    "campaignGoal": "कैम्पेन लक्ष्य",
+    "yourInterests": "आपकी रुचियाँ",
+    "budgetRange": "बजट सीमा",
+    "experienceLevel": "अनुभव स्तर",
+    "videoTopic": "वीडियो विषय",
+    "targetDuration": "लक्ष्य अवधि"
   }
 }

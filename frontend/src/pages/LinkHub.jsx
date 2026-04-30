@@ -461,11 +461,11 @@ function StylePanel({ style, setStyle }) {
   function updNum(f) { return function(e) { setStyle(function(s){return Object.assign({},s,{[f]:parseInt(e.target.value)||14});}); }; }
 
   var colours = [
-    {key:'bg_color',label:'Background Color'},
-    {key:'btn_color',label:'Button Color'},
-    {key:'btn_text_color',label:'Button Text Color'},
-    {key:'text_color',label:'Name Color'},
-    {key:'bio_color',label:'Bio Text Color'},
+    {key:'bg_color',label:t('linkHub.color.background')},
+    {key:'btn_color',label:t('linkHub.color.button')},
+    {key:'btn_text_color',label:t('linkHub.color.buttonText')},
+    {key:'text_color',label:t('linkHub.color.name')},
+    {key:'bio_color',label:t('linkHub.color.bioText')},
     {key:'accent_color',label:'Accent / Border'},
   ];
 

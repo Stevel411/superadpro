@@ -557,7 +557,17 @@
     "customizeStyle": "Personalizar estilo",
     "bioLabel": "Bio",
     "copiedLabel": "Copiado!",
-    "copyUrlBtn": "Copiar URL"
+    "copyUrlBtn": "Copiar URL",
+    "color": {
+      "background": "Cor de Fundo",
+      "button": "Cor do Botão",
+      "buttonText": "Cor Texto do Botão",
+      "name": "Cor do Nome",
+      "bioText": "Cor do Texto Bio"
+    },
+    "section": {
+      "socialMedia": "Redes Sociais"
+    }
   },
   "linkTools": {
     "title": "Ferramentas de Links",
@@ -1319,6 +1329,21 @@
       "lipSync": "Sincronia Labial",
       "gallery": "Galeria",
       "credits": "Créditos"
+    },
+    "modelDesc": {
+      "kling25Pro": "Econômico, boa qualidade",
+      "kling25Master": "Qualidade cinematográfica nível master",
+      "veo31Fast": "Realismo cinematográfico, movimento suave",
+      "hailuo": "Criativo com áudio integrado",
+      "wan22": "Nítido, detalhado, rápido",
+      "veo31Pro": "Nova geração, detalhe excepcional",
+      "sora2": "Modelo carro-chefe da OpenAI, fotorrealista",
+      "sora2Max": "Sem marca d'água, OpenAI premium",
+      "veo31Pro4K": "Qualidade máxima, 4K + áudio"
+    },
+    "image": {
+      "flux": "Melhor qualidade, renderização de texto",
+      "imagen": "Fotorrealista, profissional"
     }
   },
   "socialShare": {
@@ -1836,7 +1861,13 @@
   },
   "joinFunnel": {
     "quickAnswers": "Respostas rápidas",
-    "noCreditCard": "Sem cartão de crédito · Cadastro gratuito"
+    "noCreditCard": "Sem cartão de crédito · Cadastro gratuito",
+    "coursesDesc": "Venda cursos e ganhe comissões diretas com uma poderosa cadeia pass-up.",
+    "membershipCommissionTitle": "50% Comissão de Membership",
+    "membershipCommissionDesc": "Ganhe $10–$17.50/mês para cada membro que indicar, enquanto permanecer ativo.",
+    "gridBonusTitle": "Bônus de Conclusão do Grid",
+    "gridBonusDesc": "Grids de campanha pagam $64–$3,200 quando as 64 posições são preenchidas. Equipes fazem acontecer rápido.",
+    "courseSalesTitle": "Pass-Up de Vendas de Cursos"
   },
   "affiliatePlan": {
     "pro": "Pro",
@@ -1997,7 +2028,8 @@
     "needMoreDetail": "Precisa de mais detalhes?",
     "walletGuide": "Guia da carteira",
     "walletGuideDesc": "Entendendo suas carteiras de afiliado e campanha",
-    "searchWalletHelp": "Pesquisar ajuda da carteira..."
+    "searchWalletHelp": "Pesquisar ajuda da carteira...",
+    "preserveBalance": "Não. Seu saldo de campanha é sempre preservado. Você só não pode sacar até reativar."
   },
   "superPages": {
     "title": "SuperPages",
@@ -2386,6 +2418,10 @@
       "minimalDesc": "Simples, limpo, discreto",
       "playful": "Brincalhão",
       "playfulDesc": "Divertido, colorido, leve"
+    },
+    "aspect": {
+      "youtube": "YouTube, sites",
+      "shorts": "TikTok, Reels, Shorts"
     }
   },
   "superDeck": {
@@ -2557,7 +2593,13 @@
     "freeNoCreditCard": "Grátis · Sem cartão · Cancele quando quiser",
     "incomeDisclaimerBody": "Os valores representam a estrutura do plano. Resultados reais variam.",
     "buildReal": "Construir de verdade",
-    "watchYour": "Veja seu"
+    "watchYour": "Veja seu",
+    "marketing": {
+      "aiContent": "Gere posts sociais, sequências de email e copy publicitário com IA",
+      "autoFollowup": "Sequências automáticas de follow-up que convertem enquanto você dorme",
+      "smartLinks": "Links inteligentes, QR codes, rastreamento de cliques, pixels de retargeting",
+      "readyMade": "Posts prontos, stories, swipe copy para cada plataforma"
+    }
   },
   "publicPages": {
     "faq": "FAQ",
@@ -4426,6 +4468,10 @@
       "modern": "Humanista moderno",
       "typewriter": "Máquina de escrever monospace",
       "compact": "Compacto e nítido"
+    },
+    "outline": {
+      "black": "Contorno preto",
+      "white": "Contorno branco"
     }
   },
   "bannerTool": {
@@ -4497,5 +4543,48 @@
   "walletGuide": {
     "getMetamask": "Obter MetaMask",
     "addPolygon": "Adicionar Polygon"
+  },
+  "spDefaults": {
+    "formTitle": "Obtenha Acesso Grátis",
+    "formSubtitle": "Digite seus dados abaixo",
+    "firstNamePh": "Seu primeiro nome",
+    "emailPh": "Seu email",
+    "faqQ": "Como isso funciona?",
+    "faqA": "Clique em editar para personalizar a pergunta e resposta deste item de FAQ.",
+    "featureHeading": "Título de Recurso",
+    "featureDesc": "Descreva o benefício ou recurso aqui. Mantenha claro e convincente."
+  },
+  "passupVis": {
+    "tabPassUp": "Visualizador Pass-Up",
+    "tabGrid": "Visualizador do Grid",
+    "yourSponsor": "Seu Patrocinador",
+    "keepsCommission": "Mantém Comissão",
+    "passupCount": "Pass-ups recebidos contam no seu padrão",
+    "noLevelCap": "Sem limite de nível nas cascatas"
+  },
+  "qrGen": {
+    "preset": {
+      "referralLink": "Link de Indicação",
+      "linkhubPage": "Página LinkHub",
+      "publicProfile": "Perfil Público"
+    }
+  },
+  "superdeck": {
+    "theme": {
+      "textImage": "Texto à esquerda, imagem à direita",
+      "imageText": "Imagem à direita, texto à esquerda",
+      "bigNumbers": "Números grandes com rótulos",
+      "bigQuote": "Citação grande centralizada"
+    }
+  },
+  "appForm": {
+    "yourNiche": "Seu Nicho",
+    "targetAudience": "Público-Alvo",
+    "campaignGoal": "Objetivo da Campanha",
+    "yourInterests": "Seus Interesses",
+    "budgetRange": "Faixa de Orçamento",
+    "experienceLevel": "Nível de Experiência",
+    "videoTopic": "Tópico do Vídeo",
+    "targetDuration": "Duração Alvo"
   }
 }

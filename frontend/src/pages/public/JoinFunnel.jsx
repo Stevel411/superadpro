@@ -73,9 +73,9 @@ export default function JoinFunnel() {
         {/* 3 income streams */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 20, marginBottom: 48 }}>
           {[
-            { icon: '💰', title: '50% Membership Commission', desc: 'Earn $10–$17.50/month for every member you refer, as long as they stay active.' },
-            { icon: '⚡', title: 'Grid Completion Bonuses', desc: 'Campaign grids pay $64–$3,200 when 64 positions fill. Teams make this happen fast.' },
-            { icon: '🎓', title: 'Course Sales Pass-Up', desc: 'Sell courses and earn direct commissions with a powerful pass-up chain.' },
+            { icon: '💰', title: t('joinFunnel.membershipCommissionTitle'), desc: t('joinFunnel.membershipCommissionDesc') },
+            { icon: '⚡', title: t('joinFunnel.gridBonusTitle'), desc: t('joinFunnel.gridBonusDesc') },
+            { icon: '🎓', title: t('joinFunnel.courseSalesTitle'), desc: t('joinFunnel.coursesDesc') },
           ].map(function(s) {
             return (
               <div key={s.title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 24 }}>

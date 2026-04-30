@@ -8,16 +8,18 @@ import { Link } from 'react-router-dom';
    controls bottom-right, SC-style rich dropdowns
    ═══════════════════════════════════════════════════════════ */
 
-const FONTS = [
-  { id: 'impact', name: 'Impact', desc: 'Classic meme font', color: 'var(--sap-accent)', badge: 'POPULAR' },
-  { id: 'arial', name: 'Arial Black', desc: 'Bold and clean', color: '#22d3ee', badge: null },
-  { id: 'comic', name: 'Comic Sans MS', desc: 'Fun and playful', color: 'var(--sap-purple-light)', badge: null },
-  { id: 'georgia', name: 'Georgia', desc: 'Elegant serif', color: 'var(--sap-amber)', badge: null },
-  { id: 'verdana', name: 'Verdana Bold', desc: 'Wide and readable', color: '#34d399', badge: null },
-  { id: 'trebuchet', name: 'Trebuchet MS', desc: 'Modern humanist', color: '#fb7185', badge: null },
-  { id: 'courier', name: 'Courier New', desc: 'Typewriter monospace', color: 'var(--sap-text-faint)', badge: null },
-  { id: 'tahoma', name: 'Tahoma', desc: 'Compact and sharp', color: '#c084fc', badge: null },
-];
+function getFonts(t) {
+  return [
+    { id: 'impact', name: 'Impact', desc: t('memeTool.font.classic'), color: 'var(--sap-accent)', badge: 'POPULAR' },
+    { id: 'arial', name: 'Arial Black', desc: t('memeTool.font.bold'), color: '#22d3ee', badge: null },
+    { id: 'comic', name: 'Comic Sans MS', desc: t('memeTool.font.fun'), color: 'var(--sap-purple-light)', badge: null },
+    { id: 'georgia', name: 'Georgia', desc: t('memeTool.font.elegant'), color: 'var(--sap-amber)', badge: null },
+    { id: 'verdana', name: 'Verdana Bold', desc: t('memeTool.font.wide'), color: '#34d399', badge: null },
+    { id: 'trebuchet', name: 'Trebuchet MS', desc: t('memeTool.font.modern'), color: '#fb7185', badge: null },
+    { id: 'courier', name: 'Courier New', desc: t('memeTool.font.typewriter'), color: 'var(--sap-text-faint)', badge: null },
+    { id: 'tahoma', name: 'Tahoma', desc: t('memeTool.font.compact'), color: '#c084fc', badge: null },
+  ];
+}
 const FONT_FAMILIES = { impact: 'Impact, Haettenschweiler, sans-serif', arial: '"Arial Black", Gadget, sans-serif', comic: '"Comic Sans MS", cursive', georgia: 'Georgia, serif', verdana: 'Verdana, Geneva, sans-serif', trebuchet: '"Trebuchet MS", sans-serif', courier: '"Courier New", monospace', tahoma: 'Tahoma, Geneva, sans-serif' };
 
 const COLORS = [
@@ -33,6 +35,7 @@ const COLORS = [
 
 export default function MemeGenerator() {
   var { t } = useTranslation();
+  const FONTS = getFonts(t);
   useEffect(() => {
     document.title = 'Free Meme Generator — Create Memes Online | SuperAdPro';
     const meta = document.querySelector('meta[name="description"]') || document.createElement('meta');

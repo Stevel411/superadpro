@@ -18,9 +18,9 @@ export default function QRGenerator() {
       var base = 'https://www.superadpro.com';
       var username = r.username || '';
       var items = [];
-      if (username) items.push({ label: 'Referral Link', url: base + '/join/' + username, emoji: '🔗' });
-      items.push({ label: 'LinkHub Page', url: base + '/link/' + username, emoji: '📱' });
-      items.push({ label: 'Public Profile', url: base + '/@' + username, emoji: '👤' });
+      if (username) items.push({ label: t('qrGen.preset.referralLink'), url: base + '/join/' + username, emoji: '🔗' });
+      items.push({ label: t('qrGen.preset.linkhubPage'), url: base + '/link/' + username, emoji: '📱' });
+      items.push({ label: t('qrGen.preset.publicProfile'), url: base + '/@' + username, emoji: '👤' });
       setPresets(items);
       if (!url && username) setUrl(base + '/join/' + username);
     }).catch(function() {});
