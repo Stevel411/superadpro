@@ -2984,6 +2984,28 @@ def dashboard(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+# ── Free tools (public, unauthenticated) ──────────────────────────
+# Each React route needs an explicit FastAPI handler so direct URL
+# access + refresh work — without these the server returns 404.
+@app.get("/free/qr-code-generator")
+@app.get("/free/meme-generator")
+@app.get("/free/banner-creator")
+def free_tools_pages(request: Request):
+    """Serve React SPA for public free tools."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+# ── Internal tools (members, light-themed AppLayout versions) ─────
+@app.get("/tools/qr-code-generator")
+@app.get("/tools/meme-generator")
+@app.get("/tools/banner-creator")
+def internal_tools_pages(request: Request):
+    """Serve React SPA for internal members-area tools."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 # Command Centre — business management cockpit page (Apr 2026).
 # Reached from the "Command Centre" door on /dashboard. Required so
 # direct URL access and refresh work via React Router (CLAUDE.md rule).
