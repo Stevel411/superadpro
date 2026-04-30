@@ -884,7 +884,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
 @app.api_route("/", methods=["GET", "HEAD"])
 def home(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>SuperAdPro</h1>")
 
 @app.get("/health")
@@ -2076,55 +2076,55 @@ def api_delete_notification(notif_id: int, request: Request, db: Session = Depen
 @app.get("/how-it-works")
 def how_it_works(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/affiliates")
 def affiliates_public(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/register", status_code=302)
 
 @app.get("/compensation-plan")
 def compensation_plan(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for compensation plan page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/income-disclaimer")
 def income_disclaimer(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/grid")
 def grid_stream_page(request: Request):
     """Serve React SPA for the Stream 02 Grid compensation page. Public."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/membership")
 def membership_stream_page(request: Request):
     """Serve React SPA for the Stream 01 Membership compensation page. Public."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/explore/compensation")
 def compensation_hub_page(request: Request):
     """Serve React SPA for the public compensation hub page. Public."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/nexus")
 def nexus_stream_page(request: Request):
     """Serve React SPA for the Stream 03 Nexus compensation page. Public."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_current_user)):
@@ -2146,14 +2146,14 @@ def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_c
 def onboarding_page(request: Request):
     """Serve React SPA for onboarding wizard."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard", status_code=302)
 
 @app.get("/leaderboard")
 def leaderboard_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_leaderboard_DISABLED(request: Request, tab: str = "referrals", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -2201,21 +2201,21 @@ def _old_leaderboard_DISABLED(request: Request, tab: str = "referrals", user: Us
 def grid_visualiser(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/grid-calculator")
 def grid_calculator(request: Request):
     """Serve React SPA — Grid Calculator page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/matrix-visualiser")
 def matrix_visualiser(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/api/grid-visualiser")
@@ -2309,20 +2309,20 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
 def passup_visualiser(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/packages")
 def packages(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/campaign-tiers")
 def campaign_tiers(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_campaign_tiers_DISABLED(request: Request, user: User = Depends(get_current_user),
@@ -2341,7 +2341,7 @@ def _old_campaign_tiers_DISABLED(request: Request, user: User = Depends(get_curr
 @app.get("/faq")
 def faq(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/pricing")
@@ -2352,14 +2352,14 @@ def pricing(request: Request):
 @app.get("/support-public")
 def support_public(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/support")
 def support_get(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.post("/support")
@@ -2377,20 +2377,20 @@ async def support_post(
 @app.get("/legal")
 def legal(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/legal/income-disclosure")
 def legal_income_disclosure(request: Request):
     """Public income disclosure page — linked from affiliate-plan and public footers."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/contact")
 def contact(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.get("/wallet-guide")
@@ -2411,19 +2411,19 @@ def apple_touch_icon():
 def earn_page(request: Request):
     """Affiliate recruitment landing page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/tools")
 def tools_page(request: Request):
     """Public tools showcase page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/explore")
 def explore_page(request: Request):
     """Live activity + first-dollar stories + member showcase."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/explore/live")
 @app.get("/explore/stories")
@@ -2433,12 +2433,12 @@ def explore_page(request: Request):
 def explore_subpages(request: Request):
     """React SPA subpages under /explore — served by React Router on the client."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/register", status_code=302)
 
 # ── Referral link ─────────────────────────────────────────────
@@ -2461,7 +2461,7 @@ def superlink_page(username: str, request: Request, db: Session = Depends(get_db
         return RedirectResponse(url="/", status_code=302)
     # Serve React SPA with referral cookie
     if _react_index.exists():
-        response = HTMLResponse(_react_index.read_text())
+        response = HTMLResponse(_get_react_index_html() or "")
     else:
         response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
     response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
@@ -2483,7 +2483,7 @@ def fomo_page(request: Request, ref: str = "", user: User = Depends(get_current_
     if sponsor:
         sponsor_user = db.query(User).filter(User.username == sponsor).first()
 
-    response = HTMLResponse(_react_index.read_text()) if _react_index.exists() else RedirectResponse(url="/register")
+    response = HTMLResponse(_get_react_index_html() or "") if _react_index.exists() else RedirectResponse(url="/register")
     # Set referral cookie so it persists through to registration
     if sponsor:
         response.set_cookie(key="ref", value=sponsor, max_age=60*60*24*30,
@@ -2559,7 +2559,7 @@ def fomo_stats_api(db: Session = Depends(get_db)):
 def register_form(request: Request, ref: str = ""):
     """Phase 2: serve React SPA — React Router handles /register."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/?register=1", status_code=302)
 
 @app.post("/register")
@@ -2735,7 +2735,7 @@ def register_process(
 def login_form(request: Request):
     """Phase 2: serve React SPA — React Router handles /login."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.post("/login")
@@ -2942,7 +2942,7 @@ async def api_reset_password(request: Request, db: Session = Depends(get_db)):
 def login_2fa_form(request: Request):
     """Phase 2: serve React SPA — React Router handles /login/2fa."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/login", status_code=302)
 
 @app.post("/login/2fa")
@@ -2983,13 +2983,13 @@ def login_2fa_verify(
 def app_home(request: Request):
     """Serve React SPA — let React handle auth."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h2>React app not built yet. Run: cd frontend && npm run build</h2>", status_code=503)
 @app.get("/dashboard")
 def dashboard(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 # ── Free tools (public, unauthenticated) ──────────────────────────
@@ -3001,7 +3001,7 @@ def dashboard(request: Request):
 def free_tools_pages(request: Request):
     """Serve React SPA for public free tools."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 # ── Internal tools (members, light-themed AppLayout versions) ─────
@@ -3011,7 +3011,7 @@ def free_tools_pages(request: Request):
 def internal_tools_pages(request: Request):
     """Serve React SPA for internal members-area tools."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 # Command Centre — business management cockpit page (Apr 2026).
@@ -3021,7 +3021,7 @@ def internal_tools_pages(request: Request):
 def command_centre(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 # ── Missing React page routes ──
@@ -3241,7 +3241,7 @@ def api_command_centre_nexus_team(
 
 # ── Command Centre Layer 2: SPA route handlers ─────────────────
 # CLAUDE.md mandatory rule: every React route in App.jsx needs a
-# corresponding @app.get() in main.py serving _react_index.read_text()
+# corresponding @app.get() in main.py serving _get_react_index_html() or ""
 # so direct URL access and refresh work.
 
 @app.get("/command-centre/directs/active")
@@ -3252,7 +3252,7 @@ def api_command_centre_nexus_team(
 def command_centre_drilldown_pages(request: Request):
     """Serve React SPA for any Command Centre Layer 2 drill-down page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 
@@ -3260,7 +3260,7 @@ def command_centre_drilldown_pages(request: Request):
 def analytics_page(request: Request):
     """Serve React SPA for analytics."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/api/dashboard/new-members")
 def api_new_members(request: Request, since: str = None,
@@ -3667,7 +3667,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
 def launch_wizard(request: Request):
     """Phase 4: serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard", status_code=302)
 
 @app.post("/api/launch-wizard/complete")
@@ -3836,34 +3836,34 @@ Keep each platform-appropriate. Include the link. Be genuine, not spammy."""}]
 def income_grid(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/superseller")
 def superseller_page(request: Request):
     """Serve React SPA for SuperSeller."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/training")
 def training_page(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/team-messenger")
 def team_messenger_page(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/qr-generator")
 def qr_generator_page(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/income-grid-3d")
 def income_grid_3d(request: Request):
     """Serve React SPA for 3D income grid visualisation."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
@@ -3893,14 +3893,14 @@ def grid_detail(grid_id: int, request: Request,
     ctx = get_dashboard_context(request, user, db)
     ctx.update({"grid": grid, "positions": positions, "GRID_PACKAGES": GRID_PACKAGES})
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard", status_code=302)
 
 @app.get("/wallet")
 def wallet(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/income")
@@ -3912,7 +3912,7 @@ def income_landing(request: Request):
     /income (browser address bar, link from Dashboard, deep link) returns
     index.html so the SPA can take over."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/income/membership")
@@ -3925,7 +3925,7 @@ def income_membership_page(request: Request):
     = encouragement mode with progress bar, 5+ directs = data mode with
     quality metrics. Real data comes from /api/membership-stream."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/tools")
@@ -3936,7 +3936,7 @@ def tools_landing(request: Request):
     hides sections based on the member's membership_tier. Same FastAPI
     pattern as /income — just serves index.html, the SPA does the rest."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/tools/free")
@@ -3944,7 +3944,7 @@ def tools_free_page(request: Request):
     """Serve React SPA for /tools/free — the Free Tools sub-page.
     Open to all logged-in members. Renders the 3 free tool cards."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/tools/basic")
@@ -3954,7 +3954,7 @@ def tools_basic_page(request: Request):
     see an upgrade-to-Basic card. Tier check happens client-side
     in BasicToolsPage.jsx."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/tools/pro")
@@ -3964,7 +3964,7 @@ def tools_pro_page(request: Request):
     non-members see an upgrade-to-Pro card. Tier check happens
     client-side in ProToolsPage.jsx."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/learn")
@@ -3974,7 +3974,7 @@ def learn_landing(request: Request):
     (Education, Promotional Assets, Community). Open to all members
     regardless of tier - no tier-gating on Learn content."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/learn/education")
@@ -3983,7 +3983,7 @@ def learn_education_page(request: Request):
     4 items: Training Centre, Comp Plan Explainer, Platform Tour,
     Crypto Guide. All open to any member."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/learn/assets")
@@ -3992,7 +3992,7 @@ def learn_assets_page(request: Request):
     3 items: Marketing Materials, Email Swipes, Social Share.
     Promotional assets members can use to grow their team."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/learn/community")
@@ -4002,7 +4002,7 @@ def learn_community_page(request: Request):
     submission form). Members see their position in the platform-wide
     rankings and submit their own success milestone."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_wallet_DISABLED(request: Request, user: User = Depends(get_current_user),
@@ -4076,14 +4076,14 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
 def social_share(request: Request):
     """Serve React SPA — Social Share page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/marketing-materials")
 def marketing_materials(request: Request):
     """Serve React SPA — Marketing Materials page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/affiliate")
@@ -4106,14 +4106,14 @@ def _old_affiliate_DISABLED(request: Request, user: User = Depends(get_current_u
 def account(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/account/faq")
 def account_faq(request: Request):
     """Serve React SPA — internal FAQ page rendered inside AppLayout."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.post("/save-wallet")
@@ -4206,7 +4206,7 @@ def api_delete_campaign(campaign_id: int, request: Request,
 def upload_video(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_upload_DISABLED(request=None, user=None, db=None):
@@ -4774,26 +4774,26 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
 def payment_success_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/payment/cancelled")
 def payment_cancelled_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/payment-success")
 def payment_success_dash(request: Request):
     """Stripe redirects here after payment — serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/payment-cancelled")
 def payment_cancelled_dash(request: Request):
     """Stripe redirects here on cancel — serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.delete("/admin/api/user/{user_id}")
@@ -6724,7 +6724,7 @@ def withdraw(
 def forgot_password_form(request: Request):
     """Phase 2: serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 @app.post("/forgot-password")
 @limiter.limit("3/minute")
@@ -6776,7 +6776,7 @@ def forgot_password_process(
 def reset_password_form(request: Request):
     """Phase 2: serve React SPA — React reads token from query params."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
 @app.post("/reset-password")
@@ -7135,7 +7135,7 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 def watch_page(request: Request):
     """Serve React SPA. All quota/campaign data fetched client-side via /api/watch."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.post("/api/record-watch")
@@ -7224,7 +7224,7 @@ def admin_panel(request: Request, user: User = Depends(get_current_user)):
         logger.warning(f"Unauthorised admin access — IP: {request.client.host}")
         raise HTTPException(status_code=403, detail="Access denied")
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard")
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN API — dual-purpose: dashboard UI + AI agent automation
@@ -9734,7 +9734,7 @@ def funnel_analytics_dashboard(request: Request, user: User = Depends(get_curren
 def funnel_leads_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_funnel_leads_DISABLED(request: Request, user: User = Depends(get_current_user),
@@ -9852,7 +9852,7 @@ def link_tools_page(request: Request, user: User = Depends(get_current_user),
     ctx["rotators"] = rotators
     ctx["base_url"] = base_url
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard", status_code=302)
 @limiter.limit("30/minute")
 @app.post("/api/links/create")
@@ -10146,7 +10146,7 @@ def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
 @app.get("/what-you-get")
 def what_you_get(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 # ═══════════════════════════════════════════════════
 #  PUBLIC AD BOARD
@@ -10217,7 +10217,7 @@ Sitemap: https://www.superadpro.com/sitemap.xml
 @app.get("/vip")
 def vip_page(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/register", status_code=302)
 
 @app.post("/api/vip/signup")
@@ -10697,7 +10697,7 @@ Keep recommendations concise, specific and immediately actionable. Use a friendl
 def campaign_studio(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.post("/api/campaign-studio/generate")
 async def generate_campaign(request: Request, user: User = Depends(get_current_user)):
@@ -11290,7 +11290,7 @@ def totp_setup_page(request: Request):
     needs an explicit FastAPI handler that returns index.html so the SPA
     boots and React Router takes over."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/account", status_code=302)
 @app.post("/account/2fa-verify")
 def totp_verify(
@@ -11519,7 +11519,7 @@ def check_achievements(db: Session, user: User):
 def achievements_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_achievements_DISABLED(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -11936,7 +11936,7 @@ def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Dep
 def niche_finder(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 # ═══════════════════════════════════════════════════════════════
 #  CRON — Nurture sequence processor
@@ -12167,7 +12167,7 @@ IMPORTANT:
 def social_post_generator_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.post("/api/social-posts/generate")
 async def generate_social_posts(request: Request, user: User = Depends(get_current_user)):
@@ -12254,7 +12254,7 @@ Return ONLY the posts, no preamble or explanation."""
 def email_swipes_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 # ═══════════════════════════════════════════════════════════════
 #  AI VIDEO SCRIPT GENERATOR
@@ -12264,7 +12264,7 @@ def email_swipes_page(request: Request):
 def video_script_generator_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.post("/api/video-scripts/generate")
 async def generate_video_script(request: Request, user: User = Depends(get_current_user)):
@@ -12367,7 +12367,7 @@ RULES:
 def swipe_file(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.post("/api/swipe-file/generate")
 async def generate_swipes(request: Request, user: User = Depends(get_current_user),
@@ -13019,7 +13019,7 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
 def courses_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_courses_DISABLED(request: Request, db: Session = Depends(get_db)):
@@ -13075,7 +13075,7 @@ def course_learn_page(course_id: int, request: Request):
     """Phase 4: serve React SPA — React calls /api/courses/learn/:id."""
     del course_id
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/courses", status_code=302)
 
 async def _old_course_learn_DISABLED(course_id: int, request: Request,
@@ -13086,7 +13086,7 @@ async def _old_course_learn_DISABLED(course_id: int, request: Request,
 def course_how_it_works(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_course_how_it_works_DISABLED(request: Request, db: Session = Depends(get_db)):
@@ -13106,7 +13106,7 @@ async def course_commissions_page(request: Request, db: Session = Depends(get_db
         return RedirectResponse(url="/pay-membership")
 
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard", status_code=302)
 
 def _old_course_commissions_DISABLED(request=None, db=None):
@@ -14653,7 +14653,7 @@ def linkhub_editor(request: Request, user: User = Depends(get_current_user)):
     if not user:
         return RedirectResponse("/?login=1", status_code=302)
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse("/dashboard", status_code=302)
 @app.post("/linkhub/save")
 @limiter.limit("10/minute")
@@ -15100,7 +15100,7 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
 def proseller_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_proseller_DISABLED(request: Request, db: Session = Depends(get_db)):
@@ -15416,7 +15416,7 @@ async def api_mark_lesson_complete(course_id: int, lesson_id: int,
 def upgrade_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db)):
@@ -15437,7 +15437,7 @@ async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
     if not is_pro(user):
         return RedirectResponse(url="/upgrade", status_code=302)
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.post("/api/pro/generate-funnel")
 async def api_pro_generate_funnel(request: Request, db: Session = Depends(get_db)):
@@ -15611,7 +15611,7 @@ async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depend
     if not is_pro(user):
         return RedirectResponse(url="/upgrade", status_code=302)
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/pro/funnel/{funnel_id}/analytics")
 def pro_funnel_analytics(funnel_id: int, request: Request):
@@ -16415,7 +16415,7 @@ async def api_capture_lead(username: str, slug: str, request: Request, db: Sessi
 def pro_leads_page(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_pro_leads_DISABLED(request: Request, db: Session = Depends(get_db)):
@@ -18488,7 +18488,7 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
 async def serve_gift_page(code: str):
     """Serve the React SPA for gift voucher landing pages."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h2>Loading...</h2>")
 # ═══════════════════════════════════════════════════════════════
 #  REACT SPA — Serve the built React frontend
@@ -18497,11 +18497,29 @@ import pathlib
 
 _react_index = pathlib.Path("static/app/index.html")
 
+# Read the React entry HTML once at module load, then serve from memory.
+# Without this, every SPA route handler (106 of them) calls read_text() on
+# every request — first hit is a fresh disk read (~1s on Railway containers),
+# only after the OS file cache warms up does it drop to <50ms. By caching
+# at startup we eliminate that variance: every TTFB is consistent.
+# Cache invalidates when Railway restarts the process (which happens on
+# every deploy), so frontend updates land naturally.
+_react_index_html_cache = None
+def _get_react_index_html():
+    global _react_index_html_cache
+    if _react_index_html_cache is None:
+        try:
+            _react_index_html_cache = _get_react_index_html() or ""
+        except Exception:
+            return None
+    return _react_index_html_cache
+
 @app.get("/app/{full_path:path}")
 async def serve_react_app(full_path: str):
     """Serve the React SPA for all /app/* routes."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+    html = _get_react_index_html()
+    if html is not None:
+        return HTMLResponse(html)
     return HTMLResponse("<h2>React app not built yet. Run: cd frontend && npm run build</h2>", status_code=503)
 @app.post("/api/account/update")
 async def api_account_update(request: Request, user: User = Depends(get_current_user),
@@ -22693,13 +22711,13 @@ async def grok_sales_agent_endpoint(request: Request):
 def crypto_guide_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for crypto wallet guide."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard", status_code=302)
 @app.get("/tour")
 def tour_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for platform tour."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard", status_code=302)
 # ═══════════════════════════════════════════════════════════════
 #  VOICE GUIDE — Platform Tour AI Assistant
@@ -22927,32 +22945,32 @@ from .database import Presentation
 @app.get("/superdeck")
 def superdeck_page(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/superdeck/{path:path}")
 def superdeck_catchall(path: str, request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/video-creator")
 def video_creator_page(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/credit-nexus")
 def credit_nexus_page(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/nexus-visualiser")
 def nexus_visualiser_page(request: Request):
     """Serve React SPA — Nexus Visualiser page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/credit-matrix")
@@ -22963,7 +22981,7 @@ def credit_matrix_redirect(request: Request):
 @app.get("/campaign-analytics")
 def campaign_analytics_page(request: Request):
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/api/superdeck/presentations")
 def api_superdeck_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -24226,7 +24244,7 @@ Use a variety of layouts. Make content specific and compelling. Speaker notes sh
 def lead_finder_page(request: Request):
     """Serve React SPA — Lead Finder page."""
     if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
+        return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 @app.post("/api/lead-finder/search")
 async def api_lead_finder_search(request: Request,
