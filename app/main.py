@@ -6879,7 +6879,7 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
                     try:
                         from .database import Notification
                         db.add(Notification(
-                            user_id=user_id,
+                            user_id=user.id,
                             type="commission",
                             icon="⚠️",
                             title="Commissions paused — daily watch quota missed",
@@ -6889,7 +6889,7 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
                             link="/watch",
                         ))
                     except Exception as exc:
-                        logger.warning(f"commissions_paused notification failed for user {user_id}: {exc}")
+                        logger.warning(f"commissions_paused notification failed for user {user.id}: {exc}")
         else:
             # Catch-up path — notify if we're transitioning OUT of paused state
             was_paused = bool(quota.commissions_paused)
@@ -6900,7 +6900,7 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
                 try:
                     from .database import Notification
                     db.add(Notification(
-                        user_id=user_id,
+                        user_id=user.id,
                         type="commission",
                         icon="✅",
                         title="Commissions reactivated",
@@ -6909,7 +6909,7 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
                         link="/wallet",
                     ))
                 except Exception as exc:
-                    logger.warning(f"commissions_resumed notification failed for user {user_id}: {exc}")
+                    logger.warning(f"commissions_resumed notification failed for user {user.id}: {exc}")
             # Increment streak if yesterday's quota was met
             if quota.today_date and quota.today_watched >= quota.daily_required:
                 quota.streak_days = (quota.streak_days or 0) + 1
@@ -7133,130 +7133,22 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
     return scored[0][1]
 @app.get("/watch")
 def watch_page(request: Request):
-    """Serve React SPA."""
+    """Serve React SPA. All quota/campaign data fetched client-side via /api/watch."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-    if not has_grid and not user.is_admin:
-        return RedirectResponse(url="/income-grid?need_grid=1")
-
-    quota    = get_or_create_quota(db, user)
-    content  = get_next_content(db, user.id)
-    campaign = content["data"] if content and content["type"] == "video" else None
-    content_type = content["type"] if content else "none"
-    db.commit()
-
-    # Admin/owner bypass — always commission-eligible, can always view the player
-    if user.is_admin:
-        quota.commissions_paused = False
-        quota.consecutive_missed = 0
-
-    # Warning level for grace period
-    warning = None
-    if quota.consecutive_missed >= 3:
-        days_left = GRACE_DAYS - quota.consecutive_missed
-        warning = f"⚠️ You've missed your quota for {quota.consecutive_missed} days. {max(0,days_left)} day(s) remaining before commissions are paused."
-    if quota.commissions_paused:
-        warning = "🔴 Your commissions are currently paused. Complete today's video quota to reactivate."
-
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/watch", status_code=302)
 
 @app.post("/api/record-watch")
-@limiter.limit("12/minute")
-def record_watch(
-    request:     Request,
-    campaign_id: int = Form(),
-    db:          Session = Depends(get_db),
-    user:        User = Depends(get_current_user)
-):
-    """Called by front-end after 30s timer completes. Records the view."""
-    from datetime import date
-    if not user or not user.is_active:
-        return {"success": False, "error": "Not authorised"}
-    if get_user_highest_tier(db, user.id) <= 0:
-        return {"success": False, "error": "tier_required", "redirect": "/campaign-tiers"}
-
-    today_str = str(date.today())
-    quota     = get_or_create_quota(db, user)
-    campaign  = db.query(VideoCampaign).filter(
-        VideoCampaign.id     == campaign_id,
-        VideoCampaign.status == "active"
-    ).first()
-
-    if not campaign:
-        return {"success": False, "error": "Campaign not found"}
-
-    # ── Anti-cheat: prevent self-watches (Apr 2026) ──
-    # Without this, a campaign owner could call this endpoint with their
-    # own campaign_id to inflate views and complete the campaign without
-    # real audience.
-    if campaign.user_id == user.id and not user.is_admin:
-        return {"success": False, "error": "You can't watch your own campaign"}
-
-    # ── Server-side anti-cheat: assignment + 30-second timer check ──
-    # Same pattern as /api/watch/complete - keep aligned so cheaters can't
-    # switch endpoints to bypass. Requires the user was assigned this video
-    # by hitting /api/watch first (creates a VideoWatch row with started_at
-    # and is_complete=False). Verifies >=30s have passed since assignment.
-    watch_row = db.query(VideoWatch).filter(
-        VideoWatch.user_id == user.id,
-        VideoWatch.campaign_id == campaign_id,
-        VideoWatch.watch_date == today_str,
-    ).first()
-
-    if not watch_row:
-        return {"success": False, "error": "Video not assigned to you. Get a video from the rotation first."}
-
-    if watch_row.is_complete:
-        return {"success": False, "error": "You've already watched this video today"}
-
-    if not user.is_admin and watch_row.started_at:
-        elapsed = (datetime.utcnow() - watch_row.started_at).total_seconds()
-        if elapsed < WATCH_DURATION:
-            remaining = int(WATCH_DURATION - elapsed)
-            return {"success": False, "error": f"Please watch for {remaining} more seconds to qualify"}
-
-    # Check quota not already met today
-    if quota.today_watched >= quota.daily_required:
-        return {"success": False, "error": "Daily quota already completed", "quota_met": True}
-
-    # Mark the started row complete (don't create a new row)
-    watch_row.is_complete = True
-    watch_row.watched_at = datetime.utcnow()
-    watch_row.duration_secs = WATCH_DURATION
-
-    # Update quota counter
-    quota.today_watched += 1
-    quota.total_watched = (quota.total_watched or 0) + 1
-    if quota.today_watched >= quota.daily_required:
-        quota.last_quota_met     = today_str
-        quota.consecutive_missed = 0
-        quota.commissions_paused = False
-
-    # Increment campaign views delivered
-    campaign.views_delivered = (campaign.views_delivered or 0) + 1
-
-    db.commit()
-
-    # Get next content (video campaign)
-    next_content = get_next_content(db, user.id)
-    quota_met    = quota.today_watched >= quota.daily_required
-
-    next_data = None
-    if next_content and not quota_met and next_content["type"] == "video":
-        c = next_content["data"]
-        next_data = {"type": "video", "id": c.id, "title": c.title, "embed_url": c.embed_url, "platform": c.platform}
-
-    return {
-        "success":       True,
-        "watched_today": quota.today_watched,
-        "required":      quota.daily_required,
-        "quota_met":     quota_met,
-        "next_content":  next_data,
-        "next_campaign": next_data,
-    }
+def record_watch_deprecated(request: Request):
+    """DEPRECATED 30 Apr 2026 — replaced by /api/watch/complete which has the
+    campaign-completion check. The orphan implementation was missing that check
+    (campaigns would accumulate views but never transition to completed),
+    breaking the repurchase rule. Returns 410 Gone so any stale caller fails
+    loudly rather than silently corrupting state."""
+    return JSONResponse(
+        {"success": False, "error": "Deprecated endpoint — use /api/watch/complete"},
+        status_code=410,
+    )
 @app.post("/api/record-ad-watch")
 def record_ad_watch(request: Request):
     """DEPRECATED — Ad Board removed. Returns 404."""

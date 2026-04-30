@@ -357,7 +357,7 @@ class VideoCampaign(Base):
     embed_url       = Column(String, nullable=False)   # cleaned iframe src
     video_id        = Column(String, nullable=True)    # platform video ID
     status          = Column(String, default="active") # active/paused/completed/deleted
-    views_target    = Column(Integer, default=0)       # from CAMPAIGN_VIEW_TARGETS
+    views_target    = Column(Integer, default=2000)    # minimum tier-1 target; explicit per-tier values from CAMPAIGN_VIEW_TARGETS
     views_delivered = Column(Integer, default=0)       # tracked via watch system
     campaign_tier   = Column(Integer, default=1)       # which tier purchase this campaign is for
     is_completed    = Column(Boolean, default=False)   # True when views_delivered >= views_target
