@@ -238,8 +238,6 @@ export default function MemeGeneratorInternal() {
               gridTemplateColumns: 'repeat(4, 1fr)',
               gridAutoRows: 'minmax(110px, auto)',
               gap: 8,
-              maxHeight: 360,
-              overflowY: 'auto',
               padding: 2,
             }}>
               {vis.map(t => {
