@@ -6,66 +6,70 @@ import AppLayout from './components/layout/AppLayout';
 import './i18n';
 import { Component, Suspense } from 'react';
 
-// ── Direct imports (core pages — instant navigation, no spinner) ──
+// ── Direct imports (truly hot pages — Dashboard is post-login landing,
+// Wallet + Account are most-visited internal pages, kept eager so they
+// feel instant. Everything else is lazy-loaded to keep main bundle small.) ──
 import Dashboard from './pages/Dashboard';
-import CommandCentre from './pages/CommandCentre';
-import BucketList from './pages/BucketList';
-import OnboardingWizard from './pages/OnboardingWizard';
-import AnalyticsPage from './pages/Analytics';
-import CreateCampaign from './pages/CreateCampaign';
 import Wallet from './pages/Wallet';
-import UpgradeFromBalance from './pages/UpgradeFromBalance';
 import Account from './pages/Account';
-import Courses from './pages/Courses';
-import Leaderboard from './pages/Leaderboard';
-import Affiliate from './pages/Affiliate';
-import MarketingMaterials from './pages/MarketingMaterials';
-import LeadFinder from './pages/LeadFinder';
-import CampaignTiers from './pages/CampaignTiers';
-import Watch from './pages/Watch';
-import Analytics from './pages/Analytics';
-import Support from './pages/Support';
-import VideoLibrary from './pages/VideoLibrary';
-import Upgrade from './pages/Upgrade';
-import CompensationPlan from './pages/CompensationPlan';
-import IncomeDisclaimer from './pages/IncomeDisclaimer';
-import AiTool from './pages/AiTool';
-// MyNetwork retired Apr 2026 - file archived to pages/archived_pages/. Routes /network and /courses/commissions now redirect to /income and /wallet respectively.
-import IncomeChains from './pages/IncomeChains';
-import IncomePage from './pages/IncomePage';
-import ToolsPage from './pages/ToolsPage';
-import FreeToolsPage from './pages/FreeToolsPage';
-import BasicToolsPage from './pages/BasicToolsPage';
-import ProToolsPage from './pages/ProToolsPage';
-import IncomeMembershipPage from './pages/IncomeMembershipPage';
-import LearnPage from './pages/LearnPage';
-import EducationPage from './pages/EducationPage';
-import AssetsPage from './pages/AssetsPage';
-import CommunityPage from './pages/CommunityPage';
-import HowCommissionsWork from './pages/HowCommissionsWork';
-import MyLeads from './pages/MyLeads';
-import LinkTools from './pages/LinkTools';
-import PaymentSuccess from './pages/PaymentSuccess';
-import PassupVisualiser from './pages/PassupVisualiser';
-import ProSeller from './pages/ProSeller';
-// SuperSeller removed — replaced by individual AI tools
-import AdminDashboard from './pages/AdminDashboard';
-import AdminStories from './pages/AdminStories';
-import AdminShowcase from './pages/AdminShowcase';
-import Funnels from './pages/Funnels';
-import LinkHubPage from './pages/LinkHub';
-import ActivateTier from './pages/ActivateTier';
-import PayItForward from './pages/PayItForward';
-import ShareStory from './pages/ShareStory';
-import GiftLanding from './pages/GiftLanding';
-import TrainingCentre from './pages/TrainingCentre';
-import CryptoGuide from './pages/CryptoGuide';
-import PlatformTour from './pages/PlatformTour';
-import TeamMessenger from './pages/TeamMessenger';
-import QRGenerator from './pages/QRGenerator';
-import SuperLinkPage from './pages/SuperLink';
 
-// ── Lazy imports (heavy/rare pages only) ──
+// ── Lazy imports — every non-hot page splits into its own chunk.
+// Result: visitors only download code for pages they actually visit.
+// Saves ~1MB+ from initial bundle. ──
+const CommandCentre = React.lazy(() => import('./pages/CommandCentre'));
+const BucketList = React.lazy(() => import('./pages/BucketList'));
+const OnboardingWizard = React.lazy(() => import('./pages/OnboardingWizard'));
+const AnalyticsPage = React.lazy(() => import('./pages/Analytics'));
+const CreateCampaign = React.lazy(() => import('./pages/CreateCampaign'));
+const UpgradeFromBalance = React.lazy(() => import('./pages/UpgradeFromBalance'));
+const Courses = React.lazy(() => import('./pages/Courses'));
+const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
+const Affiliate = React.lazy(() => import('./pages/Affiliate'));
+const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
+const LeadFinder = React.lazy(() => import('./pages/LeadFinder'));
+const CampaignTiers = React.lazy(() => import('./pages/CampaignTiers'));
+const Watch = React.lazy(() => import('./pages/Watch'));
+const Analytics = React.lazy(() => import('./pages/Analytics'));
+const Support = React.lazy(() => import('./pages/Support'));
+const VideoLibrary = React.lazy(() => import('./pages/VideoLibrary'));
+const Upgrade = React.lazy(() => import('./pages/Upgrade'));
+const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
+const IncomeDisclaimer = React.lazy(() => import('./pages/IncomeDisclaimer'));
+const AiTool = React.lazy(() => import('./pages/AiTool'));
+const IncomeChains = React.lazy(() => import('./pages/IncomeChains'));
+const IncomePage = React.lazy(() => import('./pages/IncomePage'));
+const ToolsPage = React.lazy(() => import('./pages/ToolsPage'));
+const FreeToolsPage = React.lazy(() => import('./pages/FreeToolsPage'));
+const BasicToolsPage = React.lazy(() => import('./pages/BasicToolsPage'));
+const ProToolsPage = React.lazy(() => import('./pages/ProToolsPage'));
+const IncomeMembershipPage = React.lazy(() => import('./pages/IncomeMembershipPage'));
+const LearnPage = React.lazy(() => import('./pages/LearnPage'));
+const EducationPage = React.lazy(() => import('./pages/EducationPage'));
+const AssetsPage = React.lazy(() => import('./pages/AssetsPage'));
+const CommunityPage = React.lazy(() => import('./pages/CommunityPage'));
+const HowCommissionsWork = React.lazy(() => import('./pages/HowCommissionsWork'));
+const MyLeads = React.lazy(() => import('./pages/MyLeads'));
+const LinkTools = React.lazy(() => import('./pages/LinkTools'));
+const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
+const PassupVisualiser = React.lazy(() => import('./pages/PassupVisualiser'));
+const ProSeller = React.lazy(() => import('./pages/ProSeller'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminStories = React.lazy(() => import('./pages/AdminStories'));
+const AdminShowcase = React.lazy(() => import('./pages/AdminShowcase'));
+const Funnels = React.lazy(() => import('./pages/Funnels'));
+const LinkHubPage = React.lazy(() => import('./pages/LinkHub'));
+const ActivateTier = React.lazy(() => import('./pages/ActivateTier'));
+const PayItForward = React.lazy(() => import('./pages/PayItForward'));
+const ShareStory = React.lazy(() => import('./pages/ShareStory'));
+const GiftLanding = React.lazy(() => import('./pages/GiftLanding'));
+const TrainingCentre = React.lazy(() => import('./pages/TrainingCentre'));
+const CryptoGuide = React.lazy(() => import('./pages/CryptoGuide'));
+const PlatformTour = React.lazy(() => import('./pages/PlatformTour'));
+const TeamMessenger = React.lazy(() => import('./pages/TeamMessenger'));
+const QRGenerator = React.lazy(() => import('./pages/QRGenerator'));
+const SuperLinkPage = React.lazy(() => import('./pages/SuperLink'));
+
+// ── Heavy/rare pages (already lazy from before) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
 const SuperDeckList = React.lazy(() => import('./pages/superdeck/SuperDeckList'));
 const SuperDeckEditor = React.lazy(() => import('./pages/superdeck/SuperDeckEditor'));
@@ -156,6 +160,7 @@ function SmartHome() {
 
 function AppRoutes() {
   return (
+    <Suspense fallback={<div style={{minHeight:'60vh',display:'flex',alignItems:'center',justifyContent:'center'}}><Spinner/></div>}>
     <Routes>
       {/* Fully migrated pages */}
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
@@ -309,6 +314,7 @@ function AppRoutes() {
       <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }
 

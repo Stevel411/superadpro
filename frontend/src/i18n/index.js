@@ -1,64 +1,54 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
+// Eager: only English (the default fallback). All other 19 locales are
+// lazy-loaded on language change. This drops ~3.8MB (raw) / ~600KB (gzipped)
+// of unused translation data from the initial bundle for English-speaking
+// visitors — which is the majority for early launch.
 import en from './locales/en.json';
-import es from './locales/es.json';
-import fr from './locales/fr.json';
-import pt from './locales/pt.json';
-import de from './locales/de.json';
-import it from './locales/it.json';
-import nl from './locales/nl.json';
-import ru from './locales/ru.json';
-import ar from './locales/ar.json';
-import zh from './locales/zh.json';
-import hi from './locales/hi.json';
-import ja from './locales/ja.json';
-import ko from './locales/ko.json';
-import tr from './locales/tr.json';
-import pl from './locales/pl.json';
-import vi from './locales/vi.json';
-import th from './locales/th.json';
-import id from './locales/id.json';
-import tl from './locales/tl.json';
-import sw from './locales/sw.json';
 
-var resources = {
-  en: { translation: en },
-  es: { translation: es },
-  fr: { translation: fr },
-  pt: { translation: pt },
-  de: { translation: de },
-  it: { translation: it },
-  nl: { translation: nl },
-  ru: { translation: ru },
-  ar: { translation: ar },
-  zh: { translation: zh },
-  hi: { translation: hi },
-  ja: { translation: ja },
-  ko: { translation: ko },
-  tr: { translation: tr },
-  pl: { translation: pl },
-  vi: { translation: vi },
-  th: { translation: th },
-  id: { translation: id },
-  tl: { translation: tl },
-  sw: { translation: sw },
-};
+// Vite glob import — gives us a map of dynamic-import functions for every
+// non-English locale. Each one is its own chunk that's only fetched when
+// the user actually selects that language.
+var localeLoaders = import.meta.glob('./locales/!(en).json');
 
 var savedLang = 'en';
 try { savedLang = localStorage.getItem('superadpro-lang') || 'en'; } catch(e) {}
 
+// Initialise with EN immediately. If the saved language isn't EN, kick off
+// the lazy load (fire-and-forget) so we switch as soon as it lands.
 i18n.use(initReactI18next).init({
-  resources: resources,
-  lng: savedLang,
+  resources: { en: { translation: en } },
+  lng: 'en',  // start in EN to avoid blank-page-while-loading on slow connections
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
   react: { useSuspense: false },
 });
 
+function loadLocale(code) {
+  if (code === 'en') return Promise.resolve();  // already loaded
+  if (i18n.hasResourceBundle(code, 'translation')) return Promise.resolve();  // cached from prior load
+  var loaderKey = './locales/' + code + '.json';
+  var loader = localeLoaders[loaderKey];
+  if (!loader) return Promise.reject(new Error('Unknown locale: ' + code));
+  return loader().then(function(mod) {
+    var data = mod.default || mod;
+    i18n.addResourceBundle(code, 'translation', data);
+  });
+}
+
+// If saved language is non-EN, lazy-load it then switch.
+// User briefly sees EN; locale swap-in is usually <100ms on broadband.
+if (savedLang !== 'en') {
+  loadLocale(savedLang).then(function() { i18n.changeLanguage(savedLang); }).catch(function() {});
+}
+
 export function changeLanguage(code) {
-  i18n.changeLanguage(code);
-  try { localStorage.setItem('superadpro-lang', code); } catch(e) {}
+  // Lazy-load the locale if needed, then switch.
+  return loadLocale(code).then(function() {
+    i18n.changeLanguage(code);
+    try { localStorage.setItem('superadpro-lang', code); } catch(e) {}
+  });
 }
 
 export var LANGUAGES = [
