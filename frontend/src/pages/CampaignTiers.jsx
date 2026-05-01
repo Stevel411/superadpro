@@ -121,21 +121,21 @@ export default function CampaignTiers() {
 
       {/* ── Header Banner ── */}
       <div style={{
-        background:'linear-gradient(135deg,#0c1222,#172554,#2d3561)',
-        borderRadius:18, padding:'32px 36px', marginBottom:24,
+        background:'linear-gradient(135deg,#1a103d,#2d1b69)',
+        borderRadius:18, padding:'22px 36px', marginBottom:20,
         textAlign:'center', position:'relative', overflow:'hidden',
       }}>
         <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
         <div style={{ position:'absolute', bottom:-40, left:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
         <div style={{ position:'relative' }}>
-          <div style={{ fontSize:13, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.45)', marginBottom:8 }}>{t('campaignTiers.gridSystem')}</div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', marginBottom:4 }}>
+          <div style={{ fontSize:12, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.5)', marginBottom:6 }}>{t('campaignTiers.gridSystem')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#fff', marginBottom:2, lineHeight:1.2 }}>
             {t('campaignTiers.activateTiers')}
           </div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-amber-bright)', marginBottom:12 }}>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'var(--sap-amber-bright)', marginBottom:8, lineHeight:1.2 }}>
             {t('campaignTiers.growYourGrid')}
           </div>
-          <div style={{ fontSize:16, color:'rgba(255,255,255,.75)', lineHeight:1.7, maxWidth:520, margin:'0 auto' }}>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,.75)', lineHeight:1.5, maxWidth:520, margin:'0 auto' }}>
             {t('campaignTiers.heroDesc')}
           </div>
         </div>
