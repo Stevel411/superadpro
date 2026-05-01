@@ -6276,6 +6276,43 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
     if product_type == "grid" and not user.is_active:
         return JSONResponse({"error": "Active membership required to purchase Campaign Tiers"}, status_code=400)
 
+    # ── Grid: repurchase guard ──
+    # Refuse if the user has an in-flight VideoCampaign at this tier (views
+    # not yet fully delivered). The campaign is the actual product they paid
+    # for last time; until its views_delivered >= views_target, repurchasing
+    # is paying for the same undelivered service twice.
+    #
+    # Note: this is GATED ON THE CAMPAIGN, NOT THE GRID. The grid is a
+    # passive earnings mechanism that can complete and renew many times
+    # against a single campaign; gating on grid completion would block
+    # legitimate fresh purchases. See commission-spec.md.
+    if product_type == "grid":
+        try:
+            tier_num = int(product_key.split("_")[1])
+            in_flight = db.query(VideoCampaign).filter(
+                VideoCampaign.user_id == user.id,
+                VideoCampaign.campaign_tier == tier_num,
+                VideoCampaign.is_completed == False,
+            ).first()
+            if in_flight:
+                delivered = int(in_flight.views_delivered or 0)
+                target = int(in_flight.views_target or 0)
+                return JSONResponse({
+                    "error": (
+                        f"You already have an active Campaign Tier {tier_num} that hasn't "
+                        f"completed delivery yet — {delivered:,} of {target:,} views delivered "
+                        f"so far. Wait for it to deliver all {target:,} views, then you can "
+                        f"purchase again."
+                    ),
+                    "code": "campaign_in_flight",
+                    "tier": tier_num,
+                    "views_delivered": delivered,
+                    "views_target": target,
+                    "progress_pct": round((delivered / target * 100) if target else 0, 1),
+                }, status_code=409)
+        except (ValueError, IndexError):
+            return JSONResponse({"error": f"Invalid grid product key: {product_key}"}, status_code=400)
+
     # ── Cancel existing pending NOWPayments orders for same product ──
     db.query(NowPaymentsOrder).filter(
         NowPaymentsOrder.user_id == user.id,
@@ -7803,7 +7840,7 @@ def admin_diagnostic_manual_grid_activation(
     # This pays direct sponsor commission, walks the uni-level chain, fills
     # spillover into upline grids, and records platform fee.
     try:
-        result = _ptp(db=db, buyer_id=user_id, package_tier=package_tier)
+        result = _ptp(db=db, buyer_id=user_id, package_tier=package_tier, bypass_repurchase_guard=True)
     except Exception as _e:
         # If the activation throws, roll back so we don't leave the Payment
         # row orphaned. The caller will see the error and can investigate.
@@ -14151,7 +14188,7 @@ def admin_test_grid_e2e(
             db.flush()
             buyer_ids.append(buyer.id)
 
-            purchase_result = process_tier_purchase(db=db, buyer_id=buyer.id, package_tier=tier)
+            purchase_result = process_tier_purchase(db=db, buyer_id=buyer.id, package_tier=tier, bypass_repurchase_guard=True)
             results["purchases"].append({"buyer": buyer.username, "buyer_id": buyer.id,
                                          "sponsor": last_sponsor.username, "result": purchase_result})
 

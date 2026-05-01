@@ -67,6 +67,7 @@ def process_tier_purchase(
     db:           Session,
     buyer_id:     int,
     package_tier: int,
+    bypass_repurchase_guard: bool = False,
 ) -> dict:
     """
     Main entry point for a tier purchase (new or repurchase).
@@ -77,6 +78,13 @@ def process_tier_purchase(
     
     The buyer's sponsor_id is used for commission payments.
     The spillover walks the FULL upline chain filling grids.
+
+    bypass_repurchase_guard: only set True from manual-recovery admin endpoints
+    where the operator knows the buyer SHOULD activate even though there's an
+    in-flight campaign at this tier (e.g. legacy direct-USDT recoveries).
+    The normal payment-flow path NEVER sets this — it relies on the
+    invoice-creation guard at /api/nowpayments/create-invoice as the
+    primary defence and this as the belt-and-braces backstop.
     """
     price = GRID_PACKAGES.get(package_tier)
     if not price:
@@ -85,6 +93,28 @@ def process_tier_purchase(
     buyer = db.query(User).filter(User.id == buyer_id).first()
     if not buyer:
         return {"success": False, "error": "Buyer not found"}
+
+    # ── Defence-in-depth: refuse if in-flight campaign exists at this tier ──
+    # Catches the rare race where two invoices for the same tier both pay
+    # before either activates. The primary guard is at invoice creation;
+    # this is the second line of defence at activation time.
+    if not bypass_repurchase_guard:
+        in_flight = db.query(VideoCampaign).filter(
+            VideoCampaign.user_id == buyer_id,
+            VideoCampaign.campaign_tier == package_tier,
+            VideoCampaign.is_completed == False,
+        ).first()
+        if in_flight:
+            return {
+                "success": False,
+                "error": (
+                    f"In-flight Campaign Tier {package_tier} already exists "
+                    f"({in_flight.views_delivered or 0}/{in_flight.views_target or 0} views). "
+                    f"Refusing to double-activate. Manual review required."
+                ),
+                "code": "campaign_in_flight",
+                "in_flight_campaign_id": in_flight.id,
+            }
 
     # Pay commissions based on the buyer's sponsor chain
     _pay_direct_sponsor(db, buyer, price, package_tier)

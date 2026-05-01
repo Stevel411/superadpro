@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
@@ -22,9 +22,37 @@ export default function ActivateTier() {
   const { user } = useAuth();
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState('');
+  // inFlight: { views_delivered, views_target } if user has an active
+  // campaign at this tier whose views haven't been fully delivered yet.
+  // null = no in-flight campaign, can purchase. Loaded on mount.
+  const [inFlight, setInFlight] = useState(null);
+  const [stateLoaded, setStateLoaded] = useState(false);
 
   const n = parseInt(tierId);
   const tier = TIERS[n];
+
+  useEffect(function() {
+    var cancelled = false;
+    fetch('/api/campaign-tiers', { credentials: 'include' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        if (cancelled || !data || !data.tiers) {
+          if (!cancelled) setStateLoaded(true);
+          return;
+        }
+        var entry = data.tiers.find(function(t) { return t.tier === n; });
+        if (entry && entry.campaign_progress) {
+          var p = entry.campaign_progress;
+          // Only treat as in-flight if there's actually a target and not all delivered
+          if (p.views_target > 0 && p.views_delivered < p.views_target) {
+            setInFlight(p);
+          }
+        }
+        setStateLoaded(true);
+      })
+      .catch(function() { if (!cancelled) setStateLoaded(true); });
+    return function() { cancelled = true; };
+  }, [n]);
 
   if (!t) return <AppLayout title={t('campaignTiers.campaignTierTitle')}><div style={{textAlign:'center',padding:80,color:'var(--sap-text-muted)'}}>{t('campaignTiers.invalidTier')}</div></AppLayout>;
 
@@ -78,41 +106,113 @@ export default function ActivateTier() {
           <div style={{padding:'12px 16px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:12,fontSize:13,fontWeight:600,color:'var(--sap-red)'}}>{error}</div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          {/* NOWPayments primary — accepts 350+ cryptos including USDT-TRC20, easiest for new users */}
-          <button onClick={handleNowPayments} disabled={paying} style={{
-            display:'flex',alignItems:'center',justifyContent:'center',gap:12,
-            width:'100%', padding:'22px 20px', borderRadius:14,
-            fontSize:18, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
-            fontFamily:'inherit',
-            background: paying
-              ? 'linear-gradient(135deg,#a78bfa,#8b5cf6,#7c3aed)'
-              : 'linear-gradient(135deg,#8b5cf6,#7c3aed,#6d28d9)',
-            color:'#fff',
-            boxShadow: paying ? '0 4px 0 #5b21b6,0 6px 20px rgba(124,58,237,.2)' : '0 4px 0 #5b21b6,0 6px 24px rgba(124,58,237,.4)',
-            letterSpacing:0.3, transition:'all 0.2s',
-            opacity: paying ? 0.85 : 1,
-          }}>
-            {paying ? (
-              <>
-                <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(255,255,255,.5)', borderTopColor:'#fff', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
-                <span>Creating your secure invoice…</span>
-              </>
-            ) : (
-              <>
-                <Globe size={22} />
-                <span>{`\uD83C\uDF10 Pay $${tier.price.toLocaleString()}`}</span>
-              </>
-            )}
-          </button>
-          <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
-
-          <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
-            {"\uD83D\uDD12"} Secure checkout · 350+ cryptos accepted (USDT, BTC, ETH, more)
-            <br/>
-            {"\u26A1"} Instant activation once payment confirms
+        {!stateLoaded ? (
+          // Brief loading skeleton while we check campaign state. Avoids flash
+          // of the buy button before we know whether the user already has an
+          // in-flight campaign at this tier.
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:30, marginBottom:20, color:'var(--sap-text-muted)', fontSize:14 }}>
+            <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(0,0,0,.15)', borderTopColor:'var(--sap-accent)', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite', marginRight:10 }}/>
+            Checking your campaign status…
+            <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
           </div>
-        </div>
+        ) : inFlight ? (
+          // ── In-flight campaign at this tier — repurchase blocked ──
+          // The member already paid for this tier and views are still being
+          // delivered. Showing them progress (rather than a flat refusal)
+          // gives them a clear sense of how close they are to being able to
+          // purchase again.
+          <div style={{ marginBottom:20 }}>
+            <div style={{
+              padding:'24px 24px 22px',
+              background:'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
+              borderRadius:14,
+              color:'#fff',
+              boxShadow:'0 8px 32px rgba(30,58,138,0.35)',
+              marginBottom:14,
+            }}>
+              <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.55)', marginBottom:6 }}>
+                Already Active · Tier {n}
+              </div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#fff', marginBottom:12, lineHeight:1.3 }}>
+                Your {tier.name} campaign is delivering views
+              </div>
+
+              {/* Progress bar */}
+              <div style={{ marginBottom:10 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:6 }}>
+                  <span style={{ fontSize:13, color:'rgba(255,255,255,0.85)', fontWeight:600 }}>
+                    {(inFlight.views_delivered || 0).toLocaleString()} / {(inFlight.views_target || 0).toLocaleString()} views delivered
+                  </span>
+                  <span style={{ fontSize:14, fontWeight:800, color:'var(--sap-amber-bright)' }}>
+                    {Math.round((inFlight.views_delivered / inFlight.views_target) * 100)}%
+                  </span>
+                </div>
+                <div style={{ height:8, background:'rgba(255,255,255,0.12)', borderRadius:99, overflow:'hidden' }}>
+                  <div style={{
+                    height:'100%',
+                    width: Math.min(100, Math.round((inFlight.views_delivered / inFlight.views_target) * 100)) + '%',
+                    background:'linear-gradient(90deg, var(--sap-amber-bright), #fbbf24)',
+                    transition:'width 0.4s ease',
+                  }}/>
+                </div>
+              </div>
+
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.75)', lineHeight:1.6, marginTop:14 }}>
+                Once your campaign delivers all {(inFlight.views_target || 0).toLocaleString()} views, you'll be able to purchase Tier {n} again.
+              </div>
+            </div>
+
+            <Link to="/my-campaigns" style={{
+              display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+              width:'100%', padding:'14px 18px', borderRadius:12,
+              fontSize:14, fontWeight:700, textDecoration:'none',
+              background:'#fff', color:'var(--sap-accent)',
+              border:'1.5px solid #e2e8f0',
+              transition:'all 0.2s',
+            }}
+              onMouseOver={function(e){ e.currentTarget.style.borderColor='var(--sap-accent)'; }}
+              onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; }}
+            >
+              View My Campaigns →
+            </Link>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+            {/* NOWPayments primary — accepts 350+ cryptos including USDT-TRC20, easiest for new users */}
+            <button onClick={handleNowPayments} disabled={paying} style={{
+              display:'flex',alignItems:'center',justifyContent:'center',gap:12,
+              width:'100%', padding:'22px 20px', borderRadius:14,
+              fontSize:18, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
+              fontFamily:'inherit',
+              background: paying
+                ? 'linear-gradient(135deg,#a78bfa,#8b5cf6,#7c3aed)'
+                : 'linear-gradient(135deg,#8b5cf6,#7c3aed,#6d28d9)',
+              color:'#fff',
+              boxShadow: paying ? '0 4px 0 #5b21b6,0 6px 20px rgba(124,58,237,.2)' : '0 4px 0 #5b21b6,0 6px 24px rgba(124,58,237,.4)',
+              letterSpacing:0.3, transition:'all 0.2s',
+              opacity: paying ? 0.85 : 1,
+            }}>
+              {paying ? (
+                <>
+                  <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(255,255,255,.5)', borderTopColor:'#fff', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
+                  <span>Creating your secure invoice…</span>
+                </>
+              ) : (
+                <>
+                  <Globe size={22} />
+                  <span>{`\uD83C\uDF10 Pay $${tier.price.toLocaleString()}`}</span>
+                </>
+              )}
+            </button>
+            <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
+
+            <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
+              {"\uD83D\uDD12"} Secure checkout · 350+ cryptos accepted (USDT, BTC, ETH, more)
+              <br/>
+              {"\u26A1"} Instant activation once payment confirms
+            </div>
+          </div>
+        )}
 
         <div style={{padding:'10px 14px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
           <strong>{t('common.allSalesFinal')}</strong> Campaign tier purchases are non-refundable. Commissions are paid instantly upon purchase and cannot be reversed.
