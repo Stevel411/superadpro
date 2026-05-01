@@ -334,9 +334,30 @@ class Withdrawal(Base):
     amount_usdt     = Column(Money)
     wallet_address  = Column(String)
     tx_hash         = Column(String, nullable=True)
-    status          = Column(String, default="pending")  # pending/processing/paid/failed
+    # status: pending / processing / paid / failed / failed_permanent / failed_refunded
+    #   pending           — queued, will be picked up by the retry cron
+    #   processing        — RPC call in flight
+    #   paid              — on-chain success, tx_hash set
+    #   failed            — legacy/manual marker (not auto-retried)
+    #   failed_permanent  — exceeded max retries OR structurally blocked; refunded if grid-blocked
+    #   failed_refunded   — admin manually refunded a stuck withdrawal
+    status          = Column(String, default="pending")
     requested_at    = Column(DateTime, default=datetime.utcnow)
     processed_at    = Column(DateTime, nullable=True)
+    # Which balance column the deduction came from — required for safe refunds.
+    # Without this, admin refund logic has to guess and risks silent corruption.
+    wallet_type     = Column(String, default="affiliate")  # affiliate | campaign
+    # Retry tracking — populated by /cron/process-pending-withdrawals
+    attempts          = Column(Integer, default=0)
+    last_attempted_at = Column(DateTime, nullable=True)
+    last_error        = Column(String, nullable=True)
+    # Idempotency — client sends a UUID per Withdraw button click. Unique
+    # index on the column means a double-submit (double-click, retry on flaky
+    # 4G) can't spawn a second on-chain transfer; the second insert collides
+    # and we return the original attempt's stored result instead.
+    idempotency_key   = Column(String, nullable=True, unique=True, index=True)
+    # Free-form admin notes (used by the refund flow to record why/who).
+    notes             = Column(Text, nullable=True)
 
 
 class PasswordResetToken(Base):
@@ -1508,6 +1529,32 @@ def run_migrations():
         # Make sure existing rows are flagged complete (handles the case
         # where the column already existed but with NULL defaults)
         "UPDATE video_watches SET is_complete = TRUE WHERE is_complete IS NULL",
+        # ── 2 May 2026: Withdrawal hardening (pre-launch blocker) ──
+        # Six gaps closed in one migration — see app/database.py Withdrawal
+        # model for full rationale on each column.
+        #   wallet_type      — fixes admin-refund silent corruption risk
+        #   attempts/last_*  — retry tracking; without these, cron loops forever
+        #   idempotency_key  — double-spend guard (double-click / 4G retry)
+        #   notes            — admin refund audit trail (was already referenced
+        #                      via hasattr(); making it real)
+        "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS wallet_type VARCHAR DEFAULT 'affiliate'",
+        # Backfill: any existing rows pre-migration came from the affiliate
+        # wallet (campaign-wallet withdrawals didn't ship with wallet_type
+        # tagging). NULL→'affiliate' keeps refund logic safe; the 13 current
+        # users haven't withdrawn yet so this is mostly defensive.
+        "UPDATE withdrawals SET wallet_type = 'affiliate' WHERE wallet_type IS NULL",
+        "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS attempts INTEGER DEFAULT 0",
+        "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS last_attempted_at TIMESTAMP",
+        "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS last_error VARCHAR",
+        "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS idempotency_key VARCHAR",
+        # Unique index on idempotency_key — two clients submitting the same
+        # UUID get a constraint violation on the second insert, which the
+        # request_withdrawal handler catches and converts into "return the
+        # first attempt's stored result". The WHERE clause skips the legacy
+        # rows that have NULL keys (Postgres unique allows multiple NULLs
+        # anyway, but being explicit makes intent obvious).
+        "CREATE UNIQUE INDEX IF NOT EXISTS ix_withdrawals_idempotency_key ON withdrawals (idempotency_key) WHERE idempotency_key IS NOT NULL",
+        "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS notes TEXT",
     ]
     results = []
     with engine.connect() as conn:
