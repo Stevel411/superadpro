@@ -8891,6 +8891,8 @@ def compute_descendant_counts(db: Session, user_id: int) -> dict:
     if cached is not None:
         return cached
 
+    from sqlalchemy import text
+
     # Recursive CTE: start with direct referrals of user_id, then iteratively
     # add descendants of each found user until no new rows. PostgreSQL
     # handles the recursion + de-dup natively.
