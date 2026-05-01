@@ -494,14 +494,26 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   return (
     <div className="sp-canvas-area" style={{
       flex: 1,
+      minWidth: 0, // critical — allow flex parent to shrink below children's intrinsic size so overflow:auto can take effect
       background: '#f1f5f9',
       backgroundImage: 'radial-gradient(ellipse at 30% 20%, rgba(14,165,233,0.04), transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.03), transparent 50%)',
       overflow: 'auto',
       padding: 28,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'flex-start',
+      // No justify-content / align-items here: those collapse overflow scroll
+      // when the centred child is wider than the container. We use the inner
+      // "scroll content" wrapper below to centre via auto-margin instead, so
+      // the canvas is centred when there's room but accessible via horizontal
+      // scroll when the viewport is too narrow to fit the full 1100px width.
     }}>
+      <div style={{
+        // This inner wrapper is the actual scroll content. Width must be at
+        // least canvas-width + padding so the parent's overflow-auto kicks in.
+        // The canvas centres inside it via auto-margins.
+        minWidth: CANVAS_WIDTH,
+        margin: '0 auto',
+        display: 'flex',
+        justifyContent: 'center',
+      }}>
       <div
         ref={canvasRef}
         className="sp-canvas"
@@ -602,6 +614,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             ))}
           </div>
         ))}
+      </div>
       </div>
 
       <style>{`
