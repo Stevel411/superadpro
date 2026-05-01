@@ -7694,6 +7694,146 @@ def admin_diagnostic_recompute_wallet(
     }
 
 
+@app.post("/admin/diagnostic/manual-grid-activation/{user_id}/{package_tier}")
+def admin_diagnostic_manual_grid_activation(
+    user_id: int,
+    package_tier: int,
+    secret: str = "",
+    note: str = "",
+    db: Session = Depends(get_db),
+):
+    """Manual one-time grid tier activation for cases where a user paid via a
+    path that doesn't auto-activate (e.g. legacy direct-USDT to treasury where
+    the polling cron wasn't catching their order). Calls process_tier_purchase
+    — the same function used in the normal IPN happy path — so commissions
+    cascade to upline identically.
+
+    Idempotency guards:
+      - Refuses if user already has an active campaign at this tier (so we
+        can't double-activate by accident).
+      - Refuses if a manual-recovery Payment row already exists for this
+        user_id + tier (so re-running the endpoint is a no-op).
+
+    Not exposed in the UI — call directly with the diagnostic secret.
+    """
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+
+    if package_tier not in (1, 2, 3, 4, 5, 6, 7, 8):
+        return JSONResponse({"error": "Invalid tier (must be 1-8)"}, status_code=400)
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+
+    from .database import VideoCampaign as _VC, CryptoPaymentOrder as _CPO
+    from .grid import process_tier_purchase as _ptp, GRID_PACKAGES as _GP
+    from datetime import datetime as _dt
+    import uuid as _uuid
+
+    # Idempotency guard 1: refuse if user already has an active campaign at this tier
+    existing_campaign = db.query(_VC).filter(
+        _VC.user_id == user_id,
+        _VC.campaign_tier == package_tier,
+        _VC.status == "active",
+        _VC.is_completed == False,
+    ).first()
+    if existing_campaign:
+        return JSONResponse({
+            "error": "User already has an active campaign at this tier — refusing to double-activate",
+            "existing_campaign_id": existing_campaign.id,
+        }, status_code=409)
+
+    # Idempotency guard 2: refuse if a manual-recovery Payment for this user/tier already exists
+    recovery_marker = f"manual_recovery_user{user_id}_grid{package_tier}_"
+    existing_recovery = db.query(Payment).filter(
+        Payment.from_user_id == user_id,
+        Payment.tx_hash.like(recovery_marker + "%"),
+        Payment.status == "confirmed",
+    ).first()
+    if existing_recovery:
+        return JSONResponse({
+            "error": "Manual recovery already performed for this user/tier — refusing to repeat",
+            "existing_payment_id": existing_recovery.id,
+            "existing_tx_hash": existing_recovery.tx_hash,
+        }, status_code=409)
+
+    price = _GP.get(package_tier)
+    if not price:
+        return JSONResponse({"error": "Invalid tier price lookup"}, status_code=400)
+
+    # Record the recovery as a Payment row so it appears in audits and the
+    # tx_hash format makes it visually distinguishable from real payments.
+    recovery_tx_hash = f"manual_recovery_user{user_id}_grid{package_tier}_{int(_dt.utcnow().timestamp())}"
+    payment = Payment(
+        from_user_id=user_id,
+        to_user_id=None,
+        amount_usdt=price,
+        payment_type=f"manual_recovery_grid_{package_tier}",
+        tx_hash=recovery_tx_hash,
+        status="confirmed",
+    )
+    db.add(payment)
+    db.flush()
+
+    # Mark any pending CryptoPaymentOrder for this user/tier as confirmed for audit cleanliness
+    pending_orders_marked = 0
+    try:
+        pending = db.query(_CPO).filter(
+            _CPO.user_id == user_id,
+            _CPO.product_key == f"grid_{package_tier}",
+            _CPO.status == "pending",
+        ).all()
+        for order in pending:
+            order.status = "confirmed"
+            order.confirmed_at = _dt.utcnow()
+            order.tx_hash = recovery_tx_hash
+            pending_orders_marked += 1
+    except Exception as _e:
+        logger.warning(f"manual-grid-activation could not mark CryptoPaymentOrder: {_e}")
+
+    # Run the actual activation — same path as a normal payment would take.
+    # This pays direct sponsor commission, walks the uni-level chain, fills
+    # spillover into upline grids, and records platform fee.
+    try:
+        result = _ptp(db=db, buyer_id=user_id, package_tier=package_tier)
+    except Exception as _e:
+        # If the activation throws, roll back so we don't leave the Payment
+        # row orphaned. The caller will see the error and can investigate.
+        db.rollback()
+        logger.error(f"manual-grid-activation failed for user {user_id} tier {package_tier}: {_e}")
+        return JSONResponse({"error": f"Activation failed: {_e}"}, status_code=500)
+
+    if not result.get("success"):
+        db.rollback()
+        return JSONResponse({
+            "error": "process_tier_purchase returned non-success",
+            "detail": result.get("error"),
+        }, status_code=500)
+
+    # Log the manual recovery for audit visibility
+    logger.warning(
+        f"MANUAL_GRID_ACTIVATION user={user_id} ({target.username}) "
+        f"tier={package_tier} price=${price} tx={recovery_tx_hash} "
+        f"note={note or 'none'}"
+    )
+
+    db.commit()
+
+    return {
+        "status": "activated",
+        "user_id": user_id,
+        "username": target.username,
+        "package_tier": package_tier,
+        "price_usd": float(price),
+        "recovery_tx_hash": recovery_tx_hash,
+        "payment_id": payment.id,
+        "crypto_payment_orders_marked_confirmed": pending_orders_marked,
+        "process_tier_purchase_result": result,
+        "note": note or None,
+    }
+
+
 @app.post("/admin/api/nowpayments-order/{order_id}/recover")
 async def admin_api_recover_nowpayments_order(
     order_id: int,
