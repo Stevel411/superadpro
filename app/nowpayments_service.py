@@ -46,12 +46,12 @@ PRODUCT_CATALOG = {
     # Grid / Campaign Tiers
     "grid_1":               {"price": Decimal("20.00"),   "type": "grid", "desc": "Campaign Tier 1 — Starter"},
     "grid_2":               {"price": Decimal("50.00"),   "type": "grid", "desc": "Campaign Tier 2 — Builder"},
-    "grid_3":               {"price": Decimal("100.00"),  "type": "grid", "desc": "Campaign Tier 3 — Accelerator"},
-    "grid_4":               {"price": Decimal("200.00"),  "type": "grid", "desc": "Campaign Tier 4 — Growth"},
-    "grid_5":               {"price": Decimal("400.00"),  "type": "grid", "desc": "Campaign Tier 5 — Momentum"},
-    "grid_6":               {"price": Decimal("600.00"),  "type": "grid", "desc": "Campaign Tier 6 — Velocity"},
-    "grid_7":               {"price": Decimal("800.00"),  "type": "grid", "desc": "Campaign Tier 7 — Impact"},
-    "grid_8":               {"price": Decimal("1000.00"), "type": "grid", "desc": "Campaign Tier 8 — Summit"},
+    "grid_3":               {"price": Decimal("100.00"),  "type": "grid", "desc": "Campaign Tier 3 — Pro"},
+    "grid_4":               {"price": Decimal("200.00"),  "type": "grid", "desc": "Campaign Tier 4 — Advanced"},
+    "grid_5":               {"price": Decimal("400.00"),  "type": "grid", "desc": "Campaign Tier 5 — Premium"},
+    "grid_6":               {"price": Decimal("600.00"),  "type": "grid", "desc": "Campaign Tier 6 — Elite"},
+    "grid_7":               {"price": Decimal("800.00"),  "type": "grid", "desc": "Campaign Tier 7 — Master"},
+    "grid_8":               {"price": Decimal("1000.00"), "type": "grid", "desc": "Campaign Tier 8 — Champion"},
     # Email Boost Packs
     "email_boost_1000":     {"price": Decimal("5.00"),  "type": "email_boost", "desc": "Email Boost — 1,000 Credits"},
     "email_boost_5000":     {"price": Decimal("19.00"), "type": "email_boost", "desc": "Email Boost — 5,000 Credits"},
