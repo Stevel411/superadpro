@@ -603,6 +603,13 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     # Course stats
     course_sale_count = user.course_sale_count or 0
 
+    # ── Live earnings + descendant counts from the ledger ──────────────
+    # Replaces the legacy denormalised counters (user.total_earned,
+    # user.grid_earnings, user.course_earnings, user.personal_referrals)
+    # which drift over time. See compute_user_earnings() / compute_descendant_counts().
+    _earn = compute_user_earnings(db, user.id)
+    _desc = compute_descendant_counts(db, user.id)
+
     return {
         "request":           request,
         "user":              user,
@@ -612,25 +619,25 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "active_since":      user.created_at.strftime("%b %Y") if getattr(user, "created_at", None) else None,
         "balance":           float(user.balance or 0),
         "campaign_balance":  float(user.campaign_balance or 0),
-        "total_earned":      float(user.total_earned or 0),
-        "grid_earnings":     float(user.grid_earnings or 0),
+        "total_earned":      _earn["total_earned"],
+        "grid_earnings":     _earn["grid_earnings"],
         "level_earnings":    float(user.level_earnings or 0),
         "upline_earnings":   float(user.upline_earnings or 0),
         "sponsor_earnings":  float(user.upline_earnings or 0),
-        "course_earnings":   float(user.course_earnings or 0),
+        "course_earnings":   _earn["course_earnings"],
         "membership_earned": membership_earned,
         "boost_earned":      boost_earned,
         "grid_earned":       grid_earned,
-        "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.commission_type.in_(["matrix_level", "matrix_completion"]), Commission.amount_usdt > 0).scalar() or 0),
-        "personal_referrals":user.personal_referrals or 0,
-        "direct_referrals_count": db.query(User).filter(User.sponsor_id == user.id).count(),
+        "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.status == 'paid', Commission.commission_type.in_(["matrix_level", "matrix_completion"]), Commission.amount_usdt > 0).scalar() or 0),
+        "personal_referrals": _earn["personal_referrals"],
+        "direct_referrals_count": _earn["personal_referrals"],
         # Replaces the legacy total_team counter. Computed live via recursive
         # CTE walking the full descendant tree. Counter retired as it drifted
         # over time due to scattered += 1 increments without matching decrements.
         # See compute_descendant_counts() for details.
-        "total_team":        compute_descendant_counts(db, user.id)["total"],
-        "network_active":    compute_descendant_counts(db, user.id)["active"],
-        "network_inactive":  compute_descendant_counts(db, user.id)["inactive"],
+        "total_team":        _desc["total"],
+        "network_active":    _desc["active"],
+        "network_inactive":  _desc["inactive"],
         # ── Command Centre Layer 1 stats (Apr 2026) ──────────────────────
         # Three-bucket breakdown of direct referrals so members can see who's
         # actually paying, who lapsed (re-activation candidates), and who
@@ -731,7 +738,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
     goals = []
     opportunities = []
 
-    refs = user.personal_referrals or 0
+    refs = db.query(User).filter(User.sponsor_id == user.id).count()
     balance = float(user.balance or 0)
     campaign_balance = float(user.campaign_balance or 0)
 
@@ -1990,6 +1997,9 @@ def api_me(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    # Live earnings + descendant counts — see compute_user_earnings()
+    _earn = compute_user_earnings(db, user.id)
+    _desc = compute_descendant_counts(db, user.id)
     return {
         "id": user.id,
         "username": user.username,
@@ -2001,16 +2011,16 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "membership_tier": user.membership_tier or "basic",
         "membership_billing": user.membership_billing or "monthly",
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
-        "total_earned": float(user.total_earned or 0),
+        "total_earned": _earn["total_earned"],
         "total_withdrawn": compute_total_withdrawn(db, user.id),
-        "grid_earnings": float(user.grid_earnings or 0),
+        "grid_earnings": _earn["grid_earnings"],
         "level_earnings": float(user.level_earnings or 0),
         "upline_earnings": float(user.upline_earnings or 0),
-        "course_earnings": float(user.course_earnings or 0),
+        "course_earnings": _earn["course_earnings"],
         "marketplace_earnings": float(user.marketplace_earnings or 0),
         "bonus_earnings": float(user.bonus_earnings or 0),
-        "personal_referrals": user.personal_referrals or 0,
-        "total_team": user.total_team or 0,
+        "personal_referrals": _earn["personal_referrals"],
+        "total_team": _desc["total"],
         "sponsor_id": user.sponsor_id,
         "sponsor_username": (db.query(User).filter(User.id == user.sponsor_id).first().username if user.sponsor_id else None),
         "created_at": user.created_at.isoformat() if user.created_at else None,
@@ -3454,12 +3464,14 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
 
         m_grid = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
             Commission.to_user_id == user.id,
+            Commission.status == 'paid',
             Commission.commission_type.in_(['direct_sponsor', 'uni_level', 'grid_completion_bonus']),
             Commission.paid_at >= month_start, Commission.paid_at < month_end
         ).scalar() or 0)
 
         m_memb = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
             Commission.to_user_id == user.id,
+            Commission.status == 'paid',
             Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor']),
             Commission.paid_at >= month_start, Commission.paid_at < month_end
         ).scalar() or 0)
@@ -3471,6 +3483,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
 
         m_nexus = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
             Commission.to_user_id == user.id,
+            Commission.status == 'paid',
             Commission.commission_type.in_(['matrix_level', 'matrix_completion', 'nexus_sponsor', 'nexus_level', 'nexus_completion']),
             Commission.paid_at >= month_start, Commission.paid_at < month_end
         ).scalar() or 0)
@@ -3671,12 +3684,12 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         "recent_commissions": recent[:15],
         "totals": {
             "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
-            "total_earned": float(user.total_earned or 0),
+            "total_earned": round(grid_total + membership_total + course_total + nexus_total, 2),
             "grid_earnings": round(grid_total, 2),
             "nexus_earnings": round(nexus_total, 2),
             "course_earnings": round(course_total, 2),
             "membership_earnings": round(membership_total, 2),
-            "team_size": user.total_team or 0,
+            "team_size": compute_descendant_counts(db, user.id)["total"],
         }
     }
 @app.get("/launch-wizard")
@@ -4067,17 +4080,19 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
     from sqlalchemy import func as _func
     matrix_earnings = db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user.id,
+        Commission.status == 'paid',
         Commission.commission_type.in_(["matrix_level", "matrix_completion"]),
         Commission.amount_usdt > 0,
     ).scalar()
 
+    _earn = compute_user_earnings(db, user.id)
     return {
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
-        "total_earned": float(user.total_earned or 0),
+        "total_earned": _earn["total_earned"],
         "total_withdrawn": compute_total_withdrawn(db, user.id),
-        "grid_earnings": float(user.grid_earnings or 0),
+        "grid_earnings": _earn["grid_earnings"],
         "level_earnings": float(user.level_earnings or 0),
-        "course_earnings": float(user.course_earnings or 0),
+        "course_earnings": _earn["course_earnings"],
         "marketplace_earnings": float(user.marketplace_earnings or 0),
         "creative_studio_earnings": float(matrix_earnings or 0),
         "membership_tier": user.membership_tier or "basic",
@@ -5063,17 +5078,19 @@ def _build_copilot_context(user, db) -> dict:
     if active_grids:
         closest_grid = max(active_grids, key=lambda g: g.get("pct", 0))
 
+    _earn = compute_user_earnings(db, user.id)
+    _desc = compute_descendant_counts(db, user.id)
     return {
         "name": user.first_name or user.username,
         "tier": user.membership_tier or "basic",
-        "total_earned": float(user.total_earned or 0),
+        "total_earned": _earn["total_earned"],
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
-        "total_team": user.total_team or 0,
-        "personal_referrals": user.personal_referrals or 0,
-        "grid_earnings": float(user.grid_earnings or 0),
+        "total_team": _desc["total"],
+        "personal_referrals": _earn["personal_referrals"],
+        "grid_earnings": _earn["grid_earnings"],
         "bonus_earnings": float(user.bonus_earnings or 0),
         "level_earnings": float(user.level_earnings or 0),
-        "course_earnings": float(user.course_earnings or 0),
+        "course_earnings": _earn["course_earnings"],
         "active_grids": len(active_grids),
         "completions": grid_stats.get("completed_advances", 0),
         "closest_grid": closest_grid,
@@ -9011,6 +9028,74 @@ def compute_total_withdrawn(db: Session, user_id: int) -> float:
     return result
 
 
+def compute_user_earnings(db: Session, user_id: int) -> dict:
+    """
+    Compute a user's lifetime earnings live from the ledger, broken down by
+    income stream. Returns:
+        {
+          "total_earned": float,       # sum of all paid commissions + course commissions
+          "grid_earnings": float,      # direct_sponsor + uni_level + grid_completion_bonus
+          "course_earnings": float,    # CourseCommission table
+          "nexus_earnings": float,     # matrix_*, nexus_*
+          "membership_earnings": float, # membership / membership_renewal / membership_sponsor
+          "personal_referrals": int,   # count of users with sponsor_id = me
+        }
+
+    Replaces direct reads of the legacy user.total_earned / user.grid_earnings
+    / user.course_earnings / user.personal_referrals denormalised counters.
+    Same drift pattern as descendant counts and total_withdrawn — counters
+    that get += 1'd at scattered call sites without matching decrements on
+    reversal/deletion will silently grow stale, then surface to members as
+    "the income stream cards don't sum to my Total Earned" type bugs.
+
+    All sums filter on Commission.status == 'paid' so reversed commissions
+    don't inflate the totals.
+
+    Cached 60s per-user.
+    """
+    cache_key = f"earnings:{user_id}"
+    cached = cache_get(cache_key)
+    if cached is not None:
+        return cached
+
+    grid = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user_id,
+        Commission.status == 'paid',
+        Commission.commission_type.in_(['direct_sponsor', 'uni_level', 'grid_completion_bonus'])
+    ).scalar() or 0)
+
+    membership = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user_id,
+        Commission.status == 'paid',
+        Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor'])
+    ).scalar() or 0)
+
+    nexus = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user_id,
+        Commission.status == 'paid',
+        Commission.commission_type.in_(['matrix_level', 'matrix_completion', 'nexus_sponsor', 'nexus_level', 'nexus_completion'])
+    ).scalar() or 0)
+
+    course = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
+        CourseCommission.earner_id == user_id,
+    ).scalar() or 0)
+
+    direct_refs = db.query(User).filter(User.sponsor_id == user_id).count()
+
+    total = grid + membership + nexus + course
+
+    result = {
+        "total_earned": round(total, 2),
+        "grid_earnings": round(grid, 2),
+        "course_earnings": round(course, 2),
+        "nexus_earnings": round(nexus, 2),
+        "membership_earnings": round(membership, 2),
+        "personal_referrals": direct_refs,
+    }
+    cache_set(cache_key, result, ttl=60)
+    return result
+
+
 def get_user_highest_tier(db: Session, user_id: int) -> int:
     """Return the user's highest active grid tier (0 if none). Admin = all tiers."""
     user = db.query(User).filter(User.id == user_id).first()
@@ -11773,8 +11858,10 @@ async def gdpr_delete_data(request: Request, user: User = Depends(get_current_us
 def check_achievements(db: Session, user: User):
     """Check and award any new badges the user has earned."""
     existing = {a.badge_id for a in db.query(Achievement).filter(Achievement.user_id == user.id).all()}
-    earned = float(user.total_earned or 0)
-    team = user.total_team or 0
+    _earn = compute_user_earnings(db, user.id)
+    _desc = compute_descendant_counts(db, user.id)
+    earned = _earn["total_earned"]
+    team = _desc["total"]
     new_badges = []
 
     checks = {
@@ -13479,17 +13566,18 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
     boost_earned = sum(float(c.amount_usdt or 0) for c in general_comms if "boost" == (c.commission_type or "").lower())
     course_earned = sum(float(c.amount or 0) for c in course_comms)
     course_stats = get_user_course_stats(db, user.id)
+    _earn = compute_user_earnings(db, user.id)
 
     stats = {
-        "total_earned": float(user.total_earned or 0),
+        "total_earned": _earn["total_earned"],
         "membership_earned": membership_earned,
-        "grid_earned": float(user.grid_earnings or 0),
+        "grid_earned": _earn["grid_earnings"],
         "boost_earned": boost_earned,
-        "course_earned": float(user.course_earnings or 0),
+        "course_earned": _earn["course_earnings"],
         "course_sale_count": course_stats.get("course_sale_count", 0),
         "direct_course_sales": course_stats.get("direct_commissions", 0),
         "passup_course_sales": course_stats.get("passup_commissions", 0),
-        "personal_referrals": user.personal_referrals or 0,
+        "personal_referrals": _earn["personal_referrals"],
     }
 
     return JSONResponse({"flows": flows, "stats": stats})
@@ -18905,10 +18993,12 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
     referrals = db.query(User).filter(User.sponsor_id == user.id).all()
     # Get LinkHub views
     lh_profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    _earn = compute_user_earnings(db, user.id)
+    _desc = compute_descendant_counts(db, user.id)
     return {
-        "personal_referrals": user.personal_referrals or 0,
-        "total_team": user.total_team or 0,
-        "total_earned": float(user.total_earned or 0),
+        "personal_referrals": _earn["personal_referrals"],
+        "total_team": _desc["total"],
+        "total_earned": _earn["total_earned"],
         "linkhub_views": lh_profile.total_views if lh_profile else 0,
         "referrals": [{
             "id": r.id, "username": r.username, "first_name": r.first_name,
@@ -19301,87 +19391,6 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
         import traceback
         traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=500)
-@app.get("/api/analytics")
-def api_analytics_data(request: Request, user: User = Depends(get_current_user),
-                       db: Session = Depends(get_db)):
-    """JSON analytics data. Cached 120s per user."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-
-    # Check cache first
-    cache_key = f"analytics:{user.id}:main"
-    cached = cache_get(cache_key)
-    if cached:
-        return cached
-
-    try:
-        campaigns = db.query(VideoCampaign).filter(VideoCampaign.user_id == user.id).all()
-        lh = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
-        total_views = (lh.total_views or 0) if lh else 0
-        total_clicks = 0
-        if lh:
-            links = db.query(LinkHubLink).filter(LinkHubLink.profile_id == lh.id).all()
-            total_clicks = sum(l.click_count or 0 for l in links)
-
-        # Commission breakdown
-        commissions = db.query(Commission).filter(Commission.to_user_id == user.id).all()
-        total_commissions = len(commissions)
-        commission_by_type = {}
-        for c in commissions:
-            t = c.commission_type or 'other'
-            commission_by_type[t] = commission_by_type.get(t, 0) + float(c.amount_usdt or 0)
-
-        # Network stats
-        direct_refs = db.query(User).filter(User.sponsor_id == user.id).count()
-        active_refs = db.query(User).filter(User.sponsor_id == user.id, User.is_active == True).count()
-
-        # Watch stats
-        watches = db.query(VideoWatch).filter(VideoWatch.user_id == user.id).count()
-        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
-
-        # Campaign view completion percentages
-        campaign_data = []
-        for c in campaigns:
-            delivered = c.views_delivered or 0
-            target = c.views_target or 1
-            pct = min(100, round((delivered / target) * 100))
-            campaign_data.append({
-                "id": c.id, "title": c.title, "platform": c.platform or "youtube",
-                "category": c.category or "General", "status": c.status or "active",
-                "views_delivered": delivered, "views_target": target,
-                "completion_pct": pct,
-                "tier": c.campaign_tier or c.owner_tier or 1,
-            })
-
-        result = {
-            "total_views": total_views + sum(c.views_delivered or 0 for c in campaigns),
-            "total_clicks": total_clicks,
-            "conversions": user.personal_referrals or 0,
-            "revenue": float(user.total_earned or 0),
-            "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
-            "membership_tier": user.membership_tier or "basic",
-            "grid_earnings": float(user.grid_earnings or 0),
-            "course_earnings": float(user.course_earnings or 0),
-            "marketplace_earnings": float(user.marketplace_earnings or 0),
-            "total_commissions": total_commissions,
-            "commission_by_type": commission_by_type,
-            "direct_referrals": direct_refs,
-            "active_referrals": active_refs,
-            "total_team": user.total_team or 0,
-            "total_withdrawn": compute_total_withdrawn(db, user.id),
-            "videos_watched": watches,
-            "watch_streak": getattr(quota, 'streak_days', 0) or 0 if quota else 0,
-            "watch_quota_met": bool(quota and getattr(quota, 'commissions_paused', False) == False) if quota else False,
-            "campaigns": campaign_data,
-        }
-
-        # Cache for 2 minutes
-        cache_set(cache_key, result, ttl=120)
-
-        return result
-    except Exception as e:
-        import traceback; traceback.print_exc()
-        return JSONResponse({"error": str(e)}, status_code=500)
 @app.get("/api/achievements")
 def api_achievements_data(request: Request, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
@@ -19610,15 +19619,17 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
         Commission.commission_type.ilike("%membership%"),
     ).scalar() or 0)
 
+    _earn = compute_user_earnings(db, user.id)
+    _desc = compute_descendant_counts(db, user.id)
     return {
         "username": user.username,
-        "personal_referrals": user.personal_referrals or 0,
-        "total_team": user.total_team or 0,
+        "personal_referrals": _earn["personal_referrals"],
+        "total_team": _desc["total"],
         "active_this_month": active_this_month,
-        "total_earned": float(user.total_earned or 0),
+        "total_earned": _earn["total_earned"],
         "this_month_total": this_month_total,
-        "course_earnings": float(user.course_earnings or 0),
-        "grid_earnings": float(user.grid_earnings or 0),
+        "course_earnings": _earn["course_earnings"],
+        "grid_earnings": _earn["grid_earnings"],
         "membership_earned": membership_earned,
         "nexus_earnings": nexus_earnings,
         "referrals": [{

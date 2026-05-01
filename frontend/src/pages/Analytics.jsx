@@ -87,7 +87,7 @@ export default function AnalyticsPage(){
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:12}}>
         <GC gradient="linear-gradient(135deg,#0f766e,#14b8a6)" label={t('analytics.availableBalance')} value={'$'+(tot.balance||0).toFixed(2)} sub={t('analytics.affiliateCampaign')}/>
         <GC gradient="linear-gradient(135deg,#1e40af,#3b82f6)" label={t('analytics.totalEarned')} value={'$'+(tot.total_earned||0).toFixed(2)} sub={t('analytics.lifetimeAllStreams')}/>
-        <GC gradient="linear-gradient(135deg,#7e22ce,#a855f7)" label={t('analytics.teamSize')} value={String(tot.team_size||0)} sub={t('analytics.directReferrals')}/>
+        <GC gradient="linear-gradient(135deg,#7e22ce,#a855f7)" label={t('analytics.teamSize')} value={String(tot.team_size||0)} sub={t('analytics.totalNetwork')}/>
       </div>
 
       {/* ═══ ROW 2: 4 Income Streams ═══ */}
