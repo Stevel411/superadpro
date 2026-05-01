@@ -23150,8 +23150,9 @@ def admin_diagnostic_inspect_ledgers(
                 "amount_usdt": float(w.amount_usdt or 0),
                 "status": w.status,
                 "tx_hash": (w.tx_hash or "")[:80],
-                "created_at": w.created_at.isoformat() if w.created_at else None,
-                "wallet_type": getattr(w, "wallet_type", None),
+                "created_at": w.requested_at.isoformat() if w.requested_at else None,
+                "processed_at": w.processed_at.isoformat() if w.processed_at else None,
+                "wallet_address": (w.wallet_address or "")[:50],
             }
             for w in withdrawals
         ],
