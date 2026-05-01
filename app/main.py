@@ -623,7 +623,13 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.commission_type.in_(["matrix_level", "matrix_completion"]), Commission.amount_usdt > 0).scalar() or 0),
         "personal_referrals":user.personal_referrals or 0,
         "direct_referrals_count": db.query(User).filter(User.sponsor_id == user.id).count(),
-        "total_team":        user.total_team or 0,
+        # Replaces the legacy total_team counter. Computed live via recursive
+        # CTE walking the full descendant tree. Counter retired as it drifted
+        # over time due to scattered += 1 increments without matching decrements.
+        # See compute_descendant_counts() for details.
+        "total_team":        compute_descendant_counts(db, user.id)["total"],
+        "network_active":    compute_descendant_counts(db, user.id)["active"],
+        "network_inactive":  compute_descendant_counts(db, user.id)["inactive"],
         # ── Command Centre Layer 1 stats (Apr 2026) ──────────────────────
         # Three-bucket breakdown of direct referrals so members can see who's
         # actually paying, who lapsed (re-activation candidates), and who
@@ -8860,6 +8866,74 @@ TIER_AI_MULTIPLIERS = {
     7: 1.0,   # Executive $800: 8/day
     8: 1.0,   # Ultimate $1000: 8/day
 }
+
+def compute_descendant_counts(db: Session, user_id: int) -> dict:
+    """
+    Walks the full descendant tree of `user_id` via a recursive CTE and
+    returns three counts: total descendants, active (own at least one
+    incomplete Grid = paid for a Campaign Tier), inactive (signed up but
+    haven't bought a tier).
+
+    Replaces the legacy `total_team` column which was a denormalised counter
+    that drifted because it was being `+= 1`'d in scattered code paths
+    (signup, spillover fills, etc) without corresponding decrements on
+    user deletion or commission reversals.
+
+    No depth cap — counts every descendant regardless of level. Members
+    care about the true size of their network; the 8-level uni-level cap
+    is an economic boundary, not a network-membership boundary.
+
+    Cached for 60s per-user — recursive CTE is cheap on small networks but
+    we'd rather not run it on every dashboard hit.
+    """
+    cache_key = f"descendants:{user_id}"
+    cached = cache_get(cache_key)
+    if cached is not None:
+        return cached
+
+    # Recursive CTE: start with direct referrals of user_id, then iteratively
+    # add descendants of each found user until no new rows. PostgreSQL
+    # handles the recursion + de-dup natively.
+    sql = text("""
+        WITH RECURSIVE descendants AS (
+            SELECT id FROM users WHERE sponsor_id = :start_id
+            UNION
+            SELECT u.id FROM users u
+            INNER JOIN descendants d ON u.sponsor_id = d.id
+        )
+        SELECT
+            COUNT(*) AS total,
+            COUNT(*) FILTER (
+                WHERE EXISTS (
+                    SELECT 1 FROM grids g
+                    WHERE g.owner_id = descendants.id
+                    AND g.is_complete = FALSE
+                )
+            ) AS active
+        FROM descendants
+    """)
+    try:
+        row = db.execute(sql, {"start_id": user_id}).fetchone()
+        total = int(row[0] or 0)
+        active = int(row[1] or 0)
+        inactive = max(0, total - active)
+    except Exception as exc:
+        # If the CTE fails for any reason (older Postgres, permissions, etc),
+        # fall back to a non-recursive direct-referrals-only count rather
+        # than crashing the dashboard. Better to under-report than blow up.
+        logger.warning(f"compute_descendant_counts CTE failed for user {user_id}: {exc}")
+        directs = db.query(User).filter(User.sponsor_id == user_id).count()
+        actives = db.query(User).filter(
+            User.sponsor_id == user_id,
+            User.id.in_(db.query(Grid.owner_id).filter(Grid.is_complete == False))
+        ).count()
+        result = {"total": directs, "active": actives, "inactive": directs - actives}
+        return result
+
+    result = {"total": total, "active": active, "inactive": inactive}
+    cache_set(cache_key, result, ttl=60)
+    return result
+
 
 def get_user_highest_tier(db: Session, user_id: int) -> int:
     """Return the user's highest active grid tier (0 if none). Admin = all tiers."""

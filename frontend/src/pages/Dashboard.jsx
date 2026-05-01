@@ -651,10 +651,16 @@ export default function Dashboard() {
       </div>
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
         {[
-          { color: 'var(--sap-green)',      val: d.direct_referrals_count || 0,                    name: t('dashboard.directReferrals'),                                          isMoney: false },
-          { color: 'var(--sap-accent)',     val: d.total_team || 0,                                name: t('dashboard.totalNetwork'),                                             isMoney: false },
-          { color: 'var(--sap-amber-dark)', val: `$${formatMoney(d.total_earned)}`,                name: t('dashboard.lifetimeEarned'),                                           isMoney: true  },
-          { color: 'var(--sap-purple)',     val: `$${formatMoney(d.earnings_this_month || 0)}`,    name: t('dashboard.monthlyEarned', { defaultValue: 'This Month' }),            isMoney: true  },
+          { color: 'var(--sap-green)',      val: d.direct_referrals_count || 0,                    name: t('dashboard.directReferrals'),                                          isMoney: false, sub: null },
+          { color: 'var(--sap-accent)',     val: (d.network_active != null ? d.network_active : (d.total_team || 0)),
+            name: t('dashboard.activeNetwork', { defaultValue: 'Active Network' }),
+            isMoney: false,
+            sub: (d.network_inactive != null && d.network_inactive > 0)
+              ? t('dashboard.inactiveNetworkSub', { defaultValue: '+ {{n}} inactive', n: d.network_inactive })
+              : null
+          },
+          { color: 'var(--sap-amber-dark)', val: `$${formatMoney(d.total_earned)}`,                name: t('dashboard.lifetimeEarned'),                                           isMoney: true,  sub: null },
+          { color: 'var(--sap-purple)',     val: `$${formatMoney(d.earnings_this_month || 0)}`,    name: t('dashboard.monthlyEarned', { defaultValue: 'This Month' }),            isMoney: true,  sub: null },
         ].map((s, i) => (
           <div key={i} style={{
             background: '#fff',
@@ -677,6 +683,11 @@ export default function Dashboard() {
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
               {s.name}
             </div>
+            {s.sub && (
+              <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--sap-text-faint)', marginTop: 2 }}>
+                {s.sub}
+              </div>
+            )}
           </div>
         ))}
       </div>

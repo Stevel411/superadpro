@@ -161,9 +161,11 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                 bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
                 grid.bonus_pool_accrued = Decimal(str(grid.bonus_pool_accrued or 0)) + Decimal(str(bonus_amount))
 
-                owner = db.query(User).filter(User.id == upline_id).first()
-                if owner:
-                    owner.total_team += 1
+                # NOTE: legacy code used to do `owner.total_team += 1` here.
+                # Removed 1 May 2026: total_team is no longer a denormalised
+                # counter. Network counts are computed live via recursive CTE
+                # in compute_descendant_counts(). The += 1 increments at
+                # spillover sites were one of the main drift sources.
 
                 entry = {
                     "grid_id": grid.id,
@@ -234,9 +236,8 @@ def place_member_in_grid(
     bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
     grid.bonus_pool_accrued = Decimal(str(grid.bonus_pool_accrued or 0)) + Decimal(str(bonus_amount))
 
-    owner = db.query(User).filter(User.id == owner_id).first()
-    if owner:
-        owner.total_team += 1
+    # NOTE: legacy code used to do `owner.total_team += 1` here.
+    # Removed 1 May 2026 — see compute_descendant_counts() in app/main.py.
 
     complete = grid.positions_filled >= GRID_TOTAL
     if complete:
