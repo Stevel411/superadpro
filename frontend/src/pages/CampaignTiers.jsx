@@ -142,7 +142,7 @@ export default function CampaignTiers() {
       </div>
 
       {/* ── Product explainer — "What am I actually buying?" ── */}
-      <ProductExplainer t={t} tNamespace="gridStream" variant="grid" defaultOpen={true} />
+      <ProductExplainer t={t} tNamespace="gridStream" variant="grid" defaultOpen={false} />
 
       {/* ── Tier Cards — 4-column grid ── */}
       {[0, 4].map(function(start) {

@@ -157,7 +157,7 @@ export function CreditMatrixContent() {
       )}
 
       {/* Product explainer — "What am I actually buying?" */}
-      <ProductExplainer t={t} tNamespace="nexusStream" variant="nexus" defaultOpen={true} />
+      <ProductExplainer t={t} tNamespace="nexusStream" variant="nexus" defaultOpen={false} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
         <div>
