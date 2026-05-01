@@ -89,7 +89,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
           onMouseEnter={function(e){ e.currentTarget.style.background='rgba(255,255,255,.1)'; }}
           onMouseLeave={function(e){ e.currentTarget.style.background='rgba(255,255,255,.06)'; }}>
           <span style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,.4)' }}>Balance</span>
-          <span style={{ fontSize:14, fontWeight:800, color:'#4ade80', fontFamily:"'Sora',sans-serif" }}>${((user.balance || 0) + (user.campaign_balance || 0)).toFixed(2)}</span>
+          <span style={{ fontSize:14, fontWeight:800, color:'#4ade80', fontFamily:"'Sora',sans-serif" }}>${(user.balance || 0).toFixed(2)}</span>
         </a>}
 
         {/* Notification Bell */}

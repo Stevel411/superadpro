@@ -3372,13 +3372,21 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         daily_earnings.append({"date": d, "amount": round(daily_map.get(d, 0), 2)})
 
     # ── Income breakdown by type ──
+    # IMPORTANT: filter on status='paid' so REVERSED commissions don't inflate
+    # the stream cards. Without this, a reversed $X commission keeps showing
+    # in the stream-by-type sum but is correctly excluded from total_earned,
+    # creating a "streams sum > total earned" visible discrepancy on the
+    # Analytics page. Caught 1 May 2026 — SuperAdPro account showed grid
+    # stream $30.25 vs total_earned $39 because of one reversed $1.25 row.
     grid_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user.id,
+        Commission.status == 'paid',
         Commission.commission_type.in_(['direct_sponsor', 'uni_level', 'grid_completion_bonus'])
     ).scalar() or 0)
 
     membership_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user.id,
+        Commission.status == 'paid',
         Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor'])
     ).scalar() or 0)
 
@@ -3392,6 +3400,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     # Credit Nexus earnings
     nexus_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user.id,
+        Commission.status == 'paid',
         Commission.commission_type.in_(['matrix_level', 'matrix_completion', 'nexus_sponsor', 'nexus_level', 'nexus_completion'])
     ).scalar() or 0)
 
