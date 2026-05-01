@@ -236,9 +236,9 @@ export default function Wallet() {
           {((d.commissions || []).length > 0 || (d.withdrawals || []).length > 0) ? (
             <div style={{ margin: '-18px -20px', overflow: 'auto', maxHeight:400 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr>
+                <thead style={{position:'sticky',top:0,background:'#fff',zIndex:1,boxShadow:'0 1px 0 #e2e8f0'}}><tr>
                   {[t('wallet.type'), t('wallet.details'), t('wallet.amount'), t('wallet.status'), t('wallet.date')].map(h => (
-                    <th key={h} style={thStyle}>{h}</th>
+                    <th key={h} style={{...thStyle,background:'#fff'}}>{h}</th>
                   ))}
                 </tr></thead>
                 <tbody>
@@ -370,10 +370,10 @@ export default function Wallet() {
       {(d.p2p_history || []).length > 0 && (
         <div style={{ marginTop: 18 }}>
           <Card title={t("wallet.transferHistory")} dotColor="var(--sap-accent)">
-            <div style={{ margin: '-18px -20px', overflow: 'auto' }}>
+            <div style={{ margin: '-18px -20px', overflow: 'auto', maxHeight:400 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr>
-                  {[t('wallet.date'), t('wallet.direction'), t('wallet.member'), t('wallet.note'), t('wallet.amount')].map(h => <th key={h} style={{ ...thStyle, ...(h === t('wallet.amount') ? { textAlign: 'right' } : {}) }}>{h}</th>)}
+                <thead style={{position:'sticky',top:0,background:'#fff',zIndex:1,boxShadow:'0 1px 0 #e2e8f0'}}><tr>
+                  {[t('wallet.date'), t('wallet.direction'), t('wallet.member'), t('wallet.note'), t('wallet.amount')].map(h => <th key={h} style={{ ...thStyle,background:'#fff', ...(h === t('wallet.amount') ? { textAlign: 'right' } : {}) }}>{h}</th>)}
                 </tr></thead>
                 <tbody>
                   {d.p2p_history.map((tx, i) => (
