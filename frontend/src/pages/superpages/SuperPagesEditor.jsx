@@ -94,11 +94,27 @@ export default function SuperPagesEditor() {
   // ── Auto-collapse the sidebar on editor entry ──
   // The SuperPages editor benefits from maximum canvas width. Most users
   // will want the sidebar out of the way while building a page, so we
-  // collapse it on mount. If they want it back, the toggle button is right
-  // there on the sidebar's edge.
+  // collapse it on mount and restore on unmount. If they want it back
+  // mid-edit, the toggle button is on the sidebar's edge.
+  //
+  // We write to localStorage directly (in addition to dispatching the
+  // event) because of a React mount-order race: SuperPagesEditor's
+  // useEffect fires BEFORE AppLayout's useEffect on cold mount, so the
+  // event listener isn't registered yet when we dispatch — the signal
+  // is lost. Writing to localStorage gives AppLayout a value it reads
+  // synchronously on its initial render, sidestepping the race.
   useEffect(function() {
     if (typeof window === 'undefined') return;
+    var priorCollapsed = false;
+    try {
+      priorCollapsed = window.localStorage.getItem('sap-sidebar-collapsed') === '1';
+      window.localStorage.setItem('sap-sidebar-collapsed', '1');
+    } catch (e) {}
     window.dispatchEvent(new CustomEvent('sap-sidebar-set-collapsed', { detail: true }));
+    return function() {
+      try { window.localStorage.setItem('sap-sidebar-collapsed', priorCollapsed ? '1' : '0'); } catch (e) {}
+      window.dispatchEvent(new CustomEvent('sap-sidebar-set-collapsed', { detail: priorCollapsed }));
+    };
   }, []);
 
   // ── Save ──

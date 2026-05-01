@@ -23,9 +23,13 @@ export default function AssetsPage() {
 
   useEffect(() => {
     let priorCollapsed = false;
-    try { priorCollapsed = window.localStorage.getItem('sap-sidebar-collapsed') === '1'; } catch (e) {}
+    try {
+      priorCollapsed = window.localStorage.getItem('sap-sidebar-collapsed') === '1';
+      window.localStorage.setItem('sap-sidebar-collapsed', '1');
+    } catch (e) {}
     window.dispatchEvent(new CustomEvent('sap-sidebar-set-collapsed', { detail: true }));
     return () => {
+      try { window.localStorage.setItem('sap-sidebar-collapsed', priorCollapsed ? '1' : '0'); } catch (e) {}
       window.dispatchEvent(new CustomEvent('sap-sidebar-set-collapsed', { detail: priorCollapsed }));
     };
   }, []);
