@@ -203,9 +203,9 @@ export default function AnalyticsPage(){
 
       {/* ═══ ROW 8: Commission Table ═══ */}
       <WC title={t('campaignAnalytics.recentCommissions')}>
-        {data.recent_commissions.length>0?<div style={{overflowX:'auto',marginTop:8}}>
-          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}><thead><tr>
-            {['Date','Type','From','Tier','Amount'].map(function(h,i){return<th key={i} style={{textAlign:i===4?'right':'left',padding:'10px 12px',fontSize:13,fontWeight:800,color:'#7a8899',textTransform:'uppercase',letterSpacing:1.5,borderBottom:'2px solid #f1f5f9'}}>{h}</th>})}
+        {data.recent_commissions.length>0?<div style={{maxHeight:360,overflowY:'auto',overflowX:'auto',marginTop:8,borderRadius:8,border:'1px solid #f1f5f9'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}><thead style={{position:'sticky',top:0,background:'#fff',zIndex:1,boxShadow:'0 1px 0 #e2e8f0'}}><tr>
+            {['Date','Type','From','Tier','Amount'].map(function(h,i){return<th key={i} style={{textAlign:i===4?'right':'left',padding:'10px 12px',fontSize:13,fontWeight:800,color:'#7a8899',textTransform:'uppercase',letterSpacing:1.5,borderBottom:'2px solid #f1f5f9',background:'#fff'}}>{h}</th>})}
           </tr></thead><tbody>
             {data.recent_commissions.map(function(c,i){var tl=TL[c.type]||c.type,tc=TC[c.type]||'#475569';return<tr key={i} style={{transition:'background 0.15s'}} onMouseEnter={function(e){e.currentTarget.style.background='#f8fafc'}} onMouseLeave={function(e){e.currentTarget.style.background='transparent'}}>
               <td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#475569'}}>{c.date}</td>
