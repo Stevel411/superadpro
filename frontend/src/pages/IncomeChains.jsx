@@ -225,6 +225,7 @@ function ChainCard(props) {
 /* ══════════════════════════════════════════════════════════════ */
 
 function ExplainerBlock() {
+  var { t } = useTranslation();
   return (
     <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'24px 28px',marginBottom:28,
                  boxShadow:'0 4px 20px rgba(23,37,84,.06)'}}>

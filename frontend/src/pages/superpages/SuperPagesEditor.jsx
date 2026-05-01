@@ -476,6 +476,7 @@ export default function SuperPagesEditor() {
 
 // ═══ Element Editor Modal ═══
 function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }) {
+  var { t } = useTranslation();
 
   var { t } = useTranslation();
   const actualEl = els.find(x => x.id === elId) || el;
@@ -612,6 +613,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
 
 // ── Specialised sub-editors ──
 function CountdownEditor({ elId, el, updateElement, markDirty, onClose }) {
+  var { t } = useTranslation();
 
   var { t } = useTranslation();
   const [date, setDate] = useState(el._targetDate || '');
@@ -624,6 +626,7 @@ function CountdownEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function ProgressEditor({ elId, el, updateElement, markDirty, onClose }) {
+  var { t } = useTranslation();
 
   var { t } = useTranslation();
   const [lbl, setLbl] = useState(el._label || 'Progress');
@@ -649,6 +652,7 @@ function ProgressEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
+  var { t } = useTranslation();
 
   var { t } = useTranslation();
   const [url, setUrl] = useState(el._audioUrl || '');
@@ -677,6 +681,7 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function EmbedEditor({ elId, el, updateElement, markDirty, onClose }) {
+  var { t } = useTranslation();
 
   var { t } = useTranslation();
   const [code, setCode] = useState(el._embedCode || '');
@@ -689,6 +694,7 @@ function EmbedEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
+  var { t } = useTranslation();
 
   var { t } = useTranslation();
   // Clean up legacy '#' values — treat them as empty
@@ -716,6 +722,7 @@ function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
+  var { t } = useTranslation();
 
   var { t } = useTranslation();
   const [txt, setTxt] = useState(el.txt || (type === 'announcement' ? '🔥 LIMITED TIME OFFER — Join Now and Save 50%!' : 'Join Now'));
@@ -794,6 +801,7 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
 }
 
 function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
+  var { t } = useTranslation();
 
   var { t } = useTranslation();
   const [heading, setHeading] = useState(el._formHeading || 'Get Free Access');

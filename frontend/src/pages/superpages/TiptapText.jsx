@@ -704,6 +704,7 @@ function AiCmd({ onClick, children }) {
  * before picking. 24 fonts sourced from elementDefaults.FONTS.
  */
 function FontSelect({ editor, currentFont }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   // Try to match the current fontFamily (which is a full CSS value like
   // 'Sora,sans-serif') to one of our known fonts so we can show its label.
@@ -766,6 +767,7 @@ function FontSelect({ editor, currentFont }) {
  * from the 20 preset sizes.
  */
 function SizeInput({ editor, currentSize }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   // Parse the current fontSize into a plain number for the input.
   const currentPx = (() => {
@@ -848,6 +850,7 @@ function SizeInput({ editor, currentSize }) {
 }
 
 function ColorPicker({ editor, currentColor }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const current = currentColor || '#0f172a';
   const swatches = [
