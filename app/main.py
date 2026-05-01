@@ -701,7 +701,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "recent_activity":   activity,
         "sponsor_username":  sponsor_username,
         "wallet_address":    user.wallet_address or "",
-        "total_withdrawn":    float(user.total_withdrawn or 0),
+        "total_withdrawn":    compute_total_withdrawn(db, user.id),
         "is_active":         user.is_active,
         "is_admin":          user.is_admin,
         "member_id":         format_member_id(user.id, user.is_admin),
@@ -2001,7 +2001,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "membership_billing": user.membership_billing or "monthly",
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_earned": float(user.total_earned or 0),
-        "total_withdrawn": float(user.total_withdrawn or 0),
+        "total_withdrawn": compute_total_withdrawn(db, user.id),
         "grid_earnings": float(user.grid_earnings or 0),
         "level_earnings": float(user.level_earnings or 0),
         "upline_earnings": float(user.upline_earnings or 0),
@@ -3609,7 +3609,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     }
 
     # ── Withdrawal summary ──
-    total_withdrawn = float(user.total_withdrawn or 0)
+    total_withdrawn = compute_total_withdrawn(db, user.id)
     last_withdrawal = db.query(Withdrawal).filter(
         Withdrawal.user_id == user.id,
         Withdrawal.status == "completed"
@@ -4064,7 +4064,7 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
     return {
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_earned": float(user.total_earned or 0),
-        "total_withdrawn": float(user.total_withdrawn or 0),
+        "total_withdrawn": compute_total_withdrawn(db, user.id),
         "grid_earnings": float(user.grid_earnings or 0),
         "level_earnings": float(user.level_earnings or 0),
         "course_earnings": float(user.course_earnings or 0),
@@ -7284,7 +7284,7 @@ def admin_api_users(
             "membership_tier": u.membership_tier or "basic",
             "balance": float(u.balance or 0),
             "total_earned": float(u.total_earned or 0),
-            "total_withdrawn": float(u.total_withdrawn or 0),
+            "total_withdrawn": compute_total_withdrawn(db, u.id),
             "personal_referrals": u.personal_referrals or 0,
             "total_team": u.total_team or 0,
             "sponsor_id": u.sponsor_id,
@@ -7323,7 +7323,7 @@ def admin_api_user_detail(
             "membership_tier": u.membership_tier or "basic",
             "balance": float(u.balance or 0),
             "total_earned": float(u.total_earned or 0),
-            "total_withdrawn": float(u.total_withdrawn or 0),
+            "total_withdrawn": compute_total_withdrawn(db, u.id),
             "grid_earnings": float(u.grid_earnings or 0),
             "level_earnings": float(u.level_earnings or 0),
             "upline_earnings": float(u.upline_earnings or 0),
@@ -7590,7 +7590,7 @@ def admin_user_commission_state(
             "balance": float(target.balance or 0),
             "campaign_balance": float(target.campaign_balance or 0),
             "total_earned": float(target.total_earned or 0),
-            "total_withdrawn": float(target.total_withdrawn or 0),
+            "total_withdrawn": compute_total_withdrawn(db, target.id),
             "grid_earnings": float(target.grid_earnings or 0),
             "level_earnings": float(target.level_earnings or 0),
             "upline_earnings": float(target.upline_earnings or 0),
@@ -8933,6 +8933,35 @@ def compute_descendant_counts(db: Session, user_id: int) -> dict:
         return result
 
     result = {"total": total, "active": active, "inactive": inactive}
+    cache_set(cache_key, result, ttl=60)
+    return result
+
+
+def compute_total_withdrawn(db: Session, user_id: int) -> float:
+    """
+    Compute a user's lifetime total withdrawn from the Withdrawal ledger.
+    Sums amount_usdt where status is in the success states ('paid' or
+    'completed' — both used in the codebase historically).
+
+    Replaces direct reads of the legacy user.total_withdrawn column which
+    drifted from old test data and was never properly maintained. Same
+    pattern as compute_descendant_counts() — denormalised counters that
+    aren't religiously incremented/decremented in every code path will
+    drift; the ledger is the truth.
+
+    Cached 60s per-user.
+    """
+    cache_key = f"withdrawn:{user_id}"
+    cached = cache_get(cache_key)
+    if cached is not None:
+        return cached
+
+    total = db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
+        Withdrawal.user_id == user_id,
+        Withdrawal.status.in_(["paid", "completed"]),
+    ).scalar() or 0
+
+    result = float(total)
     cache_set(cache_key, result, ttl=60)
     return result
 
@@ -19294,7 +19323,7 @@ def api_analytics_data(request: Request, user: User = Depends(get_current_user),
             "direct_referrals": direct_refs,
             "active_referrals": active_refs,
             "total_team": user.total_team or 0,
-            "total_withdrawn": float(user.total_withdrawn or 0),
+            "total_withdrawn": compute_total_withdrawn(db, user.id),
             "videos_watched": watches,
             "watch_streak": getattr(quota, 'streak_days', 0) or 0 if quota else 0,
             "watch_quota_met": bool(quota and getattr(quota, 'commissions_paused', False) == False) if quota else False,
@@ -23085,6 +23114,60 @@ def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
 
     db.commit()
     return {"success": True, "users_updated": updated}
+
+
+@app.post("/admin/diagnostic/recompute-all-total-withdrawn")
+def admin_diagnostic_recompute_total_withdrawn(secret: str = "", db: Session = Depends(get_db)):
+    """One-time defensive cleanup of the legacy user.total_withdrawn column.
+    Sums Withdrawal.amount_usdt where status IN ('paid', 'completed') and
+    overwrites the column. Dashboard reads have already been migrated to
+    compute_total_withdrawn(), so this is purely defensive — making the
+    column itself match the ledger in case any code path still reads it
+    directly.
+
+    Returns a per-user diff for users whose stored value differed from the
+    computed truth, so we can see exactly how much drift had accumulated."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+
+    users = db.query(User).all()
+    drifts = []
+    updated = 0
+
+    for u in users:
+        actual = db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
+            Withdrawal.user_id == u.id,
+            Withdrawal.status.in_(["paid", "completed"]),
+        ).scalar() or 0
+        actual = float(actual)
+        stored = float(u.total_withdrawn or 0)
+
+        # Only update if there's a real drift (use small epsilon for float compare)
+        if abs(stored - actual) > 0.001:
+            drifts.append({
+                "user_id": u.id,
+                "username": u.username,
+                "stored": round(stored, 2),
+                "actual": round(actual, 2),
+                "drift": round(stored - actual, 2),
+            })
+            u.total_withdrawn = actual
+            updated += 1
+
+    db.commit()
+
+    # Sort largest drift first so the worst offenders are visible
+    drifts.sort(key=lambda d: abs(d["drift"]), reverse=True)
+
+    return {
+        "status": "completed",
+        "users_scanned": len(users),
+        "users_updated": updated,
+        "drifts": drifts[:50],  # cap response size — top 50 offenders
+        "total_drift_count": len(drifts),
+    }
+
+
 @app.post("/api/early-bird")
 async def api_early_bird(request: Request):
     """Capture early bird email for pre-launch list."""
