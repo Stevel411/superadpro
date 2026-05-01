@@ -9,10 +9,10 @@ var TIERS = [
   {t:2, name:'Builder', price:50, grad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)', color:'#3b82f6', dark:'#2563eb'},
   {t:3, name:'Pro', price:100, grad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)', color:'var(--sap-purple)', dark:'var(--sap-violet)'},
   {t:4, name:'Advanced', price:200, grad:'linear-gradient(135deg,#831843,#be185d,#ec4899)', color:'var(--sap-pink)', dark:'#db2777'},
-  {t:5, name:'Elite', price:400, grad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)', color:'#14b8a6', dark:'#0d9488'},
-  {t:6, name:'Premium', price:600, grad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)', color:'#9ca3af', dark:'#6b7280'},
-  {t:7, name:'Executive', price:800, grad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)', color:'var(--sap-amber)', dark:'#b45309'},
-  {t:8, name:'Ultimate', price:1000, grad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)', color:'var(--sap-red-bright)', dark:'var(--sap-red)'},
+  {t:5, name:'Premium', price:400, grad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)', color:'#14b8a6', dark:'#0d9488'},
+  {t:6, name:'Elite', price:600, grad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)', color:'#9ca3af', dark:'#6b7280'},
+  {t:7, name:'Master', price:800, grad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)', color:'var(--sap-amber)', dark:'#b45309'},
+  {t:8, name:'Champion', price:1000, grad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)', color:'var(--sap-red-bright)', dark:'var(--sap-red)'},
 ];
 
 var BONUSES = [64,160,320,640,1280,1920,2560,3200];

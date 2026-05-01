@@ -63,10 +63,10 @@ GRID_TIER_NAMES = {
     2: "Builder",
     3: "Pro",
     4: "Advanced",
-    5: "Elite",
-    6: "Premium",
-    7: "Executive",
-    8: "Ultimate",
+    5: "Premium",
+    6: "Elite",
+    7: "Master",
+    8: "Champion",
 }
 
 # ── Grid Completion Bonus (paid from 5% bonus pool) ─────────
@@ -87,15 +87,21 @@ GRID_COMPLETION_BONUS = {
 # Views delivered per campaign purchase/repurchase cycle
 # Campaign stays active until views are delivered, then expires
 # 14-day grace period after expiry before qualification drops
+#
+# View targets sized to give each tier a meaningfully different delivery
+# duration (member retention via price-commitment alignment): tier 1 ≈ 1
+# month, tier 8 ≈ 6 months at typical platform delivery rates. Higher
+# tiers buy longer "your campaign is live" runways, so members aren't on a
+# rebuy treadmill. Set 1 May 2026 — Option B from product discussion.
 CAMPAIGN_VIEW_TARGETS = {
-    1: 2000,
-    2: 6000,
-    3: 16000,
-    4: 30000,
-    5: 60000,
-    6: 100000,
-    7: 130000,
-    8: 170000,
+    1: 2000,     # ~1 month — Starter $20
+    2: 4000,     # ~2 months — Builder $50
+    3: 8000,     # ~2 months — Pro $100
+    4: 15000,    # ~3 months — Advanced $200
+    5: 30000,    # ~4 months — Premium $400
+    6: 50000,    # ~4 months — Elite $600
+    7: 80000,    # ~5 months — Master $800
+    8: 120000,   # ~6 months — Champion $1,000
 }
 
 # Grace period (days) after campaign expires before losing tier qualification

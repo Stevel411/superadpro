@@ -31,7 +31,7 @@
 **On screen:**
 - Screen recording: navigate to `/campaign-tiers` page
 - Hover over each tier card — pause briefly on the view counts
-- Highlight the "2,000 views" → "6,000 views" → "16,000 views" progression
+- Highlight the "2,000 views" → "4,000 views" → "8,000 views" progression
 
 **Narration continues:**
 > "But there's a second layer to this — and it's the part that makes Campaign Tiers more than just an ad-buy. Every time someone in your network buys a tier, you earn a commission. That's where the affiliate side kicks in."
@@ -52,13 +52,13 @@
 | Tier | Name | Price | Views |
 |---|---|---|---|
 | 1 | Starter | $20 | 2,000 |
-| 2 | Builder | $50 | 6,000 |
-| 3 | Pro | $100 | 16,000 |
-| 4 | Advanced | $200 | 30,000 |
-| 5 | Premium | $400 | 60,000 |
-| 6 | Elite | $600 | 100,000 |
-| 7 | Master | $800 | 130,000 |
-| 8 | Champion | $1,000 | 170,000 |
+| 2 | Builder | $50 | 4,000 |
+| 3 | Pro | $100 | 8,000 |
+| 4 | Advanced | $200 | 15,000 |
+| 5 | Premium | $400 | 30,000 |
+| 6 | Elite | $600 | 50,000 |
+| 7 | Master | $800 | 80,000 |
+| 8 | Champion | $1,000 | 120,000 |
 
 **Narration:**
 > "You can buy any tier you want, in any order. There's no requirement to start at the bottom. But — and this is important — to earn commissions on a tier, you need to own that tier yourself. We'll come back to that in a moment."

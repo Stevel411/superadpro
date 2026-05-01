@@ -608,10 +608,10 @@ function GridVisSection() {
     {n:2,name:'Builder',price:50,color:'var(--sap-accent-light)'},
     {n:3,name:'Pro',price:100,color:'var(--sap-accent)'},
     {n:4,name:'Advanced',price:200,color:'var(--sap-indigo)'},
-    {n:5,name:'Elite',price:400,color:'var(--sap-purple)'},
-    {n:6,name:'Premium',price:600,color:'var(--sap-amber)'},
-    {n:7,name:'Executive',price:800,color:'#f97316'},
-    {n:8,name:'Ultimate',price:1000,color:'var(--sap-pink)'},
+    {n:5,name:'Premium',price:400,color:'var(--sap-purple)'},
+    {n:6,name:'Elite',price:600,color:'var(--sap-amber)'},
+    {n:7,name:'Master',price:800,color:'#f97316'},
+    {n:8,name:'Champion',price:1000,color:'var(--sap-pink)'},
   ];
   var DEPTH_COLORS = ['var(--sap-accent)','var(--sap-green-bright)','var(--sap-purple)','var(--sap-amber)','var(--sap-pink)','#06b6d4','#f97316','var(--sap-indigo)'];
 

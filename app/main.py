@@ -4532,7 +4532,7 @@ async def coinbase_create_charge(
             return JSONResponse({"error": f"Invalid tier: {package_tier}"}, status_code=400)
         if not user.is_active:
             return JSONResponse({"error": "Membership must be active first"}, status_code=400)
-        tier_name = {1:"Starter",2:"Builder",3:"Pro",4:"Advanced",5:"Elite",6:"Premium",7:"Executive",8:"Ultimate"}.get(package_tier, f"Tier {package_tier}")
+        tier_name = {1:"Starter",2:"Builder",3:"Pro",4:"Advanced",5:"Premium",6:"Elite",7:"Master",8:"Champion"}.get(package_tier, f"Tier {package_tier}")
         amount = price
         description = f"Income Grid — {tier_name} Tier (${price})"
         redirect = f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/income-grid?activated={package_tier}"

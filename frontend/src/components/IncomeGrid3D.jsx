@@ -11,10 +11,10 @@ var TIERS = [
   {price:50,color:'#0ea5e9',name:'Builder'},
   {price:100,color:'#6366f1',name:'Pro'},
   {price:200,color:'#8b5cf6',name:'Advanced'},
-  {price:400,color:'#f59e0b',name:'Elite'},
-  {price:600,color:'#ec4899',name:'Premium'},
-  {price:800,color:'#ef4444',name:'Executive'},
-  {price:1000,color:'#fbbf24',name:'Ultimate'},
+  {price:400,color:'#f59e0b',name:'Premium'},
+  {price:600,color:'#ec4899',name:'Elite'},
+  {price:800,color:'#ef4444',name:'Master'},
+  {price:1000,color:'#fbbf24',name:'Champion'},
 ];
 
 function genPositions() {

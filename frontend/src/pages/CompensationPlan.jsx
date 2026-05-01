@@ -7,7 +7,7 @@ import ProductExplainer from '../components/ProductExplainer';
 import { Users, Zap, Layers, GraduationCap, ChevronLeft, ChevronRight, ArrowRight, ChevronDown, Check } from 'lucide-react';
 
 var TIER_PRICES = [20, 50, 100, 200, 400, 600, 800, 1000];
-var TIER_NAMES = ['Starter','Builder','Pro','Advanced','Elite','Premium','Executive','Ultimate'];
+var TIER_NAMES = ['Starter','Builder','Pro','Advanced','Premium','Elite','Master','Champion'];
 var TIER_CREDITS = [100, 250, 500, 1000, 2000, 3000, 4000, 5000];
 var TIER_GRADS = [
   'linear-gradient(135deg,#064e3b,#10b981)', 'linear-gradient(135deg,#1e3a5f,#3b82f6)',

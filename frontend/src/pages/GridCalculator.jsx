@@ -7,10 +7,10 @@ var TIERS = [
   { t:2, name:'Builder', price:50, grad:'linear-gradient(135deg,#1e3a5f,#3b82f6)' },
   { t:3, name:'Pro', price:100, grad:'linear-gradient(135deg,#4c1d95,#8b5cf6)' },
   { t:4, name:'Advanced', price:200, grad:'linear-gradient(135deg,#831843,#ec4899)' },
-  { t:5, name:'Elite', price:400, grad:'linear-gradient(135deg,#134e4a,#14b8a6)' },
-  { t:6, name:'Premium', price:600, grad:'linear-gradient(135deg,#78350f,#f59e0b)' },
-  { t:7, name:'Executive', price:800, grad:'linear-gradient(135deg,#312e81,#6366f1)' },
-  { t:8, name:'Ultimate', price:1000, grad:'linear-gradient(135deg,#7f1d1d,#ef4444)' },
+  { t:5, name:'Premium', price:400, grad:'linear-gradient(135deg,#134e4a,#14b8a6)' },
+  { t:6, name:'Elite', price:600, grad:'linear-gradient(135deg,#78350f,#f59e0b)' },
+  { t:7, name:'Master', price:800, grad:'linear-gradient(135deg,#312e81,#6366f1)' },
+  { t:8, name:'Champion', price:1000, grad:'linear-gradient(135deg,#7f1d1d,#ef4444)' },
 ];
 
 var GOLD_GRAD = 'linear-gradient(135deg,#78350f,#b45309,#fbbf24)';
