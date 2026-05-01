@@ -23115,6 +23115,88 @@ def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
     return {"success": True, "users_updated": updated}
 
 
+@app.post("/admin/diagnostic/cleanup-test-withdrawals/{user_id}")
+def admin_diagnostic_cleanup_test_withdrawals(
+    user_id: int,
+    secret: str = "",
+    db: Session = Depends(get_db),
+):
+    """One-shot pre-launch cleanup: mark old test withdrawals on the
+    SuperAdPro owner account as 'cancelled' so they drop out of the lifetime
+    total_withdrawn. The on-chain Polygon transactions are real and went to
+    Steve's own wallet — we're not erasing money, just relabelling our
+    internal accounting so the wallet display stops including pre-launch
+    test data.
+
+    HARDCODED to user_id=1 only — explicitly refuses for any other user.
+    This is NOT a general-purpose 'cancel a withdrawal' tool; that would be
+    dangerous (could hide real customer withdrawals). Idempotent — re-running
+    leaves already-cancelled rows alone."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+
+    # Hardcoded safety: this endpoint is ONLY for the SuperAdPro account.
+    if user_id != 1:
+        return JSONResponse({
+            "error": "This endpoint only operates on user_id=1 (SuperAdPro). "
+                     "It is a one-shot pre-launch cleanup, not a general-purpose tool."
+        }, status_code=403)
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+
+    # Find all paid withdrawals on this account
+    withdrawals = db.query(Withdrawal).filter(
+        Withdrawal.user_id == user_id,
+        Withdrawal.status == "paid",
+    ).all()
+
+    rows_before = [
+        {
+            "id": w.id,
+            "amount_usdt": float(w.amount_usdt or 0),
+            "tx_hash": (w.tx_hash or "")[:80],
+            "requested_at": w.requested_at.isoformat() if w.requested_at else None,
+        }
+        for w in withdrawals
+    ]
+
+    # Mark them cancelled
+    cancelled_count = 0
+    cancelled_total = 0.0
+    for w in withdrawals:
+        w.status = "cancelled"
+        cancelled_count += 1
+        cancelled_total += float(w.amount_usdt or 0)
+
+    # Also reset the legacy total_withdrawn column on the user row for cleanliness
+    target.total_withdrawn = 0
+
+    # Invalidate the compute_total_withdrawn cache so the dashboard refreshes immediately
+    try:
+        cache_delete(f"withdrawn:{user_id}")
+    except Exception:
+        pass
+
+    db.commit()
+
+    logger.warning(
+        f"CLEANUP_TEST_WITHDRAWALS user={user_id} ({target.username}) "
+        f"cancelled={cancelled_count} total_usd={cancelled_total}"
+    )
+
+    return {
+        "status": "completed",
+        "user_id": user_id,
+        "username": target.username,
+        "withdrawals_cancelled": cancelled_count,
+        "total_usd_cancelled": round(cancelled_total, 2),
+        "rows_affected": rows_before,
+        "note": "On-chain transactions remain real. Internal accounting now treats them as cancelled.",
+    }
+
+
 @app.get("/admin/diagnostic/inspect-ledgers/{user_id}")
 def admin_diagnostic_inspect_ledgers(
     user_id: int,
