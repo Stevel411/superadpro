@@ -2,7 +2,7 @@
 
 **Status:** Locked ground truth — AI assistants must read this before making any claims about commission rates, tier prices, or payout mechanics. Do not fabricate numbers. If a rule is not documented here or contradicts here, ask Steve.
 
-**Last confirmed:** 24 April 2026 (session with Steve).
+**Last confirmed:** 1 May 2026 (session with Steve — Stream 02 numbers locked).
 
 **Legend:**
 - ✅ Confirmed by Steve in-session
@@ -47,16 +47,14 @@
 
 ---
 
-## 2. Campaign Grid (Stream 02)
+## 2. Campaign Grid (Stream 02) ✅
 
-### Tier ladder 🟡
+### Tier ladder ✅
 
 8 tiers (per `app/database.py` `CREDIT_PACKS` constant — note same ladder as Nexus):
 $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 
-*Steve has not explicitly confirmed these prices this session. Verify before customer-facing use.*
-
-### Per-entry payout at Tier N 🟡
+### Per-entry payout at Tier N ✅
 
 | Component | Rate | Notes |
 |---|---|---|
@@ -65,15 +63,13 @@ $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 | Platform | 5% | Company retention |
 | Bonus pool | 5% | Accumulates toward completion bonus |
 
-### Completion bonuses 🟡
+### Completion bonuses ✅
 
 Hardcoded in code: $64 / $160 / $320 / $640 / $1,280 / $1,920 / $2,560 / $3,200 (by tier position 1→8).
 
-### Tier qualification rule 🟡
+### Tier qualification rule ✅
 
 Found in `app/grid.py::_user_is_qualified` — must have an **active (or in-grace) campaign at the same tier or above** to earn commissions. Unqualified sponsor → 40% direct goes to company, does NOT walk up. Uni-level: each level checked independently.
-
-**Steve called this out ("did you mention that you have to own the same tiers to receive the commissions"). Treat as intent-confirmed but verify exact wording before publishing.**
 
 ### Earning potential ❌
 
