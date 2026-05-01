@@ -454,16 +454,37 @@ def clear_failed_attempts(identifier):
 # ── Unique Slug Generator ─────────────────────────────────────
 import re as _re, random as _rand, string as _string
 def generate_unique_slug(db, username: str, title: str, exclude_page_id: int = None) -> str:
-    """Generate a slug for a funnel page: username/title-slug.
-    Returns None if slug already exists (caller should notify user)."""
+    """Generate a unique slug for a funnel page: username/title-slug.
+
+    On collision, appends a numeric suffix (-2, -3, ...) until a free slot is
+    found. Title is NEVER mutated by this function — only the slug carries
+    disambiguation. Falls back to a short hex suffix if even 1000 sequential
+    attempts collide (vanishingly unlikely in practice).
+
+    Returns the unique slug. Never returns None — callers no longer need
+    to handle a 'collision' error case.
+    """
     raw = _re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-') or 'page'
-    slug = f"{username.lower()}/{raw}"
-    q = db.query(FunnelPage).filter(FunnelPage.slug == slug)
-    if exclude_page_id:
-        q = q.filter(FunnelPage.id != exclude_page_id)
-    if q.first():
-        return None  # collision — let user pick a different name
-    return slug
+    base_slug = f"{username.lower()}/{raw}"
+
+    def _is_free(candidate):
+        q = db.query(FunnelPage).filter(FunnelPage.slug == candidate)
+        if exclude_page_id:
+            q = q.filter(FunnelPage.id != exclude_page_id)
+        return q.first() is None
+
+    if _is_free(base_slug):
+        return base_slug
+
+    # Sequential numeric suffix — produces clean URLs like .../my-page-2
+    for n in range(2, 1001):
+        candidate = f"{base_slug}-{n}"
+        if _is_free(candidate):
+            return candidate
+
+    # Pathological collision — fall back to a random hex token
+    import secrets
+    return f"{base_slug}-{secrets.token_hex(2)}"
 
 # ── DB / Auth helpers ─────────────────────────────────────────
 def get_db():
@@ -3795,8 +3816,6 @@ Return JSON: {{"headline":"...","subheadline":"...","cta_text":"...","benefits_t
 
     # Create the funnel page
     slug = generate_unique_slug(db, user.username, f"My {niche} Page")
-    if slug is None:
-        return {"error": f"You already have a page called 'My {niche} Page'. Please rename or delete the existing one first."}
     page = FunnelPage(
         user_id=user.id,
         slug=slug,
@@ -9250,10 +9269,7 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     import re
     title = body.get("title", "My Page").strip()
     if not page.slug:
-        slug = generate_unique_slug(db, user.username, title, exclude_page_id=page.id)
-        if slug is None:
-            return JSONResponse({"error": f"A page called '{title}' already exists. Please choose a different title."}, status_code=409)
-        page.slug = slug
+        page.slug = generate_unique_slug(db, user.username, title, exclude_page_id=page.id)
 
     page.title = title
 
@@ -9551,11 +9567,9 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
             'thank-you': 'Thank You Page',
         }
         title = TEMPLATE_TITLES.get(niche, 'New Page')
-        # Add short hash to prevent duplicate title errors
-        title_hash = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
         page = FunnelPage(
             user_id=user.id,
-            title=f"{title} {title_hash}",
+            title=title,
             headline=title,
             template_type="landing",
             status="draft",
@@ -9563,8 +9577,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         )
         db.add(page)
         db.flush()
-        slug_base = _re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
-        page.slug = f"{user.username.lower()}/{slug_base}-{page.id}"
+        page.slug = generate_unique_slug(db, user.username, title)
         db.commit()
         return {"success": True, "id": page.id, "edit_url": f"/pro/funnel/{page.id}/edit"}
 
