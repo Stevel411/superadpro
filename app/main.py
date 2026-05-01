@@ -3789,30 +3789,27 @@ async def generate_launch_funnel(request: Request, user: User = Depends(get_curr
         }}
     ]
 
-    # If AI key available, enhance the copy
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if api_key:
-        try:
-            client = anthropic.Anthropic(api_key=api_key)
-            resp = client.messages.create(
-                model=AI_MODEL_HAIKU,  # Cost-optimised,
-                max_tokens=500,
-                system="You write punchy marketing copy. Return ONLY valid JSON — no markdown.",
-                messages=[{"role": "user", "content": f"""Generate funnel page copy for someone promoting {niche} to {audience}. Tone: {tone}.
-Return JSON: {{"headline":"...","subheadline":"...","cta_text":"...","benefits_title":"...","benefits":[{{"icon":"emoji","title":"...","desc":"..."}},...6 items],"cta_headline":"...","cta_sub":"..."}}"""}]
-            )
-            ai_text = resp.content[0].text.strip()
-            if ai_text.startswith("```"): ai_text = ai_text.split("\n",1)[1].rsplit("```",1)[0]
-            ai = json.loads(ai_text)
-            sections[0]["data"]["headline"] = ai.get("headline", sections[0]["data"]["headline"])
-            sections[0]["data"]["subheadline"] = ai.get("subheadline", sections[0]["data"]["subheadline"])
-            sections[0]["data"]["cta_text"] = ai.get("cta_text", sections[0]["data"]["cta_text"])
-            if ai.get("benefits_title"): sections[2]["data"]["title"] = ai["benefits_title"]
-            if ai.get("benefits") and len(ai["benefits"]) >= 4: sections[2]["data"]["items"] = ai["benefits"][:6]
-            if ai.get("cta_headline"): sections[5]["data"]["headline"] = ai["cta_headline"]
-            if ai.get("cta_sub"): sections[5]["data"]["subheadline"] = ai["cta_sub"]
-        except Exception as e:
-            logger.warning(f"AI funnel gen failed: {e}")
+    # If AI is available, enhance the copy
+    try:
+        from .grok_service import ai_text_generate
+        ai_text = (await ai_text_generate(
+            prompt=f"""Generate funnel page copy for someone promoting {niche} to {audience}. Tone: {tone}.
+Return JSON: {{"headline":"...","subheadline":"...","cta_text":"...","benefits_title":"...","benefits":[{{"icon":"emoji","title":"...","desc":"..."}},...6 items],"cta_headline":"...","cta_sub":"..."}}""",
+            system="You write punchy marketing copy. Return ONLY valid JSON — no markdown.",
+            max_tokens=500,
+            temperature=0.7,
+        )).strip()
+        if ai_text.startswith("```"): ai_text = ai_text.split("\n",1)[1].rsplit("```",1)[0]
+        ai = json.loads(ai_text)
+        sections[0]["data"]["headline"] = ai.get("headline", sections[0]["data"]["headline"])
+        sections[0]["data"]["subheadline"] = ai.get("subheadline", sections[0]["data"]["subheadline"])
+        sections[0]["data"]["cta_text"] = ai.get("cta_text", sections[0]["data"]["cta_text"])
+        if ai.get("benefits_title"): sections[2]["data"]["title"] = ai["benefits_title"]
+        if ai.get("benefits") and len(ai["benefits"]) >= 4: sections[2]["data"]["items"] = ai["benefits"][:6]
+        if ai.get("cta_headline"): sections[5]["data"]["headline"] = ai["cta_headline"]
+        if ai.get("cta_sub"): sections[5]["data"]["subheadline"] = ai["cta_sub"]
+    except Exception as e:
+        logger.warning(f"AI funnel gen failed: {e}")
 
     # Create the funnel page
     slug = generate_unique_slug(db, user.username, f"My {niche} Page")
@@ -3859,24 +3856,21 @@ async def generate_social_posts_wizard(request: Request, user: User = Depends(ge
     }
 
     # Enhance with AI if available
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if api_key:
-        try:
-            client = anthropic.Anthropic(api_key=api_key)
-            resp = client.messages.create(
-                model=AI_MODEL_HAIKU,  # Cost-optimised,
-                max_tokens=600,
-                system="Write social media posts. Return ONLY valid JSON — no markdown.",
-                messages=[{"role": "user", "content": f"""Write 5 social posts for {name} promoting their {niche} funnel page at {full_link}.
+    try:
+        from .grok_service import ai_text_generate
+        ai_text = (await ai_text_generate(
+            prompt=f"""Write 5 social posts for {name} promoting their {niche} funnel page at {full_link}.
 Return JSON: {{"facebook":"...","instagram":"...","twitter":"...","tiktok":"...","whatsapp":"..."}}
-Keep each platform-appropriate. Include the link. Be genuine, not spammy."""}]
-            )
-            ai_text = resp.content[0].text.strip()
-            if ai_text.startswith("```"): ai_text = ai_text.split("\n",1)[1].rsplit("```",1)[0]
-            ai_posts = json.loads(ai_text)
-            posts.update(ai_posts)
-        except Exception as e:
-            logger.warning(f"AI post gen failed: {e}")
+Keep each platform-appropriate. Include the link. Be genuine, not spammy.""",
+            system="Write social media posts. Return ONLY valid JSON — no markdown.",
+            max_tokens=600,
+            temperature=0.7,
+        )).strip()
+        if ai_text.startswith("```"): ai_text = ai_text.split("\n",1)[1].rsplit("```",1)[0]
+        ai_posts = json.loads(ai_text)
+        posts.update(ai_posts)
+    except Exception as e:
+        logger.warning(f"AI post gen failed: {e}")
 
     return {"success": True, "posts": posts}
 
@@ -5119,14 +5113,9 @@ def _build_copilot_context(user, db) -> dict:
         "earned_this_week": round(recent_earned, 2),
         "today": date.today().strftime("%A, %d %B %Y"),
     }
-def _generate_copilot_briefing(ctx: dict) -> dict:
-    """Call Claude Sonnet to generate a personalised briefing + action cards."""
+async def _generate_copilot_briefing(ctx: dict) -> dict:
+    """Generate a personalised briefing + action cards via Grok 4.1 Fast with Claude Haiku 4.5 fallback."""
     import json as _json
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return {"narrative": "AI Co-Pilot is not configured.", "actions": []}
-
-    client = anthropic.Anthropic(api_key=api_key)
 
     grid_info = ""
     if ctx.get("closest_grid"):
@@ -5178,12 +5167,8 @@ Respond ONLY with valid JSON in this exact format, no markdown, no preamble:
 Available links: /app/campaign-tiers, /app/pro/leads, /app/network, /app/affiliate, /app/courses, /app/wallet, /app/dashboard"""
 
     try:
-        resp = client.messages.create(
-            model=AI_MODEL_SONNET,
-            max_tokens=800,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        raw = resp.content[0].text.strip()
+        from .grok_service import ai_text_generate
+        raw = (await ai_text_generate(prompt=prompt, max_tokens=800, temperature=0.7)).strip()
         # Strip markdown fences if present
         if raw.startswith("```"):
             raw = raw.split("```")[1]
@@ -5221,7 +5206,7 @@ async def get_copilot_briefing(request: Request, db: Session = Depends(get_db),
 
     # Generate fresh briefing
     ctx = _build_copilot_context(user, db)
-    result = _generate_copilot_briefing(ctx)
+    result = await _generate_copilot_briefing(ctx)
     import json as _json
 
     if cached:
@@ -5257,7 +5242,7 @@ async def refresh_copilot_briefing(request: Request, db: Session = Depends(get_d
     import json as _json
     today = datetime.utcnow().strftime("%Y-%m-%d")
     ctx = _build_copilot_context(user, db)
-    result = _generate_copilot_briefing(ctx)
+    result = await _generate_copilot_briefing(ctx)
 
     cached = db.query(CoPilotBriefing).filter(CoPilotBriefing.user_id == user.id).first()
     if cached:
@@ -5316,12 +5301,7 @@ async def copilot_ask(request: Request, db: Session = Depends(get_db),
             "remaining": 0,
         }, status_code=429)
 
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return JSONResponse({"error": "AI not configured"}, status_code=500)
-
     ctx = _build_copilot_context(user, db)
-    client = anthropic.Anthropic(api_key=api_key)
 
     system = f"""You are the SuperAdPro AI Co-Pilot — a focused business advisor for {ctx['name']}.
 
@@ -5335,13 +5315,13 @@ STRICT RULES — you must follow these without exception:
 5. Never engage in small talk or general conversation."""
 
     try:
-        resp = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=150,
+        from .grok_service import ai_text_generate
+        reply = (await ai_text_generate(
+            prompt=question,
             system=system,
-            messages=[{"role": "user", "content": question}]
-        )
-        reply = resp.content[0].text.strip()
+            max_tokens=150,
+            temperature=0.7,
+        )).strip()
 
         # Increment usage counter
         try:
@@ -9506,25 +9486,10 @@ Respond ONLY with a JSON object (no markdown, no backticks) containing:
 
 Make every word count. Use power words. Create genuine curiosity and desire. Avoid hype — be compelling but believable."""
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return JSONResponse({
-            "headline": f"Discover the {niche.title()} System That's Changing Everything",
-            "subheadline": f"Join thousands who are building real income with a proven step-by-step system",
-            "body_copy": f"✓ Learn the exact strategy top earners use in {niche}\n✓ No experience needed — full training included\n✓ Start seeing results in your first week\n✓ Access a community of like-minded entrepreneurs\n✓ Limited spots available at this price",
-            "cta_text": "Get Started Now",
-            "demo": True,
-        })
-
     try:
-        import anthropic, json
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model=AI_MODEL_SONNET,  # Complex generation,
-            max_tokens=800,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        text = message.content[0].text.strip()
+        import json
+        from .grok_service import ai_text_generate
+        text = (await ai_text_generate(prompt=prompt, max_tokens=800, temperature=0.7)).strip()
         # Strip markdown fences if present
         if text.startswith("```"):
             text = text.split("\n", 1)[1] if "\n" in text else text[3:]
@@ -10916,15 +10881,13 @@ YOUR PERSONALITY & RULES:
         return JSONResponse({"reply": reply})
 
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=AI_MODEL_HAIKU,  # Cost-optimised,
-            max_tokens=300,
+        from .grok_service import ai_text_generate
+        reply = await ai_text_generate(
             system=system_prompt,
             messages=messages,
+            max_tokens=300,
+            temperature=0.7,
         )
-        reply = response.content[0].text
         return JSONResponse({"reply": reply})
     except Exception as e:
         logger.error(f"Chat API error: {e}")
@@ -11060,19 +11023,9 @@ Based on this data, provide 3-5 specific, actionable recommendations to improve 
 
 Keep recommendations concise, specific and immediately actionable. Use a friendly, encouraging tone. Format each recommendation with a short bold title followed by 1-2 sentences of advice. Do not use numbered lists — use clear paragraph breaks between recommendations."""
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return JSONResponse({"recommendations": "**Great start!** You've got campaigns running — that puts you ahead of most. Focus on consistency: keep your content fresh and post regularly.\n\n**Optimise your titles** — Make sure each video has a compelling, curiosity-driven title. This is the #1 factor in whether someone clicks.\n\n**Check your completion rates** — If viewers aren't watching to the end, try shorter videos or stronger hooks in the first 8 seconds.\n\n*Note: Add your ANTHROPIC_API_KEY to Railway for personalised AI recommendations.*"})
-
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model=AI_MODEL_SONNET,  # Complex generation,
-            max_tokens=1000,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        text = message.content[0].text
+        from .grok_service import ai_text_generate
+        text = await ai_text_generate(prompt=prompt, max_tokens=1000, temperature=0.7)
         return JSONResponse({"recommendations": text})
     except Exception as e:
         logger.error(f"AI recommendations error: {e}")
@@ -11221,13 +11174,8 @@ IMPORTANT RULES:
         return JSONResponse({"sections": demo_sections, "demo": True})
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model=AI_MODEL_SONNET,  # Complex generation,
-            max_tokens=4000,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        full_text = message.content[0].text
+        from .grok_service import ai_text_generate
+        full_text = await ai_text_generate(prompt=prompt, max_tokens=4000, temperature=0.7)
 
         # Parse into sections
         sections = []
@@ -11263,8 +11211,6 @@ IMPORTANT RULES:
 
         return JSONResponse({"sections": sections})
 
-    except anthropic.AuthenticationError:
-        return JSONResponse({"error": "Invalid API key — check your ANTHROPIC_API_KEY"}, status_code=500)
     except Exception as e:
         logging.error(f"Campaign studio error: {e}")
         return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
@@ -13795,15 +13741,10 @@ Higher tiers unlock larger ad campaigns and greater earning potential.
 
 @app.post("/api/chat")
 async def api_ai_chat(request: Request):
-    """SuperAdPro AI chat widget endpoint."""
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return JSONResponse({"reply": "AI chat is temporarily unavailable. Please contact support."})
-
+    """SuperAdPro AI chat widget endpoint. Routes via Grok 4.1 Fast with Claude Haiku 4.5 fallback."""
     try:
         body = await request.json()
         raw_messages = body.get("messages", [])
-        client = anthropic.Anthropic(api_key=api_key)
 
         # Sanitise and limit history
         messages = []
@@ -13814,16 +13755,19 @@ async def api_ai_chat(request: Request):
         if not messages:
             return JSONResponse({"reply": "Sorry, I didn't receive your message. Please try again."})
 
-        response = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=400,
-            system=SAP_CHAT_SYSTEM,
-            messages=messages
-        )
-        reply = response.content[0].text if response.content else "I'm not sure how to answer that. Please contact our support team."
-        return JSONResponse({"reply": reply})
+        from .grok_service import ai_text_generate
+        try:
+            reply = await ai_text_generate(
+                system=SAP_CHAT_SYSTEM,
+                messages=messages,
+                max_tokens=400,
+                temperature=0.7,
+            )
+        except Exception:
+            reply = "I'm not sure how to answer that. Please contact our support team."
+        return JSONResponse({"reply": reply or "I'm not sure how to answer that. Please contact our support team."})
 
-    except Exception as e:
+    except Exception:
         return JSONResponse({"reply": "I'm having a moment — please try again shortly or visit our Knowledge Base at superadpro.tawk.help"})
 COMP_PLAN_CHAT_SYSTEM = """You are the SuperAdPro Compensation Plan expert — a friendly, knowledgeable guide who helps members understand exactly how they earn money on the platform.
 
@@ -13901,11 +13845,7 @@ When a member asks "how much could I earn with X referrals", calculate it clearl
 """
 @app.post("/api/chat/comp-plan")
 async def api_comp_plan_chat(request: Request):
-    """Comp Plan AI assistant — helps members understand earning potential."""
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return JSONResponse({"reply": "AI chat is temporarily unavailable. Please contact support."})
-
+    """Comp Plan AI assistant. Routes via Grok 4.1 Fast with Claude Haiku 4.5 fallback."""
     try:
         body = await request.json()
         raw_messages = body.get("messages", [])
@@ -13918,15 +13858,17 @@ async def api_comp_plan_chat(request: Request):
         if not messages:
             return JSONResponse({"reply": "Sorry, I didn't catch that. What would you like to know about earning with SuperAdPro?"})
 
-        client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=500,
-            system=COMP_PLAN_CHAT_SYSTEM,
-            messages=messages
-        )
-        reply = response.content[0].text if response.content else "I'm not sure about that one. Feel free to ask me anything about how you earn with SuperAdPro!"
-        return JSONResponse({"reply": reply})
+        from .grok_service import ai_text_generate
+        try:
+            reply = await ai_text_generate(
+                system=COMP_PLAN_CHAT_SYSTEM,
+                messages=messages,
+                max_tokens=500,
+                temperature=0.7,
+            )
+        except Exception:
+            reply = "I'm not sure about that one. Feel free to ask me anything about how you earn with SuperAdPro!"
+        return JSONResponse({"reply": reply or "I'm not sure about that one. Feel free to ask me anything about how you earn with SuperAdPro!"})
 
     except Exception as e:
         logger.error(f"Comp Plan chat error: {e}")
@@ -15612,14 +15554,15 @@ Return ONLY a JSON array of 2 strings. No markdown, no explanation, just the JSO
         user_prompt = f"Generate 2 helpful messages for {platform} for this situation: {situation}"
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=600,
+        from .grok_service import ai_text_generate
+        text = await ai_text_generate(
+            prompt=user_prompt,
             system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            max_tokens=600,
+            temperature=0.7,
         )
-        text = response.content[0].text if response.content else "[]"
+        if not text:
+            text = "[]"
 
         # Parse JSON response
         import json as _json2
@@ -15903,15 +15846,12 @@ Rules:
 Return ONLY a valid JSON array. No markdown."""
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
+        from .grok_service import ai_text_generate
 
         # Generate funnel copy
-        funnel_resp = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=800,
-            messages=[{"role": "user", "content": funnel_prompt}]
-        )
-        funnel_text = funnel_resp.content[0].text.strip()
+        funnel_text = (await ai_text_generate(
+            prompt=funnel_prompt, max_tokens=800, temperature=0.7,
+        )).strip()
         if funnel_text.startswith("```"):
             funnel_text = funnel_text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
         # Find JSON object boundaries
@@ -15922,12 +15862,9 @@ Return ONLY a valid JSON array. No markdown."""
         funnel_data = _json3.loads(funnel_text)
 
         # Generate email sequence
-        seq_resp = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=1200,
-            messages=[{"role": "user", "content": sequence_prompt}]
-        )
-        seq_text = seq_resp.content[0].text.strip()
+        seq_text = (await ai_text_generate(
+            prompt=sequence_prompt, max_tokens=1200, temperature=0.7,
+        )).strip()
         if seq_text.startswith("```"):
             seq_text = seq_text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
         # Find JSON array boundaries
@@ -16394,14 +16331,13 @@ RULES:
 - NEVER return markdown fencing — just raw JSON"""
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        resp = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=3000,
-            messages=[{"role": "user", "content": message}],
+        from .grok_service import ai_text_generate
+        text = (await ai_text_generate(
+            prompt=message,
             system=system_prompt,
-        )
-        text = resp.content[0].text.strip()
+            max_tokens=3000,
+            temperature=0.7,
+        )).strip()
         # Clean JSON
         if text.startswith("```"):
             text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
@@ -16459,13 +16395,10 @@ Follow the user's feedback. Keep it honest — no hype, no income promises.
 Return ONLY valid JSON."""
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        resp = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=800,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        text = resp.content[0].text.strip()
+        from .grok_service import ai_text_generate
+        text = (await ai_text_generate(
+            prompt=prompt, max_tokens=800, temperature=0.7,
+        )).strip()
         if text.startswith("```"):
             text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
 
@@ -16560,14 +16493,13 @@ async def api_pro_funnel_ai_rewrite(funnel_id: int, request: Request, db: Sessio
     )
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        resp = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=500,
-            messages=[{"role": "user", "content": user_prompt}],
+        from .grok_service import ai_text_generate
+        rewritten = (await ai_text_generate(
+            prompt=user_prompt,
             system=system_prompt,
-        )
-        rewritten = resp.content[0].text.strip()
+            max_tokens=500,
+            temperature=0.7,
+        )).strip()
         # Model sometimes wraps the result in quotes despite instructions —
         # strip one layer of leading/trailing quotes if present.
         if len(rewritten) >= 2 and rewritten[0] in ('"', "'") and rewritten[-1] == rewritten[0]:
@@ -16644,13 +16576,10 @@ Return ONLY a JSON object with:
 No explanation, no markdown. ONLY valid JSON."""
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        resp = client.messages.create(
-            model=AI_MODEL_HAIKU,
-            max_tokens=2000,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        text = resp.content[0].text.strip()
+        from .grok_service import ai_text_generate
+        text = (await ai_text_generate(
+            prompt=prompt, max_tokens=2000, temperature=0.7,
+        )).strip()
         if text.startswith("```"):
             text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
         if "{" in text:
@@ -17914,60 +17843,16 @@ def api_superseller_delete(campaign_id: int, request: Request,
     db.delete(c)
     db.commit()
     return {"success": True, "message": "Campaign deleted"}
-async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514", retries: int = 2) -> str:
-    """Call AI for SuperSeller generation — Gemini first, Claude fallback."""
-    import httpx
+async def _call_ai(prompt: str, model: str = None, retries: int = 2) -> str:
+    """Generate text via Grok 4.1 Fast with Claude Haiku 4.5 fallback.
 
-    # Try Gemini first
-    gemini_key = os.getenv("GEMINI_API_KEY", "")
-    if gemini_key:
-        try:
-            gemini_model = "gemini-2.5-flash"
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_key}"
-            async with httpx.AsyncClient(timeout=180) as client:
-                resp = await client.post(url, json={
-                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                    "generationConfig": {"maxOutputTokens": 8000, "temperature": 0.7}
-                })
-                if resp.status_code == 200:
-                    data = resp.json()
-                    candidates = data.get("candidates", [])
-                    if candidates:
-                        parts = candidates[0].get("content", {}).get("parts", [])
-                        if parts and parts[0].get("text"):
-                            logger.info("_call_ai: Gemini succeeded")
-                            return parts[0]["text"]
-            logger.warning("_call_ai: Gemini returned empty, falling back to Claude")
-        except Exception as e:
-            logger.warning(f"_call_ai: Gemini failed ({e}), falling back to Claude")
-
-    # Fallback to Claude
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        raise Exception("No AI provider available (GEMINI_API_KEY and ANTHROPIC_API_KEY both missing)")
-    last_error = None
-    for attempt in range(retries):
-        try:
-            async with httpx.AsyncClient(timeout=180) as client:
-                resp = await client.post("https://api.anthropic.com/v1/messages", headers={
-                    "x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
-                }, json={
-                    "model": model, "max_tokens": 8000,
-                    "messages": [{"role": "user", "content": prompt}],
-                })
-                data = resp.json()
-                if "content" in data and len(data["content"]) > 0:
-                    logger.info("_call_ai: Claude fallback succeeded")
-                    return data["content"][0].get("text", "")
-                last_error = f"AI response error: {data}"
-                logger.warning(f"_call_ai attempt {attempt+1} failed: {last_error}")
-        except Exception as e:
-            last_error = str(e)
-            logger.warning(f"_call_ai attempt {attempt+1} exception: {last_error}")
-        if attempt < retries - 1:
-            import asyncio
-            await asyncio.sleep(3)
-    raise Exception(f"AI call failed after {retries} attempts: {last_error}")
+    The `model` parameter is retained for backwards compatibility with
+    legacy call sites but is ignored — routing decisions live in
+    grok_service.ai_text_generate. Claude is the silent fallback when
+    Grok has issues.
+    """
+    from .grok_service import ai_text_generate
+    return await ai_text_generate(prompt=prompt, max_tokens=8000, temperature=0.7)
 def _extract_json(text: str) -> str:
     """Extract JSON from AI response — handles markdown code blocks."""
     import json as _json
@@ -18530,48 +18415,18 @@ YOUR ROLE:
     except Exception as e:
         logger.error(f"SuperSeller AI chat failed: {e}")
         return {"reply": "I'm having a moment — could you try asking again?"}
-async def _call_ai_with_system(system: str, messages: list, model: str = "claude-haiku-4-5-20251001") -> str:
-    """Call AI with system prompt — Gemini first, Claude fallback."""
-    import httpx
+async def _call_ai_with_system(system: str, messages: list, model: str = None) -> str:
+    """Multi-turn chat via Grok 4.1 Fast with Claude Haiku 4.5 fallback.
 
-    # Try Gemini first
-    gemini_key = os.getenv("GEMINI_API_KEY", "")
-    if gemini_key:
-        try:
-            # Combine system + messages into a single Gemini prompt
-            combined = system + "\n\n"
-            for m in messages:
-                combined += f"{m['role'].upper()}: {m['content']}\n"
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}"
-            async with httpx.AsyncClient(timeout=30) as client:
-                resp = await client.post(url, json={
-                    "contents": [{"role": "user", "parts": [{"text": combined}]}],
-                    "generationConfig": {"maxOutputTokens": 500, "temperature": 0.7}
-                })
-                if resp.status_code == 200:
-                    data = resp.json()
-                    candidates = data.get("candidates", [])
-                    if candidates:
-                        parts = candidates[0].get("content", {}).get("parts", [])
-                        if parts and parts[0].get("text"):
-                            return parts[0]["text"]
-        except Exception:
-            pass
-
-    # Fallback to Claude
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        return "Our AI assistant is being set up. Please check back shortly!"
-    async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.post("https://api.anthropic.com/v1/messages", headers={
-            "x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
-        }, json={
-            "model": model, "max_tokens": 500, "system": system,
-            "messages": messages,
-        })
-        data = resp.json()
-        if "content" in data and len(data["content"]) > 0:
-            return data["content"][0].get("text", "")
+    Returns a polite stub on total provider failure rather than raising,
+    because callers are typically chat endpoints where exceptions reach
+    the member as broken UI.
+    """
+    from .grok_service import ai_text_generate
+    try:
+        return await ai_text_generate(system=system, messages=messages, max_tokens=500, temperature=0.7)
+    except Exception as e:
+        logger.warning(f"_call_ai_with_system: all providers failed: {e}")
         return "I'm here to help! What would you like to know about SuperAdPro?"
 
 # ═══════════════════════════════════════════════════════════════
@@ -20573,19 +20428,20 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
         return JSONResponse({"error": "Message required"}, status_code=400)
     history = body.get("history", [])
     try:
-        client = anthropic.Anthropic()
         messages = []
         for h in history[-10:]:
             if h.get("role") and h.get("content"):
                 messages.append({"role": h["role"], "content": h["content"]})
         messages.append({"role": "user", "content": message})
-        resp = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=1024,
+
+        from .grok_service import ai_text_generate
+        reply = await ai_text_generate(
             system="You are ProSeller AI, a sales assistant for SuperAdPro members. Help them write pitches, handle objections, create follow-up messages, and close more sales. Be practical, concise, and action-oriented. Focus on affiliate marketing, network marketing, and online sales techniques. The member's username is " + (user.username or ""),
             messages=messages,
+            max_tokens=1024,
+            temperature=0.7,
         )
-        return {"response": resp.content[0].text}
+        return {"response": reply}
     except Exception as e:
         return {"response": f"Sorry, I'm temporarily unavailable. Error: {str(e)[:100]}"}
 @app.get("/api/funnels/templates")
@@ -21830,9 +21686,7 @@ async def sc_music_poll(task_id: str, request: Request, db: Session = Depends(ge
 
 @app.post("/api/superscene/music/generate-lyrics")
 async def sc_generate_lyrics(request: Request, db: Session = Depends(get_db)):
-    """Generate song lyrics using Claude AI based on a description."""
-    import httpx
-
+    """Generate song lyrics via Grok 4.1 Fast with Claude Haiku 4.5 fallback."""
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -21844,38 +21698,15 @@ async def sc_generate_lyrics(request: Request, db: Session = Depends(get_db)):
     if not description:
         raise HTTPException(status_code=400, detail="Description required")
 
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        raise HTTPException(status_code=503, detail="AI service not configured")
-
     style_hint = f" in a {style} style" if style else ""
     prompt = f"""Write song lyrics{style_hint} based on this description: "{description}"
 
 Format the lyrics with [Verse], [Chorus], [Bridge] sections. Keep it 2-3 verses with a catchy chorus. Make the lyrics feel authentic and emotionally engaging. Only output the lyrics, nothing else."""
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model": "claude-haiku-4-5-20251001",
-                    "max_tokens": 1000,
-                    "messages": [{"role": "user", "content": prompt}],
-                },
-            )
-            data = resp.json()
-
-        if resp.status_code == 200:
-            lyrics = data.get("content", [{}])[0].get("text", "")
-            return {"success": True, "lyrics": lyrics}
-
-        return {"success": False, "error": data.get("error", {}).get("message", "AI generation failed")}
-
+        from .grok_service import ai_text_generate
+        lyrics = await ai_text_generate(prompt=prompt, max_tokens=1000, temperature=0.8)
+        return {"success": True, "lyrics": lyrics}
     except Exception as e:
         logger.exception("Lyrics generation error")
         raise HTTPException(status_code=502, detail=str(e))
@@ -22921,33 +22752,10 @@ Provide:
 
     ai_prompt = tool_prompts.get(tool, tool_prompts["social"])
 
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        raise HTTPException(status_code=503, detail="AI service not configured")
-
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model": "claude-haiku-4-5-20251001",
-                    "max_tokens": 2000,
-                    "messages": [{"role": "user", "content": ai_prompt}],
-                },
-            )
-            data = resp.json()
-
-        if resp.status_code == 200:
-            content = data.get("content", [{}])[0].get("text", "")
-            return {"success": True, "content": content, "tool": tool, "platform": platform}
-
-        err = data.get("error", {}).get("message", "AI generation failed")
-        raise HTTPException(status_code=502, detail=err)
+        from .grok_service import ai_text_generate
+        content = await ai_text_generate(prompt=ai_prompt, max_tokens=2000, temperature=0.8)
+        return {"success": True, "content": content, "tool": tool, "platform": platform}
 
     except HTTPException:
         raise
@@ -24672,7 +24480,7 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
 
 @app.post("/api/superdeck/ai-generate")
 async def api_superdeck_ai_generate(request: Request, user: User = Depends(get_current_user)):
-    """Generate slide content from a text prompt using Grok."""
+    """Generate slide content from a text prompt via Grok 4.1 Fast with Claude Haiku 4.5 fallback."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     body = await request.json()
@@ -24681,16 +24489,9 @@ async def api_superdeck_ai_generate(request: Request, user: User = Depends(get_c
     if not prompt:
         return JSONResponse({"error": "Prompt required"}, status_code=400)
 
-    import httpx, json as _j
+    import json as _j
 
-    xai_key = os.getenv("XAI_API_KEY")
-    if not xai_key:
-        # Fallback to Anthropic
-        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-        if not anthropic_key:
-            return JSONResponse({"error": "No AI API key configured"}, status_code=500)
-
-        system = f"""You are a presentation designer. Generate a {slide_count}-slide presentation based on the user's prompt.
+    system = f"""You are a presentation designer. Generate a {slide_count}-slide presentation based on the user's prompt.
 Return ONLY valid JSON — no markdown, no backticks, no explanation.
 Format: {{"slides": [{{"layout": "title", "heading": "...", "subtitle": "...", "notes": "..."}}, ...]}}
 
@@ -24706,39 +24507,26 @@ Available layouts and their required fields:
 
 Use a variety of layouts. Make content specific and compelling. Speaker notes should be 1-2 sentences."""
 
-        async with httpx.AsyncClient(timeout=60) as client:
-            resp = await client.post("https://api.anthropic.com/v1/messages",
-                headers={"x-api-key": anthropic_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                json={"model": "claude-haiku-4-5-20251001", "max_tokens": 4000, "system": system,
-                      "messages": [{"role": "user", "content": prompt}]})
-            data = resp.json()
-            text = data.get("content", [{}])[0].get("text", "")
-    else:
-        system = f"""You are a presentation designer. Generate a {slide_count}-slide presentation based on the user's prompt.
-Return ONLY valid JSON — no markdown, no backticks, no explanation.
-Format: {{"slides": [{{"layout": "title", "heading": "...", "subtitle": "...", "notes": "..."}}, ...]}}
+    try:
+        from .grok_service import ai_text_generate
+        text = await ai_text_generate(prompt=prompt, system=system, max_tokens=4000, temperature=0.7)
+    except Exception as e:
+        return JSONResponse({"error": f"AI generation failed: {str(e)}"}, status_code=500)
 
-Available layouts and their required fields:
-- "title": heading, subtitle, notes
-- "content": heading, body, notes
-- "two_column": heading, col1_text, col2_text, notes
-- "stats": heading, stats (array of {{"value": "85%", "label": "Growth"}}), notes
-- "quote": quote_text, attribution, notes
-- "bullets": heading, bullets (array of strings), notes
-- "image_text": heading, body, image_prompt (describe the image to generate), notes
-- "cta": heading, subtitle, cta_text, notes
-
-Use a variety of layouts. Make content specific and compelling. Speaker notes should be 1-2 sentences."""
-
-        async with httpx.AsyncClient(timeout=60) as client:
-            resp = await client.post("https://api.x.ai/v1/chat/completions",
-                headers={"Authorization": f"Bearer {xai_key}", "content-type": "application/json"},
-                json={"model": "grok-3-mini-fast", "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": prompt}
-                ], "max_tokens": 4000, "temperature": 0.7})
-            data = resp.json()
-            text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+    # Parse the JSON response
+    try:
+        text = text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+        slides_data = _j.loads(text)
+        if isinstance(slides_data, dict) and "slides" in slides_data:
+            slides_data = slides_data["slides"]
+        return {"success": True, "slides": slides_data}
+    except Exception as e:
+        return JSONResponse({"error": f"Failed to parse AI response: {str(e)}", "raw": text[:500]}, status_code=500)
 
     # Parse the JSON response
     try:

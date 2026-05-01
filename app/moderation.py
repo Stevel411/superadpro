@@ -1,7 +1,12 @@
 """
 AI Content Moderation for SuperAdPro
-Uses Claude API to scan ads, banners, and video content before publishing.
+Uses Grok 4.1 Fast (xAI) to scan ads, banners, and video content before publishing.
 Clean content → auto-approved. Flagged → pending admin review.
+
+Migrated May 2026: was Anthropic Claude Sonnet, now Grok for cost. The moderation
+prompt is conservative — better to flag a borderline case for manual review than to
+let bad content through. Both providers are equivalently capable for this kind of
+classification task.
 """
 
 import os
@@ -11,6 +16,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+XAI_API_KEY = os.getenv("XAI_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
 MODERATION_PROMPT = """You are a content moderator for SuperAdPro, a video advertising and affiliate marketing platform. 
@@ -60,32 +66,61 @@ LINK URL: {link_url}
 """
 
     try:
-        response = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "Content-Type": "application/json",
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-            },
-            json={
-                "model": "claude-sonnet-4-20250514",
-                "max_tokens": 200,
-                "messages": [
-                    {"role": "user", "content": MODERATION_PROMPT + "\n\nCONTENT TO REVIEW:\n" + content_text}
-                ],
-            },
-            timeout=15,
-        )
+        # Primary: Grok 4.1 Fast via xAI
+        if XAI_API_KEY:
+            response = requests.post(
+                "https://api.x.ai/v1/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {XAI_API_KEY}",
+                },
+                json={
+                    "model": "grok-4-1-fast",
+                    "max_tokens": 200,
+                    "messages": [
+                        {"role": "user", "content": MODERATION_PROMPT + "\n\nCONTENT TO REVIEW:\n" + content_text}
+                    ],
+                },
+                timeout=15,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                text = (data.get("choices", [{}])[0].get("message", {}).get("content", "") or "").strip()
+            else:
+                logger.warning(f"Grok moderation API error {response.status_code}, falling back to Claude")
+                text = ""
+        else:
+            text = ""
 
-        if response.status_code != 200:
-            logger.error(f"Moderation API error: {response.status_code} — {response.text[:200]}")
-            return {"decision": "flag", "reason": f"API error ({response.status_code}) — queued for manual review", "confidence": 0.0}
+        # Fallback: Claude Haiku 4.5 if Grok was missing or failed
+        if not text and ANTHROPIC_API_KEY:
+            response = requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01",
+                },
+                json={
+                    "model": "claude-haiku-4-5-20251001",
+                    "max_tokens": 200,
+                    "messages": [
+                        {"role": "user", "content": MODERATION_PROMPT + "\n\nCONTENT TO REVIEW:\n" + content_text}
+                    ],
+                },
+                timeout=15,
+            )
+            if response.status_code != 200:
+                logger.error(f"Moderation fallback API error: {response.status_code} — {response.text[:200]}")
+                return {"decision": "flag", "reason": f"API error ({response.status_code}) — queued for manual review", "confidence": 0.0}
+            data = response.json()
+            text = ""
+            for block in data.get("content", []):
+                if block.get("type") == "text":
+                    text += block.get("text", "")
 
-        data = response.json()
-        text = ""
-        for block in data.get("content", []):
-            if block.get("type") == "text":
-                text += block.get("text", "")
+        if not text:
+            return {"decision": "flag", "reason": "No AI provider available — queued for manual review", "confidence": 0.0}
 
         # Parse JSON response
         text = text.strip()

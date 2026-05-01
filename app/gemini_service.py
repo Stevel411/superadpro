@@ -76,46 +76,21 @@ async def claude_generate(prompt: str, max_tokens: int = 2000, model: str = None
 
 async def ai_generate(prompt: str, max_tokens: int = 2000, system: str = "", prefer: str = "gemini") -> str:
     """
-    Unified AI text generation. Tries preferred provider first, falls back to other.
+    Unified AI text generation — routes through Grok 4.1 Fast with Claude Haiku 4.5 fallback.
+
+    The function name and signature are kept stable so existing call sites don't
+    need updating, but the routing has migrated from Gemini-first to Grok-first
+    as part of the cost-optimisation work in May 2026. The `prefer` parameter is
+    accepted for backwards compatibility but no longer affects routing.
 
     Args:
         prompt: The user prompt
         max_tokens: Maximum output tokens
-        system: Optional system instruction (prepended to prompt for Gemini)
-        prefer: "gemini" or "claude" — which to try first
+        system: Optional system instruction
+        prefer: ignored — kept for backwards compatibility
 
     Returns:
         Generated text string
     """
-    if prefer == "gemini":
-        # Try Gemini first, fallback to Claude
-        try:
-            result = await gemini_generate(prompt, max_tokens, system)
-            logger.info("AI generation: Gemini succeeded")
-            return result
-        except Exception as e:
-            logger.warning(f"Gemini failed ({e}), falling back to Claude")
-            try:
-                full_prompt = (system + "\n\n" + prompt) if system else prompt
-                result = await claude_generate(full_prompt, max_tokens)
-                logger.info("AI generation: Claude fallback succeeded")
-                return result
-            except Exception as e2:
-                logger.error(f"Both Gemini and Claude failed: {e2}")
-                raise Exception(f"AI generation failed: {e2}")
-    else:
-        # Try Claude first, fallback to Gemini
-        try:
-            full_prompt = (system + "\n\n" + prompt) if system else prompt
-            result = await claude_generate(full_prompt, max_tokens)
-            logger.info("AI generation: Claude succeeded")
-            return result
-        except Exception as e:
-            logger.warning(f"Claude failed ({e}), falling back to Gemini")
-            try:
-                result = await gemini_generate(prompt, max_tokens, system)
-                logger.info("AI generation: Gemini fallback succeeded")
-                return result
-            except Exception as e2:
-                logger.error(f"Both Claude and Gemini failed: {e2}")
-                raise Exception(f"AI generation failed: {e2}")
+    from .grok_service import ai_text_generate
+    return await ai_text_generate(prompt=prompt, system=system, max_tokens=max_tokens, temperature=0.7)

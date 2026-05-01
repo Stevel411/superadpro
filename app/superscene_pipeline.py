@@ -52,32 +52,13 @@ Respond ONLY with valid JSON, no markdown, no explanation. Format:
     user_prompt = f"Style: {style}\n\nScript to break into scenes:\n\n{script}"
 
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": ANTHROPIC_API_KEY,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model": "claude-haiku-4-5-20251001",
-                    "max_tokens": 4096,
-                    "system": system_prompt,
-                    "messages": [{"role": "user", "content": user_prompt}],
-                },
-            )
-            data = resp.json()
-
-        if resp.status_code != 200:
-            err = data.get("error", {}).get("message", "Script analysis failed")
-            return {"success": False, "error": err}
-
-        # Extract text content
-        text_content = ""
-        for block in data.get("content", []):
-            if block.get("type") == "text":
-                text_content += block.get("text", "")
+        from .grok_service import ai_text_generate
+        text_content = await ai_text_generate(
+            prompt=user_prompt,
+            system=system_prompt,
+            max_tokens=4096,
+            temperature=0.7,
+        )
 
         # Parse JSON response
         clean = text_content.strip()
