@@ -12,6 +12,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
+from sqlalchemy import text, func
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -8890,8 +8891,6 @@ def compute_descendant_counts(db: Session, user_id: int) -> dict:
     cached = cache_get(cache_key)
     if cached is not None:
         return cached
-
-    from sqlalchemy import text
 
     # Recursive CTE: start with direct referrals of user_id, then iteratively
     # add descendants of each found user until no new rows. PostgreSQL
