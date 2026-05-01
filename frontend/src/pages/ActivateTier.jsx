@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
-import { Globe, Coins } from 'lucide-react';
-import CryptoCheckout from '../components/CryptoCheckout';
+import { Globe } from 'lucide-react';
 
 const TIERS = {
   1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    bonus:64,   grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
@@ -23,7 +22,6 @@ export default function ActivateTier() {
   const { user } = useAuth();
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState('');
-  const [cryptoCheckout, setCryptoCheckout] = useState(false);
 
   const n = parseInt(tierId);
   const tier = TIERS[n];
@@ -81,53 +79,44 @@ export default function ActivateTier() {
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          {/* NOWPayments primary — accepts 350+ cryptos, easiest for new users */}
+          {/* NOWPayments primary — accepts 350+ cryptos including USDT-TRC20, easiest for new users */}
           <button onClick={handleNowPayments} disabled={paying} style={{
-            display:'flex',alignItems:'center',justifyContent:'center',gap:10,
-            width:'100%', padding:16, borderRadius:12,
-            fontSize:16, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
+            display:'flex',alignItems:'center',justifyContent:'center',gap:12,
+            width:'100%', padding:'22px 20px', borderRadius:14,
+            fontSize:18, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
             fontFamily:'inherit',
-            background:'linear-gradient(135deg,#8b5cf6,#7c3aed,#6d28d9)',
+            background: paying
+              ? 'linear-gradient(135deg,#a78bfa,#8b5cf6,#7c3aed)'
+              : 'linear-gradient(135deg,#8b5cf6,#7c3aed,#6d28d9)',
             color:'#fff',
-            boxShadow:'0 4px 0 #5b21b6,0 6px 20px rgba(124,58,237,.3)',
+            boxShadow: paying ? '0 4px 0 #5b21b6,0 6px 20px rgba(124,58,237,.2)' : '0 4px 0 #5b21b6,0 6px 24px rgba(124,58,237,.4)',
             letterSpacing:0.3, transition:'all 0.2s',
+            opacity: paying ? 0.85 : 1,
           }}>
-            <Globe size={18} />
-            {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${tier.price.toLocaleString()}`}
+            {paying ? (
+              <>
+                <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(255,255,255,.5)', borderTopColor:'#fff', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
+                <span>Creating your secure invoice…</span>
+              </>
+            ) : (
+              <>
+                <Globe size={22} />
+                <span>{`\uD83C\uDF10 Pay $${tier.price.toLocaleString()}`}</span>
+              </>
+            )}
           </button>
+          <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
 
-          {/* Direct USDT secondary — for users who already hold USDT on Polygon */}
-          <button onClick={function(){ setCryptoCheckout(true); }} style={{
-            display:'flex',alignItems:'center',justifyContent:'center',gap:10,
-            width:'100%', padding:15, borderRadius:12,
-            fontSize:15, fontWeight:700, cursor:'pointer',
-            fontFamily:'inherit',
-            background:'#fff', color:'var(--sap-text-muted)',
-            border:'1.5px solid #e2e8f0',
-            transition:'all 0.2s',
-          }}
-            onMouseOver={function(e){ e.currentTarget.style.borderColor='var(--sap-accent)'; e.currentTarget.style.color='var(--sap-accent)'; }}
-            onMouseOut={function(e){ e.currentTarget.style.borderColor='var(--sap-border)'; e.currentTarget.style.color='var(--sap-text-muted)'; }}
-          >
-            <Coins size={17} />
-            {"\u26A1"} Pay with Crypto (USDT / USDC)
-          </button>
-
-          <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
+          <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
+            {"\uD83D\uDD12"} Secure checkout · 350+ cryptos accepted (USDT, BTC, ETH, more)
+            <br/>
+            {"\u26A1"} Instant activation once payment confirms
+          </div>
         </div>
 
         <div style={{padding:'10px 14px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
           <strong>{t('common.allSalesFinal')}</strong> Campaign tier purchases are non-refundable. Commissions are paid instantly upon purchase and cannot be reversed.
         </div>
-
-        {cryptoCheckout && (
-          <CryptoCheckout
-            productKey={'grid_' + n}
-            productLabel={tier.name + ' Campaign — $' + tier.price.toLocaleString()}
-            onSuccess={function(){ setCryptoCheckout(false); window.location.href='/campaign-tiers'; }}
-            onCancel={function(){ setCryptoCheckout(false); }}
-          />
-        )}
 
         <div style={{textAlign:'center',marginBottom:16}}>
           <Link to="/campaign-tiers" style={{fontSize:13,color:'var(--sap-text-muted)',textDecoration:'none'}}>{t('campaignTiers.backToTiers')}</Link>

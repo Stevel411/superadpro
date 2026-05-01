@@ -90,8 +90,9 @@ export default function PaymentSuccess() {
             <div style={{ width: 64, height: 64, margin: '0 auto 20px', borderRadius: '50%', background: `${config.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Loader size={28} color={config.color} style={{ animation: 'spin 1s linear infinite' }} />
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 8 }}>{t('paymentSuccess.confirming')}</div>
-            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{t('paymentSuccess.pleaseWaitFull')}</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Confirming your payment</div>
+            <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.6, marginBottom: 6 }}>Your transaction is being verified on the blockchain.</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', lineHeight: 1.5 }}>This usually takes a few seconds. Please don't close this page.</div>
             <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
           </div>
         ) : (

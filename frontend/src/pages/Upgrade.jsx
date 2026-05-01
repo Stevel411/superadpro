@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
-import { Coins, Globe, Check, Zap, Wrench, Users, Mail, BookOpen, Headphones } from 'lucide-react';
-import CryptoCheckout from '../components/CryptoCheckout';
+import { Globe, Check, Zap, Wrench, Users, Mail, BookOpen, Headphones } from 'lucide-react';
 import WalletGuideCard from '../components/WalletGuideCard';
 
 var css = `
@@ -34,7 +33,6 @@ export default function Upgrade() {
   var isActive = previewMode ? false : user?.is_active;
   var [loading, setLoading] = useState('');
   var [error, setError] = useState('');
-  var [cryptoCheckout, setCryptoCheckout] = useState(null);
 
   var isBasicActive = isActive && !isPro;
 
@@ -50,14 +48,6 @@ export default function Upgrade() {
         else { setError(d.error || t('upgrade.couldNotStart')); }
       })
       .catch(function(e) { setLoading(''); setError(e.message || t('upgrade.checkoutFailed')); });
-  }
-
-  function openCryptoCheckout(tier, billing) {
-    var label = billing === 'annual'
-      ? (tier === 'pro' ? 'Pro Annual \u2014 $350/year' : 'Basic Annual \u2014 $200/year')
-      : (tier === 'pro' ? 'Pro Membership \u2014 $35/mo' : 'Basic Membership \u2014 $20/mo');
-    var productKey = billing === 'annual' ? 'membership_' + tier + '_annual' : 'membership_' + tier;
-    setCryptoCheckout({ productKey: productKey, label: label });
   }
 
   function handleUpgradeToPro() {
@@ -130,30 +120,45 @@ export default function Upgrade() {
       <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
         {/* Annual — primary CTA with savings badge */}
         <button onClick={function(){ nowPaymentsCheckout(tier, 'annual'); }} disabled={loading === annualKey}
-          style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:'18px 16px', borderRadius:14, fontSize:15, fontWeight:800, border:'none', cursor: loading === annualKey ? 'default' : 'pointer', fontFamily:'inherit', background:btnGrad, color:'#fff', boxShadow:btnShadow, transition:'all .2s' }}>
+          style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'center', gap:12, width:'100%', padding:'22px 20px', borderRadius:14, fontSize:17, fontWeight:800, border:'none', cursor: loading === annualKey ? 'wait' : 'pointer', fontFamily:'inherit', background:btnGrad, color:'#fff', boxShadow:btnShadow, transition:'all .2s', opacity: loading === annualKey ? 0.85 : 1 }}>
           <span style={{ position:'absolute', top:-9, right:14, fontSize:11, fontWeight:800, color:'#064e3b', background:'#bbf7d0', border:'1px solid #86efac', padding:'2px 10px', borderRadius:20, letterSpacing:.3 }}>{saveBadge}</span>
-          <Globe size={17} />
-          {loading === annualKey ? t('upgrade.loadingCheckout') : ('Pay yearly · ' + annualPrice)}
+          {loading === annualKey ? (
+            <>
+              <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(255,255,255,.5)', borderTopColor:'#fff', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
+              <span>Creating your secure invoice…</span>
+            </>
+          ) : (
+            <>
+              <Globe size={20} />
+              <span>{`Pay yearly · ${annualPrice}`}</span>
+            </>
+          )}
         </button>
 
         {/* Monthly — secondary outline */}
         <button onClick={function(){ nowPaymentsCheckout(tier, 'monthly'); }} disabled={loading === monthlyKey}
-          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:14, borderRadius:14, fontSize:14, fontWeight:700, border:'1.5px solid #e2e8f0', cursor: loading === monthlyKey ? 'default' : 'pointer', fontFamily:'inherit', background:'#fff', color:'var(--sap-text-muted)', transition:'all .2s' }}
-          onMouseOver={function(e){e.currentTarget.style.borderColor='var(--sap-accent)';e.currentTarget.style.color='var(--sap-accent)'}}
-          onMouseOut={function(e){e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.color='var(--sap-text-muted)'}}>
-          <Globe size={15} />
-          {loading === monthlyKey ? t('upgrade.loadingCheckout') : ('Pay monthly · ' + monthlyPrice)}
+          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:10, width:'100%', padding:'18px 16px', borderRadius:14, fontSize:15, fontWeight:700, border:'1.5px solid #e2e8f0', cursor: loading === monthlyKey ? 'wait' : 'pointer', fontFamily:'inherit', background:'#fff', color:'var(--sap-text-muted)', transition:'all .2s' }}
+          onMouseOver={function(e){ if (loading !== monthlyKey) { e.currentTarget.style.borderColor='var(--sap-accent)'; e.currentTarget.style.color='var(--sap-accent)'; } }}
+          onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='var(--sap-text-muted)'; }}>
+          {loading === monthlyKey ? (
+            <>
+              <span style={{ display:'inline-block', width:16, height:16, border:'2.5px solid rgba(0,0,0,.15)', borderTopColor:'var(--sap-accent)', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
+              <span>Creating your secure invoice…</span>
+            </>
+          ) : (
+            <>
+              <Globe size={17} />
+              <span>{`Pay monthly · ${monthlyPrice}`}</span>
+            </>
+          )}
         </button>
+        <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
 
-        {/* Direct USDT — tertiary, single button that opens billing-period chooser */}
-        <button onClick={function(){ openCryptoCheckout(tier, 'annual'); }}
-          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:12, borderRadius:14, fontSize:13, fontWeight:600, border:'none', cursor:'pointer', fontFamily:'inherit', background:'transparent', color:'var(--sap-text-muted)', transition:'all .2s' }}
-          onMouseOver={function(e){e.currentTarget.style.color='var(--sap-accent)'}}
-          onMouseOut={function(e){e.currentTarget.style.color='var(--sap-text-muted)'}}>
-          <Coins size={14} /> Or pay yearly with USDT/USDC direct
-        </button>
-
-        <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)' }}>{t('upgrade.securePayment')}</div>
+        <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.6 }}>
+          {"\uD83D\uDD12"} Secure checkout · 350+ cryptos accepted (USDT, BTC, ETH, more)
+          <br/>
+          {"\u26A1"} {t('upgrade.securePayment')}
+        </div>
       </div>
     );
   }
@@ -283,15 +288,6 @@ export default function Upgrade() {
           {t('upgrade.securePaymentFooter')}
         </p>
       </div>
-
-      {cryptoCheckout && (
-        <CryptoCheckout
-          productKey={cryptoCheckout.productKey}
-          productLabel={cryptoCheckout.label}
-          onSuccess={function(){ setCryptoCheckout(null); if (refreshUser) refreshUser(); }}
-          onCancel={function(){ setCryptoCheckout(null); }}
-        />
-      )}
     </AppLayout>
   );
 }
