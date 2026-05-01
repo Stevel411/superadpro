@@ -23115,6 +23115,65 @@ def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
     return {"success": True, "users_updated": updated}
 
 
+@app.get("/admin/diagnostic/inspect-ledgers/{user_id}")
+def admin_diagnostic_inspect_ledgers(
+    user_id: int,
+    secret: str = "",
+    db: Session = Depends(get_db),
+):
+    """Read-only ledger inspector. Dumps Withdrawal + Commission rows for a
+    user so we can see exactly what the ledgers contain. No mutations. Used
+    to diagnose when computed totals look wrong — e.g. 'earned X but withdrew
+    more than X'."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+
+    withdrawals = db.query(Withdrawal).filter(Withdrawal.user_id == user_id).order_by(Withdrawal.id).all()
+    commissions = db.query(Commission).filter(Commission.to_user_id == user_id).order_by(Commission.id).all()
+
+    return {
+        "user_id": user_id,
+        "username": target.username,
+        "stored_columns": {
+            "balance": float(target.balance or 0),
+            "campaign_balance": float(target.campaign_balance or 0),
+            "total_earned": float(target.total_earned or 0),
+            "total_withdrawn": float(target.total_withdrawn or 0),
+        },
+        "withdrawals": [
+            {
+                "id": w.id,
+                "amount_usdt": float(w.amount_usdt or 0),
+                "status": w.status,
+                "tx_hash": (w.tx_hash or "")[:80],
+                "created_at": w.created_at.isoformat() if w.created_at else None,
+                "wallet_type": getattr(w, "wallet_type", None),
+            }
+            for w in withdrawals
+        ],
+        "withdrawal_summary_by_status": {
+            status: {
+                "count": sum(1 for w in withdrawals if w.status == status),
+                "total": round(sum(float(w.amount_usdt or 0) for w in withdrawals if w.status == status), 2),
+            }
+            for status in sorted({w.status for w in withdrawals})
+        },
+        "commissions_count": len(commissions),
+        "commissions_by_type": {
+            t: {
+                "count": sum(1 for c in commissions if (c.commission_type or "") == t),
+                "total": round(sum(float(c.amount_usdt or 0) for c in commissions if (c.commission_type or "") == t and c.status != "reversed"), 2),
+                "reversed_count": sum(1 for c in commissions if (c.commission_type or "") == t and c.status == "reversed"),
+            }
+            for t in sorted({c.commission_type or "" for c in commissions})
+        },
+    }
+
+
 @app.post("/admin/diagnostic/recompute-all-total-withdrawn")
 def admin_diagnostic_recompute_total_withdrawn(secret: str = "", db: Session = Depends(get_db)):
     """One-time defensive cleanup of the legacy user.total_withdrawn column.
