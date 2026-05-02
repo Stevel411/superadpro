@@ -4091,25 +4091,25 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "requested_at": w.requested_at.isoformat() if w.requested_at else None,
         "processed_at": w.processed_at.isoformat() if w.processed_at else None,
     } for w in withdrawals_raw]
-    # Calculate Credit Matrix earnings (matrix_level + matrix_completion)
-    from sqlalchemy import func as _func
-    matrix_earnings = db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
-        Commission.to_user_id == user.id,
-        Commission.status == 'paid',
-        Commission.commission_type.in_(["matrix_level", "matrix_completion"]),
-        Commission.amount_usdt > 0,
-    ).scalar()
-
     _earn = compute_user_earnings(db, user.id)
     return {
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_earned": _earn["total_earned"],
         "total_withdrawn": compute_total_withdrawn(db, user.id),
-        "grid_earnings": _earn["grid_earnings"],
-        "level_earnings": float(user.level_earnings or 0),
-        "course_earnings": _earn["course_earnings"],
+        # ── Earnings broken down by source — ALL from the live ledger via
+        # compute_user_earnings() so the four numbers always reconcile to
+        # total_earned. Previously this endpoint mixed live ledger reads
+        # with the legacy `user.level_earnings` denormalised counter,
+        # which double-counted uni_level commissions (they live inside
+        # grid_earnings AND were re-added via level_earnings) and made
+        # the wallet page's "Membership" card a phantom remainder.
+        # The data integrity refactor was supposed to kill these
+        # denormalised reads — this endpoint had been missed. (2 May 2026)
+        "grid_earnings":       _earn["grid_earnings"],        # direct_sponsor + uni_level + grid_completion_bonus
+        "membership_earnings": _earn["membership_earnings"],  # membership_sponsor + membership_renewal + ...
+        "nexus_earnings":      _earn["nexus_earnings"],       # matrix_level + matrix_completion + nexus_*
+        "course_earnings":     _earn["course_earnings"],
         "marketplace_earnings": float(user.marketplace_earnings or 0),
-        "creative_studio_earnings": float(matrix_earnings or 0),
         "membership_tier": user.membership_tier or "basic",
         "wallet_address": user.wallet_address or "",
         "kyc_status": getattr(user, 'kyc_status', 'none'),

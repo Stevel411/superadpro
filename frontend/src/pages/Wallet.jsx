@@ -163,16 +163,25 @@ export default function Wallet() {
         <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label={t("wallet.totalWithdrawn")} gradient="linear-gradient(90deg,#f59e0b,#fbbf24)" />
       </div>
 
-      {/* Earnings Breakdown */}
-      {(d.creative_studio_earnings > 0 || d.grid_earnings > 0 || d.level_earnings > 0) && (
+      {/* Earnings Breakdown — each card reads a clean field directly from
+          /api/wallet, which derives every figure from the live commission
+          ledger via compute_user_earnings(). The four cards always sum to
+          total_earned with no double-counting and no leftover-bucket
+          arithmetic.
+
+          History: this used to compute Membership = total - everything-else
+          AND Income Grid = grid_earnings + level_earnings. That double-
+          counted uni-level commissions (already inside grid_earnings) and
+          made Membership a phantom remainder. Found 2 May 2026 when Steve
+          spotted a $5 "Membership" figure that was actually his real
+          uni-level earnings showing up twice. Fixed by exposing
+          membership_earnings + nexus_earnings directly from the backend
+          and dropping the level_earnings stale-counter read entirely. */}
+      {((d.grid_earnings || 0) > 0 || (d.membership_earnings || 0) > 0 || (d.nexus_earnings || 0) > 0 || (d.course_earnings || 0) > 0) && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
-          {/* Income Grid combines direct-sponsor (grid_earnings) and uni-level
-              (level_earnings) — both are grid commissions from Campaign Tier
-              purchases by downline. Without this they were under-reported by
-              the uni-level amount. */}
-          <EarningsCard icon="👥" label={t("wallet.membership")} value={(d.total_earned || 0) - (d.grid_earnings || 0) - (d.level_earnings || 0) - (d.course_earnings || 0) - (d.creative_studio_earnings || 0)} color="var(--sap-green-bright)" />
-          <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={(d.grid_earnings || 0) + (d.level_earnings || 0)} color="var(--sap-accent)" />
-          <EarningsCard icon="🎬" label={t("wallet.creditNexus", { defaultValue: 'Credit Nexus' })} value={d.creative_studio_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
+          <EarningsCard icon="👥" label={t("wallet.membership")} value={d.membership_earnings || 0} color="var(--sap-green-bright)" />
+          <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={d.grid_earnings || 0} color="var(--sap-accent)" />
+          <EarningsCard icon="🎬" label={t("wallet.creditNexus", { defaultValue: 'Credit Nexus' })} value={d.nexus_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
           <EarningsCard icon="📚" label={t("wallet.coursesMarket")} value={d.course_earnings || 0} color="var(--sap-amber)" />
         </div>
       )}
