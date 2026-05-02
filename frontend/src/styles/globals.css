@@ -102,6 +102,25 @@ header span[style*="border-radius"]:hover {
    ═══════════════════════════════════════════════════════════ */
 
 @media (max-width: 767px) {
+  /* ── iOS auto-zoom fix ──
+     iOS Safari zooms the viewport when focusing any input/textarea/select
+     whose computed font-size is below 16px. That zoom shoves the bottom
+     half of the screen offscreen — including the submit button — and is
+     a notorious mobile-signup killer. Fix is a global minimum on mobile.
+     Existing `fontSize: 14/15` styles in Login, Register, Wallet,
+     ForgotPassword, ResetPassword and every form-bearing page are
+     overridden by this single rule, so we don't have to chase down
+     every individual literal in the codebase.
+     Carve-out: any element with the `allow-small-text` class keeps its
+     declared size — for desktop-only editor toolbars where the input
+     is intentionally tiny and we don't care about iOS zoom (the editor
+     pages are not realistically usable on a phone anyway). */
+  input:not(.allow-small-text):not([type="checkbox"]):not([type="radio"]),
+  textarea:not(.allow-small-text),
+  select:not(.allow-small-text) {
+    font-size: 16px !important;
+  }
+
   /* ── Grid collapses ── */
   /* Class-based (pages that use helper classes) */
   .grid-5-col { grid-template-columns: repeat(2, 1fr) !important; }
