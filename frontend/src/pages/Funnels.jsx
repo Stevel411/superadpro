@@ -358,8 +358,8 @@ export default function Funnels() {
 
       {/* AI Funnel Wizard Modal (preserved from original) */}
       {showAiWizard && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)'}} onClick={() => !aiGenerating && setShowAiWizard(false)}>
-          <div onClick={e => e.stopPropagation()} style={{background:'#fff',borderRadius:16,padding:28,width:500,maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)',padding:16}} onClick={() => !aiGenerating && setShowAiWizard(false)}>
+          <div onClick={e => e.stopPropagation()} style={{background:'#fff',borderRadius:16,padding:28,width:'100%',maxWidth:500,maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
               <Sparkles size={20} color="var(--sap-accent)"/>
               <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.aiFunnelGenerator')}</h3>

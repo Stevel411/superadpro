@@ -172,6 +172,21 @@ header span[style*="border-radius"]:hover {
   /* ── Crypto checkout ── */
   [style*="max-width: 480px"] { max-width: calc(100vw - 32px) !important; }
   [style*="max-width: 440px"] { max-width: calc(100vw - 32px) !important; }
+
+  /* ── VoiceGuide floating widget ──
+     The open widget hardcodes width: 340 + bottom: 24 + right: 24. On
+     a 360px phone that overflows the left edge by ~4px. Cap width to
+     viewport. MobileTabBar sets data-mobile-tabbar="true" on <html>
+     while it's mounted (Watch / Dashboard / Wallet / home); on those
+     routes we also lift VoiceGuide above the tab bar so it isn't hidden
+     behind it. Tab bar is ~60px tall plus iPhone safe-area inset; we
+     lift by 80px + safe-area to leave a small gap. */
+  .voice-guide-fab {
+    max-width: calc(100vw - 32px) !important;
+  }
+  html[data-mobile-tabbar="true"] .voice-guide-fab {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }
 
 @media (max-width: 480px) {

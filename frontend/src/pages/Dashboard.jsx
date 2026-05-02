@@ -734,7 +734,15 @@ export default function Dashboard() {
             background: bg, borderRadius: 14, padding: '18px 20px',
             boxShadow: '0 12px 40px rgba(0,0,0,.5), 0 2px 16px ' + glowColor,
             border: '1px solid ' + borderColor,
-            animation: 'toastSlideIn .4s ease-out', display: 'flex', alignItems: 'flex-start', gap: 14, minWidth: 380
+            animation: 'toastSlideIn .4s ease-out', display: 'flex', alignItems: 'flex-start', gap: 14,
+            // minWidth 380 is what we want on desktop, but on a 360px
+            // phone this caused the toast to extend off the right edge
+            // (toast container is `position:fixed; right:24` so a 380px
+            // child clips badly). Capping to min(380, viewport - margins)
+            // keeps the desktop look intact while letting the toast shrink
+            // to fit phones. The container's maxWidth: 420 elsewhere caps
+            // the upper bound.
+            minWidth: 'min(380px, calc(100vw - 48px))',
           }}>
             <div style={{ width: 48, height: 48, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid ' + iconBorder }}>
               <span style={{ fontSize: 24 }}>🎉</span>

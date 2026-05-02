@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { MonitorPlay, TrendingUp, CircleDollarSign, Share2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -13,6 +14,17 @@ export default function MobileTabBar() {
   var location = useLocation();
   var navigate = useNavigate();
   var { user } = useAuth();
+
+  // Set a data-attribute on <html> while this bar is mounted so other
+  // fixed-position widgets (VoiceGuide, install prompts, etc.) can lift
+  // themselves above the tab bar. Removed on unmount so the lift only
+  // applies on the 4 routes where the tab bar actually renders.
+  useEffect(function() {
+    document.documentElement.setAttribute('data-mobile-tabbar', 'true');
+    return function() {
+      document.documentElement.removeAttribute('data-mobile-tabbar');
+    };
+  }, []);
 
   var refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
   var shareText = 'Join me on SuperAdPro and start earning! Watch ads, refer others, and build passive income.\n\n' + refLink;

@@ -116,6 +116,7 @@ export default function VoiceGuide() {
   if (!open) {
     return (
       <button onClick={function() { setOpen(true); }}
+        className="voice-guide-fab"
         style={{
           position: 'fixed', bottom: 24, right: 24, zIndex: 50,
           width: 56, height: 56, borderRadius: '50%', border: 'none', cursor: 'pointer',
@@ -134,7 +135,7 @@ export default function VoiceGuide() {
   }
 
   return (
-    <div style={{
+    <div className="voice-guide-fab" style={{
       position: 'fixed', bottom: 24, right: 24, zIndex: 50,
       width: 340, background: '#fff', borderRadius: 18,
       boxShadow: '0 8px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08)',
