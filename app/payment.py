@@ -435,19 +435,51 @@ def _find_overspill_placement(
 
 # ── Withdrawal request ────────────────────────────────────────
 
-def request_withdrawal(db: Session, user_id: int, amount: float, wallet_type: str = "affiliate") -> dict:
+def request_withdrawal(
+    db: Session,
+    user_id: int,
+    amount: float,
+    wallet_type: str = "affiliate",
+    idempotency_key: str | None = None,
+) -> dict:
     """User requests withdrawal — validates security, then auto-sends USDT on Polygon.
-    wallet_type: 'affiliate' (default, always withdrawable) or 'campaign' (requires active tier + watch quota)
+
+    wallet_type: 'affiliate' (default, always withdrawable) or 'campaign'
+                 (requires active tier + watch quota).
+    idempotency_key: client-supplied UUID per Withdraw button click. If a
+                 withdrawal already exists with this key, return its
+                 current state instead of creating a new one. This is the
+                 double-spend guard against double-clicks, flaky 4G
+                 silently retrying, and any other source of duplicate
+                 submissions.
     """
     from decimal import Decimal as D
+    from .withdrawals import (
+        validate_withdrawal, validate_campaign_withdrawal, WITHDRAWAL_FEE,
+    )
+
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         return {"success": False, "error": "User not found"}
 
     amount_d = D(str(amount))
 
+    # ── Idempotency short-circuit ────────────────────────────────────
+    # If we've already accepted a withdrawal with this key, return the
+    # existing row's state without doing anything else. Don't validate,
+    # don't deduct, don't process — the original attempt already did all
+    # of that. This is the entire point of the unique index: client
+    # retries see the same answer the first call returned.
+    if idempotency_key:
+        existing = (
+            db.query(Withdrawal)
+            .filter(Withdrawal.idempotency_key == idempotency_key)
+            .first()
+        )
+        if existing:
+            return _reply_for_existing_withdrawal(db, user, existing, wallet_type)
+
     # Run base security validation (KYC, 2FA, daily cap, wallet address)
-    from .withdrawals import validate_withdrawal, validate_campaign_withdrawal, WITHDRAWAL_FEE
     validation = validate_withdrawal(db, user, amount_d)
     if not validation["valid"]:
         return {"success": False, "error": validation["error"]}
@@ -475,49 +507,175 @@ def request_withdrawal(db: Session, user_id: int, amount: float, wallet_type: st
     if result.rowcount == 0:
         return {"success": False, "error": f"Insufficient {wallet_type} balance (concurrent request detected)"}
 
+    # Insert withdrawal row, stamping wallet_type and (optionally) the
+    # idempotency_key. If two concurrent requests share the same key we'll
+    # collide on the unique index — catch IntegrityError, undo the balance
+    # deduction we just did, and return the winning row's state.
+    from sqlalchemy.exc import IntegrityError
     withdrawal = Withdrawal(
         user_id        = user_id,
         amount_usdt    = amount_d,
         wallet_address = user.wallet_address,
         status         = "pending",
+        wallet_type    = wallet_type,
+        idempotency_key = idempotency_key,
     )
     db.add(withdrawal)
-    db.commit()
-    db.refresh(withdrawal)
+    try:
+        db.commit()
+        db.refresh(withdrawal)
+    except IntegrityError:
+        db.rollback()
+        # Undo the balance deduction — the winning request's deduction
+        # stands; ours was a duplicate submission that mustn't double-spend.
+        db.execute(
+            text(
+                f"UPDATE users SET {balance_col} = {balance_col} + :amt, "
+                f"total_withdrawn = GREATEST(COALESCE(total_withdrawn, 0) - :amt, 0) "
+                f"WHERE id = :uid"
+            ),
+            {"amt": float(amount_d), "uid": user_id},
+        )
+        db.commit()
 
-    # Auto-process: send USDT on Polygon immediately
+        # Return whatever state the winning row is in.
+        if idempotency_key:
+            winner = (
+                db.query(Withdrawal)
+                .filter(Withdrawal.idempotency_key == idempotency_key)
+                .first()
+            )
+            if winner:
+                return _reply_for_existing_withdrawal(db, user, winner, wallet_type)
+        # Defensive fallback — shouldn't happen, but better than a 500.
+        logger.error(
+            f"Withdrawal idempotency collision for user {user_id} but winner not found "
+            f"(key={idempotency_key})"
+        )
+        return {
+            "success": False,
+            "error": "Duplicate request detected. Please refresh your wallet and try again.",
+        }
+
+    # Auto-process: send USDT on Polygon immediately. On failure the
+    # cron will retry per RETRY_BACKOFF_MINUTES. process_withdrawal
+    # may also auto-refund for structurally-blocked or max-attempts
+    # cases — _reply_for_existing_withdrawal handles all those states.
     try:
         from .withdrawals import process_withdrawal
         proc_result = process_withdrawal(db, withdrawal.id)
-        if proc_result["success"]:
-            db.refresh(user)
-            remaining = float(user.campaign_balance or 0) if wallet_type == "campaign" else float(user.balance or 0)
-            return {
-                "success":    True,
-                "message":    f"${net_amount:.2f} USDT sent to your wallet on Polygon (${WITHDRAWAL_FEE} fee deducted)",
-                "tx_hash":    proc_result["tx_hash"],
-                "net_amount": float(net_amount),
-                "fee":        float(WITHDRAWAL_FEE),
-                "remaining":  remaining,
-                "wallet_type": wallet_type,
-            }
-        else:
-            db.refresh(user)
-            remaining = float(user.campaign_balance or 0) if wallet_type == "campaign" else float(user.balance or 0)
-            return {
-                "success": True,
-                "message": f"Withdrawal of ${amount_d:.2f} queued — will retry automatically",
-                "remaining": remaining,
-            }
     except Exception as e:
         logger.warning(f"Auto-withdrawal failed for user {user_id}: {e}")
-        db.refresh(user)
-        remaining = float(user.campaign_balance or 0) if wallet_type == "campaign" else float(user.balance or 0)
+        db.rollback()
+        proc_result = None
+
+    # Re-read the row — process_withdrawal may have changed its status,
+    # and may have refunded (e.g. structural block on the very first try
+    # if the user's tier just completed). Build the response from the
+    # authoritative row state, not from the proc_result dict alone.
+    db.refresh(withdrawal)
+    return _reply_for_existing_withdrawal(db, user, withdrawal, wallet_type, net_amount=net_amount)
+
+
+def _reply_for_existing_withdrawal(db, user, withdrawal, requested_wallet_type, net_amount=None):
+    """Build the API response for a withdrawal whose state we already know.
+
+    Used by:
+      - the idempotency short-circuit (client retried with same UUID)
+      - the unique-index collision recovery path
+      - the post-process_withdrawal return at the end of request_withdrawal
+
+    Always pulls remaining balance from the row's actual wallet_type, not
+    the parameter — the row is the source of truth in case of mismatch.
+    """
+    from .withdrawals import WITHDRAWAL_FEE, RETRY_BACKOFF_MINUTES
+    from decimal import Decimal as D
+
+    db.refresh(user)
+    wallet_type = (withdrawal.wallet_type or requested_wallet_type or "affiliate").lower()
+    remaining = float(user.campaign_balance or 0) if wallet_type == "campaign" else float(user.balance or 0)
+    gross = D(str(withdrawal.amount_usdt or 0))
+    net = net_amount if net_amount is not None else (gross - WITHDRAWAL_FEE)
+
+    status = withdrawal.status
+
+    if status == "paid":
         return {
-            "success": True,
-            "message": f"Withdrawal of ${amount_d:.2f} queued for processing",
-            "remaining": remaining,
+            "success":     True,
+            "message":     f"${net:.2f} USDT sent to your wallet on Polygon (${WITHDRAWAL_FEE} fee deducted)",
+            "tx_hash":     withdrawal.tx_hash or "",
+            "net_amount":  float(net),
+            "fee":         float(WITHDRAWAL_FEE),
+            "remaining":   remaining,
+            "wallet_type": wallet_type,
         }
+
+    if status == "pending":
+        # Inline send didn't go through — first attempt failed, the cron
+        # will retry. Be honest about what's happening: tell the user
+        # roughly when the retry will run rather than the previous
+        # generic "will retry automatically" handwave.
+        attempts = withdrawal.attempts or 0
+        if attempts > 0:
+            idx = max(0, min(attempts - 1, len(RETRY_BACKOFF_MINUTES) - 1))
+            wait_min = RETRY_BACKOFF_MINUTES[idx]
+            wait_str = f"{wait_min} minutes" if wait_min < 60 else f"{wait_min // 60} hour" + ("s" if wait_min // 60 > 1 else "")
+            msg = (
+                f"Withdrawal of ${gross:.2f} queued. First attempt didn't go "
+                f"through — we'll retry in about {wait_str}. "
+                f"You'll get a notification when it's sent."
+            )
+        else:
+            # attempts==0 means request_withdrawal couldn't even start
+            # the inline attempt (e.g. exception caught above). Cron will
+            # pick it up on its next run (≤5 min).
+            msg = (
+                f"Withdrawal of ${gross:.2f} queued. We'll process it within "
+                f"the next few minutes and notify you when it's sent."
+            )
+        return {
+            "success":     True,
+            "message":     msg,
+            "queued":      True,
+            "attempts":    attempts,
+            "remaining":   remaining,
+            "wallet_type": wallet_type,
+        }
+
+    if status == "failed_permanent":
+        # process_withdrawal hit a wall (structural block, max retries,
+        # or net<=0) and refunded the balance. The deduction is reversed
+        # and remaining reflects that — tell the user honestly.
+        last_error = withdrawal.last_error or "Withdrawal could not be processed"
+        return {
+            "success":     False,
+            "error":       (
+                f"Withdrawal couldn't be processed: {last_error}. "
+                f"Your ${gross:.2f} has been refunded to your {wallet_type} balance."
+            ),
+            "refunded":    True,
+            "remaining":   remaining,
+            "wallet_type": wallet_type,
+        }
+
+    if status == "failed_refunded":
+        # Admin manually refunded — same shape as failed_permanent.
+        return {
+            "success":     False,
+            "error":       f"This withdrawal was cancelled and refunded by an admin. ${gross:.2f} is back in your {wallet_type} balance.",
+            "refunded":    True,
+            "remaining":   remaining,
+            "wallet_type": wallet_type,
+        }
+
+    # Catch-all: processing/failed/anything else — treat as queued.
+    return {
+        "success":     True,
+        "message":     f"Withdrawal of ${gross:.2f} is being processed. You'll get a notification when it completes.",
+        "queued":      True,
+        "remaining":   remaining,
+        "wallet_type": wallet_type,
+    }
 
 
 

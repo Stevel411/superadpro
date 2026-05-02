@@ -3656,7 +3656,9 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     total_withdrawn = compute_total_withdrawn(db, user.id)
     last_withdrawal = db.query(Withdrawal).filter(
         Withdrawal.user_id == user.id,
-        Withdrawal.status == "completed"
+        # 'paid' is the canonical success status set by process_withdrawal.
+        # 'completed' is included for any legacy rows from earlier code paths.
+        Withdrawal.status.in_(["paid", "completed"])
     ).order_by(Withdrawal.processed_at.desc()).first()
     pending_withdrawals = db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
         Withdrawal.user_id == user.id,
@@ -6748,12 +6750,18 @@ def withdraw(
     amount: float = Form(),
     totp_code: str = Form(default=""),
     wallet_type: str = Form(default="affiliate"),
+    idempotency_key: str = Form(default=""),
     db:          Session = Depends(get_db),
     user:        User = Depends(get_current_user)
 ):
     """Process withdrawal request. Returns JSON for SPA consumption.
     On success: {success: true, message, tx_hash, net_amount, fee, remaining, wallet_type}
     On failure: {success: false, error}
+
+    idempotency_key: optional UUID supplied by the frontend per Withdraw
+    button click. The server uses it to short-circuit duplicate
+    submissions (double-clicks, flaky 4G retries) and return the original
+    attempt's result instead of firing a second on-chain transfer.
     """
     if not user:
         return JSONResponse({"success": False, "error": "Not signed in"}, status_code=401)
@@ -6772,8 +6780,16 @@ def withdraw(
     # ── Validate wallet_type ──
     if wallet_type not in ("affiliate", "campaign"):
         wallet_type = "affiliate"
+    # ── Sanitise idempotency_key ── treat empty string as "not supplied"
+    # and length-cap to defend against crafted huge payloads landing in
+    # the unique index.
+    idem = (idempotency_key or "").strip()
+    if not idem:
+        idem = None
+    elif len(idem) > 64:
+        idem = idem[:64]
     # ── 2FA verified — process withdrawal ──
-    result = request_withdrawal(db, user.id, amount, wallet_type=wallet_type)
+    result = request_withdrawal(db, user.id, amount, wallet_type=wallet_type, idempotency_key=idem)
     if result["success"]:
         return JSONResponse({
             "success":     True,
@@ -6783,6 +6799,7 @@ def withdraw(
             "fee":         result.get("fee"),
             "remaining":   result.get("remaining"),
             "wallet_type": result.get("wallet_type", wallet_type),
+            "queued":      result.get("queued", False),
         })
     return JSONResponse({"success": False, "error": result.get("error", "Withdrawal failed")}, status_code=400)
 # ═══════════════════════════════════════════════════════════════
@@ -8487,6 +8504,12 @@ def admin_api_withdrawals(
             "tx_hash": w.tx_hash,
             "requested": w.requested_at.isoformat() if w.requested_at else None,
             "processed": w.processed_at.isoformat() if w.processed_at else None,
+            # Hardening fields (added 2 May 2026) — let admin UI show why
+            # a row stuck and which balance to refund.
+            "wallet_type": w.wallet_type or "affiliate",
+            "attempts": w.attempts or 0,
+            "last_attempted_at": w.last_attempted_at.isoformat() if w.last_attempted_at else None,
+            "last_error": w.last_error,
         } for w in ws]
     }
 @app.get("/admin/api/withdrawals/stuck")
@@ -8511,6 +8534,11 @@ def admin_withdrawals_stuck(user: User = Depends(get_current_user),
             "wallet": w.wallet_address, "status": w.status,
             "requested": w.requested_at.isoformat() if w.requested_at else None,
             "age_hours": round((datetime.utcnow() - w.requested_at).total_seconds() / 3600, 1) if w.requested_at else None,
+            # Hardening fields — surface why this is stuck.
+            "wallet_type": w.wallet_type or "affiliate",
+            "attempts": w.attempts or 0,
+            "last_attempted_at": w.last_attempted_at.isoformat() if w.last_attempted_at else None,
+            "last_error": w.last_error,
         } for w in stuck]
     }
 @app.post("/admin/api/withdrawals/{withdrawal_id}/refund")
@@ -8524,8 +8552,17 @@ async def admin_withdrawal_refund(
     Reverses the atomic deduction that happened when the withdrawal was requested.
     Only works on pending/processing withdrawals — paid ones cannot be refunded here.
 
-    Body: {"wallet_type": "affiliate" | "campaign", "reason": "..."}
-    wallet_type must match the column the original deduction came from.
+    Body (all optional):
+      reason:      string, written to withdrawal.notes
+      wallet_type: 'affiliate' | 'campaign' — ONLY used as an explicit
+                   override when the row's wallet_type is missing/wrong.
+                   Default behaviour is to read wallet_type from the row,
+                   which is the source of truth post the 2 May 2026
+                   schema migration.
+      override_wallet_type: boolean, must be true to honour wallet_type
+                   override. Without this flag, any wallet_type in the
+                   body is ignored — closes the silent-corruption hole
+                   where an admin could refund the wrong balance column.
     """
     _require_admin(user)
     from sqlalchemy import text
@@ -8534,13 +8571,9 @@ async def admin_withdrawal_refund(
     try:
         body = await request.json()
     except Exception:
-        return JSONResponse({"error": "Invalid request"}, status_code=400)
+        body = {}
 
-    wallet_type = (body.get("wallet_type") or "affiliate").strip().lower()
     reason = (body.get("reason") or "Admin refund — stuck withdrawal").strip()[:500]
-
-    if wallet_type not in ("affiliate", "campaign"):
-        return JSONResponse({"error": "wallet_type must be 'affiliate' or 'campaign'"}, status_code=400)
 
     withdrawal = db.query(Withdrawal).filter(Withdrawal.id == withdrawal_id).first()
     if not withdrawal:
@@ -8549,6 +8582,30 @@ async def admin_withdrawal_refund(
     if withdrawal.status not in ("pending", "processing"):
         return JSONResponse({
             "error": f"Cannot refund — withdrawal is '{withdrawal.status}'. Only pending/processing withdrawals can be refunded."
+        }, status_code=400)
+
+    # Default wallet_type from the row. Admin can override only with an
+    # explicit override_wallet_type=true flag (e.g. for repairing a row
+    # whose wallet_type was set wrong before the migration backfilled it).
+    row_wallet_type = (withdrawal.wallet_type or "affiliate").strip().lower()
+    body_wallet_type = (body.get("wallet_type") or "").strip().lower()
+    if body.get("override_wallet_type") and body_wallet_type in ("affiliate", "campaign"):
+        wallet_type = body_wallet_type
+        if wallet_type != row_wallet_type:
+            logger.warning(
+                f"Admin {user.username} OVERRODE wallet_type on withdrawal "
+                f"#{withdrawal_id}: row={row_wallet_type} → refund={wallet_type}"
+            )
+    else:
+        wallet_type = row_wallet_type
+
+    if wallet_type not in ("affiliate", "campaign"):
+        # Defensive: should be impossible after the migration backfill,
+        # but if the row somehow has a junk wallet_type and no override,
+        # bail rather than guessing.
+        return JSONResponse({
+            "error": f"Withdrawal has invalid wallet_type='{withdrawal.wallet_type}'. "
+                     f"Provide wallet_type + override_wallet_type=true in body."
         }, status_code=400)
 
     target_user = db.query(User).filter(User.id == withdrawal.user_id).first()
@@ -8566,10 +8623,9 @@ async def admin_withdrawal_refund(
     )
     withdrawal.status = "failed_refunded"
     withdrawal.processed_at = datetime.utcnow()
-    existing_notes = (getattr(withdrawal, "notes", "") or "") if hasattr(withdrawal, "notes") else ""
+    existing_notes = (withdrawal.notes or "")
     refund_note = f"[Admin refund {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} by {user.username}] {reason}"
-    if hasattr(withdrawal, "notes"):
-        withdrawal.notes = (existing_notes + " | " + refund_note).strip(" |") if existing_notes else refund_note
+    withdrawal.notes = (existing_notes + " | " + refund_note).strip(" |") if existing_notes else refund_note
 
     # Notify the member
     try:
@@ -11941,6 +11997,52 @@ def cron_process_renewals_get(request: Request, secret: str = "", db: Session = 
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+# ── Withdrawal retry cron ────────────────────────────────────────────
+# Runs every 5 minutes via cron-job.org. Sweeps pending withdrawals
+# whose backoff window has elapsed and re-attempts them. Per-row
+# attempts/backoff state lives on the withdrawals table; the heavy
+# lifting is in withdrawals.process_pending_withdrawals_batch.
+#
+# Schedule on cron-job.org:
+#   GET  https://www.superadpro.com/cron/process-pending-withdrawals?secret=<CRON_SECRET>
+#   every 5 minutes
+#
+# Why GET + POST: cron-job.org sends GET; manual triggers (curl from
+# an admin's terminal during incident response) often default to POST.
+# Both auth via the same query-string secret to keep the entry surface
+# uniform with the other crons in this file.
+@app.post("/cron/process-pending-withdrawals")
+def cron_process_pending_withdrawals_post(
+    request: Request, secret: str = "", db: Session = Depends(get_db)
+):
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    try:
+        from app.withdrawals import process_pending_withdrawals_batch
+        counts = process_pending_withdrawals_batch(db)
+        return {"ok": True, **counts}
+    except Exception as e:
+        logger.error(f"Withdrawal cron failed: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/cron/process-pending-withdrawals")
+def cron_process_pending_withdrawals_get(
+    request: Request, secret: str = "", db: Session = Depends(get_db)
+):
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    try:
+        from app.withdrawals import process_pending_withdrawals_batch
+        counts = process_pending_withdrawals_batch(db)
+        return {"ok": True, **counts}
+    except Exception as e:
+        logger.error(f"Withdrawal cron failed: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 # ── Cleanup abandoned NOWPayments orders ─────────────────────────
 # When a user clicks 'Pay with crypto', SuperAdPro creates a NowPaymentsOrder
 # row and redirects to the NOWPayments hosted invoice page. The hosted page
@@ -12846,18 +12948,21 @@ def hot_wallet_balance(secret: str):
     pol = get_treasury_pol_balance()
     return {"address": TREASURY_ADDRESS, "usdt_balance": float(usdt), "pol_balance": float(pol), "chain": "Polygon"}
 
-# ── Retry pending withdrawals ──
+# ── Retry pending withdrawals (admin manual trigger) ──
+# Thin wrapper around the same batch processor the cron uses. Kept under
+# the legacy URL for the existing admin tooling/bookmarks; the cron-job.org
+# endpoint at /cron/process-pending-withdrawals is the official one.
+# Both go through process_pending_withdrawals_batch, so this endpoint
+# automatically respects the attempts/backoff/permanent-failure rules
+# and never loops forever on broken withdrawals (the original failure
+# mode this endpoint had before 2 May 2026).
 @app.get("/admin/process-pending-withdrawals")
 def process_pending_withdrawals(secret: str, db: Session = Depends(get_db)):
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    from app.withdrawals import process_withdrawal
-    pending = db.query(Withdrawal).filter(Withdrawal.status == "pending").all()
-    results = []
-    for w in pending:
-        r = process_withdrawal(db, w.id)
-        results.append({"withdrawal_id": w.id, "user_id": w.user_id, "amount": float(w.amount_usdt), "result": r})
-    return {"processed": len(results), "details": results}
+    from app.withdrawals import process_pending_withdrawals_batch
+    counts = process_pending_withdrawals_batch(db)
+    return {"ok": True, **counts}
 
 # ── Recompute personal_referrals from actual paid members ──
 # One-shot fix for the bug where admin tier-upgrades didn't bump the

@@ -117,7 +117,7 @@ def run_health_check(db: Session) -> dict:
     day_ago = datetime.utcnow() - timedelta(hours=24)
     old_withdrawals = db.query(Withdrawal).filter(
         Withdrawal.status == "pending",
-        Withdrawal.created_at < day_ago
+        Withdrawal.requested_at < day_ago
     ).all()
     if old_withdrawals:
         report["issues"].append({

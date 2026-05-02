@@ -33,6 +33,19 @@ WITHDRAWAL_FEE    = Decimal("1.00")
 MIN_WITHDRAWAL    = Decimal("10.00")
 DAILY_CAP_PER_USER = Decimal("500.00")
 
+# ── Retry policy (used by /cron/process-pending-withdrawals) ──
+# Exponential-ish backoff in MINUTES, indexed by previous attempts count.
+#   attempts=0 → first retry 2 min after the original failed attempt
+#   attempts=1 → next retry 10 min later
+#   attempts=2 → 30 min
+#   attempts=3 → 2 hr (120 min)
+#   attempts=4 → 8 hr (480 min)
+# After the 5th attempt fails the row is marked failed_permanent and
+# (for grid-blocked campaign withdrawals) the balance is refunded.
+RETRY_BACKOFF_MINUTES = [2, 10, 30, 120, 480]
+MAX_WITHDRAWAL_ATTEMPTS = 5
+CRON_BATCH_LIMIT = 50  # max rows processed per cron run
+
 # Minimal ERC-20 ABI for transfer + balanceOf
 ERC20_ABI = [
     {
@@ -248,14 +261,78 @@ def send_usdt(to_address, amount_usdt):
         return {"success": False, "tx_hash": "", "error": str(e)}
 
 
+def _refund_withdrawal(db, withdrawal, reason):
+    """Credit a withdrawal's amount back to the correct balance column and
+    mark the row failed_permanent. Used when retries hit max OR a campaign
+    withdrawal becomes structurally blocked (user lost their active tier
+    between attempts) — without this the money would be trapped in
+    withdrawal-purgatory and require admin intervention.
+
+    Mirrors the column-targeting logic in payment.request_withdrawal so the
+    refund lands on the same balance the deduction came from.
+    """
+    from sqlalchemy import text as sa_text
+    from .database import User, Notification
+    wallet_type = (withdrawal.wallet_type or "affiliate").lower()
+    balance_col = "campaign_balance" if wallet_type == "campaign" else "balance"
+    amount = float(Decimal(str(withdrawal.amount_usdt or 0)))
+
+    # Atomic refund + decrement total_withdrawn (kept consistent with the
+    # admin refund path in main.py — same SQL shape).
+    db.execute(
+        sa_text(
+            f"UPDATE users SET {balance_col} = COALESCE({balance_col}, 0) + :amt, "
+            f"total_withdrawn = GREATEST(COALESCE(total_withdrawn, 0) - :amt, 0) "
+            f"WHERE id = :uid"
+        ),
+        {"amt": amount, "uid": withdrawal.user_id},
+    )
+    withdrawal.status = "failed_permanent"
+    withdrawal.last_error = reason[:500] if reason else "refunded"
+    withdrawal.processed_at = datetime.utcnow()
+    existing = (withdrawal.notes or "").strip()
+    stamp = f"[auto-refund {datetime.utcnow().strftime('%Y-%m-%d %H:%M')}] {reason}"
+    withdrawal.notes = (existing + " | " + stamp).strip(" |") if existing else stamp
+
+    # Notify the member — best-effort.
+    try:
+        db.add(Notification(
+            user_id=withdrawal.user_id,
+            type="withdrawal",
+            title="Withdrawal refunded",
+            message=(
+                f"Your ${amount:.2f} withdrawal couldn't be sent and has been "
+                f"refunded to your {wallet_type} balance. You can try again "
+                f"from the Wallet page."
+            ),
+            icon="💰",
+        ))
+        db.commit()
+    except Exception as e:
+        logger.warning(f"Refund notification failed for withdrawal #{withdrawal.id}: {e}")
+        db.rollback()
+        db.commit()  # ensure the refund itself sticks even if notification rolled back
+
+    logger.info(
+        f"Withdrawal #{withdrawal.id} auto-refunded ${amount} to user "
+        f"{withdrawal.user_id} {wallet_type} balance — {reason}"
+    )
+
+
 def process_withdrawal(db, withdrawal_id):
     """
     Process a single pending withdrawal:
-    1. Verify security checks
+    1. Re-validate (catches structural blocks that appeared since request)
     2. Deduct $1 fee
     3. Send USDT on Polygon to member's wallet
-    4. Update withdrawal record with tx_hash and status
-    5. Send notification to member
+    4. Update withdrawal record with tx_hash and status, OR
+    5. Increment attempts and either re-queue (with backoff) or mark
+       failed_permanent (with refund if structurally blocked).
+
+    Re-validation matters specifically for campaign withdrawals: if the
+    user's active tier completed between the request and a retry, they
+    no longer qualify — retrying forever would be wrong. We refund and
+    stop.
     """
     from .database import Withdrawal, User
 
@@ -270,18 +347,40 @@ def process_withdrawal(db, withdrawal_id):
     if not user:
         return {"success": False, "error": "User not found"}
 
+    # ── Structural revalidation for campaign withdrawals ────────────
+    # If the user has lost their active tier (Grid.is_complete went True
+    # between the request and this retry), don't keep trying — refund
+    # and mark permanent. This is the "don't retry forever on
+    # structurally-blocked withdrawals" case from the design doc.
+    wallet_type = (withdrawal.wallet_type or "affiliate").lower()
+    if wallet_type == "campaign":
+        cv = validate_campaign_withdrawal(db, user, Decimal(str(withdrawal.amount_usdt or 0)))
+        if not cv["valid"]:
+            # Refund and stop. Note: we still credit campaign_balance back
+            # — the original deduction came from there even though the
+            # tier is now complete. The user can withdraw again after
+            # activating a new tier.
+            _refund_withdrawal(db, withdrawal, f"Structurally blocked on retry: {cv['error']}")
+            return {"success": False, "error": cv["error"], "permanent": True}
+
     # Calculate net amount after fee
     gross_amount = Decimal(str(withdrawal.amount_usdt))
     net_amount = gross_amount - WITHDRAWAL_FEE
 
     if net_amount <= 0:
-        withdrawal.status = "failed"
+        # Should be impossible given MIN_WITHDRAWAL=$10 and fee=$1 but
+        # defensive — also a permanent-failure case (no point retrying).
+        withdrawal.status = "failed_permanent"
+        withdrawal.last_error = (
+            f"Amount ${gross_amount} minus ${WITHDRAWAL_FEE} fee leaves nothing to send"
+        )
         withdrawal.processed_at = datetime.utcnow()
         db.commit()
-        return {"success": False, "error": f"Amount ${gross_amount} minus ${WITHDRAWAL_FEE} fee leaves nothing to send"}
+        return {"success": False, "error": withdrawal.last_error, "permanent": True}
 
     # Mark as processing
     withdrawal.status = "processing"
+    withdrawal.last_attempted_at = datetime.utcnow()
     db.commit()
 
     # Send USDT on Polygon
@@ -291,6 +390,10 @@ def process_withdrawal(db, withdrawal_id):
         withdrawal.status = "paid"
         withdrawal.tx_hash = result["tx_hash"]
         withdrawal.processed_at = datetime.utcnow()
+        # On success we don't bump attempts — attempts only counts FAILED
+        # attempts, otherwise a successful first try would already read
+        # attempts=1 which makes retry-cron filter logic confusing.
+        withdrawal.last_error = None
         db.commit()
 
         logger.info(f"Withdrawal #{withdrawal_id} paid: ${net_amount} USDT to {withdrawal.wallet_address}")
@@ -310,8 +413,8 @@ def process_withdrawal(db, withdrawal_id):
         except Exception as e:
             # Notification failure must not poison the session for downstream
             # callers — explicit rollback restores the session to a usable state.
-            # The withdrawal itself is already committed above (line 294) and is
-            # safe; we only lose the convenience notification.
+            # The withdrawal itself is already committed above and is safe;
+            # we only lose the convenience notification.
             logger.warning(f"Failed to create withdrawal notification for user {user.id}: {e}")
             db.rollback()
 
@@ -322,8 +425,118 @@ def process_withdrawal(db, withdrawal_id):
             "fee": float(WITHDRAWAL_FEE),
         }
     else:
-        # Failed -- revert to pending so it can retry
+        # ── Failure path: bump attempts, decide retry vs permanent ──
+        withdrawal.attempts = (withdrawal.attempts or 0) + 1
+        withdrawal.last_error = (result.get("error") or "")[:500]
+        withdrawal.last_attempted_at = datetime.utcnow()
+
+        if withdrawal.attempts >= MAX_WITHDRAWAL_ATTEMPTS:
+            # Out of retries — refund and stop. This guarantees no money
+            # gets stuck even when the failure is "treasury empty" or
+            # similar non-structural cause. Admin can investigate the
+            # row's last_error for the root cause.
+            _refund_withdrawal(
+                db, withdrawal,
+                f"Max attempts ({MAX_WITHDRAWAL_ATTEMPTS}) reached: {withdrawal.last_error}",
+            )
+            logger.error(
+                f"Withdrawal #{withdrawal_id} marked failed_permanent after "
+                f"{withdrawal.attempts} attempts: {withdrawal.last_error}"
+            )
+            return {
+                "success": False,
+                "error": withdrawal.last_error,
+                "permanent": True,
+                "attempts": withdrawal.attempts,
+            }
+
+        # Re-queue for the next backoff window.
         withdrawal.status = "pending"
         db.commit()
-        logger.error(f"Withdrawal #{withdrawal_id} failed: {result['error']}")
-        return {"success": False, "error": result["error"]}
+        logger.warning(
+            f"Withdrawal #{withdrawal_id} attempt {withdrawal.attempts}/"
+            f"{MAX_WITHDRAWAL_ATTEMPTS} failed: {withdrawal.last_error}"
+        )
+        return {
+            "success": False,
+            "error": withdrawal.last_error,
+            "permanent": False,
+            "attempts": withdrawal.attempts,
+        }
+
+
+def process_pending_withdrawals_batch(db):
+    """
+    Sweep pending withdrawals that are due for a retry attempt.
+
+    Eligible row = status='pending' AND
+        (last_attempted_at IS NULL  -- never tried; new request that
+                                       failed inline at request_withdrawal)
+         OR last_attempted_at < (now - backoff(attempts)))
+
+    LIMIT CRON_BATCH_LIMIT to keep cron-job.org runs fast (5min cadence).
+
+    Returns a counts dict for cron-job.org logs / monitoring.
+    """
+    from .database import Withdrawal
+    from sqlalchemy import or_
+
+    now = datetime.utcnow()
+
+    # Fetch a generous candidate pool then filter in Python — postgres
+    # CASE-with-interval is fiddly and the row count here will be tiny
+    # for the foreseeable future (13 users at launch). Cap at 200 in the
+    # query so we don't accidentally drag a huge dataset into memory.
+    candidates = (
+        db.query(Withdrawal)
+        .filter(Withdrawal.status == "pending")
+        .filter(or_(
+            Withdrawal.last_attempted_at.is_(None),
+            Withdrawal.last_attempted_at < now,  # cheap pre-filter; precise check below
+        ))
+        .order_by(Withdrawal.last_attempted_at.asc().nullsfirst(), Withdrawal.id.asc())
+        .limit(200)
+        .all()
+    )
+
+    counts = {"considered": 0, "processed": 0, "succeeded": 0, "failed": 0,
+              "permanent": 0, "skipped_backoff": 0, "errors": 0}
+
+    for w in candidates:
+        if counts["processed"] >= CRON_BATCH_LIMIT:
+            break
+
+        counts["considered"] += 1
+
+        # Backoff check: rows that have a last_attempted_at need to wait
+        # the full RETRY_BACKOFF_MINUTES[attempts-1] before being retried.
+        # Eligibility is computed from last_attempted_at, NOT now.
+        if w.last_attempted_at is not None and (w.attempts or 0) > 0:
+            idx = max(0, min((w.attempts or 1) - 1, len(RETRY_BACKOFF_MINUTES) - 1))
+            wait_minutes = RETRY_BACKOFF_MINUTES[idx]
+            eligible_at = w.last_attempted_at + timedelta(minutes=wait_minutes)
+            if now < eligible_at:
+                counts["skipped_backoff"] += 1
+                continue
+
+        try:
+            result = process_withdrawal(db, w.id)
+            counts["processed"] += 1
+            if result.get("success"):
+                counts["succeeded"] += 1
+            elif result.get("permanent"):
+                counts["permanent"] += 1
+            else:
+                counts["failed"] += 1
+        except Exception as e:
+            # Defensive: don't let one bad row poison the whole batch.
+            # Roll the session back so subsequent rows can still be processed.
+            logger.error(f"Unhandled error processing withdrawal #{w.id}: {e}")
+            counts["errors"] += 1
+            try:
+                db.rollback()
+            except Exception:
+                pass
+
+    logger.info(f"Withdrawal cron batch: {counts}")
+    return counts
