@@ -91,7 +91,11 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
   return (
     <div
       className={fullHeight ? 'flex' : 'flex min-h-screen'}
-      style={fullHeight ? { height: '100vh', overflow: 'hidden' } : undefined}
+      // 100dvh (dynamic viewport height) handles iOS Safari's address-bar
+      // show/hide gracefully — without it, content scrolled behind the bar
+      // on browser-mode iOS. In standalone PWA mode there's no address bar
+      // so 100dvh and 100vh are identical, so this is a no-op there.
+      style={fullHeight ? { height: '100dvh', overflow: 'hidden' } : undefined}
     >
 
       {/* Mobile overlay — tap to close sidebar */}
@@ -108,12 +112,12 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
                               firstView={firstView} />}
       {isMobile && sidebarOpen && <Sidebar open={true} onClose={closeSidebar} collapsed={false} />}
 
-      {/* Main content — in fullHeight mode, lock to parent's 100vh so main's
+      {/* Main content — in fullHeight mode, lock to parent's 100dvh so main's
           overflow:hidden is authoritative and child scroll containers own the scroll */}
       <div className="flex-1 flex flex-col min-w-0"
         style={Object.assign(
           { marginLeft: 'var(--sidebar-offset,0)' },
-          fullHeight ? { height: '100vh', minHeight: 0 } : {}
+          fullHeight ? { height: '100dvh', minHeight: 0 } : {}
         )}>
         <Topbar title={title} subtitle={subtitle} onMenuClick={openSidebar}>
           {topbarActions}
@@ -135,7 +139,16 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
         {isLearnFamilyRoute(location.pathname) && <LearnTabs />}
         <main className="flex-1 overflow-y-auto" style={Object.assign(
           {background:'#f0f3f9', padding: isMobile ? '16px' : '24px'},
+          // Tab-bar pages (Watch / Dashboard / Wallet / home): leave space
+          // for the 60px tab bar at the bottom. The tab bar handles its
+          // own iPhone home-indicator safe-area padding.
           isMobileTabPage ? {paddingBottom: 80} : {},
+          // Non-tab-bar pages on mobile: ensure the last 16px of content
+          // doesn't sit under the iPhone home indicator in standalone PWA.
+          // env(safe-area-inset-bottom) is 0 in browser mode and ~34px on
+          // iOS standalone Face ID phones, so the rule no-ops in browser
+          // mode and adds the right amount of space in standalone.
+          (isMobile && !isMobileTabPage) ? {paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))'} : {},
           fullHeight ? { minHeight: 0 } : {},
           bgStyle || {}
         )}>

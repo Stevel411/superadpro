@@ -67,7 +67,23 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-5 h-[72px] border-b border-white/5 sticky top-0 z-40 shrink-0" style={{background:'linear-gradient(90deg, #172554 0%, #1e3a8a 100%)'}}>
+    <header
+      className="flex items-center justify-between px-5 border-b border-white/5 sticky top-0 z-40 shrink-0"
+      style={{
+        background:'linear-gradient(90deg, #172554 0%, #1e3a8a 100%)',
+        // Standalone PWA on iOS overlays the status bar onto the page
+        // (apple-mobile-web-app-status-bar-style: black-translucent +
+        // viewport-fit=cover). Without this padding the topbar's 72px of
+        // content gets covered by the ~44px Face-ID status bar in
+        // standalone mode. paddingTop honours the inset; height grows
+        // accordingly so the cobalt gradient extends under the status
+        // bar rather than the bar showing a different colour. In
+        // browser mode env(safe-area-inset-top) is 0 so the topbar
+        // looks identical to before.
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        height: 'calc(72px + env(safe-area-inset-top, 0px))',
+      }}
+    >
       <div className="flex items-center gap-3 min-w-0">
         {/* Hamburger — mobile only */}
         <button

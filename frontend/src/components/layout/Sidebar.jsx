@@ -292,6 +292,10 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
         transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1), width 0.22s cubic-bezier(0.4,0,0.2,1)',
         transform: undefined,
         willChange: 'transform, width',
+        // iOS standalone PWA status-bar safe-area: same rationale as Topbar.
+        // Without this, the sidebar's logo + close button row (at the very
+        // top) is covered by the Face-ID status bar in standalone mode.
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
         className={open ? 'sidebar-open' : 'sidebar-closed'}
       >
