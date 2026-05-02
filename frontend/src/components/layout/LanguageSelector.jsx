@@ -12,8 +12,8 @@ export default function LanguageSelector({ compact, openUp }) {
 
   useEffect(function() {
     function handleClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
-    document.addEventListener('mousedown', handleClick);
-    return function() { document.removeEventListener('mousedown', handleClick); };
+    document.addEventListener('pointerdown', handleClick);
+    return function() { document.removeEventListener('pointerdown', handleClick); };
   }, []);
 
   function select(code) {

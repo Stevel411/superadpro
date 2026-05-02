@@ -20,8 +20,8 @@ export default function CustomSelect({ value, onChange, options, placeholder, st
     function handleClick(e) {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);
     }
-    document.addEventListener('mousedown', handleClick);
-    return function() { document.removeEventListener('mousedown', handleClick); };
+    document.addEventListener('pointerdown', handleClick);
+    return function() { document.removeEventListener('pointerdown', handleClick); };
   }, []);
 
   var selected = options.find(function(o) { return o.value === value; });

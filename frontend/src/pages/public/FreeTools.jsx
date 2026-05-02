@@ -19,8 +19,8 @@ export default function FreeTools() {
   var langRef = useRef(null);
   useEffect(function() {
     function onClick(e) { if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false); }
-    document.addEventListener('mousedown', onClick);
-    return function() { document.removeEventListener('mousedown', onClick); };
+    document.addEventListener('pointerdown', onClick);
+    return function() { document.removeEventListener('pointerdown', onClick); };
   }, []);
   var currentLang = LANGUAGES.find(function(l) { return l.code === i18n.language; }) || LANGUAGES[0];
 

@@ -484,8 +484,8 @@ function PackSelector({ value, onChange, options }) {
   var ref = useRef(null);
   useEffect(function() {
     function h(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
-    document.addEventListener('mousedown', h);
-    return function() { document.removeEventListener('mousedown', h); };
+    document.addEventListener('pointerdown', h);
+    return function() { document.removeEventListener('pointerdown', h); };
   }, []);
   var sel = options.find(function(o) { return o.value === value; });
   return (

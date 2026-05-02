@@ -28,7 +28,12 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
     return function() { clearInterval(interval); };
   }, []);
 
-  // Click outside to close
+  // Click outside to close.
+  // Use pointerdown rather than mousedown — pointerdown unifies mouse,
+  // touch and pen with consistent timing relative to the click event,
+  // so the dropdown closes reliably when a mobile user taps outside.
+  // mousedown does fire on touch (Safari synthesises it) but its timing
+  // relative to touchend-derived click events causes intermittent drops.
   useEffect(() => {
     if (!showNotifs) return;
     function handleClick(e) {
@@ -36,8 +41,8 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
         setShowNotifs(false);
       }
     }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('pointerdown', handleClick);
+    return () => document.removeEventListener('pointerdown', handleClick);
   }, [showNotifs]);
 
   const toggleNotifs = async () => {

@@ -11,8 +11,10 @@ export default function HomePage() {
 
   useEffect(function() {
     function onClick(e) { if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false); }
-    document.addEventListener('mousedown', onClick);
-    return function() { document.removeEventListener('mousedown', onClick); };
+    // pointerdown unifies mouse + touch with consistent timing — see
+    // Topbar.jsx for the longer rationale; same bug class.
+    document.addEventListener('pointerdown', onClick);
+    return function() { document.removeEventListener('pointerdown', onClick); };
   }, []);
 
   var currentLang = LANGUAGES.find(function(l) { return l.code === i18n.language; }) || LANGUAGES[0];
@@ -251,7 +253,14 @@ var CSS_HOMEPAGE = `
 }
 @media(max-width:768px){
   .home-page .float-nav{top:16px;right:16px;gap:6px}
-  .home-page .float-nav-link:nth-child(1),.home-page .float-nav-link:nth-child(2),.home-page .float-nav-link:nth-child(3){display:none}
+  /* Hide the Explore + Sign-in pills on mobile (the float-nav-cta and the
+     language picker stay visible). Previously this used :nth-child which
+     was both fragile and wrong — the language picker is wrapped in
+     .float-lang-wrap so the nth-child math drifted, and on some phones
+     the language picker disappeared entirely. Targeting by class is
+     unambiguous. Order in the DOM stays Explore / Lang / Sign-in /
+     Get Started, so on mobile we render: Lang + Get Started. */
+  .home-page .float-nav-link{display:none}
   .home-page .brand-hero-mark{width:56px;height:56px}
   .home-page .brand-hero-name{font-size:40px}
   .home-page h1.headline{font-size:clamp(36px,10vw,54px)}

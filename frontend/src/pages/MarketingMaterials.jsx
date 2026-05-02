@@ -47,8 +47,8 @@ export default function MarketingMaterials() {
     function handleClick(e) {
       if (dropRef.current && !dropRef.current.contains(e.target)) setDropdownOpen(false);
     }
-    document.addEventListener('mousedown', handleClick);
-    return function() { document.removeEventListener('mousedown', handleClick); };
+    document.addEventListener('pointerdown', handleClick);
+    return function() { document.removeEventListener('pointerdown', handleClick); };
   }, []);
 
   var selected = LANGUAGES.find(function(l) { return l.code === selectedLang; }) || LANGUAGES[0];

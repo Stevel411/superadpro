@@ -58,8 +58,8 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
 
   useEffect(function() {
     function h(e) { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setShowAll(false); } }
-    document.addEventListener('mousedown', h);
-    return function() { document.removeEventListener('mousedown', h); };
+    document.addEventListener('pointerdown', h);
+    return function() { document.removeEventListener('pointerdown', h); };
   }, []);
 
   var isActive = open || hovered;
@@ -136,8 +136,8 @@ function StyledSelect({ label, items, value, onChange, renderLabel, renderDesc, 
 
   useEffect(function() {
     function h(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
-    document.addEventListener('mousedown', h);
-    return function() { document.removeEventListener('mousedown', h); };
+    document.addEventListener('pointerdown', h);
+    return function() { document.removeEventListener('pointerdown', h); };
   }, []);
 
   return (

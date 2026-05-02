@@ -147,7 +147,7 @@ export default function SuperDeckEditor() {
       if (fontDropRef.current && !fontDropRef.current.contains(e.target)) setFontDropOpen(false);
       if (sizeDropRef.current && !sizeDropRef.current.contains(e.target)) setSizeDropOpen(false);
     }
-    document.addEventListener('mousedown', h); return function () { document.removeEventListener('mousedown', h); };
+    document.addEventListener('pointerdown', h); return function () { document.removeEventListener('pointerdown', h); };
   }, []);
 
   /* ── Slide operations ──────────────────────────────── */
