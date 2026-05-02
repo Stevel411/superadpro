@@ -83,9 +83,22 @@ export default function Affiliate() {
       </div>
 
       {/* Workspace */}
-      <div style={{ display: 'flex', minHeight: 500, background: 'var(--sap-bg-page)' }}>
+      <style>{`
+        /* Mobile: stack the post-generator (left) above the generated-
+           post pane (right). On desktop the 380px-fixed left panel
+           plus flex:1 right panel works fine. On a 360px phone, 360 -
+           380 = -20, which means the right panel collapses to nothing.
+           Stacking lets users fill out the form, scroll down, and see
+           the generated post below it. */
+        @media (max-width: 767px) {
+          .aff-workspace { flex-direction: column !important; }
+          .aff-left { width: 100% !important; border-right: none !important; border-bottom: 1px solid #e2e8f0; }
+          .aff-right { width: 100% !important; }
+        }
+      `}</style>
+      <div className="aff-workspace" style={{ display: 'flex', minHeight: 500, background: 'var(--sap-bg-page)' }}>
         {/* Left panel */}
-        <div style={{ width: 380, flexShrink: 0, background: '#fff', borderRight: '1px solid #e2e8f0', padding: 22, overflowY: 'auto' }}>
+        <div className="aff-left" style={{ width: 380, flexShrink: 0, background: '#fff', borderRight: '1px solid #e2e8f0', padding: 22, overflowY: 'auto' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{t('socialShare.generatePost')}</div>
           <div style={{ fontSize: 16, color: 'var(--sap-text-muted)', marginBottom: 16 }}>{t('socialShare.generateDesc')}</div>
 
@@ -135,7 +148,7 @@ export default function Affiliate() {
         </div>
 
         {/* Right panel */}
-        <div style={{ flex: 1, padding: 22, display: 'flex', flexDirection: 'column' }}>
+        <div className="aff-right" style={{ flex: 1, padding: 22, display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: '#1e293b', marginBottom: 14 }}>{t('socialShare.generatedPost')}</div>
           <div style={{ flex: 1, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {generating ? (

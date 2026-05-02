@@ -112,10 +112,25 @@ export default function CoursePlayer() {
 
   return (
     <AppLayout>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0, minHeight: 'calc(100vh - 72px)' }}>
+      <style>{`
+        /* Mobile: stack the video pane and the lesson list vertically.
+           On desktop (768px+) we keep the grid layout with a fixed 320px
+           sidebar on the right. On mobile that layout would squeeze the
+           video pane to ~40px wide on a 360px phone — broken. Stacking
+           puts the video on top and the lesson list below it. The
+           sidebar's maxHeight: 'calc(100vh - 72px)' becomes counter-
+           productive on mobile (the inner list scrolls inside the page
+           which already scrolls), so we lift it. */
+        @media (max-width: 767px) {
+          .cp-grid { grid-template-columns: 1fr !important; min-height: 0 !important; }
+          .cp-main { padding: 16px !important; border-right: none !important; }
+          .cp-sidebar { max-height: none !important; border-top: 1px solid #e8ecf2; }
+        }
+      `}</style>
+      <div className="cp-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0, minHeight: 'calc(100vh - 72px)' }}>
 
         {/* Main content */}
-        <div style={{ padding: 24, borderRight: '1px solid #e8ecf2' }}>
+        <div className="cp-main" style={{ padding: 24, borderRight: '1px solid #e8ecf2' }}>
           {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, fontSize: 13, color: 'var(--sap-text-faint)' }}>
             <Link to="/courses" style={{ color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('courses.coursesNav')}</Link>
@@ -159,7 +174,7 @@ export default function CoursePlayer() {
         </div>
 
         {/* Sidebar — lesson list */}
-        <div style={{ background: 'var(--sap-bg-elevated)', overflowY: 'auto', maxHeight: 'calc(100vh - 72px)' }}>
+        <div className="cp-sidebar" style={{ background: 'var(--sap-bg-elevated)', overflowY: 'auto', maxHeight: 'calc(100vh - 72px)' }}>
           {/* Progress */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #e8ecf2', background: '#fff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6 }}>
