@@ -1,12 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { MonitorPlay, TrendingUp, CircleDollarSign, Share2 } from 'lucide-react';
+import { MonitorPlay, LayoutDashboard, CircleDollarSign, Share2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 var tabs = [
   { key: 'watch', label: 'Watch', icon: MonitorPlay, path: '/watch' },
   { key: 'share', label: 'Share', icon: Share2, path: '__share__' },
-  { key: 'earnings', label: 'Earnings', icon: TrendingUp, path: '/dashboard' },
+  // The path was always /dashboard — the previous label "Earnings" with a
+  // TrendingUp icon was a mismatch that landed users on the Dashboard
+  // expecting an earnings-only view. Renamed 2 May 2026 to match what
+  // tapping it actually opens.
+  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { key: 'wallet', label: 'Wallet', icon: CircleDollarSign, path: '/wallet' },
 ];
 
@@ -46,7 +50,7 @@ export default function MobileTabBar() {
   }
 
   function isActive(tab) {
-    if (tab.key === 'earnings') return location.pathname === '/dashboard' || location.pathname === '/';
+    if (tab.key === 'dashboard') return location.pathname === '/dashboard' || location.pathname === '/';
     if (tab.key === 'share') return false;
     return location.pathname === tab.path;
   }
