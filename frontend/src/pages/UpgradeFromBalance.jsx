@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
+import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { CheckCircle2, Wallet, Sparkles, ArrowRight } from 'lucide-react';
 
@@ -16,6 +17,7 @@ import { CheckCircle2, Wallet, Sparkles, ArrowRight } from 'lucide-react';
 export default function UpgradeFromBalance() {
   var { t } = useTranslation();
   var navigate = useNavigate();
+  var { refreshUser } = useAuth();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [activating, setActivating] = useState(false);
@@ -33,6 +35,17 @@ export default function UpgradeFromBalance() {
     apiPost('/api/membership/activate-from-balance', {})
       .then(function(res) {
         if (res && res.success) {
+          // Refresh AuthContext FIRST so the topbar's Balance pill on
+          // the destination Dashboard reflects the $20 deduction. Without
+          // this the pill shows the pre-activation total until the user's
+          // next page nav. We don't block on this — refreshUser is async
+          // but the navigate happens immediately; React renders the
+          // Dashboard against whatever user data is available, and the
+          // pill updates a beat later when refreshUser resolves. That's
+          // fine for the activated-from-balance case (one less point of
+          // wait); the alternative of awaiting it would just leave the
+          // user staring at the activating spinner for an extra ~200ms.
+          refreshUser();
           navigate('/dashboard?activated=balance');
         } else {
           setError((res && res.error) || t('upgradeFromBalance.errorGeneric', { defaultValue: 'Something went wrong. Please try again.' }));

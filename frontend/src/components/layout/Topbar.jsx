@@ -103,14 +103,20 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
         <span className="hidden md:block"><LanguageSelector /></span>
         <span className="md:hidden"><LanguageSelector compact={true} /></span>
 
-        {/* Balance — clickable, links to wallet */}
+        {/* Balance — clickable, links to wallet.
+            Shows the sum of affiliate balance + campaign balance — i.e. the
+            total of all funds currently in the user's wallets. The Wallet
+            page itself breaks this down (with the campaign-tier rules) so
+            users who care about the distinction see it there. The topbar
+            pill exists for the at-a-glance "how much money have I made"
+            check, which is best served by the total. */}
         {user && <a href="/wallet" style={{ display:'flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:10,
           background:'rgba(255,255,255,.06)', border:'1px solid rgba(255,255,255,.08)', textDecoration:'none', transition:'all .15s',
           cursor:'pointer' }}
           onMouseEnter={function(e){ e.currentTarget.style.background='rgba(255,255,255,.1)'; }}
           onMouseLeave={function(e){ e.currentTarget.style.background='rgba(255,255,255,.06)'; }}>
           <span style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,.4)' }}>Balance</span>
-          <span style={{ fontSize:14, fontWeight:800, color:'#4ade80', fontFamily:"'Sora',sans-serif" }}>${(user.balance || 0).toFixed(2)}</span>
+          <span style={{ fontSize:14, fontWeight:800, color:'#4ade80', fontFamily:"'Sora',sans-serif" }}>${((user.balance || 0) + (user.campaign_balance || 0)).toFixed(2)}</span>
         </a>}
 
         {/* Notification Bell */}

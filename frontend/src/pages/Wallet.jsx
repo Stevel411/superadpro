@@ -10,7 +10,11 @@ import VoiceGuide from '../components/VoiceGuide';
 
 export default function Wallet() {
   var { t } = useTranslation();
-  const { user } = useAuth();
+  // Pull refreshUser so we can sync the topbar's balance pill after any
+  // action that mutates balance (withdrawal, P2P send). Without this the
+  // pill in the topbar shows a stale value until the next full nav,
+  // which becomes confusing now that the pill sums affiliate + campaign.
+  const { user, refreshUser } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [memberIdCopied, setMemberIdCopied] = useState(false);
@@ -48,6 +52,10 @@ export default function Wallet() {
         document.getElementById('p2pAmount').value = '';
         document.getElementById('p2pNote').value = '';
         setTimeout(() => { apiGet('/api/wallet').then(d => setData(d)); }, 2000);
+        // Also refresh the AuthContext so the topbar's Balance pill
+        // reflects the deduction immediately rather than holding the
+        // pre-send total until next nav.
+        refreshUser();
       } else {
         setP2pResult({ type: 'error', msg: res.error || t('wallet.transferFailed') });
       }
@@ -112,8 +120,23 @@ export default function Wallet() {
         if (totpEl) totpEl.value = '';
         // Refresh wallet data after 2 seconds so balance updates
         setTimeout(() => { apiGet('/api/wallet').then(d => setData(d)); }, 2000);
+        // Also refresh AuthContext so the topbar Balance pill reflects
+        // the deduction. This applies to BOTH the inline-paid path and
+        // the queued-for-retry path — in both cases the server has
+        // already atomically deducted the balance. The pill must
+        // update; otherwise it shows the pre-withdrawal total until
+        // next nav, which is confusing now that the pill sums both
+        // wallets.
+        refreshUser();
       } else {
         setWithdrawResult({ type: 'error', msg: json.error || 'Withdrawal failed. Please try again.' });
+        // If the server auto-refunded (failed_permanent path from the
+        // withdrawal hardening — see app/withdrawals.py _refund_withdrawal),
+        // the balance was perturbed: deducted then credited back. The
+        // topbar pill needs to refresh to show the post-refund state.
+        // refreshUser is also harmless when the failure was pre-deduction
+        // (validation error etc.) since balance is unchanged.
+        if (json.refunded) refreshUser();
       }
     } catch (e) {
       setWithdrawResult({ type: 'error', msg: e.message || 'Network error. Please try again.' });
