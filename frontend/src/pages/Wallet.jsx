@@ -63,6 +63,25 @@ export default function Wallet() {
 
     if (!amount || amount < 10) { setWithdrawResult({ type: 'error', msg: 'Minimum withdrawal is $10' }); return; }
 
+    // ── Generate a fresh idempotency key for THIS click ──
+    // The server stores it in withdrawals.idempotency_key (unique index).
+    // If the request is silently retried — by a flaky 4G connection, a
+    // proxy, or the user double-tapping — every retry carries the same
+    // UUID and the server returns the original attempt's result instead
+    // of firing a second on-chain transfer. A NEW click generates a NEW
+    // UUID and is correctly treated as a new withdrawal attempt.
+    //
+    // crypto.randomUUID() needs a secure context (HTTPS), which we have
+    // on superadpro.com. The fallback is here purely as belt-and-braces
+    // for any future embedded webview that might surface insecurely; the
+    // server will still accept it as long as the value is unique enough.
+    let idempotencyKey;
+    try {
+      idempotencyKey = crypto.randomUUID();
+    } catch {
+      idempotencyKey = 'fb-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+    }
+
     setWithdrawing(true);
     setWithdrawResult(null);
     try {
@@ -70,6 +89,7 @@ export default function Wallet() {
       formData.append('amount', amount);
       formData.append('totp_code', totp_code);
       formData.append('wallet_type', walletType);
+      formData.append('idempotency_key', idempotencyKey);
 
       const res = await fetch('/withdraw', {
         method: 'POST',
