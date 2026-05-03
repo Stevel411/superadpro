@@ -103,21 +103,51 @@ export default function PayItForward() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:24 }}>
+      {/* Stats — top row: the 4 metrics that tell the story.
+          Earned-back is the marketing headline ("I gifted N people and
+          earned $X back through their downstream activity"). On mobile
+          the 4-col collapses to 2-col via globals.css's repeat(4 rule. */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:14 }}>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-pink)' }}>{stats.total_gifted || 0}</div>
-          <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.giftsGiven')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:800, color:'var(--sap-pink)' }}>{stats.total_gifted || 0}</div>
+          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.giftsGiven')}</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-green-mid)' }}>{stats.total_claimed || 0}</div>
-          <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.livesChanged')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:800, color:'var(--sap-green-mid)' }}>{stats.total_claimed || 0}</div>
+          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.livesChanged')}</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-purple)' }}>{stats.max_chain_depth || 0}</div>
-          <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.chainDepthLabel')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:800, color:'var(--sap-purple)' }}>{stats.max_chain_depth || 0}</div>
+          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.chainDepthLabel')}</div>
+        </div>
+        <div style={{ background:'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border:'1px solid #86efac', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:800, color:'var(--sap-green-dark)' }}>${(stats.earned_back || 0).toFixed(2)}</div>
+          <div style={{ fontSize:14, color:'var(--sap-green-dark)', marginTop:6, fontWeight:600 }}>Earned back</div>
         </div>
       </div>
+
+      {/* Secondary funnel signals — surfaced when there's something to
+          say. The "X clicked, Y not yet claimed" line is the most
+          actionable: it tells the gifter the link IS being viewed but
+          conversion's not happening, which is a different problem from
+          "no one's looking at the link at all". */}
+      {stats.total_gifted > 0 && (
+        <div style={{ display:'flex', flexWrap:'wrap', gap:10, marginBottom:24, fontSize:14, color:'var(--sap-text-muted)' }}>
+          <div style={{ padding:'8px 14px', background:'#fff', border:'1px solid #e2e8f0', borderRadius:999 }}>
+            <strong style={{ color:'var(--sap-text-primary)' }}>{stats.total_clicks || 0}</strong> total clicks
+          </div>
+          {stats.clicked_not_claimed > 0 && (
+            <div style={{ padding:'8px 14px', background:'#fefce8', border:'1px solid #fde68a', borderRadius:999, color:'#854d0e' }}>
+              <strong>{stats.clicked_not_claimed}</strong> clicked but not claimed — try a follow-up nudge
+            </div>
+          )}
+          {stats.total_clicks === 0 && stats.total_gifted > 0 && (
+            <div style={{ padding:'8px 14px', background:'#fef2f2', border:'1px solid #fecaca', borderRadius:999, color:'#991b1b' }}>
+              No clicks yet — share the link to start your chain
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Received gift notice */}
       {data && data.received_gift && data.received_gift.gifter_name && (
@@ -226,31 +256,65 @@ export default function PayItForward() {
           </div>
           {vouchers.map(function(v) {
             var isClaimed = v.status === 'claimed';
+            var act = v.recipient_activity || {};
             return (
-              <div key={v.id} style={{ padding:'14px 20px', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                  <div style={{
-                    width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center',
-                    background: isClaimed ? 'var(--sap-green-bg)' : '#fdf4ff',
-                    border: '1px solid ' + (isClaimed ? '#bbf7d0' : '#f0abfc'),
-                  }}>
-                    {isClaimed ? <Check size={16} color="var(--sap-green-mid)"/> : <Gift size={16} color="#a855f7"/>}
-                  </div>
-                  <div>
-                    <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-text-primary)' }}>
-                      {v.recipient_name || 'Open gift'}
-                      {isClaimed && v.claimed_by && <span style={{ fontWeight:400, color:'var(--sap-text-muted)' }}> — claimed by {v.claimed_by.first_name || v.claimed_by.username}</span>}
+              <div key={v.id} style={{ padding:'14px 20px', borderBottom:'1px solid #f1f5f9' }}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:12, minWidth:0, flex:1 }}>
+                    <div style={{
+                      width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+                      background: isClaimed ? 'var(--sap-green-bg)' : '#fdf4ff',
+                      border: '1px solid ' + (isClaimed ? '#bbf7d0' : '#f0abfc'),
+                    }}>
+                      {isClaimed ? <Check size={16} color="var(--sap-green-mid)"/> : <Gift size={16} color="#a855f7"/>}
                     </div>
-                    <div style={{ fontSize:14, color:'var(--sap-text-muted)' }}>
-                      {v.code} · {isClaimed ? 'Claimed' : 'Available'} · Chain depth {v.chain_depth}
+                    <div style={{ minWidth:0, flex:1 }}>
+                      <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-text-primary)' }}>
+                        {v.recipient_name || 'Open gift'}
+                        {isClaimed && v.claimed_by && <span style={{ fontWeight:400, color:'var(--sap-text-muted)' }}> — claimed by {v.claimed_by.first_name || v.claimed_by.username}</span>}
+                      </div>
+                      <div style={{ fontSize:14, color:'var(--sap-text-muted)' }}>
+                        {v.code} · {isClaimed ? 'Claimed' : 'Available'}
+                        {/* Click count for unclaimed vouchers — the key
+                            new signal. "0 clicks" on an old voucher means
+                            "nobody has even looked"; >0 means it's being
+                            viewed but not converting. */}
+                        {!isClaimed && (v.link_clicks > 0
+                          ? <> · <strong style={{ color:'#a16207' }}>{v.link_clicks} click{v.link_clicks === 1 ? '' : 's'}</strong></>
+                          : <> · <span style={{ color:'#94a3b8' }}>Not clicked yet</span></>
+                        )}
+                        {v.chain_depth > 1 && <> · Chain depth {v.chain_depth}</>}
+                      </div>
                     </div>
                   </div>
+                  {!isClaimed && (
+                    <button onClick={function() { copyLink(v.link); }}
+                      style={{ padding:'6px 12px', borderRadius:6, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:700, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4, flexShrink:0 }}>
+                      {copied === v.link ? <><Check size={12}/> {t('payItForward.copiedLabel')}</> : <><Copy size={12}/> {t('payItForward.copyLinkBtn')}</>}
+                    </button>
+                  )}
                 </div>
-                {!isClaimed && (
-                  <button onClick={function() { copyLink(v.link); }}
-                    style={{ padding:'6px 12px', borderRadius:6, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:700, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4 }}>
-                    {copied === v.link ? <><Check size={12}/> {t('payItForward.copiedLabel')}</> : <><Copy size={12}/> {t('payItForward.copyLinkBtn')}</>}
-                  </button>
+
+                {/* Recipient activity badges — claimed vouchers only.
+                    The story for the gifter: did the gift "take"? Active
+                    member, tier active, dollar earnings, did-pif each
+                    represent a deeper level of engagement. Surfaces the
+                    success-story material for personal marketing. */}
+                {isClaimed && v.recipient_activity && (
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:10, marginLeft:48 }}>
+                    {act.is_active_member && (
+                      <span style={{ padding:'4px 10px', background:'var(--sap-green-bg)', border:'1px solid #bbf7d0', borderRadius:999, fontSize:12, fontWeight:600, color:'var(--sap-green-dark)' }}>✓ Active member</span>
+                    )}
+                    {act.tier_active && (
+                      <span style={{ padding:'4px 10px', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:999, fontSize:12, fontWeight:600, color:'#854d0e' }}>⚡ Tier active</span>
+                    )}
+                    {act.total_earned > 0 && (
+                      <span style={{ padding:'4px 10px', background:'#dbeafe', border:'1px solid #bfdbfe', borderRadius:999, fontSize:12, fontWeight:600, color:'#1e40af' }}>💰 Earned ${act.total_earned.toFixed(2)}</span>
+                    )}
+                    {act.did_pif && (
+                      <span style={{ padding:'4px 10px', background:'#fdf4ff', border:'1px solid #f0abfc', borderRadius:999, fontSize:12, fontWeight:600, color:'#a21caf' }}>🎁 Paid it forward</span>
+                    )}
+                  </div>
                 )}
               </div>
             );

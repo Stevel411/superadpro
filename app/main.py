@@ -18545,10 +18545,25 @@ def _generate_voucher_code():
     return _secrets.token_urlsafe(6).replace('-', '').replace('_', '')[:8].upper()
 @app.get("/api/pay-it-forward/dashboard")
 async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Get Pay It Forward dashboard data for the current user."""
+    """Get Pay It Forward dashboard data for the current user.
+
+    Returns three layers of analytics for the gifter:
+
+      1. Top-line stats — gifts created, claims, click-throughs, chain
+         depth, dollars earned-back from gifted recipients' downstream
+         activity (the marketing-relevant headline number).
+
+      2. Per-voucher breakdown — for each voucher: status, click count,
+         first-click time, and (if claimed) what the recipient has done
+         since (tier active, total earned, did they PIF themselves).
+
+      3. Funnel signals — Click→Claim conversion rate, time-to-claim
+         distribution. Gives the gifter actionable data on whether the
+         share message is working vs. whether the landing page is.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    from .database import GiftVoucher
+    from .database import GiftVoucher, Commission
 
     # My vouchers (given)
     my_vouchers = db.query(GiftVoucher).filter(GiftVoucher.gifter_user_id == user.id).order_by(GiftVoucher.created_at.desc()).all()
@@ -18560,12 +18575,19 @@ async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session 
     total_gifted = len(my_vouchers)
     total_claimed = sum(1 for v in my_vouchers if v.status == "claimed")
     available = sum(1 for v in my_vouchers if v.status == "available")
+    total_clicks = sum((v.link_clicks or 0) for v in my_vouchers)
+    # Vouchers that have been clicked but NOT yet claimed — the
+    # "interested but didn't convert" bucket. Useful for follow-up
+    # nudges to the recipient.
+    clicked_not_claimed = sum(
+        1 for v in my_vouchers
+        if v.status == "available" and (v.link_clicks or 0) > 0
+    )
 
     # Chain depth — how far has my gifting chain gone?
     max_depth = 0
     for v in my_vouchers:
         if v.status == "claimed":
-            # Check if the recipient has also gifted
             child = db.query(GiftVoucher).filter(GiftVoucher.parent_voucher_id == v.id).first()
             depth = v.pif_chain_depth
             if child:
@@ -18573,16 +18595,52 @@ async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session 
             if depth > max_depth:
                 max_depth = depth
 
+    # ── Earned-back: commissions I've received from people I gifted ──
+    # The headline marketing number: "I gifted N people and earned $X
+    # back through their downstream activity." Sum paid commissions
+    # where from_user_id is one of my claimed-voucher recipients.
+    giftee_ids = [v.claimed_by_user_id for v in my_vouchers if v.claimed_by_user_id]
+    earned_back = 0.0
+    if giftee_ids:
+        from sqlalchemy import func as _func
+        earned_back = float(db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == user.id,
+            Commission.from_user_id.in_(giftee_ids),
+            Commission.status == "paid",
+        ).scalar() or 0)
+
     # Can pay from wallet?
     can_pay_from_wallet = float(user.balance or 0) >= 20
 
     vouchers_list = []
     for v in my_vouchers:
         claimed_user = None
+        recipient_activity = None
         if v.claimed_by_user_id:
             cu = db.query(User).filter(User.id == v.claimed_by_user_id).first()
             if cu:
                 claimed_user = {"username": cu.username, "first_name": cu.first_name}
+                # ── Per-recipient activity snapshot (the success story) ──
+                # Did they activate beyond the gifted membership? Earn
+                # anything? Pay it forward themselves? These three
+                # signals tell the gifter whether their gift "took",
+                # which is the fuel for personal marketing case studies.
+                recipient_total_earned = compute_user_earnings(db, cu.id)["total_earned"]
+                did_pif = db.query(GiftVoucher).filter(
+                    GiftVoucher.gifter_user_id == cu.id
+                ).first() is not None
+                # Tier active = they have an active grid (Tier 1+) — i.e.
+                # they put real skin in beyond the gifted free membership.
+                from .database import Grid
+                has_active_grid = db.query(Grid).filter(
+                    Grid.owner_id == cu.id, Grid.is_complete == False
+                ).first() is not None
+                recipient_activity = {
+                    "tier_active": has_active_grid,
+                    "total_earned": float(recipient_total_earned or 0),
+                    "did_pif": did_pif,
+                    "is_active_member": bool(cu.is_active),
+                }
         vouchers_list.append({
             "id": v.id,
             "code": v.voucher_code,
@@ -18597,6 +18655,12 @@ async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session 
             "created_at": v.created_at.isoformat() if v.created_at else None,
             "chain_depth": v.pif_chain_depth,
             "link": f"https://www.superadpro.com/gift/{v.voucher_code}",
+            # Click analytics
+            "link_clicks":      v.link_clicks or 0,
+            "first_clicked_at": v.first_clicked_at.isoformat() if v.first_clicked_at else None,
+            "last_clicked_at":  v.last_clicked_at.isoformat() if v.last_clicked_at else None,
+            # Per-recipient downstream activity (claimed vouchers only)
+            "recipient_activity": recipient_activity,
         })
 
     return {
@@ -18606,6 +18670,10 @@ async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session 
             "total_claimed": total_claimed,
             "available": available,
             "max_chain_depth": max_depth,
+            # New analytics surface (2 May 2026)
+            "total_clicks":          total_clicks,
+            "clicked_not_claimed":   clicked_not_claimed,
+            "earned_back":           earned_back,
         },
         "received_gift": {
             "gifter_name": None,
@@ -18765,12 +18833,45 @@ async def api_pif_create(request: Request, user: User = Depends(get_current_user
         "chain_depth": chain_depth,
     }
 @app.get("/api/gift/{code}")
-async def api_gift_info(code: str, db: Session = Depends(get_db)):
-    """Public endpoint — get gift voucher info for the landing page."""
+async def api_gift_info(code: str, request: Request, db: Session = Depends(get_db)):
+    """Public endpoint — get gift voucher info for the landing page.
+    Also tracks link clicks so the gifter can see whether their share
+    is being viewed (regardless of whether the recipient claims). The
+    gifter's own visits to their own link are excluded — they often
+    preview the link to verify it works, and counting that would
+    inflate the click number meaninglessly."""
     from .database import GiftVoucher
     voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
     if not voucher:
         return JSONResponse({"error": "Gift voucher not found"}, status_code=404)
+
+    # ── Click tracking (best-effort, never blocks the response) ──
+    # Identify the visitor: if there's a session cookie, see who it is.
+    # We skip the increment if the visitor IS the gifter — their own
+    # preview clicks shouldn't inflate the metric. Anonymous and other-
+    # user visits both count.
+    try:
+        viewer_id = None
+        session_token = request.cookies.get("session")
+        if session_token:
+            from .database import SessionToken
+            st = db.query(SessionToken).filter(SessionToken.token == session_token).first()
+            if st:
+                viewer_id = st.user_id
+        if viewer_id != voucher.gifter_user_id:
+            now = datetime.utcnow()
+            voucher.link_clicks = (voucher.link_clicks or 0) + 1
+            if voucher.first_clicked_at is None:
+                voucher.first_clicked_at = now
+            voucher.last_clicked_at = now
+            db.commit()
+    except Exception as e:
+        # Click tracking is non-critical — never let a write failure
+        # break the gift landing page for the recipient. Log + roll back.
+        logger.warning(f"PIF click tracking failed for voucher {code}: {e}")
+        try: db.rollback()
+        except Exception: pass
+
     if voucher.status != "available":
         return JSONResponse({"error": "This gift has already been claimed", "status": voucher.status}, status_code=410)
 

@@ -1200,6 +1200,16 @@ class GiftVoucher(Base):
     status            = Column(String(20), default="available")  # available, claimed, expired
     claimed_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     claimed_at        = Column(DateTime, nullable=True)
+    # Click / view tracking — populated when /api/gift/{code} loads.
+    # Lets the gifter see "link viewed but not claimed", which is the
+    # most actionable signal for marketing iteration: a click without a
+    # claim means the landing page isn't converting; no clicks at all
+    # means the share message isn't compelling enough to open. Without
+    # this, gifters only see "claimed yes/no" with no idea whether the
+    # link was even seen. (Added 2 May 2026 as part of PIF analytics.)
+    link_clicks       = Column(Integer, default=0, nullable=False)
+    first_clicked_at  = Column(DateTime, nullable=True)
+    last_clicked_at   = Column(DateTime, nullable=True)
     # Chain tracking
     pif_chain_depth   = Column(Integer, default=1)  # how many generations deep
     parent_voucher_id = Column(Integer, ForeignKey("gift_vouchers.id"), nullable=True)
@@ -1555,6 +1565,13 @@ def run_migrations():
         # anyway, but being explicit makes intent obvious).
         "CREATE UNIQUE INDEX IF NOT EXISTS ix_withdrawals_idempotency_key ON withdrawals (idempotency_key) WHERE idempotency_key IS NOT NULL",
         "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS notes TEXT",
+        # ── 2 May 2026: Pay It Forward analytics ──
+        # Track link clicks so gifters can see "link viewed but not
+        # claimed" — the actionable signal for marketing iteration.
+        # See app/database.py GiftVoucher model for full rationale.
+        "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS link_clicks INTEGER DEFAULT 0 NOT NULL",
+        "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS first_clicked_at TIMESTAMP",
+        "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS last_clicked_at TIMESTAMP",
     ]
     results = []
     with engine.connect() as conn:
