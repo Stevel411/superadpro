@@ -994,8 +994,13 @@ def api_public_stats(db: Session = Depends(get_db)):
     from sqlalchemy import func
     total_members = db.query(User).filter(User.is_active == True).count()
     total_registered = db.query(User).count()
+    # Member-routed commissions only — exclude company-routed (platform
+    # fees + overflow-to-company where to_user_id is None). The public
+    # homepage 'paid to members' figure must not include company revenue
+    # or it inflates a marketing claim. Same fix applied to /api/leaderboard.
     total_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
-        Commission.status == "paid"
+        Commission.status == "paid",
+        Commission.to_user_id.isnot(None),
     ).scalar() or 0)
     result = {
         "members": total_members,
@@ -19355,13 +19360,24 @@ def api_leaderboard(db: Session = Depends(get_db)):
             CreditMatrix, CreditMatrixPosition.matrix_id == CreditMatrix.id
         ).filter(CreditMatrix.owner_id == u.id).distinct().count() - 1)
 
+        # Live personal-referrals count — count of CURRENT users who have
+        # this user as their sponsor. Replaces the stored
+        # `User.personal_referrals` denormalised counter, which never
+        # decrements when test accounts get deleted, so it would over-
+        # report on the public leaderboard. The denormalised counter is
+        # still useful for cron-driven incremental updates elsewhere; we
+        # just don't trust it for display. (Fix 4 May 2026.)
+        live_personal_referrals = db.query(User).filter(
+            User.sponsor_id == u.id
+        ).count()
+
         return {
             "id": u.id,
             "username": u.username,
             "first_name": u.first_name or u.username,
             "last_name": u.last_name or "",
             "avatar_url": u.avatar_url or None,
-            "personal_referrals": u.personal_referrals or 0,
+            "personal_referrals": live_personal_referrals,
             "total_team": u.total_team or 0,
             "total_earned": float(u.total_earned or 0),
             "course_sale_count": u.course_sale_count or 0,
@@ -19453,10 +19469,16 @@ def api_leaderboard(db: Session = Depends(get_db)):
     activity.sort(key=lambda x: x.get("time") or "", reverse=True)
     activity = activity[:20]
 
-    # Platform stats
+    # Platform stats — commissions paid OUT TO MEMBERS only.
+    # Filter to_user_id IS NOT NULL excludes platform fees and overflow-
+    # to-company commissions (where to_user_id is None). Without this
+    # filter the headline "paid out to members" number is inflated by
+    # company-routed revenue, which is misleading on a leaderboard
+    # marketed as showing what members have earned. (Fix 4 May 2026.)
     total_members = db.query(User).filter(User.is_active == True).count()
     total_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
-        Commission.status == "paid"
+        Commission.status == "paid",
+        Commission.to_user_id.isnot(None),
     ).scalar() or 0)
 
     result = {
