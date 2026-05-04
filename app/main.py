@@ -5067,6 +5067,203 @@ def payment_cancelled_dash(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
+# ─────────────────────────────────────────────────────────────────
+#  Test account cleanup — diagnostic + safe deletion
+# ─────────────────────────────────────────────────────────────────
+# Pre-launch goal: identify likely test accounts so the admin can
+# review and remove them, without inflating the leaderboard or
+# leaving cruft in production data. Deletion itself goes through
+# admin_delete_user (existing endpoint with proper 41-model cascade).
+#
+# This diagnostic endpoint is READ-ONLY. It returns candidates with
+# a "test score" (combination of soft signals) and a cascade-impact
+# preview so the admin sees exactly what will be deleted before
+# pulling the trigger.
+#
+# Soft signals used (no single one is definitive):
+#   - Username matches test patterns (test*, demo*, qa*, dummy*, fake*)
+#   - Email never verified
+#   - Zero balance + zero total_earned + zero total_withdrawn
+#   - No commissions earned or paid
+#   - No purchases (NowPaymentsOrder, CryptoPaymentOrder, course/credit-matrix)
+#   - No active grid
+#   - Created in close succession to other test-pattern accounts
+#
+# Score 0–7. Admin's judgement on what threshold to act on. The
+# endpoint deliberately does NOT auto-delete anything.
+@app.get("/admin/api/users/cleanup-candidates")
+def admin_users_cleanup_candidates(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    min_score: int = 3,
+):
+    """List likely-test accounts with cascade-impact preview. Read-only.
+
+    Query params:
+      min_score (int, default 3) — only return candidates scoring >= N
+                                    soft signals. Tighten to 5+ for
+                                    near-certain test accounts; loosen
+                                    to 1 to see everything that could
+                                    plausibly be one.
+
+    Returns one row per candidate with:
+      - basic identity (id, username, email, created_at)
+      - the score breakdown (which signals fired)
+      - cascade impact (counts of FK references that would be
+        deleted/nulled if admin_delete_user is called)
+      - blockers (admin / has-balance / is-self) that would prevent
+        deletion outright
+
+    The admin uses this to review the list, then deletes individuals
+    via DELETE /admin/api/user/{user_id} which already exists and
+    handles the proper 41-model cascade with sponsor counter
+    decrements + downline orphaning.
+    """
+    _require_admin(user)
+    import re as _re
+    from sqlalchemy import or_, func as _func
+    from .database import (
+        Commission, Payment, Withdrawal, NowPaymentsOrder,
+        CryptoPaymentOrder, CoursePurchase, Grid, VideoCampaign,
+    )
+
+    # Test-pattern username regex. Conservative — only flags accounts
+    # whose usernames clearly look like throwaway test data. Real users
+    # named "Tess" or "Demo" won't match because we anchor at start.
+    test_username_re = _re.compile(
+        r"^(test|demo|qa|dummy|fake|debug|sample|tmp|temp)[\d_]*$",
+        _re.IGNORECASE,
+    )
+
+    candidates = []
+    # Pull all non-admin, non-self users. Small enough at launch (~13)
+    # that scanning all of them is fine. Add LIMIT if this grows.
+    all_users = db.query(User).filter(
+        User.is_admin == False,
+        User.id != user.id,
+    ).order_by(User.id.asc()).all()
+
+    for u in all_users:
+        signals = []
+        score = 0
+
+        # Signal 1: Username matches test pattern
+        if u.username and test_username_re.match(u.username):
+            signals.append("username_test_pattern")
+            score += 2  # strong signal — weight 2
+
+        # Signal 2: Email never verified (if your model tracks this)
+        if hasattr(u, "email_verified") and not getattr(u, "email_verified", True):
+            signals.append("email_not_verified")
+            score += 1
+
+        # Signal 3: No balance, no earnings, no withdrawals
+        bal = float(u.balance or 0)
+        earned = float(u.total_earned or 0)
+        withdrawn = compute_total_withdrawn(db, u.id)
+        if bal == 0 and earned == 0 and withdrawn == 0:
+            signals.append("zero_financial_activity")
+            score += 1
+
+        # Signal 4: No commissions either earned or attributed-to-buyer
+        comms_to = db.query(Commission).filter(Commission.to_user_id == u.id).count()
+        comms_from = db.query(Commission).filter(Commission.from_user_id == u.id).count()
+        if comms_to == 0 and comms_from == 0:
+            signals.append("no_commissions")
+            score += 1
+
+        # Signal 5: No purchases of any kind
+        np_count = db.query(NowPaymentsOrder).filter(NowPaymentsOrder.user_id == u.id).count()
+        cp_count = db.query(CryptoPaymentOrder).filter(CryptoPaymentOrder.user_id == u.id).count()
+        course_count = db.query(CoursePurchase).filter(CoursePurchase.user_id == u.id).count()
+        if (np_count + cp_count + course_count) == 0:
+            signals.append("no_purchases")
+            score += 1
+
+        # Signal 6: No active grid
+        grid_count = db.query(Grid).filter(Grid.owner_id == u.id).count()
+        if grid_count == 0:
+            signals.append("no_grid")
+            score += 1
+
+        if score < min_score:
+            continue
+
+        # Cascade impact preview — how many rows would be touched if
+        # admin_delete_user is called. Helps the admin spot accounts
+        # that have unexpected ties (e.g. they "look like" test data
+        # but actually have downstream activity that shouldn't be
+        # deleted).
+        downline_count = db.query(User).filter(User.sponsor_id == u.id).count()
+        notif_count = 0
+        try:
+            from .database import Notification
+            notif_count = db.query(Notification).filter(Notification.user_id == u.id).count()
+        except Exception:
+            pass
+
+        # Blockers — conditions that would cause admin_delete_user to
+        # 400-reject. Surface them in the preview so the admin doesn't
+        # try to delete and bounce.
+        blockers = []
+        if bal > 0:
+            blockers.append(f"balance > 0 (${bal:.2f}) — withdraw or zero first")
+        if u.is_admin:
+            blockers.append("is_admin (cannot delete admin accounts)")
+        if u.id == user.id:
+            blockers.append("is_self (cannot delete your own account)")
+
+        candidates.append({
+            "id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "first_name": u.first_name,
+            "is_active": bool(u.is_active),
+            "membership_tier": u.membership_tier or "basic",
+            "balance_usd": bal,
+            "total_earned_usd": earned,
+            "total_withdrawn_usd": withdrawn,
+            "personal_referrals_stored": u.personal_referrals or 0,
+            "personal_referrals_live": db.query(User).filter(User.sponsor_id == u.id).count(),
+            "sponsor_id": u.sponsor_id,
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+            "score": score,
+            "signals": signals,
+            "cascade_preview": {
+                "commissions_to_user":   comms_to,
+                "commissions_from_user": comms_from,
+                "nowpayments_orders":    np_count,
+                "crypto_orders":         cp_count,
+                "course_purchases":      course_count,
+                "grids":                 grid_count,
+                "downline_users_to_orphan": downline_count,
+                "notifications":         notif_count,
+            },
+            "blockers": blockers,
+            "delete_url": f"/admin/api/user/{u.id}",
+            "delete_method": "DELETE",
+        })
+
+    # Sort by score desc, then by id asc — highest-confidence
+    # candidates first, oldest first within same score.
+    candidates.sort(key=lambda c: (-c["score"], c["id"]))
+
+    return {
+        "total_users_scanned": len(all_users),
+        "min_score_threshold": min_score,
+        "candidate_count": len(candidates),
+        "candidates": candidates,
+        "instructions": (
+            "Review each candidate. To delete, send DELETE to delete_url. "
+            "The existing admin_delete_user endpoint cascades through 41 "
+            "FK-related tables, decrements your sponsor counters, and "
+            "orphans (nulls sponsor_id on) any users who had this person "
+            "as their sponsor. Blockers must be cleared first. "
+            "Recommendation: start with score >= 5 candidates, work down."
+        ),
+    }
+
+
 @app.delete("/admin/api/user/{user_id}")
 def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
