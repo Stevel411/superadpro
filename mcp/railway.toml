@@ -1,0 +1,12 @@
+[build]
+builder = "nixpacks"
+
+# Start command for the MCP service. The parent repo's railway.toml has
+# `python start.py` for the main SuperAdPro app, but start.py doesn't
+# exist inside mcp/ so the MCP service deploy was failing healthcheck.
+# Override here with the MCP server's entry point. Same as mcp/Procfile.
+[deploy]
+startCommand = "uvicorn server:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
