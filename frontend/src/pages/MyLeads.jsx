@@ -7,6 +7,7 @@ import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkl
 import CustomSelect from '../components/ui/CustomSelect';
 import MyLeadsHelp from './MyLeadsHelp';
 import { TYPE } from '../styles/typography';
+import { useConsentGate } from '../components/PurchaseConsentModal';
 
 // Tab configuration — keys + icons only. Labels come from t() inside component.
 var TAB_CONFIG = [
@@ -400,8 +401,15 @@ function BoostTab({emailStats,refresh,flash}) {
 
   var { t } = useTranslation();
   var [buying,setBuying]=useState('');
+  // Purchase consent gate — see app/purchase_consent.py
+  var { ensureConsent, consentModal } = useConsentGate();
   var packs=emailStats.boost_packs||[{id:'boost_1k',credits:1000,price:5,label:'1,000 Emails',desc:t('myLeads.boost.targeted')},{id:'boost_5k',credits:5000,price:19,label:'5,000 Emails',desc:t('myLeads.boost.multiple')},{id:'boost_10k',credits:10000,price:29,label:'10,000 Emails',desc:t('myLeads.boost.scale')},{id:'boost_50k',credits:50000,price:99,label:'50,000 Emails',desc:t('myLeads.boost.enterprise')}];
-  function buy(pid){setBuying(pid);apiPost('/api/leads/buy-boost',{pack_id:pid}).then(function(r){setBuying('');flash('+'+(r.credits_added||0)+' email credits added');refresh();}).catch(function(e){setBuying('');flash(e.message,'err');});}
+  async function buy(pid){
+    var consented = await ensureConsent();
+    if (!consented) return;
+    setBuying(pid);
+    apiPost('/api/leads/buy-boost',{pack_id:pid}).then(function(r){setBuying('');flash('+'+(r.credits_added||0)+' email credits added');refresh();}).catch(function(e){setBuying('');flash(e.message,'err');});
+  }
 
   return <div>
     <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:16}}>
@@ -424,5 +432,6 @@ function BoostTab({emailStats,refresh,flash}) {
       </div>;})}
     </div>
     <div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:12,textAlign:'center'}}>{t('myLeads.boostCreditsDesc')}</div>
+    {consentModal}
   </div>;
 }

@@ -360,6 +360,58 @@ class Withdrawal(Base):
     notes             = Column(Text, nullable=True)
 
 
+class PurchaseConsent(Base):
+    """Captures a user's express consent to the no-refund / immediate-
+    activation terms BEFORE they make any money-in transaction.
+
+    Why this exists:
+    UK Consumer Contracts Regulations 2013 give consumers a 14-day
+    right to cancel digital services purchased online. That right can
+    be lawfully waived ONLY if the consumer (a) gives express prior
+    consent to immediate performance, AND (b) explicitly acknowledges
+    that they lose the right to cancel. A generic "no refunds" tickbox
+    in the TOS is not sufficient — the consent must be tied to the
+    specific transaction and recorded with evidence.
+
+    Each row is the audit trail for one consent event. The
+    `consent_text_hash` is the SHA-256 of the exact disclaimer text
+    the user accepted; that lets us prove consent was given to the
+    text in force at the time, even if we later update the disclaimer.
+    `consent_version` is a human-readable label for the same thing.
+
+    Validity:
+      A consent is "fresh" for `CONSENT_VALIDITY_SECONDS` (default 300s
+      = 5 minutes) — long enough to complete a checkout flow, short
+      enough that someone can't pre-consent days in advance and use it
+      to buy without seeing the latest disclaimer.
+
+      `consumed_at` is stamped when the consent is used to authorise an
+      actual purchase. A consent can only be consumed once — prevents
+      one consent event from authorising multiple back-to-back
+      purchases (which would defeat the per-transaction express-consent
+      requirement).
+
+      Created 2 May 2026, pre-soft-launch. See app/main.py for the
+      consent capture endpoint and require_fresh_consent helper.
+    """
+    __tablename__ = "purchase_consents"
+    id                = Column(Integer, primary_key=True, autoincrement=True)
+    user_id           = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # The text the user actually saw and accepted
+    consent_version   = Column(String(20), nullable=False)   # e.g. "v1.0", "v1.1"
+    consent_text_hash = Column(String(64), nullable=False)   # SHA-256 hex of the exact text
+    # Evidence
+    ip_address        = Column(String(50), nullable=True)
+    user_agent        = Column(String(500), nullable=True)
+    # Lifecycle
+    created_at        = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    consumed_at       = Column(DateTime, nullable=True, index=True)
+    # What the consent ultimately authorised — set when consumed.
+    # Helpful for forensics: "show me which purchase this consent
+    # authorised". Free-form because money-in transaction types vary.
+    consumed_for      = Column(String(100), nullable=True)
+
+
 class PasswordResetToken(Base):
     """One-time password reset tokens — expire after 1 hour."""
     __tablename__ = "password_reset_tokens"
@@ -1572,6 +1624,28 @@ def run_migrations():
         "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS link_clicks INTEGER DEFAULT 0 NOT NULL",
         "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS first_clicked_at TIMESTAMP",
         "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS last_clicked_at TIMESTAMP",
+        # ── 2 May 2026: PurchaseConsent table ──
+        # New table; SQLAlchemy create_all() will create it on boot. The
+        # CREATE TABLE IF NOT EXISTS below is belt-and-braces in case
+        # create_all is ever skipped on a particular environment. Holds
+        # the audit trail of every user's express consent to the
+        # no-refund / immediate-activation terms before each money-in
+        # transaction. See PurchaseConsent class docstring for full
+        # rationale.
+        """CREATE TABLE IF NOT EXISTS purchase_consents (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            consent_version VARCHAR(20) NOT NULL,
+            consent_text_hash VARCHAR(64) NOT NULL,
+            ip_address VARCHAR(50),
+            user_agent VARCHAR(500),
+            created_at TIMESTAMP NOT NULL DEFAULT now(),
+            consumed_at TIMESTAMP,
+            consumed_for VARCHAR(100)
+        )""",
+        "CREATE INDEX IF NOT EXISTS ix_purchase_consents_user_id ON purchase_consents (user_id)",
+        "CREATE INDEX IF NOT EXISTS ix_purchase_consents_created_at ON purchase_consents (created_at)",
+        "CREATE INDEX IF NOT EXISTS ix_purchase_consents_consumed_at ON purchase_consents (consumed_at)",
     ]
     results = []
     with engine.connect() as conn:

@@ -4,6 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import ProductExplainer from '../components/ProductExplainer';
 import { apiGet, apiPost } from '../utils/api';
 import { Sparkles, TrendingUp, Users, DollarSign, Gift, ChevronDown, ChevronUp, Loader2, CheckCircle, AlertCircle, Zap, Award, Layers } from 'lucide-react';
+import { useConsentGate } from '../components/PurchaseConsentModal';
 
 var PACK_ICONS = {
   starter:   { emoji: '🚀', gradient: 'linear-gradient(135deg, #6366f1, #818cf8)', cardGrad: 'linear-gradient(135deg, #312e81, #4338ca, #6366f1)' },
@@ -35,6 +36,9 @@ export function CreditMatrixContent() {
   var [loading, setLoading] = useState(true);
   var [purchasing, setPurchasing] = useState(null);
   var [message, setMessage] = useState(null);
+
+  // Purchase consent gate — see app/purchase_consent.py
+  var { ensureConsent, consentModal } = useConsentGate();
   var [showCommissions, setShowCommissions] = useState(false);
 
   function loadAll() {
@@ -56,7 +60,13 @@ export function CreditMatrixContent() {
 
   useEffect(function() { loadAll(); }, []);
 
-  function buyPack(packKey) {
+  async function buyPack(packKey) {
+    // Purchase consent FIRST. Credit-matrix purchases trigger
+    // immediate matrix-level commissions to upline + completion-bonus
+    // pool contributions. If user cancels, abort silently.
+    var consented = await ensureConsent();
+    if (!consented) return;
+
     setPurchasing(packKey);
     setMessage(null);
     apiPost('/api/credit-matrix/purchase', { pack_key: packKey, payment_method: 'crypto' })
@@ -395,6 +405,7 @@ export function CreditMatrixContent() {
       </div>
 
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
+      {consentModal}
     </>
   );
 }

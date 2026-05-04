@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
 import { Globe, Check, Zap, Wrench, Users, Mail, BookOpen, Headphones } from 'lucide-react';
 import WalletGuideCard from '../components/WalletGuideCard';
+import { useConsentGate } from '../components/PurchaseConsentModal';
 
 var css = `
   .up-card{border-radius:20px;overflow:hidden;position:relative;background:#fff;transition:transform .25s,box-shadow .25s}
@@ -36,7 +37,15 @@ export default function Upgrade() {
 
   var isBasicActive = isActive && !isPro;
 
-  function nowPaymentsCheckout(tier, billing) {
+  // Purchase consent gate — shows the no-refund / immediate-activation
+  // modal before any money-in action. See app/purchase_consent.py.
+  var { ensureConsent, consentModal } = useConsentGate();
+
+  async function nowPaymentsCheckout(tier, billing) {
+    // Consent gate FIRST. If the user cancels, abort silently.
+    var consented = await ensureConsent();
+    if (!consented) return;
+
     var loadKey = tier + '_' + billing + '_np';
     setLoading(loadKey);
     setError('');
@@ -50,7 +59,12 @@ export default function Upgrade() {
       .catch(function(e) { setLoading(''); setError(e.message || t('upgrade.checkoutFailed')); });
   }
 
-  function handleUpgradeToPro() {
+  async function handleUpgradeToPro() {
+    // Consent gate FIRST. /api/upgrade-to-pro is a money-in flow
+    // (deducts $15 from balance) so it needs the same gate.
+    var consented = await ensureConsent();
+    if (!consented) return;
+
     setLoading('upgrade');
     setError('');
     apiPost('/api/upgrade-to-pro', {})
@@ -288,6 +302,7 @@ export default function Upgrade() {
           {t('upgrade.securePaymentFooter')}
         </p>
       </div>
+      {consentModal}
     </AppLayout>
   );
 }

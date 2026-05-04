@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { Globe } from 'lucide-react';
+import { useConsentGate } from '../components/PurchaseConsentModal';
 
 const TIERS = {
   1: { name:'Starter',     price:20,   views:'2,000',     monthly:'500',    bonus:64,   grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
@@ -27,6 +28,12 @@ export default function ActivateTier() {
   // null = no in-flight campaign, can purchase. Loaded on mount.
   const [inFlight, setInFlight] = useState(null);
   const [stateLoaded, setStateLoaded] = useState(false);
+
+  // Purchase consent gate — see app/purchase_consent.py.
+  // Activating a tier triggers immediate, irreversible commission
+  // payouts to sponsor + uplines + completion bonus pool, so this is
+  // the most important place the gate must run.
+  const { ensureConsent, consentModal } = useConsentGate();
 
   const n = parseInt(tierId);
   const tier = TIERS[n];
@@ -58,6 +65,14 @@ export default function ActivateTier() {
 
   const handleNowPayments = async () => {
     if (paying) return;
+
+    // Consent gate FIRST. Tier activation triggers immediate
+    // commission payouts that cannot be reversed once on-chain — this
+    // is exactly the irreversibility scenario the no-refund terms
+    // exist for. If user cancels, abort silently.
+    const consented = await ensureConsent();
+    if (!consented) return;
+
     setPaying(true);
     setError('');
     try {
@@ -222,6 +237,7 @@ export default function ActivateTier() {
           <Link to="/campaign-tiers" style={{fontSize:13,color:'var(--sap-text-muted)',textDecoration:'none'}}>{t('campaignTiers.backToTiers')}</Link>
         </div>
       </div>
+      {consentModal}
     </AppLayout>
   );
 }

@@ -2012,6 +2012,164 @@ async def admin_api_showcase_reorder(
     return {"success": True, "id": row.id, "sort_order": so}
 
 
+# ═══════════════════════════════════════════════════════════════
+#  Purchase consent — express-consent capture before money-in
+# ═══════════════════════════════════════════════════════════════
+# Architecture in app/purchase_consent.py module docstring. Brief here:
+# every money-in API endpoint calls require_fresh_consent() at the top
+# of its handler. If consent is enforced and the user has no fresh
+# consent record, the endpoint 403s. If enforcement is off (the default
+# pre-launch), the helper logs but allows the request through — so we
+# can ship the rails without breaking purchases before the solicitor
+# signs off the disclaimer text.
+from .purchase_consent import (
+    PURCHASE_CONSENT_VERSION, PURCHASE_CONSENT_TEXT_HASH,
+    CONSENT_VALIDITY_SECONDS, is_consent_enforced, get_consent_payload,
+)
+from .database import PurchaseConsent
+
+
+@app.get("/api/purchase-consent")
+def api_get_purchase_consent(user: User = Depends(get_current_user)):
+    """Return the current disclaimer text + version + enforcement
+    state for the frontend to render in the consent modal. Public-ish:
+    no PII; serving anonymous works too in case we ever want to show
+    the disclaimer pre-login."""
+    return get_consent_payload()
+
+
+@app.post("/api/purchase-consent/record")
+async def api_record_purchase_consent(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Record a user's express consent to the no-refund / immediate-
+    activation terms. Called by the frontend modal after the user
+    ticks the consent box and clicks "I Agree & Proceed".
+
+    Body: { "version": "<consent_version>", "text_hash": "<sha256>" }
+
+    The frontend must echo back the version + hash it displayed, so
+    we can detect any client/server text mismatch (e.g. a stale
+    cached page showing an old version). If they don't match, we
+    refuse the consent and return the current version so the
+    frontend can re-render and ask the user to consent fresh."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    client_version = (body.get("version") or "").strip()
+    client_hash    = (body.get("text_hash") or "").strip().lower()
+
+    if client_version != PURCHASE_CONSENT_VERSION or client_hash != PURCHASE_CONSENT_TEXT_HASH.lower():
+        # Client saw a different version than the server thinks is
+        # current. Refuse, return the current values so the client
+        # can re-render the modal with fresh text.
+        return JSONResponse({
+            "error": "Disclaimer version mismatch — please refresh and re-consent",
+            "current_version":   PURCHASE_CONSENT_VERSION,
+            "current_text_hash": PURCHASE_CONSENT_TEXT_HASH,
+        }, status_code=409)
+
+    # Capture forensic evidence — IP and user-agent stamped on the row
+    ip = (request.client.host if request.client else None)
+    # Honour reverse-proxy headers (Railway sits behind one)
+    fwd = request.headers.get("x-forwarded-for")
+    if fwd:
+        ip = fwd.split(",")[0].strip()
+    ua = (request.headers.get("user-agent") or "")[:500]
+
+    consent = PurchaseConsent(
+        user_id           = user.id,
+        consent_version   = PURCHASE_CONSENT_VERSION,
+        consent_text_hash = PURCHASE_CONSENT_TEXT_HASH,
+        ip_address        = (ip or "")[:50],
+        user_agent        = ua,
+        # consumed_at + consumed_for are stamped later by
+        # require_fresh_consent when the consent is used to authorise
+        # an actual purchase.
+    )
+    db.add(consent)
+    db.commit()
+    db.refresh(consent)
+
+    logger.info(
+        f"PurchaseConsent #{consent.id} recorded for user {user.id} "
+        f"version={PURCHASE_CONSENT_VERSION} ip={ip}"
+    )
+
+    return {
+        "success": True,
+        "consent_id":      consent.id,
+        "version":         PURCHASE_CONSENT_VERSION,
+        "validity_seconds": CONSENT_VALIDITY_SECONDS,
+        "expires_at":      (consent.created_at + timedelta(seconds=CONSENT_VALIDITY_SECONDS)).isoformat(),
+    }
+
+
+def require_fresh_consent(db: Session, user_id: int, purpose: str) -> tuple[bool, str | None]:
+    """Verify the user has a fresh, unused consent record. If found,
+    mark it consumed (stamps consumed_at + consumed_for) and return
+    (True, None). If not, return (False, error_message).
+
+    When PURCHASE_CONSENT_ENFORCED is false the helper still logs +
+    consumes (so we get telemetry on whether consents are being
+    captured correctly) but never returns a blocking failure — the
+    second tuple element will be None. Only when enforced=true does
+    the helper enforce the gate.
+
+    Call from the top of every money-in endpoint:
+
+        ok, err = require_fresh_consent(db, user.id, purpose='membership_basic')
+        if not ok:
+            return JSONResponse({'error': err}, status_code=403)
+
+    `purpose` is free-form and gets stored on the consent record so
+    forensics can answer "which purchase did this consent authorise?"
+    """
+    cutoff = datetime.utcnow() - timedelta(seconds=CONSENT_VALIDITY_SECONDS)
+    fresh = (
+        db.query(PurchaseConsent)
+        .filter(PurchaseConsent.user_id == user_id)
+        .filter(PurchaseConsent.consumed_at.is_(None))
+        .filter(PurchaseConsent.created_at >= cutoff)
+        # Only consents recorded against the CURRENT text version
+        # count — if the disclaimer was updated, old in-flight
+        # consents shouldn't be valid against new text.
+        .filter(PurchaseConsent.consent_version == PURCHASE_CONSENT_VERSION)
+        .order_by(PurchaseConsent.created_at.desc())
+        .first()
+    )
+
+    if fresh:
+        # Consume it — single-use, prevents one consent authorising
+        # multiple back-to-back purchases.
+        fresh.consumed_at = datetime.utcnow()
+        fresh.consumed_for = purpose[:100] if purpose else None
+        db.commit()
+        return True, None
+
+    # No fresh consent. Behaviour depends on enforcement flag.
+    if is_consent_enforced():
+        logger.warning(
+            f"Consent gate REJECTED purchase: user={user_id} purpose={purpose} "
+            f"version={PURCHASE_CONSENT_VERSION}"
+        )
+        return False, (
+            "You must read and accept the purchase terms before completing this transaction. "
+            "Please refresh the page and try again."
+        )
+
+    # Enforcement off — log but allow. Tells us whether the modal is
+    # being shown / consent recorded for real traffic before we flip
+    # enforcement on.
+    logger.info(
+        f"Consent gate (UN-ENFORCED) — purchase allowed without fresh consent: "
+        f"user={user_id} purpose={purpose} version={PURCHASE_CONSENT_VERSION}"
+    )
+    return True, None
+
+
 @app.get("/api/me")
 def api_me(request: Request, db: Session = Depends(get_db)):
     """Return current user data for the React frontend."""
@@ -4464,6 +4622,11 @@ def api_membership_activate_from_balance(
     if user.is_active:
         return JSONResponse({"error": "Membership is already active."}, status_code=400)
 
+    # Purchase consent gate — see app/purchase_consent.py
+    ok, err = require_fresh_consent(db, user.id, purpose="membership_activate_from_balance")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
+
     fee = decimal.Decimal(str(MEMBERSHIP_FEE))
     balance = decimal.Decimal(str(user.balance or 0))
     if balance < fee:
@@ -5585,6 +5748,11 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
     if (user.membership_tier or "basic") == "pro" or user.is_admin:
         return JSONResponse({"error": "You're already on Pro"}, status_code=400)
 
+    # Purchase consent gate — see app/purchase_consent.py
+    ok, err = require_fresh_consent(db, user.id, purpose="upgrade_to_pro")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
+
     return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True)
 def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
     """Process campaign tier purchase after Stripe payment — full commission chain."""
@@ -6264,6 +6432,15 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
     body = await request.json()
     product_key = body.get("product_key", "").strip()
     product_meta = body.get("meta", {})
+
+    # ── Purchase consent gate ──
+    # User must have a fresh, unused consent record for the no-refund /
+    # immediate-activation terms before we let any money in. When
+    # PURCHASE_CONSENT_ENFORCED is false this only logs; when true it
+    # hard-rejects with 403. See app/purchase_consent.py for rationale.
+    ok, err = require_fresh_consent(db, user.id, purpose=f"nowpayments:{product_key[:80]}")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
 
     # ── Validate product ──
     if product_key in nps.PRODUCT_CATALOG:
@@ -13505,6 +13682,11 @@ async def purchase_course(course_id: int, request: Request, db: Session = Depend
     if not user.is_active:
         return RedirectResponse(url="/pay-membership")
 
+    # Purchase consent gate — see app/purchase_consent.py
+    ok, err = require_fresh_consent(db, user.id, purpose=f"course:{course_id}")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
+
     result = process_course_purchase(db, user.id, course_id, payment_method="wallet")
 
     if not result["success"]:
@@ -13711,6 +13893,11 @@ async def api_purchase_course(course_id: int, request: Request, db: Session = De
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"success": False, "error": "Not authenticated"}, status_code=401)
+
+    # Purchase consent gate — see app/purchase_consent.py
+    ok, err = require_fresh_consent(db, user.id, purpose=f"course:{course_id}")
+    if not ok:
+        return JSONResponse({"success": False, "error": err}, status_code=403)
 
     result = process_course_purchase(db, user.id, course_id, payment_method="wallet")
     return JSONResponse(result)
@@ -18008,6 +18195,11 @@ async def api_superseller_activate_emails(campaign_id: int, request: Request,
     if not c:
         return JSONResponse({"error": "Campaign not found"}, status_code=404)
 
+    # Purchase consent gate — see app/purchase_consent.py
+    ok, err = require_fresh_consent(db, user.id, purpose=f"superseller_emails:{campaign_id}")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
+
     brevo_key = os.getenv("BREVO_API_KEY", "")
     if not brevo_key:
         return JSONResponse({"error": "Email service not configured"}, status_code=503)
@@ -20391,6 +20583,11 @@ async def api_buy_email_boost(request: Request, user: User = Depends(get_current
     if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
     body = await request.json()
     pack_id = body.get("pack_id")
+
+    # Purchase consent gate — see app/purchase_consent.py
+    ok, err = require_fresh_consent(db, user.id, purpose=f"email_boost:{pack_id}")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
     pack = None
     for p in EMAIL_BOOST_PACKS:
         if p["id"] == pack_id:
@@ -21691,6 +21888,11 @@ async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
     body = await request.json()
     pack_slug = body.get("pack_slug", "").lower()
     from_address = body.get("from_address", "").strip()
+
+    # Purchase consent gate — see app/purchase_consent.py
+    ok, err = require_fresh_consent(db, user.id, purpose=f"superscene:{pack_slug}")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
 
     if pack_slug not in SUPERSCENE_PACK_CREDITS:
         raise HTTPException(status_code=400, detail="Invalid pack")
@@ -24118,6 +24320,11 @@ async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_
     pack = CREDIT_PACKS.get(pack_key)
     if not pack:
         return JSONResponse({"error": f"Invalid pack: {pack_key}"}, status_code=400)
+
+    # Purchase consent gate — see app/purchase_consent.py
+    ok, err = require_fresh_consent(db, user.id, purpose=f"credit_matrix:{pack_key}")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
 
     price = pack["price"]
 

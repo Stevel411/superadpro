@@ -5,6 +5,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { CheckCircle2, Wallet, Sparkles, ArrowRight } from 'lucide-react';
+import { useConsentGate } from '../components/PurchaseConsentModal';
 
 // Page rendered when a free member clicks the "Activate your membership for
 // free" notification, or navigates to /upgrade-from-balance directly. They
@@ -23,13 +24,22 @@ export default function UpgradeFromBalance() {
   var [activating, setActivating] = useState(false);
   var [error, setError] = useState(null);
 
+  // Purchase consent gate — see app/purchase_consent.py.
+  var { ensureConsent, consentModal } = useConsentGate();
+
   useEffect(function() {
     apiGet('/api/membership/balance-offer')
       .then(function(d) { setData(d); setLoading(false); })
       .catch(function() { setLoading(false); });
   }, []);
 
-  function handleActivate() {
+  async function handleActivate() {
+    // Consent gate FIRST. Activating spends $20 from balance and triggers
+    // sponsor + uni-level commissions — exactly the irreversible-payouts
+    // scenario the no-refund terms exist for. If user cancels, abort.
+    var consented = await ensureConsent();
+    if (!consented) return;
+
     setActivating(true);
     setError(null);
     apiPost('/api/membership/activate-from-balance', {})
@@ -303,6 +313,7 @@ export default function UpgradeFromBalance() {
           {t('upgradeFromBalance.reassurance', { defaultValue: 'You can always activate later — your earnings will stay in your wallet until you decide.' })}
         </div>
       </div>
+      {consentModal}
     </AppLayout>
   );
 }
