@@ -34,10 +34,18 @@ def unqualified_commissions(db, hours: int = 24):
 
     # Grid: direct_sponsor / uni_level commissions where recipient is not qualified.
     #
-    # Qualification rule (per app/grid.py:_user_is_qualified):
-    #   admin OR active Grid at tier+ OR active VideoCampaign at tier+ (incl. grace period)
-    # Active Grid = exists Grid row at tier_level >= package_tier with is_complete = false.
-    # We mirror that rule here so audit doesn't false-flag legitimately-qualified members.
+    # Qualification rule (mirrors app/grid.py:_user_is_qualified verbatim):
+    #   admin (auto-qualifies for all tiers) OR
+    #   active Grid at tier+ (is_complete=false) OR
+    #   active/paused VideoCampaign at tier+ that's not completed OR
+    #   completed VideoCampaign at tier+ still in grace period (grace_expires_at > now)
+    #
+    # IMPORTANT: keep this query in sync with _user_is_qualified. Audit
+    # divergence creates false-positive "overpayment" alerts on
+    # legitimately-paid commissions, which then masks real overpayments
+    # in the noise. (Tightened 4 May 2026 to match runtime exactly:
+    # adds paused-campaign acceptance and treats grace period as its
+    # own qualifying state, matching the runtime check.)
     grid_unqual = db.execute(text("""
         SELECT c.id, c.to_user_id, c.package_tier, c.amount_usdt
         FROM commissions c
@@ -53,14 +61,21 @@ def unqualified_commissions(db, hours: int = 24):
               AND g.is_complete = false
           )
           AND NOT EXISTS (
+            -- Active or paused campaign at tier+, not completed
             SELECT 1 FROM video_campaigns vc
             WHERE vc.user_id = c.to_user_id
               AND vc.campaign_tier >= c.package_tier
-              AND vc.status = 'active'
-              AND (
-                vc.is_completed = false
-                OR (vc.grace_expires_at IS NOT NULL AND vc.grace_expires_at > NOW())
-              )
+              AND vc.status IN ('active', 'paused')
+              AND vc.is_completed = false
+          )
+          AND NOT EXISTS (
+            -- Completed campaign at tier+ still within grace period
+            SELECT 1 FROM video_campaigns vc
+            WHERE vc.user_id = c.to_user_id
+              AND vc.campaign_tier >= c.package_tier
+              AND vc.is_completed = true
+              AND vc.grace_expires_at IS NOT NULL
+              AND vc.grace_expires_at > NOW()
           )
         LIMIT 30
     """), {"since": since}).fetchall()

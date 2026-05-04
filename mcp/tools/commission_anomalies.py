@@ -122,6 +122,16 @@ def commission_anomalies(db, hours: int = 24):
         })
 
     # 7. Grid commission > package price (sanity: direct_sponsor is 40%, uni_level is 6.25%)
+    #
+    # Tier prices MUST match GRID_PACKAGES in app/database.py:
+    #   1: $20  · 2: $50  · 3: $100 · 4: $200
+    #   5: $400 · 6: $600 · 7: $800 · 8: $1000
+    # (Confirmed against docs/commission-spec.md §Income Grid tier ladder.)
+    #
+    # Previous values had Tier 2=$40, Tier 6=$700, Tier 7=$1000, Tier 8=$2000
+    # — wrong on 4 of 8 tiers. Tier 2 was creating false positives;
+    # Tiers 6-8 were silently allowing oversized commissions through.
+    # Fixed 4 May 2026 during pre-launch integrity audit.
     oversized_grid = db.execute(text("""
         SELECT c.id, c.amount_usdt, c.package_tier, c.commission_type
         FROM commissions c
@@ -130,14 +140,14 @@ def commission_anomalies(db, hours: int = 24):
           AND c.amount_usdt > (
             CASE c.package_tier
               WHEN 1 THEN 20 * 0.40
-              WHEN 2 THEN 40 * 0.40
+              WHEN 2 THEN 50 * 0.40
               WHEN 3 THEN 100 * 0.40
               WHEN 4 THEN 200 * 0.40
               WHEN 5 THEN 400 * 0.40
-              WHEN 6 THEN 700 * 0.40
-              WHEN 7 THEN 1000 * 0.40
-              WHEN 8 THEN 2000 * 0.40
-              ELSE 2000 * 0.40
+              WHEN 6 THEN 600 * 0.40
+              WHEN 7 THEN 800 * 0.40
+              WHEN 8 THEN 1000 * 0.40
+              ELSE 1000 * 0.40
             END
           ) + 0.01
         LIMIT 20
