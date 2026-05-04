@@ -22,7 +22,21 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # Railway Postgres URLs use postgres:// but SQLAlchemy requires postgresql://
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-engine = create_engine(DATABASE_URL, pool_pre_ping=False, pool_size=5, max_overflow=10, connect_args={"connect_timeout": 5})
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=False,
+    pool_size=5,
+    max_overflow=10,
+    # Proactively retire connections after 1 hour. Railway's Postgres
+    # idle-kills connections after a window we don't fully control; if
+    # SQLAlchemy hands a killed connection back to a request, the
+    # request fails with "connection closed" or "server closed the
+    # connection unexpectedly". pool_recycle ensures we cycle them
+    # before the server does, eliminating that failure mode without
+    # the per-query overhead of pool_pre_ping.
+    pool_recycle=3600,
+    connect_args={"connect_timeout": 5},
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

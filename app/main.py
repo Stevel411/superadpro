@@ -10,6 +10,7 @@ from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, 
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import text, func
@@ -426,6 +427,14 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 app.add_middleware(SecurityHeadersMiddleware)
+
+# GZip compression for responses ≥1KB. Cloudflare's edge already
+# Brotli-compresses static assets and cached HTML, but uncached/dynamic
+# API responses (dashboard JSON, wallet, /api/me, etc.) go straight to
+# the client and benefit from origin-side compression. minimum_size
+# avoids the CPU cost on tiny responses where the wire savings would
+# be smaller than the compression overhead.
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # ── Rate limit / lockout ──────────────────────────────────────
 failed_attempts  = {}
