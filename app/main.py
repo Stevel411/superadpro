@@ -75,6 +75,54 @@ if not os.getenv("SESSION_SECRET"):
     warnings.warn("⚠️ SESSION_SECRET not set — sessions will reset on every deploy. Set it in Railway env vars!")
 session_serializer = URLSafeTimedSerializer(SESSION_SECRET, salt="superadpro-session")
 
+
+# ── Required secrets — env-only, no hardcoded fallbacks ──────────
+# Several integration secrets (CRON_SECRET, BACKUP_SECRET, etc.) used to
+# have hardcoded fallback strings in this file. Anyone with read access
+# to the repo could read those fallback values and (if Railway env vars
+# weren't set, or if the code ran in a misconfigured environment)
+# trivially authenticate against the protected endpoints.
+#
+# The fix is two-stage:
+#   Stage 1 (this commit, May 2026): each call site now goes through
+#     `_get_required_secret(name, legacy_fallback)`. The helper logs a
+#     startup warning if the env var isn't set, and currently still
+#     returns the legacy fallback to avoid breaking running production
+#     if Steve hasn't set the env var yet. The warning surfaces the
+#     issue in Railway logs.
+#   Stage 2 (after Steve confirms all env vars are set): remove the
+#     legacy_fallback parameter, switch to a hard fail. App refuses to
+#     boot with missing secrets — better than silently running with a
+#     known-public default.
+#
+# Track which secrets have been verified set in production: see the
+# Railway dashboard Variables tab. Once all listed in
+# _SECRETS_AWAITING_VERIFICATION are set, drop the fallbacks.
+_SECRETS_AWAITING_VERIFICATION = set()  # populated as helper is called
+
+def _get_required_secret(name: str, legacy_fallback: str | None = None) -> str:
+    """Read a secret from env. If unset, log a loud warning and fall
+    back to the legacy hardcoded value (Stage 1 behaviour). After all
+    Railway env vars are confirmed set, the legacy_fallback parameter
+    will be dropped and missing env will hard-fail at first use."""
+    val = os.getenv(name)
+    if val:
+        return val
+    _SECRETS_AWAITING_VERIFICATION.add(name)
+    logger.warning(
+        f"⚠️ {name} env var is NOT SET — falling back to legacy hardcoded "
+        f"default. This default is in source code and is not secure. "
+        f"Set {name} in Railway env vars before launch."
+    )
+    if legacy_fallback is None:
+        # Caller wants strict mode (Stage 2). Hard fail.
+        raise RuntimeError(
+            f"Required secret {name} is not set. Refusing to operate with "
+            f"a missing secret. Set {name} in Railway env vars."
+        )
+    return legacy_fallback
+
+
 logging.basicConfig(
     filename="security.log", level=logging.WARNING,
     format="%(asctime)s - %(levelname)s - %(message)s"
@@ -7485,7 +7533,7 @@ def admin_list_backups(user: User = Depends(get_current_user)):
 @app.get("/cron/backup")
 def cron_backup(secret: str = ""):
     """Cron endpoint: trigger daily backup. Protected by secret."""
-    if secret != os.getenv("BACKUP_SECRET", "superadpro-backup-2026"):
+    if secret != _get_required_secret("BACKUP_SECRET", "superadpro-backup-2026"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     from .db_backup import run_backup
     result = run_backup()
@@ -17441,7 +17489,7 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
     """
     # Auth check
     auth = request.headers.get("authorization", "")
-    cron_secret = os.getenv("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    cron_secret = _get_required_secret("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
     if auth != f"Bearer {cron_secret}":
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
 
@@ -17510,7 +17558,7 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
 @app.get("/cron/process-autoresponder")
 async def cron_process_autoresponder_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
     """GET version for cron-job.org — auth via ?secret= query param."""
-    cron_secret = os.getenv("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    cron_secret = _get_required_secret("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
     if not secret or secret != cron_secret:
         return JSONResponse({"error": "Invalid secret"}, status_code=401)
 
@@ -17577,7 +17625,7 @@ async def cron_poll_pending_videos(request: Request, secret: str = "", db: Sessi
     status for more than 30 minutes. Refund credits on failure so users never lose them
     when they close their browser mid-generation. Run every 15 mins via cron-job.org.
     """
-    cron_secret = os.getenv("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    cron_secret = _get_required_secret("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
     if not secret or secret != cron_secret:
         return JSONResponse({"error": "Invalid secret"}, status_code=401)
 
@@ -21985,7 +22033,7 @@ async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depen
 
     # Verify cron secret
     secret = request.headers.get("X-Cron-Secret", "")
-    expected = os.getenv("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    expected = _get_required_secret("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
     if secret != expected:
         raise HTTPException(status_code=403, detail="Forbidden")
 
@@ -23987,7 +24035,7 @@ async def api_video_creator_generate(request: Request, user: User = Depends(get_
     import httpx, json, uuid, os, asyncio, tempfile
 
     REMOTION_URL = os.getenv("REMOTION_RENDER_URL", "http://localhost:4010")
-    RENDER_SECRET = os.getenv("REMOTION_RENDER_SECRET", "superdeck-render-2026")
+    RENDER_SECRET = _get_required_secret("REMOTION_RENDER_SECRET", "superdeck-render-2026")
     FPS = 30
 
     results = {"status": "processing", "steps": []}
@@ -24262,7 +24310,7 @@ async def api_video_creator_download(job_id: str, user: User = Depends(get_curre
 
     import httpx, os, uuid
     REMOTION_URL = os.getenv("REMOTION_RENDER_URL", "http://localhost:4010")
-    RENDER_SECRET = os.getenv("REMOTION_RENDER_SECRET", "superdeck-render-2026")
+    RENDER_SECRET = _get_required_secret("REMOTION_RENDER_SECRET", "superdeck-render-2026")
 
     try:
         async with httpx.AsyncClient(timeout=120) as client:
