@@ -134,17 +134,25 @@ def check_daily_withdrawal_total(db, user_id):
 
 
 def validate_withdrawal(db, user, amount):
-    """
+    r"""
     Run all security checks before allowing a withdrawal.
+    These are the UNIVERSAL checks that apply to any wallet — min
+    amount, wallet address present, KYC, 2FA, daily cap, fee math.
+
+    Balance check is INTENTIONALLY NOT here — it belongs in the
+    per-wallet-type validator (validate_affiliate_withdrawal /
+    validate_campaign_withdrawal) so that a campaign withdrawal
+    doesn't get rejected for insufficient AFFILIATE balance, which
+    used to happen here pre-4-May-2026 and produced the user-facing
+    bug of 'Insufficient balance. Available: $10' when trying to
+    withdraw $29 from a campaign wallet that had $29.
+
     Returns {"valid": True} or {"valid": False, "error": "reason"}
     """
     amount = Decimal(str(amount))
 
     if amount < MIN_WITHDRAWAL:
         return {"valid": False, "error": f"Minimum withdrawal is ${MIN_WITHDRAWAL}"}
-
-    if Decimal(str(user.balance or 0)) < amount:
-        return {"valid": False, "error": f"Insufficient balance. Available: ${user.balance:.2f}"}
 
     if not user.wallet_address or len(user.wallet_address) < 40:
         return {"valid": False, "error": "No valid withdrawal wallet set. Add your Polygon wallet address in Account settings."}
@@ -168,6 +176,19 @@ def validate_withdrawal(db, user, amount):
     if net_amount <= 0:
         return {"valid": False, "error": f"Amount after ${WITHDRAWAL_FEE} fee leaves nothing to send"}
 
+    return {"valid": True}
+
+
+def validate_affiliate_withdrawal(db, user, amount):
+    """
+    Wallet-specific check for affiliate (membership / course / Pay It
+    Forward / Creative Studio sponsor) withdrawals. Just verifies
+    sufficient balance in the affiliate column.
+    Returns {"valid": True} or {"valid": False, "error": "reason"}
+    """
+    amount = Decimal(str(amount))
+    if Decimal(str(user.balance or 0)) < amount:
+        return {"valid": False, "error": f"Insufficient affiliate balance. Available: ${float(user.balance or 0):.2f}"}
     return {"valid": True}
 
 

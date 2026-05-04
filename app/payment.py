@@ -455,7 +455,8 @@ def request_withdrawal(
     """
     from decimal import Decimal as D
     from .withdrawals import (
-        validate_withdrawal, validate_campaign_withdrawal, WITHDRAWAL_FEE,
+        validate_withdrawal, validate_campaign_withdrawal,
+        validate_affiliate_withdrawal, WITHDRAWAL_FEE,
     )
 
     user = db.query(User).filter(User.id == user_id).first()
@@ -479,16 +480,25 @@ def request_withdrawal(
         if existing:
             return _reply_for_existing_withdrawal(db, user, existing, wallet_type)
 
-    # Run base security validation (KYC, 2FA, daily cap, wallet address)
+    # Run base security validation (KYC, 2FA, daily cap, wallet address,
+    # min amount). NOT a balance check — see validate_withdrawal docstring;
+    # balance check is per-wallet-type below.
     validation = validate_withdrawal(db, user, amount_d)
     if not validation["valid"]:
         return {"success": False, "error": validation["error"]}
 
-    # For campaign withdrawals, run additional tier + watch quota checks
+    # Wallet-specific balance check. Was historically only done for
+    # campaign — affiliate fell through the base 'user.balance' check
+    # which broke campaign withdrawals when affiliate balance was
+    # smaller than the campaign withdrawal amount.
     if wallet_type == "campaign":
         campaign_validation = validate_campaign_withdrawal(db, user, amount_d)
         if not campaign_validation["valid"]:
             return {"success": False, "error": campaign_validation["error"]}
+    else:
+        affiliate_validation = validate_affiliate_withdrawal(db, user, amount_d)
+        if not affiliate_validation["valid"]:
+            return {"success": False, "error": affiliate_validation["error"]}
 
     net_amount = amount_d - WITHDRAWAL_FEE
 

@@ -69,7 +69,7 @@ export default function Wallet() {
     const amount = parseFloat(amountEl?.value);
     const totp_code = totpEl?.value?.trim() || '';
 
-    if (!amount || amount < 10) { setWithdrawResult({ type: 'error', msg: 'Minimum withdrawal is $10' }); return; }
+    if (!amount || amount < 10) { setWithdrawResult({ type: 'error', msg: 'Minimum withdrawal is $10', wallet: walletType }); return; }
 
     // ── Generate a fresh idempotency key for THIS click ──
     // The server stores it in withdrawals.idempotency_key (unique index).
@@ -115,6 +115,7 @@ export default function Wallet() {
           type: 'success',
           msg: json.message || 'Withdrawal sent successfully',
           tx_hash: json.tx_hash || '',
+          wallet: walletType,
         });
         if (amountEl) amountEl.value = '';
         if (totpEl) totpEl.value = '';
@@ -129,7 +130,7 @@ export default function Wallet() {
         // wallets.
         refreshUser();
       } else {
-        setWithdrawResult({ type: 'error', msg: json.error || 'Withdrawal failed. Please try again.' });
+        setWithdrawResult({ type: 'error', msg: json.error || 'Withdrawal failed. Please try again.', wallet: walletType });
         // If the server auto-refunded (failed_permanent path from the
         // withdrawal hardening — see app/withdrawals.py _refund_withdrawal),
         // the balance was perturbed: deducted then credited back. The
@@ -139,7 +140,7 @@ export default function Wallet() {
         if (json.refunded) refreshUser();
       }
     } catch (e) {
-      setWithdrawResult({ type: 'error', msg: e.message || 'Network error. Please try again.' });
+      setWithdrawResult({ type: 'error', msg: e.message || 'Network error. Please try again.', wallet: walletType });
     }
     setWithdrawing(false);
   };
@@ -210,7 +211,7 @@ export default function Wallet() {
                   )}
                   <button onClick={() => handleWithdraw('affiliate')} disabled={withdrawing} style={{...btnPrimary, opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawAffiliate')}</button>
                   <div style={{ fontSize:15, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
-                  {withdrawResult && (
+                  {withdrawResult && withdrawResult.wallet === 'affiliate' && (
                     <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>
                       <div>{withdrawResult.type==='success' ? '✅ ' : '❌ '}{withdrawResult.msg}</div>
                       {withdrawResult.tx_hash && (
@@ -254,7 +255,7 @@ export default function Wallet() {
                   )}
                   <button onClick={() => handleWithdraw('campaign')} disabled={withdrawing} style={{...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)', opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawCampaign')}</button>
                   <div style={{ fontSize:15, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
-                  {withdrawResult && (
+                  {withdrawResult && withdrawResult.wallet === 'campaign' && (
                     <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>
                       <div>{withdrawResult.type==='success' ? '✅ ' : '❌ '}{withdrawResult.msg}</div>
                       {withdrawResult.tx_hash && (
