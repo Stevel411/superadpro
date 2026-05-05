@@ -641,8 +641,27 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     course_recent = db.query(CourseCommission).filter(
         CourseCommission.earner_id == user.id
     ).order_by(CourseCommission.created_at.desc()).limit(5).all()
+    # General commissions (excludes reversed admin cleanups)
+    gen_recent = db.query(Commission).filter(
+        Commission.to_user_id == user.id,
+        Commission.status != "reversed",
+        Commission.commission_type.notin_(["admin_adjustment", "admin_fix", "boost_platform_fee", "membership_company"])
+    ).order_by(Commission.created_at.desc()).limit(5).all()
+
+    # Bulk-load all the user lookups in 1 query instead of 10. Was a
+    # per-row .first() inside each for-loop = N+1.
+    counterparty_ids = list({
+        *(c.buyer_id for c in course_recent if c.buyer_id),
+        *(c.from_user_id for c in gen_recent if c.from_user_id),
+    })
+    counterparty_by_id = {}
+    if counterparty_ids:
+        counterparty_by_id = {
+            u.id: u for u in db.query(User).filter(User.id.in_(counterparty_ids)).all()
+        }
+
     for c in course_recent:
-        buyer = db.query(User).filter(User.id == c.buyer_id).first()
+        buyer = counterparty_by_id.get(c.buyer_id)
         activity.append({
             "icon": "🎓", "color": "purple",
             "title": f"{buyer.username if buyer else '?'} purchased Tier {c.course_tier}",
@@ -650,14 +669,8 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
             "amount": float(c.amount),
             "date": c.created_at
         })
-    # General commissions (excludes reversed admin cleanups)
-    gen_recent = db.query(Commission).filter(
-        Commission.to_user_id == user.id,
-        Commission.status != "reversed",
-        Commission.commission_type.notin_(["admin_adjustment", "admin_fix", "boost_platform_fee", "membership_company"])
-    ).order_by(Commission.created_at.desc()).limit(5).all()
     for c in gen_recent:
-        from_user = db.query(User).filter(User.id == c.from_user_id).first()
+        from_user = counterparty_by_id.get(c.from_user_id)
         ct = (c.commission_type or "").lower()
         if "membership" in ct:
             icon, color, sub = "👥", "green", "Membership commission"
@@ -19533,7 +19546,21 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
     }
 @app.get("/api/leaderboard")
 def api_leaderboard(db: Session = Depends(get_db)):
-    """JSON leaderboard data with full user info + recent activity feed. Cached 5 min."""
+    """JSON leaderboard data with full user info + recent activity feed. Cached 5 min.
+
+    Performance: this endpoint used to N+1-query — three separate
+    queries per user (active grid, nexus team count, live referral
+    count) inside user_data(), called for up to 20 users across 5
+    boards = ~300 round-trips per cache miss. Plus another N queries
+    in the activity feed for resolving commission earners.
+
+    Refactored 5 May 2026 to bulk-load each per-user dimension once
+    up front, then look up by user_id from a dict. Drops cache-miss
+    cost from ~300 queries to ~10. The 5-minute cache hides this
+    most of the time, but cold starts (every Railway replica restart,
+    every cache TTL expiry under low traffic) felt sluggish to users
+    — that's what triggered the rewrite.
+    """
     from sqlalchemy import func
 
     # Check cache first (leaderboard is same for everyone)
@@ -19542,49 +19569,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
     if cached:
         return cached
 
-    def user_data(u):
-        # Get user's highest active grid tier
-        active_grid = db.query(Grid).filter(
-            Grid.owner_id == u.id, Grid.is_complete == False
-        ).order_by(Grid.package_tier.desc()).first()
-        grid_tier = active_grid.package_tier if active_grid else 0
-        grid_count = active_grid.positions_filled if active_grid else 0
-
-        # Total Nexus team size — unique users across all matrixes the user
-        # owns, minus self (CreditMatrix seeds owner at root, so distinct
-        # count includes them).
-        nexus_team = max(0, db.query(CreditMatrixPosition.user_id).join(
-            CreditMatrix, CreditMatrixPosition.matrix_id == CreditMatrix.id
-        ).filter(CreditMatrix.owner_id == u.id).distinct().count() - 1)
-
-        # Live personal-referrals count — count of CURRENT users who have
-        # this user as their sponsor. Replaces the stored
-        # `User.personal_referrals` denormalised counter, which never
-        # decrements when test accounts get deleted, so it would over-
-        # report on the public leaderboard. The denormalised counter is
-        # still useful for cron-driven incremental updates elsewhere; we
-        # just don't trust it for display. (Fix 4 May 2026.)
-        live_personal_referrals = db.query(User).filter(
-            User.sponsor_id == u.id
-        ).count()
-
-        return {
-            "id": u.id,
-            "username": u.username,
-            "first_name": u.first_name or u.username,
-            "last_name": u.last_name or "",
-            "avatar_url": u.avatar_url or None,
-            "personal_referrals": live_personal_referrals,
-            "total_team": u.total_team or 0,
-            "total_earned": float(u.total_earned or 0),
-            "course_sale_count": u.course_sale_count or 0,
-            "grid_tier": grid_tier,
-            "_grid_count": grid_count,
-            "_course_count": u.course_sale_count or 0,
-            "_nexus_count": nexus_team,
-            "membership_tier": u.membership_tier or "basic",
-        }
-
+    # ── Pull the user sets for each board ─────────────────────────────
     # Top referrers — by paid personal_referrals (active members only)
     ref_leaders = db.query(User).filter(
         User.is_active == True, User.personal_referrals > 0
@@ -19628,6 +19613,91 @@ def api_leaderboard(db: Session = Depends(get_db)):
         .all()
     )
 
+    # ── Bulk-load per-user dimensions in 3 queries (was 3 per user) ──
+    # Collect every user_id appearing on any board so we only fetch what
+    # we'll actually display. set() deduplicates across boards.
+    all_user_ids = list({
+        u.id
+        for board in (ref_leaders, signup_users, grid_users, course_users, nexus_users_q)
+        for u in board
+    })
+
+    # 1. Active grid per user — highest tier, not complete.
+    # SQL: SELECT owner_id, MAX(package_tier), SUM(positions_filled)
+    #      FROM grids WHERE owner_id IN (...) AND is_complete = false
+    #      GROUP BY owner_id
+    # We want the highest tier AND its positions_filled. MAX(tier) is
+    # easy in SQL, but pairing it with positions_filled from THE SAME
+    # row (rather than max positions across all tiers) needs a small
+    # window-function trick OR a follow-up. Simpler: fetch the matching
+    # rows, sort in Python (max 20 rows total — trivial).
+    grid_by_owner = {}
+    if all_user_ids:
+        grid_rows = db.query(Grid).filter(
+            Grid.owner_id.in_(all_user_ids),
+            Grid.is_complete == False,
+        ).all()
+        for g in grid_rows:
+            existing = grid_by_owner.get(g.owner_id)
+            if existing is None or g.package_tier > existing.package_tier:
+                grid_by_owner[g.owner_id] = g
+
+    # 2. Nexus team size per user — distinct user count across all
+    # matrixes they own, minus self. Single GROUP BY query.
+    nexus_count_by_owner = {}
+    if all_user_ids:
+        nexus_rows = (
+            db.query(
+                CreditMatrix.owner_id,
+                sa_func.count(sa_func.distinct(CreditMatrixPosition.user_id)).label("c"),
+            )
+            .join(CreditMatrixPosition, CreditMatrixPosition.matrix_id == CreditMatrix.id)
+            .filter(CreditMatrix.owner_id.in_(all_user_ids))
+            .group_by(CreditMatrix.owner_id)
+            .all()
+        )
+        # Subtract self (CreditMatrix seeds owner at root)
+        nexus_count_by_owner = {row.owner_id: max(0, row.c - 1) for row in nexus_rows}
+
+    # 3. Live personal-referrals — count of current users sponsored by
+    # each leaderboard user. Replaces the stored counter that doesn't
+    # decrement on user deletion. Single GROUP BY query — no N+1.
+    referrals_by_sponsor = {}
+    if all_user_ids:
+        ref_rows = (
+            db.query(User.sponsor_id, sa_func.count(User.id).label("c"))
+            .filter(User.sponsor_id.in_(all_user_ids))
+            .group_by(User.sponsor_id)
+            .all()
+        )
+        referrals_by_sponsor = {row.sponsor_id: row.c for row in ref_rows}
+
+    def user_data(u):
+        """Build per-user payload from pre-loaded dicts. No DB calls
+        here — all dimensions were bulk-loaded above."""
+        active_grid = grid_by_owner.get(u.id)
+        grid_tier = active_grid.package_tier if active_grid else 0
+        grid_count = active_grid.positions_filled if active_grid else 0
+        nexus_team = nexus_count_by_owner.get(u.id, 0)
+        live_refs = referrals_by_sponsor.get(u.id, 0)
+
+        return {
+            "id": u.id,
+            "username": u.username,
+            "first_name": u.first_name or u.username,
+            "last_name": u.last_name or "",
+            "avatar_url": u.avatar_url or None,
+            "personal_referrals": live_refs,
+            "total_team": u.total_team or 0,
+            "total_earned": float(u.total_earned or 0),
+            "course_sale_count": u.course_sale_count or 0,
+            "grid_tier": grid_tier,
+            "_grid_count": grid_count,
+            "_course_count": u.course_sale_count or 0,
+            "_nexus_count": nexus_team,
+            "membership_tier": u.membership_tier or "basic",
+        }
+
     # ── Recent activity feed (last 20 events) ──
     from datetime import timedelta
     week_ago = datetime.utcnow() - timedelta(days=7)
@@ -19644,6 +19714,13 @@ def api_leaderboard(db: Session = Depends(get_db)):
         Commission.commission_type.in_(["membership_sponsor", "membership_renewal"])
     ).order_by(Commission.created_at.desc()).limit(10).all()
 
+    # Bulk-load earners for recent commissions in one query (was N+1).
+    earner_by_id = {}
+    earner_ids = list({c.to_user_id for c in recent_comms if c.to_user_id})
+    if earner_ids:
+        earner_rows = db.query(User).filter(User.id.in_(earner_ids)).all()
+        earner_by_id = {u.id: u for u in earner_rows}
+
     activity = []
     for u in recent_joins:
         activity.append({
@@ -19653,7 +19730,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
             "time": u.created_at.isoformat() if u.created_at else None,
         })
     for c in recent_comms:
-        earner = db.query(User).filter(User.id == c.to_user_id).first()
+        earner = earner_by_id.get(c.to_user_id)
         if earner:
             activity.append({
                 "type": "earning",
