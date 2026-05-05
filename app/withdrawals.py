@@ -194,9 +194,14 @@ def validate_affiliate_withdrawal(db, user, amount):
 
 def validate_campaign_withdrawal(db, user, amount):
     """
-    Additional checks for campaign wallet withdrawals.
-    Requires: active campaign tier + Watch-to-Earn quota compliance.
+    Additional checks for campaign wallet withdrawals — INITIAL request.
+    Requires: sufficient campaign balance + active campaign tier +
+              Watch-to-Earn quota compliance.
     Returns {"valid": True} or {"valid": False, "error": "reason"}
+
+    For RETRIES, use validate_campaign_withdrawal_structural which skips
+    the balance check (because the deduction has already succeeded —
+    the money is in the withdrawal row, not the user's balance).
     """
     from .database import Grid, WatchQuota
 
@@ -205,6 +210,41 @@ def validate_campaign_withdrawal(db, user, amount):
     # Check campaign_balance specifically
     if Decimal(str(user.campaign_balance or 0)) < amount:
         return {"valid": False, "error": f"Insufficient campaign balance. Available: ${float(user.campaign_balance or 0):.2f}"}
+
+    return _validate_campaign_structural(db, user)
+
+
+def validate_campaign_withdrawal_structural(db, user):
+    """Retry-time check for campaign withdrawals. Verifies the user
+    still meets the STRUCTURAL eligibility criteria — active tier and
+    watch quota — but does NOT check balance.
+
+    Why no balance check: by the time we're here, the original request
+    has already passed validate_campaign_withdrawal (which DID check
+    balance) and atomically deducted the amount via UPDATE...WHERE
+    campaign_balance >= amount. The withdrawal row exists BECAUSE the
+    deduction succeeded. The current user.campaign_balance no longer
+    contains the funds — they're earmarked in the pending withdrawal.
+
+    Pre-5-May-2026 the retry path called the full validator including
+    the balance check, which always returned 'Insufficient campaign
+    balance. Available: $0.00' on first retry. The path then refunded
+    + marked failed_permanent, surfacing as 'Structurally blocked on
+    retry: Insufficient campaign balance' to the user. This was the
+    bug Steve hit when withdrawing $29: deduction succeeded, transfer
+    queued, retry tripped the wrongful balance check, refund happened.
+
+    Returns {"valid": True} or {"valid": False, "error": "reason"}
+    """
+    return _validate_campaign_structural(db, user)
+
+
+def _validate_campaign_structural(db, user):
+    """Shared structural checks: active tier + watch quota. No balance.
+    Used by both the initial validator (after its balance check) and
+    the retry validator (which skips balance entirely).
+    """
+    from .database import Grid, WatchQuota
 
     # Must have at least one active (non-complete) grid
     active_grid = db.query(Grid).filter(
@@ -373,9 +413,18 @@ def process_withdrawal(db, withdrawal_id):
     # between the request and this retry), don't keep trying — refund
     # and mark permanent. This is the "don't retry forever on
     # structurally-blocked withdrawals" case from the design doc.
+    #
+    # IMPORTANT: use validate_campaign_withdrawal_STRUCTURAL here, NOT
+    # the full validator. The full validator includes a balance check,
+    # which always fails on retry because the deduction succeeded on
+    # the first attempt. The structural-only variant checks active
+    # tier + watch quota and skips balance — which is what we
+    # actually want for a retry. The pre-5-May-2026 code called the
+    # full validator and falsely refunded successful-but-pending
+    # withdrawals. See validate_campaign_withdrawal_structural docstring.
     wallet_type = (withdrawal.wallet_type or "affiliate").lower()
     if wallet_type == "campaign":
-        cv = validate_campaign_withdrawal(db, user, Decimal(str(withdrawal.amount_usdt or 0)))
+        cv = validate_campaign_withdrawal_structural(db, user)
         if not cv["valid"]:
             # Refund and stop. Note: we still credit campaign_balance back
             # — the original deduction came from there even though the
