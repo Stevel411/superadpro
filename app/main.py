@@ -19562,18 +19562,25 @@ def api_leaderboard(db: Session = Depends(get_db)):
     — that's what triggered the rewrite.
     """
     from sqlalchemy import func
+    import time as _t_mod
+    _timings = {}
+    _t0 = _t_mod.perf_counter()
+    def _mark(label):
+        _timings[label] = round((_t_mod.perf_counter() - _t0) * 1000, 1)
 
     # Check cache first (leaderboard is same for everyone)
     cache_key = "leaderboard:main"
     cached = cache_get(cache_key)
     if cached:
         return cached
+    _mark("cache_miss")
 
     # ── Pull the user sets for each board ─────────────────────────────
     # Top referrers — by paid personal_referrals (active members only)
     ref_leaders = db.query(User).filter(
         User.is_active == True, User.personal_referrals > 0
     ).order_by(User.personal_referrals.desc()).limit(20).all()
+    _mark("ref_leaders")
 
     # Top sign-up sponsors — by total_team (anyone joined via your link,
     # paid or not). This board fills up faster than ref_leaders since it
@@ -19581,16 +19588,19 @@ def api_leaderboard(db: Session = Depends(get_db)):
     signup_users = db.query(User).filter(
         User.total_team > 0
     ).order_by(User.total_team.desc()).limit(20).all()
+    _mark("signup_users")
 
     # Top grid builders (by total team size)
     grid_users = db.query(User).filter(
         User.is_active == True, User.total_team > 0
     ).order_by(User.total_team.desc()).limit(20).all()
+    _mark("grid_users")
 
     # Top course sellers
     course_users = db.query(User).filter(
         User.is_active == True, User.course_sale_count > 0
     ).order_by(User.course_sale_count.desc()).limit(20).all()
+    _mark("course_users")
 
     # Top Nexus builders — by unique users across all owned matrixes.
     # Computed via a subquery so we can ORDER BY the count.
@@ -19612,6 +19622,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
         .limit(20)
         .all()
     )
+    _mark("nexus_users")
 
     # ── Bulk-load per-user dimensions in 3 queries (was 3 per user) ──
     # Collect every user_id appearing on any board so we only fetch what
@@ -19641,6 +19652,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
             existing = grid_by_owner.get(g.owner_id)
             if existing is None or g.package_tier > existing.package_tier:
                 grid_by_owner[g.owner_id] = g
+    _mark("grid_bulk")
 
     # 2. Nexus team size per user — distinct user count across all
     # matrixes they own, minus self. Single GROUP BY query.
@@ -19658,6 +19670,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
         )
         # Subtract self (CreditMatrix seeds owner at root)
         nexus_count_by_owner = {row.owner_id: max(0, row.c - 1) for row in nexus_rows}
+    _mark("nexus_bulk")
 
     # 3. Live personal-referrals — count of current users sponsored by
     # each leaderboard user. Replaces the stored counter that doesn't
@@ -19671,6 +19684,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
             .all()
         )
         referrals_by_sponsor = {row.sponsor_id: row.c for row in ref_rows}
+    _mark("referrals_bulk")
 
     def user_data(u):
         """Build per-user payload from pre-loaded dicts. No DB calls
@@ -19706,6 +19720,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
     recent_joins = db.query(User).filter(
         User.created_at >= week_ago, User.is_active == True
     ).order_by(User.created_at.desc()).limit(10).all()
+    _mark("recent_joins")
 
     # Recent commissions
     recent_comms = db.query(Commission).filter(
@@ -19713,6 +19728,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
         Commission.status == "paid",
         Commission.commission_type.in_(["membership_sponsor", "membership_renewal"])
     ).order_by(Commission.created_at.desc()).limit(10).all()
+    _mark("recent_comms")
 
     # Bulk-load earners for recent commissions in one query (was N+1).
     earner_by_id = {}
@@ -19754,6 +19770,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
         Commission.status == "paid",
         Commission.to_user_id.isnot(None),
     ).scalar() or 0)
+    _mark("stats")
 
     result = {
         "ref_leaders": [user_data(u) for u in ref_leaders],
@@ -19765,7 +19782,8 @@ def api_leaderboard(db: Session = Depends(get_db)):
         "stats": {
             "total_members": total_members,
             "total_earned": total_earned,
-        }
+        },
+        "_timings_ms": _timings,  # TEMP: instrumentation, remove after diagnosis
     }
 
     # Cache for 5 minutes (same for all users)
