@@ -261,26 +261,14 @@ export default function Account() {
               update dynamically based on the selection. */}
           <div style={{marginBottom:12}}>
             <label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:6}}>Withdrawal Network</label>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-              <button
-                type="button"
-                onClick={function(){setWalletNetwork('tron');}}
-                style={{
-                  padding:'10px 12px',
-                  borderRadius:8,
-                  border:'2px solid '+(walletNetwork==='tron'?'var(--sap-accent)':'#e8ecf2'),
-                  background:walletNetwork==='tron'?'#e0f2fe':'#fff',
-                  color:walletNetwork==='tron'?'var(--sap-accent)':'var(--sap-text-primary)',
-                  fontWeight:700,
-                  fontSize:14,
-                  cursor:'pointer',
-                  textAlign:'left',
-                  lineHeight:1.3,
-                }}
-              >
-                <div style={{fontSize:15,fontWeight:800}}>TRC-20</div>
-                <div style={{fontSize:12,fontWeight:500,color:walletNetwork==='tron'?'var(--sap-accent)':'var(--sap-text-muted)',marginTop:2}}>Tron · Lowest fees</div>
-              </button>
+            {/* TRC-20 is temporarily disabled — NOWPayments TRC-20 fees
+                are ~46% of payment which makes the network economically
+                unviable. BSC is the only supported network for both
+                deposits and withdrawals until self-custody is built or
+                NOWPayments resolves their TRC-20 fee structure. The
+                'tron' branch in handlers below is left intact so we can
+                flip TRC-20 back on with a single line change. */}
+            <div style={{display:'grid',gridTemplateColumns:'1fr',gap:8}}>
               <button
                 type="button"
                 onClick={function(){setWalletNetwork('bsc');}}
@@ -297,8 +285,8 @@ export default function Account() {
                   lineHeight:1.3,
                 }}
               >
-                <div style={{fontSize:15,fontWeight:800}}>BEP-20</div>
-                <div style={{fontSize:12,fontWeight:500,color:walletNetwork==='bsc'?'var(--sap-accent)':'var(--sap-text-muted)',marginTop:2}}>BNB Chain · Fast</div>
+                <div style={{fontSize:15,fontWeight:800}}>BEP-20 (BNB Chain)</div>
+                <div style={{fontSize:12,fontWeight:500,color:walletNetwork==='bsc'?'var(--sap-accent)':'var(--sap-text-muted)',marginTop:2}}>USDT on BNB Smart Chain · Low fees</div>
               </button>
             </div>
           </div>
@@ -324,7 +312,7 @@ export default function Account() {
             ) : walletNetwork==='bsc' ? (
               <>MetaMask · Trust Wallet · Binance — any wallet that supports USDT on BNB Chain (BEP-20). Make sure the address starts with <strong>0x</strong> and is 42 characters.</>
             ) : (
-              <>Choose <strong>TRC-20</strong> or <strong>BEP-20</strong> above. Sending to the wrong network can result in loss of funds — please double-check before saving.</>
+              <>Tap <strong>BEP-20 (BNB Chain)</strong> above. Withdrawals are sent as USDT on BNB Smart Chain — any wallet that supports BEP-20 will work (MetaMask, Trust Wallet, Binance, etc.). Make sure your wallet address starts with <strong>0x</strong> and is 42 characters.</>
             )}
           </div>
 

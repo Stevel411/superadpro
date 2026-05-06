@@ -299,8 +299,8 @@ export default function Upgrade() {
             Withdrawal wallet setup
           </div>
           <div style={{ fontSize:14, color:'var(--sap-text-muted)', lineHeight:1.6, marginBottom:12 }}>
-            SuperAdPro pays out in USDT on either <strong>TRC-20 (Tron)</strong> or <strong>BEP-20 (BNB Chain)</strong>.
-            You'll need a wallet that supports the network you choose — TronLink, MetaMask, Trust Wallet, or Binance all work.
+            SuperAdPro pays out in USDT on <strong>BEP-20 (BNB Chain)</strong>.
+            You'll need a wallet that supports BEP-20 — MetaMask, Trust Wallet, or Binance all work.
           </div>
           <Link to="/account" style={{ fontSize:14, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>
             Set up your withdrawal wallet →

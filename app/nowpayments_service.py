@@ -170,6 +170,14 @@ def create_invoice(
         "success_url": success_url,
         "cancel_url": cancel_url,
         "is_fee_paid_by_user": False,  # We absorb the 0.5% fee
+        # Restrict checkout to USDT-BEP-20 only. TRC-20 is disabled because
+        # NOWPayments admitted (May 2026) that their TRC-20 deposit + payout
+        # network fees consume ~46% of every $20 transaction (deposit fee
+        # ~$3.50, service fee ~$0.10, payout fee ~$5.60), making it
+        # economically unviable. BSC fees are normal (~0.5% + minimal gas).
+        # When self-custody is built we can re-enable TRC-20 directly. Until
+        # then this is the launch-safe payment surface.
+        "pay_currencies": ["usdtbsc"],
     }
 
     try:

@@ -245,15 +245,11 @@ export default function CryptoGuide() {
                 )}
 
                 {s.networks && (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-                    {/* TRC-20 — both networks shown as positive options.
-                        Both use green to communicate "both work" rather than
-                        the old good-vs-bad layout. Slightly different shades
-                        so they're visually distinct. */}
-                    <div style={{ background: 'var(--sap-green-bg)', border: '1px solid #bbf7d0', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.networks.trc20.label}</div>
-                      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 13, fontWeight: 600, color: '#166534', marginTop: 6, lineHeight: 1.4 }}>{s.networks.trc20.tag}</div>
-                    </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginBottom: 12 }}>
+                    {/* BSC-only at launch. TRC-20 was previously shown
+                        alongside BSC but is temporarily disabled because
+                        of NOWPayments TRC-20 fee economics (May 2026).
+                        Re-enable by restoring the two-column grid. */}
                     <div style={{ background: '#dbeafe', border: '1px solid #bfdbfe', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.networks.bep20.label}</div>
                       <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 13, fontWeight: 600, color: '#1e40af', marginTop: 6, lineHeight: 1.4 }}>{s.networks.bep20.tag}</div>
