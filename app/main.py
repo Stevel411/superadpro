@@ -6146,7 +6146,18 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
 @app.post("/api/upgrade-to-pro")
 async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
                               user: User = Depends(get_current_user)):
-    """Upgrade Basic → Pro for $15 (difference). 100% to company, no sponsor commission."""
+    """Upgrade Basic → Pro for $15 (difference). 100% to company, no sponsor commission.
+
+    SECURITY: charges the $15 difference from the user's wallet balance.
+    If the user lacks sufficient balance, returns 400 with the shortfall —
+    they must top up via the standard membership payment flow first.
+
+    Bug history (6 May 2026): this endpoint previously called
+    _activate_membership directly with no payment step, granting free
+    Pro upgrades to any authenticated Basic member. Caught when Steve's
+    test account upgraded without any funds moving. Pre-launch impact
+    only (13 users total at time of fix); no real financial exposure.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not user.is_active:
@@ -6158,6 +6169,27 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
     ok, err = require_fresh_consent(db, user.id, purpose="upgrade_to_pro")
     if not ok:
         return JSONResponse({"error": err}, status_code=403)
+
+    # Charge the $15 upgrade fee from the user's wallet balance.
+    # Pattern matches /api/membership/activate-from-balance above.
+    upgrade_fee = decimal.Decimal("15.00")
+    balance = decimal.Decimal(str(user.balance or 0))
+    if balance < upgrade_fee:
+        shortfall = upgrade_fee - balance
+        return JSONResponse(
+            {
+                "error": (
+                    f"You need ${float(upgrade_fee):.2f} in your wallet to upgrade. "
+                    f"Current balance: ${float(balance):.2f} (short ${float(shortfall):.2f}). "
+                    f"Top up your wallet or pay the full Pro fee from /upgrade."
+                )
+            },
+            status_code=400,
+        )
+
+    # Deduct the upgrade fee from balance BEFORE activating Pro so the
+    # state change is atomic — _activate_membership commits at the end.
+    user.balance = balance - upgrade_fee
 
     return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True)
 def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
