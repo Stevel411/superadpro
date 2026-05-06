@@ -55,7 +55,12 @@ BASIC_REQUIRED_PREFIXES = (
     "/api/p2p-transfer",
     "/api/passup-visualiser",
     "/api/pay-it-forward",
-    "/api/purchase-consent",
+    # NOTE: /api/purchase-consent is intentionally NOT in this list.
+    # It's the consent-gathering endpoint that runs BEFORE every paid
+    # action (including the very first one — buying Basic membership).
+    # Free members about to buy MUST be able to load and record consent.
+    # All actual money-flow endpoints (campaign-tiers, credit-matrix,
+    # courses, etc.) remain gated and call purchase-consent first.
     "/api/record-ad-watch",
     "/api/record-watch",
     "/api/rotators",
