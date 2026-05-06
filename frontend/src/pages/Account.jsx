@@ -27,6 +27,7 @@ export default function Account() {
   var [savingPw, setSavingPw] = useState(false);
 
   var [walletAddr, setWalletAddr] = useState(user?.wallet_address || '');
+  var [walletNetwork, setWalletNetwork] = useState(user?.wallet_network || '');
   var [savingWallet, setSavingWallet] = useState(false);
 
   var [kycDob, setKycDob] = useState('');
@@ -106,9 +107,42 @@ export default function Account() {
   }
 
   function saveWallet() {
+    var addr = (walletAddr || '').trim();
+    var net = (walletNetwork || '').toLowerCase();
+
+    // Allow clearing both at once
+    if (!addr && !net) {
+      setSavingWallet(true);
+      apiPost('/api/account/update', {wallet_address: '', wallet_network: ''}).then(function() {
+        refreshUser(); showToast(t('account.walletSaved') || 'Wallet cleared', 'ok'); setSavingWallet(false);
+      }).catch(function(e) { showToast(e.message || 'Failed', 'err'); setSavingWallet(false); });
+      return;
+    }
+
+    // Network must be selected
+    if (net !== 'tron' && net !== 'bsc') {
+      showToast('Please choose a network: TRC-20 (Tron) or BEP-20 (BSC).', 'err');
+      return;
+    }
+
+    // Client-side format validation per network. Backend validates again
+    // as defence-in-depth; this is just to give the member a fast inline
+    // error rather than a roundtrip to discover a typo.
+    if (net === 'bsc') {
+      if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+        showToast('BSC (BEP-20) wallet must start with 0x followed by 40 hex characters.', 'err');
+        return;
+      }
+    } else if (net === 'tron') {
+      if (!/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(addr)) {
+        showToast('Tron (TRC-20) wallet must start with T followed by 33 base58 characters.', 'err');
+        return;
+      }
+    }
+
     setSavingWallet(true);
-    apiPost('/api/account/update', {wallet_address: walletAddr}).then(function() {
-      refreshUser(); showToast(t('account.walletSaved'), 'ok'); setSavingWallet(false);
+    apiPost('/api/account/update', {wallet_address: addr, wallet_network: net}).then(function() {
+      refreshUser(); showToast(t('account.walletSaved') || 'Wallet saved', 'ok'); setSavingWallet(false);
     }).catch(function(e) { showToast(e.message || t('account.failed'), 'err'); setSavingWallet(false); });
   }
 
@@ -220,8 +254,80 @@ export default function Account() {
         </Card>
 
         <Card title={t("account.withdrawalWallet")}>
-          <div style={{marginBottom:12}}><label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.walletAddressLabel")}</label><input value={walletAddr} onChange={function(e){setWalletAddr(e.target.value);}} placeholder="0x..." style={Object.assign({},iS,{fontFamily:'monospace',fontSize:14})} onFocus={foc} onBlur={blu}/></div>
-          <div style={{padding:'10px 12px',background:'var(--sap-bg-input)',border:'1px solid #e8ecf2',borderRadius:8,marginBottom:12,fontSize:14,color:'var(--sap-text-muted)',lineHeight:1.6}}>{t("account.walletSupported")}</div>
+          {/* Network selector — must be chosen before entering address.
+              Two equal-width pill buttons rather than a dropdown so the
+              two options are visible at a glance and members on mobile
+              don't have to tap twice. The card label and input placeholder
+              update dynamically based on the selection. */}
+          <div style={{marginBottom:12}}>
+            <label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:6}}>Withdrawal Network</label>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              <button
+                type="button"
+                onClick={function(){setWalletNetwork('tron');}}
+                style={{
+                  padding:'10px 12px',
+                  borderRadius:8,
+                  border:'2px solid '+(walletNetwork==='tron'?'var(--sap-accent)':'#e8ecf2'),
+                  background:walletNetwork==='tron'?'#e0f2fe':'#fff',
+                  color:walletNetwork==='tron'?'var(--sap-accent)':'var(--sap-text-primary)',
+                  fontWeight:700,
+                  fontSize:14,
+                  cursor:'pointer',
+                  textAlign:'left',
+                  lineHeight:1.3,
+                }}
+              >
+                <div style={{fontSize:15,fontWeight:800}}>TRC-20</div>
+                <div style={{fontSize:12,fontWeight:500,color:walletNetwork==='tron'?'var(--sap-accent)':'var(--sap-text-muted)',marginTop:2}}>Tron · Lowest fees</div>
+              </button>
+              <button
+                type="button"
+                onClick={function(){setWalletNetwork('bsc');}}
+                style={{
+                  padding:'10px 12px',
+                  borderRadius:8,
+                  border:'2px solid '+(walletNetwork==='bsc'?'var(--sap-accent)':'#e8ecf2'),
+                  background:walletNetwork==='bsc'?'#e0f2fe':'#fff',
+                  color:walletNetwork==='bsc'?'var(--sap-accent)':'var(--sap-text-primary)',
+                  fontWeight:700,
+                  fontSize:14,
+                  cursor:'pointer',
+                  textAlign:'left',
+                  lineHeight:1.3,
+                }}
+              >
+                <div style={{fontSize:15,fontWeight:800}}>BEP-20</div>
+                <div style={{fontSize:12,fontWeight:500,color:walletNetwork==='bsc'?'var(--sap-accent)':'var(--sap-text-muted)',marginTop:2}}>BNB Chain · Fast</div>
+              </button>
+            </div>
+          </div>
+
+          <div style={{marginBottom:12}}>
+            <label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>
+              Wallet Address {walletNetwork==='tron'?'(USDT on Tron)':walletNetwork==='bsc'?'(USDT on BSC)':''}
+            </label>
+            <input
+              value={walletAddr}
+              onChange={function(e){setWalletAddr(e.target.value);}}
+              placeholder={walletNetwork==='tron'?'T...':walletNetwork==='bsc'?'0x...':'Choose network first'}
+              disabled={!walletNetwork}
+              style={Object.assign({},iS,{fontFamily:'monospace',fontSize:14,opacity:walletNetwork?1:0.5})}
+              onFocus={foc}
+              onBlur={blu}
+            />
+          </div>
+
+          <div style={{padding:'10px 12px',background:'var(--sap-bg-input)',border:'1px solid #e8ecf2',borderRadius:8,marginBottom:12,fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
+            {walletNetwork==='tron' ? (
+              <>TronLink · Trust Wallet · Binance — any wallet that supports USDT on Tron (TRC-20). Make sure the address starts with <strong>T</strong> and is 34 characters.</>
+            ) : walletNetwork==='bsc' ? (
+              <>MetaMask · Trust Wallet · Binance — any wallet that supports USDT on BNB Chain (BEP-20). Make sure the address starts with <strong>0x</strong> and is 42 characters.</>
+            ) : (
+              <>Choose <strong>TRC-20</strong> or <strong>BEP-20</strong> above. Sending to the wrong network can result in loss of funds — please double-check before saving.</>
+            )}
+          </div>
+
           <button onClick={saveWallet} disabled={savingWallet} style={Object.assign({},btnS,{background:'var(--sap-accent)',marginTop:'auto'})}>{savingWallet?t('account.saving'):t('account.saveWallet')}</button>
         </Card>
       </div>

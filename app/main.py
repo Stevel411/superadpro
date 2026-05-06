@@ -852,6 +852,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "recent_activity":   activity,
         "sponsor_username":  sponsor_username,
         "wallet_address":    user.wallet_address or "",
+        "wallet_network":    user.wallet_network or "",
         "total_withdrawn":    compute_total_withdrawn(db, user.id),
         "is_active":         user.is_active,
         "is_admin":          user.is_admin,
@@ -2340,6 +2341,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "gender": user.gender or "",
         "age_range": user.age_range or "",
         "wallet_address": user.wallet_address or "",
+        "wallet_network": user.wallet_network or "",
         "sending_wallet": getattr(user, "sending_wallet", "") or "",
         "member_id": getattr(user, "member_id", None),
         # Highest active Campaign Tier (0 if none). Drives Watch-to-Earn access
@@ -4408,6 +4410,7 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "marketplace_earnings": float(user.marketplace_earnings or 0),
         "membership_tier": user.membership_tier or "basic",
         "wallet_address": user.wallet_address or "",
+        "wallet_network": user.wallet_network or "",
         "kyc_status": getattr(user, 'kyc_status', 'none'),
         "commissions": commissions,
         "withdrawals": withdrawals,
@@ -19583,11 +19586,36 @@ async def api_account_update(request: Request, user: User = Depends(get_current_
         ar = (body["age_range"] or "").strip()
         if ar in ("18-24", "25-34", "35-44", "45-54", "55+", ""):
             user.age_range = ar or None
-    if "wallet_address" in body:
-        wa = (body["wallet_address"] or "").strip()
-        if wa and not validate_wallet(wa):
-            return JSONResponse({"error": "Invalid wallet address"}, status_code=400)
-        user.wallet_address = wa
+    if "wallet_address" in body or "wallet_network" in body:
+        # Wallet address and network must be saved together. If only one is
+        # provided in the request body, fall back to the existing user value
+        # for the other so we can still validate consistency. The validate
+        # call runs against the COMBINED final state, not the partial input.
+        wa = (body.get("wallet_address", user.wallet_address) or "").strip()
+        wn_raw = body.get("wallet_network", user.wallet_network)
+        wn = (wn_raw or "").strip().lower() if wn_raw is not None else None
+
+        # Allow clearing both together (member wants to reset)
+        if wa == "" and wn in (None, ""):
+            user.wallet_address = None
+            user.wallet_network = None
+        else:
+            # If saving a wallet, network MUST be specified — no silent
+            # ambiguity. The dispatcher needs network to route correctly.
+            if not wn or wn not in ("tron", "bsc"):
+                return JSONResponse(
+                    {"error": "Withdrawal network is required. Choose TRC-20 (Tron) or BEP-20 (BSC)."},
+                    status_code=400,
+                )
+            # Validate wallet format against the chosen network
+            if not validate_wallet(wa, network=wn):
+                expected = "T-prefix base58 (34 chars) for Tron" if wn == "tron" else "0x-prefix hex (42 chars) for BSC"
+                return JSONResponse(
+                    {"error": f"Wallet address doesn't match the chosen network. Expected {expected}."},
+                    status_code=400,
+                )
+            user.wallet_address = wa
+            user.wallet_network = wn
     db.commit()
     return {"ok": True}
 @app.post("/api/account/change-password")
