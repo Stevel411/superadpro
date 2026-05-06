@@ -521,11 +521,17 @@ def request_withdrawal(
     # idempotency_key. If two concurrent requests share the same key we'll
     # collide on the unique index — catch IntegrityError, undo the balance
     # deduction we just did, and return the winning row's state.
+    #
+    # network is stamped from the user's wallet_network so the dispatcher
+    # in process_withdrawal knows which chain to send on. Stored at request
+    # time (not lookup time) so a withdrawal doesn't switch networks if
+    # the user updates their wallet between request and processing.
     from sqlalchemy.exc import IntegrityError
     withdrawal = Withdrawal(
         user_id        = user_id,
         amount_usdt    = amount_d,
         wallet_address = user.wallet_address,
+        network        = (user.wallet_network or "").lower() or None,
         status         = "pending",
         wallet_type    = wallet_type,
         idempotency_key = idempotency_key,

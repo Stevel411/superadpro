@@ -179,8 +179,25 @@ def validate_withdrawal(db, user, amount):
     if amount < MIN_WITHDRAWAL:
         return {"valid": False, "error": f"Minimum withdrawal is ${MIN_WITHDRAWAL}"}
 
-    if not user.wallet_address or len(user.wallet_address) < 40:
-        return {"valid": False, "error": "No valid withdrawal wallet set. Add your Polygon wallet address in Account settings."}
+    # Wallet must be set AND network must be selected. The network field is
+    # what the dispatcher uses to route the send (TRC-20 vs BEP-20). Without
+    # it, we'd have to guess based on the address prefix, which silently
+    # routing-on-wrong-chain risks burning funds. Cleaner to require explicit
+    # selection at wallet entry time.
+    if not user.wallet_address:
+        return {"valid": False, "error": "No withdrawal wallet set. Add your USDT wallet address in Account settings."}
+
+    network = (getattr(user, 'wallet_network', None) or "").lower()
+    if network not in ("tron", "bsc"):
+        return {"valid": False, "error": "Withdrawal network not selected. Go to Account → Wallet and choose TRC-20 (Tron) or BEP-20 (BSC)."}
+
+    # Length sanity check — defence in depth. Frontend regex should have
+    # already caught format errors but if a row got past that somehow,
+    # this stops it from reaching the send function with malformed input.
+    if network == "bsc" and len(user.wallet_address) != 42:
+        return {"valid": False, "error": "BSC wallet address must be 42 characters starting with 0x. Re-enter in Account settings."}
+    if network == "tron" and len(user.wallet_address) != 34:
+        return {"valid": False, "error": "Tron wallet address must be 34 characters starting with T. Re-enter in Account settings."}
 
     # KYC check
     if getattr(user, 'kyc_status', 'none') != 'approved':
@@ -784,8 +801,27 @@ def process_withdrawal(db, withdrawal_id):
     withdrawal.last_attempted_at = datetime.utcnow()
     db.commit()
 
-    # Send USDT on Polygon
-    result = send_usdt(withdrawal.wallet_address, net_amount)
+    # Route to the right network. The Withdrawal row was stamped with the
+    # network at request time (Step 1 schema migration), so the chain we
+    # send on matches the chain the member's wallet is on. If a row predates
+    # the migration (network IS NULL — legacy Polygon-era data), the
+    # dispatcher returns a structured error rather than guessing.
+    #
+    # The legacy send_usdt() (Polygon) is intentionally NOT in the dispatch
+    # table — Polygon is dormant. Any pending Polygon-era withdrawals would
+    # need to be either manually refunded or manually retried via the
+    # legacy function while we're transitioning. After 6 May 2026 launch
+    # there should be no more Polygon-era pending rows.
+    network = (withdrawal.network or "").lower()
+    if not network:
+        logger.error(f"Withdrawal #{withdrawal_id} has no network — cannot dispatch")
+        withdrawal.status = "failed_permanent"
+        withdrawal.last_error = "No network set on withdrawal — admin must refund manually"
+        withdrawal.processed_at = datetime.utcnow()
+        db.commit()
+        return {"success": False, "error": withdrawal.last_error, "permanent": True}
+
+    result = send_usdt_dispatch(network, withdrawal.wallet_address, net_amount)
 
     if result["success"]:
         withdrawal.status = "paid"
