@@ -256,10 +256,10 @@ export function WalletConnectGate(props) {
         cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         gap: 8,
-        transition: 'background .2s'
+        transition: 'opacity .15s, transform .15s',
       }, props.style || {})}
-      onMouseOver={function(e) { e.currentTarget.style.background = '#fffbeb'; }}
-      onMouseOut={function(e) { e.currentTarget.style.background = '#fff'; }}>
+      onMouseOver={function(e) { e.currentTarget.style.opacity = '0.92'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+      onMouseOut={function(e) { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}>
       <span aria-hidden="true" style={{ fontSize: 16 }}>⛓</span>
       <span>{label}</span>
     </button>
