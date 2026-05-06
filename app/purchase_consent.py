@@ -26,15 +26,17 @@ The two pieces of language that the solicitor will most scrutinise:
       the commercial justification for the no-refund policy. Must be
       a fair, unambiguous statement under CRA 2015 s.62.
 
-The text below is a DRAFT pending solicitor review. Do not flip
-PURCHASE_CONSENT_ENFORCED to True in Railway until sign-off.
+Solicitor sign-off received 6 May 2026. v1.0 is the released text.
+PURCHASE_CONSENT_ENFORCED can be flipped to True in Railway whenever
+we want hard-blocking on every money-in endpoint. Until then, the
+consent rails are wired but advisory only.
 """
 
 import hashlib
 import os
 
 # Version label — bump this whenever PURCHASE_CONSENT_TEXT changes
-PURCHASE_CONSENT_VERSION = "v1.0-DRAFT"
+PURCHASE_CONSENT_VERSION = "v1.0"
 
 # Validity window for a fresh consent — 5 minutes is long enough for
 # a normal checkout flow, short enough that pre-consenting hours/days
@@ -57,7 +59,7 @@ def is_consent_enforced() -> bool:
 # Triple-quoted; whitespace is significant for the hash. Don't reflow
 # or auto-format this string without bumping the version.
 PURCHASE_CONSENT_TEXT = """SuperAdPro — Purchase Terms & Refund Policy
-Version v1.0 (DRAFT — pending solicitor review)
+Version v1.0
 
 Before you complete your purchase, please read this carefully.
 
@@ -91,7 +93,7 @@ SuperAdPro provides AI tools that members can use to build any business. The com
 
 By ticking the consent box and clicking "I Agree & Proceed": you confirm you have read this; you give express consent to immediate activation per section 2; you acknowledge you lose your right to cancel under CCR 2013; you accept the no-refund-on-request policy with the carve-outs in section 4; you understand commissions and treasury distributions are immediate and irreversible; you confirm you are not relying on any income guarantees.
 
-End of Purchase Terms & Refund Policy v1.0-DRAFT.
+End of Purchase Terms & Refund Policy v1.0.
 """
 
 
