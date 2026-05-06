@@ -285,6 +285,34 @@ class PreLaunchMiddleware(BaseHTTPMiddleware):
         if any(path.startswith(p) for p in allowed):
             return await call_next(request)
 
+        # Allow /register only when arriving with a referral code in
+        # query params or cookie. The /ref/<username> handler sets both,
+        # so genuine sponsored signups flow through; direct visitors to
+        # /register without a sponsor still see the holding page.
+        if path == "/register" or path == "/signup":
+            ref_qp = request.query_params.get("ref", "")
+            ref_cookie = request.cookies.get("ref", "")
+            if ref_qp or ref_cookie:
+                return await call_next(request)
+
+        # Admin / testing bypass via query param. Set
+        # PRE_LAUNCH_BYPASS_TOKEN in Railway to enable. Token must
+        # match exactly. Only used during pre-launch testing.
+        bypass_token = os.getenv("PRE_LAUNCH_BYPASS_TOKEN", "")
+        if bypass_token and request.query_params.get("bypass", "") == bypass_token:
+            response = await call_next(request)
+            # Set a cookie so subsequent requests in the same session
+            # (CSS/JS/API calls) aren't gated. Cookie expires in 24h.
+            response.set_cookie(
+                key="prelaunch_bypass", value=bypass_token,
+                max_age=60*60*24, httponly=True, samesite="lax",
+            )
+            return response
+
+        # Cookie-based bypass (set by the query-param flow above)
+        if bypass_token and request.cookies.get("prelaunch_bypass", "") == bypass_token:
+            return await call_next(request)
+
         # Allow authenticated users (admins) through
         from starlette.responses import Response as StarletteResponse
         try:
