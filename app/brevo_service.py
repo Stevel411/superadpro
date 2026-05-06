@@ -4,6 +4,7 @@ Uses the Brevo REST API v3 — no SDK needed, just httpx.
 Requires BREVO_API_KEY and BREVO_SENDER_EMAIL env vars on Railway.
 """
 import os
+import asyncio
 import httpx
 import json
 from datetime import datetime
@@ -23,7 +24,18 @@ def _headers():
 
 
 async def send_email(to_email: str, to_name: str, subject: str, html_content: str, sender_name: str = None, sender_email: str = None):
-    """Send a single transactional email via Brevo API."""
+    """Send a single transactional email via Brevo API.
+
+    Retries with exponential backoff on transient failures (429 rate limit,
+    5xx server errors, network exceptions). Important for launch-day bursts
+    when 1000+ verification emails could fire in an hour and Brevo's per-second
+    rate limits could trip. Without retry, a transient blip means a real user
+    gets locked out of their account because their verification email didn't
+    arrive.
+
+    Permanent failures (400 bad request, 401/403 auth) are NOT retried —
+    those indicate a code or config bug and retrying just delays surfacing it.
+    """
     if not BREVO_API_KEY:
         print("[Brevo] No API key — email not sent")
         return {"ok": False, "error": "No Brevo API key configured"}
@@ -38,22 +50,57 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
         "htmlContent": html_content,
     }
 
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.post(
-                f"{BREVO_BASE_URL}/smtp/email",
-                headers=_headers(),
-                json=payload,
-            )
-            data = resp.json()
-            if resp.status_code in (200, 201):
-                return {"ok": True, "message_id": data.get("messageId", "")}
-            else:
-                print(f"[Brevo] Send failed: {resp.status_code} {data}")
-                return {"ok": False, "error": data.get("message", str(resp.status_code))}
-    except Exception as e:
-        print(f"[Brevo] Exception: {e}")
-        return {"ok": False, "error": str(e)}
+    # Retry config: 3 attempts total, exponential backoff 1s → 2s → 4s
+    # Total max delay is 7 seconds before giving up — within the typical
+    # FastAPI request timeout of 30s and acceptable for a user waiting on
+    # signup confirmation.
+    RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+    MAX_ATTEMPTS = 3
+
+    last_error = None
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(
+                    f"{BREVO_BASE_URL}/smtp/email",
+                    headers=_headers(),
+                    json=payload,
+                )
+
+                if resp.status_code in (200, 201):
+                    data = resp.json()
+                    if attempt > 1:
+                        print(f"[Brevo] Send succeeded on retry {attempt} for {to_email}")
+                    return {"ok": True, "message_id": data.get("messageId", "")}
+
+                # Non-retryable failures — give up immediately
+                if resp.status_code not in RETRYABLE_STATUS_CODES:
+                    try:
+                        data = resp.json()
+                        err = data.get("message", str(resp.status_code))
+                    except Exception:
+                        err = f"HTTP {resp.status_code}"
+                    print(f"[Brevo] Permanent failure: {resp.status_code} {err}")
+                    return {"ok": False, "error": err}
+
+                # Retryable failure
+                last_error = f"HTTP {resp.status_code}"
+                print(f"[Brevo] Attempt {attempt}/{MAX_ATTEMPTS} failed: {last_error}")
+
+        except (httpx.TimeoutException, httpx.NetworkError, httpx.RemoteProtocolError) as e:
+            last_error = f"network: {type(e).__name__}: {e}"
+            print(f"[Brevo] Attempt {attempt}/{MAX_ATTEMPTS} network error: {last_error}")
+        except Exception as e:
+            # Unexpected — don't retry, surface immediately
+            print(f"[Brevo] Unexpected exception: {e}")
+            return {"ok": False, "error": str(e)}
+
+        # Exponential backoff before next attempt (skip after final attempt)
+        if attempt < MAX_ATTEMPTS:
+            delay = 2 ** (attempt - 1)  # 1s, 2s, 4s
+            await asyncio.sleep(delay)
+
+    return {"ok": False, "error": f"Failed after {MAX_ATTEMPTS} attempts: {last_error}"}
 
 
 async def send_batch_emails(messages: list):
