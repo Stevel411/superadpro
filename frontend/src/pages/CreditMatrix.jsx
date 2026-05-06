@@ -6,8 +6,17 @@ import { apiGet, apiPost } from '../utils/api';
 import { Sparkles, TrendingUp, Users, DollarSign, Gift, ChevronDown, ChevronUp, Loader2, CheckCircle, AlertCircle, Zap, Award, Layers } from 'lucide-react';
 import { useConsentGate } from '../components/PurchaseConsentModal';
 
-// Lazy-load self-custody payment button (~270KB gzipped Reown/wagmi chunk)
-var WalletConnectButton = lazy(function() { return import('../components/WalletConnectButton'); });
+// Lazy-load self-custody payment components — Reown/wagmi adds heavy
+// crypto deps to the bundle. Loaded only when this page renders.
+//
+// React.lazy supports default exports only, so we wrap each named export
+// in a default-export shim. All three resolve the same module under the
+// hood (single chunk fetch).
+var _wcModule = null;
+function _loadWC() { if (!_wcModule) _wcModule = import('../components/WalletConnect'); return _wcModule; }
+var WalletConnectProvider = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletConnectProvider }; }); });
+var WalletConnectGate = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletConnectGate }; }); });
+var WalletPayLink = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletPayLink }; }); });
 
 var PACK_ICONS = {
   starter:   { emoji: '🚀', gradient: 'linear-gradient(135deg, #6366f1, #818cf8)', cardGrad: 'linear-gradient(135deg, #312e81, #4338ca, #6366f1)' },
@@ -174,9 +183,20 @@ export function CreditMatrixContent() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
         <div>
-          {/* Credit Packs */}
+          {/* Credit Packs — wrapped in WalletConnectProvider so a single
+              connect button at the top of the section serves all 8 pack
+              cards via React Context. */}
+          <Suspense fallback={null}>
+          <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.buyPacks')}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 12 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{t('creditMatrix.buyPacks')}</div>
+              <div style={{ flex: '0 0 320px', maxWidth: 320 }}>
+                <Suspense fallback={<div style={{ height: 44 }} />}>
+                  <WalletConnectGate />
+                </Suspense>
+              </div>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {packs.map(function(pack) {
                 var icon = PACK_ICONS[pack.key] || PACK_ICONS.starter;
@@ -202,26 +222,22 @@ export function CreditMatrixContent() {
                         cursor: isbuying ? 'default' : 'pointer', backdropFilter: 'blur(4px)', transition: 'background 0.2s' }}>
                       {isbuying ? t('creditMatrix.processing') : t('creditMatrix.payWithCrypto')}
                     </button>
-                    {/* ── Self-custody BSC payment (parallel-run alongside NOWPayments) ── */}
+                    {/* Self-custody BSC pay link — only renders when wallet
+                        is connected (handled by PayLink internally via context). */}
                     <div style={{ marginTop: 8, position: 'relative' }}>
-                      <Suspense fallback={
-                        <div style={{ padding: '8px 0', borderRadius: 8, background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', fontSize: 11, textAlign: 'center', border: '1px dashed rgba(255,255,255,0.2)' }}>
-                          loading wallet…
-                        </div>
-                      }>
-                        <WalletConnectButton
+                      <Suspense fallback={null}>
+                        <WalletPayLink
                           productType="credit_matrix"
                           productKey={'credit_matrix_' + pack.key}
-                          label={`Pay ${pack.price} from wallet (BSC)`}
-                          onBeforeClick={async function() { return await ensureConsent(); }}
+                          label={'Pay $' + pack.price + ' from wallet'}
                           onSuccess={function() {
                             setMessage({ type: 'success', text: pack.credits.toLocaleString() + ' credits awarded — refresh to see your nexus update.' });
                             loadAll();
                           }}
                           style={{
                             padding: '8px 0',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            background: 'rgba(255,255,255,0.08)',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                            background: 'rgba(255,255,255,0.12)',
                             color: '#fff',
                             fontSize: 11,
                             fontWeight: 600,
@@ -235,6 +251,8 @@ export function CreditMatrixContent() {
               })}
             </div>
           </div>
+          </WalletConnectProvider>
+          </Suspense>
 
           {/* Nexus Tree Visualisation */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>

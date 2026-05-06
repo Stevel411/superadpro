@@ -6,8 +6,12 @@ import { useAuth } from '../hooks/useAuth';
 import { Globe } from 'lucide-react';
 import { useConsentGate } from '../components/PurchaseConsentModal';
 
-// Lazy-load self-custody payment button (~190KB gzipped Reown/wagmi chunk)
-var WalletConnectButton = lazy(function() { return import('../components/WalletConnectButton'); });
+// Lazy-load self-custody payment components (~1MB gz Reown/wagmi chunk)
+var _wcModule = null;
+function _loadWC() { if (!_wcModule) _wcModule = import('../components/WalletConnect'); return _wcModule; }
+var WalletConnectProvider = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletConnectProvider }; }); });
+var WalletConnectGate = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletConnectGate }; }); });
+var WalletPayLink = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletPayLink }; }); });
 
 const TIERS = {
   1: { name:'Starter',     price:20,   views:'2,000',     monthly:'500',    bonus:64,   grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
@@ -225,26 +229,30 @@ export default function ActivateTier() {
             <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
 
             {/* ── Self-custody BSC payment (parallel-run alongside NOWPayments) ──
-                Pay direct from your own wallet via WalletConnect. */}
+                Single Gate at top, PayLink below for this tier. */}
             <div style={{ position:'relative', margin:'4px 0', textAlign:'center' }}>
               <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
               <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or pay direct from your wallet</span>
             </div>
-            <Suspense fallback={
-              <div style={{ padding:'14px 16px', borderRadius:12, background:'#f8fafc', border:'1px dashed #e2e8f0', color:'#94a3b8', fontSize:13, textAlign:'center' }}>
-                Loading wallet checkout…
-              </div>
-            }>
-              <WalletConnectButton
-                productType="grid"
-                productKey={'grid_' + n}
-                label={`Pay ${tier.price} USDT (BSC) from your wallet`}
-                onBeforeClick={async function() { return await ensureConsent(); }}
-                onSuccess={function() {
-                  // Match NOWPayments redirect target after success
-                  window.location.href = '/payment-success?type=grid&tier=' + n;
-                }}
-              />
+            <Suspense fallback={null}>
+              <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <Suspense fallback={null}>
+                    <WalletConnectGate />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <WalletPayLink
+                      productType="grid"
+                      productKey={'grid_' + n}
+                      label={'Pay $' + tier.price + ' from wallet'}
+                      onSuccess={function() {
+                        window.location.href = '/payment-success?type=grid&tier=' + n;
+                      }}
+                      style={{ padding: '12px 16px', fontSize: 14, borderRadius: 10 }}
+                    />
+                  </Suspense>
+                </div>
+              </WalletConnectProvider>
             </Suspense>
 
             <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
