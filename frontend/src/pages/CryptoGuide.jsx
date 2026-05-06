@@ -115,6 +115,63 @@ export default function CryptoGuide() {
         </div>
       </div>
 
+      {/* Launch banner — added 6 May 2026 to surface the dual-network change.
+          The detailed step-by-step content below is being rewritten post-launch
+          (the existing copy still references Polygon/MetaMask defaults from
+          the v1 era). For now this banner gives members the accurate picture
+          and points them to the wallet entry card. */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)',
+        color: '#fff',
+        borderRadius: 16,
+        padding: '20px 24px',
+        marginBottom: 22,
+        boxShadow: '0 4px 20px rgba(14, 165, 233, 0.25)',
+      }}>
+        <div style={{
+          display: 'inline-block',
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: 1.5,
+          textTransform: 'uppercase',
+          padding: '4px 8px',
+          background: 'rgba(255,255,255,0.18)',
+          borderRadius: 4,
+          marginBottom: 10,
+        }}>
+          New
+        </div>
+        <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 8, lineHeight: 1.25 }}>
+          We now support TRC-20 and BEP-20 USDT
+        </div>
+        <div style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,0.92)', marginBottom: 14 }}>
+          Choose the network that suits you when you set up your withdrawal wallet.
+          <strong> TRC-20 (Tron)</strong> has the lowest transaction fees and is widely supported by Binance and most major exchanges.
+          <strong> BEP-20 (BNB Chain)</strong> is fast and works with MetaMask, Trust Wallet, and any wallet that supports BNB Chain.
+        </div>
+        <div style={{
+          background: 'rgba(255,255,255,0.12)',
+          borderRadius: 8,
+          padding: '12px 14px',
+          fontSize: 14,
+          lineHeight: 1.6,
+        }}>
+          <strong>Important:</strong> always send to the matching network. Sending USDT-TRC-20 to a BEP-20 address (or vice versa) will result in loss of funds.
+          When you copy your wallet address from your exchange or wallet app, double-check the network label before pasting.
+        </div>
+        <a href="/account" style={{
+          display: 'inline-block',
+          marginTop: 16,
+          padding: '10px 18px',
+          background: '#fff',
+          color: '#0369a1',
+          fontWeight: 800,
+          fontSize: 14,
+          textDecoration: 'none',
+          borderRadius: 8,
+        }}>Set up your withdrawal wallet →</a>
+      </div>
+
       {/* Quick-overview strip — 5 small cards, one per step, showing the
           journey at a glance. Click a card to jump-expand that step below. */}
       <div className="cg-overview" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10, marginBottom: 22 }}>
