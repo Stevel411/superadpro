@@ -1,0 +1,1 @@
+import{b6 as o,r}from"./vendor-a1VWmRpB.js";import"./vendor-charts-sutgcRna.js";import"./vendor-walletconnect-DcMPFe4T.js";import"./vendor-qrcode-rW-gqGhH.js";import"./vendor-tone-9O66EXid.js";function s(){var t=o();return r.useEffect(function(){t("/compensation-plan",{replace:!0})},[]),null}export{s as default};

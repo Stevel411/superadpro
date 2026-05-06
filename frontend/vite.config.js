@@ -8,6 +8,21 @@ export default defineConfig({
     outDir: '../static/app',
     emptyOutDir: true,
     sourcemap: false,
+    // Disable Vite's automatic modulepreload polyfill for the
+    // walletconnect chunk. Without this, every page on the site
+    // eagerly preloads 1MB of wallet code in the background — fine
+    // for /upgrade /activate-tier /credit-matrix, harmful everywhere
+    // else. The chunk is still lazy-loaded on demand via React.lazy
+    // when those pages render. Confirmed slowness regression after
+    // 84a67288 deployed (6 May 2026 ~19:00 UTC).
+    modulePreload: {
+      polyfill: false,
+      resolveDependencies: function(filename, deps) {
+        return deps.filter(function(dep) {
+          return !dep.includes('vendor-walletconnect');
+        });
+      },
+    },
     // Bundle splitting strategy:
     //
     // Goal: shrink the main bundle so first-page-load is fast. Without this,
