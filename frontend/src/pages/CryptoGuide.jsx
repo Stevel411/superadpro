@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
-import { Shield, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Shield, ChevronDown, ChevronUp, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function CryptoGuide() {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(null);
 
-  // Step definitions. Using existing translation keys — all 32 keys already
-  // populated across all 20 locale files from earlier i18n passes, so we
-  // don't touch copy, only styling. Each step gets a distinct accent color
-  // to echo the Dashboard's 4-income-streams pattern.
+  // Step definitions. Translation keys updated 6 May 2026 for the
+  // TRC-20 + BEP-20 dual-network rewrite. All 20 locale files
+  // populated. Each step gets a distinct accent color to echo the
+  // Dashboard's 4-income-streams pattern.
   const STEPS = [
     {
       num: '1',
@@ -18,8 +18,6 @@ export default function CryptoGuide() {
       color: 'var(--sap-accent)',
       bg: '#e0f2fe',
       content: [t('cryptoGuide.step1P1'), t('cryptoGuide.step1P2')],
-      warning: t('cryptoGuide.step1Warning'),
-      link: { url: 'https://metamask.io/download/', label: t('cryptoGuide.step1Link') },
     },
     {
       num: '2',
@@ -27,9 +25,12 @@ export default function CryptoGuide() {
       color: 'var(--sap-green-mid)',
       bg: '#d1fae5',
       content: [t('cryptoGuide.step2P1'), t('cryptoGuide.step2P2')],
-      comparison: {
-        bad: { label: t('cryptoGuide.ethereum'), cost: t('cryptoGuide.ethereumCost'), color: 'var(--sap-red)' },
-        good: { label: t('cryptoGuide.polygon'), cost: t('cryptoGuide.polygonCost'), color: 'var(--sap-green)' },
+      // TRC-20 vs BEP-20 — both green (both are good options),
+      // not a good-vs-bad comparison. Different colour shades to
+      // visually differentiate.
+      networks: {
+        trc20: { label: t('cryptoGuide.step2Trc20Label'), tag: t('cryptoGuide.step2Trc20Cost') },
+        bep20: { label: t('cryptoGuide.step2Bep20Label'), tag: t('cryptoGuide.step2Bep20Cost') },
       },
     },
     {
@@ -39,6 +40,7 @@ export default function CryptoGuide() {
       bg: 'var(--sap-purple-pale)',
       content: [t('cryptoGuide.step3P1'), t('cryptoGuide.step3P2')],
       tip: t('cryptoGuide.step3Tip'),
+      warning: t('cryptoGuide.step3Warning'),
     },
     {
       num: '4',
@@ -113,63 +115,6 @@ export default function CryptoGuide() {
             {t('cryptoGuide.heroDesc')}
           </div>
         </div>
-      </div>
-
-      {/* Launch banner — added 6 May 2026 to surface the dual-network change.
-          The detailed step-by-step content below is being rewritten post-launch
-          (the existing copy still references Polygon/MetaMask defaults from
-          the v1 era). For now this banner gives members the accurate picture
-          and points them to the wallet entry card. */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)',
-        color: '#fff',
-        borderRadius: 16,
-        padding: '20px 24px',
-        marginBottom: 22,
-        boxShadow: '0 4px 20px rgba(14, 165, 233, 0.25)',
-      }}>
-        <div style={{
-          display: 'inline-block',
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: 1.5,
-          textTransform: 'uppercase',
-          padding: '4px 8px',
-          background: 'rgba(255,255,255,0.18)',
-          borderRadius: 4,
-          marginBottom: 10,
-        }}>
-          New
-        </div>
-        <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 8, lineHeight: 1.25 }}>
-          We now support TRC-20 and BEP-20 USDT
-        </div>
-        <div style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,0.92)', marginBottom: 14 }}>
-          Choose the network that suits you when you set up your withdrawal wallet.
-          <strong> TRC-20 (Tron)</strong> has the lowest transaction fees and is widely supported by Binance and most major exchanges.
-          <strong> BEP-20 (BNB Chain)</strong> is fast and works with MetaMask, Trust Wallet, and any wallet that supports BNB Chain.
-        </div>
-        <div style={{
-          background: 'rgba(255,255,255,0.12)',
-          borderRadius: 8,
-          padding: '12px 14px',
-          fontSize: 14,
-          lineHeight: 1.6,
-        }}>
-          <strong>Important:</strong> always send to the matching network. Sending USDT-TRC-20 to a BEP-20 address (or vice versa) will result in loss of funds.
-          When you copy your wallet address from your exchange or wallet app, double-check the network label before pasting.
-        </div>
-        <a href="/account" style={{
-          display: 'inline-block',
-          marginTop: 16,
-          padding: '10px 18px',
-          background: '#fff',
-          color: '#0369a1',
-          fontWeight: 800,
-          fontSize: 14,
-          textDecoration: 'none',
-          borderRadius: 8,
-        }}>Set up your withdrawal wallet →</a>
       </div>
 
       {/* Quick-overview strip — 5 small cards, one per step, showing the
@@ -299,36 +244,21 @@ export default function CryptoGuide() {
                   </div>
                 )}
 
-                {s.comparison && (
+                {s.networks && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-                    <div style={{ background: 'var(--sap-red-bg)', border: '1px solid #fecaca', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#991b1b', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.comparison.bad.label}</div>
-                      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-red)', marginTop: 4 }}>{s.comparison.bad.cost}</div>
-                    </div>
+                    {/* TRC-20 — both networks shown as positive options.
+                        Both use green to communicate "both work" rather than
+                        the old good-vs-bad layout. Slightly different shades
+                        so they're visually distinct. */}
                     <div style={{ background: 'var(--sap-green-bg)', border: '1px solid #bbf7d0', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.comparison.good.label}</div>
-                      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-green)', marginTop: 4 }}>{s.comparison.good.cost}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.networks.trc20.label}</div>
+                      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 13, fontWeight: 600, color: '#166534', marginTop: 6, lineHeight: 1.4 }}>{s.networks.trc20.tag}</div>
+                    </div>
+                    <div style={{ background: '#dbeafe', border: '1px solid #bfdbfe', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.networks.bep20.label}</div>
+                      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 13, fontWeight: 600, color: '#1e40af', marginTop: 6, lineHeight: 1.4 }}>{s.networks.bep20.tag}</div>
                     </div>
                   </div>
-                )}
-
-                {s.link && (
-                  <a href={s.link.url} target="_blank" rel="noopener noreferrer"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: '#fff',
-                      textDecoration: 'none',
-                      padding: '10px 18px',
-                      background: `linear-gradient(135deg, ${s.color}, ${s.color})`,
-                      borderRadius: 9,
-                      boxShadow: `0 4px 12px ${s.color}35`,
-                    }}>
-                    {s.link.label} <ExternalLink size={13} />
-                  </a>
                 )}
               </div>
             )}
