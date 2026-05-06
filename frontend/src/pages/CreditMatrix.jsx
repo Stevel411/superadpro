@@ -30,12 +30,7 @@ var PACK_ICONS = {
 };
 
 export default function CreditMatrix() {
-  var { t } = useTranslation();
-  return (
-    <AppLayout title={t("creditMatrix.title")} subtitle={t("creditMatrix.subtitle")}>
-      <CreditMatrixContent />
-    </AppLayout>
-  );
+  return <CreditMatrixContent />;
 }
 
 export function CreditMatrixContent() {
@@ -112,11 +107,32 @@ export function CreditMatrixContent() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '80px 0' }}>
-        <Loader2 size={32} color="var(--sap-purple)" style={{ animation: 'spin 1s linear infinite' }} />
-        <div style={{ marginTop: 12, color: 'var(--sap-text-muted)' }}>{t('creditMatrix.loadingNexus')}</div>
-        <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
-      </div>
+      <Suspense fallback={
+        <AppLayout title={t("creditMatrix.title")} subtitle={t("creditMatrix.subtitle")}>
+          <div style={{ textAlign: 'center', padding: '80px 0' }}>
+            <Loader2 size={32} color="var(--sap-purple)" style={{ animation: 'spin 1s linear infinite' }} />
+            <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
+          </div>
+        </AppLayout>
+      }>
+        <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
+          <AppLayout
+            title={t("creditMatrix.title")}
+            subtitle={t("creditMatrix.subtitle")}
+            topbarActions={
+              <Suspense fallback={null}>
+                <WalletConnectGate variant="compact" />
+              </Suspense>
+            }
+          >
+            <div style={{ textAlign: 'center', padding: '80px 0' }}>
+              <Loader2 size={32} color="var(--sap-purple)" style={{ animation: 'spin 1s linear infinite' }} />
+              <div style={{ marginTop: 12, color: 'var(--sap-text-muted)' }}>{t('creditMatrix.loadingNexus')}</div>
+              <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
+            </div>
+          </AppLayout>
+        </WalletConnectProvider>
+      </Suspense>
     );
   }
 
@@ -125,6 +141,21 @@ export function CreditMatrixContent() {
   var matrixStats = matrix && matrix.stats;
 
   return (
+    <Suspense fallback={
+      <AppLayout title={t("creditMatrix.title")} subtitle={t("creditMatrix.subtitle")}>
+        <div />
+      </AppLayout>
+    }>
+    <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
+    <AppLayout
+      title={t("creditMatrix.title")}
+      subtitle={t("creditMatrix.subtitle")}
+      topbarActions={
+        <Suspense fallback={null}>
+          <WalletConnectGate variant="compact" />
+        </Suspense>
+      }
+    >
     <>
 
       {/* Cobalt blue header */}
@@ -183,39 +214,11 @@ export function CreditMatrixContent() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
         <div>
-          {/* Credit Packs — wrapped in WalletConnectProvider so a single
-              connect button at the top of the section serves all 8 pack
-              cards via React Context. */}
-          <Suspense fallback={null}>
-          <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
+          {/* Credit Packs — connect button now lives in the top header
+              via topbarActions. PayLinks read connection state from the
+              page-level WalletConnectProvider context. */}
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.buyPacks')}</div>
-
-            {/* Self-custody wallet — prominent centered gate above the cards */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-              <div style={{ maxWidth: 480, width: '100%' }}>
-                <Suspense fallback={<div style={{ height: 52 }} />}>
-                  <WalletConnectGate
-                    label="Connect wallet to pay direct (USDT on BSC)"
-                    style={{
-                      width: '100%',
-                      padding: '14px 20px',
-                      borderRadius: 12,
-                      fontSize: 15,
-                      fontWeight: 800,
-                      fontFamily: 'inherit',
-                      border: 'none',
-                      background: 'linear-gradient(135deg, #059669, #10b981, #34d399)',
-                      color: '#fff',
-                      boxShadow: '0 4px 16px rgba(16, 185, 129, .25), 0 2px 4px rgba(16, 185, 129, .15)',
-                      cursor: 'pointer',
-                      letterSpacing: 0.2,
-                      transition: 'transform .15s, box-shadow .15s',
-                    }}
-                  />
-                </Suspense>
-              </div>
-            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {packs.map(function(pack) {
@@ -271,8 +274,6 @@ export function CreditMatrixContent() {
               })}
             </div>
           </div>
-          </WalletConnectProvider>
-          </Suspense>
 
           {/* Nexus Tree Visualisation */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>
@@ -476,5 +477,8 @@ export function CreditMatrixContent() {
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
       {consentModal}
     </>
+    </AppLayout>
+    </WalletConnectProvider>
+    </Suspense>
   );
 }

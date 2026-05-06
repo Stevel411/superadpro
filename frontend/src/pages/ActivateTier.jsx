@@ -103,7 +103,21 @@ export default function ActivateTier() {
   };
 
   return (
-    <AppLayout title={`Activate ${tier.name}`} subtitle={t('campaignTiers.reviewTier')}>
+    <Suspense fallback={
+      <AppLayout title={`Activate ${tier.name}`} subtitle={t('campaignTiers.reviewTier')}>
+        <div />
+      </AppLayout>
+    }>
+    <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
+    <AppLayout
+      title={`Activate ${tier.name}`}
+      subtitle={t('campaignTiers.reviewTier')}
+      topbarActions={
+        <Suspense fallback={null}>
+          <WalletConnectGate variant="compact" />
+        </Suspense>
+      }
+    >
       <div style={{maxWidth:700,margin:'0 auto'}}>
 
         {/* Tier hero — dark theme with animations */}
@@ -200,47 +214,18 @@ export default function ActivateTier() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-            {/* Self-custody BSC wallet gate — prominent green, above NOWPayments.
-                Provider wraps both the gate and the PayLink so the connect
-                button drives the per-tier pay link via React Context. */}
+            {/* Self-custody BSC PayLink — only renders once wallet is connected.
+                Connect button is in the page header (topbarActions). */}
             <Suspense fallback={null}>
-              <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
-                  <div style={{ maxWidth: 480, width: '100%' }}>
-                    <Suspense fallback={<div style={{ height: 52 }} />}>
-                      <WalletConnectGate
-                        label="Connect wallet to pay direct (USDT on BSC)"
-                        style={{
-                          width: '100%',
-                          padding: '14px 20px',
-                          borderRadius: 12,
-                          fontSize: 15,
-                          fontWeight: 800,
-                          fontFamily: 'inherit',
-                          border: 'none',
-                          background: 'linear-gradient(135deg, #059669, #10b981, #34d399)',
-                          color: '#fff',
-                          boxShadow: '0 4px 16px rgba(16, 185, 129, .25), 0 2px 4px rgba(16, 185, 129, .15)',
-                          cursor: 'pointer',
-                          letterSpacing: 0.2,
-                        }}
-                      />
-                    </Suspense>
-                  </div>
-                </div>
-                {/* PayLink — only renders once wallet is connected */}
-                <Suspense fallback={null}>
-                  <WalletPayLink
-                    productType="grid"
-                    productKey={'grid_' + n}
-                    label={'Pay $' + tier.price + ' from wallet'}
-                    onSuccess={function() {
-                      window.location.href = '/payment-success?type=grid&tier=' + n;
-                    }}
-                    style={{ padding: '12px 16px', fontSize: 14, borderRadius: 10 }}
-                  />
-                </Suspense>
-              </WalletConnectProvider>
+              <WalletPayLink
+                productType="grid"
+                productKey={'grid_' + n}
+                label={'Pay $' + tier.price + ' from wallet'}
+                onSuccess={function() {
+                  window.location.href = '/payment-success?type=grid&tier=' + n;
+                }}
+                style={{ padding: '12px 16px', fontSize: 14, borderRadius: 10 }}
+              />
             </Suspense>
 
             {/* "or" divider */}
@@ -298,5 +283,7 @@ export default function ActivateTier() {
       </div>
       {consentModal}
     </AppLayout>
+    </WalletConnectProvider>
+    </Suspense>
   );
 }

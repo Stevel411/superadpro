@@ -169,8 +169,10 @@ export function WalletConnectGate(props) {
   // unconditionally to satisfy Rules of Hooks.
   var appKit = useAppKit();
   var switchChain = useSwitchChain();
+  var compact = props.variant === 'compact';
 
   if (ctx.error) {
+    if (compact) return null; // hide silently in compact mode
     return (
       <div style={Object.assign({
         padding: '12px 14px', borderRadius: 10, background: '#fafafa',
@@ -196,6 +198,36 @@ export function WalletConnectGate(props) {
     var addr = ctx.address || '';
     var short = addr.length > 10 ? (addr.slice(0, 6) + '…' + addr.slice(-4)) : addr;
     var wrongChain = ctx.chainId && ctx.chainId !== BSC_CHAIN_ID;
+
+    if (compact) {
+      // Compact connected state — small pill with status dot + short addr.
+      // Click opens Reown account modal where user can disconnect/switch.
+      return (
+        <button onClick={wrongChain ? handleSwitchToBSC : handleClick}
+          style={Object.assign({
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '6px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+            background: wrongChain ? '#fef3c7' : '#ecfdf5',
+            border: '1px solid ' + (wrongChain ? '#fde68a' : '#a7f3d0'),
+            color: wrongChain ? '#92400e' : '#065f46',
+            cursor: 'pointer', fontFamily: 'inherit',
+            transition: 'opacity .15s',
+          }, props.style || {})}
+          title={wrongChain ? 'Wrong chain — click to switch to BSC' : 'Click to manage'}
+          onMouseOver={function(e) { e.currentTarget.style.opacity = '0.85'; }}
+          onMouseOut={function(e) { e.currentTarget.style.opacity = '1'; }}>
+          <span style={{
+            display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
+            background: wrongChain ? '#f59e0b' : '#10b981'
+          }} />
+          {wrongChain ? (
+            <span>Switch to BSC</span>
+          ) : (
+            <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{short}</span>
+          )}
+        </button>
+      );
+    }
 
     return (
       <div style={Object.assign({
@@ -239,7 +271,36 @@ export function WalletConnectGate(props) {
     );
   }
 
-  // Disconnected state — the connect button
+  // Disconnected state — compact "Connect Wallet" pill for header
+  if (compact) {
+    return (
+      <button onClick={handleClick}
+        style={Object.assign({
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+          fontFamily: 'inherit',
+          border: '1px solid rgba(255,255,255,0.25)',
+          background: 'rgba(16, 185, 129, 0.18)',
+          color: '#fff',
+          cursor: 'pointer',
+          transition: 'background .15s, border-color .15s',
+          whiteSpace: 'nowrap',
+        }, props.style || {})}
+        onMouseOver={function(e) {
+          e.currentTarget.style.background = 'rgba(16, 185, 129, 0.32)';
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
+        }}
+        onMouseOut={function(e) {
+          e.currentTarget.style.background = 'rgba(16, 185, 129, 0.18)';
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)';
+        }}>
+        <span aria-hidden="true" style={{ fontSize: 13 }}>⛓</span>
+        <span>{props.label || 'Connect Wallet'}</span>
+      </button>
+    );
+  }
+
+  // Disconnected state — full-width connect button (page-level)
   var label = props.label || 'Connect wallet to pay direct (BSC)';
   return (
     <button onClick={handleClick}

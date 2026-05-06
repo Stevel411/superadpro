@@ -218,7 +218,21 @@ export default function Upgrade() {
   }
 
   return (
-    <AppLayout title={t("upgrade.title")} subtitle={t("upgrade.subtitle")}>
+    <Suspense fallback={
+      <AppLayout title={t("upgrade.title")} subtitle={t("upgrade.subtitle")}>
+        <div />
+      </AppLayout>
+    }>
+    <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
+    <AppLayout
+      title={t("upgrade.title")}
+      subtitle={t("upgrade.subtitle")}
+      topbarActions={
+        <Suspense fallback={null}>
+          <WalletConnectGate variant="compact" />
+        </Suspense>
+      }
+    >
       <style>{css}</style>
       <div style={{ maxWidth:900, margin:'0 auto' }}>
 
@@ -228,37 +242,9 @@ export default function Upgrade() {
           </div>
         )}
 
-        {/* Cards — wrapped in single WalletConnectProvider so one gate
-            button at the top serves both tier cards. */}
-        <Suspense fallback={
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:28, alignItems:'stretch', marginBottom:32 }}>
-            {[0,1].map(function(i){return <div key={i} style={{ borderRadius:20, background:'#f8fafc', minHeight:600 }}/>;})}
-          </div>
-        }>
-        <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
-        <div style={{ display:'flex', justifyContent:'center', marginBottom: 24 }}>
-          <div style={{ maxWidth: 480, width: '100%' }}>
-            <Suspense fallback={<div style={{ height: 52 }} />}>
-              <WalletConnectGate
-                label="Connect wallet to pay direct (USDT on BSC)"
-                style={{
-                  width: '100%',
-                  padding: '14px 20px',
-                  borderRadius: 12,
-                  fontSize: 15,
-                  fontWeight: 800,
-                  fontFamily: 'inherit',
-                  border: 'none',
-                  background: 'linear-gradient(135deg, #059669, #10b981, #34d399)',
-                  color: '#fff',
-                  boxShadow: '0 4px 16px rgba(16, 185, 129, .25), 0 2px 4px rgba(16, 185, 129, .15)',
-                  cursor: 'pointer',
-                  letterSpacing: 0.2,
-                }}
-              />
-            </Suspense>
-          </div>
-        </div>
+        {/* Tier cards — connect button now lives in the top header
+            via topbarActions. PayLinks read connection state from the
+            page-level WalletConnectProvider context. */}
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:28, alignItems:'stretch', marginBottom:32 }}>
 
           {/* BASIC */}
@@ -354,8 +340,6 @@ export default function Upgrade() {
           </div>
 
         </div>
-        </WalletConnectProvider>
-        </Suspense>
 
         {/* Sponsor section */}
         <div style={{ background:'var(--sap-bg-elevated)', borderRadius:20, border:'1px solid #e2e8f0', padding:'28px 32px', textAlign:'center', marginBottom:20, boxShadow:'0 2px 8px rgba(0,0,0,.03)' }}>
@@ -385,5 +369,7 @@ export default function Upgrade() {
       </div>
       {consentModal}
     </AppLayout>
+    </WalletConnectProvider>
+    </Suspense>
   );
 }
