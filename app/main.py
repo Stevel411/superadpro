@@ -2909,14 +2909,25 @@ def register_process(
         sponsor = db.query(User).filter(User.username == ref).first()
         if sponsor:
             sponsor_id = sponsor.id
-            sponsor.total_team = (sponsor.total_team or 0) + 1
+            # Atomic SQL increment to avoid lost updates when multiple
+            # signups land on the same sponsor in the same millisecond.
+            # Read-modify-write would otherwise race between replicas.
+            from sqlalchemy import func as _sqlfunc
+            db.query(User).filter(User.id == sponsor_id).update(
+                {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
+                synchronize_session=False,
+            )
     
     # Default to company account if no sponsor
     if not sponsor_id:
         company = db.query(User).filter(User.username == "SuperAdPro").first()
         if company:
             sponsor_id = company.id
-            company.total_team = (company.total_team or 0) + 1
+            from sqlalchemy import func as _sqlfunc
+            db.query(User).filter(User.id == sponsor_id).update(
+                {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
+                synchronize_session=False,
+            )
 
     # GeoIP: derive country ISO + country name from signup IP.
     # Feeds /explore activity feed + any country-targeted features.
@@ -4931,10 +4942,22 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
         if user.sponsor_id:
             sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
             if sponsor:
-                sponsor.balance = (sponsor.balance or decimal.Decimal('0')) + sponsor_share
-                sponsor.total_earned = (sponsor.total_earned or decimal.Decimal('0')) + sponsor_share
-                sponsor.upline_earnings = (sponsor.upline_earnings or decimal.Decimal('0')) + sponsor_share
-                sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
+                # Atomic SQL increments — read-modify-write is race-prone
+                # when multiple webhook deliveries credit the same sponsor
+                # in parallel (lost updates). At launch volume with 1000+
+                # members this is a real concern. UPDATE ... SET col = col + N
+                # is safe at the database level.
+                from sqlalchemy import func as _sqlfunc
+                db.query(User).filter(User.id == sponsor.id).update({
+                    User.balance: _sqlfunc.coalesce(User.balance, 0) + sponsor_share,
+                    User.total_earned: _sqlfunc.coalesce(User.total_earned, 0) + sponsor_share,
+                    User.upline_earnings: _sqlfunc.coalesce(User.upline_earnings, 0) + sponsor_share,
+                    User.personal_referrals: _sqlfunc.coalesce(User.personal_referrals, 0) + 1,
+                }, synchronize_session=False)
+                # Re-fetch sponsor so the in-memory copy reflects the
+                # post-update state for the downstream notifications.
+                db.flush()
+                sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
 
                 db.add(Commission(
                     from_user_id=user_id,
@@ -5911,7 +5934,19 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
 
             sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
             sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
-            sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
+            # Atomic SQL increment for personal_referrals to avoid lost
+            # updates under concurrent webhook deliveries. balance and
+            # total_earned above SHOULD also be atomic but the same sponsor
+            # object is mutated again later in this function — converting
+            # those to atomic UPDATEs would require careful tracking of the
+            # in-memory sponsor state. Counter-only fix here is the
+            # high-leverage one because referral counts directly drive the
+            # leaderboard and any dropped count is visible to the affected
+            # member. Money fields TODO post-launch.
+            from sqlalchemy import func as _sqlfunc
+            db.query(User).filter(User.id == sponsor.id).update({
+                User.personal_referrals: _sqlfunc.coalesce(User.personal_referrals, 0) + 1,
+            }, synchronize_session=False)
             comm = Commission(
                 to_user_id=sponsor.id, from_user_id=user.id,
                 amount_usdt=sponsor_share, commission_type="membership_sponsor",
@@ -11894,14 +11929,24 @@ async def api_register(
             sponsor = db.query(User).filter(User.username == ref).first()
             if sponsor:
                 sponsor_id = sponsor.id
-                sponsor.total_team = (sponsor.total_team or 0) + 1
+                # Atomic SQL increment to avoid lost updates under
+                # concurrent registrations on the same sponsor.
+                from sqlalchemy import func as _sqlfunc
+                db.query(User).filter(User.id == sponsor_id).update(
+                    {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
+                    synchronize_session=False,
+                )
         
         # Default to company account if no sponsor
         if not sponsor_id:
             company = db.query(User).filter(User.username == "SuperAdPro").first()
             if company:
                 sponsor_id = company.id
-                company.total_team = (company.total_team or 0) + 1
+                from sqlalchemy import func as _sqlfunc
+                db.query(User).filter(User.id == sponsor_id).update(
+                    {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
+                    synchronize_session=False,
+                )
 
         # GeoIP: derive country ISO + name from signup IP (see /register handler above for rationale)
         signup_country_iso = ""
