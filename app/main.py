@@ -11918,17 +11918,36 @@ def admin_process_renewals(
 
 @app.get("/api/registration-status")
 def api_registration_status(
+    request: Request,
     current_user: User = Depends(get_current_user),
 ):
     """Tells the frontend whether new public registration is open.
 
-    Admins always see open=True (so they can create test accounts via the
-    register form). Everyone else gets the current public state. To re-open
-    registration globally, change `closed` to False below.
+    Admins always see open=True. During pre-launch, public registration
+    is also open to people who arrived via a referral link (have ref
+    cookie or ?ref query param) or who hold the PRE_LAUNCH_BYPASS_TOKEN.
+
+    To re-open registration globally for launch, flip `closed` to False.
     """
     closed = True  # Pre-launch — flip to False at launch time
+
+    # Admin always bypasses
     if current_user and getattr(current_user, "is_admin", False):
         return {"open": True, "admin_bypass": True}
+
+    # Open during pre-launch if: arrived with a referral, OR holds the
+    # bypass token (cookie set by the prelaunch middleware on
+    # ?bypass=<token>). Both are signals of a legitimate test signup.
+    if closed:
+        ref_qp = request.query_params.get("ref", "")
+        ref_cookie = request.cookies.get("ref", "")
+        bypass_token = os.getenv("PRE_LAUNCH_BYPASS_TOKEN", "")
+        bypass_cookie = request.cookies.get("prelaunch_bypass", "")
+        if ref_qp or ref_cookie:
+            return {"open": True, "referral_bypass": True}
+        if bypass_token and bypass_cookie == bypass_token:
+            return {"open": True, "token_bypass": True}
+
     return {"open": not closed, "admin_bypass": False}
 @app.post("/api/register")
 @limiter.limit("5/minute")
@@ -11941,15 +11960,42 @@ async def api_register(
     from fastapi.responses import JSONResponse
 
     # ── Pre-launch registration gate ──
-    # Public registration is closed until launch. Existing users (the 10
-    # testers + admin) can still log in normally via /login. Admins can
-    # bypass this gate to create new test accounts when needed.
-    # To re-open: remove this block (or wrap it in an env-var check).
-    if not (current_user and getattr(current_user, "is_admin", False)):
-        return JSONResponse({
-            "error": "Registration is currently closed. We're launching soon — check back later or follow our updates.",
-            "registration_closed": True,
-        }, status_code=403)
+    # Public registration is closed until launch. Bypasses:
+    #   1. Admin (existing behaviour)
+    #   2. Sponsored signup — arrived with ?ref= or 'ref' cookie
+    #   3. Explicit bypass — holds prelaunch_bypass cookie matching env token
+    # All three signal a legitimate signup. To re-open globally at launch,
+    # remove this whole block.
+    is_admin = current_user and getattr(current_user, "is_admin", False)
+    if not is_admin:
+        # Cookie/query checks for non-admin paths
+        ref_qp = request.query_params.get("ref", "")
+        ref_cookie = request.cookies.get("ref", "")
+        bypass_token = os.getenv("PRE_LAUNCH_BYPASS_TOKEN", "")
+        bypass_cookie = request.cookies.get("prelaunch_bypass", "")
+
+        # Also check the body — the frontend submits ref in JSON
+        ref_body = ""
+        try:
+            # Peek at the body without consuming it for the main handler
+            body_bytes = await request.body()
+            import json as _json
+            ref_body = (_json.loads(body_bytes).get("ref") or "").strip()
+            # Re-use body below by stashing it on the request scope
+            async def _receive():
+                return {"type": "http.request", "body": body_bytes, "more_body": False}
+            request._receive = _receive
+        except Exception:
+            pass
+
+        has_referral = bool(ref_qp or ref_cookie or ref_body)
+        has_token = bool(bypass_token and bypass_cookie == bypass_token)
+
+        if not (has_referral or has_token):
+            return JSONResponse({
+                "error": "Registration is currently closed. We're launching soon — check back later or follow our updates.",
+                "registration_closed": True,
+            }, status_code=403)
 
     try:
         body = await request.json()
