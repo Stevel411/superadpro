@@ -164,10 +164,10 @@ function _WalletInner(props) {
 
 export function WalletConnectGate(props) {
   var ctx = useContext(WalletCtx);
-  var appKit = null;
-  // useAppKit must only be called inside the provider tree. Wrap in
-  // try/catch so a missing provider doesn't crash the page.
-  try { appKit = useAppKit(); } catch (e) { appKit = null; }
+  // useAppKit() returns a stable handle — calling it is safe even outside
+  // a Reown-aware tree (it just returns no-ops). Must be called
+  // unconditionally to satisfy Rules of Hooks.
+  var appKit = useAppKit();
   var switchChain = useSwitchChain();
 
   if (ctx.error) {
@@ -183,7 +183,7 @@ export function WalletConnectGate(props) {
   }
 
   function handleClick() {
-    if (!appKit) return;
+    if (!appKit || !appKit.open) return;
     try { appKit.open(); } catch (e) { /* user closed before open */ }
   }
 
@@ -303,9 +303,8 @@ export function WalletPayLink(props) {
     };
   }, []);
 
-  // Don't render anything if wallet isn't connected — Gate handles that.
-  if (!ctx.isConnected) return null;
-
+  // pollOrder must be declared BEFORE any early return so the hook
+  // count is stable across renders (Rules of Hooks → React error #310).
   var pollOrder = useCallback(function(orderId, deadlineMs) {
     function tick() {
       if (Date.now() > deadlineMs) {
@@ -333,6 +332,10 @@ export function WalletPayLink(props) {
     pollTimerRef.current = setTimeout(tick, 4000);
   // eslint-disable-next-line
   }, [props.onSuccess]);
+
+  // Don't render anything if wallet isn't connected — Gate handles that.
+  // This early return MUST come AFTER all hook calls above.
+  if (!ctx.isConnected) return null;
 
   function sendTransfer(intent) {
     setPhase('signing');
