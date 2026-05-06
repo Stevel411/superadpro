@@ -24,10 +24,35 @@ from datetime import datetime, timedelta
 logger = logging.getLogger("superadpro.withdrawals")
 
 # -- Config --
+# ── Polygon (legacy, dormant — retained for v2 reactivation) ──
 TREASURY_ADDRESS = "0x71746f1634B0FBB3981B9B84EbE1A1a6f2430467"
 USDT_CONTRACT    = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
 POLYGON_CHAIN_ID = 137
 USDT_DECIMALS    = 6
+
+# ── BSC (BEP-20) — primary EVM withdrawal network from 6 May 2026 ──
+# Treasury private key in env: TREASURY_PRIVATE_KEY_BSC
+# RPC:                          BSC_RPC_URL (default: https://bsc-dataseed.binance.org/)
+# USDT contract:                0x55d398326f99059fF775485246999027B3197955
+# Chain ID:                     56
+# Gas token:                    BNB
+TREASURY_ADDRESS_BSC = os.environ.get("TREASURY_ADDRESS_BSC", "0xb2Ccdf9050A8d05A346F6879eC4fa633f9b2554D")
+USDT_CONTRACT_BSC    = "0x55d398326f99059fF775485246999027B3197955"
+BSC_CHAIN_ID         = 56
+BSC_RPC_URL          = os.environ.get("BSC_RPC_URL", "https://bsc-dataseed.binance.org/")
+
+# ── Tron (TRC-20) — primary alternative withdrawal network from 6 May 2026 ──
+# Treasury private key in env: TREASURY_PRIVATE_KEY_TRON
+# RPC:                          TRON_RPC_URL (default: https://api.trongrid.io)
+# USDT contract:                TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+# Gas token:                    TRX (energy/bandwidth model differs from EVM)
+TREASURY_ADDRESS_TRON = os.environ.get("TREASURY_ADDRESS_TRON", "TLET6kN1Ly59VEcr21zs8kptk7sC7Nbjdz")
+USDT_CONTRACT_TRON    = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+TRON_RPC_URL          = os.environ.get("TRON_RPC_URL", "https://api.trongrid.io")
+# Optional API key — without this, public TronGrid rate-limits at ~5 req/s
+# and we will hit 429s under launch load. Configure TRON_API_KEY in Railway
+# for production reliability. The free tier on trongrid.io is sufficient.
+TRON_API_KEY          = os.environ.get("TRON_API_KEY", "")
 
 WITHDRAWAL_FEE    = Decimal("1.00")
 MIN_WITHDRAWAL    = Decimal("10.00")
@@ -319,6 +344,156 @@ def send_usdt(to_address, amount_usdt):
 
     except Exception as e:
         logger.error(f"USDT withdrawal failed: {e}")
+        return {"success": False, "tx_hash": "", "error": str(e)}
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  MULTI-NETWORK SEND FUNCTIONS — added 6 May 2026
+#  Replaces single-network Polygon path with TRC-20 + BEP-20 dispatch.
+#  Each function returns the same shape as legacy send_usdt:
+#     {"success": bool, "tx_hash": str, "error": str}
+#  so the dispatcher and the cron retry loop can call them interchangeably.
+# ═══════════════════════════════════════════════════════════════════════
+
+def _get_tron_client():
+    """Build a tronpy Tron client.
+
+    Uses TRON_API_KEY if set (lifts the public rate limit). Without an
+    API key, public TronGrid rate-limits at ~5 req/s and we will hit
+    429s under launch load. For prod, configure TRON_API_KEY.
+    """
+    from tronpy import Tron
+    from tronpy.providers import HTTPProvider
+
+    if TRON_API_KEY:
+        provider = HTTPProvider(TRON_RPC_URL, api_key=TRON_API_KEY)
+    else:
+        provider = HTTPProvider(TRON_RPC_URL)
+    return Tron(provider)
+
+
+def _get_tron_private_key():
+    """Get Tron treasury private key from env. Hex string, 64 chars, no 0x prefix."""
+    from tronpy.keys import PrivateKey
+
+    key = os.environ.get("TREASURY_PRIVATE_KEY_TRON", "")
+    if not key:
+        raise ValueError("TREASURY_PRIVATE_KEY_TRON not set")
+    # tronpy expects raw bytes; accept either with or without 0x prefix
+    if key.startswith("0x") or key.startswith("0X"):
+        key = key[2:]
+    if len(key) != 64:
+        raise ValueError(f"TREASURY_PRIVATE_KEY_TRON wrong length ({len(key)} chars, expected 64)")
+    return PrivateKey(bytes.fromhex(key))
+
+
+def get_treasury_tron_balances():
+    """Return (usdt_balance, trx_balance) for the Tron treasury.
+
+    USDT in human units (e.g. 200.50). TRX in human units (e.g. 30.4).
+    Used by admin diagnostics and pre-flight check before sending.
+    """
+    try:
+        client = _get_tron_client()
+        contract = client.get_contract(USDT_CONTRACT_TRON)
+        balance_raw = contract.functions.balanceOf(TREASURY_ADDRESS_TRON)
+        usdt = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
+        trx = Decimal(str(client.get_account_balance(TREASURY_ADDRESS_TRON)))
+        return float(usdt), float(trx)
+    except Exception as e:
+        logger.error(f"Failed to read Tron treasury balances: {e}")
+        return 0.0, 0.0
+
+
+def send_usdt_tron(to_address, amount_usdt):
+    """Send USDT-TRC-20 from treasury to a recipient address.
+
+    Returns: {"success": bool, "tx_hash": str, "error": str}
+            (same shape as legacy send_usdt — dispatcher-compatible)
+
+    Tron differs from EVM in two operationally-important ways:
+
+    1. **Gas model is energy + bandwidth, not gas-price**. A USDT transfer
+       costs roughly 13.4 TRX (~$4.50) without staking. There's no
+       "estimated gas" knob to tweak; the cost is fixed by the contract
+       call's energy consumption. We just need enough TRX in the treasury
+       to pay it.
+
+    2. **Address format is base58check (T-prefix)**. tronpy handles the
+       encoding internally — we pass strings, it converts. No checksum
+       conversion needed like EVM's to_checksum_address.
+
+    Behaviour mirrors the EVM send: pre-flight checks (balance,
+    gas-token), sign locally, broadcast, return tx hash. On error returns
+    the structured failure dict so the cron retry loop can decide whether
+    to retry or mark permanent.
+    """
+    amount_usdt = Decimal(str(amount_usdt))
+
+    try:
+        client = _get_tron_client()
+        priv_key = _get_tron_private_key()
+
+        # Sanity check the destination address — catches obvious paste-error
+        # bugs before we burn a transaction. The frontend regex should have
+        # already validated, but defense-in-depth on a money-flow path.
+        if not client.is_address(to_address):
+            return {"success": False, "tx_hash": "", "error": f"Invalid Tron address: {to_address}"}
+
+        # Convert USDT to raw units (6 decimals)
+        amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS))
+        if amount_raw <= 0:
+            return {"success": False, "tx_hash": "", "error": "Invalid amount"}
+
+        # Pre-flight: USDT balance check
+        contract = client.get_contract(USDT_CONTRACT_TRON)
+        balance_raw = contract.functions.balanceOf(TREASURY_ADDRESS_TRON)
+        if balance_raw < amount_raw:
+            wallet_balance = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
+            logger.error(f"Insufficient Tron treasury USDT: {wallet_balance} < {amount_usdt}")
+            return {"success": False, "tx_hash": "", "error": f"Insufficient treasury funds (${wallet_balance:.2f} available)"}
+
+        # Pre-flight: TRX for energy/bandwidth.
+        # ~13.4 TRX is the typical cost for a USDT transfer without staking.
+        # Set a slightly lower threshold (10 TRX) as the "would-be-stuck" line —
+        # below this, the transaction will fail mid-flight with cryptic errors.
+        # Above this, we let it try and any actual fee shortfall surfaces
+        # cleanly via the broadcast response.
+        trx_balance = Decimal(str(client.get_account_balance(TREASURY_ADDRESS_TRON)))
+        if trx_balance < Decimal("10"):
+            return {"success": False, "tx_hash": "", "error": f"Treasury needs TRX for transaction fees ({trx_balance:.2f} TRX available, need 10+)"}
+
+        # Build, sign, broadcast
+        txn = (
+            contract.functions.transfer(to_address, amount_raw)
+            .with_owner(TREASURY_ADDRESS_TRON)
+            .fee_limit(50_000_000)  # 50 TRX cap as a hard limit on energy cost
+            .build()
+            .sign(priv_key)
+        )
+        result = txn.broadcast()
+
+        # tronpy's broadcast() returns a dict with "result" bool and "txid" string
+        # if the network accepted the transaction. We log and return the txid.
+        # Note: "accepted by network" != "confirmed on-chain". The cron loop
+        # treats this as success and a downstream confirm-checker (TODO) can
+        # validate inclusion in a block. For launch, broadcast acceptance is
+        # the practical equivalent of EVM "transaction submitted".
+        if not result or not result.get("result"):
+            err_msg = result.get("message", "broadcast rejected") if result else "broadcast returned None"
+            logger.error(f"Tron broadcast failed: {err_msg}")
+            return {"success": False, "tx_hash": "", "error": f"Broadcast failed: {err_msg}"}
+
+        tx_id = result.get("txid", "")
+        logger.info(f"USDT-TRC-20 sent: {amount_usdt} USDT to {to_address} -- tx: {tx_id}")
+        return {"success": True, "tx_hash": tx_id, "error": ""}
+
+    except Exception as e:
+        # Common Tron-specific failures:
+        # - "validate signature error" → wrong private key
+        # - "Account resource insufficient" → not enough TRX
+        # - "Cannot find account" → recipient address never received TRX (rare)
+        logger.error(f"USDT-TRC-20 send failed: {type(e).__name__}: {e}")
         return {"success": False, "tx_hash": "", "error": str(e)}
 
 
