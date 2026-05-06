@@ -222,11 +222,36 @@ export default function IncomePage() {
               { label: t('income.stat.earnedAllTime', { defaultValue: 'Earned all time' }), value: formatMoney(data?.membership_earned || 0) },
             ] : null}
             statusLine={!membershipActive ? t('income.stream.membershipDormant', { defaultValue: 'Share your link to activate the easiest stream — paid every month they stay.' }) : null}
-            actions={[
-              { label: t('income.action.myReferrals', { defaultValue: 'My referrals' }), to: '/command-centre' },
-              { label: t('income.action.shareLink', { defaultValue: 'Get share link' }), to: '/social-share' },
-              { label: t('income.action.compPlan', { defaultValue: 'Comp plan' }), to: '/compensation-plan' },
-            ]}
+            actions={(function() {
+              // Build action list dynamically based on member tier:
+              // - Free member: lead with "Activate membership" CTA so the
+              //   primary action on the page is conversion.
+              // - Basic member: lead with "Upgrade to Pro" so they see the
+              //   path to higher commissions on Pro referrals.
+              // - Pro member: no extra CTA (already on the highest tier).
+              // Standard navigation actions follow in all cases.
+              var standardActions = [
+                { label: t('income.action.myReferrals', { defaultValue: 'My referrals' }), to: '/command-centre' },
+                { label: t('income.action.shareLink', { defaultValue: 'Get share link' }), to: '/social-share' },
+                { label: t('income.action.compPlan', { defaultValue: 'Comp plan' }), to: '/compensation-plan' },
+              ];
+              if (!user) return standardActions;
+              if (user.is_admin) return standardActions;
+              var tier = (user.membership_tier || 'basic').toLowerCase();
+              if (!user.is_active) {
+                return [
+                  { label: t('income.action.activateMembership', { defaultValue: 'Activate membership' }), to: '/upgrade', primary: true },
+                  ...standardActions,
+                ];
+              }
+              if (tier !== 'pro') {
+                return [
+                  { label: t('income.action.upgradeToPro', { defaultValue: 'Upgrade to Pro' }), to: '/upgrade', primary: true },
+                  ...standardActions,
+                ];
+              }
+              return standardActions;
+            })()}
           />
 
           <StreamCard
@@ -336,11 +361,11 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
   // Hover step is one tint stronger (200 weight) for tactile feedback.
   // Approved 26 Apr 2026 via /mnt/user-data/outputs/pill-links-mockup.html.
   const pillStyle = {
-    green:  { bg: '#dcfce7', bgHover: '#bbf7d0', color: '#15803d' },
-    cyan:   { bg: '#cffafe', bgHover: '#a5f3fc', color: '#0e7490' },
-    violet: { bg: '#ede9fe', bgHover: '#ddd6fe', color: '#6d28d9' },
-    amber:  { bg: '#fef3c7', bgHover: '#fde68a', color: '#b45309' },
-  }[tone] || { bg: '#f1f5f9', bgHover: '#e2e8f0', color: '#475569' };
+    green:  { bg: '#dcfce7', bgHover: '#bbf7d0', color: '#15803d', solidBg: '#16a34a', solidBgHover: '#15803d' },
+    cyan:   { bg: '#cffafe', bgHover: '#a5f3fc', color: '#0e7490', solidBg: '#0891b2', solidBgHover: '#0e7490' },
+    violet: { bg: '#ede9fe', bgHover: '#ddd6fe', color: '#6d28d9', solidBg: '#7c3aed', solidBgHover: '#6d28d9' },
+    amber:  { bg: '#fef3c7', bgHover: '#fde68a', color: '#b45309', solidBg: '#d97706', solidBgHover: '#b45309' },
+  }[tone] || { bg: '#f1f5f9', bgHover: '#e2e8f0', color: '#475569', solidBg: '#475569', solidBgHover: '#334155' };
 
   return (
     <div style={{
@@ -417,7 +442,15 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
         borderTop: '1px solid var(--sap-border-light, #f1f5f9)',
         marginTop: 'auto',
       }}>
-        {actions.map((a, i) => (
+        {actions.map((a, i) => {
+          // Primary action gets the inverted, fully-filled treatment so it
+          // reads as a CTA button rather than a navigation pill. Used for
+          // money-flow actions like "Activate membership" / "Upgrade to Pro".
+          const isPrimary = !!a.primary;
+          const bg = isPrimary ? pillStyle.solidBg : pillStyle.bg;
+          const color = isPrimary ? '#fff' : pillStyle.color;
+          const bgHover = isPrimary ? pillStyle.solidBgHover : pillStyle.bgHover;
+          return (
           <Link
             key={i}
             to={a.to}
@@ -425,14 +458,15 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
               display: 'inline-flex', alignItems: 'center', gap: 4,
               padding: '6px 12px',
               borderRadius: 99,
-              fontSize: 13, fontWeight: 600,
-              background: pillStyle.bg,
-              color: pillStyle.color,
+              fontSize: 13, fontWeight: isPrimary ? 700 : 600,
+              background: bg,
+              color: color,
               textDecoration: 'none',
               transition: 'all 0.12s',
+              boxShadow: isPrimary ? '0 1px 3px rgba(15,23,42,0.12)' : 'none',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = pillStyle.bgHover;
+              e.currentTarget.style.background = bgHover;
               const arrow = e.currentTarget.querySelector('.pill-arrow');
               if (arrow) {
                 arrow.style.transform = 'translateX(2px)';
@@ -440,7 +474,7 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
               }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = pillStyle.bg;
+              e.currentTarget.style.background = bg;
               const arrow = e.currentTarget.querySelector('.pill-arrow');
               if (arrow) {
                 arrow.style.transform = 'translateX(0)';
@@ -455,7 +489,8 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
               display: 'inline-block',
             }}>→</span>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -261,13 +261,16 @@ function RequireTier({ tier, children }) {
   const isActive = !!user.is_active;
   const userTier = (user.membership_tier || 'basic').toLowerCase();
 
+  // /upgrade is the unified upgrade page — tier-aware (shows Basic
+  // signup for free users, Pro signup for Basic users). The
+  // /pay-membership backend route redirects to /upgrade anyway.
   if (tier === 'basic') {
-    if (!isActive) return <Navigate to="/pay-membership" replace />;
+    if (!isActive) return <Navigate to="/upgrade" replace />;
     return children;
   }
   if (tier === 'pro') {
-    if (!isActive) return <Navigate to="/pay-membership" replace />;
-    if (userTier !== 'pro') return <Navigate to="/upgrade-to-pro" replace />;
+    if (!isActive) return <Navigate to="/upgrade" replace />;
+    if (userTier !== 'pro') return <Navigate to="/upgrade" replace />;
     return children;
   }
   // Unknown tier — fail-open to avoid breaking unintended pages

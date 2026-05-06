@@ -170,7 +170,7 @@ class TierGateMiddleware(BaseHTTPMiddleware):
         # Basic tier gate: is_active must be True
         if required == "basic":
             if not getattr(user, "is_active", False):
-                return _build_403("basic", "/pay-membership")
+                return _build_403("basic", "/upgrade")
             return await call_next(request)
 
         # Pro tier gate: is_active=True AND membership_tier='pro'
@@ -178,9 +178,9 @@ class TierGateMiddleware(BaseHTTPMiddleware):
             tier = (getattr(user, "membership_tier", "basic") or "basic").lower()
             if not getattr(user, "is_active", False):
                 # They need to become Basic first, then upgrade to Pro
-                return _build_403("basic", "/pay-membership")
+                return _build_403("basic", "/upgrade")
             if tier != "pro":
-                return _build_403("pro", "/upgrade-to-pro")
+                return _build_403("pro", "/upgrade")
             return await call_next(request)
 
         # Unknown required level — fail safe
