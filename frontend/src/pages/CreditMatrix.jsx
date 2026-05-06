@@ -189,14 +189,34 @@ export function CreditMatrixContent() {
           <Suspense fallback={null}>
           <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
           <div style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 12 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{t('creditMatrix.buyPacks')}</div>
-              <div style={{ flex: '0 0 320px', maxWidth: 320 }}>
-                <Suspense fallback={<div style={{ height: 44 }} />}>
-                  <WalletConnectGate />
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.buyPacks')}</div>
+
+            {/* Self-custody wallet — prominent centered gate above the cards */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+              <div style={{ maxWidth: 480, width: '100%' }}>
+                <Suspense fallback={<div style={{ height: 52 }} />}>
+                  <WalletConnectGate
+                    label="Connect wallet to pay direct (USDT on BSC)"
+                    style={{
+                      width: '100%',
+                      padding: '14px 20px',
+                      borderRadius: 12,
+                      fontSize: 15,
+                      fontWeight: 800,
+                      fontFamily: 'inherit',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #059669, #10b981, #34d399)',
+                      color: '#fff',
+                      boxShadow: '0 4px 16px rgba(16, 185, 129, .25), 0 2px 4px rgba(16, 185, 129, .15)',
+                      cursor: 'pointer',
+                      letterSpacing: 0.2,
+                      transition: 'transform .15s, box-shadow .15s',
+                    }}
+                  />
                 </Suspense>
               </div>
             </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {packs.map(function(pack) {
                 var icon = PACK_ICONS[pack.key] || PACK_ICONS.starter;
@@ -220,7 +240,7 @@ export function CreditMatrixContent() {
                       style={{ width: '100%', padding: '10px 0', borderRadius: 10, border: '1px solid rgba(255,255,255,0.25)', fontFamily: 'inherit',
                         background: isbuying ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 13, fontWeight: 700,
                         cursor: isbuying ? 'default' : 'pointer', backdropFilter: 'blur(4px)', transition: 'background 0.2s' }}>
-                      {isbuying ? t('creditMatrix.processing') : t('creditMatrix.payWithCrypto')}
+                      {isbuying ? t('creditMatrix.processing') : 'NOWPayments'}
                     </button>
                     {/* Self-custody BSC pay link — only renders when wallet
                         is connected (handled by PayLink internally via context). */}

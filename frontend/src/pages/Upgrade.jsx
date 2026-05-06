@@ -150,10 +150,13 @@ export default function Upgrade() {
               <span>Creating your secure invoice…</span>
             </>
           ) : (
-            <>
+            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
               <Globe size={20} />
-              <span>{`Pay yearly · ${annualPrice}`}</span>
-            </>
+              <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.2 }}>
+                <span>{`Pay yearly · ${annualPrice}`}</span>
+                <span style={{ fontSize:10, fontWeight:600, opacity:0.75, letterSpacing:0.5, textTransform:'uppercase', marginTop:2 }}>via NOWPayments</span>
+              </div>
+            </div>
           )}
         </button>
 
@@ -168,10 +171,13 @@ export default function Upgrade() {
               <span>Creating your secure invoice…</span>
             </>
           ) : (
-            <>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
               <Globe size={17} />
-              <span>{`Pay monthly · ${monthlyPrice}`}</span>
-            </>
+              <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.2 }}>
+                <span>{`Pay monthly · ${monthlyPrice}`}</span>
+                <span style={{ fontSize:10, fontWeight:600, opacity:0.7, letterSpacing:0.5, textTransform:'uppercase', marginTop:2 }}>via NOWPayments</span>
+              </div>
+            </div>
           )}
         </button>
         <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
@@ -230,10 +236,28 @@ export default function Upgrade() {
           </div>
         }>
         <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
-        <div style={{ marginBottom: 20 }}>
-          <Suspense fallback={null}>
-            <WalletConnectGate label="Connect wallet to pay direct (BSC USDT)" />
-          </Suspense>
+        <div style={{ display:'flex', justifyContent:'center', marginBottom: 24 }}>
+          <div style={{ maxWidth: 480, width: '100%' }}>
+            <Suspense fallback={<div style={{ height: 52 }} />}>
+              <WalletConnectGate
+                label="Connect wallet to pay direct (USDT on BSC)"
+                style={{
+                  width: '100%',
+                  padding: '14px 20px',
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 800,
+                  fontFamily: 'inherit',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #059669, #10b981, #34d399)',
+                  color: '#fff',
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, .25), 0 2px 4px rgba(16, 185, 129, .15)',
+                  cursor: 'pointer',
+                  letterSpacing: 0.2,
+                }}
+              />
+            </Suspense>
+          </div>
         </div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:28, alignItems:'stretch', marginBottom:32 }}>
 

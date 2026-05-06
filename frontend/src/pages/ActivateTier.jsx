@@ -200,6 +200,55 @@ export default function ActivateTier() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+            {/* Self-custody BSC wallet gate — prominent green, above NOWPayments.
+                Provider wraps both the gate and the PayLink so the connect
+                button drives the per-tier pay link via React Context. */}
+            <Suspense fallback={null}>
+              <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
+                  <div style={{ maxWidth: 480, width: '100%' }}>
+                    <Suspense fallback={<div style={{ height: 52 }} />}>
+                      <WalletConnectGate
+                        label="Connect wallet to pay direct (USDT on BSC)"
+                        style={{
+                          width: '100%',
+                          padding: '14px 20px',
+                          borderRadius: 12,
+                          fontSize: 15,
+                          fontWeight: 800,
+                          fontFamily: 'inherit',
+                          border: 'none',
+                          background: 'linear-gradient(135deg, #059669, #10b981, #34d399)',
+                          color: '#fff',
+                          boxShadow: '0 4px 16px rgba(16, 185, 129, .25), 0 2px 4px rgba(16, 185, 129, .15)',
+                          cursor: 'pointer',
+                          letterSpacing: 0.2,
+                        }}
+                      />
+                    </Suspense>
+                  </div>
+                </div>
+                {/* PayLink — only renders once wallet is connected */}
+                <Suspense fallback={null}>
+                  <WalletPayLink
+                    productType="grid"
+                    productKey={'grid_' + n}
+                    label={'Pay $' + tier.price + ' from wallet'}
+                    onSuccess={function() {
+                      window.location.href = '/payment-success?type=grid&tier=' + n;
+                    }}
+                    style={{ padding: '12px 16px', fontSize: 14, borderRadius: 10 }}
+                  />
+                </Suspense>
+              </WalletConnectProvider>
+            </Suspense>
+
+            {/* "or" divider */}
+            <div style={{ position:'relative', margin:'8px 0', textAlign:'center' }}>
+              <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
+              <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or</span>
+            </div>
+
             {/* NOWPayments primary — accepts 350+ cryptos including USDT-TRC20, easiest for new users */}
             <button onClick={handleNowPayments} disabled={paying} style={{
               display:'flex',alignItems:'center',justifyContent:'center',gap:12,
@@ -220,40 +269,16 @@ export default function ActivateTier() {
                   <span>Creating your secure invoice…</span>
                 </>
               ) : (
-                <>
+                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                   <Globe size={22} />
-                  <span>{`\uD83C\uDF10 Pay $${tier.price.toLocaleString()}`}</span>
-                </>
+                  <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.2 }}>
+                    <span>{`Pay $${tier.price.toLocaleString()}`}</span>
+                    <span style={{ fontSize:11, fontWeight:600, opacity:0.8, letterSpacing:0.5, textTransform:'uppercase', marginTop:2 }}>via NOWPayments</span>
+                  </div>
+                </div>
               )}
             </button>
             <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
-
-            {/* ── Self-custody BSC payment (parallel-run alongside NOWPayments) ──
-                Single Gate at top, PayLink below for this tier. */}
-            <div style={{ position:'relative', margin:'4px 0', textAlign:'center' }}>
-              <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
-              <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or pay direct from your wallet</span>
-            </div>
-            <Suspense fallback={null}>
-              <WalletConnectProvider onBeforeClick={async function() { return await ensureConsent(); }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <Suspense fallback={null}>
-                    <WalletConnectGate />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <WalletPayLink
-                      productType="grid"
-                      productKey={'grid_' + n}
-                      label={'Pay $' + tier.price + ' from wallet'}
-                      onSuccess={function() {
-                        window.location.href = '/payment-success?type=grid&tier=' + n;
-                      }}
-                      style={{ padding: '12px 16px', fontSize: 14, borderRadius: 10 }}
-                    />
-                  </Suspense>
-                </div>
-              </WalletConnectProvider>
-            </Suspense>
 
             <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
               {"\uD83D\uDD12"} Secure checkout · 350+ cryptos accepted (USDT, BTC, ETH, more)
