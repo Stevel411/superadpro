@@ -8633,7 +8633,9 @@ def admin_api_finances(
     from sqlalchemy import func
 
     total_revenue = db.query(func.sum(Payment.amount_usdt)).filter(Payment.status == "confirmed").scalar() or 0
-    total_commissions = db.query(func.sum(Commission.amount_usdt)).filter(Commission.status.in_(["paid", "pending"])).scalar() or 0
+    # Only "paid" commissions count — "pending" hasn't actually been distributed yet,
+    # and including it overstates total_commissions_paid and understates platform_profit.
+    total_commissions = db.query(func.sum(Commission.amount_usdt)).filter(Commission.status == "paid").scalar() or 0
     total_withdrawn = db.query(func.sum(Withdrawal.amount_usdt)).filter(Withdrawal.status == "paid").scalar() or 0
     pending_withdrawals = db.query(func.sum(Withdrawal.amount_usdt)).filter(Withdrawal.status == "pending").scalar() or 0
     total_balances = db.query(func.sum(User.balance)).scalar() or 0
@@ -8643,10 +8645,10 @@ def admin_api_finances(
         Payment.payment_type, func.sum(Payment.amount_usdt), func.count(Payment.id)
     ).filter(Payment.status == "confirmed").group_by(Payment.payment_type).all()
 
-    # Commissions by type
+    # Commissions by type — paid only, same reasoning as above
     comms_by_type = db.query(
         Commission.commission_type, func.sum(Commission.amount_usdt), func.count(Commission.id)
-    ).filter(Commission.status.in_(["paid", "pending"])).group_by(Commission.commission_type).all()
+    ).filter(Commission.status == "paid").group_by(Commission.commission_type).all()
 
     # User counts (include all members including admin — admin IS a member)
     total_users = db.query(func.count(User.id)).scalar() or 0
