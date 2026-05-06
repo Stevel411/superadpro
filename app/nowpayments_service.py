@@ -175,9 +175,13 @@ def create_invoice(
         # network fees consume ~46% of every $20 transaction (deposit fee
         # ~$3.50, service fee ~$0.10, payout fee ~$5.60), making it
         # economically unviable. BSC fees are normal (~0.5% + minimal gas).
-        # When self-custody is built we can re-enable TRC-20 directly. Until
-        # then this is the launch-safe payment surface.
-        "pay_currencies": ["usdtbsc"],
+        # When self-custody is built we can re-enable TRC-20 directly.
+        #
+        # NOTE: The /invoice endpoint expects pay_currency (singular,
+        # string) NOT pay_currencies (plural, array) — the array form is
+        # for the /payment endpoint. Passing the wrong field broke
+        # checkout for one launch test (May 6 2026); fix is the singular.
+        "pay_currency": "usdtbsc",
     }
 
     try:
