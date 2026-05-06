@@ -35,7 +35,13 @@ export default defineConfig({
             if (id.includes('@tiptap') || id.includes('prosemirror')) return 'vendor-tiptap';
             if (id.includes('lodash')) return 'vendor-lodash';
             if (id.includes('framer-motion')) return 'vendor-framer';
-            if (id.includes('qrcode')) return 'vendor-qrcode';
+            // Match ONLY the standalone qrcode package (used by LinkTools,
+            // QRCodeGenerator, QRCodeGen). Avoid matching Reown/WalletConnect
+            // qrcode helpers (e.g. @walletconnect/qrcode-modal) — those need
+            // to land in vendor-walletconnect alongside the rest of Reown
+            // or we get a circular dependency that throws "Cannot access
+            // 'ft' before initialization" at runtime. Bug history: 6 May 2026.
+            if (id.includes('node_modules/qrcode/')) return 'vendor-qrcode';
             // WalletConnect / Reown / wagmi / viem stack — only loaded
             // on checkout pages via lazy import. Keeping it in its own
             // chunk means the rest of the app doesn't pay the ~260KB
