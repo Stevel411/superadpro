@@ -160,6 +160,7 @@ class User(Base):
     pass_up_sponsor_id  = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # permanent pass-up chain
     course_sale_count   = Column(Integer, default=0)              # total personally referred course sales (any tier)
     wallet_address      = Column(String, nullable=True)
+    wallet_network      = Column(String, nullable=True)    # 'tron' (TRC-20) or 'bsc' (BEP-20). NULL for legacy users until they re-enter address.
     sending_wallet      = Column(String, nullable=True)    # wallet they send crypto payments FROM
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
@@ -361,6 +362,12 @@ class Withdrawal(Base):
     user_id         = Column(Integer, ForeignKey("users.id"))
     amount_usdt     = Column(Money)
     wallet_address  = Column(String)
+    # Which network this withdrawal is on. Determines which send function
+    # the dispatcher routes to (send_usdt_tron vs send_usdt_bsc) and which
+    # block explorer the admin/member sees a link to. Stored at request time
+    # so historical withdrawals stay accurate even if the member later
+    # switches their wallet to a different network.
+    network         = Column(String, nullable=True)  # 'tron' or 'bsc'. NULL for legacy Polygon-era rows.
     tx_hash         = Column(String, nullable=True)
     # status: pending / processing / paid / failed / failed_permanent / failed_refunded
     #   pending           — queued, will be picked up by the retry cron
@@ -1674,6 +1681,17 @@ def run_migrations():
         "CREATE INDEX IF NOT EXISTS ix_purchase_consents_user_id ON purchase_consents (user_id)",
         "CREATE INDEX IF NOT EXISTS ix_purchase_consents_created_at ON purchase_consents (created_at)",
         "CREATE INDEX IF NOT EXISTS ix_purchase_consents_consumed_at ON purchase_consents (consumed_at)",
+        # ── 6 May 2026: Multi-network USDT withdrawals (TRC-20 + BEP-20) ──
+        # Replaces single-network Polygon path. wallet_network on User stores
+        # the member's chosen network ('tron' or 'bsc'); network on Withdrawal
+        # stamps each request with the network it was sent on so historical
+        # rows stay accurate even if the member later switches networks.
+        # NULL on legacy rows is intentional — those are pre-migration
+        # Polygon-era data and we don't backfill (they would be incorrect
+        # to label as either tron or bsc retroactively).
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS wallet_network VARCHAR",
+        "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS network VARCHAR",
+        "CREATE INDEX IF NOT EXISTS ix_withdrawals_network ON withdrawals (network)",
     ]
     results = []
     with engine.connect() as conn:
