@@ -6607,6 +6607,367 @@ async def crypto_treasury_balance(request: Request, user: User = Depends(get_cur
         }
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=503)
+
+
+# ════════════════════════════════════════════════════════════════════════
+# WalletConnect / Self-custody BSC payment endpoints (Stage 2, 6 May 2026)
+# ────────────────────────────────────────────────────────────────────────
+# Three public endpoints + one admin endpoint replacing the NOWPayments
+# inbound rail. Member checkout flow:
+#
+#   1. Frontend calls POST /api/onchain/create-intent with the product
+#   2. Backend creates a pending WalletConnectPaymentOrder with a
+#      cent-unique amount (e.g. $19.97), responds with order_id +
+#      treasury_address + unique_amount + expires_at
+#   3. Frontend opens Reown AppKit, member signs USDT-BEP-20 transfer
+#      for unique_amount to treasury from their own wallet
+#   4. Frontend polls GET /api/onchain/order/{id} every ~4s until
+#      status='confirmed' (or 'expired' / 'cancelled')
+#   5. Cron /cron/scan-bsc-payments (30s) reads BSC USDT Transfers,
+#      matches by amount, marks confirmed, runs activation handler
+#
+# Parallel-runs alongside NOWPayments redirect for ~2 weeks before
+# the legacy rail is retired.
+# ════════════════════════════════════════════════════════════════════════
+
+@app.post("/api/onchain/create-intent")
+async def onchain_create_intent(request: Request,
+                                 user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """Create a pending WalletConnectPaymentOrder.
+
+    Body: {product_type, product_key, product_meta?: object}
+    Returns 200 with order details on success, 400 on known errors.
+    """
+    if not user:
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+
+    product_type = (body.get("product_type") or "").strip()
+    product_key = (body.get("product_key") or "").strip()
+    product_meta = body.get("product_meta") or None
+
+    if not product_type or not product_key:
+        return JSONResponse(
+            {"error": "product_type and product_key are required"},
+            status_code=400,
+        )
+
+    from .walletconnect_payments import (
+        create_payment_intent,
+        TREASURY_ADDRESS_BSC,
+        USDT_CONTRACT_BSC,
+        BSC_CHAIN_ID,
+    )
+
+    result = create_payment_intent(
+        db=db,
+        user_id=user.id,
+        product_type=product_type,
+        product_key=product_key,
+        product_meta=product_meta,
+    )
+
+    # Error responses
+    if isinstance(result, dict):
+        err = result.get("error")
+        if err == "unknown_product":
+            return JSONResponse(
+                {"error": "Unknown product", "code": "unknown_product"},
+                status_code=400,
+            )
+        if err == "course_not_ready":
+            return JSONResponse(
+                {"error": "Course payments not yet available — coming soon",
+                 "code": "course_not_ready"},
+                status_code=503,
+            )
+        if err == "collision":
+            return JSONResponse(
+                {"error": "High demand right now — please try again in a moment",
+                 "code": "collision"},
+                status_code=503,
+            )
+        return JSONResponse(
+            {"error": "Could not create payment intent"},
+            status_code=500,
+        )
+
+    # Success — `result` is a WalletConnectPaymentOrder
+    order = result
+    return {
+        "order_id": order.id,
+        "product_type": order.product_type,
+        "product_key": order.product_key,
+        "base_amount": str(order.base_amount),
+        "unique_amount": str(order.unique_amount),
+        "treasury_address": TREASURY_ADDRESS_BSC,
+        "usdt_contract": USDT_CONTRACT_BSC,
+        "chain_id": BSC_CHAIN_ID,
+        "chain_name": "BSC",
+        "token_decimals": 18,
+        "expires_at": order.expires_at.isoformat() + "Z",
+        "status": order.status,
+    }
+
+
+@app.get("/api/onchain/order/{order_id}")
+async def onchain_order_status(order_id: int,
+                                user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
+    """Check the status of an onchain order. Used by the frontend to
+    poll until status='confirmed' (or 'expired')."""
+    if not user:
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+
+    from .database import WalletConnectPaymentOrder
+    order = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.id == order_id,
+    ).first()
+    if not order:
+        return JSONResponse({"error": "Order not found"}, status_code=404)
+    # Members can only see their own orders; admin can see any
+    if order.user_id != user.id and not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+
+    return {
+        "order_id": order.id,
+        "status": order.status,
+        "product_type": order.product_type,
+        "product_key": order.product_key,
+        "base_amount": str(order.base_amount),
+        "unique_amount": str(order.unique_amount),
+        "tx_hash": order.tx_hash,
+        "from_address": order.from_address,
+        "block_number": order.block_number,
+        "expires_at": order.expires_at.isoformat() + "Z" if order.expires_at else None,
+        "confirmed_at": order.confirmed_at.isoformat() + "Z" if order.confirmed_at else None,
+    }
+
+
+@app.post("/cron/scan-bsc-payments")
+async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)):
+    """Watcher cron — runs every 30s.
+
+    1. Sweep expired pending orders → status='expired'
+    2. Compute scan_floor_block from oldest still-pending order's age
+    3. Read BSC USDT Transfer events to treasury (paginated 10-block chunks)
+    4. For each transfer:
+       - match_incoming_transfer → if matched, write Payment row +
+         call _nowpayments_activate_product (reused activation handler)
+       - if no match, persist as OnchainOrphanTransfer for support reconciliation
+
+    Protected by CRON_SECRET in Authorization header (any prefix accepted,
+    matching existing cron pattern).
+    """
+    auth = request.headers.get("Authorization", "")
+    secret = os.environ.get("CRON_SECRET", "")
+    if not secret or not auth.endswith(secret):
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+
+    from .database import (
+        WalletConnectPaymentOrder, OnchainOrphanTransfer,
+    )
+    from .walletconnect_payments import (
+        expire_stale_orders,
+        match_incoming_transfer,
+        scan_treasury_transfers,
+        estimate_scan_floor_block,
+        is_likely_rounded_amount,
+        _get_web3_bsc,
+    )
+    import json as _json
+    import uuid
+
+    stats = {
+        "expired": 0,
+        "scanned_blocks": 0,
+        "transfers_seen": 0,
+        "matched": 0,
+        "activated": 0,
+        "orphans_added": 0,
+        "errors": [],
+    }
+
+    # 1. Expire stale pending orders FIRST so a late-arriving payment
+    #    can't match against a pending row that should have expired.
+    try:
+        stats["expired"] = expire_stale_orders(db)
+    except Exception as e:
+        logger.error(f"cron_scan_bsc_payments: expire_stale_orders failed: {e}")
+        stats["errors"].append(f"expire: {e}")
+
+    # 2. Compute scan floor based on oldest still-pending order
+    try:
+        w3 = _get_web3_bsc()
+        latest_block = w3.eth.block_number
+        oldest_pending = db.query(WalletConnectPaymentOrder).filter(
+            WalletConnectPaymentOrder.status == "pending"
+        ).order_by(WalletConnectPaymentOrder.created_at.asc()).first()
+        if oldest_pending:
+            age_seconds = int((datetime.utcnow() - oldest_pending.created_at).total_seconds())
+        else:
+            age_seconds = None
+        scan_floor = estimate_scan_floor_block(latest_block, age_seconds)
+        stats["scanned_blocks"] = max(latest_block - scan_floor, 0)
+    except Exception as e:
+        logger.error(f"cron_scan_bsc_payments: floor calc failed: {e}")
+        return JSONResponse(
+            {"error": f"BSC RPC unavailable: {e}", "stats": stats},
+            status_code=503,
+        )
+
+    # 3. Paginated scan
+    try:
+        transfers = scan_treasury_transfers(scan_floor)
+        stats["transfers_seen"] = len(transfers)
+    except Exception as e:
+        logger.error(f"cron_scan_bsc_payments: scan failed: {e}")
+        stats["errors"].append(f"scan: {e}")
+        transfers = []
+
+    # 4. Match each transfer; persist orphans for the rest
+    for tx in transfers:
+        try:
+            matched_order = match_incoming_transfer(db, tx)
+        except Exception as e:
+            logger.error(f"cron_scan_bsc_payments: match failed for tx {tx.get('tx_hash')}: {e}")
+            stats["errors"].append(f"match {tx.get('tx_hash','?')[:12]}: {e}")
+            continue
+
+        if matched_order:
+            # ── Activate the product ──
+            try:
+                # Load buyer
+                buyer = db.query(User).filter(User.id == matched_order.user_id).first()
+                if not buyer:
+                    logger.error(
+                        f"cron_scan_bsc_payments: buyer {matched_order.user_id} "
+                        f"missing for matched order {matched_order.id}"
+                    )
+                    stats["errors"].append(f"buyer_missing: order {matched_order.id}")
+                    continue
+
+                # Idempotent Payment row — reuse if a prior activation
+                # already wrote it (e.g. cron retry after partial failure)
+                tx_ref = f"wc_{matched_order.tx_hash}" if matched_order.tx_hash else f"wc_{uuid.uuid4().hex[:12]}"
+                existing_payment = db.query(Payment).filter(Payment.tx_hash == tx_ref).first()
+                if not existing_payment:
+                    payment = Payment(
+                        from_user_id=buyer.id,
+                        to_user_id=None,
+                        amount_usdt=matched_order.unique_amount,
+                        payment_type=f"walletconnect_{matched_order.product_type}",
+                        tx_hash=tx_ref,
+                        status="confirmed",
+                    )
+                    db.add(payment)
+                    db.flush()
+
+                # Reuse the canonical activation handler — same logic
+                # NOWPayments IPN runs, ensuring rail-equivalent fulfilment
+                meta = _json.loads(matched_order.product_meta) if matched_order.product_meta else {}
+
+                # _nowpayments_activate_product reads order.price_usd for
+                # the SuperScene rail. Our model uses base_amount; alias
+                # it on the in-memory instance so the shared activator
+                # can read it without a code-path fork.
+                if not hasattr(matched_order, "price_usd") or matched_order.price_usd is None:
+                    try:
+                        matched_order.price_usd = matched_order.base_amount
+                    except Exception:
+                        # SQLAlchemy InstrumentedAttribute — set as runtime attr
+                        object.__setattr__(matched_order, "price_usd", matched_order.base_amount)
+
+                _nowpayments_activate_product(db, buyer, matched_order, meta)
+                db.commit()
+
+                stats["matched"] += 1
+                stats["activated"] += 1
+                logger.info(
+                    f"cron_scan_bsc_payments: ACTIVATED order {matched_order.id} "
+                    f"user={buyer.id} {matched_order.product_type}/{matched_order.product_key} "
+                    f"tx={matched_order.tx_hash}"
+                )
+            except Exception as e:
+                logger.error(
+                    f"cron_scan_bsc_payments: activation failed for order "
+                    f"{matched_order.id}: {e}"
+                )
+                stats["errors"].append(f"activate {matched_order.id}: {e}")
+                db.rollback()
+                # The match itself was rolled back too. The next cron run
+                # will re-see the same on-chain transfer and re-attempt.
+                # tx_hash idempotency check in match_incoming_transfer
+                # only fires once a match has been committed; rollback
+                # means it wasn't, so retry is safe.
+        else:
+            # ── Persist as orphan ──
+            try:
+                tx_hash = tx.get("tx_hash")
+                # Idempotency #1: skip if we've already confirmed an order
+                # for this tx_hash. match_incoming_transfer returns None
+                # in two cases — "already processed" and "no match".
+                # Without this check, every cron re-scan would attempt to
+                # file every already-confirmed payment as a fresh orphan.
+                already_confirmed = db.query(WalletConnectPaymentOrder).filter(
+                    WalletConnectPaymentOrder.tx_hash == tx_hash
+                ).first()
+                if already_confirmed:
+                    continue
+
+                # Idempotency #2: skip if we've already filed this orphan
+                existing_orphan = db.query(OnchainOrphanTransfer).filter(
+                    OnchainOrphanTransfer.tx_hash == tx_hash
+                ).first()
+                if existing_orphan:
+                    continue
+
+                orphan = OnchainOrphanTransfer(
+                    tx_hash=tx_hash,
+                    from_address=(tx.get("from_address") or "").lower(),
+                    amount_usdt=tx.get("amount_usdt"),
+                    block_number=tx.get("block_number"),
+                    likely_rounded_amount=is_likely_rounded_amount(tx.get("amount_usdt")),
+                )
+                db.add(orphan)
+                db.commit()
+                stats["orphans_added"] += 1
+                logger.info(
+                    f"cron_scan_bsc_payments: orphan transfer recorded — "
+                    f"tx={tx_hash[:12]}... amount=${tx.get('amount_usdt')} "
+                    f"rounded_flag={orphan.likely_rounded_amount}"
+                )
+            except Exception as e:
+                logger.error(f"cron_scan_bsc_payments: orphan persist failed: {e}")
+                stats["errors"].append(f"orphan {tx.get('tx_hash','?')[:12]}: {e}")
+                db.rollback()
+
+    return stats
+
+
+@app.get("/admin/walletconnect-health")
+async def admin_walletconnect_health(user: User = Depends(get_current_user)):
+    """Admin diagnostic — verify BSC RPC reachability + treasury balance.
+
+    Used to sanity-check the rail before/after deploys. Renders the
+    same data structure the standalone connection test produces.
+    """
+    _require_admin(user)
+    from .walletconnect_payments import health_check
+    try:
+        return health_check()
+    except Exception as e:
+        return JSONResponse(
+            {"error": str(e), "rpc_url_host": "unknown", "connected": False},
+            status_code=503,
+        )
+
+
 @app.get("/admin/debug-transfers")
 def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
     """TEMPORARY debug — shows raw Alchemy transfer data."""

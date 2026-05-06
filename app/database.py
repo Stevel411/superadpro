@@ -1365,6 +1365,44 @@ class WalletConnectPaymentOrder(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
 
 
+class OnchainOrphanTransfer(Base):
+    """Incoming USDT-BEP-20 transfers to the treasury that did NOT match
+    any pending WalletConnectPaymentOrder.
+
+    Captured by the /cron/scan-bsc-payments watcher. Reasons a transfer
+    can land here:
+      - Member's order expired (15 min) before their tx confirmed on-chain
+      - Member sent a rounded amount ($20.00 instead of $19.97) — wallet
+        UX or human error
+      - Withdrawal returned to treasury (rare)
+      - Spam / unrelated transfer to the address
+
+    Persisted (not just logged) so support can reconcile when a member
+    emails saying "I paid but didn't get my membership". Admin can
+    manually attach + activate, or mark as spam/ignore.
+
+    `likely_rounded_amount=True` flags transfers whose amount matches a
+    base price exactly (e.g. $20.00, $50.00) — these are the high-signal
+    candidates for "member sent the wrong amount" and should be
+    triaged first.
+
+    Idempotency: tx_hash is unique. Repeated cron runs that re-see the
+    same transfer will hit the unique constraint and skip insertion.
+    """
+    __tablename__ = "onchain_orphan_transfers"
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    tx_hash         = Column(String(80), nullable=False, unique=True, index=True)
+    from_address    = Column(String(50), nullable=False, index=True)
+    amount_usdt     = Column(Numeric(18, 6), nullable=False)
+    block_number    = Column(BigInteger, nullable=True)
+    likely_rounded_amount = Column(Boolean, default=False, nullable=False)
+    seen_at         = Column(DateTime, default=datetime.utcnow, nullable=False)
+    resolved        = Column(Boolean, default=False, nullable=False, index=True)
+    resolution_note = Column(Text, nullable=True)
+    resolved_at     = Column(DateTime, nullable=True)
+    resolved_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+
 class NowPaymentsOrder(Base):
     """NOWPayments invoice-based payment orders (crypto + fiat card)."""
     __tablename__ = "nowpayments_orders"
@@ -1755,6 +1793,33 @@ def run_migrations():
         "CREATE INDEX IF NOT EXISTS idx_wcpo_unique_amount ON walletconnect_payment_orders(unique_amount)",
         "CREATE INDEX IF NOT EXISTS idx_wcpo_tx_hash ON walletconnect_payment_orders(tx_hash)",
         "CREATE INDEX IF NOT EXISTS idx_wcpo_expires_at ON walletconnect_payment_orders(expires_at)",
+        # Race-proof collision prevention: only one pending order can hold
+        # any given unique_amount at a time. INSERT collisions raise
+        # IntegrityError — caller catches and re-rolls. Partial index so
+        # confirmed/expired orders (which can legitimately share an
+        # amount with future pending orders) don't trigger the constraint.
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_wcpo_unique_amount_pending "
+        "ON walletconnect_payment_orders(unique_amount) WHERE status = 'pending'",
+        # ── Onchain orphan transfers (Stage 2, 6 May 2026) ──
+        # USDT transfers to treasury that didn't match any pending order.
+        # Persisted for support reconciliation when members report
+        # paying but not getting activated.
+        "CREATE TABLE IF NOT EXISTS onchain_orphan_transfers ("
+        "  id SERIAL PRIMARY KEY,"
+        "  tx_hash VARCHAR(80) NOT NULL UNIQUE,"
+        "  from_address VARCHAR(50) NOT NULL,"
+        "  amount_usdt NUMERIC(18,6) NOT NULL,"
+        "  block_number BIGINT,"
+        "  likely_rounded_amount BOOLEAN NOT NULL DEFAULT FALSE,"
+        "  seen_at TIMESTAMP NOT NULL DEFAULT NOW(),"
+        "  resolved BOOLEAN NOT NULL DEFAULT FALSE,"
+        "  resolution_note TEXT,"
+        "  resolved_at TIMESTAMP,"
+        "  resolved_by_user_id INTEGER REFERENCES users(id)"
+        ")",
+        "CREATE INDEX IF NOT EXISTS idx_orphan_tx_hash ON onchain_orphan_transfers(tx_hash)",
+        "CREATE INDEX IF NOT EXISTS idx_orphan_from_addr ON onchain_orphan_transfers(from_address)",
+        "CREATE INDEX IF NOT EXISTS idx_orphan_resolved ON onchain_orphan_transfers(resolved)",
     ]
     results = []
     with engine.connect() as conn:

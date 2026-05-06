@@ -346,29 +346,233 @@ def estimate_scan_floor_block(latest_block: int, oldest_pending_age_seconds: int
     return max(latest_block - blocks_back, 0)
 
 
-# ── Order matching (skeleton — fleshed out in next commit) ────────────
+# ── Order matching ────────────────────────────────────────────────────
+
+# Maximum re-rolls when generate_unique_amount produces a colliding amount.
+# At 50 concurrent pending orders on the same tier (50/101 ≈ 50% slot
+# fill), 5 re-rolls leaves residual collision probability ≈ 3%; member
+# sees a "try again" message and retries. At realistic load (≤10
+# concurrent) collisions are <1% even on the first roll. See session
+# notes 6 May 2026.
+MAX_COLLISION_REROLLS = 5
+
 
 def create_payment_intent(db, user_id: int, product_type: str, product_key: str,
-                          product_meta: dict | None = None) -> "WalletConnectPaymentOrder | None":
+                          product_meta: dict | None = None):
     """Create a pending WalletConnectPaymentOrder for `product_key`.
 
-    SKELETON — endpoints + full implementation land in the next commit
-    once the connection test confirms BSC reachability. Documented here
-    so the route handler in app/main.py knows the contract.
+    Returns the persisted order on success, or a dict with `error` key on
+    a known failure mode:
+      - {"error": "unknown_product"} — product_key not in PRODUCT_PRICES
+      - {"error": "collision"} — re-roll limit hit, member should retry
+      - {"error": "course_not_ready"} — course rail awaiting Uthena MRR
+        content (per memory: "Course pages: awaiting Uthena MRR courses")
+
+    Caller is responsible for HTTP-shaping the error.
+
+    Lifecycle:
+      1. Look up base price (strict — no silent fallback)
+      2. Insert pending row with placeholder unique_amount, flush to get id
+      3. Compute unique_amount from (user_id, order.id, ts) hash
+      4. Attempt to set unique_amount; on IntegrityError (partial unique
+         index collision in DB), rollback and re-roll. Up to 5 attempts.
+      5. Commit and return the order
     """
-    raise NotImplementedError("Stage 2 — see /api/onchain/create-intent endpoint")
+    from sqlalchemy.exc import IntegrityError
+    from app.database import WalletConnectPaymentOrder
+    import json as _json
+
+    # ── Refuse course activation until Uthena MRR rail lands ──
+    # The price list has course_starter / course_advanced / course_elite
+    # but no activation handler exists yet — accepting payment without
+    # activation would take real money for nothing. Better to refuse
+    # the intent than to fulfil into a void.
+    if product_type == "course":
+        logger.warning(
+            f"create_payment_intent: refused course intent (user {user_id}, "
+            f"key {product_key}) — course activation not yet implemented"
+        )
+        return {"error": "course_not_ready"}
+
+    base_price = PRODUCT_PRICES.get(product_key)
+    if base_price is None:
+        logger.warning(
+            f"create_payment_intent: unknown product_key={product_key} "
+            f"(user {user_id})"
+        )
+        return {"error": "unknown_product"}
+
+    meta_json = _json.dumps(product_meta) if product_meta else None
+    expires_at = datetime.utcnow() + timedelta(minutes=ORDER_EXPIRY_MINUTES)
+
+    # Insert with placeholder unique_amount (= base_price) so we have an
+    # id to seed the hash. We'll update unique_amount in-place below
+    # before commit, with the partial unique index enforcing uniqueness
+    # at the DB level. Until that update, status='pending' but the row
+    # is uncommitted so it doesn't conflict with anything.
+    order = WalletConnectPaymentOrder(
+        user_id=user_id,
+        product_type=product_type,
+        product_key=product_key,
+        product_meta=meta_json,
+        base_amount=base_price,
+        unique_amount=base_price,  # placeholder, replaced below
+        status="pending",
+        expires_at=expires_at,
+    )
+    db.add(order)
+    db.flush()  # get order.id
+
+    for attempt in range(MAX_COLLISION_REROLLS):
+        candidate = generate_unique_amount(base_price, user_id, order.id)
+        order.unique_amount = candidate
+        try:
+            db.flush()
+            # Success — partial unique index accepted the value
+            db.commit()
+            logger.info(
+                f"create_payment_intent: order {order.id} "
+                f"user={user_id} {product_type}/{product_key} "
+                f"amount=${candidate} expires={expires_at.isoformat()}"
+            )
+            return order
+        except IntegrityError as e:
+            # Partial unique index rejected — another pending order
+            # already holds this exact amount. Re-roll.
+            db.rollback()
+            # The rollback also rolled back our INSERT, so re-add the
+            # order for the next attempt. SQLAlchemy detached the
+            # instance on rollback; re-attach.
+            db.add(order)
+            db.flush()
+            logger.info(
+                f"create_payment_intent: collision attempt {attempt+1}/"
+                f"{MAX_COLLISION_REROLLS} on amount {candidate} "
+                f"(user {user_id}, order {order.id})"
+            )
+            # tiny sleep to nudge the time-based hash seed
+            time.sleep(0.001)
+
+    # All re-rolls collided. This means many concurrent pending orders
+    # on the same tier — return a clean error so the member sees
+    # "please try again in a moment" and retries.
+    db.rollback()
+    logger.warning(
+        f"create_payment_intent: collision limit ({MAX_COLLISION_REROLLS}) "
+        f"hit for user {user_id} on {product_key} — high concurrency"
+    )
+    return {"error": "collision"}
 
 
-def match_incoming_transfer(db, transfer: dict) -> "WalletConnectPaymentOrder | None":
+def expire_stale_orders(db) -> int:
+    """Sweep pending orders past expires_at → status='expired'.
+
+    Run inline by the cron handler. Returns count of orders expired.
+    Important: this MUST run before scanning, so an arriving payment
+    that lands after expiry doesn't match against a still-pending row.
+    """
+    from app.database import WalletConnectPaymentOrder
+    now = datetime.utcnow()
+    stale = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.status == "pending",
+        WalletConnectPaymentOrder.expires_at <= now,
+    ).all()
+    for o in stale:
+        o.status = "expired"
+    if stale:
+        db.commit()
+        logger.info(f"expire_stale_orders: marked {len(stale)} orders expired")
+    return len(stale)
+
+
+def match_incoming_transfer(db, transfer: dict):
     """Try to match a recent on-chain Transfer to a pending order.
 
-    SKELETON — fleshed out in the next commit alongside the cron handler.
-    Match strategy: pending order with status='pending', expires_at > now,
-    unique_amount == transfer['amount_usdt'] (Decimal exact equality at
-    6dp). On match, mark confirmed, store tx_hash + from_address + block,
-    then delegate to existing activation handlers in app/main.py.
+    Returns the matched + confirmed WalletConnectPaymentOrder, or None
+    if no match (orphan — caller persists to OnchainOrphanTransfer).
 
-    Idempotency: if a row already exists with this tx_hash, return None
-    immediately — duplicate detection is a no-op.
+    Match strategy: pending order with status='pending', expires_at >
+    now, unique_amount == transfer['amount_usdt'] (Decimal exact equality
+    at 6dp). Single match expected because of the partial unique index;
+    if multiple ever surface (shouldn't be possible) we pick the oldest
+    and log a warning.
+
+    Idempotency: if any row already has this tx_hash, return None
+    immediately. This handles the case where the cron sees a payment,
+    processes it, then sees it again on the next overlapping scan.
+
+    Caller (cron handler) is responsible for the post-match work:
+    inserting the Payment row and calling _nowpayments_activate_product.
+    Mirrors the NOWPayments IPN pattern — keeps activation logic in
+    main.py with the rest of the activation handlers.
     """
-    raise NotImplementedError("Stage 2 — see /cron/scan-bsc-payments handler")
+    from app.database import WalletConnectPaymentOrder
+
+    tx_hash = transfer.get("tx_hash")
+    if not tx_hash:
+        logger.warning(f"match_incoming_transfer: transfer missing tx_hash: {transfer}")
+        return None
+
+    # Idempotency check — has this tx_hash been processed already?
+    existing = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.tx_hash == tx_hash
+    ).first()
+    if existing:
+        # Already handled — silent no-op. Normal during overlapping scans.
+        return None
+
+    amount = transfer.get("amount_usdt")
+    if amount is None:
+        logger.warning(f"match_incoming_transfer: transfer missing amount: {transfer}")
+        return None
+
+    # Find a pending, unexpired order with this exact unique_amount.
+    # Numeric(18,6) comparison — Decimal exact equality.
+    now = datetime.utcnow()
+    candidates = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.status == "pending",
+        WalletConnectPaymentOrder.unique_amount == amount,
+        WalletConnectPaymentOrder.expires_at > now,
+    ).order_by(WalletConnectPaymentOrder.created_at.asc()).all()
+
+    if not candidates:
+        # No match — caller will persist as orphan
+        return None
+
+    if len(candidates) > 1:
+        # Should be impossible due to partial unique index, but log loudly
+        # so we know if it ever happens (e.g. index dropped accidentally)
+        logger.error(
+            f"match_incoming_transfer: {len(candidates)} pending orders "
+            f"share unique_amount={amount} — DB partial index missing? "
+            f"Picking oldest: order ids={[c.id for c in candidates]}"
+        )
+
+    order = candidates[0]
+    order.status = "confirmed"
+    order.tx_hash = tx_hash
+    order.from_address = (transfer.get("from_address") or "").lower() or None
+    order.block_number = transfer.get("block_number")
+    order.confirmed_at = now
+    db.flush()
+
+    logger.info(
+        f"match_incoming_transfer: MATCHED order {order.id} "
+        f"user={order.user_id} {order.product_type}/{order.product_key} "
+        f"amount=${amount} tx={tx_hash[:10]}..."
+    )
+    return order
+
+
+def is_likely_rounded_amount(amount) -> bool:
+    """Flag transfer amounts that match a known base price exactly.
+
+    A transfer for $20.00 (vs the unique $19.97 we asked for) almost
+    always means the member rounded manually or pasted the sticker
+    price. Flagging these makes admin orphan triage instant.
+    """
+    try:
+        amt = Decimal(str(amount)).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+    except Exception:
+        return False
+    return any(amt == base.quantize(Decimal("0.01")) for base in PRODUCT_PRICES.values())
