@@ -24,17 +24,31 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=False,
-    pool_size=5,
-    max_overflow=10,
+    # Enable pool_pre_ping during launch period: costs ~1-2ms per query
+    # but eliminates the failure mode where a Postgres-side idle-killed
+    # connection gets handed to a request and fails with "server closed
+    # the connection unexpectedly". For a launch with 1000+ potential
+    # concurrent users, the safety > the latency cost. Can revisit
+    # post-launch once traffic patterns are understood.
+    pool_pre_ping=True,
+    # Sized for two replicas × 30 connections each = 60 total, well
+    # under Railway Postgres's typical 100-connection limit. Leaves
+    # headroom for migrations, MCP service, and ad-hoc admin queries.
+    pool_size=10,
+    max_overflow=20,
     # Proactively retire connections after 1 hour. Railway's Postgres
     # idle-kills connections after a window we don't fully control; if
     # SQLAlchemy hands a killed connection back to a request, the
     # request fails with "connection closed" or "server closed the
     # connection unexpectedly". pool_recycle ensures we cycle them
-    # before the server does, eliminating that failure mode without
-    # the per-query overhead of pool_pre_ping.
+    # before the server does as a defence-in-depth alongside
+    # pool_pre_ping.
     pool_recycle=3600,
+    # Wait up to 10s for an available connection from the pool before
+    # erroring. Default is 30s which is too long for a synchronous
+    # request — better to fail fast at 10s and let Railway's load
+    # balancer route to the other replica.
+    pool_timeout=10,
     connect_args={"connect_timeout": 5},
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

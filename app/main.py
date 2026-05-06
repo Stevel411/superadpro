@@ -343,15 +343,14 @@ async def startup_event():
     # user requests to land on a cold replica pay this cost, which
     # adds visible latency on tab transitions.
     #
-    # Pre-acquire a handful of connections at boot so the pool is warm
-    # before the first user request arrives. Costs ~50-200ms of startup
+    # Pre-acquire connections matching pool_size (10) so the pool is warm
+    # before the first user request arrives. Costs ~100-300ms of startup
     # time (replica isn't serving traffic yet anyway), saves ~50-200ms
     # off every cold-replica user request for the rest of the replica's
-    # lifetime. Five connections is more than enough for the typical
-    # FastAPI worker count and matches the pool_size we use elsewhere.
+    # lifetime. Matches pool_size in app/database.py.
     try:
         warmup_conns = []
-        for _ in range(5):
+        for _ in range(10):
             c = engine.connect()
             c.execute(text("SELECT 1"))
             warmup_conns.append(c)
