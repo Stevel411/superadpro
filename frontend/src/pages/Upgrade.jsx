@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
 import { Globe, Check, Zap, Wrench, Users, Mail, BookOpen, Headphones } from 'lucide-react';
-import WalletGuideCard from '../components/WalletGuideCard';
 import { useConsentGate } from '../components/PurchaseConsentModal';
 
 var css = `
@@ -294,8 +294,17 @@ export default function Upgrade() {
           </div>
         </div>
 
-        <div style={{ marginTop:24 }}>
-          <WalletGuideCard compact />
+        <div style={{ marginTop:24, padding:'18px 20px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:12 }}>
+          <div style={{ fontSize:15, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:8 }}>
+            Withdrawal wallet setup
+          </div>
+          <div style={{ fontSize:14, color:'var(--sap-text-muted)', lineHeight:1.6, marginBottom:12 }}>
+            SuperAdPro pays out in USDT on either <strong>TRC-20 (Tron)</strong> or <strong>BEP-20 (BNB Chain)</strong>.
+            You'll need a wallet that supports the network you choose — TronLink, MetaMask, Trust Wallet, or Binance all work.
+          </div>
+          <Link to="/account" style={{ fontSize:14, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>
+            Set up your withdrawal wallet →
+          </Link>
         </div>
 
         <p style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)', marginTop:16 }}>

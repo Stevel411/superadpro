@@ -24,6 +24,18 @@ export default function Wallet() {
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawResult, setWithdrawResult] = useState(null);
 
+  // Build the right block-explorer URL for a withdrawal's tx hash. The
+  // network field comes back from the API when the withdrawal was sent
+  // on TRC-20 or BEP-20. Legacy Polygon-era rows have no network and
+  // fall through to no link (we hide the link rather than guess wrong).
+  function txExplorerUrl(network, txHash) {
+    if (!txHash) return '';
+    const net = (network || '').toLowerCase();
+    if (net === 'tron') return `https://tronscan.org/#/transaction/${txHash}`;
+    if (net === 'bsc')  return `https://bscscan.com/tx/${txHash}`;
+    return ''; // unknown network — frontend will not render a link
+  }
+
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   useEffect(() => {
@@ -115,6 +127,7 @@ export default function Wallet() {
           type: 'success',
           msg: json.message || 'Withdrawal sent successfully',
           tx_hash: json.tx_hash || '',
+          network: json.network || '',
           wallet: walletType,
         });
         if (amountEl) amountEl.value = '';
@@ -214,9 +227,9 @@ export default function Wallet() {
                   {withdrawResult && withdrawResult.wallet === 'affiliate' && (
                     <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>
                       <div>{withdrawResult.type==='success' ? '✅ ' : '❌ '}{withdrawResult.msg}</div>
-                      {withdrawResult.tx_hash && (
+                      {withdrawResult.tx_hash && txExplorerUrl(withdrawResult.network, withdrawResult.tx_hash) && (
                         <div style={{ marginTop:8, fontSize:14, fontWeight:500 }}>
-                          Transaction: <a href={`https://polygonscan.com/tx/${withdrawResult.tx_hash}`} target="_blank" rel="noopener noreferrer" style={{ color:'#15803d', textDecoration:'underline', fontFamily:'monospace' }}>{withdrawResult.tx_hash.substring(0, 10)}…{withdrawResult.tx_hash.substring(withdrawResult.tx_hash.length - 8)}</a>
+                          Transaction: <a href={txExplorerUrl(withdrawResult.network, withdrawResult.tx_hash)} target="_blank" rel="noopener noreferrer" style={{ color:'#15803d', textDecoration:'underline', fontFamily:'monospace' }}>{withdrawResult.tx_hash.substring(0, 10)}…{withdrawResult.tx_hash.substring(withdrawResult.tx_hash.length - 8)}</a>
                         </div>
                       )}
                     </div>
@@ -258,9 +271,9 @@ export default function Wallet() {
                   {withdrawResult && withdrawResult.wallet === 'campaign' && (
                     <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>
                       <div>{withdrawResult.type==='success' ? '✅ ' : '❌ '}{withdrawResult.msg}</div>
-                      {withdrawResult.tx_hash && (
+                      {withdrawResult.tx_hash && txExplorerUrl(withdrawResult.network, withdrawResult.tx_hash) && (
                         <div style={{ marginTop:8, fontSize:14, fontWeight:500 }}>
-                          Transaction: <a href={`https://polygonscan.com/tx/${withdrawResult.tx_hash}`} target="_blank" rel="noopener noreferrer" style={{ color:'#15803d', textDecoration:'underline', fontFamily:'monospace' }}>{withdrawResult.tx_hash.substring(0, 10)}…{withdrawResult.tx_hash.substring(withdrawResult.tx_hash.length - 8)}</a>
+                          Transaction: <a href={txExplorerUrl(withdrawResult.network, withdrawResult.tx_hash)} target="_blank" rel="noopener noreferrer" style={{ color:'#15803d', textDecoration:'underline', fontFamily:'monospace' }}>{withdrawResult.tx_hash.substring(0, 10)}…{withdrawResult.tx_hash.substring(withdrawResult.tx_hash.length - 8)}</a>
                         </div>
                       )}
                     </div>

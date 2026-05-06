@@ -615,11 +615,23 @@ def _reply_for_existing_withdrawal(db, user, withdrawal, requested_wallet_type, 
 
     status = withdrawal.status
 
+    # Network the withdrawal was sent on — frontend uses this to pick the
+    # right block-explorer URL when rendering the tx link. Lower-cased for
+    # consistency; legacy rows may have NULL (Polygon-era) which the
+    # frontend handles by hiding the link.
+    network = (withdrawal.network or "").lower()
+    network_label_map = {
+        "tron": "Tron (TRC-20)",
+        "bsc":  "BNB Chain (BEP-20)",
+    }
+    network_label = network_label_map.get(network, "USDT")
+
     if status == "paid":
         return {
             "success":     True,
-            "message":     f"${net:.2f} USDT sent to your wallet on Polygon (${WITHDRAWAL_FEE} fee deducted)",
+            "message":     f"${net:.2f} USDT sent to your wallet on {network_label} (${WITHDRAWAL_FEE} fee deducted)",
             "tx_hash":     withdrawal.tx_hash or "",
+            "network":     network,
             "net_amount":  float(net),
             "fee":         float(WITHDRAWAL_FEE),
             "remaining":   remaining,
