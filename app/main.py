@@ -610,7 +610,35 @@ def set_secure_cookie(response, user_id):
 # ── Validation helpers ────────────────────────────────────────
 def validate_username(u): return bool(re.match(r'^[a-zA-Z0-9_]{3,30}$', u))
 def validate_email(e):    return bool(re.match(r'^[^\@\s]+@[^\@\s]+\.[^\@\s]+$', e))
-def validate_wallet(w):   return bool(re.match(r'^0x[a-fA-F0-9]{40}$', w))
+
+# Network-specific wallet validation. EVM (BSC, formerly Polygon) uses
+# 0x-prefixed 20-byte hex addresses. Tron uses base58check addresses
+# starting with T, 34 chars total. The base58 alphabet excludes 0/O/I/l
+# (the canonical Bitcoin alphabet) so the regex character class reflects
+# that — the goal isn't strict base58check checksum verification (members
+# pasting from their wallet UI almost never get the format wrong) but
+# catching obvious format mismatches like a 0x address typed into a Tron
+# field or vice versa.
+_BSC_WALLET_RE  = re.compile(r'^0x[a-fA-F0-9]{40}$')
+_TRON_WALLET_RE = re.compile(r'^T[1-9A-HJ-NP-Za-km-z]{33}$')
+
+def validate_wallet(w, network=None):
+    """Validate a wallet address.
+
+    If network is 'tron' or 'bsc', validates against that network's format.
+    If network is None or unrecognised, accepts EITHER format (for backwards
+    compatibility with code paths that don't pass network yet — those should
+    be migrated, but legacy callers should not silently break).
+    """
+    if not w:
+        return False
+    if network == 'tron':
+        return bool(_TRON_WALLET_RE.match(w))
+    if network == 'bsc':
+        return bool(_BSC_WALLET_RE.match(w))
+    # Legacy/unknown network — accept either format
+    return bool(_BSC_WALLET_RE.match(w) or _TRON_WALLET_RE.match(w))
+
 def sanitize(v):          return bleach.clean(v.strip()) if v else ""
 # ── Dashboard context ─────────────────────────────────────────
 def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
