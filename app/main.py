@@ -7070,6 +7070,40 @@ async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db
             logger.info(f"NOWPayments IPN: order {order_id_str} already fulfilled (status={prev_status})")
             return {"status": "already_processed"}
 
+        # ── Wrong-asset guard ──
+        # NOWPayments still fires the IPN with status="confirmed" when a
+        # buyer sends the wrong cryptocurrency (e.g. TRX instead of USDT
+        # on the TRX chain), even though their dashboard flags the row as
+        # "Wrong Asset Confirmed". Without this guard the buyer would be
+        # credited with the full product (Basic membership, grid tier,
+        # etc.) despite paying maybe $4 of TRX for a $20 invoice.
+        #
+        # The IPN payload includes:
+        #   pay_currency          — what the invoice was created for
+        #   actually_paid_at_fiat — the fiat value of what arrived
+        #   outcome_currency      — the asset NOWPayments converted into
+        #
+        # We compare pay_currency to outcome_currency. They should match
+        # in the same-coin passthrough setup. If they don't, the buyer
+        # sent the wrong asset; refuse to fulfil and ask them to contact
+        # support.
+        expected_currency = (data.get("pay_currency") or "").lower()
+        actual_currency = (data.get("outcome_currency") or "").lower()
+        if expected_currency and actual_currency and expected_currency != actual_currency:
+            logger.warning(
+                f"NOWPayments IPN: WRONG ASSET on order {order_id_str} — "
+                f"expected {expected_currency}, received {actual_currency}. "
+                f"Refusing to fulfil. Manual review required."
+            )
+            order.status = "wrong_asset"
+            db.commit()
+            return {
+                "status": "rejected",
+                "reason": "wrong_asset",
+                "expected": expected_currency,
+                "received": actual_currency,
+            }
+
         # Atomic activation block. If any step raises, rollback so we don't
         # leave inconsistent state (e.g. order marked finished but Payment
         # row missing, or activation half-applied). Returning 500 causes
