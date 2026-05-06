@@ -105,15 +105,22 @@ PRODUCT_PRICES = {
     "grid_6":   Decimal("600.00"),
     "grid_7":   Decimal("800.00"),
     "grid_8":   Decimal("1000.00"),
-    # Credit Nexus (Stream 03) — 85/15 split
-    "nexus_1":  Decimal("20.00"),
-    "nexus_2":  Decimal("50.00"),
-    "nexus_3":  Decimal("100.00"),
-    "nexus_4":  Decimal("200.00"),
-    "nexus_5":  Decimal("400.00"),
-    "nexus_6":  Decimal("600.00"),
-    "nexus_7":  Decimal("800.00"),
-    "nexus_8":  Decimal("1000.00"),
+    # Credit Nexus / Credit Matrix (Stream 03) — 85/15 split
+    # Pack keys MUST match those used by NOWPayments IPN
+    # (app/main.py:7682) and credit_matrix.purchase_credit_pack —
+    # which expect "credit_matrix_{starter|builder|pro|advanced|
+    # elite|premium|executive|ultimate}". Using these keys means the
+    # canonical activation handler handles WalletConnect orders without
+    # a code-path fork. Prices match the published pricing card (see
+    # Credit Matrix purchase page screenshot, 6 May 2026).
+    "credit_matrix_starter":    Decimal("20.00"),    # 100 credits
+    "credit_matrix_builder":    Decimal("50.00"),    # 250 credits
+    "credit_matrix_pro":        Decimal("100.00"),   # 500 credits
+    "credit_matrix_advanced":   Decimal("200.00"),   # 1,000 credits
+    "credit_matrix_elite":      Decimal("400.00"),   # 2,000 credits
+    "credit_matrix_premium":    Decimal("600.00"),   # 3,000 credits
+    "credit_matrix_executive":  Decimal("800.00"),   # 4,000 credits
+    "credit_matrix_ultimate":   Decimal("1000.00"),  # 5,000 credits
     # Course Academy (Stream 04) — 100% to affiliates
     "course_starter":   Decimal("100.00"),
     "course_advanced":  Decimal("300.00"),

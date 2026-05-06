@@ -36,6 +36,24 @@ export default defineConfig({
             if (id.includes('lodash')) return 'vendor-lodash';
             if (id.includes('framer-motion')) return 'vendor-framer';
             if (id.includes('qrcode')) return 'vendor-qrcode';
+            // WalletConnect / Reown / wagmi / viem stack — only loaded
+            // on checkout pages via lazy import. Keeping it in its own
+            // chunk means the rest of the app doesn't pay the ~260KB
+            // gzipped cost on every visit.
+            //
+            // Includes transitive crypto deps shared with Reown:
+            //   @noble/* and @scure/* (curves + hashing)
+            //   abitype, isows, ox (viem internals)
+            //   valtio, zustand (state management used by AppKit/wagmi)
+            //   events (node polyfill)
+            if (id.includes('@reown') || id.includes('wagmi') ||
+                id.includes('viem') || id.includes('@tanstack/react-query') ||
+                id.includes('@walletconnect') || id.includes('@coinbase/wallet-sdk') ||
+                id.includes('@base-org') || id.includes('@noble') ||
+                id.includes('@scure') || id.includes('abitype') ||
+                id.includes('isows') || id.includes('/ox/') ||
+                id.includes('valtio') || id.includes('zustand') ||
+                id.includes('node_modules/events/')) return 'vendor-walletconnect';
             // React + react-dom + react-router stay in default vendor chunk
             return 'vendor';
           }

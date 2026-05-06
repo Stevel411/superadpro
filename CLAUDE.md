@@ -25,7 +25,7 @@ SuperAdPro is a video advertising and affiliate marketing platform. FastAPI/Pyth
 - **Database:** PostgreSQL on Railway
 - **Storage:** Cloudflare R2 (`superadpro-media` bucket) for avatars/banners
 - **Email:** Brevo (transactional + autoresponder), Zoho (noreply@superadpro.com)
-- **Payments:** NOWPayments (350+ cryptos + card via Banxa), direct USDT/USDC on Polygon via Alchemy. Stripe fully removed.
+- **Payments:** NOWPayments (350+ cryptos + card via Banxa) parallel-running with WalletConnect / self-custody BSC USDT-BEP-20 via Reown AppKit. Outbound withdrawals: BSC USDT-BEP-20 (primary) + TRC-20 via Tron. Polygon USDT inbound is DEPRECATED and being retired (`crypto_payments.py` is legacy, will be removed after 2-week parallel run completes). Stripe fully removed.
 - **AI:** Anthropic Claude API (Haiku for cost-optimised generation), xAI Grok API (sales agent, content, prompts), EvoLink + fal.ai (video/image generation)
 
 ## The Four Income Streams — CANONICAL REFERENCE
@@ -176,6 +176,58 @@ def your_page(request: Request, user: User = Depends(get_current_user)):
 ### New pip Packages
 Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the usual 1-2 when new packages are installed.
 
+### Payment Rails — current architecture (May 2026)
+
+**Three rails, one canonical activator.** The shared activation handler `_nowpayments_activate_product(db, user, order, meta)` in `app/main.py` (~line 7530) is reused by all rails. Adding new product types means editing this handler — it's the single source of truth for fulfilment.
+
+| Rail | Status | Module | Treasury | Inbound? | Outbound? |
+|---|---|---|---|---|---|
+| **WalletConnect / BSC** | **PRIMARY** (live 6 May 2026) | `app/walletconnect_payments.py` | `0xb2Cc...554D` BSC | ✅ self-custody | ✅ via `app/withdrawals.py` |
+| **NOWPayments** | Parallel-running (retiring ~20 May 2026) | `app/nowpayments_service.py` | NOWPayments custodial | ✅ 350+ cryptos + Banxa card | ❌ |
+| **Polygon legacy** | DEPRECATED — do not extend | `app/crypto_payments.py` | `0x7174...0467` (dormant) | ❌ disabled | ❌ |
+
+**WalletConnect rail mechanics:**
+- Member clicks "Pay with Wallet" on `/upgrade`, `/activate-tier/N`, or `/credit-matrix`
+- Frontend `WalletConnectButton.jsx` (lazy-loaded `vendor-walletconnect` chunk, ~266KB gz) calls `POST /api/onchain/create-intent` with `{product_type, product_key, product_meta?}`
+- Backend creates `WalletConnectPaymentOrder` with **cent-unique amount** (e.g. $19.97 instead of $20.00 — hash-based offset ±50¢, ~100 unique values per tier). Partial unique index on `(unique_amount) WHERE status='pending'` is the race-proof collision constraint
+- Reown AppKit modal opens, member signs USDT-BEP-20 transfer for `unique_amount` to treasury from their own wallet
+- Frontend polls `GET /api/onchain/order/{id}` every 4s
+- `POST /cron/scan-bsc-payments` (every 30s, CRON_SECRET-gated): expires stale orders → `eth_getLogs` paginated 10-block chunks (Alchemy free tier cap) → match on Decimal exact equality at 6dp → run activator → unmatched transfers persist to `OnchainOrphanTransfer` for support reconciliation
+- 15-minute order expiry. After that the order is dead; if a tx arrives late it lands in the orphan table
+
+**Critical constants (single source of truth in `app/withdrawals.py`):**
+- `TREASURY_ADDRESS_BSC = "0xb2Ccdf9050A8d05A346F6879eC4fa633f9b2554D"` (env-overridable)
+- `USDT_CONTRACT_BSC = "0x55d398326f99059fF775485246999027B3197955"` BSC mainnet
+- `USDT_DECIMALS_BSC = 18` — **NOT 6 like Polygon/Tron**. Mixing this up sends effectively zero on-chain (off by 10¹²)
+- `BSC_CHAIN_ID = 56`
+- `BSC_RPC_URL` — Alchemy free tier, 10-block `eth_getLogs` cap
+
+**Frontend env:**
+- `VITE_WALLETCONNECT_PROJECT_ID` — Reown Project ID `b256ce910011e012fedc82dc8c11881b`. If missing at build time, button renders disabled with a "self-custody payment unavailable" message rather than crashing
+
+**Product key naming — match the canonical activator:**
+- Membership: `membership_basic`, `membership_pro`, `membership_basic_annual`, `membership_pro_annual`
+- Grid: `grid_1` … `grid_8`
+- Credit Matrix / Nexus: `credit_matrix_starter`, `credit_matrix_builder`, `credit_matrix_pro`, `credit_matrix_advanced`, `credit_matrix_elite`, `credit_matrix_premium`, `credit_matrix_executive`, `credit_matrix_ultimate` (NOT `nexus_N` — that was a foundation-commit naming guess and was corrected 6 May)
+- Email boost: `email_boost_1000`/`5000`/`10000`/`50000`
+- SuperScene packs: `superscene_starter`/`creator`/`studio`/`pro`
+- Course: `course_starter`/`advanced`/`elite` — **rejected at create-intent** until Uthena MRR rail lands
+
+**Orphan reconciliation:**
+- `OnchainOrphanTransfer` captures USDT transfers to treasury that don't match any pending order — late arrivals, rounded-amount sends ($20.00 vs $19.97), spam, withdrawal returns
+- `likely_rounded_amount=True` flag for transfers whose amount equals a known base price exactly — high-signal triage candidates
+- Admin orphan-resolution UI is queued for next session. Until then, query the table directly: `SELECT * FROM onchain_orphan_transfers WHERE NOT resolved ORDER BY seen_at DESC`
+
+**Diagnostic endpoints:**
+- `GET /admin/walletconnect-health` — admin-only, returns `{connected, latest_block, treasury_usdt, treasury_bnb, error}`
+- `POST /cron/scan-bsc-payments` (Authorization: Bearer $CRON_SECRET) — manual trigger for the watcher
+
+**The 2-week parallel run plan:**
+1. Both rails active. Members can choose either button on checkout
+2. Watch `OnchainOrphanTransfer` and the cron's `errors` field daily
+3. After 2 weeks of clean operation, hide the NOWPayments button (UI only — keep the IPN endpoint live for in-flight invoices)
+4. After 4 weeks, decommission `nowpayments_service.py` and `crypto_payments.py`
+
 ## Design System
 
 ### Public Pages (dark theme)
@@ -299,8 +351,9 @@ Members download a 9-slide "4 Income Streams" PowerPoint from `/marketing-materi
 | `app/course_engine.py` | Course pass-up commission system |
 | `app/database.py` | SQLAlchemy models + migrations |
 | `app/payment.py` | Membership renewals, auto-activation |
-| `app/crypto_payments.py` | USDT/Polygon payment processing, PRODUCT_PRICES |
-| `app/nowpayments_service.py` | NOWPayments invoice creation, PRODUCT_CATALOG |
+| `app/crypto_payments.py` | LEGACY — USDT/Polygon payment processing. Being retired; do NOT add new product types here. Use `walletconnect_payments.py` for the BSC self-custody rail. |
+| `app/walletconnect_payments.py` | **PRIMARY** self-custody BSC USDT-BEP-20 rail. Includes `PRODUCT_PRICES`, `create_payment_intent`, `match_incoming_transfer`, watcher (`scan_treasury_transfers`), `health_check`. Hash-based cent-unique amount matching. Order expiry 15 min, watcher cadence 30s. Treasury `0xb2Cc...554D` (shared with outbound withdrawals). |
+| `app/nowpayments_service.py` | NOWPayments invoice creation, PRODUCT_CATALOG. Parallel-running with WalletConnect for ~2 weeks before retirement. |
 | `app/grok_service.py` | xAI Grok API — chat, content, sales agent |
 | `app/grok_imagine.py` | Grok direct video/image generation |
 | `app/superscene_evolink.py` | EvoLink/fal.ai video routing, credit calculations |
@@ -408,8 +461,8 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - 99 Jinja2 templates, ~42 React pages, 370+ routes, 210+ API endpoints, 26 DB models
 - 4 income streams: Membership, Grid/Campaigns, Courses (coming soon), SuperMarket (coming soon)
 - Pricing: Basic $20/mo or $200/yr, Pro $35/mo or $350/yr
-- Payments: NOWPayments (350+ cryptos) + direct USDT/USDC on Polygon. No Stripe.
-- Main JS bundle: 689KB (code-split with background preloading)
+- Payments: WalletConnect (self-custody BSC USDT-BEP-20 via Reown AppKit, primary inbound rail) + NOWPayments (350+ cryptos, parallel-running for ~2 weeks before retirement). Polygon legacy. No Stripe.
+- Main JS bundle: 579KB index + 1,020KB walletconnect chunk lazy-loaded only on /upgrade, /activate-tier, /credit-matrix (266KB gzipped)
 
 ## Maintenance Reminders
 

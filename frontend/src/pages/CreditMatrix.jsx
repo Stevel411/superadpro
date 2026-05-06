@@ -1,10 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import ProductExplainer from '../components/ProductExplainer';
 import { apiGet, apiPost } from '../utils/api';
 import { Sparkles, TrendingUp, Users, DollarSign, Gift, ChevronDown, ChevronUp, Loader2, CheckCircle, AlertCircle, Zap, Award, Layers } from 'lucide-react';
 import { useConsentGate } from '../components/PurchaseConsentModal';
+
+// Lazy-load self-custody payment button (~270KB gzipped Reown/wagmi chunk)
+var WalletConnectButton = lazy(function() { return import('../components/WalletConnectButton'); });
 
 var PACK_ICONS = {
   starter:   { emoji: '🚀', gradient: 'linear-gradient(135deg, #6366f1, #818cf8)', cardGrad: 'linear-gradient(135deg, #312e81, #4338ca, #6366f1)' },
@@ -199,6 +202,34 @@ export function CreditMatrixContent() {
                         cursor: isbuying ? 'default' : 'pointer', backdropFilter: 'blur(4px)', transition: 'background 0.2s' }}>
                       {isbuying ? t('creditMatrix.processing') : t('creditMatrix.payWithCrypto')}
                     </button>
+                    {/* ── Self-custody BSC payment (parallel-run alongside NOWPayments) ── */}
+                    <div style={{ marginTop: 8, position: 'relative' }}>
+                      <Suspense fallback={
+                        <div style={{ padding: '8px 0', borderRadius: 8, background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', fontSize: 11, textAlign: 'center', border: '1px dashed rgba(255,255,255,0.2)' }}>
+                          loading wallet…
+                        </div>
+                      }>
+                        <WalletConnectButton
+                          productType="credit_matrix"
+                          productKey={'credit_matrix_' + pack.key}
+                          label={`Pay ${pack.price} from wallet (BSC)`}
+                          onBeforeClick={async function() { return await ensureConsent(); }}
+                          onSuccess={function() {
+                            setMessage({ type: 'success', text: pack.credits.toLocaleString() + ' credits awarded — refresh to see your nexus update.' });
+                            loadAll();
+                          }}
+                          style={{
+                            padding: '8px 0',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            background: 'rgba(255,255,255,0.08)',
+                            color: '#fff',
+                            fontSize: 11,
+                            fontWeight: 600,
+                            borderRadius: 8,
+                          }}
+                        />
+                      </Suspense>
+                    </div>
                   </div>
                 );
               })}

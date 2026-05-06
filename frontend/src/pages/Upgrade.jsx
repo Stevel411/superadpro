@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -6,6 +6,29 @@ import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
 import { Globe, Check, Zap, Wrench, Users, Mail, BookOpen, Headphones } from 'lucide-react';
 import { useConsentGate } from '../components/PurchaseConsentModal';
+
+// Lazy-load self-custody payment button — Reown/wagmi adds ~190KB (gzipped)
+// to the bundle. Loaded only when this page is rendered, after which it's
+// cached. See vendor-walletconnect chunk in vite.config.js.
+var WalletConnectButton = lazy(function() { return import('../components/WalletConnectButton'); });
+
+// Tiny wrapper that wires the page's consent gate into the WalletConnect
+// flow. The gate runs before the payment intent is created, matching the
+// behaviour of the existing nowPaymentsCheckout function.
+function WalletConnectGate(props) {
+  return (
+    <WalletConnectButton
+      productType={props.productType}
+      productKey={props.productKey}
+      productMeta={props.productMeta}
+      label={props.label}
+      onSuccess={props.onSuccess}
+      onBeforeClick={async function() {
+        return await props.ensureConsent();
+      }}
+    />
+  );
+}
 
 var css = `
   .up-card{border-radius:20px;overflow:hidden;position:relative;background:#fff;transition:transform .25s,box-shadow .25s}
@@ -167,6 +190,37 @@ export default function Upgrade() {
           )}
         </button>
         <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
+
+        {/* ── Self-custody BSC payment (parallel-run alongside NOWPayments) ──
+            Pay direct from your own wallet via WalletConnect. Member sends
+            USDT-BEP-20 to treasury; cron matches by unique-cent amount.
+            Lazy-loaded so the wagmi/Reown bundle isn't pulled on non-checkout pages. */}
+        <div style={{ position:'relative', margin:'2px 0', textAlign:'center' }}>
+          <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
+          <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or pay direct from your wallet</span>
+        </div>
+        <Suspense fallback={
+          <div style={{ padding:'14px 16px', borderRadius:12, background:'#f8fafc', border:'1px dashed #e2e8f0', color:'#94a3b8', fontSize:13, textAlign:'center' }}>
+            Loading wallet checkout…
+          </div>
+        }>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            <WalletConnectGate
+              ensureConsent={ensureConsent}
+              productType="membership"
+              productKey={`membership_${tier}_annual`}
+              label={`Pay yearly · ${annualPrice} USDT (BSC)`}
+              onSuccess={function() { if (refreshUser) refreshUser(); }}
+            />
+            <WalletConnectGate
+              ensureConsent={ensureConsent}
+              productType="membership"
+              productKey={`membership_${tier}`}
+              label={`Pay monthly · ${monthlyPrice} USDT (BSC)`}
+              onSuccess={function() { if (refreshUser) refreshUser(); }}
+            />
+          </div>
+        </Suspense>
 
         <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.6 }}>
           {"\uD83D\uDD12"} Secure checkout · 350+ cryptos accepted (USDT, BTC, ETH, more)

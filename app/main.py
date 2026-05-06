@@ -7683,15 +7683,20 @@ def _nowpayments_activate_product(db, user, order, meta):
         pack_key = product_key.replace("credit_matrix_", "")  # starter/builder/pro/elite/ultimate
         try:
             from .credit_matrix import purchase_credit_pack
+            # Derive payment ref prefix from the order class — keeps audit
+            # trails distinct between NOWPayments and WalletConnect rails
+            # (avoids np_47 colliding with a real NOWPayments order 47
+            # when the WalletConnect rail has its own id-space).
+            _ref_prefix = "wc" if type(order).__name__ == "WalletConnectPaymentOrder" else "np"
             result = purchase_credit_pack(
                 db, user, pack_key,
-                payment_ref=f"np_{order.id}",
+                payment_ref=f"{_ref_prefix}_{order.id}",
                 payment_method="crypto",
             )
             if not result["success"]:
                 logger.error(f"Credit Matrix purchase failed for user {user.id}: {result.get('error')}")
             else:
-                logger.info(f"Credit Matrix: {user.username} bought {pack_key} pack via NOWPayments, {result.get('credits_awarded')} credits awarded")
+                logger.info(f"Credit Matrix: {user.username} bought {pack_key} pack via {_ref_prefix}, {result.get('credits_awarded')} credits awarded")
         except Exception as e:
             logger.error(f"Credit Matrix fulfilment error: {e}")
 @app.get("/api/nowpayments/order/{order_id}")

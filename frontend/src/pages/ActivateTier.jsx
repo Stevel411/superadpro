@@ -1,10 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { Globe } from 'lucide-react';
 import { useConsentGate } from '../components/PurchaseConsentModal';
+
+// Lazy-load self-custody payment button (~190KB gzipped Reown/wagmi chunk)
+var WalletConnectButton = lazy(function() { return import('../components/WalletConnectButton'); });
 
 const TIERS = {
   1: { name:'Starter',     price:20,   views:'2,000',     monthly:'500',    bonus:64,   grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
@@ -220,6 +223,29 @@ export default function ActivateTier() {
               )}
             </button>
             <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
+
+            {/* ── Self-custody BSC payment (parallel-run alongside NOWPayments) ──
+                Pay direct from your own wallet via WalletConnect. */}
+            <div style={{ position:'relative', margin:'4px 0', textAlign:'center' }}>
+              <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
+              <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or pay direct from your wallet</span>
+            </div>
+            <Suspense fallback={
+              <div style={{ padding:'14px 16px', borderRadius:12, background:'#f8fafc', border:'1px dashed #e2e8f0', color:'#94a3b8', fontSize:13, textAlign:'center' }}>
+                Loading wallet checkout…
+              </div>
+            }>
+              <WalletConnectButton
+                productType="grid"
+                productKey={'grid_' + n}
+                label={`Pay ${tier.price} USDT (BSC) from your wallet`}
+                onBeforeClick={async function() { return await ensureConsent(); }}
+                onSuccess={function() {
+                  // Match NOWPayments redirect target after success
+                  window.location.href = '/payment-success?type=grid&tier=' + n;
+                }}
+              />
+            </Suspense>
 
             <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
               {"\uD83D\uDD12"} Secure checkout · 350+ cryptos accepted (USDT, BTC, ETH, more)
