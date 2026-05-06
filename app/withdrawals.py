@@ -497,6 +497,162 @@ def send_usdt_tron(to_address, amount_usdt):
         return {"success": False, "tx_hash": "", "error": str(e)}
 
 
+# ── BSC (BEP-20) send path ─────────────────────────────────────────────
+# EVM-compatible — same web3.py library as Polygon, different RPC + contract.
+
+def _get_web3_bsc():
+    """Build a Web3 instance connected to BSC."""
+    from web3 import Web3
+    w3 = Web3(Web3.HTTPProvider(BSC_RPC_URL))
+    if not w3.is_connected():
+        raise ConnectionError(f"Cannot connect to BSC RPC at {BSC_RPC_URL}")
+    return w3
+
+
+def _get_bsc_private_key():
+    """Get BSC treasury private key from env. Hex string, with or without 0x prefix."""
+    key = os.environ.get("TREASURY_PRIVATE_KEY_BSC", "")
+    if not key:
+        raise ValueError("TREASURY_PRIVATE_KEY_BSC not set")
+    if not key.startswith("0x"):
+        key = "0x" + key
+    if len(key) != 66:  # 0x + 64 hex chars
+        raise ValueError(f"TREASURY_PRIVATE_KEY_BSC wrong length ({len(key)} chars, expected 66 with 0x prefix)")
+    return key
+
+
+def get_treasury_bsc_balances():
+    """Return (usdt_balance, bnb_balance) for the BSC treasury.
+
+    USDT in human units (e.g. 134.96). BNB in human units (e.g. 0.0157).
+    Used by admin diagnostics and pre-flight check before sending.
+    """
+    try:
+        from web3 import Web3
+        w3 = _get_web3_bsc()
+        addr = Web3.to_checksum_address(TREASURY_ADDRESS_BSC)
+        contract = w3.eth.contract(
+            address=Web3.to_checksum_address(USDT_CONTRACT_BSC),
+            abi=ERC20_ABI,
+        )
+        balance_raw = contract.functions.balanceOf(addr).call()
+        usdt = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
+        bnb_raw = w3.eth.get_balance(addr)
+        bnb = Decimal(str(bnb_raw)) / Decimal(10 ** 18)
+        return float(usdt), float(bnb)
+    except Exception as e:
+        logger.error(f"Failed to read BSC treasury balances: {e}")
+        return 0.0, 0.0
+
+
+def send_usdt_bsc(to_address, amount_usdt):
+    """Send USDT-BEP-20 from BSC treasury to a recipient address.
+
+    Returns: {"success": bool, "tx_hash": str, "error": str}
+            (same shape as send_usdt and send_usdt_tron — dispatcher-compatible)
+
+    Mirrors the legacy Polygon send (which used the same web3.py) but
+    against BSC. Differences from the Polygon version:
+    - Different RPC URL (BSC public node, no API key needed for launch volume)
+    - Different USDT contract address (0x55d398... not 0xc2132...)
+    - Different chain ID (56 vs 137)
+    - Gas token is BNB not POL (semantically same, just different name)
+    """
+    from web3 import Web3
+
+    private_key = _get_bsc_private_key()
+    amount_usdt = Decimal(str(amount_usdt))
+
+    try:
+        w3 = _get_web3_bsc()
+        from_address = Web3.to_checksum_address(TREASURY_ADDRESS_BSC)
+
+        # BSC accepts checksummed addresses; reject non-EVM upfront.
+        # The 0x-format check happens at validation layer; here we just
+        # let to_checksum_address raise for malformed addresses, which
+        # bubbles to the except block as a clean error string.
+        try:
+            to_addr = Web3.to_checksum_address(to_address)
+        except Exception:
+            return {"success": False, "tx_hash": "", "error": f"Invalid BSC address: {to_address}"}
+
+        # Convert USDT to raw units (6 decimals)
+        amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS))
+        if amount_raw <= 0:
+            return {"success": False, "tx_hash": "", "error": "Invalid amount"}
+
+        contract = w3.eth.contract(
+            address=Web3.to_checksum_address(USDT_CONTRACT_BSC),
+            abi=ERC20_ABI,
+        )
+
+        # Pre-flight: USDT balance check
+        balance_raw = contract.functions.balanceOf(from_address).call()
+        if balance_raw < amount_raw:
+            wallet_balance = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
+            logger.error(f"Insufficient BSC treasury USDT: {wallet_balance} < {amount_usdt}")
+            return {"success": False, "tx_hash": "", "error": f"Insufficient treasury funds (${wallet_balance:.2f} available)"}
+
+        # Pre-flight: BNB for gas. BSC USDT transfers cost ~0.0003 BNB at typical
+        # gas prices (3 gwei × 100k gas). 0.001 BNB is comfortable headroom for
+        # ~3 transfers; below this we surface the error before burning a tx.
+        bnb_balance = w3.eth.get_balance(from_address)
+        if bnb_balance < w3.to_wei(0.001, 'ether'):
+            return {"success": False, "tx_hash": "", "error": "Treasury needs BNB for gas fees"}
+
+        # Build, sign, broadcast
+        nonce = w3.eth.get_transaction_count(from_address)
+        gas_price = w3.eth.gas_price
+
+        tx = contract.functions.transfer(to_addr, amount_raw).build_transaction({
+            "from": from_address,
+            "nonce": nonce,
+            "gas": 100000,
+            "gasPrice": int(gas_price * 1.2),
+            "chainId": BSC_CHAIN_ID,
+        })
+
+        signed_tx = w3.eth.account.sign_transaction(tx, private_key=private_key)
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+        tx_hash_hex = tx_hash.hex()
+
+        logger.info(f"USDT-BEP-20 sent: {amount_usdt} USDT to {to_address} -- tx: {tx_hash_hex}")
+        return {"success": True, "tx_hash": tx_hash_hex, "error": ""}
+
+    except Exception as e:
+        logger.error(f"USDT-BEP-20 send failed: {type(e).__name__}: {e}")
+        return {"success": False, "tx_hash": "", "error": str(e)}
+
+
+# ── Network-aware dispatcher ───────────────────────────────────────────
+# Single entry point that routes to the correct chain based on the
+# withdrawal's network field. Used by request_withdrawal and the cron
+# retry loop. Centralising the dispatch logic here means only ONE place
+# needs updating if we add a third network later (e.g. Polygon revival,
+# Solana, Arbitrum).
+
+def send_usdt_dispatch(network, to_address, amount_usdt):
+    """Route a USDT send to the right chain.
+
+    network: 'tron' or 'bsc' (case-insensitive)
+    Returns the same dict shape as the underlying send functions.
+
+    For unknown/missing network values, returns a structured error rather
+    than guessing — silently sending on the wrong chain is worse than a
+    clean failure that surfaces in admin alerts.
+    """
+    net = (network or "").lower()
+    if net == "tron":
+        return send_usdt_tron(to_address, amount_usdt)
+    if net == "bsc":
+        return send_usdt_bsc(to_address, amount_usdt)
+    return {
+        "success": False,
+        "tx_hash": "",
+        "error": f"Unknown withdrawal network: {network!r}. Expected 'tron' or 'bsc'.",
+    }
+
+
 def _refund_withdrawal(db, withdrawal, reason):
     """Credit a withdrawal's amount back to the correct balance column and
     mark the row failed_permanent. Used when retries hit max OR a campaign
