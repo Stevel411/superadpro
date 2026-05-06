@@ -41,35 +41,38 @@ function buildNav(t, isAdmin) {
     // so its sub-features (Watch, Create, Videos, Analytics, Calculator,
     // My Grid) sit immediately after the Grid entry as a flat block.
     { type: 'group', label: t('nav.income', { defaultValue: 'Income' }), shortLabel: t('navShort.income', { defaultValue: 'Income' }), key: 'income', icon: DollarSign, items: [
-      { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet' },
-      { label: t('nav.profitGrid'), shortLabel: t('navShort.profitGrid', { defaultValue: 'Grid' }), icon: Target, path: '/campaign-tiers' },
-      { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch', tierLocked: true },
-      { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign', tierLocked: true },
-      { label: t('nav.myCampaigns'), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Videos' }), icon: Film, path: '/video-library' },
-      { label: t('nav.campaignAnalytics'), shortLabel: t('navShort.campaignAnalytics', { defaultValue: 'Stats' }), icon: BarChart3, path: '/campaign-analytics' },
-      { label: t('nav.gridCalculator'), shortLabel: t('navShort.gridCalculator', { defaultValue: 'Calc' }), icon: Zap, path: '/grid-calculator' },
-      { label: t('nav.myGrid'), shortLabel: t('navShort.myGrid', { defaultValue: 'My Grid' }), icon: LayoutGrid, path: '/grid-visualiser' },
-      { label: t('nav.profitNexus'), shortLabel: t('navShort.profitNexus', { defaultValue: 'Nexus' }), icon: Layers, path: '/credit-nexus' },
-      { label: t('nav.myNexus'), shortLabel: t('navShort.myNexus', { defaultValue: 'My Nexus' }), icon: Network, path: '/nexus-visualiser' },
-      { label: t('nav.courseAcademy'), shortLabel: t('navShort.courseAcademy', { defaultValue: 'Courses' }), icon: GraduationCap, path: '/courses', comingSoon: true },
-      { label: t('nav.incomeChains'), shortLabel: t('navShort.incomeChains', { defaultValue: 'Chains' }), icon: Link2, path: '/income-chains' },
+      { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet', basic: true },
+      { label: t('nav.profitGrid'), shortLabel: t('navShort.profitGrid', { defaultValue: 'Grid' }), icon: Target, path: '/campaign-tiers', basic: true },
+      { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch', basic: true, tierLocked: true },
+      { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign', basic: true, tierLocked: true },
+      { label: t('nav.myCampaigns'), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Videos' }), icon: Film, path: '/video-library', basic: true },
+      { label: t('nav.campaignAnalytics'), shortLabel: t('navShort.campaignAnalytics', { defaultValue: 'Stats' }), icon: BarChart3, path: '/campaign-analytics', basic: true },
+      { label: t('nav.gridCalculator'), shortLabel: t('navShort.gridCalculator', { defaultValue: 'Calc' }), icon: Zap, path: '/grid-calculator', basic: true },
+      { label: t('nav.myGrid'), shortLabel: t('navShort.myGrid', { defaultValue: 'My Grid' }), icon: LayoutGrid, path: '/grid-visualiser', basic: true },
+      { label: t('nav.profitNexus'), shortLabel: t('navShort.profitNexus', { defaultValue: 'Nexus' }), icon: Layers, path: '/credit-nexus', basic: true },
+      { label: t('nav.myNexus'), shortLabel: t('navShort.myNexus', { defaultValue: 'My Nexus' }), icon: Network, path: '/nexus-visualiser', basic: true },
+      { label: t('nav.courseAcademy'), shortLabel: t('navShort.courseAcademy', { defaultValue: 'Courses' }), icon: GraduationCap, path: '/courses', basic: true, comingSoon: true },
+      { label: t('nav.incomeChains'), shortLabel: t('navShort.incomeChains', { defaultValue: 'Chains' }), icon: Link2, path: '/income-chains', basic: true },
     ]},
 
     { type: 'divider' },
 
-    // ── TOOLS ── Basic creators first, then PRO items ─────────
-    // Pro items are flagged with `pro: true` which renders them locked
-    // for free members (existing pattern). Quick Tools (banner/meme/QR)
-    // are lightweight one-off creators kept inline rather than nested.
+    // ── TOOLS ── Free creators / Basic creators / Pro creators ─
+    // Three lock states:
+    //   - no flag         → free (open to everyone)
+    //   - basic: true     → Basic membership ($20/mo) required
+    //   - pro: true       → Pro membership ($35/mo) required
+    // Free items at the top so non-paying members see usable tools first;
+    // Basic items in the middle; Pro items at the bottom.
     { type: 'group', label: t('nav.tools', { defaultValue: 'Tools' }), shortLabel: t('navShort.tools', { defaultValue: 'Tools' }), key: 'tools', icon: Wrench, items: [
-      { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio' },
-      { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator' },
-      { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub' },
-      { label: t('nav.linkTools'), shortLabel: t('navShort.linkTools', { defaultValue: 'Tools' }), icon: LayoutGrid, path: '/link-tools' },
-      { label: t('nav.superDeck'), shortLabel: t('navShort.superDeck', { defaultValue: 'Deck' }), icon: Monitor, path: '/superdeck' },
       { label: t('nav.bannerCreator', { defaultValue: 'Banner Creator' }), shortLabel: t('navShort.bannerCreator', { defaultValue: 'Banner' }), icon: PenLine, path: '/tools/banner-creator' },
       { label: t('nav.memeGenerator', { defaultValue: 'Meme Generator' }), shortLabel: t('navShort.memeGenerator', { defaultValue: 'Meme' }), icon: Sparkles, path: '/tools/meme-generator' },
       { label: t('nav.qrGenerator', { defaultValue: 'QR Generator' }), shortLabel: t('navShort.qrGenerator', { defaultValue: 'QR' }), icon: Globe, path: '/tools/qr-code-generator' },
+      { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio', basic: true },
+      { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator', basic: true },
+      { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub', basic: true },
+      { label: t('nav.linkTools'), shortLabel: t('navShort.linkTools', { defaultValue: 'Tools' }), icon: LayoutGrid, path: '/link-tools', basic: true },
+      { label: t('nav.superDeck'), shortLabel: t('navShort.superDeck', { defaultValue: 'Deck' }), icon: Monitor, path: '/superdeck', basic: true },
       { label: t('nav.superPages'), shortLabel: t('navShort.superPages', { defaultValue: 'Pages' }), icon: Globe, path: '/pro/funnels', pro: true },
       { label: t('nav.autoResponder'), shortLabel: t('navShort.autoResponder', { defaultValue: 'Email' }), icon: Mail, path: '/pro/leads', pro: true },
       { label: t('nav.leadFinder', { defaultValue: 'Lead Finder' }), shortLabel: t('navShort.leadFinder', { defaultValue: 'Leads' }), icon: Search, path: '/lead-finder', pro: true },
@@ -421,9 +424,18 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                     </div>
                     {item.items.map(function(sub, j) {
                       var SubIcon = sub.icon;
-                      var isPro = sub.pro && !(user && user.is_admin) && (user?.membership_tier || 'basic') !== 'pro';
-                      var isTierLocked = sub.tierLocked && !(user && user.is_admin) && !(user?.highest_tier && user.highest_tier > 0);
-                      var locked = isPro || isTierLocked;
+                      // Three-tier lock evaluation:
+                      //   - basic: true → locked for free members (is_active = false)
+                      //   - pro: true   → locked for free + Basic members
+                      //   - tierLocked  → locked unless user has bought a campaign tier
+                      // Admin bypasses all locks.
+                      var isAdmin = !!(user && user.is_admin);
+                      var userIsActive = !!(user && user.is_active);
+                      var isProTier = (user?.membership_tier || 'basic').toLowerCase() === 'pro';
+                      var isBasicLocked = sub.basic && !isAdmin && !userIsActive;
+                      var isProLocked = sub.pro && !isAdmin && !isProTier;
+                      var isTierLocked = sub.tierLocked && !isAdmin && !(user?.highest_tier && user.highest_tier > 0);
+                      var locked = isBasicLocked || isProLocked || isTierLocked;
                       var subActive = isActive(sub.path);
                       return (
                         <Link key={j} to={sub.path}
@@ -481,9 +493,14 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                     <div style={{paddingBottom:4}}>
                       {item.items.map(function(sub, j) {
                         var SubIcon = sub.icon;
-                        var isPro = sub.pro && !(user && user.is_admin) && (user?.membership_tier || 'basic') !== 'pro';
-                        var isTierLocked = sub.tierLocked && !(user && user.is_admin) && !(user?.highest_tier && user.highest_tier > 0);
-                        var locked = isPro || isTierLocked;
+                        // Same three-tier evaluation as the collapsed branch.
+                        var isAdmin = !!(user && user.is_admin);
+                        var userIsActive = !!(user && user.is_active);
+                        var isProTier = (user?.membership_tier || 'basic').toLowerCase() === 'pro';
+                        var isBasicLocked = sub.basic && !isAdmin && !userIsActive;
+                        var isProLocked = sub.pro && !isAdmin && !isProTier;
+                        var isTierLocked = sub.tierLocked && !isAdmin && !(user?.highest_tier && user.highest_tier > 0);
+                        var locked = isBasicLocked || isProLocked || isTierLocked;
                         var subActive = isActive(sub.path);
                         return (
                           <Link key={j} to={sub.path} className={'sb-item' + (subActive ? ' sb-active' : '')} style={{

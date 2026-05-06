@@ -164,7 +164,7 @@ class User(Base):
     sending_wallet      = Column(String, nullable=True)    # wallet they send crypto payments FROM
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
-    membership_tier     = Column(String, default="basic")    # basic ($20/mo) or pro ($30/mo)
+    membership_tier     = Column(String, default="basic")    # basic ($20/mo, $200/yr) or pro ($35/mo, $350/yr)
     balance             = Column(Money, default=0.0)      # affiliate wallet — always withdrawable
     campaign_balance    = Column(Money, default=0.0)      # campaign wallet — requires active tier + watch quota
     total_earned        = Column(Money, default=0.0)      # lifetime earnings (both wallets combined)

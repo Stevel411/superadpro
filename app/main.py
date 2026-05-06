@@ -328,6 +328,14 @@ class PreLaunchMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(PreLaunchMiddleware)
 
+# Tier-based API gate. Single source of truth for which API endpoints
+# require Basic ($20/mo) or Pro ($35/mo) membership. See app/tier_gate.py
+# for the prefix lists. Admins bypass. Inactive users hitting Basic-or-
+# above endpoints get a 403 with redirect=/pay-membership. Free members
+# trying to use Pro-only endpoints get redirect=/upgrade-to-pro.
+from .tier_gate import TierGateMiddleware
+app.add_middleware(TierGateMiddleware)
+
 # Decimal-safe JSON — Numeric(18,6) columns return Decimal objects
 # which the default JSON encoder can't handle. This converts them to float.
 import decimal

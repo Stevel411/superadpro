@@ -226,6 +226,54 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+// ────────────────────────────────────────────────────────────────────
+// RequireTier — client-side tier gate.
+//
+// Usage: <RequireTier tier="basic"> or <RequireTier tier="pro">
+//
+// - Free members hitting a tier="basic" route → redirect to /pay-membership
+// - Free or Basic members hitting a tier="pro" route → redirect to /upgrade-to-pro
+// - Admin always passes
+//
+// This is the client-side mirror of the server-side TierGateMiddleware
+// (app/tier_gate.py). Both layers must agree on which tier a route needs.
+// The server is the source of truth — this guard exists so members get
+// a clean redirect rather than a 403 after the page loads.
+//
+// Pricing per docs/commission-spec.md:
+//   Basic = $20/mo or $200/yr (sets is_active = true)
+//   Pro   = $35/mo or $350/yr (sets is_active = true AND tier = 'pro')
+// ────────────────────────────────────────────────────────────────────
+function RequireTier({ tier, children }) {
+  const { user, loading } = useAuth();
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Spinner size="lg" />
+    </div>
+  );
+  if (!user) {
+    window.location.replace('/login');
+    return <div className="flex items-center justify-center min-h-screen"><Spinner size="lg" /></div>;
+  }
+  // Admin always passes
+  if (user.is_admin) return children;
+
+  const isActive = !!user.is_active;
+  const userTier = (user.membership_tier || 'basic').toLowerCase();
+
+  if (tier === 'basic') {
+    if (!isActive) return <Navigate to="/pay-membership" replace />;
+    return children;
+  }
+  if (tier === 'pro') {
+    if (!isActive) return <Navigate to="/pay-membership" replace />;
+    if (userTier !== 'pro') return <Navigate to="/upgrade-to-pro" replace />;
+    return children;
+  }
+  // Unknown tier — fail-open to avoid breaking unintended pages
+  return children;
+}
+
 function SmartHome() {
   const { user, loading } = useAuth();
   if (loading) return null;
@@ -246,41 +294,41 @@ function AppRoutes() {
       <Route path="/command-centre/directs/never-paid" element={<ProtectedRoute><BucketList bucketKey="directs-never-paid" /></ProtectedRoute>} />
       <Route path="/command-centre/grid-team" element={<ProtectedRoute><BucketList bucketKey="grid-team" /></ProtectedRoute>} />
       <Route path="/command-centre/nexus-team" element={<ProtectedRoute><BucketList bucketKey="nexus-team" /></ProtectedRoute>} />
-      <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+      <Route path="/wallet" element={<ProtectedRoute><RequireTier tier="basic"><Wallet /></RequireTier></ProtectedRoute>} />
       <Route path="/upgrade-from-balance" element={<ProtectedRoute><UpgradeFromBalance /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
-      <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+      <Route path="/courses" element={<ProtectedRoute><RequireTier tier="basic"><Courses /></RequireTier></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />
-      <Route path="/lead-finder" element={<ProtectedRoute><LeadFinder /></ProtectedRoute>} />
+      <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
-      <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
-      <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />
-      <Route path="/pay-it-forward" element={<ProtectedRoute><PayItForward /></ProtectedRoute>} />
+      <Route path="/campaign-tiers" element={<ProtectedRoute><RequireTier tier="basic"><CampaignTiers /></RequireTier></ProtectedRoute>} />
+      <Route path="/activate/:tierId" element={<ProtectedRoute><RequireTier tier="basic"><ActivateTier /></RequireTier></ProtectedRoute>} />
+      <Route path="/pay-it-forward" element={<ProtectedRoute><RequireTier tier="basic"><PayItForward /></RequireTier></ProtectedRoute>} />
       <Route path="/share-story" element={<ProtectedRoute><ShareStory /></ProtectedRoute>} />
       <Route path="/gift/:code" element={<GiftLanding />} />
-      <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
+      <Route path="/watch" element={<ProtectedRoute><RequireTier tier="basic"><Watch /></RequireTier></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-      <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
-      <Route path="/upload" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
-      <Route path="/create-campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><RequireTier tier="basic"><AnalyticsPage /></RequireTier></ProtectedRoute>} />
+      <Route path="/video-library" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
+      <Route path="/upload" element={<ProtectedRoute><RequireTier tier="basic"><CreateCampaign /></RequireTier></ProtectedRoute>} />
+      <Route path="/create-campaign" element={<ProtectedRoute><RequireTier tier="basic"><CreateCampaign /></RequireTier></ProtectedRoute>} />
 
-      {/* AI Marketing Tools */}
-      <Route path="/campaign-studio" element={<ProtectedRoute><AiTool title={'Campaign Studio'} subtitle={'AI-powered campaign generator'} apiEndpoint="/api/campaign-studio/generate"
+      {/* AI Marketing Tools — Pro-tier per Tools page spec */}
+      <Route path="/campaign-studio" element={<ProtectedRoute><RequireTier tier="basic"><AiTool title={'Campaign Studio'} subtitle={'AI-powered campaign generator'} apiEndpoint="/api/campaign-studio/generate"
         fields={[{key:'niche',label:'Your Niche',placeholder:'e.g. crypto trading, fitness, real estate'},{key:'audience',label:'Target Audience',placeholder:'e.g. beginners, professionals, women 25-45'},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Urgent','Inspirational','Educational']},{key:'goal',label:'Campaign Goal',type:'select',options:['Lead Generation','Sales','Brand Awareness','Recruitment']}]}
-        resultLabel="Your Campaign" /></ProtectedRoute>} />
-      <Route path="/niche-finder" element={<ProtectedRoute><AiTool title={'Niche Finder'} subtitle={'Discover profitable niches'} apiEndpoint="/api/niche-finder/generate"
+        resultLabel="Your Campaign" /></RequireTier></ProtectedRoute>} />
+      <Route path="/niche-finder" element={<ProtectedRoute><RequireTier tier="pro"><AiTool title={'Niche Finder'} subtitle={'Discover profitable niches'} apiEndpoint="/api/niche-finder/generate"
         fields={[{key:'interests',label:'Your Interests',placeholder:'e.g. health, technology, finance'},{key:'budget',label:'Budget Range',type:'select',options:['Under $500','$500-$2000','$2000-$5000','$5000+']},{key:'experience',label:'Experience Level',type:'select',options:['Beginner','Intermediate','Advanced']}]}
-        resultLabel="Niche Recommendations" /></ProtectedRoute>} />
-      <Route path="/social-post-generator" element={<ProtectedRoute><AiTool title={'Social Post Generator'} subtitle={'AI social media content'} apiEndpoint="/api/social-posts/generate"
+        resultLabel="Niche Recommendations" /></RequireTier></ProtectedRoute>} />
+      <Route path="/social-post-generator" element={<ProtectedRoute><RequireTier tier="basic"><AiTool title={'Social Post Generator'} subtitle={'AI social media content'} apiEndpoint="/api/social-posts/generate"
         fields={[{key:'topic',label:'Topic',placeholder:'What do you want to post about?'},{key:'platform',label:'Platform',type:'select',options:['Facebook','Instagram','X / Twitter','LinkedIn','TikTok']},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Funny','Inspirational','Educational']}]}
-        resultLabel="Your Social Post" /></ProtectedRoute>} />
-      <Route path="/video-script-generator" element={<ProtectedRoute><AiTool title={'Video Script Generator'} subtitle={'AI video scripts'} apiEndpoint="/api/video-scripts/generate"
+        resultLabel="Your Social Post" /></RequireTier></ProtectedRoute>} />
+      <Route path="/video-script-generator" element={<ProtectedRoute><RequireTier tier="basic"><AiTool title={'Video Script Generator'} subtitle={'AI video scripts'} apiEndpoint="/api/video-scripts/generate"
         fields={[{key:'topic',label:'Video Topic',placeholder:'What is the video about?'},{key:'duration',label:'Target Duration',type:'select',options:['30 seconds','1 minute','2 minutes','5 minutes','10 minutes']},{key:'style',label:'Style',type:'select',options:['Tutorial','Testimonial','Sales Pitch','Educational','Story']}]}
-        resultLabel="Your Video Script" /></ProtectedRoute>} />
+        resultLabel="Your Video Script" /></RequireTier></ProtectedRoute>} />
       <Route path="/email-swipes" element={<ProtectedRoute><AiTool title={'Email Swipes'} subtitle={'AI email copy generator'} apiEndpoint="/api/swipe-file/generate"
         fields={[{key:'product',label:'Product/Service',placeholder:'What are you promoting?'},{key:'audience',label:'Target Audience',placeholder:'Who are you emailing?'},{key:'goal',label:'Email Goal',type:'select',options:['Welcome Sequence','Sales Email','Follow-Up','Re-engagement','Announcement']}]}
         resultLabel="Your Email" /></ProtectedRoute>} />
@@ -292,33 +340,33 @@ function AppRoutes() {
       <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}
-      <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
-      <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
+      <Route path="/linkhub" element={<ProtectedRoute><RequireTier tier="basic"><LinkHubPage /></RequireTier></ProtectedRoute>} />
+      <Route path="/proseller" element={<ProtectedRoute><RequireTier tier="pro"><ProSeller /></RequireTier></ProtectedRoute>} />
       {/* SuperSeller removed */}
       <Route path="/training" element={<ProtectedRoute><TrainingCentre /></ProtectedRoute>} />
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
-      <Route path="/team-messenger" element={<ProtectedRoute><TeamMessenger /></ProtectedRoute>} />
+      <Route path="/team-messenger" element={<ProtectedRoute><RequireTier tier="basic"><TeamMessenger /></RequireTier></ProtectedRoute>} />
       <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/stories" element={<ProtectedRoute><AdminStories /></ProtectedRoute>} />
       <Route path="/admin/showcase" element={<ProtectedRoute><AdminShowcase /></ProtectedRoute>} />
-      <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
-      <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
-      <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />
-      <Route path="/superdeck" element={<ProtectedRoute><SuperDeckList /></ProtectedRoute>} />
-      <Route path="/superdeck/edit/:deckId" element={<ProtectedRoute><SuperDeckEditor /></ProtectedRoute>} />
-      <Route path="/video-creator" element={<ProtectedRoute><VideoCreator /></ProtectedRoute>} />
-      <Route path="/credit-nexus" element={<ProtectedRoute><CreditMatrix /></ProtectedRoute>} />
-      <Route path="/grid-visualiser" element={<ProtectedRoute><GridVisualiser /></ProtectedRoute>} />
-      <Route path="/grid-calculator" element={<ProtectedRoute><GridCalculator /></ProtectedRoute>} />
-      <Route path="/nexus-visualiser" element={<ProtectedRoute><CreditMatrixVisualiser /></ProtectedRoute>} />
-      <Route path="/campaign-analytics" element={<ProtectedRoute><CampaignAnalytics /></ProtectedRoute>} />
-      <Route path="/creative-studio" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><CreativeStudio /></React.Suspense></ProtectedRoute>} />
-      <Route path="/content-creator" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Content Creator…'}</div>}><ContentCreatorPage /></React.Suspense></ProtectedRoute>} />
-      <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
-      <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
-      <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />
+      <Route path="/pro/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
+      <Route path="/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
+      <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><SuperPagesEditor /></RequireTier></ProtectedRoute>} />
+      <Route path="/superdeck" element={<ProtectedRoute><RequireTier tier="basic"><SuperDeckList /></RequireTier></ProtectedRoute>} />
+      <Route path="/superdeck/edit/:deckId" element={<ProtectedRoute><RequireTier tier="basic"><SuperDeckEditor /></RequireTier></ProtectedRoute>} />
+      <Route path="/video-creator" element={<ProtectedRoute><RequireTier tier="basic"><VideoCreator /></RequireTier></ProtectedRoute>} />
+      <Route path="/credit-nexus" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
+      <Route path="/grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><GridVisualiser /></RequireTier></ProtectedRoute>} />
+      <Route path="/grid-calculator" element={<ProtectedRoute><RequireTier tier="basic"><GridCalculator /></RequireTier></ProtectedRoute>} />
+      <Route path="/nexus-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrixVisualiser /></RequireTier></ProtectedRoute>} />
+      <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
+      <Route path="/creative-studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><CreativeStudio /></React.Suspense></RequireTier></ProtectedRoute>} />
+      <Route path="/content-creator" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Content Creator…'}</div>}><ContentCreatorPage /></React.Suspense></RequireTier></ProtectedRoute>} />
+      <Route path="/pro/leads" element={<ProtectedRoute><RequireTier tier="pro"><MyLeads /></RequireTier></ProtectedRoute>} />
+      <Route path="/link-tools" element={<ProtectedRoute><RequireTier tier="basic"><LinkTools /></RequireTier></ProtectedRoute>} />
+      <Route path="/passup-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><PassupVisualiser /></RequireTier></ProtectedRoute>} />
       <Route path="/network" element={<Navigate to="/income" replace />} />
       <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
       <Route path="/income/membership" element={<ProtectedRoute><IncomeMembershipPage /></ProtectedRoute>} />
@@ -330,7 +378,7 @@ function AppRoutes() {
       <Route path="/learn/education" element={<ProtectedRoute><EducationPage /></ProtectedRoute>} />
       <Route path="/learn/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
       <Route path="/learn/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
-      <Route path="/income-chains" element={<ProtectedRoute><IncomeChains /></ProtectedRoute>} />
+      <Route path="/income-chains" element={<ProtectedRoute><RequireTier tier="basic"><IncomeChains /></RequireTier></ProtectedRoute>} />
       <Route path="/courses/commissions" element={<Navigate to="/wallet" replace />} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
 
