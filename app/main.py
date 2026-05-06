@@ -5379,9 +5379,17 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
         db.query(LinkHubLink).filter(LinkHubLink.user_id == user_id).delete()
 
         # GridPosition → references grids
+        # Two cases to handle:
+        # 1) Positions IN this user's own grids (grids they own) — drop them along with the grids
+        # 2) Positions WHERE this user is the placed member (someone else's grid via spillover)
+        #    These have FK grid_positions.member_id → users.id and would block the user delete
+        #    if not removed first. Bug surfaced 6 May 2026 — admin tried to delete a test user
+        #    who had been placed in someone else's grid via spillover and got a FK violation.
         grid_ids = [r.id for r in db.query(Grid).filter(Grid.owner_id == user_id).all()]
         if grid_ids:
             db.query(GridPosition).filter(GridPosition.grid_id.in_(grid_ids)).delete(synchronize_session=False)
+        # Also delete positions where THIS user is the placed member
+        db.query(GridPosition).filter(GridPosition.member_id == user_id).delete(synchronize_session=False)
 
         # CourseCommission → references course_purchases
         purchase_ids = [r.id for r in db.query(CoursePurchase).filter(CoursePurchase.user_id == user_id).all()]
