@@ -1326,6 +1326,45 @@ class CryptoPaymentOrder(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
 
 
+class WalletConnectPaymentOrder(Base):
+    """Self-custody crypto payment orders — user signs from their own wallet
+    via WalletConnect, sends USDT-BEP-20 directly to the treasury on BSC.
+
+    Mirrors the shape of CryptoPaymentOrder so downstream activation handlers
+    can treat both rails similarly, but targets BSC (chain 56) and uses
+    cent-level uniqueness on the amount (e.g. $19.97, $19.98, $19.99) rather
+    than the 6-decimal micro-amounts used by the legacy Polygon flow.
+
+    Lifecycle:
+      1. User clicks "Pay with Wallet" on Upgrade / ActivateTier / Nexus / Course
+      2. Backend creates this row with status='pending', a unique amount,
+         and expires_at = now + 15 min
+      3. Frontend opens Reown AppKit, user approves the BSC USDT transfer
+      4. Cron watcher (/cron/scan-bsc-payments, 30s interval) reads recent
+         BSC USDT Transfer events to the treasury and matches by amount
+      5. On match: status='confirmed', tx_hash + from_address recorded,
+         downstream activation handler runs (membership / grid / nexus / course)
+    """
+    __tablename__ = "walletconnect_payment_orders"
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # Product info — same shape as CryptoPaymentOrder for downstream handler reuse
+    product_type    = Column(String(50), nullable=False)   # membership, grid, course, nexus, email_boost, superscene
+    product_key     = Column(String(100), nullable=False)  # membership_basic, grid_3, nexus_5, course_starter, etc.
+    product_meta    = Column(Text, nullable=True)           # JSON: extra info (course_id, tier, billing_period, etc.)
+    # Pricing — Numeric(18,6) for arithmetic precision; cent-level uniqueness applied at create time
+    base_amount     = Column(Numeric(18, 6), nullable=False)  # e.g. 20.000000 (sticker price)
+    unique_amount   = Column(Numeric(18, 6), nullable=False, index=True)  # e.g. 19.970000 (what user sends)
+    # Status
+    status          = Column(String(20), default="pending", index=True)  # pending / confirmed / expired / cancelled
+    tx_hash         = Column(String(80), nullable=True, index=True)  # 0x + 64 hex
+    from_address    = Column(String(50), nullable=True)
+    block_number    = Column(BigInteger, nullable=True)
+    confirmed_at    = Column(DateTime, nullable=True)
+    expires_at      = Column(DateTime, nullable=False, index=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+
 class NowPaymentsOrder(Base):
     """NOWPayments invoice-based payment orders (crypto + fiat card)."""
     __tablename__ = "nowpayments_orders"
@@ -1692,6 +1731,30 @@ def run_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS wallet_network VARCHAR",
         "ALTER TABLE withdrawals ADD COLUMN IF NOT EXISTS network VARCHAR",
         "CREATE INDEX IF NOT EXISTS ix_withdrawals_network ON withdrawals (network)",
+        # WalletConnect / self-custody BSC inbound payments (May 2026 onwards).
+        # Phase 1 of the NOWPayments → self-custody migration; runs alongside
+        # nowpayments_orders for ~2 weeks before NOWPayments inbound is retired.
+        "CREATE TABLE IF NOT EXISTS walletconnect_payment_orders ("
+        "  id SERIAL PRIMARY KEY,"
+        "  user_id INTEGER NOT NULL REFERENCES users(id),"
+        "  product_type VARCHAR(50) NOT NULL,"
+        "  product_key VARCHAR(100) NOT NULL,"
+        "  product_meta TEXT,"
+        "  base_amount NUMERIC(18,6) NOT NULL,"
+        "  unique_amount NUMERIC(18,6) NOT NULL,"
+        "  status VARCHAR(20) DEFAULT 'pending',"
+        "  tx_hash VARCHAR(80),"
+        "  from_address VARCHAR(50),"
+        "  block_number BIGINT,"
+        "  confirmed_at TIMESTAMP,"
+        "  expires_at TIMESTAMP NOT NULL,"
+        "  created_at TIMESTAMP DEFAULT NOW()"
+        ")",
+        "CREATE INDEX IF NOT EXISTS idx_wcpo_user ON walletconnect_payment_orders(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_wcpo_status ON walletconnect_payment_orders(status)",
+        "CREATE INDEX IF NOT EXISTS idx_wcpo_unique_amount ON walletconnect_payment_orders(unique_amount)",
+        "CREATE INDEX IF NOT EXISTS idx_wcpo_tx_hash ON walletconnect_payment_orders(tx_hash)",
+        "CREATE INDEX IF NOT EXISTS idx_wcpo_expires_at ON walletconnect_payment_orders(expires_at)",
     ]
     results = []
     with engine.connect() as conn:
