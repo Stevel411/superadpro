@@ -26,7 +26,7 @@
 // rather than crashing the page.
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
-import { createAppKit } from '@reown/appkit/react';
+import { createAppKit, useAppKit } from '@reown/appkit/react';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { bsc } from '@reown/appkit/networks';
 import { WagmiProvider, useAccount, useWriteContract, useChainId, useSwitchChain } from 'wagmi';
@@ -134,6 +134,12 @@ function InnerButton(props) {
   var currentChainId = useChainId();
   var switchChain = useSwitchChain();
   var writeContract = useWriteContract();
+  // useAppKit gives us .open() / .close() — proper Reown API for opening
+  // the wallet selection modal. Replaces the earlier
+  // document.querySelector('appkit-button').click() hack which fired
+  // before the web component had registered (or hit the wrong instance
+  // on pages with multiple WalletConnectButton mounts like /credit-nexus).
+  var appKit = useAppKit();
 
   // Cleanup poll timer on unmount
   useEffect(function() {
@@ -208,9 +214,16 @@ function InnerButton(props) {
 
       // Open the modal if not already connected
       if (!account.isConnected) {
-        // Show the connect modal via the web component element
-        var btn = document.querySelector('appkit-button');
-        if (btn) btn.click();
+        // Use Reown's documented API to open the modal. Returns a
+        // Promise that resolves when the user closes the modal — but
+        // we don't await it here, we let the useEffect below catch
+        // the resulting account.isConnected change and proceed.
+        try {
+          appKit.open();
+        } catch (e) {
+          setPhase('error');
+          setError('Could not open wallet selector. Please refresh and try again.');
+        }
         // Wait for connection — useEffect below will catch it
         return;
       }
@@ -362,8 +375,6 @@ function InnerButton(props) {
           {error}
         </div>
       ) : null}
-      {/* Hidden AppKit web component — Reown injects this for the modal trigger */}
-      <appkit-button style={{ display: 'none' }} />
     </div>
   );
 }
