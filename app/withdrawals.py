@@ -29,6 +29,13 @@ TREASURY_ADDRESS = "0x71746f1634B0FBB3981B9B84EbE1A1a6f2430467"
 USDT_CONTRACT    = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
 POLYGON_CHAIN_ID = 137
 USDT_DECIMALS    = 6
+# Per-network USDT decimals. Critical: USDT on BSC uses 18 decimals
+# (it's the Binance-Peg wrapped version), while USDT on Tron and
+# Ethereum/Polygon uses 6. Mixing these up causes the on-chain transfer
+# to send effectively zero (off by a factor of 10^12) — see incident
+# 6 May 2026 where a $9 BSC withdrawal sent <0.00001 USDT on-chain.
+USDT_DECIMALS_TRON = 6
+USDT_DECIMALS_BSC  = 18
 
 # ── BSC (BEP-20) — primary EVM withdrawal network from 6 May 2026 ──
 # Treasury private key in env: TREASURY_PRIVATE_KEY_BSC
@@ -414,7 +421,7 @@ def get_treasury_tron_balances():
         client = _get_tron_client()
         contract = client.get_contract(USDT_CONTRACT_TRON)
         balance_raw = contract.functions.balanceOf(TREASURY_ADDRESS_TRON)
-        usdt = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
+        usdt = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS_TRON)
         trx = Decimal(str(client.get_account_balance(TREASURY_ADDRESS_TRON)))
         return float(usdt), float(trx)
     except Exception as e:
@@ -457,8 +464,10 @@ def send_usdt_tron(to_address, amount_usdt):
         if not client.is_address(to_address):
             return {"success": False, "tx_hash": "", "error": f"Invalid Tron address: {to_address}"}
 
-        # Convert USDT to raw units (6 decimals)
-        amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS))
+        # Convert USDT to raw units. Tron USDT uses 6 decimals
+        # (native USDT, same as Ethereum). USDT_DECIMALS_TRON = 6 — do
+        # NOT confuse with USDT_DECIMALS_BSC = 18.
+        amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS_TRON))
         if amount_raw <= 0:
             return {"success": False, "tx_hash": "", "error": "Invalid amount"}
 
@@ -466,7 +475,7 @@ def send_usdt_tron(to_address, amount_usdt):
         contract = client.get_contract(USDT_CONTRACT_TRON)
         balance_raw = contract.functions.balanceOf(TREASURY_ADDRESS_TRON)
         if balance_raw < amount_raw:
-            wallet_balance = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
+            wallet_balance = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS_TRON)
             logger.error(f"Insufficient Tron treasury USDT: {wallet_balance} < {amount_usdt}")
             return {"success": False, "tx_hash": "", "error": f"Insufficient treasury funds (${wallet_balance:.2f} available)"}
 
@@ -553,7 +562,7 @@ def get_treasury_bsc_balances():
             abi=ERC20_ABI,
         )
         balance_raw = contract.functions.balanceOf(addr).call()
-        usdt = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
+        usdt = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS_BSC)
         bnb_raw = w3.eth.get_balance(addr)
         bnb = Decimal(str(bnb_raw)) / Decimal(10 ** 18)
         return float(usdt), float(bnb)
@@ -593,8 +602,14 @@ def send_usdt_bsc(to_address, amount_usdt):
         except Exception:
             return {"success": False, "tx_hash": "", "error": f"Invalid BSC address: {to_address}"}
 
-        # Convert USDT to raw units (6 decimals)
-        amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS))
+        # Convert USDT to raw units. CRITICAL: BSC USDT uses 18 decimals
+        # (it's Binance-Peg wrapped USDT — different from native USDT on
+        # Ethereum/Tron/Polygon which use 6). Using the wrong constant
+        # causes the on-chain transfer to send dust — this exact bug
+        # caused the 6 May 2026 incident where $9 sent on-chain as
+        # 0.000000000009 USDT. Always USDT_DECIMALS_BSC here, not
+        # USDT_DECIMALS.
+        amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS_BSC))
         if amount_raw <= 0:
             return {"success": False, "tx_hash": "", "error": "Invalid amount"}
 
@@ -606,7 +621,7 @@ def send_usdt_bsc(to_address, amount_usdt):
         # Pre-flight: USDT balance check
         balance_raw = contract.functions.balanceOf(from_address).call()
         if balance_raw < amount_raw:
-            wallet_balance = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
+            wallet_balance = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS_BSC)
             logger.error(f"Insufficient BSC treasury USDT: {wallet_balance} < {amount_usdt}")
             return {"success": False, "tx_hash": "", "error": f"Insufficient treasury funds (${wallet_balance:.2f} available)"}
 
