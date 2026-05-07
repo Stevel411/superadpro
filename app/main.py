@@ -6070,7 +6070,13 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Log at warning level so we can see deliverability issues over time.
     try:
         from .email_utils import send_membership_activated_email
-        send_membership_activated_email(user.email, user.first_name or user.username, billing=user.membership_billing or "monthly")
+        send_membership_activated_email(
+            user.email,
+            user.first_name or user.username,
+            billing=user.membership_billing or "monthly",
+            is_upgrade=is_upgrade,
+            tier=tier,
+        )
     except Exception as exc:
         logger.warning(f"Welcome email failed for user {user.id} ({user.username}): {exc}")
 
@@ -6143,24 +6149,30 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
 @app.post("/api/upgrade-to-pro")
 async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
                               user: User = Depends(get_current_user)):
-    """Upgrade Basic → Pro for $15 (difference). 100% to company, no sponsor commission.
+    """Upgrade Basic → Pro. 100% to company, no sponsor commission.
 
-    Three payment rails (Step 4 triple-rail audit, 7 May 2026):
-      - balance: deduct $15 from user.balance (default if no payment_method specified)
-      - crypto:  create a NOWPayments invoice for $15, return checkout URL
-      - WalletConnect: handled by /api/onchain/create-intent + product_key=membership_pro_upgrade
-        (separate endpoint, see _nowpayments_activate_product membership_upgrade branch)
+    Two billing options (added 7 May 2026):
+      - monthly: $15 (the difference between Basic $20 and Pro $35)
+      - annual:  $350 (fresh Pro-annual activation; replaces remaining
+                 Basic time with a 365-day Pro membership). Saves $70 vs
+                 paying $35 × 12.
+
+    Three payment rails per Step 4 triple-rail audit:
+      - balance:        deduct from user.balance (default if no payment_method)
+      - crypto:         create a NOWPayments invoice, return checkout URL
+      - WalletConnect:  via /api/onchain/create-intent + product_key
+                        ('membership_pro_upgrade' for monthly,
+                         'membership_pro_annual'  for annual)
 
     Bug history (6 May 2026): this endpoint previously called
     _activate_membership directly with no payment step, granting free
-    Pro upgrades to any authenticated Basic member. Caught when Steve's
-    test account upgraded without any funds moving. Pre-launch impact
-    only (13 users total at time of fix); no real financial exposure.
+    Pro upgrades to any authenticated Basic member.
 
     Bug history (7 May 2026): this endpoint became balance-only after
-    the security fix, locking out members with $0 earnings. Step 4
-    triple-rail audit added the crypto+WC rails so members with no
-    earnings can still upgrade by paying the $15 directly.
+    the security fix. Step 4 triple-rail audit added crypto+WC rails.
+    Same day, this endpoint added the annual-upgrade option since
+    members previously had no way to buy Pro-annual without first
+    going to a confusing fresh-checkout flow.
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
@@ -6169,21 +6181,30 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
     if (user.membership_tier or "basic") == "pro" or user.is_admin:
         return JSONResponse({"error": "You're already on Pro"}, status_code=400)
 
-    # Purchase consent gate — see app/purchase_consent.py
+    # Purchase consent gate
     ok, err = require_fresh_consent(db, user.id, purpose="upgrade_to_pro")
     if not ok:
         return JSONResponse({"error": err}, status_code=403)
 
-    # Pick rail. Default to 'balance' for backwards compat with the
-    # existing UI — anything that posts to this endpoint without a
-    # payment_method continues to work the way it did pre-audit.
     body = {}
     try:
         body = await request.json()
     except Exception:
         pass
     payment_method = (body.get("payment_method") or "balance").strip().lower()
-    upgrade_fee = decimal.Decimal("15.00")
+    billing = (body.get("billing") or "monthly").strip().lower()
+    if billing not in ("monthly", "annual"):
+        billing = "monthly"
+
+    # Fee depends on billing. Annual is a fresh Pro-annual purchase
+    # (full $350) — not a prorated upgrade — to keep the math obvious
+    # and avoid edge cases like "user upgraded with 2 days of Basic
+    # left, what should the credit be?". The remaining Basic time is
+    # absorbed; member gets a clean 365-day Pro window from now.
+    if billing == "annual":
+        upgrade_fee = decimal.Decimal("350.00")
+    else:
+        upgrade_fee = decimal.Decimal("15.00")
 
     # ── Rail 1: balance ──
     if payment_method == "balance":
@@ -6195,16 +6216,15 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
                     "error": (
                         f"You need ${float(upgrade_fee):.2f} in your wallet to upgrade. "
                         f"Current balance: ${float(balance):.2f} (short ${float(shortfall):.2f}). "
-                        f"Top up your wallet or pay the full Pro fee from /upgrade."
+                        f"Top up your wallet or pay directly with crypto from the upgrade page."
                     )
                 },
                 status_code=400,
             )
 
-        # Deduct the upgrade fee from balance BEFORE activating Pro so the
-        # state change is atomic — _activate_membership commits at the end.
+        # Deduct BEFORE activating so the state change is atomic
         user.balance = balance - upgrade_fee
-        return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True)
+        return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True, billing=billing)
 
     # ── Rail 2: crypto via NOWPayments ──
     elif payment_method == "crypto":
@@ -6213,27 +6233,43 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
         if not nps.is_configured():
             return JSONResponse({"error": "Crypto payments not configured"}, status_code=503)
 
-        # Cancel any existing pending pro_upgrade orders for this user
+        # Annual buys the standard Pro-annual product; monthly uses the
+        # dedicated $15 upgrade SKU added in Step 4.
+        product_key = "membership_pro_annual" if billing == "annual" else "membership_pro_upgrade"
+
+        # Cancel any existing pending orders for this product
         db.query(NowPaymentsOrder).filter(
             NowPaymentsOrder.user_id == user.id,
-            NowPaymentsOrder.product_key == "membership_pro_upgrade",
+            NowPaymentsOrder.product_key == product_key,
             NowPaymentsOrder.status == "pending",
         ).update({"status": "cancelled"})
         db.flush()
 
+        # product_type = 'membership' for the annual fresh-purchase path
+        # (matches the existing membership branch in _nowpayments_activate_product
+        # which sets is_upgrade from product_meta).
+        product_type = "membership" if billing == "annual" else "membership_upgrade"
+
         order = NowPaymentsOrder(
             user_id=user.id,
-            product_type="membership_upgrade",
-            product_key="membership_pro_upgrade",
+            product_type=product_type,
+            product_key=product_key,
             price_usd=upgrade_fee,
             status="pending",
         )
+        # For the annual fresh-purchase path, stamp is_upgrade in
+        # product_meta so the membership branch knows this is upgrading
+        # an existing Basic member rather than a brand-new activation.
+        if billing == "annual":
+            import json as _json
+            order.product_meta = _json.dumps({"is_upgrade": True})
+
         db.add(order)
         db.flush()
         order.internal_order_id = f"SAP-{user.id}-{order.id}"
 
         result = nps.create_invoice(
-            product_key="membership_pro_upgrade",
+            product_key=product_key,
             user_id=user.id,
             order_id=order.id,
         )
@@ -6250,11 +6286,6 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
             "invoice_url": result.get("invoice_url"),
             "order_id": order.id,
         }
-
-    # WalletConnect rail is NOT a branch here — the frontend uses
-    # <WalletPayLink productKey="membership_pro_upgrade" /> which calls
-    # /api/onchain/create-intent. The activation comes back through
-    # _nowpayments_activate_product's membership_upgrade branch.
 
     return JSONResponse({"error": "Invalid payment_method (use 'balance' or 'crypto')"}, status_code=400)
 def _stripe_process_grid(db, user, package_tier, price_usd, session_id):

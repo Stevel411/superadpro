@@ -105,7 +105,43 @@ def send_password_reset_email(to_email, first_name, reset_url):
 # ═══════════════════════════════════════════════════════════════
 # EMAIL 4: MEMBERSHIP ACTIVATED
 # ═══════════════════════════════════════════════════════════════
-def send_membership_activated_email(to_email, first_name, billing="monthly"):
+def send_membership_activated_email(to_email, first_name, billing="monthly", is_upgrade=False, tier="basic"):
+    # ── Pro upgrade variant ──
+    # When a Basic member upgrades to Pro, send an upgrade-specific email
+    # rather than the generic "welcome to the platform" message that
+    # implies a fresh signup. Triggered by is_upgrade=True from
+    # _activate_membership in main.py.
+    if is_upgrade and tier == "pro":
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#9889;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">You\'re now on Pro, <span style="color:#8b5cf6">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7">Your upgrade is active. All Pro tools are now unlocked on your account.</p>'
+        body = _card(
+            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#8b5cf6;margin:0 0 14px">What\'s new on Pro</p>' +
+            _check(
+                'SuperPages — full drag-and-drop landing-page builder with 8 templates',
+                'ProSeller AI — automated sales agents and content campaigns',
+                'My Leads — autoresponder sequences, broadcasts, lead capture',
+                'Create Course — sell your own courses through Course Academy',
+                '$17.50 per Pro referral / month (up from $10 on Basic)',
+            ),
+            bg='#faf5ff', border='#ddd6fe',
+        ) + _card(
+            '<p style="margin:0;font-size:15px;color:#166534;text-align:center;line-height:1.6"><strong>Your Pro income jump:</strong> Every Pro referral now pays you $17.50/month instead of $10 — that\'s 75% more from the same effort.</p>',
+            bg='#f0fdf4', border='#bbf7d0',
+        )
+        # Annual upsell — only for monthly Pro members
+        if billing == "monthly":
+            body += _card(
+                f'<p style="margin:0;font-size:14px;color:#1e40af;text-align:center;line-height:1.6">&#128176; <strong>Lock in 12 months of Pro and save $70</strong> by switching to annual billing ($350 / year vs $35 &times; 12). Switch from your <a href="{SITE_URL}/upgrade" style="color:#2563eb;font-weight:700;text-decoration:underline">upgrade page</a>.</p>',
+                bg='#eff6ff', border='#bfdbfe',
+            )
+        body += _btn(f"{SITE_URL}/dashboard", "Explore my Pro tools &rarr;", "#8b5cf6")
+        return send_email(
+            to_email,
+            f"You're upgraded to Pro!",
+            _shell("Pro is live", "linear-gradient(135deg,#faf5ff,#ede9fe)", hero, body),
+            f"Hi {first_name}, your SuperAdPro Pro upgrade is now active. Go to {SITE_URL}/dashboard",
+        )
+
+    # ── Standard activation (fresh signup) ──
     hero = f'<div style="font-size:48px;margin-bottom:14px">&#128640;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">You\'re officially a member, <span style="color:#8b5cf6">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7">Your SuperAdPro membership is now active. Here\'s everything you\'ve unlocked:</p>'
     body = _card(_check('Earn 50% referral commissions ($10 per Basic, $17.50 per Pro) every month', 'Creative Studio — AI video clips, full videos, images, music, voiceover, and lip sync', 'Watch daily campaign videos to qualify for grid commissions', 'Build your LinkHub page and track links with Link Tools', 'Withdraw earnings via USDT anytime from $10'), bg='#faf5ff', border='#ddd6fe') + _card('<p style="margin:0;font-size:15px;color:#166534;text-align:center;line-height:1.6"><strong>Pro tip:</strong> Refer just 2 Basic members and your $20/month membership pays for itself. Pro referrals are even better at $17.50 each.</p>', bg='#f0fdf4', border='#bbf7d0')
     # Annual upsell — only for monthly members
