@@ -453,7 +453,7 @@ export default function Dashboard() {
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
-              minHeight: 210,
+              minHeight: 240,
             }}>
               {/* Inset 5px LEFT accent stripe — sits 12px in from top and
                   bottom edges with rounded right cap, so the card's
@@ -560,7 +560,7 @@ export default function Dashboard() {
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
-              minHeight: 210,
+              minHeight: 240,
             }}
             onMouseEnter={function(e) {
               e.currentTarget.style.transform = 'translateY(-2px)';
