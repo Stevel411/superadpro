@@ -729,6 +729,12 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     course_recent = db.query(CourseCommission).filter(
         CourseCommission.earner_id == user.id
     ).order_by(CourseCommission.created_at.desc()).limit(5).all()
+    # Credit Nexus matrix commissions (added 7 May 2026 — were missing
+    # from the dashboard activity feed since the table was introduced)
+    matrix_recent = db.query(CreditMatrixCommission).filter(
+        CreditMatrixCommission.earner_id == user.id,
+        CreditMatrixCommission.status == 'paid',
+    ).order_by(CreditMatrixCommission.created_at.desc()).limit(5).all()
     # General commissions (excludes reversed admin cleanups)
     gen_recent = db.query(Commission).filter(
         Commission.to_user_id == user.id,
@@ -740,6 +746,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     # per-row .first() inside each for-loop = N+1.
     counterparty_ids = list({
         *(c.buyer_id for c in course_recent if c.buyer_id),
+        *(c.from_user_id for c in matrix_recent if c.from_user_id),
         *(c.from_user_id for c in gen_recent if c.from_user_id),
     })
     counterparty_by_id = {}
@@ -755,6 +762,21 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
             "title": f"{buyer.username if buyer else '?'} purchased Tier {c.course_tier}",
             "sub": "Course " + ("direct sale" if c.commission_type == "direct_sale" else "pass-up"),
             "amount": float(c.amount),
+            "date": c.created_at
+        })
+    for c in matrix_recent:
+        from_user = counterparty_by_id.get(c.from_user_id)
+        # commission_type is 'matrix_level' for level commissions (1/2/3)
+        # or 'matrix_completion' for the cycle bonus.
+        is_completion = c.commission_type == 'matrix_completion'
+        activity.append({
+            "icon": "💎", "color": "purple",
+            "title": (
+                f"{from_user.username if from_user else '?'} bought a credit pack"
+                if not is_completion else "Matrix cycle completed"
+            ),
+            "sub": "Credit Nexus " + ("completion bonus" if is_completion else f"L{c.level} commission"),
+            "amount": float(c.amount or 0),
             "date": c.created_at
         })
     for c in gen_recent:
@@ -807,7 +829,17 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "membership_earned": membership_earned,
         "boost_earned":      boost_earned,
         "grid_earned":       grid_earned,
-        "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.status == 'paid', Commission.commission_type.in_(["matrix_level", "matrix_completion"]), Commission.amount_usdt > 0).scalar() or 0),
+        # ── creative_studio_earned (frontend label: "Credit Nexus") ──
+        # Legacy field name from when matrix payouts were attached to the
+        # Creative Studio feature. Now correctly reads from
+        # CreditMatrixCommission table (where Credit Nexus payments
+        # actually live) rather than the Commission table.
+        # Bug fixed 7 May 2026: previously queried Commission for
+        # 'matrix_level'/'matrix_completion' types, which only matched
+        # legacy pre-Credit-Nexus-table commissions (very few). Result
+        # was Command Centre + Income page showing $0 for Credit Nexus
+        # earnings even when CreditMatrixCommission rows existed.
+        "creative_studio_earned": _earn["nexus_earnings"],
         "personal_referrals": _earn["personal_referrals"],
         "direct_referrals_count": _earn["personal_referrals"],
         # Replaces the legacy total_team counter. Computed live via recursive
@@ -861,26 +893,64 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         ).filter(CreditMatrix.owner_id == user.id).distinct().count() - 1),
         # Earnings this calendar month (commissions paid TO this user).
         # Used as the headline number on Command Centre's outcome card.
-        "earnings_this_month": float(
-            db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
-            .filter(
-                Commission.to_user_id == user.id,
-                Commission.amount_usdt > 0,
-                Commission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-            ).scalar() or 0
+        # Sums across all three commission tables: Commission (grid +
+        # membership), CreditMatrixCommission (Credit Nexus), and
+        # CourseCommission (Course Academy). Bug fixed 7 May 2026:
+        # previously summed only Commission, undercounting members who
+        # earned via Credit Nexus or Courses this month.
+        "earnings_this_month": (
+            float(
+                db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
+                .filter(
+                    Commission.to_user_id == user.id,
+                    Commission.amount_usdt > 0,
+                    Commission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                ).scalar() or 0
+            ) + float(
+                db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0))
+                .filter(
+                    CreditMatrixCommission.earner_id == user.id,
+                    CreditMatrixCommission.status == 'paid',
+                    CreditMatrixCommission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                ).scalar() or 0
+            ) + float(
+                db.query(func.coalesce(func.sum(CourseCommission.amount), 0))
+                .filter(
+                    CourseCommission.earner_id == user.id,
+                    CourseCommission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                ).scalar() or 0
+            )
         ),
         # Earnings LAST calendar month — used to compute a +/- delta on
         # the Command Centre outcome card so members can see momentum.
         # First-of-this-month minus 1 day = some day in last month → use
         # that month's first day as the lower bound.
-        "earnings_last_month": float(
-            db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
-            .filter(
-                Commission.to_user_id == user.id,
-                Commission.amount_usdt > 0,
-                Commission.created_at >= (datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                Commission.created_at < datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-            ).scalar() or 0
+        # Same 3-table aggregation as earnings_this_month.
+        "earnings_last_month": (
+            float(
+                db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
+                .filter(
+                    Commission.to_user_id == user.id,
+                    Commission.amount_usdt > 0,
+                    Commission.created_at >= (datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                    Commission.created_at < datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                ).scalar() or 0
+            ) + float(
+                db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0))
+                .filter(
+                    CreditMatrixCommission.earner_id == user.id,
+                    CreditMatrixCommission.status == 'paid',
+                    CreditMatrixCommission.created_at >= (datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                    CreditMatrixCommission.created_at < datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                ).scalar() or 0
+            ) + float(
+                db.query(func.coalesce(func.sum(CourseCommission.amount), 0))
+                .filter(
+                    CourseCommission.earner_id == user.id,
+                    CourseCommission.created_at >= (datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                    CourseCommission.created_at < datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                ).scalar() or 0
+            )
         ),
         "grid_stats":        stats,
         "active_grids":      active_grids,
@@ -3706,6 +3776,11 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     six_months_ago = now - timedelta(days=180)
 
     # ── Daily earnings (last 30 days) ──
+    # Aggregates across all 3 commission tables: Commission (paid_at),
+    # CourseCommission (created_at), CreditMatrixCommission (created_at).
+    # CreditMatrixCommission added 7 May 2026 — was previously missing,
+    # which caused the daily earnings chart to under-report any day a
+    # member earned via Credit Nexus.
     daily_commissions = db.query(
         cast(Commission.paid_at, Date).label('day'),
         func.sum(Commission.amount_usdt).label('total')
@@ -3722,11 +3797,23 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         CourseCommission.created_at >= thirty_days_ago
     ).group_by(cast(CourseCommission.created_at, Date)).all()
 
+    daily_matrix = db.query(
+        cast(CreditMatrixCommission.created_at, Date).label('day'),
+        func.sum(CreditMatrixCommission.amount).label('total')
+    ).filter(
+        CreditMatrixCommission.earner_id == user.id,
+        CreditMatrixCommission.status == 'paid',
+        CreditMatrixCommission.created_at >= thirty_days_ago
+    ).group_by(cast(CreditMatrixCommission.created_at, Date)).all()
+
     daily_map = defaultdict(float)
     for row in daily_commissions:
         if row.day:
             daily_map[str(row.day)] += float(row.total or 0)
     for row in daily_courses:
+        if row.day:
+            daily_map[str(row.day)] += float(row.total or 0)
+    for row in daily_matrix:
         if row.day:
             daily_map[str(row.day)] += float(row.total or 0)
 
@@ -3762,12 +3849,21 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     # SuperMarket placeholder
     supermarket_total = 0
 
-    # Credit Nexus earnings
-    nexus_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+    # Credit Nexus earnings — reads from CreditMatrixCommission (where
+    # the actual money lives) plus any legacy Commission rows tagged
+    # with matrix_*/nexus_* types. Bug fixed 7 May 2026: previously
+    # only looked at Commission table, returning $0 for every modern
+    # Credit Nexus earner.
+    nexus_legacy = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user.id,
         Commission.status == 'paid',
         Commission.commission_type.in_(['matrix_level', 'matrix_completion', 'nexus_sponsor', 'nexus_level', 'nexus_completion'])
     ).scalar() or 0)
+    nexus_matrix = float(db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0)).filter(
+        CreditMatrixCommission.earner_id == user.id,
+        CreditMatrixCommission.status == 'paid',
+    ).scalar() or 0)
+    nexus_total = nexus_legacy + nexus_matrix
 
     # ── Grid progress ──
     active_grids = db.query(Grid).filter(
@@ -15148,11 +15244,23 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
         Commission.commission_type.notin_(["admin_adjustment", "admin_fix", "boost_platform_fee", "membership_company"])
     ).order_by(Commission.created_at.desc()).limit(200).all()
 
+    # ── 3. Credit Nexus matrix commissions (CreditMatrixCommission) ──
+    # Added 7 May 2026 — were previously missing from the flows feed
+    # entirely, so members couldn't see their Credit Nexus payments
+    # in the commission flows visualisation despite the docstring
+    # claiming "ALL commissions across all 4 income streams".
+    matrix_comms = db.query(CreditMatrixCommission).filter(
+        CreditMatrixCommission.earner_id == user.id,
+        CreditMatrixCommission.status == 'paid',
+    ).order_by(CreditMatrixCommission.created_at.desc()).limit(100).all()
+
     # Collect user IDs for name lookups
     user_ids = set()
     for c in course_comms:
         if c.buyer_id: user_ids.add(c.buyer_id)
     for c in general_comms:
+        if c.from_user_id: user_ids.add(c.from_user_id)
+    for c in matrix_comms:
         if c.from_user_id: user_ids.add(c.from_user_id)
     users_map = {u.id: u for u in db.query(User).filter(User.id.in_(user_ids)).all()} if user_ids else {}
 
@@ -15192,6 +15300,17 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
             "date": c.created_at.isoformat() if c.created_at else None,
         })
 
+    for c in matrix_comms:
+        from_user = users_map.get(c.from_user_id)
+        flows.append({
+            "from": from_user.username if from_user else "?",
+            "amount": float(c.amount or 0),
+            "stream": "nexus",
+            "type": c.commission_type or "matrix_level",
+            "notes": f"L{c.level} on ${float(c.pack_price or 0):.0f} pack" if c.commission_type != "matrix_completion" else "Cycle completion bonus",
+            "date": c.created_at.isoformat() if c.created_at else None,
+        })
+
     # Sort all by date descending
     flows.sort(key=lambda x: x["date"] or "", reverse=True)
 
@@ -15209,6 +15328,8 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
         "grid_earned": _earn["grid_earnings"],
         "boost_earned": boost_earned,
         "course_earned": _earn["course_earnings"],
+        # Nexus earnings — newly surfaced (was missing before 7 May 2026)
+        "nexus_earned": _earn["nexus_earnings"],
         "course_sale_count": course_stats.get("course_sale_count", 0),
         "direct_course_sales": course_stats.get("direct_commissions", 0),
         "passup_course_sales": course_stats.get("passup_commissions", 0),
@@ -20946,16 +21067,34 @@ def api_leaderboard(db: Session = Depends(get_db)):
         User.created_at >= week_ago, User.is_active == True
     ).order_by(User.created_at.desc()).limit(10).all()
 
-    # Recent commissions
+    # Recent commissions — across all 3 commission tables.
+    # Only membership-related Commission rows are shown from the
+    # Commission table (that was the original intent of this filter
+    # — to surface "X earned" moments rather than internal grid plumbing).
+    # CreditMatrixCommission + CourseCommission added 7 May 2026 so
+    # Credit Nexus and Course earners also show up in the public feed.
     recent_comms = db.query(Commission).filter(
         Commission.created_at >= week_ago,
         Commission.status == "paid",
         Commission.commission_type.in_(["membership_sponsor", "membership_renewal"])
     ).order_by(Commission.created_at.desc()).limit(10).all()
 
-    # Bulk-load earners for recent commissions in one query (was N+1).
+    recent_matrix = db.query(CreditMatrixCommission).filter(
+        CreditMatrixCommission.created_at >= week_ago,
+        CreditMatrixCommission.status == "paid",
+    ).order_by(CreditMatrixCommission.created_at.desc()).limit(10).all()
+
+    recent_course = db.query(CourseCommission).filter(
+        CourseCommission.created_at >= week_ago,
+    ).order_by(CourseCommission.created_at.desc()).limit(10).all()
+
+    # Bulk-load earners across all 3 sources in one query (was N+1).
     earner_by_id = {}
-    earner_ids = list({c.to_user_id for c in recent_comms if c.to_user_id})
+    earner_ids = list({
+        *(c.to_user_id for c in recent_comms if c.to_user_id),
+        *(c.earner_id for c in recent_matrix if c.earner_id),
+        *(c.earner_id for c in recent_course if c.earner_id),
+    })
     if earner_ids:
         earner_rows = db.query(User).filter(User.id.in_(earner_ids)).all()
         earner_by_id = {u.id: u for u in earner_rows}
@@ -20977,22 +21116,49 @@ def api_leaderboard(db: Session = Depends(get_db)):
                 "text": f"{earner.first_name or earner.username} earned a commission",
                 "time": c.created_at.isoformat() if c.created_at else None,
             })
+    for c in recent_matrix:
+        earner = earner_by_id.get(c.earner_id)
+        if earner:
+            activity.append({
+                "type": "earning",
+                "icon": "💎",
+                "text": f"{earner.first_name or earner.username} earned a Credit Nexus commission",
+                "time": c.created_at.isoformat() if c.created_at else None,
+            })
+    for c in recent_course:
+        earner = earner_by_id.get(c.earner_id)
+        if earner:
+            activity.append({
+                "type": "earning",
+                "icon": "🎓",
+                "text": f"{earner.first_name or earner.username} earned a course commission",
+                "time": c.created_at.isoformat() if c.created_at else None,
+            })
 
     # Sort by time, newest first
     activity.sort(key=lambda x: x.get("time") or "", reverse=True)
     activity = activity[:20]
 
     # Platform stats — commissions paid OUT TO MEMBERS only.
-    # Filter to_user_id IS NOT NULL excludes platform fees and overflow-
-    # to-company commissions (where to_user_id is None). Without this
-    # filter the headline "paid out to members" number is inflated by
-    # company-routed revenue, which is misleading on a leaderboard
-    # marketed as showing what members have earned. (Fix 4 May 2026.)
+    # Filter to_user_id IS NOT NULL (Commission table) excludes platform
+    # fees and overflow-to-company commissions (where to_user_id is None).
+    # Without this filter the headline "paid out to members" number is
+    # inflated by company-routed revenue, which is misleading on a
+    # leaderboard marketed as showing what members have earned.
+    # (Fix 4 May 2026.)
+    # Updated 7 May 2026 to sum across all 3 commission tables —
+    # previously only counted Commission, undercounting Credit Nexus
+    # + Course payouts.
     total_members = db.query(User).filter(User.is_active == True).count()
-    total_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
+    total_earned_grid = float(db.query(func.sum(Commission.amount_usdt)).filter(
         Commission.status == "paid",
         Commission.to_user_id.isnot(None),
     ).scalar() or 0)
+    total_earned_matrix = float(db.query(func.sum(CreditMatrixCommission.amount)).filter(
+        CreditMatrixCommission.status == "paid",
+    ).scalar() or 0)
+    total_earned_course = float(db.query(func.sum(CourseCommission.amount)).scalar() or 0)
+    total_earned = total_earned_grid + total_earned_matrix + total_earned_course
 
     result = {
         "ref_leaders": [user_data(u) for u in ref_leaders],
@@ -21443,8 +21609,12 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
     commissions = get_user_commission_history(db, user.id, limit=30)
 
     # Credit Nexus earnings — commissions from the 3x3 credit-pack matrix
-    # (when downline buy credit packs, matrix pays level commissions + completion bonus)
-    nexus_earnings = float(db.query(
+    # (when downline buy credit packs, matrix pays level commissions + completion bonus).
+    # Bug fixed 7 May 2026: now reads from CreditMatrixCommission (where modern
+    # Credit Nexus commissions actually live) plus legacy Commission rows tagged
+    # with matrix_*/nexus_* types. Previously only queried Commission table,
+    # returning $0 for every member earning via Credit Nexus.
+    nexus_legacy_total = float(db.query(
         func.coalesce(func.sum(Commission.amount_usdt), 0)
     ).filter(
         Commission.to_user_id == user.id,
@@ -21453,6 +21623,13 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
             "nexus_sponsor", "nexus_level", "nexus_completion",
         ]),
     ).scalar() or 0)
+    nexus_matrix_total = float(db.query(
+        func.coalesce(func.sum(CreditMatrixCommission.amount), 0)
+    ).filter(
+        CreditMatrixCommission.earner_id == user.id,
+        CreditMatrixCommission.status == 'paid',
+    ).scalar() or 0)
+    nexus_earnings = nexus_legacy_total + nexus_matrix_total
 
     # This-month total across all streams — for the "This Month" stat card
     from datetime import datetime as _dt_net
@@ -21465,7 +21642,13 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
         CourseCommission.earner_id == user.id,
         CourseCommission.created_at >= month_start,
     ).scalar() or 0)
-    this_month_total = this_month_grid + this_month_courses
+    # Credit Nexus this-month — added 7 May 2026 (was missing).
+    this_month_matrix = float(db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0)).filter(
+        CreditMatrixCommission.earner_id == user.id,
+        CreditMatrixCommission.status == 'paid',
+        CreditMatrixCommission.created_at >= month_start,
+    ).scalar() or 0)
+    this_month_total = this_month_grid + this_month_courses + this_month_matrix
 
     # Active referrals this month — last activity in current calendar month
     active_this_month = sum(1 for r in referrals if r.is_active)
@@ -22624,9 +22807,23 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
 
     for u in active_users:
         try:
-            weekly_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
+            # Weekly earned across all 3 commission tables.
+            # Bug fixed 7 May 2026: previously only summed Commission,
+            # so weekly digest emails under-reported any member earning
+            # via Credit Nexus or Courses that week.
+            weekly_earned_grid = float(db.query(func.sum(Commission.amount_usdt)).filter(
                 Commission.to_user_id == u.id, Commission.created_at >= week_ago, Commission.status == "paid"
             ).scalar() or 0)
+            weekly_earned_matrix = float(db.query(func.sum(CreditMatrixCommission.amount)).filter(
+                CreditMatrixCommission.earner_id == u.id,
+                CreditMatrixCommission.created_at >= week_ago,
+                CreditMatrixCommission.status == "paid",
+            ).scalar() or 0)
+            weekly_earned_course = float(db.query(func.sum(CourseCommission.amount)).filter(
+                CourseCommission.earner_id == u.id,
+                CourseCommission.created_at >= week_ago,
+            ).scalar() or 0)
+            weekly_earned = weekly_earned_grid + weekly_earned_matrix + weekly_earned_course
 
             new_refs = db.query(User).filter(User.sponsor_id == u.id, User.created_at >= week_ago).count()
             total_refs = u.personal_referrals or 0
