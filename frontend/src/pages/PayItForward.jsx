@@ -27,6 +27,17 @@ export default function PayItForward() {
   var [error, setError] = useState('');
   var [success, setSuccess] = useState('');
 
+  // Consent gate hook — MUST be called before any early return so the
+  // hook count is stable across renders. The first render returns the
+  // loading spinner early; without this hook positioned above the
+  // early-return, the second render would call useConsentGate where
+  // the first didn't, triggering React error #310 ("Rendered more
+  // hooks than during the previous render").
+  // Used by the WalletPayLink for the on-chain rail. The wallet/crypto
+  // buttons go through the backend's require_fresh_consent check;
+  // they don't need this client-side gate.
+  var consentGate = useConsentGate();
+
   function loadData() {
     apiGet('/api/pay-it-forward/dashboard').then(function(d) {
       setData(d);
@@ -86,11 +97,6 @@ export default function PayItForward() {
   var stats = data ? data.stats : {};
   var vouchers = data ? data.vouchers : [];
   var canPayFromWallet = data ? data.can_pay_from_wallet : false;
-
-  // Consent gate hook — used by both wallet/crypto buttons (via the
-  // backend require_fresh_consent on /api/pay-it-forward/create) and by
-  // the WalletPayLink for the on-chain rail.
-  var consentGate = useConsentGate();
 
   return (
     <Suspense fallback={
