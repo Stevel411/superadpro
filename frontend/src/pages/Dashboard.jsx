@@ -424,7 +424,7 @@ export default function Dashboard() {
           the member outward. Uses only design-tokens.css variables,
           same responsive pattern as income-grid (4 cols → 2 on mobile). */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.exploreSection', { defaultValue: 'Explore the platform' })}</div>
-      <div className="doors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18, marginBottom: 20 }}>
+      <div className="doors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             id: 'command-centre',
@@ -483,7 +483,7 @@ export default function Dashboard() {
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
-              minHeight: 200,
+              minHeight: 175,
             }}>
               {/* Inset 5px LEFT accent stripe — sits 12px in from top and
                   bottom edges with rounded right cap, so the card's
@@ -493,12 +493,12 @@ export default function Dashboard() {
               {/* Centered unframed icon — 44px, colour-only stroke. Replaces
                   the previous 64px filled colour block + white icon inside. */}
               <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                <Icon size={44} color={door.colourVar} strokeWidth={2.2} style={{ display: 'inline-block' }} />
+                <Icon size={52} color={door.colourVar} strokeWidth={2.5} style={{ display: 'inline-block' }} />
               </div>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
                 {door.label}
               </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 19, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.3px', lineHeight: 1.2, marginBottom: 6 }}>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.15, marginBottom: 8 }}>
                 {door.title}
               </div>
               <div style={{...TYPE.bodyMuted, fontSize: 13, lineHeight: 1.5, marginBottom: 10, flex: 1}}>
@@ -531,7 +531,7 @@ export default function Dashboard() {
           reads as two consistent rows of cards rather than a heroic row
           followed by a smaller secondary row. */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
-      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18, marginBottom: 20 }}>
+      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             id: 'payItForward',
@@ -590,7 +590,7 @@ export default function Dashboard() {
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
-              minHeight: 200,
+              minHeight: 175,
             }}
             onMouseEnter={function(e) {
               e.currentTarget.style.transform = 'translateY(-2px)';
@@ -604,12 +604,12 @@ export default function Dashboard() {
               <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 5, background: action.colourVar, borderRadius: '0 3px 3px 0' }} />
               {/* Centered unframed icon — 44px stroke icon, no background block */}
               <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                <Icon size={44} color={action.colourVar} strokeWidth={2.2} style={{ display: 'inline-block' }} />
+                <Icon size={52} color={action.colourVar} strokeWidth={2.5} style={{ display: 'inline-block' }} />
               </div>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
                 {action.label}
               </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 19, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.3px', lineHeight: 1.2, marginBottom: 6 }}>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.15, marginBottom: 8 }}>
                 {action.title}
               </div>
               <div style={{...TYPE.bodyMuted, fontSize: 13, lineHeight: 1.5, marginBottom: 10, flex: 1}}>
