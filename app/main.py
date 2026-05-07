@@ -6101,9 +6101,6 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
 
     db.commit()
     return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
-def _stripe_activate_membership(db, user, tier, subscription_id, billing="monthly"):
-    """Stripe membership activation — delegates to shared function."""
-    return _activate_membership(db, user, tier, source="stripe", subscription_id=subscription_id, billing=billing)
 def _stripe_renew_membership(db, user, tier, subscription_id):
     """Process monthly renewal — sponsor gets capped commission."""
     from datetime import datetime, timedelta
