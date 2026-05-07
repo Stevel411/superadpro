@@ -27,6 +27,7 @@ from sqlalchemy.orm import Session
 from decimal import Decimal
 from .database import (
     User, Grid, GridPosition, Commission, VideoCampaign,
+    CourseCommission, CreditMatrixCommission,
     GRID_WIDTH, GRID_LEVELS, GRID_TOTAL,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT, BONUS_POOL_PCT,
     GRID_PACKAGES, GRID_COMPLETION_BONUS, CAMPAIGN_GRACE_DAYS
@@ -646,6 +647,92 @@ def get_grid_positions(db: Session, grid_id: int) -> dict:
 
 
 def get_user_commission_history(db: Session, user_id: int, limit: int = 50) -> list:
-    return db.query(Commission).filter(
+    """Unified commission history feed — merges all three commission tables.
+
+    Three sources, all surfaced as a single time-ordered list for the
+    /api/wallet activity feed:
+
+      1. Commission              (grid + membership + misc; uses to_user_id, amount_usdt)
+      2. CourseCommission        (Course Academy pass-up; uses earner_id, amount)
+      3. CreditMatrixCommission  (Credit Nexus matrix payouts; uses earner_id, amount,
+                                  defaults commission_type='matrix_level')
+
+    Bug history (7 May 2026): this function previously queried only the
+    Commission table, so credit-pack and course commissions never
+    appeared in the wallet activity. Steve noticed his $3 Credit Nexus
+    commission from test3's Starter pack was in his balance (verified
+    via three audit tools) but missing from /wallet's activity feed.
+
+    Each row is normalised to a dict matching what Wallet.jsx expects:
+      { created_at, commission_type, amount_usdt, status, package_tier }
+    Returning dicts (not ORM objects) also fixes a latent bug where
+    SQLAlchemy ORM objects were being returned to JSONResponse —
+    only fields that don't require lazy-loading were leaking through.
+
+    The frontend's renderer (Wallet.jsx ~line 312) maps known
+    commission_type values to friendly labels and falls back to
+    '💰 ' + commission_type.replace('_', ' ') for unknown types,
+    so new types added to any of these tables will render gracefully
+    even before the frontend gets explicit handling.
+    """
+    rows = []
+
+    # Source 1: Commission (grid + membership)
+    base_commissions = db.query(Commission).filter(
         Commission.to_user_id == user_id
     ).order_by(Commission.created_at.desc()).limit(limit).all()
+    for c in base_commissions:
+        rows.append({
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+            "commission_type": c.commission_type or "unknown",
+            "amount_usdt": float(c.amount_usdt or 0),
+            "status": c.status or "paid",
+            "package_tier": c.package_tier,
+            "source": "grid",
+        })
+
+    # Source 2: CreditMatrixCommission (Credit Nexus)
+    matrix_commissions = db.query(CreditMatrixCommission).filter(
+        CreditMatrixCommission.earner_id == user_id
+    ).order_by(CreditMatrixCommission.created_at.desc()).limit(limit).all()
+    for c in matrix_commissions:
+        rows.append({
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+            # 'matrix_level' / 'matrix_completion' (default 'matrix_level').
+            # Frontend's fallback renders 'matrix_level' as '💰 matrix level'
+            # which is acceptable; we can add an explicit emoji+label mapping
+            # in Wallet.jsx in a follow-up if desired.
+            "commission_type": c.commission_type or "matrix_level",
+            "amount_usdt": float(c.amount or 0),
+            "status": c.status or "paid",
+            # No package_tier on matrix commissions — pack_price is closest
+            # equivalent but the frontend's "Tier N" badge wouldn't be
+            # meaningful for credit packs (which are a price ladder, not
+            # a numbered tier system). Leave None.
+            "package_tier": None,
+            "source": "credit_nexus",
+        })
+
+    # Source 3: CourseCommission (Course Academy)
+    course_commissions = db.query(CourseCommission).filter(
+        CourseCommission.earner_id == user_id
+    ).order_by(CourseCommission.created_at.desc()).limit(limit).all()
+    for c in course_commissions:
+        rows.append({
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+            # Frontend will fall back-render 'direct_sale' → '💰 direct sale'
+            # and 'pass_up' → '💰 pass up'. Could add explicit mapping in a
+            # follow-up — for now they'll render clearly enough that members
+            # can identify the source.
+            "commission_type": c.commission_type or "course",
+            "amount_usdt": float(c.amount or 0),
+            # CourseCommission has no status column — they're written when
+            # paid, so always 'paid' for the feed.
+            "status": "paid",
+            "package_tier": c.course_tier,
+            "source": "course",
+        })
+
+    # Merge time-sorted, take the top N
+    rows.sort(key=lambda r: r["created_at"] or "", reverse=True)
+    return rows[:limit]
