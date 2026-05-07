@@ -463,6 +463,115 @@ async def startup_event():
     except Exception as e:
         print(f"⚠️ Tier-0 cleanup skipped: {e}")
 
+    # ── One-time reconciliation (7 May 2026): credit test3 for stuck $20.39 ──
+    # During 7 May smoke test, test3 paid $20.39 USDT-BSC via WalletConnect
+    # for the credit_matrix_starter pack. Tx confirmed at block 96870933,
+    # hash 0x3a14a2a697...bd2b. The scanner had a bug (now fixed) where
+    # it stopped looking back far enough once the order expired (15 min
+    # cap at the time). Result: test3 paid but never got credited.
+    #
+    # This block:
+    #   1. Verifies the tx exists in PaymentS or WalletConnectPaymentOrder
+    #      already (idempotency — won't re-credit on multiple runs)
+    #   2. If not, awards the Starter pack (100 credits) to test3
+    #   3. Records a Payment row + matches the WalletConnectPaymentOrder
+    #      so future audits show this tx as legitimately processed
+    #
+    # Safety guards: fixed user (test3), fixed tx_hash, fixed pack.
+    # Skips silently if anything is unexpected. Idempotent.
+    #
+    # Delete this block in a follow-up commit once the credit is awarded
+    # (visible in deploy logs).
+    try:
+        from .database import (
+            SessionLocal as _RC_SL,
+            User as _RC_User,
+            Payment as _RC_Payment,
+            WalletConnectPaymentOrder as _RC_WCPO,
+        )
+        from sqlalchemy import text as _rc_text
+        from datetime import datetime as _rc_dt
+        from decimal import Decimal as _rc_Decimal
+
+        rc_db = _RC_SL()
+        try:
+            target_username = "test3"
+            target_tx_hash = "0x3a14a2a697c7f834d9bc6f241145c1afed4c95e2a60de454871e6b59bf5fbd2b"
+            target_amount = _rc_Decimal("20.390000")
+            target_pack_key = "starter"
+            target_block = 96870933
+            target_from_addr = "0x46263a7e4e3b563324dd1c7069e87ce6fe553519"
+
+            # Idempotency check 1: already a Payment row for this tx?
+            existing_payment = rc_db.query(_RC_Payment).filter(
+                _RC_Payment.tx_hash == f"wc_{target_tx_hash}"
+            ).first()
+            if existing_payment:
+                print(f"[RECONCILE test3] Payment row already exists for {target_tx_hash[:12]}... — skipping.")
+            else:
+                # Find user
+                user_row = rc_db.query(_RC_User).filter(
+                    _RC_User.username == target_username
+                ).first()
+                if not user_row:
+                    print(f"[RECONCILE test3] User {target_username!r} not found — skipping.")
+                else:
+                    # Look for the orphan order — should be expired in DB
+                    matching_order = rc_db.query(_RC_WCPO).filter(
+                        _RC_WCPO.user_id == user_row.id,
+                        _RC_WCPO.unique_amount == target_amount,
+                        _RC_WCPO.product_type == "credit_matrix",
+                    ).order_by(_RC_WCPO.created_at.desc()).first()
+
+                    if matching_order:
+                        print(f"[RECONCILE test3] Found order id={matching_order.id} status={matching_order.status!r}")
+                        # Mark order as confirmed and attach the tx hash.
+                        matching_order.status = "confirmed"
+                        matching_order.tx_hash = target_tx_hash
+                        matching_order.confirmed_at = _rc_dt.utcnow()
+                    else:
+                        print(f"[RECONCILE test3] No matching WalletConnectPaymentOrder found — "
+                              f"will award pack without one. (Unusual but recoverable.)")
+
+                    # Write the Payment row that the cron WOULD have written
+                    payment = _RC_Payment(
+                        from_user_id=user_row.id,
+                        to_user_id=None,
+                        amount_usdt=target_amount,
+                        payment_type="walletconnect_credit_matrix",
+                        tx_hash=f"wc_{target_tx_hash}",
+                        status="confirmed",
+                    )
+                    rc_db.add(payment)
+                    rc_db.flush()
+
+                    # Award the pack via the proper purchase function so
+                    # commission chain etc. all run correctly
+                    from .credit_matrix import purchase_credit_pack
+                    payment_ref = (
+                        f"wc_{matching_order.id}" if matching_order
+                        else f"wc_reconcile_{target_tx_hash[:8]}"
+                    )
+                    result = purchase_credit_pack(
+                        rc_db, user_row, target_pack_key,
+                        payment_ref=payment_ref,
+                        payment_method="crypto",
+                    )
+                    rc_db.commit()
+                    if result.get("success"):
+                        print(f"✅ [RECONCILE test3] SUCCESS — awarded {target_pack_key} pack "
+                              f"({result.get('credits_awarded', '?')} credits) for tx "
+                              f"{target_tx_hash[:12]}...")
+                    else:
+                        print(f"⚠️ [RECONCILE test3] purchase_credit_pack returned non-success: "
+                              f"{result.get('error', 'unknown')}")
+        finally:
+            rc_db.close()
+    except Exception as e:
+        print(f"⚠️ [RECONCILE test3] Skipped due to error: {e}")
+        import traceback
+        traceback.print_exc()
+
     # ── Daily backup scheduler ──
     import asyncio, threading
     def _daily_backup_loop():
@@ -6809,6 +6918,7 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
         match_incoming_transfer,
         scan_treasury_transfers,
         estimate_scan_floor_block,
+        set_scan_cursor,
         is_likely_rounded_amount,
         _get_web3_bsc,
     )
@@ -6817,6 +6927,8 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
 
     stats = {
         "expired": 0,
+        "scan_floor": 0,
+        "latest_block": 0,
         "scanned_blocks": 0,
         "transfers_seen": 0,
         "matched": 0,
@@ -6833,19 +6945,15 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
         logger.error(f"cron_scan_bsc_payments: expire_stale_orders failed: {e}")
         stats["errors"].append(f"expire: {e}")
 
-    # 2. Compute scan floor based on oldest still-pending order
+    # 2. Compute scan floor from persisted cursor (changed 7 May 2026 from
+    #    "oldest pending order age" — see estimate_scan_floor_block docstring).
     try:
         w3 = _get_web3_bsc()
         latest_block = w3.eth.block_number
-        oldest_pending = db.query(WalletConnectPaymentOrder).filter(
-            WalletConnectPaymentOrder.status == "pending"
-        ).order_by(WalletConnectPaymentOrder.created_at.asc()).first()
-        if oldest_pending:
-            age_seconds = int((datetime.utcnow() - oldest_pending.created_at).total_seconds())
-        else:
-            age_seconds = None
-        scan_floor = estimate_scan_floor_block(latest_block, age_seconds)
-        stats["scanned_blocks"] = max(latest_block - scan_floor, 0)
+        scan_floor = estimate_scan_floor_block(db, latest_block)
+        stats["latest_block"] = latest_block
+        stats["scan_floor"] = scan_floor
+        stats["scanned_blocks"] = max(latest_block - scan_floor + 1, 0)
     except Exception as e:
         logger.error(f"cron_scan_bsc_payments: floor calc failed: {e}")
         return JSONResponse(
@@ -6978,6 +7086,28 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
                 logger.error(f"cron_scan_bsc_payments: orphan persist failed: {e}")
                 stats["errors"].append(f"orphan {tx.get('tx_hash','?')[:12]}: {e}")
                 db.rollback()
+
+    # 5. Persist scan cursor — advance to latest_block so the next run
+    #    resumes from the next block. CRITICAL: we advance the cursor
+    #    even if no transfers were seen, otherwise we'd re-scan the
+    #    same blocks forever. The cap in estimate_scan_floor_block
+    #    ensures we don't get stuck scanning enormous catch-up ranges
+    #    if cron has been down.
+    try:
+        if stats["latest_block"] > 0 and not stats["errors"]:
+            set_scan_cursor(db, stats["latest_block"])
+            db.commit()
+        elif stats["errors"]:
+            # Don't advance the cursor if there were errors — we want
+            # the next run to retry the same range.
+            logger.warning(
+                f"cron_scan_bsc_payments: not advancing cursor due to errors: "
+                f"{stats['errors']}"
+            )
+    except Exception as e:
+        logger.error(f"cron_scan_bsc_payments: cursor persist failed: {e}")
+        stats["errors"].append(f"cursor: {e}")
+        db.rollback()
 
     return stats
 

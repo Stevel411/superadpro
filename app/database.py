@@ -1403,6 +1403,26 @@ class OnchainOrphanTransfer(Base):
     resolved_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
 
+class AppConfig(Base):
+    """Generic key/value store for small app-wide state that needs to
+    persist across deploys but doesn't warrant a dedicated table.
+
+    Current uses:
+      - 'wc_scan_cursor': last successfully scanned BSC block for the
+        WalletConnect rail. Watcher cron resumes from here so late-
+        arriving payments to expired orders still get captured as
+        orphans (instead of falling off the back of a moving 10-block
+        scan window). Bug surfaced 7 May 2026 smoke test.
+
+    Reserved for future cursors / one-off flags. Keep entries small
+    and scalar — anything bigger should get its own table.
+    """
+    __tablename__ = "app_config"
+    key   = Column(String(80), primary_key=True)
+    value = Column(Text, nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
 class NowPaymentsOrder(Base):
     """NOWPayments invoice-based payment orders (crypto + fiat card)."""
     __tablename__ = "nowpayments_orders"
@@ -1820,6 +1840,15 @@ def run_migrations():
         "CREATE INDEX IF NOT EXISTS idx_orphan_tx_hash ON onchain_orphan_transfers(tx_hash)",
         "CREATE INDEX IF NOT EXISTS idx_orphan_from_addr ON onchain_orphan_transfers(from_address)",
         "CREATE INDEX IF NOT EXISTS idx_orphan_resolved ON onchain_orphan_transfers(resolved)",
+
+        # ── App-wide key/value store (added 7 May 2026) ──
+        # Persists small scalar state across deploys. First use:
+        # 'wc_scan_cursor' = last successfully scanned BSC block.
+        "CREATE TABLE IF NOT EXISTS app_config ("
+        "  key VARCHAR(80) PRIMARY KEY,"
+        "  value TEXT,"
+        "  updated_at TIMESTAMP NOT NULL DEFAULT NOW()"
+        ")",
     ]
     results = []
     with engine.connect() as conn:

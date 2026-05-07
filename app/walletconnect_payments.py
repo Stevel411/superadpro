@@ -57,7 +57,7 @@ logger = logging.getLogger("superadpro.walletconnect")
 
 # ── Configuration ─────────────────────────────────────────────────────
 # Pending orders expire after 15 minutes (per Steve, 6 May 2026).
-ORDER_EXPIRY_MINUTES = 15
+ORDER_EXPIRY_MINUTES = 60
 
 # Cent-level uniqueness: 1 cent granularity, ±50 cents around the base
 # price, giving ~100 unique amounts per tier. Sufficient for ~10
@@ -336,21 +336,81 @@ def scan_treasury_transfers(scan_floor_block: int) -> list:
     return all_transfers
 
 
-def estimate_scan_floor_block(latest_block: int, oldest_pending_age_seconds: int | None) -> int:
+def get_scan_cursor(db) -> int | None:
+    """Return the last successfully scanned BSC block, or None if unset.
+
+    The cursor is persisted in the app_config table under key
+    'wc_scan_cursor'. On a fresh install the row doesn't exist yet —
+    caller treats that as "scan from latest - GETLOGS_WINDOW_BLOCKS".
+    """
+    from .database import AppConfig
+    row = db.query(AppConfig).filter(AppConfig.key == "wc_scan_cursor").first()
+    if row is None or row.value is None:
+        return None
+    try:
+        return int(row.value)
+    except (TypeError, ValueError):
+        logger.warning(f"get_scan_cursor: invalid value {row.value!r}, treating as unset")
+        return None
+
+
+def set_scan_cursor(db, block_number: int) -> None:
+    """Persist the last successfully scanned BSC block.
+
+    Idempotent upsert. Caller commits.
+    """
+    from .database import AppConfig
+    row = db.query(AppConfig).filter(AppConfig.key == "wc_scan_cursor").first()
+    if row is None:
+        row = AppConfig(key="wc_scan_cursor", value=str(block_number))
+        db.add(row)
+    else:
+        row.value = str(block_number)
+        row.updated_at = datetime.utcnow()
+
+
+def estimate_scan_floor_block(db, latest_block: int) -> int:
     """Compute the block from which the next watcher run should start.
 
-    If there's a pending order older than X seconds, scan back far enough
-    to cover X seconds of chain history, plus a small safety margin.
+    Strategy (changed 7 May 2026 — see bug history below):
+      1. If we have a persisted cursor, resume from there. Cursor is
+         updated AFTER each successful scan, so we never re-scan the
+         same blocks twice (idempotency in match_incoming_transfer
+         handles overlapping anyway, but skipping is faster).
+      2. If no cursor (fresh install or first run), start from
+         (latest - GETLOGS_WINDOW_BLOCKS) — i.e. recent only. Sets
+         the cursor on the next successful scan.
+      3. Cap how far back we go at MAX_SCAN_BLOCKS_PER_RUN to protect
+         against extended outages causing a giant catch-up scan.
+         Anything beyond the cap is genuine data loss territory and
+         needs manual reconciliation, not an auto-replay.
 
-    With no pending orders, scan only the most recent GETLOGS_WINDOW_BLOCKS
-    — handles the edge case of payment arriving between order expiry and
-    a new order creation.
+    Bug history: Before 7 May 2026 this function recomputed the floor
+    each cron run from "oldest still-pending order's age". When the
+    oldest order expired (15 min cap at the time), it fell to a 10-block
+    recent-only scan. Result: payments arriving after order expiry —
+    e.g. user took >15 min to confirm in MetaMask — were invisible to
+    the scanner because the recent-window had already moved past their
+    block. They never landed in OnchainOrphanTransfer either, because
+    the scanner literally never saw them.
+
+    Caught in 7 May 2026 smoke test: $20.39 from test3 confirmed at
+    block 96870933 but scanner never picked it up — order had expired.
+    Cursor-based scanning fixes this: the cursor advances regardless
+    of order state, so late-arriving payments still get captured (as
+    orphans if no matching pending order exists).
     """
-    if oldest_pending_age_seconds is None:
-        return max(latest_block - GETLOGS_WINDOW_BLOCKS, 0)
-    safety_seconds = oldest_pending_age_seconds + 30  # +1 cron interval safety
-    blocks_back = int(safety_seconds / BSC_AVG_BLOCK_SECONDS) + 5  # +5 block buffer
-    return max(latest_block - blocks_back, 0)
+    cursor = get_scan_cursor(db)
+    if cursor is None:
+        # No cursor yet — scan recent only, set cursor on success.
+        proposed_floor = max(latest_block - GETLOGS_WINDOW_BLOCKS, 0)
+    else:
+        # Resume from one past the last scanned block.
+        proposed_floor = cursor + 1
+
+    # Cap how far back we'll go in a single run.
+    earliest_allowed = max(latest_block - MAX_SCAN_BLOCKS_PER_RUN, 0)
+    return max(proposed_floor, earliest_allowed)
 
 
 # ── Order matching ────────────────────────────────────────────────────
