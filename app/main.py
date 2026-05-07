@@ -463,6 +463,92 @@ async def startup_event():
     except Exception as e:
         print(f"⚠️ Tier-0 cleanup skipped: {e}")
 
+    # ── One-time rollback (7 May 2026): undo free Pro upgrade for test3 ──
+    # Bug fixed in f097795b: /api/upgrade-to-pro called _activate_membership
+    # without charging the $15 fee, granting free Pro upgrades. Steve
+    # confirmed user 'test3' (SAP-00165) got the free upgrade during 6 May
+    # testing. This block reverts:
+    #   - membership_tier 'pro' → 'basic'
+    #   - deletes the bogus 'membership_upgrade' Payment row(s) with
+    #     tx_hash starting 'upgrade_'
+    #
+    # Idempotent: re-running after success is a no-op (no rows match).
+    # Safety guards: only runs against username='test3' and only if the
+    # account currently has tier='pro'. If anything looks wrong (multiple
+    # users, payment row from a different rail, etc.) it logs and skips.
+    #
+    # This block can be safely deleted in a follow-up commit once the
+    # rollback has run successfully (visible in deploy logs).
+    try:
+        from .database import SessionLocal as _SL
+        from sqlalchemy import text as _text
+        rb_db = _SL()
+        try:
+            target_username = "test3"
+            user_row = rb_db.execute(
+                _text("SELECT id, membership_tier, balance "
+                      "FROM users WHERE username = :u"),
+                {"u": target_username}
+            ).fetchone()
+
+            if not user_row:
+                print(f"[ROLLBACK test3] User '{target_username}' not found — skipping.")
+            elif user_row[1] != "pro":
+                print(f"[ROLLBACK test3] User already on tier={user_row[1]!r} — already rolled back, skipping.")
+            else:
+                user_id = user_row[0]
+                # Find the bogus payment row(s)
+                payment_rows = rb_db.execute(
+                    _text("SELECT id, amount_usdt, tx_hash "
+                          "FROM payments "
+                          "WHERE from_user_id = :uid "
+                          "  AND payment_type = 'membership_upgrade' "
+                          "  AND status = 'confirmed' "
+                          "  AND tx_hash LIKE 'upgrade_%'"),
+                    {"uid": user_id}
+                ).fetchall()
+
+                if not payment_rows:
+                    print(f"[ROLLBACK test3] No matching upgrade_% payment found — "
+                          f"upgrade may have come from real payment path. SKIPPING rollback to avoid data loss.")
+                else:
+                    payment_ids = [r[0] for r in payment_rows]
+                    print(f"[ROLLBACK test3] Found user_id={user_id}, "
+                          f"{len(payment_rows)} bogus payment row(s): {payment_ids}")
+
+                    # Apply changes
+                    rb_db.execute(
+                        _text("UPDATE users SET membership_tier = 'basic' "
+                              "WHERE id = :uid AND membership_tier = 'pro'"),
+                        {"uid": user_id}
+                    )
+                    rb_db.execute(
+                        _text("DELETE FROM payments WHERE id = ANY(:ids)"),
+                        {"ids": payment_ids}
+                    )
+                    rb_db.commit()
+
+                    # Verify
+                    verify_tier = rb_db.execute(
+                        _text("SELECT membership_tier FROM users WHERE id = :uid"),
+                        {"uid": user_id}
+                    ).scalar()
+                    verify_count = rb_db.execute(
+                        _text("SELECT COUNT(*) FROM payments "
+                              "WHERE from_user_id = :uid AND payment_type = 'membership_upgrade'"),
+                        {"uid": user_id}
+                    ).scalar()
+                    if verify_tier == "basic" and verify_count == 0:
+                        print(f"✅ [ROLLBACK test3] SUCCESS — tier=basic, "
+                              f"{len(payment_rows)} upgrade payment(s) deleted")
+                    else:
+                        print(f"⚠️ [ROLLBACK test3] Verify mismatch — tier={verify_tier!r}, "
+                              f"remaining_upgrades={verify_count}. Inspect manually.")
+        finally:
+            rb_db.close()
+    except Exception as e:
+        print(f"⚠️ [ROLLBACK test3] Skipped due to error: {e}")
+
     # ── Daily backup scheduler ──
     import asyncio, threading
     def _daily_backup_loop():
