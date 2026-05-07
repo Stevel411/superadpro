@@ -8947,15 +8947,55 @@ def admin_api_user_detail(
         raise HTTPException(status_code=404, detail="User not found")
 
     grids = db.query(Grid).filter(Grid.owner_id == u.id).all()
-    commissions = db.query(Commission).filter(
-        Commission.to_user_id == u.id
-    ).order_by(Commission.created_at.desc()).limit(50).all()
+
+    # Recent commissions across all 3 tables (was Commission-only,
+    # so admin viewing a member never saw their Credit Nexus or
+    # Course commissions). Bug fixed 7 May 2026.
+    commissions_combined = []
+    for c in db.query(Commission).filter(Commission.to_user_id == u.id).order_by(Commission.created_at.desc()).limit(50).all():
+        commissions_combined.append({
+            "id": c.id, "source": "grid",
+            "amount": float(c.amount_usdt or 0),
+            "type": c.commission_type, "from_user": c.from_user_id,
+            "notes": c.notes, "status": c.status,
+            "date": c.created_at.isoformat() if c.created_at else None,
+            "_sort": c.created_at,
+        })
+    for c in db.query(CreditMatrixCommission).filter(CreditMatrixCommission.earner_id == u.id).order_by(CreditMatrixCommission.created_at.desc()).limit(50).all():
+        commissions_combined.append({
+            "id": c.id, "source": "nexus",
+            "amount": float(c.amount or 0),
+            "type": c.commission_type, "from_user": c.from_user_id,
+            "notes": f"L{c.level} on ${float(c.pack_price or 0):.0f} pack" if c.commission_type != "matrix_completion" else "Cycle completion",
+            "status": c.status,
+            "date": c.created_at.isoformat() if c.created_at else None,
+            "_sort": c.created_at,
+        })
+    for c in db.query(CourseCommission).filter(CourseCommission.earner_id == u.id).order_by(CourseCommission.created_at.desc()).limit(50).all():
+        commissions_combined.append({
+            "id": c.id, "source": "course",
+            "amount": float(c.amount or 0),
+            "type": c.commission_type, "from_user": c.buyer_id,
+            "notes": f"Course Tier {c.course_tier}", "status": "paid",
+            "date": c.created_at.isoformat() if c.created_at else None,
+            "_sort": c.created_at,
+        })
+    commissions_combined.sort(key=lambda r: r["_sort"] or datetime.min, reverse=True)
+    commissions_combined = commissions_combined[:50]
+    for r in commissions_combined:
+        r.pop("_sort", None)
+
     payments = db.query(Payment).filter(
         Payment.from_user_id == u.id
     ).order_by(Payment.created_at.desc()).limit(20).all()
     withdrawals = db.query(Withdrawal).filter(
         Withdrawal.user_id == u.id
     ).order_by(Withdrawal.requested_at.desc()).limit(20).all()
+
+    # Live earnings from compute_user_earnings — replaces the stale
+    # stored counters (u.total_earned, u.grid_earnings, etc.) which
+    # drift over time. Same pattern as the dashboard refactor.
+    _earn = compute_user_earnings(db, u.id)
 
     return {
         "user": {
@@ -8964,13 +9004,15 @@ def admin_api_user_detail(
             "is_active": u.is_active, "is_admin": u.is_admin,
             "membership_tier": u.membership_tier or "basic",
             "balance": float(u.balance or 0),
-            "total_earned": float(u.total_earned or 0),
+            "total_earned": _earn["total_earned"],
             "total_withdrawn": compute_total_withdrawn(db, u.id),
-            "grid_earnings": float(u.grid_earnings or 0),
+            "grid_earnings": _earn["grid_earnings"],
+            "membership_earnings": _earn["membership_earnings"],
+            "nexus_earnings": _earn["nexus_earnings"],
+            "course_earnings": _earn["course_earnings"],
             "level_earnings": float(u.level_earnings or 0),
             "upline_earnings": float(u.upline_earnings or 0),
-            "course_earnings": float(u.course_earnings or 0),
-            "personal_referrals": u.personal_referrals or 0,
+            "personal_referrals": _earn["personal_referrals"],
             "total_team": u.total_team or 0,
             "sponsor_id": u.sponsor_id,
             "sponsor_username": (db.query(User).filter(User.id == u.sponsor_id).first().username if u.sponsor_id else None),
@@ -8986,12 +9028,7 @@ def admin_api_user_detail(
             "is_complete": g.is_complete,
             "revenue": float(g.revenue_total or 0),
         } for g in grids],
-        "recent_commissions": [{
-            "id": c.id, "amount": float(c.amount_usdt or 0),
-            "type": c.commission_type, "from_user": c.from_user_id,
-            "notes": c.notes, "status": c.status,
-            "date": c.created_at.isoformat() if c.created_at else None,
-        } for c in commissions],
+        "recent_commissions": commissions_combined,
         "payments": [{
             "id": p.id, "amount": float(p.amount_usdt or 0),
             "type": p.payment_type, "status": p.status,
@@ -9966,7 +10003,15 @@ def admin_api_finances(
     total_revenue = db.query(func.sum(Payment.amount_usdt)).filter(Payment.status == "confirmed").scalar() or 0
     # Only "paid" commissions count — "pending" hasn't actually been distributed yet,
     # and including it overstates total_commissions_paid and understates platform_profit.
-    total_commissions = db.query(func.sum(Commission.amount_usdt)).filter(Commission.status == "paid").scalar() or 0
+    # Bug fixed 7 May 2026: total_commissions previously summed only the
+    # Commission table, so the admin finance dashboard underreported total
+    # commission spend (and overstated platform_profit) by every dollar
+    # paid via Credit Nexus and Course Academy.
+    total_commissions_grid = float(db.query(func.sum(Commission.amount_usdt)).filter(Commission.status == "paid").scalar() or 0)
+    total_commissions_matrix = float(db.query(func.sum(CreditMatrixCommission.amount)).filter(CreditMatrixCommission.status == "paid").scalar() or 0)
+    total_commissions_course = float(db.query(func.sum(CourseCommission.amount)).scalar() or 0)
+    total_commissions = total_commissions_grid + total_commissions_matrix + total_commissions_course
+
     total_withdrawn = db.query(func.sum(Withdrawal.amount_usdt)).filter(Withdrawal.status == "paid").scalar() or 0
     pending_withdrawals = db.query(func.sum(Withdrawal.amount_usdt)).filter(Withdrawal.status == "pending").scalar() or 0
     total_balances = db.query(func.sum(User.balance)).scalar() or 0
@@ -9976,10 +10021,22 @@ def admin_api_finances(
         Payment.payment_type, func.sum(Payment.amount_usdt), func.count(Payment.id)
     ).filter(Payment.status == "confirmed").group_by(Payment.payment_type).all()
 
-    # Commissions by type — paid only, same reasoning as above
-    comms_by_type = db.query(
+    # Commissions by type — across all 3 commission tables. Each table's
+    # types prefixed with the source so admin can distinguish (e.g.
+    # 'matrix:matrix_level' vs 'grid:direct_sponsor').
+    comms_by_type_combined = []
+    for t, s, c in db.query(
         Commission.commission_type, func.sum(Commission.amount_usdt), func.count(Commission.id)
-    ).filter(Commission.status == "paid").group_by(Commission.commission_type).all()
+    ).filter(Commission.status == "paid").group_by(Commission.commission_type).all():
+        comms_by_type_combined.append({"type": t, "total": float(s or 0), "count": c})
+    for t, s, c in db.query(
+        CreditMatrixCommission.commission_type, func.sum(CreditMatrixCommission.amount), func.count(CreditMatrixCommission.id)
+    ).filter(CreditMatrixCommission.status == "paid").group_by(CreditMatrixCommission.commission_type).all():
+        comms_by_type_combined.append({"type": f"nexus:{t}", "total": float(s or 0), "count": c})
+    for t, s, c in db.query(
+        CourseCommission.commission_type, func.sum(CourseCommission.amount), func.count(CourseCommission.id)
+    ).group_by(CourseCommission.commission_type).all():
+        comms_by_type_combined.append({"type": f"course:{t}", "total": float(s or 0), "count": c})
 
     # User counts (include all members including admin — admin IS a member)
     total_users = db.query(func.count(User.id)).scalar() or 0
@@ -10007,9 +10064,7 @@ def admin_api_finances(
         "revenue_by_type": [{
             "type": t, "total": float(s or 0), "count": c
         } for t, s, c in payments_by_type],
-        "commissions_by_type": [{
-            "type": t, "total": float(s or 0), "count": c
-        } for t, s, c in comms_by_type],
+        "commissions_by_type": comms_by_type_combined,
     }
 @app.get("/admin/api/email-analytics")
 def admin_api_email_analytics(
@@ -10273,25 +10328,92 @@ def admin_api_commissions(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     commission_type: str = "",
+    source: str = "",
     limit: int = 50,
     offset: int = 0
 ):
+    """Admin commission browser — across all 3 commission tables.
+
+    Query params:
+        commission_type: filter by type (e.g. 'direct_sponsor',
+                         'matrix_level', 'pass_up'). Type names overlap
+                         across tables; combined with `source` for
+                         disambiguation.
+        source:          filter by source table — 'grid' (Commission),
+                         'nexus' (CreditMatrixCommission), 'course'
+                         (CourseCommission). Empty = all 3.
+        limit, offset:   pagination across the merged result set.
+
+    Bug fixed 7 May 2026: previously only browsed the Commission
+    table, so Credit Nexus and Course commissions were invisible
+    to admin entirely. Admin couldn't audit, refund, or troubleshoot
+    those commission types.
+    """
     _require_admin(user)
-    query = db.query(Commission).order_by(Commission.created_at.desc())
-    if commission_type:
-        query = query.filter(Commission.commission_type == commission_type)
-    total = query.count()
-    comms = query.offset(offset).limit(limit).all()
+    rows = []
+
+    # 1. Commission (grid + membership)
+    if not source or source == "grid":
+        q = db.query(Commission).order_by(Commission.created_at.desc())
+        if commission_type:
+            q = q.filter(Commission.commission_type == commission_type)
+        for c in q.limit(500).all():  # generous per-table cap; merged + paginated below
+            rows.append({
+                "id": c.id,
+                "source": "grid",
+                "to_user_id": c.to_user_id, "from_user_id": c.from_user_id,
+                "amount": float(c.amount_usdt or 0),
+                "type": c.commission_type, "status": c.status,
+                "notes": c.notes,
+                "date": c.created_at.isoformat() if c.created_at else None,
+                "_sort": c.created_at,
+            })
+
+    # 2. CreditMatrixCommission (Credit Nexus)
+    if not source or source == "nexus":
+        q = db.query(CreditMatrixCommission).order_by(CreditMatrixCommission.created_at.desc())
+        if commission_type:
+            q = q.filter(CreditMatrixCommission.commission_type == commission_type)
+        for c in q.limit(500).all():
+            rows.append({
+                "id": c.id,
+                "source": "nexus",
+                "to_user_id": c.earner_id, "from_user_id": c.from_user_id,
+                "amount": float(c.amount or 0),
+                "type": c.commission_type, "status": c.status,
+                "notes": f"L{c.level} on ${float(c.pack_price or 0):.0f} pack" if c.commission_type != "matrix_completion" else "Cycle completion",
+                "date": c.created_at.isoformat() if c.created_at else None,
+                "_sort": c.created_at,
+            })
+
+    # 3. CourseCommission (Course Academy)
+    if not source or source == "course":
+        q = db.query(CourseCommission).order_by(CourseCommission.created_at.desc())
+        if commission_type:
+            q = q.filter(CourseCommission.commission_type == commission_type)
+        for c in q.limit(500).all():
+            rows.append({
+                "id": c.id,
+                "source": "course",
+                "to_user_id": c.earner_id, "from_user_id": c.buyer_id,
+                "amount": float(c.amount or 0),
+                "type": c.commission_type, "status": "paid",
+                "notes": f"Course Tier {c.course_tier}",
+                "date": c.created_at.isoformat() if c.created_at else None,
+                "_sort": c.created_at,
+            })
+
+    # Merge sort by date desc, then paginate
+    rows.sort(key=lambda r: r["_sort"] or datetime.min, reverse=True)
+    total = len(rows)
+    paged = rows[offset:offset + limit]
+    # Strip the _sort key from output
+    for r in paged:
+        r.pop("_sort", None)
+
     return {
         "total": total,
-        "commissions": [{
-            "id": c.id,
-            "to_user_id": c.to_user_id, "from_user_id": c.from_user_id,
-            "amount": float(c.amount_usdt or 0),
-            "type": c.commission_type, "status": c.status,
-            "notes": c.notes,
-            "date": c.created_at.isoformat() if c.created_at else None,
-        } for c in comms]
+        "commissions": paged,
     }
 
 @app.get("/admin/api/withdrawals")
