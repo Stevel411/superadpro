@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import AppLayout from '../components/layout/AppLayout';
-import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp, Gauge, Gift, Compass, Share2 } from 'lucide-react';
+import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, DollarSign, Gauge, Gift, Compass, Share2 } from 'lucide-react';
 import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
 
@@ -424,7 +424,7 @@ export default function Dashboard() {
           the member outward. Uses only design-tokens.css variables,
           same responsive pattern as income-grid (4 cols → 2 on mobile). */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.exploreSection', { defaultValue: 'Explore the platform' })}</div>
-      <div className="doors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="doors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18, marginBottom: 20 }}>
         {[
           {
             id: 'command-centre',
@@ -443,7 +443,7 @@ export default function Dashboard() {
             desc: t('dashboard.doorIncomeDesc', { defaultValue: 'Earnings, wallet, and the 4 streams that pay you.' }),
             count: t('dashboard.doorItems', { count: 7, defaultValue: '7 items' }),
             colourVar: 'var(--sap-green)',
-            icon: TrendingUp,
+            icon: DollarSign,
             link: '/income',
           },
           {
@@ -470,11 +470,11 @@ export default function Dashboard() {
           const Icon = door.icon;
           return (
             <Link key={door.id} to={door.link} className="action-card" style={{
-              background: 'var(--sap-bg-card)',
+              background: 'linear-gradient(180deg, var(--sap-bg-card) 0%, #f8fafc 100%)',
               border: '1px solid var(--sap-border)',
-              borderRadius: 18,
-              padding: '32px 28px 28px',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.06)',
+              borderRadius: 14,
+              padding: '20px 22px 18px 30px',
+              boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)',
               textDecoration: 'none',
               transition: 'all 0.18s',
               display: 'flex',
@@ -483,24 +483,28 @@ export default function Dashboard() {
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
-              minHeight: 280,
+              minHeight: 200,
             }}>
-              {/* 5px top accent in the door's brand colour — slightly thicker
-                  than before (4px → 5px) to read at the new larger card size */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 5, background: door.colourVar }} />
-              <div style={{ width: 64, height: 64, borderRadius: 16, background: door.colourVar, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
-                <Icon size={28} color="#fff" />
+              {/* Inset 5px LEFT accent stripe — sits 12px in from top and
+                  bottom edges with rounded right cap, so the card's
+                  rounded corners are preserved. Switched from top→inset-left
+                  7 May 2026 (Grok-style redesign). */}
+              <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 5, background: door.colourVar, borderRadius: '0 3px 3px 0' }} />
+              {/* Centered unframed icon — 44px, colour-only stroke. Replaces
+                  the previous 64px filled colour block + white icon inside. */}
+              <div style={{ textAlign: 'center', marginBottom: 8 }}>
+                <Icon size={44} color={door.colourVar} strokeWidth={2.2} style={{ display: 'inline-block' }} />
               </div>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
                 {door.label}
               </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.6px', lineHeight: 1.1, marginBottom: 10 }}>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 19, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.3px', lineHeight: 1.2, marginBottom: 6 }}>
                 {door.title}
               </div>
-              <div style={{...TYPE.bodyMuted, fontSize: 14, lineHeight: 1.5, marginBottom: 16, flex: 1}}>
+              <div style={{...TYPE.bodyMuted, fontSize: 13, lineHeight: 1.5, marginBottom: 10, flex: 1}}>
                 {door.desc}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid var(--sap-border-light)', fontSize: 13, fontWeight: 700 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
                 <span style={{ color: 'var(--sap-text-faint)' }}>{door.count}</span>
                 <span style={{ color: door.colourVar, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                   {t('dashboard.doorOpen', { defaultValue: 'Open' })} →
@@ -527,7 +531,7 @@ export default function Dashboard() {
           reads as two consistent rows of cards rather than a heroic row
           followed by a smaller secondary row. */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
-      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18, marginBottom: 20 }}>
         {[
           {
             id: 'payItForward',
@@ -552,7 +556,7 @@ export default function Dashboard() {
           {
             id: 'watchVideo',
             label: t('dashboard.todaysWatchLabel', { defaultValue: 'Stay qualified' }),
-            title: t('dashboard.todaysWatch', { defaultValue: "Today's Watch Video" }),
+            title: t('dashboard.todaysWatch', { defaultValue: "Watch Video" }),
             desc: t('dashboard.todaysWatchDesc', { defaultValue: 'Watch your daily campaign-grid video to activate Grid Payouts.' }),
             cta: t('dashboard.todaysWatchCta', { defaultValue: 'Watch now' }),
             colourVar: 'var(--sap-accent)',
@@ -573,11 +577,11 @@ export default function Dashboard() {
           var Icon = action.icon;
           return (
             <Link key={i} to={action.link} className="action-card" style={{
-              background: '#fff',
+              background: 'linear-gradient(180deg, #fff 0%, #f8fafc 100%)',
               border: '1px solid #e2e8f0',
-              borderRadius: 18,
-              padding: '32px 28px 28px',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.06)',
+              borderRadius: 14,
+              padding: '20px 22px 18px 30px',
+              boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)',
               textDecoration: 'none',
               transition: 'all 0.18s',
               display: 'flex',
@@ -586,31 +590,32 @@ export default function Dashboard() {
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
-              minHeight: 280,
+              minHeight: 200,
             }}
             onMouseEnter={function(e) {
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08), 0 16px 32px rgba(0,0,0,0.08)';
+              e.currentTarget.style.boxShadow = '0 2px 6px rgba(15,23,42,0.06), 0 12px 32px rgba(15,23,42,0.10)';
             }}
             onMouseLeave={function(e) {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.06)';
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)';
             }}>
-              {/* 5px top accent in the action's brand colour — same as doors */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 5, background: action.colourVar }} />
-              <div style={{ width: 64, height: 64, borderRadius: 16, background: action.colourVar, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
-                <Icon size={28} color="#fff" />
+              {/* Inset 5px LEFT accent stripe — same pattern as doors row */}
+              <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 5, background: action.colourVar, borderRadius: '0 3px 3px 0' }} />
+              {/* Centered unframed icon — 44px stroke icon, no background block */}
+              <div style={{ textAlign: 'center', marginBottom: 8 }}>
+                <Icon size={44} color={action.colourVar} strokeWidth={2.2} style={{ display: 'inline-block' }} />
               </div>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
                 {action.label}
               </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.6px', lineHeight: 1.1, marginBottom: 10 }}>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 19, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.3px', lineHeight: 1.2, marginBottom: 6 }}>
                 {action.title}
               </div>
-              <div style={{...TYPE.bodyMuted, fontSize: 14, lineHeight: 1.5, marginBottom: 16, flex: 1}}>
+              <div style={{...TYPE.bodyMuted, fontSize: 13, lineHeight: 1.5, marginBottom: 10, flex: 1}}>
                 {action.desc}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid var(--sap-border-light)', fontSize: 13, fontWeight: 700 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
                 <span style={{ color: 'var(--sap-text-faint)' }}>{action.cta}</span>
                 <span style={{ color: action.colourVar, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                   {t('dashboard.doorOpen', { defaultValue: 'Open' })} →
