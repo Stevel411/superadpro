@@ -1614,7 +1614,7 @@ def run_migrations():
         """CREATE TABLE IF NOT EXISTS credit_matrices (
             id SERIAL PRIMARY KEY,
             owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
-            cycle_number INTEGER DEFAULT 1,
+            advance_number INTEGER DEFAULT 1,
             status VARCHAR(20) DEFAULT 'active',
             positions_filled INTEGER DEFAULT 0,
             total_earned NUMERIC(18,6) DEFAULT 0,

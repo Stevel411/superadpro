@@ -25593,7 +25593,7 @@ async def api_credit_matrix_stats(user: User = Depends(get_current_user), db: Se
         "stats": {
             "active_matrix": {
                 "id": active.id if active else None,
-                "cycle": active.cycle_number if active else 0,
+                "cycle": active.advance_number if active else 0,
                 "positions_filled": active.positions_filled if active else 0,
                 "max_positions": MATRIX_MAX_DOWNLINE,
                 "fill_pct": round((active.positions_filled / MATRIX_MAX_DOWNLINE) * 100, 1) if active else 0,
