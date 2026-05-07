@@ -20751,7 +20751,7 @@ async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session 
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    from .database import GiftVoucher, Commission
+    from .database import GiftVoucher
 
     # My vouchers (given)
     my_vouchers = db.query(GiftVoucher).filter(GiftVoucher.gifter_user_id == user.id).order_by(GiftVoucher.created_at.desc()).all()
@@ -20786,16 +20786,32 @@ async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session 
     # ── Earned-back: commissions I've received from people I gifted ──
     # The headline marketing number: "I gifted N people and earned $X
     # back through their downstream activity." Sum paid commissions
-    # where from_user_id is one of my claimed-voucher recipients.
+    # where the from-user is one of my claimed-voucher recipients,
+    # ACROSS ALL 3 commission tables.
+    # Bug fixed 7 May 2026: previously only summed Commission. If a
+    # giftee bought credit packs (paying matrix commissions to the
+    # gifter) or courses (paying course commissions), those weren't
+    # counted in the earned-back stat — significantly under-reporting
+    # the gift's actual ROI to the gifter.
     giftee_ids = [v.claimed_by_user_id for v in my_vouchers if v.claimed_by_user_id]
     earned_back = 0.0
     if giftee_ids:
         from sqlalchemy import func as _func
-        earned_back = float(db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
+        earned_back_grid = float(db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
             Commission.to_user_id == user.id,
             Commission.from_user_id.in_(giftee_ids),
             Commission.status == "paid",
         ).scalar() or 0)
+        earned_back_matrix = float(db.query(_func.coalesce(_func.sum(CreditMatrixCommission.amount), 0)).filter(
+            CreditMatrixCommission.earner_id == user.id,
+            CreditMatrixCommission.from_user_id.in_(giftee_ids),
+            CreditMatrixCommission.status == "paid",
+        ).scalar() or 0)
+        earned_back_course = float(db.query(_func.coalesce(_func.sum(CourseCommission.amount), 0)).filter(
+            CourseCommission.earner_id == user.id,
+            CourseCommission.buyer_id.in_(giftee_ids),
+        ).scalar() or 0)
+        earned_back = earned_back_grid + earned_back_matrix + earned_back_course
 
     # Can pay from wallet?
     can_pay_from_wallet = float(user.balance or 0) >= 20
@@ -23122,7 +23138,11 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
     week_ago = now - timedelta(days=7)
     feed = []
 
-    # Recent commissions earned
+    # Recent commissions earned across all 3 commission tables.
+    # Bug fixed 7 May 2026: previously only queried Commission, so the
+    # member's own "Recent activity" feed never showed their Credit
+    # Nexus or Course earnings — they'd see "Earned $X" entries for
+    # grid/membership but nothing for the other streams.
     recent_comms = db.query(Commission).filter(
         Commission.to_user_id == user.id,
         Commission.created_at >= week_ago,
@@ -23135,6 +23155,39 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
             "type": "commission", "emoji": "💰",
             "text": f"Earned ${float(c.amount_usdt)} {c.commission_type.replace('_', ' ')} from {from_name}",
             "time": c.created_at.isoformat(), "amount": float(c.amount_usdt)
+        })
+
+    recent_matrix = db.query(CreditMatrixCommission).filter(
+        CreditMatrixCommission.earner_id == user.id,
+        CreditMatrixCommission.created_at >= week_ago,
+        CreditMatrixCommission.status == "paid"
+    ).order_by(CreditMatrixCommission.created_at.desc()).limit(20).all()
+    for c in recent_matrix:
+        from_user = db.query(User).filter(User.id == c.from_user_id).first() if c.from_user_id else None
+        from_name = (from_user.first_name or from_user.username) if from_user else "System"
+        is_completion = c.commission_type == "matrix_completion"
+        feed.append({
+            "type": "commission", "emoji": "💎",
+            "text": (
+                f"Earned ${float(c.amount or 0):.2f} Credit Nexus completion bonus"
+                if is_completion
+                else f"Earned ${float(c.amount or 0):.2f} from {from_name} buying a credit pack"
+            ),
+            "time": c.created_at.isoformat(), "amount": float(c.amount or 0)
+        })
+
+    recent_course = db.query(CourseCommission).filter(
+        CourseCommission.earner_id == user.id,
+        CourseCommission.created_at >= week_ago
+    ).order_by(CourseCommission.created_at.desc()).limit(20).all()
+    for c in recent_course:
+        from_user = db.query(User).filter(User.id == c.buyer_id).first() if c.buyer_id else None
+        from_name = (from_user.first_name or from_user.username) if from_user else "Someone"
+        kind = "direct sale" if c.commission_type == "direct_sale" else "pass-up"
+        feed.append({
+            "type": "commission", "emoji": "🎓",
+            "text": f"Earned ${float(c.amount or 0):.2f} course {kind} from {from_name}",
+            "time": c.created_at.isoformat(), "amount": float(c.amount or 0)
         })
 
     # New team members (direct referrals)
