@@ -1154,6 +1154,80 @@ def home(request: Request):
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  Helper: sum paid commissions across all 3 commission tables.
+#  Added 7 May 2026 to centralise the "sum across Commission +
+#  CreditMatrixCommission + CourseCommission" pattern that was
+#  previously duplicated incorrectly across many endpoints (each
+#  one summing only the Commission table and silently undercounting
+#  Credit Nexus + Course payouts).
+# ═══════════════════════════════════════════════════════════════
+def _sum_all_member_commissions(db: Session, since=None, until=None,
+                                user_id: int = None) -> float:
+    """Sum paid commissions across all 3 tables, optionally filtered.
+
+    Args:
+        db: SQLAlchemy session
+        since: datetime lower bound (inclusive). None = no lower bound.
+        until: datetime upper bound (exclusive). None = no upper bound.
+        user_id: if set, only sum commissions earned BY this user.
+                 Otherwise sum platform-wide member-routed commissions.
+
+    Returns:
+        Sum as a float, USD. Excludes:
+          - Reversed Commission rows (status != 'paid' or 'reversed')
+          - Company-routed Commission rows (to_user_id IS NULL — overflow,
+            platform fees, etc.)
+          - Unpaid CreditMatrixCommission rows (status != 'paid')
+        CourseCommission has no status column — always counted when
+        present (rows are written when paid).
+
+    The platform-wide call drives the public homepage's "$X paid out
+    to members" stat. Per-user call drives wallet/dashboard summaries.
+    """
+    from sqlalchemy import func as _f
+    total = 0.0
+
+    # 1. Commission table (grid + membership)
+    q1 = db.query(_f.coalesce(_f.sum(Commission.amount_usdt), 0)).filter(
+        Commission.status == "paid",
+        Commission.to_user_id.isnot(None),
+    )
+    if user_id is not None:
+        q1 = q1.filter(Commission.to_user_id == user_id)
+    if since is not None:
+        q1 = q1.filter(Commission.created_at >= since)
+    if until is not None:
+        q1 = q1.filter(Commission.created_at < until)
+    total += float(q1.scalar() or 0)
+
+    # 2. CreditMatrixCommission table (Credit Nexus)
+    q2 = db.query(_f.coalesce(_f.sum(CreditMatrixCommission.amount), 0)).filter(
+        CreditMatrixCommission.status == "paid",
+    )
+    if user_id is not None:
+        q2 = q2.filter(CreditMatrixCommission.earner_id == user_id)
+    if since is not None:
+        q2 = q2.filter(CreditMatrixCommission.created_at >= since)
+    if until is not None:
+        q2 = q2.filter(CreditMatrixCommission.created_at < until)
+    total += float(q2.scalar() or 0)
+
+    # 3. CourseCommission table (Course Academy)
+    q3 = db.query(_f.coalesce(_f.sum(CourseCommission.amount), 0))
+    if user_id is not None:
+        q3 = q3.filter(CourseCommission.earner_id == user_id)
+    if since is not None:
+        q3 = q3.filter(CourseCommission.created_at >= since)
+    if until is not None:
+        q3 = q3.filter(CourseCommission.created_at < until)
+    total += float(q3.scalar() or 0)
+
+    return total
+
+
 @app.get("/api/public/stats")
 def api_public_stats(db: Session = Depends(get_db)):
     """Public stats for homepage — member count, total earned. No auth required.
@@ -1166,14 +1240,12 @@ def api_public_stats(db: Session = Depends(get_db)):
     from sqlalchemy import func
     total_members = db.query(User).filter(User.is_active == True).count()
     total_registered = db.query(User).count()
-    # Member-routed commissions only — exclude company-routed (platform
-    # fees + overflow-to-company where to_user_id is None). The public
-    # homepage 'paid to members' figure must not include company revenue
-    # or it inflates a marketing claim. Same fix applied to /api/leaderboard.
-    total_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
-        Commission.status == "paid",
-        Commission.to_user_id.isnot(None),
-    ).scalar() or 0)
+    # Member-routed commissions across all 3 tables. Helper handles the
+    # full aggregation pattern. Bug history: previously summed only the
+    # Commission table, undercounting platform-wide payouts to members
+    # by everything paid via Credit Nexus and Course Academy. Fix
+    # 7 May 2026 alongside the wallet bug.
+    total_earned = _sum_all_member_commissions(db)
     result = {
         "members": total_members,
         "registered": total_registered,
@@ -1200,8 +1272,15 @@ def api_public_recent_payouts(db: Session = Depends(get_db)):
     if now - _recent_payouts_cache["ts"] < 30 and _recent_payouts_cache["data"]:
         return _recent_payouts_cache["data"]
 
-    rows = (
-        db.query(Commission, User)
+    # Merge recent paid commissions across all 3 tables. Bug fixed
+    # 7 May 2026: previously only queried Commission, so the live
+    # income toast on /earn never showed any Credit Nexus or Course
+    # commissions even when those were the most recent payouts.
+    grid_rows = (
+        db.query(Commission.amount_usdt.label('amount'),
+                 Commission.created_at.label('ts'),
+                 User.first_name.label('first_name'),
+                 User.username.label('username'))
           .join(User, User.id == Commission.to_user_id)
           .filter(Commission.status == "paid")
           .filter(Commission.amount_usdt > 0)
@@ -1209,12 +1288,41 @@ def api_public_recent_payouts(db: Session = Depends(get_db)):
           .limit(20)
           .all()
     )
+    matrix_rows = (
+        db.query(CreditMatrixCommission.amount.label('amount'),
+                 CreditMatrixCommission.created_at.label('ts'),
+                 User.first_name.label('first_name'),
+                 User.username.label('username'))
+          .join(User, User.id == CreditMatrixCommission.earner_id)
+          .filter(CreditMatrixCommission.status == "paid")
+          .filter(CreditMatrixCommission.amount > 0)
+          .order_by(CreditMatrixCommission.created_at.desc())
+          .limit(20)
+          .all()
+    )
+    course_rows = (
+        db.query(CourseCommission.amount.label('amount'),
+                 CourseCommission.created_at.label('ts'),
+                 User.first_name.label('first_name'),
+                 User.username.label('username'))
+          .join(User, User.id == CourseCommission.earner_id)
+          .filter(CourseCommission.amount > 0)
+          .order_by(CourseCommission.created_at.desc())
+          .limit(20)
+          .all()
+    )
+
+    # Merge all 3 lists, sort by timestamp descending, take top 20
+    all_rows = list(grid_rows) + list(matrix_rows) + list(course_rows)
+    all_rows.sort(key=lambda r: r.ts or datetime.min, reverse=True)
+    all_rows = all_rows[:20]
+
     result = []
-    for commission, user in rows:
-        raw_name = (user.first_name or "").strip() or (user.username or "").strip() or "Member"
+    for r in all_rows:
+        raw_name = (r.first_name or "").strip() or (r.username or "").strip() or "Member"
         # First token only — "Steve L" -> "Steve", "stevepersonal" -> "stevepersonal"
         display_name = raw_name.split()[0]
-        amount = int(round(float(commission.amount_usdt or 0)))
+        amount = int(round(float(r.amount or 0)))
         if amount <= 0:
             continue
         result.append({"name": display_name, "amount": amount})
@@ -1246,27 +1354,54 @@ def api_public_explore_stats(db: Session = Depends(get_db)):
     month_ago = now - timedelta(days=30)
 
     def sum_paid(since):
-        v = db.query(func.sum(Commission.amount_usdt)).filter(
-            Commission.status == "paid",
-            Commission.created_at >= since
-        ).scalar()
-        return float(v or 0)
+        # 7 May 2026: now sums across all 3 commission tables via the
+        # shared helper. Previously only summed Commission, so the
+        # /explore page's hour/day/month "paid out" figures were
+        # undercounting Credit Nexus and Course commissions.
+        return _sum_all_member_commissions(db, since=since)
 
     hour_paid = sum_paid(hour_ago)
     today_paid = sum_paid(day_ago)
     month_paid = sum_paid(month_ago)
 
-    # Active earners in the past 30 days (distinct recipients of paid commissions)
-    active_members = db.query(func.count(func.distinct(Commission.to_user_id))).filter(
+    # Active earners in the past 30 days (distinct recipients of paid
+    # commissions) — counted across all 3 tables. Members earning only
+    # via Credit Nexus or Courses were previously excluded from this
+    # active-member count, falsely lowering the headline figure.
+    active_member_ids = set()
+    for uid_row in db.query(Commission.to_user_id).filter(
         Commission.status == "paid",
-        Commission.created_at >= month_ago
-    ).scalar() or 0
+        Commission.created_at >= month_ago,
+        Commission.to_user_id.isnot(None),
+    ).distinct().all():
+        active_member_ids.add(uid_row[0])
+    for uid_row in db.query(CreditMatrixCommission.earner_id).filter(
+        CreditMatrixCommission.status == "paid",
+        CreditMatrixCommission.created_at >= month_ago,
+    ).distinct().all():
+        active_member_ids.add(uid_row[0])
+    for uid_row in db.query(CourseCommission.earner_id).filter(
+        CourseCommission.created_at >= month_ago,
+    ).distinct().all():
+        active_member_ids.add(uid_row[0])
+    active_members = len(active_member_ids)
 
-    # Tab counts
-    activity_count = db.query(func.count(Commission.id)).filter(
-        Commission.status == "paid",
-        Commission.created_at >= hour_ago
-    ).scalar() or 0
+    # Tab counts — count of recent commission ROWS in the last hour
+    # across all 3 tables (used as a "X new things in the last hour"
+    # badge on the Activity tab).
+    activity_count = (
+        (db.query(func.count(Commission.id)).filter(
+            Commission.status == "paid",
+            Commission.created_at >= hour_ago
+        ).scalar() or 0)
+        + (db.query(func.count(CreditMatrixCommission.id)).filter(
+            CreditMatrixCommission.status == "paid",
+            CreditMatrixCommission.created_at >= hour_ago
+        ).scalar() or 0)
+        + (db.query(func.count(CourseCommission.id)).filter(
+            CourseCommission.created_at >= hour_ago
+        ).scalar() or 0)
+    )
 
     try:
         from app.database import MemberStory, MemberShowcase
@@ -1310,7 +1445,18 @@ def api_public_activity_feed(limit: int = 25, db: Session = Depends(get_db)):
             return cached[:cache_key]
 
     hour_ago = datetime.utcnow() - timedelta(hours=1)
-    rows = (db.query(Commission, User)
+    # Bug fixed 7 May 2026: previously only queried Commission. Members
+    # earning via Credit Nexus or Course Academy were invisible in the
+    # live activity feed on /explore tab 1, even though those streams
+    # are an important part of the platform's payout story.
+
+    grid_rows = (db.query(Commission.amount_usdt.label('amt'),
+                          Commission.created_at.label('ts'),
+                          Commission.commission_type.label('ct'),
+                          User.id.label('uid'),
+                          User.first_name.label('fn'),
+                          User.username.label('un'),
+                          User.display_city.label('city'))
               .join(User, User.id == Commission.to_user_id)
               .filter(Commission.status == "paid")
               .filter(Commission.amount_usdt > 0)
@@ -1319,34 +1465,73 @@ def api_public_activity_feed(limit: int = 25, db: Session = Depends(get_db)):
               .limit(min(cache_key, 50))
               .all())
 
+    matrix_rows = (db.query(CreditMatrixCommission.amount.label('amt'),
+                            CreditMatrixCommission.created_at.label('ts'),
+                            CreditMatrixCommission.commission_type.label('ct'),
+                            User.id.label('uid'),
+                            User.first_name.label('fn'),
+                            User.username.label('un'),
+                            User.display_city.label('city'))
+              .join(User, User.id == CreditMatrixCommission.earner_id)
+              .filter(CreditMatrixCommission.status == "paid")
+              .filter(CreditMatrixCommission.amount > 0)
+              .filter(CreditMatrixCommission.created_at >= hour_ago)
+              .order_by(CreditMatrixCommission.created_at.desc())
+              .limit(min(cache_key, 50))
+              .all())
+
+    course_rows = (db.query(CourseCommission.amount.label('amt'),
+                            CourseCommission.created_at.label('ts'),
+                            CourseCommission.commission_type.label('ct'),
+                            User.id.label('uid'),
+                            User.first_name.label('fn'),
+                            User.username.label('un'),
+                            User.display_city.label('city'))
+              .join(User, User.id == CourseCommission.earner_id)
+              .filter(CourseCommission.amount > 0)
+              .filter(CourseCommission.created_at >= hour_ago)
+              .order_by(CourseCommission.created_at.desc())
+              .limit(min(cache_key, 50))
+              .all())
+
+    # Merge & sort
+    rows = list(grid_rows) + list(matrix_rows) + list(course_rows)
+    rows.sort(key=lambda r: r.ts or datetime.min, reverse=True)
+    rows = rows[:min(cache_key, 50)]
+
     # Friendly reason labels — maps raw commission_type to user-facing strings
+    # Updated 7 May 2026 with Credit Nexus + Course mappings.
     reason_map = {
         "direct_sponsor":         "Direct referral",
         "uni_level":              "Uni-level",
         "platform":               "Platform",
         "membership":             "Membership · recurring",
+        "membership_sponsor":     "Membership · referral",
+        "membership_renewal":     "Membership · renewal",
         "grid_completion_bonus":  "Grid completion bonus",
-        "matrix_level":           "Profit Nexus",
-        "matrix_completion":      "Profit Nexus · completion",
+        "matrix_level":           "Credit Nexus",
+        "matrix_completion":      "Credit Nexus · completion",
         "course_sale":            "Course sale",
         "course_passup":          "Course sale · passed up",
+        "direct_sale":            "Course sale",
+        "pass_up":                "Course sale · passed up",
     }
 
     now = datetime.utcnow()
     result = []
-    for c, u in rows:
-        raw_name = (u.first_name or "").strip() or (u.username or "").strip() or "Member"
+    for r in rows:
+        raw_name = (r.fn or "").strip() or (r.un or "").strip() or "Member"
         display_name = raw_name.split()[0]
-        minutes_ago = max(0, int((now - c.created_at).total_seconds() / 60))
+        minutes_ago = max(0, int((now - r.ts).total_seconds() / 60))
         # Location: display_city is the country NAME (e.g. "United Kingdom") until city DB is available
-        location = u.display_city or None
+        location = r.city or None
         result.append({
             "name":        display_name,
             "location":    location,
-            "reason":      reason_map.get(c.commission_type, c.commission_type or "Payout"),
-            "amount":      int(round(float(c.amount_usdt or 0))),
+            "reason":      reason_map.get(r.ct, r.ct or "Payout"),
+            "amount":      int(round(float(r.amt or 0))),
             "minutes_ago": minutes_ago,
-            "color":       f"c{(u.id % 8) + 1}",  # c1..c8 for avatar color variety
+            "color":       f"c{(r.uid % 8) + 1}",  # c1..c8 for avatar color variety
         })
 
     _activity_feed_cache["ts"] = now_ts
@@ -1499,19 +1684,47 @@ def api_member_story_prompt_check(request: Request, db: Session = Depends(get_db
         return {"show": False, "reason": "already_submitted"}
 
     # Find their FIRST paid commission (oldest, ordered by created_at ascending)
-    first_paid = (db.query(Commission)
+    # across all 3 commission tables. Bug fixed 7 May 2026: previously
+    # only looked at the Commission table, so members whose first earnings
+    # came from Credit Nexus or Course Academy never saw the story prompt
+    # banner — they were silently excluded from the qualifying-member flow.
+    first_grid = (db.query(Commission)
                     .filter(Commission.to_user_id == user.id,
                             Commission.status == "paid",
                             Commission.amount_usdt > 0)
                     .order_by(Commission.created_at.asc())
                     .first())
-    if not first_paid:
+    first_matrix = (db.query(CreditMatrixCommission)
+                      .filter(CreditMatrixCommission.earner_id == user.id,
+                              CreditMatrixCommission.status == "paid",
+                              CreditMatrixCommission.amount > 0)
+                      .order_by(CreditMatrixCommission.created_at.asc())
+                      .first())
+    first_course = (db.query(CourseCommission)
+                      .filter(CourseCommission.earner_id == user.id,
+                              CourseCommission.amount > 0)
+                      .order_by(CourseCommission.created_at.asc())
+                      .first())
+
+    # Pick the earliest across all 3 (whichever the member earned first)
+    candidates = []
+    if first_grid and first_grid.created_at:
+        candidates.append((first_grid.created_at, float(first_grid.amount_usdt or 0)))
+    if first_matrix and first_matrix.created_at:
+        candidates.append((first_matrix.created_at, float(first_matrix.amount or 0)))
+    if first_course and first_course.created_at:
+        candidates.append((first_course.created_at, float(first_course.amount or 0)))
+
+    if not candidates:
         return {"show": False, "reason": "no_paid_commission"}
+
+    candidates.sort(key=lambda x: x[0])
+    earliest_date, earliest_amount = candidates[0]
 
     return {
         "show": True,
-        "first_amount": float(first_paid.amount_usdt or 0),
-        "first_paid_at": first_paid.created_at.isoformat() if first_paid.created_at else None,
+        "first_amount": earliest_amount,
+        "first_paid_at": earliest_date.isoformat(),
     }
 
 
@@ -2934,10 +3147,23 @@ def fomo_stats_api(db: Session = Depends(get_db)):
     active_members = db.query(User).filter(User.is_active == True).count()
     grids_completed = db.query(Grid).filter(Grid.is_complete == True).count()
 
-    # Today's commissions
-    today_commissions = db.query(func.sum(Commission.amount_usdt)).filter(
-        Commission.created_at >= today
-    ).scalar() or 0
+    # Today's commissions across all 3 commission tables.
+    # Bug fixed 7 May 2026: previously summed only the Commission table,
+    # so the fomo widget on signup pages under-reported daily payouts
+    # any day Credit Nexus or Course commissions were paid.
+    today_commissions = (
+        (db.query(func.sum(Commission.amount_usdt)).filter(
+            Commission.created_at >= today,
+            Commission.status == "paid",
+        ).scalar() or 0)
+        + (db.query(func.sum(CreditMatrixCommission.amount)).filter(
+            CreditMatrixCommission.created_at >= today,
+            CreditMatrixCommission.status == "paid",
+        ).scalar() or 0)
+        + (db.query(func.sum(CourseCommission.amount)).filter(
+            CourseCommission.created_at >= today,
+        ).scalar() or 0)
+    )
 
     # Recent grid positions filled
     recent_positions = db.query(GridPosition).order_by(desc(GridPosition.created_at)).limit(10).all()
@@ -13478,10 +13704,52 @@ async def mark_notifications_read(request: Request, user: User = Depends(get_cur
 # ── GDPR DATA EXPORT & DELETION ──
 @app.get("/api/account/export-data")
 def gdpr_export_data(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """GDPR: Export all user data as JSON."""
+    """GDPR Article 15: Export all user data as JSON.
+
+    Must include EVERY personal data point the platform stores about the
+    user — not just data from one of three commission tables. Bug fixed
+    7 May 2026: previously exported only Commission rows, omitting
+    CourseCommission (Course Academy commissions) and
+    CreditMatrixCommission (Credit Nexus commissions). Members
+    requesting their data export under GDPR Article 15 received an
+    INCOMPLETE export, which is itself a GDPR violation.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     import json as _jgdpr
+
+    # All commissions across all 3 tables, normalised into one list.
+    # Each row tagged with `source` so the recipient (member or DPA
+    # auditor) can see which stream a commission came from.
+    commissions_all = []
+    for c in db.query(Commission).filter(Commission.to_user_id == user.id).all():
+        commissions_all.append({
+            "source": "grid_or_membership",
+            "amount": float(c.amount_usdt or 0),
+            "type": c.commission_type,
+            "status": c.status,
+            "date": c.created_at.isoformat() if c.created_at else None,
+        })
+    for c in db.query(CreditMatrixCommission).filter(CreditMatrixCommission.earner_id == user.id).all():
+        commissions_all.append({
+            "source": "credit_nexus",
+            "amount": float(c.amount or 0),
+            "type": c.commission_type,
+            "level": c.level,
+            "status": c.status,
+            "pack_price": float(c.pack_price or 0),
+            "date": c.created_at.isoformat() if c.created_at else None,
+        })
+    for c in db.query(CourseCommission).filter(CourseCommission.earner_id == user.id).all():
+        commissions_all.append({
+            "source": "course",
+            "amount": float(c.amount or 0),
+            "type": c.commission_type,
+            "course_tier": c.course_tier,
+            "status": "paid",  # CourseCommission has no status column — always paid when written
+            "date": c.created_at.isoformat() if c.created_at else None,
+        })
+
     data = {
         "user": {
             "id": user.id, "username": user.username, "email": user.email,
@@ -13489,8 +13757,7 @@ def gdpr_export_data(user: User = Depends(get_current_user), db: Session = Depen
             "niche": user.niche, "membership_tier": user.membership_tier,
             "created_at": user.created_at.isoformat() if user.created_at else None,
         },
-        "commissions": [{"amount": float(c.amount_usdt), "type": c.commission_type, "date": c.created_at.isoformat() if c.created_at else None}
-                        for c in db.query(Commission).filter(Commission.to_user_id == user.id).all()],
+        "commissions": commissions_all,
         "withdrawals": [{"amount": float(w.amount_usdt), "status": w.status, "date": w.created_at.isoformat() if w.created_at else None}
                         for w in db.query(Withdrawal).filter(Withdrawal.user_id == user.id).all()],
         "notifications": [{"title": n.title, "message": n.message, "date": n.created_at.isoformat() if n.created_at else None}
