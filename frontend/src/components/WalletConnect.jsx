@@ -597,20 +597,23 @@ export function WalletConnectGate(props) {
           display: 'inline-flex', alignItems: 'center', gap: 6,
           padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
           fontFamily: 'inherit',
-          border: '1px solid rgba(255,255,255,0.25)',
-          background: 'rgba(16, 185, 129, 0.18)',
-          color: '#fff',
+          border: 'none',
+          background: 'linear-gradient(135deg, #f3ba2f 0%, #e8a317 100%)',
+          color: '#1a1a1a',
           cursor: 'pointer',
-          transition: 'background .15s, border-color .15s',
+          transition: 'transform .15s, box-shadow .15s, filter .15s',
           whiteSpace: 'nowrap',
+          boxShadow: '0 2px 8px rgba(243, 186, 47, 0.4), 0 0 0 1px rgba(243, 186, 47, 0.3)',
         }, props.style || {})}
         onMouseOver={function(e) {
-          e.currentTarget.style.background = 'rgba(16, 185, 129, 0.32)';
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+          e.currentTarget.style.boxShadow = '0 4px 14px rgba(243, 186, 47, 0.55), 0 0 0 1px rgba(243, 186, 47, 0.5)';
+          e.currentTarget.style.filter = 'brightness(1.05)';
         }}
         onMouseOut={function(e) {
-          e.currentTarget.style.background = 'rgba(16, 185, 129, 0.18)';
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)';
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(243, 186, 47, 0.4), 0 0 0 1px rgba(243, 186, 47, 0.3)';
+          e.currentTarget.style.filter = 'brightness(1)';
         }}>
         <span aria-hidden="true" style={{ fontSize: 13 }}>⛓</span>
         <span>{props.label || 'Connect Wallet'}</span>
