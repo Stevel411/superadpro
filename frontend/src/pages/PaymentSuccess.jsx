@@ -94,11 +94,59 @@ export default function PaymentSuccess() {
     var cancelled = false;
     var elapsedMs = 0;
     var POLL_INTERVAL = 2000;
-    var POLL_TIMEOUT_MS = 30000;
+    var POLL_TIMEOUT_MS = 90000;  // WC cron is 30s + BSC finality; 90s tolerance
 
+    // ── Path A: WalletConnect rail ────────────────────────────────
+    // Poll /api/onchain/order/{id} until status=='confirmed' (success)
+    // or 'expired' (failure). Critical: only call refreshUser() AFTER
+    // the server has actually flipped status, otherwise the auth
+    // context picks up stale user state and the dashboard shows the
+    // pre-payment tier until a hard refresh. (Bug observed 7 May 2026
+    // on the first $15 Pro upgrade smoke test.)
+    if (orderId && source === 'walletconnect') {
+      function pollWcOrder() {
+        if (cancelled) return;
+        fetch('/api/onchain/order/' + orderId, { credentials: 'include' })
+          .then(function(r) { return r.ok ? r.json() : null; })
+          .then(function(data) {
+            if (cancelled || !data) return;
+            var s = (data.status || '').toLowerCase();
+            if (s === 'confirmed') {
+              refreshUser().finally(function() {
+                if (!cancelled) setStatus('success');
+              });
+              return;
+            }
+            if (s === 'expired' || s === 'cancelled') {
+              if (!cancelled) setStatus('failed');
+              return;
+            }
+            // Still pending — keep polling
+            elapsedMs += POLL_INTERVAL;
+            setPollSeconds(Math.floor(elapsedMs / 1000));
+            if (elapsedMs >= POLL_TIMEOUT_MS) {
+              if (!cancelled) setStatus('timeout');
+              return;
+            }
+            setTimeout(pollWcOrder, POLL_INTERVAL);
+          })
+          .catch(function() {
+            // Transient network error — keep polling
+            elapsedMs += POLL_INTERVAL;
+            if (elapsedMs >= POLL_TIMEOUT_MS) {
+              if (!cancelled) setStatus('timeout');
+              return;
+            }
+            setTimeout(pollWcOrder, POLL_INTERVAL);
+          });
+      }
+      pollWcOrder();
+      return function() { cancelled = true; };
+    }
+
+    // ── Path B: legacy fallback (no order_id, or non-known source) ──
     // Defensive fallback: if no order_id in URL (non-NOWPayments redirect path,
     // e.g. internal credit purchases), use the legacy 2-second-then-success.
-    // Same behaviour as before, no regression.
     if (!orderId || source !== 'nowpayments') {
       var legacyTimer = setTimeout(function() {
         if (cancelled) return;
@@ -109,6 +157,7 @@ export default function PaymentSuccess() {
       return function() { cancelled = true; clearTimeout(legacyTimer); };
     }
 
+    // ── Path C: NOWPayments — poll their order status ────────────
     function pollOrderStatus() {
       if (cancelled) return;
       fetch('/api/nowpayments/order/' + orderId, { credentials: 'include' })
