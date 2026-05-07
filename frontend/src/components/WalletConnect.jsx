@@ -71,7 +71,7 @@ function getBootstrap() {
       projectId: projectId,
     });
 
-    createAppKit({
+    var appKitInstance = createAppKit({
       adapters: [wagmiAdapter],
       networks: [bsc],
       projectId: projectId,
@@ -92,6 +92,7 @@ function getBootstrap() {
     _bootstrap = {
       wagmiConfig: wagmiAdapter.wagmiConfig,
       queryClient: new QueryClient(),
+      appKit: appKitInstance,
     };
   } catch (e) {
     _bootstrap = { error: 'AppKit init failed: ' + (e && e.message ? e.message : String(e)) };
@@ -106,7 +107,269 @@ var WalletCtx = createContext({
   address: null,
   chainId: null,
   onBeforeClick: null,
+  // Set when user picks a wallet from Reown's picker; cleared when
+  // connection succeeds or modal closes. Drives ConnectionGuide modal.
+  selectedWallet: null,
 });
+
+// ── Wallet catalog ────────────────────────────────────────────────────
+// Maps known wallet names (as Reown emits them in SELECT_WALLET events)
+// to display info + connection-flow type. Anything not in this catalog
+// falls through to a generic "your wallet" template.
+//
+// `kind` controls which guide variant renders:
+//   'extension' — browser extension wallet (point at toolbar)
+//   'hardware'  — physical USB device (Ledger, Trezor)
+//   'qrcode'    — mobile via WalletConnect QR (Reown's QR display)
+//   'mobile'    — direct mobile-app deep link
+//
+// `letter` and `bg` produce a fallback colored badge if no icon is shown.
+// We avoid embedding wallet logos because that can look like impersonation
+// and creates a maintenance burden when wallets rebrand.
+
+var WALLET_CATALOG = {
+  // Extension wallets
+  'metamask':       { kind: 'extension', letter: 'M', bg: '#f56500', name: 'MetaMask' },
+  'binance wallet': { kind: 'extension', letter: 'B', bg: '#f0b90b', name: 'Binance Wallet' },
+  'coinbase wallet':{ kind: 'extension', letter: 'C', bg: '#0052ff', name: 'Coinbase Wallet' },
+  'safepal':        { kind: 'extension', letter: 'S', bg: '#5648e7', name: 'SafePal' },
+  'brave wallet':   { kind: 'extension', letter: 'B', bg: '#fb542b', name: 'Brave Wallet' },
+  'phantom':        { kind: 'extension', letter: 'P', bg: '#ab9ff2', name: 'Phantom' },
+  // Hardware wallets (typically used via WalletConnect or browser bridge)
+  'ledger':         { kind: 'hardware',  letter: 'L', bg: '#1f1f1f', name: 'Ledger' },
+  'trezor':         { kind: 'hardware',  letter: 'T', bg: '#0c684e', name: 'Trezor' },
+  // Common mobile-first wallets that connect via QR
+  'trust wallet':   { kind: 'qrcode',    letter: 'T', bg: '#3375bb', name: 'Trust Wallet' },
+  'rainbow':        { kind: 'qrcode',    letter: 'R', bg: '#001e59', name: 'Rainbow' },
+  'walletconnect':  { kind: 'qrcode',    letter: 'W', bg: '#3b99fc', name: 'WalletConnect' },
+};
+
+function lookupWalletInfo(name, platform) {
+  // Normalize name for catalog lookup. Reown emits names like "MetaMask",
+  // "Trust Wallet", "Coinbase Wallet" — we lowercase for case-insensitive
+  // match.
+  var key = (name || '').toLowerCase().trim();
+  var hit = WALLET_CATALOG[key];
+  if (hit) return hit;
+
+  // Fallback: derive kind from Reown's platform field. 'browser' is a
+  // browser extension; 'qrcode' is mobile QR scanning; everything else
+  // we treat as qrcode (closest behaviour from a UX standpoint — there's
+  // nothing for the user to do in our tab, just like QR).
+  var kindByPlatform = {
+    'browser':  'extension',
+    'desktop':  'extension',
+    'qrcode':   'qrcode',
+    'mobile':   'qrcode',
+    'web':      'qrcode',
+  };
+  return {
+    kind: kindByPlatform[platform] || 'extension',
+    letter: (name || '?').charAt(0).toUpperCase(),
+    bg: '#5b6577',
+    name: name || 'your wallet',
+  };
+}
+
+
+// ── ConnectionGuide modal ─────────────────────────────────────────────
+//
+// Renders alongside Reown's modal when the user has picked a wallet but
+// hasn't completed connection. Shows wallet-specific instructions so
+// users know exactly what to do next (which avoids the "spinner with
+// no direction" trap that confused Steve during 7 May testing).
+//
+// Three variants based on wallet.kind:
+//   - extension: animated arrow + "click your [wallet] icon in toolbar"
+//   - hardware: numbered steps + "approve on the device"
+//   - qrcode: short hint that Reown is showing a QR; we don't replace
+//     Reown's QR display, just augment with clarity above it
+//
+// Auto-times-out at 30s with a "Can't reach your wallet" recovery state.
+
+function ConnectionGuide(props) {
+  var wallet = props.wallet;  // null when nothing selected
+  var isConnected = props.isConnected;
+  var [timedOut, setTimedOut] = useState(false);
+
+  // Reset timeout each time a new wallet is selected.
+  useEffect(function() {
+    if (!wallet || isConnected) {
+      setTimedOut(false);
+      return;
+    }
+    var t = setTimeout(function() { setTimedOut(true); }, 30000);
+    return function() { clearTimeout(t); };
+  }, [wallet && wallet.selectedAt, isConnected]);
+
+  if (!wallet || isConnected) return null;
+
+  var info = lookupWalletInfo(wallet.name, wallet.platform);
+
+  // For QR-flow wallets we DON'T render an overlay — Reown's QR is
+  // already clear and self-explanatory. Returning null lets Reown's
+  // modal show through unobstructed.
+  if (info.kind === 'qrcode') return null;
+
+  // Common modal shell
+  var overlayStyle = {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 9999,  // above Reown (which uses ~9000)
+    background: 'rgba(15, 23, 42, 0.55)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backdropFilter: 'blur(2px)',
+  };
+  var cardStyle = {
+    background: '#fff',
+    borderRadius: 16,
+    border: '1px solid #e2e8f0',
+    padding: 28,
+    maxWidth: 380,
+    width: '100%',
+    fontFamily: 'inherit',
+    boxShadow: '0 20px 50px rgba(0,0,0,0.25)',
+  };
+
+  // ── Timed-out state (after 30s with no connection) ───
+  if (timedOut) {
+    return (
+      <div style={overlayStyle} onClick={function(e){ if(e.target===e.currentTarget) props.onCancel(); }}>
+        <div style={cardStyle}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
+            <div style={{ width:40, height:40, borderRadius:8, background:'#fef3c7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>⚠</div>
+            <div>
+              <div style={{ fontSize:15, fontWeight:600, color:'#0f172a' }}>Can't reach your {info.name.toLowerCase()}</div>
+              <div style={{ fontSize:12, color:'#64748b' }}>No response after 30 seconds</div>
+            </div>
+          </div>
+          <div style={{ fontSize:13, color:'#475569', lineHeight:1.6, marginBottom:16 }}>
+            Either approve the request in your wallet, or pick a different wallet to connect with.
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            <button onClick={function(){ setTimedOut(false); }} style={btnSecondary}>Try again</button>
+            <button onClick={props.onCancel} style={btnPrimary}>Choose different wallet</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Hardware wallet variant ───
+  if (info.kind === 'hardware') {
+    var hwSteps = info.name === 'Ledger'
+      ? ['Plug your Ledger into a USB port', 'Enter your PIN on the device', 'Open the Ethereum app on your device, then approve the connection']
+      : info.name === 'Trezor'
+      ? ['Plug your Trezor into a USB port', 'Unlock the device with your PIN', 'Approve the connection on the device screen']
+      : ['Plug your hardware wallet into a USB port', 'Unlock the device', 'Approve the connection on the device'];
+
+    return (
+      <div style={overlayStyle} onClick={function(e){ if(e.target===e.currentTarget) props.onCancel(); }}>
+        <div style={cardStyle}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
+            <div style={{ width:40, height:40, borderRadius:8, background:info.bg, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:18, fontWeight:600 }}>{info.letter}</div>
+            <div>
+              <div style={{ fontSize:15, fontWeight:600, color:'#0f172a' }}>Connecting to {info.name}</div>
+              <div style={{ fontSize:12, color:'#64748b' }}>Follow the steps on your device</div>
+            </div>
+          </div>
+          <div style={{ background:'#eff6ff', border:'1px solid #dbeafe', borderRadius:10, padding:18, marginBottom:14 }}>
+            {hwSteps.map(function(step, i) {
+              return (
+                <div key={i} style={{ display:'flex', gap:12, marginBottom: i < hwSteps.length - 1 ? 12 : 0, alignItems:'flex-start' }}>
+                  <div style={{ width:22, height:22, borderRadius:'50%', background:'#fff', color:'#1e40af', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:600, flexShrink:0 }}>{i+1}</div>
+                  <div style={{ fontSize:13, color:'#1e3a8a', lineHeight:1.5, paddingTop:1 }}>{step}</div>
+                </div>
+              );
+            })}
+          </div>
+          {info.name === 'Ledger' ? (
+            <div style={{ fontSize:11, color:'#64748b', lineHeight:1.5, marginBottom:14, padding:'10px 12px', background:'#f8fafc', borderRadius:8 }}>
+              <strong style={{ color:'#0f172a', fontWeight:600 }}>Tip:</strong> Make sure firmware is up to date and the Ethereum app is installed via Ledger Live.
+            </div>
+          ) : null}
+          <button onClick={props.onCancel} style={btnSecondary}>Cancel</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Extension wallet variant (default) ───
+  return (
+    <div style={overlayStyle} onClick={function(e){ if(e.target===e.currentTarget) props.onCancel(); }}>
+      <div style={cardStyle}>
+        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:18 }}>
+          <div style={{ width:40, height:40, borderRadius:8, background:info.bg, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:18, fontWeight:600 }}>{info.letter}</div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:15, fontWeight:600, color:'#0f172a' }}>Connecting to {info.name}</div>
+            <div style={{ fontSize:12, color:'#64748b' }}>Waiting for your approval</div>
+          </div>
+          {/* Breathing dot — subtle visual progress signal */}
+          <div style={{ width:8, height:8, borderRadius:'50%', background:'#22c55e', animation:'wcg-pulse 1.5s ease-in-out infinite' }} />
+        </div>
+        <div style={{ background:'#eff6ff', border:'1px solid #dbeafe', borderRadius:10, padding:20, marginBottom:14, textAlign:'center' }}>
+          {/* Animated arrow */}
+          <div style={{ fontSize:36, lineHeight:1, marginBottom:10, color:'#1e40af', animation:'wcg-arrow 1.6s ease-in-out infinite' }}>↗</div>
+          <div style={{ fontSize:15, fontWeight:600, color:'#1e3a8a', marginBottom:8, lineHeight:1.4 }}>
+            Click your {info.name} icon
+          </div>
+          <div style={{ fontSize:13, color:'#1e40af', lineHeight:1.5 }}>
+            Look at the top-right of your browser window. Click the {info.name} icon and approve the connection.
+          </div>
+        </div>
+        <div style={{ fontSize:11, color:'#64748b', lineHeight:1.5, marginBottom:14, padding:'10px 12px', background:'#f8fafc', borderRadius:8 }}>
+          <strong style={{ color:'#0f172a', fontWeight:600 }}>Don't see the icon?</strong> It might be hidden behind the puzzle-piece "Extensions" icon in your toolbar.
+        </div>
+        <button onClick={props.onCancel} style={btnSecondary}>Cancel</button>
+        <style>{
+          '@keyframes wcg-pulse{' +
+            '0%,100%{opacity:0.4;transform:scale(0.85)}' +
+            '50%{opacity:1;transform:scale(1.1)}' +
+          '}' +
+          '@keyframes wcg-arrow{' +
+            '0%,100%{transform:translate(0,0)}' +
+            '50%{transform:translate(4px,-4px)}' +
+          '}'
+        }</style>
+      </div>
+    </div>
+  );
+}
+
+// Shared button styles for ConnectionGuide
+var btnSecondary = {
+  width: '100%',
+  padding: 11,
+  background: '#fff',
+  border: '1px solid #cbd5e1',
+  borderRadius: 8,
+  fontSize: 14,
+  fontWeight: 500,
+  color: '#475569',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+};
+var btnPrimary = {
+  flex: 1,
+  padding: 11,
+  background: '#0ea5e9',
+  border: 'none',
+  borderRadius: 8,
+  fontSize: 14,
+  fontWeight: 600,
+  color: '#fff',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+};
+
+
+// Wallet selection metadata — see Step 3 (catalog) in the SELECT_WALLET
+// branch below for what gets stored. Shape:
+//   { name: string, platform: 'browser'|'qrcode'|'mobile'|'web', selectedAt: number }
+
 
 // ── Provider (wraps the page) ─────────────────────────────────────────
 //
@@ -123,7 +386,7 @@ export function WalletConnectProvider(props) {
     // Reown init failed — render children without WC functionality
     // so the page still works (NOWPayments flow remains visible).
     return (
-      <WalletCtx.Provider value={{ isConnected: false, address: null, chainId: null, onBeforeClick: null, error: bs.error }}>
+      <WalletCtx.Provider value={{ isConnected: false, address: null, chainId: null, onBeforeClick: null, selectedWallet: null, error: bs.error }}>
         {props.children}
       </WalletCtx.Provider>
     );
@@ -132,7 +395,7 @@ export function WalletConnectProvider(props) {
   return (
     <WagmiProvider config={bs.wagmiConfig}>
       <QueryClientProvider client={bs.queryClient}>
-        <_WalletInner onBeforeClick={props.onBeforeClick}>{props.children}</_WalletInner>
+        <_WalletInner appKit={bs.appKit} onBeforeClick={props.onBeforeClick}>{props.children}</_WalletInner>
       </QueryClientProvider>
     </WagmiProvider>
   );
@@ -141,6 +404,51 @@ export function WalletConnectProvider(props) {
 function _WalletInner(props) {
   var account = useAccount();
   var chainId = useChainId();
+  var [selectedWallet, setSelectedWallet] = useState(null);
+
+  // Subscribe to Reown events. We listen for SELECT_WALLET (user picked a
+  // wallet from Reown's picker — sets selectedWallet, drives our
+  // ConnectionGuide modal) and MODAL_CLOSE (user dismissed the picker
+  // without connecting — clears selectedWallet so the guide doesn't
+  // linger).
+  //
+  // Auto-clear on connection success: handled by the effect below
+  // watching account.isConnected.
+  useEffect(function() {
+    var appKit = props.appKit;
+    if (!appKit || typeof appKit.subscribeEvents !== 'function') return;
+    var unsubscribe = appKit.subscribeEvents(function(state) {
+      var ev = state && state.data;
+      if (!ev || ev.type !== 'track') return;
+      if (ev.event === 'SELECT_WALLET') {
+        var props2 = ev.properties || {};
+        setSelectedWallet({
+          name: props2.name || 'wallet',
+          platform: props2.platform || 'browser',
+          selectedAt: Date.now(),
+        });
+      } else if (ev.event === 'MODAL_CLOSE') {
+        // If user closed Reown's modal without connecting, dismiss our guide.
+        // Connection success is handled separately by the isConnected effect.
+        if (!ev.properties || !ev.properties.connected) {
+          setSelectedWallet(null);
+        }
+      }
+    });
+    return function() {
+      try { unsubscribe(); } catch (e) {}
+    };
+  }, [props.appKit]);
+
+  // Clear selectedWallet once connection completes. This dismisses the
+  // ConnectionGuide modal automatically without us needing to react to
+  // a SUCCESS event (which Reown doesn't reliably emit for all wallet
+  // types — wagmi's account.isConnected is the source of truth).
+  useEffect(function() {
+    if (account.isConnected && selectedWallet) {
+      setSelectedWallet(null);
+    }
+  }, [account.isConnected]);
 
   var ctxValue = useMemo(function() {
     return {
@@ -148,10 +456,20 @@ function _WalletInner(props) {
       address: account.address || null,
       chainId: chainId,
       onBeforeClick: props.onBeforeClick || null,
+      selectedWallet: selectedWallet,
     };
-  }, [account.isConnected, account.address, chainId, props.onBeforeClick]);
+  }, [account.isConnected, account.address, chainId, props.onBeforeClick, selectedWallet]);
 
-  return <WalletCtx.Provider value={ctxValue}>{props.children}</WalletCtx.Provider>;
+  return (
+    <WalletCtx.Provider value={ctxValue}>
+      {props.children}
+      <ConnectionGuide
+        wallet={selectedWallet}
+        isConnected={!!account.isConnected}
+        onCancel={function() { setSelectedWallet(null); }}
+      />
+    </WalletCtx.Provider>
+  );
 }
 
 // ── Gate (the visible "Connect wallet" button) ────────────────────────
