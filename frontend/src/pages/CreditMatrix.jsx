@@ -253,10 +253,6 @@ export function CreditMatrixContent() {
                           productType="credit_matrix"
                           productKey={'credit_matrix_' + pack.key}
                           label={'Pay $' + pack.price + ' from wallet'}
-                          onSuccess={function() {
-                            setMessage({ type: 'success', text: pack.credits.toLocaleString() + ' credits awarded — refresh to see your nexus update.' });
-                            loadAll();
-                          }}
                           style={{
                             padding: '8px 0',
                             border: '1px solid rgba(255,255,255,0.3)',

@@ -195,14 +195,12 @@ export default function Upgrade() {
               productType="membership"
               productKey={`membership_${tier}_annual`}
               label={`Pay yearly $${annualPrice.replace('$','')} from wallet`}
-              onSuccess={function() { if (refreshUser) refreshUser(); }}
               style={{ padding:'12px 16px', fontSize:13, borderRadius:10 }}
             />
             <WalletPayLink
               productType="membership"
               productKey={`membership_${tier}`}
               label={`Pay monthly $${monthlyPrice.replace('$','')} from wallet`}
-              onSuccess={function() { if (refreshUser) refreshUser(); }}
               style={{ padding:'10px 14px', fontSize:12, borderRadius:10 }}
             />
           </div>

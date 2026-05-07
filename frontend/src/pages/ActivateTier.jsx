@@ -221,9 +221,6 @@ export default function ActivateTier() {
                 productType="grid"
                 productKey={'grid_' + n}
                 label={'Pay $' + tier.price + ' from wallet'}
-                onSuccess={function() {
-                  window.location.href = '/payment-success?type=grid&tier=' + n;
-                }}
                 style={{ padding: '12px 16px', fontSize: 14, borderRadius: 10 }}
               />
             </Suspense>

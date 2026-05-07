@@ -354,6 +354,10 @@ export function WalletPayLink(props) {
   var [order, setOrder] = useState(null);
   var [txHash, setTxHash] = useState('');
   var pollTimerRef = useRef(null);
+  // Mirror txHash in a ref so the pollOrder closure can read the latest
+  // value when redirecting to /payment-success. Avoids re-creating the
+  // useCallback every render just to capture a fresh tx hash.
+  var txHashRef = useRef('');
 
   useEffect(function() {
     return function() {
@@ -376,7 +380,23 @@ export function WalletPayLink(props) {
       apiGet('/api/onchain/order/' + orderId).then(function(d) {
         if (d.status === 'confirmed') {
           setPhase('confirmed');
-          if (props.onSuccess) props.onSuccess(d);
+          if (props.onSuccess) {
+            // Page-supplied onSuccess wins (inline UX, e.g. CreditMatrix
+            // showing a toast and refreshing data without leaving the page).
+            props.onSuccess(d);
+          } else {
+            // Default: redirect to the payment-success page so the user
+            // gets a proper on-chain receipt with tx hash + BscScan link.
+            // Includes tx_hash as a query param so the receipt page can
+            // render the on-chain block.
+            var qs = new URLSearchParams();
+            qs.set('type', props.productType || 'membership');
+            qs.set('source', 'walletconnect');
+            var hashForRedirect = d.tx_hash || txHashRef.current;
+            if (hashForRedirect) qs.set('tx_hash', hashForRedirect);
+            if (d.order_id) qs.set('order_id', String(d.order_id));
+            window.location.href = '/payment-success?' + qs.toString();
+          }
           return;
         }
         if (d.status === 'expired' || d.status === 'cancelled') {
@@ -392,7 +412,7 @@ export function WalletPayLink(props) {
     }
     pollTimerRef.current = setTimeout(tick, 4000);
   // eslint-disable-next-line
-  }, [props.onSuccess]);
+  }, [props.onSuccess, props.productType]);
 
   // Don't render anything if wallet isn't connected — Gate handles that.
   // This early return MUST come AFTER all hook calls above.
@@ -420,6 +440,7 @@ export function WalletPayLink(props) {
       {
         onSuccess: function(hash) {
           setTxHash(hash);
+          txHashRef.current = hash;
           setPhase('polling');
           var deadline = intent.expires_at ? new Date(intent.expires_at).getTime() + 120000 : (Date.now() + 16 * 60 * 1000);
           pollOrder(intent.order_id, deadline);
@@ -470,6 +491,10 @@ export function WalletPayLink(props) {
         product_type: props.productType,
         product_key: props.productKey,
         product_meta: props.productMeta || null,
+        // Pass the connected wallet address so the backend can reject
+        // treasury self-pay attempts (member accidentally connected the
+        // treasury wallet — see backend create-intent guard).
+        from_address: ctx.address || null,
       }).then(function(intent) {
         setOrder(intent);
         proceedWithPayment(intent);
@@ -482,6 +507,8 @@ export function WalletPayLink(props) {
           setError('Course payments coming soon.');
         } else if (msg.indexOf('Unknown product') !== -1) {
           setError('Not available for self-custody payment yet.');
+        } else if (msg.indexOf('treasury_self_pay') !== -1 || msg.indexOf("treasury wallet") !== -1) {
+          setError("You're connected with the treasury wallet. Please disconnect and reconnect with a member wallet.");
         } else {
           setError(msg);
         }

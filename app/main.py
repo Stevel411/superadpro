@@ -6682,6 +6682,7 @@ async def onchain_create_intent(request: Request,
     product_type = (body.get("product_type") or "").strip()
     product_key = (body.get("product_key") or "").strip()
     product_meta = body.get("product_meta") or None
+    from_address = (body.get("from_address") or "").strip().lower()
 
     if not product_type or not product_key:
         return JSONResponse(
@@ -6695,6 +6696,32 @@ async def onchain_create_intent(request: Request,
         USDT_CONTRACT_BSC,
         BSC_CHAIN_ID,
     )
+
+    # Treasury self-pay guard. If the connected wallet IS the treasury
+    # wallet, refuse the intent — sending USDT from the treasury to
+    # itself wastes gas, can't be matched by the watcher (the matcher
+    # filters out treasury self-transfers), and is almost certainly a
+    # mistake (treasury imported into a member's MetaMask, or admin
+    # testing on the wrong account). Bug history: Steve hit this on
+    # 6 May testing — connected the treasury wallet to /credit-nexus,
+    # MetaMask showed self→self transfer, transaction was a no-op.
+    #
+    # Only enforced when the frontend supplies from_address. Older
+    # clients that don't send it bypass the guard (the watcher's
+    # treasury-self-transfer filter is the backstop). Frontend updated
+    # 7 May 2026 to always send the connected address.
+    if from_address and from_address == TREASURY_ADDRESS_BSC.lower():
+        return JSONResponse(
+            {
+                "error": (
+                    "You're connected with the treasury wallet — please connect "
+                    "with a different wallet to make a payment. The treasury "
+                    "wallet is for receiving payments, not making them."
+                ),
+                "code": "treasury_self_pay",
+            },
+            status_code=400,
+        )
 
     result = create_payment_intent(
         db=db,

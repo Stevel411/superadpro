@@ -70,6 +70,7 @@ export default function PaymentSuccess() {
   var type = params.get('type') || 'membership';
   var orderId = params.get('order_id');
   var source = params.get('source') || '';
+  var txHash = params.get('tx_hash') || '';  // populated for source=walletconnect
   var TYPE_CONFIG = getTypeConfig(t);
   var config = TYPE_CONFIG[type] || TYPE_CONFIG.membership;
 
@@ -224,6 +225,35 @@ export default function PaymentSuccess() {
               <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.7, marginBottom: 32 }}>
                 {config.desc}
               </div>
+
+              {/* On-chain receipt — only for WalletConnect/BSC payments */}
+              {txHash ? (
+                <div style={{
+                  marginBottom: 24, padding: '14px 18px', borderRadius: 12,
+                  background: '#f8fafc', border: '1px solid #e2e8f0',
+                  textAlign: 'left',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      On-chain receipt
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--sap-green-mid)' }}>
+                      ⛓ BNB Chain
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--sap-text-secondary)', fontFamily: 'monospace', wordBreak: 'break-all', marginBottom: 8, lineHeight: 1.4 }}>
+                    {txHash}
+                  </div>
+                  <a
+                    href={`https://bscscan.com/tx/${txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}
+                  >
+                    View on BscScan →
+                  </a>
+                </div>
+              ) : null}
 
               {/* CTA */}
               <button
