@@ -135,6 +135,10 @@ PRODUCT_PRICES = {
     "superscene_creator":   Decimal("33.00"),
     "superscene_studio":    Decimal("110.00"),
     "superscene_pro":       Decimal("264.00"),
+    # Pay It Forward — fixed $20 voucher (Stream 01 sub-product)
+    "pif_voucher":          Decimal("20.00"),
+    # Pro upgrade — $15 difference between Basic ($20) and Pro ($35)
+    "membership_pro_upgrade": Decimal("15.00"),
 }
 
 

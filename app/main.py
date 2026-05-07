@@ -6148,15 +6148,22 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
                               user: User = Depends(get_current_user)):
     """Upgrade Basic → Pro for $15 (difference). 100% to company, no sponsor commission.
 
-    SECURITY: charges the $15 difference from the user's wallet balance.
-    If the user lacks sufficient balance, returns 400 with the shortfall —
-    they must top up via the standard membership payment flow first.
+    Three payment rails (Step 4 triple-rail audit, 7 May 2026):
+      - balance: deduct $15 from user.balance (default if no payment_method specified)
+      - crypto:  create a NOWPayments invoice for $15, return checkout URL
+      - WalletConnect: handled by /api/onchain/create-intent + product_key=membership_pro_upgrade
+        (separate endpoint, see _nowpayments_activate_product membership_upgrade branch)
 
     Bug history (6 May 2026): this endpoint previously called
     _activate_membership directly with no payment step, granting free
     Pro upgrades to any authenticated Basic member. Caught when Steve's
     test account upgraded without any funds moving. Pre-launch impact
     only (13 users total at time of fix); no real financial exposure.
+
+    Bug history (7 May 2026): this endpoint became balance-only after
+    the security fix, locking out members with $0 earnings. Step 4
+    triple-rail audit added the crypto+WC rails so members with no
+    earnings can still upgrade by paying the $15 directly.
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
@@ -6170,28 +6177,89 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
     if not ok:
         return JSONResponse({"error": err}, status_code=403)
 
-    # Charge the $15 upgrade fee from the user's wallet balance.
-    # Pattern matches /api/membership/activate-from-balance above.
+    # Pick rail. Default to 'balance' for backwards compat with the
+    # existing UI — anything that posts to this endpoint without a
+    # payment_method continues to work the way it did pre-audit.
+    body = {}
+    try:
+        body = await request.json()
+    except Exception:
+        pass
+    payment_method = (body.get("payment_method") or "balance").strip().lower()
     upgrade_fee = decimal.Decimal("15.00")
-    balance = decimal.Decimal(str(user.balance or 0))
-    if balance < upgrade_fee:
-        shortfall = upgrade_fee - balance
-        return JSONResponse(
-            {
-                "error": (
-                    f"You need ${float(upgrade_fee):.2f} in your wallet to upgrade. "
-                    f"Current balance: ${float(balance):.2f} (short ${float(shortfall):.2f}). "
-                    f"Top up your wallet or pay the full Pro fee from /upgrade."
-                )
-            },
-            status_code=400,
+
+    # ── Rail 1: balance ──
+    if payment_method == "balance":
+        balance = decimal.Decimal(str(user.balance or 0))
+        if balance < upgrade_fee:
+            shortfall = upgrade_fee - balance
+            return JSONResponse(
+                {
+                    "error": (
+                        f"You need ${float(upgrade_fee):.2f} in your wallet to upgrade. "
+                        f"Current balance: ${float(balance):.2f} (short ${float(shortfall):.2f}). "
+                        f"Top up your wallet or pay the full Pro fee from /upgrade."
+                    )
+                },
+                status_code=400,
+            )
+
+        # Deduct the upgrade fee from balance BEFORE activating Pro so the
+        # state change is atomic — _activate_membership commits at the end.
+        user.balance = balance - upgrade_fee
+        return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True)
+
+    # ── Rail 2: crypto via NOWPayments ──
+    elif payment_method == "crypto":
+        from . import nowpayments_service as nps
+        from .database import NowPaymentsOrder
+        if not nps.is_configured():
+            return JSONResponse({"error": "Crypto payments not configured"}, status_code=503)
+
+        # Cancel any existing pending pro_upgrade orders for this user
+        db.query(NowPaymentsOrder).filter(
+            NowPaymentsOrder.user_id == user.id,
+            NowPaymentsOrder.product_key == "membership_pro_upgrade",
+            NowPaymentsOrder.status == "pending",
+        ).update({"status": "cancelled"})
+        db.flush()
+
+        order = NowPaymentsOrder(
+            user_id=user.id,
+            product_type="membership_upgrade",
+            product_key="membership_pro_upgrade",
+            price_usd=upgrade_fee,
+            status="pending",
         )
+        db.add(order)
+        db.flush()
+        order.internal_order_id = f"SAP-{user.id}-{order.id}"
 
-    # Deduct the upgrade fee from balance BEFORE activating Pro so the
-    # state change is atomic — _activate_membership commits at the end.
-    user.balance = balance - upgrade_fee
+        result = nps.create_invoice(
+            product_key="membership_pro_upgrade",
+            user_id=user.id,
+            order_id=order.id,
+        )
+        if not result["success"]:
+            order.status = "failed"
+            db.commit()
+            return JSONResponse({"error": result.get("error", "Payment creation failed")}, status_code=500)
 
-    return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True)
+        order.np_invoice_id = result.get("np_id")
+        db.commit()
+        return {
+            "success": True,
+            "action": "crypto_checkout",
+            "invoice_url": result.get("invoice_url"),
+            "order_id": order.id,
+        }
+
+    # WalletConnect rail is NOT a branch here — the frontend uses
+    # <WalletPayLink productKey="membership_pro_upgrade" /> which calls
+    # /api/onchain/create-intent. The activation comes back through
+    # _nowpayments_activate_product's membership_upgrade branch.
+
+    return JSONResponse({"error": "Invalid payment_method (use 'balance' or 'crypto')"}, status_code=400)
 def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
     """Process campaign tier purchase after Stripe payment — full commission chain."""
     from .grid import process_tier_purchase
@@ -7779,6 +7847,87 @@ def _nowpayments_activate_product(db, user, order, meta):
                 logger.info(f"Credit Matrix: {user.username} bought {pack_key} pack via {_ref_prefix}, {result.get('credits_awarded')} credits awarded")
         except Exception as e:
             logger.error(f"Credit Matrix fulfilment error: {e}")
+
+    # ── Pay It Forward voucher (Step 4 triple-rail audit, 7 May 2026) ──
+    # Creates the GiftVoucher row in 'available' state once payment confirms.
+    # Mirrors the wallet-balance branch in /api/pay-it-forward/create — same
+    # voucher creation logic, just triggered async after on-chain or NP IPN
+    # confirmation. Idempotent against tx_hash via the order's status check
+    # earlier in this function (already 'confirmed' when we land here).
+    elif order.product_type == "pif":
+        try:
+            from .database import GiftVoucher
+            # Locate the buyer's existing gift chain (if any) — same as
+            # the wallet path in /api/pay-it-forward/create.
+            received = db.query(GiftVoucher).filter(GiftVoucher.claimed_by_user_id == user.id).first()
+            parent_id = received.id if received else None
+            chain_depth = (received.pif_chain_depth + 1) if received else 1
+
+            # Generate unique code (same algorithm as wallet path).
+            for _ in range(10):
+                code = _generate_voucher_code()
+                existing = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code).first()
+                if not existing:
+                    break
+            else:
+                logger.error(f"PIF activation: could not generate unique voucher code for user {user.id}")
+                return
+
+            # Pull recipient_name + personal_message from product_meta if
+            # the page passed them through. Frontend SHOULD set these in
+            # productMeta on the WalletPayLink for full parity with the
+            # wallet path.
+            meta_raw = order.product_meta or "{}"
+            try:
+                import json as _json
+                meta = _json.loads(meta_raw) if isinstance(meta_raw, str) else (meta_raw or {})
+            except Exception:
+                meta = {}
+            _ref_prefix = "wc" if type(order).__name__ == "WalletConnectPaymentOrder" else "np"
+
+            voucher = GiftVoucher(
+                gifter_user_id=user.id,
+                voucher_code=code,
+                gift_type="membership",
+                gift_value=20,
+                recipient_name=(meta.get("recipient_name") or "")[:100] or None,
+                personal_message=(meta.get("personal_message") or "")[:500] or None,
+                is_free_voucher=False,
+                payment_method="crypto",
+                payment_ref=f"{_ref_prefix}_{order.id}",
+                status="available",
+                pif_chain_depth=chain_depth,
+                parent_voucher_id=parent_id,
+            )
+            db.add(voucher)
+            db.commit()
+            logger.info(f"PIF activation: {user.username} bought voucher {code} via {_ref_prefix} (chain depth {chain_depth})")
+        except Exception as e:
+            logger.error(f"PIF activation error for user {user.id}: {e}", exc_info=True)
+
+    # ── Membership Pro Upgrade (Step 4 triple-rail audit, 7 May 2026) ──
+    # The $15 difference between Basic and Pro. Only meaningful for users
+    # currently on Basic tier — silently no-ops for anyone else (e.g. user
+    # was already on Pro by the time the on-chain payment confirmed via
+    # some other path, possibly racing with /api/upgrade-to-pro from
+    # balance). The crypto/on-chain payment is treated as paying the $15
+    # difference, same as the balance deduction would.
+    elif order.product_type == "membership_upgrade":
+        try:
+            if user.membership_tier != "basic":
+                logger.warning(
+                    f"Pro upgrade activation for user {user.id} skipped — current tier "
+                    f"is {user.membership_tier!r}, not 'basic'. Order {order.id} confirmed but "
+                    f"no upgrade applied (refund manually if needed)."
+                )
+            else:
+                # Reuses the canonical membership activation handler so commission
+                # chains, expiry extensions, etc. all run consistently.
+                _activate_membership(db, user, "pro", source="crypto_upgrade", is_upgrade=True)
+                _ref_prefix = "wc" if type(order).__name__ == "WalletConnectPaymentOrder" else "np"
+                logger.info(f"Pro upgrade: {user.username} upgraded Basic → Pro via {_ref_prefix}, order {order.id}")
+        except Exception as e:
+            logger.error(f"Pro upgrade activation error for user {user.id}: {e}", exc_info=True)
 @app.get("/api/nowpayments/order/{order_id}")
 async def nowpayments_order_status(order_id: int, request: Request,
                                     db: Session = Depends(get_db),

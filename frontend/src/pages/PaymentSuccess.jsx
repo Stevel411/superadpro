@@ -15,6 +15,22 @@ function getTypeConfig(t) {
     actionLabel: 'Go to Dashboard',
     color: 'var(--sap-green-mid)',
   },
+  membership_upgrade: {
+    icon: '⭐',
+    title: 'Upgraded to Pro!',
+    desc: 'Your account now has full Pro access — Marketing Suite, ProSeller AI, SuperPages, MyLeads, and more.',
+    action: '/dashboard',
+    actionLabel: 'Explore Pro Features',
+    color: 'var(--sap-purple)',
+  },
+  pif: {
+    icon: '🎁',
+    title: 'Gift Voucher Created!',
+    desc: 'Your Pay It Forward voucher is ready. Share the code with anyone — they redeem it for a free month of Basic membership.',
+    action: '/pay-it-forward',
+    actionLabel: 'View My Vouchers',
+    color: 'var(--sap-pink-bright)',
+  },
   grid: {
     icon: '⚡',
     title: 'Campaign Tier Activated!',

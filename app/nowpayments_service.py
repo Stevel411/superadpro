@@ -57,6 +57,10 @@ PRODUCT_CATALOG = {
     "email_boost_5000":     {"price": Decimal("19.00"), "type": "email_boost", "desc": "Email Boost — 5,000 Credits"},
     "email_boost_10000":    {"price": Decimal("29.00"), "type": "email_boost", "desc": "Email Boost — 10,000 Credits"},
     "email_boost_50000":    {"price": Decimal("99.00"), "type": "email_boost", "desc": "Email Boost — 50,000 Credits"},
+    # Pay It Forward — gift voucher (fixed $20)
+    "pif_voucher":          {"price": Decimal("20.00"), "type": "pif", "desc": "Pay It Forward — Gift Voucher"},
+    # Pro upgrade — $15 difference between Basic and Pro
+    "membership_pro_upgrade": {"price": Decimal("15.00"), "type": "membership_upgrade", "desc": "Upgrade to Pro Membership"},
 }
 
 # ── Credit Matrix (Profit Nexus) packs ───────────────────────────

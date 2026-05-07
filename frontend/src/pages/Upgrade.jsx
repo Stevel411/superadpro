@@ -75,11 +75,31 @@ export default function Upgrade() {
 
     setLoading('upgrade');
     setError('');
-    apiPost('/api/upgrade-to-pro', {})
+    apiPost('/api/upgrade-to-pro', { payment_method: 'balance' })
       .then(function(d) {
         setLoading('');
         if (d.message) { if (refreshUser) refreshUser(); }
         else { setError(d.error || t('upgrade.upgradeFailed')); }
+      })
+      .catch(function(e) { setLoading(''); setError(e.message || t('upgrade.upgradeFailed')); });
+  }
+
+  async function handleUpgradeToProCrypto() {
+    // Step 4 triple-rail audit (7 May 2026): NOWPayments rail for the
+    // $15 Pro upgrade. Members with $0 balance can now pay the upgrade
+    // fee directly via crypto instead of being forced to top up first.
+    var consented = await ensureConsent();
+    if (!consented) return;
+    setLoading('upgrade-crypto');
+    setError('');
+    apiPost('/api/upgrade-to-pro', { payment_method: 'crypto' })
+      .then(function(d) {
+        setLoading('');
+        if (d.invoice_url) {
+          window.location.href = d.invoice_url;
+        } else {
+          setError(d.error || t('upgrade.upgradeFailed'));
+        }
       })
       .catch(function(e) { setLoading(''); setError(e.message || t('upgrade.upgradeFailed')); });
   }
@@ -127,13 +147,56 @@ export default function Upgrade() {
     }
 
     if (isUpgrade) {
+      // Step 4 triple-rail audit (7 May 2026): show all three payment
+      // options for the $15 upgrade so members with $0 balance can still
+      // upgrade. Previously only the balance button was shown, which was
+      // a dead end for new members with no earnings yet.
       return (
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          {/* Balance — primary action when balance is sufficient */}
           <button onClick={handleUpgradeToPro} disabled={loading === 'upgrade'}
             style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor: loading === 'upgrade' ? 'default' : 'pointer', fontFamily:'inherit', background: loading === 'upgrade' ? 'var(--sap-text-muted)' : btnGrad, color:'#fff', boxShadow: loading === 'upgrade' ? 'none' : btnShadow }}>
             {loading === 'upgrade' ? t('upgrade.upgrading') : t('upgrade.upgradeToPro')}
           </button>
-          <div style={{ fontSize:14, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('upgrade.upgradeProDiff')}</div>
+          <div style={{ fontSize:13, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('upgrade.upgradeProDiff')}</div>
+
+          {/* "or" divider */}
+          <div style={{ position:'relative', margin:'8px 0', textAlign:'center' }}>
+            <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
+            <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or pay $15 directly</span>
+          </div>
+
+          {/* NOWPayments — secondary outline */}
+          <button onClick={handleUpgradeToProCrypto} disabled={loading === 'upgrade-crypto'}
+            style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:10, width:'100%', padding:'16px', borderRadius:14, fontSize:14, fontWeight:700, border:'1.5px solid #e2e8f0', cursor: loading === 'upgrade-crypto' ? 'wait' : 'pointer', fontFamily:'inherit', background:'#fff', color:'var(--sap-text-muted)', transition:'all .2s' }}
+            onMouseOver={function(e){ if (loading !== 'upgrade-crypto') { e.currentTarget.style.borderColor='var(--sap-accent)'; e.currentTarget.style.color='var(--sap-accent)'; } }}
+            onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='var(--sap-text-muted)'; }}>
+            {loading === 'upgrade-crypto' ? (
+              <>
+                <span style={{ display:'inline-block', width:16, height:16, border:'2.5px solid rgba(0,0,0,.15)', borderTopColor:'var(--sap-accent)', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
+                <span>Creating your secure invoice…</span>
+              </>
+            ) : (
+              <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                <Globe size={17} />
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.2 }}>
+                  <span>Pay $15 with crypto</span>
+                  <span style={{ fontSize:10, fontWeight:600, opacity:0.7, letterSpacing:0.5, textTransform:'uppercase', marginTop:2 }}>via NOWPayments</span>
+                </div>
+              </div>
+            )}
+          </button>
+          <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
+
+          {/* WalletConnect (self-custody) — only renders if wallet connected */}
+          <Suspense fallback={null}>
+            <WalletPayLink
+              productType="membership_upgrade"
+              productKey="membership_pro_upgrade"
+              label="Pay $15 from wallet"
+              style={{ padding:'12px 16px', fontSize:13, borderRadius:10 }}
+            />
+          </Suspense>
         </div>
       );
     }

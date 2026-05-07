@@ -1,8 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '../utils/api';
 import AppLayout from '../components/layout/AppLayout';
 import { Gift, Copy, Check, Heart, ExternalLink, ChevronRight } from 'lucide-react';
+import { useConsentGate } from '../components/PurchaseConsentModal';
+
+// Step 4 triple-rail audit (7 May 2026): WalletConnect rail for PIF.
+// Lazy-loaded so the rest of the page stays fast for users not paying
+// via wallet.
+var _wcModule = null;
+function _loadWC() { if (!_wcModule) _wcModule = import('../components/WalletConnect'); return _wcModule; }
+var WalletConnectProvider = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletConnectProvider }; }); });
+var WalletConnectGate = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletConnectGate }; }); });
+var WalletPayLink = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletPayLink }; }); });
 
 export default function PayItForward() {
   var { t } = useTranslation();
@@ -77,8 +87,27 @@ export default function PayItForward() {
   var vouchers = data ? data.vouchers : [];
   var canPayFromWallet = data ? data.can_pay_from_wallet : false;
 
+  // Consent gate hook — used by both wallet/crypto buttons (via the
+  // backend require_fresh_consent on /api/pay-it-forward/create) and by
+  // the WalletPayLink for the on-chain rail.
+  var consentGate = useConsentGate();
+
   return (
-    <AppLayout title={t("payItForward.title")} subtitle={t("payItForward.subtitle")}>
+    <Suspense fallback={
+      <AppLayout title={t("payItForward.title")} subtitle={t("payItForward.subtitle")}>
+        <div style={{ padding:80, textAlign:'center' }}>{t('common.loading') || 'Loading…'}</div>
+      </AppLayout>
+    }>
+    <WalletConnectProvider onBeforeClick={async function() { return await consentGate.ensureConsent(); }}>
+    <AppLayout
+      title={t("payItForward.title")}
+      subtitle={t("payItForward.subtitle")}
+      topbarActions={
+        <Suspense fallback={null}>
+          <WalletConnectGate variant="compact" />
+        </Suspense>
+      }
+    >
 
       <style>{'@keyframes spin{to{transform:rotate(360deg)}} .pif-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)!important}'}</style>
 
@@ -237,6 +266,23 @@ export default function PayItForward() {
               }}>
               {creating ? t('payItForward.creating') : t('payItForward.payCrypto')}
             </button>
+
+            {/* WalletConnect (self-custody) — only renders if wallet connected.
+                Step 4 triple-rail audit (7 May 2026): added so members can
+                pay direct from their own BSC wallet without going through a
+                third-party processor. */}
+            <Suspense fallback={null}>
+              <WalletPayLink
+                productType="pif"
+                productKey="pif_voucher"
+                productMeta={{
+                  recipient_name: recipientName,
+                  personal_message: message,
+                }}
+                label="Pay $20 from wallet"
+                style={{ padding:'12px 16px', fontSize:13, borderRadius:10 }}
+              />
+            </Suspense>
           </div>
 
           <div style={{ display:'flex', justifyContent:'center' }}>
@@ -345,5 +391,8 @@ export default function PayItForward() {
       </div>
 
     </AppLayout>
+    {consentGate.consentModal}
+    </WalletConnectProvider>
+    </Suspense>
   );
 }
