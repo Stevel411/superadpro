@@ -424,7 +424,7 @@ export default function Dashboard() {
           the member outward. Uses only design-tokens.css variables,
           same responsive pattern as income-grid (4 cols → 2 on mobile). */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.exploreSection', { defaultValue: 'Explore the platform' })}</div>
-      <div className="doors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="doors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 20 }}>
         {[
           {
             id: 'command-centre',
@@ -493,7 +493,7 @@ export default function Dashboard() {
               {/* Centered unframed icon — 44px, colour-only stroke. Replaces
                   the previous 64px filled colour block + white icon inside. */}
               <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                <Icon size={52} color={door.colourVar} strokeWidth={2.5} style={{ display: 'inline-block' }} />
+                <Icon size={60} color={door.colourVar} strokeWidth={2.8} style={{ display: 'inline-block' }} />
               </div>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
                 {door.label}
@@ -531,7 +531,7 @@ export default function Dashboard() {
           reads as two consistent rows of cards rather than a heroic row
           followed by a smaller secondary row. */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
-      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 20 }}>
         {[
           {
             id: 'payItForward',
@@ -604,7 +604,7 @@ export default function Dashboard() {
               <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 5, background: action.colourVar, borderRadius: '0 3px 3px 0' }} />
               {/* Centered unframed icon — 44px stroke icon, no background block */}
               <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                <Icon size={52} color={action.colourVar} strokeWidth={2.5} style={{ display: 'inline-block' }} />
+                <Icon size={60} color={action.colourVar} strokeWidth={2.8} style={{ display: 'inline-block' }} />
               </div>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
                 {action.label}
