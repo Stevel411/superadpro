@@ -56,6 +56,7 @@ const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminStories = React.lazy(() => import('./pages/AdminStories'));
 const AdminShowcase = React.lazy(() => import('./pages/AdminShowcase'));
+const AdminOrphans = React.lazy(() => import('./pages/AdminOrphans'));
 const Funnels = React.lazy(() => import('./pages/Funnels'));
 const LinkHubPage = React.lazy(() => import('./pages/LinkHub'));
 const ActivateTier = React.lazy(() => import('./pages/ActivateTier'));
@@ -354,6 +355,7 @@ function AppRoutes() {
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/stories" element={<ProtectedRoute><AdminStories /></ProtectedRoute>} />
       <Route path="/admin/showcase" element={<ProtectedRoute><AdminShowcase /></ProtectedRoute>} />
+      <Route path="/admin/orphans" element={<ProtectedRoute><AdminOrphans /></ProtectedRoute>} />
       <Route path="/pro/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><SuperPagesEditor /></RequireTier></ProtectedRoute>} />

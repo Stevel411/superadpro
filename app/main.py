@@ -9247,6 +9247,257 @@ async def admin_api_recover_nowpayments_order(
         db.rollback()
         logger.error(f"ADMIN ORDER RECOVERY FAILED: order_id={order.id} error={e}", exc_info=True)
         return JSONResponse({"success": False, "error": f"Activation failed: {e}"}, status_code=500)
+
+
+# ── /admin/orphans (Step 5, 7 May 2026) ──────────────────────────────
+# UI for managing OnchainOrphanTransfer rows — incoming USDT-BSC
+# transfers to the treasury that the cron scanner couldn't auto-match
+# to a pending WalletConnectPaymentOrder. Most common reasons:
+#   - Member sent a rounded amount ($20 instead of $19.97)
+#   - Member's order expired before their tx confirmed
+#   - Stranger sending unrelated USDT
+#
+# These endpoints back the AdminOrphans React page. They are also the
+# "human path" version of the mcp_admin write-tool server's
+# resolve_orphan_transfer / reconcile_stuck_payment tools — same
+# operations, different surface (admin clicks vs MCP RPC).
+
+@app.get("/admin/orphans")
+def admin_orphans_page(request: Request):
+    """Serve the AdminOrphans React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/admin/api/orphans")
+def admin_api_list_orphans(
+    status: str = "pending",
+    limit: int = 100,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List orphan transfers for the moderation queue.
+
+    status filter:
+      - 'pending'  — resolved=False (default)
+      - 'resolved' — resolved=True
+      - 'all'      — both
+    """
+    _require_admin(user)
+    from .database import OnchainOrphanTransfer
+    from sqlalchemy import desc
+
+    q = db.query(OnchainOrphanTransfer)
+    if status == "pending":
+        q = q.filter(OnchainOrphanTransfer.resolved == False)  # noqa: E712
+    elif status == "resolved":
+        q = q.filter(OnchainOrphanTransfer.resolved == True)  # noqa: E712
+    # else 'all' — no filter
+
+    # Most recent first; member is more likely to email about a recent payment
+    q = q.order_by(desc(OnchainOrphanTransfer.seen_at))
+    rows = q.limit(min(500, max(10, int(limit)))).all()
+
+    # Counts for the page header
+    pending_count = db.query(OnchainOrphanTransfer).filter(
+        OnchainOrphanTransfer.resolved == False  # noqa: E712
+    ).count()
+    likely_rounded_count = db.query(OnchainOrphanTransfer).filter(
+        OnchainOrphanTransfer.resolved == False,  # noqa: E712
+        OnchainOrphanTransfer.likely_rounded_amount == True,  # noqa: E712
+    ).count()
+
+    # For each pending orphan, find candidate WC orders we COULD reconcile to
+    # — same product price, same status, same week. Capped at 5 candidates per
+    # orphan to keep payload small.
+    candidates_map = {}
+    if status in ("pending", "all"):
+        from .database import WalletConnectPaymentOrder
+        from datetime import datetime, timedelta
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        for r in rows:
+            if r.resolved:
+                continue
+            # Match candidate orders within 1 cent of the on-chain amount.
+            # Don't restrict to 'pending' status — expired orders are still
+            # reconcilable (per the mcp_admin reconcile tool).
+            from decimal import Decimal
+            amt = Decimal(str(r.amount_usdt or 0))
+            cands = db.query(WalletConnectPaymentOrder).filter(
+                WalletConnectPaymentOrder.unique_amount >= amt - Decimal("0.01"),
+                WalletConnectPaymentOrder.unique_amount <= amt + Decimal("0.01"),
+                WalletConnectPaymentOrder.status.in_(("pending", "expired")),
+                WalletConnectPaymentOrder.created_at >= week_ago,
+            ).order_by(desc(WalletConnectPaymentOrder.created_at)).limit(5).all()
+            candidates_map[r.id] = [
+                {
+                    "order_id": c.id,
+                    "user_id": c.user_id,
+                    "product_key": c.product_key,
+                    "unique_amount": float(c.unique_amount or 0),
+                    "status": c.status,
+                    "created_at": c.created_at.isoformat() if c.created_at else None,
+                    "expires_at": c.expires_at.isoformat() if c.expires_at else None,
+                }
+                for c in cands
+            ]
+
+    return {
+        "orphans": [
+            {
+                "id": r.id,
+                "tx_hash": r.tx_hash,
+                "from_address": r.from_address,
+                "amount_usdt": float(r.amount_usdt or 0),
+                "block_number": r.block_number,
+                "likely_rounded_amount": bool(r.likely_rounded_amount),
+                "seen_at": r.seen_at.isoformat() if r.seen_at else None,
+                "resolved": bool(r.resolved),
+                "resolution_note": r.resolution_note,
+                "resolved_at": r.resolved_at.isoformat() if r.resolved_at else None,
+                "candidates": candidates_map.get(r.id, []),
+            }
+            for r in rows
+        ],
+        "counts": {
+            "pending": pending_count,
+            "likely_rounded": likely_rounded_count,
+        },
+    }
+
+
+@app.post("/admin/api/orphans/{orphan_id}/resolve")
+async def admin_api_resolve_orphan(
+    orphan_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Mark an orphan resolved (spam / manual / reconciled).
+
+    Mirrors mcp_admin resolve_orphan_transfer. Differences:
+      - No dry_run — admin clicks Resolve, it resolves.
+      - Records resolved_by_user_id (the admin clicking) which the MCP
+        path can't fill in (no user context on MCP calls).
+    """
+    _require_admin(user)
+    from .database import OnchainOrphanTransfer
+
+    body = await request.json()
+    resolution = (body.get("resolution") or "").strip().lower()
+    note = (body.get("note") or "").strip()[:1000]
+    if resolution not in ("spam", "manual", "reconciled"):
+        return JSONResponse(
+            {"success": False, "error": "resolution must be spam / manual / reconciled"},
+            status_code=400,
+        )
+
+    o = db.query(OnchainOrphanTransfer).filter(OnchainOrphanTransfer.id == orphan_id).first()
+    if not o:
+        return JSONResponse({"success": False, "error": "Orphan not found"}, status_code=404)
+    if o.resolved:
+        return JSONResponse(
+            {"success": False, "error": f"Orphan already resolved ({o.resolution_note or ''})"},
+            status_code=400,
+        )
+
+    o.resolved = True
+    o.resolved_at = datetime.utcnow()
+    o.resolved_by_user_id = user.id
+    o.resolution_note = f"{resolution}: {note or 'no additional note'}"
+    db.commit()
+
+    logger.info(
+        f"ADMIN ORPHAN RESOLVE: admin={user.username} orphan_id={orphan_id} "
+        f"resolution={resolution} note='{note[:80]}'"
+    )
+    return {"success": True, "orphan_id": orphan_id, "resolution": resolution}
+
+
+@app.post("/admin/api/orphans/{orphan_id}/reconcile")
+async def admin_api_reconcile_orphan(
+    orphan_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Attach an orphan tx to a stuck WC order, mark order 'confirmed'.
+
+    The next cron tick (or _nowpayments_activate_product invoked
+    explicitly) will then run the activation. This handler does NOT
+    activate immediately — it sets state and lets the canonical
+    activation path run, exactly like a real on-chain match would.
+
+    Validates amount match within 1 cent. Marks orphan resolved.
+    """
+    _require_admin(user)
+    from .database import OnchainOrphanTransfer, WalletConnectPaymentOrder
+    from decimal import Decimal
+
+    body = await request.json()
+    target_order_id = body.get("order_id")
+    if not target_order_id:
+        return JSONResponse({"success": False, "error": "order_id required"}, status_code=400)
+
+    o = db.query(OnchainOrphanTransfer).filter(OnchainOrphanTransfer.id == orphan_id).first()
+    if not o:
+        return JSONResponse({"success": False, "error": "Orphan not found"}, status_code=404)
+    if o.resolved:
+        return JSONResponse({"success": False, "error": "Orphan already resolved"}, status_code=400)
+
+    order = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.id == target_order_id
+    ).first()
+    if not order:
+        return JSONResponse({"success": False, "error": "Target order not found"}, status_code=404)
+    if order.status not in ("pending", "expired"):
+        return JSONResponse(
+            {"success": False, "error": f"Target order status is '{order.status}', cannot reconcile"},
+            status_code=400,
+        )
+
+    expected = Decimal(str(order.unique_amount or 0))
+    onchain = Decimal(str(o.amount_usdt or 0))
+    delta = abs(expected - onchain)
+    if delta > Decimal("0.01"):
+        return JSONResponse(
+            {
+                "success": False,
+                "error": f"Amount mismatch: order=${expected} on-chain=${onchain} delta=${delta}",
+            },
+            status_code=400,
+        )
+
+    # Atomic: link tx to order, mark order confirmed, mark orphan resolved
+    order.status = "confirmed"
+    order.tx_hash = o.tx_hash
+    order.from_address = order.from_address or o.from_address
+    order.confirmed_at = datetime.utcnow()
+    order.block_number = order.block_number or o.block_number
+
+    o.resolved = True
+    o.resolved_at = datetime.utcnow()
+    o.resolved_by_user_id = user.id
+    o.resolution_note = f"reconciled: linked to wc_order {order.id} by admin"
+
+    db.commit()
+
+    logger.info(
+        f"ADMIN ORPHAN RECONCILE: admin={user.username} orphan_id={orphan_id} "
+        f"→ wc_order={order.id} (user_id={order.user_id}, product={order.product_key})"
+    )
+
+    return {
+        "success": True,
+        "orphan_id": orphan_id,
+        "order_id": order.id,
+        "product_key": order.product_key,
+        "user_id": order.user_id,
+        "next_step": "Activation will run on the next cron tick (within ~1 minute).",
+    }
+
+
 @app.post("/admin/api/user/{user_id}/change-tier")
 async def admin_api_change_tier(
     user_id: int, request: Request,
