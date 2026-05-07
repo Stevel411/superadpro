@@ -379,43 +379,13 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Income strip · compact at-a-glance per-stream earnings ──
-          This row used to be 4 hero-sized cards which competed with the
-          door cards below for attention and made the hierarchy feel
-          upside-down. Rebalanced 26 Apr 2026: shrunk to a tight one-row
-          strip so the four doors below become the visual anchor of the
-          page. Same data binding (membership_earned / boost_earned /
-          creative_studio_earned / course_earnings from /api/dashboard).
-          Members who want full income detail click the green Income door
-          which has its own dedicated landing page. */}
-      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.earningsStrip', { defaultValue: 'Your earnings this month' })}</div>
-      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 28 }}>
-        {[
-          { color: 'var(--sap-green)',       val: d.membership_earned,            name: t('dashboard.membership') },
-          { color: 'var(--sap-amber-dark)',  val: d.grid_earned || 0,             name: t('dashboard.campaigns') },
-          { color: 'var(--sap-purple)',      val: d.creative_studio_earned || 0,  name: t('dashboard.creditNexus', { defaultValue: 'Credit Nexus' }) },
-          { color: 'var(--sap-accent)',      val: d.course_earnings || 0,         name: t('dashboard.courseIncome', { defaultValue: 'Courses' }) },
-        ].map((s, i) => (
-          <div key={i} style={{
-            background: '#fff',
-            border: '1px solid var(--sap-border)',
-            borderRadius: 10,
-            padding: '14px 16px',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-          }}>
-            {/* Left-edge accent stripe in the stream's brand colour */}
-            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: s.color }} />
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: 'var(--sap-green)' }}>
-              ${formatMoney(s.val)}
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
-              {s.name}
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* ── Earnings strip & Network strip moved to Command Centre ──
+          7 May 2026: dashboard simplified to action-only (EXPLORE +
+          QUICK ACTIONS, 8 cards total, no analytics strips). The
+          earnings-by-stream and network metrics now live in a
+          Performance Snapshot section at the top of /command-centre
+          where they belong — Dashboard answers "what do you want to
+          do?", Command Centre answers "how am I performing?". */}
 
       {/* ── Explore the platform · 4 doors (1×4 row) ──
           Dashboard is the member's entry point. These 4 doors are the
@@ -473,7 +443,7 @@ export default function Dashboard() {
               background: 'linear-gradient(180deg, var(--sap-bg-card) 0%, #f8fafc 100%)',
               border: '1px solid var(--sap-border)',
               borderRadius: 14,
-              padding: '20px 22px 18px 30px',
+              padding: '26px 24px 22px 32px',
               boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)',
               textDecoration: 'none',
               transition: 'all 0.18s',
@@ -483,25 +453,25 @@ export default function Dashboard() {
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
-              minHeight: 175,
+              minHeight: 210,
             }}>
               {/* Inset 5px LEFT accent stripe — sits 12px in from top and
                   bottom edges with rounded right cap, so the card's
                   rounded corners are preserved. Switched from top→inset-left
                   7 May 2026 (Grok-style redesign). */}
-              <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 5, background: door.colourVar, borderRadius: '0 3px 3px 0' }} />
+              <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 6, background: door.colourVar, borderRadius: '0 4px 4px 0' }} />
               {/* Centered unframed icon — 44px, colour-only stroke. Replaces
                   the previous 64px filled colour block + white icon inside. */}
               <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                <Icon size={60} color={door.colourVar} strokeWidth={2.8} style={{ display: 'inline-block' }} />
+                <Icon size={72} color={door.colourVar} strokeWidth={2.8} style={{ display: 'inline-block' }} />
               </div>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
                 {door.label}
               </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.15, marginBottom: 8 }}>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 25, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.15, marginBottom: 10 }}>
                 {door.title}
               </div>
-              <div style={{...TYPE.bodyMuted, fontSize: 13, lineHeight: 1.5, marginBottom: 10, flex: 1}}>
+              <div style={{...TYPE.bodyMuted, fontSize: 14, lineHeight: 1.5, marginBottom: 14, flex: 1}}>
                 {door.desc}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
@@ -580,7 +550,7 @@ export default function Dashboard() {
               background: 'linear-gradient(180deg, #fff 0%, #f8fafc 100%)',
               border: '1px solid #e2e8f0',
               borderRadius: 14,
-              padding: '20px 22px 18px 30px',
+              padding: '26px 24px 22px 32px',
               boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)',
               textDecoration: 'none',
               transition: 'all 0.18s',
@@ -590,7 +560,7 @@ export default function Dashboard() {
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
-              minHeight: 175,
+              minHeight: 210,
             }}
             onMouseEnter={function(e) {
               e.currentTarget.style.transform = 'translateY(-2px)';
@@ -601,18 +571,18 @@ export default function Dashboard() {
               e.currentTarget.style.boxShadow = '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)';
             }}>
               {/* Inset 5px LEFT accent stripe — same pattern as doors row */}
-              <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 5, background: action.colourVar, borderRadius: '0 3px 3px 0' }} />
+              <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 6, background: action.colourVar, borderRadius: '0 4px 4px 0' }} />
               {/* Centered unframed icon — 44px stroke icon, no background block */}
               <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                <Icon size={60} color={action.colourVar} strokeWidth={2.8} style={{ display: 'inline-block' }} />
+                <Icon size={72} color={action.colourVar} strokeWidth={2.8} style={{ display: 'inline-block' }} />
               </div>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
                 {action.label}
               </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.15, marginBottom: 8 }}>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 25, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.15, marginBottom: 10 }}>
                 {action.title}
               </div>
-              <div style={{...TYPE.bodyMuted, fontSize: 13, lineHeight: 1.5, marginBottom: 10, flex: 1}}>
+              <div style={{...TYPE.bodyMuted, fontSize: 14, lineHeight: 1.5, marginBottom: 14, flex: 1}}>
                 {action.desc}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
@@ -637,65 +607,12 @@ export default function Dashboard() {
           logic in app/main.py are left intact in case we want to reuse
           the data elsewhere later. */}
 
-      {/* ── Network strip · compact at-a-glance team metrics ──
-          Replaces the previous 'Bottom Row' which was Recent Activity +
-          Your Network 2x2 metric grid + duplicate referral link.
-          Rebalanced 26 Apr 2026 alongside the earnings strip up top so
-          Dashboard reads as: Hero → Earnings strip → 4 BIG doors →
-          Quick actions → Goals → Network strip. Same visual treatment
-          as the earnings strip (12px pad, 22px Sora number, 12px label,
-          3px left-edge accent) for clean symmetry.
-          Recent Activity removed entirely — that information lives on
-          Command Centre, where status content belongs. The duplicate
-          referral link is dropped too — already in the welcome hero. */}
-      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12, marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span>{t('dashboard.yourNetwork')}</span>
-        <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none', textTransform: 'none', letterSpacing: 0 }}>
-          {t('dashboard.fullNetwork')} →
-        </Link>
-      </div>
-      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
-        {[
-          { color: 'var(--sap-green)',      val: d.direct_referrals_count || 0,                    name: t('dashboard.directReferrals'),                                          isMoney: false, sub: null },
-          { color: 'var(--sap-accent)',     val: (d.network_active != null ? d.network_active : (d.total_team || 0)),
-            name: t('dashboard.activeNetwork', { defaultValue: 'Active Network' }),
-            isMoney: false,
-            sub: (d.network_inactive != null && d.network_inactive > 0)
-              ? t('dashboard.inactiveNetworkSub', { defaultValue: '+ {{n}} inactive', n: d.network_inactive })
-              : null
-          },
-          { color: 'var(--sap-amber-dark)', val: `$${formatMoney(d.total_earned)}`,                name: t('dashboard.lifetimeEarned'),                                           isMoney: true,  sub: null },
-          { color: 'var(--sap-purple)',     val: `$${formatMoney(d.earnings_this_month || 0)}`,    name: t('dashboard.monthlyEarned', { defaultValue: 'This Month' }),            isMoney: true,  sub: null },
-        ].map((s, i) => (
-          <div key={i} style={{
-            background: '#fff',
-            border: '1px solid var(--sap-border)',
-            borderRadius: 10,
-            padding: '14px 16px',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-          }}>
-            {/* Left-edge accent stripe */}
-            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: s.color }} />
-            {/* Numeral renders green when it's a dollar amount (real money in
-                the member's wallet) and dark for raw counts of people. Lets
-                members instantly scan the page and see what's earnings vs
-                what's team size. */}
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: s.isMoney ? 'var(--sap-green)' : 'var(--sap-text-primary)' }}>
-              {s.val}
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
-              {s.name}
-            </div>
-            {s.sub && (
-              <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--sap-text-faint)', marginTop: 2 }}>
-                {s.sub}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      {/* ── Network strip moved to Command Centre 7 May 2026 ──
+          See note above on the earnings strip move. The full team
+          metrics (Direct Referrals, Active Network, Lifetime Earned,
+          This Month) now render at the top of /command-centre as part
+          of the Performance Snapshot section. Dashboard reads cleaner
+          without competing analytics noise. */}
 
       {/* Welcome banner animations */}
       <style>{`

@@ -200,6 +200,93 @@ export default function CommandCentre() {
         eyebrowDefault="Your Command Centre"
       />
 
+      {/* ── PERFORMANCE SNAPSHOT — Earnings + Network strips ─────
+          Moved from Dashboard 7 May 2026 (Steve's IA call). Dashboard
+          became action-only (8 cards: EXPLORE + QUICK ACTIONS) so
+          analytics belong here, where members come to ask "how am I
+          performing?". Two strips: earnings by stream, then team
+          metrics. Same data binding as before — both pull from
+          /api/dashboard which Command Centre already loads. */}
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14, marginTop: 4 }}>
+        {t('commandCentre.performanceSnapshot', { defaultValue: 'Performance Snapshot' })}
+      </div>
+
+      {/* Sub-label: earnings */}
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 10 }}>
+        {t('dashboard.earningsStrip', { defaultValue: 'Your earnings this month' })}
+      </div>
+      <div className="cc-earnings-strip" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
+        {[
+          { color: 'var(--sap-green)',       val: d.membership_earned,            name: t('dashboard.membership') },
+          { color: 'var(--sap-amber-dark)',  val: d.grid_earned || 0,             name: t('dashboard.campaigns') },
+          { color: 'var(--sap-purple)',      val: d.creative_studio_earned || 0,  name: t('dashboard.creditNexus', { defaultValue: 'Credit Nexus' }) },
+          { color: 'var(--sap-accent)',      val: d.course_earnings || 0,         name: t('dashboard.courseIncome', { defaultValue: 'Courses' }) },
+        ].map(function(s, i) { return (
+          <div key={i} style={{
+            background: '#fff',
+            border: '1px solid var(--sap-border)',
+            borderRadius: 10,
+            padding: '14px 16px',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+          }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: s.color }} />
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: 'var(--sap-green)' }}>
+              ${formatMoney(s.val)}
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
+              {s.name}
+            </div>
+          </div>
+        ); })}
+      </div>
+
+      {/* Sub-label: network */}
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span>{t('dashboard.yourNetwork')}</span>
+        <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none', textTransform: 'none', letterSpacing: 0 }}>
+          {t('dashboard.fullNetwork')} →
+        </Link>
+      </div>
+      <div className="cc-network-strip" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 }}>
+        {[
+          { color: 'var(--sap-green)',      val: d.direct_referrals_count || 0,                    name: t('dashboard.directReferrals'),                                          isMoney: false, sub: null },
+          { color: 'var(--sap-accent)',     val: (d.network_active != null ? d.network_active : (d.total_team || 0)),
+            name: t('dashboard.activeNetwork', { defaultValue: 'Active Network' }),
+            isMoney: false,
+            sub: (d.network_inactive != null && d.network_inactive > 0)
+              ? t('dashboard.inactiveNetworkSub', { defaultValue: '+ {{n}} inactive', n: d.network_inactive })
+              : null
+          },
+          { color: 'var(--sap-amber-dark)', val: '$' + formatMoney(d.total_earned),                name: t('dashboard.lifetimeEarned'),                                           isMoney: true,  sub: null },
+          { color: 'var(--sap-purple)',     val: '$' + formatMoney(d.earnings_this_month || 0),    name: t('dashboard.monthlyEarned', { defaultValue: 'This Month' }),            isMoney: true,  sub: null },
+        ].map(function(s, i) { return (
+          <div key={i} style={{
+            background: '#fff',
+            border: '1px solid var(--sap-border)',
+            borderRadius: 10,
+            padding: '14px 16px',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+          }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: s.color }} />
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: s.isMoney ? 'var(--sap-green)' : 'var(--sap-text-primary)' }}>
+              {s.val}
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
+              {s.name}
+            </div>
+            {s.sub && (
+              <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--sap-text-faint)', marginTop: 2 }}>
+                {s.sub}
+              </div>
+            )}
+          </div>
+        ); })}
+      </div>
+
       {/* ── DIRECT REFERRALS PANEL — 3 columns ───────────────
           Three buckets in one panel because they answer the same
           conceptual question ("how is my direct line composed?").
