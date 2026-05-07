@@ -2132,7 +2132,7 @@ try:
             id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE,
             briefing_date VARCHAR, narrative TEXT, actions TEXT,
             generated_at TIMESTAMP DEFAULT NOW()
-        """))
+        )"""))
         # ── Stripe ──
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at TIMESTAMP"))
