@@ -17417,6 +17417,85 @@ def upgrade_page(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
+
+# ── React-route serving handlers (audit batch, 7 May 2026) ─────────
+# Every <Route path="..."> in frontend/src/App.jsx needs a matching
+# @app.get handler that returns the React index — without it, direct
+# navigation, browser refresh, and shared/bookmarked URLs all 404 with
+# {"detail":"Not Found"}. These ten gaps were caught after Steve hit
+# {"detail":"Not Found"} on /pay-it-forward (handler added earlier
+# in this file, near the PIF API endpoints).
+#
+# The pages worked via in-app React Router navigation only because
+# Router handles transitions client-side without round-tripping the
+# backend. Direct hits (refresh, paste-URL, redirect from email) hit
+# FastAPI first and need a real backend handler.
+#
+# Pattern matches /upgrade above. No auth gating here — that's the
+# React component's job (ProtectedRoute / RequireTier wrappers in
+# App.jsx). Backend's only responsibility is "serve the bundle".
+
+@app.get("/activate/{tierId}")
+def react_activate_tier(request: Request, tierId: str):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/admin/showcase")
+def react_admin_showcase(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/admin/stories")
+def react_admin_stories(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/courses/learn/{courseId}")
+def react_course_learn(request: Request, courseId: str):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/income-chains")
+def react_income_chains(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/pro/funnel/{pageId}/edit")
+def react_pro_funnel_edit(request: Request, pageId: str):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/register/{ref}")
+def react_register_with_ref(request: Request, ref: str):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/share-story")
+def react_share_story(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/upgrade-from-balance")
+def react_upgrade_from_balance(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/video-library")
+def react_video_library(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
@@ -20107,6 +20186,24 @@ import secrets as _secrets
 def _generate_voucher_code():
     """Generate a unique 8-character voucher code."""
     return _secrets.token_urlsafe(6).replace('-', '').replace('_', '')[:8].upper()
+
+
+# ── /pay-it-forward (React SPA serving handler) ─────────────────
+# Was previously missing — direct navigation/refresh on the page
+# returned FastAPI's 404 {"detail":"Not Found"} because no @app.get
+# matched. In-app navigation worked because React Router handles
+# transitions without round-tripping the backend; only direct hits
+# (refresh, paste-URL, redirect from elsewhere) exposed the gap.
+# Discovered 7 May 2026 by Steve. Same pattern used elsewhere — see
+# /upgrade, /credit-nexus, /gift/{code}.
+@app.get("/pay-it-forward")
+def pay_it_forward_page(request: Request):
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/api/pay-it-forward/dashboard")
 async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get Pay It Forward dashboard data for the current user.
