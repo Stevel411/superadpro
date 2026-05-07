@@ -33,7 +33,7 @@ STRIPE_PUBLISHABLE_KEY = ""
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_user, cache_invalidate_leaderboard, cache_stats
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
-from .database import CreditMatrix, CreditMatrixPosition
+from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
 from .database import CoPilotBriefing
 from .database import MemberLead
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
@@ -10618,11 +10618,28 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
         Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor'])
     ).scalar() or 0)
 
-    nexus = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+    # Nexus earnings come from TWO tables:
+    #   1. Commission rows tagged with legacy nexus_*/matrix_* types (very few,
+    #      from the pre-Credit-Nexus-table era). Kept for historical accuracy.
+    #   2. CreditMatrixCommission rows — the dedicated Credit Nexus table that
+    #      every modern matrix payment writes to. This is where the actual
+    #      money lives. (7 May 2026: Steve spotted the wallet's Credit Nexus
+    #      card stuck at $0 even though his balance had a confirmed $3 from
+    #      test3's Starter pack purchase. Same root cause as the activity-feed
+    #      bug fixed earlier — when Credit Nexus shipped its own table, this
+    #      aggregator was never updated to read from it.)
+    nexus_legacy = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user_id,
         Commission.status == 'paid',
         Commission.commission_type.in_(['matrix_level', 'matrix_completion', 'nexus_sponsor', 'nexus_level', 'nexus_completion'])
     ).scalar() or 0)
+
+    nexus_matrix = float(db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0)).filter(
+        CreditMatrixCommission.earner_id == user_id,
+        CreditMatrixCommission.status == 'paid',
+    ).scalar() or 0)
+
+    nexus = nexus_legacy + nexus_matrix
 
     course = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
         CourseCommission.earner_id == user_id,
