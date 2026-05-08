@@ -258,13 +258,13 @@ export default function IncomePage() {
             tone="cyan"
             icon={Target}
             title={t('income.stream.grid', { defaultValue: 'Campaign Tier Grid' })}
-            subtitle={t('income.stream.gridSub', { defaultValue: '8×8 forced matrix · advertise + earn' })}
+            subtitle={t('income.stream.gridSub', { defaultValue: '8×8 Profit Grid · advertise + earn' })}
             tag={gridActive ? { label: t('income.tag.tier', { defaultValue: 'Active' }), tone: 'tier' } : { label: t('income.tag.available', { defaultValue: 'Available' }), tone: 'dormant' }}
             stats={gridActive ? [
               { label: t('income.stat.team', { defaultValue: 'In your grid' }), value: data?.grid_team_count || 0 },
               { label: t('income.stat.earnedAllTime', { defaultValue: 'Earned all time' }), value: formatMoney(data?.grid_earned || 0) },
             ] : null}
-            statusLine={!gridActive ? t('income.stream.gridDormant', { defaultValue: 'Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.' }) : null}
+            statusLine={!gridActive ? t('income.stream.gridDormant', { defaultValue: 'Buy a Grid tier to advertise AND earn from the 8×8 Profit Grid spillover.' }) : null}
             actions={[
               { label: t('income.action.myGrid', { defaultValue: 'My Grid' }), to: '/grid-visualiser' },
               { label: t('income.action.watchAds', { defaultValue: 'Watch ads' }), to: '/watch' },
@@ -277,13 +277,13 @@ export default function IncomePage() {
             tone="violet"
             icon={Layers}
             title={t('income.stream.nexus', { defaultValue: 'Profit Nexus' })}
-            subtitle={t('income.stream.nexusSub', { defaultValue: '3×3 credit matrix · cascading commissions' })}
+            subtitle={t('income.stream.nexusSub', { defaultValue: '3×3 Credit Nexus · cascading commissions' })}
             tag={nexusActive ? { label: t('income.tag.active', { defaultValue: 'Active' }), tone: 'active' } : { label: t('income.tag.available', { defaultValue: 'Available' }), tone: 'dormant' }}
             stats={nexusActive ? [
               { label: t('income.stat.team', { defaultValue: 'In your nexus' }), value: data?.nexus_team_count || 0 },
               { label: t('income.stat.earnedAllTime', { defaultValue: 'Earned all time' }), value: formatMoney(data?.creative_studio_earned || 0) },
             ] : null}
-            statusLine={!nexusActive ? t('income.stream.nexusDormant', { defaultValue: 'Buy a credit pack to take your position in the 3×3 matrix.' }) : null}
+            statusLine={!nexusActive ? t('income.stream.nexusDormant', { defaultValue: 'Buy a credit pack to take your position in the 3×3 Credit Nexus.' }) : null}
             actions={[
               { label: t('income.action.buyCredits', { defaultValue: 'Buy credits' }), to: '/credit-nexus' },
               { label: t('income.action.myNexus', { defaultValue: 'My Nexus' }), to: '/nexus-visualiser' },

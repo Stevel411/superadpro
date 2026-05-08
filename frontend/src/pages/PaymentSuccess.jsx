@@ -41,10 +41,10 @@ function getTypeConfig(t) {
   },
   credit_matrix: {
     icon: '💎',
-    title: 'Profit Nexus Pack Activated!',
-    desc: 'Your credits have been added and you\'ve been placed in the Nexus matrix.',
+    title: 'Credit Nexus Pack Activated!',
+    desc: 'Your credits have been added and you\'ve been placed in the Credit Nexus.',
     action: '/credit-nexus',
-    actionLabel: 'View Profit Nexus',
+    actionLabel: 'View Credit Nexus',
     color: 'var(--sap-purple)',
   },
   superscene: {
