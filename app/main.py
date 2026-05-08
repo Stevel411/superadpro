@@ -13315,14 +13315,22 @@ def api_registration_status(
 
     # Open during pre-launch if: arrived with a referral, OR holds the
     # bypass token (cookie set by the prelaunch middleware on
-    # ?bypass=<token>). Both are signals of a legitimate test signup.
+    # ?bypass=<token>), OR arrived via a gift voucher claim flow.
+    # All three are signals of a legitimate test signup.
+    # gift bypass added 8 May 2026 — gift recipients arriving at
+    # /register?gift=CODE need to bypass the launch gate just like
+    # ref'd signups do, since the gift voucher itself proves a
+    # legitimate connection to an existing member.
     if closed:
         ref_qp = request.query_params.get("ref", "")
         ref_cookie = request.cookies.get("ref", "")
+        gift_qp = request.query_params.get("gift", "")
         bypass_token = os.getenv("PRE_LAUNCH_BYPASS_TOKEN", "")
         bypass_cookie = request.cookies.get("prelaunch_bypass", "")
         if ref_qp or ref_cookie:
             return {"open": True, "referral_bypass": True}
+        if gift_qp:
+            return {"open": True, "gift_bypass": True}
         if bypass_token and bypass_cookie == bypass_token:
             return {"open": True, "token_bypass": True}
 
@@ -13349,16 +13357,21 @@ async def api_register(
         # Cookie/query checks for non-admin paths
         ref_qp = request.query_params.get("ref", "")
         ref_cookie = request.cookies.get("ref", "")
+        gift_qp = request.query_params.get("gift", "")
         bypass_token = os.getenv("PRE_LAUNCH_BYPASS_TOKEN", "")
         bypass_cookie = request.cookies.get("prelaunch_bypass", "")
 
-        # Also check the body — the frontend submits ref in JSON
+        # Also check the body — the frontend submits ref AND (potentially)
+        # gift_code in JSON
         ref_body = ""
+        gift_body = ""
         try:
             # Peek at the body without consuming it for the main handler
             body_bytes = await request.body()
             import json as _json
-            ref_body = (_json.loads(body_bytes).get("ref") or "").strip()
+            _body_json = _json.loads(body_bytes)
+            ref_body = (_body_json.get("ref") or "").strip()
+            gift_body = (_body_json.get("gift_code") or "").strip()
             # Re-use body below by stashing it on the request scope
             async def _receive():
                 return {"type": "http.request", "body": body_bytes, "more_body": False}
@@ -13367,9 +13380,10 @@ async def api_register(
             pass
 
         has_referral = bool(ref_qp or ref_cookie or ref_body)
+        has_gift = bool(gift_qp or gift_body)
         has_token = bool(bypass_token and bypass_cookie == bypass_token)
 
-        if not (has_referral or has_token):
+        if not (has_referral or has_gift or has_token):
             return JSONResponse({
                 "error": "Registration is currently closed. We're launching soon — check back later or follow our updates.",
                 "registration_closed": True,

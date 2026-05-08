@@ -34,9 +34,19 @@ export default function Register() {
 
   // Pre-launch gate: hit /api/registration-status and only show the form if open.
   // null = still checking, true = open (or admin bypass), false = closed.
+  // Forward ref and gift query params so the backend's bypass checks
+  // can see them — the API call itself has no URL params, only the page
+  // does, so we explicitly pass them through. Without this, gift recipients
+  // and referral-link arrivals get "Launching soon" even though they
+  // qualify for bypass. (Bug fixed 8 May 2026 — caught when test6 tried
+  // to claim test3's voucher and got a closed-registration page.)
   const [registrationOpen, setRegistrationOpen] = useState(null);
   useEffect(function() {
-    fetch('/api/registration-status', { credentials: 'include' })
+    const statusParams = new URLSearchParams();
+    if (refCode) statusParams.set('ref', refCode);
+    if (giftCode) statusParams.set('gift', giftCode);
+    const qs = statusParams.toString();
+    fetch('/api/registration-status' + (qs ? '?' + qs : ''), { credentials: 'include' })
       .then(function(r) { return r.json(); })
       .then(function(d) { setRegistrationOpen(!!d.open); })
       .catch(function() { setRegistrationOpen(false); }); // err on side of closed
@@ -67,6 +77,9 @@ export default function Register() {
         password: form.password,
         confirm_password: form.confirm_password,
         ref: form.ref.trim(),
+        // Include gift_code so backend's pre-launch gate can recognise
+        // gift-claim signups as legitimate even when the URL has no ?ref=
+        gift_code: giftCode || '',
       });
       await refreshUser();
 
