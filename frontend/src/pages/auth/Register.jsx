@@ -80,9 +80,15 @@ export default function Register() {
         try {
           const claimResult = await apiPost('/api/gift/' + giftCode + '/claim', {});
           if (claimResult && claimResult.success) {
-            // Membership is active. Land on dashboard with a celebratory query
-            // param the dashboard can read to show a one-time welcome message.
-            window.location.href = '/dashboard?just_claimed=1';
+            // Membership is active. Pass the gifter name through to the
+            // dashboard so the celebratory banner can personalise its
+            // message ("Your gift from Steve is active.") rather than
+            // showing a generic welcome. encodeURIComponent handles names
+            // with spaces or special characters safely.
+            const fromParam = claimResult.gifter_name
+              ? '&from=' + encodeURIComponent(claimResult.gifter_name)
+              : '';
+            window.location.href = '/dashboard?just_claimed=1' + fromParam;
             return;
           }
           // Claim returned without success — the user got a real account but

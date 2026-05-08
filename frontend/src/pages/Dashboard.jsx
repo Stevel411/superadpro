@@ -46,6 +46,43 @@ export default function Dashboard() {
     try { localStorage.setItem('story-prompt-dismissed', '1'); } catch(e) {}
   }
 
+  // ── Gift voucher welcome banner ──────────────────────────────────────
+  // Shows a celebratory top banner ONLY on first dashboard load after a
+  // successful gift voucher claim. The seamless claim flow redirects to
+  // /dashboard?just_claimed=1&from=<gifter_name>; we read those params
+  // here. Dismissal persists in localStorage with a 30-day expiry so a
+  // member who's been around for a while can still see this banner if
+  // they ever receive ANOTHER gift later.
+  const [giftWelcome, setGiftWelcome] = useState(function() {
+    try {
+      var qs = new URLSearchParams(window.location.search);
+      if (qs.get('just_claimed') !== '1') return null;
+      // Check the dismissal flag — only suppress if dismissed within last 30 days
+      var stored = localStorage.getItem('gift-welcome-dismissed');
+      if (stored) {
+        var dismissedAt = parseInt(stored, 10);
+        if (!isNaN(dismissedAt) && (Date.now() - dismissedAt) < 30 * 24 * 60 * 60 * 1000) {
+          return null;
+        }
+      }
+      var fromName = qs.get('from');
+      return { gifterName: fromName ? decodeURIComponent(fromName) : null };
+    } catch (e) { return null; }
+  });
+  function dismissGiftWelcome() {
+    setGiftWelcome(null);
+    try { localStorage.setItem('gift-welcome-dismissed', String(Date.now())); } catch(e) {}
+    // Strip ?just_claimed=1 from URL so a refresh doesn't re-trigger
+    // (defensive — the localStorage flag would suppress it anyway, but
+    // a clean URL is just better hygiene).
+    try {
+      var url = new URL(window.location.href);
+      url.searchParams.delete('just_claimed');
+      url.searchParams.delete('from');
+      window.history.replaceState({}, '', url.toString());
+    } catch(e) {}
+  }
+
   var pollRef = useRef(null);
   var lastCheckRef = useRef(new Date().toISOString());
   var chachingRef = useRef(null);
@@ -153,6 +190,78 @@ export default function Dashboard() {
     <AppLayout
       title={t("dashboard.title")}
     >
+      {/* Gift voucher welcome banner — only on first load after claim.
+          Top of dashboard, full width, dismissible. Pink-to-amber gradient
+          matches the gift card's emotional register. The gifter's name
+          (if available) is the emotional anchor — it pulls the relationship
+          forward into the experience rather than showing a generic welcome. */}
+      {giftWelcome && (
+        <div style={{
+          background: 'linear-gradient(135deg, #be185d 0%, #ec4899 50%, #f59e0b 100%)',
+          borderRadius: 14,
+          padding: '20px 24px',
+          marginBottom: 20,
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 4px 20px rgba(236,72,153,.25)',
+        }}>
+          {/* Soft decorative background circles for warmth */}
+          <div style={{ position: 'absolute', top: -40, right: -40, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,.08)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: -30, left: 80, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,.06)', pointerEvents: 'none' }} />
+
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+            <div style={{ fontSize: 38, lineHeight: 1, flexShrink: 0 }}>🎁</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{
+                fontFamily: 'Sora, sans-serif',
+                fontSize: 22,
+                fontWeight: 800,
+                color: '#fff',
+                marginBottom: 6,
+                lineHeight: 1.2,
+              }}>
+                Welcome to SuperAdPro
+              </div>
+              <div style={{
+                fontSize: 14,
+                color: 'rgba(255,255,255,.92)',
+                lineHeight: 1.5,
+              }}>
+                {giftWelcome.gifterName
+                  ? <>Your gift from <strong>{giftWelcome.gifterName}</strong> is active. Take your time looking around — we're glad you're here.</>
+                  : <>Your gift is active. Take your time looking around — we're glad you're here.</>
+                }
+              </div>
+            </div>
+            {/* Dismiss X — top-right, low-emphasis but findable */}
+            <button
+              onClick={dismissGiftWelcome}
+              aria-label="Dismiss welcome banner"
+              style={{
+                flexShrink: 0,
+                width: 28, height: 28,
+                borderRadius: 8,
+                border: 'none',
+                background: 'rgba(255,255,255,.12)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                fontSize: 16,
+                fontWeight: 700,
+                fontFamily: 'inherit',
+                transition: 'background .15s',
+              }}
+              onMouseOver={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.22)'; }}
+              onMouseOut={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.12)'; }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Free member activation banner */}
       {!d.is_active && (
         <div style={{

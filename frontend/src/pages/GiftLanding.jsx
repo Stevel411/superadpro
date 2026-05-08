@@ -43,7 +43,8 @@ export default function GiftLanding() {
         // anything else. 2 seconds is long enough to register the
         // success state without feeling sluggish.
         setTimeout(function() {
-          window.location.href = '/dashboard?just_claimed=1';
+          var fromParam = r.gifter_name ? '&from=' + encodeURIComponent(r.gifter_name) : '';
+          window.location.href = '/dashboard?just_claimed=1' + fromParam;
         }, 2000);
       } else {
         setError(r.error || 'Could not claim gift');
@@ -97,7 +98,10 @@ export default function GiftLanding() {
             <div style={{ width:14, height:14, border:'2px solid rgba(255,255,255,.15)', borderTopColor:'var(--sap-accent-light)', borderRadius:'50%', animation:'gift-spin .8s linear infinite' }}/>
             <span>Taking you to your dashboard…</span>
           </div>
-          <button onClick={function() { window.location.href = '/dashboard?just_claimed=1'; }}
+          <button onClick={function() {
+              var fromParam = gift && gift.gifter_name ? '&from=' + encodeURIComponent(gift.gifter_name) : '';
+              window.location.href = '/dashboard?just_claimed=1' + fromParam;
+            }}
             style={{ padding:'10px 20px', borderRadius:8, border:'1px solid rgba(255,255,255,.15)', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'rgba(255,255,255,.7)' }}>
             Go now <ArrowRight size={13} style={{ verticalAlign:'middle', marginLeft:4 }}/>
           </button>

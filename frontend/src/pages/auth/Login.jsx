@@ -45,7 +45,10 @@ export default function Login() {
           try {
             const claimResult = await apiPost('/api/gift/' + giftCode + '/claim', {});
             if (claimResult && claimResult.success) {
-              window.location.href = '/dashboard?just_claimed=1';
+              const fromParam = claimResult.gifter_name
+                ? '&from=' + encodeURIComponent(claimResult.gifter_name)
+                : '';
+              window.location.href = '/dashboard?just_claimed=1' + fromParam;
               return;
             }
             window.location.href = '/gift/' + giftCode;
