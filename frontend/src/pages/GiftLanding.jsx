@@ -1,21 +1,39 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { apiGet, apiPost } from '../utils/api';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { apiPost } from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
-import { Gift, Heart, Check, ArrowRight } from 'lucide-react';
+import { Gift, Check, ArrowRight, VolumeX } from 'lucide-react';
 
+/**
+ * GiftLanding — recipient-facing landing page for a gift voucher.
+ *
+ * Visual structure:
+ *   - Hero (bokeh background + small gifter pill + headline)
+ *     fades into white below the fold
+ *   - Video block (autoplay muted with click-to-unmute)
+ *   - CTA + trust signals + reassurance
+ *   - Optional personal message from gifter (only renders if present)
+ *
+ * Logic preserved from previous version:
+ *   - Loads gift via /api/gift/{code} and validates
+ *   - Loading / error / claimed states
+ *   - Logged-in path: button calls /api/gift/{code}/claim
+ *   - Logged-out path: routes to /register or /login with the gift code
+ *   - Claimed state auto-redirects to /dashboard?just_claimed=1 after 2s
+ */
 export default function GiftLanding() {
   var { t } = useTranslation();
   var { code } = useParams();
   var { user } = useAuth();
-  var navigate = useNavigate();
   var [gift, setGift] = useState(null);
   var [loading, setLoading] = useState(true);
   var [claiming, setClaiming] = useState(false);
   var [claimed, setClaimed] = useState(false);
   var [error, setError] = useState('');
   var [giftError, setGiftError] = useState('');
+  var [muted, setMuted] = useState(true);
+  var videoRef = useRef(null);
 
   useEffect(function() {
     fetch('/api/gift/' + code).then(function(r) { return r.json(); }).then(function(d) {
@@ -31,6 +49,17 @@ export default function GiftLanding() {
     });
   }, [code]);
 
+  function toggleMute() {
+    if (!videoRef.current) return;
+    var next = !muted;
+    videoRef.current.muted = next;
+    if (!next && videoRef.current.paused) {
+      // Unmuting an autoplay-paused video — start it playing too.
+      videoRef.current.play().catch(function() {});
+    }
+    setMuted(next);
+  }
+
   function claimGift() {
     if (claiming) return;
     setClaiming(true);
@@ -38,10 +67,7 @@ export default function GiftLanding() {
     apiPost('/api/gift/' + code + '/claim', {}).then(function(r) {
       if (r.success) {
         setClaimed(true);
-        // Auto-redirect to dashboard after a brief moment so the user
-        // sees the "Welcome" confirmation but doesn't have to click
-        // anything else. 2 seconds is long enough to register the
-        // success state without feeling sluggish.
+        // 2-second pause so user sees the success state, then auto-redirect.
         setTimeout(function() {
           var fromParam = r.gifter_name ? '&from=' + encodeURIComponent(r.gifter_name) : '';
           window.location.href = '/dashboard?just_claimed=1' + fromParam;
@@ -56,53 +82,52 @@ export default function GiftLanding() {
     });
   }
 
+  // ─── Loading state ──────────────────────────────────────────────
   if (loading) return (
-    <div style={{ minHeight:'100vh', background:'var(--sap-cobalt-deep)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ width:40, height:40, border:'3px solid rgba(255,255,255,.1)', borderTopColor:'var(--sap-pink)', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
-      <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
+    <div style={{ minHeight:'100vh', background:'#fdf2f1', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ width:40, height:40, border:'3px solid rgba(153,53,86,.15)', borderTopColor:'#993556', borderRadius:'50%', animation:'gift-spin .8s linear infinite' }}/>
+      <style>{'@keyframes gift-spin{to{transform:rotate(360deg)}}'}</style>
     </div>
   );
 
+  // ─── Error state (invalid / expired / already-claimed code) ────
   if (giftError) return (
-    <div style={{ minHeight:'100vh', background:'var(--sap-cobalt-deep)', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'#fdf2f1', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ textAlign:'center', maxWidth:400 }}>
-        <div style={{ width:64, height:64, borderRadius:16, background:'rgba(239,68,68,.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
-          <Gift size={28} color="var(--sap-red-bright)"/>
+        <div style={{ width:64, height:64, borderRadius:16, background:'rgba(153,53,86,.1)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
+          <Gift size={28} color="#993556"/>
         </div>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fff', marginBottom:8 }}>{giftError}</div>
-        <Link to="/" style={{ fontSize:14, color:'var(--sap-accent-light)', textDecoration:'none' }}>{t('giftLanding.goToSuperAdPro')}</Link>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#4B1528', marginBottom:8 }}>{giftError}</div>
+        <Link to="/" style={{ fontSize:14, color:'#993556', textDecoration:'none', fontWeight:600 }}>{t('giftLanding.goToSuperAdPro')}</Link>
       </div>
     </div>
   );
 
+  // ─── Claimed (success) state ───────────────────────────────────
   if (claimed) return (
-    <div style={{ minHeight:'100vh', background:'var(--sap-cobalt-deep)', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'#fdf2f1', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ textAlign:'center', maxWidth:440 }}>
         <div style={{ width:72, height:72, borderRadius:18, background:'linear-gradient(135deg,#10b981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 24px' }}>
           <Check size={36} color="#fff"/>
         </div>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:'#fff', marginBottom:8 }}>{t('giftLanding.welcomeTitle')}</div>
-        <div style={{ fontSize:15, color:'rgba(255,255,255,.6)', lineHeight:1.7, marginBottom:24 }}>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:'#4B1528', marginBottom:8 }}>{t('giftLanding.welcomeTitle')}</div>
+        <div style={{ fontSize:15, color:'#712B13', lineHeight:1.7, marginBottom:24 }}>
           Your membership has been activated. {gift.gifter_name} believed in you — now go build something amazing.
         </div>
-        <div style={{ padding:'14px 20px', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.08)', borderRadius:12, marginBottom:24 }}>
-          <div style={{ fontSize:12, color:'rgba(255,255,255,.4)', marginBottom:4 }}>{t('giftLanding.remember')}</div>
-          <div style={{ fontSize:14, color:'var(--sap-amber-bright)', fontWeight:700 }}>{t('giftLanding.payForwardFull')}</div>
+        <div style={{ padding:'14px 20px', background:'rgba(255,255,255,.8)', border:'1px solid rgba(153,53,86,.15)', borderRadius:12, marginBottom:24 }}>
+          <div style={{ fontSize:12, color:'#993556', marginBottom:4, fontWeight:600 }}>{t('giftLanding.remember')}</div>
+          <div style={{ fontSize:14, color:'#4B1528', fontWeight:700 }}>{t('giftLanding.payForwardFull')}</div>
         </div>
-        {/* Auto-redirect indicator — claimGift() schedules a window.location
-            redirect 2 seconds after success. Manual button kept as a
-            fallback for users who don't wait, or whose timer was disrupted
-            by tab-switching. */}
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:12 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10, color:'rgba(255,255,255,.5)', fontSize:13 }}>
-            <div style={{ width:14, height:14, border:'2px solid rgba(255,255,255,.15)', borderTopColor:'var(--sap-accent-light)', borderRadius:'50%', animation:'gift-spin .8s linear infinite' }}/>
+          <div style={{ display:'flex', alignItems:'center', gap:10, color:'#712B13', fontSize:13 }}>
+            <div style={{ width:14, height:14, border:'2px solid rgba(153,53,86,.2)', borderTopColor:'#993556', borderRadius:'50%', animation:'gift-spin .8s linear infinite' }}/>
             <span>Taking you to your dashboard…</span>
           </div>
           <button onClick={function() {
               var fromParam = gift && gift.gifter_name ? '&from=' + encodeURIComponent(gift.gifter_name) : '';
               window.location.href = '/dashboard?just_claimed=1' + fromParam;
             }}
-            style={{ padding:'10px 20px', borderRadius:8, border:'1px solid rgba(255,255,255,.15)', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'rgba(255,255,255,.7)' }}>
+            style={{ padding:'10px 20px', borderRadius:8, border:'1px solid rgba(153,53,86,.25)', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'#993556' }}>
             Go now <ArrowRight size={13} style={{ verticalAlign:'middle', marginLeft:4 }}/>
           </button>
         </div>
@@ -111,90 +136,177 @@ export default function GiftLanding() {
     </div>
   );
 
+  // ─── Main landing page ─────────────────────────────────────────
+  // Layout: bokeh hero up top, soft fade-to-white below the fold for
+  // the video and CTA — keeps the emotional first impression but stops
+  // the busy background from competing with the video.
   return (
-    <div style={{ minHeight:'100vh', background:'var(--sap-cobalt-deep)', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
-      <div style={{ maxWidth:480, width:'100%' }}>
+    <div style={{ minHeight:'100vh', background:'#fff', position:'relative' }}>
 
-        {/* Gift card */}
-        <div style={{
-          background:'linear-gradient(135deg,#831843,#be185d,#ec4899)',
-          borderRadius:24, padding:'40px 36px', textAlign:'center',
-          position:'relative', overflow:'hidden', marginBottom:24,
-        }}>
-          <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
-          <div style={{ position:'absolute', bottom:-40, left:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
+      {/* Hero band — fixed-height background image with content overlaid,
+          gradient-fades to white at the bottom edge so the video block
+          below feels like it grows naturally out of the hero. */}
+      <div style={{
+        position:'relative',
+        backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(255,255,255,1) 100%), url(/static/images/gift-hero.jpg)',
+        backgroundSize:'cover',
+        backgroundPosition:'center',
+        backgroundRepeat:'no-repeat',
+        paddingTop:'clamp(40px, 8vw, 80px)',
+        paddingBottom:'clamp(40px, 8vw, 80px)',
+        paddingLeft:20,
+        paddingRight:20,
+      }}>
+        <div style={{ maxWidth:560, margin:'0 auto', textAlign:'center' }}>
 
-          <div style={{ position:'relative' }}>
-            <div style={{ width:64, height:64, borderRadius:16, background:'rgba(255,255,255,.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
-              <Gift size={32} color="#fff"/>
-            </div>
-            <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', fontWeight:600, marginBottom:8 }}>{t('giftLanding.giftedByBody')}</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', marginBottom:16 }}>{gift.gifter_name}</div>
-
-            {gift.personal_message && (
-              <div style={{ padding:'16px 20px', background:'rgba(255,255,255,.1)', borderRadius:12, marginBottom:16, maxWidth:360, margin:'0 auto 16px' }}>
-                <div style={{ fontSize:15, color:'#fff', fontStyle:'italic', lineHeight:1.6 }}>"{gift.personal_message}"</div>
-              </div>
-            )}
-
-            {gift.recipient_name && (
-              <div style={{ fontSize:16, color:'rgba(255,255,255,.8)', fontWeight:700, marginBottom:8 }}>
-                For you, {gift.recipient_name}
-              </div>
-            )}
-
-            <div style={{ fontSize:13, color:'rgba(255,255,255,.5)', marginBottom:4 }}>
-              Free Basic Membership · Value: ${gift.gift_value}
-            </div>
-            {gift.chain_depth > 1 && (
-              <div style={{ fontSize:12, color:'rgba(255,255,255,.4)' }}>
-                This gift is part of a pay-it-forward chain — generation {gift.chain_depth}
-              </div>
-            )}
+          {/* Tiny brand wordmark */}
+          <div style={{ fontSize:11, color:'#fff', letterSpacing:2, fontWeight:600, marginBottom:'clamp(20px, 4vw, 32px)', textShadow:'0 1px 6px rgba(0,0,0,.4)' }}>
+            SUPERADPRO
           </div>
+
+          {/* Gifter pill */}
+          <div style={{
+            display:'inline-flex', alignItems:'center', gap:8,
+            background:'rgba(255,255,255,.95)', padding:'8px 16px',
+            borderRadius:24, marginBottom:18,
+            boxShadow:'0 2px 12px rgba(0,0,0,.1)',
+          }}>
+            <Gift size={14} color="#993556"/>
+            <span style={{ fontSize:13, color:'#993556', fontWeight:600 }}>
+              A gift from {gift.gifter_name}
+            </span>
+          </div>
+
+          {/* Headline */}
+          <h1 style={{
+            fontFamily:'Sora,sans-serif',
+            fontSize:'clamp(24px, 5vw, 32px)',
+            fontWeight:700, color:'#fff',
+            margin:'0 0 12px', lineHeight:1.25,
+            textShadow:'0 2px 12px rgba(0,0,0,.45)',
+          }}>
+            {gift.gifter_name} sent you a<br/>free month of SuperAdPro
+          </h1>
+
+          {/* Subhead */}
+          <p style={{
+            fontSize:'clamp(13px, 2.5vw, 15px)',
+            color:'rgba(255,255,255,.95)',
+            margin:'0 0 28px', lineHeight:1.5,
+            textShadow:'0 1px 6px rgba(0,0,0,.4)',
+          }}>
+            They paid ${gift.gift_value || 20} so you could try it. Watch the short video below.
+          </p>
+
+          {/* Optional personal message from gifter — shown above video
+              if present, in a soft white card. */}
+          {gift.personal_message && (
+            <div style={{
+              padding:'14px 20px',
+              background:'rgba(255,255,255,.95)',
+              borderRadius:14,
+              marginBottom:24,
+              maxWidth:420,
+              margin:'0 auto 24px',
+              boxShadow:'0 4px 16px rgba(0,0,0,.12)',
+            }}>
+              <div style={{ fontSize:14, color:'#4B1528', fontStyle:'italic', lineHeight:1.5 }}>
+                "{gift.personal_message}"
+              </div>
+              {gift.recipient_name && (
+                <div style={{ fontSize:12, color:'#993556', marginTop:8, fontWeight:600 }}>
+                  — for {gift.recipient_name}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Video + CTA section — sits on white, lifted slightly into the
+          hero with a negative margin so it visually overlaps the fade. */}
+      <div style={{
+        maxWidth:560, margin:'0 auto', padding:'0 20px',
+        marginTop:'clamp(-40px, -6vw, -60px)',
+        position:'relative', zIndex:2,
+      }}>
+
+        {/* Video frame — white border lifts it off whatever is behind */}
+        <div style={{
+          background:'#000', borderRadius:14, overflow:'hidden',
+          position:'relative', aspectRatio:'16/9',
+          border:'5px solid #fff',
+          boxShadow:'0 10px 40px rgba(0,0,0,.18)',
+          marginBottom:24,
+        }}>
+          <video
+            ref={videoRef}
+            src="/static/video/gift-recipient.mp4"
+            poster="/static/images/gift-hero.jpg"
+            autoPlay
+            muted
+            playsInline
+            controls
+            preload="metadata"
+            style={{ width:'100%', height:'100%', display:'block' }}
+          />
+          {/* Custom unmute prompt overlay — only visible while muted. */}
+          {muted && (
+            <button onClick={toggleMute} style={{
+              position:'absolute', top:10, right:10,
+              padding:'6px 12px', borderRadius:20, border:'none',
+              background:'rgba(0,0,0,.6)', color:'#fff',
+              fontSize:12, fontWeight:600, cursor:'pointer',
+              display:'flex', alignItems:'center', gap:6,
+              backdropFilter:'blur(6px)',
+            }}>
+              <VolumeX size={14}/> Click to unmute
+            </button>
+          )}
         </div>
 
-        {/* Claim section */}
-        <div style={{ background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.06)', borderRadius:16, padding:'24px 28px', textAlign:'center' }}>
+        {/* Error display */}
+        {error && (
+          <div style={{ padding:'12px 16px', background:'#fee2e2', border:'1px solid #fecaca', borderRadius:10, marginBottom:16, fontSize:13, fontWeight:600, color:'#991b1b', textAlign:'center' }}>
+            {error}
+          </div>
+        )}
 
-          {error && <div style={{ padding:'10px 14px', background:'rgba(239,68,68,.1)', border:'1px solid rgba(239,68,68,.2)', borderRadius:8, marginBottom:16, fontSize:13, fontWeight:600, color:'var(--sap-red-bright)' }}>{error}</div>}
-
+        {/* CTA */}
+        <div style={{ textAlign:'center' }}>
           {user ? (
             <div>
-              <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', marginBottom:16 }}>
-                Logged in as <strong style={{ color:'#fff' }}>{user.username}</strong>
+              <div style={{ fontSize:13, color:'#666', marginBottom:14 }}>
+                Logged in as <strong style={{ color:'#222' }}>{user.username}</strong>
               </div>
               <button onClick={claimGift} disabled={claiming}
                 style={{
-                  width:'100%', padding:16, borderRadius:12, border:'none', cursor: claiming ? 'wait' : 'pointer',
-                  fontFamily:'inherit', fontSize:16, fontWeight:800, color:'#fff',
+                  width:'100%', maxWidth:360, padding:'16px 32px',
+                  borderRadius:12, border:'none',
+                  cursor: claiming ? 'wait' : 'pointer',
+                  fontFamily:'inherit', fontSize:16, fontWeight:700, color:'#fff',
                   background:'linear-gradient(135deg,#10b981,#059669)',
                   boxShadow:'0 4px 16px rgba(16,185,129,.3)',
                 }}>
-                {claiming ? 'Activating...' : 'Claim My Free Membership'}
+                {claiming ? 'Activating…' : 'Claim your free month →'}
               </button>
             </div>
           ) : (
             <div>
-              <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', marginBottom:16, lineHeight:1.7 }}>
-                Create a free account or log in to claim your gifted membership.
-              </div>
-              <div style={{ display:'flex', gap:10, flexDirection:'column' }}>
-                <Link to={'/register?ref=' + (gift.gifter_username || '') + '&gift=' + code}
-                  style={{
-                    display:'block', textAlign:'center', padding:16, borderRadius:12, textDecoration:'none',
-                    fontSize:16, fontWeight:800, color:'#fff',
-                    background:'linear-gradient(135deg,#10b981,#059669)',
-                    boxShadow:'0 4px 16px rgba(16,185,129,.3)',
-                  }}>
-                  Create Free Account
-                </Link>
+              <Link to={'/register?ref=' + (gift.gifter_username || '') + '&gift=' + code}
+                style={{
+                  display:'inline-block', textAlign:'center', padding:'16px 32px',
+                  borderRadius:12, textDecoration:'none', minWidth:280,
+                  fontSize:16, fontWeight:700, color:'#fff',
+                  background:'linear-gradient(135deg,#10b981,#059669)',
+                  boxShadow:'0 4px 16px rgba(16,185,129,.3)',
+                  marginBottom:12,
+                }}>
+                Claim your free month →
+              </Link>
+              <div>
                 <Link to={'/login?gift=' + code}
-                  style={{
-                    display:'block', textAlign:'center', padding:14, borderRadius:12, textDecoration:'none',
-                    fontSize:14, fontWeight:700, color:'rgba(255,255,255,.6)',
-                    border:'1px solid rgba(255,255,255,.1)',
-                  }}>
+                  style={{ fontSize:13, color:'#666', textDecoration:'none', fontWeight:500 }}>
                   Already have an account? Log in
                 </Link>
               </div>
@@ -202,13 +314,28 @@ export default function GiftLanding() {
           )}
         </div>
 
-        {/* What is SuperAdPro */}
-        <div style={{ textAlign:'center', marginTop:24 }}>
-          <div style={{ fontSize:12, color:'rgba(255,255,255,.3)' }}>
-            SuperAdPro is a video advertising and AI marketing platform. Earn commissions by building your network.
-          </div>
+        {/* Trust signals */}
+        <div style={{ display:'flex', justifyContent:'center', gap:24, flexWrap:'wrap', margin:'28px 0 20px' }}>
+          {['Free month', 'No card required', 'Full access'].map(function(label) {
+            return (
+              <div key={label} style={{ display:'flex', alignItems:'center', gap:6, fontSize:13, color:'#555' }}>
+                <Check size={14} color="#10b981"/>
+                <span>{label}</span>
+              </div>
+            );
+          })}
         </div>
 
+        {/* Footer reassurance */}
+        <p style={{ fontSize:12, color:'#888', textAlign:'center', maxWidth:380, margin:'0 auto', lineHeight:1.6, paddingBottom:40 }}>
+          Your friend already paid. There's nothing to buy. If it's not for you, walk away — no harm done.
+        </p>
+
+        {gift.chain_depth > 1 && (
+          <div style={{ textAlign:'center', fontSize:11, color:'#aaa', paddingBottom:24 }}>
+            This gift is part of a pay-it-forward chain — generation {gift.chain_depth}
+          </div>
+        )}
       </div>
     </div>
   );
