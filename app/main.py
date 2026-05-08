@@ -1507,6 +1507,7 @@ def api_public_activity_feed(limit: int = 25, db: Session = Depends(get_db)):
         "platform":               "Platform",
         "membership":             "Membership · recurring",
         "membership_sponsor":     "Membership · referral",
+        "gift_membership_sponsor": "Pay It Forward gift",
         "membership_renewal":     "Membership · renewal",
         "grid_completion_bonus":  "Grid completion bonus",
         "matrix_level":           "Credit Nexus",
@@ -4065,7 +4066,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     membership_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user.id,
         Commission.status == 'paid',
-        Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor'])
+        Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor', 'gift_membership_sponsor'])
     ).scalar() or 0)
 
     course_total = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
@@ -4149,7 +4150,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         m_memb = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
             Commission.to_user_id == user.id,
             Commission.status == 'paid',
-            Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor']),
+            Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor', 'gift_membership_sponsor']),
             Commission.paid_at >= month_start, Commission.paid_at < month_end
         ).scalar() or 0)
 
@@ -11059,7 +11060,7 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
     membership = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user_id,
         Commission.status == 'paid',
-        Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor'])
+        Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor', 'gift_membership_sponsor'])
     ).scalar() or 0)
 
     # Nexus earnings come from TWO tables:
@@ -21156,9 +21157,71 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
     voucher.claimed_by_user_id = user.id
     voucher.claimed_at = datetime.utcnow()
 
+    # ── Pay gifter the membership sponsor commission ──
+    # When test3 buys a $20 voucher, the company receives the full $20.
+    # When the gift is claimed, the gifter receives the standard $10
+    # membership-sponsor commission they would have received from a
+    # normal direct signup. Net effect:
+    #   - Gifter pays $20 (voucher) - $10 (commission back) = $10 net cost
+    #   - Company nets $10 (same as a normal $20 membership sale)
+    #   - Recipient receives a free month of membership
+    # This aligns gift incentives with normal referral economics — without
+    # the commission, gifters were economically punished for being
+    # generous (a normal referral pays $10, a gift paid $0). That asymmetry
+    # would have killed the viral mechanic over time.
+    # (Steve's call 8 May 2026 after considering long-term community health
+    # vs short-term marketing simplicity.)
+    #
+    # The commission_type is 'gift_membership_sponsor' to distinguish from
+    # normal direct signups in analytics — this matters for the PIF
+    # dashboard's "earned back" stat and any future audit work.
+    gifter = db.query(User).filter(User.id == voucher.gifter_user_id).first()
+    if gifter:
+        gift_commission = Decimal("10.00")
+        gifter.balance = Decimal(str(gifter.balance or 0)) + gift_commission
+        gifter.total_earned = Decimal(str(gifter.total_earned or 0)) + gift_commission
+        # Atomic personal_referrals increment, same pattern as normal
+        # membership_sponsor route. The gifter is now the recipient's
+        # sponsor of record so this counts toward their referral total.
+        from sqlalchemy import func as _sqlfunc
+        db.query(User).filter(User.id == gifter.id).update({
+            User.personal_referrals: _sqlfunc.coalesce(User.personal_referrals, 0) + 1,
+        }, synchronize_session=False)
+
+        comm = Commission(
+            to_user_id=gifter.id,
+            from_user_id=user.id,
+            amount_usdt=gift_commission,
+            commission_type="gift_membership_sponsor",
+            package_tier=0,
+            notes=f"Pay It Forward: {user.username} claimed gift voucher {voucher.voucher_code}",
+            status="paid",
+            paid_at=datetime.utcnow(),
+        )
+        db.add(comm)
+
+        # Notification to gifter — they should see the claim AND the
+        # commission in one message, not two separate notifications
+        # arriving 30s apart.
+        try:
+            notif = Notification(
+                user_id=gifter.id,
+                title="🎁 Your gift was claimed!",
+                message=f"{user.first_name or user.username} just activated their membership using your gift. You earned a $10 sponsor commission.",
+                notification_type="gift_claimed",
+                created_at=datetime.utcnow(),
+            )
+            db.add(notif)
+        except Exception as e:
+            # Notification failure must not block the claim itself.
+            logger.warning(f"PIF gift-claim notification failed for gifter {gifter.id}: {e}")
+
     db.commit()
 
-    logger.info(f"Pay It Forward: {user.username} claimed voucher {code} gifted by user {voucher.gifter_user_id} (chain depth {voucher.pif_chain_depth})")
+    logger.info(
+        f"Pay It Forward: {user.username} claimed voucher {code} gifted by user {voucher.gifter_user_id} "
+        f"(chain depth {voucher.pif_chain_depth}) — $10 sponsor commission paid to gifter"
+    )
 
     return {
         "success": True,
@@ -21506,7 +21569,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
     recent_comms = db.query(Commission).filter(
         Commission.created_at >= week_ago,
         Commission.status == "paid",
-        Commission.commission_type.in_(["membership_sponsor", "membership_renewal"])
+        Commission.commission_type.in_(["membership_sponsor", "membership_renewal", "gift_membership_sponsor"])
     ).order_by(Commission.created_at.desc()).limit(10).all()
 
     recent_matrix = db.query(CreditMatrixCommission).filter(
