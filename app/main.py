@@ -21250,6 +21250,119 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
         "message": "Your membership has been activated! Welcome to SuperAdPro.",
         "gifter_name": db.query(User).filter(User.id == voucher.gifter_user_id).first().first_name or "A member",
     }
+@app.get("/admin/api/membership-state/{username}")
+def admin_membership_state(
+    username: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only diagnostic for a member's full membership state.
+
+    Returns everything needed to diagnose lapse/grace/renewal issues:
+      - User row state (is_active, activated_at, membership_tier,
+        membership_billing, membership_expires_at)
+      - MembershipRenewal row (next_renewal_date, in_grace_period,
+        grace_period_start, last_renewed_at, total_renewals,
+        renewal_source) — or null if no row exists
+      - Recent membership-type Payment rows (last 5)
+      - Computed status: 'active' | 'in_grace' | 'lapsed' | 'never_paid'
+      - For lapsed/grace cases, a `lapsed_explanation` field describes
+        WHY the member is in this state (e.g. "next_renewal_date passed
+        2026-04-30, balance $0 < $20 fee, grace period 5 days expired")
+
+    Built 8 May 2026 to diagnose why test1 was showing as lapsed only
+    12 days after activation. Read-only — never mutates anything.
+    """
+    _require_admin(user)
+    from .database import MembershipRenewal
+
+    target = db.query(User).filter(User.username == username.lower()).first()
+    if not target:
+        return JSONResponse({"error": f"User '{username}' not found"}, status_code=404)
+
+    renewal = db.query(MembershipRenewal).filter(
+        MembershipRenewal.user_id == target.id
+    ).first()
+
+    payments = (db.query(Payment)
+                  .filter(Payment.from_user_id == target.id,
+                          Payment.payment_type.like("membership%"))
+                  .order_by(Payment.created_at.desc())
+                  .limit(5).all())
+
+    has_paid_membership = any(
+        p.status in ("confirmed", "paid") for p in payments
+    )
+
+    # Determine computed status
+    now = datetime.utcnow()
+    if target.is_active:
+        if renewal and renewal.in_grace_period:
+            status = "in_grace"
+        else:
+            status = "active"
+    else:
+        status = "lapsed" if has_paid_membership else "never_paid"
+
+    # Build a human-readable explanation for lapsed/grace cases
+    lapsed_explanation = None
+    if status in ("lapsed", "in_grace") and renewal:
+        parts = []
+        if renewal.next_renewal_date:
+            days_since_renewal_due = (now - renewal.next_renewal_date).days
+            if days_since_renewal_due > 0:
+                parts.append(f"next_renewal_date was {renewal.next_renewal_date.strftime('%Y-%m-%d')} ({days_since_renewal_due} days ago)")
+            else:
+                parts.append(f"next_renewal_date is {renewal.next_renewal_date.strftime('%Y-%m-%d')} ({-days_since_renewal_due} days from now)")
+        balance = float(target.balance or 0)
+        parts.append(f"current balance ${balance:.2f}")
+        if renewal.in_grace_period and renewal.grace_period_start:
+            grace_days_in = (now - renewal.grace_period_start).days
+            parts.append(f"in grace period since {renewal.grace_period_start.strftime('%Y-%m-%d')} ({grace_days_in} days, lapses at 5)")
+        lapsed_explanation = "; ".join(parts)
+    elif status == "lapsed" and not renewal:
+        lapsed_explanation = "is_active=False but NO MembershipRenewal row exists — the renewal cron never had data to bill them, so the lapse came from somewhere else (manual admin action, GDPR deletion, or some other path that flipped is_active)"
+
+    return {
+        "user": {
+            "id": target.id,
+            "username": target.username,
+            "first_name": target.first_name,
+            "is_active": target.is_active,
+            "is_admin": target.is_admin,
+            "membership_tier": target.membership_tier,
+            "membership_billing": getattr(target, "membership_billing", None),
+            "activated_at": target.activated_at.isoformat() if target.activated_at else None,
+            "membership_expires_at": target.membership_expires_at.isoformat() if getattr(target, "membership_expires_at", None) else None,
+            "balance": float(target.balance or 0),
+            "low_balance_warned": getattr(target, "low_balance_warned", False),
+            "created_at": target.created_at.isoformat() if target.created_at else None,
+        },
+        "renewal": {
+            "exists": renewal is not None,
+            "activated_at": renewal.activated_at.isoformat() if renewal and renewal.activated_at else None,
+            "next_renewal_date": renewal.next_renewal_date.isoformat() if renewal and renewal.next_renewal_date else None,
+            "last_renewed_at": renewal.last_renewed_at.isoformat() if renewal and renewal.last_renewed_at else None,
+            "in_grace_period": renewal.in_grace_period if renewal else None,
+            "grace_period_start": renewal.grace_period_start.isoformat() if renewal and renewal.grace_period_start else None,
+            "total_renewals": renewal.total_renewals if renewal else None,
+            "renewal_source": renewal.renewal_source if renewal else None,
+        } if renewal is not None else {"exists": False},
+        "payments": [
+            {
+                "id": p.id,
+                "amount": float(p.amount_usdt or 0),
+                "type": p.payment_type,
+                "status": p.status,
+                "tx_hash": p.tx_hash,
+                "created_at": p.created_at.isoformat() if p.created_at else None,
+            } for p in payments
+        ],
+        "computed_status": status,
+        "lapsed_explanation": lapsed_explanation,
+    }
+
+
 @app.get("/gift/{code}")
 async def serve_gift_page(code: str):
     """Serve the React SPA for gift voucher landing pages."""
