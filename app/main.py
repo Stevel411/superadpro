@@ -21136,6 +21136,17 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
     user.is_active = True
     user.membership_tier = "basic"
 
+    # Skip onboarding for gift recipients — they're already qualified
+    # members via the gift, and the onboarding wizard would otherwise
+    # interrupt the celebratory welcome moment immediately after the
+    # auto-redirect from the seamless claim flow. The dashboard's
+    # gift-welcome banner serves as their onboarding entry point —
+    # warm welcome + a "Pay it forward" CTA that introduces the
+    # platform's core mechanic in context, not via a generic wizard.
+    # (Steve's call 8 May 2026 after observing the wizard interrupting
+    # the welcome banner during end-to-end testing.)
+    user.onboarding_completed = True
+
     # Set the gifter as sponsor if user has no sponsor
     if not user.sponsor_id:
         user.sponsor_id = voucher.gifter_user_id

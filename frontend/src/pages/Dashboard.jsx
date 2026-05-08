@@ -194,70 +194,135 @@ export default function Dashboard() {
           Top of dashboard, full width, dismissible. Pink-to-amber gradient
           matches the gift card's emotional register. The gifter's name
           (if available) is the emotional anchor — it pulls the relationship
-          forward into the experience rather than showing a generic welcome. */}
+          forward into the experience rather than showing a generic welcome.
+
+          Stays visible until the user dismisses it (X button) or clicks
+          through to /pay-it-forward (which also dismisses it). No auto-
+          timer — the welcome moment deserves the user's full attention,
+          not a 2-second flash. */}
       {giftWelcome && (
         <div style={{
-          background: 'linear-gradient(135deg, #be185d 0%, #ec4899 50%, #f59e0b 100%)',
-          borderRadius: 14,
-          padding: '20px 24px',
+          background: 'linear-gradient(135deg, #be185d 0%, #ec4899 45%, #f59e0b 100%)',
+          borderRadius: 16,
+          padding: '28px 32px',
           marginBottom: 20,
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 4px 20px rgba(236,72,153,.25)',
+          boxShadow: '0 8px 32px rgba(236,72,153,.28)',
         }}>
-          {/* Soft decorative background circles for warmth */}
-          <div style={{ position: 'absolute', top: -40, right: -40, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,.08)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: -30, left: 80, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,.06)', pointerEvents: 'none' }} />
+          {/* Decorative background circles for warmth — soft and out of focus,
+              positioned so they catch the eye without distracting from text. */}
+          <div style={{ position: 'absolute', top: -60, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,.08)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: -50, left: 120, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,.06)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 30, left: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,.05)', pointerEvents: 'none' }} />
 
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-            <div style={{ fontSize: 38, lineHeight: 1, flexShrink: 0 }}>🎁</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Dismiss X — top-right, low-emphasis but findable. Stays
+              visible regardless of mouse position so the user can find
+              it instantly when they're ready to dismiss. */}
+          <button
+            onClick={dismissGiftWelcome}
+            aria-label="Dismiss welcome banner"
+            style={{
+              position: 'absolute',
+              top: 14, right: 14,
+              width: 30, height: 30,
+              borderRadius: 8,
+              border: 'none',
+              background: 'rgba(255,255,255,.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: 18,
+              fontWeight: 700,
+              fontFamily: 'inherit',
+              transition: 'background .15s',
+              zIndex: 2,
+            }}
+            onMouseOver={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.28)'; }}
+            onMouseOut={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.15)'; }}
+          >
+            ×
+          </button>
+
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
+            {/* Gift emoji — large, warm, scales the moment */}
+            <div style={{
+              fontSize: 56,
+              lineHeight: 1,
+              flexShrink: 0,
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,.15))',
+            }}>🎁</div>
+
+            <div style={{ flex: 1, minWidth: 240 }}>
+              {/* Line 1: warm welcome with the new member's first name */}
               <div style={{
                 fontFamily: 'Sora, sans-serif',
-                fontSize: 22,
+                fontSize: 28,
                 fontWeight: 800,
                 color: '#fff',
-                marginBottom: 6,
-                lineHeight: 1.2,
+                marginBottom: 8,
+                lineHeight: 1.15,
+                letterSpacing: '-0.01em',
               }}>
-                Welcome to SuperAdPro
+                Welcome to SuperAdPro{user && user.first_name ? ', ' + user.first_name : ''} 🎁
               </div>
+
+              {/* Line 2: confirmation of gift + breathing room */}
               <div style={{
-                fontSize: 14,
-                color: 'rgba(255,255,255,.92)',
+                fontSize: 16,
+                color: 'rgba(255,255,255,.95)',
                 lineHeight: 1.5,
+                marginBottom: 6,
               }}>
                 {giftWelcome.gifterName
-                  ? <>Your gift from <strong>{giftWelcome.gifterName}</strong> is active. Take your time looking around — we're glad you're here.</>
-                  : <>Your gift is active. Take your time looking around — we're glad you're here.</>
+                  ? <>Your gift from <strong style={{ fontWeight: 700 }}>{giftWelcome.gifterName}</strong> is active. Take your time looking around — there's no rush.</>
+                  : <>Your gift is active. Take your time looking around — there's no rush.</>
                 }
               </div>
+
+              {/* Line 3: soft narrative invitation, NOT a CTA */}
+              <div style={{
+                fontSize: 14,
+                color: 'rgba(255,255,255,.78)',
+                lineHeight: 1.5,
+                fontStyle: 'italic',
+                marginBottom: 16,
+              }}>
+                When you're ready, you can pay it forward to someone you know. That's how this community grows.
+              </div>
+
+              {/* Soft CTA — clear but not aggressive. Clicks through to
+                  the existing /pay-it-forward page where they can learn
+                  in their own time. Also dismisses the banner. */}
+              <button
+                onClick={function() {
+                  dismissGiftWelcome();
+                  window.location.href = '/pay-it-forward';
+                }}
+                style={{
+                  padding: '11px 22px',
+                  borderRadius: 10,
+                  border: 'none',
+                  background: 'rgba(255,255,255,.95)',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: '#be185d',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  transition: 'transform .15s, background .15s',
+                  boxShadow: '0 2px 8px rgba(0,0,0,.1)',
+                }}
+                onMouseOver={function(e) { e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseOut={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.95)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                Learn how Pay It Forward works <span style={{ fontSize: 16 }}>→</span>
+              </button>
             </div>
-            {/* Dismiss X — top-right, low-emphasis but findable */}
-            <button
-              onClick={dismissGiftWelcome}
-              aria-label="Dismiss welcome banner"
-              style={{
-                flexShrink: 0,
-                width: 28, height: 28,
-                borderRadius: 8,
-                border: 'none',
-                background: 'rgba(255,255,255,.12)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                fontSize: 16,
-                fontWeight: 700,
-                fontFamily: 'inherit',
-                transition: 'background .15s',
-              }}
-              onMouseOver={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.22)'; }}
-              onMouseOut={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.12)'; }}
-            >
-              ×
-            </button>
           </div>
         </div>
       )}
