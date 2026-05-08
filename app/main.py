@@ -21234,6 +21234,132 @@ async def serve_gift_page(code: str):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h2>Loading...</h2>")
+
+
+@app.post("/admin/api/backfill-gift-commission/{voucher_code}")
+def admin_backfill_gift_commission(
+    voucher_code: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-off admin backfill: pay a gift commission that was missed
+    because the claim happened BEFORE commit 744cb15c (which added the
+    commission logic to the claim endpoint).
+
+    Specifically built to handle test5's claim from 8 May 2026 which
+    landed ~15 minutes before the deploy that added gift commission
+    payment. Test3 should have received $10 but the old code path paid
+    nothing.
+
+    Idempotent — checks for an existing gift_membership_sponsor
+    Commission row from the giftee to the gifter and exits cleanly if
+    one already exists. Safe to call multiple times.
+
+    Admin-only. The voucher_code path param identifies which historical
+    claim to backfill. Returns the before/after state so the admin can
+    verify the change.
+    """
+    _require_admin(user)
+    from .database import GiftVoucher
+
+    voucher = db.query(GiftVoucher).filter(
+        GiftVoucher.voucher_code == voucher_code.upper()
+    ).first()
+    if not voucher:
+        return JSONResponse({"error": f"Voucher {voucher_code} not found"}, status_code=404)
+    if voucher.status != "claimed" or not voucher.claimed_by_user_id:
+        return JSONResponse({
+            "error": "Voucher must be in claimed state to backfill commission",
+            "current_status": voucher.status,
+        }, status_code=400)
+
+    gifter = db.query(User).filter(User.id == voucher.gifter_user_id).first()
+    recipient = db.query(User).filter(User.id == voucher.claimed_by_user_id).first()
+    if not gifter or not recipient:
+        return JSONResponse({"error": "Gifter or recipient user not found"}, status_code=404)
+
+    # Idempotency check — has this commission already been paid?
+    existing = db.query(Commission).filter(
+        Commission.commission_type == "gift_membership_sponsor",
+        Commission.to_user_id == gifter.id,
+        Commission.from_user_id == recipient.id,
+    ).first()
+    if existing:
+        return {
+            "already_paid": True,
+            "message": "Gift commission already exists — no changes made",
+            "existing_commission_id": existing.id,
+            "existing_amount": float(existing.amount_usdt or 0),
+            "existing_paid_at": existing.paid_at.isoformat() if existing.paid_at else None,
+        }
+
+    # Capture before-state for the response
+    before = {
+        "gifter_balance": float(gifter.balance or 0),
+        "gifter_total_earned": float(gifter.total_earned or 0),
+        "gifter_personal_referrals": gifter.personal_referrals or 0,
+    }
+
+    # Apply the commission — exact same logic as the live claim endpoint,
+    # except paid_at uses the original claim timestamp so analytics align.
+    gift_commission = Decimal("10.00")
+    gifter.balance = Decimal(str(gifter.balance or 0)) + gift_commission
+    gifter.total_earned = Decimal(str(gifter.total_earned or 0)) + gift_commission
+
+    from sqlalchemy import func as _sqlfunc
+    db.query(User).filter(User.id == gifter.id).update({
+        User.personal_referrals: _sqlfunc.coalesce(User.personal_referrals, 0) + 1,
+    }, synchronize_session=False)
+
+    paid_at_ts = voucher.claimed_at or datetime.utcnow()
+    comm = Commission(
+        to_user_id=gifter.id,
+        from_user_id=recipient.id,
+        amount_usdt=gift_commission,
+        commission_type="gift_membership_sponsor",
+        package_tier=0,
+        notes=f"Pay It Forward: {recipient.username} claimed gift voucher "
+              f"{voucher.voucher_code} (admin backfill — claim predated commission logic)",
+        status="paid",
+        paid_at=paid_at_ts,
+        created_at=paid_at_ts,
+    )
+    db.add(comm)
+
+    try:
+        notif = Notification(
+            user_id=gifter.id,
+            title="🎁 Your gift was claimed!",
+            message=f"{recipient.first_name or recipient.username} just activated their "
+                    f"membership using your gift. You earned a $10 sponsor commission.",
+            notification_type="gift_claimed",
+            created_at=datetime.utcnow(),
+        )
+        db.add(notif)
+    except Exception as e:
+        logger.warning(f"Backfill notification creation failed for gifter {gifter.id}: {e}")
+
+    db.commit()
+    db.refresh(gifter)
+
+    logger.info(
+        f"Admin backfill: ${gift_commission} gift commission paid to {gifter.username} "
+        f"for voucher {voucher.voucher_code} (claimed by {recipient.username} at {paid_at_ts})"
+    )
+
+    return {
+        "success": True,
+        "voucher_code": voucher.voucher_code,
+        "gifter": gifter.username,
+        "recipient": recipient.username,
+        "commission_paid": float(gift_commission),
+        "before": before,
+        "after": {
+            "gifter_balance": float(gifter.balance or 0),
+            "gifter_total_earned": float(gifter.total_earned or 0),
+            "gifter_personal_referrals": gifter.personal_referrals or 0,
+        },
+    }
 # ═══════════════════════════════════════════════════════════════
 #  REACT SPA — Serve the built React frontend
 # ═══════════════════════════════════════════════════════════════
