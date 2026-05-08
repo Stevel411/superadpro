@@ -165,18 +165,16 @@ export default function GiftLanding() {
   return (
     <div style={{ minHeight:'100vh', background:'#fdf8f4', position:'relative' }}>
 
-      {/* Hero band — bokeh image fills the whole hero with no gradient
-          fade. Previous attempts to fade-to-cream produced a visible
-          horizontal band no matter where it was placed (the bokeh and
-          cream colours are too different to blend cleanly). The video
-          frame's white border below acts as the natural visual full
-          stop instead — a clean designed boundary rather than a
-          gradient that always looks artificial. */}
+      {/* Hero band — bokeh image positioned to favour its upper third
+          (where the tones are pink/cream) and crop out the dark brown
+          bottom edge that was making fades impossible. With the dark
+          band gone, a gentle fade-to-cream at the very bottom now
+          actually works because the colours are close enough to blend. */}
       <div style={{
         position:'relative',
-        backgroundImage:'url(/static/images/gift-hero.jpg)',
+        backgroundImage:'linear-gradient(180deg, rgba(253,248,244,0) 70%, rgba(253,248,244,0.5) 88%, rgba(253,248,244,1) 100%), url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
-        backgroundPosition:'center',
+        backgroundPosition:'center 25%',
         backgroundRepeat:'no-repeat',
         paddingTop:'clamp(40px, 8vw, 80px)',
         paddingBottom:'clamp(40px, 8vw, 80px)',
