@@ -197,23 +197,28 @@ export default function GiftLanding() {
             </span>
           </div>
 
-          {/* Headline */}
+          {/* Headline — bigger and with stacked shadows so the white
+              text reads cleanly even where the bokeh hits its brightest
+              points (the centre heart). The double shadow gives a soft
+              halo behind the letters without looking artificial. */}
           <h1 style={{
             fontFamily:'Sora,sans-serif',
-            fontSize:'clamp(24px, 5vw, 32px)',
-            fontWeight:700, color:'#fff',
-            margin:'0 0 12px', lineHeight:1.25,
-            textShadow:'0 2px 12px rgba(0,0,0,.45)',
+            fontSize:'clamp(28px, 5.5vw, 40px)',
+            fontWeight:800, color:'#fff',
+            margin:'0 0 14px', lineHeight:1.2,
+            textShadow:'0 2px 4px rgba(0,0,0,.5), 0 4px 24px rgba(0,0,0,.55)',
+            letterSpacing:'-0.01em',
           }}>
             {gift.gifter_name} sent you a<br/>free month of SuperAdPro
           </h1>
 
           {/* Subhead */}
           <p style={{
-            fontSize:'clamp(13px, 2.5vw, 15px)',
-            color:'rgba(255,255,255,.95)',
+            fontSize:'clamp(14px, 2.6vw, 17px)',
+            color:'#fff',
             margin:'0 0 28px', lineHeight:1.5,
-            textShadow:'0 1px 6px rgba(0,0,0,.4)',
+            fontWeight:500,
+            textShadow:'0 1px 3px rgba(0,0,0,.5), 0 2px 12px rgba(0,0,0,.4)',
           }}>
             They paid ${gift.gift_value || 20} so you could try it. Watch the short video below.
           </p>
@@ -244,16 +249,23 @@ export default function GiftLanding() {
       </div>
 
       {/* Video + CTA section — sits on white, lifted slightly into the
-          hero with a negative margin so it visually overlaps the fade. */}
+          hero with a negative margin so it visually overlaps the fade.
+          Wider max-width here than the hero text block so the video
+          gets visual prominence. */}
       <div style={{
-        maxWidth:560, margin:'0 auto', padding:'0 20px',
+        maxWidth:720, margin:'0 auto', padding:'0 20px',
         marginTop:'clamp(-40px, -6vw, -60px)',
         position:'relative', zIndex:2,
       }}>
 
-        {/* Video frame — white border lifts it off whatever is behind */}
+        {/* Video frame — white border lifts it off whatever is behind.
+            Inner background is dark grey rather than pure black so any
+            tiny aspect mismatch is less noticeable. object-fit:cover on
+            the video itself fills the frame edge-to-edge (the file is
+            1264×720, slightly wider than 16:9 so a few pixels of width
+            get cropped — invisible on a talking-head shot). */}
         <div style={{
-          background:'#000', borderRadius:14, overflow:'hidden',
+          background:'#1a1a1a', borderRadius:14, overflow:'hidden',
           position:'relative', aspectRatio:'16/9',
           border:'5px solid #fff',
           boxShadow:'0 10px 40px rgba(0,0,0,.18)',
@@ -268,7 +280,7 @@ export default function GiftLanding() {
             playsInline
             controls
             preload="metadata"
-            style={{ width:'100%', height:'100%', display:'block' }}
+            style={{ width:'100%', height:'100%', display:'block', objectFit:'cover' }}
           />
           {/* Custom unmute prompt overlay — only visible while muted. */}
           {muted && (
@@ -296,7 +308,7 @@ export default function GiftLanding() {
         <div style={{ textAlign:'center' }}>
           {isPreview && (
             <div style={{ padding:'10px 14px', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:10, marginBottom:16, fontSize:12, fontWeight:600, color:'#78350f', textAlign:'center' }}>
-              Preview mode — claim button disabled
+              Preview mode — claim button doesn't actually fire (but shows real styling)
             </div>
           )}
           {user ? (
@@ -304,15 +316,14 @@ export default function GiftLanding() {
               <div style={{ fontSize:13, color:'#666', marginBottom:14 }}>
                 Logged in as <strong style={{ color:'#222' }}>{user.username}</strong>
               </div>
-              <button onClick={isPreview ? function(){} : claimGift} disabled={claiming || isPreview}
+              <button onClick={isPreview ? function(){} : claimGift} disabled={claiming}
                 style={{
                   width:'100%', maxWidth:360, padding:'16px 32px',
                   borderRadius:12, border:'none',
-                  cursor: (claiming || isPreview) ? 'not-allowed' : 'pointer',
+                  cursor: claiming ? 'wait' : 'pointer',
                   fontFamily:'inherit', fontSize:16, fontWeight:700, color:'#fff',
-                  background: isPreview ? '#9ca3af' : 'linear-gradient(135deg,#10b981,#059669)',
-                  boxShadow: isPreview ? 'none' : '0 4px 16px rgba(16,185,129,.3)',
-                  opacity: isPreview ? 0.7 : 1,
+                  background:'linear-gradient(135deg,#10b981,#059669)',
+                  boxShadow:'0 4px 16px rgba(16,185,129,.3)',
                 }}>
                 {claiming ? 'Activating…' : 'Claim your free month →'}
               </button>
@@ -324,7 +335,9 @@ export default function GiftLanding() {
                   display:'inline-block', textAlign:'center', padding:'16px 32px',
                   borderRadius:12, minWidth:280,
                   fontSize:16, fontWeight:700, color:'#fff',
-                  background:'#9ca3af', opacity:0.7, marginBottom:12, cursor:'not-allowed',
+                  background:'linear-gradient(135deg,#10b981,#059669)',
+                  boxShadow:'0 4px 16px rgba(16,185,129,.3)',
+                  marginBottom:12, cursor:'not-allowed',
                 }}>
                   Claim your free month →
                 </div>
