@@ -15,6 +15,15 @@ export default function Login() {
   const params = new URLSearchParams(window.location.search);
   const next = params.get('next') || '/dashboard';
 
+  // Gift voucher flow (added 8 May 2026): existing members who arrive at
+  // /login?gift=CODE — typically inactive members who got a gift link
+  // and chose "Already have an account? Log in" on the gift page.
+  // After successful login we auto-claim the voucher so they don't have
+  // to navigate back. Failure paths same as Register: redirect to
+  // /gift/{code} for clear error visibility.
+  const giftCode = (params.get('gift') || '').trim().toUpperCase();
+  const isGiftFlow = !!giftCode;
+
   function set(k) { return function(e) { setForm(f => ({ ...f, [k]: e.target.value })); setError(''); }; }
 
   async function submit(e) {
@@ -25,9 +34,27 @@ export default function Login() {
     try {
       const data = await apiPost('/api/login', { username: form.username.trim(), password: form.password });
       if (data.requires_2fa) {
-        window.location.href = '/login/2fa';
+        // 2FA path — preserve the gift code through the 2FA challenge
+        // so the second-factor handler can complete the claim.
+        window.location.href = isGiftFlow
+          ? '/login/2fa?gift=' + giftCode
+          : '/login/2fa';
       } else {
         await refreshUser();
+        if (isGiftFlow) {
+          try {
+            const claimResult = await apiPost('/api/gift/' + giftCode + '/claim', {});
+            if (claimResult && claimResult.success) {
+              window.location.href = '/dashboard?just_claimed=1';
+              return;
+            }
+            window.location.href = '/gift/' + giftCode;
+            return;
+          } catch (claimErr) {
+            window.location.href = '/gift/' + giftCode;
+            return;
+          }
+        }
         window.location.href = next;
       }
     } catch (err) {
@@ -57,6 +84,31 @@ export default function Login() {
 
         <h1 style={styles.heading}>{t('auth.welcomeBack')}</h1>
         <p style={styles.sub}>{t('auth.signInToAccount')}</p>
+
+        {/* Gift voucher banner — only shown when ?gift=CODE is present.
+            For existing inactive members claiming a gift via login. */}
+        {isGiftFlow && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(236,72,153,.15), rgba(190,24,93,.15))',
+            border: '1px solid rgba(236,72,153,.3)',
+            borderRadius: 12,
+            padding: '14px 18px',
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}>
+            <div style={{ fontSize: 24 }}>🎁</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 2 }}>
+                Log in to claim your gift
+              </div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,.6)', lineHeight: 1.4 }}>
+                Sign in below and we'll activate your gifted membership automatically.
+              </div>
+            </div>
+          </div>
+        )}
 
         {error && <div style={styles.errorBox}>{error}</div>}
 
@@ -94,7 +146,9 @@ export default function Login() {
           </div>
 
           <button type="submit" disabled={loading} style={loading ? styles.btnDisabled : styles.btn}>
-            {loading ? t('auth.signingIn') : t('auth.signIn')}
+            {loading
+              ? (isGiftFlow ? 'Signing in & claiming gift…' : t('auth.signingIn'))
+              : (isGiftFlow ? 'Sign In & Claim Gift 🎁' : t('auth.signIn'))}
           </button>
         </form>
 

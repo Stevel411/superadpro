@@ -17,6 +17,21 @@ export default function Register() {
   }
   const refCode = params.get('ref') || params.get('r') || readCookie('ref') || '';
 
+  // Gift voucher claim flow (added 8 May 2026).
+  // When a recipient lands on /gift/{code} → clicks "Create Free Account",
+  // they arrive here with ?gift=CODE. We:
+  //   1. Display a banner so they know they're claiming a gift, not just
+  //      doing a generic signup. Frames the experience.
+  //   2. Auto-claim the voucher immediately after a successful registration
+  //      so the dashboard they land on already shows their active membership.
+  //   3. If claim fails (race: someone else claimed first, voucher already
+  //      used, etc), redirect to /gift/{code} so they see a clear error
+  //      instead of a confusing dashboard with no membership.
+  // Without this, users had to register → land on dashboard → manually
+  // navigate back to /gift/{code} → click claim again. Most never did.
+  const giftCode = (params.get('gift') || '').trim().toUpperCase();
+  const isGiftFlow = !!giftCode;
+
   // Pre-launch gate: hit /api/registration-status and only show the form if open.
   // null = still checking, true = open (or admin bypass), false = closed.
   const [registrationOpen, setRegistrationOpen] = useState(null);
@@ -54,6 +69,36 @@ export default function Register() {
         ref: form.ref.trim(),
       });
       await refreshUser();
+
+      // Gift voucher auto-claim (see comment near top of component).
+      // Claim happens AFTER refreshUser() so the session cookie is
+      // recognised by the claim endpoint. If the claim fails (voucher
+      // already claimed by someone else, expired, etc), we send the
+      // user to /gift/{code} where they'll see a clear error rather
+      // than a silent dashboard with no membership active.
+      if (isGiftFlow) {
+        try {
+          const claimResult = await apiPost('/api/gift/' + giftCode + '/claim', {});
+          if (claimResult && claimResult.success) {
+            // Membership is active. Land on dashboard with a celebratory query
+            // param the dashboard can read to show a one-time welcome message.
+            window.location.href = '/dashboard?just_claimed=1';
+            return;
+          }
+          // Claim returned without success — the user got a real account but
+          // no membership. Push them to /gift/{code} so the GiftLanding page's
+          // own error handling explains what happened. (Common case: voucher
+          // was already claimed in the time it took them to fill the form.)
+          window.location.href = '/gift/' + giftCode;
+          return;
+        } catch (claimErr) {
+          // Network or 4xx error during claim — same fallback. The gift page
+          // will re-fetch voucher status and show the appropriate error.
+          window.location.href = '/gift/' + giftCode;
+          return;
+        }
+      }
+
       window.location.href = '/dashboard';
     } catch (err) {
       setError(err.message || t('auth.registerFailed'));
@@ -149,6 +194,33 @@ export default function Register() {
           </div>
         )}
 
+        {/* Gift voucher banner — only shown when ?gift=CODE is present.
+            Frames the experience so the user understands they're claiming
+            a gift, not just doing a generic signup. The banner sits above
+            the error box so any subsequent errors render below it. */}
+        {isGiftFlow && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(236,72,153,.15), rgba(190,24,93,.15))',
+            border: '1px solid rgba(236,72,153,.3)',
+            borderRadius: 12,
+            padding: '14px 18px',
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}>
+            <div style={{ fontSize: 24 }}>🎁</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 2 }}>
+                You're claiming a gift
+              </div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,.6)', lineHeight: 1.4 }}>
+                Just create your account below. We'll activate your free membership automatically — no extra steps.
+              </div>
+            </div>
+          </div>
+        )}
+
         {error && <div style={styles.errorBox}>{error}</div>}
 
         <form onSubmit={submit} style={styles.form}>
@@ -211,7 +283,9 @@ export default function Register() {
           )}
 
           <button type="submit" disabled={loading} style={loading ? styles.btnDisabled : styles.btn}>
-            {loading ? t('auth.creatingAccount') : t('auth.createAccount')}
+            {loading
+              ? (isGiftFlow ? 'Creating account & claiming gift…' : t('auth.creatingAccount'))
+              : (isGiftFlow ? 'Create Account & Claim Gift 🎁' : t('auth.createAccount'))}
           </button>
         </form>
 

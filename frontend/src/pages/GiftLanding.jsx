@@ -38,6 +38,13 @@ export default function GiftLanding() {
     apiPost('/api/gift/' + code + '/claim', {}).then(function(r) {
       if (r.success) {
         setClaimed(true);
+        // Auto-redirect to dashboard after a brief moment so the user
+        // sees the "Welcome" confirmation but doesn't have to click
+        // anything else. 2 seconds is long enough to register the
+        // success state without feeling sluggish.
+        setTimeout(function() {
+          window.location.href = '/dashboard?just_claimed=1';
+        }, 2000);
       } else {
         setError(r.error || 'Could not claim gift');
       }
@@ -81,10 +88,21 @@ export default function GiftLanding() {
           <div style={{ fontSize:12, color:'rgba(255,255,255,.4)', marginBottom:4 }}>{t('giftLanding.remember')}</div>
           <div style={{ fontSize:14, color:'var(--sap-amber-bright)', fontWeight:700 }}>{t('giftLanding.payForwardFull')}</div>
         </div>
-        <button onClick={function() { navigate('/dashboard'); }}
-          style={{ padding:'14px 28px', borderRadius:10, border:'none', cursor:'pointer', fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff', background:'linear-gradient(135deg,#0ea5e9,#38bdf8)', display:'inline-flex', alignItems:'center', gap:8 }}>
-          Go to Dashboard <ArrowRight size={16}/>
-        </button>
+        {/* Auto-redirect indicator — claimGift() schedules a window.location
+            redirect 2 seconds after success. Manual button kept as a
+            fallback for users who don't wait, or whose timer was disrupted
+            by tab-switching. */}
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:12 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, color:'rgba(255,255,255,.5)', fontSize:13 }}>
+            <div style={{ width:14, height:14, border:'2px solid rgba(255,255,255,.15)', borderTopColor:'var(--sap-accent-light)', borderRadius:'50%', animation:'gift-spin .8s linear infinite' }}/>
+            <span>Taking you to your dashboard…</span>
+          </div>
+          <button onClick={function() { window.location.href = '/dashboard?just_claimed=1'; }}
+            style={{ padding:'10px 20px', borderRadius:8, border:'1px solid rgba(255,255,255,.15)', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'rgba(255,255,255,.7)' }}>
+            Go now <ArrowRight size={13} style={{ verticalAlign:'middle', marginLeft:4 }}/>
+          </button>
+        </div>
+        <style>{'@keyframes gift-spin{to{transform:rotate(360deg)}}'}</style>
       </div>
     </div>
   );
