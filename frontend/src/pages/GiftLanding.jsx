@@ -253,7 +253,7 @@ export default function GiftLanding() {
           Wider max-width here than the hero text block so the video
           gets visual prominence. */}
       <div style={{
-        maxWidth:720, margin:'0 auto', padding:'0 20px',
+        maxWidth:820, margin:'0 auto', padding:'0 20px',
         marginTop:'clamp(-40px, -6vw, -60px)',
         position:'relative', zIndex:2,
       }}>
