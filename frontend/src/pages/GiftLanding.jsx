@@ -35,7 +35,27 @@ export default function GiftLanding() {
   var [muted, setMuted] = useState(true);
   var videoRef = useRef(null);
 
+  // Preview mode — visiting /gift/anything?preview=1 renders the page with
+  // mock data so the layout can be reviewed without minting a real voucher.
+  // Claim button is disabled in this mode (see render block below).
+  // Remove this block once design review is complete.
+  var isPreview = (typeof window !== 'undefined') &&
+    new URLSearchParams(window.location.search).get('preview') === '1';
+
   useEffect(function() {
+    if (isPreview) {
+      setGift({
+        valid: true,
+        gifter_name: 'Demo Gifter',
+        gifter_username: 'demo',
+        gift_value: 20,
+        personal_message: null,
+        recipient_name: null,
+        chain_depth: 1,
+      });
+      setLoading(false);
+      return;
+    }
     fetch('/api/gift/' + code).then(function(r) { return r.json(); }).then(function(d) {
       if (d.valid) {
         setGift(d);
@@ -47,7 +67,7 @@ export default function GiftLanding() {
       setGiftError('Could not load gift information');
       setLoading(false);
     });
-  }, [code]);
+  }, [code, isPreview]);
 
   function toggleMute() {
     if (!videoRef.current) return;
@@ -274,36 +294,53 @@ export default function GiftLanding() {
 
         {/* CTA */}
         <div style={{ textAlign:'center' }}>
+          {isPreview && (
+            <div style={{ padding:'10px 14px', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:10, marginBottom:16, fontSize:12, fontWeight:600, color:'#78350f', textAlign:'center' }}>
+              Preview mode — claim button disabled
+            </div>
+          )}
           {user ? (
             <div>
               <div style={{ fontSize:13, color:'#666', marginBottom:14 }}>
                 Logged in as <strong style={{ color:'#222' }}>{user.username}</strong>
               </div>
-              <button onClick={claimGift} disabled={claiming}
+              <button onClick={isPreview ? function(){} : claimGift} disabled={claiming || isPreview}
                 style={{
                   width:'100%', maxWidth:360, padding:'16px 32px',
                   borderRadius:12, border:'none',
-                  cursor: claiming ? 'wait' : 'pointer',
+                  cursor: (claiming || isPreview) ? 'not-allowed' : 'pointer',
                   fontFamily:'inherit', fontSize:16, fontWeight:700, color:'#fff',
-                  background:'linear-gradient(135deg,#10b981,#059669)',
-                  boxShadow:'0 4px 16px rgba(16,185,129,.3)',
+                  background: isPreview ? '#9ca3af' : 'linear-gradient(135deg,#10b981,#059669)',
+                  boxShadow: isPreview ? 'none' : '0 4px 16px rgba(16,185,129,.3)',
+                  opacity: isPreview ? 0.7 : 1,
                 }}>
                 {claiming ? 'Activating…' : 'Claim your free month →'}
               </button>
             </div>
           ) : (
             <div>
-              <Link to={'/register?ref=' + (gift.gifter_username || '') + '&gift=' + code}
-                style={{
+              {isPreview ? (
+                <div style={{
                   display:'inline-block', textAlign:'center', padding:'16px 32px',
-                  borderRadius:12, textDecoration:'none', minWidth:280,
+                  borderRadius:12, minWidth:280,
                   fontSize:16, fontWeight:700, color:'#fff',
-                  background:'linear-gradient(135deg,#10b981,#059669)',
-                  boxShadow:'0 4px 16px rgba(16,185,129,.3)',
-                  marginBottom:12,
+                  background:'#9ca3af', opacity:0.7, marginBottom:12, cursor:'not-allowed',
                 }}>
-                Claim your free month →
-              </Link>
+                  Claim your free month →
+                </div>
+              ) : (
+                <Link to={'/register?ref=' + (gift.gifter_username || '') + '&gift=' + code}
+                  style={{
+                    display:'inline-block', textAlign:'center', padding:'16px 32px',
+                    borderRadius:12, textDecoration:'none', minWidth:280,
+                    fontSize:16, fontWeight:700, color:'#fff',
+                    background:'linear-gradient(135deg,#10b981,#059669)',
+                    boxShadow:'0 4px 16px rgba(16,185,129,.3)',
+                    marginBottom:12,
+                  }}>
+                  Claim your free month →
+                </Link>
+              )}
               <div>
                 <Link to={'/login?gift=' + code}
                   style={{ fontSize:13, color:'#666', textDecoration:'none', fontWeight:500 }}>
