@@ -21058,10 +21058,18 @@ async def api_gift_info(code: str, request: Request, db: Session = Depends(get_d
         viewer_id = None
         session_token = request.cookies.get("session")
         if session_token:
-            from .database import SessionToken
-            st = db.query(SessionToken).filter(SessionToken.token == session_token).first()
-            if st:
-                viewer_id = st.user_id
+            # Sessions are HMAC-signed JWT-style tokens, not DB rows.
+            # session_serializer.loads validates the signature and returns
+            # the user_id stored at sign time. Bug fixed 8 May 2026:
+            # previously tried to import a non-existent SessionToken model
+            # and look up by row, which raised ImportError and was silently
+            # swallowed by the outer try/except — so click tracking has
+            # been quietly broken since voucher feature shipped.
+            try:
+                user_id_str = session_serializer.loads(session_token, max_age=60 * 60 * 24 * 30)
+                viewer_id = int(user_id_str)
+            except (BadSignature, SignatureExpired, ValueError, TypeError):
+                viewer_id = None
         if viewer_id != voucher.gifter_user_id:
             now = datetime.utcnow()
             voucher.link_clicks = (voucher.link_clicks or 0) + 1
@@ -21103,14 +21111,20 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
     if voucher.status != "available":
         return JSONResponse({"error": "This gift has already been claimed"}, status_code=410)
 
-    # Get current user
+    # Get current user from session cookie.
+    # Bug fixed 8 May 2026: previously tried to look up a non-existent
+    # SessionToken table, which crashed every claim attempt with
+    # "cannot import name 'SessionToken'". Sessions are actually
+    # HMAC-signed tokens — decode via session_serializer, same way
+    # get_current_user() does it.
     user = None
     session_token = request.cookies.get("session")
     if session_token:
-        from .database import SessionToken
-        st = db.query(SessionToken).filter(SessionToken.token == session_token).first()
-        if st:
-            user = db.query(User).filter(User.id == st.user_id).first()
+        try:
+            user_id_str = session_serializer.loads(session_token, max_age=60 * 60 * 24 * 30)
+            user = db.query(User).filter(User.id == int(user_id_str)).first()
+        except (BadSignature, SignatureExpired, ValueError, TypeError):
+            user = None
 
     if not user:
         return JSONResponse({"error": "Please create an account or log in first, then claim your gift"}, status_code=401)
