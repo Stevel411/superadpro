@@ -165,15 +165,14 @@ export default function GiftLanding() {
   return (
     <div style={{ minHeight:'100vh', background:'#fdf8f4', position:'relative' }}>
 
-      {/* Hero band — bokeh image at the top with a multi-stop gradient
-          fade-out so the boundary between hero and page body is invisible.
-          Stops are deliberately uneven (40%, 75%, 92%, 100%) to create a
-          curved fade rather than a linear ramp — the eye reads a curve
-          as natural and a straight line as artificial. Final stop matches
-          the page's cream bg exactly so there's no detectable seam. */}
+      {/* Hero band — bokeh image at the top, gradient fade only kicks in
+          near the bottom edge so the bokeh dominates the visible hero.
+          Stops at 80%, 92%, 100% — fade compressed into the bottom 20%
+          so the eye sees mostly bokeh with a soft handoff to cream
+          right where the video frame meets the hero. */}
       <div style={{
         position:'relative',
-        backgroundImage:'linear-gradient(180deg, rgba(253,248,244,0) 40%, rgba(253,248,244,0.4) 75%, rgba(253,248,244,0.85) 92%, rgba(253,248,244,1) 100%), url(/static/images/gift-hero.jpg)',
+        backgroundImage:'linear-gradient(180deg, rgba(253,248,244,0) 80%, rgba(253,248,244,0.6) 92%, rgba(253,248,244,1) 100%), url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
         backgroundPosition:'center',
         backgroundRepeat:'no-repeat',
