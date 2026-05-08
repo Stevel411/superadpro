@@ -165,14 +165,16 @@ export default function GiftLanding() {
   return (
     <div style={{ minHeight:'100vh', background:'#fdf8f4', position:'relative' }}>
 
-      {/* Hero band — bokeh image at the top, gradient fade only kicks in
-          near the bottom edge so the bokeh dominates the visible hero.
-          Stops at 80%, 92%, 100% — fade compressed into the bottom 20%
-          so the eye sees mostly bokeh with a soft handoff to cream
-          right where the video frame meets the hero. */}
+      {/* Hero band — bokeh image fills the whole hero with no gradient
+          fade. Previous attempts to fade-to-cream produced a visible
+          horizontal band no matter where it was placed (the bokeh and
+          cream colours are too different to blend cleanly). The video
+          frame's white border below acts as the natural visual full
+          stop instead — a clean designed boundary rather than a
+          gradient that always looks artificial. */}
       <div style={{
         position:'relative',
-        backgroundImage:'linear-gradient(180deg, rgba(253,248,244,0) 80%, rgba(253,248,244,0.6) 92%, rgba(253,248,244,1) 100%), url(/static/images/gift-hero.jpg)',
+        backgroundImage:'url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
         backgroundPosition:'center',
         backgroundRepeat:'no-repeat',
@@ -281,13 +283,12 @@ export default function GiftLanding() {
         </div>
       </div>
 
-      {/* Video + CTA section — sits on white, lifted slightly into the
-          hero with a negative margin so it visually overlaps the fade.
-          Wider max-width here than the hero text block so the video
-          gets visual prominence. */}
+      {/* Video + CTA section — sits cleanly on the cream below the
+          bokeh hero. Previously had a negative margin to pull it up
+          into a gradient fade; with the fade removed, the video sits
+          flush with proper top spacing instead. */}
       <div style={{
-        maxWidth:820, margin:'0 auto', padding:'0 20px',
-        marginTop:'clamp(-40px, -6vw, -60px)',
+        maxWidth:820, margin:'0 auto', padding:'40px 20px 0',
         position:'relative', zIndex:2,
       }}>
 
