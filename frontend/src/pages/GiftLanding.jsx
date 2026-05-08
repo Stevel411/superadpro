@@ -179,9 +179,32 @@ export default function GiftLanding() {
       }}>
         <div style={{ maxWidth:560, margin:'0 auto', textAlign:'center' }}>
 
-          {/* Tiny brand wordmark */}
-          <div style={{ fontSize:11, color:'#fff', letterSpacing:2, fontWeight:600, marginBottom:'clamp(20px, 4vw, 32px)', textShadow:'0 1px 6px rgba(0,0,0,.4)' }}>
-            SUPERADPRO
+          {/* SuperAdPro logo — pink mark + white wordmark with pink Pro
+              accent, matched to the gift page's pink colour palette.
+              Non-clickable on this page so a curious recipient doesn't
+              accidentally navigate away from the gift before claiming;
+              once claimed they're routed into the platform proper. */}
+          <div style={{
+            display:'inline-flex', alignItems:'center', gap:12,
+            marginBottom:'clamp(20px, 4vw, 32px)',
+          }}>
+            <div style={{
+              width:36, height:36, borderRadius:9,
+              background:'linear-gradient(135deg,#ED93B1,#993556)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              boxShadow:'0 0 20px rgba(212,83,126,.35)',
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <polygon points="9,5 9,19 20,12" fill="#fff"/>
+              </svg>
+            </div>
+            <span style={{
+              fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800,
+              letterSpacing:'-0.03em', color:'#fff',
+              textShadow:'0 1px 4px rgba(0,0,0,.4), 0 2px 12px rgba(0,0,0,.35)',
+            }}>
+              SuperAd<em style={{ color:'#F4C0D1', fontStyle:'normal' }}>Pro</em>
+            </span>
           </div>
 
           {/* Gifter pill */}
