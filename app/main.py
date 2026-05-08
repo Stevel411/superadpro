@@ -21191,6 +21191,7 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
     # dashboard's "earned back" stat and any future audit work.
     gifter = db.query(User).filter(User.id == voucher.gifter_user_id).first()
     if gifter:
+        from decimal import Decimal
         gift_commission = Decimal("10.00")
         gifter.balance = Decimal(str(gifter.balance or 0)) + gift_commission
         gifter.total_earned = Decimal(str(gifter.total_earned or 0)) + gift_commission
@@ -21316,6 +21317,7 @@ def admin_backfill_gift_commission(
 
     # Apply the commission — exact same logic as the live claim endpoint,
     # except paid_at uses the original claim timestamp so analytics align.
+    from decimal import Decimal
     gift_commission = Decimal("10.00")
     gifter.balance = Decimal(str(gifter.balance or 0)) + gift_commission
     gifter.total_earned = Decimal(str(gifter.total_earned or 0)) + gift_commission
