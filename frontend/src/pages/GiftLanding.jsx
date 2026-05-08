@@ -104,7 +104,7 @@ export default function GiftLanding() {
 
   // ─── Loading state ──────────────────────────────────────────────
   if (loading) return (
-    <div style={{ minHeight:'100vh', background:'#fdf8f4', display:'flex', alignItems:'center', justifyContent:'center' }}>
+    <div style={{ minHeight:'100vh', background:'#fdf2f1', display:'flex', alignItems:'center', justifyContent:'center' }}>
       <div style={{ width:40, height:40, border:'3px solid rgba(153,53,86,.15)', borderTopColor:'#993556', borderRadius:'50%', animation:'gift-spin .8s linear infinite' }}/>
       <style>{'@keyframes gift-spin{to{transform:rotate(360deg)}}'}</style>
     </div>
@@ -112,7 +112,7 @@ export default function GiftLanding() {
 
   // ─── Error state (invalid / expired / already-claimed code) ────
   if (giftError) return (
-    <div style={{ minHeight:'100vh', background:'#fdf8f4', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'#fdf2f1', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ textAlign:'center', maxWidth:400 }}>
         <div style={{ width:64, height:64, borderRadius:16, background:'rgba(153,53,86,.1)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
           <Gift size={28} color="#993556"/>
@@ -125,7 +125,7 @@ export default function GiftLanding() {
 
   // ─── Claimed (success) state ───────────────────────────────────
   if (claimed) return (
-    <div style={{ minHeight:'100vh', background:'#fdf8f4', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'#fdf2f1', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ textAlign:'center', maxWidth:440 }}>
         <div style={{ width:72, height:72, borderRadius:18, background:'linear-gradient(135deg,#10b981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 24px' }}>
           <Check size={36} color="#fff"/>
@@ -157,24 +157,20 @@ export default function GiftLanding() {
   );
 
   // ─── Main landing page ─────────────────────────────────────────
-  // Layout: bokeh hero up top, soft fade-to-cream below the fold for
+  // Layout: bokeh hero up top, soft fade-to-white below the fold for
   // the video and CTA — keeps the emotional first impression but stops
   // the busy background from competing with the video.
-  // Page bg is a very faint warm cream (#fdf8f4) rather than pure white
-  // so the bokeh's warm tones echo below the fold instead of cutting off.
   return (
-    <div style={{ minHeight:'100vh', background:'#fdf8f4', position:'relative' }}>
+    <div style={{ minHeight:'100vh', background:'#fff', position:'relative' }}>
 
-      {/* Hero band — bokeh image positioned to favour its upper third
-          (where the tones are pink/cream) and crop out the dark brown
-          bottom edge that was making fades impossible. With the dark
-          band gone, a gentle fade-to-cream at the very bottom now
-          actually works because the colours are close enough to blend. */}
+      {/* Hero band — fixed-height background image with content overlaid,
+          gradient-fades to white at the bottom edge so the video block
+          below feels like it grows naturally out of the hero. */}
       <div style={{
         position:'relative',
-        backgroundImage:'linear-gradient(180deg, rgba(253,248,244,0) 70%, rgba(253,248,244,0.5) 88%, rgba(253,248,244,1) 100%), url(/static/images/gift-hero.jpg)',
+        backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(255,255,255,1) 100%), url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
-        backgroundPosition:'center 25%',
+        backgroundPosition:'center',
         backgroundRepeat:'no-repeat',
         paddingTop:'clamp(40px, 8vw, 80px)',
         paddingBottom:'clamp(40px, 8vw, 80px)',
@@ -281,12 +277,13 @@ export default function GiftLanding() {
         </div>
       </div>
 
-      {/* Video + CTA section — sits cleanly on the cream below the
-          bokeh hero. Previously had a negative margin to pull it up
-          into a gradient fade; with the fade removed, the video sits
-          flush with proper top spacing instead. */}
+      {/* Video + CTA section — sits on white, lifted slightly into the
+          hero with a negative margin so it visually overlaps the fade.
+          Wider max-width here than the hero text block so the video
+          gets visual prominence. */}
       <div style={{
-        maxWidth:820, margin:'0 auto', padding:'40px 20px 0',
+        maxWidth:820, margin:'0 auto', padding:'0 20px',
+        marginTop:'clamp(-40px, -6vw, -60px)',
         position:'relative', zIndex:2,
       }}>
 
