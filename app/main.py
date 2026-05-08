@@ -21363,6 +21363,196 @@ def admin_membership_state(
     }
 
 
+@app.get("/admin/api/stuck-lapsed-members")
+def admin_find_stuck_lapsed_members(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Find all members who are showing as lapsed but shouldn't be.
+
+    Stuck-lapsed = is_active=False AND has a MembershipRenewal row where
+    next_renewal_date is still in the future AND not in grace period.
+    There's no legitimate reason for these members to be inactive — the
+    renewal cron hasn't been triggered against them yet, they have paid
+    membership, and their renewal data is intact.
+
+    The most likely cause is historical: admin actions, manual DB edits,
+    or deleted code paths from earlier testing flipped their is_active
+    flag without going through the proper lapse flow. This endpoint
+    detects them so we can choose whether to reactivate.
+
+    Read-only — never mutates anything. Pair with
+    POST /admin/api/reactivate-stuck-lapsed to actually flip them back.
+
+    Built 8 May 2026 after test1 was found in this state during
+    end-to-end gift voucher testing.
+    """
+    _require_admin(user)
+    from .database import MembershipRenewal
+
+    now = datetime.utcnow()
+
+    # Find all inactive users with intact renewal data
+    candidates = (
+        db.query(User, MembershipRenewal)
+          .join(MembershipRenewal, MembershipRenewal.user_id == User.id)
+          .filter(
+              User.is_active == False,
+              MembershipRenewal.next_renewal_date > now,
+              MembershipRenewal.in_grace_period == False,
+          )
+          .all()
+    )
+
+    # Filter to only those with confirmed membership Payment — these are
+    # the genuinely-paid members who shouldn't be lapsed. Members without
+    # a paid Payment are 'never_paid', not 'stuck-lapsed', and shouldn't
+    # be auto-reactivated.
+    stuck = []
+    for u, r in candidates:
+        has_paid_payment = db.query(Payment).filter(
+            Payment.from_user_id == u.id,
+            Payment.payment_type.like("membership%"),
+            Payment.status.in_(["confirmed", "paid"]),
+        ).first()
+        if not has_paid_payment:
+            continue
+
+        days_until_renewal = (r.next_renewal_date - now).days
+        days_since_expires = None
+        if u.membership_expires_at:
+            days_since_expires = (u.membership_expires_at - now).days
+
+        stuck.append({
+            "user_id": u.id,
+            "username": u.username,
+            "first_name": u.first_name,
+            "membership_tier": u.membership_tier,
+            "activated_at": u.activated_at.isoformat() if u.activated_at else None,
+            "next_renewal_date": r.next_renewal_date.isoformat(),
+            "days_until_renewal_due": days_until_renewal,
+            "membership_expires_at": u.membership_expires_at.isoformat() if u.membership_expires_at else None,
+            "days_until_expiry": days_since_expires,
+            "balance": float(u.balance or 0),
+            "renewal_source": r.renewal_source,
+            "total_renewals": r.total_renewals,
+        })
+
+    return {
+        "count": len(stuck),
+        "stuck_lapsed_members": stuck,
+        "checked_at": now.isoformat(),
+        "reactivation_endpoint": "POST /admin/api/reactivate-stuck-lapsed (with optional ?dry_run=1)",
+    }
+
+
+@app.post("/admin/api/reactivate-stuck-lapsed")
+def admin_reactivate_stuck_lapsed_members(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    dry_run: bool = False,
+):
+    """Reactivate all members detected by /admin/api/stuck-lapsed-members.
+
+    Same detection logic as that endpoint — only reactivates members who:
+      - Have is_active=False
+      - Have an intact MembershipRenewal with future next_renewal_date
+      - Are NOT in grace period
+      - Have at least one confirmed membership Payment
+
+    Mutations per stuck member:
+      - user.is_active = True
+      - Adds a Notification ("Membership reactivated — administrative
+        correction") so the member sees what happened on their next login
+
+    NOT changed: balance, total_earned, membership_tier, activated_at,
+    next_renewal_date — none of these need to change because the
+    membership data was already correct, only the is_active flag was
+    wrong.
+
+    dry_run=True (or ?dry_run=1) returns the list of members that
+    WOULD be reactivated without actually mutating anything. Always
+    run dry_run first to confirm the affected set looks right.
+
+    Idempotent — re-running after success is a no-op (no rows match
+    the stuck-lapsed criteria once they're reactivated).
+
+    Built 8 May 2026 alongside the detection endpoint after test1
+    was found in this state.
+    """
+    _require_admin(user)
+    from .database import MembershipRenewal
+
+    now = datetime.utcnow()
+
+    candidates = (
+        db.query(User, MembershipRenewal)
+          .join(MembershipRenewal, MembershipRenewal.user_id == User.id)
+          .filter(
+              User.is_active == False,
+              MembershipRenewal.next_renewal_date > now,
+              MembershipRenewal.in_grace_period == False,
+          )
+          .all()
+    )
+
+    reactivated = []
+    skipped_no_payment = []
+
+    for u, r in candidates:
+        has_paid_payment = db.query(Payment).filter(
+            Payment.from_user_id == u.id,
+            Payment.payment_type.like("membership%"),
+            Payment.status.in_(["confirmed", "paid"]),
+        ).first()
+        if not has_paid_payment:
+            skipped_no_payment.append(u.username)
+            continue
+
+        if not dry_run:
+            u.is_active = True
+            try:
+                notif = Notification(
+                    user_id=u.id,
+                    type="system",
+                    icon="✅",
+                    title="Membership reactivated",
+                    message="An administrative correction has reactivated your membership. "
+                            "Your renewal date and other details are unchanged.",
+                    link="/dashboard",
+                )
+                db.add(notif)
+            except Exception as e:
+                logger.warning(f"Reactivation notification failed for user {u.id}: {e}")
+
+        reactivated.append({
+            "user_id": u.id,
+            "username": u.username,
+            "next_renewal_date": r.next_renewal_date.isoformat(),
+        })
+
+    if not dry_run:
+        db.commit()
+        logger.info(
+            f"Admin reactivation: {len(reactivated)} stuck-lapsed members reactivated "
+            f"by admin user {user.id} ({user.username}). "
+            f"Skipped {len(skipped_no_payment)} candidates with no paid membership."
+        )
+
+    return {
+        "dry_run": dry_run,
+        "reactivated_count": len(reactivated),
+        "reactivated": reactivated,
+        "skipped_no_payment_count": len(skipped_no_payment),
+        "skipped_no_payment": skipped_no_payment,
+        "message": (
+            "DRY RUN — no changes made. Re-run without ?dry_run=1 to apply."
+            if dry_run else
+            f"Reactivated {len(reactivated)} stuck-lapsed members."
+        ),
+    }
+
+
 @app.get("/gift/{code}")
 async def serve_gift_page(code: str):
     """Serve the React SPA for gift voucher landing pages."""
