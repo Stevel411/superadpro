@@ -21150,6 +21150,13 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
     # Activate the membership
     user.is_active = True
     user.membership_tier = "basic"
+    # Set activated_at — this is what the dashboard's new-member toast
+    # polling (/api/dashboard/new-members) filters on. Without this, gift
+    # recipients silently activate but the gifter never sees the cha-ching
+    # toast notification on their dashboard. (Bug caught 8 May 2026 during
+    # test6 claim — test3 saw their wallet jump to $20 but no toast fired.)
+    if not user.activated_at:
+        user.activated_at = datetime.utcnow()
 
     # Skip onboarding for gift recipients — they're already qualified
     # members via the gift, and the onboarding wizard would otherwise
