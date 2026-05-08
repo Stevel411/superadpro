@@ -205,7 +205,7 @@ export default function PaymentSuccess() {
 
   return (
     <AppLayout title={t('paymentSuccess.paymentComplete')}>
-      <div style={{ maxWidth: 520, margin: '60px auto', textAlign: 'center' }}>
+      <div style={{ maxWidth: 520, margin: '32px auto', textAlign: 'center' }}>
 
         {status === 'polling' ? (
           <div style={{ padding: '60px 40px', background: '#fff', borderRadius: 24, border: '1px solid #e8ecf2', boxShadow: '0 8px 40px rgba(0,0,0,0.08)' }}>
@@ -274,12 +274,12 @@ export default function PaymentSuccess() {
             {/* Top colour bar */}
             <div style={{ height: 6, background: `linear-gradient(90deg, ${config.color}, ${config.color}88)` }} />
 
-            <div style={{ padding: '48px 40px 40px' }}>
+            <div style={{ padding: '32px 40px 32px' }}>
               {/* Icon */}
               <div style={{ fontSize: 56, marginBottom: 16, lineHeight: 1 }}>{config.icon}</div>
 
               {/* Check badge */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: `${config.color}12`, border: `1px solid ${config.color}30`, borderRadius: 99, padding: '4px 14px', marginBottom: 20 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: `${config.color}12`, border: `1px solid ${config.color}30`, borderRadius: 99, padding: '4px 14px', marginBottom: 16 }}>
                 <CheckCircle size={14} color={config.color} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: config.color }}>{t('paymentSuccess.paymentConfirmed')}</span>
               </div>
@@ -287,7 +287,7 @@ export default function PaymentSuccess() {
               <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: 'var(--sap-text-primary)', marginBottom: 10 }}>
                 {config.title}
               </div>
-              <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.7, marginBottom: 32 }}>
+              <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.7, marginBottom: 24 }}>
                 {config.desc}
               </div>
 
