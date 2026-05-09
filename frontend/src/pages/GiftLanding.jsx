@@ -163,27 +163,28 @@ export default function GiftLanding() {
   return (
     <div style={{ minHeight:'100vh', background:'#fff', position:'relative' }}>
 
-      {/* Hero band — compact strip with just the SuperAdPro logo + the
-          gifter pill on the bokeh background. Headline and subhead now
-          live below the video so they don't sit on the bokeh-to-white
-          transition (which was making the boundary line conspicuous). */}
+      {/* Hero band — bokeh background that extends from the top of the
+          page down past the bottom of the video. Contains: logo,
+          headline, video. Padding-bottom is generous so the bokeh
+          extends well below the video before the white begins. The
+          fade-to-white in the gradient happens in the lower 20% of the
+          band, so it's *below* the video and well clear of any text. */}
       <div style={{
         position:'relative',
-        backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(255,255,255,1) 100%), url(/static/images/gift-hero.jpg)',
+        backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0) 80%, rgba(255,255,255,.7) 92%, rgba(255,255,255,1) 100%), url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
-        backgroundPosition:'center',
+        backgroundPosition:'center top',
         backgroundRepeat:'no-repeat',
-        paddingTop:'clamp(28px, 5vw, 50px)',
-        paddingBottom:'clamp(28px, 5vw, 50px)',
+        paddingTop:'clamp(32px, 5vw, 56px)',
+        paddingBottom:'clamp(60px, 8vw, 100px)',
         paddingLeft:20,
         paddingRight:20,
       }}>
-        <div style={{ maxWidth:560, margin:'0 auto', textAlign:'center' }}>
+        <div style={{ maxWidth:820, margin:'0 auto', textAlign:'center' }}>
 
           {/* SuperAdPro logo — pink mark + white wordmark with pink Pro
-              accent. Non-clickable on this page so a curious recipient
-              doesn't accidentally navigate away from the gift. */}
-          <div style={{ marginBottom:'clamp(20px, 3vw, 28px)' }}>
+              accent. Sits at the very top of the bokeh strip. */}
+          <div style={{ marginBottom:'clamp(28px, 4vw, 44px)' }}>
             <div style={{
               display:'inline-flex', alignItems:'center', gap:12,
             }}>
@@ -207,112 +208,109 @@ export default function GiftLanding() {
             </div>
           </div>
 
-          {/* Gifter pill on its own line — sole text content remaining
-              in the hero. Sets the emotional frame ("this is a gift")
-              before the video plays. */}
-          <div>
-            <div style={{
-              display:'inline-flex', alignItems:'center', gap:8,
-              background:'rgba(255,255,255,.95)', padding:'8px 16px',
-              borderRadius:24,
-              boxShadow:'0 2px 12px rgba(0,0,0,.1)',
-            }}>
-              <Gift size={14} color="#993556"/>
-              <span style={{ fontSize:13, color:'#993556', fontWeight:600 }}>
-                A gift from {gift.gifter_name}
-              </span>
-            </div>
+          {/* Headline — white text with strong dark drop-shadow so it
+              reads as crisp and prominent against the busy bokeh.
+              Sits directly above the video. Stacked shadows give a
+              soft halo that lifts the letters without looking like an
+              outline filter. */}
+          <h1 style={{
+            fontFamily:'Sora,sans-serif',
+            fontSize:'clamp(26px, 5vw, 38px)',
+            fontWeight:800, color:'#fff',
+            margin:'0 0 clamp(20px, 3vw, 32px)', lineHeight:1.2,
+            letterSpacing:'-0.01em',
+            textShadow:'0 2px 4px rgba(0,0,0,.7), 0 4px 12px rgba(0,0,0,.55), 0 0 24px rgba(0,0,0,.4)',
+          }}>
+            {gift.gifter_name} sent you a free month of SuperAdPro
+          </h1>
+
+          {/* Video frame — white border lifts it cleanly off the
+              bokeh background. object-fit:cover on the video so it
+              fills the frame edge-to-edge (file is 1264×720, slightly
+              wider than 16:9 — invisible crop on a centred talking-
+              head shot). */}
+          <div style={{
+            background:'#1a1a1a', borderRadius:14, overflow:'hidden',
+            position:'relative', aspectRatio:'16/9',
+            border:'5px solid #fff',
+            boxShadow:'0 10px 40px rgba(0,0,0,.25)',
+          }}>
+            <video
+              ref={videoRef}
+              src="/static/video/gift-recipient.mp4"
+              poster="/static/images/gift-hero.jpg"
+              autoPlay
+              muted
+              playsInline
+              controls
+              preload="metadata"
+              style={{ width:'100%', height:'100%', display:'block', objectFit:'cover' }}
+            />
+            {/* Custom unmute prompt — only visible while muted. */}
+            {muted && (
+              <button onClick={toggleMute} style={{
+                position:'absolute', top:10, right:10,
+                padding:'6px 12px', borderRadius:20, border:'none',
+                background:'rgba(0,0,0,.6)', color:'#fff',
+                fontSize:12, fontWeight:600, cursor:'pointer',
+                display:'flex', alignItems:'center', gap:6,
+                backdropFilter:'blur(6px)',
+              }}>
+                <VolumeX size={14}/> Click to unmute
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Video + CTA section — sits on white, lifted slightly into the
-          hero with a negative margin so it visually overlaps the fade.
-          Wider max-width here than the hero text block so the video
-          gets visual prominence. */}
+      {/* Below-video section on white — gifter pill, subhead, CTA,
+          trust signals, footer. White starts cleanly just below where
+          the video sits in the hero above. */}
       <div style={{
-        maxWidth:820, margin:'0 auto', padding:'0 20px',
-        marginTop:'clamp(-40px, -6vw, -60px)',
-        position:'relative', zIndex:2,
+        maxWidth:820, margin:'0 auto', padding:'8px 20px 0',
+        textAlign:'center',
       }}>
 
-        {/* Video frame — white border lifts it off whatever is behind.
-            Inner background is dark grey rather than pure black so any
-            tiny aspect mismatch is less noticeable. object-fit:cover on
-            the video itself fills the frame edge-to-edge (the file is
-            1264×720, slightly wider than 16:9 so a few pixels of width
-            get cropped — invisible on a talking-head shot). */}
-        <div style={{
-          background:'#1a1a1a', borderRadius:14, overflow:'hidden',
-          position:'relative', aspectRatio:'16/9',
-          border:'5px solid #fff',
-          boxShadow:'0 10px 40px rgba(0,0,0,.18)',
-          marginBottom:24,
+        {/* Gifter pill — moved here from the hero so it sits in the
+            white space, framing the read-down to the CTA. */}
+        <div style={{ marginBottom:14 }}>
+          <div style={{
+            display:'inline-flex', alignItems:'center', gap:8,
+            background:'#fff', padding:'8px 16px',
+            border:'1px solid rgba(153,53,86,.18)',
+            borderRadius:24,
+            boxShadow:'0 2px 12px rgba(75,21,40,.08)',
+          }}>
+            <Gift size={14} color="#993556"/>
+            <span style={{ fontSize:13, color:'#993556', fontWeight:600 }}>
+              A gift from {gift.gifter_name}
+            </span>
+          </div>
+        </div>
+
+        {/* Subhead — sits below the pill on white. Dark on white so
+            it's automatically readable. */}
+        <p style={{
+          fontSize:'clamp(14px, 2.4vw, 17px)',
+          color:'#4B1528',
+          margin:'0 0 24px', lineHeight:1.55,
+          fontWeight:500,
         }}>
-          <video
-            ref={videoRef}
-            src="/static/video/gift-recipient.mp4"
-            poster="/static/images/gift-hero.jpg"
-            autoPlay
-            muted
-            playsInline
-            controls
-            preload="metadata"
-            style={{ width:'100%', height:'100%', display:'block', objectFit:'cover' }}
-          />
-          {/* Custom unmute prompt overlay — only visible while muted. */}
-          {muted && (
-            <button onClick={toggleMute} style={{
-              position:'absolute', top:10, right:10,
-              padding:'6px 12px', borderRadius:20, border:'none',
-              background:'rgba(0,0,0,.6)', color:'#fff',
-              fontSize:12, fontWeight:600, cursor:'pointer',
-              display:'flex', alignItems:'center', gap:6,
-              backdropFilter:'blur(6px)',
-            }}>
-              <VolumeX size={14}/> Click to unmute
-            </button>
-          )}
-        </div>
+          They paid ${gift.gift_value || 20} so you could try it.
+        </p>
 
-        {/* Headline + subhead — moved below the video so they sit on
-            white rather than on the bokeh transition. Smaller than
-            before (since the video is now the primary visual anchor)
-            and with a dark drop-shadow so they read as crisp and
-            intentional rather than flat-on-white. */}
-        <div style={{ textAlign:'center', marginBottom:28 }}>
-          <h1 style={{
-            fontFamily:'Sora,sans-serif',
-            fontSize:'clamp(22px, 3.8vw, 30px)',
-            fontWeight:800, color:'#1a0a13',
-            margin:'0 0 10px', lineHeight:1.25,
-            letterSpacing:'-0.01em',
-            textShadow:'0 2px 6px rgba(75,21,40,.18), 0 1px 2px rgba(0,0,0,.08)',
-          }}>
-            {gift.gifter_name} sent you a free month of SuperAdPro
-          </h1>
-          <p style={{
-            fontSize:'clamp(13px, 2.2vw, 15px)',
-            color:'#4B1528',
-            margin:0, lineHeight:1.55,
-            fontWeight:500,
-          }}>
-            They paid ${gift.gift_value || 20} so you could try it.
-          </p>
-        </div>
-
-        {/* Optional personal message from gifter — sits below the
-            headline as a quote about the gift. Only renders if the
-            gifter included one at purchase time. */}
+        {/* Optional personal message from gifter — sits between the
+            subhead and the CTA. Only renders if the gifter included
+            one at purchase time. */}
         {gift.personal_message && (
           <div style={{
             padding:'16px 22px',
             background:'#fff',
             border:'1px solid rgba(153,53,86,.15)',
             borderRadius:14,
-            marginBottom:28,
+            marginBottom:24,
             maxWidth:480,
-            margin:'0 auto 28px',
+            margin:'0 auto 24px',
             boxShadow:'0 4px 16px rgba(75,21,40,.08)',
           }}>
             <div style={{ fontSize:14, color:'#4B1528', fontStyle:'italic', lineHeight:1.55 }}>
