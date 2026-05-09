@@ -427,7 +427,7 @@ function BoostTab({emailStats,refresh,flash}) {
         <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:12,flex:1}}>{pk.desc}</div>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-text-primary)'}}>${pk.price}</div>
-          <button onClick={function(){buy(pk.id);}} disabled={ib} style={{padding:'8px 16px',borderRadius:8,border:'none',background:ib?'var(--sap-text-ghost)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:13,fontWeight:700,cursor:ib?'wait':'pointer',fontFamily:'inherit'}}>{ib?'Buying...':'Buy'}</button>
+          <button onClick={function(){buy(pk.id);}} disabled={ib} style={{padding:'8px 16px',borderRadius:8,border:'none',background:ib?'var(--sap-text-ghost)':'linear-gradient(135deg,#059669,#10b981)',color:'#fff',fontSize:13,fontWeight:700,cursor:ib?'wait':'pointer',fontFamily:'inherit',boxShadow:ib?'none':'0 4px 12px rgba(16,185,129,.3)'}}>{ib?'Buying...':'Buy'}</button>
         </div>
       </div>;})}
     </div>

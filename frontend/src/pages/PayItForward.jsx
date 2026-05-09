@@ -259,7 +259,8 @@ export default function PayItForward() {
               style={{
                 width:'100%', padding:14, borderRadius:10, border:'none', cursor: creating || !canPayFromWallet ? 'not-allowed' : 'pointer',
                 fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff',
-                background: canPayFromWallet ? 'linear-gradient(135deg,#ec4899,#db2777)' : 'var(--sap-text-ghost)',
+                background: canPayFromWallet ? 'linear-gradient(135deg,#059669,#10b981)' : 'var(--sap-text-ghost)',
+                boxShadow: canPayFromWallet ? '0 4px 12px rgba(16,185,129,.3)' : 'none',
                 display:'flex', alignItems:'center', justifyContent:'center', gap:8,
               }}>
               {creating ? t('payItForward.creating') : canPayFromWallet ? t('payItForward.payWallet') : t('payItForward.insufficientBalance')}

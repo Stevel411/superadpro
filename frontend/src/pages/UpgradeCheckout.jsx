@@ -280,12 +280,13 @@ export default function UpgradeCheckout() {
         .uchk-renew-text{font-size:13px;color:#166534;line-height:1.55;flex:1}
         .uchk-renew-text strong{color:#14532d;font-weight:700}
 
-        /* Final CTA — proper gradient button with shine sweep on hover */
+        /* Final CTA — green is the universal payment action colour
+           (decided 9 May 2026, applies platform-wide to all "pay" buttons).
+           Plan colour identity stays in the hero card and selected states.
+           The CTA itself is consistent green regardless of plan. */
         .uchk-cta-row{display:flex;align-items:center;gap:14px;padding:24px 0 8px}
-        .uchk-cta-btn{flex:1;padding:18px 28px;border-radius:14px;border:none;font-size:16px;font-weight:800;cursor:pointer;font-family:'Sora',sans-serif;color:#fff;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 60%,#3b82f6 100%);box-shadow:0 8px 24px rgba(37,99,235,.35),0 2px 8px rgba(37,99,235,.2);letter-spacing:.3px;transition:all .2s;position:relative;overflow:hidden}
-        .uchk-wrap.pro .uchk-cta-btn{background:linear-gradient(135deg,#b91c1c 0%,#dc2626 50%,#ef4444 100%);box-shadow:0 8px 24px rgba(220,38,38,.35),0 2px 8px rgba(220,38,38,.2)}
-        .uchk-cta-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 32px rgba(37,99,235,.45),0 4px 12px rgba(37,99,235,.25)}
-        .uchk-wrap.pro .uchk-cta-btn:hover:not(:disabled){box-shadow:0 12px 32px rgba(220,38,38,.45),0 4px 12px rgba(220,38,38,.25)}
+        .uchk-cta-btn{flex:1;padding:18px 28px;border-radius:14px;border:none;font-size:16px;font-weight:800;cursor:pointer;font-family:'Sora',sans-serif;color:#fff;background:linear-gradient(135deg,#059669 0%,#10b981 60%,#34d399 100%);box-shadow:0 8px 24px rgba(16,185,129,.35),0 2px 8px rgba(16,185,129,.2);letter-spacing:.3px;transition:all .2s;position:relative;overflow:hidden}
+        .uchk-cta-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 32px rgba(16,185,129,.45),0 4px 12px rgba(16,185,129,.25)}
         .uchk-cta-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
         .uchk-cta-btn::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .6s}
         .uchk-cta-btn:hover:not(:disabled)::after{left:100%}
@@ -467,7 +468,7 @@ export default function UpgradeCheckout() {
         <div className="uchk-cta-row">
           {rail === 'wallet' && cadence ? (
             // WalletConnect flow renders its own pay button; not standard submit.
-            <Suspense fallback={<button className={'uchk-cta-btn' + (plan === 'pro' ? ' pro' : '')} disabled>Loading wallet…</button>}>
+            <Suspense fallback={<button className="uchk-cta-btn" disabled>Loading wallet…</button>}>
               <WalletConnectProvider>
                 <WalletConnectGate>
                   <WalletPayLink
@@ -478,18 +479,14 @@ export default function UpgradeCheckout() {
                         : (cadence === 'annual' ? 'membership_basic_annual' : 'membership_basic')
                     }
                     label={'Pay $' + price + ' with wallet'}
-                    style={{ padding:'14px 28px', fontSize:15, fontWeight:700, borderRadius:12, minWidth:200,
-                             color:'#fff',
-                             background: plan === 'pro' ? 'linear-gradient(135deg,#7f1d1d,#dc2626)' : 'linear-gradient(135deg,#1e3a8a,#2563eb)',
-                             boxShadow: plan === 'pro' ? '0 4px 16px rgba(220,38,38,.3)' : '0 4px 16px rgba(37,99,235,.3)',
-                             border:'none', cursor:'pointer', fontFamily:'inherit' }}
+                    style={{ padding:'14px 28px', fontSize:15, fontWeight:700, borderRadius:12, minWidth:200 }}
                   />
                 </WalletConnectGate>
               </WalletConnectProvider>
             </Suspense>
           ) : (
             <button
-              className={'uchk-cta-btn' + (plan === 'pro' ? ' pro' : '')}
+              className="uchk-cta-btn"
               onClick={handleSubmit}
               disabled={!ready || loading || alreadyOnPlan}
             >

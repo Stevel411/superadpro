@@ -871,11 +871,17 @@ export function WalletPayLink(props) {
           fontSize: 12,
           fontWeight: 700,
           fontFamily: 'inherit',
-          border: '1px solid #f3ba2f',
-          background: isBusy ? '#fef9c3' : '#fffbeb',
-          color: '#92400e',
+          border: 'none',
+          // Green is the platform-wide action colour for payment buttons
+          // (decided 9 May 2026 — applies to all WalletPayLink instances:
+          // checkout, credit nexus, gift voucher, tier activation). Was
+          // previously pale yellow / BNB Chain colours which read as a
+          // brand badge rather than 'click to pay'. Green = ready to act.
+          background: isBusy ? '#86efac' : 'linear-gradient(135deg,#10b981,#059669)',
+          color: '#fff',
+          boxShadow: isBusy ? 'none' : '0 4px 12px rgba(16,185,129,.35)',
           cursor: (isBusy || props.disabled) ? 'wait' : 'pointer',
-          transition: 'background .15s'
+          transition: 'all .2s'
         }, props.style || {})}>
         {btnLabel}
       </button>

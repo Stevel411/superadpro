@@ -78,7 +78,7 @@ export default function Courses() {
                   <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:16,fontWeight:700,textAlign:'center',textDecoration:'none',background:'var(--sap-accent)',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>{t('courses.continueLearning')}</a>
                 ) : (
                   <form method="POST" action={`/courses/purchase/${c.id}`} onSubmit={e => { if(!confirm(`Purchase ${c.title} for $${Math.round(c.price)} from your wallet balance?`)) e.preventDefault(); }}>
-                    <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:16,fontWeight:700,cursor:'pointer',textAlign:'center',background:'#132044',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.1)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
+                    <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:16,fontWeight:700,cursor:'pointer',textAlign:'center',background:'linear-gradient(135deg,#059669,#10b981)',color:'#fff',boxShadow:'0 4px 12px rgba(16,185,129,.3)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
                   </form>
                 )}
               </div>
