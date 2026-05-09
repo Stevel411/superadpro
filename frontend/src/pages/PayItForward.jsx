@@ -288,17 +288,34 @@ export default function PayItForward() {
             </button>
 
             {/* 3. WalletConnect / direct-from-wallet on BSC — orange.
-                Only renders when wallet is connected (handled by WalletPayLink
-                via context). Step 4 triple-rail audit (7 May 2026) added this
-                rail; today's pass made it visually distinct from the other two
-                so members can clearly tell internal-balance / NOWPayments /
-                self-custody-BSC apart.
-                Wrapped in a sized container (width:100%, maxWidth:380) so it
-                centres under the other two buttons within the column flex
-                container — without this, the WalletPayLink's own wrapper div
-                stretches to full width and the button drifts left. */}
+                Two components in the same slot, mutually exclusive:
+                  - WalletConnectGate (hideWhenConnected): renders the
+                    orange "Connect Wallet to Pay Direct (BSC) — $20"
+                    button when disconnected. Clicking it opens the
+                    Reown wallet picker. Once connected, returns null.
+                  - WalletPayLink: returns null when disconnected.
+                    Renders the orange "Connect Wallet to Pay Direct
+                    (BSC) — $20" button when connected — clicking it
+                    runs the payment flow.
+                Wrapped in a sized container so the button centres
+                under the other two in the column flex.
+                Step 4 triple-rail audit (7 May 2026) added this rail;
+                today's pass made it always-visible (was previously
+                only showing when wallet was already connected, leaving
+                disconnected users with no way to pay direct from wallet
+                without finding the small button in the page header). */}
             <div style={{ width:'100%', maxWidth:380 }}>
               <Suspense fallback={null}>
+                <WalletConnectGate
+                  hideWhenConnected
+                  label="Connect Wallet to Pay Direct (BSC) — $20"
+                  style={{
+                    width:'100%', padding:'13px 24px', borderRadius:11, border:'none',
+                    fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
+                    background:'linear-gradient(135deg,#ea580c,#f97316)',
+                    boxShadow:'0 4px 14px rgba(249,115,22,.35)',
+                  }}
+                />
                 <WalletPayLink
                   productType="pif"
                   productKey="pif_voucher"

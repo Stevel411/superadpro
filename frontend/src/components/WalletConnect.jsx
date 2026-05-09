@@ -513,6 +513,13 @@ export function WalletConnectGate(props) {
   }
 
   if (ctx.isConnected) {
+    // Allow parent pages to suppress the connected-state pill if they
+    // want to render their own UI when connected (e.g. PayItForward shows
+    // the orange Connect button when disconnected, then hands off to a
+    // separate WalletPayLink when connected — it doesn't want the gate's
+    // own "Wallet connected: 0x123…" pill in the same slot).
+    if (props.hideWhenConnected) return null;
+
     var addr = ctx.address || '';
     var short = addr.length > 10 ? (addr.slice(0, 6) + '…' + addr.slice(-4)) : addr;
     var wrongChain = ctx.chainId && ctx.chainId !== BSC_CHAIN_ID;
