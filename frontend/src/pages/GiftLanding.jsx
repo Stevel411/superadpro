@@ -163,30 +163,27 @@ export default function GiftLanding() {
   return (
     <div style={{ minHeight:'100vh', background:'#fff', position:'relative' }}>
 
-      {/* Hero band — fixed-height background image with content overlaid,
-          gradient-fades to white at the bottom edge so the video block
-          below feels like it grows naturally out of the hero. */}
+      {/* Hero band — compact strip with just the SuperAdPro logo + the
+          gifter pill on the bokeh background. Headline and subhead now
+          live below the video so they don't sit on the bokeh-to-white
+          transition (which was making the boundary line conspicuous). */}
       <div style={{
         position:'relative',
         backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(255,255,255,1) 100%), url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
         backgroundPosition:'center',
         backgroundRepeat:'no-repeat',
-        paddingTop:'clamp(40px, 8vw, 80px)',
-        paddingBottom:'clamp(40px, 8vw, 80px)',
+        paddingTop:'clamp(28px, 5vw, 50px)',
+        paddingBottom:'clamp(28px, 5vw, 50px)',
         paddingLeft:20,
         paddingRight:20,
       }}>
         <div style={{ maxWidth:560, margin:'0 auto', textAlign:'center' }}>
 
           {/* SuperAdPro logo — pink mark + white wordmark with pink Pro
-              accent, matched to the gift page's pink colour palette.
-              Non-clickable on this page so a curious recipient doesn't
-              accidentally navigate away from the gift before claiving;
-              once claimed they're routed into the platform proper.
-              Wrapped in a block-level div so the inline-flex logo
-              doesn't collide with the gifter pill below. */}
-          <div style={{ marginBottom:'clamp(28px, 5vw, 44px)' }}>
+              accent. Non-clickable on this page so a curious recipient
+              doesn't accidentally navigate away from the gift. */}
+          <div style={{ marginBottom:'clamp(20px, 3vw, 28px)' }}>
             <div style={{
               display:'inline-flex', alignItems:'center', gap:12,
             }}>
@@ -210,9 +207,10 @@ export default function GiftLanding() {
             </div>
           </div>
 
-          {/* Gifter pill — block wrapper ensures it sits on its own line
-              under the logo, not crashing into it on the right. */}
-          <div style={{ marginBottom:18 }}>
+          {/* Gifter pill on its own line — sole text content remaining
+              in the hero. Sets the emotional frame ("this is a gift")
+              before the video plays. */}
+          <div>
             <div style={{
               display:'inline-flex', alignItems:'center', gap:8,
               background:'rgba(255,255,255,.95)', padding:'8px 16px',
@@ -225,55 +223,6 @@ export default function GiftLanding() {
               </span>
             </div>
           </div>
-
-          {/* Headline — bigger and with stacked shadows so the white
-              text reads cleanly even where the bokeh hits its brightest
-              points (the centre heart). The double shadow gives a soft
-              halo behind the letters without looking artificial. */}
-          <h1 style={{
-            fontFamily:'Sora,sans-serif',
-            fontSize:'clamp(28px, 5.5vw, 40px)',
-            fontWeight:800, color:'#fff',
-            margin:'0 0 14px', lineHeight:1.2,
-            textShadow:'0 2px 4px rgba(0,0,0,.5), 0 4px 24px rgba(0,0,0,.55)',
-            letterSpacing:'-0.01em',
-          }}>
-            {gift.gifter_name} sent you a<br/>free month of SuperAdPro
-          </h1>
-
-          {/* Subhead */}
-          <p style={{
-            fontSize:'clamp(14px, 2.6vw, 17px)',
-            color:'#fff',
-            margin:'0 0 28px', lineHeight:1.5,
-            fontWeight:500,
-            textShadow:'0 1px 3px rgba(0,0,0,.5), 0 2px 12px rgba(0,0,0,.4)',
-          }}>
-            They paid ${gift.gift_value || 20} so you could try it. Watch the short video below.
-          </p>
-
-          {/* Optional personal message from gifter — shown above video
-              if present, in a soft white card. */}
-          {gift.personal_message && (
-            <div style={{
-              padding:'14px 20px',
-              background:'rgba(255,255,255,.95)',
-              borderRadius:14,
-              marginBottom:24,
-              maxWidth:420,
-              margin:'0 auto 24px',
-              boxShadow:'0 4px 16px rgba(0,0,0,.12)',
-            }}>
-              <div style={{ fontSize:14, color:'#4B1528', fontStyle:'italic', lineHeight:1.5 }}>
-                "{gift.personal_message}"
-              </div>
-              {gift.recipient_name && (
-                <div style={{ fontSize:12, color:'#993556', marginTop:8, fontWeight:600 }}>
-                  — for {gift.recipient_name}
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
@@ -325,6 +274,57 @@ export default function GiftLanding() {
             </button>
           )}
         </div>
+
+        {/* Headline + subhead — moved below the video so they sit on
+            white rather than on the bokeh transition. Smaller than
+            before (since the video is now the primary visual anchor)
+            and with a dark drop-shadow so they read as crisp and
+            intentional rather than flat-on-white. */}
+        <div style={{ textAlign:'center', marginBottom:28 }}>
+          <h1 style={{
+            fontFamily:'Sora,sans-serif',
+            fontSize:'clamp(22px, 3.8vw, 30px)',
+            fontWeight:800, color:'#1a0a13',
+            margin:'0 0 10px', lineHeight:1.25,
+            letterSpacing:'-0.01em',
+            textShadow:'0 2px 6px rgba(75,21,40,.18), 0 1px 2px rgba(0,0,0,.08)',
+          }}>
+            {gift.gifter_name} sent you a free month of SuperAdPro
+          </h1>
+          <p style={{
+            fontSize:'clamp(13px, 2.2vw, 15px)',
+            color:'#4B1528',
+            margin:0, lineHeight:1.55,
+            fontWeight:500,
+          }}>
+            They paid ${gift.gift_value || 20} so you could try it.
+          </p>
+        </div>
+
+        {/* Optional personal message from gifter — sits below the
+            headline as a quote about the gift. Only renders if the
+            gifter included one at purchase time. */}
+        {gift.personal_message && (
+          <div style={{
+            padding:'16px 22px',
+            background:'#fff',
+            border:'1px solid rgba(153,53,86,.15)',
+            borderRadius:14,
+            marginBottom:28,
+            maxWidth:480,
+            margin:'0 auto 28px',
+            boxShadow:'0 4px 16px rgba(75,21,40,.08)',
+          }}>
+            <div style={{ fontSize:14, color:'#4B1528', fontStyle:'italic', lineHeight:1.55 }}>
+              "{gift.personal_message}"
+            </div>
+            {gift.recipient_name && (
+              <div style={{ fontSize:12, color:'#993556', marginTop:8, fontWeight:600 }}>
+                — for {gift.recipient_name}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Error display */}
         {error && (
