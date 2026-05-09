@@ -167,16 +167,16 @@ export default function GiftLanding() {
           page down past the bottom of the video. Contains: logo,
           headline, video. Padding-bottom is generous so the bokeh
           extends well below the video before the white begins. The
-          fade-to-white in the gradient happens in the lower 20% of the
+          fade-to-white in the gradient happens in the lower 5% of the
           band, so it's *below* the video and well clear of any text. */}
       <div style={{
         position:'relative',
-        backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0) 80%, rgba(255,255,255,.7) 92%, rgba(255,255,255,1) 100%), url(/static/images/gift-hero.jpg)',
+        backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0) 90%, rgba(255,255,255,.6) 96%, rgba(255,255,255,1) 100%), url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
         backgroundPosition:'center top',
         backgroundRepeat:'no-repeat',
         paddingTop:'clamp(32px, 5vw, 56px)',
-        paddingBottom:'clamp(60px, 8vw, 100px)',
+        paddingBottom:'clamp(100px, 14vw, 180px)',
         paddingLeft:20,
         paddingRight:20,
       }}>
