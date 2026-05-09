@@ -308,7 +308,7 @@ export default function PayItForward() {
               <Suspense fallback={null}>
                 <WalletConnectGate
                   hideWhenConnected
-                  label="Connect Wallet to Pay Direct (BSC) — $20"
+                  label="Connect Wallet — $20"
                   style={{
                     width:'100%', padding:'13px 24px', borderRadius:11, border:'none',
                     fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
@@ -323,7 +323,7 @@ export default function PayItForward() {
                     recipient_name: recipientName,
                     personal_message: message,
                   }}
-                  label="Connect Wallet to Pay Direct (BSC) — $20"
+                  label="Connect Wallet — $20"
                   style={{
                     width:'100%', padding:'13px 24px', borderRadius:11, border:'none',
                     fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
