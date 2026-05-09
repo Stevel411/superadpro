@@ -470,10 +470,30 @@ export default function UpgradeCheckout() {
 
         <div className="uchk-cta-row">
           {rail === 'wallet' && cadence ? (
-            // WalletConnect flow renders its own pay button; not standard submit.
+            // WalletConnect flow — renders two components in the same slot,
+            // mutually exclusive based on connection state:
+            //   - WalletConnectGate (hideWhenConnected): orange "Connect Wallet
+            //     to Pay Direct" button when disconnected; null when connected
+            //   - WalletPayLink: null when disconnected; orange "Pay $X with
+            //     wallet" button when connected (runs the actual transfer)
+            // Same pattern as PayItForward. Previously had Gate wrapping PayLink
+            // as a child — Gate doesn't pass children through in either state,
+            // so the inner PayLink was never visible. User would connect their
+            // wallet successfully, then have no way to pay. Fixed 9 May 2026.
             <Suspense fallback={<button className="uchk-cta-btn" disabled>Loading wallet…</button>}>
               <WalletConnectProvider>
-                <WalletConnectGate>
+                <div style={{ flex:1 }}>
+                  <WalletConnectGate
+                    hideWhenConnected
+                    label={'Connect Wallet — $' + price}
+                    style={{
+                      width:'100%', padding:'16px 28px', borderRadius:13, border:'none',
+                      fontSize:16, fontWeight:800, color:'#fff', letterSpacing:'.3px',
+                      background:'linear-gradient(135deg,#ea580c,#f97316)',
+                      boxShadow:'0 4px 14px rgba(249,115,22,.35)',
+                      fontFamily:'Sora,sans-serif',
+                    }}
+                  />
                   <WalletPayLink
                     productType="membership"
                     productKey={
@@ -482,9 +502,15 @@ export default function UpgradeCheckout() {
                         : (cadence === 'annual' ? 'membership_basic_annual' : 'membership_basic')
                     }
                     label={'Pay $' + price + ' with wallet'}
-                    style={{ padding:'14px 28px', fontSize:15, fontWeight:700, borderRadius:12, minWidth:200 }}
+                    style={{
+                      width:'100%', padding:'16px 28px', borderRadius:13, border:'none',
+                      fontSize:16, fontWeight:800, color:'#fff', letterSpacing:'.3px',
+                      background:'linear-gradient(135deg,#059669 0%,#10b981 60%,#34d399 100%)',
+                      boxShadow:'0 8px 24px rgba(16,185,129,.35),0 2px 8px rgba(16,185,129,.2)',
+                      fontFamily:'Sora,sans-serif',
+                    }}
                   />
-                </WalletConnectGate>
+                </div>
               </WalletConnectProvider>
             </Suspense>
           ) : (
