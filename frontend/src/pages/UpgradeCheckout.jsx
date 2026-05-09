@@ -262,22 +262,38 @@ export default function UpgradeCheckout() {
         .uchk-opt-meta{font-size:12.5px;color:#64748b;margin-top:1px}
         .uchk-opt-savings{display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;margin-top:6px;width:fit-content;box-shadow:0 2px 6px rgba(16,185,129,.25)}
 
-        /* Payment rails — tighter, smaller icon (42 -> 36) */
-        .uchk-rail{padding:11px 14px;border:2px solid #e2e8f0;border-radius:11px;cursor:pointer;background:#fff;display:flex;align-items:center;gap:12px;font-family:inherit;text-align:left;width:100%;transition:all .2s;position:relative}
+        /* Payment rails — each card filled with its rail colour for clear
+           at-a-glance identity (decided 9 May 2026 with Steve). White text,
+           translucent-white icon pills. Selected state uses a stronger
+           white ring and the existing checkmark badge — contrast comes from
+           the badge ring, not from a different background colour, since the
+           background is already the rail's identity. */
+        .uchk-rail{padding:14px 16px;border:2px solid transparent;border-radius:11px;cursor:pointer;display:flex;align-items:center;gap:12px;font-family:inherit;text-align:left;width:100%;transition:all .2s;position:relative;color:#fff}
         .uchk-rail+.uchk-rail{margin-top:8px}
-        .uchk-rail:hover{border-color:#cbd5e1;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.05)}
-        .uchk-rail.selected{border-color:#2563eb;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);box-shadow:0 4px 16px rgba(37,99,235,.15)}
-        .uchk-rail.selected::after{content:"";position:absolute;top:50%;right:14px;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#2563eb;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");background-size:13px;background-position:center;background-repeat:no-repeat;box-shadow:0 2px 6px rgba(37,99,235,.4)}
-        .uchk-wrap.pro .uchk-rail.selected{border-color:#dc2626;background:linear-gradient(135deg,#fef2f2 0%,#fee2e2 100%);box-shadow:0 4px 16px rgba(220,38,38,.15)}
-        .uchk-wrap.pro .uchk-rail.selected::after{background:#dc2626;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");box-shadow:0 2px 6px rgba(220,38,38,.4)}
-        .uchk-rail.disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+        .uchk-rail:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.18)}
+        /* Per-rail colour fills */
+        .uchk-rail-fill-balance{background:linear-gradient(135deg,#1e3a8a,#2563eb);box-shadow:0 4px 14px rgba(37,99,235,.3)}
+        .uchk-rail-fill-wallet{background:linear-gradient(135deg,#ea580c,#f97316);box-shadow:0 4px 14px rgba(249,115,22,.3)}
+        .uchk-rail-fill-nowpay{background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 4px 14px rgba(16,185,129,.3)}
+        /* Selected: a strong white ring inside the border, plus a checkmark badge.
+           Background stays the rail's colour — selection is communicated by the
+           ring and checkmark, not by a separate background. */
+        .uchk-rail.selected{border-color:rgba(255,255,255,.95);box-shadow:0 8px 24px rgba(0,0,0,.22),inset 0 0 0 2px rgba(255,255,255,.35)}
+        .uchk-rail.selected::after{content:"";position:absolute;top:50%;right:14px;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");background-size:14px;background-position:center;background-repeat:no-repeat;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+        /* Checkmark stroke colour matches rail (fallback default = blue, used
+           by balance which is blue-themed; explicit overrides for the others) */
+        .uchk-rail-fill-wallet.selected::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ea580c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E")}
+        .uchk-rail-fill-nowpay.selected::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E")}
+        .uchk-rail.disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
         .uchk-rail.disabled:hover{transform:none;box-shadow:none}
-        .uchk-rail-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
-        .uchk-rail-icon-balance{background:linear-gradient(135deg,#dcfce7,#86efac);box-shadow:0 2px 8px rgba(34,197,94,.2)}
-        .uchk-rail-icon-wallet{background:linear-gradient(135deg,#fef3c7,#fde68a);box-shadow:0 2px 8px rgba(251,191,36,.25)}
-        .uchk-rail-icon-crypto{background:linear-gradient(135deg,#dbeafe,#93c5fd);box-shadow:0 2px 8px rgba(59,130,246,.2)}
-        .uchk-rail-name{font-size:14px;font-weight:700;color:#0f172a}
-        .uchk-rail-desc{font-size:12px;color:#64748b;margin-top:2px;line-height:1.4}
+        /* Icon pills — translucent white on coloured cards so they read as
+           subtle inset glyphs rather than competing colour blocks */
+        .uchk-rail-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;background:rgba(255,255,255,.18);backdrop-filter:blur(4px)}
+        /* Per-rail icon overrides removed — they were green/amber/blue gradients
+           which clash with the new card fills. All rails now use the translucent
+           white pill, with the icon glyph itself rendered in white. */
+        .uchk-rail-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:.2px}
+        .uchk-rail-desc{font-size:12px;color:rgba(255,255,255,.85);margin-top:2px;line-height:1.4}
 
         /* Auto-renew row — slightly tighter */
         .uchk-renew-row{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border:1px solid #86efac;border-radius:11px;margin-top:12px;cursor:pointer;transition:all .2s}
@@ -401,27 +417,35 @@ export default function UpgradeCheckout() {
                   /api/membership/activate-from-balance. But Monthly→Annual
                   switch from balance IS supported via /api/switch-to-annual,
                   so when isLegitSwitch is true, balance is allowed.) */}
+          {/* Three rail cards, each filled with its own colour for clear
+              identity at a glance. Backend validates on submit; UI doesn't
+              second-guess the user's intelligence about whether their balance
+              covers the price. The ONE constraint we keep enforcing in the
+              UI is Basic Annual + balance — that combo has no backend
+              endpoint (only Monthly + balance is wired up via
+              /api/membership/activate-from-balance, and Monthly->Annual
+              switch via /api/switch-to-annual). For Basic Annual fresh
+              purchases, balance rail is silently unsupported, so we fade
+              the card to prevent a confusing failed click. */}
           {(function() {
             var basicAnnualBalance = (plan === 'basic' && cadence === 'annual' && !isLegitSwitch);
-            var insufficientBalance = price !== null && balance < price;
-            var balanceDisabled = basicAnnualBalance || insufficientBalance;
             var balanceMsg = basicAnnualBalance
               ? '(annual plan must use Crypto Wallet or NOWPayments)'
-              : (insufficientBalance ? '(insufficient — top up or use another method)' : null);
+              : null;
             return (
               <button
-                className={'uchk-rail' + (rail === 'balance' ? ' selected' + (plan === 'pro' ? ' pro' : '') : '') + (balanceDisabled ? ' disabled' : '')}
-                onClick={function() { if (!balanceDisabled) setRail('balance'); }}
-                disabled={balanceDisabled}
+                className={'uchk-rail uchk-rail-fill-balance' + (rail === 'balance' ? ' selected' : '') + (basicAnnualBalance ? ' disabled' : '')}
+                onClick={function() { if (!basicAnnualBalance) setRail('balance'); }}
+                disabled={basicAnnualBalance}
               >
-                <div className="uchk-rail-icon uchk-rail-icon-balance">
-                  <Wallet size={18} color="#15803d"/>
+                <div className="uchk-rail-icon">
+                  <Wallet size={18} color="#fff"/>
                 </div>
                 <div style={{ flex:1 }}>
                   <div className="uchk-rail-name">Pay from balance</div>
                   <div className="uchk-rail-desc">
-                    Your balance: <strong style={{ color:'#0f172a' }}>${balance.toFixed(2)}</strong>
-                    {balanceMsg && <span style={{ color:'#dc2626', marginLeft:8 }}>{balanceMsg}</span>}
+                    Your balance: <strong style={{ color:'#fff' }}>${balance.toFixed(2)}</strong>
+                    {balanceMsg && <span style={{ color:'rgba(255,255,255,.95)', marginLeft:8 }}>{balanceMsg}</span>}
                   </div>
                 </div>
               </button>
@@ -429,10 +453,10 @@ export default function UpgradeCheckout() {
           })()}
 
           <button
-            className={'uchk-rail' + (rail === 'wallet' ? ' selected' + (plan === 'pro' ? ' pro' : '') : '')}
+            className={'uchk-rail uchk-rail-fill-wallet' + (rail === 'wallet' ? ' selected' : '')}
             onClick={function() { setRail('wallet'); }}
           >
-            <div className="uchk-rail-icon uchk-rail-icon-wallet">
+            <div className="uchk-rail-icon">
               <span style={{ fontSize:18 }}>👛</span>
             </div>
             <div style={{ flex:1 }}>
@@ -442,11 +466,11 @@ export default function UpgradeCheckout() {
           </button>
 
           <button
-            className={'uchk-rail' + (rail === 'crypto' ? ' selected' + (plan === 'pro' ? ' pro' : '') : '')}
+            className={'uchk-rail uchk-rail-fill-nowpay' + (rail === 'crypto' ? ' selected' : '')}
             onClick={function() { setRail('crypto'); }}
           >
-            <div className="uchk-rail-icon uchk-rail-icon-crypto">
-              <Globe size={18} color="#2563eb"/>
+            <div className="uchk-rail-icon">
+              <Globe size={18} color="#fff"/>
             </div>
             <div style={{ flex:1 }}>
               <div className="uchk-rail-name">NOWPayments</div>
