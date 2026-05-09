@@ -157,26 +157,26 @@ export default function GiftLanding() {
   );
 
   // ─── Main landing page ─────────────────────────────────────────
-  // Layout: bokeh hero up top, soft fade-to-white below the fold for
-  // the video and CTA — keeps the emotional first impression but stops
-  // the busy background from competing with the video.
+  // Layout: bokeh hero at top, page bg is the warm brown sampled from
+  // the image's bottom edge so where the image ends and the page bg
+  // begins is seamless — no white fade, no visible transition line.
+  // All below-video text is light-on-dark.
   return (
-    <div style={{ minHeight:'100vh', background:'#fff', position:'relative' }}>
+    <div style={{ minHeight:'100vh', background:'#7a5845', position:'relative' }}>
 
-      {/* Hero band — bokeh background that extends from the top of the
-          page down past the bottom of the video. Contains: logo,
-          headline, video. Padding-bottom is generous so the bokeh
-          extends well below the video before the white begins. The
-          fade-to-white in the gradient happens in the lower 5% of the
-          band, so it's *below* the video and well clear of any text. */}
+      {/* Hero band — bokeh image at native size up top. No more fade
+          gradient: the page bg behind/below the image is colour-matched
+          to the image's bottom edge (#7a5845, sampled from the bottom 2%
+          of the image), so where the image ends and the page bg begins
+          there's no visible seam. */}
       <div style={{
         position:'relative',
-        backgroundImage:'linear-gradient(180deg, rgba(0,0,0,0) 90%, rgba(255,255,255,.6) 96%, rgba(255,255,255,1) 100%), url(/static/images/gift-hero.jpg)',
+        backgroundImage:'url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
         backgroundPosition:'center top',
         backgroundRepeat:'no-repeat',
         paddingTop:'clamp(32px, 5vw, 56px)',
-        paddingBottom:'clamp(100px, 14vw, 180px)',
+        paddingBottom:'clamp(48px, 7vw, 80px)',
         paddingLeft:20,
         paddingRight:20,
       }}>
@@ -289,13 +289,14 @@ export default function GiftLanding() {
           </div>
         </div>
 
-        {/* Subhead — sits below the pill on white. Dark on white so
-            it's automatically readable. */}
+        {/* Subhead — sits below the pill on the warm brown page bg.
+            White text with a soft drop-shadow for contrast and lift. */}
         <p style={{
           fontSize:'clamp(14px, 2.4vw, 17px)',
-          color:'#4B1528',
+          color:'rgba(255,255,255,.92)',
           margin:'0 0 24px', lineHeight:1.55,
           fontWeight:500,
+          textShadow:'0 1px 4px rgba(0,0,0,.4)',
         }}>
           They paid ${gift.gift_value || 20} so you could try it.
         </p>
@@ -341,8 +342,8 @@ export default function GiftLanding() {
           )}
           {user ? (
             <div>
-              <div style={{ fontSize:13, color:'#666', marginBottom:14 }}>
-                Logged in as <strong style={{ color:'#222' }}>{user.username}</strong>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,.8)', marginBottom:14, textShadow:'0 1px 3px rgba(0,0,0,.3)' }}>
+                Logged in as <strong style={{ color:'#fff' }}>{user.username}</strong>
               </div>
               <button onClick={isPreview ? function(){} : claimGift} disabled={claiming}
                 style={{
@@ -384,7 +385,7 @@ export default function GiftLanding() {
               )}
               <div>
                 <Link to={'/login?gift=' + code}
-                  style={{ fontSize:13, color:'#666', textDecoration:'none', fontWeight:500 }}>
+                  style={{ fontSize:13, color:'rgba(255,255,255,.85)', textDecoration:'underline', fontWeight:500, textShadow:'0 1px 3px rgba(0,0,0,.3)' }}>
                   Already have an account? Log in
                 </Link>
               </div>
@@ -392,12 +393,13 @@ export default function GiftLanding() {
           )}
         </div>
 
-        {/* Trust signals */}
+        {/* Trust signals — white text with shadow on the brown bg.
+            Check ticks stay green for emphasis. */}
         <div style={{ display:'flex', justifyContent:'center', gap:24, flexWrap:'wrap', margin:'28px 0 20px' }}>
           {['Free month', 'No card required', 'Full access'].map(function(label) {
             return (
-              <div key={label} style={{ display:'flex', alignItems:'center', gap:6, fontSize:13, color:'#555' }}>
-                <Check size={14} color="#10b981"/>
+              <div key={label} style={{ display:'flex', alignItems:'center', gap:6, fontSize:13, color:'rgba(255,255,255,.9)', textShadow:'0 1px 3px rgba(0,0,0,.3)' }}>
+                <Check size={14} color="#5DCAA5"/>
                 <span>{label}</span>
               </div>
             );
@@ -405,12 +407,12 @@ export default function GiftLanding() {
         </div>
 
         {/* Footer reassurance */}
-        <p style={{ fontSize:12, color:'#888', textAlign:'center', maxWidth:380, margin:'0 auto', lineHeight:1.6, paddingBottom:40 }}>
+        <p style={{ fontSize:12, color:'rgba(255,255,255,.75)', textAlign:'center', maxWidth:380, margin:'0 auto', lineHeight:1.6, paddingBottom:40, textShadow:'0 1px 2px rgba(0,0,0,.3)' }}>
           Your friend already paid. There's nothing to buy. If it's not for you, walk away — no harm done.
         </p>
 
         {gift.chain_depth > 1 && (
-          <div style={{ textAlign:'center', fontSize:11, color:'#aaa', paddingBottom:24 }}>
+          <div style={{ textAlign:'center', fontSize:11, color:'rgba(255,255,255,.55)', paddingBottom:24, textShadow:'0 1px 2px rgba(0,0,0,.3)' }}>
             This gift is part of a pay-it-forward chain — generation {gift.chain_depth}
           </div>
         )}
