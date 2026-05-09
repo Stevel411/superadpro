@@ -61,7 +61,7 @@ export default function Upgrade() {
   return (
     <AppLayout title="Upgrade" subtitle="Choose your plan">
       <style>{`
-        .uplan-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1100px;margin:0 auto;padding:0 20px;align-items:start}
+        .uplan-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1100px;margin:0 auto;padding:0 20px}
         @media (max-width:880px){.uplan-grid{grid-template-columns:1fr;max-width:480px}}
         .uplan-card{background:#fff;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
         .uplan-card:hover{transform:translateY(-4px)}
@@ -73,7 +73,7 @@ export default function Upgrade() {
         .uplan-hero-basic{background:linear-gradient(135deg,#1e3a8a,#3b82f6)}
         .uplan-hero-pro{background:linear-gradient(135deg,#7f1d1d,#dc2626,#ef4444)}
         .uplan-popular{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.95);color:#7f1d1d;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-        .uplan-active-pill{position:absolute;top:14px;left:14px;background:#10b981;color:#fff;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(16,185,129,.4)}
+        .uplan-active-pill{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:6px 14px;border-radius:14px;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:5px;box-shadow:0 4px 12px rgba(16,185,129,.4),0 2px 4px rgba(16,185,129,.2)}
         .uplan-tier-label{font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.85;margin-bottom:8px}
         .uplan-price{font-family:Sora,sans-serif;font-size:48px;font-weight:800;letter-spacing:-.02em;line-height:1}
         .uplan-price-suffix{font-size:18px;font-weight:600;opacity:.75;margin-left:4px}
