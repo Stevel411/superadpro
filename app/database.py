@@ -548,6 +548,12 @@ class MembershipRenewal(Base):
     grace_period_start  = Column(DateTime, nullable=True)       # when grace period began
     in_grace_period     = Column(Boolean, default=False)
     total_renewals      = Column(Integer, default=0)
+    # Auto-renew from balance: default True preserves the existing platform
+    # behaviour (process_auto_renewals deducts $20 from balance if available).
+    # New checkout flow (9 May 2026) lets members opt out at signup or via
+    # account settings. When False, the renewal cron skips balance deduction
+    # and instead sends a reminder + lapses the member after grace period.
+    auto_renew_from_balance = Column(Boolean, default=True)
     updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
@@ -1482,6 +1488,11 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS video_campaigns (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description TEXT, category VARCHAR, platform VARCHAR NOT NULL, video_url VARCHAR NOT NULL, embed_url VARCHAR NOT NULL, video_id VARCHAR, status VARCHAR DEFAULT 'active', views_target INTEGER DEFAULT 0, views_delivered INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
                 "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS membership_renewals (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, activated_at TIMESTAMP, next_renewal_date TIMESTAMP, last_renewed_at TIMESTAMP, renewal_source VARCHAR DEFAULT 'wallet', grace_period_start TIMESTAMP, in_grace_period BOOLEAN DEFAULT FALSE, total_renewals INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
+        # Auto-renew opt-in column (added 9 May 2026 with new checkout flow).
+        # DEFAULT TRUE preserves existing behaviour for all current members —
+        # process_auto_renewals (in app/payment.py) already deducts $20 from
+        # balance if available, this column simply makes that controllable.
+        "ALTER TABLE membership_renewals ADD COLUMN IF NOT EXISTS auto_renew_from_balance BOOLEAN DEFAULT TRUE",
         "CREATE TABLE IF NOT EXISTS p2p_transfers (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), amount_usdt FLOAT, note VARCHAR, status VARCHAR DEFAULT 'completed', created_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_activated_by_referral BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS low_balance_warned BOOLEAN DEFAULT FALSE",

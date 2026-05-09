@@ -798,7 +798,13 @@ def process_auto_renewals(db: Session) -> dict:
 
         # ── Renewal due ─────────────────────────────────────────
         if now >= renewal.next_renewal_date and not renewal.in_grace_period:
-            if user.balance >= MEMBERSHIP_FEE:
+            # Respect opt-out: if the member has disabled auto-renewal from
+            # balance (set in checkout or via account settings), skip the
+            # deduction and go straight to grace period regardless of
+            # balance. The grace period notification gives them 5 days to
+            # manually renew.
+            auto_renew_enabled = bool(getattr(renewal, 'auto_renew_from_balance', True))
+            if auto_renew_enabled and user.balance >= MEMBERSHIP_FEE:
                 # Sufficient balance — auto-renew with 50/50 split
                 sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
 

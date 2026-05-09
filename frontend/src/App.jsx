@@ -33,6 +33,7 @@ const Analytics = React.lazy(() => import('./pages/Analytics'));
 const Support = React.lazy(() => import('./pages/Support'));
 const VideoLibrary = React.lazy(() => import('./pages/VideoLibrary'));
 const Upgrade = React.lazy(() => import('./pages/Upgrade'));
+const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
 const IncomeDisclaimer = React.lazy(() => import('./pages/IncomeDisclaimer'));
 const AiTool = React.lazy(() => import('./pages/AiTool'));
@@ -116,6 +117,7 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/Support'),
   () => import('./pages/VideoLibrary'),
   () => import('./pages/Upgrade'),
+  () => import('./pages/UpgradeCheckout'),
   () => import('./pages/CompensationPlan'),
   () => import('./pages/IncomeDisclaimer'),
   () => import('./pages/AiTool'),
@@ -271,7 +273,10 @@ function RequireTier({ tier, children }) {
   }
   if (tier === 'pro') {
     if (!isActive) return <Navigate to="/upgrade" replace />;
-    if (userTier !== 'pro') return <Navigate to="/upgrade" replace />;
+    // Pro-locked feature: user is already Basic-active, just deep-link them
+    // straight into the Pro checkout page — they've already implicitly chosen
+    // Pro by clicking a Pro-locked feature in the sidebar/UI.
+    if (userTier !== 'pro') return <Navigate to="/upgrade/checkout?plan=pro" replace />;
     return children;
   }
   // Unknown tier — fail-open to avoid breaking unintended pages
@@ -342,6 +347,7 @@ function AppRoutes() {
       <Route path="/income-disclaimer" element={<ProtectedRoute><IncomeDisclaimer /></ProtectedRoute>} />
       <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>{'Loading 3D Grid...'}</div>}><IncomeGrid3DPage /></React.Suspense>} />
       <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+      <Route path="/upgrade/checkout" element={<ProtectedRoute><UpgradeCheckout /></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}
       <Route path="/linkhub" element={<ProtectedRoute><RequireTier tier="basic"><LinkHubPage /></RequireTier></ProtectedRoute>} />

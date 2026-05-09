@@ -6469,6 +6469,63 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
             ))
 
     db.commit()
+
+
+# ── Auto-renew preference (added 9 May 2026 with new checkout flow) ─────
+@app.get("/api/auto-renew-preference")
+async def api_get_auto_renew_preference(db: Session = Depends(get_db),
+                                          user: User = Depends(get_current_user)):
+    """Return the user's current auto-renew-from-balance preference.
+
+    Used by:
+      - Account settings page (so the toggle reflects current state)
+      - Checkout flow (so we can pre-fill the checkbox if user already opted in)
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import MembershipRenewal
+    renewal = db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user.id).first()
+    if not renewal:
+        # No renewal row yet (member hasn't activated) — return default
+        return {"auto_renew_from_balance": True, "has_renewal": False}
+    return {
+        "auto_renew_from_balance": bool(getattr(renewal, "auto_renew_from_balance", True)),
+        "has_renewal": True,
+    }
+
+
+@app.post("/api/auto-renew-preference")
+async def api_set_auto_renew_preference(request: Request, db: Session = Depends(get_db),
+                                          user: User = Depends(get_current_user)):
+    """Set the user's auto-renew-from-balance preference.
+
+    Body: {"enabled": true|false}
+
+    Called from:
+      - Account settings toggle
+      - Checkout flow (when user opts in/out of auto-renewal at signup/upgrade)
+
+    Idempotent — calling with the same value as current state is a no-op
+    that still returns success.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+    enabled = bool(payload.get("enabled", True))
+
+    from .database import MembershipRenewal
+    renewal = db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user.id).first()
+    if not renewal:
+        return JSONResponse({"error": "No active renewal record (activate your membership first)"}, status_code=400)
+
+    renewal.auto_renew_from_balance = enabled
+    db.commit()
+    return {"ok": True, "auto_renew_from_balance": enabled}
+
+
 @app.post("/api/upgrade-to-pro")
 async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
                               user: User = Depends(get_current_user)):
@@ -17958,6 +18015,30 @@ def upgrade_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/upgrade/checkout")
+def upgrade_checkout_page(request: Request):
+    """Serve React SPA (Step 2 of new upgrade flow, added 9 May 2026).
+
+    Accepts ?plan=basic or ?plan=pro query param. Reads on the React side.
+    """
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/upgrade-to-pro")
+def upgrade_to_pro_redirect(request: Request):
+    """301 redirect to the new checkout flow (added 9 May 2026).
+
+    Sidebar Pro-locked items (SuperPages, ProSeller, MyLeads, Create Course)
+    historically link to /upgrade-to-pro. With the new two-step upgrade flow,
+    those deep-link directly into checkout with Pro pre-selected — no need to
+    re-ask 'which plan' since clicking a Pro-locked feature already implies
+    that choice.
+    """
+    return RedirectResponse(url="/upgrade/checkout?plan=pro", status_code=301)
 
 
 # ── React-route serving handlers (audit batch, 7 May 2026) ─────────
