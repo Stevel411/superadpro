@@ -596,31 +596,34 @@ export function WalletConnectGate(props) {
     );
   }
 
-  // Disconnected state — compact "Connect Wallet" pill for header
+  // Disconnected state — compact "Connect Wallet" pill for header.
+  // Tinted to blend with the cobalt header so it doesn't visually
+  // compete with page-level "Connect Wallet — $X" CTAs (e.g. on
+  // PayItForward, UpgradeCheckout). Acts as a quiet status indicator
+  // here in the header. Once connected, the green pill below pops
+  // against the dark header — confirms the connection clearly.
   if (compact) {
     return (
       <button onClick={handleClick}
         style={Object.assign({
           display: 'inline-flex', alignItems: 'center', gap: 6,
-          padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+          padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
           fontFamily: 'inherit',
-          border: 'none',
-          background: 'linear-gradient(135deg, #f3ba2f 0%, #e8a317 100%)',
-          color: '#1a1a1a',
+          border: '1px solid rgba(255,255,255,0.15)',
+          background: 'rgba(255,255,255,0.08)',
+          color: 'rgba(255,255,255,0.85)',
           cursor: 'pointer',
-          transition: 'transform .15s, box-shadow .15s, filter .15s',
+          transition: 'background .2s, border-color .2s',
           whiteSpace: 'nowrap',
-          boxShadow: '0 2px 8px rgba(243, 186, 47, 0.4), 0 0 0 1px rgba(243, 186, 47, 0.3)',
+          backdropFilter: 'blur(4px)',
         }, props.style || {})}
         onMouseOver={function(e) {
-          e.currentTarget.style.transform = 'translateY(-1px)';
-          e.currentTarget.style.boxShadow = '0 4px 14px rgba(243, 186, 47, 0.55), 0 0 0 1px rgba(243, 186, 47, 0.5)';
-          e.currentTarget.style.filter = 'brightness(1.05)';
+          e.currentTarget.style.background = 'rgba(255,255,255,0.14)';
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)';
         }}
         onMouseOut={function(e) {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 2px 8px rgba(243, 186, 47, 0.4), 0 0 0 1px rgba(243, 186, 47, 0.3)';
-          e.currentTarget.style.filter = 'brightness(1)';
+          e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
         }}>
         <span aria-hidden="true" style={{ fontSize: 13 }}>⛓</span>
         <span>{props.label || 'Connect Wallet'}</span>
