@@ -292,24 +292,30 @@ export default function PayItForward() {
                 via context). Step 4 triple-rail audit (7 May 2026) added this
                 rail; today's pass made it visually distinct from the other two
                 so members can clearly tell internal-balance / NOWPayments /
-                self-custody-BSC apart. */}
-            <Suspense fallback={null}>
-              <WalletPayLink
-                productType="pif"
-                productKey="pif_voucher"
-                productMeta={{
-                  recipient_name: recipientName,
-                  personal_message: message,
-                }}
-                label="Connect Wallet to Pay Direct (BSC) — $20"
-                style={{
-                  width:'100%', maxWidth:380, padding:'13px 24px', borderRadius:11, border:'none',
-                  fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
-                  background:'linear-gradient(135deg,#ea580c,#f97316)',
-                  boxShadow:'0 4px 14px rgba(249,115,22,.35)',
-                }}
-              />
-            </Suspense>
+                self-custody-BSC apart.
+                Wrapped in a sized container (width:100%, maxWidth:380) so it
+                centres under the other two buttons within the column flex
+                container — without this, the WalletPayLink's own wrapper div
+                stretches to full width and the button drifts left. */}
+            <div style={{ width:'100%', maxWidth:380 }}>
+              <Suspense fallback={null}>
+                <WalletPayLink
+                  productType="pif"
+                  productKey="pif_voucher"
+                  productMeta={{
+                    recipient_name: recipientName,
+                    personal_message: message,
+                  }}
+                  label="Connect Wallet to Pay Direct (BSC) — $20"
+                  style={{
+                    width:'100%', padding:'13px 24px', borderRadius:11, border:'none',
+                    fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
+                    background:'linear-gradient(135deg,#ea580c,#f97316)',
+                    boxShadow:'0 4px 14px rgba(249,115,22,.35)',
+                  }}
+                />
+              </Suspense>
+            </div>
           </div>
 
           <div style={{ display:'flex', justifyContent:'center' }}>
