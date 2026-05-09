@@ -624,7 +624,7 @@ export function WalletConnectGate(props) {
   // Disconnected state — full-width connect button (page-level)
   var label = props.label || 'Connect wallet to pay direct (BSC)';
   return (
-    <div>
+    <div style={{ width: '100%' }}>
       <button onClick={handleClick}
         style={Object.assign({
           width: '100%',

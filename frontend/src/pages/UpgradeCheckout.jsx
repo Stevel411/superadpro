@@ -215,8 +215,9 @@ export default function UpgradeCheckout() {
         /* Wider layout so rail descriptions fit on one line where possible.
            680 was tight — the 'works with MetaMask, Trust, Coinbase...'
            text wrapped and ate vertical space. 760 gives room without
-           feeling sprawling. */
-        .uchk-wrap{max-width:760px;margin:0 auto;padding:0 20px}
+           feeling sprawling. Bottom padding (40px) ensures the CTA has
+           breathing room below it instead of jamming against the page edge. */
+        .uchk-wrap{max-width:760px;margin:0 auto;padding:0 20px 40px}
         .uchk-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:#64748b;text-decoration:none;font-weight:500;margin-bottom:12px}
         .uchk-back:hover{color:#0f172a}
 
