@@ -6248,14 +6248,97 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 # (Legacy _stripe_process_supermarket helper removed — SuperMarket/DigitalProduct
 # feature has been retired. Tables remain in the database for historical integrity
 # but no new purchases can be created.)
+def _classify_membership_activation(user, target_tier: str, target_billing: str) -> str:
+    """Determine what kind of activation this is from the user's CURRENT state.
+
+    This is the single source of truth for the question 'should sponsor
+    get paid commission on this activation?'. Replaces the previous
+    pattern of trusting an is_upgrade flag passed in by the caller, which
+    was inconsistent across the three callsite paths (upgrade-to-pro,
+    nowpayments-create-invoice, walletconnect-intent) and led to silent
+    commission double-pays for same-tier monthly→annual switches and
+    Basic→Pro Annual upgrades via wallet.
+
+    Returns one of:
+      - "fresh"          User is inactive. Fresh activation.
+                         Pays sponsor commission.
+      - "reactivation"   User was active but lapsed (membership_expires_at
+                         in the past). They came back. Pays sponsor
+                         commission — sponsor brought them back too.
+      - "tier_upgrade"   Basic → Pro. Existing Basic time absorbed.
+                         No sponsor commission (the upgrade fee goes
+                         100% to company per commission spec).
+      - "cadence_switch" Same-tier Monthly → Annual. Existing monthly
+                         time absorbed. No sponsor commission (already
+                         paid on the original monthly activation).
+      - "redundant"      User already has exactly what they're trying to
+                         buy. Caller should reject this BEFORE calling
+                         _activate_membership; if it gets here it's a
+                         bug — log loudly.
+
+    Call this BEFORE mutating user.is_active, user.membership_tier, or
+    user.membership_billing, otherwise the classification is wrong.
+    """
+    target_tier = (target_tier or "basic").lower()
+    target_billing = (target_billing or "monthly").lower()
+
+    if not user.is_active:
+        # Was the user previously active and now lapsed? Check expiry —
+        # if they have an activated_at timestamp and the expiry is in
+        # the past, they're returning, not fresh. Either way we pay
+        # sponsor commission, so the distinction is informational
+        # (showing up in logs and the source field).
+        if user.activated_at and user.membership_expires_at:
+            from datetime import datetime
+            if user.membership_expires_at < datetime.utcnow():
+                return "reactivation"
+        return "fresh"
+
+    # User is active. Compare current state against target.
+    current_tier = (user.membership_tier or "basic").lower()
+    current_billing = (getattr(user, "membership_billing", None) or "monthly").lower()
+
+    if current_tier == target_tier and current_billing == target_billing:
+        return "redundant"
+    if current_tier == "basic" and target_tier == "pro":
+        return "tier_upgrade"
+    if current_tier == target_tier and current_billing == "monthly" and target_billing == "annual":
+        return "cadence_switch"
+
+    # Edge cases that shouldn't happen via legitimate flows:
+    #   - pro → basic (downgrade not supported on platform)
+    #   - annual → monthly within same tier (no UI surfaces this)
+    # Treat as fresh activation defensively. If we ever add a real
+    # downgrade flow we'd add a "downgrade" case here.
+    return "fresh"
+
+
 def _activate_membership(db, user, tier, source="crypto", subscription_id=None, is_upgrade=False, billing="monthly"):
     """
     Shared membership activation — used by BOTH Stripe and Crypto.
     Handles: activation, payment record, sponsor commission, renewal record, welcome email.
-    
-    Commission rules:
-    - Sponsor commission is capped at their own tier level ($10 Basic, $17.50 Pro)
-    - Upgrades (Basic→Pro) pay $15 to company only, no sponsor commission
+
+    AS OF 9 MAY 2026 (engine-level upgrade detection):
+
+    The is_upgrade parameter is now ADVISORY ONLY. The engine determines
+    upgrade-vs-fresh from the user's current state (via
+    _classify_membership_activation) rather than trusting the caller.
+
+    Why: prior architecture had three separate callsite paths each doing
+    their own partial classification (upgrade-to-pro endpoint, nowpayments
+    create-invoice, and walletconnect-intent). Each had different bugs
+    around same-tier monthly→annual switches and Basic→Pro Annual via
+    wallet, leading to silent commission double-pays.
+
+    The is_upgrade parameter is kept for callsite compatibility but a
+    warning is logged when it disagrees with the engine's classification
+    so we can find and clean up stale callers.
+
+    Commission rules (unchanged, just enforced consistently now):
+    - Sponsor commission paid on fresh activation and reactivation
+    - Sponsor commission NOT paid on tier upgrades (Basic→Pro)
+    - Sponsor commission NOT paid on cadence switches (Monthly→Annual)
+    - Commission capped at sponsor's own tier ($10/$17.50 monthly, $100/$175 annual)
     """
     from datetime import datetime, timedelta
     from decimal import Decimal
@@ -6268,6 +6351,48 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
 
     is_annual = (billing == "annual")
     fee = ANNUAL_MEMBERSHIP_PRICES.get(tier, Decimal("200.00")) if is_annual else MEMBERSHIP_PRICES.get(tier, Decimal("20.00"))
+
+    # ── Engine classification: must run BEFORE we mutate user state ──
+    activation_type = _classify_membership_activation(user, tier, billing)
+
+    # Reject redundant activations defensively. Callers should catch this
+    # before reaching here, but if they don't, refusing is safer than
+    # double-charging or double-activating.
+    if activation_type == "redundant":
+        logger.warning(
+            f"_activate_membership called for redundant activation: "
+            f"user {user.id} already on {user.membership_tier} "
+            f"{getattr(user, 'membership_billing', 'monthly')}, "
+            f"asked to activate {tier} {billing}. Refusing."
+        )
+        return JSONResponse(
+            {"error": f"You're already on {tier} {billing}."},
+            status_code=400,
+        )
+
+    # No-commission scenarios per commission spec:
+    #   - tier_upgrade (Basic→Pro): upgrade fee is 100% company
+    #   - cadence_switch (Monthly→Annual same tier): already paid on monthly
+    pays_sponsor_commission = activation_type in ("fresh", "reactivation")
+
+    # Caller-passed is_upgrade is now ADVISORY. Compare it against the
+    # engine's classification and warn if they disagree — this finds
+    # stale callsites that didn't update with the new pattern.
+    caller_thinks_upgrade = bool(is_upgrade)
+    engine_thinks_no_commission = (not pays_sponsor_commission)
+    if caller_thinks_upgrade != engine_thinks_no_commission:
+        logger.warning(
+            f"is_upgrade flag disagrees with engine classification — "
+            f"user {user.id}, target {tier}/{billing}, current "
+            f"{user.membership_tier}/{getattr(user, 'membership_billing', 'monthly')} "
+            f"(active={user.is_active}). caller={caller_thinks_upgrade}, "
+            f"engine={activation_type} (pays_commission={pays_sponsor_commission}). "
+            f"Engine wins."
+        )
+
+    # The activation_type variable is the source of truth from here on.
+    # is_upgrade local var below is set from engine, NOT from caller.
+    is_upgrade = (activation_type in ("tier_upgrade", "cadence_switch"))
 
     # Activate user
     user.is_active = True
@@ -6282,10 +6407,17 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     if subscription_id:
         user.stripe_subscription_id = subscription_id
 
-    # Record payment
-    if is_upgrade:
-        actual_charge = Decimal("15.00")  # upgrade difference only
+    # Record payment. payment_type and actual_charge depend on activation_type.
+    if activation_type == "tier_upgrade":
+        actual_charge = Decimal("15.00")  # Basic→Pro Monthly difference
+        # Pro Annual purchase from a Basic Monthly user pays full $350,
+        # not the $15 difference, because annual replaces the whole window.
+        if is_annual:
+            actual_charge = fee
         payment_type = "membership_upgrade"
+    elif activation_type == "cadence_switch":
+        actual_charge = fee  # full annual price
+        payment_type = "membership_cadence_switch"
     else:
         actual_charge = fee
         payment_type = "membership"
@@ -6305,8 +6437,10 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
         db.add(payment)
         db.flush()
 
-    # Credit sponsor commission (NOT on upgrades — upgrade fee goes 100% to company)
-    if user.sponsor_id and not is_upgrade:
+    # Credit sponsor commission only when the engine says so.
+    # Replaces the old `not is_upgrade` check, which was vulnerable to
+    # callers passing the wrong flag.
+    if user.sponsor_id and pays_sponsor_commission:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
             sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
@@ -6407,9 +6541,12 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Best-effort, won't break the activation transaction if it fails.
     try:
         from .database import Notification
-        if is_upgrade:
+        if activation_type == "tier_upgrade":
             title = f"⚡ Upgraded to Pro!"
             message = f"Welcome to Pro membership. All Pro tools are now unlocked. Next step: activate a Campaign Tier to start earning."
+        elif activation_type == "cadence_switch":
+            title = f"✅ Switched to annual {tier} membership"
+            message = f"You're locked in for 365 days at the discounted annual rate. Active until {user.membership_expires_at.strftime('%d %b %Y')}."
         elif is_annual:
             title = f"✅ {tier.title()} membership activated (annual)"
             message = f"Annual {tier} membership active until {user.membership_expires_at.strftime('%d %b %Y')}. Next step: activate a Campaign Tier to start earning."
@@ -21531,6 +21668,100 @@ def admin_membership_state(
         ],
         "computed_status": status,
         "lapsed_explanation": lapsed_explanation,
+    }
+
+
+@app.get("/admin/api/audit-double-pays")
+def admin_audit_double_pays(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Find historical sponsor commission overpayments from the upgrade-flag
+    bug class fixed on 9 May 2026 (engine-level upgrade detection).
+
+    Bug summary: prior to engine-level classification, three callsites had
+    inconsistent is_upgrade detection. NOWPayments and WalletConnect rails
+    incorrectly paid sponsor commission on:
+      - Same-tier Monthly→Annual switches (via either rail)
+      - Basic→Pro Annual upgrades (via WalletConnect rail only)
+      - Basic→Pro Monthly upgrades (via WalletConnect rail only — pre-existing bug)
+
+    NOWPayments Basic→Pro Monthly was correctly handled (line 7990 set
+    is_upgrade=True via product_meta), so it's the only path that
+    historically worked correctly for upgrades.
+
+    This endpoint reads the Commission table and reports rows that look
+    like overpayments based on the relationship between the
+    commission_type and the user's eventual upgrade history. Read-only —
+    does not reverse anything. Admin discretion required for cleanup.
+    """
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from .database import Commission, Payment
+
+    # Find users who have BOTH:
+    #   - A "membership" type sponsor commission paid (looks like fresh activation)
+    #   - A subsequent or prior "membership_upgrade" or membership-annual Payment row
+    # That combination strongly suggests the second activation should have
+    # been classified as an upgrade/switch but paid commission anyway.
+    suspect_users = db.query(User).filter(User.is_active == True).all()
+
+    findings = []
+    for u in suspect_users:
+        # All sponsor commissions ever paid for this user's activations
+        commissions = db.query(Commission).filter(
+            Commission.from_user_id == u.id,
+            Commission.commission_type == "membership",
+        ).order_by(Commission.created_at).all()
+
+        if len(commissions) <= 1:
+            continue  # 0 or 1 commission — can't be a double-pay yet
+
+        # 2+ membership-type commissions for the same user. That's
+        # suspicious by definition: a member only "fresh activates"
+        # once. Subsequent activations should be tier_upgrade or
+        # cadence_switch, neither of which pays sponsor commission.
+        # The first commission is legitimate; everything after the
+        # first is a candidate overpayment.
+        legit = commissions[0]
+        suspect = commissions[1:]
+        findings.append({
+            "user_id": u.id,
+            "username": u.username,
+            "current_tier": u.membership_tier,
+            "current_billing": getattr(u, "membership_billing", None),
+            "legitimate_commission": {
+                "id": legit.id,
+                "to_user_id": legit.to_user_id,
+                "amount_usdt": float(legit.amount_usdt or 0),
+                "created_at": legit.created_at.isoformat() if legit.created_at else None,
+            },
+            "suspect_commissions": [
+                {
+                    "id": c.id,
+                    "to_user_id": c.to_user_id,
+                    "amount_usdt": float(c.amount_usdt or 0),
+                    "created_at": c.created_at.isoformat() if c.created_at else None,
+                    "notes": c.notes,
+                }
+                for c in suspect
+            ],
+            "suspect_total_usdt": float(sum((c.amount_usdt or 0) for c in suspect)),
+        })
+
+    return {
+        "checked_active_users": len(suspect_users),
+        "users_with_suspect_commissions": len(findings),
+        "total_suspect_amount_usdt": float(sum(f["suspect_total_usdt"] for f in findings)),
+        "findings": findings,
+        "next_step": (
+            "Review each user's commission history. If suspect commissions "
+            "correspond to legitimate tier_upgrade or cadence_switch events, "
+            "they should be reversed. Reversal endpoint: see admin tooling "
+            "(write a one-shot endpoint with explicit user_id + commission_id "
+            "list rather than a blanket reversal — keeps the cleanup auditable)."
+        ),
     }
 
 

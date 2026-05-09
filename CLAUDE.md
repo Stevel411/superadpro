@@ -69,6 +69,17 @@ Always diagnose from first principles before writing any fix. Understand the roo
 ### Use Existing Logic
 If commission logic exists in a module, USE IT — don't write simplified duplicates in route handlers.
 
+### Engine-Level Invariants Over Caller-Passed Flags
+When the same business decision needs to be made at multiple callsites (e.g. "is this an upgrade or a fresh activation?", "should sponsor commission be paid?"), implement it INSIDE the engine that makes the decision — not as a flag each caller has to remember to pass correctly.
+
+Why: every caller is one developer-mistake away from getting the flag wrong. As callers multiply, the surface area for silent bugs multiplies with them. The 9 May 2026 commission double-pay bugs (NOWPayments and WalletConnect rails paying sponsor commission on same-tier monthly→annual switches and Basic→Pro Annual upgrades) are the canonical example: three callsites each had different partial logic, and one had no logic at all.
+
+Pattern: the engine examines the *current state* of the entities involved and classifies the operation itself. The classification, not a caller-passed flag, drives the side-effect decisions. Caller-passed flags can remain as advisory hints — log a warning when caller and engine disagree so stale callers surface during development.
+
+The same pattern fixed the test1/test2 stuck-lapsed bug: the original code class was "fragile cooperation between caller and callee, where caller must remember to do X." The fix-forward was "callee enforces the invariant, callers can't get it wrong."
+
+For the membership engine specifically (`_activate_membership` in `app/main.py`): it now calls `_classify_membership_activation(user, target_tier, target_billing)` BEFORE mutating user state, returning one of `"fresh"`, `"reactivation"`, `"tier_upgrade"`, `"cadence_switch"`, `"redundant"`. The classification — not the caller's `is_upgrade` parameter — determines whether sponsor commission is paid. NEVER reintroduce trust in caller-passed flags for the commission decision.
+
 ### Reuse Existing Components
 Before building ANY new feature, check how similar features work elsewhere in the codebase. If a component exists (e.g. CryptoCheckout, AppLayout, CryptoPaymentOrder flow), USE IT. Never write a custom version of something that already works. Ask: "How does this work everywhere else on the platform?"
 
