@@ -3728,8 +3728,12 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
                 safe[k] = str(v)
         t3 = _t.time()
 
-        # Cache for 60 seconds
-        cache_set(cache_key, safe, ttl=60)
+        # Cache for 5 seconds — was 60s, but caused balance to lag visibly
+        # after payments/commissions. cache_invalidate_user() is only wired
+        # up to notification creation, missing several commission-credit paths.
+        # Shorter TTL is the safer fix; proper invalidation is post-launch.
+        # (Decided 9 May 2026 before launch.)
+        cache_set(cache_key, safe, ttl=5)
 
         logger.info(f"Dashboard API timing: achievements={t1-t0:.3f}s context={t2-t1:.3f}s serialize={t3-t2:.3f}s total={t3-t0:.3f}s")
         return safe
@@ -11272,7 +11276,7 @@ def compute_descendant_counts(db: Session, user_id: int) -> dict:
         return result
 
     result = {"total": total, "active": active, "inactive": inactive}
-    cache_set(cache_key, result, ttl=60)
+    cache_set(cache_key, result, ttl=5)  # was 60s — see compute_user_earnings note
     return result
 
 
@@ -11301,7 +11305,7 @@ def compute_total_withdrawn(db: Session, user_id: int) -> float:
     ).scalar() or 0
 
     result = float(total)
-    cache_set(cache_key, result, ttl=60)
+    cache_set(cache_key, result, ttl=5)  # was 60s — see compute_user_earnings note
     return result
 
 
@@ -11386,7 +11390,21 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
         "membership_earnings": round(membership, 2),
         "personal_referrals": direct_refs,
     }
-    cache_set(cache_key, result, ttl=60)
+    # Cache TTL: 5s. Was 60s, but caused a real-money smoke test on
+    # 9 May 2026 (Steve's $20 WalletConnect membership purchase) to
+    # show stale balance for ~60 seconds after the commission posted —
+    # exactly the kind of thing that makes a member think their payment
+    # failed and contact support. Root cause: cache_invalidate_user() in
+    # stats_cache.py only clears keys with prefixes 'dash:' / 'analytics:',
+    # missing 'descendants:' / 'withdrawn:' / 'earnings:' which were added
+    # in the 1 May data integrity work. The proper fix is to extend the
+    # invalidator AND call it at every commission write site (sponsor
+    # commissions in _activate_membership, _crypto_activate_product, gift
+    # voucher, grid completion bonus, credit nexus payout, course
+    # commission, etc.) — that's an audit job for after launch. Until
+    # then, 5s TTL gives "max 5 second lag" which is fast enough that no
+    # member notices.
+    cache_set(cache_key, result, ttl=5)
     return result
 
 
