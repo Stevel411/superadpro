@@ -362,7 +362,7 @@ export default function UpgradeCheckout() {
             var insufficientBalance = price !== null && balance < price;
             var balanceDisabled = basicAnnualBalance || insufficientBalance;
             var balanceMsg = basicAnnualBalance
-              ? '(annual plan must use MetaMask or NOWPayments)'
+              ? '(annual plan must use Crypto Wallet or NOWPayments)'
               : (insufficientBalance ? '(insufficient — top up or use another method)' : null);
             return (
               <button
@@ -389,11 +389,11 @@ export default function UpgradeCheckout() {
             onClick={function() { setRail('wallet'); }}
           >
             <div className="uchk-rail-icon" style={{ background:'#fff7ed' }}>
-              <span style={{ fontSize:18 }}>🦊</span>
+              <span style={{ fontSize:18 }}>👛</span>
             </div>
             <div style={{ flex:1 }}>
-              <div className="uchk-rail-name">MetaMask Wallet</div>
-              <div className="uchk-rail-desc">Pay USDT directly on BNB Chain — connect your wallet</div>
+              <div className="uchk-rail-name">Crypto Wallet</div>
+              <div className="uchk-rail-desc">Pay USDT on BNB Chain — works with MetaMask, Trust, Coinbase, Rainbow, OKX and 300+ wallets</div>
             </div>
           </button>
 
@@ -437,7 +437,7 @@ export default function UpgradeCheckout() {
                         ? (cadence === 'annual' ? 'membership_pro_annual' : 'membership_pro_upgrade')
                         : (cadence === 'annual' ? 'membership_basic_annual' : 'membership_basic')
                     }
-                    label={'Pay $' + price + ' with MetaMask'}
+                    label={'Pay $' + price + ' with wallet'}
                     style={{ padding:'14px 28px', fontSize:15, fontWeight:700, borderRadius:12, minWidth:200,
                              color:'#fff',
                              background: plan === 'pro' ? 'linear-gradient(135deg,#7f1d1d,#dc2626)' : 'linear-gradient(135deg,#1e3a8a,#2563eb)',
