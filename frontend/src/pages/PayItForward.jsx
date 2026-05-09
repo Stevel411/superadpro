@@ -254,30 +254,45 @@ export default function PayItForward() {
             {data && <span> · Wallet balance: <strong style={{ color:'var(--sap-green-mid)' }}>${data.wallet_balance.toFixed(2)}</strong></span>}
           </div>
 
-          <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:12 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:12, alignItems:'center' }}>
+            {/* 1. Internal platform wallet — cobalt blue */}
             <button onClick={function() { createVoucher('wallet'); }} disabled={creating || !canPayFromWallet}
               style={{
-                width:'100%', padding:14, borderRadius:10, border:'none', cursor: creating || !canPayFromWallet ? 'not-allowed' : 'pointer',
-                fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff',
-                background: canPayFromWallet ? 'linear-gradient(135deg,#059669,#10b981)' : 'var(--sap-text-ghost)',
-                boxShadow: canPayFromWallet ? '0 4px 12px rgba(16,185,129,.3)' : 'none',
+                width:'100%', maxWidth:380, padding:'13px 24px', borderRadius:11, border:'none',
+                cursor: creating || !canPayFromWallet ? 'not-allowed' : 'pointer',
+                fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
+                background: canPayFromWallet ? 'linear-gradient(135deg,#1e3a8a,#2563eb)' : 'var(--sap-text-ghost)',
+                boxShadow: canPayFromWallet ? '0 4px 14px rgba(37,99,235,.35)' : 'none',
                 display:'flex', alignItems:'center', justifyContent:'center', gap:8,
-              }}>
-              {creating ? t('payItForward.creating') : canPayFromWallet ? t('payItForward.payWallet') : t('payItForward.insufficientBalance')}
-            </button>
-            <button onClick={function() { createVoucher('crypto'); }} disabled={creating}
-              style={{
-                width:'100%', padding:14, borderRadius:10, border:'1.5px solid #e2e8f0', cursor: creating ? 'not-allowed' : 'pointer',
-                fontFamily:'inherit', fontSize:15, fontWeight:700, color:'var(--sap-text-secondary)', background:'#fff',
-                display:'flex', alignItems:'center', justifyContent:'center', gap:8,
-              }}>
-              {creating ? t('payItForward.creating') : t('payItForward.payCrypto')}
+                transition:'transform .15s,box-shadow .25s',
+              }}
+              onMouseOver={canPayFromWallet ? function(e){e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 6px 20px rgba(37,99,235,.45)';} : undefined}
+              onMouseOut={canPayFromWallet ? function(e){e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 4px 14px rgba(37,99,235,.35)';} : undefined}>
+              {creating ? t('payItForward.creating') : canPayFromWallet ? 'Internal Wallet — $20' : t('payItForward.insufficientBalance')}
             </button>
 
-            {/* WalletConnect (self-custody) — only renders if wallet connected.
-                Step 4 triple-rail audit (7 May 2026): added so members can
-                pay direct from their own BSC wallet without going through a
-                third-party processor. */}
+            {/* 2. NOWPayments — green */}
+            <button onClick={function() { createVoucher('crypto'); }} disabled={creating}
+              style={{
+                width:'100%', maxWidth:380, padding:'13px 24px', borderRadius:11, border:'none',
+                cursor: creating ? 'not-allowed' : 'pointer',
+                fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
+                background:'linear-gradient(135deg,#059669,#10b981)',
+                boxShadow:'0 4px 14px rgba(16,185,129,.35)',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                transition:'transform .15s,box-shadow .25s',
+              }}
+              onMouseOver={function(e){e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 6px 20px rgba(16,185,129,.45)';}}
+              onMouseOut={function(e){e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 4px 14px rgba(16,185,129,.35)';}}>
+              {creating ? t('payItForward.creating') : 'NOWPayments — $20'}
+            </button>
+
+            {/* 3. WalletConnect / direct-from-wallet on BSC — orange.
+                Only renders when wallet is connected (handled by WalletPayLink
+                via context). Step 4 triple-rail audit (7 May 2026) added this
+                rail; today's pass made it visually distinct from the other two
+                so members can clearly tell internal-balance / NOWPayments /
+                self-custody-BSC apart. */}
             <Suspense fallback={null}>
               <WalletPayLink
                 productType="pif"
@@ -286,8 +301,13 @@ export default function PayItForward() {
                   recipient_name: recipientName,
                   personal_message: message,
                 }}
-                label="Pay $20 from wallet"
-                style={{ padding:'12px 16px', fontSize:13, borderRadius:10 }}
+                label="Connect Wallet to Pay Direct (BSC) — $20"
+                style={{
+                  width:'100%', maxWidth:380, padding:'13px 24px', borderRadius:11, border:'none',
+                  fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
+                  background:'linear-gradient(135deg,#ea580c,#f97316)',
+                  boxShadow:'0 4px 14px rgba(249,115,22,.35)',
+                }}
               />
             </Suspense>
           </div>
