@@ -320,18 +320,31 @@ export default function PaymentSuccess() {
                 </div>
               ) : null}
 
-              {/* CTA — single button so users have one clear next action.
-                  Steve clicked the secondary 'Back to Dashboard' by mistake
-                  during 7 May testing — easy to do, and it sent him to the
-                  wrong place. The success page now shows only the primary
-                  'View Profit Nexus' (or equivalent for other product types)
-                  button, which navigates to config.action — the right place
-                  for the product they just bought. */}
+              {/* CTA — primary action goes to the relevant feature
+                  (config.action — e.g. /dashboard for membership,
+                  /credit-nexus for credit packs). Secondary 'Back to
+                  Dashboard' button below ensures the user always has a
+                  clear way out, even if the primary action label feels
+                  feature-specific and they just want to get to the
+                  homepage. The previous version of this page had only
+                  the primary CTA — Steve hit a dead-end on a real
+                  WalletConnect payment because the page rendered the
+                  CTA below the on-chain receipt and it wasn't obvious
+                  where to go. (Fixed 9 May 2026 after smoke test.) */}
               <button
-                onClick={function() { navigate(config.action); }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 12, border: 'none', background: `linear-gradient(135deg, ${config.color}, ${config.color}cc)`, color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Sora,sans-serif', boxShadow: `0 4px 16px ${config.color}40`, marginBottom: 12, width: '100%', justifyContent: 'center' }}
+                onClick={function() { navigate(config.action || '/dashboard'); }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 12, border: 'none', background: `linear-gradient(135deg, ${config.color}, ${config.color}cc)`, color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'Sora,sans-serif', boxShadow: `0 6px 20px ${config.color}50`, marginTop: 8, marginBottom: 10, width: '100%', justifyContent: 'center' }}
               >
-                {config.actionLabel} <ArrowRight size={16} />
+                {config.actionLabel || 'Go to Dashboard'} <ArrowRight size={16} />
+              </button>
+
+              {/* Secondary: explicit Dashboard escape hatch, always
+                  available regardless of which product config is loaded. */}
+              <button
+                onClick={function() { navigate('/dashboard'); }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: '1px solid #e8ecf2', background: '#fff', color: 'var(--sap-text-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%', justifyContent: 'center' }}
+              >
+                <Home size={14} /> Back to Dashboard
               </button>
             </div>
           </div>
