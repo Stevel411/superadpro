@@ -157,21 +157,24 @@ export default function GiftLanding() {
   );
 
   // ─── Main landing page ─────────────────────────────────────────
-  // Layout: bokeh hero at top, page bg is the warm brown sampled from
-  // the image's bottom edge so where the image ends and the page bg
-  // begins is seamless — no white fade, no visible transition line.
-  // All below-video text is light-on-dark.
+  // Layout: bokeh hero at top fades softly into the page bg at the
+  // bottom edge. Page bg #6d5441 sampled from the bottom-centre of the
+  // image (the brightest visible spot at the eye line, so the colour
+  // match is at its strongest there). The hero gradient fades the
+  // image *itself* out over its bottom 25%, dissolving into the bg
+  // rather than ending at a hard line.
   return (
-    <div style={{ minHeight:'100vh', background:'#7a5845', position:'relative' }}>
+    <div style={{ minHeight:'100vh', background:'#6d5441', position:'relative' }}>
 
-      {/* Hero band — bokeh image at native size up top. No more fade
-          gradient: the page bg behind/below the image is colour-matched
-          to the image's bottom edge (#7a5845, sampled from the bottom 2%
-          of the image), so where the image ends and the page bg begins
-          there's no visible seam. */}
+      {/* Hero band — bokeh with a soft fade-out at the bottom. The
+          gradient overlay starts at 60% (transparent — image fully
+          visible) and reaches the bg colour at 100%. So the image
+          gradually dissolves into the page bg over its bottom 40%
+          rather than ending at a hard cut. The eye reads continuous
+          tonal flow because the image and bg are colour-matched. */}
       <div style={{
         position:'relative',
-        backgroundImage:'url(/static/images/gift-hero.jpg)',
+        backgroundImage:'linear-gradient(180deg, rgba(109,84,65,0) 60%, rgba(109,84,65,0.5) 80%, rgba(109,84,65,0.85) 92%, rgba(109,84,65,1) 100%), url(/static/images/gift-hero.jpg)',
         backgroundSize:'cover',
         backgroundPosition:'center top',
         backgroundRepeat:'no-repeat',
