@@ -45,8 +45,15 @@ export default function UpgradeCheckout() {
   var [searchParams] = useSearchParams();
   var planParam = searchParams.get('plan') || 'basic';
   var plan = (planParam === 'pro') ? 'pro' : 'basic';
+  // Switch-to-annual flag: when present, the user came here from the
+  // "Switch to Annual" CTA on /upgrade. Pre-selects annual cadence,
+  // shows an explanatory banner, and routes balance payment to the
+  // /api/switch-to-annual endpoint instead of the standard upgrade path.
+  var switchMode = searchParams.get('switch') === 'annual';
 
-  var [cadence, setCadence] = useState(null);          // 'monthly' | 'annual' | null
+  // Default cadence: null (forces explicit choice) UNLESS we arrived in
+  // switch mode, where Annual is pre-selected since that's why they came.
+  var [cadence, setCadence] = useState(switchMode ? 'annual' : null);
   var [rail, setRail] = useState(null);                // 'balance' | 'wallet' | 'crypto' | null
   var [autoRenew, setAutoRenew] = useState(false);     // only relevant if rail==='balance' and cadence==='monthly'
   var [loading, setLoading] = useState(false);
@@ -56,7 +63,14 @@ export default function UpgradeCheckout() {
   var isPro       = user?.membership_tier === 'pro';
   var isActive    = user?.is_active;
   var isBasicActive = isActive && !isPro;
+  var billing     = (user?.membership_billing || 'monthly');
   var balance     = Number(user?.balance || 0);
+  // True when the user is genuinely a Monthly member of `plan` switching to annual.
+  // Defends against stale URLs (e.g. ?switch=annual on a fresh user).
+  var isLegitSwitch = switchMode && isActive && (
+    (plan === 'pro' && isPro && billing === 'monthly') ||
+    (plan === 'basic' && isBasicActive && billing === 'monthly')
+  );
 
   // ── Pricing matrix ──────────────────────────────────────────────
   // Pro monthly is special: existing Basic members pay only the $15 difference,
@@ -88,6 +102,27 @@ export default function UpgradeCheckout() {
 
     setLoading(true);
     setError('');
+
+    // ─── Switch-to-Annual path (same-tier monthly→annual) ─────────────
+    // For balance payments, route to the dedicated /api/switch-to-annual
+    // endpoint. For NOWPayments and MetaMask, fall through to the regular
+    // crypto/wallet paths below — those use membership_<tier>_annual product
+    // keys which already trigger the same _activate_membership(annual) logic
+    // on confirmation, so the same-tier switch happens transparently.
+    if (isLegitSwitch && rail === 'balance') {
+      apiPost('/api/switch-to-annual', { payment_method: 'balance' })
+        .then(function(d) {
+          setLoading(false);
+          if (d.message || d.success) {
+            if (refreshUser) refreshUser();
+            navigate('/dashboard?switched=annual');
+          } else {
+            setError(d.error || 'Switch failed — please try again');
+          }
+        })
+        .catch(function(e) { setLoading(false); setError(e.message || 'Switch failed'); });
+      return;
+    }
 
     if (plan === 'pro') {
       // Single endpoint handles all rails for pro upgrade
@@ -167,7 +202,11 @@ export default function UpgradeCheckout() {
   }
 
   // Pre-validate the user's state for this plan
-  var alreadyOnPlan = (plan === 'basic' && isBasicActive) || (plan === 'pro' && isPro);
+  // True when the user is already on this plan AND not in switch mode.
+  // In switch mode they ARE on this plan but came here specifically to
+  // change billing cadence, so the "already on this plan" lockout
+  // shouldn't apply.
+  var alreadyOnPlan = !isLegitSwitch && ((plan === 'basic' && isBasicActive) || (plan === 'pro' && isPro));
 
   // ── Render ──────────────────────────────────────────────────────
   return (
@@ -225,6 +264,33 @@ export default function UpgradeCheckout() {
           </div>
         )}
 
+        {/* Switch-to-annual banner — explains the value prop and what's happening
+            to existing monthly time. Only shows when the user genuinely arrived
+            from the "Switch to Annual" CTA on /upgrade and is in fact a Monthly
+            member (defends against stale ?switch=annual URLs). */}
+        {isLegitSwitch && (
+          <div style={{
+            padding:'14px 18px', background:'#eff6ff',
+            border:'1.5px solid #bfdbfe', borderRadius:12, marginBottom:18,
+            display:'flex', gap:12, alignItems:'flex-start',
+          }}>
+            <div style={{ width:32, height:32, borderRadius:8, background:'#dbeafe', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <Zap size={16} color="#1e40af"/>
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:14, fontWeight:700, color:'#1e3a8a', marginBottom:4 }}>
+                You're switching to Annual billing
+              </div>
+              <div style={{ fontSize:13, color:'#1e40af', lineHeight:1.5 }}>
+                Pay {plan === 'pro' ? '$350' : '$200'} once and get a fresh 365-day
+                membership starting today. The remaining time on your monthly plan is
+                included — you save {plan === 'pro' ? '$70/year' : '$40/year'} going
+                forward.
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Plan summary */}
         <div className="uchk-summary">
           <div>
@@ -246,15 +312,21 @@ export default function UpgradeCheckout() {
 
         {/* Cadence */}
         <div className="uchk-section">
-          <div className="uchk-section-label">1. Choose billing cadence</div>
+          <div className="uchk-section-label">
+            {isLegitSwitch ? '1. Confirm billing cadence' : '1. Choose billing cadence'}
+          </div>
           <div className="uchk-options-grid">
             <button
-              className={'uchk-opt' + (cadence === 'monthly' ? ' selected' + (plan === 'pro' ? ' pro' : '') : '')}
-              onClick={function() { setCadence('monthly'); }}
+              className={'uchk-opt' + (cadence === 'monthly' ? ' selected' + (plan === 'pro' ? ' pro' : '') : '') + (isLegitSwitch ? ' disabled' : '')}
+              onClick={function() { if (!isLegitSwitch) setCadence('monthly'); }}
+              disabled={isLegitSwitch}
             >
               <div className="uchk-opt-label">Monthly</div>
-              <div className="uchk-opt-meta">${prices[plan].monthly}/month</div>
-              {prices[plan].monthlySavings > 0 && (
+              <div className="uchk-opt-meta">
+                ${prices[plan].monthly}/month
+                {isLegitSwitch && <span style={{ color:'#94a3b8', marginLeft:6 }}>(your current plan)</span>}
+              </div>
+              {!isLegitSwitch && prices[plan].monthlySavings > 0 && (
                 <span className="uchk-opt-savings">Save ${prices[plan].monthlySavings} (Basic credit applied)</span>
               )}
             </button>
@@ -279,11 +351,14 @@ export default function UpgradeCheckout() {
           {/* Pay from balance.
               Disabled when:
                 - User's balance is below the price for the chosen cadence
-                - plan=basic AND cadence=annual (backend doesn't currently
-                  support Basic-Annual activation from balance — only the
-                  monthly $20 path exists in /api/membership/activate-from-balance) */}
+                - plan=basic AND cadence=annual AND NOT in switch mode
+                  (fresh Basic-Annual activation from balance has no backend
+                  endpoint — only the monthly $20 path exists in
+                  /api/membership/activate-from-balance. But Monthly→Annual
+                  switch from balance IS supported via /api/switch-to-annual,
+                  so when isLegitSwitch is true, balance is allowed.) */}
           {(function() {
-            var basicAnnualBalance = (plan === 'basic' && cadence === 'annual');
+            var basicAnnualBalance = (plan === 'basic' && cadence === 'annual' && !isLegitSwitch);
             var insufficientBalance = price !== null && balance < price;
             var balanceDisabled = basicAnnualBalance || insufficientBalance;
             var balanceMsg = basicAnnualBalance

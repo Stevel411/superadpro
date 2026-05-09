@@ -34,13 +34,28 @@ export default function Upgrade() {
 
   var isPro       = previewMode ? false : user?.membership_tier === 'pro';
   var isActive    = previewMode ? false : user?.is_active;
+  var billing     = previewMode ? null : (user?.membership_billing || 'monthly');
   var isBasicActive = isActive && !isPro;
+  // "Monthly with annual upgrade available" = active member on monthly billing
+  // who hasn't yet locked in the cheaper annual rate. They get a "Switch to
+  // Annual" CTA on their current tier card instead of the usual "Current plan".
+  var basicMonthlyCanSwitch = isBasicActive && billing === 'monthly';
+  var proMonthlyCanSwitch   = isPro && billing === 'monthly';
 
   function chooseBasic() {
     navigate('/upgrade/checkout?plan=basic');
   }
   function choosePro() {
     navigate('/upgrade/checkout?plan=pro');
+  }
+  // Switch-to-annual deep-link: pre-selects the Annual cadence on the
+  // checkout page via the &switch=annual flag, and shows the explanatory
+  // banner ("you're switching from Monthly to Annual...").
+  function switchBasicToAnnual() {
+    navigate('/upgrade/checkout?plan=basic&switch=annual');
+  }
+  function switchProToAnnual() {
+    navigate('/upgrade/checkout?plan=pro&switch=annual');
   }
 
   return (
@@ -88,8 +103,11 @@ export default function Upgrade() {
           headline="Basic"
           price="$20"
           priceSuffix="/mo"
+          annualPrice="$200"
+          annualSavings="$40/yr"
           tagline="Everything you need to start marketing and earning with AI tools."
           isCurrent={isBasicActive}
+          canSwitchToAnnual={basicMonthlyCanSwitch}
           isPro={isPro}
           heroFeatures={[
             { icon: <Zap size={16} color="#2563eb"/>, text: 'Creative Studio — AI video, images, music, voiceover' },
@@ -105,15 +123,19 @@ export default function Upgrade() {
             'Multi-language platform (20 locales)',
           ]}
           onChoose={chooseBasic}
+          onSwitchToAnnual={switchBasicToAnnual}
         />
         <PlanCard
           tier="pro"
           headline="Pro"
           price="$35"
           priceSuffix="/mo"
+          annualPrice="$350"
+          annualSavings="$70/yr"
           tagline="Full suite of AI marketing tools plus advanced automation and leads."
           mostPopular
           isCurrent={isPro}
+          canSwitchToAnnual={proMonthlyCanSwitch}
           heroFeatures={[
             { icon: <Wrench size={16} color="#dc2626"/>, text: 'Everything in Basic, plus:' },
             { icon: <Zap size={16} color="#dc2626"/>, text: 'SuperPages — AI-powered landing pages and funnels' },
@@ -127,6 +149,7 @@ export default function Upgrade() {
             'Annual plan saves $70/year',
           ]}
           onChoose={choosePro}
+          onSwitchToAnnual={switchProToAnnual}
         />
       </div>
 
@@ -143,10 +166,15 @@ export default function Upgrade() {
  * same expander, same CTA. The only thing that differs is colour palette,
  * the "Most Popular" pill on Pro, and the "Current Plan" state when active.
  */
-function PlanCard({ tier, headline, price, priceSuffix, tagline, mostPopular, isCurrent, isPro, heroFeatures, extraFeatures, onChoose }) {
+function PlanCard({ tier, headline, price, priceSuffix, annualPrice, annualSavings, tagline, mostPopular, isCurrent, canSwitchToAnnual, isPro, heroFeatures, extraFeatures, onChoose, onSwitchToAnnual }) {
   var [expanded, setExpanded] = useState(false);
   var heroClass = 'uplan-hero uplan-hero-' + tier;
   var iconClass = 'uplan-feat-icon uplan-feat-icon-' + tier;
+
+  // Three CTA states:
+  //   1. Not on this plan       → "Choose {tier} →" (primary CTA)
+  //   2. On this plan + monthly → "Switch to Annual — Save \$X/yr" (annual upgrade path)
+  //   3. On this plan + annual  → "✓ Current plan" (locked, no action)
 
   return (
     <div className={'uplan-card uplan-card-' + tier}>
@@ -157,6 +185,11 @@ function PlanCard({ tier, headline, price, priceSuffix, tagline, mostPopular, is
           <span className="uplan-price">{price}</span>
           <span className="uplan-price-suffix">{priceSuffix}</span>
         </div>
+        {annualPrice && (
+          <div style={{ fontSize:13, opacity:.85, marginTop:6 }}>
+            or {annualPrice}/year — save {annualSavings}
+          </div>
+        )}
         <div className="uplan-tagline">{tagline}</div>
       </div>
 
@@ -189,9 +222,19 @@ function PlanCard({ tier, headline, price, priceSuffix, tagline, mostPopular, is
         )}
 
         <div className="uplan-cta">
-          {isCurrent ? (
+          {isCurrent && canSwitchToAnnual ? (
+            // State 2: on this plan, monthly billing — offer annual upgrade
+            <button
+              className={'uplan-cta-btn uplan-cta-btn-' + tier}
+              onClick={onSwitchToAnnual}
+            >
+              Switch to Annual — Save {annualSavings} →
+            </button>
+          ) : isCurrent ? (
+            // State 3: on this plan, already annual — locked
             <div className="uplan-cta-current">✓ Current plan</div>
           ) : (
+            // State 1: not on this plan — primary CTA
             <button
               className={'uplan-cta-btn uplan-cta-btn-' + tier}
               onClick={onChoose}

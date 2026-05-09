@@ -6526,6 +6526,96 @@ async def api_set_auto_renew_preference(request: Request, db: Session = Depends(
     return {"ok": True, "auto_renew_from_balance": enabled}
 
 
+# ── Switch Monthly → Annual within same tier (added 9 May 2026) ─────────
+@app.post("/api/switch-to-annual")
+async def api_switch_to_annual(request: Request, db: Session = Depends(get_db),
+                                 user: User = Depends(get_current_user)):
+    """Switch a Monthly member to Annual billing within the same tier.
+
+    Used when a Basic Monthly or Pro Monthly member wants to lock in the
+    cheaper annual rate. The existing monthly time is absorbed (rather
+    than prorated/credited) — annual is permanently discounted ($40 off
+    Basic, $70 off Pro), so the value prop is "switch now, save going
+    forward" rather than "we'll credit your unused time."
+
+    Body: {"payment_method": "balance"}
+
+    For NOWPayments and MetaMask rails, the existing endpoints handle
+    this case correctly via the membership_basic_annual /
+    membership_pro_annual product keys — frontend routes those flows
+    directly through /api/nowpayments/create-invoice and the
+    WalletConnect intent endpoints. This endpoint is balance-only.
+
+    Pricing:
+      - Basic Monthly → Basic Annual: $200 (vs $20/mo monthly)
+      - Pro Monthly   → Pro Annual:   $350 (vs $35/mo monthly)
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({"error": "You need an active membership first"}, status_code=400)
+
+    current_billing = (getattr(user, "membership_billing", None) or "monthly").lower()
+    if current_billing == "annual":
+        return JSONResponse({"error": "You're already on annual billing"}, status_code=400)
+
+    tier = (user.membership_tier or "basic").lower()
+    if tier not in ("basic", "pro"):
+        return JSONResponse({"error": f"Unknown tier '{tier}'"}, status_code=400)
+
+    # Purchase consent gate
+    ok, err = require_fresh_consent(db, user.id, purpose=f"switch_to_annual_{tier}")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
+
+    body = {}
+    try:
+        body = await request.json()
+    except Exception:
+        pass
+    payment_method = (body.get("payment_method") or "balance").strip().lower()
+
+    # Annual fees by tier — single source of truth, matches MEMBERSHIP_PRICES
+    annual_fee = decimal.Decimal("350.00") if tier == "pro" else decimal.Decimal("200.00")
+
+    if payment_method != "balance":
+        # Crypto and wallet rails route through their own endpoints.
+        # NOWPayments: /api/nowpayments/create-invoice with product_key
+        # of membership_{tier}_annual. WalletConnect: same product_key
+        # via /api/onchain/create-intent. Both correctly call
+        # _activate_membership(billing="annual") on confirmation, which
+        # handles the same-tier monthly→annual switch transparently.
+        return JSONResponse(
+            {"error": f"Use the appropriate rail endpoint for {payment_method} payments"},
+            status_code=400,
+        )
+
+    # Balance rail
+    balance = decimal.Decimal(str(user.balance or 0))
+    if balance < annual_fee:
+        shortfall = annual_fee - balance
+        return JSONResponse(
+            {
+                "error": (
+                    f"You need ${float(annual_fee):.2f} to switch to annual. "
+                    f"Current balance: ${float(balance):.2f} (short ${float(shortfall):.2f}). "
+                    f"Top up your wallet or pay with crypto/MetaMask instead."
+                )
+            },
+            status_code=400,
+        )
+
+    # Deduct BEFORE activating so the state change is atomic
+    user.balance = balance - annual_fee
+    # _activate_membership with billing=annual sets:
+    #   - user.membership_billing = "annual"
+    #   - user.membership_expires_at = now + 365 days (replaces remaining monthly time)
+    #   - records the $X payment
+    #   - notifies sponsor (commission was already paid on the original monthly
+    #     activation, so is_upgrade=True suppresses double-paying)
+    return _activate_membership(db, user, tier, source="switch_to_annual", is_upgrade=True, billing="annual")
+
+
 @app.post("/api/upgrade-to-pro")
 async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
                               user: User = Depends(get_current_user)):
