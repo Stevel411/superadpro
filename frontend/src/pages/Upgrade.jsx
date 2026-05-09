@@ -36,6 +36,21 @@ export default function Upgrade() {
   var isActive    = previewMode ? false : user?.is_active;
   var billing     = previewMode ? null : (user?.membership_billing || 'monthly');
   var isBasicActive = isActive && !isPro;
+
+  // ── DIAGNOSTIC (9 May 2026) — remove once Steve has verified the
+  // Basic-active detection is working correctly. Logs the exact fields
+  // the page is using so we can compare against /api/me's response
+  // and find any field-name mismatch or admin-bypass interaction.
+  if (typeof window !== 'undefined' && user) {
+    // eslint-disable-next-line no-console
+    console.log('[Upgrade page] user state', {
+      id: user.id, username: user.username, is_admin: user.is_admin,
+      is_active: user.is_active, membership_tier: user.membership_tier,
+      membership_billing: user.membership_billing,
+      computed_isPro: isPro, computed_isActive: isActive,
+      computed_isBasicActive: isBasicActive, computed_billing: billing,
+    });
+  }
   // "Monthly with annual upgrade available" = active member on monthly billing
   // who hasn't yet locked in the cheaper annual rate. They get a "Switch to
   // Annual" CTA on their current tier card instead of the usual "Current plan".
@@ -203,7 +218,7 @@ function PlanCard({ tier, headline, price, priceSuffix, annualPrice, annualSavin
           );
         })}
 
-        <button className="uplan-expander" onClick={function() { setExpanded(!expanded); }}>
+        <button type="button" className="uplan-expander" onClick={function() { setExpanded(!expanded); }}>
           {expanded ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
           {expanded ? 'Hide details' : 'See all features'}
         </button>
