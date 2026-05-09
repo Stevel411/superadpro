@@ -627,22 +627,28 @@ export function WalletConnectGate(props) {
     <button onClick={handleClick}
       style={Object.assign({
         width: '100%',
-        padding: '14px 16px',
+        padding: '16px 20px',
         borderRadius: 12,
-        fontSize: 14,
-        fontWeight: 700,
+        fontSize: 16,
+        fontWeight: 800,
         fontFamily: 'inherit',
-        border: '1.5px solid #f3ba2f',
-        background: '#fff',
-        color: '#92400e',
+        border: 'none',
+        // Filled orange gradient with white text — confident "connect to
+        // pay" action signal. Was previously white-with-thin-amber-border
+        // which read as a tertiary option rather than a real CTA.
+        // (Updated 9 May 2026.)
+        background: 'linear-gradient(135deg,#ea580c,#f97316)',
+        color: '#fff',
+        boxShadow: '0 4px 14px rgba(249,115,22,.35)',
         cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         gap: 8,
-        transition: 'opacity .15s, transform .15s',
+        letterSpacing: '.2px',
+        transition: 'transform .15s, box-shadow .25s',
       }, props.style || {})}
-      onMouseOver={function(e) { e.currentTarget.style.opacity = '0.92'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-      onMouseOut={function(e) { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-      <span aria-hidden="true" style={{ fontSize: 16 }}>⛓</span>
+      onMouseOver={function(e) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(249,115,22,.45)'; }}
+      onMouseOut={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(249,115,22,.35)'; }}>
+      <span aria-hidden="true" style={{ fontSize: 18 }}>⛓</span>
       <span>{label}</span>
     </button>
   );

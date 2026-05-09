@@ -212,39 +212,44 @@ export default function UpgradeCheckout() {
   return (
     <AppLayout title="Checkout" subtitle={'Upgrade to ' + (plan === 'pro' ? 'Pro' : 'Basic')}>
       <style>{`
-        .uchk-wrap{max-width:680px;margin:0 auto;padding:0 20px}
-        .uchk-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:#64748b;text-decoration:none;font-weight:500;margin-bottom:16px}
+        /* Wider layout so rail descriptions fit on one line where possible.
+           680 was tight — the 'works with MetaMask, Trust, Coinbase...'
+           text wrapped and ate vertical space. 760 gives room without
+           feeling sprawling. */
+        .uchk-wrap{max-width:760px;margin:0 auto;padding:0 20px}
+        .uchk-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:#64748b;text-decoration:none;font-weight:500;margin-bottom:12px}
         .uchk-back:hover{color:#0f172a}
 
-        /* Switch banner — left-edge accent stripe + tinted gradient + soft shadow */
-        .uchk-banner{padding:18px 22px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:14px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start;box-shadow:0 4px 16px rgba(59,130,246,.08)}
-        .uchk-banner-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(37,99,235,.3)}
-        .uchk-banner-title{font-size:15px;font-weight:800;color:#1e3a8a;margin:0 0 4px;font-family:'Sora',sans-serif}
-        .uchk-banner-desc{font-size:13px;color:#1e40af;line-height:1.55;margin:0}
+        /* Switch banner — tightened. Smaller icon (32 vs 40), tighter
+           padding, less margin since it's secondary content now. */
+        .uchk-banner{padding:14px 18px;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:12px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 4px 16px rgba(59,130,246,.08)}
+        .uchk-banner-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(37,99,235,.3)}
+        .uchk-banner-title{font-size:14px;font-weight:800;color:#1e3a8a;margin:0 0 2px;font-family:'Sora',sans-serif}
+        .uchk-banner-desc{font-size:12.5px;color:#1e40af;line-height:1.5;margin:0}
 
-        /* Plan summary hero — full gradient card. Default = Basic blue.
-           When .uchk-wrap has .pro modifier (set on Pro plans) it overrides
-           with the red palette. No near-black gradient anchors anywhere. */
-        .uchk-summary{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 60%,#3b82f6 100%);border-radius:18px;padding:24px 28px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:20px;color:#fff;box-shadow:0 12px 32px rgba(37,99,235,.25),0 4px 12px rgba(37,99,235,.15);position:relative;overflow:hidden}
+        /* Plan summary hero — slightly tighter padding, smaller tier name
+           font (32 -> 28) and price (36 -> 32). Still confident but more
+           proportional now that it's the page's primary anchor. */
+        .uchk-summary{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 60%,#3b82f6 100%);border-radius:16px;padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:20px;color:#fff;box-shadow:0 12px 32px rgba(37,99,235,.25),0 4px 12px rgba(37,99,235,.15);position:relative;overflow:hidden}
         .uchk-summary::after{content:"";position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);border-radius:50%;pointer-events:none}
         .uchk-wrap.pro .uchk-summary{background:linear-gradient(135deg,#b91c1c 0%,#dc2626 50%,#ef4444 100%);box-shadow:0 12px 32px rgba(220,38,38,.25),0 4px 12px rgba(220,38,38,.15)}
         .uchk-summary-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;font-weight:700;margin-bottom:6px}
-        .uchk-summary-tier{font-family:'Sora',sans-serif;font-size:32px;font-weight:800;margin:0;line-height:1}
+        .uchk-summary-tier{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;margin:0;line-height:1}
         .uchk-summary-price{text-align:right}
         .uchk-summary-price-from{font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.75;font-weight:600}
-        .uchk-summary-price-amount{font-family:'Sora',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-top:2px}
+        .uchk-summary-price-amount{font-family:'Sora',sans-serif;font-size:32px;font-weight:800;line-height:1;margin-top:2px}
         .uchk-summary-price-suffix{font-size:14px;font-weight:600;opacity:.8;margin-left:3px}
 
-        /* Section card */
-        .uchk-section{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px 26px;margin-bottom:18px;box-shadow:0 4px 12px rgba(15,23,42,.04)}
-        .uchk-section-label{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#0f172a;margin-bottom:18px;letter-spacing:.3px}
-        .uchk-section-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(37,99,235,.3);flex-shrink:0}
+        /* Section card — tighter padding, less section gap */
+        .uchk-section{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 22px;margin-bottom:14px;box-shadow:0 4px 12px rgba(15,23,42,.04)}
+        .uchk-section-label{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#0f172a;margin-bottom:14px;letter-spacing:.3px}
+        .uchk-section-num{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(37,99,235,.3);flex-shrink:0}
         .uchk-wrap.pro .uchk-section-num{background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(220,38,38,.3)}
 
-        /* Cadence options */
-        .uchk-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        /* Cadence options — tighter padding */
+        .uchk-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
         @media (max-width:520px){.uchk-options-grid{grid-template-columns:1fr}}
-        .uchk-opt{padding:16px 18px;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;background:#fff;text-align:left;font-family:inherit;display:flex;flex-direction:column;gap:4px;transition:all .2s;position:relative}
+        .uchk-opt{padding:12px 14px;border:2px solid #e2e8f0;border-radius:11px;cursor:pointer;background:#fff;text-align:left;font-family:inherit;display:flex;flex-direction:column;gap:3px;transition:all .2s;position:relative}
         .uchk-opt:hover{border-color:#cbd5e1;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.05)}
         .uchk-opt.selected{border-color:#2563eb;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);box-shadow:0 4px 16px rgba(37,99,235,.15),inset 0 0 0 1px rgba(37,99,235,.2)}
         .uchk-opt.selected::before{content:"";position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:#2563eb;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");background-size:12px;background-position:center;background-repeat:no-repeat;box-shadow:0 2px 6px rgba(37,99,235,.4)}
@@ -253,12 +258,12 @@ export default function UpgradeCheckout() {
         .uchk-opt.disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
         .uchk-opt.disabled:hover{transform:none;box-shadow:none}
         .uchk-opt-label{font-size:14px;font-weight:700;color:#0f172a}
-        .uchk-opt-meta{font-size:13px;color:#64748b;margin-top:2px}
-        .uchk-opt-savings{display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;margin-top:8px;width:fit-content;box-shadow:0 2px 6px rgba(16,185,129,.25)}
+        .uchk-opt-meta{font-size:12.5px;color:#64748b;margin-top:1px}
+        .uchk-opt-savings{display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;margin-top:6px;width:fit-content;box-shadow:0 2px 6px rgba(16,185,129,.25)}
 
-        /* Payment rails — coloured icon pills + checkmark on selection */
-        .uchk-rail{padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;background:#fff;display:flex;align-items:center;gap:14px;font-family:inherit;text-align:left;width:100%;transition:all .2s;position:relative}
-        .uchk-rail+.uchk-rail{margin-top:10px}
+        /* Payment rails — tighter, smaller icon (42 -> 36) */
+        .uchk-rail{padding:11px 14px;border:2px solid #e2e8f0;border-radius:11px;cursor:pointer;background:#fff;display:flex;align-items:center;gap:12px;font-family:inherit;text-align:left;width:100%;transition:all .2s;position:relative}
+        .uchk-rail+.uchk-rail{margin-top:8px}
         .uchk-rail:hover{border-color:#cbd5e1;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.05)}
         .uchk-rail.selected{border-color:#2563eb;background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);box-shadow:0 4px 16px rgba(37,99,235,.15)}
         .uchk-rail.selected::after{content:"";position:absolute;top:50%;right:14px;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#2563eb;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");background-size:13px;background-position:center;background-repeat:no-repeat;box-shadow:0 2px 6px rgba(37,99,235,.4)}
@@ -266,34 +271,32 @@ export default function UpgradeCheckout() {
         .uchk-wrap.pro .uchk-rail.selected::after{background:#dc2626;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");box-shadow:0 2px 6px rgba(220,38,38,.4)}
         .uchk-rail.disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
         .uchk-rail.disabled:hover{transform:none;box-shadow:none}
-        .uchk-rail-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+        .uchk-rail-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
         .uchk-rail-icon-balance{background:linear-gradient(135deg,#dcfce7,#86efac);box-shadow:0 2px 8px rgba(34,197,94,.2)}
         .uchk-rail-icon-wallet{background:linear-gradient(135deg,#fef3c7,#fde68a);box-shadow:0 2px 8px rgba(251,191,36,.25)}
         .uchk-rail-icon-crypto{background:linear-gradient(135deg,#dbeafe,#93c5fd);box-shadow:0 2px 8px rgba(59,130,246,.2)}
         .uchk-rail-name{font-size:14px;font-weight:700;color:#0f172a}
-        .uchk-rail-desc{font-size:12px;color:#64748b;margin-top:3px;line-height:1.45}
+        .uchk-rail-desc{font-size:12px;color:#64748b;margin-top:2px;line-height:1.4}
 
-        /* Auto-renew row — green-tinted feature card */
-        .uchk-renew-row{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border:1px solid #86efac;border-radius:12px;margin-top:14px;cursor:pointer;transition:all .2s}
+        /* Auto-renew row — slightly tighter */
+        .uchk-renew-row{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border:1px solid #86efac;border-radius:11px;margin-top:12px;cursor:pointer;transition:all .2s}
         .uchk-renew-row:hover{border-color:#4ade80;box-shadow:0 4px 12px rgba(34,197,94,.1)}
         .uchk-renew-row input{margin-top:2px;width:18px;height:18px;cursor:pointer;accent-color:#16a34a;flex-shrink:0}
-        .uchk-renew-text{font-size:13px;color:#166534;line-height:1.55;flex:1}
+        .uchk-renew-text{font-size:12.5px;color:#166534;line-height:1.5;flex:1}
         .uchk-renew-text strong{color:#14532d;font-weight:700}
 
-        /* Final CTA — green is the universal payment action colour
-           (decided 9 May 2026, applies platform-wide to all "pay" buttons).
-           Plan colour identity stays in the hero card and selected states.
-           The CTA itself is consistent green regardless of plan. */
-        .uchk-cta-row{display:flex;align-items:center;gap:14px;padding:24px 0 8px}
-        .uchk-cta-btn{flex:1;padding:18px 28px;border-radius:14px;border:none;font-size:16px;font-weight:800;cursor:pointer;font-family:'Sora',sans-serif;color:#fff;background:linear-gradient(135deg,#059669 0%,#10b981 60%,#34d399 100%);box-shadow:0 8px 24px rgba(16,185,129,.35),0 2px 8px rgba(16,185,129,.2);letter-spacing:.3px;transition:all .2s;position:relative;overflow:hidden}
+        /* Final CTA — tighter top padding (24 -> 16) so it sits closer
+           to the rail picker. Shorter overall vertical footprint. */
+        .uchk-cta-row{display:flex;align-items:center;gap:14px;padding:16px 0 4px}
+        .uchk-cta-btn{flex:1;padding:16px 28px;border-radius:13px;border:none;font-size:16px;font-weight:800;cursor:pointer;font-family:'Sora',sans-serif;color:#fff;background:linear-gradient(135deg,#059669 0%,#10b981 60%,#34d399 100%);box-shadow:0 8px 24px rgba(16,185,129,.35),0 2px 8px rgba(16,185,129,.2);letter-spacing:.3px;transition:all .2s;position:relative;overflow:hidden}
         .uchk-cta-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 32px rgba(16,185,129,.45),0 4px 12px rgba(16,185,129,.25)}
         .uchk-cta-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
         .uchk-cta-btn::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .6s}
         .uchk-cta-btn:hover:not(:disabled)::after{left:100%}
 
-        .uchk-error{padding:12px 14px;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;font-size:13px;color:#991b1b;font-weight:600;margin-bottom:12px}
-        .uchk-already{padding:18px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;color:#166534;font-weight:600;text-align:center;margin-bottom:16px}
-        .uchk-trust{font-size:12px;color:#64748b;margin-top:14px;text-align:center}
+        .uchk-error{padding:10px 14px;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;font-size:13px;color:#991b1b;font-weight:600;margin-bottom:10px}
+        .uchk-already{padding:14px 18px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;color:#166534;font-weight:600;text-align:center;margin-bottom:14px}
+        .uchk-trust{font-size:11.5px;color:#94a3b8;margin-top:10px;text-align:center}
       `}</style>
 
       <div className={'uchk-wrap' + (plan === 'pro' ? ' pro' : '')}>
@@ -308,31 +311,9 @@ export default function UpgradeCheckout() {
           </div>
         )}
 
-        {/* Switch-to-annual banner — explains the value prop and what's happening
-            to existing monthly time. Only shows when the user genuinely arrived
-            from the "Switch to Annual" CTA on /upgrade and is in fact a Monthly
-            member (defends against stale ?switch=annual URLs). */}
-        {isLegitSwitch && (
-          <div className="uchk-banner">
-            <div className="uchk-banner-icon">
-              <Zap size={20} color="#fff"/>
-            </div>
-            <div style={{ flex:1 }}>
-              <h3 className="uchk-banner-title">You're switching to Annual billing</h3>
-              <p className="uchk-banner-desc">
-                Pay {plan === 'pro' ? '$350' : '$200'} once and get a fresh 365-day
-                membership starting today. The remaining time on your monthly plan is
-                included — you save {plan === 'pro' ? '$70/year' : '$40/year'} going
-                forward.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Plan summary hero — white text on the plan-coloured gradient.
-            Uses the new uchk-summary-* classes so styling lives in CSS,
-            not inline. Pro variant is handled by the .uchk-wrap.pro
-            cascade in the style block above. */}
+        {/* Plan summary hero — primary context, comes first so the user
+            instantly sees 'what am I doing here?'. White text on the
+            plan-coloured gradient. Pro variant via .uchk-wrap.pro cascade. */}
         <div className="uchk-summary">
           <div>
             <div className="uchk-summary-label">You're upgrading to</div>
@@ -346,6 +327,27 @@ export default function UpgradeCheckout() {
             </div>
           </div>
         </div>
+
+        {/* Switch-to-annual banner — supporting explanation, sits below the
+            primary plan summary. Only shows when the user genuinely arrived
+            from the 'Switch to Annual' CTA on /upgrade and is in fact a
+            Monthly member (defends against stale ?switch=annual URLs). */}
+        {isLegitSwitch && (
+          <div className="uchk-banner">
+            <div className="uchk-banner-icon">
+              <Zap size={18} color="#fff"/>
+            </div>
+            <div style={{ flex:1 }}>
+              <h3 className="uchk-banner-title">You're switching to Annual billing</h3>
+              <p className="uchk-banner-desc">
+                Pay {plan === 'pro' ? '$350' : '$200'} once and get a fresh 365-day
+                membership starting today. The remaining time on your monthly plan is
+                included — you save {plan === 'pro' ? '$70/year' : '$40/year'} going
+                forward.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Cadence */}
         <div className="uchk-section">
