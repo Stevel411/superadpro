@@ -186,20 +186,20 @@ export default function GiftLanding() {
               accent. Sits at the very top of the bokeh strip. */}
           <div style={{ marginBottom:'clamp(28px, 4vw, 44px)' }}>
             <div style={{
-              display:'inline-flex', alignItems:'center', gap:12,
+              display:'inline-flex', alignItems:'center', gap:14,
             }}>
               <div style={{
-                width:36, height:36, borderRadius:9,
+                width:44, height:44, borderRadius:11,
                 background:'linear-gradient(135deg,#ED93B1,#993556)',
                 display:'flex', alignItems:'center', justifyContent:'center',
-                boxShadow:'0 0 20px rgba(212,83,126,.35)',
+                boxShadow:'0 0 24px rgba(212,83,126,.4)',
               }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <polygon points="9,5 9,19 20,12" fill="#fff"/>
                 </svg>
               </div>
               <span style={{
-                fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800,
+                fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800,
                 letterSpacing:'-0.03em', color:'#fff',
                 textShadow:'0 1px 4px rgba(0,0,0,.4), 0 2px 12px rgba(0,0,0,.35)',
               }}>
@@ -212,13 +212,14 @@ export default function GiftLanding() {
               reads as crisp and prominent against the busy bokeh.
               Sits directly above the video. Stacked shadows give a
               soft halo that lifts the letters without looking like an
-              outline filter. */}
+              outline filter. Sized to fit on one line on standard
+              desktop widths — wraps gracefully on narrow viewports. */}
           <h1 style={{
             fontFamily:'Sora,sans-serif',
-            fontSize:'clamp(26px, 5vw, 38px)',
+            fontSize:'clamp(20px, 3.6vw, 32px)',
             fontWeight:800, color:'#fff',
             margin:'0 0 clamp(20px, 3vw, 32px)', lineHeight:1.2,
-            letterSpacing:'-0.01em',
+            letterSpacing:'-0.015em',
             textShadow:'0 2px 4px rgba(0,0,0,.7), 0 4px 12px rgba(0,0,0,.55), 0 0 24px rgba(0,0,0,.4)',
           }}>
             {gift.gifter_name} sent you a free month of SuperAdPro
