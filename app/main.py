@@ -637,7 +637,7 @@ def is_pro(user):
         return False
     if getattr(user, "is_admin", False):
         return True
-    return (getattr(user, "membership_tier", "basic") or "basic").lower() == "pro"
+    return (getattr(user, "membership_tier", "free") or "free").lower() == "pro"
 
 def set_secure_cookie(response, user_id):
     """Create an HMAC-signed session token. Cannot be forged without SESSION_SECRET."""
@@ -2640,7 +2640,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "last_name": user.last_name,
         "is_admin": user.is_admin,
         "is_active": user.is_active,
-        "membership_tier": user.membership_tier or "basic",
+        "membership_tier": user.membership_tier or "free",
         "membership_billing": user.membership_billing or "monthly",
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_earned": _earn["total_earned"],
@@ -3825,7 +3825,7 @@ def _direct_member_payload(u, last_paid_at):
         "display_name": u.first_name or u.username,
         "avatar_url": u.avatar_url or None,
         "country": u.country or None,
-        "membership_tier": u.membership_tier or "basic",
+        "membership_tier": u.membership_tier or "free",
         "is_active": bool(u.is_active),
         "signed_up_at": u.created_at.isoformat() if u.created_at else None,
         "last_paid_at": last_paid_at.isoformat() if last_paid_at else None,
@@ -4849,7 +4849,7 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "nexus_earnings":      _earn["nexus_earnings"],       # matrix_level + matrix_completion + nexus_*
         "course_earnings":     _earn["course_earnings"],
         "marketplace_earnings": float(user.marketplace_earnings or 0),
-        "membership_tier": user.membership_tier or "basic",
+        "membership_tier": user.membership_tier or "free",
         "wallet_address": user.wallet_address or "",
         "wallet_network": user.wallet_network or "",
         "kyc_status": getattr(user, 'kyc_status', 'none'),
@@ -5751,7 +5751,7 @@ def admin_users_cleanup_candidates(
             "email": u.email,
             "first_name": u.first_name,
             "is_active": bool(u.is_active),
-            "membership_tier": u.membership_tier or "basic",
+            "membership_tier": u.membership_tier or "free",
             "balance_usd": bal,
             "total_earned_usd": earned,
             "total_withdrawn_usd": withdrawn,
@@ -6059,7 +6059,7 @@ def _build_copilot_context(user, db) -> dict:
     _desc = compute_descendant_counts(db, user.id)
     return {
         "name": user.first_name or user.username,
-        "tier": user.membership_tier or "basic",
+        "tier": user.membership_tier or "free",
         "total_earned": _earn["total_earned"],
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_team": _desc["total"],
@@ -6153,7 +6153,7 @@ async def get_copilot_briefing(request: Request, db: Session = Depends(get_db),
     """Get today's Co-Pilot briefing. Generates once per day, cached after that."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, "membership_tier", "basic") != "pro" and not user.is_admin:
+    if getattr(user, "membership_tier", "free") != "pro" and not user.is_admin:
         return JSONResponse({"error": "Pro membership required"}, status_code=403)
 
     today = datetime.utcnow().strftime("%Y-%m-%d")
@@ -6200,7 +6200,7 @@ async def refresh_copilot_briefing(request: Request, db: Session = Depends(get_d
     """Force-regenerate the Co-Pilot briefing on demand."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, "membership_tier", "basic") != "pro" and not user.is_admin:
+    if getattr(user, "membership_tier", "free") != "pro" and not user.is_admin:
         return JSONResponse({"error": "Pro membership required"}, status_code=403)
 
     import json as _json
@@ -6237,7 +6237,7 @@ async def copilot_ask(request: Request, db: Session = Depends(get_db),
     """Ask the Co-Pilot a business-focused question about your account. Haiku-powered, 10/day limit."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, "membership_tier", "basic") != "pro" and not user.is_admin:
+    if getattr(user, "membership_tier", "free") != "pro" and not user.is_admin:
         return JSONResponse({"error": "Pro membership required"}, status_code=403)
 
     body = await request.json()
@@ -6377,7 +6377,7 @@ def _classify_membership_activation(user, target_tier: str, target_billing: str)
         return "fresh"
 
     # User is active. Compare current state against target.
-    current_tier = (user.membership_tier or "basic").lower()
+    current_tier = (user.membership_tier or "free").lower()
     current_billing = (getattr(user, "membership_billing", None) or "monthly").lower()
 
     if current_tier == target_tier and current_billing == target_billing:
@@ -6525,7 +6525,7 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     if user.sponsor_id and pays_sponsor_commission:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
-            sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
+            sponsor_tier = getattr(sponsor, "membership_tier", "free") or "free"
             if is_annual:
                 # Annual: cap commission at sponsor's own annual tier
                 # Basic sponsor -> max $100. Pro sponsor -> max $175.
@@ -6684,7 +6684,7 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
     if user.sponsor_id:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
-            sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
+            sponsor_tier = getattr(sponsor, "membership_tier", "free") or "free"
             max_commission = COMMISSION_CAPS.get(sponsor_tier, Decimal("10.00"))
             capped_share = min(sponsor_share, max_commission)
             sponsor.balance = Decimal(str(sponsor.balance or 0)) + capped_share
@@ -6788,7 +6788,7 @@ async def api_switch_to_annual(request: Request, db: Session = Depends(get_db),
     if current_billing == "annual":
         return JSONResponse({"error": "You're already on annual billing"}, status_code=400)
 
-    tier = (user.membership_tier or "basic").lower()
+    tier = (user.membership_tier or "free").lower()
     if tier not in ("basic", "pro"):
         return JSONResponse({"error": f"Unknown tier '{tier}'"}, status_code=400)
 
@@ -6877,7 +6877,7 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not user.is_active:
         return JSONResponse({"error": "You need an active Basic membership first"}, status_code=400)
-    if (user.membership_tier or "basic") == "pro" or user.is_admin:
+    if (user.membership_tier or "free") == "pro" or user.is_admin:
         return JSONResponse({"error": "You're already on Pro"}, status_code=400)
 
     # Purchase consent gate
@@ -9300,7 +9300,7 @@ def admin_api_users(
             "id": u.id, "username": u.username, "email": u.email,
             "first_name": u.first_name, "last_name": u.last_name,
             "is_active": u.is_active, "is_admin": u.is_admin,
-            "membership_tier": u.membership_tier or "basic",
+            "membership_tier": u.membership_tier or "free",
             "balance": float(u.balance or 0),
             "total_earned": float(u.total_earned or 0),
             "total_withdrawn": compute_total_withdrawn(db, u.id),
@@ -9379,7 +9379,7 @@ def admin_api_user_detail(
             "id": u.id, "username": u.username, "email": u.email,
             "first_name": u.first_name, "last_name": u.last_name,
             "is_active": u.is_active, "is_admin": u.is_admin,
-            "membership_tier": u.membership_tier or "basic",
+            "membership_tier": u.membership_tier or "free",
             "balance": float(u.balance or 0),
             "total_earned": _earn["total_earned"],
             "total_withdrawn": compute_total_withdrawn(db, u.id),
@@ -10277,7 +10277,7 @@ async def admin_api_change_tier(
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
-    old_tier = target.membership_tier or "basic"
+    old_tier = target.membership_tier or "free"
     was_active_paid = bool(target.is_active and old_tier in ("basic", "pro") and target.activated_at)
     target.membership_tier = new_tier
 
@@ -18577,7 +18577,7 @@ async def _old_proseller_DISABLED(request: Request, db: Session = Depends(get_db
         return RedirectResponse("/login?next=/proseller", status_code=302)
 
     # Pro tier gate
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
         return RedirectResponse("/upgrade", status_code=302)
 
     # Load prospects for this user
@@ -19017,7 +19017,7 @@ async def api_pro_generate_funnel(request: Request, db: Session = Depends(get_db
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
@@ -19299,7 +19299,7 @@ async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(ge
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     import secrets
@@ -19326,7 +19326,7 @@ async def api_pro_funnel_create_from_template(request: Request, db: Session = De
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     body = await request.json()
@@ -19520,7 +19520,7 @@ async def api_pro_funnel_chat(funnel_id: int, request: Request, db: Session = De
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
@@ -19758,7 +19758,7 @@ async def api_pro_funnel_ai_modify(funnel_id: int, request: Request, db: Session
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
@@ -19980,7 +19980,7 @@ async def _old_pro_leads_DISABLED(request: Request, db: Session = Depends(get_db
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/pro/leads", status_code=302)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
         return RedirectResponse("/upgrade", status_code=302)
 
     from .database import MemberLead
@@ -22912,7 +22912,7 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
         "linkhub_views": lh_profile.total_views if lh_profile else 0,
         "referrals": [{
             "id": r.id, "username": r.username, "first_name": r.first_name,
-            "is_active": r.is_active, "membership_tier": r.membership_tier or "basic",
+            "is_active": r.is_active, "membership_tier": r.membership_tier or "free",
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in referrals],
     }
@@ -23067,7 +23067,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
             "_grid_count": grid_count,
             "_course_count": u.course_sale_count or 0,
             "_nexus_count": nexus_team,
-            "membership_tier": u.membership_tier or "basic",
+            "membership_tier": u.membership_tier or "free",
         }
 
     # ── Recent activity feed (last 20 events) ──
@@ -23687,7 +23687,7 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
         "nexus_earnings": nexus_earnings,
         "referrals": [{
             "id": r.id, "username": r.username, "first_name": r.first_name,
-            "is_active": r.is_active, "membership_tier": r.membership_tier or "basic",
+            "is_active": r.is_active, "membership_tier": r.membership_tier or "free",
             "total_earned": float(r.total_earned or 0),
             "personal_referrals": r.personal_referrals or 0,
             "created_at": r.created_at.isoformat() if r.created_at else None,
@@ -23986,7 +23986,7 @@ def api_leads_data(request: Request, user: User = Depends(get_current_user),
     """My Leads data. Pro only."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
         return JSONResponse({"error": "Pro membership required", "upgrade": True}, status_code=403)
     from .database import MemberLead
     leads = db.query(MemberLead).filter(
@@ -24005,7 +24005,7 @@ def api_leads_data(request: Request, user: User = Depends(get_current_user),
 
 def _lead_limit(user):
     """Return max leads allowed. Pro only feature — Basic gets 0."""
-    tier = getattr(user, 'membership_tier', 'basic')
+    tier = getattr(user, 'membership_tier', 'free')
     if tier == 'pro': return 5000
     return 0  # Basic members cannot use leads/autoresponder
 DAILY_EMAIL_LIMIT = 200  # Free emails per day for Pro members
@@ -24347,7 +24347,7 @@ def api_leads_stats(request: Request, user: User = Depends(get_current_user), db
     limit = _lead_limit(user)
     hot = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.is_hot == True).count()
     return {"total": total, "limit": limit, "remaining": max(0, limit - total), "hot": hot,
-            "tier": getattr(user, 'membership_tier', 'basic')}
+            "tier": getattr(user, 'membership_tier', 'free')}
 @app.get("/api/leads/email-stats")
 def api_email_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get email sending stats + boost credit balance."""
@@ -25109,13 +25109,13 @@ def api_team_messages(request: Request, user: User = Depends(get_current_user),
         contacts.append({
             "id": t.id, "name": t.first_name or t.username,
             "username": t.username, "avatar": t.avatar_url,
-            "relationship": "referral", "tier": t.membership_tier or "basic"
+            "relationship": "referral", "tier": t.membership_tier or "free"
         })
     if sponsor:
         contacts.insert(0, {
             "id": sponsor.id, "name": sponsor.first_name or sponsor.username,
             "username": sponsor.username, "avatar": sponsor.avatar_url,
-            "relationship": "sponsor", "tier": sponsor.membership_tier or "basic"
+            "relationship": "sponsor", "tier": sponsor.membership_tier or "free"
         })
 
     # Unread count

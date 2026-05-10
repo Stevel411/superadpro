@@ -28,9 +28,11 @@ export default function BasicToolsPage() {
     };
   }, []);
 
-  // Tier check — Basic+ members get the tools, non-members get the upgrade card
-  const tier = (user?.membership_tier || '').toLowerCase();
-  const isBasic = tier === 'basic' || tier === 'pro';
+  // Tier check — the canonical "is paid" signal is user.is_active.
+  // membership_tier is what they pay for (free / basic / pro), not whether
+  // they're currently paying. Using is_active here matches the server-side
+  // TierGateMiddleware so the UI never disagrees with the API gate.
+  const isBasicOrAbove = !!user?.is_active;
 
   const tools = getBasicTools(t);
 
@@ -54,13 +56,13 @@ export default function BasicToolsPage() {
           color: 'var(--sap-text-muted, #64748b)',
           marginBottom: 14,
         }}>
-          {isBasic
+          {isBasicOrAbove
             ? t('tools.section.basicUnlocked', { defaultValue: 'Basic Membership Tools · 5 tools unlocked at $20/mo' })
             : t('tools.section.basicLocked', { defaultValue: 'Basic Membership Tools · upgrade to unlock' })
           }
         </div>
 
-        {isBasic ? (
+        {isBasicOrAbove ? (
           <ToolGrid tools={tools} tone="cyan" />
         ) : (
           <UpgradeCard

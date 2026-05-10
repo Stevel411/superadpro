@@ -180,7 +180,7 @@ class TierGateMiddleware(BaseHTTPMiddleware):
 
         # Pro tier gate: is_active=True AND membership_tier='pro'
         if required == "pro":
-            tier = (getattr(user, "membership_tier", "basic") or "basic").lower()
+            tier = (getattr(user, "membership_tier", "free") or "free").lower()
             if not getattr(user, "is_active", False):
                 # They need to become Basic first, then upgrade to Pro
                 return _build_403("basic", "/upgrade")

@@ -133,14 +133,16 @@ function findActiveTabId(pathname, tabs) {
 // ──────────────────────────────────────────────────────────────────
 // Tier check — does the member meet the tab's required tier?
 // `requiresTier=null` → always unlocked
-// `requiresTier='basic'` → unlocked for Basic and Pro
-// `requiresTier='pro'`   → only Pro unlocks
+// `requiresTier='basic'` → unlocked for active members (Basic and Pro)
+// `requiresTier='pro'`   → only active Pro members unlock
+// Uses is_active as the canonical "is paid" signal so the UI never
+// disagrees with the server-side TierGateMiddleware. memberTier still
+// matters for distinguishing Pro from Basic.
 // ──────────────────────────────────────────────────────────────────
-function isTabUnlocked(tab, memberTier) {
+function isTabUnlocked(tab, memberTier, isActive) {
   if (!tab.requiresTier) return true;
-  var tier = (memberTier || '').toLowerCase();
-  if (tab.requiresTier === 'basic') return tier === 'basic' || tier === 'pro';
-  if (tab.requiresTier === 'pro')   return tier === 'pro';
+  if (tab.requiresTier === 'basic') return !!isActive;
+  if (tab.requiresTier === 'pro')   return !!isActive && (memberTier || '').toLowerCase() === 'pro';
   return false;
 }
 
@@ -157,6 +159,7 @@ export default function ToolsTabs() {
   const tabs = buildTabs(t);
   const activeId = findActiveTabId(location.pathname, tabs);
   const memberTier = user?.membership_tier;
+  const isActive = !!user?.is_active;
 
   return (
     <div style={{
@@ -203,7 +206,7 @@ export default function ToolsTabs() {
           {tabs.map((tab) => {
             const TabIcon = tab.icon;
             const isActive = tab.id === activeId;
-            const unlocked = isTabUnlocked(tab, memberTier);
+            const unlocked = isTabUnlocked(tab, memberTier, isActive);
             const tone = unlocked ? (TONE[tab.tone] || TONE.violet) : LOCKED_TONE;
             // Locked tabs still navigate — to the sub-page where the
             // upgrade card greets the member. No hard block here.

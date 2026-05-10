@@ -652,11 +652,14 @@ export default function Dashboard() {
               fontSize: 13, color: 'rgba(255,255,255,0.75)',
               flexWrap: 'wrap',
             }}>
-              {/* Tier badge — subtle outline matching the rest of the
-                  meta row, with solid gold (Pro) or silver (Basic) text
-                  inside. The outline stays neutral — only the letterforms
-                  carry the tier colour, which reads as premium without
-                  shouting. */}
+              {/* Tier badge — shows FREE / BASIC / PRO based on actual tier.
+                  Three states with distinct colour treatments:
+                    - FREE  → cool slate text, signals "register first"
+                    - BASIC → silver text, the workhorse tier
+                    - PRO   → gold text, premium tier
+                  Now that the data model is honest (membership_tier='free'
+                  for unpaid users), this can simply render the value
+                  directly without any membership-gating logic. */}
               {user?.membership_tier && (
                 <span style={{
                   padding: '3px 11px', borderRadius: 6,
@@ -664,23 +667,22 @@ export default function Dashboard() {
                   border: '1px solid rgba(255,255,255,0.2)',
                   fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
                   textTransform: 'uppercase',
-                  // Solid metallic colour for the letterforms — gold for
-                  // Pro (#ffd700 core gold), silver for Basic (#d4dce8
-                  // cool silver). Chosen from the mid-stop of the 5-stop
-                  // metallic gradients used on toast notifications.
-                  color: user.membership_tier === 'pro' ? '#ffd700' : '#d4dce8',
+                  color: user.membership_tier === 'pro' ? '#ffd700'
+                       : user.membership_tier === 'basic' ? '#d4dce8'
+                       : '#94a3b8',  // FREE — cooler slate
                   textShadow: user.membership_tier === 'pro'
                     ? '0 1px 2px rgba(0,0,0,0.4)'
                     : '0 1px 2px rgba(0,0,0,0.3)',
                 }}>{user.membership_tier}</span>
               )}
-              {/* Active since — date from user.created_at, added server-side
-                  to /api/dashboard as d.active_since (format: "Mar 2026").
-                  Pass `date` to t() so i18next interpolates the {{date}}
-                  placeholder. Concatenating d.active_since after t() (the
-                  earlier approach) caused the literal string "{{date}}" to
-                  render before the actual date. */}
-              {d.active_since && (
+              {/* Active since — only shown for genuinely active members.
+                  Previously this rendered for everyone using created_at,
+                  which lied about free users (they have a created date but
+                  no active date). For free users we hide it; once they
+                  activate, the date populates from user.created_at server-
+                  side. The 'Active since' phrase only makes sense once
+                  active, so the line is omitted entirely otherwise. */}
+              {user?.is_active && d.active_since && (
                 <>
                   <span style={{ opacity: 0.4 }}>·</span>
                   <span>{t('dashboard.activeSince', { date: d.active_since, defaultValue: 'Active since {{date}}' })}</span>

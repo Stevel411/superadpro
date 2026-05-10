@@ -164,7 +164,12 @@ class User(Base):
     sending_wallet      = Column(String, nullable=True)    # wallet they send crypto payments FROM
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
-    membership_tier     = Column(String, default="basic")    # basic ($20/mo, $200/yr) or pro ($35/mo, $350/yr)
+    membership_tier     = Column(String, default="free")     # free (registered, no membership), basic ($20/mo or $200/yr), pro ($35/mo or $350/yr).
+                                                              # Default is 'free' deliberately — earlier this defaulted to 'basic' which made
+                                                              # every newly registered user look like a Basic-tier member regardless of payment.
+                                                              # If you're checking 'is this user paid?' use is_active. Reading membership_tier
+                                                              # alone tells you 'what tier they would pay for / are paying for', not 'are they
+                                                              # paying right now'. Both flags must agree (free ↔ inactive, basic/pro ↔ active).
     balance             = Column(Money, default=0.0)      # affiliate wallet — always withdrawable
     campaign_balance    = Column(Money, default=0.0)      # campaign wallet — requires active tier + watch quota
     total_earned        = Column(Money, default=0.0)      # lifetime earnings (both wallets combined)
@@ -2600,6 +2605,34 @@ try:
         print("✅ Daily briefings table created")
 except Exception as e:
     print(f"⚠️ Daily briefings note: {e}")
+
+
+# ── membership_tier 'basic'→'free' migration for inactive users (10 May 2026) ──
+# Background: until launch day, the User model defaulted membership_tier to
+# 'basic' which made every newly-registered free user look paid in any code
+# that read the tier alone. This caused BasicToolsPage and the dashboard hero
+# to render as if the free user had Basic access (server gates still blocked
+# their actions, but the UI lied). We changed the default to 'free' and need
+# a one-time UPDATE to fix existing rows that pre-date that change.
+#
+# Safety: the WHERE clause is doubly restrictive — only rows where the user
+# is_active=FALSE AND tier='basic'. Paying Basic and Pro members are never
+# touched (their is_active=TRUE). Idempotent on subsequent restarts because
+# the WHERE clause matches zero rows after the first run.
+try:
+    with engine.connect() as conn:
+        result = conn.execute(text(
+            "UPDATE users SET membership_tier = 'free' "
+            "WHERE is_active = FALSE AND membership_tier = 'basic'"
+        ))
+        conn.commit()
+        rowcount = getattr(result, "rowcount", -1)
+        if rowcount > 0:
+            print(f"✅ membership_tier migration: {rowcount} inactive users moved from 'basic' to 'free'")
+        else:
+            print("✅ membership_tier migration: no rows to migrate (already on 'free' or all users active)")
+except Exception as e:
+    print(f"⚠️ membership_tier migration note: {e}")
 
 
 # ─────────────────────────────────────────────

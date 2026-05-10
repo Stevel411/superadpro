@@ -209,7 +209,8 @@ function UsersTab() {
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   <span style={{fontSize:13,fontWeight:700,padding:'2px 6px',borderRadius:3,background:isActive?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',color:isActive?'var(--sap-green)':'var(--sap-red)'}}>{isActive?'Active':'Inactive'}</span>
                   {u.membership_tier === 'pro' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.1)',color:'var(--sap-purple)'}}>PRO</span>}
-                  {(!u.membership_tier || u.membership_tier === 'basic') && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(14,165,233,.1)',color:'var(--sap-accent)'}}>BASIC</span>}
+                  {u.membership_tier === 'basic' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(14,165,233,.1)',color:'var(--sap-accent)'}}>BASIC</span>}
+                  {(!u.membership_tier || u.membership_tier === 'free') && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(148,163,184,.15)',color:'var(--sap-text-muted, #64748b)'}}>FREE</span>}
                   <span style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>${(u.balance||0).toFixed(0)}</span>
                 </div>
               </div>

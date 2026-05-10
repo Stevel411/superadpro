@@ -47,10 +47,14 @@ export default function ToolsPage() {
     };
   }, []);
 
-  // Tier detection — used to pick door card eyebrow text and pill labels
-  const tier = (user?.membership_tier || '').toLowerCase();
-  const isPro = tier === 'pro';
-  const isBasic = tier === 'basic' || isPro;
+  // Tier detection — used to pick door card eyebrow text and pill labels.
+  // is_active is the canonical "is paid" signal (matches server-side
+  // TierGateMiddleware). membership_tier distinguishes Basic vs Pro among
+  // paying users. A free user has is_active=false AND tier='free'.
+  const tier = (user?.membership_tier || 'free').toLowerCase();
+  const isActive = !!user?.is_active;
+  const isPro = isActive && tier === 'pro';
+  const isBasicOrAbove = isActive;
 
   return (
     <AppLayout title={t('tools.pageTitle', { defaultValue: 'Tools' })}>
@@ -91,14 +95,14 @@ export default function ToolsPage() {
           <DoorCard
             tone="cyan"
             icon={Wrench}
-            eyebrow={isBasic ? t('tools.door.basic.eyebrowOpen', { defaultValue: 'Basic plan & up' }) : t('tools.door.basic.eyebrowLocked', { defaultValue: 'Upgrade to unlock' })}
+            eyebrow={isBasicOrAbove ? t('tools.door.basic.eyebrowOpen', { defaultValue: 'Basic plan & up' }) : t('tools.door.basic.eyebrowLocked', { defaultValue: 'Upgrade to unlock' })}
             title={t('tools.door.basic.title', { defaultValue: 'Basic Membership Tools' })}
             desc={t('tools.door.basic.desc', { defaultValue: 'Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.' })}
-            count={isBasic ? t('tools.door.basic.count', { defaultValue: '5 tools' }) : t('tools.door.basic.countLocked', { defaultValue: '5 tools · locked' })}
+            count={isBasicOrAbove ? t('tools.door.basic.count', { defaultValue: '5 tools' }) : t('tools.door.basic.countLocked', { defaultValue: '5 tools · locked' })}
             navigate={navigate}
             destination="/tools/basic"
-            locked={!isBasic}
-            actionLabel={isBasic ? t('tools.door.open', { defaultValue: 'Open' }) : t('tools.door.upgrade', { defaultValue: 'Upgrade' })}
+            locked={!isBasicOrAbove}
+            actionLabel={isBasicOrAbove ? t('tools.door.open', { defaultValue: 'Open' }) : t('tools.door.upgrade', { defaultValue: 'Upgrade' })}
           />
           <DoorCard
             tone="amber"

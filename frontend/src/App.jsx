@@ -272,7 +272,7 @@ function RequireTier({ tier, children }) {
   if (user.is_admin) return children;
 
   const isActive = !!user.is_active;
-  const userTier = (user.membership_tier || 'basic').toLowerCase();
+  const userTier = (user.membership_tier || 'free').toLowerCase();
 
   // /upgrade is the unified upgrade page — tier-aware (shows Basic
   // signup for free users, Pro signup for Basic users). The
