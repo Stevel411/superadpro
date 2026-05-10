@@ -29,7 +29,13 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     await fetch('/logout', { credentials: 'include' });
     setUser(null);
-    window.location.href = '/login';
+    // Redirect to public homepage, not login. Logout shouldn't push the
+    // member toward re-authentication — they should land on the marketing
+    // homepage where they can browse, share with others, or simply leave.
+    // The backend /logout already redirects to / for direct browser hits;
+    // this matches that behaviour for the React-fetch case. (Steve flagged
+    // this as a sales funnel leak on launch day, 10 May 2026.)
+    window.location.href = '/';
   };
 
   const refreshUser = async () => {
