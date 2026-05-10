@@ -59,7 +59,7 @@ export default function Upgrade() {
   }
 
   return (
-    <AppLayout title="Upgrade" subtitle="Choose your plan">
+    <AppLayout title={t('upgrade.titlePlain')} subtitle={t('upgrade.subtitle')}>
       <style>{`
         .uplan-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1100px;margin:0 auto;padding:0 20px}
         @media (max-width:880px){.uplan-grid{grid-template-columns:1fr;max-width:480px}}
@@ -101,61 +101,77 @@ export default function Upgrade() {
       <div className="uplan-grid">
         <PlanCard
           tier="basic"
-          headline="Basic"
+          headline={t('upgrade.basic')}
           price="$20"
           priceSuffix="/mo"
           annualPrice="$200"
           annualSavings="$40/yr"
-          tagline="Everything you need to start marketing and earning with AI tools."
+          tagline={t('upgrade.basicDesc')}
           isCurrent={isBasicActive}
           canSwitchToAnnual={basicMonthlyCanSwitch}
           isPro={isPro}
           heroFeatures={[
-            { icon: <Zap size={16} color="#2563eb"/>, text: 'Creative Studio — AI video, images, music, voiceover' },
-            { icon: <Check size={16} color="#2563eb"/>, text: 'LinkHub bio page + Link Tools' },
-            { icon: <Check size={16} color="#2563eb"/>, text: 'Campaign Grid — 8-tier video advertising' },
-            { icon: <Check size={16} color="#2563eb"/>, text: '50% referral commissions on every signup' },
+            { icon: <Zap size={16} color="#2563eb"/>, text: t('upgrade.featCreativeStudio') },
+            { icon: <Check size={16} color="#2563eb"/>, text: t('upgrade.featLinkHubBio') },
+            { icon: <Check size={16} color="#2563eb"/>, text: t('upgrade.featCampaignGrid') },
+            { icon: <Check size={16} color="#2563eb"/>, text: t('upgrade.featReferralComms50') },
           ]}
           extraFeatures={[
-            'Content Creator — social posts, ad copy, video scripts',
-            'Profit Nexus — earn from credit pack referrals',
-            'Watch-to-Earn campaigns',
-            'Course marketplace access',
-            'Multi-language platform (20 locales)',
+            t('upgrade.featContentCreator'),
+            t('upgrade.featProfitNexus'),
+            t('upgrade.featWatchToEarn'),
+            t('upgrade.featCourseMarketplace'),
+            t('upgrade.featMultiLang'),
           ]}
           onChoose={chooseBasic}
           onSwitchToAnnual={switchBasicToAnnual}
+          tSeeAll={t('upgrade.seeAllFeatures')}
+          tHide={t('upgrade.hideDetails')}
+          tChoose={t('upgrade.chooseBasic')}
+          tSwitchToAnnual={t('upgrade.switchToAnnual', { savings: '$40/yr' })}
+          tCurrentPlan={t('upgrade.currentPlanShort')}
+          tActive={t('upgrade.activeBadge')}
+          tMostPopular={t('upgrade.mostPopular')}
+          tOrPerYear={t('upgrade.orPerYear', { price: '$200', savings: '$40/yr' })}
         />
         <PlanCard
           tier="pro"
-          headline="Pro"
+          headline={t('upgrade.pro')}
           price="$35"
           priceSuffix="/mo"
           annualPrice="$350"
           annualSavings="$70/yr"
-          tagline="Full suite of AI marketing tools plus advanced automation and leads."
+          tagline={t('upgrade.proDesc')}
           mostPopular
           isCurrent={isPro}
           canSwitchToAnnual={proMonthlyCanSwitch}
           heroFeatures={[
-            { icon: <Wrench size={16} color="#dc2626"/>, text: 'Everything in Basic, plus:' },
-            { icon: <Zap size={16} color="#dc2626"/>, text: 'SuperPages — AI-powered landing pages and funnels' },
-            { icon: <Users size={16} color="#dc2626"/>, text: 'My Leads CRM — capture, track and nurture leads' },
-            { icon: <Mail size={16} color="#dc2626"/>, text: 'Email Autoresponder — automated sequences' },
+            { icon: <Wrench size={16} color="#dc2626"/>, text: t('upgrade.featEverythingPlus') },
+            { icon: <Zap size={16} color="#dc2626"/>, text: t('upgrade.featSuperPages') },
+            { icon: <Users size={16} color="#dc2626"/>, text: t('upgrade.featLeadsCRM') },
+            { icon: <Mail size={16} color="#dc2626"/>, text: t('upgrade.featAutoresponder') },
           ]}
           extraFeatures={[
-            'SuperSeller AI — automated sales campaigns',
-            'Course Creator — build and sell courses (coming soon)',
-            'Priority support — faster response times',
-            'Annual plan saves $70/year',
+            t('upgrade.featSuperSeller'),
+            t('upgrade.featCourseCreator'),
+            t('upgrade.featPrioritySupport'),
+            t('upgrade.featAnnualSavesPro'),
           ]}
           onChoose={choosePro}
           onSwitchToAnnual={switchProToAnnual}
+          tSeeAll={t('upgrade.seeAllFeatures')}
+          tHide={t('upgrade.hideDetails')}
+          tChoose={t('upgrade.choosePro')}
+          tSwitchToAnnual={t('upgrade.switchToAnnual', { savings: '$70/yr' })}
+          tCurrentPlan={t('upgrade.currentPlanShort')}
+          tActive={t('upgrade.activeBadge')}
+          tMostPopular={t('upgrade.mostPopular')}
+          tOrPerYear={t('upgrade.orPerYear', { price: '$350', savings: '$70/yr' })}
         />
       </div>
 
       <div style={{ textAlign:'center', marginTop:28, padding:'0 20px', fontSize:13, color:'#64748b' }}>
-        Already paid? <Link to="/dashboard" style={{ color:'#2563eb', fontWeight:600, textDecoration:'none' }}>Go to dashboard →</Link>
+        <Link to="/dashboard" style={{ color:'#2563eb', fontWeight:600, textDecoration:'none' }}>{t('upgrade.alreadyPaidLink')}</Link>
       </div>
 
     </AppLayout>
@@ -167,7 +183,7 @@ export default function Upgrade() {
  * same expander, same CTA. The only thing that differs is colour palette,
  * the "Most Popular" pill on Pro, and the "Current Plan" state when active.
  */
-function PlanCard({ tier, headline, price, priceSuffix, annualPrice, annualSavings, tagline, mostPopular, isCurrent, canSwitchToAnnual, isPro, heroFeatures, extraFeatures, onChoose, onSwitchToAnnual }) {
+function PlanCard({ tier, headline, price, priceSuffix, annualPrice, annualSavings, tagline, mostPopular, isCurrent, canSwitchToAnnual, isPro, heroFeatures, extraFeatures, onChoose, onSwitchToAnnual, tSeeAll, tHide, tChoose, tSwitchToAnnual, tCurrentPlan, tActive, tMostPopular, tOrPerYear }) {
   var [expanded, setExpanded] = useState(false);
   var heroClass = 'uplan-hero uplan-hero-' + tier;
   var iconClass = 'uplan-feat-icon uplan-feat-icon-' + tier;
@@ -184,8 +200,8 @@ function PlanCard({ tier, headline, price, priceSuffix, annualPrice, annualSavin
             never collide. The active pill is the strongest visual signal —
             green badge + checkmark — so users immediately see which plan
             they currently have. */}
-        {isCurrent && <div className="uplan-active-pill">✓ Active</div>}
-        {mostPopular && <div className="uplan-popular">Most Popular</div>}
+        {isCurrent && <div className="uplan-active-pill">✓ {tActive}</div>}
+        {mostPopular && <div className="uplan-popular">{tMostPopular}</div>}
         <div className="uplan-tier-label">{headline}</div>
         <div>
           <span className="uplan-price">{price}</span>
@@ -193,7 +209,7 @@ function PlanCard({ tier, headline, price, priceSuffix, annualPrice, annualSavin
         </div>
         {annualPrice && (
           <div style={{ fontSize:13, opacity:.85, marginTop:6 }}>
-            or {annualPrice}/year — save {annualSavings}
+            {tOrPerYear}
           </div>
         )}
         <div className="uplan-tagline">{tagline}</div>
@@ -211,7 +227,7 @@ function PlanCard({ tier, headline, price, priceSuffix, annualPrice, annualSavin
 
         <button type="button" className="uplan-expander" onClick={function() { setExpanded(!expanded); }}>
           {expanded ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
-          {expanded ? 'Hide details' : 'See all features'}
+          {expanded ? tHide : tSeeAll}
         </button>
 
         {expanded && (
@@ -234,18 +250,18 @@ function PlanCard({ tier, headline, price, priceSuffix, annualPrice, annualSavin
               className={'uplan-cta-btn uplan-cta-btn-' + tier}
               onClick={onSwitchToAnnual}
             >
-              Switch to Annual — Save {annualSavings} →
+              {tSwitchToAnnual} →
             </button>
           ) : isCurrent ? (
             // State 3: on this plan, already annual — locked
-            <div className="uplan-cta-current">✓ Current plan</div>
+            <div className="uplan-cta-current">{tCurrentPlan}</div>
           ) : (
             // State 1: not on this plan — primary CTA
             <button
               className={'uplan-cta-btn uplan-cta-btn-' + tier}
               onClick={onChoose}
             >
-              Choose {headline} →
+              {tChoose} →
             </button>
           )}
         </div>
