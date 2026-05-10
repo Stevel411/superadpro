@@ -180,71 +180,108 @@ export default function PlatformTour() {
             if (!sec.videoSrc) return null;
             var isActive = i === activeIdx;
             var hasStartedPlaying = playingIds[sec.id];
-            
-            // Before first click: show poster image with play button overlay (instant, no buffering)
-            // After first click: render actual <video> which will then play
-            if (!hasStartedPlaying) {
-              return <div key={sec.id}
+
+            // Both layers ALWAYS exist in the DOM from initial mount.
+            // - Poster overlay: shown when !hasStartedPlaying, hidden when playing
+            // - <video> element: always mounted but display:none until tapped
+            //
+            // Why both render always: calling .play() must happen INSIDE the
+            // user-tap event handler to satisfy mobile autoplay policies
+            // (iOS Safari especially). Earlier versions queued .play() in a
+            // setTimeout after a setState — which detaches the call from the
+            // user gesture and gets silently blocked on mobile. Now the
+            // <video> element is always mounted and ready; the tap handler
+            // calls .play() synchronously in the same event tick. On a click
+            // we both flip the poster overlay off AND fire .play() within
+            // the same JS turn the user initiated.
+
+            return <div key={sec.id} style={{
+              width: '100%', height: '100%',
+              display: isActive ? 'block' : 'none',
+              position: 'absolute', top: 0, left: 0,
+            }}>
+              {/* Always-mounted video element. Hidden via opacity (not
+                  display) when poster is showing so the element exists in
+                  the DOM and can have .play() called on it from a real
+                  user gesture. */}
+              <video
+                id={'tour-vid-' + sec.id}
+                controls={hasStartedPlaying}
+                preload="metadata"
+                playsInline
+                poster={sec.posterSrc}
                 style={{
-                  width: '100%', height: '100%',
-                  display: isActive ? 'flex' : 'none',
+                  width: '100%', height: '100%', borderRadius: 14,
                   position: 'absolute', top: 0, left: 0,
-                  backgroundImage: sec.posterSrc ? 'url(' + sec.posterSrc + ')' : 'none',
-                  backgroundSize: 'cover', backgroundPosition: 'center',
-                  alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer',
-                  borderRadius: 14,
-                }}
-                onClick={function() {
-                  setPlayingIds(function(prev) {
-                    var next = Object.assign({}, prev);
-                    next[sec.id] = true;
-                    return next;
-                  });
-                  // Autoplay once the video element mounts
-                  setTimeout(function() {
-                    var vid = document.getElementById('tour-vid-' + sec.id);
-                    if (vid) { try { vid.play(); } catch(e) {} }
-                  }, 50);
+                  opacity: hasStartedPlaying ? 1 : 0,
+                  pointerEvents: hasStartedPlaying ? 'auto' : 'none',
+                  transition: 'opacity 0.15s',
                 }}
               >
-                <div style={{
-                  width: 80, height: 80, borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.95)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-                  transition: 'transform 0.2s',
-                }}
-                onMouseEnter={function(e) { e.currentTarget.style.transform = 'scale(1.1)'; }}
-                onMouseLeave={function(e) { e.currentTarget.style.transform = 'scale(1)'; }}
+                <source src={sec.videoSrc} type="video/mp4"/>
+              </video>
+
+              {/* Poster overlay with play button. Sits on top of the
+                  hidden video until the user taps. Tap calls .play()
+                  synchronously then hides itself via state update. */}
+              {!hasStartedPlaying && (
+                <div
+                  style={{
+                    width: '100%', height: '100%',
+                    display: 'flex',
+                    position: 'absolute', top: 0, left: 0,
+                    backgroundImage: sec.posterSrc ? 'url(' + sec.posterSrc + ')' : 'none',
+                    backgroundSize: 'cover', backgroundPosition: 'center',
+                    alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer',
+                    borderRadius: 14,
+                    zIndex: 2,
+                  }}
+                  onClick={function() {
+                    // CRITICAL: call .play() FIRST, synchronously, while
+                    // still inside the user-gesture event. Then update
+                    // state. This is the order that satisfies iOS
+                    // Safari and Android Chrome autoplay policies.
+                    var vid = document.getElementById('tour-vid-' + sec.id);
+                    if (vid) {
+                      try {
+                        var playPromise = vid.play();
+                        // play() returns a promise in modern browsers — swallow
+                        // its rejection silently so we don't unhandled-reject.
+                        if (playPromise && typeof playPromise.catch === 'function') {
+                          playPromise.catch(function() {});
+                        }
+                      } catch(e) {}
+                    }
+                    setPlayingIds(function(prev) {
+                      var next = Object.assign({}, prev);
+                      next[sec.id] = true;
+                      return next;
+                    });
+                  }}
                 >
-                  {/* Play triangle */}
                   <div style={{
-                    width: 0, height: 0,
-                    borderTop: '16px solid transparent',
-                    borderBottom: '16px solid transparent',
-                    borderLeft: '26px solid ' + s.color,
-                    marginLeft: 6,
-                  }}/>
+                    width: 80, height: 80, borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.95)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                    transition: 'transform 0.2s',
+                  }}
+                  onMouseEnter={function(e) { e.currentTarget.style.transform = 'scale(1.1)'; }}
+                  onMouseLeave={function(e) { e.currentTarget.style.transform = 'scale(1)'; }}
+                  >
+                    {/* Play triangle */}
+                    <div style={{
+                      width: 0, height: 0,
+                      borderTop: '16px solid transparent',
+                      borderBottom: '16px solid transparent',
+                      borderLeft: '26px solid ' + s.color,
+                      marginLeft: 6,
+                    }}/>
+                  </div>
                 </div>
-              </div>;
-            }
-            
-            return <video
-              key={sec.id}
-              id={'tour-vid-' + sec.id}
-              controls
-              preload="auto"
-              playsInline
-              poster={sec.posterSrc}
-              style={{
-                width: '100%', height: '100%', borderRadius: 14,
-                display: isActive ? 'block' : 'none',
-                position: 'absolute', top: 0, left: 0,
-              }}
-            >
-              <source src={sec.videoSrc} type="video/mp4"/>
-            </video>;
+              )}
+            </div>;
           })}
 
           {/* Fallback for sections with videoId (YouTube) or no video */}
