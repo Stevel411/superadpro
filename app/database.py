@@ -2568,6 +2568,29 @@ try:
 except Exception as e:
     print(f"⚠️ Challenge note: {e}")
 
+# ── Daily Briefings (cron morning email) ──
+try:
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS daily_briefings (
+                id SERIAL PRIMARY KEY,
+                briefing_date VARCHAR(10) UNIQUE NOT NULL,
+                metrics_json TEXT NOT NULL,
+                summary_text TEXT NOT NULL,
+                launch_log_md TEXT,
+                email_sent_to VARCHAR(120),
+                email_sent_at TIMESTAMP,
+                generation_ms INTEGER,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_daily_briefings_date ON daily_briefings(briefing_date)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_daily_briefings_created ON daily_briefings(created_at)"))
+        conn.commit()
+        print("✅ Daily briefings table created")
+except Exception as e:
+    print(f"⚠️ Daily briefings note: {e}")
+
 
 # ─────────────────────────────────────────────
 # SuperScene Models
