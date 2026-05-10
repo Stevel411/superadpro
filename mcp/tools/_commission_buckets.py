@@ -27,16 +27,13 @@ GRID_TYPES = frozenset({
     "platform",                # company retention on grid (no sponsor active)
 })
 
-# Membership recurring revenue (the dependable income stream)
-# NOTE: legacy capitalised "Membership Sponsor" exists in app/main.py:5506 + 6586
-# (data hygiene bug) — we accept it here for now so it counts correctly.
+# Membership recurring revenue (the dependable income stream).
 MEMBERSHIP_TYPES = frozenset({
     "membership_sponsor",          # 50% to sponsor on initial $20 membership
     "membership_company",          # 50% to company on initial $20 membership
     "membership_renewal",          # recurring sponsor commission on monthly renewal
     "membership",                  # legacy/aggregate membership commission
     "gift_membership_sponsor",     # Pay It Forward gift redemption sponsor cut
-    "Membership Sponsor",          # legacy capitalised value (TODO: fix at write site)
 })
 
 # Manual admin entries (not auto-fired by any engine)

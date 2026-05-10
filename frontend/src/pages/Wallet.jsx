@@ -23,6 +23,16 @@ export default function Wallet() {
   const [showHelp, setShowHelp] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawResult, setWithdrawResult] = useState(null);
+  // ── First-withdrawal confirmation gate ──
+  // Members withdrawing for the first time see a one-time confirmation
+  // modal showing destination network + full address + amount before the
+  // request actually fires. After their first successful withdrawal the
+  // gate disappears (total_withdrawn > 0) so experienced members aren't
+  // re-prompted on every withdrawal. Belt-and-braces against the most
+  // common crypto mistake: sending to a wrong-network address.
+  // pendingWithdrawal holds the validated request payload until the
+  // member clicks "Confirm Withdrawal" or "Cancel".
+  const [pendingWithdrawal, setPendingWithdrawal] = useState(null);
 
   // Build the right block-explorer URL for a withdrawal's tx hash. The
   // network field comes back from the API when the withdrawal was sent
@@ -75,7 +85,11 @@ export default function Wallet() {
     setP2pSending(false);
   };
 
-  const handleWithdraw = async (walletType) => {
+  // Validate inputs and decide whether to dispatch immediately or open
+  // the first-withdrawal confirmation gate. For first-time withdrawers
+  // we collect the validated parameters into pendingWithdrawal and let
+  // the modal call dispatchWithdrawal() once the member clicks Confirm.
+  const handleWithdraw = (walletType) => {
     const amountEl = document.getElementById('withdraw_amount_' + walletType);
     const totpEl = document.getElementById('withdraw_totp_' + walletType);
     const amount = parseFloat(amountEl?.value);
@@ -102,8 +116,30 @@ export default function Wallet() {
       idempotencyKey = 'fb-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
     }
 
+    const payload = { walletType, amount, totp_code, idempotencyKey };
+
+    // First-withdrawal gate: if this member has never withdrawn before,
+    // pause and show the confirmation modal. Returning members skip
+    // straight to dispatch.
+    const isFirstWithdrawal = !data?.total_withdrawn || Number(data.total_withdrawn) === 0;
+    if (isFirstWithdrawal) {
+      setWithdrawResult(null);
+      setPendingWithdrawal(payload);
+      return;
+    }
+    dispatchWithdrawal(payload);
+  };
+
+  // Actual on-the-wire dispatch — called either directly (returning
+  // members) or from the confirmation modal (first-timers).
+  const dispatchWithdrawal = async (payload) => {
+    const { walletType, amount, totp_code, idempotencyKey } = payload;
+    const amountEl = document.getElementById('withdraw_amount_' + walletType);
+    const totpEl = document.getElementById('withdraw_totp_' + walletType);
+
     setWithdrawing(true);
     setWithdrawResult(null);
+    setPendingWithdrawal(null);
     try {
       const formData = new URLSearchParams();
       formData.append('amount', amount);
@@ -212,6 +248,27 @@ export default function Wallet() {
             {d.wallet_address ? (
               d.balance >= 10 ? (
                 <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  {/* Destination panel — shows where the USDT will land
+                      so the member can verify before clicking Withdraw.
+                      Shared by both Affiliate and Campaign cards. */}
+                  <div style={{ padding:'10px 12px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:8 }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
+                      <div style={{ fontSize:11, fontWeight:700, color:'#15803d', textTransform:'uppercase', letterSpacing:0.5 }}>
+                        {t('wallet.sendingTo') || 'Sending to'}
+                      </div>
+                      <Link to="/account" style={{ fontSize:12, fontWeight:600, color:'var(--sap-accent)', textDecoration:'none' }}>
+                        {t('wallet.change') || 'Change'}
+                      </Link>
+                    </div>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#15803d', marginBottom:2 }}>
+                      {d.wallet_network === 'bsc' ? 'USDT · BEP-20 (BNB Chain)' : d.wallet_network === 'tron' ? 'USDT · TRC-20 (Tron)' : 'USDT'}
+                    </div>
+                    <div style={{ fontSize:13, fontFamily:'monospace', color:'var(--sap-text-secondary)', wordBreak:'break-all', lineHeight:1.4 }}>
+                      {d.wallet_address.length > 16
+                        ? `${d.wallet_address.substring(0, 8)}…${d.wallet_address.substring(d.wallet_address.length - 6)}`
+                        : d.wallet_address}
+                    </div>
+                  </div>
                   <div>
                     <label style={labelStyle}>{t('wallet.amountUSDT')}</label>
                     <input id="withdraw_amount_affiliate" style={inputStyle} type="number" min="10" max={d.balance} step="0.01" placeholder="0.00"/>
@@ -256,6 +313,26 @@ export default function Wallet() {
             {d.wallet_address ? (
               (d.campaign_balance || 0) >= 10 ? (
                 <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  {/* Destination panel — see comment on affiliate card.
+                      Indigo theming to match the campaign card. */}
+                  <div style={{ padding:'10px 12px', background:'#eef2ff', border:'1px solid #c7d2fe', borderRadius:8 }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
+                      <div style={{ fontSize:11, fontWeight:700, color:'#4338ca', textTransform:'uppercase', letterSpacing:0.5 }}>
+                        {t('wallet.sendingTo') || 'Sending to'}
+                      </div>
+                      <Link to="/account" style={{ fontSize:12, fontWeight:600, color:'var(--sap-accent)', textDecoration:'none' }}>
+                        {t('wallet.change') || 'Change'}
+                      </Link>
+                    </div>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#4338ca', marginBottom:2 }}>
+                      {d.wallet_network === 'bsc' ? 'USDT · BEP-20 (BNB Chain)' : d.wallet_network === 'tron' ? 'USDT · TRC-20 (Tron)' : 'USDT'}
+                    </div>
+                    <div style={{ fontSize:13, fontFamily:'monospace', color:'var(--sap-text-secondary)', wordBreak:'break-all', lineHeight:1.4 }}>
+                      {d.wallet_address.length > 16
+                        ? `${d.wallet_address.substring(0, 8)}…${d.wallet_address.substring(d.wallet_address.length - 6)}`
+                        : d.wallet_address}
+                    </div>
+                  </div>
                   <div>
                     <label style={labelStyle}>{t('wallet.amountUSDT')}</label>
                     <input id="withdraw_amount_campaign" style={inputStyle} type="number" min="10" max={d.campaign_balance || 0} step="0.01" placeholder="0.00"/>
@@ -457,6 +534,95 @@ export default function Wallet() {
               </table>
             </div>
           </Card>
+        </div>
+      )}
+      {/* First-withdrawal confirmation modal — only ever shown to a member
+          on their first-ever withdrawal (total_withdrawn === 0). After a
+          successful first withdrawal the gate is permanently passed.
+          Belt-and-braces protection against the most common crypto mistake:
+          sending to an address on the wrong network. */}
+      {pendingWithdrawal && (
+        <div style={{
+          position:'fixed', inset:0, background:'rgba(15,23,42,0.55)', zIndex:1000,
+          display:'flex', alignItems:'center', justifyContent:'center', padding:20,
+        }}
+        onClick={() => setPendingWithdrawal(null)}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            background:'#fff', borderRadius:14, maxWidth:480, width:'100%',
+            padding:'24px 22px', boxShadow:'0 20px 60px rgba(15,23,42,0.4)',
+            maxHeight:'90vh', overflow:'auto',
+          }}>
+            <div style={{ fontSize:22, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:6, fontFamily:'Sora,sans-serif' }}>
+              {t('wallet.confirmFirstTitle') || 'Confirm your first withdrawal'}
+            </div>
+            <div style={{ fontSize:14, color:'var(--sap-text-secondary)', lineHeight:1.55, marginBottom:18 }}>
+              {t('wallet.confirmFirstSub') || "We're showing this once to make sure your destination is correct. Crypto sent to the wrong network can't be recovered."}
+            </div>
+
+            {/* Amount */}
+            <div style={{ padding:'12px 14px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:10, marginBottom:10 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>
+                {t('wallet.amount') || 'Amount'}
+              </div>
+              <div style={{ fontSize:24, fontWeight:800, color:'var(--sap-text-primary)', fontFamily:'Sora,sans-serif' }}>
+                ${formatMoney(pendingWithdrawal.amount)} <span style={{ fontSize:14, fontWeight:600, color:'var(--sap-text-muted)' }}>USDT</span>
+              </div>
+            </div>
+
+            {/* Network */}
+            <div style={{ padding:'12px 14px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:10, marginBottom:10 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>
+                {t('wallet.network') || 'Network'}
+              </div>
+              <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-text-primary)' }}>
+                {d.wallet_network === 'bsc'
+                  ? 'BEP-20 · BNB Smart Chain'
+                  : d.wallet_network === 'tron'
+                    ? 'TRC-20 · Tron'
+                    : (t('wallet.networkUnknown') || 'Unknown')}
+              </div>
+            </div>
+
+            {/* Full destination address */}
+            <div style={{ padding:'12px 14px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:10, marginBottom:14 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>
+                {t('wallet.destinationAddress') || 'Destination address'}
+              </div>
+              <div style={{ fontSize:13, fontFamily:'monospace', color:'var(--sap-text-primary)', wordBreak:'break-all', lineHeight:1.5 }}>
+                {d.wallet_address}
+              </div>
+            </div>
+
+            {/* Network warning */}
+            <div style={{ padding:'10px 14px', background:'#fef3c7', border:'1px solid #fde68a', borderRadius:10, marginBottom:18, fontSize:13, color:'#854d0e', lineHeight:1.5 }}>
+              <strong>{t('wallet.networkWarningTitle') || 'Make sure your wallet supports this network.'}</strong> {t('wallet.networkWarningBody') || 'Funds sent to an address on a different network may be lost permanently. Tap Change above if you need to update your destination.'}
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display:'flex', gap:10 }}>
+              <button
+                onClick={() => setPendingWithdrawal(null)}
+                disabled={withdrawing}
+                style={{
+                  flex:1, padding:'12px 14px', borderRadius:10, border:'1.5px solid #e2e8f0',
+                  background:'#fff', color:'var(--sap-text-primary)', fontWeight:700, fontSize:15,
+                  cursor: withdrawing ? 'not-allowed' : 'pointer',
+                }}>
+                {t('wallet.cancel') || 'Cancel'}
+              </button>
+              <button
+                onClick={() => dispatchWithdrawal(pendingWithdrawal)}
+                disabled={withdrawing}
+                style={{
+                  flex:2, padding:'12px 14px', borderRadius:10, border:'none',
+                  background:'linear-gradient(135deg,#16a34a,#22c55e)', color:'#fff',
+                  fontWeight:700, fontSize:15, cursor: withdrawing ? 'not-allowed' : 'pointer',
+                  opacity: withdrawing ? 0.7 : 1,
+                }}>
+                {withdrawing ? (t('wallet.processing') || 'Processing…') : (t('wallet.confirmWithdrawal') || 'Confirm Withdrawal')}
+              </button>
+            </div>
+          </div>
         </div>
       )}
       <VoiceGuide />

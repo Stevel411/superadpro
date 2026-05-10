@@ -461,7 +461,19 @@
     "sent": "Sent",
     "received": "Received",
     "userIdPlaceholder": "e.g. SAP-00042",
-    "creditNexus": "Credit Nexus"
+    "creditNexus": "Credit Nexus",
+    "sendingTo": "Sending to",
+    "change": "Change",
+    "network": "Network",
+    "destinationAddress": "Destination address",
+    "networkUnknown": "Unknown",
+    "networkWarningTitle": "Make sure your wallet supports this network.",
+    "networkWarningBody": "Funds sent to an address on a different network may be lost permanently. Tap Change above if you need to update your destination.",
+    "confirmFirstTitle": "Confirm your first withdrawal",
+    "confirmFirstSub": "We're showing this once to make sure your destination is correct. Crypto sent to the wrong network can't be recovered.",
+    "confirmWithdrawal": "Confirm Withdrawal",
+    "cancel": "Cancel",
+    "processing": "Processing…"
   },
   "watch": {
     "title": "Watch to Qualify",
