@@ -23,6 +23,7 @@ The single most important verified fact: **WalletConnect membership purchase wor
 
 ## Recently shipped (last 7 days)
 
+- d79d41a9 Daily Briefing System: cron + Grok + email + LAUNCH_LOG.md (10 May)
 - 80e28635 Cache: shorten user-specific TTL from 60s to 5s
 - 1d3be450 PaymentSuccess: add visible Dashboard CTA so success page isn't a dead-end
 - 5599b019 Checkout: fix broken WalletConnect flow — Pay button never appeared after connection
