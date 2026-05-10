@@ -13703,26 +13703,19 @@ def api_registration_status(
 ):
     """Tells the frontend whether new public registration is open.
 
-    Admins always see open=True. During pre-launch, public registration
-    is also open to people who arrived via a referral link (have ref
-    cookie or ?ref query param) or who hold the PRE_LAUNCH_BYPASS_TOKEN.
-
-    To re-open registration globally for launch, flip `closed` to False.
+    Returns open=True for everyone now (launched 10 May 2026). The
+    referral / gift / bypass-token branches below are kept inert in
+    case we ever need to re-close registration for emergency
+    maintenance — flip `closed` back to True and they activate again.
     """
-    closed = True  # Pre-launch — flip to False at launch time
+    closed = False  # OPEN — flipped from True on launch day 10 May 2026
 
     # Admin always bypasses
     if current_user and getattr(current_user, "is_admin", False):
         return {"open": True, "admin_bypass": True}
 
-    # Open during pre-launch if: arrived with a referral, OR holds the
-    # bypass token (cookie set by the prelaunch middleware on
-    # ?bypass=<token>), OR arrived via a gift voucher claim flow.
-    # All three are signals of a legitimate test signup.
-    # gift bypass added 8 May 2026 — gift recipients arriving at
-    # /register?gift=CODE need to bypass the launch gate just like
-    # ref'd signups do, since the gift voucher itself proves a
-    # legitimate connection to an existing member.
+    # When closed: open for those arriving via referral / gift / bypass token.
+    # Currently inert because closed=False above. Kept for emergency maintenance.
     if closed:
         ref_qp = request.query_params.get("ref", "")
         ref_cookie = request.cookies.get("ref", "")
