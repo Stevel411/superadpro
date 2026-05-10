@@ -222,8 +222,16 @@ function ProtectedRoute({ children }) {
     </div>
   );
   if (!user) {
-    // Use replace to avoid back-button loops
-    window.location.replace('/login');
+    // Send unauthenticated users to the public homepage, not /login.
+    // Using replace() to avoid back-button loops. Originally redirected
+    // to /login which (a) created a sales-funnel leak on logout (page
+    // briefly re-rendered with user=null while navigating, this guard
+    // would race window.location.replace('/login') and win, regardless
+    // of where logout itself was sending them) and (b) is a worse UX
+    // for direct visitors who shared a /dashboard URL — they should
+    // see the marketing site, not a login form. The homepage has a
+    // Sign In nav link for users who genuinely want to log in.
+    window.location.replace('/');
     return <div className="flex items-center justify-center min-h-screen"><Spinner size="lg" /></div>;
   }
   return children;
@@ -255,7 +263,9 @@ function RequireTier({ tier, children }) {
     </div>
   );
   if (!user) {
-    window.location.replace('/login');
+    // Same as ProtectedRoute — send unauth'd users to homepage, not /login.
+    // See ProtectedRoute comment for rationale.
+    window.location.replace('/');
     return <div className="flex items-center justify-center min-h-screen"><Spinner size="lg" /></div>;
   }
   // Admin always passes
