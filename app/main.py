@@ -6522,6 +6522,7 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Credit sponsor commission only when the engine says so.
     # Replaces the old `not is_upgrade` check, which was vulnerable to
     # callers passing the wrong flag.
+    sponsor_share = Decimal("0.00")  # default: no sponsor commission paid
     if user.sponsor_id and pays_sponsor_commission:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
@@ -6588,6 +6589,33 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                     )
             except Exception as exc:
                 logger.warning(f"Commission email failed for sponsor {sponsor.id} ({sponsor.username}): {exc}")
+
+    # Company-share bookkeeping row.
+    # Every membership activation results in money to the company:
+    #   - fresh/reactivation with sponsor:   actual_charge - sponsor_share
+    #   - fresh/reactivation without sponsor: 100% of actual_charge
+    #   - tier_upgrade / cadence_switch:      100% of actual_charge (no sponsor cut)
+    # Without this row, the commissions ledger only records sponsor outflows
+    # and the company's revenue from memberships is invisible to financial
+    # reconciliation tools (financial_sanity, commission_audit, etc).
+    # The legacy Coinbase webhook path (main.py ~5459) does this correctly;
+    # this mirrors that pattern for the WalletConnect / NOWPayments paths.
+    company_share = Decimal(str(actual_charge)) - sponsor_share
+    if company_share > 0:
+        db.add(Commission(
+            from_user_id=user.id,
+            to_user_id=None,
+            amount_usdt=company_share,
+            commission_type="membership_company",
+            package_tier=0,
+            status="platform",
+            paid_at=datetime.utcnow(),
+            notes=(
+                f"Membership company share (${company_share}) — "
+                f"{activation_type} via {source}, "
+                f"actual_charge=${actual_charge}, sponsor_share=${sponsor_share}"
+            ),
+        ))
 
     # Create renewal record
     # CRITICAL: if this fails the user is activated but the renewal cron
