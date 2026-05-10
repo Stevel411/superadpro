@@ -131,15 +131,14 @@ export default function HomePage() {
                 </a>
               </div>
 
-              {/* Bottom row: active stat + feature pills */}
+              {/* Bottom row: feature pills.
+                  The "active members" stat that used to live here was a
+                  hardcoded fabrication (2,847 vs ~18 real). Removed
+                  10 May 2026 launch day to avoid making false claims.
+                  Reinstate when we have meaningful numbers and source
+                  them from /api/public/stats (already returns real count). */}
               <div className="hero-bottom">
                 <div className="bottom-row">
-                  <div className="active-pill">
-                    <span className="active-pill-dot"></span>
-                    <span className="active-pill-value">2,847</span>
-                    <span className="active-pill-label">{t('homePage.activeLabel')}</span>
-                  </div>
-
                   <div className="feature-pills">
                     <div className="feature-pill">
                       <div className="feature-pill-title sky">{t('homePage.feat1Title')}</div>

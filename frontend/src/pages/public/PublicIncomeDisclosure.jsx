@@ -50,8 +50,33 @@ export default function PublicIncomeDisclosure() {
               { pct: '5%', label: t('publicIncomeDisclosure.platformFeeLabel'), desc: t('publicIncomeDisclosure.platformFeeDesc') },
             ]}/>
             <p style={{ fontSize: 14, color: 'rgba(200,220,255,0.55)', marginTop: 14 }}>
-              Maximum earnings scenario: A member who personally refers 64 direct referrals, all of whom purchase all 8 tiers ($20 to $1,000), earns 46.25% of each tier price per referral (40% direct sponsor + 6.25% Level-1 uni-level) plus all 8 completion bonuses ($64 to $3,200). Total: <strong style={{ color: '#fff' }}>$103,976 per completed cycle</strong>. This is the absolute theoretical maximum. Virtually no member will achieve this. Most members who earn do so at a small fraction of this level.
+              The figure shown below describes the absolute mathematical ceiling produced by the commission formula. It is not an income claim, a target, or a realistic projection. It exists only to illustrate the upper bound of how the math works.
             </p>
+            <div style={{
+              marginTop: 14,
+              padding: '14px 18px',
+              border: '1px solid rgba(245, 158, 11, 0.45)',
+              background: 'rgba(245, 158, 11, 0.06)',
+              borderRadius: 10,
+              fontSize: 14,
+              color: 'rgba(220,230,250,0.85)',
+              lineHeight: 1.55,
+            }}>
+              <div style={{
+                fontFamily:"'JetBrains Mono',monospace",
+                fontSize:11,
+                fontWeight:700,
+                letterSpacing:'.15em',
+                textTransform:'uppercase',
+                color:'#fbbf24',
+                marginBottom:8,
+              }}>
+                ⚠ Hypothetical example — not an income claim
+              </div>
+              <p style={{ margin: 0 }}>
+                If a member personally refers 64 people, AND every one of those 64 buys every campaign tier ($20 through $1,000), AND every single uni-level slot fills, AND all 8 completion bonuses are awarded — the formula produces <strong style={{ color: '#fff' }}>$103,976 per completed cycle</strong>. This stacking of conditions is extreme. Virtually no member will see anything close to this. Most members who earn anything do so at a tiny fraction of this number. <strong style={{ color: '#fff' }}>Many members earn nothing at all.</strong> Use this figure to understand the math, never to set expectations.
+              </p>
+            </div>
           </Section>
 
           <Section title={t('incomeDisclaimer.membershipPricing', { defaultValue: 'Membership commission structure' })}>

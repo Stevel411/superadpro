@@ -260,6 +260,7 @@ export default function Tools() {
                     <div className="lh-link">{t('tools.lhLink3')}</div>
                   </div>
                   <div className="lh-stats">
+                    <div className="lh-stats-label">Example</div>
                     <div className="lh-stat">
                       <div className="lh-stat-label">{t('tools.lhStatClicks')}</div>
                       <div className="lh-stat-val">8,472</div>
@@ -1211,6 +1212,13 @@ animation:tlLhPulse 2.5s ease-in-out infinite;
 .tools-page .lh-link::before {content:'';width:5px;height:5px;border-radius:50%;background:var(--indigo-soft)}
 .tools-page .lh-stats {
 display:flex;flex-direction:column;gap:10px;
+}
+.tools-page .lh-stats-label {
+font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;
+color:var(--amber);letter-spacing:.15em;text-transform:uppercase;
+padding:3px 8px;background:rgba(251,191,36,.12);
+border:1px solid rgba(251,191,36,.3);border-radius:4px;
+align-self:flex-start;
 }
 .tools-page .lh-stat {
 background:rgba(0,0,0,.35);border:1px solid rgba(129,140,248,.2);
