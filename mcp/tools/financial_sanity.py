@@ -6,6 +6,7 @@ and expected platform retention. Flags if numbers don't reconcile.
 """
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import text
+from ._commission_buckets import GRID_TYPES, MEMBERSHIP_TYPES, ADMIN_TYPES
 from .registry import register_tool
 
 
@@ -67,11 +68,38 @@ def financial_sanity(db, hours: int = 24):
         WHERE created_at >= :t AND earner_id IS NOT NULL
     """), {"t": since}).scalar() or 0
 
-    grid_comms_out = db.execute(text("""
-        SELECT COALESCE(SUM(amount_usdt), 0)
+    # `commissions` table is multi-purpose. Bucket sums by commission_type so
+    # the financial reconciliation report doesn't conflate Profit Grid payouts
+    # with membership recurring revenue with manual admin adjustments.
+    commissions_rows = db.execute(text("""
+        SELECT commission_type,
+               COALESCE(SUM(amount_usdt), 0) as total,
+               COALESCE(SUM(CASE WHEN to_user_id IS NULL THEN amount_usdt ELSE 0 END), 0) as to_company
         FROM commissions
-        WHERE created_at >= :t AND to_user_id IS NOT NULL
-    """), {"t": since}).scalar() or 0
+        WHERE created_at >= :t
+        GROUP BY commission_type
+    """), {"t": since}).fetchall()
+
+    grid_comms_out = 0.0
+    membership_comms_out = 0.0
+    admin_comms_out = 0.0
+    other_comms_out = 0.0
+    company_retained_grid = 0.0
+    company_retained_membership = 0.0
+    for r in commissions_rows:
+        ct = r.commission_type
+        total = float(r.total or 0)
+        to_co = float(r.to_company or 0)
+        if ct in GRID_TYPES:
+            grid_comms_out += total
+            company_retained_grid += to_co
+        elif ct in MEMBERSHIP_TYPES:
+            membership_comms_out += total
+            company_retained_membership += to_co
+        elif ct in ADMIN_TYPES:
+            admin_comms_out += total
+        else:
+            other_comms_out += total
 
     matrix_comms_out = db.execute(text("""
         SELECT COALESCE(SUM(amount), 0)
@@ -79,7 +107,14 @@ def financial_sanity(db, hours: int = 24):
         WHERE created_at >= :t
     """), {"t": since}).scalar() or 0
 
-    total_commissions_out = float(course_comms_out) + float(grid_comms_out) + float(matrix_comms_out)
+    total_commissions_out = (
+        float(course_comms_out)
+        + float(grid_comms_out)
+        + float(membership_comms_out)
+        + float(matrix_comms_out)
+        + float(admin_comms_out)
+        + float(other_comms_out)
+    )
 
     # ── OUTFLOWS: withdrawals processed ──
     withdrawals_paid = db.execute(text("""
@@ -90,13 +125,9 @@ def financial_sanity(db, hours: int = 24):
     wd_count = withdrawals_paid[0] if withdrawals_paid else 0
     wd_total = float(withdrawals_paid[1] or 0) if withdrawals_paid else 0
 
-    # ── Commissions paid to COMPANY (platform retention on direct_sponsor/uni_level) ──
-    company_retained_grid = db.execute(text("""
-        SELECT COALESCE(SUM(amount_usdt), 0)
-        FROM commissions
-        WHERE created_at >= :t AND to_user_id IS NULL
-    """), {"t": since}).scalar() or 0
-
+    # ── Commissions paid to COMPANY (platform retention) ──
+    # company_retained_grid + company_retained_membership already computed
+    # above per-bucket from the commissions table. Only course remains.
     company_retained_course = db.execute(text("""
         SELECT COALESCE(SUM(amount), 0)
         FROM course_commissions
@@ -108,7 +139,12 @@ def financial_sanity(db, hours: int = 24):
     # For a rough check: commissions paid shouldn't exceed inflows (that would mean
     # we're paying out money we didn't collect).
     total_in = total_crypto_in + np_in
-    net_to_members = total_commissions_out - float(company_retained_grid) - float(company_retained_course)
+    total_platform_retained = (
+        float(company_retained_grid)
+        + float(company_retained_membership)
+        + float(company_retained_course)
+    )
+    net_to_members = total_commissions_out - total_platform_retained
 
     warnings: list[dict] = []
 
@@ -140,11 +176,19 @@ def financial_sanity(db, hours: int = 24):
         "outflows": {
             "commissions": {
                 "course_academy_usd": round(float(course_comms_out), 2),
-                "profit_grid_usd": round(float(grid_comms_out), 2),
+                "profit_grid_usd": round(grid_comms_out, 2),
+                "membership_usd": round(membership_comms_out, 2),
                 "profit_nexus_usd": round(float(matrix_comms_out), 2),
+                "admin_adjustments_usd": round(admin_comms_out, 2),
+                "other_usd": round(other_comms_out, 2),
                 "total_usd": round(total_commissions_out, 2),
                 "to_members_net_usd": round(net_to_members, 2),
-                "platform_retained_usd": round(float(company_retained_grid) + float(company_retained_course), 2),
+                "platform_retained_usd": round(total_platform_retained, 2),
+                "platform_retained_breakdown": {
+                    "profit_grid_usd": round(company_retained_grid, 2),
+                    "membership_usd": round(company_retained_membership, 2),
+                    "course_academy_usd": round(float(company_retained_course), 2),
+                },
             },
             "withdrawals": {
                 "count": wd_count,

@@ -11,6 +11,7 @@ Returns:
 """
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import text
+from ._commission_buckets import bucket_for
 from .registry import register_tool
 
 
@@ -66,13 +67,43 @@ def platform_pulse(db):
         "SELECT COUNT(*) FROM course_commissions WHERE created_at >= :t"
     ), {"t": one_day_ago}).scalar() or 0
 
-    grid_comms_today = db.execute(text(
-        "SELECT COUNT(*) FROM commissions WHERE created_at >= :t"
-    ), {"t": one_day_ago}).scalar() or 0
+    # The `commissions` table is multi-purpose — bucket by commission_type so
+    # we don't lump membership revenue and admin adjustments under "grid".
+    commissions_rows = db.execute(text("""
+        SELECT commission_type, COUNT(*) as cnt
+        FROM commissions
+        WHERE created_at >= :t
+        GROUP BY commission_type
+    """), {"t": one_day_ago}).fetchall()
+
+    grid_comms_today = 0
+    membership_comms_today = 0
+    admin_comms_today = 0
+    other_comms_today = 0
+    for r in commissions_rows:
+        b = bucket_for(r.commission_type)
+        if b == "profit_grid":
+            grid_comms_today += r.cnt
+        elif b == "membership":
+            membership_comms_today += r.cnt
+        elif b == "admin":
+            admin_comms_today += r.cnt
+        else:
+            other_comms_today += r.cnt
 
     matrix_comms_today = db.execute(text(
         "SELECT COUNT(*) FROM credit_matrix_commissions WHERE created_at >= :t"
     ), {"t": one_day_ago}).scalar() or 0
+
+    # Membership purchases today (initial + renewals fire `membership_sponsor` /
+    # `membership_renewal` commissions — count each unique buyer-event as one
+    # purchase). Membership is the dependable recurring revenue, so it must be
+    # visible in the pulse summary alongside courses and credit packs.
+    memberships_today = db.execute(text("""
+        SELECT COUNT(*) FROM commissions
+        WHERE created_at >= :t
+          AND commission_type IN ('membership_sponsor', 'membership_renewal', 'gift_membership_sponsor')
+    """), {"t": one_day_ago}).scalar() or 0
 
     # ── Red flag detection ──
     red_flags: list[dict] = []
@@ -145,13 +176,18 @@ def platform_pulse(db):
         "purchases_today": {
             "courses": course_today,
             "credit_packs": pack_today,
-            "total": course_today + pack_today,
+            "memberships": memberships_today,
+            "total": course_today + pack_today + memberships_today,
         },
         "commissions_today": {
             "course_academy": course_comms_today,
             "profit_grid": grid_comms_today,
+            "membership": membership_comms_today,
             "profit_nexus": matrix_comms_today,
-            "total": course_comms_today + grid_comms_today + matrix_comms_today,
+            "admin": admin_comms_today,
+            "other": other_comms_today,
+            "total": (course_comms_today + grid_comms_today + membership_comms_today
+                      + matrix_comms_today + admin_comms_today + other_comms_today),
         },
         "red_flags": red_flags,
     }

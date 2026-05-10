@@ -11,6 +11,7 @@ Flags anomalies as IDs only (no PII). Counts totals by type.
 """
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import text
+from ._commission_buckets import bucket_for
 from .registry import register_tool
 
 
@@ -58,8 +59,10 @@ def commission_audit(db, hours: int = 24):
         if r.source_chain:
             course_by_type[key]["by_chain"][str(r.source_chain)] = r.cnt
 
-    # Grid commissions — check direct/unilevel routing
-    grid_stats = db.execute(text("""
+    # `commissions` table — multi-purpose: holds Profit Grid events, membership
+    # commissions, and admin adjustments. Bucket by commission_type so each
+    # income stream is reported separately instead of all being labelled "grid".
+    commissions_stats = db.execute(text("""
         SELECT
             commission_type,
             COUNT(*) as cnt,
@@ -70,14 +73,23 @@ def commission_audit(db, hours: int = 24):
         GROUP BY commission_type
     """), {"since": since}).fetchall()
 
-    grid_by_type = {
-        r.commission_type: {
+    profit_grid: dict[str, dict] = {}
+    membership: dict[str, dict] = {}
+    admin: dict[str, dict] = {}
+    other: dict[str, dict] = {}
+    bucket_map = {
+        "profit_grid": profit_grid,
+        "membership": membership,
+        "admin": admin,
+        "other": other,
+    }
+    for r in commissions_stats:
+        bucket = bucket_map[bucket_for(r.commission_type)]
+        bucket[r.commission_type or "unknown"] = {
             "count": r.cnt,
             "total_usd": float(r.total or 0),
             "to_company": r.to_company or 0,
         }
-        for r in grid_stats
-    }
 
     # Credit Matrix commissions — check direct/spillover split
     matrix_stats = db.execute(text("""
@@ -162,17 +174,27 @@ def commission_audit(db, hours: int = 24):
 
     total_commissions = (
         sum(v["count"] for v in course_by_type.values())
-        + sum(v["count"] for v in grid_by_type.values())
+        + sum(v["count"] for v in profit_grid.values())
+        + sum(v["count"] for v in membership.values())
+        + sum(v["count"] for v in admin.values())
+        + sum(v["count"] for v in other.values())
         + sum(v["count"] for v in matrix_by_type.values())
     )
 
-    return {
+    result = {
         "window_hours": hours,
         "since": since.isoformat(),
         "overall_status": "healthy" if not flags else "flagged",
         "total_commissions": total_commissions,
         "flags": flags,
         "course_academy": course_by_type,
-        "profit_grid": grid_by_type,
+        "profit_grid": profit_grid,
+        "membership": membership,
         "profit_nexus": matrix_by_type,
     }
+    # Only surface admin/other if non-empty so the response stays clean.
+    if admin:
+        result["admin"] = admin
+    if other:
+        result["other"] = other
+    return result
