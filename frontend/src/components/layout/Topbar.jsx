@@ -68,7 +68,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
 
   return (
     <header
-      className="flex items-center justify-between px-5 border-b border-white/5 sticky top-0 z-40 shrink-0"
+      className="flex items-center justify-between px-5 border-b border-white/5 sticky top-0 z-50 shrink-0"
       style={{
         background:'linear-gradient(90deg, #172554 0%, #1e3a8a 100%)',
         // Standalone PWA on iOS overlays the status bar onto the page

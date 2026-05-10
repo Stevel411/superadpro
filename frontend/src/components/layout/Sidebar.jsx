@@ -288,7 +288,7 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
         height: '100dvh',
         width: collapsed ? 72 : 224,
         background: 'linear-gradient(180deg, #172554 0%, #172554 72px, #1e3a8a 100%)',
-        zIndex: 50,
+        zIndex: 60,
         display: 'flex',
         flexDirection: 'column',
         borderRight: '1px solid rgba(0,212,255,0.08)',
