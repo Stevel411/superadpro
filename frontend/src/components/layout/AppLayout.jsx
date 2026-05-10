@@ -106,11 +106,15 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
         />
       )}
 
-      {/* Sidebar — hidden on mobile, visible on desktop */}
-      {!isMobile && <Sidebar open={sidebarOpen} onClose={closeSidebar}
-                              collapsed={collapsed} onToggleCollapsed={function() { dismissFirstView(); toggleCollapsed(); }}
-                              firstView={firstView} />}
-      {isMobile && sidebarOpen && <Sidebar open={true} onClose={closeSidebar} collapsed={false} />}
+      {/* Sidebar — always mounted on both desktop and mobile.
+          On desktop: always visible (CSS @media min-width:768px overrides transform).
+          On mobile: visible only when sidebarOpen=true (CSS @media max-width:767px slides it in/out).
+          Conditional mounting was breaking the slide-in animation AND made debugging
+          harder when the menu didn't appear (10 May 2026 launch-day mobile bug). */}
+      <Sidebar open={sidebarOpen} onClose={closeSidebar}
+               collapsed={!isMobile && collapsed}
+               onToggleCollapsed={!isMobile ? function() { dismissFirstView(); toggleCollapsed(); } : undefined}
+               firstView={!isMobile && firstView} />
 
       {/* Main content — in fullHeight mode, lock to parent's 100dvh so main's
           overflow:hidden is authoritative and child scroll containers own the scroll */}
