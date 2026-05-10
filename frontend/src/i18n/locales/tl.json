@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "Pagsara",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "Maligayang pagdating sa SuperAdPro, {{name}}!",
+    "onboardingBannerSubtitle": "I-setup ka namin sa 5 mabilis na hakbang — mga 3 minuto.",
+    "onboardingBannerStep1": "I-setup ang iyong profile photo at pangalan",
+    "onboardingBannerStep2": "Kopyahin ang iyong personal na referral link",
+    "onboardingBannerStep3": "Mabilisang platform tour",
+    "onboardingBannerStep4": "Gumawa ng unang AI content",
+    "onboardingBannerCTA": "Simulan ang Setup →",
+    "onboardingBannerSkip": "Sa ibang pagkakataon",
+    "onboardingBannerDismissAria": "Isara ang setup banner"
   },
   "compPlan": {
     "title": "Plano ng Kompensasyon",

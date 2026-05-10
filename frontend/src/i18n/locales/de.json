@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "Verwerfen",
     "tierNudgeTitle": "Aktiviere eine Kampagnen-Stufe, um zu verdienen",
     "tierNudgeBody": "Deine Mitgliedschaft ist aktiv — aktiviere jetzt eine Kampagnen-Stufe, um Watch-to-Earn freizuschalten, eigene Video-Kampagnen zu erstellen und Provisionen auf jeden Stufen-Kauf in deiner Downline zu verdienen.",
-    "tierNudgeCta": "Kampagnen-Stufen ansehen"
+    "tierNudgeCta": "Kampagnen-Stufen ansehen",
+    "onboardingBannerTitle": "Willkommen bei SuperAdPro, {{name}}!",
+    "onboardingBannerSubtitle": "Lass uns dich in 5 schnellen Schritten einrichten — etwa 3 Minuten.",
+    "onboardingBannerStep1": "Profilfoto und Name einrichten",
+    "onboardingBannerStep2": "Persönlichen Empfehlungslink kopieren",
+    "onboardingBannerStep3": "Kurze Plattform-Tour",
+    "onboardingBannerStep4": "Erste KI-Inhalte erstellen",
+    "onboardingBannerCTA": "Setup starten →",
+    "onboardingBannerSkip": "Vielleicht später",
+    "onboardingBannerDismissAria": "Setup-Banner schließen"
   },
   "compPlan": {
     "title": "Vergütungsplan",

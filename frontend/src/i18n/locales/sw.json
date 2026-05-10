@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "Ondoa",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "Karibu SuperAdPro, {{name}}!",
+    "onboardingBannerSubtitle": "Tukusasishe katika hatua 5 za haraka — takriban dakika 3.",
+    "onboardingBannerStep1": "Sasisha picha ya wasifu na jina",
+    "onboardingBannerStep2": "Nakili kiungo chako cha rufaa",
+    "onboardingBannerStep3": "Ziara ya haraka ya jukwaa",
+    "onboardingBannerStep4": "Unda maudhui yako ya kwanza ya AI",
+    "onboardingBannerCTA": "Anza Usanidi →",
+    "onboardingBannerSkip": "Labda baadaye",
+    "onboardingBannerDismissAria": "Funga bendera ya usanidi"
   },
   "compPlan": {
     "title": "Mpango wa Fidia",

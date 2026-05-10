@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "Закрыть",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "Добро пожаловать в SuperAdPro, {{name}}!",
+    "onboardingBannerSubtitle": "Настроим вас за 5 быстрых шагов — около 3 минут.",
+    "onboardingBannerStep1": "Настройте фото профиля и имя",
+    "onboardingBannerStep2": "Скопируйте свою персональную реферальную ссылку",
+    "onboardingBannerStep3": "Быстрая экскурсия по платформе",
+    "onboardingBannerStep4": "Создайте свой первый AI-контент",
+    "onboardingBannerCTA": "Начать настройку →",
+    "onboardingBannerSkip": "Может быть позже",
+    "onboardingBannerDismissAria": "Закрыть баннер настройки"
   },
   "compPlan": {
     "title": "План вознаграждений",

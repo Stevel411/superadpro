@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "खारिज करें",
     "tierNudgeTitle": "कमाई शुरू करने के लिए एक कैम्पेन टियर सक्रिय करें",
     "tierNudgeBody": "आपकी मेम्बरशिप एक्टिव है — अब Watch-to-Earn अनलॉक करने, अपनी खुद की वीडियो कैम्पेन बनाने, और अपनी डाउनलाइन की हर टियर खरीद पर कमीशन कमाने के लिए एक कैम्पेन टियर सक्रिय करें।",
-    "tierNudgeCta": "कैम्पेन टियर देखें"
+    "tierNudgeCta": "कैम्पेन टियर देखें",
+    "onboardingBannerTitle": "SuperAdPro में स्वागत है, {{name}}!",
+    "onboardingBannerSubtitle": "आइए आपको 5 त्वरित चरणों में सेट अप करें — लगभग 3 मिनट।",
+    "onboardingBannerStep1": "अपनी प्रोफ़ाइल फ़ोटो और नाम सेट करें",
+    "onboardingBannerStep2": "अपना व्यक्तिगत रेफरल लिंक कॉपी करें",
+    "onboardingBannerStep3": "त्वरित प्लेटफ़ॉर्म टूर लें",
+    "onboardingBannerStep4": "अपना पहला AI कंटेंट बनाएं",
+    "onboardingBannerCTA": "सेटअप शुरू करें →",
+    "onboardingBannerSkip": "बाद में शायद",
+    "onboardingBannerDismissAria": "सेटअप बैनर बंद करें"
   },
   "compPlan": {
     "title": "मुआवजा योजना",

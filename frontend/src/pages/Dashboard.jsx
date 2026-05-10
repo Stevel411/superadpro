@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
@@ -14,10 +14,13 @@ var _dashCache = { data: null, ts: 0 };
 
 export default function Dashboard() {
   var { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
-  // Redirect to onboarding wizard if not completed
-  if (user && user.onboarding_completed === false) return <Navigate to="/onboarding" replace />;
+  // Onboarding wizard redirect REMOVED 10 May 2026 (launch day).
+  // New users were being bounced to a full-page wizard before they
+  // could see their dashboard. Steve flagged: 'this needs to come
+  // when the user lands on the dashboard page, not before'. Replaced
+  // with a dismissible banner below (see onboardingBanner block).
 
   // Start with cached data if fresh enough (< 30 seconds old)
   var hasFreshCache = _dashCache.data && (Date.now() - _dashCache.ts < 30000);
@@ -81,6 +84,28 @@ export default function Dashboard() {
       url.searchParams.delete('from');
       window.history.replaceState({}, '', url.toString());
     } catch(e) {}
+  }
+
+  // ── Onboarding banner ────────────────────────────────────────────────
+  // Replaces the full-page wizard redirect that used to fire on first
+  // dashboard visit. Banner shows above other content when user.onboarding_completed
+  // is false, with two paths:
+  //   1. "Start Setup →" → /onboarding (the original wizard, still works)
+  //   2. "Maybe later" or × button → marks onboarding_completed=true on
+  //      the server so the banner doesn't reappear across devices/sessions
+  // Dismissal is server-side (not localStorage) because this is account
+  // state, not browser state — a member dismissing on mobile shouldn't
+  // see the banner again on desktop.
+  function dismissOnboardingBanner() {
+    // Optimistic update — hide immediately so the click feels instant.
+    // If the API call fails, the banner will reappear on the next page
+    // load, which is fine (the action is idempotent and harmless).
+    if (setUser && user) {
+      setUser(Object.assign({}, user, { onboarding_completed: true }));
+    }
+    apiPost('/api/onboarding/complete', {}).catch(function() {
+      // Silent — if dismiss fails, banner will be back next reload, no harm done.
+    });
   }
 
   var pollRef = useRef(null);
@@ -190,6 +215,155 @@ export default function Dashboard() {
     <AppLayout
       title={t("dashboard.title")}
     >
+      {/* Onboarding banner — replaces the old full-page wizard redirect.
+          Shown when user.onboarding_completed is false. Two paths out:
+          'Start Setup →' link to the still-existing /onboarding wizard,
+          or dismissal (× button or 'Maybe later'). Dismissal is server-
+          side (POST /api/onboarding/complete) so it persists across
+          devices, not localStorage. Purple gradient picked to match the
+          wizard's step-marker colour for visual continuity. Uses the
+          same banner architecture as giftWelcome below for consistency. */}
+      {user && user.onboarding_completed === false && (
+        <div style={{
+          background: 'linear-gradient(135deg, #4c1d95 0%, #6d28d9 45%, #8b5cf6 100%)',
+          borderRadius: 16,
+          padding: '24px 28px',
+          marginBottom: 20,
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 8px 32px rgba(124,58,237,.25)',
+        }}>
+          {/* Decorative background circles — same soft-circle pattern as the
+              giftWelcome banner so the dashboard's banner system feels
+              cohesive. Positioned to catch the eye without competing with text. */}
+          <div style={{ position: 'absolute', top: -50, right: -30, width: 180, height: 180, borderRadius: '50%', background: 'rgba(255,255,255,.08)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: -40, left: 100, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,.05)', pointerEvents: 'none' }} />
+
+          {/* Dismiss × — top-right, low-emphasis but findable. Same
+              positioning as the gift banner's X for consistency. */}
+          <button
+            onClick={dismissOnboardingBanner}
+            aria-label={t('dashboard.onboardingBannerDismissAria')}
+            style={{
+              position: 'absolute',
+              top: 12, right: 12,
+              width: 28, height: 28,
+              borderRadius: 8,
+              border: 'none',
+              background: 'rgba(255,255,255,.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: 18,
+              fontWeight: 700,
+              fontFamily: 'inherit',
+              transition: 'background .15s',
+              zIndex: 2,
+            }}
+            onMouseOver={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.28)'; }}
+            onMouseOut={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.15)'; }}
+          >
+            ×
+          </button>
+
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+            {/* Hand wave emoji — matches the wizard's welcome step icon (👋)
+                so users who saw the wizard during testing recognise this. */}
+            <div style={{
+              fontSize: 48,
+              lineHeight: 1,
+              flexShrink: 0,
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,.15))',
+            }}>👋</div>
+
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <div style={{
+                fontFamily: 'Sora, sans-serif',
+                fontSize: 22,
+                fontWeight: 800,
+                color: '#fff',
+                marginBottom: 6,
+                lineHeight: 1.2,
+                letterSpacing: '-0.01em',
+              }}>
+                {t('dashboard.onboardingBannerTitle', { name: user.first_name || user.username })}
+              </div>
+              <div style={{
+                fontSize: 14,
+                color: 'rgba(255,255,255,.85)',
+                marginBottom: 14,
+                lineHeight: 1.5,
+              }}>
+                {t('dashboard.onboardingBannerSubtitle')}
+              </div>
+
+              {/* Mini steps preview — same 4-step list the wizard shows in
+                  its 'Here's what we'll do' card. Compact format so the
+                  banner stays narrow vertically. */}
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '6px 16px',
+                marginBottom: 16,
+                fontSize: 13,
+                color: 'rgba(255,255,255,.92)',
+              }}>
+                <span>1. {t('dashboard.onboardingBannerStep1')}</span>
+                <span>2. {t('dashboard.onboardingBannerStep2')}</span>
+                <span>3. {t('dashboard.onboardingBannerStep3')}</span>
+                <span>4. {t('dashboard.onboardingBannerStep4')}</span>
+              </div>
+
+              {/* CTA row — primary white button drives to wizard, secondary
+                  text-only button dismisses. Matches the dashboard's
+                  existing CTA hierarchy on other banners. */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <Link
+                  to="/onboarding"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '10px 20px',
+                    background: '#fff',
+                    color: '#6d28d9',
+                    fontSize: 14,
+                    fontWeight: 800,
+                    fontFamily: 'Sora, sans-serif',
+                    borderRadius: 10,
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 14px rgba(0,0,0,.15)',
+                    transition: 'transform .15s',
+                  }}
+                  onMouseOver={function(e) { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseOut={function(e) { e.currentTarget.style.transform = 'translateY(0)'; }}
+                >
+                  {t('dashboard.onboardingBannerCTA')}
+                </Link>
+                <button
+                  onClick={dismissOnboardingBanner}
+                  style={{
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,.85)',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    fontFamily: 'inherit',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '8px 4px',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  {t('dashboard.onboardingBannerSkip')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Gift voucher welcome banner — only on first load after claim.
           Top of dashboard, full width, dismissible. Pink-to-amber gradient
           matches the gift card's emotional register. The gifter's name

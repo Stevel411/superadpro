@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "Kapat",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "SuperAdPro'ya hoş geldin, {{name}}!",
+    "onboardingBannerSubtitle": "Seni 5 hızlı adımda kuralım — yaklaşık 3 dakika.",
+    "onboardingBannerStep1": "Profil fotoğrafını ve adını ayarla",
+    "onboardingBannerStep2": "Kişisel yönlendirme bağlantını kopyala",
+    "onboardingBannerStep3": "Hızlı platform turu",
+    "onboardingBannerStep4": "İlk AI içeriğini oluştur",
+    "onboardingBannerCTA": "Kuruluma Başla →",
+    "onboardingBannerSkip": "Belki sonra",
+    "onboardingBannerDismissAria": "Kurulum bannerını kapat"
   },
   "compPlan": {
     "title": "Tazminat Planı",

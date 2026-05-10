@@ -256,7 +256,16 @@
     "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "Welcome to SuperAdPro, {{name}}!",
+    "onboardingBannerSubtitle": "Let's get you set up in 5 quick steps — about 3 minutes.",
+    "onboardingBannerStep1": "Set up your profile photo and name",
+    "onboardingBannerStep2": "Copy your personal referral link",
+    "onboardingBannerStep3": "Take a quick platform tour",
+    "onboardingBannerStep4": "Create your first piece of AI content",
+    "onboardingBannerCTA": "Start Setup →",
+    "onboardingBannerSkip": "Maybe later",
+    "onboardingBannerDismissAria": "Dismiss setup banner"
   },
   "compPlan": {
     "title": "Compensation Plan",

@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "Fermer",
     "tierNudgeTitle": "Activez un Niveau de Campagne pour commencer à gagner",
     "tierNudgeBody": "Votre adhésion est active — activez maintenant un Niveau de Campagne pour débloquer Watch-to-Earn, créer vos propres campagnes vidéo, et gagner des commissions sur chaque achat de niveau de votre downline.",
-    "tierNudgeCta": "Voir les Niveaux de Campagne"
+    "tierNudgeCta": "Voir les Niveaux de Campagne",
+    "onboardingBannerTitle": "Bienvenue sur SuperAdPro, {{name}} !",
+    "onboardingBannerSubtitle": "Configurons-toi en 5 étapes rapides — environ 3 minutes.",
+    "onboardingBannerStep1": "Configure ta photo de profil et ton nom",
+    "onboardingBannerStep2": "Copie ton lien de parrainage personnel",
+    "onboardingBannerStep3": "Tour rapide de la plateforme",
+    "onboardingBannerStep4": "Crée ton premier contenu IA",
+    "onboardingBannerCTA": "Commencer la configuration →",
+    "onboardingBannerSkip": "Peut-être plus tard",
+    "onboardingBannerDismissAria": "Fermer la bannière de configuration"
   },
   "compPlan": {
     "title": "Plan de Rémunération",

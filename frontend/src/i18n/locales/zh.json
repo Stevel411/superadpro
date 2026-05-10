@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "关闭",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "欢迎来到 SuperAdPro,{{name}}!",
+    "onboardingBannerSubtitle": "让我们用 5 个快速步骤设置您 — 大约 3 分钟。",
+    "onboardingBannerStep1": "设置您的个人资料照片和姓名",
+    "onboardingBannerStep2": "复制您的个人推荐链接",
+    "onboardingBannerStep3": "快速平台导览",
+    "onboardingBannerStep4": "创建您的第一个 AI 内容",
+    "onboardingBannerCTA": "开始设置 →",
+    "onboardingBannerSkip": "稍后",
+    "onboardingBannerDismissAria": "关闭设置横幅"
   },
   "compPlan": {
     "title": "薪酬计划",

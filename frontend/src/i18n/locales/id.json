@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "Tutup",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "Selamat datang di SuperAdPro, {{name}}!",
+    "onboardingBannerSubtitle": "Mari kita siapkan dalam 5 langkah cepat — sekitar 3 menit.",
+    "onboardingBannerStep1": "Atur foto profil dan nama",
+    "onboardingBannerStep2": "Salin tautan referensi pribadi",
+    "onboardingBannerStep3": "Tur cepat platform",
+    "onboardingBannerStep4": "Buat konten AI pertama",
+    "onboardingBannerCTA": "Mulai Setup →",
+    "onboardingBannerSkip": "Mungkin nanti",
+    "onboardingBannerDismissAria": "Tutup banner setup"
   },
   "compPlan": {
     "title": "Rencana Kompensasi",

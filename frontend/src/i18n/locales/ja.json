@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "閉じる",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "SuperAdProへようこそ、{{name}}さん!",
+    "onboardingBannerSubtitle": "5つの簡単なステップでセットアップしましょう — 約3分です。",
+    "onboardingBannerStep1": "プロフィール写真と名前を設定",
+    "onboardingBannerStep2": "個人の紹介リンクをコピー",
+    "onboardingBannerStep3": "プラットフォームの簡単なツアー",
+    "onboardingBannerStep4": "最初のAIコンテンツを作成",
+    "onboardingBannerCTA": "セットアップ開始 →",
+    "onboardingBannerSkip": "後で",
+    "onboardingBannerDismissAria": "セットアップバナーを閉じる"
   },
   "compPlan": {
     "title": "報酬プラン",

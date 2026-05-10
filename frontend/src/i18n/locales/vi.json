@@ -256,7 +256,16 @@
     "annualUpsellDismiss": "Loại bỏ",
     "tierNudgeTitle": "Activate a Campaign Tier to start earning",
     "tierNudgeBody": "Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.",
-    "tierNudgeCta": "View Campaign Tiers"
+    "tierNudgeCta": "View Campaign Tiers",
+    "onboardingBannerTitle": "Chào mừng đến SuperAdPro, {{name}}!",
+    "onboardingBannerSubtitle": "Hãy thiết lập bạn trong 5 bước nhanh — khoảng 3 phút.",
+    "onboardingBannerStep1": "Thiết lập ảnh hồ sơ và tên",
+    "onboardingBannerStep2": "Sao chép liên kết giới thiệu cá nhân",
+    "onboardingBannerStep3": "Tour nhanh nền tảng",
+    "onboardingBannerStep4": "Tạo nội dung AI đầu tiên",
+    "onboardingBannerCTA": "Bắt đầu Thiết lập →",
+    "onboardingBannerSkip": "Có lẽ sau",
+    "onboardingBannerDismissAria": "Đóng banner thiết lập"
   },
   "compPlan": {
     "title": "Kế hoạch Bồi thường",
