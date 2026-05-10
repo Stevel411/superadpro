@@ -14622,6 +14622,383 @@ def cron_reengagement_notifications(request: Request, secret: str = "", db: Sess
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+# ──────────────────────────────────────────────────────────────────────
+# DAILY BRIEFING CRON
+# ──────────────────────────────────────────────────────────────────────
+# Generates a morning briefing for Steve summarising platform health,
+# notable activity in the last 24 hours, and any anomalies. Sends to a
+# configured email address (DAILY_BRIEFING_EMAIL env var) and stores the
+# briefing in the daily_briefings table for history.
+#
+# Architecture:
+#   1. Compute today's metrics (signups, commissions, audit, anomalies)
+#   2. Read LAUNCH_LOG.md from the repo (human-curated context)
+#   3. Send both to Grok 4.1 Fast (via grok_service.ai_text_generate)
+#   4. Email result via Brevo (sender = same as autoresponder)
+#   5. Save row in daily_briefings table
+#
+# Trigger: Railway cron at 06:00 UTC daily, GET to this endpoint with
+# ?secret=<CRON_SECRET>. Manual trigger possible: just hit the URL.
+# Dryrun mode: ?dryrun=1 → computes metrics + AI summary but does NOT
+# send the email or write to DB. Use this to preview output before
+# scheduling.
+#
+# Decided 10 May 2026 with Steve, launch-day morning. The reasoning:
+# we need a way for him to see daily platform health AND a way for
+# any future Claude session to load context fast. The email arrives
+# pre-formatted; he can forward it to a fresh Claude chat as the first
+# message and that Claude is briefed instantly. Doesn't solve the
+# "Claude auto-loads context" problem (architecturally impossible)
+# but cuts the daily friction to a single forward.
+# ──────────────────────────────────────────────────────────────────────
+
+def _compute_daily_metrics(db: Session) -> dict:
+    """Snapshot platform health for the daily briefing. Read-only.
+    
+    All counts/sums are over the last 24 hours unless otherwise noted.
+    Designed to be cheap (under 200ms) and self-contained — no external
+    API calls, no auth context, no side effects.
+    """
+    from .database import (
+        User, Commission, Withdrawal, Payment, Notification,
+        WalletConnectPaymentOrder, NowPaymentsOrder, OnchainOrphanTransfer,
+    )
+    
+    now = datetime.utcnow()
+    day_ago = now - timedelta(hours=24)
+    
+    metrics = {}
+    
+    # ── Total platform state ────────────────────────────────────
+    metrics["total_members"] = db.query(User).count()
+    metrics["active_members"] = db.query(User).filter(User.is_active == True).count()
+    metrics["pro_members"] = db.query(User).filter(
+        User.is_active == True,
+        User.membership_tier == "pro",
+    ).count()
+    
+    # ── Last 24h activity ───────────────────────────────────────
+    metrics["signups_24h"] = db.query(User).filter(
+        User.created_at >= day_ago
+    ).count()
+    
+    commissions_24h = db.query(Commission).filter(
+        Commission.created_at >= day_ago,
+        Commission.status == "paid",
+    ).all()
+    metrics["commissions_count_24h"] = len(commissions_24h)
+    metrics["commissions_total_24h"] = float(sum(
+        decimal.Decimal(str(c.amount_usdt or 0)) for c in commissions_24h
+    ))
+    
+    # Break down by commission type so anomalies show up clearly
+    by_type = {}
+    for c in commissions_24h:
+        ct = c.commission_type or "unknown"
+        by_type[ct] = by_type.get(ct, 0) + float(c.amount_usdt or 0)
+    metrics["commissions_by_type_24h"] = {
+        k: round(v, 2) for k, v in sorted(by_type.items(), key=lambda x: -x[1])
+    }
+    
+    metrics["withdrawals_24h_count"] = db.query(Withdrawal).filter(
+        Withdrawal.requested_at >= day_ago,
+        Withdrawal.status.in_(["paid", "completed"]),
+    ).count()
+    metrics["withdrawals_24h_total"] = float(db.query(
+        func.coalesce(func.sum(Withdrawal.amount_usdt), 0)
+    ).filter(
+        Withdrawal.requested_at >= day_ago,
+        Withdrawal.status.in_(["paid", "completed"]),
+    ).scalar() or 0)
+    
+    # ── Health checks ───────────────────────────────────────────
+    # Audit: commissions on the same payment to the same recipient (the
+    # double-pay bug class fixed 9 May). Should always return 0.
+    # Inline the same logic as /admin/api/audit-double-pays so the cron
+    # doesn't need to call its own endpoint.
+    suspect_commissions = db.execute(
+        text("""
+            SELECT to_user_id, from_user_id, COUNT(*) as cnt
+            FROM commissions
+            WHERE commission_type IN (
+                'membership_sponsor',
+                'gift_membership_sponsor',
+                'membership_upgrade_sponsor'
+            )
+            AND status = 'paid'
+            GROUP BY to_user_id, from_user_id
+            HAVING COUNT(*) > 1
+        """)
+    ).fetchall()
+    metrics["audit_double_pays"] = len(suspect_commissions)
+    
+    # Stuck-lapsed: members marked is_active=False but no membership
+    # record explaining why. Was the symptom of the test1/test2 bug
+    # fixed 7 May; should always be 0 going forward.
+    metrics["stuck_lapsed_count"] = db.query(User).filter(
+        User.is_active == False,
+        User.id.in_(
+            db.query(Payment.from_user_id).filter(
+                Payment.payment_type.like("membership%"),
+                Payment.status.in_(["confirmed", "paid"]),
+            )
+        ),
+    ).count()
+    
+    # Orphaned WC transfers (someone paid but the amount didn't match
+    # any active intent — usually a wallet quirk, sometimes a real bug)
+    metrics["orphan_wc_transfers_24h"] = db.query(OnchainOrphanTransfer).filter(
+        OnchainOrphanTransfer.seen_at >= day_ago,
+    ).count()
+    
+    # ── Top 3 commission earners last 24h (helps spot anomalies) ──
+    top_earners = db.execute(
+        text("""
+            SELECT u.username, COALESCE(SUM(c.amount_usdt), 0) as earned
+            FROM commissions c
+            JOIN users u ON u.id = c.to_user_id
+            WHERE c.created_at >= :day_ago AND c.status = 'paid'
+            GROUP BY u.username
+            ORDER BY earned DESC
+            LIMIT 3
+        """),
+        {"day_ago": day_ago}
+    ).fetchall()
+    metrics["top_earners_24h"] = [
+        {"username": row[0], "earned": float(row[1])} for row in top_earners
+    ]
+    
+    return metrics
+
+
+def _read_launch_log() -> str:
+    """Read LAUNCH_LOG.md from the repo root. Returns empty string if
+    the file doesn't exist yet (first-run case)."""
+    import os
+    log_path = os.path.join(os.path.dirname(__file__), "..", "LAUNCH_LOG.md")
+    log_path = os.path.abspath(log_path)
+    try:
+        with open(log_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
+    except Exception as e:
+        logger.warning(f"[daily-briefing] LAUNCH_LOG.md read failed: {e}")
+        return ""
+
+
+def _format_metrics_for_email(metrics: dict) -> str:
+    """Render the metrics dict as a readable text block for inclusion
+    in the email AND as the AI's prompt input."""
+    lines = []
+    lines.append("PLATFORM HEALTH")
+    lines.append(f"  Total members: {metrics['total_members']}")
+    lines.append(f"  Active members: {metrics['active_members']} (Pro: {metrics['pro_members']})")
+    lines.append("")
+    lines.append("LAST 24 HOURS")
+    lines.append(f"  New signups: {metrics['signups_24h']}")
+    lines.append(f"  Commissions paid: {metrics['commissions_count_24h']} totalling ${metrics['commissions_total_24h']:.2f}")
+    if metrics["commissions_by_type_24h"]:
+        for ct, amt in metrics["commissions_by_type_24h"].items():
+            lines.append(f"    - {ct}: ${amt:.2f}")
+    lines.append(f"  Withdrawals: {metrics['withdrawals_24h_count']} totalling ${metrics['withdrawals_24h_total']:.2f}")
+    lines.append(f"  Orphan wallet transfers: {metrics['orphan_wc_transfers_24h']}")
+    lines.append("")
+    lines.append("HEALTH CHECKS")
+    audit = "✅ 0" if metrics["audit_double_pays"] == 0 else f"❌ {metrics['audit_double_pays']} suspect"
+    lines.append(f"  Double-pay audit: {audit}")
+    stuck = "✅ 0" if metrics["stuck_lapsed_count"] == 0 else f"⚠️  {metrics['stuck_lapsed_count']} users"
+    lines.append(f"  Stuck-lapsed users: {stuck}")
+    if metrics["top_earners_24h"]:
+        lines.append("")
+        lines.append("TOP EARNERS (24h)")
+        for e in metrics["top_earners_24h"]:
+            lines.append(f"  {e['username']}: ${e['earned']:.2f}")
+    return "\n".join(lines)
+
+
+@app.get("/cron/daily-briefing")
+async def cron_daily_briefing(
+    request: Request,
+    secret: str = "",
+    dryrun: int = 0,
+    db: Session = Depends(get_db),
+):
+    """Daily morning briefing — computes platform metrics, asks Grok to
+    summarise alongside LAUNCH_LOG.md context, emails the result to the
+    address in DAILY_BRIEFING_EMAIL, and stores in daily_briefings table.
+    
+    Auth: ?secret=<CRON_SECRET>
+    Dryrun: ?dryrun=1 — computes everything but skips the email send and
+    DB write. Returns the would-be output as JSON for preview.
+    """
+    from fastapi.responses import JSONResponse
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    
+    started_at = datetime.utcnow()
+    today_str = started_at.strftime("%Y-%m-%d")
+    
+    try:
+        # Skip if today's briefing already ran (idempotency for cron retries)
+        if not dryrun:
+            from .database import DailyBriefing
+            existing = db.query(DailyBriefing).filter(
+                DailyBriefing.briefing_date == today_str
+            ).first()
+            if existing:
+                return {
+                    "ok": True,
+                    "skipped": True,
+                    "reason": f"Briefing for {today_str} already exists (id={existing.id})",
+                }
+        
+        # Step 1: gather data
+        metrics = _compute_daily_metrics(db)
+        metrics_text = _format_metrics_for_email(metrics)
+        launch_log = _read_launch_log()
+        
+        # Step 2: ask Grok to write a briefing
+        from . import grok_service
+        
+        system_prompt = (
+            "You are a concise platform-health analyst writing a morning "
+            "briefing email to Steve, the founder of SuperAdPro. He reads "
+            "this every morning before deciding what to focus on. "
+            "Tone: direct, calm, factual. No filler, no hype. Lead with "
+            "anything anomalous. If everything looks normal, say so plainly. "
+            "Never invent numbers — only report what's in the data given. "
+            "Format: short paragraphs, no markdown headers, no bullet points. "
+            "Aim for 150–250 words total. End with one sentence flagging "
+            "anything Steve should personally watch today."
+        )
+        
+        user_prompt = (
+            f"Today is {today_str}. Here's the platform data:\n\n"
+            f"{metrics_text}\n\n"
+            f"--- CONTEXT FROM LAUNCH LOG ---\n"
+            f"{launch_log if launch_log else '(LAUNCH_LOG.md not yet created)'}\n\n"
+            f"Write the morning briefing now."
+        )
+        
+        ai_started = datetime.utcnow()
+        try:
+            summary = await grok_service.ai_text_generate(
+                prompt=user_prompt,
+                system=system_prompt,
+                max_tokens=600,
+                temperature=0.4,
+            )
+        except Exception as e:
+            logger.error(f"[daily-briefing] AI summary failed: {e}")
+            summary = (
+                f"AI summary unavailable today (error: {str(e)[:120]}). "
+                f"Raw metrics below.\n\n{metrics_text}"
+            )
+        ai_ms = int((datetime.utcnow() - ai_started).total_seconds() * 1000)
+        
+        # Step 3: build the email content
+        recipient = os.environ.get("DAILY_BRIEFING_EMAIL", "")
+        recipient_name = os.environ.get("DAILY_BRIEFING_NAME", "Steve")
+        
+        # The "copy block" at the bottom — what Steve forwards to a new
+        # Claude chat as the first message. Includes everything Claude
+        # needs to be useful immediately.
+        copy_block = (
+            "═══ COPY EVERYTHING BELOW THIS LINE TO BRIEF CLAUDE ═══\n\n"
+            f"Daily SuperAdPro briefing — {today_str}\n\n"
+            "Please read LAUNCH_LOG.md from the repo and brief me on "
+            "platform status. Today's metrics:\n\n"
+            f"{metrics_text}\n\n"
+            "AI summary:\n"
+            f"{summary}\n"
+        )
+        
+        from .brevo_service import send_email, wrap_email_html
+        
+        html_body = wrap_email_html(
+            f"""
+            <h2 style="font-family:Sora,sans-serif;color:#0f172a;margin:0 0 16px">
+                SuperAdPro — Daily Briefing
+            </h2>
+            <p style="color:#64748b;font-size:13px;margin:0 0 24px">
+                {today_str} · Generated by Grok at {started_at.strftime('%H:%M UTC')}
+            </p>
+
+            <div style="background:#f8fafc;border-left:4px solid #2563eb;padding:18px 22px;border-radius:8px;margin-bottom:24px">
+                <div style="white-space:pre-wrap;font-family:Sora,sans-serif;color:#0f172a;line-height:1.6">{summary}</div>
+            </div>
+
+            <h3 style="font-family:Sora,sans-serif;color:#0f172a;margin:24px 0 12px;font-size:16px">
+                Raw metrics
+            </h3>
+            <pre style="background:#0f172a;color:#cbd5e1;padding:16px;border-radius:8px;font-size:12px;line-height:1.6;overflow-x:auto;white-space:pre-wrap;font-family:'Monaco','Menlo',monospace">{metrics_text}</pre>
+
+            <h3 style="font-family:Sora,sans-serif;color:#0f172a;margin:24px 0 12px;font-size:16px">
+                Brief Claude in a new chat
+            </h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 12px">
+                Copy the block below and paste it as your first message in a new Claude chat.
+                Claude will read LAUNCH_LOG.md and have full context on today's status.
+            </p>
+            <pre style="background:#fef3c7;color:#0f172a;padding:16px;border-radius:8px;font-size:12px;line-height:1.6;overflow-x:auto;white-space:pre-wrap;font-family:'Monaco','Menlo',monospace;border:1px solid #fde68a">{copy_block}</pre>
+            """
+        )
+        
+        # Step 4: send the email (unless dryrun)
+        email_sent = False
+        if not dryrun and recipient:
+            try:
+                await send_email(
+                    to_email=recipient,
+                    to_name=recipient_name,
+                    subject=f"SuperAdPro — Daily Briefing — {today_str}",
+                    html_content=html_body,
+                )
+                email_sent = True
+            except Exception as e:
+                logger.error(f"[daily-briefing] Email send failed: {e}")
+        
+        # Step 5: persist (unless dryrun)
+        briefing_id = None
+        if not dryrun:
+            from .database import DailyBriefing
+            import json as _json
+            briefing = DailyBriefing(
+                briefing_date=today_str,
+                metrics_json=_json.dumps(metrics, default=str),
+                summary_text=summary,
+                launch_log_md=launch_log if launch_log else None,
+                email_sent_to=recipient if email_sent else None,
+                email_sent_at=datetime.utcnow() if email_sent else None,
+                generation_ms=ai_ms,
+            )
+            db.add(briefing)
+            db.commit()
+            briefing_id = briefing.id
+        
+        duration_ms = int((datetime.utcnow() - started_at).total_seconds() * 1000)
+        logger.info(f"[CRON] daily-briefing complete: {today_str} email_sent={email_sent} duration={duration_ms}ms")
+        
+        return {
+            "ok": True,
+            "dryrun": bool(dryrun),
+            "date": today_str,
+            "metrics": metrics,
+            "summary": summary,
+            "email_sent": email_sent,
+            "email_recipient": recipient if email_sent else None,
+            "briefing_id": briefing_id,
+            "duration_ms": duration_ms,
+            "ai_generation_ms": ai_ms,
+        }
+    except Exception as e:
+        import traceback
+        logger.error(f"[daily-briefing] FAILED: {traceback.format_exc()}")
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
+
+
 @app.post("/api/command-centre/nudge-lapsed")
 async def api_command_centre_nudge_lapsed(
     request: Request,
