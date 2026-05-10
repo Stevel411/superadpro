@@ -13,7 +13,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s1_tip1'), t('platformTour.s1_tip2'), t('platformTour.s1_tip3'), t('platformTour.s1_tip4')],
     link: '/dashboard', linkLabel: t('platformTour.s1_link'),
     Icon: Map, color: 'var(--sap-indigo)', bg: '#eef2ff',
-    videoSrc: '/static/downloads/tour-videos/dashboard-tour.mp4',
+    videoSrc: '/media/tour-video/dashboard',
     posterSrc: '/static/downloads/tour-videos/dashboard-tour-poster.jpg',
   },
   {
@@ -22,7 +22,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s2_tip1'), t('platformTour.s2_tip2'), t('platformTour.s2_tip3'), t('platformTour.s2_tip4'), t('platformTour.s2_tip5')],
     link: '/compensation-plan', linkLabel: t('platformTour.s2_link'),
     Icon: DollarSign, color: 'var(--sap-green)', bg: 'var(--sap-green-bg-mid)',
-    videoSrc: '/static/downloads/tour-videos/how-you-earn-tour-v2.mp4',
+    videoSrc: '/media/tour-video/how-you-earn',
     posterSrc: '/static/downloads/tour-videos/how-you-earn-tour-v2-poster.jpg',
   },
   {
@@ -31,7 +31,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s3_tip1'), t('platformTour.s3_tip2'), t('platformTour.s3_tip3'), t('platformTour.s3_tip4'), t('platformTour.s3_tip5')],
     link: '/watch', linkLabel: t('platformTour.s3_link'),
     Icon: Eye, color: 'var(--sap-amber)', bg: 'var(--sap-amber-bg)',
-    videoSrc: '/static/downloads/tour-videos/watch-to-earn-tour.mp4',
+    videoSrc: '/media/tour-video/watch-to-earn',
     posterSrc: '/static/downloads/tour-videos/watch-to-earn-tour-poster.jpg',
   },
   {
@@ -40,7 +40,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s4_tip1'), t('platformTour.s4_tip2'), t('platformTour.s4_tip3'), t('platformTour.s4_tip4')],
     link: '/creative-studio', linkLabel: t('platformTour.s4_link'),
     Icon: Wrench, color: 'var(--sap-accent)', bg: '#e0f2fe',
-    videoSrc: '/static/downloads/tour-videos/basic-tools-tour.mp4',
+    videoSrc: '/media/tour-video/basic-tools',
     posterSrc: '/static/downloads/tour-videos/basic-tools-tour-poster.jpg',
   },
   {
@@ -50,7 +50,7 @@ function getSections(t) { return [
     link: '/upgrade', linkLabel: t('platformTour.s5_link'),
     Icon: Lock, color: 'var(--sap-purple)', bg: 'var(--sap-purple-pale)',
     pro: true,
-    videoSrc: '/static/downloads/tour-videos/pro-tools-tour.mp4',
+    videoSrc: '/media/tour-video/pro-tools',
     posterSrc: '/static/downloads/tour-videos/pro-tools-tour-poster.jpg',
   },
   {
@@ -59,7 +59,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s6_tip1'), t('platformTour.s6_tip2'), t('platformTour.s6_tip3'), t('platformTour.s6_tip4'), t('platformTour.s6_tip5')],
     link: '/wallet', linkLabel: t('platformTour.s6_link'),
     Icon: Wallet, color: 'var(--sap-green-dark)', bg: '#d1fae5',
-    videoSrc: '/static/downloads/tour-videos/wallet-tour.mp4',
+    videoSrc: '/media/tour-video/wallet',
     posterSrc: '/static/downloads/tour-videos/wallet-tour-poster.jpg',
   },
 ];}

@@ -3117,6 +3117,71 @@ def serve_welcome_video(request: Request):
     )
     return response
 
+
+# Whitelist of tour video slugs. Anything not in this map returns 404 so
+# the endpoint can't be abused to serve arbitrary files from static/.
+_TOUR_VIDEO_SLUGS = {
+    "dashboard":   "dashboard-tour.mp4",
+    "how-you-earn": "how-you-earn-tour-v2.mp4",
+    "watch-to-earn": "watch-to-earn-tour.mp4",
+    "basic-tools": "basic-tools-tour.mp4",
+    "pro-tools":   "pro-tools-tour.mp4",
+    "wallet":      "wallet-tour.mp4",
+}
+
+
+@app.get("/media/tour-video/{slug}")
+def serve_tour_video(slug: str, request: Request):
+    """Stream a Platform Tour video with proper HTTP Range support.
+
+    Same bug, same fix as serve_welcome_video above — applied to all 6
+    tour videos this time. Reported 10 May 2026 launch day: all 6 tour
+    videos black-screened on iOS Safari mobile even though the poster
+    and play button rendered correctly. Root cause is Cloudflare
+    caching the /static/downloads/tour-videos/*.mp4 files as immutable
+    (StaticFiles sends Cache-Control: public, max-age=31536000) and
+    serving the cached 200 OK response to iOS Safari's Range:bytes=0-1
+    streaming probe instead of a 206 Partial Content. Safari refuses
+    to play any video where the server can't honour Range. Black
+    screen, no error, no console message.
+
+    Routing the videos through this endpoint:
+      - FastAPI FileResponse auto-handles Range -> 206 Partial Content
+      - Short Cache-Control (5 min) so Cloudflare won't pin the
+        non-Range full-file response
+      - Explicit Accept-Ranges: bytes header advertises capability
+
+    Frontend uses /media/tour-video/{slug} instead of
+    /static/downloads/tour-videos/{slug}-tour.mp4. The original .mp4s
+    stay where they are; the static path still works for downloads or
+    any code that hasn't been migrated.
+    """
+    from fastapi.responses import FileResponse
+    from fastapi import HTTPException
+    from pathlib import Path
+
+    filename = _TOUR_VIDEO_SLUGS.get(slug)
+    if not filename:
+        raise HTTPException(status_code=404, detail="Unknown tour video")
+
+    video_path = Path("static/downloads/tour-videos") / filename
+    if not video_path.exists():
+        raise HTTPException(status_code=404, detail="Tour video not found")
+
+    return FileResponse(
+        str(video_path),
+        media_type="video/mp4",
+        headers={
+            # 5-minute cache: long enough to absorb traffic spikes,
+            # short enough that Cloudflare won't pin a non-Range
+            # response. Combined with the Range-aware FileResponse
+            # this gives iOS Safari what it expects on every fetch.
+            "Cache-Control": "public, max-age=300, no-transform",
+            "Accept-Ranges": "bytes",
+        },
+    )
+
+
 @app.get("/earn")
 def earn_page(request: Request):
     """Affiliate recruitment landing page."""
