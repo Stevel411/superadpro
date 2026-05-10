@@ -2675,7 +2675,7 @@
     "faqQ5": "Hoe werkt het campagnegrid?",
     "faqA5": "Elk campagneniveau heeft een 8×8-grid met 64 posities. Terwijl leden in je netwerk dat niveau betreden, vullen de posities zich. Wanneer alle 64 gevuld zijn, wordt een completiebonus geactiveerd en uitbetaald aan de grid-eigenaar. Een enkele campagne kan meerdere keren worden voltooid.",
     "faqQ6": "Wat zijn uni-level commissies?",
-    "faqA6": "Wanneer iemand in je netwerk (tot 8 niveaus diep) een grid-aankoop doet, verdien je automatisch 6,25% van die aankoop. Dit betekent dat een groot team passief inkomen voor je genereert zonder extra inspanning.",
+    "faqA6": "Wanneer iemand in je netwerk (tot 8 niveaus diep) een grid-aankoop doet, verdien je automatisch 6,25% van die aankoop. Deze commissies hangen af van de activiteit van leden onder jou en zijn niet gegarandeerd.",
     "faqQ7": "In welke valuta worden verdiensten uitbetaald?",
     "faqA7": "All earnings are in USDT (a dollar-pegged stablecoin) paid on the Polygon blockchain. You need a compatible crypto wallet to receive payouts.",
     "faqQ8": "Hoe werken cursuscommissies?",
@@ -4354,7 +4354,7 @@
       "thisMonthSub": "betaald door {{n}} actieve directs",
       "thisMonthSubEmpty": "Real-time wanneer commissies binnenkomen",
       "mrr": "Huidge MRR",
-      "mrrSub": "gegarandeerde maandelijkse terugkeer",
+      "mrrSub": "zolang verwijzingen actief blijven",
       "mrrSubEmpty": "Maandelijks terugkerend inkomen",
       "projection": "Volgende Projectie",
       "projectionSubEmpty": "Gebaseerd op uw actieve directs"

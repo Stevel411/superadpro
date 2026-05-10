@@ -2663,7 +2663,7 @@
     "faqQ5": "Je, gridi ya kampeni inafanyaje kazi?",
     "faqA5": "Kila kiwango cha kampeni kina gridi ya 8×8 yenye nafasi 64. Wanachama katika mtandao wako wanapojiunga na kiwango hicho, nafasi hujazwa. Wakati zote 64 zinajazwa, bonasi ya kukamilisha huchochewa na kulipwa kwa mmiliki wa gridi. Mwanachama mmoja anaweza kuwa na gridi nyingi hai katika viwango tofauti wakati mmoja.",
     "faqQ6": "Kamisheni za uni-level ni nini?",
-    "faqA6": "Wakati mtu yeyote katika mtandao wako (hadi ngazi 8 kirefu) anafanya ununuzi wa gridi, unapata kiotomatiki 6.25% ya ununuzi huo. Hii inamaanisha kwamba timu kubwa huzalisha mapato ya kupita kwa ajili yako bila juhudi za ziada za kila siku.",
+    "faqA6": "Wakati mtu yeyote katika mtandao wako (hadi ngazi 8 kirefu) anafanya ununuzi wa gridi, unapata kiotomatiki 6.25% ya ununuzi huo. Tume hizi hutegemea shughuli za wanachama walio chini yako na hazihakikishwi.",
     "faqQ7": "Mapato yanalipwa kwa sarafu gani?",
     "faqA7": "All earnings are in USDT (a dollar-pegged stablecoin) paid on the Polygon blockchain. You need a compatible crypto wallet to receive payouts.",
     "faqQ8": "Je, kamisheni za kozi zinafanyaje kazi?",
@@ -4346,7 +4346,7 @@
       "thisMonthSub": "kulipwa na {{n}} watajiri wanaopatikana",
       "thisMonthSubEmpty": "Muda halisi kadri kamisheni zinavyoingeza",
       "mrr": "MRR ya Sasa",
-      "mrrSub": "inakamatia kila mwezi",
+      "mrrSub": "wakati waliopendekezwa wanaendelea kufanya kazi",
       "mrrSubEmpty": "Mapato ya Kila Mwezi yanayojirudisha",
       "projection": "Mbinu Ijayo",
       "projectionSubEmpty": "Kulingana na watajiri wako wanaopatikana"

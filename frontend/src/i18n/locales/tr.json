@@ -2663,7 +2663,7 @@
     "faqQ5": "Kampanya gridi nasıl çalışır?",
     "faqA5": "Her kampanya seviyesinin 64 pozisyonu olan 8×8 ızgarası vardır. Ağınızdaki üyeler bu seviyeye katıldıkça pozisyonlar dolar. 64'ün tamamı dolduğunda bir tamamlama bonusu tetiklenir ve ızgara sahibine ödenir. Tek bir üye, aynı anda farklı seviyelerde birden fazla aktif ızgaraya sahip olabilir.",
     "faqQ6": "Uni-level komisyonları nedir?",
-    "faqA6": "Ağınızdaki herkes (8 seviyeye kadar derin) bir ızgara satın alımı yaptığında, otomatik olarak bu satın alımın %6.25'ini kazanırsınız. Bu, büyük bir ekibin ek günlük çaba harcamadan size pasif gelir sağladığı anlamına gelir.",
+    "faqA6": "Ağınızdaki herkes (8 seviyeye kadar derin) bir ızgara satın alımı yaptığında, otomatik olarak bu satın alımın %6.25'ini kazanırsınız. Bu komisyonlar, sizin altınızdaki üyelerin aktivitesine bağlıdır ve garanti edilmez.",
     "faqQ7": "Kazançlar hangi para biriminde ödenir?",
     "faqA7": "All earnings are in USDT (a dollar-pegged stablecoin) paid on the Polygon blockchain. You need a compatible crypto wallet to receive payouts.",
     "faqQ8": "Kurs komisyonları nasıl çalışır?",
@@ -4346,7 +4346,7 @@
       "thisMonthSub": "{{n}} aktif direkt tarafından ödenen",
       "thisMonthSubEmpty": "Komisyonlar geldiğinde gerçek zamanlı",
       "mrr": "Mevcut MRR",
-      "mrrSub": "garantili aylık yinelenen",
+      "mrrSub": "yönlendirmeler aktif kaldığı sürece",
       "mrrSubEmpty": "Aylık yinelenen gelir",
       "projection": "Sonraki Projeksiyon",
       "projectionSubEmpty": "Aktif doğrudan referanslarınıza göre"

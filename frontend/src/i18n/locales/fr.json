@@ -2675,7 +2675,7 @@
     "faqQ5": "Comment fonctionne la grille de campagne ?",
     "faqA5": "Chaque niveau de campagne a une grille 8×8 avec 64 positions. Au fur et à mesure que les membres de votre réseau rejoignent ce niveau, les positions se remplissent. Lorsque les 64 sont remplies, un bonus de complétion est déclenché et versé au propriétaire de la grille. Une seule campagne peut se terminer plusieurs fois.",
     "faqQ6": "Que sont les commissions uni-niveau ?",
-    "faqA6": "Lorsque quelqu'un dans votre réseau (jusqu'à 8 niveaux de profondeur) effectue un achat de grille, vous gagnez automatiquement 6,25 % de cet achat. Cela signifie qu'une grande équipe génère pour vous un revenu passif sans effort supplémentaire.",
+    "faqA6": "Lorsque quelqu'un dans votre réseau (jusqu'à 8 niveaux de profondeur) effectue un achat de grille, vous gagnez automatiquement 6,25 % de cet achat. Ces commissions dépendent de l'activité des membres en dessous de vous et ne sont pas garanties.",
     "faqQ7": "En quelle devise sont payés les gains ?",
     "faqA7": "Tous les gains sont versés en USDT (une stablecoin indexée sur le dollar) sur la blockchain Polygon. Vous avez besoin d'un portefeuille crypto compatible pour recevoir les paiements.",
     "faqQ8": "Comment fonctionnent les commissions de cours ?",
@@ -4354,7 +4354,7 @@
       "thisMonthSub": "payé par {{n}} filleuls actifs",
       "thisMonthSubEmpty": "En temps réel à l'arrivée des commissions",
       "mrr": "MRR actuel",
-      "mrrSub": "revenu mensuel récurrent garanti",
+      "mrrSub": "tant que les filleuls restent actifs",
       "mrrSubEmpty": "Revenu mensuel récurrent",
       "projection": "Projection suivante",
       "projectionSubEmpty": "Basé sur vos filleuls actifs"

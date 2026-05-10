@@ -2663,7 +2663,7 @@
     "faqQ5": "Paano gumagana ang campaign grid?",
     "faqA5": "Ang bawat tier ng campaign ay may 8×8 grid na may 64 na posisyon. Habang sumasali ang mga miyembro sa iyong network sa tier na iyon, napupuno ang mga posisyon. Kapag napuno ang lahat ng 64, nati-trigger ang bonus sa pagkumpleto at binabayaran sa may-ari ng grid. Ang isang miyembro ay maaaring magkaroon ng maraming aktibong grid sa iba't ibang tier nang sabay-sabay.",
     "faqQ6": "Ano ang uni-level commissions?",
-    "faqA6": "Kapag ang sinuman sa iyong network (hanggang 8 level ang lalim) ay gumawa ng pagbili ng grid, awtomatiko kang kumikita ng 6.25% ng pagbili na iyon. Nangangahulugan ito na ang isang malaking team ay nagbubuo ng passive income para sa iyo nang walang karagdagang pang-araw-araw na pagsisikap.",
+    "faqA6": "Kapag ang sinuman sa iyong network (hanggang 8 level ang lalim) ay gumawa ng pagbili ng grid, awtomatiko kang kumikita ng 6.25% ng pagbili na iyon. Ang mga komisyon na ito ay nakadepende sa aktibidad ng mga miyembro sa ilalim mo at hindi ginagarantiyahan.",
     "faqQ7": "Sa anong pera binabayaran ang kita?",
     "faqA7": "All earnings are in USDT (a dollar-pegged stablecoin) paid on the Polygon blockchain. You need a compatible crypto wallet to receive payouts.",
     "faqQ8": "Paano gumagana ang mga komisyon sa kurso?",
@@ -4346,7 +4346,7 @@
       "thisMonthSub": "binayaran ng {{n}} aktibong directs",
       "thisMonthSubEmpty": "Real-time habang dumarating ang commissions",
       "mrr": "Current MRR",
-      "mrrSub": "garantisadong monthly recurring",
+      "mrrSub": "habang aktibo ang mga referral",
       "mrrSubEmpty": "Recurring monthly income",
       "projection": "Next Projection",
       "projectionSubEmpty": "Batay sa iyong aktibong directs"

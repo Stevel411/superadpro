@@ -2663,7 +2663,7 @@
     "faqQ5": "Bagaimana grid kampanye bekerja?",
     "faqA5": "Setiap tingkat kampanye memiliki grid 8×8 dengan 64 posisi. Saat anggota di seluruh jaringan Anda bergabung dengan tingkat itu, posisi terisi. Ketika semua 64 terisi, bonus penyelesaian dipicu dan dibayarkan kepada pemilik grid. Seorang anggota tunggal dapat memiliki beberapa grid aktif di berbagai tingkat secara bersamaan.",
     "faqQ6": "Apa itu komisi uni-level?",
-    "faqA6": "Ketika siapa pun di jaringan Anda (hingga 8 level dalam) melakukan pembelian grid, Anda secara otomatis mendapatkan 6.25% dari pembelian itu. Ini berarti tim besar menghasilkan pendapatan pasif untuk Anda tanpa upaya harian tambahan.",
+    "faqA6": "Ketika siapa pun di jaringan Anda (hingga 8 level dalam) melakukan pembelian grid, Anda secara otomatis mendapatkan 6.25% dari pembelian itu. Komisi ini bergantung pada aktivitas anggota di bawah Anda dan tidak dijamin.",
     "faqQ7": "Dalam mata uang apa penghasilan dibayarkan?",
     "faqA7": "All earnings are in USDT (a dollar-pegged stablecoin) paid on the Polygon blockchain. You need a compatible crypto wallet to receive payouts.",
     "faqQ8": "Bagaimana komisi kursus bekerja?",
@@ -4346,7 +4346,7 @@
       "thisMonthSub": "dibayar oleh {{n}} referral aktif",
       "thisMonthSubEmpty": "Real-time saat komisi diterima",
       "mrr": "MRR Saat Ini",
-      "mrrSub": "pendapatan berulang bulanan terjamin",
+      "mrrSub": "selama referral tetap aktif",
       "mrrSubEmpty": "Pendapatan berulang bulanan",
       "projection": "Proyeksi Berikutnya",
       "projectionSubEmpty": "Berdasarkan referral aktif Anda"

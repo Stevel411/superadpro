@@ -2675,7 +2675,7 @@
     "faqQ5": "Como funciona o grid de campanhas?",
     "faqA5": "Cada nível de campanha tem um grid 8×8 com 64 posições. À medida que membros da sua rede entram nesse nível, as posições são preenchidas. Quando todas as 64 são preenchidas, um bônus de conclusão é acionado e pago ao dono do grid. Uma única campanha pode ser concluída várias vezes.",
     "faqQ6": "O que são comissões uni-level?",
-    "faqA6": "Quando alguém em sua rede (até 8 níveis de profundidade) faz uma compra de grid, você ganha automaticamente 6,25% dessa compra. Isso significa que uma equipe grande gera renda passiva para você sem nenhum esforço adicional.",
+    "faqA6": "Quando alguém em sua rede (até 8 níveis de profundidade) faz uma compra de grid, você ganha automaticamente 6,25% dessa compra. Essas comissões dependem da atividade dos membros abaixo de você e não são garantidas.",
     "faqQ7": "Em qual moeda os ganhos são pagos?",
     "faqA7": "Todos os ganhos são pagos em USDT (uma stablecoin atrelada ao dólar) na blockchain Polygon. Você precisa de uma carteira cripto compatível para receber os pagamentos.",
     "faqQ8": "Como funcionam as comissões de cursos?",
@@ -4354,7 +4354,7 @@
       "thisMonthSub": "pago por {{n}} diretos ativos",
       "thisMonthSubEmpty": "Em tempo real conforme as comissões chegam",
       "mrr": "MRR Atual",
-      "mrrSub": "receita mensal recorrente garantida",
+      "mrrSub": "enquanto as indicações permanecerem ativas",
       "mrrSubEmpty": "Receita mensal recorrente",
       "projection": "Próxima Projeção",
       "projectionSubEmpty": "Com base em seus diretos ativos"

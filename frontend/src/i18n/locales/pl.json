@@ -2663,7 +2663,7 @@
     "faqQ5": "Jak działa siatka kampanii?",
     "faqA5": "Każdy poziom kampanii ma siatkę 8×8 z 64 pozycjami. Gdy członkowie w twojej sieci dołączają do tego poziomu, pozycje się zapełniają. Gdy wszystkie 64 zostaną wypełnione, uruchamiany jest bonus za ukończenie i wypłacany właścicielowi siatki. Pojedynczy członek może mieć wiele aktywnych siatek na różnych poziomach jednocześnie.",
     "faqQ6": "Czym są prowizje uni-level?",
-    "faqA6": "Gdy ktoś w twojej sieci (do 8 poziomów głęboko) dokonuje zakupu siatki, automatycznie zarabiasz 6.25% tego zakupu. Oznacza to, że duży zespół generuje dla ciebie dochód pasywny bez dodatkowego codziennego wysiłku.",
+    "faqA6": "Gdy ktoś w twojej sieci (do 8 poziomów głęboko) dokonuje zakupu siatki, automatycznie zarabiasz 6.25% tego zakupu. Te prowizje zależą od aktywności członków poniżej ciebie i nie są gwarantowane.",
     "faqQ7": "W jakiej walucie są wypłacane zarobki?",
     "faqA7": "All earnings are in USDT (a dollar-pegged stablecoin) paid on the Polygon blockchain. You need a compatible crypto wallet to receive payouts.",
     "faqQ8": "Jak działają prowizje z kursów?",
@@ -4346,7 +4346,7 @@
       "thisMonthSub": "opłacone przez {{n}} aktywnych bezpośrednich",
       "thisMonthSubEmpty": "W czasie rzeczywistym, gdy prowizje przychodzą",
       "mrr": "Obecny MRR",
-      "mrrSub": "gwarantowany miesięczny recyklingu",
+      "mrrSub": "dopóki polecenia są aktywne",
       "mrrSubEmpty": "Powtarzający się miesięczny dochód",
       "projection": "Następna prognoza",
       "projectionSubEmpty": "Na podstawie twoich aktywnych bezpośrednich"

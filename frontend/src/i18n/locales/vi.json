@@ -2663,7 +2663,7 @@
     "faqQ5": "Lưới chiến dịch hoạt động như thế nào?",
     "faqA5": "Mỗi cấp chiến dịch có lưới 8×8 với 64 vị trí. Khi các thành viên trong mạng của bạn tham gia cấp đó, các vị trí được lấp đầy. Khi tất cả 64 được lấp đầy, một tiền thưởng hoàn thành được kích hoạt và trả cho chủ sở hữu lưới. Một thành viên duy nhất có thể có nhiều lưới hoạt động trên các cấp khác nhau cùng một lúc.",
     "faqQ6": "Hoa hồng uni-level là gì?",
-    "faqA6": "Khi bất kỳ ai trong mạng của bạn (sâu tới 8 cấp) thực hiện giao dịch mua lưới, bạn tự động kiếm được 6.25% giao dịch mua đó. Điều này có nghĩa là một đội lớn tạo ra thu nhập thụ động cho bạn mà không cần thêm nỗ lực hàng ngày.",
+    "faqA6": "Khi bất kỳ ai trong mạng của bạn (sâu tới 8 cấp) thực hiện giao dịch mua lưới, bạn tự động kiếm được 6.25% giao dịch mua đó. Các khoản hoa hồng này phụ thuộc vào hoạt động của các thành viên dưới bạn và không được đảm bảo.",
     "faqQ7": "Thu nhập được thanh toán bằng loại tiền nào?",
     "faqA7": "All earnings are in USDT (a dollar-pegged stablecoin) paid on the Polygon blockchain. You need a compatible crypto wallet to receive payouts.",
     "faqQ8": "Hoa hồng khóa học hoạt động như thế nào?",
@@ -4346,7 +4346,7 @@
       "thisMonthSub": "được thanh toán bởi {{n}} người trực tiếp hoạt động",
       "thisMonthSubEmpty": "Thực tế khi hoa hồng đến",
       "mrr": "MRR Hiện Tại",
-      "mrrSub": "thu nhập định kỳ hàng tháng được đảm bảo",
+      "mrrSub": "khi giới thiệu vẫn hoạt động",
       "mrrSubEmpty": "Thu nhập định kỳ hàng tháng",
       "projection": "Dự Phóng Tiếp Theo",
       "projectionSubEmpty": "Dựa trên những người trực tiếp hoạt động của bạn"

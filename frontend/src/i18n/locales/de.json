@@ -2675,7 +2675,7 @@
     "faqQ5": "Wie funktioniert das Kampagnen-Grid?",
     "faqA5": "Jede Kampagnen-Stufe hat ein 8×8-Grid mit 64 Positionen. Während Mitglieder aus deinem Netzwerk dieser Stufe beitreten, füllen sich die Positionen. Wenn alle 64 gefüllt sind, wird ein Abschlussbonus ausgelöst und an den Grid-Besitzer ausgezahlt. Eine einzelne Kampagne kann mehrfach abgeschlossen werden.",
     "faqQ6": "Was sind Uni-Level-Provisionen?",
-    "faqA6": "Wenn jemand in deinem Netzwerk (bis zu 8 Ebenen tief) einen Grid-Kauf tätigt, verdienst du automatisch 6,25 % dieses Kaufs. Das bedeutet, dass ein großes Team passives Einkommen für dich generiert, ohne dass du zusätzlich tätig werden musst.",
+    "faqA6": "Wenn jemand in deinem Netzwerk (bis zu 8 Ebenen tief) einen Grid-Kauf tätigt, verdienst du automatisch 6,25 % dieses Kaufs. Diese Provisionen hängen von der Aktivität der Mitglieder unter dir ab und sind nicht garantiert.",
     "faqQ7": "In welcher Währung werden Einnahmen ausgezahlt?",
     "faqA7": "Alle Einnahmen werden in USDT (einer an den Dollar gekoppelten Stablecoin) auf der Polygon-Blockchain ausgezahlt. Du benötigst eine kompatible Krypto-Wallet, um Auszahlungen zu erhalten.",
     "faqQ8": "Wie funktionieren Kurs-Provisionen?",
@@ -4354,7 +4354,7 @@
       "thisMonthSub": "gezahlt von {{n}} aktiven Directs",
       "thisMonthSubEmpty": "Echtzeit, wenn Provisionen landen",
       "mrr": "Aktueller MRR",
-      "mrrSub": "garantiert monatlich wiederkehrend",
+      "mrrSub": "während Empfehlungen aktiv bleiben",
       "mrrSubEmpty": "Wiederkehrendes monatliches Einkommen",
       "projection": "Nächste Projektion",
       "projectionSubEmpty": "Basierend auf deinen aktiven Directs"

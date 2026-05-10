@@ -2663,7 +2663,7 @@
     "faqQ5": "How does the campaign grid work?",
     "faqA5": "Each campaign tier has an 8×8 grid with 64 positions. As members across your network join that tier, positions fill. When all 64 fill, a completion bonus is triggered and paid to the grid owner. A single campaign can complete multiple times.",
     "faqQ6": "What are uni-level commissions?",
-    "faqA6": "When anyone in your network (up to 8 levels deep) makes a grid purchase, you earn 6.25% of that purchase automatically. This means a large team generates passive income for you without any additional effort.",
+    "faqA6": "When anyone in your network (up to 8 levels deep) makes a grid purchase, you earn 6.25% of that purchase automatically. The size and activity level of your network determine how often these commissions trigger — earnings are not guaranteed and depend on members below you choosing to participate.",
     "faqQ7": "What currency are earnings paid in?",
     "faqA7": "All earnings are in USDT (a dollar-pegged stablecoin) paid on the Polygon blockchain. You need a compatible crypto wallet to receive payouts.",
     "faqQ8": "How do course commissions work?",
@@ -4358,7 +4358,7 @@
       "thisMonthSub": "paid by {{n}} active directs",
       "thisMonthSubEmpty": "Real-time as commissions land",
       "mrr": "Current MRR",
-      "mrrSub": "guaranteed monthly recurring",
+      "mrrSub": "while referrals stay active",
       "mrrSubEmpty": "Recurring monthly income",
       "projection": "Next Projection",
       "projectionSubEmpty": "Based on your active directs"

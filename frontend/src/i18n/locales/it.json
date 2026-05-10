@@ -2675,7 +2675,7 @@
     "faqQ5": "Come funziona la griglia delle campagne?",
     "faqA5": "Ogni livello di campagna ha una griglia 8×8 con 64 posizioni. Man mano che i membri della tua rete si uniscono a quel livello, le posizioni si riempiono. Quando tutte le 64 sono riempite, viene attivato un bonus di completamento e pagato al proprietario della griglia. Una singola campagna può essere completata più volte.",
     "faqQ6": "Cosa sono le commissioni uni-level?",
-    "faqA6": "Quando qualcuno nella tua rete (fino a 8 livelli di profondità) effettua un acquisto di griglia, guadagni automaticamente il 6,25% di quell'acquisto. Ciò significa che una grande squadra genera reddito passivo per te senza alcuno sforzo aggiuntivo.",
+    "faqA6": "Quando qualcuno nella tua rete (fino a 8 livelli di profondità) effettua un acquisto di griglia, guadagni automaticamente il 6,25% di quell'acquisto. Queste commissioni dipendono dall'attività dei membri sotto di te e non sono garantite.",
     "faqQ7": "In quale valuta vengono pagati i guadagni?",
     "faqA7": "Tutti i guadagni sono in USDT (una stablecoin agganciata al dollaro) pagati sulla blockchain Polygon. Hai bisogno di un wallet crypto compatibile per ricevere i pagamenti.",
     "faqQ8": "Come funzionano le commissioni dei corsi?",
@@ -4354,7 +4354,7 @@
       "thisMonthSub": "pagato da {{n}} diretti attivi",
       "thisMonthSubEmpty": "In tempo reale quando le commissioni arrivano",
       "mrr": "MRR Attuale",
-      "mrrSub": "ricorrente mensile garantito",
+      "mrrSub": "finché i riferimenti rimangono attivi",
       "mrrSubEmpty": "Reddito ricorrente mensile",
       "projection": "Prossima Proiezione",
       "projectionSubEmpty": "Basato sui tuoi diretti attivi"

@@ -2675,7 +2675,7 @@
     "faqQ5": "¿Cómo funciona la cuadrícula de campañas?",
     "faqA5": "Cada nivel de campaña tiene una cuadrícula de 8×8 con 64 posiciones. A medida que los miembros de tu red se unen a ese nivel, se llenan las posiciones. Cuando se llenan las 64, se activa un bono de finalización y se paga al dueño de la cuadrícula. Una sola campaña puede completarse varias veces.",
     "faqQ6": "¿Qué son las comisiones uni-nivel?",
-    "faqA6": "Cuando alguien en tu red (hasta 8 niveles de profundidad) realiza una compra de cuadrícula, ganas automáticamente el 6,25% de esa compra. Esto significa que un equipo grande genera ingresos pasivos para ti sin esfuerzo adicional.",
+    "faqA6": "Cuando alguien en tu red (hasta 8 niveles de profundidad) realiza una compra de cuadrícula, ganas automáticamente el 6,25% de esa compra. Estas comisiones dependen de la actividad de los miembros debajo de ti y no están garantizadas.",
     "faqQ7": "¿En qué moneda se pagan las ganancias?",
     "faqA7": "Todas las ganancias se pagan en USDT (una stablecoin vinculada al dólar) en la blockchain Polygon. Necesitas una billetera cripto compatible para recibir los pagos.",
     "faqQ8": "¿Cómo funcionan las comisiones de cursos?",
@@ -4354,7 +4354,7 @@
       "thisMonthSub": "pagado por {{n}} directos activos",
       "thisMonthSubEmpty": "En tiempo real a medida que llegan las comisiones",
       "mrr": "MRR Actual",
-      "mrrSub": "ingresos mensuales recurrentes garantizados",
+      "mrrSub": "mientras los referidos sigan activos",
       "mrrSubEmpty": "Ingresos mensuales recurrentes",
       "projection": "Próxima Proyección",
       "projectionSubEmpty": "Basado en tus directos activos"
