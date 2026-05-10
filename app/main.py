@@ -171,8 +171,13 @@ class WwwRedirectMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 app.add_middleware(WwwRedirectMiddleware)
 
-# Pre-launch mode — show Coming Soon page to all unauthenticated visitors
-PRE_LAUNCH_MODE = os.getenv("PRE_LAUNCH", "false").lower() == "true"
+# Pre-launch mode — was used to show Coming Soon page to all unauthenticated
+# visitors before launch. Hardcoded False on launch day (10 May 2026). Was
+# previously controlled by PRE_LAUNCH=true env var in Railway. Hardcoding
+# rather than relying on env var so an accidental re-set in Railway can't
+# silently re-lock the entire platform. To restore for emergency
+# maintenance, set this to True directly and redeploy.
+PRE_LAUNCH_MODE = False
 
 COMING_SOON_HTML = """<!DOCTYPE html>
 <html lang="en">
@@ -3293,12 +3298,10 @@ def register_process(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Pre-launch registration gate (see /api/register comment for context).
-    if not (current_user and getattr(current_user, "is_admin", False)):
-        return JSONResponse({
-            "error": "Registration is currently closed. We're launching soon.",
-            "registration_closed": True,
-        }, status_code=403)
+    # Pre-launch registration gate REMOVED 10 May 2026 (launch day).
+    # Was: blocked all non-admin signups. Now: open to everyone.
+    # Orphan signups (no ref) fall through to the SuperAdPro company
+    # account at line ~3346 below.
 
     username   = sanitize(username)
     email      = sanitize(email)
@@ -13744,49 +13747,11 @@ async def api_register(
     """JSON register endpoint for the modal."""
     from fastapi.responses import JSONResponse
 
-    # ── Pre-launch registration gate ──
-    # Public registration is closed until launch. Bypasses:
-    #   1. Admin (existing behaviour)
-    #   2. Sponsored signup — arrived with ?ref= or 'ref' cookie
-    #   3. Explicit bypass — holds prelaunch_bypass cookie matching env token
-    # All three signal a legitimate signup. To re-open globally at launch,
-    # remove this whole block.
-    is_admin = current_user and getattr(current_user, "is_admin", False)
-    if not is_admin:
-        # Cookie/query checks for non-admin paths
-        ref_qp = request.query_params.get("ref", "")
-        ref_cookie = request.cookies.get("ref", "")
-        gift_qp = request.query_params.get("gift", "")
-        bypass_token = os.getenv("PRE_LAUNCH_BYPASS_TOKEN", "")
-        bypass_cookie = request.cookies.get("prelaunch_bypass", "")
-
-        # Also check the body — the frontend submits ref AND (potentially)
-        # gift_code in JSON
-        ref_body = ""
-        gift_body = ""
-        try:
-            # Peek at the body without consuming it for the main handler
-            body_bytes = await request.body()
-            import json as _json
-            _body_json = _json.loads(body_bytes)
-            ref_body = (_body_json.get("ref") or "").strip()
-            gift_body = (_body_json.get("gift_code") or "").strip()
-            # Re-use body below by stashing it on the request scope
-            async def _receive():
-                return {"type": "http.request", "body": body_bytes, "more_body": False}
-            request._receive = _receive
-        except Exception:
-            pass
-
-        has_referral = bool(ref_qp or ref_cookie or ref_body)
-        has_gift = bool(gift_qp or gift_body)
-        has_token = bool(bypass_token and bypass_cookie == bypass_token)
-
-        if not (has_referral or has_gift or has_token):
-            return JSONResponse({
-                "error": "Registration is currently closed. We're launching soon — check back later or follow our updates.",
-                "registration_closed": True,
-            }, status_code=403)
+    # Pre-launch registration gate REMOVED 10 May 2026 (launch day).
+    # Previously gated public registration behind: admin OR has ref OR
+    # has gift OR has bypass token. Now open to everyone.
+    # Orphan signups (no ref) fall through to the SuperAdPro company
+    # account at line ~13838 below as sponsor.
 
     try:
         body = await request.json()
