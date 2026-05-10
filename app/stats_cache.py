@@ -46,11 +46,38 @@ def cache_delete(key: str):
 
 def cache_invalidate_user(user_id: int):
     """Invalidate all cached data for a specific user.
-    Called when commissions are created, grids update, etc."""
-    keys_to_delete = [k for k in _cache if k.startswith(f"dash:{user_id}:") or k.startswith(f"analytics:{user_id}:")]
+    
+    Called when commissions are created, balance mutations happen, grids
+    update, withdrawals process, or any other event that should reflect
+    on the user's dashboard / wallet / earnings page within seconds.
+    
+    Covers all four user-keyed cache prefixes used across the codebase:
+        dash:{user_id}:*       — dashboard stats (line ~1236 in main.py)
+        descendants:{user_id}  — affiliate descendant counts (~11235)
+        withdrawn:{user_id}    — total withdrawn amount (~11298)
+        earnings:{user_id}     — live ledger earnings calc (~11338)
+    
+    History: prior to 10 May 2026, this function only cleared 'dash:'
+    keys. The other three prefixes were added in the 1 May 2026 data
+    integrity work but invalidation was never extended to match. That
+    caused a 60-second visible-staleness gap after commissions posted,
+    surfaced by Steve's $20 WalletConnect smoke test on 9 May. Workaround
+    was to drop the per-key TTL from 60s to 5s; this function now does
+    its job properly so the TTL workaround is no longer load-bearing.
+    """
+    prefixes = (
+        f"dash:{user_id}:",
+        f"descendants:{user_id}",
+        f"withdrawn:{user_id}",
+        f"earnings:{user_id}",
+    )
+    keys_to_delete = [k for k in _cache if any(k.startswith(p) for p in prefixes)]
     for k in keys_to_delete:
         del _cache[k]
-    logger.debug(f"Cache invalidated for user {user_id}: {len(keys_to_delete)} keys")
+    logger.debug(
+        f"Cache invalidated for user {user_id}: {len(keys_to_delete)} keys "
+        f"across {len(prefixes)} prefixes"
+    )
 
 
 def cache_invalidate_leaderboard():

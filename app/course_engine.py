@@ -158,6 +158,15 @@ def process_course_purchase(db: Session, buyer_id: int, course_id: int,
 
         commission_result = _distribute_commission(db, purchase, buyer, course)
         db.commit()
+        # Cache invalidation — buyer's balance changed (if wallet-paid)
+        # and commission_result has already invalidated the earner via
+        # _credit_earner / _credit_platform helpers above.
+        if payment_method == "wallet":
+            try:
+                from .stats_cache import cache_invalidate_user
+                cache_invalidate_user(buyer_id)
+            except Exception as e:
+                logger.warning(f"cache_invalidate_user({buyer_id}) failed in process_course_purchase: {e}")
     except Exception as exc:
         db.rollback()
         logger.error(
@@ -259,6 +268,13 @@ def _credit_earner(db, purchase, course, earner, amount,
     earner.balance = Decimal(str(earner.balance or 0)) + Decimal(str(amount))
     earner.total_earned = Decimal(str(earner.total_earned or 0)) + Decimal(str(amount))
     earner.course_earnings = Decimal(str(earner.course_earnings or 0)) + Decimal(str(amount))
+    # Cache invalidation — earner's balance/earnings just changed.
+    # Late import + try/except: cache failures must not break commission writes.
+    try:
+        from .stats_cache import cache_invalidate_user
+        cache_invalidate_user(earner.id)
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user({earner.id}) failed in _credit_earner: {e}")
     return {
         "earner_id": earner.id,
         "earner_username": earner.username,
@@ -288,6 +304,12 @@ def _credit_platform(db, purchase, course, amount, notes, source_chain=None) -> 
     if admin:
         admin.balance = Decimal(str(admin.balance or 0)) + Decimal(str(amount))
         admin.total_earned = Decimal(str(admin.total_earned or 0)) + Decimal(str(amount))
+        # Cache invalidation — admin balance just changed.
+        try:
+            from .stats_cache import cache_invalidate_user
+            cache_invalidate_user(admin.id)
+        except Exception as e:
+            logger.warning(f"cache_invalidate_user({admin.id}) failed in _credit_platform: {e}")
     return {
         "earner_id": admin.id if admin else None,
         "earner_username": "PLATFORM" if not admin else admin.username,

@@ -3980,7 +3980,12 @@ def api_new_members(request: Request, since: str = None,
 # ═══════════════════════════════════════════════════════════════
 
 def create_notification(db, user_id, ntype, title, message, icon="🔔", link=None):
-    """Create an in-app notification for a user. Alias for send_notification."""
+    """Create an in-app notification for a user. Alias for send_notification.
+    
+    Invalidates the user's cache on creation — matches send_notification's
+    behaviour (consolidated 10 May 2026 as part of cache invalidation
+    sweep). If commission-type notification, also invalidates leaderboard.
+    """
     from .database import Notification
     notif = Notification(
         user_id=user_id, type=ntype, title=title,
@@ -3991,6 +3996,16 @@ def create_notification(db, user_id, ntype, title, message, icon="🔔", link=No
         db.commit()
     except Exception:
         db.rollback()
+        return
+    # Cache invalidation — only after successful commit. Users who fall
+    # through the rollback above don't get cache invalidated, which is
+    # correct (nothing changed).
+    try:
+        cache_invalidate_user(user_id)
+        if ntype == "commission":
+            cache_invalidate_leaderboard()
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user({user_id}) failed in create_notification: {e}")
 @app.get("/api/analytics")
 def api_analytics(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -6570,6 +6585,16 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
         logger.warning(f"Membership activation notification failed for user {user.id}: {exc}")
 
     db.commit()
+    # Cache invalidation — both the user (membership state changed,
+    # which affects dashboard "active member" stats) AND the sponsor
+    # (commission posted, balance + earnings changed).
+    try:
+        from .stats_cache import cache_invalidate_user
+        cache_invalidate_user(user.id)
+        if user.sponsor_id and pays_sponsor_commission:
+            cache_invalidate_user(user.sponsor_id)
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user failed in _activate_membership: {e}")
     return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
 def _stripe_renew_membership(db, user, tier, subscription_id):
     """Process monthly renewal — sponsor gets capped commission."""
@@ -10868,6 +10893,14 @@ async def admin_withdrawal_refund(
         db.rollback()
 
     db.commit()
+    # Cache invalidation — balance restored AND total_withdrawn decreased.
+    # The new broadened cache_invalidate_user covers both 'withdrawn:'
+    # and 'earnings:' prefixes, which would otherwise show stale numbers
+    # on the user's wallet page after refund.
+    try:
+        cache_invalidate_user(target_user.id)
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user({target_user.id}) failed in withdrawal refund: {e}")
     logger.info(f"Admin {user.username} refunded withdrawal #{withdrawal_id} (${amount} to user {target_user.username} {wallet_type} balance) — {reason}")
 
     return {"success": True, "withdrawal_id": withdrawal_id, "refunded_amount": amount,
@@ -11390,20 +11423,24 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
         "membership_earnings": round(membership, 2),
         "personal_referrals": direct_refs,
     }
-    # Cache TTL: 5s. Was 60s, but caused a real-money smoke test on
-    # 9 May 2026 (Steve's $20 WalletConnect membership purchase) to
-    # show stale balance for ~60 seconds after the commission posted —
-    # exactly the kind of thing that makes a member think their payment
-    # failed and contact support. Root cause: cache_invalidate_user() in
-    # stats_cache.py only clears keys with prefixes 'dash:' / 'analytics:',
-    # missing 'descendants:' / 'withdrawn:' / 'earnings:' which were added
-    # in the 1 May data integrity work. The proper fix is to extend the
-    # invalidator AND call it at every commission write site (sponsor
-    # commissions in _activate_membership, _crypto_activate_product, gift
-    # voucher, grid completion bonus, credit nexus payout, course
-    # commission, etc.) — that's an audit job for after launch. Until
-    # then, 5s TTL gives "max 5 second lag" which is fast enough that no
-    # member notices.
+    # Cache TTL: 5s. Originally 60s. History:
+    # - 9 May 2026: Steve's $20 WalletConnect smoke test showed stale
+    #   balance for ~60 seconds after commission posted — would cause
+    #   panic-refresh support tickets at launch. Dropped to 5s as
+    #   workaround.
+    # - 10 May 2026: Proper fix shipped. cache_invalidate_user() in
+    #   stats_cache.py now covers all four user-keyed prefixes (dash,
+    #   descendants, withdrawn, earnings) and is wired into every
+    #   commission/balance write site: _activate_membership,
+    #   _record_commission (grid), pay_matrix_commissions (credit nexus),
+    #   complete_matrix (matrix completion bonus), _credit_earner +
+    #   _credit_platform (course), gift voucher claim, withdrawal refund,
+    #   admin balance adjust, PIF wallet deduction, email credits, and
+    #   wallet credit-pack purchase.
+    # - TTL still 5s temporarily: belt-and-braces while verifying the
+    #   new invalidation calls work in production. Once 24-48 hours have
+    #   passed without staleness reports, restore to 60s for ~12x DB
+    #   query reduction on busy users.
     cache_set(cache_key, result, ttl=5)
     return result
 
@@ -14078,9 +14115,15 @@ def send_notification(db: Session, user_id: int, type: str, icon: str, title: st
         translation_key=translation_key,
     )
     db.add(notif)
-    # Invalidate dashboard cache so next load shows fresh data
+    # Invalidate dashboard cache so next load shows fresh data. Covers all
+    # four user-keyed prefixes (dash/descendants/withdrawn/earnings) since
+    # the broader fix on 10 May 2026 — previously only dash:.
     cache_invalidate_user(user_id)
-    if type == "commission":
+    # Leaderboard invalidation — any notification type that signals a
+    # commission/balance change affects the leaderboard's earnings ranking.
+    # Previously only "commission" was covered, missing "gift_claimed",
+    # "withdrawal", and "matrix_*" types that all involve real money flow.
+    if type in ("commission", "gift_claimed", "withdrawal"):
         cache_invalidate_leaderboard()
 @app.get("/api/notifications")
 def get_notifications(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -17054,6 +17097,11 @@ def admin_adjust_balance(
     )
     db.add(comm)
     db.commit()
+    # Cache invalidation — admin manually changed user's balance
+    try:
+        cache_invalidate_user(user.id)
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user({user.id}) failed in admin_adjust_balance: {e}")
 
     logger.info(f"Admin balance adjustment: {username} {'+' if amount > 0 else ''}{amount:.2f} ({reason}). {old_balance:.2f} → {new_balance:.2f}")
 
@@ -21820,6 +21868,11 @@ async def api_pif_create(request: Request, user: User = Depends(get_current_user
         # Deduct from wallet
         user.balance = float(user.balance or 0) - 20
         db.commit()
+        # Cache invalidation — buyer's balance just decreased by $20
+        try:
+            cache_invalidate_user(user.id)
+        except Exception as e:
+            logger.warning(f"cache_invalidate_user({user.id}) failed in PIF wallet deduction: {e}")
         payment_ref = f"wallet_deduction_{user.id}_{int(datetime.utcnow().timestamp())}"
     elif pay_method == "crypto":
         # Create voucher in pending state, then create NOWPayments invoice
@@ -22126,6 +22179,15 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
             logger.warning(f"PIF gift-claim notification failed for gifter {gifter.id}: {e}")
 
     db.commit()
+    # Cache invalidation — gifter received commission (balance/earnings
+    # changed) AND the user just activated their membership (their
+    # dashboard's 'active member' stats need to refresh too).
+    try:
+        cache_invalidate_user(user.id)
+        if voucher.gifter_user_id:
+            cache_invalidate_user(voucher.gifter_user_id)
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user failed in PIF claim: {e}")
 
     logger.info(
         f"Pay It Forward: {user.username} claimed voucher {code} gifted by user {voucher.gifter_user_id} "
@@ -22649,6 +22711,11 @@ def admin_backfill_gift_commission(
 
     db.commit()
     db.refresh(gifter)
+    # Cache invalidation — gifter just received a backfilled commission
+    try:
+        cache_invalidate_user(gifter.id)
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user({gifter.id}) failed in admin backfill: {e}")
 
     logger.info(
         f"Admin backfill: ${gift_commission} gift commission paid to {gifter.username} "
@@ -24305,6 +24372,11 @@ async def api_buy_email_boost(request: Request, user: User = Depends(get_current
     user.balance = balance - pack["price"]
     user.email_credits = (user.email_credits or 0) + pack["credits"]
     db.commit()
+    # Cache invalidation — buyer's balance just decreased
+    try:
+        cache_invalidate_user(user.id)
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user({user.id}) failed in email_credits purchase: {e}")
 
     return {"ok": True, "credits_added": pack["credits"], "total_credits": user.email_credits, "new_balance": float(user.balance)}
 # ── Lead Lists ──
@@ -28111,6 +28183,13 @@ async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_
                     {"error": result.get("error", "Purchase failed")},
                     status_code=400,
                 )
+            # Cache invalidation — buyer's balance decreased.
+            # purchase_credit_pack itself invalidates the matrix earner(s)
+            # via pay_matrix_commissions, so this covers the missing piece.
+            try:
+                cache_invalidate_user(user.id)
+            except Exception as e:
+                logger.warning(f"cache_invalidate_user({user.id}) failed in wallet credit-pack: {e}")
             return result
         except Exception as exc:
             db.rollback()

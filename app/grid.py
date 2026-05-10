@@ -543,6 +543,20 @@ def _record_commission(db: Session, from_user_id: Optional[int], to_user_id: Opt
         notes           = notes,
         paid_at         = datetime.utcnow(),
     ))
+    # Cache invalidation — commission posted, dashboard/wallet/earnings
+    # caches for the recipient need to refresh on next read. Late import
+    # so grid.py stays decoupled from main.py at module load time.
+    # Skip for platform commissions (to_user_id is None — no user cache to invalidate).
+    if to_user_id:
+        try:
+            from .stats_cache import cache_invalidate_user
+            cache_invalidate_user(to_user_id)
+        except Exception as e:
+            # Cache failures must NEVER break commission writes. Log and continue.
+            import logging
+            logging.getLogger("superadpro.cache").warning(
+                f"cache_invalidate_user({to_user_id}) failed in _record_commission: {e}"
+            )
 
 
 # ── Campaign View Tracking ───────────────────────────────────

@@ -333,6 +333,13 @@ def pay_matrix_commissions(
 
     db.flush()
 
+    # Cache invalidation — owner balance/earnings just changed
+    try:
+        from .stats_cache import cache_invalidate_user
+        cache_invalidate_user(owner.id)
+    except Exception as e:
+        logger.warning(f"cache_invalidate_user({owner.id}) failed in pay_matrix_commissions: {e}")
+
     commissions_paid.append({
         "earner": owner.username,
         "level": position.level,
@@ -383,6 +390,12 @@ def complete_matrix(db: Session, matrix: CreditMatrix):
         owner.balance = Decimal(str(owner.balance or 0)) + bonus_amount
         owner.total_earned = Decimal(str(owner.total_earned or 0)) + bonus_amount
         owner.matrix_earnings = Decimal(str(getattr(owner, 'matrix_earnings', 0) or 0)) + bonus_amount
+        # Cache invalidation — completion bonus posted to owner's balance
+        try:
+            from .stats_cache import cache_invalidate_user
+            cache_invalidate_user(owner.id)
+        except Exception as e:
+            logger.warning(f"cache_invalidate_user({owner.id}) failed in complete_matrix: {e}")
 
     # Mark complete
     matrix.status = "completed"
