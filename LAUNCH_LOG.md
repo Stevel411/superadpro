@@ -16,6 +16,9 @@ The single most important verified fact: **WalletConnect membership purchase wor
 
 ## Currently watching
 
+- **First public registrations** — registration opened today (10 May). Watch `/admin/api/users?status=inactive&limit=100` for orphan-signup growth that exceeds expected referral counts. Orphan signups (no `?ref=`) are now defaulted to the `SuperAdPro` admin user as sponsor.
+- **Daily Briefing email delivery** — first one fires tomorrow 06:00 UTC. If it doesn't arrive, check Railway service `daily-briefing-cron` logs and `daily_briefings` table for entries.
+- **Cache TTL restoration** — four sites in `main.py` (~3736, 11312, 11341, 11440) at `cache_set ttl=5` should go back to `ttl=60` after 24-48h of clean operation. The 5s TTL was a launch-eve safety measure; the comprehensive cache invalidation sweep `36ef2fd` makes the longer TTL safe again.
 - **Switch-to-Annual path** (`/api/switch-to-annual`) is shipped but UNTESTED with real money. Engine classifier defends against worst outcome (commission double-pay), but the path itself is new code only validated logically. If a Monthly→Annual switch fails on launch day, that's where to look first.
 - **NOWPayments rail** — third-party processor redirect path. Not exercised in last night's smoke test. Should work — no recent code changes — but worth noting.
 - **Cache invalidation audit** — the 5s TTL fix from 9 May papers over a deeper issue: `cache_invalidate_user()` only clears keys with `dash:` and `analytics:` prefixes, but there are also `descendants:`, `withdrawn:`, `earnings:` namespaces that aren't invalidated. Several commission-credit sites bypass `create_notification()` (the only place that calls invalidation), going directly to `Notification(...)`. **Post-launch work**: extend the invalidator to all user-keyed prefixes AND wire up invalidation calls at every commission write site.
@@ -23,6 +26,18 @@ The single most important verified fact: **WalletConnect membership purchase wor
 
 ## Recently shipped (last 7 days)
 
+- 6acd877 membership_tier='basic' default lie eliminated — proper data model fix (10 May)
+- 0e28a21 Logout race condition: ProtectedRoute + RequireTier now route unauth to / (10 May)
+- 2d49a05 Onboarding wizard → dismissible banner on dashboard (10 May)
+- 76e6069 + a0b94a1 All 4 registration gates removed (10 May, launch day)
+- b965d1e + 62ca937 Payment pages translated × 20 languages (~1,820 strings) (10 May)
+- dc73e1b Income Streams deck softened across 20 languages (10 May)
+- 7ecc208 + 1bdcc52 Public-facing data audit: removed fake stats, softened income claims (10 May)
+- ca2120f + c2f1d80 + c420224 Mobile fixes: nav, welcome video, hamburger menu (10 May)
+- 34e2bba + 76d866b ProSeller AI grounded prompt + chat field-name fix (10 May)
+- 36ef2fd Cache invalidation: comprehensive sweep across commission/balance write sites (10 May)
+- e9797f8 Pay It Forward: share UX + status filter (10 May)
+- c5a368d Stuck-lapsed hourly cron alert (10 May)
 - d79d41a9 Daily Briefing System: cron + Grok + email + LAUNCH_LOG.md (10 May)
 - 80e28635 Cache: shorten user-specific TTL from 60s to 5s
 - 1d3be450 PaymentSuccess: add visible Dashboard CTA so success page isn't a dead-end
@@ -43,8 +58,13 @@ The single most important verified fact: **WalletConnect membership purchase wor
 
 ## Open issues / known gaps
 
+- **Coming Soon HTML cleanup** — ~100 lines of dead HTML at `app/main.py:177-270` (`COMING_SOON_HTML` constant, no longer renders since `PRE_LAUNCH_MODE=False` hardcoded on launch day). Pure code hygiene, no functional impact.
+- **Mobile audit Flows 2-6** — registration on mobile, upgrade page on mobile, WalletConnect modal on `/upgrade/checkout` on mobile, Pay It Forward on mobile, Wallet on mobile. Started but never completed.
+- **Member-facing dashboard hype-language audit** — not yet done.
+- **Marketing video voiceover transcripts** — not audited for fabricated claims.
+- **Brevo email subject lines/preheaders** — set in Brevo dashboard, not in repo. Should be reviewed for consistency with platform messaging.
 - **Cache invalidation audit** (described above under Currently watching) — proper fix is post-launch.
-- **Daily cron alert on stuck-lapsed detector** — recommended in the test1/test2 postmortem, never built. Should monitor for any new stuck-lapsed user appearing and email Steve. Until then, manual `/admin/api/audit-double-pays` checks are the canary.
+- **Daily cron alert on stuck-lapsed detector** — Today's `c5a368d` shipped the foundation but should be tested with a real stuck user.
 - **Gift Voucher Created page should visibly show the share link** — current page creates the voucher but the share link is harder to find than it should be.
 - **Welcome video subtitles/captions** — accessibility gap, not blocking.
 - **405 console error on `/upgrade/checkout`** — logged but never investigated. Likely benign browser prefetch trying POST. Won't block launch but should be confirmed dismissable.
