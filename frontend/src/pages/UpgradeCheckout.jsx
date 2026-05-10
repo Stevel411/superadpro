@@ -117,10 +117,10 @@ export default function UpgradeCheckout() {
             if (refreshUser) refreshUser();
             navigate('/dashboard?switched=annual');
           } else {
-            setError(d.error || 'Switch failed — please try again');
+            setError(d.error || t('checkout.errorSwitchFailedTryAgain'));
           }
         })
-        .catch(function(e) { setLoading(false); setError(e.message || 'Switch failed'); });
+        .catch(function(e) { setLoading(false); setError(e.message || t('checkout.errorSwitchFailed')); });
       return;
     }
 
@@ -151,10 +151,10 @@ export default function UpgradeCheckout() {
               navigate('/dashboard?upgraded=1');
             }
           } else {
-            setError(d.error || 'Upgrade failed — please try again');
+            setError(d.error || t('checkout.errorUpgradeFailedTryAgain'));
           }
         })
-        .catch(function(e) { setLoading(false); setError(e.message || 'Upgrade failed'); });
+        .catch(function(e) { setLoading(false); setError(e.message || t('checkout.errorUpgradeFailed')); });
       return;
     }
 
@@ -165,9 +165,9 @@ export default function UpgradeCheckout() {
         .then(function(d) {
           setLoading(false);
           if (d.invoice_url) { window.location.href = d.invoice_url; }
-          else { setError(d.error || 'Could not start checkout'); }
+          else { setError(d.error || t('checkout.errorCouldNotStartCheckout')); }
         })
-        .catch(function(e) { setLoading(false); setError(e.message || 'Checkout failed'); });
+        .catch(function(e) { setLoading(false); setError(e.message || t('checkout.errorCheckoutFailed')); });
       return;
     }
 
@@ -189,10 +189,10 @@ export default function UpgradeCheckout() {
               navigate('/dashboard?activated=1');
             }
           } else {
-            setError(d.error || 'Activation failed');
+            setError(d.error || t('checkout.errorActivationFailed'));
           }
         })
-        .catch(function(e) { setLoading(false); setError(e.message || 'Activation failed'); });
+        .catch(function(e) { setLoading(false); setError(e.message || t('checkout.errorActivationFailed')); });
       return;
     }
 
@@ -210,7 +210,7 @@ export default function UpgradeCheckout() {
 
   // ── Render ──────────────────────────────────────────────────────
   return (
-    <AppLayout title="Checkout" subtitle={'Upgrade to ' + (plan === 'pro' ? 'Pro' : 'Basic')}>
+    <AppLayout title={t('checkout.title')} subtitle={t('checkout.subtitleUpgradeTo', { plan: plan === 'pro' ? 'Pro' : 'Basic' })}>
       <style>{`
         /* Wider layout so rail descriptions fit on one line where possible.
            680 was tight — the 'works with MetaMask, Trust, Coinbase...'
@@ -319,12 +319,12 @@ export default function UpgradeCheckout() {
       <div className={'uchk-wrap' + (plan === 'pro' ? ' pro' : '')}>
 
         <Link to="/upgrade" className="uchk-back">
-          <ChevronLeft size={16}/> Change plan
+          <ChevronLeft size={16}/> {t('checkout.changePlan')}
         </Link>
 
         {alreadyOnPlan && (
           <div className="uchk-already">
-            ✓ You're already on the {plan === 'pro' ? 'Pro' : 'Basic'} plan. <Link to="/dashboard" style={{ color:'#15803d', textDecoration:'underline' }}>Go to dashboard →</Link>
+            ✓ {t('checkout.alreadyOnPlan', { plan: plan === 'pro' ? 'Pro' : 'Basic' })} <Link to="/dashboard" style={{ color:'#15803d', textDecoration:'underline' }}>{t('checkout.goToDashboardLink')}</Link>
           </div>
         )}
 
@@ -333,11 +333,11 @@ export default function UpgradeCheckout() {
             plan-coloured gradient. Pro variant via .uchk-wrap.pro cascade. */}
         <div className="uchk-summary">
           <div>
-            <div className="uchk-summary-label">You're upgrading to</div>
+            <div className="uchk-summary-label">{t('checkout.youreUpgradingTo')}</div>
             <p className="uchk-summary-tier">{plan === 'pro' ? 'Pro' : 'Basic'}</p>
           </div>
           <div className="uchk-summary-price">
-            <div className="uchk-summary-price-from">From</div>
+            <div className="uchk-summary-price-from">{t('checkout.priceFrom')}</div>
             <div className="uchk-summary-price-amount">
               ${plan === 'pro' && isBasicActive ? '15' : (plan === 'pro' ? '35' : '20')}
               <span className="uchk-summary-price-suffix">/mo</span>
@@ -355,12 +355,12 @@ export default function UpgradeCheckout() {
               <Zap size={18} color="#fff"/>
             </div>
             <div style={{ flex:1 }}>
-              <h3 className="uchk-banner-title">You're switching to Annual billing</h3>
+              <h3 className="uchk-banner-title">{t('checkout.switchToAnnualTitle')}</h3>
               <p className="uchk-banner-desc">
-                Pay {plan === 'pro' ? '$350' : '$200'} once and get a fresh 365-day
-                membership starting today. The remaining time on your monthly plan is
-                included — you save {plan === 'pro' ? '$70/year' : '$40/year'} going
-                forward.
+                {t('checkout.switchToAnnualDesc', {
+                  price: plan === 'pro' ? '$350' : '$200',
+                  savings: plan === 'pro' ? '$70/year' : '$40/year',
+                })}
               </p>
             </div>
           </div>
@@ -370,7 +370,7 @@ export default function UpgradeCheckout() {
         <div className="uchk-section">
           <div className="uchk-section-label">
             <div className="uchk-section-num">1</div>
-            {isLegitSwitch ? 'Confirm billing cadence' : 'Choose billing cadence'}
+            {isLegitSwitch ? t('checkout.confirmBillingCadence') : t('checkout.chooseBillingCadence')}
           </div>
           <div className="uchk-options-grid">
             <button
@@ -378,25 +378,25 @@ export default function UpgradeCheckout() {
               onClick={function() { if (!isLegitSwitch) setCadence('monthly'); }}
               disabled={isLegitSwitch}
             >
-              <div className="uchk-opt-label">Monthly</div>
+              <div className="uchk-opt-label">{t('checkout.cadenceMonthly')}</div>
               <div className="uchk-opt-meta">
-                ${prices[plan].monthly}/month
-                {isLegitSwitch && <span style={{ color:'#94a3b8', marginLeft:6 }}>(your current plan)</span>}
+                {t('checkout.pricePerMonth', { price: prices[plan].monthly })}
+                {isLegitSwitch && <span style={{ color:'#94a3b8', marginLeft:6 }}>{t('checkout.yourCurrentPlan')}</span>}
               </div>
               {!isLegitSwitch && prices[plan].monthlySavings > 0 && (
-                <span className="uchk-opt-savings">Save ${prices[plan].monthlySavings} (Basic credit applied)</span>
+                <span className="uchk-opt-savings">{t('checkout.saveAmount', { amount: prices[plan].monthlySavings })}</span>
               )}
             </button>
             <button
               className={'uchk-opt' + (cadence === 'annual' ? ' selected' + (plan === 'pro' ? ' pro' : '') : '')}
               onClick={function() { setCadence('annual'); }}
             >
-              <div className="uchk-opt-label">Annual</div>
+              <div className="uchk-opt-label">{t('checkout.cadenceAnnual')}</div>
               <div className="uchk-opt-meta">
-                ${prices[plan].annual}/year
-                <span style={{ color:'#94a3b8', marginLeft:6 }}>(${(prices[plan].annual / 12).toFixed(2)}/mo)</span>
+                {t('checkout.pricePerYear', { price: prices[plan].annual })}
+                <span style={{ color:'#94a3b8', marginLeft:6 }}>{t('checkout.priceEffective', { price: (prices[plan].annual / 12).toFixed(2) })}</span>
               </div>
-              <span className="uchk-opt-savings">Save ${prices[plan].annualSavings}/year</span>
+              <span className="uchk-opt-savings">{t('checkout.saveAmountPerYear', { amount: prices[plan].annualSavings })}</span>
             </button>
           </div>
         </div>
@@ -405,7 +405,7 @@ export default function UpgradeCheckout() {
         <div className="uchk-section">
           <div className="uchk-section-label">
             <div className="uchk-section-num">2</div>
-            Choose payment method
+            {t('checkout.choosePaymentMethod')}
           </div>
 
           {/* Pay from balance.
@@ -430,7 +430,7 @@ export default function UpgradeCheckout() {
           {(function() {
             var basicAnnualBalance = (plan === 'basic' && cadence === 'annual' && !isLegitSwitch);
             var balanceMsg = basicAnnualBalance
-              ? '(annual plan must use Crypto Wallet or NOWPayments)'
+              ? t('checkout.annualBalanceUnsupported')
               : null;
             return (
               <button
@@ -442,9 +442,9 @@ export default function UpgradeCheckout() {
                   <Wallet size={18} color="#fff"/>
                 </div>
                 <div style={{ flex:1 }}>
-                  <div className="uchk-rail-name">Pay from balance</div>
+                  <div className="uchk-rail-name">{t('checkout.payFromBalance')}</div>
                   <div className="uchk-rail-desc">
-                    Your balance: <strong style={{ color:'#fff' }}>${balance.toFixed(2)}</strong>
+                    {t('checkout.yourBalanceLabel')} <strong style={{ color:'#fff' }}>${balance.toFixed(2)}</strong>
                     {balanceMsg && <span style={{ color:'rgba(255,255,255,.95)', marginLeft:8 }}>{balanceMsg}</span>}
                   </div>
                 </div>
@@ -460,8 +460,8 @@ export default function UpgradeCheckout() {
               <span style={{ fontSize:18 }}>👛</span>
             </div>
             <div style={{ flex:1 }}>
-              <div className="uchk-rail-name">Crypto Wallet</div>
-              <div className="uchk-rail-desc">Pay USDT on BNB Chain — works with MetaMask, Trust, Coinbase, Rainbow, OKX and 300+ wallets</div>
+              <div className="uchk-rail-name">{t('checkout.cryptoWallet')}</div>
+              <div className="uchk-rail-desc">{t('checkout.cryptoWalletDesc')}</div>
             </div>
           </button>
 
@@ -473,8 +473,8 @@ export default function UpgradeCheckout() {
               <Globe size={18} color="#fff"/>
             </div>
             <div style={{ flex:1 }}>
-              <div className="uchk-rail-name">NOWPayments</div>
-              <div className="uchk-rail-desc">Pay with any major cryptocurrency — BTC, ETH, USDC, more</div>
+              <div className="uchk-rail-name">{t('checkout.nowpayments')}</div>
+              <div className="uchk-rail-desc">{t('checkout.nowpaymentsDesc')}</div>
             </div>
           </button>
 
@@ -483,7 +483,7 @@ export default function UpgradeCheckout() {
             <label className="uchk-renew-row">
               <input type="checkbox" checked={autoRenew} onChange={function(e) { setAutoRenew(e.target.checked); }}/>
               <div className="uchk-renew-text">
-                <strong>Auto-renew from balance</strong> — your membership renews automatically each month if your balance has the funds. Cancel anytime in settings.
+                <strong>{t('checkout.autoRenewLabel')}</strong> — {t('checkout.autoRenewDesc')}
               </div>
             </label>
           )}
@@ -504,12 +504,12 @@ export default function UpgradeCheckout() {
             // as a child — Gate doesn't pass children through in either state,
             // so the inner PayLink was never visible. User would connect their
             // wallet successfully, then have no way to pay. Fixed 9 May 2026.
-            <Suspense fallback={<button className="uchk-cta-btn" disabled>Loading wallet…</button>}>
+            <Suspense fallback={<button className="uchk-cta-btn" disabled>{t('checkout.loadingWallet')}</button>}>
               <WalletConnectProvider>
                 <div style={{ flex:1 }}>
                   <WalletConnectGate
                     hideWhenConnected
-                    label={'Connect Wallet — $' + price}
+                    label={t('checkout.connectWallet', { amount: price })}
                     style={{
                       width:'100%', padding:'16px 28px', borderRadius:13, border:'none',
                       fontSize:16, fontWeight:800, color:'#fff', letterSpacing:'.3px',
@@ -525,7 +525,7 @@ export default function UpgradeCheckout() {
                         ? (cadence === 'annual' ? 'membership_pro_annual' : 'membership_pro_upgrade')
                         : (cadence === 'annual' ? 'membership_basic_annual' : 'membership_basic')
                     }
-                    label={'Pay $' + price + ' with wallet'}
+                    label={t('checkout.payWithWallet', { amount: price })}
                     style={{
                       width:'100%', padding:'16px 28px', borderRadius:13, border:'none',
                       fontSize:16, fontWeight:800, color:'#fff', letterSpacing:'.3px',
@@ -543,15 +543,18 @@ export default function UpgradeCheckout() {
               onClick={handleSubmit}
               disabled={!ready || loading || alreadyOnPlan}
             >
-              {loading ? 'Processing…' : (
-                ready ? ('Pay $' + price + (cadence === 'annual' ? ' /year' : ' /month')) : 'Pick cadence and payment method'
+              {loading ? t('checkout.processing') : (
+                ready ? (cadence === 'annual'
+                  ? t('checkout.payAmountPerYear', { amount: price })
+                  : t('checkout.payAmountPerMonth', { amount: price })
+                ) : t('checkout.pickCadenceAndMethod')
               )}
             </button>
           )}
         </div>
 
         <div className="uchk-trust">
-          By upgrading you agree to our terms. Activates immediately. No refunds (purchase consent required).
+          {t('checkout.trustFooter')}
         </div>
 
       </div>

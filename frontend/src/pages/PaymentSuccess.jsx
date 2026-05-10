@@ -9,66 +9,66 @@ function getTypeConfig(t) {
   return {
   membership: {
     icon: '🎉',
-    title: 'Membership Activated!',
+    title: t('paymentSuccess.membershipActivated'),
     desc: t('paymentSuccess.membership'),
     action: '/dashboard',
-    actionLabel: 'Go to Dashboard',
+    actionLabel: t('paymentSuccess.goToDashboard'),
     color: 'var(--sap-green-mid)',
   },
   membership_upgrade: {
     icon: '⭐',
-    title: 'Upgraded to Pro!',
-    desc: 'Your account now has full Pro access — Marketing Suite, ProSeller AI, SuperPages, MyLeads, and more.',
+    title: t('paymentSuccess.upgradedToPro'),
+    desc: t('paymentSuccess.upgradedToProDesc'),
     action: '/dashboard',
-    actionLabel: 'Explore Pro Features',
+    actionLabel: t('paymentSuccess.exploreProFeatures'),
     color: 'var(--sap-purple)',
   },
   pif: {
     icon: '🎁',
-    title: 'Gift Voucher Created!',
-    desc: 'Your Pay It Forward voucher is ready. Share the code with anyone — they redeem it for a free month of Basic membership.',
+    title: t('paymentSuccess.giftVoucherCreated'),
+    desc: t('paymentSuccess.giftVoucherDesc'),
     action: '/pay-it-forward',
-    actionLabel: 'View My Vouchers',
+    actionLabel: t('paymentSuccess.viewMyVouchers'),
     color: 'var(--sap-pink-bright)',
   },
   grid: {
     icon: '⚡',
-    title: 'Campaign Tier Activated!',
-    desc: "Your tier is live. Watch your daily videos to keep commissions flowing — miss too many days in a row and they'll pause until you catch up.",
+    title: t('paymentSuccess.campaignTierActivated'),
+    desc: t('paymentSuccess.campaignTierDesc'),
     action: '/watch',
-    actionLabel: 'Start Watching',
+    actionLabel: t('paymentSuccess.startWatching'),
     color: 'var(--sap-indigo)',
   },
   credit_matrix: {
     icon: '💎',
-    title: 'Credit Nexus Pack Activated!',
-    desc: 'Your credits have been added and you\'ve been placed in the Credit Nexus.',
+    title: t('paymentSuccess.creditNexusActivated'),
+    desc: t('paymentSuccess.creditNexusDesc'),
     action: '/credit-nexus',
-    actionLabel: 'View Credit Nexus',
+    actionLabel: t('paymentSuccess.viewCreditNexus'),
     color: 'var(--sap-purple)',
   },
   superscene: {
     icon: '🎬',
-    title: 'Credits Added!',
+    title: t('paymentSuccess.creditsAdded'),
     desc: t('paymentSuccess.creditsReady'),
     action: '/creative-studio',
-    actionLabel: 'Go to Creative Studio',
+    actionLabel: t('paymentSuccess.goToCreativeStudio'),
     color: 'var(--sap-purple)',
   },
   course: {
     icon: '🎓',
-    title: 'Course Unlocked!',
+    title: t('paymentSuccess.courseUnlocked'),
     desc: t('paymentSuccess.courseReady'),
     action: '/courses',
-    actionLabel: 'Go to Course Library',
+    actionLabel: t('paymentSuccess.goToCourseLibrary'),
     color: 'var(--sap-purple)',
   },
   email_boost: {
     icon: '🚀',
-    title: 'Email Boost Activated!',
+    title: t('paymentSuccess.emailBoostActivated'),
     desc: t('paymentSuccess.emailCredits'),
     action: '/pro/leads',
-    actionLabel: 'Go to SuperLeads',
+    actionLabel: t('paymentSuccess.goToSuperLeads'),
     color: 'var(--sap-red-bright)',
   },
   };
@@ -212,13 +212,13 @@ export default function PaymentSuccess() {
             <div style={{ width: 64, height: 64, margin: '0 auto 20px', borderRadius: '50%', background: `${config.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Loader size={28} color={config.color} style={{ animation: 'spin 1s linear infinite' }} />
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Confirming your payment</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>{t('paymentSuccess.confirmingPayment')}</div>
             <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.6, marginBottom: 6 }}>
               {pollSeconds > 12
-                ? "Still checking with the blockchain. Some transactions take a little longer to confirm."
-                : "Your transaction is being verified on the blockchain."}
+                ? t('paymentSuccess.verifyingLong')
+                : t('paymentSuccess.verifyingShort')}
             </div>
-            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', lineHeight: 1.5 }}>This usually takes a few seconds. Please don't close this page.</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', lineHeight: 1.5 }}>{t('paymentSuccess.dontCloseHint')}</div>
             <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
           </div>
         ) : status === 'failed' ? (
@@ -228,21 +228,21 @@ export default function PaymentSuccess() {
               <div style={{ width: 64, height: 64, margin: '0 auto 16px', borderRadius: '50%', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <XCircle size={32} color="#ef4444" />
               </div>
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Payment didn't go through</div>
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: 'var(--sap-text-primary)', marginBottom: 10 }}>{t('paymentSuccess.paymentFailed')}</div>
               <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.7, marginBottom: 32 }}>
-                Your payment was not received or was cancelled. No charges were made and nothing was activated. You can try again whenever you're ready.
+                {t('paymentSuccess.paymentFailedDesc')}
               </div>
               <button
                 onClick={function() { navigate(-1); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Sora,sans-serif', boxShadow: '0 4px 16px rgba(239,68,68,0.4)', marginBottom: 12, width: '100%', justifyContent: 'center' }}
               >
-                Try Again
+                {t('paymentSuccess.tryAgain')}
               </button>
               <button
                 onClick={function() { navigate('/dashboard'); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: '1px solid #e8ecf2', background: '#fff', color: 'var(--sap-text-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%', justifyContent: 'center' }}
               >
-                <Home size={14} /> Back to Dashboard
+                <Home size={14} /> {t('paymentSuccess.backToDashboard')}
               </button>
             </div>
           </div>
@@ -253,18 +253,18 @@ export default function PaymentSuccess() {
               <div style={{ width: 64, height: 64, margin: '0 auto 16px', borderRadius: '50%', background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Loader size={32} color="#f59e0b" style={{ animation: 'spin 2s linear infinite' }} />
               </div>
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Still processing</div>
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: 'var(--sap-text-primary)', marginBottom: 10 }}>{t('paymentSuccess.stillProcessing')}</div>
               <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.7, marginBottom: 12 }}>
-                Your payment is taking longer than usual to confirm on the blockchain. This can happen during busy periods.
+                {t('paymentSuccess.stillProcessingDesc')}
               </div>
               <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', lineHeight: 1.6, marginBottom: 32 }}>
-                It's safe to leave this page. We'll activate your purchase automatically as soon as the payment confirms — usually within a few minutes. You'll see it appear in your wallet.
+                {t('paymentSuccess.safeToLeave')}
               </div>
               <button
                 onClick={function() { navigate('/dashboard'); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 12, border: 'none', background: `linear-gradient(135deg, ${config.color}, ${config.color}cc)`, color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Sora,sans-serif', boxShadow: `0 4px 16px ${config.color}40`, marginBottom: 12, width: '100%', justifyContent: 'center' }}
               >
-                <Home size={16} /> Back to Dashboard
+                <Home size={16} /> {t('paymentSuccess.backToDashboard')}
               </button>
             </div>
           </div>
