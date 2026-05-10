@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '../utils/api';
 import AppLayout from '../components/layout/AppLayout';
-import { Gift, Copy, Check, Heart, ExternalLink, ChevronRight } from 'lucide-react';
+import { Gift, Copy, Check, Heart, ExternalLink, ChevronRight, Share2 } from 'lucide-react';
 import { useConsentGate } from '../components/PurchaseConsentModal';
 
 // Step 4 triple-rail audit (7 May 2026): WalletConnect rail for PIF.
@@ -23,9 +23,11 @@ export default function PayItForward() {
   var [recipientName, setRecipientName] = useState('');
   var [message, setMessage] = useState('');
   var [newLink, setNewLink] = useState('');
+  var [newRecipientName, setNewRecipientName] = useState(''); // captured at create-time so success banner shows the right name even after form clears
   var [copied, setCopied] = useState('');
   var [error, setError] = useState('');
   var [success, setSuccess] = useState('');
+  var [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'available' | 'claimed' — list filter for "Your gift vouchers" section
 
   // Consent gate hook — MUST be called before any early return so the
   // hook count is stable across renders. The first render returns the
@@ -64,10 +66,12 @@ export default function PayItForward() {
       }
       if (r.success) {
         setNewLink(r.link);
+        setNewRecipientName(recipientName); // capture before clear so banner can say "share with [name]"
         setSuccess(t('payItForward.giftCreated'));
         setShowForm(false);
         setRecipientName('');
         setMessage('');
+        setStatusFilter('all'); // ensure the just-created voucher is visible regardless of prior filter
         loadData();
       } else {
         setError(r.error || t('payItForward.createFailed'));
@@ -83,6 +87,31 @@ export default function PayItForward() {
     navigator.clipboard.writeText(link);
     setCopied(link);
     setTimeout(function() { setCopied(''); }, 2000);
+  }
+
+  // Native share where available (mobile WhatsApp/Messages/Email),
+  // silently falls back to clipboard copy on desktop browsers without
+  // navigator.share. Async because navigator.share returns a promise
+  // that rejects on user-cancel — we suppress that case (not an error).
+  async function shareLink(link, recipient) {
+    var shareData = {
+      title: 'A gift for you from SuperAdPro',
+      text: recipient
+        ? "I've sent you a free month of SuperAdPro — click to claim:"
+        : "I've sent you a free month of SuperAdPro — click to claim:",
+      url: link,
+    };
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        // AbortError = user cancelled the native share sheet — that's fine, do nothing.
+        if (err && err.name === 'AbortError') return;
+        // Any other error — fall through to copy fallback.
+      }
+    }
+    copyLink(link);
   }
 
   if (loading) return (
@@ -199,16 +228,56 @@ export default function PayItForward() {
       {/* Error / Success */}
       {error && <div style={{ padding:'12px 16px', background:'var(--sap-red-bg)', border:'1px solid #fecaca', borderRadius:10, marginBottom:16, fontSize:14, fontWeight:600, color:'var(--sap-red)' }}>{error}</div>}
       {success && (
-        <div style={{ padding:'16px 20px', background:'var(--sap-green-bg)', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:16 }}>
-          <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-green-dark)', marginBottom:8 }}>{success}</div>
+        <div style={{
+          padding:'20px 22px',
+          background:'linear-gradient(135deg, var(--sap-green-bg), #ecfccb)',
+          border:'2px solid var(--sap-green-mid)',
+          borderRadius:14,
+          marginBottom:16,
+          boxShadow:'0 4px 14px rgba(34,197,94,0.18)',
+          position:'relative',
+        }}>
+          {/* Dismiss button — top right. Clears just the banner, leaving
+              the voucher in the list below. */}
+          <button onClick={function() { setSuccess(''); setNewLink(''); setNewRecipientName(''); }}
+            aria-label="Dismiss"
+            style={{ position:'absolute', top:10, right:10, width:28, height:28, borderRadius:8, border:'none', background:'transparent', cursor:'pointer', color:'var(--sap-text-muted)', fontSize:18, lineHeight:1, fontFamily:'inherit' }}>
+            ×
+          </button>
+
+          <div style={{ fontSize:18, fontWeight:800, color:'var(--sap-green-dark)', marginBottom:4, paddingRight:32 }}>
+            🎉 {success}
+          </div>
+          <div style={{ fontSize:14, color:'var(--sap-green-dark)', opacity:.85, marginBottom:14 }}>
+            {newRecipientName
+              ? <>Now share the link with <strong>{newRecipientName}</strong> to give them a free month.</>
+              : <>Share the link below to give someone a free month.</>}
+          </div>
+
           {newLink && (
-            <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-              <input value={newLink} readOnly style={{ flex:1, padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:15, fontFamily:'inherit', background:'#fff' }}/>
-              <button onClick={function() { copyLink(newLink); }}
-                style={{ padding:'10px 16px', borderRadius:8, border:'none', background: copied === newLink ? 'var(--sap-green-mid)' : 'var(--sap-purple)', color:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:700, display:'flex', alignItems:'center', gap:4 }}>
-                {copied === newLink ? <><Check size={14}/> {t('payItForward.copiedLabel')}</> : <><Copy size={14}/> {t('payItForward.copyBtn')}</>}
-              </button>
-            </div>
+            <>
+              {/* The link itself — readonly, click-to-select on focus */}
+              <input value={newLink} readOnly
+                onFocus={function(e) { e.target.select(); }}
+                style={{ width:'100%', padding:'10px 14px', border:'1px solid #bbf7d0', borderRadius:8, fontSize:14, fontFamily:'monospace', background:'#fff', boxSizing:'border-box', marginBottom:10 }}
+              />
+
+              {/* Share + Copy buttons. Share is primary (most users on
+                  mobile and it opens the native share sheet — WhatsApp,
+                  Messages, etc). Copy stays as the secondary fallback
+                  for desktop / when share sheet doesn't list the right
+                  app. */}
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                <button onClick={function() { shareLink(newLink, newRecipientName); }}
+                  style={{ flex:'1 1 140px', padding:'12px 18px', borderRadius:10, border:'none', background:'var(--sap-purple)', color:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:15, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+                  <Share2 size={16}/> Share
+                </button>
+                <button onClick={function() { copyLink(newLink); }}
+                  style={{ flex:'1 1 140px', padding:'12px 18px', borderRadius:10, border:'1px solid var(--sap-green-mid)', background: copied === newLink ? 'var(--sap-green-mid)' : '#fff', color: copied === newLink ? '#fff' : 'var(--sap-green-dark)', cursor:'pointer', fontFamily:'inherit', fontSize:15, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center', gap:6, transition:'all .15s' }}>
+                  {copied === newLink ? <><Check size={16}/> {t('payItForward.copiedLabel')}</> : <><Copy size={16}/> {t('payItForward.copyBtn')}</>}
+                </button>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -345,18 +414,67 @@ export default function PayItForward() {
       )}
 
       {/* My Vouchers */}
-      {vouchers.length > 0 && (
+      {vouchers.length > 0 && (() => {
+        // Compute the filter buckets up-front so the pills can show
+        // counts (matches the way the existing stat-card numbers work).
+        var availableCount = vouchers.filter(function(v) { return v.status !== 'claimed'; }).length;
+        var claimedCount = vouchers.filter(function(v) { return v.status === 'claimed'; }).length;
+        var visibleVouchers = vouchers.filter(function(v) {
+          if (statusFilter === 'all') return true;
+          if (statusFilter === 'claimed') return v.status === 'claimed';
+          if (statusFilter === 'available') return v.status !== 'claimed';
+          return true;
+        });
+
+        // Pill style helper — mutually-exclusive selected state, matches
+        // the cobalt-pill aesthetic used elsewhere in the platform.
+        var pillBase = { padding:'6px 14px', borderRadius:999, fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer', border:'1px solid #e2e8f0', background:'#fff', color:'var(--sap-text-muted)', transition:'all .12s' };
+        var pillActive = { background:'var(--sap-purple)', color:'#fff', borderColor:'var(--sap-purple)' };
+
+        return (
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, overflow:'hidden', marginBottom:24 }}>
-          <div style={{ padding:'16px 20px', borderBottom:'1px solid #e2e8f0' }}>
+          <div style={{ padding:'16px 20px', borderBottom:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)' }}>{t('payItForward.yourGiftVouchers')}</div>
+            {/* Status filter pills — only show if there's something to
+                filter (≥1 of each bucket). Avoids visual noise for users
+                with only one or two vouchers total. */}
+            {(availableCount > 0 && claimedCount > 0) && (
+              <div style={{ display:'flex', gap:6 }}>
+                <button onClick={function() { setStatusFilter('all'); }}
+                  style={Object.assign({}, pillBase, statusFilter === 'all' ? pillActive : {})}>
+                  All ({vouchers.length})
+                </button>
+                <button onClick={function() { setStatusFilter('available'); }}
+                  style={Object.assign({}, pillBase, statusFilter === 'available' ? pillActive : {})}>
+                  Available ({availableCount})
+                </button>
+                <button onClick={function() { setStatusFilter('claimed'); }}
+                  style={Object.assign({}, pillBase, statusFilter === 'claimed' ? pillActive : {})}>
+                  Claimed ({claimedCount})
+                </button>
+              </div>
+            )}
           </div>
-          {vouchers.map(function(v) {
+
+          {/* Empty state for filter that matches no rows — only possible
+              if user picked a filter then all matching vouchers vanished.
+              Realistically rare but a defensive UX touch. */}
+          {visibleVouchers.length === 0 ? (
+            <div style={{ padding:'40px 20px', textAlign:'center', color:'var(--sap-text-muted)', fontSize:14 }}>
+              No {statusFilter} vouchers to show.
+            </div>
+          ) : visibleVouchers.map(function(v) {
             var isClaimed = v.status === 'claimed';
             var act = v.recipient_activity || {};
+            // Truncate the link for display — full link still on the
+            // copy/share action. Keeps the row visually clean on mobile.
+            var displayLink = v.link
+              ? (v.link.length > 42 ? v.link.slice(0, 28) + '…' + v.link.slice(-10) : v.link)
+              : '';
             return (
               <div key={v.id} style={{ padding:'14px 20px', borderBottom:'1px solid #f1f5f9' }}>
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:12, minWidth:0, flex:1 }}>
+                <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
+                  <div style={{ display:'flex', alignItems:'flex-start', gap:12, minWidth:0, flex:1 }}>
                     <div style={{
                       width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
                       background: isClaimed ? 'var(--sap-green-bg)' : '#fdf4ff',
@@ -381,13 +499,30 @@ export default function PayItForward() {
                         )}
                         {v.chain_depth > 1 && <> · Chain depth {v.chain_depth}</>}
                       </div>
+                      {/* Visible truncated link for unclaimed vouchers — so
+                          the user can SEE what they're about to share before
+                          tapping. Helps build trust ("yes that's the right
+                          link") and aids debugging support tickets. */}
+                      {!isClaimed && v.link && (
+                        <div style={{ fontSize:12, color:'#7c3aed', fontFamily:'monospace', marginTop:4, wordBreak:'break-all' }}>
+                          {displayLink}
+                        </div>
+                      )}
                     </div>
                   </div>
                   {!isClaimed && (
-                    <button onClick={function() { copyLink(v.link); }}
-                      style={{ padding:'6px 12px', borderRadius:6, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:700, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4, flexShrink:0 }}>
-                      {copied === v.link ? <><Check size={12}/> {t('payItForward.copiedLabel')}</> : <><Copy size={12}/> {t('payItForward.copyLinkBtn')}</>}
-                    </button>
+                    <div style={{ display:'flex', gap:6, flexShrink:0 }}>
+                      <button onClick={function() { shareLink(v.link, v.recipient_name); }}
+                        title="Share"
+                        style={{ padding:'8px 12px', borderRadius:8, border:'none', background:'var(--sap-purple)', color:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:700, display:'flex', alignItems:'center', gap:4 }}>
+                        <Share2 size={13}/> Share
+                      </button>
+                      <button onClick={function() { copyLink(v.link); }}
+                        title="Copy link"
+                        style={{ padding:'8px 10px', borderRadius:8, border:'1px solid #e2e8f0', background: copied === v.link ? 'var(--sap-green-bg)' : '#fff', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:700, color: copied === v.link ? 'var(--sap-green-dark)' : 'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4, transition:'all .12s' }}>
+                        {copied === v.link ? <><Check size={13}/></> : <><Copy size={13}/></>}
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -416,7 +551,8 @@ export default function PayItForward() {
             );
           })}
         </div>
-      )}
+        );
+      })()}
 
       {/* How it works */}
       <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px' }}>
