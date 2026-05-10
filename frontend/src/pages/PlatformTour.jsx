@@ -59,6 +59,8 @@ function getSections(t) { return [
     tips: [t('platformTour.s6_tip1'), t('platformTour.s6_tip2'), t('platformTour.s6_tip3'), t('platformTour.s6_tip4'), t('platformTour.s6_tip5')],
     link: '/wallet', linkLabel: t('platformTour.s6_link'),
     Icon: Wallet, color: 'var(--sap-green-dark)', bg: '#d1fae5',
+    videoSrc: '/static/downloads/tour-videos/wallet-tour.mp4',
+    posterSrc: '/static/downloads/tour-videos/wallet-tour-poster.jpg',
   },
 ];}
 
