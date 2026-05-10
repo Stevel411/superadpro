@@ -208,6 +208,7 @@ class User(Base):
     membership_expires_at   = Column(DateTime, nullable=True)               # next renewal date
     membership_billing      = Column(String, default="monthly")             # "monthly" or "annual"
     activated_at            = Column(DateTime, nullable=True)               # first payment / activation timestamp; preserved on subsequent renewals
+    stuck_lapsed_alerted_at = Column(DateTime, nullable=True)               # set by /cron/stuck-lapsed-alert when this user is first detected as stuck-lapsed; cleared on reactivation. Idempotency for the alert email — same user only emails once.
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -2345,6 +2346,15 @@ try:
         print("✅ activated_at column added/verified on users table")
 except Exception as e:
     print(f"⚠️ activated_at migration failed: {e}")
+
+# ── stuck_lapsed_alerted_at migration (isolated, same reason as activated_at above) ──
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS stuck_lapsed_alerted_at TIMESTAMP"))
+        conn.commit()
+        print("✅ stuck_lapsed_alerted_at column added/verified on users table")
+except Exception as e:
+    print(f"⚠️ stuck_lapsed_alerted_at migration failed: {e}")
 
 # ── Rename supercut -> superscene tables (one-time migration) ──
 try:

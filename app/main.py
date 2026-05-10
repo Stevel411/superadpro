@@ -14999,6 +14999,190 @@ async def cron_daily_briefing(
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
 
+@app.get("/cron/stuck-lapsed-alert")
+async def cron_stuck_lapsed_alert(
+    request: Request,
+    secret: str = "",
+    dryrun: int = 0,
+    db: Session = Depends(get_db),
+):
+    """Hourly check: any users in stuck-lapsed state we haven't already
+    alerted on? If yes, email Steve with the list and stamp their
+    stuck_lapsed_alerted_at so we don't re-alert.
+
+    Same detection criteria as /admin/api/stuck-lapsed-members:
+        is_active=False
+        AND has a future MembershipRenewal.next_renewal_date
+        AND not in grace period
+        AND has at least one paid membership Payment
+
+    On reactivation via /admin/api/reactivate-stuck-lapsed, the flag is
+    cleared so the user is eligible to alert again if they re-stick.
+
+    Auth: ?secret=<CRON_SECRET>
+    Dryrun: ?dryrun=1 — detects but doesn't email or stamp.
+
+    Built 10 May 2026 to complement the daily briefing — that runs once
+    a day and would miss a stuck-lapsed user who appears between briefings.
+    """
+    from fastapi.responses import JSONResponse
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+
+    started_at = datetime.utcnow()
+
+    try:
+        from .database import MembershipRenewal
+        now = datetime.utcnow()
+
+        # Same query as /admin/api/stuck-lapsed-members but filtered to
+        # users we haven't already alerted on this stuck-cycle.
+        candidates = (
+            db.query(User, MembershipRenewal)
+              .join(MembershipRenewal, MembershipRenewal.user_id == User.id)
+              .filter(
+                  User.is_active == False,
+                  User.stuck_lapsed_alerted_at.is_(None),
+                  MembershipRenewal.next_renewal_date > now,
+                  MembershipRenewal.in_grace_period == False,
+              )
+              .all()
+        )
+
+        new_stuck = []
+        for u, r in candidates:
+            has_paid_payment = db.query(Payment).filter(
+                Payment.from_user_id == u.id,
+                Payment.payment_type.like("membership%"),
+                Payment.status.in_(["confirmed", "paid"]),
+            ).first()
+            if not has_paid_payment:
+                continue
+
+            new_stuck.append({
+                "user_id": u.id,
+                "username": u.username,
+                "first_name": u.first_name or "",
+                "membership_tier": u.membership_tier,
+                "next_renewal_date": r.next_renewal_date.isoformat(),
+                "user_obj": u,
+            })
+
+        if not new_stuck:
+            return {
+                "ok": True,
+                "new_stuck_count": 0,
+                "checked_at": now.isoformat(),
+            }
+
+        # Build the alert email
+        rows_html = ""
+        for s in new_stuck:
+            rows_html += (
+                f"<tr>"
+                f"<td style='padding:8px 12px;border-bottom:1px solid #e2e8f0;font-family:Sora,sans-serif'>{s['username']}</td>"
+                f"<td style='padding:8px 12px;border-bottom:1px solid #e2e8f0;font-family:Sora,sans-serif'>{s['first_name']}</td>"
+                f"<td style='padding:8px 12px;border-bottom:1px solid #e2e8f0;font-family:Sora,sans-serif'>Tier {s['membership_tier']}</td>"
+                f"<td style='padding:8px 12px;border-bottom:1px solid #e2e8f0;font-family:Sora,sans-serif;color:#64748b;font-size:12px'>{s['next_renewal_date'][:10]}</td>"
+                f"</tr>"
+            )
+
+        recipient = os.environ.get("DAILY_BRIEFING_EMAIL", "")
+        recipient_name = os.environ.get("DAILY_BRIEFING_NAME", "Steve")
+        email_sent = False
+
+        if recipient and not dryrun:
+            try:
+                from .brevo_service import send_email, wrap_email_html
+                html_body = wrap_email_html(
+                    f"""
+                    <h2 style="font-family:Sora,sans-serif;color:#0f172a;margin:0 0 8px">
+                        ⚠️  Stuck-lapsed user{'s' if len(new_stuck) > 1 else ''} detected
+                    </h2>
+                    <p style="color:#64748b;font-size:13px;margin:0 0 24px">
+                        {now.strftime('%Y-%m-%d %H:%M UTC')} — {len(new_stuck)} new
+                    </p>
+
+                    <p style="color:#0f172a;font-family:Sora,sans-serif;line-height:1.6;margin:0 0 16px">
+                        The following member{'s have' if len(new_stuck) > 1 else ' has'} appeared as
+                        <strong>stuck-lapsed</strong> — paid membership, intact renewal data, but
+                        flagged inactive. They cannot use the platform until reactivated.
+                    </p>
+
+                    <table style="border-collapse:collapse;width:100%;margin:0 0 24px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+                        <thead>
+                            <tr style="background:#f8fafc">
+                                <th style="padding:10px 12px;text-align:left;font-family:Sora,sans-serif;font-size:13px;color:#475569">Username</th>
+                                <th style="padding:10px 12px;text-align:left;font-family:Sora,sans-serif;font-size:13px;color:#475569">Name</th>
+                                <th style="padding:10px 12px;text-align:left;font-family:Sora,sans-serif;font-size:13px;color:#475569">Tier</th>
+                                <th style="padding:10px 12px;text-align:left;font-family:Sora,sans-serif;font-size:13px;color:#475569">Renews</th>
+                            </tr>
+                        </thead>
+                        <tbody>{rows_html}</tbody>
+                    </table>
+
+                    <p style="color:#0f172a;font-family:Sora,sans-serif;line-height:1.6;margin:0 0 16px">
+                        <strong>To investigate:</strong>
+                        <a href="https://www.superadpro.com/admin/api/stuck-lapsed-members" style="color:#2563eb">/admin/api/stuck-lapsed-members</a>
+                    </p>
+
+                    <p style="color:#0f172a;font-family:Sora,sans-serif;line-height:1.6;margin:0 0 16px">
+                        <strong>To reactivate (POST):</strong>
+                        <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px">POST /admin/api/reactivate-stuck-lapsed</code>
+                        — add <code>?dry_run=1</code> first to preview.
+                    </p>
+
+                    <p style="color:#64748b;font-size:12px;margin:24px 0 0">
+                        You'll only get this email once per stuck user. If they're reactivated
+                        and then re-stick, you'll be alerted again.
+                    </p>
+                    """
+                )
+                await send_email(
+                    to_email=recipient,
+                    to_name=recipient_name,
+                    subject=f"⚠️  SuperAdPro — {len(new_stuck)} stuck-lapsed user{'s' if len(new_stuck) > 1 else ''}",
+                    html_content=html_body,
+                )
+                email_sent = True
+            except Exception as e:
+                logger.error(f"[stuck-lapsed-alert] Email send failed: {e}")
+
+        # Stamp the users so we don't re-alert next hour (only if email
+        # actually sent — if email failed, leave flag null so we retry)
+        stamped_ids = []
+        if email_sent and not dryrun:
+            for s in new_stuck:
+                s["user_obj"].stuck_lapsed_alerted_at = now
+                stamped_ids.append(s["user_id"])
+            db.commit()
+
+        duration_ms = int((datetime.utcnow() - started_at).total_seconds() * 1000)
+        logger.info(
+            f"[CRON] stuck-lapsed-alert: {len(new_stuck)} new, email_sent={email_sent}, "
+            f"stamped={len(stamped_ids)}, duration={duration_ms}ms"
+        )
+
+        return {
+            "ok": True,
+            "dryrun": bool(dryrun),
+            "new_stuck_count": len(new_stuck),
+            "stuck_users": [
+                {k: v for k, v in s.items() if k != "user_obj"}
+                for s in new_stuck
+            ],
+            "email_sent": email_sent,
+            "email_recipient": recipient if email_sent else None,
+            "stamped_count": len(stamped_ids),
+            "duration_ms": duration_ms,
+        }
+    except Exception as e:
+        import traceback
+        logger.error(f"[stuck-lapsed-alert] FAILED: {traceback.format_exc()}")
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
+
+
 @app.post("/api/command-centre/nudge-lapsed")
 async def api_command_centre_nudge_lapsed(
     request: Request,
@@ -22308,6 +22492,7 @@ def admin_reactivate_stuck_lapsed_members(
 
         if not dry_run:
             u.is_active = True
+            u.stuck_lapsed_alerted_at = None  # eligible for re-alert if they ever re-stick
             try:
                 notif = Notification(
                     user_id=u.id,
