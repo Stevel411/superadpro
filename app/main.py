@@ -3047,7 +3047,7 @@ def wallet_guide(request: Request):
 def apple_touch_icon():
     """iOS looks for touch icon at root level."""
     from fastapi.responses import FileResponse
-    import os
+    from pathlib import Path
     icon_path = Path("static/icons/apple-touch-icon.png")
     if icon_path.exists():
         return FileResponse(str(icon_path), media_type="image/png")
@@ -3083,6 +3083,7 @@ def serve_welcome_video(request: Request):
     """
     from fastapi.responses import FileResponse
     from fastapi import HTTPException
+    from pathlib import Path
 
     # Prefer the mobile-optimised re-encode if present, fall back to the
     # full-quality original. Both are committed in static/images/.
