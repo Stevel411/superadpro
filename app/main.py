@@ -1684,6 +1684,15 @@ def api_member_story_prompt_check(request: Request, db: Session = Depends(get_db
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
+    # Skip for admin accounts. Admins sit at the top of every referral tree
+    # so they'll accrue membership_sponsor commissions on every signup, and
+    # the banner copy ('share how you did it') doesn't fit the founder
+    # context — they'd see this banner re-fire every time a real member
+    # joins. Added 10 May 2026 after Steve's own dashboard kept showing
+    # the prompt post-launch.
+    if getattr(user, 'is_admin', False):
+        return {"show": False, "reason": "admin_account"}
+
     # Already submitted? Skip the nudge entirely.
     existing_story = db.query(MemberStory).filter(MemberStory.user_id == user.id).first()
     if existing_story:
