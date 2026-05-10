@@ -22,10 +22,13 @@ The single most important verified fact: **WalletConnect membership purchase wor
 - **Switch-to-Annual path** (`/api/switch-to-annual`) is shipped but UNTESTED with real money. Engine classifier defends against worst outcome (commission double-pay), but the path itself is new code only validated logically. If a Monthly→Annual switch fails on launch day, that's where to look first.
 - **NOWPayments rail** — third-party processor redirect path. Not exercised in last night's smoke test. Should work — no recent code changes — but worth noting.
 - **Cache invalidation audit** — the 5s TTL fix from 9 May papers over a deeper issue: `cache_invalidate_user()` only clears keys with `dash:` and `analytics:` prefixes, but there are also `descendants:`, `withdrawn:`, `earnings:` namespaces that aren't invalidated. Several commission-credit sites bypass `create_notification()` (the only place that calls invalidation), going directly to `Notification(...)`. **Post-launch work**: extend the invalidator to all user-keyed prefixes AND wire up invalidation calls at every commission write site.
+- **`membership_company` row write verification** — `b3a1d405` added the missing company-share commission row to `_activate_membership`. Next real WalletConnect or NOWPayments membership activation should produce TWO commission rows (one `membership_sponsor` to the sponsor, one `membership_company` with `to_user_id IS NULL`), not one. Verify by running `commission_audit` after the next activation: the `membership` bucket should now show both commission types.
 - **Audit endpoint** (`GET /admin/api/audit-double-pays`) — should always return 0 active users with suspect commissions. Run once or twice a day for the first week. If it ever returns >0, stop and investigate immediately.
 
 ## Recently shipped (last 7 days)
 
+- b3a1d405 Bookkeeping fix: `_activate_membership` now writes the `membership_company` row (10 May)
+- b305fdcf MCP monitoring: bucket commissions table by income stream — also fixed latent reconciliation bug in `financial_sanity` (10 May)
 - 6acd877 membership_tier='basic' default lie eliminated — proper data model fix (10 May)
 - 0e28a21 Logout race condition: ProtectedRoute + RequireTier now route unauth to / (10 May)
 - 2d49a05 Onboarding wizard → dismissible banner on dashboard (10 May)
@@ -69,6 +72,7 @@ The single most important verified fact: **WalletConnect membership purchase wor
 - **Welcome video subtitles/captions** — accessibility gap, not blocking.
 - **405 console error on `/upgrade/checkout`** — logged but never investigated. Likely benign browser prefetch trying POST. Won't block launch but should be confirmed dismissable.
 - **Pay-It-Forward sales/info page** — entry point to the gift-video story was discussed but never built. Right now PIF is reachable only via direct URL or sidebar; no marketing landing.
+- **Historical `membership_company` backfill** — `b3a1d405` fixes future activations only. Every membership activation that went through `_activate_membership` since WalletConnect went live is missing its company-side commission row in the ledger (no missing money, only missing bookkeeping rows). Backfill is straightforward: scan `payments` table for `payment_type IN ('membership', 'membership_upgrade', 'membership_cadence_switch')` with `status='confirmed'` and insert the matching `membership_company` row using `actual_charge - existing_sponsor_share`. Decide whether to run this based on whether you'll ever want historically accurate company-revenue reports.
 
 ## Pending decisions
 
@@ -96,5 +100,6 @@ If you (future Claude) are reading this in a fresh session, the most useful thin
 3. Read `docs/commission-spec.md` before writing any commission-related code or copy. It's the canonical truth on percentages and flows.
 4. If a user reports a "stuck" or "double-paid" issue, run `/admin/api/audit-double-pays` first before assuming it's a new bug class.
 5. CSS tokens live in `static/design-tokens.css` (70+ vars). Do not introduce hardcoded hex values into new components.
+6. The `commissions` table is multi-purpose — it holds Profit Grid events, membership commissions, Pay It Forward gift redemptions, and admin adjustments. Never assume "row in commissions table = grid event". When grouping commission_type values for any report, use `mcp/tools/_commission_buckets.py` as the single source of truth (`bucket_for(commission_type)` returns one of `profit_grid` / `membership` / `admin` / `other`). When a new `commission_type` value is introduced anywhere in the codebase, add it to that helper.
 
 When you finish a session that introduced something noteworthy, update the "Recently shipped" and "Currently watching" sections of this file before pushing. Keep the format identical so the daily briefing parser doesn't break.
