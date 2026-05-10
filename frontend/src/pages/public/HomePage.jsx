@@ -253,14 +253,14 @@ var CSS_HOMEPAGE = `
 }
 @media(max-width:768px){
   .home-page .float-nav{top:16px;right:16px;gap:6px}
-  /* Hide the Explore + Sign-in pills on mobile (the float-nav-cta and the
-     language picker stay visible). Previously this used :nth-child which
-     was both fragile and wrong — the language picker is wrapped in
-     .float-lang-wrap so the nth-child math drifted, and on some phones
-     the language picker disappeared entirely. Targeting by class is
-     unambiguous. Order in the DOM stays Explore / Lang / Sign-in /
-     Get Started, so on mobile we render: Lang + Get Started. */
-  .home-page .float-nav-link{display:none}
+  /* Explore nav link stays visible on mobile (was previously hidden along
+     with sign-in for top-bar declutter, but that left mobile users with no
+     obvious path to /explore — only the hero secondary CTA, which reads
+     'Watch the 90 second tour' rather than 'Explore'. Steve found this on
+     the 10 May 2026 launch-day mobile audit). To keep the bar tidy on
+     small screens, only Sign-in is hidden — Explore + Lang picker +
+     Get Started CTA all render. */
+  .home-page .float-nav-link[href="/login"] { display: none; }
   .home-page .brand-hero-mark{width:56px;height:56px}
   .home-page .brand-hero-name{font-size:40px}
   .home-page h1.headline{font-size:clamp(36px,10vw,54px)}
