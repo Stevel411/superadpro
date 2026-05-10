@@ -3052,6 +3052,65 @@ def apple_touch_icon():
     if icon_path.exists():
         return FileResponse(str(icon_path), media_type="image/png")
     return FileResponse(str(Path("static/icons/icon-192.png")), media_type="image/png")
+
+
+@app.get("/media/welcome-video")
+def serve_welcome_video(request: Request):
+    """Stream the explore-page welcome video with proper HTTP Range support.
+
+    Background — bug found 10 May 2026 launch day:
+        The 90-second tour video on /explore was a black screen on iOS Safari
+        even after tapping play. Investigation found Cloudflare was caching
+        the file at /static/images/explore-welcome.mp4 as immutable (1-year
+        cache header from StaticFiles) and serving cached responses with
+        '200 OK' instead of '206 Partial Content' for Range requests. iOS
+        Safari sends Range:bytes=0-1 as a streaming probe and refuses to
+        play any video where the server can't return 206. Black screen.
+
+    The fix:
+        - Re-encode the video to mobile-friendly 720p H.264 baseline (8MB
+          vs the original 21MB, plays on every iOS made in the last 8 years).
+        - Serve via this endpoint instead of /static/images/. FastAPI's
+          FileResponse auto-handles Range correctly (returns 206 with
+          Content-Range when requested).
+        - Short Cache-Control (5 min) so Cloudflare doesn't latch onto a
+          full-file response and serve it as 200 to subsequent Range probes.
+        - Explicit Accept-Ranges header to advertise capability.
+
+    Frontend uses /media/welcome-video instead of /static/images/explore-welcome.mp4
+    so we don't disrupt anything else served from the static mount. The
+    original .mp4 stays where it is for backwards compat.
+    """
+    from fastapi.responses import FileResponse
+    from fastapi import HTTPException
+
+    # Prefer the mobile-optimised re-encode if present, fall back to the
+    # full-quality original. Both are committed in static/images/.
+    mobile_path = Path("static/images/explore-welcome-mobile.mp4")
+    full_path = Path("static/images/explore-welcome.mp4")
+    video_path = mobile_path if mobile_path.exists() else full_path
+
+    if not video_path.exists():
+        raise HTTPException(status_code=404, detail="Welcome video not found")
+
+    response = FileResponse(
+        str(video_path),
+        media_type="video/mp4",
+        # FileResponse auto-handles Range. We just add the headers Cloudflare
+        # needs to behave correctly on subsequent requests.
+        headers={
+            # 5-minute cache — long enough to absorb traffic spikes but short
+            # enough that Cloudflare won't pin a non-Range response. Combined
+            # with the Range-aware FileResponse, this gives Safari what it
+            # expects on every fetch.
+            "Cache-Control": "public, max-age=300, no-transform",
+            # Explicitly advertise byte-range capability so clients don't
+            # have to probe with a HEAD first.
+            "Accept-Ranges": "bytes",
+        },
+    )
+    return response
+
 @app.get("/earn")
 def earn_page(request: Request):
     """Affiliate recruitment landing page."""

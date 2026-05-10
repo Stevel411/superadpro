@@ -80,7 +80,13 @@ export default function ExploreHub() {
             </p>
           </div>
 
-          {/* Welcome video — autoplays muted on load, users unmute via native controls */}
+          {/* Welcome video — autoplays muted on load, users unmute via native controls.
+              Served via /media/welcome-video (a custom FastAPI endpoint with proper
+              Range support) rather than the static mount, because Cloudflare was
+              stripping Range responses from /static/ assets and breaking iOS Safari
+              playback. See main.py serve_welcome_video docstring for full bug history.
+              Poster + preload="auto" mean the user sees a meaningful first-frame
+              thumbnail even before tapping play, instead of a generic black box. */}
           <div className="hub-video">
             <div className="hub-video-frame">
               <video
@@ -90,10 +96,11 @@ export default function ExploreHub() {
                 loop
                 playsInline
                 controls
-                preload="metadata"
+                preload="auto"
+                poster="/static/images/explore-welcome-poster.jpg"
                 style={{ width: '100%', height: '100%', display: 'block', borderRadius: 18, background: '#000', objectFit: 'cover' }}
               >
-                <source src="/static/images/explore-welcome.mp4" type="video/mp4"/>
+                <source src="/media/welcome-video" type="video/mp4"/>
               </video>
             </div>
           </div>
