@@ -26,7 +26,11 @@ export default function ProSeller() {
     setMessages(function(m){return m.concat([{role:'user',content:msg}]);});
     setLoading(true);
     apiPost('/api/proseller/chat',{message:msg,history:messages}).then(function(res){
-      setMessages(function(m){return m.concat([{role:'assistant',content:res.reply||res.message||'Let me help you with that.'}]);});setLoading(false);
+      // Backend returns {response: "..."} — was reading res.reply || res.message
+      // which never exist, so every reply fell through to the placeholder.
+      // Bug surfaced 10 May 2026 launch day, fixed same hour. Fallback kept
+      // for the rare 5xx that returns nothing.
+      setMessages(function(m){return m.concat([{role:'assistant',content:res.response||res.reply||res.message||'Let me help you with that.'}]);});setLoading(false);
     }).catch(function(){setMessages(function(m){return m.concat([{role:'assistant',content:'Sorry, something went wrong. Please try again.'}]);});setLoading(false);});
   }
 
