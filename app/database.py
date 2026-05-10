@@ -187,6 +187,11 @@ class User(Base):
     created_at          = Column(DateTime, default=datetime.utcnow)
     membership_activated_by_referral = Column(Boolean, default=False)  # first month gifted
     low_balance_warned  = Column(Boolean, default=False)               # 3-day warning sent
+    # Server-side persistence for the 'You earned your first $X!' banner.
+    # Replaces the localStorage-only flag that didn't sync across devices.
+    # Timestamp (not boolean) so future milestone-based re-surfaces can
+    # compare against the dismissal date. NULL = never dismissed.
+    story_prompt_dismissed_at = Column(DateTime, nullable=True)
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
     course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
@@ -1502,6 +1507,12 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS p2p_transfers (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), amount_usdt FLOAT, note VARCHAR, status VARCHAR DEFAULT 'completed', created_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_activated_by_referral BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS low_balance_warned BOOLEAN DEFAULT FALSE",
+        # Story-prompt banner dismissal — persists across devices so a member
+        # who dismissed on mobile doesn't see it again on desktop. Timestamp
+        # rather than boolean so future milestones can compare against the
+        # dismissal date (e.g. 'show again for new earnings tier'). Added
+        # 10 May 2026 after launch-day reports of the banner re-firing.
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS story_prompt_dismissed_at TIMESTAMP",
         "CREATE TABLE IF NOT EXISTS ai_usage_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, quota_date VARCHAR, campaign_studio_uses INTEGER DEFAULT 0, niche_finder_uses INTEGER DEFAULT 0, campaign_studio_total INTEGER DEFAULT 0, niche_finder_total INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",

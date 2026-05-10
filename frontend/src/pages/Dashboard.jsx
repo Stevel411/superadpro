@@ -33,7 +33,10 @@ export default function Dashboard() {
   const [goals, setGoals] = useState(null);
 
   // Story prompt nudge — shown to members with ≥1 paid commission who
-  // haven't submitted a story. Dismissal persists in localStorage.
+  // haven't submitted a story. Dismissal persists SERVER-SIDE via
+  // /api/member/story/prompt-dismiss so it syncs across devices. The
+  // localStorage flag is kept as a fast-path so the banner doesn't flash
+  // before the network round-trip completes on subsequent loads.
   const [storyPrompt, setStoryPrompt] = useState(null);
   const [storyPromptDismissed, setStoryPromptDismissed] = useState(function() {
     try { return localStorage.getItem('story-prompt-dismissed') === '1'; } catch(e) { return false; }
@@ -45,8 +48,14 @@ export default function Dashboard() {
       .catch(function() {});
   }, [storyPromptDismissed]);
   function dismissStoryPrompt() {
+    // Optimistic: hide immediately, mark localStorage for fast-path,
+    // then persist server-side. If the network call fails the local
+    // dismissal still survives the current session; next login the
+    // banner will reappear and the user can dismiss again — annoying
+    // but not destructive.
     setStoryPromptDismissed(true);
     try { localStorage.setItem('story-prompt-dismissed', '1'); } catch(e) {}
+    apiPost('/api/member/story/prompt-dismiss', {}).catch(function() {});
   }
 
   // ── Gift voucher welcome banner ──────────────────────────────────────

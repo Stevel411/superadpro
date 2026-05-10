@@ -1693,6 +1693,13 @@ def api_member_story_prompt_check(request: Request, db: Session = Depends(get_db
     if getattr(user, 'is_admin', False):
         return {"show": False, "reason": "admin_account"}
 
+    # Persisted dismissal — survives across devices. Replaces the
+    # localStorage-only flag that only worked on the device where the
+    # member dismissed. If the user clears localStorage they don't get
+    # the banner re-fired, which is the behaviour members expect.
+    if getattr(user, 'story_prompt_dismissed_at', None):
+        return {"show": False, "reason": "dismissed"}
+
     # Already submitted? Skip the nudge entirely.
     existing_story = db.query(MemberStory).filter(MemberStory.user_id == user.id).first()
     if existing_story:
@@ -1740,6 +1747,30 @@ def api_member_story_prompt_check(request: Request, db: Session = Depends(get_db
         "show": True,
         "first_amount": earliest_amount,
         "first_paid_at": earliest_date.isoformat(),
+    }
+
+
+@app.post("/api/member/story/prompt-dismiss")
+def api_member_story_prompt_dismiss(request: Request, db: Session = Depends(get_db)):
+    """Persist dismissal of the 'You earned your first $X!' banner so a
+    member who dismisses on one device doesn't see it again on another.
+    Replaces the localStorage-only flag that didn't sync across devices.
+
+    Idempotent — re-calling is safe and a no-op. Returns the dismissal
+    timestamp so the frontend can confirm the action without rerunning
+    the prompt-check query.
+    """
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    if not user.story_prompt_dismissed_at:
+        user.story_prompt_dismissed_at = datetime.utcnow()
+        db.commit()
+
+    return {
+        "ok": True,
+        "dismissed_at": user.story_prompt_dismissed_at.isoformat(),
     }
 
 
