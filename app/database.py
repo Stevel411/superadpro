@@ -2967,3 +2967,97 @@ class PlatformStatus(Base):
     set_by_user_id  = Column(Integer, ForeignKey("users.id"), nullable=True)
     set_at          = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Social Post Studio (10th Creative Studio tab — Phase 1 added 11 May 2026)
+#
+# A network-marketer-grade image editor with AI photo generation, 8-style
+# SVG text engine, 80-piece object library, brand kit, and free-form canvas.
+#
+# Phase 1 (Canvas Foundation): designs persistence, basic layer state.
+# Phase 2 (Text Engine), Phase 3 (AI generation), Phase 4 (Object library),
+# Phase 5 (Brand kit + export), Phase 6 (Polish) follow.
+#
+# Full spec: handover-2026-05-11 + social-post-studio-spec.md
+# ──────────────────────────────────────────────────────────────────────
+
+class SocialPostDesign(Base):
+    """A member's saved Social Post design.
+    
+    canvas_json holds the complete layer state — array of layer objects,
+    each with id, type, x, y, w, h, rotation, zIndex, locked, and
+    type-specific props. Member returns to a design and the canvas
+    reconstitutes exactly as they left it.
+    """
+    __tablename__ = "social_post_designs"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name            = Column(String(200), default="Untitled Design")
+    aspect_ratio    = Column(String(10), nullable=False)  # "1:1" / "4:5" / "9:16" / "16:9"
+    canvas_json     = Column(Text, nullable=False)        # JSON-serialised layer state
+    thumbnail_url   = Column(String(500), nullable=True)  # R2 URL of rendered preview
+    created_at      = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", backref="social_post_designs")
+
+
+class SocialPostGeneration(Base):
+    """Audit log of every Grok Imagine API call made via Social Post Studio.
+    
+    Stores the prompt, reference photo used, all 4 candidates returned,
+    which one the member chose, credits charged, and actual provider cost.
+    Used for billing audit, margin analytics, and 'why did this generation
+    fail?' debugging. Added Phase 3.
+    """
+    __tablename__ = "social_post_generations"
+    id                  = Column(Integer, primary_key=True, index=True)
+    user_id             = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    preset_key          = Column(String(50), nullable=True)   # e.g. "gala", "closer"; NULL for custom mode
+    prompt              = Column(Text, nullable=False)        # assembled prompt sent to Grok
+    reference_url       = Column(String(500), nullable=True)  # R2 URL of reference photo used
+    candidates_json     = Column(Text, nullable=True)         # JSON array of 4 returned image URLs
+    chosen_url          = Column(String(500), nullable=True)  # which candidate the member picked
+    credits_charged     = Column(Integer, nullable=False, default=0)
+    provider            = Column(String(50), default="grok-imagine-image-quality")
+    provider_cost_usd   = Column(Numeric(10, 4), nullable=True)
+    error_message       = Column(Text, nullable=True)         # if generation failed
+    created_at          = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user = relationship("User", backref="social_post_generations")
+
+
+class UserReferencePhoto(Base):
+    """Member's reusable reference photo library for AI image generation.
+    
+    Photos uploaded once, used across many generations. Stored in R2.
+    is_default = the photo to suggest first when opening AI generate panel.
+    """
+    __tablename__ = "user_reference_photos"
+    id          = Column(Integer, primary_key=True, index=True)
+    user_id     = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    photo_url   = Column(String(500), nullable=False)   # R2 URL
+    label       = Column(String(100), nullable=True)    # member-assigned name
+    is_default  = Column(Boolean, default=False)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", backref="reference_photos")
+
+
+class UserBrandAssets(Base):
+    """A member's brand kit — logo, colours, default CTA.
+    
+    Applied automatically to new designs so brand consistency is the
+    default, not a per-design chore. Single row per user.
+    """
+    __tablename__ = "user_brand_assets"
+    user_id           = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    logo_url          = Column(String(500), nullable=True)   # R2 URL
+    primary_color     = Column(String(7), nullable=True)     # "#FFC125"
+    secondary_color   = Column(String(7), nullable=True)
+    brand_handle      = Column(String(100), nullable=True)   # "@stevelawson"
+    default_cta       = Column(String(200), nullable=True)   # "Join My Team"
+    updated_at        = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", backref="brand_assets", uselist=False)
