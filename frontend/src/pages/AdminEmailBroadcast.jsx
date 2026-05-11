@@ -193,14 +193,22 @@ function MembersTab() {
             {search ? 'No members match your search' : 'No members found'}
           </div>
         ) : (
-          <List
-            rowCount={filteredMembers.length}
-            rowHeight={44}
-            defaultHeight={Math.min(filteredMembers.length * 44, 600)}
-            rowComponent={MemberRow}
-            rowProps={{ members: filteredMembers, gridCols: gridCols }}
-            style={{ width: '100%' }}
-          />
+          // CRITICAL: The <List> measures its container to decide visible
+          // height. Without an explicit height here, it expands to fit all
+          // rows and virtual scrolling is defeated. defaultHeight on the
+          // List itself is only used for server-rendering.
+          // Window: 600px = ~13 rows visible at 44px each. List auto-shrinks
+          // for short lists so we don't get empty space at 5-10 members.
+          <div style={{ height: Math.min(filteredMembers.length * 44, 600) + 'px', width: '100%' }}>
+            <List
+              rowCount={filteredMembers.length}
+              rowHeight={44}
+              defaultHeight={Math.min(filteredMembers.length * 44, 600)}
+              rowComponent={MemberRow}
+              rowProps={{ members: filteredMembers, gridCols: gridCols }}
+              style={{ width: '100%', height: '100%' }}
+            />
+          </div>
         )}
       </div>
 
