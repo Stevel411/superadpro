@@ -29596,6 +29596,8 @@ def admin_api_members_emails(
     return {
         "recipient_count": len(recipients),
         "preview_count": len(filtered),
+        "preview_limit": 5000,
+        "preview_truncated": len(filtered) > 5000,
         "members": [
             {
                 "id": m.id,
@@ -29606,7 +29608,7 @@ def admin_api_members_emails(
                 "is_active": bool(m.is_active),
                 "created_at": m.created_at.isoformat() if m.created_at else None,
             }
-            for m in filtered[:500]   # cap the preview payload size
+            for m in filtered[:5000]   # 5K rows — beyond this, add pagination
         ],
     }
 
