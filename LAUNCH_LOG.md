@@ -6,7 +6,42 @@
 
 ---
 
-## Status as of 2026-05-10 (launch day)
+## Status as of 2026-05-11 (day 2 of launch)
+
+Healthy. 25 members, 7 new signups in last 24h. **First real grid tier customer landed overnight:** Cynniam (SAP-00157) purchased Tier 1 ($20) at 00:38 UTC and Tier 2 ($50) at 01:17 UTC. Commission cascade fired correctly end-to-end — Steve earned $4.37 as direct sponsor (uni_level L1). Zero anomalies across all monitoring tools.
+
+This validates that the grid commission system works on production with a real member doing real purchases. A launch isn't really validated until that happens, and now it has.
+
+## Shipped on day 2 (11 May)
+
+- **`94ae4f27` Maintenance mode 'panic button'** — two-tier kill switch (soft = withdrawals only, hard = all money + signups) with admin toggle UI in the Overview tab and member-facing banner on dashboard. Single-row `platform_status` table. Helpers cached 5s. Withdrawal cron also pauses in maintenance mode.
+- **`c7258495` Support tickets: email admin in real-time** — `/api/support/ticket` now sends Brevo email alongside in-app notification. Reply-To routes back to the member. Uses `SUPPORT_EMAIL` env var with `DAILY_BRIEFING_EMAIL` as fallback so it works out-of-the-box.
+- **`6783e72f` Story-prompt dismissal: server-side persistence** — new `users.story_prompt_dismissed_at` column. Optimistic-local + server-persist pattern.
+- **`e9bb5821` Skip story-prompt banner for admin** — Steve was seeing it as user_id=1.
+- **`27e4119b` Platform Tour mobile fix** — new `/media/tour-video/{slug}` endpoint with Range support. Root cause: Cloudflare was caching 200 OK and serving to iOS Safari's Range probe, causing black screen. Same pattern as `serve_welcome_video`.
+- **`c4c7ae6d` Wallet section video added to Platform Tour** — compressed 38MB → 5.6MB, h264 High profile.
+- **`e3bbfde0` Foolproof first-withdrawal flow** — always-visible destination panel + first-withdrawal confirmation modal. Refactored `handleWithdraw` into validate+gate / dispatchWithdrawal.
+- **`b3a1d405` Bookkeeping fix** — `_activate_membership` now writes the `membership_company` row alongside `membership_sponsor`. Forward-fix only; historical backfill SQL not yet run.
+- **`b305fdcf` MCP monitoring fixes** — commission bucket helper at `mcp/tools/_commission_buckets.py` as single source of truth. `financial_sanity` reconciliation math corrected.
+
+## Currently watching (updated 11 May)
+
+- **Cynniam's grid completion path** — first real member to enter the grid system. Her Tier 1 and Tier 2 grids should fill via spillover from subsequent purchases. Watch `/admin/api/users` → her profile for grid completion bonuses if and when her grids complete.
+- **Daily briefing cron timing** — schedule is `0 7 * * *` UTC = 08:00 BST in summer. Email arrives at 08:00 BST, not 07:00. Don't panic if Railway UI shows "Last run failed yesterday" while emails are arriving — Railway only updates that indicator on failure, today's success doesn't clear it.
+- **`payment_integrity` MCP tool gap** — only tracks legacy `crypto_payment_orders` table. Doesn't capture WalletConnect-BSC OR NOWPayments rails. Will show $0 inflow even on days with real revenue. Needs fixing later, not urgent. Workaround: cross-check by looking at `Payment` table directly or `commission_audit` for evidence of activity.
+- **`platform_pulse` MCP tool gap** — doesn't include tier purchases in the purchases-today breakdown (only courses, credit_packs, memberships). Tier purchases show up indirectly via the commission breakdown but not as their own metric.
+- **CRON_SECRET rotation** — secret was inadvertently leaked into chat during a URL-parameter mix-up. Should be rotated on the main service AND all cron services (daily-briefing, stuck-lapsed-alert, etc.). Values must match exactly across all services.
+- **Cache TTL restoration** (still pending) — see launch-day notes below. After 24-48h clean operation, the four sites at `ttl=5` should go back to `ttl=60`.
+
+## Parked for future sessions
+
+- **Compensation plan redesign / passive income pool** — Steve proposed Pro membership = $10 company / $25 redistributed pool; Courses = 50% affiliate / 50% pool. At 1000 Pro members this is ~$45/month back per active member. Five design questions outstanding: direct sponsor's share on Pro upgrades, grandfathering, course mechanics, anti-gaming, who participates. Conversation ended at "Have I got that right?"
+- **Social Image Studio** — internally-built tool for network-marketer-style social images. Hybrid architecture decided: AI generates personalised photoreal backgrounds (Grok Imagine API), browser overlays editable text + branding. Blocked by Grok Imagine's 60-70% likeness-consistency rate which isn't production-ready. Two paths: ship template-based infrastructure now and bolt on AI-personalisation later, OR wait for image models to improve. Claude's recommendation: ship infrastructure now. Steve rejected first round of design mockups for not matching network-marketer aesthetic (wants loud/saturated, not tasteful/restrained).
+- **Course Academy as 4th income stream** — 100% commissions + pass-up. Spec is locked, just needs implementation.
+
+---
+
+
 
 The platform is genuinely ready. The hardest engineering work shipped in the past two weeks: engine-level commission classification (closed an entire bug class), withdrawal hardening (idempotency keys + retry backoff), data integrity (denormalised counters → live ledger reads), the two-step upgrade flow with switch-to-annual support, and a polished checkout with colour-coded payment rails.
 
