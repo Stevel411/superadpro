@@ -38,7 +38,7 @@ from .database import CoPilotBriefing
 from .database import MemberLead
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .database import MemberStory, MemberShowcase
-from .database import SocialPostDesign, SocialPostGeneration, UserReferencePhoto, UserBrandAssets
+from .database import AdminBroadcast
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -1080,7 +1080,17 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
     if quota:
         today_str = str(date.today())
         watched = quota.today_watched if quota.today_date == today_str else 0
-        required = quota.daily_required or 1
+        # daily_required can legitimately be 0 (admin/owner exemption) — use
+        # an explicit None-check rather than `or 1` which would coerce 0 to 1.
+        required = quota.daily_required if quota.daily_required is not None else 1
+    else:
+        required = 1
+        watched  = 0
+
+    if quota and required == 0:
+        # Admin / owner exemption — no daily nag, no goal card at all
+        pass
+    elif quota:
         if watched >= required:
             goals.append({
                 "type": "watch", "color": "#22c55e", "bg": "#f0fdf4",
@@ -4407,11 +4417,14 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     # ── Watch to Earn stats ──
     from datetime import date as _date
     quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+    # daily_required can legitimately be 0 (admin/owner exemption). Use an
+    # explicit None-check rather than `or 1` which would coerce 0 to 1.
+    _dr = getattr(quota, 'daily_required', None)
     watch_stats = {
         "total_watched": getattr(quota, 'total_watched', 0) or 0,
         "streak_days": getattr(quota, 'streak_days', 0) or 0,
         "today_watched": getattr(quota, 'today_watched', 0) or 0,
-        "daily_required": getattr(quota, 'daily_required', 1) or 1,
+        "daily_required": _dr if _dr is not None else 1,
         "consecutive_missed": getattr(quota, 'consecutive_missed', 0) or 0,
         "commissions_paused": getattr(quota, 'commissions_paused', False),
     }
@@ -9019,7 +9032,16 @@ DAILY_VIDEO_QUOTA = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8}
 WATCH_DURATION    = 30   # seconds minimum
 GRACE_DAYS        = 5    # days before commissions paused
 def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
-    """Get or create watch quota record for user, syncing tier from active grid."""
+    """Get or create watch quota record for user, syncing tier from active grid.
+
+    Admin/owner accounts are exempt: daily_required is forced to 0 so the
+    Watch-to-Earn quota never holds them up. This is the master-affiliate
+    grandfather clause — admins shouldn't have to perform daily tasks to
+    keep their own commissions flowing. The check is is_admin, not a
+    flag, so it covers any future admin additions cleanly. (Added 11 May
+    2026 after Steve hit this on Tier 2 — was being asked to watch 2/day
+    despite being owner.)
+    """
     from datetime import date
     quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
 
@@ -9030,6 +9052,17 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
     ).order_by(Grid.package_tier.desc()).first()
     tier     = active_grid.package_tier if active_grid else 1
     required = DAILY_VIDEO_QUOTA.get(tier, 1)
+
+    # ── Admin/owner exemption ─────────────────────────────────────────
+    # is_admin → 0 required. The package_tier still reflects their actual
+    # grid tier (for analytics + UI display) but the daily requirement is
+    # zeroed. Downstream effects:
+    #  - missed-day branch at quota.today_watched < quota.daily_required
+    #    becomes 0 < 0 = False, so consecutive_missed never increments
+    #  - commissions_paused stays False permanently
+    #  - withdrawal qualification gate passes
+    if getattr(user, "is_admin", False):
+        required = 0
 
     if not quota:
         quota = WatchQuota(
@@ -23618,8 +23651,13 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
 
         today_str = datetime.utcnow().strftime("%Y-%m-%d")
         watched_today = quota.today_watched or 0
-        daily_limit = quota.daily_required or 8
-        quota_reached = watched_today >= daily_limit
+        # daily_required can legitimately be 0 (admin/owner exemption).
+        # Use a None check so 0 stays 0 rather than collapsing to a default.
+        daily_limit = quota.daily_required if quota.daily_required is not None else 1
+        is_exempt = (daily_limit == 0)
+        # Exempt users are always "qualified" — never blocked from earning,
+        # never asked to watch. They can still watch if they want.
+        quota_reached = is_exempt or (watched_today >= daily_limit)
 
         # Get next content using the smart scoring/rotation algorithm
         # This handles: priority scoring, re-watches, own-campaign fallback,
@@ -23727,6 +23765,7 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
             "watched_today": watched_today,
             "daily_limit": daily_limit,
             "daily_required": daily_limit,
+            "is_exempt": is_exempt,
             "quota_reached": quota_reached,
             "tier": quota.package_tier or 1,
             "has_campaign_tier": user_has_tier,
@@ -29453,213 +29492,367 @@ async def api_lead_finder_import(request: Request,
 
 
 # ══════════════════════════════════════════════════════════════════════
-# Social Post Studio (10th Creative Studio tab)
+# Admin Email Broadcast (added 11 May 2026)
 # ══════════════════════════════════════════════════════════════════════
-# Phase 1 (Canvas Foundation, 11 May 2026) — design persistence only.
-# Phase 3 will add /generate-image, /reference-library, /upload-reference.
-# Phase 5 will add /save-brand, /brand.
-# Full spec: social-post-studio-spec.md
+# Lets the platform owner send broadcast emails to all members directly
+# from the admin panel — no Brevo dashboard, no list sync, no contacts to
+# manage. The list is always live: emails are pulled from the users table
+# at send time.
+#
+# Endpoints:
+#   GET    /admin/api/members-emails              List members with email + filter
+#   POST   /admin/api/broadcast/send              Send a broadcast (sync, batched)
+#   GET    /admin/api/broadcast/history           List past broadcasts
+#   GET    /admin/api/broadcast/{id}              Fetch single broadcast detail
+#   GET    /unsubscribe?token=...                 One-click opt-out landing page
 # ──────────────────────────────────────────────────────────────────────
 
-SOCIALPOST_ALLOWED_ASPECTS = {"1:1", "4:5", "9:16", "16:9"}
-SOCIALPOST_MAX_CANVAS_BYTES = 500_000      # 500KB defensive cap
-SOCIALPOST_MAX_DESIGN_NAME_LEN = 200
-SOCIALPOST_MAX_DESIGNS_PER_USER = 200      # soft cap; rejects 201st save
+import secrets as _secrets_broadcast
+
+BROADCAST_BATCH_SIZE = 50          # send N then sleep
+BROADCAST_BATCH_SLEEP = 1.0        # seconds between batches (SMTP-friendly)
+BROADCAST_MAX_SUBJECT_LEN = 300
+BROADCAST_MAX_BODY_BYTES = 200_000  # 200KB cap on body HTML
 
 
-def _socialpost_validate_canvas(canvas_json_str):
-    """Defensive sanity check on user-supplied canvas state.
+def _ensure_unsubscribe_token(db, user) -> str:
+    """Lazily mint an opaque unsubscribe token for a user. Idempotent."""
+    if user.email_unsubscribe_token:
+        return user.email_unsubscribe_token
+    user.email_unsubscribe_token = _secrets_broadcast.token_urlsafe(32)
+    db.flush()
+    return user.email_unsubscribe_token
 
-    Returns (ok, error_message). Canvas state comes from the browser
-    so we don't trust it: enforce valid JSON, object shape with
-    'layers' array, size-bounded.
+
+def _build_broadcast_footer(unsubscribe_url: str) -> str:
+    """Standard compliance footer appended to every broadcast email."""
+    return (
+        f'<div style="margin-top:32px;padding-top:20px;border-top:1px solid #e5e7eb;'
+        f'font-size:12px;color:#94a3b8;text-align:center;line-height:1.6;font-family:Helvetica Neue,Arial,sans-serif;">'
+        f'You\'re receiving this because you\'re a SuperAdPro member.<br>'
+        f'<a href="{unsubscribe_url}" style="color:#94a3b8;text-decoration:underline;">Unsubscribe from broadcast emails</a> '
+        f'(you\'ll still receive transactional emails like password resets and commission notifications).<br>'
+        f'<span style="color:#cbd5e1;">SuperAdPro — AI Marketing & Advertising Platform</span>'
+        f'</div>'
+    )
+
+
+def _resolve_broadcast_recipients(db, audience_filter: dict):
+    """Resolve the recipient list from an audience filter dict.
+    
+    Always excludes: admin users, opted-out users, users without an email.
+    Filter keys:
+        status   -- 'all' | 'active' | 'inactive'    (default 'all')
+        country  -- 2-letter ISO code or None
+        tier_min -- minimum campaign tier (1-8) or None
+    Returns a list of User rows.
     """
-    import json as _j
-    if not canvas_json_str:
-        return False, "canvas_json is required"
-    if not isinstance(canvas_json_str, str):
-        return False, "canvas_json must be a string"
-    if len(canvas_json_str.encode("utf-8")) > SOCIALPOST_MAX_CANVAS_BYTES:
-        return False, "Canvas state too large (max 500KB)"
+    q = db.query(User).filter(
+        User.email != None,                # noqa: E711
+        User.email != "",
+        User.email_opt_out == False,       # noqa: E712
+        User.is_admin == False,            # noqa: E712  -- never email admins by accident
+    )
+    status = (audience_filter or {}).get("status", "all")
+    if status == "active":
+        q = q.filter(User.is_active == True)   # noqa: E712
+    elif status == "inactive":
+        q = q.filter(User.is_active == False)  # noqa: E712
+    country = (audience_filter or {}).get("country")
+    if country:
+        q = q.filter(User.country == country)
+    return q.order_by(User.id.asc()).all()
+
+
+@app.get("/admin/api/members-emails")
+def admin_api_members_emails(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    q: str = "",
+    status: str = "all",
+    country: str = "",
+):
+    """List members (with emails) for the broadcast composer.
+    
+    Returns counts + a sample of the resolved audience for preview.
+    Excludes admin users, opted-out users, and accounts without an email.
+    """
+    _require_admin(user)
+    audience = {"status": status}
+    if country:
+        audience["country"] = country
+    recipients = _resolve_broadcast_recipients(db, audience)
+    # Free-text search filters the preview list only — does not change the
+    # recipient_count of an actual send, which always re-resolves the filter
+    if q:
+        ql = q.lower()
+        filtered = [r for r in recipients if
+                    ql in (r.email or "").lower()
+                    or ql in (r.username or "").lower()
+                    or ql in (r.first_name or "").lower()]
+    else:
+        filtered = recipients
+    return {
+        "recipient_count": len(recipients),
+        "preview_count": len(filtered),
+        "members": [
+            {
+                "id": m.id,
+                "email": m.email,
+                "username": m.username,
+                "first_name": m.first_name or "",
+                "country": m.country or "",
+                "is_active": bool(m.is_active),
+                "created_at": m.created_at.isoformat() if m.created_at else None,
+            }
+            for m in filtered[:500]   # cap the preview payload size
+        ],
+    }
+
+
+@app.post("/admin/api/broadcast/send")
+async def admin_api_broadcast_send(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Send a broadcast email to filtered members.
+    
+    Body:
+        subject         (required, <=300 chars)
+        body_html       (required, <=200KB)
+        body_text       (optional)
+        audience        (optional, default {"status":"all"})
+        test_only       (optional bool) — if true, only sends to the admin themselves
+    
+    Sends in batches with a small sleep between to be SMTP-friendly.
+    Returns the AdminBroadcast row id and final counts.
+    """
+    _require_admin(user)
+    body = await request.json()
+    subject = (body.get("subject") or "").strip()[:BROADCAST_MAX_SUBJECT_LEN]
+    body_html = body.get("body_html") or ""
+    body_text = body.get("body_text") or ""
+    audience = body.get("audience") or {"status": "all"}
+    test_only = bool(body.get("test_only", False))
+
+    if not subject:
+        return JSONResponse({"error": "Subject is required"}, status_code=400)
+    if not body_html:
+        return JSONResponse({"error": "Body is required"}, status_code=400)
+    if len(body_html.encode("utf-8")) > BROADCAST_MAX_BODY_BYTES:
+        return JSONResponse({"error": "Body too large (max 200KB)"}, status_code=413)
+
+    # Resolve audience
+    if test_only:
+        # Test send goes only to the admin (so they can preview deliverability)
+        recipients = [user]
+    else:
+        recipients = _resolve_broadcast_recipients(db, audience)
+
+    import json as _j_brc
+    # Create broadcast row up-front so it's tracked even if the send dies midway
+    broadcast = AdminBroadcast(
+        subject=subject,
+        body_html=body_html,
+        body_text=body_text,
+        audience_filter=_j_brc.dumps(audience),
+        recipient_count=len(recipients),
+        sent_count=0,
+        failed_count=0,
+        status="sending",
+        sent_by_user_id=user.id,
+        started_at=datetime.utcnow(),
+    )
+    db.add(broadcast)
+    db.commit()
+    db.refresh(broadcast)
+
+    # Send loop — synchronous batched
+    import time as _time_brc
+    from .email_utils import send_email as _send_email_brc
+
+    sent = 0
+    failed = 0
+    base_url = (request.url.scheme + "://" + request.url.netloc).rstrip("/")
     try:
-        parsed = _j.loads(canvas_json_str)
-    except (TypeError, ValueError):
-        return False, "canvas_json must be valid JSON"
-    if not isinstance(parsed, dict):
-        return False, "canvas_json must be a JSON object"
-    if "layers" not in parsed or not isinstance(parsed["layers"], list):
-        return False, "canvas_json must contain a 'layers' array"
-    return True, None
+        for i, recipient in enumerate(recipients):
+            try:
+                token = _ensure_unsubscribe_token(db, recipient)
+                unsub_url = f"{base_url}/unsubscribe?token={token}"
+                # Personalisation: simple {{first_name}} replacement
+                first = recipient.first_name or recipient.username or "there"
+                personalised_html = body_html.replace("{{first_name}}", first).replace("{{username}}", recipient.username or "")
+                personalised_text = (body_text or "").replace("{{first_name}}", first).replace("{{username}}", recipient.username or "")
+                full_html = personalised_html + _build_broadcast_footer(unsub_url)
+                ok = _send_email_brc(
+                    to_email=recipient.email,
+                    subject=subject,
+                    html_body=full_html,
+                    text_body=personalised_text,
+                )
+                if ok:
+                    sent += 1
+                else:
+                    failed += 1
+            except Exception as exc:
+                failed += 1
+                logger.warning(f"Broadcast send to {recipient.email} failed: {exc}")
+
+            # Persist progress every batch + small SMTP-friendly pause
+            if (i + 1) % BROADCAST_BATCH_SIZE == 0:
+                broadcast.sent_count = sent
+                broadcast.failed_count = failed
+                db.commit()
+                _time_brc.sleep(BROADCAST_BATCH_SLEEP)
+
+        broadcast.sent_count = sent
+        broadcast.failed_count = failed
+        broadcast.status = "completed"
+        broadcast.completed_at = datetime.utcnow()
+        db.commit()
+    except Exception as exc:
+        broadcast.status = "failed"
+        broadcast.error_message = str(exc)[:1000]
+        broadcast.sent_count = sent
+        broadcast.failed_count = failed
+        broadcast.completed_at = datetime.utcnow()
+        db.commit()
+        logger.error(f"Broadcast {broadcast.id} crashed: {exc}")
+        return JSONResponse({"error": str(exc), "broadcast_id": broadcast.id,
+                             "sent": sent, "failed": failed}, status_code=500)
+
+    return {
+        "broadcast_id": broadcast.id,
+        "recipient_count": len(recipients),
+        "sent": sent,
+        "failed": failed,
+        "test_only": test_only,
+    }
 
 
-@app.get("/api/social-post/designs")
-def social_post_list_designs(user: User = Depends(get_current_user),
-                              db: Session = Depends(get_db)):
-    """List the current member's designs, most recently updated first."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+@app.get("/admin/api/broadcast/history")
+def admin_api_broadcast_history(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    limit: int = 50,
+):
+    """Return recent broadcasts, newest first."""
+    _require_admin(user)
     rows = (
-        db.query(SocialPostDesign)
-          .filter(SocialPostDesign.user_id == user.id)
-          .order_by(SocialPostDesign.updated_at.desc())
-          .limit(SOCIALPOST_MAX_DESIGNS_PER_USER)
+        db.query(AdminBroadcast)
+          .order_by(AdminBroadcast.created_at.desc())
+          .limit(max(1, min(limit, 200)))
           .all()
     )
     return {
-        "designs": [
+        "broadcasts": [
             {
-                "id": d.id,
-                "name": d.name,
-                "aspect_ratio": d.aspect_ratio,
-                "thumbnail_url": d.thumbnail_url,
-                "created_at": d.created_at.isoformat() if d.created_at else None,
-                "updated_at": d.updated_at.isoformat() if d.updated_at else None,
+                "id": b.id,
+                "subject": b.subject,
+                "recipient_count": b.recipient_count,
+                "sent_count": b.sent_count,
+                "failed_count": b.failed_count,
+                "status": b.status,
+                "created_at": b.created_at.isoformat() if b.created_at else None,
+                "completed_at": b.completed_at.isoformat() if b.completed_at else None,
+                "sent_by_user_id": b.sent_by_user_id,
             }
-            for d in rows
+            for b in rows
         ],
-        "total": len(rows),
     }
 
 
-@app.post("/api/social-post/save-design")
-async def social_post_save_design(request: Request,
-                                   user: User = Depends(get_current_user),
-                                   db: Session = Depends(get_db)):
-    """Create or update a Social Post design.
+@app.get("/admin/api/broadcast/{broadcast_id}")
+def admin_api_broadcast_detail(
+    broadcast_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Return the full content of one broadcast (for the History detail view)."""
+    _require_admin(user)
+    b = db.query(AdminBroadcast).filter(AdminBroadcast.id == broadcast_id).first()
+    if not b:
+        return JSONResponse({"error": "Broadcast not found"}, status_code=404)
+    return {
+        "id": b.id,
+        "subject": b.subject,
+        "body_html": b.body_html,
+        "body_text": b.body_text,
+        "audience_filter": b.audience_filter,
+        "recipient_count": b.recipient_count,
+        "sent_count": b.sent_count,
+        "failed_count": b.failed_count,
+        "status": b.status,
+        "error_message": b.error_message,
+        "created_at": b.created_at.isoformat() if b.created_at else None,
+        "started_at": b.started_at.isoformat() if b.started_at else None,
+        "completed_at": b.completed_at.isoformat() if b.completed_at else None,
+    }
 
-    Body:
-        id            (optional) — present => update, absent => create
-        name          (optional) — defaults to 'Untitled Design'
-        aspect_ratio  (required) — '1:1' | '4:5' | '9:16' | '16:9'
-        canvas_json   (required) — JSON string with {'layers': [...]}
-        thumbnail_url (optional) — R2 URL of rendered thumbnail
+
+@app.get("/unsubscribe")
+def unsubscribe_landing(request: Request, token: str = "", db: Session = Depends(get_db)):
+    """One-click unsubscribe link from broadcast emails.
+    
+    Public route — no auth required, just a valid token. Idempotent: clicking
+    twice keeps the user opted-out. Transactional emails ignore this flag.
     """
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    body = await request.json()
-
-    design_id = body.get("id")
-    name = (body.get("name") or "Untitled Design").strip()[:SOCIALPOST_MAX_DESIGN_NAME_LEN]
-    aspect_ratio = body.get("aspect_ratio")
-    canvas_json = body.get("canvas_json")
-    thumbnail_url = body.get("thumbnail_url")
-
-    if aspect_ratio not in SOCIALPOST_ALLOWED_ASPECTS:
-        return JSONResponse(
-            {"error": f"aspect_ratio must be one of {sorted(SOCIALPOST_ALLOWED_ASPECTS)}"},
-            status_code=400,
-        )
-    ok, err = _socialpost_validate_canvas(canvas_json)
-    if not ok:
-        return JSONResponse({"error": err}, status_code=400)
-
-    if design_id:
-        design = (
-            db.query(SocialPostDesign)
-              .filter(SocialPostDesign.id == design_id,
-                      SocialPostDesign.user_id == user.id)
-              .first()
-        )
-        if not design:
-            return JSONResponse({"error": "Design not found"}, status_code=404)
-        design.name = name
-        design.aspect_ratio = aspect_ratio
-        design.canvas_json = canvas_json
-        if thumbnail_url is not None:
-            design.thumbnail_url = thumbnail_url
-        design.updated_at = datetime.utcnow()
-    else:
-        existing_count = (
-            db.query(SocialPostDesign)
-              .filter(SocialPostDesign.user_id == user.id)
-              .count()
-        )
-        if existing_count >= SOCIALPOST_MAX_DESIGNS_PER_USER:
-            return JSONResponse(
-                {"error": f"Maximum {SOCIALPOST_MAX_DESIGNS_PER_USER} designs reached. "
-                          "Delete some to save more."},
-                status_code=429,
-            )
-        design = SocialPostDesign(
-            user_id=user.id,
-            name=name,
-            aspect_ratio=aspect_ratio,
-            canvas_json=canvas_json,
-            thumbnail_url=thumbnail_url,
-        )
-        db.add(design)
-
-    db.commit()
-    db.refresh(design)
-    return {
-        "id": design.id,
-        "name": design.name,
-        "aspect_ratio": design.aspect_ratio,
-        "thumbnail_url": design.thumbnail_url,
-        "updated_at": design.updated_at.isoformat() if design.updated_at else None,
-    }
+    if not token:
+        return HTMLResponse(_unsub_page("Missing unsubscribe token", error=True), status_code=400)
+    member = db.query(User).filter(User.email_unsubscribe_token == token).first()
+    if not member:
+        return HTMLResponse(_unsub_page("Invalid or expired unsubscribe link", error=True), status_code=404)
+    if not member.email_opt_out:
+        member.email_opt_out = True
+        db.commit()
+    return HTMLResponse(_unsub_page(
+        f"You've been unsubscribed from SuperAdPro broadcast emails. "
+        f"You'll still receive transactional emails (password resets, commission notifications). "
+        f"Changed your mind? Log in and re-enable broadcasts in your account settings.",
+        error=False
+    ))
 
 
-@app.get("/api/social-post/design/{design_id}")
-def social_post_get_design(design_id: int,
-                            user: User = Depends(get_current_user),
-                            db: Session = Depends(get_db)):
-    """Load a single design owned by the current user."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    design = (
-        db.query(SocialPostDesign)
-          .filter(SocialPostDesign.id == design_id,
-                  SocialPostDesign.user_id == user.id)
-          .first()
-    )
-    if not design:
-        return JSONResponse({"error": "Design not found"}, status_code=404)
-    return {
-        "id": design.id,
-        "name": design.name,
-        "aspect_ratio": design.aspect_ratio,
-        "canvas_json": design.canvas_json,
-        "thumbnail_url": design.thumbnail_url,
-        "created_at": design.created_at.isoformat() if design.created_at else None,
-        "updated_at": design.updated_at.isoformat() if design.updated_at else None,
-    }
+def _unsub_page(message: str, error: bool = False) -> str:
+    """Plain styled landing page for the unsubscribe action."""
+    color = "#dc2626" if error else "#16a34a"
+    icon = "✗" if error else "✓"
+    title = "Unsubscribe error" if error else "Unsubscribed"
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{title} — SuperAdPro</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{{margin:0;background:#f8fafc;font-family:Helvetica Neue,Arial,sans-serif;color:#1e293b;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}}
+  .card{{max-width:460px;width:100%;background:#fff;border-radius:16px;padding:40px 32px;box-shadow:0 4px 24px rgba(0,0,0,0.06);text-align:center;}}
+  .icon{{width:64px;height:64px;border-radius:50%;background:{color};color:#fff;font-size:32px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}}
+  h1{{font-size:22px;font-weight:700;margin:0 0 12px;color:#0f172a;}}
+  p{{font-size:15px;line-height:1.6;color:#475569;margin:0 0 24px;}}
+  a.btn{{display:inline-block;padding:10px 22px;background:#0ea5e9;color:#fff;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px;}}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="icon">{icon}</div>
+<h1>{title}</h1>
+<p>{message}</p>
+<a href="/" class="btn">Back to SuperAdPro</a>
+</div>
+</body>
+</html>"""
 
 
-@app.delete("/api/social-post/design/{design_id}")
-def social_post_delete_design(design_id: int,
-                               user: User = Depends(get_current_user),
-                               db: Session = Depends(get_db)):
-    """Delete a design owned by the current user."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    design = (
-        db.query(SocialPostDesign)
-          .filter(SocialPostDesign.id == design_id,
-                  SocialPostDesign.user_id == user.id)
-          .first()
-    )
-    if not design:
-        return JSONResponse({"error": "Not found"}, status_code=404)
-    db.delete(design)
-    db.commit()
-    return {"deleted": True, "id": design_id}
-
-
-# React route handlers — every /creative-studio/social-post path needs to
-# serve index.html so React Router can take over (per CLAUDE.md rule).
-@app.get("/creative-studio/social-post")
-def creative_studio_social_post_index(request: Request):
-    """Serve React SPA for the Social Post Studio landing/gallery."""
+# React SPA mount points for the admin broadcast page
+@app.get("/admin/email-broadcast")
+def admin_email_broadcast_page(request: Request):
+    """Serve React SPA for the admin email broadcast tool."""
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
-    return RedirectResponse(url="/creative-studio", status_code=302)
-
-
-@app.get("/creative-studio/social-post/{design_id}")
-def creative_studio_social_post_design(design_id: str, request: Request):
-    """Serve React SPA for a specific design (or 'new' for new canvas)."""
-    if _react_index.exists():
-        return HTMLResponse(_get_react_index_html() or "")
-    return RedirectResponse(url="/creative-studio", status_code=302)
+    return RedirectResponse(url="/admin", status_code=302)
 

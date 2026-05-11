@@ -194,6 +194,11 @@ class User(Base):
     story_prompt_dismissed_at = Column(DateTime, nullable=True)
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
+    # Email broadcast opt-out (added 11 May 2026). True = excluded from admin
+    # broadcast emails. Transactional emails (welcome, commission notifications,
+    # password reset, etc.) ignore this flag and always send.
+    email_opt_out          = Column(Boolean, default=False, index=True)
+    email_unsubscribe_token = Column(String(64), nullable=True, index=True)  # opaque token for one-click unsubscribe link
     course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
     bonus_earnings          = Column(Money, default=0.0)               # lifetime grid completion bonus earnings
     marketplace_earnings    = Column(Money, default=0.0)               # lifetime earnings from course marketplace (creator + sponsor)
@@ -1533,6 +1538,33 @@ def run_migrations():
             "SELECT 1, 'live' "
             "WHERE NOT EXISTS (SELECT 1 FROM platform_status WHERE id = 1)"
         ),
+        # ── Admin email broadcast (11 May 2026) ──
+        # Lets the owner send broadcast emails to all members from the
+        # admin panel. List is always live (pulled from users table at
+        # send time). email_opt_out gates per-member opt-out for compliance.
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_opt_out BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_unsubscribe_token VARCHAR(64)",
+        "CREATE INDEX IF NOT EXISTS idx_users_email_unsub_token ON users(email_unsubscribe_token)",
+        "CREATE INDEX IF NOT EXISTS idx_users_email_opt_out ON users(email_opt_out)",
+        (
+            "CREATE TABLE IF NOT EXISTS admin_broadcasts ("
+            "id SERIAL PRIMARY KEY, "
+            "subject VARCHAR(300) NOT NULL, "
+            "body_html TEXT NOT NULL, "
+            "body_text TEXT, "
+            "audience_filter TEXT NOT NULL DEFAULT '{\"status\":\"all\"}', "
+            "recipient_count INTEGER DEFAULT 0, "
+            "sent_count INTEGER DEFAULT 0, "
+            "failed_count INTEGER DEFAULT 0, "
+            "status VARCHAR(20) DEFAULT 'pending', "
+            "error_message TEXT, "
+            "sent_by_user_id INTEGER REFERENCES users(id), "
+            "created_at TIMESTAMP DEFAULT NOW(), "
+            "started_at TIMESTAMP, "
+            "completed_at TIMESTAMP)"
+        ),
+        "CREATE INDEX IF NOT EXISTS idx_admin_broadcasts_status ON admin_broadcasts(status)",
+        "CREATE INDEX IF NOT EXISTS idx_admin_broadcasts_created ON admin_broadcasts(created_at DESC)",
         "CREATE TABLE IF NOT EXISTS ai_usage_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, quota_date VARCHAR, campaign_studio_uses INTEGER DEFAULT 0, niche_finder_uses INTEGER DEFAULT 0, campaign_studio_total INTEGER DEFAULT 0, niche_finder_total INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",
@@ -2970,94 +3002,42 @@ class PlatformStatus(Base):
 
 
 # ──────────────────────────────────────────────────────────────────────
-# Social Post Studio (10th Creative Studio tab — Phase 1 added 11 May 2026)
+# Admin Email Broadcast (added 11 May 2026)
 #
-# A network-marketer-grade image editor with AI photo generation, 8-style
-# SVG text engine, 80-piece object library, brand kit, and free-form canvas.
-#
-# Phase 1 (Canvas Foundation): designs persistence, basic layer state.
-# Phase 2 (Text Engine), Phase 3 (AI generation), Phase 4 (Object library),
-# Phase 5 (Brand kit + export), Phase 6 (Polish) follow.
-#
-# Full spec: handover-2026-05-11 + social-post-studio-spec.md
+# Lets the platform owner send broadcast emails to all members directly
+# from the admin panel, without leaving the platform or syncing to an
+# external email tool. List is always live: emails are pulled from the
+# users table at send time.
 # ──────────────────────────────────────────────────────────────────────
 
-class SocialPostDesign(Base):
-    """A member's saved Social Post design.
+class AdminBroadcast(Base):
+    """Log of every admin email broadcast sent.
     
-    canvas_json holds the complete layer state — array of layer objects,
-    each with id, type, x, y, w, h, rotation, zIndex, locked, and
-    type-specific props. Member returns to a design and the canvas
-    reconstitutes exactly as they left it.
+    Records subject, body, recipient filter, count, and send progress so
+    the admin can see what's been sent and to whom. Progress fields let
+    the send happen in background batches without losing track.
     """
-    __tablename__ = "social_post_designs"
-    id              = Column(Integer, primary_key=True, index=True)
-    user_id         = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    name            = Column(String(200), default="Untitled Design")
-    aspect_ratio    = Column(String(10), nullable=False)  # "1:1" / "4:5" / "9:16" / "16:9"
-    canvas_json     = Column(Text, nullable=False)        # JSON-serialised layer state
-    thumbnail_url   = Column(String(500), nullable=True)  # R2 URL of rendered preview
-    created_at      = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    user = relationship("User", backref="social_post_designs")
-
-
-class SocialPostGeneration(Base):
-    """Audit log of every Grok Imagine API call made via Social Post Studio.
+    __tablename__ = "admin_broadcasts"
+    id                = Column(Integer, primary_key=True, index=True)
+    subject           = Column(String(300), nullable=False)
+    body_html         = Column(Text, nullable=False)
+    body_text         = Column(Text, nullable=True)
     
-    Stores the prompt, reference photo used, all 4 candidates returned,
-    which one the member chose, credits charged, and actual provider cost.
-    Used for billing audit, margin analytics, and 'why did this generation
-    fail?' debugging. Added Phase 3.
-    """
-    __tablename__ = "social_post_generations"
-    id                  = Column(Integer, primary_key=True, index=True)
-    user_id             = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    preset_key          = Column(String(50), nullable=True)   # e.g. "gala", "closer"; NULL for custom mode
-    prompt              = Column(Text, nullable=False)        # assembled prompt sent to Grok
-    reference_url       = Column(String(500), nullable=True)  # R2 URL of reference photo used
-    candidates_json     = Column(Text, nullable=True)         # JSON array of 4 returned image URLs
-    chosen_url          = Column(String(500), nullable=True)  # which candidate the member picked
-    credits_charged     = Column(Integer, nullable=False, default=0)
-    provider            = Column(String(50), default="grok-imagine-image-quality")
-    provider_cost_usd   = Column(Numeric(10, 4), nullable=True)
-    error_message       = Column(Text, nullable=True)         # if generation failed
-    created_at          = Column(DateTime, default=datetime.utcnow, index=True)
-
-    user = relationship("User", backref="social_post_generations")
-
-
-class UserReferencePhoto(Base):
-    """Member's reusable reference photo library for AI image generation.
+    # Audience filter — JSON serialised dict like {"status": "all"} or 
+    # {"status": "active", "tier_min": 2, "country": "GB"}
+    audience_filter   = Column(Text, nullable=False, default='{"status":"all"}')
     
-    Photos uploaded once, used across many generations. Stored in R2.
-    is_default = the photo to suggest first when opening AI generate panel.
-    """
-    __tablename__ = "user_reference_photos"
-    id          = Column(Integer, primary_key=True, index=True)
-    user_id     = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    photo_url   = Column(String(500), nullable=False)   # R2 URL
-    label       = Column(String(100), nullable=True)    # member-assigned name
-    is_default  = Column(Boolean, default=False)
-    created_at  = Column(DateTime, default=datetime.utcnow)
-
-    user = relationship("User", backref="reference_photos")
-
-
-class UserBrandAssets(Base):
-    """A member's brand kit — logo, colours, default CTA.
+    # Send progress
+    recipient_count   = Column(Integer, default=0)        # total resolved at send time
+    sent_count        = Column(Integer, default=0)        # actually delivered
+    failed_count      = Column(Integer, default=0)
+    status            = Column(String(20), default="pending", index=True)  # pending/sending/completed/failed
+    error_message     = Column(Text, nullable=True)
     
-    Applied automatically to new designs so brand consistency is the
-    default, not a per-design chore. Single row per user.
-    """
-    __tablename__ = "user_brand_assets"
-    user_id           = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
-    logo_url          = Column(String(500), nullable=True)   # R2 URL
-    primary_color     = Column(String(7), nullable=True)     # "#FFC125"
-    secondary_color   = Column(String(7), nullable=True)
-    brand_handle      = Column(String(100), nullable=True)   # "@stevelawson"
-    default_cta       = Column(String(200), nullable=True)   # "Join My Team"
-    updated_at        = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Metadata
+    sent_by_user_id   = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at        = Column(DateTime, default=datetime.utcnow, index=True)
+    started_at        = Column(DateTime, nullable=True)
+    completed_at      = Column(DateTime, nullable=True)
 
-    user = relationship("User", backref="brand_assets", uselist=False)
+    sent_by = relationship("User", foreign_keys=[sent_by_user_id])
