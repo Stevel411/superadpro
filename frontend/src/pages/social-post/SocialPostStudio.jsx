@@ -12,6 +12,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import CanvasEngine from './CanvasEngine';
 import {
   canvasReducer, makeInitialState, serialiseCanvas, ASPECTS, newLayerId,
+  TEXT_STYLES,
 } from './canvasReducer';
 import './social-post.css';
 
@@ -21,6 +22,7 @@ export default function SocialPostStudio() {
   var [state, dispatch] = useReducer(canvasReducer, '4:5', makeInitialState);
   var [loading, setLoading] = useState(false);
   var [saving, setSaving] = useState(false);
+  var [showTextPicker, setShowTextPicker] = useState(false);
   var fileInputRef = useRef(null);
 
   // Load existing design if URL has an id ────────────────────────────────
@@ -117,6 +119,29 @@ export default function SocialPostStudio() {
     };
     reader.readAsDataURL(file);
     e.target.value = '';  // clear so same file can be re-selected
+  }
+
+  // Add text layer (Phase 2) ──────────────────────────────────────────────
+  function handleAddText(textStyle) {
+    var canvas = ASPECTS[state.aspect];
+    // Size the text-layer bounding box generously. The SVG inside the
+    // box auto-scales to fit. Width = 80% of canvas, height = 1.4x fontSize.
+    var layerW = canvas.w * 0.85;
+    var layerH = Math.max(120, textStyle.defaultSize * 1.5);
+    dispatch({
+      type: 'ADD_LAYER',
+      layer: {
+        type: 'text',
+        styleKey: textStyle.key,
+        content: textStyle.defaultText,
+        fontSize: textStyle.defaultSize,
+        x: (canvas.w - layerW) / 2,
+        y: (canvas.h - layerH) / 2,
+        w: layerW,
+        h: layerH,
+      },
+    });
+    setShowTextPicker(false);
   }
 
   // Render ────────────────────────────────────────────────────────────────
@@ -231,12 +256,40 @@ export default function SocialPostStudio() {
                   <span className="sps-add-btn-icon">⬆</span>
                   <span>Upload image</span>
                 </button>
+                <button
+                  className="sps-add-btn"
+                  onClick={function() { setShowTextPicker(!showTextPicker); }}
+                >
+                  <span className="sps-add-btn-icon">T</span>
+                  <span>Add text</span>
+                </button>
                 <div className="sps-coming-soon">
-                  <strong>Coming in Phase 2-4</strong>
-                  AI photo generation, 8-style text engine, and an 80-piece object library
+                  <strong>Coming in Phase 3-4</strong>
+                  AI photo generation and 80-piece object library
                 </div>
               </div>
             </div>
+
+            {showTextPicker && (
+              <div className="sps-rail-section">
+                <div className="sps-rail-label">Pick a text style</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6 }}>
+                  {TEXT_STYLES.map(function(s) {
+                    return (
+                      <button
+                        key={s.key}
+                        onClick={function() { handleAddText(s); }}
+                        style={textStyleBtnStyle()}
+                        title={'Add ' + s.label}
+                      >
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sps-gold-2)', marginBottom: 2 }}>{s.label}</div>
+                        <div style={{ fontSize: 11, color: 'var(--sps-text-dim)' }}>{s.defaultText}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* CENTRE — canvas */}
@@ -269,7 +322,7 @@ export default function SocialPostStudio() {
                           {l.type === 'image' && l.src && <img src={l.src} alt="" />}
                         </div>
                         <span className="sps-layer-name">
-                          {l.type === 'image' ? 'Image' : l.type} · {Math.round(l.w)}×{Math.round(l.h)}
+                          {l.type === 'image' ? 'Image' : (l.type === 'text' ? ('Text: ' + (l.content || '').slice(0, 18)) : l.type)} · {Math.round(l.w)}×{Math.round(l.h)}
                         </span>
                         <button
                           className="sps-layer-action"
@@ -370,5 +423,19 @@ function inlineInput() {
     fontSize: '12px',
     fontFamily: 'inherit',
     outline: 'none',
+  };
+}
+
+function textStyleBtnStyle() {
+  return {
+    width: '100%',
+    background: 'var(--sps-bg-3)',
+    border: '1px solid var(--sps-border)',
+    borderRadius: '8px',
+    padding: '10px 12px',
+    cursor: 'pointer',
+    textAlign: 'left',
+    fontFamily: 'inherit',
+    transition: 'all 0.15s',
   };
 }

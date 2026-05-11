@@ -5,6 +5,7 @@
 // ============================================================================
 import { useRef, useEffect, useState } from 'react';
 import { ASPECTS } from './canvasReducer';
+import TextStyleRenderer from './TextStyleRenderer';
 
 // How big the on-screen canvas can be at most (px). Scales down from
 // the aspect's design-space size to fit the viewport.
@@ -160,7 +161,7 @@ export default function CanvasEngine({ state, dispatch }) {
       {sortedLayers.length === 0 && (
         <div className="sps-canvas-empty">
           <div className="sps-canvas-empty-icon">+</div>
-          <div>Add an image from the left to get started</div>
+          <div>Add an image or text from the left to get started</div>
         </div>
       )}
 
@@ -188,6 +189,16 @@ export default function CanvasEngine({ state, dispatch }) {
                 className="sps-layer-img"
                 draggable={false}
               />
+            )}
+
+            {layer.type === 'text' && (
+              <div style={{ width: '100%', height: '100%' }}>
+                <TextStyleRenderer
+                  layer={layer}
+                  width={layer.w}
+                  height={layer.h}
+                />
+              </div>
             )}
 
             {isSelected && (

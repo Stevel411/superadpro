@@ -18,8 +18,21 @@ export const ASPECTS = {
   '16:9': { w: 1920, h: 1080, label: 'Wide',     useCase: 'LinkedIn banner, hero' },
 };
 
-// Phase 1 supports only 'image' type. Phase 2 adds 'text', Phase 4 adds 'object'.
-export const LAYER_TYPES = ['image'];
+// Phase 1: image layers only. Phase 2 adds 'text', Phase 4 adds 'object'.
+export const LAYER_TYPES = ['image', 'text'];
+
+// The 8 text style keys — match the renderer in TextStyleRenderer.jsx
+// and the demos in /mnt/user-data/outputs/text-engine-demo-full.html
+export const TEXT_STYLES = [
+  { key: 'gold-extrude',  label: '3D Gold Extrude',  defaultText: 'INCOME',      defaultSize: 220 },
+  { key: 'blue-chrome',   label: '3D Blue Chrome',   defaultText: '10X',         defaultSize: 280 },
+  { key: 'solid-punch',   label: 'Solid Punch',      defaultText: "I'LL BE BACK",defaultSize: 140 },
+  { key: 'neon-glow',     label: 'Neon Glow',        defaultText: 'FUTURE IS NOW', defaultSize: 130 },
+  { key: 'inset-carved',  label: 'Inset Carved',     defaultText: 'ESTABLISHED', defaultSize: 100 },
+  { key: 'gradient-slice',label: 'Gradient Slice',   defaultText: 'DANGEROUS',   defaultSize: 170 },
+  { key: 'stamped-outline',label:'Stamped Outline',  defaultText: 'JOIN NOW',    defaultSize: 140 },
+  { key: 'editorial-serif',label:'Editorial Serif',  defaultText: 'Build smarter, not harder.', defaultSize: 84 },
+];
 
 let _idCounter = 0;
 export function newLayerId() {
