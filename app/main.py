@@ -1079,7 +1079,17 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
     if quota:
         today_str = str(date.today())
         watched = quota.today_watched if quota.today_date == today_str else 0
-        required = quota.daily_required or 1
+        # daily_required can legitimately be 0 (admin/owner exemption) — use
+        # an explicit None-check rather than `or 1` which would coerce 0 to 1.
+        required = quota.daily_required if quota.daily_required is not None else 1
+    else:
+        required = 1
+        watched  = 0
+
+    if quota and required == 0:
+        # Admin / owner exemption — no daily nag, no goal card at all
+        pass
+    elif quota:
         if watched >= required:
             goals.append({
                 "type": "watch", "color": "#22c55e", "bg": "#f0fdf4",
@@ -4406,11 +4416,14 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     # ── Watch to Earn stats ──
     from datetime import date as _date
     quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+    # daily_required can legitimately be 0 (admin/owner exemption). Use an
+    # explicit None-check rather than `or 1` which would coerce 0 to 1.
+    _dr = getattr(quota, 'daily_required', None)
     watch_stats = {
         "total_watched": getattr(quota, 'total_watched', 0) or 0,
         "streak_days": getattr(quota, 'streak_days', 0) or 0,
         "today_watched": getattr(quota, 'today_watched', 0) or 0,
-        "daily_required": getattr(quota, 'daily_required', 1) or 1,
+        "daily_required": _dr if _dr is not None else 1,
         "consecutive_missed": getattr(quota, 'consecutive_missed', 0) or 0,
         "commissions_paused": getattr(quota, 'commissions_paused', False),
     }
@@ -9018,7 +9031,16 @@ DAILY_VIDEO_QUOTA = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8}
 WATCH_DURATION    = 30   # seconds minimum
 GRACE_DAYS        = 5    # days before commissions paused
 def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
-    """Get or create watch quota record for user, syncing tier from active grid."""
+    """Get or create watch quota record for user, syncing tier from active grid.
+
+    Admin/owner accounts are exempt: daily_required is forced to 0 so the
+    Watch-to-Earn quota never holds them up. This is the master-affiliate
+    grandfather clause — admins shouldn't have to perform daily tasks to
+    keep their own commissions flowing. The check is is_admin, not a
+    flag, so it covers any future admin additions cleanly. (Added 11 May
+    2026 after Steve hit this on Tier 2 — was being asked to watch 2/day
+    despite being owner.)
+    """
     from datetime import date
     quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
 
@@ -9029,6 +9051,17 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
     ).order_by(Grid.package_tier.desc()).first()
     tier     = active_grid.package_tier if active_grid else 1
     required = DAILY_VIDEO_QUOTA.get(tier, 1)
+
+    # ── Admin/owner exemption ─────────────────────────────────────────
+    # is_admin → 0 required. The package_tier still reflects their actual
+    # grid tier (for analytics + UI display) but the daily requirement is
+    # zeroed. Downstream effects:
+    #  - missed-day branch at quota.today_watched < quota.daily_required
+    #    becomes 0 < 0 = False, so consecutive_missed never increments
+    #  - commissions_paused stays False permanently
+    #  - withdrawal qualification gate passes
+    if getattr(user, "is_admin", False):
+        required = 0
 
     if not quota:
         quota = WatchQuota(
@@ -23617,8 +23650,13 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
 
         today_str = datetime.utcnow().strftime("%Y-%m-%d")
         watched_today = quota.today_watched or 0
-        daily_limit = quota.daily_required or 8
-        quota_reached = watched_today >= daily_limit
+        # daily_required can legitimately be 0 (admin/owner exemption).
+        # Use a None check so 0 stays 0 rather than collapsing to a default.
+        daily_limit = quota.daily_required if quota.daily_required is not None else 1
+        is_exempt = (daily_limit == 0)
+        # Exempt users are always "qualified" — never blocked from earning,
+        # never asked to watch. They can still watch if they want.
+        quota_reached = is_exempt or (watched_today >= daily_limit)
 
         # Get next content using the smart scoring/rotation algorithm
         # This handles: priority scoring, re-watches, own-campaign fallback,
@@ -23726,6 +23764,7 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
             "watched_today": watched_today,
             "daily_limit": daily_limit,
             "daily_required": daily_limit,
+            "is_exempt": is_exempt,
             "quota_reached": quota_reached,
             "tier": quota.package_tier or 1,
             "has_campaign_tier": user_has_tier,

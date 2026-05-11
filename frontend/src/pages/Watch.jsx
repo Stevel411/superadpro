@@ -273,7 +273,13 @@ export default function Watch() {
   const videos = d.videos || [];
   const current = currentIdx >= 0 ? videos[currentIdx] : null;
   const watched = d.watched_today || 0;
-  const limit = d.daily_required || d.daily_limit || 1;
+  // daily_required can legitimately be 0 (admin/owner exemption). Use a
+  // nullish check rather than `||` which coerces 0 to 1.
+  const limitRaw = (d.daily_required != null ? d.daily_required : (d.daily_limit != null ? d.daily_limit : 1));
+  // Prefer the explicit is_exempt flag when the API sends it; fall back
+  // to inferring exemption from limitRaw === 0 for older response shapes.
+  const isExempt = d.is_exempt === true || limitRaw === 0;
+  const limit = isExempt ? 1 : limitRaw;  // local fallback for ring/percent math
   const timerR = 23;
   const timerC = 2 * Math.PI * timerR;
   const timerOffset = timerC * (secondsLeft / 30);
@@ -282,7 +288,7 @@ export default function Watch() {
   const ringOffset = ringC * (1 - Math.min(1, watched / limit));
   const isCurrentWatched = current?.is_watched;
   const allWatched = videos.length > 0 && videos.every(v => v.is_watched);
-  const quotaComplete = d.quota_reached || watched >= limit;
+  const quotaComplete = isExempt || d.quota_reached || watched >= limit;
   // Live progress fraction for the "Today's Progress" ring. Combines:
   //   - videos completed (watched / limit)
   //   - in-progress fraction of the CURRENT video's 30-second timer
@@ -560,12 +566,14 @@ export default function Watch() {
       topbarActions={<>
         <div style={{background:'rgba(14,165,233,.12)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,padding:'6px 14px',textAlign:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'var(--sap-accent-light)'}}>{t('watch.tier', {n:d.tier})}</div>
-          <div style={{fontSize:14,color:'rgba(186,230,253,.55)',marginTop:1}}>{t('watch.videosPerDay', {count:limit})}</div>
+          <div style={{fontSize:14,color:'rgba(186,230,253,.55)',marginTop:1}}>
+            {isExempt ? t('watch.exempt', {defaultValue: 'No daily quota'}) : t('watch.videosPerDay', {count:limit})}
+          </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,padding:'6px 14px',borderRadius:8,
-          ...(watched>=limit?{background:'rgba(22,163,74,.1)',border:'1px solid rgba(22,163,74,.2)',color:'var(--sap-green-bright)'}:{background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',color:'var(--sap-accent-light)'})}}>
-          <span style={{width:7,height:7,borderRadius:'50%',background:watched>=limit?'var(--sap-green-bright)':'var(--sap-accent-light)',animation:'pulse 1.5s infinite'}}/>
-          {watched>=limit?t('watch.qualified'):t('watch.watching')}
+          ...(quotaComplete?{background:'rgba(22,163,74,.1)',border:'1px solid rgba(22,163,74,.2)',color:'var(--sap-green-bright)'}:{background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',color:'var(--sap-accent-light)'})}}>
+          <span style={{width:7,height:7,borderRadius:'50%',background:quotaComplete?'var(--sap-green-bright)':'var(--sap-accent-light)',animation:'pulse 1.5s infinite'}}/>
+          {quotaComplete?t('watch.qualified'):t('watch.watching')}
         </div>
       </>}>
 
