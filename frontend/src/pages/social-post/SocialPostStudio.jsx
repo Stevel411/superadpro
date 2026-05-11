@@ -1,0 +1,374 @@
+// SocialPostStudio.jsx
+// ============================================================================
+// Main page for the Social Post Studio editor.
+// Routes:
+//   /creative-studio/social-post           -> gallery (handled by SocialPostGallery)
+//   /creative-studio/social-post/new       -> blank canvas
+//   /creative-studio/social-post/:designId -> load specific design
+// ============================================================================
+import { useReducer, useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import AppLayout from '../../components/layout/AppLayout';
+import CanvasEngine from './CanvasEngine';
+import {
+  canvasReducer, makeInitialState, serialiseCanvas, ASPECTS, newLayerId,
+} from './canvasReducer';
+import './social-post.css';
+
+export default function SocialPostStudio() {
+  var { designId } = useParams();
+  var navigate = useNavigate();
+  var [state, dispatch] = useReducer(canvasReducer, '4:5', makeInitialState);
+  var [loading, setLoading] = useState(false);
+  var [saving, setSaving] = useState(false);
+  var fileInputRef = useRef(null);
+
+  // Load existing design if URL has an id ────────────────────────────────
+  useEffect(function() {
+    if (!designId || designId === 'new') return;
+    var numericId = parseInt(designId, 10);
+    if (isNaN(numericId)) return;
+
+    setLoading(true);
+    fetch('/api/social-post/design/' + numericId)
+      .then(function(r) {
+        if (!r.ok) throw new Error('Design not found');
+        return r.json();
+      })
+      .then(function(data) {
+        dispatch({ type: 'LOAD_DESIGN', payload: data });
+      })
+      .catch(function(err) {
+        console.error('Load failed:', err);
+        navigate('/creative-studio/social-post', { replace: true });
+      })
+      .finally(function() { setLoading(false); });
+  }, [designId, navigate]);
+
+  // Save ──────────────────────────────────────────────────────────────────
+  function handleSave() {
+    if (saving) return;
+    setSaving(true);
+    var body = {
+      id: state.designId || undefined,
+      name: state.name,
+      aspect_ratio: state.aspect,
+      canvas_json: serialiseCanvas(state),
+    };
+    fetch('/api/social-post/save-design', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then(function(r) {
+        if (!r.ok) return r.json().then(function(e) { throw new Error(e.error || 'Save failed'); });
+        return r.json();
+      })
+      .then(function(data) {
+        dispatch({ type: 'MARK_SAVED', designId: data.id });
+        // If this was a new design, update the URL to the saved id
+        if (!designId || designId === 'new') {
+          navigate('/creative-studio/social-post/' + data.id, { replace: true });
+        }
+      })
+      .catch(function(err) {
+        alert('Save failed: ' + err.message);
+      })
+      .finally(function() { setSaving(false); });
+  }
+
+  // Image upload (Phase 1 — local file becomes a layer) ───────────────────
+  function handleAddImage() {
+    if (fileInputRef.current) fileInputRef.current.click();
+  }
+
+  function handleFileSelected(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    // Phase 1: use FileReader -> data URL so it works without R2 upload.
+    // Phase 3 will upload to R2 and store the R2 url instead.
+    var reader = new FileReader();
+    reader.onload = function(evt) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = ASPECTS[state.aspect];
+        // Scale image to fit nicely inside canvas (max 80% of either dim)
+        var maxW = canvas.w * 0.8;
+        var maxH = canvas.h * 0.8;
+        var w = img.width, h = img.height;
+        if (w > maxW) { h = h * (maxW / w); w = maxW; }
+        if (h > maxH) { w = w * (maxH / h); h = maxH; }
+        dispatch({
+          type: 'ADD_LAYER',
+          layer: {
+            type: 'image',
+            src: evt.target.result,
+            x: (canvas.w - w) / 2,
+            y: (canvas.h - h) / 2,
+            w: w, h: h,
+          },
+        });
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';  // clear so same file can be re-selected
+  }
+
+  // Render ────────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="sps-root">
+          <div className="sps-loading">Loading design…</div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  var selectedLayer = state.selectedId
+    ? state.layers.find(function(l) { return l.id === state.selectedId; })
+    : null;
+
+  return (
+    <AppLayout>
+      <div className="sps-root">
+        {/* Hidden file input for image upload */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/*"
+          onChange={handleFileSelected}
+          style={{ display: 'none' }}
+        />
+
+        {/* Top bar */}
+        <div className="sps-topbar">
+          <button
+            className="sps-topbar-back"
+            onClick={function() { navigate('/creative-studio/social-post'); }}
+            title="Back to gallery"
+          >
+            ← Designs
+          </button>
+
+          {state.dirty && <span className="sps-dirty-dot" title="Unsaved changes" />}
+          <input
+            type="text"
+            className="sps-topbar-title"
+            value={state.name}
+            onChange={function(e) { dispatch({ type: 'SET_NAME', name: e.target.value }); }}
+            placeholder="Untitled Design"
+          />
+
+          <button
+            className="sps-topbar-btn"
+            onClick={function() { dispatch({ type: 'UNDO' }); }}
+            disabled={state.history.length === 0}
+            title="Undo (Cmd-Z)"
+          >
+            ↶ Undo
+          </button>
+          <button
+            className="sps-topbar-btn"
+            onClick={function() { dispatch({ type: 'REDO' }); }}
+            disabled={state.future.length === 0}
+            title="Redo (Cmd-Shift-Z)"
+          >
+            ↷ Redo
+          </button>
+
+          <button
+            className="sps-topbar-btn is-primary"
+            onClick={handleSave}
+            disabled={saving || !state.dirty}
+          >
+            {saving ? 'Saving…' : (state.dirty ? 'Save' : 'Saved')}
+          </button>
+        </div>
+
+        {/* Main 3-column workspace */}
+        <div className="sps-workspace">
+
+          {/* LEFT RAIL — tools */}
+          <div className="sps-rail-left">
+            <div className="sps-rail-section">
+              <div className="sps-rail-label">Aspect ratio</div>
+              <div className="sps-aspect-grid">
+                {Object.keys(ASPECTS).map(function(key) {
+                  var a = ASPECTS[key];
+                  var ratio = a.w / a.h;
+                  // Visual shape preview
+                  var maxDim = 22;
+                  var shapeW, shapeH;
+                  if (ratio >= 1) { shapeW = maxDim; shapeH = maxDim / ratio; }
+                  else { shapeH = maxDim; shapeW = maxDim * ratio; }
+                  return (
+                    <button
+                      key={key}
+                      className={'sps-aspect-btn' + (key === state.aspect ? ' is-active' : '')}
+                      onClick={function() { dispatch({ type: 'SET_ASPECT', aspect: key }); }}
+                    >
+                      <div
+                        className="sps-aspect-shape"
+                        style={{ width: shapeW + 'px', height: shapeH + 'px' }}
+                      />
+                      <span>{key}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="sps-rail-section">
+              <div className="sps-rail-label">Add to canvas</div>
+              <div className="sps-add-btn-stack">
+                <button className="sps-add-btn" onClick={handleAddImage}>
+                  <span className="sps-add-btn-icon">⬆</span>
+                  <span>Upload image</span>
+                </button>
+                <div className="sps-coming-soon">
+                  <strong>Coming in Phase 2-4</strong>
+                  AI photo generation, 8-style text engine, and an 80-piece object library
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CENTRE — canvas */}
+          <div className="sps-canvas-area">
+            <CanvasEngine state={state} dispatch={dispatch} />
+          </div>
+
+          {/* RIGHT RAIL — layers */}
+          <div className="sps-rail-right">
+            <div className="sps-rail-section">
+              <div className="sps-rail-label">Layers</div>
+              {state.layers.length === 0 ? (
+                <div className="sps-empty-state">
+                  No layers yet.<br />
+                  Add an image from the left rail to get started.
+                </div>
+              ) : (
+                state.layers
+                  .slice()
+                  .sort(function(a, b) { return (b.zIndex || 0) - (a.zIndex || 0); })
+                  .map(function(l) {
+                    var isSelected = l.id === state.selectedId;
+                    return (
+                      <div
+                        key={l.id}
+                        className={'sps-layer-row' + (isSelected ? ' is-selected' : '')}
+                        onClick={function() { dispatch({ type: 'SELECT_LAYER', id: l.id }); }}
+                      >
+                        <div className="sps-layer-thumb">
+                          {l.type === 'image' && l.src && <img src={l.src} alt="" />}
+                        </div>
+                        <span className="sps-layer-name">
+                          {l.type === 'image' ? 'Image' : l.type} · {Math.round(l.w)}×{Math.round(l.h)}
+                        </span>
+                        <button
+                          className="sps-layer-action"
+                          title={l.locked ? 'Unlock' : 'Lock'}
+                          onClick={function(e) {
+                            e.stopPropagation();
+                            dispatch({ type: 'TOGGLE_LOCK', id: l.id });
+                          }}
+                        >
+                          {l.locked ? '🔒' : '🔓'}
+                        </button>
+                        <button
+                          className="sps-layer-action is-danger"
+                          title="Delete"
+                          onClick={function(e) {
+                            e.stopPropagation();
+                            dispatch({ type: 'DELETE_LAYER', id: l.id });
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+
+            {selectedLayer && (
+              <div className="sps-rail-section">
+                <div className="sps-rail-label">Properties</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                  <div>
+                    <div style={{ color: 'var(--sps-text-mute)', marginBottom: 4 }}>X</div>
+                    <input type="number" value={Math.round(selectedLayer.x)}
+                      style={inlineInput()}
+                      onChange={function(e) {
+                        dispatch({ type: 'UPDATE_LAYER', id: selectedLayer.id, patch: { x: parseFloat(e.target.value) || 0 } });
+                      }}/>
+                  </div>
+                  <div>
+                    <div style={{ color: 'var(--sps-text-mute)', marginBottom: 4 }}>Y</div>
+                    <input type="number" value={Math.round(selectedLayer.y)}
+                      style={inlineInput()}
+                      onChange={function(e) {
+                        dispatch({ type: 'UPDATE_LAYER', id: selectedLayer.id, patch: { y: parseFloat(e.target.value) || 0 } });
+                      }}/>
+                  </div>
+                  <div>
+                    <div style={{ color: 'var(--sps-text-mute)', marginBottom: 4 }}>Width</div>
+                    <input type="number" value={Math.round(selectedLayer.w)} min={40}
+                      style={inlineInput()}
+                      onChange={function(e) {
+                        dispatch({ type: 'UPDATE_LAYER', id: selectedLayer.id, patch: { w: Math.max(40, parseFloat(e.target.value) || 40) } });
+                      }}/>
+                  </div>
+                  <div>
+                    <div style={{ color: 'var(--sps-text-mute)', marginBottom: 4 }}>Height</div>
+                    <input type="number" value={Math.round(selectedLayer.h)} min={40}
+                      style={inlineInput()}
+                      onChange={function(e) {
+                        dispatch({ type: 'UPDATE_LAYER', id: selectedLayer.id, patch: { h: Math.max(40, parseFloat(e.target.value) || 40) } });
+                      }}/>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 14, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <button className="sps-topbar-btn" style={{ fontSize: 11, padding: '6px 10px' }}
+                    onClick={function() { dispatch({ type: 'REORDER_LAYER', id: selectedLayer.id, direction: 'forward' }); }}>
+                    Forward
+                  </button>
+                  <button className="sps-topbar-btn" style={{ fontSize: 11, padding: '6px 10px' }}
+                    onClick={function() { dispatch({ type: 'REORDER_LAYER', id: selectedLayer.id, direction: 'backward' }); }}>
+                    Backward
+                  </button>
+                  <button className="sps-topbar-btn" style={{ fontSize: 11, padding: '6px 10px' }}
+                    onClick={function() { dispatch({ type: 'DUPLICATE_LAYER', id: selectedLayer.id }); }}>
+                    Duplicate
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
+
+function inlineInput() {
+  return {
+    width: '100%',
+    background: 'var(--sps-bg-3)',
+    border: '1px solid var(--sps-border)',
+    color: 'var(--sps-text)',
+    padding: '6px 8px',
+    borderRadius: '6px',
+    fontSize: '12px',
+    fontFamily: 'inherit',
+    outline: 'none',
+  };
+}

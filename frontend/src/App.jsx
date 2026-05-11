@@ -86,6 +86,8 @@ const NexusStreamPage = React.lazy(() => import('./pages/public/NexusStreamPage'
 const CreditMatrixVisualiser = React.lazy(() => import('./pages/CreditMatrixVisualiser'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const CreativeStudio = React.lazy(() => import('./pages/creative-studio/CreativeStudio'));
+const SocialPostStudio = React.lazy(() => import('./pages/social-post/SocialPostStudio'));
+const SocialPostGallery = React.lazy(() => import('./pages/social-post/SocialPostGallery'));
 const ContentCreatorPage = React.lazy(() => import('./pages/content-creator/ContentCreatorPage'));
 const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
 const MemeGenerator = React.lazy(() => import('./pages/free/MemeGenerator'));
@@ -384,6 +386,8 @@ function AppRoutes() {
       <Route path="/nexus-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrixVisualiser /></RequireTier></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
       <Route path="/creative-studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><CreativeStudio /></React.Suspense></RequireTier></ProtectedRoute>} />
+      <Route path="/creative-studio/social-post" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#0a0a10',color:'#d4a017',fontFamily:'Inter,sans-serif'}}>{'Loading Social Post Studio…'}</div>}><SocialPostGallery /></React.Suspense></RequireTier></ProtectedRoute>} />
+      <Route path="/creative-studio/social-post/:designId" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#0a0a10',color:'#d4a017',fontFamily:'Inter,sans-serif'}}>{'Loading design…'}</div>}><SocialPostStudio /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/content-creator" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Content Creator…'}</div>}><ContentCreatorPage /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><RequireTier tier="pro"><MyLeads /></RequireTier></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><RequireTier tier="basic"><LinkTools /></RequireTier></ProtectedRoute>} />

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import AppLayout from '../../components/layout/AppLayout';
 import { CreditMatrixContent } from '../CreditMatrix';
 import { VideoCreatorContent } from '../VideoCreator';
@@ -65,6 +65,7 @@ function getTabs(t) {
     { key: 'full-video',  label: t('creativeStudio.tab.fullVideo'),  icon: 'film' },
     { key: 'images',      label: t('creativeStudio.tab.images'),     icon: 'image' },
     { key: 'reimagine',   label: t('creativeStudio.tab.reimagine'),  icon: 'wand' },
+    { key: 'social-post', label: t('creativeStudio.tab.socialPost', 'Social Post'), icon: 'sparkle', external: true },
     { key: 'music',       label: t('creativeStudio.tab.music'),      icon: 'music' },
     { key: 'voiceover',   label: t('creativeStudio.tab.voiceover'),  icon: 'mic' },
     { key: 'lip-sync',    label: t('creativeStudio.tab.lipSync'),    icon: 'edit' },
@@ -84,6 +85,7 @@ function TabIcon({ type }) {
   if (type === 'grid') return <svg style={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>;
   if (type === 'clock') return <svg style={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>;
   if (type === 'wand') return <svg style={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M17.8 6.2L19 5M12.2 11.8L11 13M12.2 6.2L11 5"/><line x1="15" y1="9" x2="3" y2="21"/></svg>;
+  if (type === 'sparkle') return <svg style={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3l1.5 5L19 9.5l-5.5 1.5L12 16l-1.5-5L5 9.5 10.5 8z"/><path d="M19 17v3M17.5 18.5h3" strokeLinecap="round"/></svg>;
   return null;
 }
 
@@ -97,11 +99,17 @@ export default function CreativeStudio() {
   var CAMERA_MOTIONS = getCameraMotions(t);
   var TABS = getTabs(t);
   var [searchParams, setSearchParams] = useSearchParams();
+  var navigate = useNavigate();
   var initialTab = searchParams.get('tab') || 'video-clips';
   var [tab, setTab] = useState(initialTab);
 
 
   function switchTab(t) {
+    // Some tabs route to separate pages instead of switching in-place.
+    if (t === 'social-post') {
+      navigate('/creative-studio/social-post');
+      return;
+    }
     setTab(t);
     setSearchParams(t === 'video-clips' ? {} : { tab: t }, { replace: true });
   }
