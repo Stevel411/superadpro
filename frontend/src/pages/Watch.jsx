@@ -384,7 +384,7 @@ export default function Watch() {
     const actualWatched = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
       <AppLayout title={t('watch.title')} subtitle={t('watch.quotaComplete')}
-        bgStyle={{padding:0,margin:0,display:'flex',flexDirection:'column',minHeight:'calc(100vh - 72px)'}}>
+        bgStyle={{padding:0,margin:0,display:'flex',flexDirection:'column',minHeight:'calc(100dvh - 72px)'}}>
         <style>{CSS}</style>
         <style>{`
 @keyframes confFall1{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(800px) rotate(720deg);opacity:0}}

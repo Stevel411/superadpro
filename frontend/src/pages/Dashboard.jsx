@@ -1051,7 +1051,7 @@ export default function Dashboard() {
       `}</style>
 
       {/* New member toast notifications */}
-      {toasts.length > 0 && <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420 }}>
+      {toasts.length > 0 && <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420, transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)', willChange: 'transform' }}>
         {toasts.map(function(toast) {
           var isPro = toast.tier === 'pro';
           var commission = isPro ? '$17.50' : '$10.00';

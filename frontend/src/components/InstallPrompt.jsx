@@ -102,6 +102,11 @@ export default function InstallPrompt() {
     boxShadow: '0 12px 40px rgba(14,165,233,.45), 0 0 0 1px rgba(255,255,255,.1)',
     zIndex: 9998,
     animation: 'sapInstallSlideUp .35s ease-out',
+    // iOS Safari mid-scroll drift fix (same as MobileTabBar 12 May 2026):
+    // force compositing layer so position:fixed stays anchored to viewport.
+    transform: 'translateZ(0)',
+    WebkitTransform: 'translateZ(0)',
+    willChange: 'transform',
   };
 
   var iconBoxStyle = {
