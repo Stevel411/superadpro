@@ -194,6 +194,11 @@ class User(Base):
     story_prompt_dismissed_at = Column(DateTime, nullable=True)
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
+    # Email broadcast opt-out (added 11 May 2026). True = excluded from admin
+    # broadcast emails. Transactional emails (welcome, commission notifications,
+    # password reset, etc.) ignore this flag and always send.
+    email_opt_out          = Column(Boolean, default=False, index=True)
+    email_unsubscribe_token = Column(String(64), nullable=True, index=True)  # opaque token for one-click unsubscribe link
     course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
     bonus_earnings          = Column(Money, default=0.0)               # lifetime grid completion bonus earnings
     marketplace_earnings    = Column(Money, default=0.0)               # lifetime earnings from course marketplace (creator + sponsor)
@@ -1533,6 +1538,33 @@ def run_migrations():
             "SELECT 1, 'live' "
             "WHERE NOT EXISTS (SELECT 1 FROM platform_status WHERE id = 1)"
         ),
+        # ── Admin email broadcast (11 May 2026) ──
+        # Lets the owner send broadcast emails to all members from the
+        # admin panel. List is always live (pulled from users table at
+        # send time). email_opt_out gates per-member opt-out for compliance.
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_opt_out BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_unsubscribe_token VARCHAR(64)",
+        "CREATE INDEX IF NOT EXISTS idx_users_email_unsub_token ON users(email_unsubscribe_token)",
+        "CREATE INDEX IF NOT EXISTS idx_users_email_opt_out ON users(email_opt_out)",
+        (
+            "CREATE TABLE IF NOT EXISTS admin_broadcasts ("
+            "id SERIAL PRIMARY KEY, "
+            "subject VARCHAR(300) NOT NULL, "
+            "body_html TEXT NOT NULL, "
+            "body_text TEXT, "
+            "audience_filter TEXT NOT NULL DEFAULT '{\"status\":\"all\"}', "
+            "recipient_count INTEGER DEFAULT 0, "
+            "sent_count INTEGER DEFAULT 0, "
+            "failed_count INTEGER DEFAULT 0, "
+            "status VARCHAR(20) DEFAULT 'pending', "
+            "error_message TEXT, "
+            "sent_by_user_id INTEGER REFERENCES users(id), "
+            "created_at TIMESTAMP DEFAULT NOW(), "
+            "started_at TIMESTAMP, "
+            "completed_at TIMESTAMP)"
+        ),
+        "CREATE INDEX IF NOT EXISTS idx_admin_broadcasts_status ON admin_broadcasts(status)",
+        "CREATE INDEX IF NOT EXISTS idx_admin_broadcasts_created ON admin_broadcasts(created_at DESC)",
         "CREATE TABLE IF NOT EXISTS ai_usage_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, quota_date VARCHAR, campaign_studio_uses INTEGER DEFAULT 0, niche_finder_uses INTEGER DEFAULT 0, campaign_studio_total INTEGER DEFAULT 0, niche_finder_total INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",
@@ -2967,3 +2999,45 @@ class PlatformStatus(Base):
     set_by_user_id  = Column(Integer, ForeignKey("users.id"), nullable=True)
     set_at          = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Admin Email Broadcast (added 11 May 2026)
+#
+# Lets the platform owner send broadcast emails to all members directly
+# from the admin panel, without leaving the platform or syncing to an
+# external email tool. List is always live: emails are pulled from the
+# users table at send time.
+# ──────────────────────────────────────────────────────────────────────
+
+class AdminBroadcast(Base):
+    """Log of every admin email broadcast sent.
+    
+    Records subject, body, recipient filter, count, and send progress so
+    the admin can see what's been sent and to whom. Progress fields let
+    the send happen in background batches without losing track.
+    """
+    __tablename__ = "admin_broadcasts"
+    id                = Column(Integer, primary_key=True, index=True)
+    subject           = Column(String(300), nullable=False)
+    body_html         = Column(Text, nullable=False)
+    body_text         = Column(Text, nullable=True)
+    
+    # Audience filter — JSON serialised dict like {"status": "all"} or 
+    # {"status": "active", "tier_min": 2, "country": "GB"}
+    audience_filter   = Column(Text, nullable=False, default='{"status":"all"}')
+    
+    # Send progress
+    recipient_count   = Column(Integer, default=0)        # total resolved at send time
+    sent_count        = Column(Integer, default=0)        # actually delivered
+    failed_count      = Column(Integer, default=0)
+    status            = Column(String(20), default="pending", index=True)  # pending/sending/completed/failed
+    error_message     = Column(Text, nullable=True)
+    
+    # Metadata
+    sent_by_user_id   = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at        = Column(DateTime, default=datetime.utcnow, index=True)
+    started_at        = Column(DateTime, nullable=True)
+    completed_at      = Column(DateTime, nullable=True)
+
+    sent_by = relationship("User", foreign_keys=[sent_by_user_id])

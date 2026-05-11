@@ -55,6 +55,7 @@ const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const PassupVisualiser = React.lazy(() => import('./pages/PassupVisualiser'));
 const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminEmailBroadcast = React.lazy(() => import('./pages/AdminEmailBroadcast'));
 const AdminStories = React.lazy(() => import('./pages/AdminStories'));
 const AdminShowcase = React.lazy(() => import('./pages/AdminShowcase'));
 const AdminOrphans = React.lazy(() => import('./pages/AdminOrphans'));
@@ -372,6 +373,7 @@ function AppRoutes() {
       <Route path="/admin/stories" element={<ProtectedRoute><AdminStories /></ProtectedRoute>} />
       <Route path="/admin/showcase" element={<ProtectedRoute><AdminShowcase /></ProtectedRoute>} />
       <Route path="/admin/orphans" element={<ProtectedRoute><AdminOrphans /></ProtectedRoute>} />
+      <Route path="/admin/email-broadcast" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f8fafc',color:'#0ea5e9',fontFamily:'DM Sans,sans-serif'}}>{'Loading Email Broadcast…'}</div>}><AdminEmailBroadcast /></React.Suspense></ProtectedRoute>} />
       <Route path="/pro/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><SuperPagesEditor /></RequireTier></ProtectedRoute>} />
