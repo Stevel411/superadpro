@@ -23583,7 +23583,16 @@ def api_achievements_data(request: Request, user: User = Depends(get_current_use
 @app.post("/api/support/ticket")
 async def api_support_ticket(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
-    """Submit a support ticket."""
+    """Submit a support ticket.
+
+    Two-channel notification:
+      1. In-app notification on the admin's bell icon (existing)
+      2. Email to SUPPORT_EMAIL (or DAILY_BRIEFING_EMAIL as fallback)
+         so admin gets a real-time push regardless of whether they're
+         logged in. Wired 11 May 2026 after launch revealed that in-app
+         notifications alone meant overnight tickets sat unnoticed until
+         the admin next signed in.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     body = await request.json()
@@ -23591,7 +23600,7 @@ async def api_support_ticket(request: Request, user: User = Depends(get_current_
     message = (body.get("message") or "").strip()[:5000]
     if not subject or not message:
         return JSONResponse({"error": "Subject and message required"}, status_code=400)
-    # Notify admin
+    # Notify admin in-app
     admin = db.query(User).filter(User.is_admin == True).first()
     if admin:
         notif = Notification(
@@ -23602,6 +23611,86 @@ async def api_support_ticket(request: Request, user: User = Depends(get_current_
         )
         db.add(notif)
         db.commit()
+
+    # ── Email the admin ──
+    # Falls back to DAILY_BRIEFING_EMAIL if a dedicated SUPPORT_EMAIL
+    # isn't configured, so this works out-of-the-box on Railway without
+    # an extra env var (since DAILY_BRIEFING_EMAIL is already set).
+    # Set SUPPORT_EMAIL separately later if you want tickets routed to
+    # a different inbox (dedicated support address, VA, etc.).
+    try:
+        recipient = (
+            os.environ.get("SUPPORT_EMAIL", "").strip()
+            or os.environ.get("DAILY_BRIEFING_EMAIL", "").strip()
+        )
+        if recipient:
+            from .brevo_service import send_email, wrap_email_html
+            # Capture identifying info so we can reply or look the user up.
+            user_label = (
+                f"{user.first_name} {user.last_name}".strip()
+                if (user.first_name or user.last_name)
+                else user.username
+            )
+            sent_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+            # Escape user-supplied content so a malicious member can't
+            # inject HTML into the admin's inbox. Brevo wraps the body in
+            # standard email scaffolding, but the message itself is raw
+            # user input — html.escape() is the right defence here.
+            import html as _html
+            safe_subject = _html.escape(subject)
+            safe_message = _html.escape(message).replace("\n", "<br>")
+            html_body = wrap_email_html(f"""
+                <h2 style="font-family:Sora,sans-serif;color:#0f172a;margin:0 0 12px">
+                    🎧 New support ticket
+                </h2>
+                <p style="color:#64748b;font-size:13px;margin:0 0 20px">
+                    Submitted {sent_at}
+                </p>
+                <div style="background:#f8fafc;border-left:4px solid #2563eb;padding:14px 18px;border-radius:8px;margin-bottom:18px">
+                    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">
+                        From
+                    </div>
+                    <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:10px">
+                        {_html.escape(user_label)} <span style="font-weight:500;color:#64748b">(@{_html.escape(user.username)})</span>
+                    </div>
+                    <div style="font-size:13px;color:#64748b">
+                        {_html.escape(user.email or "no email on file")} · user_id {user.id}
+                    </div>
+                </div>
+                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px 18px;margin-bottom:18px">
+                    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">
+                        Subject
+                    </div>
+                    <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:14px">
+                        {safe_subject}
+                    </div>
+                    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">
+                        Message
+                    </div>
+                    <div style="font-size:14px;color:#0f172a;line-height:1.55">
+                        {safe_message}
+                    </div>
+                </div>
+                <p style="color:#64748b;font-size:12px;margin:18px 0 0">
+                    Reply directly to this email and the member will receive your response at {_html.escape(user.email or "(no email)")}.
+                </p>
+            """)
+            await send_email(
+                to_email=recipient,
+                to_name="Steve",
+                subject=f"[SuperAdPro Support] {subject}",
+                html_content=html_body,
+                # Reply-To so admin can hit Reply in their inbox and the
+                # response goes back to the member directly.
+                reply_to_email=user.email or None,
+                reply_to_name=user_label if user_label else None,
+            )
+    except Exception as exc:
+        # Email failure must not block ticket submission. The in-app
+        # notification is already saved above, so the admin will still
+        # see the ticket when they next sign in.
+        logger.warning(f"[support] Email notification failed: {exc}")
+
     return {"ok": True}
 @app.post("/api/watch/complete")
 @limiter.limit("12/minute")

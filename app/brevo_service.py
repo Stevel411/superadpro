@@ -23,7 +23,9 @@ def _headers():
     }
 
 
-async def send_email(to_email: str, to_name: str, subject: str, html_content: str, sender_name: str = None, sender_email: str = None):
+async def send_email(to_email: str, to_name: str, subject: str, html_content: str,
+                     sender_name: str = None, sender_email: str = None,
+                     reply_to_email: str = None, reply_to_name: str = None):
     """Send a single transactional email via Brevo API.
 
     Retries with exponential backoff on transient failures (429 rate limit,
@@ -35,6 +37,12 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
 
     Permanent failures (400 bad request, 401/403 auth) are NOT retried —
     those indicate a code or config bug and retrying just delays surfacing it.
+
+    reply_to_email: optional address the admin's reply should go to. When
+    set, hitting Reply in the recipient's mail client targets this address
+    instead of the FROM sender. Useful for support tickets where the
+    recipient (admin) should be able to reply directly to the member who
+    submitted the ticket. Brevo supports this via the replyTo field.
     """
     if not BREVO_API_KEY:
         print("[Brevo] No API key — email not sent")
@@ -49,6 +57,11 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
         "subject": subject,
         "htmlContent": html_content,
     }
+    if reply_to_email:
+        payload["replyTo"] = {
+            "email": reply_to_email,
+            "name": reply_to_name or reply_to_email,
+        }
 
     # Retry config: 3 attempts total, exponential backoff 1s → 2s → 4s
     # Total max delay is 7 seconds before giving up — within the typical
