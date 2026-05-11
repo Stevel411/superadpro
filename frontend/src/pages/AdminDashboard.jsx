@@ -56,6 +56,167 @@ export default function AdminDashboard() {
 // OVERVIEW
 // ══════════════════════════════════════════════════════════
 
+// ── Maintenance Mode 'panic button' ─────────────────────────
+// Top of the admin Overview tab. Two clear buttons:
+//   - "Pause withdrawals only" (soft_maintenance)
+//   - "Pause EVERYTHING money-related" (hard_maintenance)
+// Plus a "Resume normal operation" button to return to 'live'.
+// Always visible — when 'live' the panel is collapsed/quiet; when in
+// either maintenance mode it expands into a prominent red/amber banner
+// so the admin can't miss that the platform is paused.
+function MaintenancePanel() {
+  var [status, setStatus] = useState(null);
+  var [busy, setBusy] = useState(false);
+  var [expanded, setExpanded] = useState(false);
+  var [reason, setReason] = useState('');
+
+  function refresh() {
+    apiGet('/admin/api/maintenance-status').then(setStatus).catch(function() {});
+  }
+  useEffect(function() { refresh(); }, []);
+
+  if (!status) return null;
+
+  var mode = status.mode || 'live';
+  var isLive = mode === 'live';
+  var isSoft = mode === 'soft_maintenance';
+  var isHard = mode === 'hard_maintenance';
+
+  function setMode(newMode) {
+    var confirmMsg = (
+      newMode === 'soft_maintenance' ? 'Pause withdrawals platform-wide?\n\nMembers will still be able to log in, view their wallet, sign up, and buy tiers. Only withdrawals will be blocked. The withdrawal cron will also pause.' :
+      newMode === 'hard_maintenance' ? 'Pause ALL money flows + signups?\n\nWithdrawals, tier purchases, course purchases, P2P transfers, and new registrations will all be blocked. Members can still log in and view their data.' :
+      'Resume normal operation?\n\nAll endpoints will accept transactions again. Any queued withdrawals will resume processing on the next cron tick.'
+    );
+    if (!confirm(confirmMsg)) return;
+    setBusy(true);
+    apiPost('/admin/api/maintenance-set', { mode: newMode, reason: reason })
+      .then(function() {
+        setReason('');
+        refresh();
+      })
+      .catch(function(err) {
+        alert('Failed to change mode: ' + (err && err.message ? err.message : 'unknown error'));
+      })
+      .finally(function() { setBusy(false); });
+  }
+
+  // ── LIVE state: small green pill, click to expand the controls ──
+  if (isLive && !expanded) {
+    return (
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',
+                    background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:10,
+                    padding:'10px 16px',marginBottom:16}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <div style={{width:10,height:10,borderRadius:'50%',background:'#16a34a'}}/>
+          <span style={{fontSize:13,fontWeight:700,color:'#15803d'}}>
+            Platform live — all systems operational
+          </span>
+        </div>
+        <button onClick={function(){ setExpanded(true); }}
+          style={{padding:'6px 12px',borderRadius:6,border:'1px solid #bbf7d0',
+                  background:'#fff',color:'#15803d',fontSize:12,fontWeight:700,
+                  cursor:'pointer',fontFamily:'inherit'}}>
+          Panic button…
+        </button>
+      </div>
+    );
+  }
+
+  // ── MAINTENANCE state OR expanded LIVE: show full panel ──
+  var panelBg = isHard ? '#fef2f2' : isSoft ? '#fffbeb' : '#fff';
+  var panelBorder = isHard ? '#fecaca' : isSoft ? '#fed7aa' : '#e8ecf2';
+  var titleColor = isHard ? '#991b1b' : isSoft ? '#92400e' : 'var(--sap-text-primary)';
+
+  return (
+    <div style={{background:panelBg,border:'2px solid '+panelBorder,borderRadius:14,
+                  padding:'18px 22px',marginBottom:20}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+        <div>
+          <div style={{fontSize:16,fontWeight:800,color:titleColor,fontFamily:'Sora,sans-serif',marginBottom:4}}>
+            {isHard ? '🔴 HARD MAINTENANCE — all money flows paused'
+              : isSoft ? '🟡 SOFT MAINTENANCE — withdrawals paused'
+              : '⚙️ Platform controls'}
+          </div>
+          {!isLive && status.set_at && (
+            <div style={{fontSize:12,color:'#64748b'}}>
+              Set {new Date(status.set_at).toLocaleString()}
+              {status.set_by_username ? ' by @' + status.set_by_username : ''}
+              {status.reason ? ' · ' + status.reason : ''}
+            </div>
+          )}
+        </div>
+        {isLive && expanded && (
+          <button onClick={function(){ setExpanded(false); }}
+            style={{padding:'4px 10px',borderRadius:6,border:'none',background:'transparent',
+                    color:'#64748b',fontSize:12,cursor:'pointer'}}>
+            Close
+          </button>
+        )}
+      </div>
+
+      {/* Reason input (optional) — only when LIVE since you need it BEFORE flipping. */}
+      {isLive && (
+        <div style={{marginBottom:12}}>
+          <label style={{display:'block',fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:0.5,marginBottom:4}}>
+            Reason (optional, recorded with the toggle)
+          </label>
+          <input type="text" value={reason} onChange={function(e){ setReason(e.target.value); }}
+            placeholder="e.g. Investigating commission anomaly"
+            style={{width:'100%',padding:'8px 12px',borderRadius:8,border:'1px solid #e2e8f0',
+                    fontSize:13,fontFamily:'inherit'}}/>
+        </div>
+      )}
+
+      {/* Buttons */}
+      <div style={{display:'flex',flexWrap:'wrap',gap:10}}>
+        {isLive && (
+          <>
+            <button onClick={function(){ setMode('soft_maintenance'); }} disabled={busy}
+              style={{padding:'10px 16px',borderRadius:8,border:'1.5px solid #f59e0b',
+                      background:'#fff',color:'#92400e',fontSize:13,fontWeight:700,
+                      cursor:busy?'not-allowed':'pointer',fontFamily:'inherit'}}>
+              🟡 Pause withdrawals only
+            </button>
+            <button onClick={function(){ setMode('hard_maintenance'); }} disabled={busy}
+              style={{padding:'10px 16px',borderRadius:8,border:'none',
+                      background:'#dc2626',color:'#fff',fontSize:13,fontWeight:700,
+                      cursor:busy?'not-allowed':'pointer',fontFamily:'inherit'}}>
+              🔴 Pause EVERYTHING money-related
+            </button>
+          </>
+        )}
+        {!isLive && (
+          <button onClick={function(){ setMode('live'); }} disabled={busy}
+            style={{padding:'10px 18px',borderRadius:8,border:'none',
+                    background:'#16a34a',color:'#fff',fontSize:14,fontWeight:800,
+                    cursor:busy?'not-allowed':'pointer',fontFamily:'inherit'}}>
+            ✅ Resume normal operation
+          </button>
+        )}
+        {isSoft && (
+          <button onClick={function(){ setMode('hard_maintenance'); }} disabled={busy}
+            style={{padding:'10px 16px',borderRadius:8,border:'none',
+                    background:'#dc2626',color:'#fff',fontSize:13,fontWeight:700,
+                    cursor:busy?'not-allowed':'pointer',fontFamily:'inherit'}}>
+            🔴 Escalate to hard maintenance
+          </button>
+        )}
+      </div>
+
+      {/* Quick reference of what each mode does */}
+      {isLive && expanded && (
+        <div style={{marginTop:14,padding:'12px 14px',background:'#f8fafc',borderRadius:8,fontSize:12,color:'#64748b',lineHeight:1.6}}>
+          <div><strong style={{color:'#92400e'}}>Soft</strong>: blocks withdrawals (+ pauses retry cron). Everything else stays live.</div>
+          <div><strong style={{color:'#991b1b'}}>Hard</strong>: blocks withdrawals, tier purchases, course purchases, credit packs, P2P transfers, and new signups.</div>
+          <div style={{marginTop:6}}>Members can always log in and view their wallet. Support page always works.</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function OverviewTab() {
   var [data, setData] = useState(null);
   var [health, setHealth] = useState(null);
@@ -76,6 +237,7 @@ function OverviewTab() {
 
   return (
     <div>
+      <MaintenancePanel/>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:20}}>
         {stats.map(function(s,i) {
           var Icon = s.icon;

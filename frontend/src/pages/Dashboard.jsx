@@ -58,6 +58,22 @@ export default function Dashboard() {
     apiPost('/api/member/story/prompt-dismiss', {}).catch(function() {});
   }
 
+  // ── Platform maintenance status ──
+  // Polled on mount and every 60s so members see the banner appear
+  // shortly after admin flips maintenance mode. Fail-silent: if the
+  // endpoint errors, we assume live (no banner).
+  const [platformMode, setPlatformMode] = useState('live');
+  useEffect(function() {
+    function fetchStatus() {
+      apiGet('/api/platform-status')
+        .then(function(r) { if (r && r.mode) setPlatformMode(r.mode); })
+        .catch(function() {});
+    }
+    fetchStatus();
+    var interval = setInterval(fetchStatus, 60000);
+    return function() { clearInterval(interval); };
+  }, []);
+
   // ── Gift voucher welcome banner ──────────────────────────────────────
   // Shows a celebratory top banner ONLY on first dashboard load after a
   // successful gift voucher claim. The seamless claim flow redirects to
@@ -224,6 +240,46 @@ export default function Dashboard() {
     <AppLayout
       title={t("dashboard.title")}
     >
+      {/* ── Maintenance banner ──
+          Always-on banner that appears when the platform is in soft or
+          hard maintenance mode. Sits above all other banners so it's
+          impossible to miss. Member sees this and knows certain actions
+          (withdraw / buy / etc.) will be rejected with a 503 right now.
+          Disappears as soon as admin flips back to 'live' (polled every
+          60s by the useEffect above). */}
+      {platformMode !== 'live' && (
+        <div style={{
+          background: platformMode === 'hard_maintenance'
+            ? 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)'
+            : 'linear-gradient(135deg, #92400e 0%, #d97706 100%)',
+          borderRadius: 12,
+          padding: '14px 20px',
+          marginBottom: 16,
+          color: '#fff',
+          fontFamily: 'Sora,sans-serif',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+        }}>
+          <div style={{fontSize: 24}}>
+            {platformMode === 'hard_maintenance' ? '🔧' : '⚠️'}
+          </div>
+          <div style={{flex: 1}}>
+            <div style={{fontSize: 14, fontWeight: 800, marginBottom: 2}}>
+              {platformMode === 'hard_maintenance'
+                ? 'Platform maintenance in progress'
+                : 'Withdrawals temporarily paused'}
+            </div>
+            <div style={{fontSize: 13, fontWeight: 500, opacity: 0.95, lineHeight: 1.4}}>
+              {platformMode === 'hard_maintenance'
+                ? 'Money operations and new signups are paused while we resolve an issue. You can browse normally — please try transactions again shortly.'
+                : 'Withdrawals are temporarily unavailable. All other features work normally. Please try again in a short while.'}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Onboarding banner — replaces the old full-page wizard redirect.
           Shown when user.onboarding_completed is false. Two paths out:
           'Start Setup →' link to the still-existing /onboarding wizard,

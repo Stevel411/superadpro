@@ -3408,6 +3408,16 @@ def register_process(
     # Orphan signups (no ref) fall through to the SuperAdPro company
     # account at line ~3346 below.
 
+    # ── Maintenance gate (hard only) ──
+    # Signups are halted in hard maintenance because they may trigger
+    # commission writes, gift-voucher redemption, and other money flows
+    # in the activation path.
+    if is_hard_maintenance(db):
+        return JSONResponse(
+            {"error": "Registration is temporarily paused while we resolve a platform issue. Please try again shortly."},
+            status_code=503,
+        )
+
     username   = sanitize(username)
     email      = sanitize(email)
     first_name = sanitize(first_name)
@@ -7601,6 +7611,9 @@ async def onchain_create_intent(request: Request,
     """
     if not user:
         return JSONResponse({"error": "Authentication required"}, status_code=401)
+    # ── Maintenance gate (hard only — soft = withdrawals only) ──
+    if is_hard_maintenance(db):
+        return JSONResponse({"error": _MAINTENANCE_MESSAGE}, status_code=503)
 
     try:
         body = await request.json()
@@ -8195,6 +8208,9 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    # ── Maintenance gate (hard only — soft = withdrawals only) ──
+    if is_hard_maintenance(db):
+        return JSONResponse({"error": _MAINTENANCE_MESSAGE}, status_code=503)
 
     from . import nowpayments_service as nps
     from .database import NowPaymentsOrder
@@ -8837,6 +8853,11 @@ def withdraw(
     """
     if not user:
         return JSONResponse({"success": False, "error": "Not signed in"}, status_code=401)
+    # ── Maintenance gate ──
+    # Withdrawals are halted in BOTH soft and hard maintenance modes.
+    # Soft mode = withdrawals only. Hard mode = withdrawals + other money flows.
+    if is_any_maintenance(db):
+        return JSONResponse({"success": False, "error": _MAINTENANCE_MESSAGE}, status_code=503)
     # ── KYC Gate ──
     if getattr(user, 'kyc_status', 'none') != 'approved':
         return JSONResponse({"success": False, "error": "KYC verification required before withdrawal. Go to Account to complete."}, status_code=403)
@@ -9392,6 +9413,151 @@ def _require_admin(user):
     """Guard for admin API endpoints."""
     if not user or not is_admin(user):
         raise HTTPException(status_code=403, detail="Admin access required")
+
+
+# ─── Maintenance mode helpers ─────────────────────────────────
+# Read the current platform status. Cached for 5 seconds so endpoints
+# don't hit the DB on every request — but short enough that flipping
+# the switch takes effect almost immediately. The single-row pattern
+# (id=1) means there's never a question of which row to read.
+
+_maintenance_cache = {"mode": None, "fetched_at": 0.0}
+_MAINTENANCE_CACHE_TTL_SECS = 5
+
+def _get_platform_mode(db: Session) -> str:
+    """Return the current platform mode: 'live', 'soft_maintenance', or
+    'hard_maintenance'. Cached for 5 seconds for performance. Returns
+    'live' on any DB error so a broken status check never blocks the
+    platform (fail-open, not fail-closed)."""
+    import time as _time
+    now = _time.time()
+    if (_maintenance_cache["mode"] is not None
+            and now - _maintenance_cache["fetched_at"] < _MAINTENANCE_CACHE_TTL_SECS):
+        return _maintenance_cache["mode"]
+    try:
+        from .database import PlatformStatus
+        row = db.query(PlatformStatus).filter(PlatformStatus.id == 1).first()
+        mode = row.mode if row else "live"
+    except Exception as e:
+        logger.warning(f"_get_platform_mode failed, defaulting to 'live': {e}")
+        mode = "live"
+    _maintenance_cache["mode"] = mode
+    _maintenance_cache["fetched_at"] = now
+    return mode
+
+def _invalidate_maintenance_cache():
+    """Force the next _get_platform_mode call to hit the DB.
+    Called immediately after a toggle so the new mode takes effect
+    across the cluster within one request (not 5 seconds)."""
+    _maintenance_cache["mode"] = None
+    _maintenance_cache["fetched_at"] = 0.0
+
+def is_hard_maintenance(db: Session) -> bool:
+    """True if all money flows AND signups should be blocked.
+    Called by tier purchase, course purchase, credit pack, P2P
+    transfer, and signup endpoints."""
+    return _get_platform_mode(db) == "hard_maintenance"
+
+def is_any_maintenance(db: Session) -> bool:
+    """True if EITHER soft OR hard maintenance is active. Called by
+    withdrawal endpoints (which are blocked in both modes)."""
+    return _get_platform_mode(db) in ("soft_maintenance", "hard_maintenance")
+
+_MAINTENANCE_MESSAGE = (
+    "The platform is in temporary maintenance. Money operations are "
+    "paused while we resolve an issue. You can browse and view your "
+    "balance normally; please try this action again shortly."
+)
+
+
+# ─── Admin endpoints — maintenance mode toggle ────────────────
+
+@app.get("/admin/api/maintenance-status")
+def admin_maintenance_status(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Return the current maintenance mode + who set it + when.
+    Used by the admin dashboard to render the panic-button UI."""
+    _require_admin(user)
+    from .database import PlatformStatus
+    row = db.query(PlatformStatus).filter(PlatformStatus.id == 1).first()
+    if not row:
+        return {"mode": "live", "reason": None, "set_by": None, "set_at": None}
+    set_by_username = None
+    if row.set_by_user_id:
+        u = db.query(User).filter(User.id == row.set_by_user_id).first()
+        if u:
+            set_by_username = u.username
+    return {
+        "mode": row.mode or "live",
+        "reason": row.reason,
+        "set_by_user_id": row.set_by_user_id,
+        "set_by_username": set_by_username,
+        "set_at": row.set_at.isoformat() if row.set_at else None,
+        "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+@app.post("/admin/api/maintenance-set")
+async def admin_maintenance_set(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Toggle the maintenance mode.
+
+    POST body: {"mode": "live"|"soft_maintenance"|"hard_maintenance",
+                "reason": "free text" (optional)}
+
+    Soft maintenance halts withdrawals only.
+    Hard maintenance halts all money flows + new signups.
+    """
+    _require_admin(user)
+    body = await request.json()
+    new_mode = (body.get("mode") or "").strip()
+    reason = (body.get("reason") or "").strip()[:500] or None
+
+    if new_mode not in ("live", "soft_maintenance", "hard_maintenance"):
+        return JSONResponse(
+            {"error": "mode must be 'live', 'soft_maintenance', or 'hard_maintenance'"},
+            status_code=400,
+        )
+
+    from .database import PlatformStatus
+    row = db.query(PlatformStatus).filter(PlatformStatus.id == 1).first()
+    if not row:
+        # Defensive — the seed migration should have created this. If it
+        # didn't (fresh DB before migration ran), create it now.
+        row = PlatformStatus(id=1, mode=new_mode, reason=reason,
+                             set_by_user_id=user.id)
+        db.add(row)
+    else:
+        row.mode = new_mode
+        row.reason = reason
+        row.set_by_user_id = user.id
+        row.set_at = datetime.utcnow()
+    db.commit()
+
+    # Bust the cache so the new mode is visible to other requests
+    # immediately, not after 5 seconds.
+    _invalidate_maintenance_cache()
+
+    logger.info(
+        f"[MAINTENANCE] mode set to '{new_mode}' by user_id={user.id} "
+        f"({user.username}); reason={reason!r}"
+    )
+    return {"ok": True, "mode": new_mode, "reason": reason}
+
+
+@app.get("/api/platform-status")
+def api_platform_status(db: Session = Depends(get_db)):
+    """Public-ish endpoint — returns the current maintenance mode only.
+    Used by the React app to render a member-facing banner when the
+    platform is in maintenance. Does NOT return who set it or why
+    (those are admin-only via /admin/api/maintenance-status)."""
+    return {"mode": _get_platform_mode(db)}
+
 
 # ── Users ────────────────────────────────────────────────────
 @app.get("/admin/api/users")
@@ -13783,6 +13949,9 @@ async def api_p2p_transfer(
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not user.is_active:
         return JSONResponse({"error": "Active membership required"}, status_code=403)
+    # ── Maintenance gate (hard only) ──
+    if is_hard_maintenance(db):
+        return JSONResponse({"error": _MAINTENANCE_MESSAGE}, status_code=503)
 
     try:
         body = await request.json()
@@ -14580,6 +14749,12 @@ def cron_process_pending_withdrawals_post(
     cron_secret = os.environ.get("CRON_SECRET", "")
     if not cron_secret or secret != cron_secret:
         return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    # ── Maintenance gate ──
+    # If withdrawals are halted via the admin panic button, the cron
+    # must also pause — otherwise queued withdrawals from before
+    # maintenance was flipped would continue dispatching.
+    if is_any_maintenance(db):
+        return {"ok": True, "skipped": True, "reason": "maintenance_mode"}
     try:
         from app.withdrawals import process_pending_withdrawals_batch
         counts = process_pending_withdrawals_batch(db)
@@ -14596,6 +14771,9 @@ def cron_process_pending_withdrawals_get(
     cron_secret = os.environ.get("CRON_SECRET", "")
     if not cron_secret or secret != cron_secret:
         return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    # ── Maintenance gate ──
+    if is_any_maintenance(db):
+        return {"ok": True, "skipped": True, "reason": "maintenance_mode"}
     try:
         from app.withdrawals import process_pending_withdrawals_batch
         counts = process_pending_withdrawals_batch(db)
@@ -16864,6 +17042,9 @@ async def api_purchase_course(course_id: int, request: Request, db: Session = De
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"success": False, "error": "Not authenticated"}, status_code=401)
+    # ── Maintenance gate (hard only — soft = withdrawals only) ──
+    if is_hard_maintenance(db):
+        return JSONResponse({"success": False, "error": _MAINTENANCE_MESSAGE}, status_code=503)
 
     # Purchase consent gate — see app/purchase_consent.py
     ok, err = require_fresh_consent(db, user.id, purpose=f"course:{course_id}")

@@ -1513,6 +1513,26 @@ def run_migrations():
         # dismissal date (e.g. 'show again for new earnings tier'). Added
         # 10 May 2026 after launch-day reports of the banner re-firing.
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS story_prompt_dismissed_at TIMESTAMP",
+        # ── Platform-status table (maintenance mode 'panic button') ──
+        # Single-row table holding current operational mode. Read by
+        # is_maintenance_mode() / is_soft_maintenance() helpers before
+        # every money-affecting endpoint. Added 11 May 2026.
+        (
+            "CREATE TABLE IF NOT EXISTS platform_status ("
+            "id SERIAL PRIMARY KEY, "
+            "mode VARCHAR(30) NOT NULL DEFAULT 'live', "
+            "reason VARCHAR(500), "
+            "set_by_user_id INTEGER REFERENCES users(id), "
+            "set_at TIMESTAMP DEFAULT NOW(), "
+            "updated_at TIMESTAMP DEFAULT NOW())"
+        ),
+        # Seed the single row if not present. Subsequent calls are no-ops
+        # because of the WHERE NOT EXISTS guard.
+        (
+            "INSERT INTO platform_status (id, mode) "
+            "SELECT 1, 'live' "
+            "WHERE NOT EXISTS (SELECT 1 FROM platform_status WHERE id = 1)"
+        ),
         "CREATE TABLE IF NOT EXISTS ai_usage_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, quota_date VARCHAR, campaign_studio_uses INTEGER DEFAULT 0, niche_finder_uses INTEGER DEFAULT 0, campaign_studio_total INTEGER DEFAULT 0, niche_finder_total INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",
@@ -2918,3 +2938,32 @@ class DailyBriefing(Base):
     email_sent_at   = Column(DateTime, nullable=True)
     generation_ms   = Column(Integer, nullable=True)      # how long the AI call took
     created_at      = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class PlatformStatus(Base):
+    """Single-row table holding the platform's current operational mode.
+
+    Used by the maintenance-mode 'panic button' so Steve can halt money
+    flows site-wide with one click. Two tiers:
+      - 'soft_maintenance'  → withdrawals halted, everything else live
+      - 'hard_maintenance'  → all money flows halted (withdrawals, tier
+                              purchases, course purchases, credit packs,
+                              P2P transfers, new signups)
+      - 'live'              → normal operation (default)
+
+    Read by helper functions in main.py (is_maintenance_mode,
+    is_soft_maintenance) that check before every money-affecting endpoint
+    and the signup endpoint. Toggled via /admin/api/maintenance-set.
+
+    Convention: there is always exactly one row with id=1. The
+    seed-on-startup logic in run_migrations() inserts it if missing.
+    Storing as a row (not env var) so toggle history is preserved in
+    set_by_user_id / set_at / reason for audit.
+    """
+    __tablename__ = "platform_status"
+    id              = Column(Integer, primary_key=True)            # always 1
+    mode            = Column(String(30), default="live", nullable=False, index=True)
+    reason          = Column(String(500), nullable=True)            # why was it flipped
+    set_by_user_id  = Column(Integer, ForeignKey("users.id"), nullable=True)
+    set_at          = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
