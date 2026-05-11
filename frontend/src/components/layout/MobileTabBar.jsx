@@ -70,6 +70,14 @@ export default function MobileTabBar() {
       borderTop: '1px solid rgba(0,212,255,0.08)',
       display: 'flex', alignItems: 'stretch',
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      // iOS Safari quirk: fixed-positioned elements inside layouts with
+      // inner-scroll containers can drift mid-screen during momentum
+      // scrolling instead of staying glued to the viewport bottom.
+      // Forcing a dedicated compositing layer via translateZ(0) usually
+      // fixes it. Reported by Steve on Dashboard 12 May 2026.
+      transform: 'translateZ(0)',
+      WebkitTransform: 'translateZ(0)',
+      willChange: 'transform',
     }}>
       {tabs.map(function(tab) {
         var active = isActive(tab);
