@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Sparkles, Gift, Layers } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Gift, Layers, Rocket, TrendingUp } from 'lucide-react';
 
 /*
  * DashboardHeroCarousel
@@ -47,11 +47,39 @@ var SLIDES = [
     icon: 'layers',
   },
   {
+    key: 'membership',
+    title: 'SuperAdPro Membership',
+    eyebrow: 'JOIN THE PLATFORM',
+    headline: 'Get started from $20/month. Cancel anytime.',
+    body: 'Basic membership unlocks the affiliate platform and the Profit Grid. Pro adds Creative Studio, the Brand Poster Generator, MyLeads CRM, and your own AI-powered lead system. Upgrade whenever you want.',
+    cta: 'See plans',
+    href: '/upgrade',
+    accent: '#2563eb',
+    accentLight: '#60a5fa',
+    bgFrom: '#0f172a',
+    bgTo: '#1e3a8a',
+    icon: 'rocket',
+  },
+  {
+    key: 'grid',
+    title: 'Profit Grid',
+    eyebrow: 'EARN 95% COMMISSIONS',
+    headline: 'Activate a campaign tier. Build your 8×8 grid.',
+    body: 'Each Profit Grid pays out as your network fills the positions below you. Tiers from $20 to $1,000 — completed cycles can pay up to $92,576. Most affiliate-friendly grid in the industry: 95% to members, 5% admin.',
+    cta: 'See campaign tiers',
+    href: '/campaign-tiers',
+    accent: '#10b981',
+    accentLight: '#34d399',
+    bgFrom: '#022c22',
+    bgTo: '#065f46',
+    icon: 'trendingUp',
+  },
+  {
     key: 'bpg',
     title: 'Brand Poster Generator',
     eyebrow: 'NEW IN CREATIVE STUDIO',
     headline: 'Make branded marketing posters in 60 seconds.',
-    body: 'Pick a template, fill in a few words, upload your photo — AI does the rest. Six professional poster styles, all branded SuperAdPro and ready to post.',
+    body: 'Pick a template, fill in a few words, upload your photo — AI does the rest. Six professional poster styles, all branded SuperAdPro and ready to post. Your referral link is baked into every poster automatically.',
     cta: 'Generate your first poster',
     href: '/brand-posters',
     accent: '#fbbf24',
@@ -82,6 +110,8 @@ function SlideIcon({ name }) {
   var size = 36;
   if (name === 'sparkles') return <Sparkles size={size} />;
   if (name === 'gift') return <Gift size={size} />;
+  if (name === 'rocket') return <Rocket size={size} />;
+  if (name === 'trendingUp') return <TrendingUp size={size} />;
   return <Layers size={size} />;
 }
 
