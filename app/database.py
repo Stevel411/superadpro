@@ -3041,3 +3041,118 @@ class AdminBroadcast(Base):
     completed_at      = Column(DateTime, nullable=True)
 
     sent_by = relationship("User", foreign_keys=[sent_by_user_id])
+
+
+# ════════════════════════════════════════════════════════════════════
+# BRAND POSTER GENERATOR (May 2026)
+#
+# AI-powered finished-poster generator inside Creative Studio.
+# Members pick from a curated library of 6 templates, fill in 3-5 text
+# inputs, optionally upload a reference photo of themselves, and receive
+# a complete branded marketing poster from xAI Grok Imagine.
+#
+# The secret sauce is the curated prompt library — members never see
+# or edit prompts. Templates are seeded server-side from
+# app/poster_templates.py (the master prompt data file).
+# ════════════════════════════════════════════════════════════════════
+
+class PosterTemplate(Base):
+    """Master template catalogue — seeded from poster_templates.py.
+
+    Each template defines the prompt-engineering recipe for one poster
+    style. The master_prompt contains {placeholders} that get filled
+    in from member inputs at generation time.
+    """
+    __tablename__ = "poster_templates"
+
+    id                = Column(Integer, primary_key=True, index=True)
+    slug              = Column(String(60), unique=True, nullable=False, index=True)
+    name              = Column(String(120), nullable=False)
+    description       = Column(Text, nullable=False)         # Member-facing 1-2 sentence pitch
+    category          = Column(String(40), default="general", index=True)  # e.g. lifestyle, professional, generosity
+    sort_order        = Column(Integer, default=100, index=True)
+    is_active         = Column(Boolean, default=True, index=True)
+
+    # The actual prompt-engineering content (members never see this)
+    master_prompt     = Column(Text, nullable=False)         # With {placeholder} tokens
+    input_fields      = Column(Text, nullable=False)         # JSON: [{key, label, default, max_len, help}]
+    aspect_ratio      = Column(String(10), default="3:4")    # Maps to Grok Imagine aspect
+    supports_photo    = Column(Boolean, default=True)        # Reference photo enabled?
+
+    # Asset URLs (R2-hosted)
+    preview_image_url = Column(Text, nullable=True)          # Pre-rendered gallery example
+    thumbnail_url     = Column(Text, nullable=True)          # Smaller thumbnail for cards
+
+    # Sharing
+    share_slug        = Column(String(40), unique=True, nullable=True, index=True)  # /go/{slug}
+
+    created_at        = Column(DateTime, default=datetime.utcnow)
+    updated_at        = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class PosterGeneration(Base):
+    """One record per Generate click. Captures inputs, candidates returned,
+    final chosen image, and credits consumed. Members can revisit past
+    generations from the History page to re-download without re-paying.
+    """
+    __tablename__ = "poster_generations"
+
+    id                = Column(Integer, primary_key=True, index=True)
+    user_id           = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    template_id       = Column(Integer, ForeignKey("poster_templates.id"), nullable=False, index=True)
+
+    # Input snapshot — everything the member typed/uploaded
+    input_values      = Column(Text, nullable=False)         # JSON dict matching template's input_fields
+    reference_photo_url = Column(Text, nullable=True)        # R2 URL if member uploaded a photo
+
+    # The full prompt that was sent to Grok Imagine (for debugging / iteration)
+    rendered_prompt   = Column(Text, nullable=True)
+
+    # Generation outcome
+    candidate_urls    = Column(Text, nullable=True)          # JSON array of 4 Grok Imagine URLs
+    chosen_index      = Column(Integer, nullable=True)       # Which candidate (0-3) the member picked
+    chosen_url        = Column(Text, nullable=True)          # The R2-archived final URL
+    status            = Column(String(20), default="pending", index=True)
+                                                              # pending / generating / ready / chosen / failed / refunded
+    error_message     = Column(Text, nullable=True)
+
+    # Billing
+    credits_charged   = Column(Integer, default=0)
+    grok_request_id   = Column(String(80), nullable=True)    # For debugging Grok-side issues
+
+    created_at        = Column(DateTime, default=datetime.utcnow, index=True)
+    completed_at      = Column(DateTime, nullable=True)
+
+    user              = relationship("User", foreign_keys=[user_id])
+    template          = relationship("PosterTemplate", foreign_keys=[template_id])
+
+
+class PosterTemplateShare(Base):
+    """Tracks visits to /go/{slug} share links. Powers the viral loop:
+    members share their generated poster, visitors land on a public
+    page promoting the same template, and the original member is
+    credited as sponsor if the visitor signs up.
+    """
+    __tablename__ = "poster_template_shares"
+
+    id                = Column(Integer, primary_key=True, index=True)
+    share_slug        = Column(String(40), nullable=False, index=True)
+    template_id       = Column(Integer, ForeignKey("poster_templates.id"), nullable=False, index=True)
+    sharer_user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+
+    # Visitor tracking (no PII)
+    visitor_ip_hash   = Column(String(64), nullable=True)
+    visitor_country   = Column(String(2), nullable=True)
+    user_agent        = Column(String(300), nullable=True)
+    referrer          = Column(String(500), nullable=True)
+
+    # Outcome
+    converted_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    converted_at      = Column(DateTime, nullable=True)
+
+    visited_at        = Column(DateTime, default=datetime.utcnow, index=True)
+
+    template          = relationship("PosterTemplate", foreign_keys=[template_id])
+    sharer            = relationship("User", foreign_keys=[sharer_user_id])
+    converted_user    = relationship("User", foreign_keys=[converted_user_id])
+
