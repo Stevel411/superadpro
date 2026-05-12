@@ -39,6 +39,7 @@ from .database import MemberLead
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .database import MemberStory, MemberShowcase
 from .database import AdminBroadcast
+from .database import SocialPostDesign, SocialPostGeneration, UserReferencePhoto, UserBrandAssets
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -29925,3 +29926,215 @@ def admin_email_broadcast_page(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/admin", status_code=302)
 
+
+# ══════════════════════════════════════════════════════════════════════
+# Social Post Studio (10th Creative Studio tab)
+# ══════════════════════════════════════════════════════════════════════
+# Phase 1 (Canvas Foundation, 11 May 2026, restored 12 May 2026)
+#   — design persistence only.
+# Phase 3 will add /generate-image, /reference-library, /upload-reference.
+# Phase 5 will add /save-brand, /brand.
+# Full spec: social-post-studio-spec.md
+# ──────────────────────────────────────────────────────────────────────
+
+SOCIALPOST_ALLOWED_ASPECTS = {"1:1", "4:5", "9:16", "16:9"}
+SOCIALPOST_MAX_CANVAS_BYTES = 500_000      # 500KB defensive cap
+SOCIALPOST_MAX_DESIGN_NAME_LEN = 200
+SOCIALPOST_MAX_DESIGNS_PER_USER = 200      # soft cap; rejects 201st save
+
+
+def _socialpost_validate_canvas(canvas_json_str):
+    """Defensive sanity check on user-supplied canvas state.
+
+    Returns (ok, error_message). Canvas state comes from the browser
+    so we don't trust it: enforce valid JSON, object shape with
+    'layers' array, size-bounded.
+    """
+    import json as _j
+    if not canvas_json_str:
+        return False, "canvas_json is required"
+    if not isinstance(canvas_json_str, str):
+        return False, "canvas_json must be a string"
+    if len(canvas_json_str.encode("utf-8")) > SOCIALPOST_MAX_CANVAS_BYTES:
+        return False, "Canvas state too large (max 500KB)"
+    try:
+        parsed = _j.loads(canvas_json_str)
+    except (TypeError, ValueError):
+        return False, "canvas_json must be valid JSON"
+    if not isinstance(parsed, dict):
+        return False, "canvas_json must be a JSON object"
+    if "layers" not in parsed or not isinstance(parsed["layers"], list):
+        return False, "canvas_json must contain a 'layers' array"
+    return True, None
+
+
+@app.get("/api/social-post/designs")
+def social_post_list_designs(user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """List the current member's designs, most recently updated first."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    rows = (
+        db.query(SocialPostDesign)
+          .filter(SocialPostDesign.user_id == user.id)
+          .order_by(SocialPostDesign.updated_at.desc())
+          .limit(SOCIALPOST_MAX_DESIGNS_PER_USER)
+          .all()
+    )
+    return {
+        "designs": [
+            {
+                "id": d.id,
+                "name": d.name,
+                "aspect_ratio": d.aspect_ratio,
+                "thumbnail_url": d.thumbnail_url,
+                "created_at": d.created_at.isoformat() if d.created_at else None,
+                "updated_at": d.updated_at.isoformat() if d.updated_at else None,
+            }
+            for d in rows
+        ],
+        "total": len(rows),
+    }
+
+
+@app.post("/api/social-post/save-design")
+async def social_post_save_design(request: Request,
+                                   user: User = Depends(get_current_user),
+                                   db: Session = Depends(get_db)):
+    """Create or update a Social Post design.
+
+    Body:
+        id            (optional) — present => update, absent => create
+        name          (optional) — defaults to 'Untitled Design'
+        aspect_ratio  (required) — '1:1' | '4:5' | '9:16' | '16:9'
+        canvas_json   (required) — JSON string with {'layers': [...]}
+        thumbnail_url (optional) — R2 URL of rendered thumbnail
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+
+    design_id = body.get("id")
+    name = (body.get("name") or "Untitled Design").strip()[:SOCIALPOST_MAX_DESIGN_NAME_LEN]
+    aspect_ratio = body.get("aspect_ratio")
+    canvas_json = body.get("canvas_json")
+    thumbnail_url = body.get("thumbnail_url")
+
+    if aspect_ratio not in SOCIALPOST_ALLOWED_ASPECTS:
+        return JSONResponse(
+            {"error": f"aspect_ratio must be one of {sorted(SOCIALPOST_ALLOWED_ASPECTS)}"},
+            status_code=400,
+        )
+    ok, err = _socialpost_validate_canvas(canvas_json)
+    if not ok:
+        return JSONResponse({"error": err}, status_code=400)
+
+    if design_id:
+        design = (
+            db.query(SocialPostDesign)
+              .filter(SocialPostDesign.id == design_id,
+                      SocialPostDesign.user_id == user.id)
+              .first()
+        )
+        if not design:
+            return JSONResponse({"error": "Design not found"}, status_code=404)
+        design.name = name
+        design.aspect_ratio = aspect_ratio
+        design.canvas_json = canvas_json
+        if thumbnail_url is not None:
+            design.thumbnail_url = thumbnail_url
+        design.updated_at = datetime.utcnow()
+    else:
+        existing_count = (
+            db.query(SocialPostDesign)
+              .filter(SocialPostDesign.user_id == user.id)
+              .count()
+        )
+        if existing_count >= SOCIALPOST_MAX_DESIGNS_PER_USER:
+            return JSONResponse(
+                {"error": f"Maximum {SOCIALPOST_MAX_DESIGNS_PER_USER} designs reached. "
+                          "Delete some to save more."},
+                status_code=429,
+            )
+        design = SocialPostDesign(
+            user_id=user.id,
+            name=name,
+            aspect_ratio=aspect_ratio,
+            canvas_json=canvas_json,
+            thumbnail_url=thumbnail_url,
+        )
+        db.add(design)
+
+    db.commit()
+    db.refresh(design)
+    return {
+        "id": design.id,
+        "name": design.name,
+        "aspect_ratio": design.aspect_ratio,
+        "thumbnail_url": design.thumbnail_url,
+        "updated_at": design.updated_at.isoformat() if design.updated_at else None,
+    }
+
+
+@app.get("/api/social-post/design/{design_id}")
+def social_post_get_design(design_id: int,
+                            user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Load a single design owned by the current user."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    design = (
+        db.query(SocialPostDesign)
+          .filter(SocialPostDesign.id == design_id,
+                  SocialPostDesign.user_id == user.id)
+          .first()
+    )
+    if not design:
+        return JSONResponse({"error": "Design not found"}, status_code=404)
+    return {
+        "id": design.id,
+        "name": design.name,
+        "aspect_ratio": design.aspect_ratio,
+        "canvas_json": design.canvas_json,
+        "thumbnail_url": design.thumbnail_url,
+        "created_at": design.created_at.isoformat() if design.created_at else None,
+        "updated_at": design.updated_at.isoformat() if design.updated_at else None,
+    }
+
+
+@app.delete("/api/social-post/design/{design_id}")
+def social_post_delete_design(design_id: int,
+                               user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    """Delete a design owned by the current user."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    design = (
+        db.query(SocialPostDesign)
+          .filter(SocialPostDesign.id == design_id,
+                  SocialPostDesign.user_id == user.id)
+          .first()
+    )
+    if not design:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    db.delete(design)
+    db.commit()
+    return {"deleted": True, "id": design_id}
+
+
+# React route handlers — every /creative-studio/social-post path needs to
+# serve index.html so React Router can take over (per CLAUDE.md rule).
+@app.get("/creative-studio/social-post")
+def creative_studio_social_post_index(request: Request):
+    """Serve React SPA for the Social Post Studio landing/gallery."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return RedirectResponse(url="/creative-studio", status_code=302)
+
+
+@app.get("/creative-studio/social-post/{design_id}")
+def creative_studio_social_post_design(design_id: str, request: Request):
+    """Serve React SPA for a specific design (or 'new' for new canvas)."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return RedirectResponse(url="/creative-studio", status_code=302)

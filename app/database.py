@@ -1565,6 +1565,64 @@ def run_migrations():
         ),
         "CREATE INDEX IF NOT EXISTS idx_admin_broadcasts_status ON admin_broadcasts(status)",
         "CREATE INDEX IF NOT EXISTS idx_admin_broadcasts_created ON admin_broadcasts(created_at DESC)",
+
+        # ── Social Post Studio (Phase 1 + 3, added 12 May 2026) ──
+        # Tables for the 10th Creative Studio tab: saved designs, AI
+        # generation audit log, reusable reference photo library, and
+        # per-member brand kits.
+        (
+            "CREATE TABLE IF NOT EXISTS social_post_designs ("
+            "id SERIAL PRIMARY KEY, "
+            "user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, "
+            "name VARCHAR(200) DEFAULT 'Untitled Design', "
+            "aspect_ratio VARCHAR(10) NOT NULL, "
+            "canvas_json TEXT NOT NULL, "
+            "thumbnail_url VARCHAR(500), "
+            "created_at TIMESTAMP DEFAULT NOW(), "
+            "updated_at TIMESTAMP DEFAULT NOW())"
+        ),
+        "CREATE INDEX IF NOT EXISTS idx_social_post_designs_user ON social_post_designs(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_social_post_designs_created ON social_post_designs(created_at DESC)",
+
+        (
+            "CREATE TABLE IF NOT EXISTS social_post_generations ("
+            "id SERIAL PRIMARY KEY, "
+            "user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, "
+            "preset_key VARCHAR(50), "
+            "prompt TEXT NOT NULL, "
+            "reference_url VARCHAR(500), "
+            "candidates_json TEXT, "
+            "chosen_url VARCHAR(500), "
+            "credits_charged INTEGER NOT NULL DEFAULT 0, "
+            "provider VARCHAR(50) DEFAULT 'grok-imagine-image-quality', "
+            "provider_cost_usd NUMERIC(10,4), "
+            "error_message TEXT, "
+            "created_at TIMESTAMP DEFAULT NOW())"
+        ),
+        "CREATE INDEX IF NOT EXISTS idx_social_post_gens_user ON social_post_generations(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_social_post_gens_created ON social_post_generations(created_at DESC)",
+
+        (
+            "CREATE TABLE IF NOT EXISTS user_reference_photos ("
+            "id SERIAL PRIMARY KEY, "
+            "user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, "
+            "photo_url VARCHAR(500) NOT NULL, "
+            "label VARCHAR(100), "
+            "is_default BOOLEAN DEFAULT FALSE, "
+            "created_at TIMESTAMP DEFAULT NOW())"
+        ),
+        "CREATE INDEX IF NOT EXISTS idx_user_ref_photos_user ON user_reference_photos(user_id)",
+
+        (
+            "CREATE TABLE IF NOT EXISTS user_brand_assets ("
+            "user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, "
+            "logo_url VARCHAR(500), "
+            "primary_color VARCHAR(7), "
+            "secondary_color VARCHAR(7), "
+            "brand_handle VARCHAR(100), "
+            "default_cta VARCHAR(200), "
+            "updated_at TIMESTAMP DEFAULT NOW())"
+        ),
         "CREATE TABLE IF NOT EXISTS ai_usage_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, quota_date VARCHAR, campaign_studio_uses INTEGER DEFAULT 0, niche_finder_uses INTEGER DEFAULT 0, campaign_studio_total INTEGER DEFAULT 0, niche_finder_total INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",
@@ -3041,3 +3099,98 @@ class AdminBroadcast(Base):
     completed_at      = Column(DateTime, nullable=True)
 
     sent_by = relationship("User", foreign_keys=[sent_by_user_id])
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Social Post Studio (10th Creative Studio tab — Phase 1 added 11 May 2026,
+# restored 12 May 2026 after a `-X theirs` merge accidentally deleted them)
+#
+# A network-marketer-grade image editor with AI photo generation, 8-style
+# SVG text engine, 80-piece object library, brand kit, and free-form canvas.
+#
+# Phase 1 (Canvas Foundation): designs persistence, basic layer state.
+# Phase 2 (Text Engine), Phase 3 (AI generation), Phase 4 (Object library),
+# Phase 5 (Brand kit + export), Phase 6 (Polish) follow.
+#
+# Full spec: handover-2026-05-11 + social-post-studio-spec.md
+# ──────────────────────────────────────────────────────────────────────
+
+class SocialPostDesign(Base):
+    """A member's saved Social Post design.
+    
+    canvas_json holds the complete layer state — array of layer objects,
+    each with id, type, x, y, w, h, rotation, zIndex, locked, and
+    type-specific props. Member returns to a design and the canvas
+    reconstitutes exactly as they left it.
+    """
+    __tablename__ = "social_post_designs"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name            = Column(String(200), default="Untitled Design")
+    aspect_ratio    = Column(String(10), nullable=False)  # "1:1" / "4:5" / "9:16" / "16:9"
+    canvas_json     = Column(Text, nullable=False)        # JSON-serialised layer state
+    thumbnail_url   = Column(String(500), nullable=True)  # R2 URL of rendered preview
+    created_at      = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", backref="social_post_designs")
+
+
+class SocialPostGeneration(Base):
+    """Audit log of every Grok Imagine API call made via Social Post Studio.
+    
+    Stores the prompt, reference photo used, all 4 candidates returned,
+    which one the member chose, credits charged, and actual provider cost.
+    Used for billing audit, margin analytics, and 'why did this generation
+    fail?' debugging. Added Phase 3.
+    """
+    __tablename__ = "social_post_generations"
+    id                  = Column(Integer, primary_key=True, index=True)
+    user_id             = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    preset_key          = Column(String(50), nullable=True)   # e.g. "gala", "closer"; NULL for custom mode
+    prompt              = Column(Text, nullable=False)        # assembled prompt sent to Grok
+    reference_url       = Column(String(500), nullable=True)  # R2 URL of reference photo used
+    candidates_json     = Column(Text, nullable=True)         # JSON array of 4 returned image URLs
+    chosen_url          = Column(String(500), nullable=True)  # which candidate the member picked
+    credits_charged     = Column(Integer, nullable=False, default=0)
+    provider            = Column(String(50), default="grok-imagine-image-quality")
+    provider_cost_usd   = Column(Numeric(10, 4), nullable=True)
+    error_message       = Column(Text, nullable=True)         # if generation failed
+    created_at          = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user = relationship("User", backref="social_post_generations")
+
+
+class UserReferencePhoto(Base):
+    """Member's reusable reference photo library for AI image generation.
+    
+    Photos uploaded once, used across many generations. Stored in R2.
+    is_default = the photo to suggest first when opening AI generate panel.
+    """
+    __tablename__ = "user_reference_photos"
+    id          = Column(Integer, primary_key=True, index=True)
+    user_id     = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    photo_url   = Column(String(500), nullable=False)   # R2 URL
+    label       = Column(String(100), nullable=True)    # member-assigned name
+    is_default  = Column(Boolean, default=False)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", backref="reference_photos")
+
+
+class UserBrandAssets(Base):
+    """A member's brand kit — logo, colours, default CTA.
+    
+    Applied automatically to new designs so brand consistency is the
+    default, not a per-design chore. Single row per user.
+    """
+    __tablename__ = "user_brand_assets"
+    user_id           = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    logo_url          = Column(String(500), nullable=True)   # R2 URL
+    primary_color     = Column(String(7), nullable=True)     # "#FFC125"
+    secondary_color   = Column(String(7), nullable=True)
+    brand_handle      = Column(String(100), nullable=True)   # "@stevelawson"
+    default_cta       = Column(String(200), nullable=True)   # "Join My Team"
+    updated_at        = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", backref="brand_assets", uselist=False)
