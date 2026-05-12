@@ -22253,6 +22253,41 @@ def pay_it_forward_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+# ── Brand Poster Generator SPA handlers ──────────────────────────────
+# Every React route needs a corresponding @app.get handler in main.py
+# (hard rule — server-rendered fallback for direct URL visits).
+@app.get("/brand-posters")
+def brand_posters_gallery_page(request: Request):
+    """Brand Poster Generator gallery — list of templates."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/brand-posters/template/{slug}")
+def brand_posters_form_page(slug: str, request: Request):
+    """Template form — fill in inputs and generate."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/brand-posters/result/{generation_id}")
+def brand_posters_result_page(generation_id: int, request: Request):
+    """Result picker — choose 1 of 4 candidates."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/brand-posters/history")
+def brand_posters_history_page(request: Request):
+    """Past generations history page."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/api/pay-it-forward/dashboard")
 async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get Pay It Forward dashboard data for the current user.
@@ -27449,6 +27484,654 @@ async def sc_pipeline_update_scene(pipeline_id: int, request: Request, db: Sessi
 
     db.commit()
     return {"success": True, "scene_number": scene_num}
+
+
+# ═══════════════════════════════════════════════════════════════════
+# BRAND POSTER GENERATOR
+#
+# Inside Creative Studio. Generates complete branded marketing posters
+# from a curated 6-template library via xAI Grok Imagine.
+#
+# Access: gated to Credit Nexus pack owners (any tier). Non-pack-owners
+# see the preview gallery but cannot generate.
+#
+# Flow:
+#   1. GET /api/posters/access-check     — am I unlocked?
+#   2. GET /api/posters/templates        — gallery (always public-ish)
+#   3. GET /api/posters/template/{slug}  — template details + input form
+#   4. POST /api/posters/generate        — make 4 candidates (gated)
+#   5. POST /api/posters/generation/{id}/choose — pick favourite
+#   6. GET /api/posters/my-generations   — history
+#   7. GET /go/{share_slug}              — public viral landing page
+# ═══════════════════════════════════════════════════════════════════
+
+@app.post("/api/upload/reference-photo")
+async def upload_reference_photo(file: UploadFile = File(...),
+                                  user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Upload a reference photo for use in Brand Poster Generator.
+    Returns the public R2 URL.
+
+    Accepts JPEG, PNG, WebP up to 10MB. Stored under 'bpg-references/'.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    allowed_types = {"image/jpeg", "image/png", "image/webp"}
+    if file.content_type not in allowed_types:
+        return JSONResponse(
+            {"error": "Only JPEG, PNG, and WebP are accepted."}, status_code=400
+        )
+
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        return JSONResponse({"error": "Photo too large. Max 10MB."}, status_code=400)
+
+    import os
+    ext = os.path.splitext(file.filename or "photo.jpg")[1].lower().lstrip(".")
+    if ext not in {"jpg", "jpeg", "png", "webp"}:
+        ext = "jpg"
+
+    from app.r2_storage import r2_available, upload_image
+    if not r2_available():
+        return JSONResponse(
+            {"error": "Photo upload service is offline. Please try again shortly."},
+            status_code=503,
+        )
+
+    url = upload_image(contents, "bpg-references", ext, file.content_type)
+    return {"url": url}
+
+
+@app.get("/api/posters/access-check")
+def bpg_access_check(request: Request, db: Session = Depends(get_db)):
+    """Lightweight probe: does this member have BPG access?
+
+    Returns a dict with access status plus pack-ownership context
+    so the frontend can show personalised upsell messaging.
+    """
+    from .poster_gating import get_member_pack_summary
+
+    user = get_current_user(request, db)
+    if not user:
+        return {"authenticated": False, "has_access": False, "pack_count": 0,
+                "highest_tier_key": None, "total_invested_usd": 0.0}
+
+    summary = get_member_pack_summary(db, user)
+    return {"authenticated": True, **summary}
+
+
+@app.get("/api/posters/templates")
+def bpg_list_templates(request: Request, db: Session = Depends(get_db)):
+    """Return all active templates for the gallery.
+
+    Always returns the catalogue regardless of access — non-pack
+    members can still BROWSE the gallery to see what they'd unlock.
+    They just can't generate. Access check happens at /generate.
+    """
+    from .poster_templates import get_active_templates
+    from .poster_gating import member_has_bpg_access
+
+    user = get_current_user(request, db)
+    has_access = member_has_bpg_access(db, user) if user else False
+
+    templates = []
+    for t in get_active_templates():
+        # Don't leak the master_prompt to the frontend — that's our IP
+        templates.append({
+            "slug": t["slug"],
+            "name": t["name"],
+            "description": t["description"],
+            "category": t["category"],
+            "sort_order": t["sort_order"],
+            "aspect_ratio": t["aspect_ratio"],
+            "supports_photo": t["supports_photo"],
+            "share_slug": t.get("share_slug"),
+        })
+
+    return {
+        "authenticated": bool(user),
+        "has_access": has_access,
+        "templates": templates,
+    }
+
+
+@app.get("/api/posters/template/{slug}")
+def bpg_template_detail(slug: str, request: Request, db: Session = Depends(get_db)):
+    """Return one template's input field schema for the form view."""
+    from .poster_templates import get_template_by_slug
+    from .poster_gating import member_has_bpg_access
+
+    template = get_template_by_slug(slug)
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    user = get_current_user(request, db)
+    has_access = member_has_bpg_access(db, user) if user else False
+
+    return {
+        "authenticated": bool(user),
+        "has_access": has_access,
+        "template": {
+            "slug": template["slug"],
+            "name": template["name"],
+            "description": template["description"],
+            "category": template["category"],
+            "aspect_ratio": template["aspect_ratio"],
+            "supports_photo": template["supports_photo"],
+            "input_fields": template["input_fields"],
+        },
+    }
+
+
+@app.post("/api/posters/generate")
+async def bpg_generate(request: Request, db: Session = Depends(get_db)):
+    """THE main endpoint. Generate 4 candidate posters from a template.
+
+    Body: {
+      "template_slug": "one-income-risky",
+      "inputs": {"headline_open": "...", "headline_main": "...", ...},
+      "reference_photo_url": "https://pub-xxx.r2.dev/..." (optional)
+    }
+
+    Flow:
+      1. Require auth + BPG access (Nexus pack ownership)
+      2. Load template + assemble prompt via poster_templates.render_prompt
+      3. Create a PosterGeneration row in 'generating' status
+      4. Call Grok Imagine (async)
+      5. On success: store candidate URLs, return them
+      6. On failure: mark failed, refund nothing (no credits charged in
+         simple-binary gating model)
+    """
+    from .poster_templates import get_template_by_slug, render_prompt
+    from .poster_gating import member_has_bpg_access
+    from .database import PosterTemplate, PosterGeneration
+    from . import grok_imagine_service as grok_imagine
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    if not member_has_bpg_access(db, user):
+        raise HTTPException(
+            status_code=403,
+            detail="Brand Poster Generator is unlocked for Credit Nexus pack owners. "
+                   "Activate any Nexus pack (from $20) to unlock generation.",
+        )
+
+    body = await request.json()
+    template_slug = (body.get("template_slug") or "").strip()
+    inputs = body.get("inputs", {}) or {}
+    reference_photo_url = (body.get("reference_photo_url") or "").strip() or None
+
+    template = get_template_by_slug(template_slug)
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    # Ensure template row exists in DB (lazy upsert so seeding isn't required)
+    template_row = db.query(PosterTemplate).filter_by(slug=template_slug).first()
+    if not template_row:
+        import json as _json
+        template_row = PosterTemplate(
+            slug=template["slug"],
+            name=template["name"],
+            description=template["description"],
+            category=template["category"],
+            sort_order=template["sort_order"],
+            master_prompt=template["master_prompt"],
+            input_fields=_json.dumps(template["input_fields"]),
+            aspect_ratio=template["aspect_ratio"],
+            supports_photo=template["supports_photo"],
+            share_slug=template.get("share_slug"),
+        )
+        db.add(template_row)
+        db.flush()
+
+    # Build the final prompt with placeholders substituted
+    try:
+        rendered_prompt = render_prompt(template, inputs)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    # Sanity check rendered length — Grok Imagine has a prompt limit
+    if len(rendered_prompt) > 6000:
+        raise HTTPException(status_code=400, detail="Rendered prompt too long")
+
+    # Create the generation record in 'generating' status
+    import json as _json
+    generation = PosterGeneration(
+        user_id=user.id,
+        template_id=template_row.id,
+        input_values=_json.dumps(inputs),
+        reference_photo_url=reference_photo_url,
+        rendered_prompt=rendered_prompt,
+        status="generating",
+        credits_charged=0,  # Free for Nexus pack owners under current model
+    )
+    db.add(generation)
+    db.flush()
+    gen_id = generation.id
+
+    # Call Grok Imagine (async)
+    try:
+        result = await grok_imagine.generate_candidates(
+            prompt=rendered_prompt,
+            reference_url=reference_photo_url,
+            aspect=template["aspect_ratio"],
+            n=4,
+        )
+    except Exception as exc:
+        logger.exception(f"BPG generation {gen_id} crashed during Grok call: {exc}")
+        generation.status = "failed"
+        generation.error_message = f"Generation crashed: {exc}"
+        db.commit()
+        raise HTTPException(status_code=502, detail="Image generation service error")
+
+    if "error" in result:
+        logger.warning(f"BPG generation {gen_id} Grok error: {result.get('error')}")
+        generation.status = "failed"
+        generation.error_message = result.get("error", "Unknown Grok error")
+        db.commit()
+        raise HTTPException(
+            status_code=502,
+            detail=result.get("error", "Image generation failed — please try again"),
+        )
+
+    candidate_urls = result.get("images", [])
+    if not candidate_urls:
+        generation.status = "failed"
+        generation.error_message = "Grok returned no images"
+        db.commit()
+        raise HTTPException(status_code=502, detail="No images returned — please try again")
+
+    # Success — record the candidates and return
+    generation.candidate_urls = _json.dumps(candidate_urls)
+    generation.status = "ready"
+    generation.completed_at = datetime.utcnow()
+    db.commit()
+
+    logger.info(f"BPG generation {gen_id} succeeded — {len(candidate_urls)} candidates "
+                f"for user {user.username}, template {template_slug}")
+
+    return {
+        "success": True,
+        "generation_id": gen_id,
+        "candidates": candidate_urls,
+        "template_slug": template_slug,
+        "rendered_prompt_preview": rendered_prompt[:200] + "...",
+    }
+
+
+@app.get("/api/posters/generation/{generation_id}")
+def bpg_generation_detail(generation_id: int, request: Request, db: Session = Depends(get_db)):
+    """Get full details of one generation including all candidate URLs.
+    Used by the result picker page to show the 4 candidates.
+    """
+    from .database import PosterGeneration, PosterTemplate
+    import json as _json
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    gen = db.query(PosterGeneration).filter_by(id=generation_id, user_id=user.id).first()
+    if not gen:
+        raise HTTPException(status_code=404, detail="Generation not found")
+
+    tpl = db.query(PosterTemplate).filter_by(id=gen.template_id).first()
+
+    return {
+        "id": gen.id,
+        "template_slug": tpl.slug if tpl else None,
+        "template_name": tpl.name if tpl else None,
+        "status": gen.status,
+        "candidates": _json.loads(gen.candidate_urls or "[]"),
+        "chosen_index": gen.chosen_index,
+        "chosen_url": gen.chosen_url,
+        "error_message": gen.error_message,
+        "created_at": gen.created_at.isoformat() if gen.created_at else None,
+    }
+
+
+@app.post("/api/posters/generation/{generation_id}/choose")
+async def bpg_choose_candidate(generation_id: int, request: Request, db: Session = Depends(get_db)):
+    """Member picks one of the 4 candidates as their final choice.
+    Body: {"chosen_index": 0|1|2|3}
+    """
+    from .database import PosterGeneration
+    import json as _json
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    generation = db.query(PosterGeneration).filter_by(id=generation_id, user_id=user.id).first()
+    if not generation:
+        raise HTTPException(status_code=404, detail="Generation not found")
+
+    if generation.status not in ("ready", "chosen"):
+        raise HTTPException(status_code=400, detail=f"Cannot choose from status '{generation.status}'")
+
+    body = await request.json()
+    chosen_index = body.get("chosen_index") if isinstance(body, dict) else None
+    if chosen_index is None or not isinstance(chosen_index, int):
+        raise HTTPException(status_code=400, detail="chosen_index (0-3) required")
+
+    candidates = _json.loads(generation.candidate_urls or "[]")
+    if chosen_index < 0 or chosen_index >= len(candidates):
+        raise HTTPException(status_code=400, detail=f"chosen_index out of range (have {len(candidates)} candidates)")
+
+    generation.chosen_index = chosen_index
+    generation.chosen_url = candidates[chosen_index]
+    generation.status = "chosen"
+    db.commit()
+
+    return {
+        "success": True,
+        "generation_id": generation_id,
+        "chosen_url": generation.chosen_url,
+    }
+
+
+@app.get("/api/posters/my-generations")
+def bpg_my_generations(request: Request, db: Session = Depends(get_db),
+                       limit: int = 30):
+    """History page — list this member's past generations."""
+    from .database import PosterGeneration, PosterTemplate
+    import json as _json
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    limit = max(1, min(limit, 100))
+
+    rows = (
+        db.query(PosterGeneration, PosterTemplate)
+        .join(PosterTemplate, PosterGeneration.template_id == PosterTemplate.id)
+        .filter(PosterGeneration.user_id == user.id)
+        .order_by(PosterGeneration.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    results = []
+    for gen, tpl in rows:
+        results.append({
+            "id": gen.id,
+            "template_slug": tpl.slug,
+            "template_name": tpl.name,
+            "status": gen.status,
+            "chosen_url": gen.chosen_url,
+            "candidate_count": len(_json.loads(gen.candidate_urls or "[]")),
+            "created_at": gen.created_at.isoformat() if gen.created_at else None,
+        })
+
+    return {"generations": results, "count": len(results)}
+
+
+@app.get("/go/{share_slug}")
+def bpg_share_landing(share_slug: str, request: Request, db: Session = Depends(get_db)):
+    """Public viral landing page. When a member shares a poster on social
+    media, the link points here. Visitor lands on a SuperAdPro page
+    promoting the same template, with the original member tracked as
+    the source for attribution.
+
+    No auth required — this is the public-facing recruitment surface.
+    """
+    from .database import PosterTemplate, PosterTemplateShare
+
+    template = db.query(PosterTemplate).filter_by(share_slug=share_slug).first()
+    if not template:
+        # Don't 404 — share slug might be member-specific; just redirect to homepage
+        return RedirectResponse(url="/", status_code=302)
+
+    # Track the visit (no PII)
+    import hashlib
+    raw_ip = request.client.host if request.client else ""
+    ip_hash = hashlib.sha256(raw_ip.encode()).hexdigest()[:64] if raw_ip else None
+
+    share = PosterTemplateShare(
+        share_slug=share_slug,
+        template_id=template.id,
+        sharer_user_id=0,  # Anonymous landing — actual sharer ID resolved via referrer if possible
+        visitor_ip_hash=ip_hash,
+        user_agent=(request.headers.get("user-agent") or "")[:300],
+        referrer=(request.headers.get("referer") or "")[:500],
+    )
+    db.add(share)
+    db.commit()
+
+    # Render a public page promoting the template
+    return HTMLResponse(content=f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{template.name} — SuperAdPro</title>
+<meta name="description" content="{template.description}">
+<style>
+  body {{ margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+         background: #0a1438; color: white; text-align: center; padding: 60px 20px; }}
+  h1 {{ font-size: 36px; font-weight: 800; margin-bottom: 16px; }}
+  .desc {{ font-size: 18px; color: #cbd5e1; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }}
+  .cta {{ display: inline-block; background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+          color: #050d1a; padding: 16px 40px; border-radius: 12px; font-size: 18px;
+          font-weight: 700; text-decoration: none; margin: 20px; }}
+  .preview img {{ max-width: 400px; width: 100%; border-radius: 16px;
+                  box-shadow: 0 20px 60px rgba(14,165,233,0.4); margin: 30px 0; }}
+</style>
+</head>
+<body>
+<h1>{template.name}</h1>
+<p class="desc">{template.description}</p>
+{f'<div class="preview"><img src="{template.preview_image_url}" alt="{template.name} example"></div>' if template.preview_image_url else ''}
+<a class="cta" href="/signup">Join SuperAdPro Free →</a>
+<p style="color: #94a3b8; font-size: 14px; margin-top: 40px;">
+Make posters like this in 60 seconds. Brand Poster Generator inside Creative Studio.
+</p>
+</body>
+</html>
+""")
+
+
+# ── BPG Admin: seed gallery preview images ──────────────────────────
+# Generates one preview image per template by calling xAI Grok Imagine
+# with each master prompt's default inputs. Uploads results to R2 and
+# updates poster_templates.preview_image_url for each row.
+#
+# This is the one-shot setup endpoint we call once after first deploy
+# of BPG, to populate the gallery with seed examples. After that, real
+# member output starts to fill in via separate self-populating logic.
+#
+# Admin-only. Idempotent — re-running with force=true regenerates and
+# overwrites.
+@app.post("/admin/bpg/seed-previews")
+async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db),
+                                   only_slug: str = None, force: bool = False):
+    """Generate preview images for the BPG gallery.
+
+    Query params:
+      only_slug:  if provided, only regenerate that one template
+      force:      if true, overwrite existing previews; otherwise skip
+                  templates that already have preview_image_url set
+
+    Returns a JSON summary with per-template results.
+    """
+    from .database import PosterTemplate
+    from .poster_templates import POSTER_TEMPLATES, render_prompt
+    from . import grok_imagine_service as grok_imagine
+    from . import r2_storage
+    import urllib.request
+
+    # Admin gate
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    if not r2_storage.r2_available():
+        raise HTTPException(status_code=503, detail="R2 storage not configured — cannot persist preview images")
+
+    templates_to_process = POSTER_TEMPLATES
+    if only_slug:
+        templates_to_process = [t for t in POSTER_TEMPLATES if t["slug"] == only_slug]
+        if not templates_to_process:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No template with slug '{only_slug}'. Available: "
+                       + ", ".join(t["slug"] for t in POSTER_TEMPLATES),
+            )
+
+    results = []
+
+    for template in templates_to_process:
+        slug = template["slug"]
+        row = db.query(PosterTemplate).filter_by(slug=slug).first()
+
+        # Lazy-create the template row if it doesn't exist yet (first run)
+        if not row:
+            import json as _json
+            row = PosterTemplate(
+                slug=template["slug"],
+                name=template["name"],
+                description=template["description"],
+                category=template["category"],
+                sort_order=template["sort_order"],
+                master_prompt=template["master_prompt"],
+                input_fields=_json.dumps(template["input_fields"]),
+                aspect_ratio=template["aspect_ratio"],
+                supports_photo=template["supports_photo"],
+                share_slug=template.get("share_slug"),
+            )
+            db.add(row)
+            db.flush()
+
+        # Skip if already seeded (unless force=true)
+        if row.preview_image_url and not force:
+            results.append({
+                "slug": slug, "status": "skipped",
+                "reason": "already has preview",
+                "preview_url": row.preview_image_url,
+            })
+            continue
+
+        # Build prompt from defaults
+        defaults = {f["key"]: f.get("default", "") for f in template["input_fields"]}
+        try:
+            prompt = render_prompt(template, defaults)
+        except ValueError as exc:
+            results.append({"slug": slug, "status": "failed",
+                            "error": f"prompt render: {exc}"})
+            continue
+
+        # Call Grok Imagine for 1 candidate (not 4 — gallery only needs one)
+        try:
+            grok_result = await grok_imagine.generate_candidates(
+                prompt=prompt,
+                reference_url=None,
+                aspect=template["aspect_ratio"],
+                n=1,
+            )
+        except Exception as exc:
+            logger.exception(f"BPG seed: Grok call crashed for {slug}: {exc}")
+            results.append({"slug": slug, "status": "failed",
+                            "error": f"grok crash: {str(exc)[:200]}"})
+            continue
+
+        if "error" in grok_result:
+            results.append({"slug": slug, "status": "failed",
+                            "error": grok_result.get("error", "unknown")})
+            continue
+
+        urls = grok_result.get("images") or []
+        if not urls:
+            results.append({"slug": slug, "status": "failed",
+                            "error": "no images returned"})
+            continue
+
+        # Download the image from xAI
+        try:
+            with urllib.request.urlopen(urls[0], timeout=60) as resp:
+                image_bytes = resp.read()
+        except Exception as exc:
+            logger.exception(f"BPG seed: download failed for {slug}: {exc}")
+            results.append({"slug": slug, "status": "failed",
+                            "error": f"download: {str(exc)[:200]}"})
+            continue
+
+        # Upload to R2
+        try:
+            r2_url = r2_storage.upload_image(
+                image_bytes,
+                folder="bpg-previews",
+                ext="jpg",
+                content_type="image/jpeg",
+            )
+        except Exception as exc:
+            logger.exception(f"BPG seed: R2 upload failed for {slug}: {exc}")
+            results.append({"slug": slug, "status": "failed",
+                            "error": f"r2 upload: {str(exc)[:200]}"})
+            continue
+
+        # Update the template row with the new preview URL
+        row.preview_image_url = r2_url
+        db.commit()
+
+        size_kb = len(image_bytes) // 1024
+        results.append({
+            "slug": slug,
+            "status": "generated",
+            "preview_url": r2_url,
+            "size_kb": size_kb,
+        })
+        logger.info(f"BPG seed: {slug} → {r2_url} ({size_kb} KB)")
+
+    succeeded = [r for r in results if r["status"] == "generated"]
+    skipped = [r for r in results if r["status"] == "skipped"]
+    failed = [r for r in results if r["status"] == "failed"]
+
+    return {
+        "success": True,
+        "summary": {
+            "generated": len(succeeded),
+            "skipped": len(skipped),
+            "failed": len(failed),
+        },
+        "results": results,
+    }
+
+
+@app.get("/admin/bpg/preview-status")
+def bpg_admin_preview_status(request: Request, db: Session = Depends(get_db)):
+    """Quick status check: which templates currently have preview images?
+
+    Used to decide whether to run the seed endpoint or skip it.
+    """
+    from .database import PosterTemplate
+    from .poster_templates import POSTER_TEMPLATES
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    out = []
+    for tdef in POSTER_TEMPLATES:
+        row = db.query(PosterTemplate).filter_by(slug=tdef["slug"]).first()
+        out.append({
+            "slug": tdef["slug"],
+            "name": tdef["name"],
+            "has_db_row": row is not None,
+            "has_preview": bool(row and row.preview_image_url),
+            "preview_url": row.preview_image_url if row else None,
+        })
+    return {"templates": out}
+
+
 # ── Pipeline Background Orchestrator ──────────────────────────
 
 async def _run_pipeline(pipeline_id: int, user_id: int):

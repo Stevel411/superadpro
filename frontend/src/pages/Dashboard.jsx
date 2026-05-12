@@ -8,6 +8,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, DollarSign, Gauge, Gift, Compass, Share2 } from 'lucide-react';
 import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
+import DashboardHeroCarousel from '../components/DashboardHeroCarousel';
 
 // ── Dashboard data cache — survives navigation, clears on full page reload ──
 var _dashCache = { data: null, ts: 0 };
@@ -279,6 +280,13 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Hero carousel — rotating display of platform products & income streams.
+          60-second rotation between Credit Nexus, Brand Poster Generator, Pay
+          It Forward. The Dashboard top is treated as a storefront for the
+          platform per Steve's product direction 12 May 2026.
+          V1: hardcoded slides. V2 (Week 2): admin-managed slide CMS. */}
+      <DashboardHeroCarousel />
 
       {/* Onboarding banner — replaces the old full-page wizard redirect.
           Shown when user.onboarding_completed is false. Two paths out:

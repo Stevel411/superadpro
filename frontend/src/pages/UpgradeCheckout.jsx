@@ -452,19 +452,14 @@ export default function UpgradeCheckout() {
             );
           })()}
 
-          <button
-            className={'uchk-rail uchk-rail-fill-wallet' + (rail === 'wallet' ? ' selected' : '')}
-            onClick={function() { setRail('wallet'); }}
-          >
-            <div className="uchk-rail-icon">
-              <span style={{ fontSize:18 }}>👛</span>
-            </div>
-            <div style={{ flex:1 }}>
-              <div className="uchk-rail-name">{t('checkout.cryptoWallet')}</div>
-              <div className="uchk-rail-desc">{t('checkout.cryptoWalletDesc')}</div>
-            </div>
-          </button>
-
+          {/* NOWPayments / exchange path — listed FIRST because it's the
+              most accessible option for non-crypto-natives. Customers from
+              Coinbase / Binance / Kraken simply copy a payment address and
+              send from their exchange. No wallet app required.
+              Original label was 'NOWPayments' (brand name nobody recognises),
+              causing real customers to click 'Crypto Wallet' by default
+              and end up stuck at a WalletConnect modal. Renamed 12 May
+              2026 after the Chris incident. */}
           <button
             className={'uchk-rail uchk-rail-fill-nowpay' + (rail === 'crypto' ? ' selected' : '')}
             onClick={function() { setRail('crypto'); }}
@@ -473,17 +468,33 @@ export default function UpgradeCheckout() {
               <Globe size={18} color="#fff"/>
             </div>
             <div style={{ flex:1 }}>
-              <div className="uchk-rail-name">{t('checkout.nowpayments')}</div>
-              <div className="uchk-rail-desc">{t('checkout.nowpaymentsDesc')}</div>
+              <div className="uchk-rail-name">Pay from Exchange (Coinbase, Binance, Kraken)</div>
+              <div className="uchk-rail-desc">Easiest option — copy a payment address, send USDT from your exchange. No wallet app required.</div>
+            </div>
+          </button>
+
+          {/* Crypto Wallet / WalletConnect — for advanced users who already
+              own a wallet app like MetaMask, Trust, etc. Now clearly labelled
+              so newcomers don't accidentally click here and end up stuck at
+              a wallet-connection modal. */}
+          <button
+            className={'uchk-rail uchk-rail-fill-wallet' + (rail === 'wallet' ? ' selected' : '')}
+            onClick={function() { setRail('wallet'); }}
+          >
+            <div className="uchk-rail-icon">
+              <span style={{ fontSize:18 }}>👛</span>
+            </div>
+            <div style={{ flex:1 }}>
+              <div className="uchk-rail-name">Pay from My Wallet (MetaMask, Trust, etc.)</div>
+              <div className="uchk-rail-desc">For users who already have a crypto wallet app installed. Connects directly via WalletConnect.</div>
             </div>
           </button>
 
           {/* Sending-from-exchange explainer — surfaces ONLY when the user
-              picks the crypto rail. Stops the #1 support category: members
-              sending from Coinbase / Binance / Kraken who don't realise
-              the exchange takes a withdrawal fee, leaving them short of
-              the required amount. Auto-recovery now handles small shortfalls
-              transparently, but the better UX is to tell people up-front. */}
+              picks the exchange/NOWPayments rail. Provides the technical
+              detail (BSC network, exchange withdrawal fee) that the button
+              copy can't cover without getting too long. Auto-recovery now
+              handles small shortfalls transparently. */}
           {rail === 'crypto' && (
             <div style={{
               background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
@@ -496,7 +507,7 @@ export default function UpgradeCheckout() {
               color: '#78350f',
             }}>
               <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 16 }}>💡</span> Paying from an exchange (Coinbase, Binance, Kraken)?
+                <span style={{ fontSize: 16 }}>💡</span> Important payment details
               </div>
               <div style={{ marginBottom: 6 }}>
                 <strong>1.</strong> Use the <strong>BSC / BNB Smart Chain</strong> network — NOT Ethereum.
