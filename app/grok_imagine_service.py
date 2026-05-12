@@ -15,13 +15,20 @@ per generation, 3 per regenerate, 2 per upscale.
 Model: grok-imagine-image-quality (replaces -pro on 15 May 2026; we ship
 with the new name 3 days early per Steve's call 12 May 2026).
 
-API CONTRACT NOTE
------------------
-xAI's Imagine API endpoint is on the same v1 base as the chat API but
-the exact request/response shape may differ. This wrapper is structured
-so the API call is isolated to _call_xai_imagine(). If the live API
-behaves differently than assumed, fix that one function — error handling,
-credits refund, and audit logging in the calling code all stay valid.
+API CONTRACT
+------------
+Verified against xAI docs on 12 May 2026:
+  - https://docs.x.ai/docs/guides/image-generations
+  - https://docs.x.ai/developers/model-capabilities/images/generation
+
+Two endpoints used depending on whether we have a reference photo:
+  - POST /v1/images/generations   (text-to-image; no reference)
+  - POST /v1/images/edits         (with reference photo)
+
+Both accept {prompt, model, n, aspect_ratio}. The /edits endpoint also
+requires {image: {url, type: "image_url"}} pointing at the reference.
+
+Response shape (same for both): {"data": [{"url": "...", "revised_prompt": "..."}]}
 """
 
 import os
@@ -62,8 +69,14 @@ async def _call_xai_imagine(
 ) -> dict:
     """The actual HTTP call to xAI's Imagine API.
 
-    Isolated so the rest of the wrapper stays stable if xAI changes
-    the request/response shape.
+    Routes to two different endpoints depending on whether we have a
+    reference photo:
+      - Text-to-image: POST /v1/images/generations (no reference)
+      - Image edit:    POST /v1/images/edits       (with reference photo)
+    
+    Both endpoints return the same response shape: {"data": [{"url": ...}, ...]}.
+    Verified against xAI docs (https://docs.x.ai/docs/guides/image-generations
+    and /developers/model-capabilities/images/generation) on 12 May 2026.
 
     Returns:
         {"images": [url, url, url, url], "raw": <full response>}
@@ -73,46 +86,45 @@ async def _call_xai_imagine(
     if not XAI_API_KEY:
         return {"error": "XAI_API_KEY not configured"}
 
-    # Best-effort payload shape — OpenAI-compatible image generation
-    # convention. xAI follows OpenAI's API closely. Adjust here if the
-    # real API differs (we'll learn from the first live test).
-    payload = {
-        "model": GROK_IMAGINE_MODEL,
-        "prompt": prompt,
-        "n": n,
-        "response_format": "url",
-    }
-    # Aspect ratio mapped to size if the API supports it
-    aspect_to_size = {
-        "1:1":  "1024x1024",
-        "4:5":  "1024x1280",
-        "9:16": "768x1344",
-        "16:9": "1344x768",
-    }
-    if aspect in aspect_to_size:
-        payload["size"] = aspect_to_size[aspect]
-    if reference_url:
-        # Reference image for img2img-style generation. If the API uses a
-        # different parameter name (e.g. 'image' or 'reference_image'),
-        # this is the spot to adjust.
-        payload["reference_image"] = reference_url
-
     headers = {
         "Authorization": f"Bearer {XAI_API_KEY}",
         "Content-Type": "application/json",
     }
 
+    if reference_url:
+        # ── Image edit path: uses the member's photo as a base ──
+        # Per docs: /v1/images/edits accepts {prompt, model, image: {url, type}}.
+        # The 'image' field is a single object, not an array (use 'images'
+        # for multi-image which we don't need yet).
+        endpoint = f"{XAI_BASE_URL}/images/edits"
+        payload = {
+            "model": GROK_IMAGINE_MODEL,
+            "prompt": prompt,
+            "image": {
+                "url": reference_url,
+                "type": "image_url",
+            },
+            "n": n,
+            "aspect_ratio": aspect,
+        }
+    else:
+        # ── Text-to-image path: pure prompt → 4 candidates ──
+        endpoint = f"{XAI_BASE_URL}/images/generations"
+        payload = {
+            "model": GROK_IMAGINE_MODEL,
+            "prompt": prompt,
+            "n": n,
+            "aspect_ratio": aspect,
+        }
+
     try:
         async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS) as client:
-            resp = await client.post(
-                f"{XAI_BASE_URL}/images/generations",
-                json=payload,
-                headers=headers,
-            )
+            resp = await client.post(endpoint, json=payload, headers=headers)
 
             if resp.status_code >= 400:
                 logger.warning(
-                    f"Grok Imagine API error {resp.status_code}: {resp.text[:500]}"
+                    f"Grok Imagine API error {resp.status_code} on {endpoint}: "
+                    f"{resp.text[:500]}"
                 )
                 return {
                     "error": f"Grok Imagine returned {resp.status_code}",
@@ -122,15 +134,11 @@ async def _call_xai_imagine(
 
             data = resp.json()
 
-            # Parse the response — OpenAI convention is {"data": [{"url": ...}, ...]}
+            # Parse the response — xAI uses the OpenAI convention:
+            # {"data": [{"url": "...", "revised_prompt": "..."}, ...]}
             urls = []
             if "data" in data and isinstance(data["data"], list):
                 urls = [item.get("url") for item in data["data"] if item.get("url")]
-            elif "images" in data and isinstance(data["images"], list):
-                urls = [
-                    item.get("url") if isinstance(item, dict) else item
-                    for item in data["images"]
-                ]
 
             if not urls:
                 logger.warning(f"Grok Imagine returned no images: {data}")
