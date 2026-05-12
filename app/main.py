@@ -28132,6 +28132,349 @@ def bpg_admin_preview_status(request: Request, db: Session = Depends(get_db)):
     return {"templates": out}
 
 
+@app.get("/admin/bpg")
+def bpg_admin_ui(request: Request, db: Session = Depends(get_db)):
+    """Self-contained admin UI for Brand Poster Generator management.
+
+    Shows the 6 templates with their preview state and provides one-click
+    buttons to:
+      - Seed all missing previews
+      - Force-regenerate all 6 previews
+      - Regenerate a single template
+
+    No React build required — this is plain HTML/JS so it can be tweaked
+    without rebuilding the frontend bundle. Admin-gated.
+    """
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BPG Admin — SuperAdPro</title>
+<style>
+  :root {
+    --bg: #0a1438;
+    --card: #1c223d;
+    --border: #2d3754;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #0ea5e9;
+    --accent-light: #38bdf8;
+    --success: #22c55e;
+    --warn: #f59e0b;
+    --error: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 30px 20px;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 30px; }
+  .back-link { color: var(--accent); text-decoration: none; font-size: 14px; }
+  .back-link:hover { text-decoration: underline; }
+
+  .actions-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .actions-bar .left { display: flex; gap: 12px; flex-wrap: wrap; }
+  button {
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 0.1s, opacity 0.1s;
+  }
+  button:hover:not(:disabled) { transform: translateY(-1px); }
+  button:disabled { opacity: 0.5; cursor: wait; }
+  button.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  button.danger {
+    background: linear-gradient(135deg, #b91c1c, #ef4444);
+  }
+  button.small { padding: 6px 12px; font-size: 13px; }
+
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .template-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .template-preview {
+    aspect-ratio: 3/4;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .template-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .template-body {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .template-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .template-slug {
+    font-size: 11px;
+    font-family: monospace;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge.has-preview { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+  .badge.no-preview { background: rgba(245, 158, 11, 0.2); color: var(--warn); }
+  .template-actions { margin-top: auto; padding-top: 8px; }
+
+  #status-log {
+    background: #050d1a;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    max-height: 320px;
+    overflow-y: auto;
+    display: none;
+  }
+  #status-log.visible { display: block; }
+  .log-line { margin: 0; }
+  .log-line.success { color: var(--success); }
+  .log-line.error { color: var(--error); }
+  .log-line.info { color: var(--accent-light); }
+  .log-line.muted { color: var(--muted); }
+
+  .info-box {
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/admin" class="back-link">← Back to admin panel</a>
+  <h1>Brand Poster Generator — Admin</h1>
+  <p class="subtitle">Manage gallery preview images for the 6 BPG templates</p>
+
+  <div class="info-box">
+    <strong>What this does:</strong> Each template needs a preview image so the
+    gallery looks polished. Click <strong>Seed All Missing</strong> to generate
+    previews for templates that don't have one yet, or <strong>Force Regenerate All</strong>
+    to replace all 6 (costs ~$0.42 in Grok credits). Generation takes about 30-60 seconds
+    per template — be patient while the buttons spin.
+  </div>
+
+  <div class="actions-bar">
+    <div class="left">
+      <button id="seed-all-btn" onclick="seedAll(false)">🎨 Seed All Missing</button>
+      <button id="force-all-btn" class="danger" onclick="seedAll(true)">⚠️ Force Regenerate All</button>
+    </div>
+    <button class="secondary small" onclick="loadStatus()">🔄 Refresh</button>
+  </div>
+
+  <div id="status-log"></div>
+  <div id="templates-grid" class="templates-grid">
+    <div style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 40px;">Loading templates…</div>
+  </div>
+</div>
+
+<script>
+  const grid = document.getElementById('templates-grid');
+  const log = document.getElementById('status-log');
+  const seedAllBtn = document.getElementById('seed-all-btn');
+  const forceAllBtn = document.getElementById('force-all-btn');
+
+  function logLine(text, type) {
+    log.classList.add('visible');
+    const p = document.createElement('p');
+    p.className = 'log-line ' + (type || '');
+    const time = new Date().toLocaleTimeString();
+    p.textContent = '[' + time + '] ' + text;
+    log.appendChild(p);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function setBusy(busy) {
+    seedAllBtn.disabled = busy;
+    forceAllBtn.disabled = busy;
+    document.querySelectorAll('.template-actions button').forEach(b => b.disabled = busy);
+  }
+
+  async function loadStatus() {
+    try {
+      const resp = await fetch('/admin/bpg/preview-status', { credentials: 'include' });
+      const data = await resp.json();
+      if (!data.templates) throw new Error('No templates in response');
+
+      grid.innerHTML = '';
+      data.templates.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'template-card';
+        card.innerHTML = `
+          <div class="template-preview">
+            ${t.has_preview ? `<img src="${t.preview_url}" alt="${t.name}">` : 'No preview yet'}
+          </div>
+          <div class="template-body">
+            <div class="template-name">${t.name}</div>
+            <div class="template-slug">${t.slug}</div>
+            <span class="badge ${t.has_preview ? 'has-preview' : 'no-preview'}">
+              ${t.has_preview ? '✓ Has preview' : '○ Needs preview'}
+            </span>
+            <div class="template-actions">
+              <button class="small secondary" onclick="regenerateOne('${t.slug}')">
+                ${t.has_preview ? 'Regenerate' : 'Generate'}
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    } catch (e) {
+      grid.innerHTML = '<div style="grid-column: 1/-1; padding: 40px; color: var(--error);">Failed to load: ' + e.message + '</div>';
+    }
+  }
+
+  async function seedAll(force) {
+    if (force && !confirm('This will regenerate all 6 preview images, replacing any existing ones. ~$0.42 cost. Continue?')) return;
+    setBusy(true);
+    logLine(force ? 'Force-regenerating all 6 previews…' : 'Seeding missing previews…', 'info');
+    logLine('This will take 3-5 minutes. Do not close this tab.', 'muted');
+
+    try {
+      const url = '/admin/bpg/seed-previews' + (force ? '?force=true' : '');
+      const resp = await fetch(url, { method: 'POST', credentials: 'include' });
+      const data = await resp.json();
+
+      if (data.success) {
+        logLine(`Generated: ${data.summary.generated}, Skipped: ${data.summary.skipped}, Failed: ${data.summary.failed}`, 'success');
+        if (data.results) {
+          data.results.forEach(r => {
+            if (r.status === 'generated') {
+              logLine(`  ✓ ${r.slug} → ${r.size_kb} KB`, 'success');
+            } else if (r.status === 'failed') {
+              logLine(`  ✗ ${r.slug}: ${r.error}`, 'error');
+            } else if (r.status === 'skipped') {
+              logLine(`  - ${r.slug}: ${r.reason}`, 'muted');
+            }
+          });
+        }
+        await loadStatus();
+      } else {
+        logLine('Generation failed: ' + (data.error || 'unknown'), 'error');
+      }
+    } catch (e) {
+      logLine('Network error: ' + e.message, 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function regenerateOne(slug) {
+    if (!confirm(`Regenerate preview for "${slug}"? ~$0.07 cost.`)) return;
+    setBusy(true);
+    logLine(`Regenerating ${slug}…`, 'info');
+
+    try {
+      const resp = await fetch(`/admin/bpg/seed-previews?only_slug=${encodeURIComponent(slug)}&force=true`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await resp.json();
+
+      if (data.success && data.results && data.results[0]) {
+        const r = data.results[0];
+        if (r.status === 'generated') {
+          logLine(`✓ ${slug} regenerated (${r.size_kb} KB)`, 'success');
+        } else {
+          logLine(`✗ ${slug}: ${r.error || r.reason || 'unknown'}`, 'error');
+        }
+        await loadStatus();
+      } else {
+        logLine('Failed: ' + (data.error || 'unknown'), 'error');
+      }
+    } catch (e) {
+      logLine('Network error: ' + e.message, 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  loadStatus();
+</script>
+</body>
+</html>"""
+
+    return HTMLResponse(content=html)
+
+
 # ── Pipeline Background Orchestrator ──────────────────────────
 
 async def _run_pipeline(pipeline_id: int, user_id: int):
