@@ -30138,3 +30138,497 @@ def creative_studio_social_post_design(design_id: str, request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/creative-studio", status_code=302)
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Social Post Studio — Phase 3 (AI generation + reference photos)
+# ══════════════════════════════════════════════════════════════════════
+# Built 12 May 2026. Six sub-pieces:
+#   1. Reference photo library (upload, list, delete, set default)
+#   2. Vibe preset library (6 ready, 6 stubs for Phase 3.5)
+#   3. Credits info endpoint (balance + pricing for UI)
+#   4. Generation endpoint (deduct → call Grok Imagine → save audit → return candidates)
+#   5. Candidate selection endpoint (member picks one, marked in audit)
+#
+# Credits: shared with the rest of Creative Studio (SuperSceneCredit balance).
+# Pricing: 5 credits to generate (4 candidates), 3 to regenerate.
+# ──────────────────────────────────────────────────────────────────────
+
+# Credits charged per action — env-overridable so we can tune without
+# redeploying if margins shift
+SOCIALPOST_CREDITS_GENERATE = int(os.getenv("SOCIALPOST_CREDITS_GENERATE", "5"))
+SOCIALPOST_CREDITS_REGENERATE = int(os.getenv("SOCIALPOST_CREDITS_REGENERATE", "3"))
+SOCIALPOST_CREDITS_UPSCALE = int(os.getenv("SOCIALPOST_CREDITS_UPSCALE", "2"))
+
+# Reference photo upload limits
+SOCIALPOST_REF_PHOTO_MAX_BYTES = 8 * 1024 * 1024   # 8MB — photos can be big
+SOCIALPOST_REF_PHOTO_MAX_COUNT = 20                 # per member; encourages curation
+SOCIALPOST_REF_PHOTO_TYPES = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+}
+
+SOCIALPOST_CUSTOM_PROMPT_MAX_LEN = 800
+
+
+def _socialpost_get_or_create_credit(db, user_id):
+    """Get the user's SuperScene credit row, creating with 0 balance if absent.
+    Shared with Creative Studio's other tabs — same balance pool.
+    """
+    from .database import SuperSceneCredit
+    sc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user_id).first()
+    if not sc:
+        sc = SuperSceneCredit(user_id=user_id, balance=0)
+        db.add(sc)
+        db.flush()
+    return sc
+
+
+def _socialpost_deduct_credits(db, user_id, amount):
+    """Atomically deduct credits, return (ok, new_balance) or (False, current).
+    Raises nothing — caller decides response based on the bool.
+    """
+    sc = _socialpost_get_or_create_credit(db, user_id)
+    current = sc.balance or 0
+    if current < amount:
+        return False, current
+    sc.balance = current - amount
+    db.flush()
+    return True, sc.balance
+
+
+def _socialpost_refund_credits(db, user_id, amount):
+    """Refund credits on generation failure. Always succeeds."""
+    sc = _socialpost_get_or_create_credit(db, user_id)
+    sc.balance = (sc.balance or 0) + amount
+    db.flush()
+    return sc.balance
+
+
+@app.get("/api/social-post/credits-balance")
+def social_post_credits_balance(user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """Current credit balance + per-action cost so the UI can show
+    'You have X credits — generation costs 5'.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    sc = _socialpost_get_or_create_credit(db, user.id)
+    return {
+        "balance": sc.balance or 0,
+        "costs": {
+            "generate": SOCIALPOST_CREDITS_GENERATE,
+            "regenerate": SOCIALPOST_CREDITS_REGENERATE,
+            "upscale": SOCIALPOST_CREDITS_UPSCALE,
+        },
+    }
+
+
+@app.get("/api/social-post/presets")
+def social_post_presets(user: User = Depends(get_current_user)):
+    """List of vibe presets for the UI grid. Available + coming-soon."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .social_post_presets import list_presets_for_ui
+    return {"presets": list_presets_for_ui()}
+
+
+@app.get("/api/social-post/reference-photos")
+def social_post_reference_photos(user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """List the member's reference photos, newest first."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    rows = (
+        db.query(UserReferencePhoto)
+          .filter(UserReferencePhoto.user_id == user.id)
+          .order_by(UserReferencePhoto.is_default.desc(),
+                    UserReferencePhoto.created_at.desc())
+          .all()
+    )
+    return {
+        "photos": [
+            {
+                "id": p.id,
+                "photo_url": p.photo_url,
+                "label": p.label or "",
+                "is_default": bool(p.is_default),
+                "created_at": p.created_at.isoformat() if p.created_at else None,
+            }
+            for p in rows
+        ],
+        "count": len(rows),
+        "max": SOCIALPOST_REF_PHOTO_MAX_COUNT,
+    }
+
+
+@app.post("/api/social-post/upload-reference")
+async def social_post_upload_reference(request: Request,
+                                        user: User = Depends(get_current_user),
+                                        db: Session = Depends(get_db)):
+    """Upload a reference photo to R2.
+
+    Multipart body:
+        file   — image file (jpg/png/webp, <=8MB)
+        label  — optional member-assigned name
+
+    Enforces per-user count limit and file size/type. Returns the new
+    photo row.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Soft cap: refuse if member already has too many
+    existing_count = (
+        db.query(UserReferencePhoto)
+          .filter(UserReferencePhoto.user_id == user.id)
+          .count()
+    )
+    if existing_count >= SOCIALPOST_REF_PHOTO_MAX_COUNT:
+        return JSONResponse(
+            {"error": f"Maximum {SOCIALPOST_REF_PHOTO_MAX_COUNT} reference photos "
+                      "reached. Delete some to add more."},
+            status_code=429,
+        )
+
+    form = await request.form()
+    file_field = form.get("file")
+    label = (form.get("label") or "").strip()[:100]
+    if file_field is None:
+        return JSONResponse({"error": "file is required"}, status_code=400)
+
+    content_type = getattr(file_field, "content_type", "") or ""
+    if content_type not in SOCIALPOST_REF_PHOTO_TYPES:
+        return JSONResponse(
+            {"error": f"Unsupported file type {content_type}. "
+                      "Use JPG, PNG, or WebP."},
+            status_code=400,
+        )
+
+    data = await file_field.read()
+    if len(data) > SOCIALPOST_REF_PHOTO_MAX_BYTES:
+        return JSONResponse(
+            {"error": "File too large (max 8MB)"},
+            status_code=413,
+        )
+    if len(data) < 1024:
+        # 1KB sanity floor — anything smaller isn't a real photo
+        return JSONResponse({"error": "File too small to be a valid photo"}, status_code=400)
+
+    # Upload to R2
+    try:
+        from .r2_storage import upload_image as r2_upload
+        ext = SOCIALPOST_REF_PHOTO_TYPES[content_type]
+        photo_url = r2_upload(
+            data,
+            f"social-post/reference-photos/user-{user.id}",
+            ext=ext,
+            content_type=content_type,
+        )
+    except Exception as exc:
+        logger.exception(f"R2 upload failed for user {user.id}: {exc}")
+        return JSONResponse(
+            {"error": "Photo upload failed. Try again in a moment."},
+            status_code=500,
+        )
+
+    if not photo_url:
+        return JSONResponse(
+            {"error": "Photo upload returned no URL — R2 may not be configured"},
+            status_code=500,
+        )
+
+    # First photo gets is_default = True automatically
+    is_default = (existing_count == 0)
+
+    photo = UserReferencePhoto(
+        user_id=user.id,
+        photo_url=photo_url,
+        label=label or None,
+        is_default=is_default,
+    )
+    db.add(photo)
+    db.commit()
+    db.refresh(photo)
+
+    return {
+        "id": photo.id,
+        "photo_url": photo.photo_url,
+        "label": photo.label or "",
+        "is_default": bool(photo.is_default),
+        "created_at": photo.created_at.isoformat() if photo.created_at else None,
+    }
+
+
+@app.delete("/api/social-post/reference-photo/{photo_id}")
+def social_post_delete_reference(photo_id: int,
+                                  user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Delete a reference photo owned by the current user.
+    
+    NOTE: doesn't delete the R2 object itself (low value cleanup, can be
+    done by a background sweep later). Just unlinks it.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    photo = (
+        db.query(UserReferencePhoto)
+          .filter(UserReferencePhoto.id == photo_id,
+                  UserReferencePhoto.user_id == user.id)
+          .first()
+    )
+    if not photo:
+        return JSONResponse({"error": "Photo not found"}, status_code=404)
+    was_default = bool(photo.is_default)
+    db.delete(photo)
+
+    # If we deleted the default, promote the most recent remaining photo
+    if was_default:
+        next_photo = (
+            db.query(UserReferencePhoto)
+              .filter(UserReferencePhoto.user_id == user.id,
+                      UserReferencePhoto.id != photo_id)
+              .order_by(UserReferencePhoto.created_at.desc())
+              .first()
+        )
+        if next_photo:
+            next_photo.is_default = True
+
+    db.commit()
+    return {"deleted": True, "id": photo_id}
+
+
+@app.post("/api/social-post/reference-photo/{photo_id}/set-default")
+def social_post_set_default_reference(photo_id: int,
+                                        user: User = Depends(get_current_user),
+                                        db: Session = Depends(get_db)):
+    """Make this photo the member's default reference for AI generation."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    photo = (
+        db.query(UserReferencePhoto)
+          .filter(UserReferencePhoto.id == photo_id,
+                  UserReferencePhoto.user_id == user.id)
+          .first()
+    )
+    if not photo:
+        return JSONResponse({"error": "Photo not found"}, status_code=404)
+    # Clear all defaults for this user, then set this one
+    (db.query(UserReferencePhoto)
+       .filter(UserReferencePhoto.user_id == user.id)
+       .update({UserReferencePhoto.is_default: False}))
+    photo.is_default = True
+    db.commit()
+    return {"ok": True, "id": photo_id}
+
+
+@app.post("/api/social-post/generate")
+async def social_post_generate(request: Request,
+                                user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
+    """Generate 4 AI image candidates for the member.
+
+    Body:
+        preset_key       — preset to use, or None for custom mode
+        custom_prompt    — when preset_key is None, the member's free-text prompt
+        custom_addons    — when preset_key is set, optional extra direction
+        reference_photo_id — optional UserReferencePhoto.id; uses default if omitted
+        aspect           — '1:1' | '4:5' | '9:16' | '16:9' (defaults to preset's suggestion)
+        is_regenerate    — bool, charges 3 credits instead of 5
+
+    Flow:
+      1. Validate inputs
+      2. Resolve prompt (from preset library OR custom)
+      3. Resolve reference photo URL (member's choice or default)
+      4. Atomically deduct credits
+      5. Call Grok Imagine
+      6. On failure → refund credits, return error
+      7. On success → save SocialPostGeneration audit row, return candidates
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    body = await request.json()
+    preset_key = body.get("preset_key") or None
+    custom_prompt = (body.get("custom_prompt") or "").strip()
+    custom_addons = (body.get("custom_addons") or "").strip()
+    reference_photo_id = body.get("reference_photo_id")
+    aspect = body.get("aspect") or "1:1"
+    is_regenerate = bool(body.get("is_regenerate", False))
+
+    # ── Validate inputs ──
+    if aspect not in ("1:1", "4:5", "9:16", "16:9"):
+        return JSONResponse({"error": "Invalid aspect ratio"}, status_code=400)
+
+    # ── Resolve prompt ──
+    from .social_post_presets import assemble_prompt, get_preset
+    if preset_key:
+        preset = get_preset(preset_key)
+        if not preset:
+            return JSONResponse(
+                {"error": f"Preset '{preset_key}' not found or not yet available"},
+                status_code=400,
+            )
+        prompt = assemble_prompt(preset_key, custom_addons)
+        if not aspect or aspect == "1:1":
+            # Default to preset's suggested aspect if member didn't choose
+            aspect = preset.get("suggested_aspect", "1:1")
+    else:
+        # Custom prompt mode
+        if not custom_prompt:
+            return JSONResponse(
+                {"error": "Either preset_key or custom_prompt is required"},
+                status_code=400,
+            )
+        if len(custom_prompt) > SOCIALPOST_CUSTOM_PROMPT_MAX_LEN:
+            return JSONResponse(
+                {"error": f"Custom prompt too long (max {SOCIALPOST_CUSTOM_PROMPT_MAX_LEN} chars)"},
+                status_code=400,
+            )
+        prompt = custom_prompt
+
+    # ── Resolve reference photo ──
+    reference_url = None
+    if reference_photo_id:
+        ref = (
+            db.query(UserReferencePhoto)
+              .filter(UserReferencePhoto.id == reference_photo_id,
+                      UserReferencePhoto.user_id == user.id)
+              .first()
+        )
+        if not ref:
+            return JSONResponse({"error": "Reference photo not found"}, status_code=404)
+        reference_url = ref.photo_url
+    else:
+        # Use default reference if member has one
+        default_ref = (
+            db.query(UserReferencePhoto)
+              .filter(UserReferencePhoto.user_id == user.id,
+                      UserReferencePhoto.is_default == True)  # noqa: E712
+              .first()
+        )
+        if default_ref:
+            reference_url = default_ref.photo_url
+
+    # ── Deduct credits atomically ──
+    credits_to_charge = (
+        SOCIALPOST_CREDITS_REGENERATE if is_regenerate else SOCIALPOST_CREDITS_GENERATE
+    )
+    ok, current_balance = _socialpost_deduct_credits(db, user.id, credits_to_charge)
+    if not ok:
+        return JSONResponse(
+            {"error": f"Insufficient credits. You have {current_balance}, "
+                      f"this action costs {credits_to_charge}.",
+             "balance": current_balance,
+             "needed": credits_to_charge,
+             "shortage": credits_to_charge - current_balance},
+            status_code=402,   # 402 Payment Required
+        )
+    db.commit()   # commit the deduction immediately so it survives Grok call
+
+    # ── Call Grok Imagine ──
+    from .grok_imagine_service import generate_candidates as gi_generate
+    try:
+        result = await gi_generate(
+            prompt=prompt,
+            reference_url=reference_url,
+            aspect=aspect,
+            n=4,
+        )
+    except Exception as exc:
+        logger.exception(f"social_post_generate: Grok call crashed: {exc}")
+        result = {"error": f"Generation crashed: {exc}"}
+
+    # ── Save audit log row (whether success or failure) ──
+    import json as _j
+    generation = SocialPostGeneration(
+        user_id=user.id,
+        preset_key=preset_key,
+        prompt=prompt,
+        reference_url=reference_url,
+        credits_charged=credits_to_charge,
+        provider="grok-imagine-image-quality",
+    )
+
+    if "error" in result:
+        # ── Refund credits on failure ──
+        new_balance = _socialpost_refund_credits(db, user.id, credits_to_charge)
+        generation.credits_charged = 0
+        generation.error_message = result.get("error", "Unknown error")[:1000]
+        db.add(generation)
+        db.commit()
+        return JSONResponse(
+            {"error": result.get("error", "Image generation failed"),
+             "detail": result.get("detail"),
+             "balance": new_balance,
+             "refunded": credits_to_charge},
+            status_code=502,   # 502 Bad Gateway — upstream provider failure
+        )
+
+    # ── Success — save candidates ──
+    candidates = result.get("images", [])
+    generation.candidates_json = _j.dumps(candidates)
+    generation.provider_cost_usd = result.get("cost_usd")
+    db.add(generation)
+    db.commit()
+    db.refresh(generation)
+
+    # Get fresh balance for the UI to display
+    sc = _socialpost_get_or_create_credit(db, user.id)
+
+    return {
+        "generation_id": generation.id,
+        "candidates": candidates,
+        "credits_charged": credits_to_charge,
+        "balance": sc.balance,
+        "prompt_used": prompt,   # show member what was sent for transparency
+        "reference_used": bool(reference_url),
+    }
+
+
+@app.post("/api/social-post/generation/{generation_id}/choose")
+async def social_post_choose_candidate(generation_id: int,
+                                         request: Request,
+                                         user: User = Depends(get_current_user),
+                                         db: Session = Depends(get_db)):
+    """Record which of the 4 candidates the member chose.
+
+    Body:
+        chosen_url — one of the 4 URLs returned by /generate
+
+    The chosen image is now ready for the member to add to the canvas
+    as an image layer (frontend handles that separately).
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    chosen_url = body.get("chosen_url")
+    if not chosen_url:
+        return JSONResponse({"error": "chosen_url is required"}, status_code=400)
+
+    generation = (
+        db.query(SocialPostGeneration)
+          .filter(SocialPostGeneration.id == generation_id,
+                  SocialPostGeneration.user_id == user.id)
+          .first()
+    )
+    if not generation:
+        return JSONResponse({"error": "Generation not found"}, status_code=404)
+
+    # Verify the chosen URL was actually one of the candidates
+    import json as _j
+    try:
+        candidates = _j.loads(generation.candidates_json or "[]")
+    except Exception:
+        candidates = []
+    if chosen_url not in candidates:
+        return JSONResponse(
+            {"error": "Chosen URL was not in the original candidate set"},
+            status_code=400,
+        )
+
+    generation.chosen_url = chosen_url
+    db.commit()
+
+    return {"ok": True, "generation_id": generation_id, "chosen_url": chosen_url}

@@ -10,6 +10,7 @@ import { useReducer, useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AppLayout from '../../components/layout/AppLayout';
 import CanvasEngine from './CanvasEngine';
+import AIGeneratePanel from './AIGeneratePanel';
 import {
   canvasReducer, makeInitialState, serialiseCanvas, ASPECTS, newLayerId,
   TEXT_STYLES,
@@ -23,6 +24,7 @@ export default function SocialPostStudio() {
   var [loading, setLoading] = useState(false);
   var [saving, setSaving] = useState(false);
   var [showTextPicker, setShowTextPicker] = useState(false);
+  var [showAIPanel, setShowAIPanel] = useState(false);
   var fileInputRef = useRef(null);
 
   // Load existing design if URL has an id ────────────────────────────────
@@ -144,6 +146,52 @@ export default function SocialPostStudio() {
     setShowTextPicker(false);
   }
 
+  // Phase 3: AI-generated image picked → add as canvas layer
+  function handleAIPicked(imageUrl) {
+    var canvas = ASPECTS[state.aspect];
+    // Preload to get natural dimensions; scale to fit a generous canvas footprint
+    var img = new Image();
+    img.crossOrigin = 'anonymous';   // Grok Imagine URLs are public
+    img.onload = function() {
+      var aspect = img.naturalWidth / img.naturalHeight;
+      // Default placement: 80% of canvas width, centered
+      var layerW = canvas.w * 0.8;
+      var layerH = layerW / aspect;
+      if (layerH > canvas.h * 0.8) {
+        layerH = canvas.h * 0.8;
+        layerW = layerH * aspect;
+      }
+      dispatch({
+        type: 'ADD_LAYER',
+        layer: {
+          type: 'image',
+          src: imageUrl,
+          x: (canvas.w - layerW) / 2,
+          y: (canvas.h - layerH) / 2,
+          w: layerW,
+          h: layerH,
+        },
+      });
+    };
+    img.onerror = function() {
+      // Fallback: add layer at a default size even if preload failed
+      var layerW = canvas.w * 0.8;
+      var layerH = canvas.h * 0.6;
+      dispatch({
+        type: 'ADD_LAYER',
+        layer: {
+          type: 'image',
+          src: imageUrl,
+          x: (canvas.w - layerW) / 2,
+          y: (canvas.h - layerH) / 2,
+          w: layerW,
+          h: layerH,
+        },
+      });
+    };
+    img.src = imageUrl;
+  }
+
   // Render ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -252,6 +300,17 @@ export default function SocialPostStudio() {
             <div className="sps-rail-section">
               <div className="sps-rail-label">Add to canvas</div>
               <div className="sps-add-btn-stack">
+                <button
+                  className="sps-add-btn"
+                  onClick={function() { setShowAIPanel(true); }}
+                  style={{
+                    background: 'linear-gradient(135deg, var(--sps-gold-1), var(--sps-gold-2))',
+                    color: '#000', fontWeight: 700,
+                  }}
+                >
+                  <span className="sps-add-btn-icon">✨</span>
+                  <span>AI Generate photo</span>
+                </button>
                 <button className="sps-add-btn" onClick={handleAddImage}>
                   <span className="sps-add-btn-icon">⬆</span>
                   <span>Upload image</span>
@@ -264,8 +323,8 @@ export default function SocialPostStudio() {
                   <span>Add text</span>
                 </button>
                 <div className="sps-coming-soon">
-                  <strong>Coming in Phase 3-4</strong>
-                  AI photo generation and 80-piece object library
+                  <strong>Coming in Phase 4</strong>
+                  80-piece object library (badges, CTAs, ribbons, dividers)
                 </div>
               </div>
             </div>
@@ -499,6 +558,13 @@ export default function SocialPostStudio() {
 
         </div>
       </div>
+
+      <AIGeneratePanel
+        isOpen={showAIPanel}
+        onClose={function() { setShowAIPanel(false); }}
+        onPicked={handleAIPicked}
+        defaultAspect={state.aspect}
+      />
     </AppLayout>
   );
 }
