@@ -87,6 +87,7 @@ POSTER_TEMPLATES = [
             "Very bottom: row of 5 small circular gold icon medallions with one-word labels: rocket, share, dollar, chart, palm. "
             "{logo_variant_default} "
             "Brand palette: deep cobalt navy tones, cyan blue accents (#0ea5e9), amber gold highlights (#fbbf24), white text. "
+            "{member_share_url} "
             "Direct response marketing aesthetic, magazine-quality, all text crisp and readable."
         ),
     },
@@ -141,6 +142,7 @@ POSTER_TEMPLATES = [
             "with 'Take control of your time and your future' below in light text, "
             "and 'YOUR NEW LIFE STARTS TODAY' in gold caps as final tagline. "
             "{logo_variant_default} "
+            "{member_share_url} "
             "Aesthetic: glamorous direct-response, purple and magenta neon energy, gold and white text, magazine-quality."
         ),
     },
@@ -197,8 +199,8 @@ POSTER_TEMPLATES = [
             "Pill 3: chart-up icon plus 'VIDEO ADVERTISING / Campaign tiers & views'. "
             "Bottom: wide rounded CTA pill with bright cyan glowing border and dark interior, "
             "'JOIN SUPERADPRO FREE' in bold white with 'SUPERADPRO' in cyan-to-gold gradient. "
-            "Very bottom: small white text 'superadpro.com' followed by the SuperAdPro logo mark at small size. "
             "Brand palette: deep cobalt navy (#0a1438), cyan (#0ea5e9, #38bdf8), gold (#fbbf24), white. "
+            "{member_share_url} "
             "No orange, no red, no purple. Premium tech-platform aesthetic, magazine-quality, all text crisp."
         ),
     },
@@ -252,9 +254,9 @@ POSTER_TEMPLATES = [
             "'I gift you a membership', 'You activate it free', 'Earn for 30+ days', 'When you can, gift one too'. "
             "Bottom: wide rounded CTA pill with bright magenta glowing border, dark interior, "
             "'COMMENT \"{cta_word}\" TO RECEIVE YOUR FREE GIFT' in white with '{cta_word}' in pink-to-gold gradient. "
-            "Very bottom: 'Part of the SuperAdPro Pay It Forward chain — superadpro.com' plus small white heart icon. "
             "Brand palette: deep magenta (#831843) backgrounds, warm pink (#ec4899) mid-tones, gold (#fbbf24) highlights, white text. "
             "Logo MUST use the pink/magenta variant — NOT the default cyan. "
+            "{member_share_url} "
             "Emotional human direct-response — warmth, generosity, connection. Magazine-quality, all text crisp."
         ),
     },
@@ -312,8 +314,8 @@ POSTER_TEMPLATES = [
             "'Stop trading time for money', 'Build assets that pay you', 'Compound your network', 'Live the life by design'. "
             "Bottom: wide CTA pill with cyan glowing border and dark interior, "
             "'COMMENT \"{cta_word}\" TO START YOUR JOURNEY' with '{cta_word}' in cyan-to-gold gradient. "
-            "Very bottom: 'superadpro.com — where creators get paid to build' plus small SuperAdPro logo. "
             "Brand palette: deep cobalt navy + bright cyan + premium gold + champagne tones. "
+            "{member_share_url} "
             "Aspirational luxury aesthetic without being tacky. Magazine-quality production."
         ),
     },
@@ -371,8 +373,8 @@ POSTER_TEMPLATES = [
             "'AI handles the heavy lifting', 'Commissions on every referral', 'Pay only for what you use', 'Built for non-techies'. "
             "Bottom: wide CTA pill with cyan glowing border, "
             "'COMMENT \"{cta_word}\" TO SEE THE SYSTEM' in white with '{cta_word}' in cyan-to-gold gradient. "
-            "Very bottom: 'superadpro.com — AI tools for $20/month' plus small SuperAdPro logo. "
             "Brand palette: deep cobalt navy + bright cyan + gold + green earnings accents. "
+            "{member_share_url} "
             "Modern tech-platform aesthetic, futuristic but accessible."
         ),
     },
@@ -416,16 +418,23 @@ LOGO_VARIANTS = {
 }
 
 
-def render_prompt(template: dict, inputs: dict) -> str:
+def render_prompt(template: dict, inputs: dict, username: str = None) -> str:
     """Assemble the final Grok Imagine prompt from a template + member inputs.
 
     Steps:
       1. Take the master_prompt string
       2. Inject logo variant specifications ({logo_variant_default}, etc)
-      3. Substitute member-supplied input values ({headline_open}, etc)
-      4. Return the complete prompt ready for Grok Imagine
+      3. Inject member's referral URL ({member_share_url}) so the poster
+         is attribution-ready when shared on social media
+      4. Substitute member-supplied input values ({headline_open}, etc)
+      5. Return the complete prompt ready for Grok Imagine
 
     Defensive: missing inputs fall back to defaults from input_fields.
+
+    The username arg is the member's referral handle. When provided, the
+    poster will include 'superadpro.com/ref/USERNAME' as a visible URL.
+    When None (e.g. admin preview seeding), a generic 'superadpro.com'
+    is used — the preview is illustrative, not a real share asset.
     """
     prompt = template["master_prompt"]
 
@@ -433,6 +442,30 @@ def render_prompt(template: dict, inputs: dict) -> str:
     prompt = prompt.replace("{logo_variant_default}", LOGO_VARIANTS["default"])
     prompt = prompt.replace("{logo_variant_gold}", LOGO_VARIANTS["gold"])
     prompt = prompt.replace("{logo_variant_pink}", LOGO_VARIANTS["pink"])
+
+    # Inject member referral URL specification. This is THE thing that
+    # makes BPG posters share-worthy — without it, a member who posts
+    # their generated poster gets no attribution back when visitors
+    # sign up. Added 12 May 2026 in response to direct member feedback.
+    if username:
+        share_url_directive = (
+            f"At the very bottom edge of the poster, render a clean horizontal banner "
+            f"approximately 60 pixels tall with a dark navy background and a thin cyan top border. "
+            f"In the centre of this banner, in clean modern sans-serif white type, "
+            f"place the URL text 'superadpro.com/ref/{username}' rendered crisp and readable, "
+            f"all letters clear, NO 3D extrusion on this URL — it must be flat and pixel-perfect. "
+            f"This URL is the call-to-action destination — it must render exactly as written."
+        )
+    else:
+        # Preview / admin seed mode — no specific member, use neutral URL
+        share_url_directive = (
+            f"At the very bottom edge of the poster, render a clean horizontal banner "
+            f"approximately 60 pixels tall with a dark navy background and a thin cyan top border. "
+            f"In the centre of this banner, in clean modern sans-serif white type, "
+            f"place the URL text 'superadpro.com' rendered crisp and readable, "
+            f"all letters clear, NO 3D extrusion on this URL."
+        )
+    prompt = prompt.replace("{member_share_url}", share_url_directive)
 
     # Substitute member inputs — fall back to defaults where missing
     substitutions = {}

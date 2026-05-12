@@ -27700,9 +27700,12 @@ async def bpg_generate(request: Request, db: Session = Depends(get_db)):
         db.add(template_row)
         db.flush()
 
-    # Build the final prompt with placeholders substituted
+    # Build the final prompt with placeholders substituted. The username
+    # is passed so the poster includes 'superadpro.com/ref/{username}'
+    # as a visible URL — every BPG poster a member generates is then
+    # attribution-ready when they share it on social media.
     try:
-        rendered_prompt = render_prompt(template, inputs)
+        rendered_prompt = render_prompt(template, inputs, username=user.username)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
