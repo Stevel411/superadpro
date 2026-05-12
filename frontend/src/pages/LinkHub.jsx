@@ -257,8 +257,14 @@ export default function LinkHub() {
           {panel==='links' && <LinksPanel links={links} style={style} addLink={addLink} updateLink={updateLink} removeLink={removeLink} toggleLink={toggleLink} moveLink={moveLink} emojiPicker={emojiPicker} setEmojiPicker={setEmojiPicker}/>}
           {panel==='style' && <StylePanel style={style} setStyle={setStyle}/>}
           {panel==='profile' && <ProfilePanel profile={profile} setProfile={setProfile} onRemoveAvatar={function(){
+  // Clear locally for immediate UI feedback
   setProfile(function(p){return Object.assign({},p,{avatar_url:''});});
-  var payload = Object.assign({},style,{display_name:profile.display_name,bio:profile.bio,avatar_url:'',is_published:true,links:links.map(function(l,i){return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'link',is_active:l.is_active,sort_order:i,btn_bg_color:l.btn_bg_color||''};})});
+  // Send to backend with explicit clear flag — the save endpoint
+  // requires avatar_clear:true OR avatar_url:'' to actually wipe
+  // the avatar_r2_url + avatar_data columns. Without the flag, it
+  // ignores the field entirely (so the old avatar would reappear
+  // on next page load). Bug fixed 12 May 2026.
+  var payload = Object.assign({},style,{display_name:profile.display_name,bio:profile.bio,avatar_url:'',avatar_clear:true,is_published:true,links:links.map(function(l,i){return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'link',is_active:l.is_active,sort_order:i,btn_bg_color:l.btn_bg_color||''};})});
   apiPost('/linkhub/save', payload).catch(function(){});
 }}/>}
         </div>

@@ -18643,7 +18643,31 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         import json as _json
         social_raw = data.get("social_links", [])
         profile.social_links = _json.dumps(social_raw) if social_raw else None
-        # avatar_data is saved directly by the upload endpoint — don't overwrite with None here
+        # ── Avatar handling ──
+        # The upload-avatar endpoint is the only thing that SETS the avatar
+        # (to either avatar_r2_url for R2 hosting, or avatar_data for base64
+        # fallback). The save endpoint is responsible for one specific case
+        # of avatar modification: CLEARING it when the member clicks Remove.
+        #
+        # Convention with the frontend (LinkHub.jsx onRemoveAvatar handler):
+        #   - Member clicks Remove → frontend POSTs save with avatar_url: ""
+        #     AND avatar_clear: true. We clear both R2 + base64 columns
+        #     (and delete the R2 object if any).
+        #   - Save with avatar_url present → don't touch avatar fields (the
+        #     upload endpoint owns them).
+        #
+        # Fixed 12 May 2026 — bug was: save endpoint silently ignored
+        # avatar_url:"" so avatars couldn't be removed via the Remove button.
+        if data.get("avatar_clear") is True or data.get("avatar_url") == "":
+            if profile.avatar_r2_url:
+                try:
+                    delete_image(profile.avatar_r2_url)
+                except Exception as e:
+                    print(f"⚠️ R2 avatar delete failed (continuing): {e}")
+            profile.avatar_r2_url = None
+            profile.avatar_data = None
+        # avatar_data is otherwise saved directly by the upload endpoint —
+        # don't overwrite it from this endpoint's data payload.
         from datetime import datetime as _dt
         profile.updated_at = _dt.utcnow()
 
