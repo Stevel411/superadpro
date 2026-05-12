@@ -78,6 +78,12 @@ async def _call_xai_imagine(
     Verified against xAI docs (https://docs.x.ai/docs/guides/image-generations
     and /developers/model-capabilities/images/generation) on 12 May 2026.
 
+    Aspect ratio mapping: our canvas uses '4:5' for Instagram portrait,
+    but xAI only supports a specific set (1:1, 3:4, 4:3, 9:16, 16:9,
+    2:3, 3:2, 9:19.5, 19.5:9, 9:20, 20:9, 1:2, 2:1, auto). Map our
+    '4:5' to xAI's closest '3:4'. Discovered via a live API test
+    12 May 2026 — xAI returned a 422 with the full list of valid values.
+
     Returns:
         {"images": [url, url, url, url], "raw": <full response>}
         OR
@@ -85,6 +91,9 @@ async def _call_xai_imagine(
     """
     if not XAI_API_KEY:
         return {"error": "XAI_API_KEY not configured"}
+
+    # Map our canvas aspects to what xAI accepts
+    xai_aspect = _map_aspect_to_xai(aspect)
 
     headers = {
         "Authorization": f"Bearer {XAI_API_KEY}",
@@ -105,7 +114,7 @@ async def _call_xai_imagine(
                 "type": "image_url",
             },
             "n": n,
-            "aspect_ratio": aspect,
+            "aspect_ratio": xai_aspect,
         }
     else:
         # ── Text-to-image path: pure prompt → 4 candidates ──
@@ -114,7 +123,7 @@ async def _call_xai_imagine(
             "model": GROK_IMAGINE_MODEL,
             "prompt": prompt,
             "n": n,
-            "aspect_ratio": aspect,
+            "aspect_ratio": xai_aspect,
         }
 
     try:
@@ -152,6 +161,25 @@ async def _call_xai_imagine(
     except Exception as exc:
         logger.exception(f"Grok Imagine call failed: {exc}")
         return {"error": f"Image generation failed: {exc}"}
+
+
+# ── Aspect ratio mapping ─────────────────────────────────────────────────
+# Our canvas uses 1:1, 4:5, 9:16, 16:9 (standard Instagram + Story + Reel
+# + landscape). xAI Imagine supports a specific set that does NOT include
+# 4:5 — verified via live API test 12 May 2026 (returned 422 with the
+# full list of valid values). Map 4:5 → 3:4 (closest portrait, ~5% squarer).
+_XAI_ASPECT_MAP = {
+    "1:1":  "1:1",
+    "4:5":  "3:4",   # closest xAI-supported portrait
+    "9:16": "9:16",
+    "16:9": "16:9",
+}
+
+def _map_aspect_to_xai(aspect: str) -> str:
+    """Map our canvas aspect ratio to a value xAI Imagine accepts.
+    Falls back to '1:1' for anything unrecognised.
+    """
+    return _XAI_ASPECT_MAP.get(aspect, "1:1")
 
 
 async def generate_candidates(
