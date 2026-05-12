@@ -478,6 +478,44 @@ export default function UpgradeCheckout() {
             </div>
           </button>
 
+          {/* Sending-from-exchange explainer — surfaces ONLY when the user
+              picks the crypto rail. Stops the #1 support category: members
+              sending from Coinbase / Binance / Kraken who don't realise
+              the exchange takes a withdrawal fee, leaving them short of
+              the required amount. Auto-recovery now handles small shortfalls
+              transparently, but the better UX is to tell people up-front. */}
+          {rail === 'crypto' && (
+            <div style={{
+              background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+              border: '1px solid #f59e0b',
+              borderRadius: 10,
+              padding: '14px 16px',
+              marginTop: 10,
+              fontSize: 13,
+              lineHeight: 1.55,
+              color: '#78350f',
+            }}>
+              <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 16 }}>💡</span> Paying from an exchange (Coinbase, Binance, Kraken)?
+              </div>
+              <div style={{ marginBottom: 6 }}>
+                <strong>1.</strong> Use the <strong>BSC / BNB Smart Chain</strong> network — NOT Ethereum.
+                Ethereum gas fees can be $5–$20; BSC fees are typically under $1.
+              </div>
+              <div style={{ marginBottom: 6 }}>
+                <strong>2.</strong> Exchanges charge a withdrawal fee (~$1) that comes off your sent amount.
+                Send <strong>$1–$2 more</strong> than the price to cover this and avoid delays.
+              </div>
+              <div>
+                <strong>3.</strong> If your payment arrives slightly short due to fees, we'll activate
+                you automatically within seconds. If anything goes wrong, just email{' '}
+                <a href="mailto:support@superadpro.com" style={{ color: '#92400e', fontWeight: 600 }}>
+                  support@superadpro.com
+                </a>{' '}with your transaction ID.
+              </div>
+            </div>
+          )}
+
           {/* Auto-renewal opt-in — only relevant for monthly + balance */}
           {rail === 'balance' && cadence === 'monthly' && (
             <label className="uchk-renew-row">

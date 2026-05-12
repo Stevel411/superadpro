@@ -8522,11 +8522,105 @@ async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db
         db.commit()
         return {"status": "updated", "payment_status": payment_status}
 
+    # ── Partial payment: tolerance-aware auto-recovery ──
+    # Crypto payments routinely arrive 1-2% short of the requested amount
+    # because of exchange withdrawal fees (Coinbase ~$1, Binance ~$0.50-2,
+    # etc.) and tiny spreads in the conversion rate. Before 12 May 2026
+    # we treated EVERY partial payment as needing manual admin recovery,
+    # which created a real customer-friction issue:
+    #
+    #   - Today: customer paid 19.94 of 19.95 USDT (1 cent short on a $20
+    #     product). Funds reached the treasury. Membership locked until
+    #     admin clicked Recover. Auto-recovery would have saved a support
+    #     ticket and a confused customer.
+    #   - Coinbase users routinely lose ~$1 to the platform's own
+    #     withdrawal fee. Without auto-recovery they ALL hit this issue.
+    #   - Binance users with rounding in their UI hit the same thing.
+    #
+    # Tolerance policy:
+    #   ratio = actually_paid / pay_amount
+    #   ratio >= 0.95  → AUTO-RECOVER. Funds are with NOWPayments and will
+    #                    be forwarded to treasury. Activate immediately
+    #                    via the same path as a fully-paid order.
+    #   ratio <  0.95  → leave as partially_paid for admin review. A 5%
+    #                    shortfall on a $35 product is $1.75 — outside
+    #                    any plausible exchange fee, suggests something
+    #                    else is wrong.
+    #
+    # The 95% threshold was chosen because:
+    #   - $20 product: $1 shortfall absorbed (typical Coinbase fee)
+    #   - $35 product: $1.75 shortfall absorbed (Coinbase + small slip)
+    #   - $100 pack:   $5 shortfall absorbed (generous for any exchange)
+    #   - $1000 pack:  $50 shortfall absorbed (still well inside any
+    #     realistic fee structure for moving USDT across chains)
+    #
+    # We deliberately do NOT auto-recover below 95%. Those go to the
+    # admin queue with a notification so a human reviews. This is the
+    # right boundary because below 95% is rarely "innocent shortfall"
+    # — it's usually wrong amount, wrong network, or attempted
+    # underpayment.
     if payment_status == "partially_paid":
-        order.status = "partially_paid"
-        db.commit()
-        logger.warning(f"NOWPayments IPN: partial payment for order {order_id_str}")
-        return {"status": "updated", "payment_status": "partially_paid"}
+        try:
+            pay_required = float(data.get("pay_amount") or 0)
+            paid_actual = float(data.get("actually_paid") or 0)
+            ratio = (paid_actual / pay_required) if pay_required > 0 else 0
+        except (TypeError, ValueError):
+            ratio = 0
+            pay_required = 0
+            paid_actual = 0
+
+        TOLERANCE = 0.95
+        within_tolerance = ratio >= TOLERANCE and pay_required > 0
+
+        if within_tolerance and prev_status not in ("finished", "confirmed"):
+            # Auto-recover: rewrite payment_status so the standard "finished"
+            # activation block below runs. This deliberately reuses the
+            # existing activation path rather than duplicating it — using
+            # the same Payment record creation, _nowpayments_activate_product
+            # call, idempotency guards, wrong-asset check, etc.
+            shortfall_usd = round(pay_required - paid_actual, 4)
+            shortfall_pct = round((1 - ratio) * 100, 2)
+            logger.warning(
+                f"NOWPayments IPN: AUTO-RECOVERING partial payment for order "
+                f"{order_id_str}. paid={paid_actual} of {pay_required} "
+                f"({shortfall_pct}% short / ${shortfall_usd} short). "
+                f"Within {int(TOLERANCE*100)}% tolerance — activating."
+            )
+            # Tag the order so we can audit auto-recovered payments later
+            order.partial_recovery_logged = True
+            order.partial_recovery_shortfall_usd = shortfall_usd
+            # Rewrite local variable so the activation block runs
+            payment_status = "finished"
+            # Fall through to the activation flow below (NOT a return)
+        else:
+            order.status = "partially_paid"
+            db.commit()
+            logger.warning(
+                f"NOWPayments IPN: partial payment NEEDS REVIEW for order "
+                f"{order_id_str}. paid={paid_actual} of {pay_required} "
+                f"(ratio={ratio:.3f}). Outside {int(TOLERANCE*100)}% tolerance — "
+                f"admin recovery required."
+            )
+            # Notify admins via the support email path — same channel as a
+            # customer support ticket, so it lands in the admin's inbox.
+            try:
+                admin_users = db.query(User).filter(User.is_admin == True).all()
+                for admin_u in admin_users:
+                    db.add(Notification(
+                        user_id=admin_u.id,
+                        type="payment_review",
+                        icon="⚠️",
+                        title=f"Partial payment needs review",
+                        message=f"Order {order_id_str}: paid ${paid_actual:.2f} of "
+                                f"${pay_required:.2f} ({int(ratio*100)}%). "
+                                f"Outside auto-recovery tolerance.",
+                        link="/admin",
+                    ))
+                db.commit()
+            except Exception as _exc:
+                logger.warning(f"Failed to send admin partial-payment notification: {_exc}")
+            return {"status": "updated", "payment_status": "partially_paid",
+                    "auto_recovered": False, "ratio": round(ratio, 3)}
 
     if payment_status in ("failed", "refunded", "expired"):
         order.status = payment_status

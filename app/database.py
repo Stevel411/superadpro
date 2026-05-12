@@ -1470,6 +1470,12 @@ class NowPaymentsOrder(Base):
     # Status
     status          = Column(String(30), default="pending")  # pending / waiting / confirming / confirmed / finished / failed / expired / refunded
     confirmed_at    = Column(DateTime, nullable=True)
+    # Auto-recovery audit fields (added 12 May 2026 with partial-payment
+    # tolerance handling). When a payment arrives within 5% of the required
+    # amount we auto-activate via the standard flow; these columns record
+    # that fact so we can audit and tune the tolerance threshold over time.
+    partial_recovery_logged       = Column(Boolean, default=False, nullable=True)
+    partial_recovery_shortfall_usd = Column(Numeric(18, 6), nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -2423,6 +2429,20 @@ try:
         print("✅ stuck_lapsed_alerted_at column added/verified on users table")
 except Exception as e:
     print(f"⚠️ stuck_lapsed_alerted_at migration failed: {e}")
+
+# ── Partial-payment auto-recovery audit fields (added 12 May 2026) ──
+# When a NOWPayments partial payment is within 5% tolerance of the
+# required amount, the IPN handler now auto-activates it. These
+# columns let us audit which orders were auto-recovered and how short
+# they were so we can tune the tolerance threshold over time.
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE nowpayments_orders ADD COLUMN IF NOT EXISTS partial_recovery_logged BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE nowpayments_orders ADD COLUMN IF NOT EXISTS partial_recovery_shortfall_usd NUMERIC(18,6)"))
+        conn.commit()
+        print("✅ partial_recovery columns added/verified on nowpayments_orders table")
+except Exception as e:
+    print(f"⚠️ partial_recovery migration failed: {e}")
 
 # ── Rename supercut -> superscene tables (one-time migration) ──
 try:
