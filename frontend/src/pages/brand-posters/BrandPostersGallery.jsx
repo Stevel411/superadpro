@@ -188,17 +188,41 @@ export default function BrandPostersGallery() {
                     e.currentTarget.style.boxShadow = '';
                   }}
                 >
-                  {/* Preview placeholder — will be replaced with real preview images once seeded */}
-                  <div style={{
-                    aspectRatio: '3/4',
-                    background: 'linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'rgba(255,255,255,0.4)',
-                  }}>
-                    <ImageIcon size={48} />
-                  </div>
+                  {/* Preview image (when seeded) or placeholder gradient (when not).
+                      Once an admin runs /admin/bpg seeding, the preview URLs come
+                      back via /api/posters/templates and we render the image.
+                      The placeholder is still here as a graceful fallback for
+                      templates that haven't been seeded yet. */}
+                  {t.preview_image_url ? (
+                    <div style={{
+                      aspectRatio: '3/4',
+                      background: '#0a1438',
+                      overflow: 'hidden',
+                    }}>
+                      <img
+                        src={t.preview_image_url}
+                        alt={t.name + ' preview'}
+                        loading="lazy"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{
+                      aspectRatio: '3/4',
+                      background: 'linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'rgba(255,255,255,0.4)',
+                    }}>
+                      <ImageIcon size={48} />
+                    </div>
+                  )}
 
                   <div style={{ padding: '16px 18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <div style={{

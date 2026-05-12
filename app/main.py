@@ -27568,15 +27568,26 @@ def bpg_list_templates(request: Request, db: Session = Depends(get_db)):
     Always returns the catalogue regardless of access — non-pack
     members can still BROWSE the gallery to see what they'd unlock.
     They just can't generate. Access check happens at /generate.
+
+    Pulls preview_image_url + thumbnail_url from the DB row when one
+    exists (templates are lazy-created in the DB on first generation
+    or via the admin seed endpoint). Returns null for those fields if
+    the template hasn't been seeded yet.
     """
     from .poster_templates import get_active_templates
     from .poster_gating import member_has_bpg_access
+    from .database import PosterTemplate
 
     user = get_current_user(request, db)
     has_access = member_has_bpg_access(db, user) if user else False
 
+    # Build a {slug: row} map from the DB so each template's preview/thumb
+    # can be looked up in O(1) without N queries.
+    db_rows = {row.slug: row for row in db.query(PosterTemplate).all()}
+
     templates = []
     for t in get_active_templates():
+        row = db_rows.get(t["slug"])
         # Don't leak the master_prompt to the frontend — that's our IP
         templates.append({
             "slug": t["slug"],
@@ -27587,6 +27598,8 @@ def bpg_list_templates(request: Request, db: Session = Depends(get_db)):
             "aspect_ratio": t["aspect_ratio"],
             "supports_photo": t["supports_photo"],
             "share_slug": t.get("share_slug"),
+            "preview_image_url": row.preview_image_url if row else None,
+            "thumbnail_url": row.thumbnail_url if row else None,
         })
 
     return {
