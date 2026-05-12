@@ -22138,6 +22138,41 @@ def pay_it_forward_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+# ── Brand Poster Generator SPA handlers ──────────────────────────────
+# Every React route needs a corresponding @app.get handler in main.py
+# (hard rule — server-rendered fallback for direct URL visits).
+@app.get("/brand-posters")
+def brand_posters_gallery_page(request: Request):
+    """Brand Poster Generator gallery — list of templates."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/brand-posters/template/{slug}")
+def brand_posters_form_page(slug: str, request: Request):
+    """Template form — fill in inputs and generate."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/brand-posters/result/{generation_id}")
+def brand_posters_result_page(generation_id: int, request: Request):
+    """Result picker — choose 1 of 4 candidates."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/brand-posters/history")
+def brand_posters_history_page(request: Request):
+    """Past generations history page."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/api/pay-it-forward/dashboard")
 async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get Pay It Forward dashboard data for the current user.
@@ -27355,6 +27390,44 @@ async def sc_pipeline_update_scene(pipeline_id: int, request: Request, db: Sessi
 #   7. GET /go/{share_slug}              — public viral landing page
 # ═══════════════════════════════════════════════════════════════════
 
+@app.post("/api/upload/reference-photo")
+async def upload_reference_photo(file: UploadFile = File(...),
+                                  user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Upload a reference photo for use in Brand Poster Generator.
+    Returns the public R2 URL.
+
+    Accepts JPEG, PNG, WebP up to 10MB. Stored under 'bpg-references/'.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    allowed_types = {"image/jpeg", "image/png", "image/webp"}
+    if file.content_type not in allowed_types:
+        return JSONResponse(
+            {"error": "Only JPEG, PNG, and WebP are accepted."}, status_code=400
+        )
+
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        return JSONResponse({"error": "Photo too large. Max 10MB."}, status_code=400)
+
+    import os
+    ext = os.path.splitext(file.filename or "photo.jpg")[1].lower().lstrip(".")
+    if ext not in {"jpg", "jpeg", "png", "webp"}:
+        ext = "jpg"
+
+    from app.r2_storage import r2_available, upload_image
+    if not r2_available():
+        return JSONResponse(
+            {"error": "Photo upload service is offline. Please try again shortly."},
+            status_code=503,
+        )
+
+    url = upload_image(contents, "bpg-references", ext, file.content_type)
+    return {"url": url}
+
+
 @app.get("/api/posters/access-check")
 def bpg_access_check(request: Request, db: Session = Depends(get_db)):
     """Lightweight probe: does this member have BPG access?
@@ -27571,6 +27644,37 @@ async def bpg_generate(request: Request, db: Session = Depends(get_db)):
         "candidates": candidate_urls,
         "template_slug": template_slug,
         "rendered_prompt_preview": rendered_prompt[:200] + "...",
+    }
+
+
+@app.get("/api/posters/generation/{generation_id}")
+def bpg_generation_detail(generation_id: int, request: Request, db: Session = Depends(get_db)):
+    """Get full details of one generation including all candidate URLs.
+    Used by the result picker page to show the 4 candidates.
+    """
+    from .database import PosterGeneration, PosterTemplate
+    import json as _json
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    gen = db.query(PosterGeneration).filter_by(id=generation_id, user_id=user.id).first()
+    if not gen:
+        raise HTTPException(status_code=404, detail="Generation not found")
+
+    tpl = db.query(PosterTemplate).filter_by(id=gen.template_id).first()
+
+    return {
+        "id": gen.id,
+        "template_slug": tpl.slug if tpl else None,
+        "template_name": tpl.name if tpl else None,
+        "status": gen.status,
+        "candidates": _json.loads(gen.candidate_urls or "[]"),
+        "chosen_index": gen.chosen_index,
+        "chosen_url": gen.chosen_url,
+        "error_message": gen.error_message,
+        "created_at": gen.created_at.isoformat() if gen.created_at else None,
     }
 
 

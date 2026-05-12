@@ -72,6 +72,12 @@ const TeamMessenger = React.lazy(() => import('./pages/TeamMessenger'));
 const QRGenerator = React.lazy(() => import('./pages/QRGenerator'));
 const SuperLinkPage = React.lazy(() => import('./pages/SuperLink'));
 
+// Brand Poster Generator (May 2026)
+const BrandPostersGallery = React.lazy(() => import('./pages/brand-posters/BrandPostersGallery'));
+const BrandPosterForm = React.lazy(() => import('./pages/brand-posters/BrandPosterForm'));
+const BrandPosterResult = React.lazy(() => import('./pages/brand-posters/BrandPosterResult'));
+const BrandPosterHistory = React.lazy(() => import('./pages/brand-posters/BrandPosterHistory'));
+
 // ── Heavy/rare pages (already lazy from before) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
 const SuperDeckList = React.lazy(() => import('./pages/superdeck/SuperDeckList'));
@@ -327,6 +333,11 @@ function AppRoutes() {
       <Route path="/campaign-tiers" element={<ProtectedRoute><RequireTier tier="basic"><CampaignTiers /></RequireTier></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><RequireTier tier="basic"><ActivateTier /></RequireTier></ProtectedRoute>} />
       <Route path="/pay-it-forward" element={<ProtectedRoute><RequireTier tier="basic"><PayItForward /></RequireTier></ProtectedRoute>} />
+      {/* Brand Poster Generator — gallery is open to all members (preview), generation gated by Nexus pack ownership in the backend */}
+      <Route path="/brand-posters" element={<ProtectedRoute><RequireTier tier="basic"><BrandPostersGallery /></RequireTier></ProtectedRoute>} />
+      <Route path="/brand-posters/template/:slug" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterForm /></RequireTier></ProtectedRoute>} />
+      <Route path="/brand-posters/result/:generationId" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterResult /></RequireTier></ProtectedRoute>} />
+      <Route path="/brand-posters/history" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterHistory /></RequireTier></ProtectedRoute>} />
       <Route path="/share-story" element={<ProtectedRoute><ShareStory /></ProtectedRoute>} />
       <Route path="/gift/:code" element={<GiftLanding />} />
       <Route path="/watch" element={<ProtectedRoute><RequireTier tier="basic"><Watch /></RequireTier></ProtectedRoute>} />
