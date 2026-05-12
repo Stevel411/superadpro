@@ -27820,6 +27820,203 @@ Make posters like this in 60 seconds. Brand Poster Generator inside Creative Stu
 </html>
 """)
 
+
+# ── BPG Admin: seed gallery preview images ──────────────────────────
+# Generates one preview image per template by calling xAI Grok Imagine
+# with each master prompt's default inputs. Uploads results to R2 and
+# updates poster_templates.preview_image_url for each row.
+#
+# This is the one-shot setup endpoint we call once after first deploy
+# of BPG, to populate the gallery with seed examples. After that, real
+# member output starts to fill in via separate self-populating logic.
+#
+# Admin-only. Idempotent — re-running with force=true regenerates and
+# overwrites.
+@app.post("/admin/bpg/seed-previews")
+async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db),
+                                   only_slug: str = None, force: bool = False):
+    """Generate preview images for the BPG gallery.
+
+    Query params:
+      only_slug:  if provided, only regenerate that one template
+      force:      if true, overwrite existing previews; otherwise skip
+                  templates that already have preview_image_url set
+
+    Returns a JSON summary with per-template results.
+    """
+    from .database import PosterTemplate
+    from .poster_templates import POSTER_TEMPLATES, render_prompt
+    from . import grok_imagine_service as grok_imagine
+    from . import r2_storage
+    import urllib.request
+
+    # Admin gate
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    if not r2_storage.r2_available():
+        raise HTTPException(status_code=503, detail="R2 storage not configured — cannot persist preview images")
+
+    templates_to_process = POSTER_TEMPLATES
+    if only_slug:
+        templates_to_process = [t for t in POSTER_TEMPLATES if t["slug"] == only_slug]
+        if not templates_to_process:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No template with slug '{only_slug}'. Available: "
+                       + ", ".join(t["slug"] for t in POSTER_TEMPLATES),
+            )
+
+    results = []
+
+    for template in templates_to_process:
+        slug = template["slug"]
+        row = db.query(PosterTemplate).filter_by(slug=slug).first()
+
+        # Lazy-create the template row if it doesn't exist yet (first run)
+        if not row:
+            import json as _json
+            row = PosterTemplate(
+                slug=template["slug"],
+                name=template["name"],
+                description=template["description"],
+                category=template["category"],
+                sort_order=template["sort_order"],
+                master_prompt=template["master_prompt"],
+                input_fields=_json.dumps(template["input_fields"]),
+                aspect_ratio=template["aspect_ratio"],
+                supports_photo=template["supports_photo"],
+                share_slug=template.get("share_slug"),
+            )
+            db.add(row)
+            db.flush()
+
+        # Skip if already seeded (unless force=true)
+        if row.preview_image_url and not force:
+            results.append({
+                "slug": slug, "status": "skipped",
+                "reason": "already has preview",
+                "preview_url": row.preview_image_url,
+            })
+            continue
+
+        # Build prompt from defaults
+        defaults = {f["key"]: f.get("default", "") for f in template["input_fields"]}
+        try:
+            prompt = render_prompt(template, defaults)
+        except ValueError as exc:
+            results.append({"slug": slug, "status": "failed",
+                            "error": f"prompt render: {exc}"})
+            continue
+
+        # Call Grok Imagine for 1 candidate (not 4 — gallery only needs one)
+        try:
+            grok_result = await grok_imagine.generate_candidates(
+                prompt=prompt,
+                reference_url=None,
+                aspect=template["aspect_ratio"],
+                n=1,
+            )
+        except Exception as exc:
+            logger.exception(f"BPG seed: Grok call crashed for {slug}: {exc}")
+            results.append({"slug": slug, "status": "failed",
+                            "error": f"grok crash: {str(exc)[:200]}"})
+            continue
+
+        if "error" in grok_result:
+            results.append({"slug": slug, "status": "failed",
+                            "error": grok_result.get("error", "unknown")})
+            continue
+
+        urls = grok_result.get("images") or []
+        if not urls:
+            results.append({"slug": slug, "status": "failed",
+                            "error": "no images returned"})
+            continue
+
+        # Download the image from xAI
+        try:
+            with urllib.request.urlopen(urls[0], timeout=60) as resp:
+                image_bytes = resp.read()
+        except Exception as exc:
+            logger.exception(f"BPG seed: download failed for {slug}: {exc}")
+            results.append({"slug": slug, "status": "failed",
+                            "error": f"download: {str(exc)[:200]}"})
+            continue
+
+        # Upload to R2
+        try:
+            r2_url = r2_storage.upload_image(
+                image_bytes,
+                folder="bpg-previews",
+                ext="jpg",
+                content_type="image/jpeg",
+            )
+        except Exception as exc:
+            logger.exception(f"BPG seed: R2 upload failed for {slug}: {exc}")
+            results.append({"slug": slug, "status": "failed",
+                            "error": f"r2 upload: {str(exc)[:200]}"})
+            continue
+
+        # Update the template row with the new preview URL
+        row.preview_image_url = r2_url
+        db.commit()
+
+        size_kb = len(image_bytes) // 1024
+        results.append({
+            "slug": slug,
+            "status": "generated",
+            "preview_url": r2_url,
+            "size_kb": size_kb,
+        })
+        logger.info(f"BPG seed: {slug} → {r2_url} ({size_kb} KB)")
+
+    succeeded = [r for r in results if r["status"] == "generated"]
+    skipped = [r for r in results if r["status"] == "skipped"]
+    failed = [r for r in results if r["status"] == "failed"]
+
+    return {
+        "success": True,
+        "summary": {
+            "generated": len(succeeded),
+            "skipped": len(skipped),
+            "failed": len(failed),
+        },
+        "results": results,
+    }
+
+
+@app.get("/admin/bpg/preview-status")
+def bpg_admin_preview_status(request: Request, db: Session = Depends(get_db)):
+    """Quick status check: which templates currently have preview images?
+
+    Used to decide whether to run the seed endpoint or skip it.
+    """
+    from .database import PosterTemplate
+    from .poster_templates import POSTER_TEMPLATES
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    out = []
+    for tdef in POSTER_TEMPLATES:
+        row = db.query(PosterTemplate).filter_by(slug=tdef["slug"]).first()
+        out.append({
+            "slug": tdef["slug"],
+            "name": tdef["name"],
+            "has_db_row": row is not None,
+            "has_preview": bool(row and row.preview_image_url),
+            "preview_url": row.preview_image_url if row else None,
+        })
+    return {"templates": out}
+
+
 # ── Pipeline Background Orchestrator ──────────────────────────
 
 async def _run_pipeline(pipeline_id: int, user_id: int):
