@@ -6118,6 +6118,73 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
         except Exception:
             pass
 
+        # ── LAYER 2c: Runtime FK introspection (the catch-all) ──
+        # The hand-maintained cascade above gets stale every time we add
+        # a new table with FK to users (it missed GiftVoucher on 11 May
+        # 2026 — caused this bug). Rather than maintain the list by hand,
+        # ask Postgres what FKs exist on the users table and clean each
+        # one automatically. This makes the cascade future-proof: any new
+        # FK-to-users column added later just works.
+        #
+        # Strategy per column:
+        #   - NOT NULL column → DELETE the rows (can't null them, and
+        #     leaving them would block the user delete)
+        #   - Nullable column → SET to NULL (preserves the related row's
+        #     historical context)
+        try:
+            fk_rows = db.execute(_text("""
+                SELECT
+                    tc.table_name      AS child_table,
+                    kcu.column_name    AS child_column,
+                    col.is_nullable    AS is_nullable
+                FROM information_schema.table_constraints tc
+                JOIN information_schema.key_column_usage kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                    AND tc.table_schema = kcu.table_schema
+                JOIN information_schema.constraint_column_usage ccu
+                    ON ccu.constraint_name = tc.constraint_name
+                    AND ccu.table_schema = tc.table_schema
+                JOIN information_schema.columns col
+                    ON col.table_name = kcu.table_name
+                    AND col.column_name = kcu.column_name
+                    AND col.table_schema = kcu.table_schema
+                WHERE tc.constraint_type = 'FOREIGN KEY'
+                    AND ccu.table_name = 'users'
+                    AND ccu.column_name = 'id'
+                    AND tc.table_schema = 'public'
+                    AND tc.table_name != 'users'   -- skip self-references (sponsor_id, handled above)
+            """)).fetchall()
+
+            for child_table, child_column, is_nullable in fk_rows:
+                try:
+                    if is_nullable == 'YES':
+                        # Preserve the row, null out the reference
+                        db.execute(
+                            _text(f'UPDATE "{child_table}" SET "{child_column}" = NULL WHERE "{child_column}" = :uid'),
+                            {"uid": user_id}
+                        )
+                    else:
+                        # Can't null a NOT NULL column — delete the rows
+                        db.execute(
+                            _text(f'DELETE FROM "{child_table}" WHERE "{child_column}" = :uid'),
+                            {"uid": user_id}
+                        )
+                    db.flush()  # surface FK errors here, per-table, not at the end
+                except Exception as fk_exc:
+                    # Per-table error aborts the postgres transaction. Log it
+                    # and re-raise so the outer except handles cleanup. The
+                    # admin will see exactly which table failed and can dig in.
+                    logger.warning(
+                        f"FK cascade: failed to clean {child_table}.{child_column} "
+                        f"for user {user_id}: {fk_exc}"
+                    )
+                    raise
+        except Exception as introspect_exc:
+            logger.warning(f"FK introspection failed for user {user_id}: {introspect_exc}")
+            # If introspection itself failed, fall through and try the
+            # final delete anyway — it may still succeed if the hand
+            # cascade above caught everything.
+
         # ── LAYER 3: Finally delete the user ──
         db.delete(target)
         db.commit()
@@ -29596,6 +29663,8 @@ def admin_api_members_emails(
     return {
         "recipient_count": len(recipients),
         "preview_count": len(filtered),
+        "preview_limit": 5000,
+        "preview_truncated": len(filtered) > 5000,
         "members": [
             {
                 "id": m.id,
@@ -29606,7 +29675,7 @@ def admin_api_members_emails(
                 "is_active": bool(m.is_active),
                 "created_at": m.created_at.isoformat() if m.created_at else None,
             }
-            for m in filtered[:500]   # cap the preview payload size
+            for m in filtered[:5000]   # 5K rows — beyond this, add pagination
         ],
     }
 

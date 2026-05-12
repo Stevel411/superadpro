@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
-import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCircle, Search, ChevronRight, Eye, Ban, CreditCard, Activity, FileText, UserCheck, Clock, RefreshCw, ArrowUpDown, Mail, Sparkles } from 'lucide-react';
+import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCircle, Search, ChevronRight, Eye, Ban, CreditCard, Activity, FileText, UserCheck, Clock, RefreshCw, ArrowUpDown, Mail, Sparkles, Send } from 'lucide-react';
 import { formatMoney } from '../utils/money';
 
 var TABS = [
@@ -14,6 +15,7 @@ var TABS = [
   {key:'kyc',label:'KYC Queue',icon:UserCheck},
   {key:'commissions',label:'Commissions',icon:TrendingUp},
   {key:'email',label:'Email Analytics',icon:Mail},
+  {key:'broadcast',label:'Broadcast',icon:Send},
   {key:'superscene',label:'Creative Studio',icon:Sparkles},
   {key:'health',label:'System Health',icon:Shield},
 ];
@@ -21,6 +23,19 @@ var TABS = [
 export default function AdminDashboard() {
   var { t } = useTranslation();
   var [tab, setTab] = useState('overview');
+  var navigate = useNavigate();
+
+  function handleTabClick(key) {
+    // Broadcast is a separate full page (the 3-tab compose/members/history
+    // editor at /admin/email-broadcast). Tab click navigates rather than
+    // switching the inline tab state.
+    if (key === 'broadcast') {
+      navigate('/admin/email-broadcast');
+      return;
+    }
+    setTab(key);
+  }
+
   return (
     <AppLayout title="Admin Dashboard" subtitle="Platform Management — Owner Access">
       <div className="admin-tabs" style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid #e8ecf2',paddingBottom:0,flexWrap:'wrap'}}>
@@ -28,7 +43,7 @@ export default function AdminDashboard() {
           var Icon = t.icon;
           var on = tab === t.key;
           return (
-            <button key={t.key} onClick={function() { setTab(t.key); }}
+            <button key={t.key} onClick={function() { handleTabClick(t.key); }}
               style={{display:'flex',alignItems:'center',gap:5,padding:'10px 16px',fontSize:12,fontWeight:on?800:600,
                 border:'none',borderBottom:on?'3px solid #dc2626':'3px solid transparent',
                 cursor:'pointer',fontFamily:'inherit',background:on?'rgba(220,38,38,.04)':'transparent',
@@ -220,6 +235,7 @@ function MaintenancePanel() {
 function OverviewTab() {
   var [data, setData] = useState(null);
   var [health, setHealth] = useState(null);
+  var ovNavigate = useNavigate();
   useEffect(function() {
     apiGet('/admin/api/finances').then(setData).catch(function(){});
     apiGet('/admin/api/health').then(setHealth).catch(function(){});
@@ -238,6 +254,20 @@ function OverviewTab() {
   return (
     <div>
       <MaintenancePanel/>
+
+      {/* Quick actions — high-frequency admin tasks, one click away */}
+      <div style={{display:'flex',gap:10,marginBottom:18,flexWrap:'wrap'}}>
+        <button
+          onClick={function() { ovNavigate('/admin/email-broadcast'); }}
+          style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 18px',
+            background:'linear-gradient(135deg,#0ea5e9,#0284c7)',color:'#fff',
+            border:'none',borderRadius:10,fontSize:13,fontWeight:700,fontFamily:'inherit',
+            cursor:'pointer',boxShadow:'0 2px 8px rgba(14,165,233,.25)'}}>
+          <Send size={15}/>
+          Send broadcast email
+        </button>
+      </div>
+
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:20}}>
         {stats.map(function(s,i) {
           var Icon = s.icon;

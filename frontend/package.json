@@ -39,6 +39,7 @@
     "react-i18next": "^16.5.8",
     "react-router-dom": "^6.28.0",
     "react-svg-worldmap": "^2.0.2",
+    "react-window": "^2.2.7",
     "three": "^0.183.2",
     "viem": "^2.48.8",
     "wagmi": "^3.6.9"

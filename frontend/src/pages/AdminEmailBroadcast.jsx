@@ -7,6 +7,7 @@
 // Route: /admin/email-broadcast
 // ============================================================================
 import { useState, useEffect, useMemo } from 'react';
+import { List } from 'react-window';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
 import { Mail, Users, Clock, Send, CheckCircle2, AlertCircle, Eye, FileText, Search, Download } from 'lucide-react';
@@ -61,7 +62,7 @@ export default function AdminEmailBroadcast() {
 
 // ─── MEMBERS TAB ─────────────────────────────────────────────────────────
 function MembersTab() {
-  var [data, setData] = useState({ recipient_count: 0, preview_count: 0, members: [] });
+  var [data, setData] = useState({ recipient_count: 0, preview_count: 0, preview_truncated: false, members: [] });
   var [loading, setLoading] = useState(true);
   var [search, setSearch] = useState('');
   var [status, setStatus] = useState('all');
@@ -69,24 +70,32 @@ function MembersTab() {
   function load() {
     setLoading(true);
     var params = new URLSearchParams();
-    if (search) params.set('q', search);
+    // We don't pass `q` to the server — searches happen client-side over
+    // the loaded slice so typing is instant. The server filter is for
+    // status/country which actually affect the *audience*.
     params.set('status', status);
     apiGet('/admin/api/members-emails?' + params.toString())
       .then(function(d) { setData(d); })
-      .catch(function() { setData({ recipient_count: 0, preview_count: 0, members: [] }); })
+      .catch(function() { setData({ recipient_count: 0, preview_count: 0, preview_truncated: false, members: [] }); })
       .finally(function() { setLoading(false); });
   }
 
   useEffect(load, [status]);
 
-  function handleSearch(e) {
-    e.preventDefault();
-    load();
-  }
+  // Client-side search filtering (instant — no API call per keystroke)
+  var filteredMembers = useMemo(function() {
+    if (!search.trim()) return data.members;
+    var q = search.toLowerCase();
+    return data.members.filter(function(m) {
+      return (m.email || '').toLowerCase().includes(q)
+          || (m.username || '').toLowerCase().includes(q)
+          || (m.first_name || '').toLowerCase().includes(q);
+    });
+  }, [data.members, search]);
 
   function exportCSV() {
     var headers = ['email', 'username', 'first_name', 'country', 'is_active', 'created_at'];
-    var rows = data.members.map(function(m) {
+    var rows = filteredMembers.map(function(m) {
       return headers.map(function(h) {
         var v = m[h];
         if (v == null) v = '';
@@ -104,18 +113,22 @@ function MembersTab() {
     URL.revokeObjectURL(url);
   }
 
+  // CSS grid columns shared between header and each row so they align.
+  // Email is the widest (most variable content), the rest fit-content.
+  var gridCols = 'minmax(240px,2fr) minmax(140px,1fr) minmax(100px,1fr) 90px 80px 100px';
+
   return (
     <div>
       {/* Stat strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12, marginBottom: 20 }}>
         <StatCard label="Total in audience" value={data.recipient_count} />
-        <StatCard label="Showing" value={data.preview_count} />
+        <StatCard label="Showing" value={filteredMembers.length} />
         <StatCard label="Live list" value="Real-time from DB" small />
       </div>
 
       {/* Controls */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-        <form onSubmit={handleSearch} style={{ flex: 1, minWidth: 200, position: 'relative' }}>
+        <div style={{ flex: 1, minWidth: 200, position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
           <input
             type="text"
@@ -125,10 +138,10 @@ function MembersTab() {
             style={{
               width: '100%', padding: '10px 12px 10px 38px',
               border: '1px solid #e5e7eb', borderRadius: 8,
-              fontSize: 14, fontFamily: 'inherit', outline: 'none',
+              fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
             }}
           />
-        </form>
+        </div>
         <select
           value={status}
           onChange={function(e) { setStatus(e.target.value); }}
@@ -140,68 +153,101 @@ function MembersTab() {
         </select>
         <button
           onClick={exportCSV}
-          disabled={!data.members.length}
+          disabled={!filteredMembers.length}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '10px 16px', background: '#fff',
             border: '1px solid #e5e7eb', borderRadius: 8,
             fontSize: 13, fontWeight: 500, color: '#475569',
-            cursor: data.members.length ? 'pointer' : 'not-allowed',
-            opacity: data.members.length ? 1 : 0.5,
+            cursor: filteredMembers.length ? 'pointer' : 'not-allowed',
+            opacity: filteredMembers.length ? 1 : 0.5,
             fontFamily: 'inherit',
           }}
         >
           <Download size={14} />
-          Export CSV
+          Export CSV ({filteredMembers.length})
         </button>
       </div>
 
-      {/* Member table */}
+      {/* Virtualised member table */}
       <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, overflow: 'hidden' }}>
+        {/* Sticky header */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: gridCols,
+          background: '#f8fafc', borderBottom: '1px solid #e5e7eb',
+          padding: '10px 14px', fontSize: 11, fontWeight: 600, color: '#64748b',
+          letterSpacing: 0.3, textTransform: 'uppercase',
+        }}>
+          <div>Email</div>
+          <div>Username</div>
+          <div>Name</div>
+          <div>Country</div>
+          <div>Status</div>
+          <div>Joined</div>
+        </div>
+
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>Loading…</div>
-        ) : data.members.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>No members found</div>
+        ) : filteredMembers.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+            {search ? 'No members match your search' : 'No members found'}
+          </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
-                <th style={th()}>Email</th>
-                <th style={th()}>Username</th>
-                <th style={th()}>Name</th>
-                <th style={th()}>Country</th>
-                <th style={th()}>Status</th>
-                <th style={th()}>Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.members.map(function(m) {
-                return (
-                  <tr key={m.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={td()}>{m.email}</td>
-                    <td style={td()}>@{m.username}</td>
-                    <td style={td()}>{m.first_name || '—'}</td>
-                    <td style={td()}>{m.country || '—'}</td>
-                    <td style={td()}>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-                        background: m.is_active ? '#dcfce7' : '#fef9c3',
-                        color: m.is_active ? '#166534' : '#854d0e',
-                      }}>
-                        {m.is_active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td style={td()}>{m.created_at ? new Date(m.created_at).toLocaleDateString() : '—'}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          // CRITICAL: The <List> measures its container to decide visible
+          // height. Without an explicit height here, it expands to fit all
+          // rows and virtual scrolling is defeated. defaultHeight on the
+          // List itself is only used for server-rendering.
+          // Window: 600px = ~13 rows visible at 44px each. List auto-shrinks
+          // for short lists so we don't get empty space at 5-10 members.
+          <div style={{ height: Math.min(filteredMembers.length * 44, 600) + 'px', width: '100%' }}>
+            <List
+              rowCount={filteredMembers.length}
+              rowHeight={44}
+              defaultHeight={Math.min(filteredMembers.length * 44, 600)}
+              rowComponent={MemberRow}
+              rowProps={{ members: filteredMembers, gridCols: gridCols }}
+              style={{ width: '100%', height: '100%' }}
+            />
+          </div>
         )}
       </div>
+
       <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 10 }}>
-        Preview limited to 500 members. Admin users and opted-out users are excluded from broadcasts.
+        {data.preview_truncated
+          ? <>Showing the first 5,000 members. Use search or status filter to narrow down. Admin users and opted-out users are excluded from broadcasts.</>
+          : <>Admin users and opted-out users are excluded from broadcasts.</>}
       </p>
+    </div>
+  );
+}
+
+
+// A single virtualised row. Receives index + style from react-window,
+// plus our custom { members, gridCols } via rowProps.
+function MemberRow({ index, style, members, gridCols }) {
+  var m = members[index];
+  if (!m) return null;
+  return (
+    <div style={Object.assign({}, style, {
+      display: 'grid', gridTemplateColumns: gridCols,
+      padding: '10px 14px', fontSize: 13, color: '#334155',
+      borderBottom: '1px solid #f1f5f9', alignItems: 'center',
+      boxSizing: 'border-box',
+    })}>
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.email}</div>
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{m.username}</div>
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.first_name || '—'}</div>
+      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.country || '—'}</div>
+      <div>
+        <span style={{
+          padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600,
+          background: m.is_active ? '#dcfce7' : '#fef9c3',
+          color: m.is_active ? '#166534' : '#854d0e',
+        }}>
+          {m.is_active ? 'Active' : 'Inactive'}
+        </span>
+      </div>
+      <div>{m.created_at ? new Date(m.created_at).toLocaleDateString() : '—'}</div>
     </div>
   );
 }
