@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import ProductExplainer from '../components/ProductExplainer';
+import BpgNexusShowcase from '../components/BpgNexusShowcase';
 import { apiGet, apiPost } from '../utils/api';
 import { Sparkles, TrendingUp, Users, DollarSign, Gift, ChevronDown, ChevronUp, Loader2, CheckCircle, AlertCircle, Zap, Award, Layers } from 'lucide-react';
 import { useConsentGate } from '../components/PurchaseConsentModal';
@@ -211,6 +212,14 @@ export function CreditMatrixContent() {
 
       {/* Product explainer — "What am I actually buying?" */}
       <ProductExplainer t={t} tNamespace="nexusStream" variant="nexus" defaultOpen={false} />
+
+      {/* BPG Sales Showcase — positions Brand Poster Generator as the
+          concrete tool members unlock with any Nexus pack. Strategically
+          placed BEFORE the pack pricing grid so members see what they
+          unlock before they see how much it costs. The component
+          fetches its own data and silently renders nothing if no
+          preview images are seeded yet. Added 12 May 2026. */}
+      <BpgNexusShowcase />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
         <div>

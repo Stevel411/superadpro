@@ -79,7 +79,7 @@ export default function BrandPosterForm() {
 
   async function handleGenerate() {
     if (!hasAccess) {
-      navigate('/credit-matrix');
+      navigate('/credit-nexus');
       return;
     }
     setGenerating(true);

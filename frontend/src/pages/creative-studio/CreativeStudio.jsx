@@ -564,6 +564,82 @@ export default function CreativeStudio() {
 
       <div className="cs-page">
 
+        {/* ── BPG Promo Banner — surfaces Brand Poster Generator to every
+            Creative Studio visitor. BPG is the highest-leverage Nexus
+            attractor and Creative Studio is where AI-curious members
+            naturally land. Added 12 May 2026. */}
+        <a
+          href="/brand-posters"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            padding: '14px 20px',
+            marginBottom: 14,
+            borderRadius: 12,
+            background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #7c3aed 100%)',
+            border: '1px solid rgba(251, 191, 36, 0.4)',
+            textDecoration: 'none',
+            color: '#fff',
+            transition: 'transform 0.15s, box-shadow 0.15s',
+          }}
+          onMouseEnter={function(e) {
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(251, 191, 36, 0.25)';
+          }}
+          onMouseLeave={function(e) {
+            e.currentTarget.style.transform = '';
+            e.currentTarget.style.boxShadow = '';
+          }}
+        >
+          <div style={{
+            flexShrink: 0,
+            width: 44,
+            height: 44,
+            borderRadius: 11,
+            background: 'linear-gradient(135deg, #fbbf24, #fde047)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 22,
+            boxShadow: '0 4px 12px rgba(251, 191, 36, 0.5)',
+          }}>✨</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1.2,
+              color: '#fde047',
+              textTransform: 'uppercase',
+              marginBottom: 2,
+            }}>New — Brand Poster Generator</div>
+            <div style={{
+              fontFamily: 'Sora, sans-serif',
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#fff',
+              marginBottom: 2,
+            }}>Make branded marketing posters in 60 seconds →</div>
+            <div style={{
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.7)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>Six AI templates. Your referral link baked in. Free for Nexus pack owners.</div>
+          </div>
+          <div style={{
+            flexShrink: 0,
+            background: 'rgba(251, 191, 36, 0.2)',
+            color: '#fde047',
+            padding: '6px 12px',
+            borderRadius: 8,
+            fontSize: 12,
+            fontWeight: 700,
+            border: '1px solid rgba(251, 191, 36, 0.4)',
+          }}>Try it</div>
+        </a>
+
         {/* ── Tab Bar + Credits (Platform Tour style — directly under AppLayout) ── */}
         <div className="cs-tab-bar">
           <button onClick={function() { var el = document.getElementById('cs-tabs-scroll'); if (el) el.scrollBy({ left: -200, behavior: 'smooth' }); }}

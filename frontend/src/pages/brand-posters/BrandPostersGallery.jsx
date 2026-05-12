@@ -78,7 +78,7 @@ export default function BrandPostersGallery() {
               </div>
             </div>
             {!data.has_access && (
-              <Link to="/credit-matrix" style={{
+              <Link to="/credit-nexus" style={{
                 background: 'var(--sap-accent)',
                 color: 'white',
                 padding: '12px 20px',
@@ -274,7 +274,7 @@ export default function BrandPostersGallery() {
           }}>
             <strong style={{ color: 'var(--sap-text-primary)' }}>Want to make these yourself?</strong><br/>
             The Brand Poster Generator unlocks the moment you activate any Credit Nexus pack —
-            from $20 starter up to $1,000 ultimate. <Link to="/credit-matrix" style={{ color: 'var(--sap-accent)' }}>See packs →</Link>
+            from $20 starter up to $1,000 ultimate. <Link to="/credit-nexus" style={{ color: 'var(--sap-accent)' }}>See packs →</Link>
           </div>
         )}
       </div>
