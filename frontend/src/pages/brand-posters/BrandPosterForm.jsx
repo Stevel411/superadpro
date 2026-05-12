@@ -164,8 +164,21 @@ export default function BrandPosterForm() {
           marginBottom: 20,
         }}>
           <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Customise your poster</div>
-          <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 20 }}>
+          <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 12 }}>
             Fill in the text below. The defaults work well — tweak only if you want something specific.
+          </div>
+          {/* Tight one-liner reassuring members their referral link is handled
+              automatically. Surfaces the viral-loop story without bloat. */}
+          <div style={{
+            fontSize: 12,
+            color: 'var(--sap-accent)',
+            marginBottom: 20,
+            padding: '8px 12px',
+            background: 'rgba(14, 165, 233, 0.08)',
+            borderRadius: 8,
+            borderLeft: '3px solid var(--sap-accent)',
+          }}>
+            🔗 <strong>Your referral link is automatically baked into every poster</strong> — no setup needed.
           </div>
 
           {template.input_fields.map(function(field) {
