@@ -2444,6 +2444,99 @@ try:
 except Exception as e:
     print(f"⚠️ partial_recovery migration failed: {e}")
 
+# ── Brand Poster Generator tables (added 12 May 2026) ──
+# Three tables for the BPG feature in Creative Studio. Defined as
+# SQLAlchemy models above, but kept as an isolated CREATE TABLE block
+# here because the initial Base.metadata.create_all on line ~1478
+# silently skipped these tables on first Railway deploy (likely an
+# engine state / import ordering issue). Without these tables, any
+# call to /api/posters/* fails with 'relation does not exist'.
+#
+# This block uses CREATE TABLE IF NOT EXISTS so it's idempotent and
+# safe to run on every startup. Mirrors the SQLAlchemy schema 1:1.
+try:
+    with engine.connect() as conn:
+        # poster_templates — the master catalogue (6 templates seeded
+        # from app/poster_templates.py at first endpoint hit)
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS poster_templates (
+                id                  SERIAL PRIMARY KEY,
+                slug                VARCHAR(60) UNIQUE NOT NULL,
+                name                VARCHAR(120) NOT NULL,
+                description         TEXT NOT NULL,
+                category            VARCHAR(40) DEFAULT 'general',
+                sort_order          INTEGER DEFAULT 100,
+                is_active           BOOLEAN DEFAULT TRUE,
+                master_prompt       TEXT NOT NULL,
+                input_fields        TEXT NOT NULL,
+                aspect_ratio        VARCHAR(10) DEFAULT '3:4',
+                supports_photo      BOOLEAN DEFAULT TRUE,
+                preview_image_url   TEXT,
+                thumbnail_url       TEXT,
+                share_slug          VARCHAR(40) UNIQUE,
+                created_at          TIMESTAMP DEFAULT NOW(),
+                updated_at          TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        # Indexes for poster_templates
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_templates_slug ON poster_templates(slug)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_templates_category ON poster_templates(category)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_templates_sort_order ON poster_templates(sort_order)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_templates_is_active ON poster_templates(is_active)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_templates_share_slug ON poster_templates(share_slug)"))
+
+        # poster_generations — one row per Generate click
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS poster_generations (
+                id                    SERIAL PRIMARY KEY,
+                user_id               INTEGER NOT NULL REFERENCES users(id),
+                template_id           INTEGER NOT NULL REFERENCES poster_templates(id),
+                input_values          TEXT NOT NULL,
+                reference_photo_url   TEXT,
+                rendered_prompt       TEXT,
+                candidate_urls        TEXT,
+                chosen_index          INTEGER,
+                chosen_url            TEXT,
+                status                VARCHAR(20) DEFAULT 'pending',
+                error_message         TEXT,
+                credits_charged       INTEGER DEFAULT 0,
+                grok_request_id       VARCHAR(80),
+                created_at            TIMESTAMP DEFAULT NOW(),
+                completed_at          TIMESTAMP
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_generations_user_id ON poster_generations(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_generations_template_id ON poster_generations(template_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_generations_status ON poster_generations(status)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_generations_created_at ON poster_generations(created_at)"))
+
+        # poster_template_shares — viral landing page click tracking
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS poster_template_shares (
+                id                  SERIAL PRIMARY KEY,
+                share_slug          VARCHAR(40) NOT NULL,
+                template_id         INTEGER NOT NULL REFERENCES poster_templates(id),
+                sharer_user_id      INTEGER NOT NULL REFERENCES users(id),
+                visitor_ip_hash     VARCHAR(64),
+                visitor_country     VARCHAR(2),
+                user_agent          VARCHAR(300),
+                referrer            VARCHAR(500),
+                converted_user_id   INTEGER REFERENCES users(id),
+                converted_at        TIMESTAMP,
+                visited_at          TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_shares_share_slug ON poster_template_shares(share_slug)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_shares_template_id ON poster_template_shares(template_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_shares_sharer_user_id ON poster_template_shares(sharer_user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_shares_converted_user_id ON poster_template_shares(converted_user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_poster_shares_visited_at ON poster_template_shares(visited_at)"))
+
+        conn.commit()
+        print("✅ Brand Poster Generator tables (poster_templates, poster_generations, poster_template_shares) created/verified")
+except Exception as e:
+    print(f"⚠️ Brand Poster Generator migration failed: {e}")
+
 # ── Rename supercut -> superscene tables (one-time migration) ──
 try:
     with engine.connect() as conn:
