@@ -3917,12 +3917,17 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
                 safe[k] = str(v)
         t3 = _t.time()
 
-        # Cache for 5 seconds — was 60s, but caused balance to lag visibly
-        # after payments/commissions. cache_invalidate_user() is only wired
-        # up to notification creation, missing several commission-credit paths.
-        # Shorter TTL is the safer fix; proper invalidation is post-launch.
-        # (Decided 9 May 2026 before launch.)
-        cache_set(cache_key, safe, ttl=5)
+        # Cache TTL: 30s. Originally 60s, dropped to 5s on 9 May 2026
+        # because balance felt stale after payments/commissions when
+        # cache_invalidate_user() was only wired up to notification
+        # creation. As of 10 May the invalidator covers 26 commission/
+        # balance write sites; raising to 30s is safe and dramatically
+        # cuts DB load during the 12 May signup surge that was causing
+        # 10-second timeouts on the React Dashboard. Kept slightly under
+        # the per-helper TTL (60s) so a manually-triggered Dashboard
+        # refresh after a commission has a real chance of pulling
+        # post-invalidation data on its first hit.
+        cache_set(cache_key, safe, ttl=30)
 
         logger.info(f"Dashboard API timing: achievements={t1-t0:.3f}s context={t2-t1:.3f}s serialize={t3-t2:.3f}s total={t3-t0:.3f}s")
         return safe
@@ -11772,7 +11777,16 @@ def compute_descendant_counts(db: Session, user_id: int) -> dict:
         return result
 
     result = {"total": total, "active": active, "inactive": inactive}
-    cache_set(cache_key, result, ttl=5)  # was 60s — see compute_user_earnings note
+    # Cache TTL: 60s. Originally 60s, dropped to 5s as a workaround for
+    # stale-balance issues 9 May 2026, restored to 60s 12 May 2026 once
+    # cache_invalidate_user() coverage was verified (26 call sites cover
+    # every commission/balance write). The 5s value was load-bearing for
+    # 2 days only because invalidation wasn't yet proven in production;
+    # it now is, and the 5s value was causing the dashboard endpoint to
+    # re-run a recursive CTE on nearly every page hit during the 12 May
+    # signup surge (29 → 66 members in one day). See app/stats_cache.py
+    # for the full invalidation coverage list.
+    cache_set(cache_key, result, ttl=60)
     return result
 
 
@@ -11801,7 +11815,8 @@ def compute_total_withdrawn(db: Session, user_id: int) -> float:
     ).scalar() or 0
 
     result = float(total)
-    cache_set(cache_key, result, ttl=5)  # was 60s — see compute_user_earnings note
+    # Cache TTL restored to 60s on 12 May 2026 — see compute_user_earnings.
+    cache_set(cache_key, result, ttl=60)
     return result
 
 
@@ -11886,7 +11901,7 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
         "membership_earnings": round(membership, 2),
         "personal_referrals": direct_refs,
     }
-    # Cache TTL: 5s. Originally 60s. History:
+    # Cache TTL: 60s. Originally 60s. History:
     # - 9 May 2026: Steve's $20 WalletConnect smoke test showed stale
     #   balance for ~60 seconds after commission posted — would cause
     #   panic-refresh support tickets at launch. Dropped to 5s as
@@ -11900,11 +11915,17 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
     #   _credit_platform (course), gift voucher claim, withdrawal refund,
     #   admin balance adjust, PIF wallet deduction, email credits, and
     #   wallet credit-pack purchase.
-    # - TTL still 5s temporarily: belt-and-braces while verifying the
-    #   new invalidation calls work in production. Once 24-48 hours have
-    #   passed without staleness reports, restore to 60s for ~12x DB
-    #   query reduction on busy users.
-    cache_set(cache_key, result, ttl=5)
+    # - 12 May 2026: RESTORED to 60s. The 5s value caused dashboard
+    #   timeouts during the signup surge (29 → 66 members in one day,
+    #   with 10 new in the last hour). Live-ledger reads against the
+    #   Commission, CreditMatrixCommission, and CourseCommission tables
+    #   were re-running on near-every dashboard load because the cache
+    #   expired before the next hit could land. With 26 invalidation
+    #   call sites now verified in production for 2 days, the 5s belt-
+    #   and-braces value is no longer warranted. Balance still feels
+    #   live because cache_invalidate_user() fires synchronously on
+    #   every relevant write.
+    cache_set(cache_key, result, ttl=60)
     return result
 
 
