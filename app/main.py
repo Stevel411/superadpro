@@ -28052,9 +28052,24 @@ async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db
                             "error": "no images returned"})
             continue
 
-        # Download the image from xAI
+        # Download the image from xAI. The URLs xAI returns are on their
+        # own CDN and reject default Python urllib User-Agent strings with
+        # HTTP 403 (verified 12 May 2026 — first seed attempt failed all
+        # 6 with download:403). Add a real-browser User-Agent and pass the
+        # Bearer auth header as belt-and-braces in case xAI's CDN also
+        # checks credentials on the image URL itself.
+        import os as _os
         try:
-            with urllib.request.urlopen(urls[0], timeout=60) as resp:
+            xai_key = _os.environ.get("XAI_API_KEY", "").strip()
+            req = urllib.request.Request(
+                urls[0],
+                headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; SuperAdPro/1.0; +https://www.superadpro.com)",
+                    "Accept": "image/*,*/*;q=0.8",
+                    **({"Authorization": f"Bearer {xai_key}"} if xai_key else {}),
+                },
+            )
+            with urllib.request.urlopen(req, timeout=60) as resp:
                 image_bytes = resp.read()
         except Exception as exc:
             logger.exception(f"BPG seed: download failed for {slug}: {exc}")
