@@ -9,8 +9,9 @@ Scrolling, Pay It Forward, etc.) at launch quality.
 
 Returns 4 candidates per generation so members can pick the best one.
 
-Cost: ~$0.07/image (verify in xAI dashboard). BPG access is gated to
-Credit Nexus pack owners (any tier) — see app/poster_gating.py.
+Cost: ~$0.05/image with grok-imagine-image-quality (verify in xAI
+dashboard). Override via GROK_IMAGINE_MODEL env var. BPG access is
+gated to Credit Nexus pack owners (any tier) — see app/poster_gating.py.
 
 Model: grok-imagine-image-quality. Verified working on 12 May 2026
 across 7 live test generations producing magazine-quality output for
@@ -43,15 +44,35 @@ logger = logging.getLogger(__name__)
 XAI_API_KEY = os.getenv("XAI_API_KEY", "")
 XAI_BASE_URL = "https://api.x.ai/v1"
 
-# Model name — pinned per Steve's decision 12 May 2026
-GROK_IMAGINE_MODEL = "grok-imagine-image-quality"
+# Model name — defaults to grok-imagine-image-quality (Steve's decision
+# 12 May 2026, $0.05/image, 300 RPM rate limit, verified visual quality
+# including legible referral URL text rendering).
+#
+# Available alternatives on xAI as of 13 May 2026:
+#   grok-imagine-image          — $0.02/image, same 300 RPM. Cheaper but
+#                                  lower text fidelity; not recommended for
+#                                  member-facing BPG output where URL must
+#                                  render legibly.
+#   grok-imagine-image-quality  — $0.05/image, 300 RPM. CURRENT DEFAULT.
+#   grok-imagine-image-pro      — $0.07/image, 30 RPM only. 10× tighter
+#                                  rate limit. Use only if quality issues
+#                                  arise that this tier solves.
+#
+# Override via Railway env var (no code change required):
+#   GROK_IMAGINE_MODEL=grok-imagine-image-pro
+GROK_IMAGINE_MODEL = os.getenv(
+    "GROK_IMAGINE_MODEL", "grok-imagine-image-quality"
+).strip() or "grok-imagine-image-quality"
+logger.info(f"BPG image model: {GROK_IMAGINE_MODEL}")
 
 # How many candidates to return per generation. Spec: 4.
 DEFAULT_CANDIDATE_COUNT = 4
 
 # Per-image approx provider cost in USD. Used for margin reporting only.
-# Real cost comes from xAI billing dashboard.
-APPROX_COST_USD_PER_IMAGE = 0.07
+# Real cost comes from xAI billing dashboard. Updated 13 May 2026 from
+# $0.07 → $0.05 to match the actual price of grok-imagine-image-quality
+# (the $0.07 figure matched the -pro tier, which we don't use).
+APPROX_COST_USD_PER_IMAGE = 0.05
 
 # Request timeout: image gen takes longer than chat, allow generous time.
 REQUEST_TIMEOUT_SECONDS = 120

@@ -15,16 +15,28 @@ XAI_API_KEY = os.getenv("XAI_API_KEY", "")
 XAI_BASE_URL = "https://api.x.ai/v1"
 
 # ── Model choices ─────────────────────────────────────────
-# grok-4-1-fast       — best value, 2M context, reasoning
-# grok-4              — flagship, highest quality
+# grok-4-1-fast       — best value, 2M context, reasoning ($0.20/$0.50 per 1M)
+# grok-4              — older flagship
+# grok-4.3            — newest flagship, 1M context ($1.25/$2.50 per 1M, 5× more)
 # grok-3-mini         — lightweight, very cheap
+#
+# Default is grok-4-1-fast because our workload is high-volume
+# marketing copy generation, not heavy reasoning. The flagship 4.3
+# is 5-6× more expensive and optimised for non-hallucination + agentic
+# tool calling — neither of which our prompts exercise meaningfully.
+#
+# To override (no code change needed):
+#   Set XAI_MODEL in Railway env, e.g. XAI_MODEL=grok-4.3
+# Decision recorded 13 May 2026.
 MODELS = {
     "fast": "grok-4-1-fast",
     "flagship": "grok-4",
+    "latest": "grok-4.3",
     "mini": "grok-3-mini",
 }
 
-DEFAULT_MODEL = "grok-4-1-fast"
+DEFAULT_MODEL = os.getenv("XAI_MODEL", "grok-4-1-fast").strip() or "grok-4-1-fast"
+logger.info(f"Grok default model: {DEFAULT_MODEL}")
 
 
 async def grok_chat(
