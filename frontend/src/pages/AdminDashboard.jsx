@@ -632,6 +632,14 @@ function UsersTab() {
               {/* Gift Membership */}
               {!detail.is_admin && <GiftMembership userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
 
+              {/* Activate Grid Tier — manual recovery for members who paid
+                  via a path that didn't auto-activate (rare, but happens).
+                  Calls the same /admin/diagnostic/manual-grid-activation
+                  endpoint that the URL-based recipe uses; the endpoint
+                  routes through process_tier_purchase so upline commissions
+                  cascade identically to the normal payment flow. */}
+              {!detail.is_admin && <GridActivation userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
+
               {/* Adjust balance */}
               <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:6}}>Adjust Balance</div>
               <div style={{display:'flex',gap:6,marginBottom:6}}>
@@ -1498,6 +1506,113 @@ function GiftMembership(props) {
         style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:gifting?'default':'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
           background:'linear-gradient(135deg,#8b5cf6,#7c3aed)',color:'#fff',opacity:gifting?.6:1}}>
         {gifting ? 'Gifting...' : '🎁 Gift ' + tier.toUpperCase() + ' for ' + (months === 12 ? '1 year' : months + ' months') + ' to @' + props.username}
+      </button>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────
+// GRID ACTIVATION — manual one-off activation of a Campaign Tier grid
+// for a member who paid via a path that didn't auto-activate (e.g.
+// member sent USDT direct to treasury without going through the WC
+// order flow, or admin manually upgraded them after a failed payment).
+//
+// Backend: POST /admin/diagnostic/manual-grid-activation/{user_id}/{tier}
+//   - Admin-session gated (no secret required as of 13 May 2026)
+//   - Two idempotency guards: refuses if member already has active
+//     campaign at this tier, refuses if a manual_recovery Payment
+//     row already exists.
+//   - Calls process_tier_purchase — the same function the normal IPN
+//     payment flow uses — so upline commissions cascade identically.
+//   - Writes an admin_repair_log audit row recording the admin who
+//     triggered, target user, tier, price, grids filled.
+//
+// Prices per tier match docs/commission-spec.md section 2:
+//   1=$20, 2=$50, 3=$100, 4=$200, 5=$400, 6=$600, 7=$800, 8=$1000
+//
+// UX: tier selector pills + a confirmation modal with the price spelled
+// out (activating a Tier 8 by accident would mean cascading $1000 of
+// commissions into the network, so make the confirmation explicit).
+// ──────────────────────────────────────────────────────────────────
+var GRID_TIER_PRICES = {1:20,2:50,3:100,4:200,5:400,6:600,7:800,8:1000};
+
+function GridActivation(props) {
+  var [tier, setTier] = useState(1);
+  var [activating, setActivating] = useState(false);
+
+  function activate() {
+    if (activating) return;
+    var price = GRID_TIER_PRICES[tier];
+    var confirmMsg = (
+      'Activate Grid Tier ' + tier + ' ($' + price + ' value) for @' + props.username + '?\n\n' +
+      'This will:\n' +
+      '  • Create a campaign for them at Tier ' + tier + '\n' +
+      '  • Cascade direct + uni-level commissions to their upline\n' +
+      '  • Record a manual-recovery Payment row\n' +
+      '  • Write an audit log entry under your admin username\n\n' +
+      'Cannot be undone without DB intervention. Continue?'
+    );
+    if (!window.confirm(confirmMsg)) return;
+    setActivating(true);
+    // Note encoded as query string since the endpoint takes it as a query param.
+    var note = 'Admin UI activation by admin user, tier ' + tier;
+    var url = '/admin/diagnostic/manual-grid-activation/' + props.userId + '/' + tier +
+              '?note=' + encodeURIComponent(note);
+    fetch(url, { method: 'POST', credentials: 'include' })
+      .then(function(r) { return r.json(); })
+      .then(function(r) {
+        if (r.status === 'activated') {
+          var gridsFilled = (r.process_tier_purchase_result && r.process_tier_purchase_result.grids_filled) || [];
+          var msg = 'Grid Tier ' + tier + ' activated for @' + props.username + '. ';
+          if (gridsFilled.length) {
+            msg += gridsFilled.length + ' upline grid(s) filled.';
+          }
+          props.onDone(msg);
+        } else if (r.error) {
+          props.onDone('Activation refused: ' + r.error);
+        } else {
+          props.onDone('Activation completed with unexpected response — check audit log');
+        }
+        setActivating(false);
+      })
+      .catch(function(e) {
+        props.onDone('Activation failed: ' + (e.message || 'network error'));
+        setActivating(false);
+      });
+  }
+
+  return (
+    <div style={{borderTop:'1px solid #e2e8f0',paddingTop:12,marginTop:12}}>
+      <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:8}}>🎯 Activate Campaign Grid Tier</div>
+      <div style={{fontSize:11,color:'var(--sap-text-faint)',marginBottom:8,lineHeight:1.4}}>
+        For members who paid via a path that didn't auto-activate. Routes through the same
+        commission cascade as a normal payment.
+      </div>
+      <div style={{display:'flex',gap:4,marginBottom:8,flexWrap:'wrap'}}>
+        {[1,2,3,4,5,6,7,8].map(function(t) {
+          var price = GRID_TIER_PRICES[t];
+          var sel = tier === t;
+          return (
+            <button key={t} onClick={function() { setTier(t); }}
+              style={{
+                flex:'1 1 calc(25% - 4px)', minWidth:60, padding:'8px 4px',
+                borderRadius:6,
+                border:'1px solid ' + (sel ? 'var(--sap-purple)' : 'var(--sap-border)'),
+                background: sel ? 'var(--sap-purple)' : '#fff',
+                color: sel ? '#fff' : 'var(--sap-text-muted)',
+                fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit',
+                display:'flex', flexDirection:'column', gap:2, lineHeight:1.1
+              }}>
+              <span>T{t}</span>
+              <span style={{fontSize:10,fontWeight:500,opacity:0.85}}>${price}</span>
+            </button>
+          );
+        })}
+      </div>
+      <button onClick={activate} disabled={activating}
+        style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:activating?'default':'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
+          background:'linear-gradient(135deg,#0ea5e9,#0284c7)',color:'#fff',opacity:activating?.6:1}}>
+        {activating ? 'Activating...' : '🎯 Activate Tier ' + tier + ' ($' + GRID_TIER_PRICES[tier] + ' value) for @' + props.username}
       </button>
     </div>
   );

@@ -10270,7 +10270,10 @@ def admin_diagnostic_recompute_wallet(
 def admin_diagnostic_manual_grid_activation(
     user_id: int,
     package_tier: int,
-    secret: str = "",
+    request: Request,
+    secret: str = "",  # Deprecated. Kept accepting for backward compat with
+                       # any bookmarks/scripts that still pass it, but no
+                       # longer required. Admin session is sufficient.
     note: str = "",
     db: Session = Depends(get_db),
 ):
@@ -10286,10 +10289,19 @@ def admin_diagnostic_manual_grid_activation(
       - Refuses if a manual-recovery Payment row already exists for this
         user_id + tier (so re-running the endpoint is a no-op).
 
-    Not exposed in the UI — call directly with the diagnostic secret.
+    Auth (updated 13 May 2026):
+      - Requires authenticated admin session via get_current_user.
+      - The legacy ?secret= parameter is still accepted but no longer
+        required. Dropping the secret-only gate because (a) it had leaked
+        into commit history and conversations, (b) admin-session auth is
+        more robust and lets us audit who triggered each activation.
     """
-    if secret != "superadpro-owner-2026":
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    # New auth gate: admin session required.
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
 
     if package_tier not in (1, 2, 3, 4, 5, 6, 7, 8):
         return JSONResponse({"error": "Invalid tier (must be 1-8)"}, status_code=400)
@@ -10387,8 +10399,43 @@ def admin_diagnostic_manual_grid_activation(
     logger.warning(
         f"MANUAL_GRID_ACTIVATION user={user_id} ({target.username}) "
         f"tier={package_tier} price=${price} tx={recovery_tx_hash} "
-        f"note={note or 'none'}"
+        f"note={note or 'none'} by_admin={user.username}"
     )
+
+    # Audit log entry — same table the platform health repair tools use
+    # (admin_repair_log). Gives us one consolidated audit trail across all
+    # admin write operations.
+    try:
+        from .database import AdminRepairLog
+        import json as _json
+        audit = AdminRepairLog(
+            repair_tool="manual-grid-activation",
+            target_kind="user",
+            target_id=user_id,
+            admin_user_id=user.id,
+            admin_username=user.username or "<no username>",
+            dry_run=False,
+            success=True,
+            changes_json=_json.dumps({
+                "target_username": target.username,
+                "package_tier": package_tier,
+                "price_usd": float(price),
+                "recovery_tx_hash": recovery_tx_hash,
+                "payment_id": payment.id,
+                "crypto_orders_marked": pending_orders_marked,
+                "grids_filled": result.get("grids_filled", []),
+            }, default=str),
+            summary=(
+                f"Manual grid Tier {package_tier} activation for "
+                f"{target.username} (user {user_id}) by admin {user.username}"
+            ),
+        )
+        db.add(audit)
+        db.flush()
+    except Exception as _audit_err:
+        # Audit failure doesn't block the activation — already committed
+        # below. But log it loudly so we know the trail has a gap.
+        logger.error(f"manual-grid-activation audit log FAILED: {_audit_err}")
 
     db.commit()
 
