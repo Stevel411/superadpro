@@ -392,10 +392,18 @@ export function CreditMatrixContent() {
                 </div>
                 <div style={{ width: 2, height: 20, background: '#d1d5db', margin: '0 auto' }} />
 
-                {/* Level 1 */}
+                {/* Top row — render by array order, not position_index value.
+                    Some historical placements (pre-13 May 2026) have duplicate
+                    position_index values within the same level which would
+                    cause .find(position_index === i) to render one slot and
+                    drop another. Filter-and-index matches Levels 2 and 3's
+                    approach and matches CreditMatrixVisualiser.jsx. Data
+                    integrity of position_index values is being tracked
+                    separately; the display layer should not silently lose
+                    members even if the underlying data is gappy. */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 4 }}>
                   {[0, 1, 2].map(function(i) {
-                    var node = treeNodes.find(function(n) { return n.level === 1 && n.position_index === i; });
+                    var node = treeNodes.filter(function(n) { return n.level === 1; })[i];
                     return (
                       <div key={i} style={{ textAlign: 'center' }}>
                         <div style={{ width: 2, height: 16, background: '#d1d5db', margin: '0 auto' }} />
