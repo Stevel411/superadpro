@@ -45,28 +45,70 @@ export function CreditMatrixContent() {
   var [purchasing, setPurchasing] = useState(null);
   var [message, setMessage] = useState(null);
 
+  // Pack selector — when a user owns >1 active matrix, they need a way
+  // to switch between them. selectedPackKey null = default (highest tier).
+  // commissionPackFilter applies to the Commission History pane only:
+  // null = all commissions across all packs; otherwise filter to that pack.
+  var [ownedMatrices, setOwnedMatrices] = useState([]);    // active matrices the user owns
+  var [selectedPackKey, setSelectedPackKey] = useState(null);
+  var [commissionPackFilter, setCommissionPackFilter] = useState(null);
+
   // Purchase consent gate — see app/purchase_consent.py
   var { ensureConsent, consentModal } = useConsentGate();
   var [showCommissions, setShowCommissions] = useState(false);
 
-  function loadAll() {
+  function loadAll(packKey) {
+    // packKey arg overrides selectedPackKey state for this load.
+    // Used during initial mount where state isn't yet committed.
+    var pk = packKey !== undefined ? packKey : selectedPackKey;
+    var myMatrixUrl = pk ? ('/api/credit-matrix/my-matrix?pack_key=' + encodeURIComponent(pk))
+                         : '/api/credit-matrix/my-matrix';
+    var commissionsUrl = commissionPackFilter
+      ? ('/api/credit-matrix/commissions?pack_key=' + encodeURIComponent(commissionPackFilter))
+      : '/api/credit-matrix/commissions';
+
     Promise.all([
       apiGet('/api/credit-matrix/packs'),
-      apiGet('/api/credit-matrix/my-matrix'),
+      apiGet(myMatrixUrl),
       apiGet('/api/credit-matrix/stats'),
-      apiGet('/api/credit-matrix/commissions'),
+      apiGet(commissionsUrl),
       apiGet('/api/credit-matrix/team-activity'),
+      apiGet('/api/credit-matrix/all-matrices'),
     ]).then(function(results) {
       if (results[0].success) setPacks(results[0].packs || []);
       if (results[1].success) setMatrix(results[1]);
       if (results[2].success) setStats(results[2].stats || null);
       if (results[3].success) setCommissions(results[3]);
       if (results[4].success) setActivity(results[4].activity || []);
+      if (results[5].success) {
+        // Filter to active matrices only — the pack selector is only
+        // useful when there's >1 to switch between. Completed cycles
+        // aren't shown in the selector (they live in the history view).
+        var active = (results[5].purchased || []).filter(function(p) {
+          return p.has_matrix && p.status === 'active';
+        });
+        setOwnedMatrices(active);
+      }
       setLoading(false);
     }).catch(function() { setLoading(false); });
   }
 
   useEffect(function() { loadAll(); }, []);
+
+  // Refetch matrix-specific data when the selected pack changes
+  useEffect(function() {
+    if (selectedPackKey === null) return;   // initial load handled above
+    var url = '/api/credit-matrix/my-matrix?pack_key=' + encodeURIComponent(selectedPackKey);
+    apiGet(url).then(function(d) { if (d.success) setMatrix(d); }).catch(function(){});
+  }, [selectedPackKey]);
+
+  // Refetch commissions when the commission-pack filter changes
+  useEffect(function() {
+    var url = commissionPackFilter
+      ? ('/api/credit-matrix/commissions?pack_key=' + encodeURIComponent(commissionPackFilter))
+      : '/api/credit-matrix/commissions';
+    apiGet(url).then(function(d) { if (d.success) setCommissions(d); }).catch(function(){});
+  }, [commissionPackFilter]);
 
   async function buyPack(packKey) {
     // Purchase consent FIRST. Credit-matrix purchases trigger
@@ -282,8 +324,48 @@ export function CreditMatrixContent() {
 
           {/* Nexus Tree Visualisation */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>
+
+            {/* Pack selector — only shown if user owns 2+ active matrices.
+                Lets them switch between which pack's Nexus they're viewing.
+                Was non-deterministic before; visualiser would pick one
+                arbitrarily and members had no way to switch. */}
+            {ownedMatrices.length > 1 && (
+              <div style={{ marginBottom: 18, paddingBottom: 14, borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
+                  Viewing Nexus for pack:
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {ownedMatrices.map(function(om) {
+                    var isActive = (matrixData && matrixData.pack_key === om.pack_key)
+                                   || (matrixData == null && selectedPackKey === om.pack_key);
+                    var ico = PACK_ICONS[om.pack_key] || {};
+                    return (
+                      <button key={om.pack_key}
+                        onClick={function() { setSelectedPackKey(om.pack_key); }}
+                        style={{
+                          padding: '7px 14px', borderRadius: 999, fontSize: 12, fontWeight: 700,
+                          cursor: 'pointer', fontFamily: 'inherit',
+                          border: '1px solid ' + (isActive ? 'transparent' : '#e2e8f0'),
+                          background: isActive ? (ico.gradient || 'var(--sap-purple)') : '#fff',
+                          color: isActive ? '#fff' : 'var(--sap-text-primary)',
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                        }}>
+                        <span>{ico.emoji || '📦'}</span>
+                        {om.label}
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, opacity: 0.85,
+                          padding: '1px 6px', borderRadius: 4,
+                          background: isActive ? 'rgba(255,255,255,.2)' : 'rgba(148,163,184,.15)',
+                        }}>{om.positions_filled}/{om.max_positions}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 16 }}>{t('creditMatrix.yourNexusTitle')}
-              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--sap-text-muted)', marginLeft: 8 }}>Nexus #{matrixData.advance_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
+              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--sap-text-muted)', marginLeft: 8 }}>{matrixData.pack_label} pack · Nexus #{matrixData.advance_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
             </div>
 
             {/* Progress bar */}
@@ -385,23 +467,72 @@ export function CreditMatrixContent() {
 
             {showCommissions && commissions && commissions.commissions && (
               <div style={{ marginTop: 12 }}>
+
+                {/* Pack filter — only relevant when user owns 2+ active matrices.
+                    Otherwise there's nothing to filter between, just show everything. */}
+                {ownedMatrices.length > 1 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginRight: 4, alignSelf: 'center' }}>Show:</span>
+                    <button onClick={function() { setCommissionPackFilter(null); }}
+                      style={{
+                        padding: '4px 11px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+                        cursor: 'pointer', fontFamily: 'inherit',
+                        border: '1px solid ' + (commissionPackFilter === null ? 'var(--sap-purple)' : '#e2e8f0'),
+                        background: commissionPackFilter === null ? 'var(--sap-purple)' : '#fff',
+                        color: commissionPackFilter === null ? '#fff' : 'var(--sap-text-muted)',
+                      }}>All packs</button>
+                    {ownedMatrices.map(function(om) {
+                      var isActive = commissionPackFilter === om.pack_key;
+                      var ico = PACK_ICONS[om.pack_key] || {};
+                      return (
+                        <button key={om.pack_key}
+                          onClick={function() { setCommissionPackFilter(om.pack_key); }}
+                          style={{
+                            padding: '4px 11px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+                            cursor: 'pointer', fontFamily: 'inherit',
+                            border: '1px solid ' + (isActive ? 'transparent' : '#e2e8f0'),
+                            background: isActive ? (ico.gradient || 'var(--sap-purple)') : '#fff',
+                            color: isActive ? '#fff' : 'var(--sap-text-muted)',
+                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                          }}>
+                          <span>{ico.emoji || '📦'}</span>
+                          {om.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {commissions.commissions.length === 0 && (
                   <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', padding: '20px 0', textAlign: 'center' }}>{t("creditMatrix.noCommissionsYet")}</div>
                 )}
                 {commissions.commissions.map(function(c, i) {
+                  // Pack tier chip — small label showing which matrix this
+                  // commission came from. Only shown if user owns multiple
+                  // active matrices (otherwise it's just noise — everything
+                  // came from the one matrix they own).
+                  var ico = c.matrix_pack_key ? (PACK_ICONS[c.matrix_pack_key] || {}) : {};
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0',
                       borderBottom: i < commissions.commissions.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>
-                          {c.type === 'matrix_completion' ? t('creditMatrix.matrixCompleteBonusLabel') : 'L' + c.level + ' from ' + c.from_user}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <span>{c.type === 'matrix_completion' ? t('creditMatrix.matrixCompleteBonusLabel') : 'L' + c.level + ' from ' + c.from_user}</span>
+                          {ownedMatrices.length > 1 && c.matrix_pack_label && (
+                            <span style={{
+                              fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 3,
+                              background: ico.gradient || 'rgba(148,163,184,.15)',
+                              color: ico.gradient ? '#fff' : 'var(--sap-text-muted)',
+                              textTransform: 'uppercase', letterSpacing: 0.3,
+                            }}>{c.matrix_pack_label}</span>
+                          )}
                         </div>
                         <div style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>
                           {c.type === 'matrix_level' ? (c.rate * 100).toFixed(0) + '% of $' + c.pack_price.toFixed(0) + ' pack' : t('creditMatrix.matrixCompletionReward')}
                           {' · '}{new Date(c.created_at).toLocaleDateString()}
                         </div>
                       </div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-green-bright)' }}>+${c.amount.toFixed(2)}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-green-bright)', marginLeft: 12, flexShrink: 0 }}>+${c.amount.toFixed(2)}</div>
                     </div>
                   );
                 })}

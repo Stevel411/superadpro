@@ -526,7 +526,19 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
 
 def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
     """
-    Get a user's active matrix tree for a specific pack (or first active if no pack specified).
+    Get a user's active matrix tree for a specific pack.
+
+    If pack_key is None and the user owns multiple active matrices (one per
+    purchased tier), this picks the HIGHEST-tier matrix as the default. This
+    is deterministic — unlike the prior .first() which let Postgres pick
+    arbitrarily and produced confusing UX where the same user might see
+    different matrices on different page loads.
+
+    The "filled" counts are computed live from the credit_matrix_positions
+    table rather than the cached matrix.positions_filled field, which has
+    been observed to drift (see Steve's diagnostic 13 May 2026 — matrix #5
+    had positions_filled=1 but the actual position count was 2). Standing
+    rule: no denormalised counters; use live ledger reads.
     """
     query = db.query(CreditMatrix).filter(
         and_(CreditMatrix.owner_id == user_id, CreditMatrix.status == "active")
@@ -534,7 +546,28 @@ def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
     if pack_key:
         query = query.filter(CreditMatrix.pack_key == pack_key)
 
-    matrix = query.first()
+    if pack_key:
+        # Caller asked for a specific pack — exact match or nothing
+        matrix = query.first()
+    else:
+        # Caller didn't specify. Pick the highest-tier active matrix
+        # the user owns. We pull all candidates and sort in Python because
+        # the natural order ("ultimate" > "executive" > ... > "starter")
+        # isn't alphabetical and isn't naturally reflected in the DB.
+        candidates = query.all()
+        if not candidates:
+            matrix = None
+        else:
+            # Build a tier-priority map: index in CREDIT_PACKS defines tier
+            # rank (later = higher). Unknown pack_keys sort to the bottom.
+            pack_order = list(CREDIT_PACKS.keys())  # starter → ultimate
+            def tier_rank(m):
+                try:
+                    return pack_order.index(m.pack_key or "")
+                except ValueError:
+                    return -1
+            candidates.sort(key=tier_rank, reverse=True)
+            matrix = candidates[0]
 
     if not matrix:
         return {"matrix": None, "tree": None, "stats": None}
@@ -561,7 +594,7 @@ def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
             "created_at": pos.created_at.isoformat() if pos.created_at else None,
         })
 
-    # Commission stats
+    # Commission stats — already filtered to this matrix's earnings
     total_earned = db.query(CreditMatrixCommission).filter(
         and_(CreditMatrixCommission.matrix_id == matrix.id, CreditMatrixCommission.earner_id == user_id)
     ).all()
@@ -573,9 +606,11 @@ def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
             earnings_by_level[c.level] += float(c.amount)
         total += c.amount
 
+    # Filled counts — live, excluding the owner (level 0).
     l1_filled = len([n for n in nodes if n["level"] == 1])
     l2_filled = len([n for n in nodes if n["level"] == 2])
     l3_filled = len([n for n in nodes if n["level"] == 3])
+    live_filled = l1_filled + l2_filled + l3_filled
 
     pack = CREDIT_PACKS.get(matrix.pack_key or "", {})
 
@@ -588,9 +623,9 @@ def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
             "pack_credits": pack.get("credits", 0),
             "advance_number": matrix.advance_number,
             "status": matrix.status,
-            "positions_filled": matrix.positions_filled,
+            "positions_filled": live_filled,
             "max_positions": MATRIX_MAX_DOWNLINE,
-            "fill_percentage": round(matrix.positions_filled / MATRIX_MAX_DOWNLINE * 100, 1),
+            "fill_percentage": round(live_filled / MATRIX_MAX_DOWNLINE * 100, 1),
             "total_earned": float(matrix.total_earned or 0),
             "created_at": matrix.created_at.isoformat() if matrix.created_at else None,
         },
@@ -614,6 +649,10 @@ def get_all_matrices(db: Session, user_id: int) -> dict:
     """
     Get all 8 matrices for a user — one per pack.
     Returns which packs have active matrices (purchased) and which don't.
+
+    Uses live position counts (excluding owner) rather than the
+    matrix.positions_filled cached field, which has been observed to
+    drift out of sync. See standing rule: no denormalised counters.
     """
     result = {"purchased": [], "locked": [], "total_earned": 0, "total_filled": 0}
 
@@ -627,7 +666,8 @@ def get_all_matrices(db: Session, user_id: int) -> dict:
             )
         ).first() is not None
 
-        # Check if user has a matrix for this pack (as owner)
+        # Check if user has a matrix for this pack (as owner) — pick the
+        # current (highest advance_number) one if there are multiple
         matrix = db.query(CreditMatrix).filter(
             and_(CreditMatrix.owner_id == user_id, CreditMatrix.pack_key == pack_key)
         ).order_by(CreditMatrix.advance_number.desc()).first()
@@ -641,13 +681,26 @@ def get_all_matrices(db: Session, user_id: int) -> dict:
             )
         ).count()
 
+        # Live position count for the current matrix — excluding the owner
+        # (level 0) because the owner doesn't "count" against the 39 downline
+        # slots. Standing rule: no denormalised counters.
+        if matrix:
+            live_filled = db.query(CreditMatrixPosition).filter(
+                and_(
+                    CreditMatrixPosition.matrix_id == matrix.id,
+                    CreditMatrixPosition.level != 0,
+                )
+            ).count()
+        else:
+            live_filled = 0
+
         pack_info = {
             "pack_key": pack_key,
             "label": pack["label"],
             "price": pack["price"],
             "credits": pack["credits"],
             "has_matrix": matrix is not None,
-            "positions_filled": matrix.positions_filled if matrix else 0,
+            "positions_filled": live_filled,
             "max_positions": MATRIX_MAX_DOWNLINE,
             "total_earned": float(matrix.total_earned or 0) if matrix else 0,
             "advance_number": matrix.advance_number if matrix else 0,

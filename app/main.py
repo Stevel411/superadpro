@@ -30372,19 +30372,64 @@ async def api_credit_matrix_history(user: User = Depends(get_current_user), db: 
     advances = get_matrix_history(db, user.id, pack_key=pack_key)
     return {"success": True, "advances": advances}
 @app.get("/api/credit-matrix/commissions")
-async def api_credit_matrix_commissions(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Get all matrix commissions earned by the current user."""
+async def api_credit_matrix_commissions(user: User = Depends(get_current_user),
+                                         db: Session = Depends(get_db),
+                                         pack_key: str = None):
+    """Get matrix commissions earned by the current user.
+
+    Each item is now annotated with the pack tier of the matrix it came
+    from (matrix_pack_key + pack_label), so the frontend can filter or
+    chip-label commissions by tier. The optional pack_key query param
+    filters commissions to only those earned from matrices of that tier.
+
+    Necessary because a single user can own multiple active matrices
+    (one per pack tier). Without per-tier info the commission history
+    pane shows commissions that look unrelated to the matrix the
+    visualiser is rendering.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    from app.database import CreditMatrixCommission
-    commissions = db.query(CreditMatrixCommission).filter(
+    from app.database import CreditMatrixCommission, CreditMatrix
+
+    # Pre-load all of this user's matrices once so we can map matrix_id
+    # → pack_key without N+1 queries against credit_matrices.
+    user_matrices = db.query(CreditMatrix).filter(
+        CreditMatrix.owner_id == user.id
+    ).all()
+    matrix_pack_map = {m.id: m.pack_key for m in user_matrices}
+
+    query = db.query(CreditMatrixCommission).filter(
         CreditMatrixCommission.earner_id == user.id
-    ).order_by(CreditMatrixCommission.created_at.desc()).limit(100).all()
+    )
+
+    # Optional filter: only commissions from matrices of a specific pack tier
+    if pack_key:
+        matching_matrix_ids = [
+            mid for mid, pk in matrix_pack_map.items() if pk == pack_key
+        ]
+        if matching_matrix_ids:
+            query = query.filter(CreditMatrixCommission.matrix_id.in_(matching_matrix_ids))
+        else:
+            # No matrix of that tier — return empty rather than ALL commissions
+            return {
+                "success": True,
+                "commissions": [],
+                "summary": {
+                    "total_earned": 0.0, "l1_earned": 0.0, "l2_earned": 0.0,
+                    "l3_earned": 0.0, "completion_bonuses": 0.0,
+                    "total_transactions": 0,
+                },
+                "filter": {"pack_key": pack_key, "applied": True},
+            }
+
+    commissions = query.order_by(CreditMatrixCommission.created_at.desc()).limit(100).all()
 
     items = []
     for c in commissions:
         from_user = db.query(User).filter(User.id == c.from_user_id).first()
+        comm_pack_key = matrix_pack_map.get(c.matrix_id)
+        comm_pack = CREDIT_PACKS.get(comm_pack_key or "", {})
         items.append({
             "id": c.id,
             "from_user": from_user.username if from_user else "Unknown",
@@ -30394,10 +30439,13 @@ async def api_credit_matrix_commissions(user: User = Depends(get_current_user), 
             "amount": float(c.amount),
             "type": c.commission_type,
             "status": c.status,
+            "matrix_id": c.matrix_id,
+            "matrix_pack_key": comm_pack_key,
+            "matrix_pack_label": comm_pack.get("label", comm_pack_key or "Unknown"),
             "created_at": c.created_at.isoformat() if c.created_at else None,
         })
 
-    # Summary stats
+    # Summary stats — over the returned (possibly filtered) set
     from decimal import Decimal
     total_earned = sum(Decimal(str(c.amount)) for c in commissions)
     l1_earned = sum(Decimal(str(c.amount)) for c in commissions if c.level == 1)
@@ -30416,6 +30464,7 @@ async def api_credit_matrix_commissions(user: User = Depends(get_current_user), 
             "completion_bonuses": float(bonuses),
             "total_transactions": len(items),
         },
+        "filter": {"pack_key": pack_key, "applied": bool(pack_key)},
     }
 @app.get("/api/credit-matrix/stats")
 async def api_credit_matrix_stats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
