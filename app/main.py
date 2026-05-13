@@ -10640,6 +10640,364 @@ def admin_api_list_orphans(
     }
 
 
+@app.get("/admin/orphan-investigation")
+def admin_orphan_investigation_page(request: Request, db: Session = Depends(get_db)):
+    """Self-contained investigation page for unresolved OnchainOrphanTransfers.
+
+    Lists every unresolved orphan + auto-resolves the wallet address to a
+    SuperAdPro member if one is registered + shows their pending/expired
+    WC orders so the admin can see at a glance what each transfer was
+    most likely paying for.
+
+    Plain HTML — no React build required. Same pattern as /admin/health.
+    Reachable from System Health card on /admin/health OR from this URL.
+    """
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orphan Transfer Investigation — SuperAdPro Admin</title>
+<style>
+  :root {
+    --bg: #0a1438; --card: #1c223d; --border: #2d3754;
+    --text: #f1f5f9; --muted: #94a3b8; --accent: #0ea5e9;
+    --ok: #22c55e; --warn: #f59e0b; --critical: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 24px;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 24px; font-weight: 800; margin: 0 0 8px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .btn-secondary {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: 13px; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .summary-strip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .stat-block { display: flex; flex-direction: column; gap: 4px; }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 20px; font-weight: 800; color: var(--text); }
+  .stat-value.warn { color: var(--warn); }
+  .stat-value.critical { color: var(--critical); }
+
+  .wallet-group {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 20px; margin-bottom: 16px;
+  }
+  .wallet-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+  }
+  .wallet-addr {
+    font-family: ui-monospace, monospace; font-size: 13px;
+    background: rgba(0,0,0,.25); padding: 4px 8px; border-radius: 4px;
+    word-break: break-all;
+  }
+  .wallet-user-card {
+    background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3);
+    border-radius: 8px; padding: 10px 14px; margin: 8px 0;
+    font-size: 13px;
+  }
+  .wallet-no-user {
+    background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3);
+    border-radius: 8px; padding: 10px 14px; margin: 8px 0;
+    font-size: 13px; color: var(--warn);
+  }
+  .wallet-summary {
+    color: var(--muted); font-size: 13px; margin-bottom: 12px;
+  }
+  .transfer-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .transfer-table th, .transfer-table td {
+    padding: 8px 6px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .transfer-table th { color: var(--muted); font-weight: 700; font-size: 11px; text-transform: uppercase; }
+  .transfer-table td.amount { font-family: ui-monospace, monospace; }
+  .matched-order {
+    background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.3);
+    border-radius: 6px; padding: 8px 10px; margin-top: 8px;
+    font-size: 12px;
+  }
+  .matched-order .product { font-weight: 700; color: var(--accent); }
+  .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mini-btn {
+    background: rgba(14,165,233,.15); color: var(--accent);
+    border: 1px solid rgba(14,165,233,.3);
+    padding: 5px 10px; border-radius: 6px; cursor: pointer;
+    font-size: 11px; font-weight: 700; font-family: inherit;
+    text-decoration: none; display: inline-flex; align-items: center;
+  }
+  .mini-btn:hover { background: rgba(14,165,233,.25); }
+  .recommendation {
+    background: rgba(34,197,94,.08); border-left: 3px solid var(--ok);
+    padding: 10px 14px; margin-top: 12px; border-radius: 4px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .recommendation strong { color: var(--ok); }
+  .loading { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    background: var(--card); border: 1px dashed var(--border);
+    border-radius: 12px; color: var(--muted);
+  }
+  .resolved-section {
+    margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);
+  }
+  .resolved-section h2 { font-size: 16px; color: var(--muted); margin-bottom: 12px; }
+  details summary { cursor: pointer; padding: 8px 0; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-bar">
+    <div>
+      <h1>🔍 Orphan Transfer Investigation</h1>
+      <div class="subtitle">USDT transfers to the treasury that didn't match an order. Identify the member, decide what to do.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <a href="/admin/health" class="btn-secondary">← Back to Health</a>
+      <a href="/admin/orphans" class="btn-secondary">Open standard admin →</a>
+    </div>
+  </div>
+
+  <div id="content" class="loading">Loading orphan transfers…</div>
+</div>
+
+<script>
+function el(html) {
+  var t = document.createElement('template');
+  t.innerHTML = html.trim();
+  return t.content.firstChild;
+}
+
+function fetchJSON(url) {
+  return fetch(url, { credentials: 'include' }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
+}
+
+function moneyFmt(n) {
+  return '$' + Number(n).toFixed(2);
+}
+
+function shortHash(h) {
+  if (!h) return '';
+  return h.length > 20 ? h.slice(0, 12) + '…' + h.slice(-6) : h;
+}
+
+function pickLikelyOrder(transferAmt, pendingOrders) {
+  // Pick the order whose unique_amount is closest-but-above the transfer amount.
+  // BSC gas fees deduct ~$0.10-$0.30 from the sent amount, so if member's
+  // wallet sent $19.97 they actually arrived as ~$19.78-$19.87.
+  var candidates = pendingOrders.filter(function(o) {
+    var diff = o.unique_amount - transferAmt;
+    return diff >= 0 && diff <= 1.0;  // within $1 above is plausible
+  });
+  if (candidates.length === 0) return null;
+  // Closest match (smallest gas-fee-like difference)
+  candidates.sort(function(a, b) {
+    return (a.unique_amount - transferAmt) - (b.unique_amount - transferAmt);
+  });
+  return candidates[0];
+}
+
+function renderWalletGroup(addr, transfers, lookupData) {
+  var user = (lookupData.users && lookupData.users[0]) || null;
+  var pendingOrders = lookupData.pending_or_expired_orders_from_users || [];
+
+  var unresolvedTransfers = transfers.filter(function(t) { return !t.resolved; });
+  var resolvedTransfers = transfers.filter(function(t) { return t.resolved; });
+
+  var totalUnresolved = unresolvedTransfers.reduce(function(s, t) { return s + t.amount_usdt; }, 0);
+
+  var group = el('<div class="wallet-group"></div>');
+
+  // Header
+  var header = '<div class="wallet-header">' +
+    '<div><div class="wallet-addr">' + addr + '</div></div>' +
+    '<div style="text-align:right">' +
+      '<div style="font-weight:800;font-size:18px">' + moneyFmt(totalUnresolved) + '</div>' +
+      '<div style="font-size:12px;color:var(--muted)">' + unresolvedTransfers.length + ' unresolved transfer(s)</div>' +
+    '</div>' +
+  '</div>';
+
+  // User card
+  if (user) {
+    header += '<div class="wallet-user-card">' +
+      '✅ Member identified: <strong>' + user.username + '</strong> (id ' + user.user_id + ')' +
+      ' · ' + (user.email || 'no email') +
+      ' · ' + user.membership_tier +
+      ' · is_active=' + user.is_active +
+      ' · balance=' + moneyFmt(user.balance || 0) +
+    '</div>';
+  } else {
+    header += '<div class="wallet-no-user">' +
+      '⚠ No SuperAdPro member has this wallet address registered. Either a tester wallet OR a member who hasn\\'t entered their sending wallet in their account settings. Safe to mark as spam unless you recognise it.' +
+    '</div>';
+  }
+
+  group.innerHTML = header;
+
+  // Transfers table
+  var tableHtml = '<table class="transfer-table">' +
+    '<thead><tr>' +
+      '<th>ID</th><th>Amount</th><th>Seen</th><th>Likely paid for</th><th>Action</th>' +
+    '</tr></thead><tbody>';
+
+  unresolvedTransfers.forEach(function(t) {
+    var match = pickLikelyOrder(t.amount_usdt, pendingOrders);
+    var matchHtml = match
+      ? '<span class="product">' + match.product_type + ' / ' + match.product_key + '</span> ' +
+        '(' + moneyFmt(match.unique_amount) + ', order #' + match.order_id + ')'
+      : '<span style="color:var(--muted)">no obvious match</span>';
+
+    tableHtml += '<tr>' +
+      '<td>' + t.transfer_id + '</td>' +
+      '<td class="amount">' + moneyFmt(t.amount_usdt) + '</td>' +
+      '<td style="font-size:11px;color:var(--muted)">' + (t.seen_at || '').slice(0, 16).replace('T', ' ') + '</td>' +
+      '<td>' + matchHtml + '</td>' +
+      '<td class="action-buttons">' +
+        '<a class="mini-btn" href="/admin/orphans" target="_blank">Open</a>' +
+      '</td>' +
+    '</tr>';
+  });
+
+  tableHtml += '</tbody></table>';
+  group.insertAdjacentHTML('beforeend', tableHtml);
+
+  // Recommendation block — what to do with this group
+  if (user && unresolvedTransfers.length > 1) {
+    var productGroups = {};
+    unresolvedTransfers.forEach(function(t) {
+      var match = pickLikelyOrder(t.amount_usdt, pendingOrders);
+      var key = match ? (match.product_type + '/' + match.product_key) : 'unknown';
+      productGroups[key] = (productGroups[key] || 0) + 1;
+    });
+    var products = Object.keys(productGroups).map(function(k) {
+      return productGroups[k] + '× ' + k;
+    }).join(', ');
+
+    group.insertAdjacentHTML('beforeend',
+      '<div class="recommendation">' +
+        '<strong>Recommendation:</strong> ' + user.username + ' sent ' + unresolvedTransfers.length +
+        ' transfers totalling ' + moneyFmt(totalUnresolved) + '. They appear to have been trying to pay for: ' + products + '. ' +
+        'They likely retried because each tx fell below the unique-amount tolerance due to BSC gas. ' +
+        'Most likely intent: ONE membership + maybe ONE pack purchase. Overpayment (the retry value) should be credited to their wallet balance, NOT activated as multiple memberships. ' +
+        'Open /admin/orphans to reconcile each transfer individually.' +
+      '</div>'
+    );
+  }
+
+  // Resolved transfers (collapsed)
+  if (resolvedTransfers.length > 0) {
+    var resolvedHtml = '<details style="margin-top:12px"><summary>' +
+      resolvedTransfers.length + ' resolved transfer(s) from this wallet (history)</summary>' +
+      '<table class="transfer-table" style="margin-top:8px"><thead><tr>' +
+      '<th>ID</th><th>Amount</th><th>Resolution</th></tr></thead><tbody>';
+    resolvedTransfers.forEach(function(t) {
+      resolvedHtml += '<tr>' +
+        '<td>' + t.transfer_id + '</td>' +
+        '<td class="amount">' + moneyFmt(t.amount_usdt) + '</td>' +
+        '<td style="font-size:11px">' + (t.resolution_note || '—') + '</td>' +
+      '</tr>';
+    });
+    resolvedHtml += '</tbody></table></details>';
+    group.insertAdjacentHTML('beforeend', resolvedHtml);
+  }
+
+  return group;
+}
+
+function loadInvestigation() {
+  fetchJSON('/admin/api/orphans?status=pending&limit=200').then(function(orphanResp) {
+    var orphans = orphanResp.orphans || orphanResp.items || [];
+    if (orphans.length === 0) {
+      document.getElementById('content').innerHTML =
+        '<div class="empty-state">✓ No unresolved orphan transfers right now.</div>';
+      return;
+    }
+
+    // Group orphans by from_address
+    var byAddr = {};
+    orphans.forEach(function(o) {
+      var addr = (o.from_address || '').toLowerCase();
+      if (!byAddr[addr]) byAddr[addr] = [];
+      byAddr[addr].push(o);
+    });
+
+    var addrs = Object.keys(byAddr).sort(function(a, b) {
+      return byAddr[b].length - byAddr[a].length;
+    });
+
+    var totalUnresolved = orphans.length;
+    var totalValue = orphans.reduce(function(s, o) { return s + (o.amount_usdt || 0); }, 0);
+    var addrsWithMultiple = addrs.filter(function(a) { return byAddr[a].length > 1; }).length;
+
+    var summaryStrip = '<div class="summary-strip">' +
+      '<div class="stat-block"><div class="stat-label">Unresolved transfers</div><div class="stat-value warn">' + totalUnresolved + '</div></div>' +
+      '<div class="stat-block"><div class="stat-label">Total unresolved value</div><div class="stat-value">' + moneyFmt(totalValue) + '</div></div>' +
+      '<div class="stat-block"><div class="stat-label">Unique wallets</div><div class="stat-value">' + addrs.length + '</div></div>' +
+      '<div class="stat-block"><div class="stat-label">Wallets with retries</div><div class="stat-value' + (addrsWithMultiple > 0 ? ' critical' : '') + '">' + addrsWithMultiple + '</div></div>' +
+    '</div>';
+
+    document.getElementById('content').innerHTML = summaryStrip +
+      '<div id="walletGroups"><div class="loading">Looking up wallet owners…</div></div>';
+
+    // For each wallet, run the lookup and render
+    var container = document.getElementById('walletGroups');
+    container.innerHTML = '';
+
+    Promise.all(addrs.map(function(addr) {
+      return fetchJSON('/admin/api/wallet-lookup?address=' + encodeURIComponent(addr))
+        .then(function(lookup) { return { addr: addr, lookup: lookup, transfers: byAddr[addr] }; })
+        .catch(function(e) { return { addr: addr, lookup: { users: [], pending_or_expired_orders_from_users: [] }, transfers: byAddr[addr], error: e.message }; });
+    })).then(function(results) {
+      // Sort: wallets with retries first, then by total value
+      results.sort(function(a, b) {
+        if (a.transfers.length !== b.transfers.length) return b.transfers.length - a.transfers.length;
+        var va = a.transfers.reduce(function(s, t) { return s + t.amount_usdt; }, 0);
+        var vb = b.transfers.reduce(function(s, t) { return s + t.amount_usdt; }, 0);
+        return vb - va;
+      });
+
+      results.forEach(function(r) {
+        container.appendChild(renderWalletGroup(r.addr, r.transfers, r.lookup));
+      });
+    });
+  }).catch(function(e) {
+    document.getElementById('content').innerHTML =
+      '<div class="empty-state">Failed to load orphan transfers: ' + e.message + '</div>';
+  });
+}
+
+loadInvestigation();
+</script>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
+
+
 @app.get("/admin/api/wallet-lookup")
 def admin_api_wallet_lookup(
     request: Request,
