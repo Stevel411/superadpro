@@ -2811,6 +2811,52 @@ except Exception as e:
     print(f"⚠️ membership_tier migration note: {e}")
 
 
+# ── Admin repair audit log (13 May 2026) ──
+# Every mutation made by /admin/repair/* tools is logged here BEFORE
+# commit, so we always have an audit trail of what was changed, when,
+# by which admin, and why. Read after creation; never updated.
+# Built alongside the platform health scanner framework — see
+# app/health_scanners.py and app/health_repair.py.
+try:
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS admin_repair_log (
+                id SERIAL PRIMARY KEY,
+                repair_tool VARCHAR(80) NOT NULL,
+                target_kind VARCHAR(40) NOT NULL,
+                target_id INTEGER NOT NULL,
+                admin_user_id INTEGER NOT NULL REFERENCES users(id),
+                admin_username VARCHAR(80) NOT NULL,
+                dry_run BOOLEAN NOT NULL DEFAULT FALSE,
+                success BOOLEAN NOT NULL DEFAULT FALSE,
+                changes_json TEXT NOT NULL,
+                summary TEXT,
+                error_message TEXT,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_admin_repair_log_tool "
+            "ON admin_repair_log(repair_tool)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_admin_repair_log_target "
+            "ON admin_repair_log(target_kind, target_id)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_admin_repair_log_admin "
+            "ON admin_repair_log(admin_user_id)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_admin_repair_log_created "
+            "ON admin_repair_log(created_at)"
+        ))
+        conn.commit()
+        print("✅ admin_repair_log table ready")
+except Exception as e:
+    print(f"⚠️ admin_repair_log migration note: {e}")
+
+
 # ─────────────────────────────────────────────
 # SuperScene Models
 # ─────────────────────────────────────────────
@@ -3031,6 +3077,35 @@ class CreditMatrixCommission(Base):
 
     earner = relationship("User", foreign_keys=[earner_id], backref="credit_matrix_commissions_earned")
     from_user = relationship("User", foreign_keys=[from_user_id], backref="credit_matrix_commissions_generated")
+
+
+# ═════════════════════════════════════════════════════════════
+# Admin repair audit log.
+# Every mutation made by the platform health repair tools is logged
+# here BEFORE commit, so the database always has a trail of what was
+# changed, when, by whom, and why. Built 13 May 2026 alongside the
+# health scanner framework. Read-only after creation; never updated.
+# ═════════════════════════════════════════════════════════════
+class AdminRepairLog(Base):
+    """Audit trail for every admin repair-tool mutation.
+
+    One row per repair RUN (not per row touched). The `changes_json`
+    field holds the structured before/after for each row the run
+    modified, so we can fully reconstruct what happened.
+    """
+    __tablename__ = "admin_repair_log"
+    id            = Column(Integer, primary_key=True, index=True)
+    repair_tool   = Column(String(80), nullable=False, index=True)   # e.g. 'matrix-indices'
+    target_kind   = Column(String(40), nullable=False)               # e.g. 'matrix' / 'user'
+    target_id     = Column(Integer, nullable=False, index=True)      # subject id
+    admin_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    admin_username = Column(String(80), nullable=False)              # snapshot at run time
+    dry_run       = Column(Boolean, default=False, nullable=False)   # was this an actual write?
+    success       = Column(Boolean, default=False, nullable=False)
+    changes_json  = Column(Text, nullable=False)                     # JSON: list of {table, id, before, after}
+    summary       = Column(Text)                                     # human-readable summary
+    error_message = Column(Text)                                     # if success=False
+    created_at    = Column(DateTime, default=datetime.utcnow, index=True)
 
 
 # ═════════════════════════════════════════════════════════════

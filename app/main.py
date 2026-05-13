@@ -28280,6 +28280,40 @@ async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db
 # for framework + individual scanner implementations.
 # Built 13 May 2026.
 # ═══════════════════════════════════════════════════════════════
+@app.post("/admin/repair/matrix-indices/{matrix_id}")
+@app.get("/admin/repair/matrix-indices/{matrix_id}")
+def admin_repair_matrix_indices(
+    matrix_id: int, request: Request, db: Session = Depends(get_db),
+    confirm: bool = False,
+):
+    """Repair tool: reindex position_index values within a matrix.
+
+    Surfaced by the matrix_integrity scanner (kind=position_index_duplicate
+    or position_index_gap). Also recomputes the cached positions_filled
+    counter from the live downline count.
+
+    Dry-run by default. Pass ?confirm=true to actually write.
+    Both GET and POST accepted — GET is convenient for dry-run testing
+    from a browser, POST is what you'd want for the confirmed mutation
+    (but we accept either for ergonomics during the early observability
+    rollout).
+
+    Read /admin/api/health/scan/matrix_integrity first to see WHY a
+    repair is needed before running it.
+    """
+    from . import health_repair
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    return health_repair.repair_matrix_indices(
+        db=db, matrix_id=matrix_id, admin=user, confirm=confirm,
+    )
+
+
 @app.get("/admin/api/health/scanners")
 def admin_api_health_scanners(request: Request, db: Session = Depends(get_db)):
     """List all registered scanners (without running them)."""
