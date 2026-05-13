@@ -41,13 +41,17 @@ from .health_scanners import (
     tier=4,
     category="storage",
     description=(
-        "Cross-checks the Cloudflare R2 bucket against the database. "
-        "Orphan files in R2 (no DB row references them) waste storage "
-        "cost; DB rows pointing at deleted R2 files render broken images "
-        "on member dashboards. Audits the LinkHub avatar/banner/bg columns "
-        "and the BPG poster generation chosen_url + reference_photo_url "
-        "fields. Skips files in the db_backups/ prefix (managed by the "
-        "db_backup module's own retention logic)."
+        "BEST-EFFORT scanner — cross-checks the Cloudflare R2 bucket "
+        "against the database. Not all uploads store the full R2 URL "
+        "in the DB (some store just the filename, some store base64 "
+        "fallback values, some embed URLs in JSON fields), so this "
+        "scanner can produce FALSE POSITIVES at the orphan-claim "
+        "level. Treat orphan counts as a rough indicator only; never "
+        "bulk-delete based on this report alone. R2 storage cost is "
+        "small (~$0.015/GB/month) so the cost ceiling on doing nothing "
+        "is very low. The 'broken_db_references' issue class is more "
+        "reliable — those are URLs the DB explicitly stores that no "
+        "longer exist in R2, which always indicates a real problem."
     ),
 )
 def scan_r2_storage_audit(db: Session) -> dict:
@@ -288,20 +292,44 @@ def scan_r2_storage_audit(db: Session) -> dict:
     # ── Phase 4: convert DB URLs to keys for set comparison ───────
     # R2 URLs look like: https://pub-xxxxx.r2.dev/<folder>/<file>
     # We strip the public URL prefix to get just <folder>/<file>.
+    #
+    # ALSO collect bare filenames — some tables store just the filename
+    # (e.g. users.kyc_id_filename = 'kyc_157_abc.png') without the
+    # https://pub-xxx.r2.dev/kyc/ prefix. We match those against the
+    # filename portion of the R2 key.
     r2_public_prefix = r2_storage.R2_PUBLIC_URL.rstrip("/") + "/"
     db_referenced_keys = set()
-    external_urls = 0  # URLs that aren't ours (YouTube, member-pasted, etc.)
+    db_referenced_filenames = set()  # bare filenames (no folder prefix)
+    external_urls = 0
     for url in db_referenced_urls:
         if url.startswith(r2_public_prefix):
             key = url[len(r2_public_prefix):]
             db_referenced_keys.add(key)
-        else:
-            # Not an R2 URL — could be a YouTube embed, external image,
-            # base64 data URI, etc. Not in scope for R2 audit.
+        elif url.startswith("http://") or url.startswith("https://"):
+            # External URL (YouTube, image hotlink, etc.) — not our R2
             external_urls += 1
+        elif url.startswith("data:"):
+            # Base64 inline — not an R2 reference
+            external_urls += 1
+        else:
+            # Bare filename — common for KYC and some legacy uploads.
+            # Stash for filename-suffix matching against R2 keys.
+            db_referenced_filenames.add(url)
 
     # ── Phase 5: compute orphans and broken refs ──────────────────
-    orphan_keys = r2_keys - db_referenced_keys
+    # An R2 key is referenced if EITHER:
+    #   (a) its full <folder>/<file> form is in db_referenced_keys, OR
+    #   (b) its filename portion is in db_referenced_filenames
+    def is_referenced(r2_key):
+        if r2_key in db_referenced_keys:
+            return True
+        filename = r2_key.split("/", 1)[1] if "/" in r2_key else r2_key
+        return filename in db_referenced_filenames
+
+    orphan_keys = {k for k in r2_keys if not is_referenced(k)}
+    # Broken refs: DB URLs that don't have a matching R2 file. Note we
+    # only check the full-URL form here — bare filenames are inherently
+    # ambiguous and we can't reliably say one's broken.
     broken_db_keys = db_referenced_keys - r2_keys
 
     # ── Phase 6: emit issues ──────────────────────────────────────
@@ -644,12 +672,17 @@ def scan_stuck_orders_audit(db: Session) -> dict:
                 },
                 suggested_action=(
                     "USDT arrived at the treasury that didn't match any "
-                    "WalletConnect order. likely_rounded_amount=True "
-                    "transfers are members who sent a rounded amount "
-                    "(e.g. $20 instead of $19.97) — they paid, you owe "
-                    "them activation. Review each in /admin and either "
-                    "manually attach + activate, or mark spam if from "
-                    "an unrelated source."
+                    "WalletConnect order. Review and resolve at "
+                    "/admin/orphans — that page lets you reconcile each "
+                    "transfer (attach to a member + activate their "
+                    "product) or mark as spam. "
+                    "likely_rounded_amount=True transfers are members who "
+                    "sent a rounded amount (e.g. $20 instead of $19.97) — "
+                    "they paid, you owe them activation. Multiple "
+                    "transfers from the same from_address often indicate "
+                    "one member who retried after failed activations — "
+                    "the same address across transfer_ids is the key "
+                    "diagnostic signal."
                 ),
             ))
     except Exception as exc:
