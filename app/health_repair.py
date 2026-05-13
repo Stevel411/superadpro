@@ -32,7 +32,7 @@ Each repair returns a dict:
 from __future__ import annotations
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from sqlalchemy.orm import Session
@@ -317,4 +317,237 @@ def _verify_matrix_indices(db: Session, matrix_id: int) -> dict:
         "live_downline": live,
         "cached_positions_filled": matrix.positions_filled,
         "child_groups_checked": len(children_by_parent),
+    }
+
+
+# ─────────────────────────────────────────────────────────────────
+#  REPAIR: backfill membership_expires_at for pre-launch testers
+# ─────────────────────────────────────────────────────────────────
+# Steve gifted 9 testers a 1-year Pro membership before public launch
+# as a thank-you for pre-launch testing. The activation path used
+# (whatever it was — predates /admin/api/user/{id}/gift-membership)
+# set is_active=True and membership_tier='pro' but did NOT set
+# membership_expires_at. The membership_tier_consistency scanner
+# flagged this on 13 May 2026.
+#
+# This is a ONE-TIME fix scoped to a known list of usernames, not a
+# generic "fix everyone missing expiry" tool. The reason: a future
+# member appearing in the same broken state should be FLAGGED by
+# the scanner, not silently auto-fixed. The scanner is the alarm;
+# this is the targeted patch for known-good cases.
+#
+# Each tester gets: membership_expires_at = activated_at + 365 days.
+# If the result is in the past (unlikely — they joined recently), we
+# refuse to write that record and surface it in the result so admin
+# can decide manually. We won't silently expire someone retroactively.
+TESTER_USERNAMES = [
+    "blazinglion", "richard1980", "mattfeast", "runshi", "tbillion",
+    "interprofits", "cynniam", "thomasgrant", "chrisbrown",
+]
+
+
+def repair_backfill_tester_expiry(
+    db: Session, admin: User, confirm: bool = False
+) -> dict:
+    """Set membership_expires_at = activated_at + 365 days for the 9
+    pre-launch testers who were given comp'd Pro memberships.
+
+    Dry-run by default. Same engineering bar as repair_matrix_indices:
+    single bounded scope, transaction-wrapped, audit log, post-state
+    verification.
+
+    Refuses to set an expiry date in the past. If activated_at + 365
+    days < now, the row is skipped and surfaced in `skipped` so the
+    admin can decide what to do (extend further, expire now, etc.).
+    """
+    result = {
+        "tool": "backfill-tester-expiry",
+        "target_kind": "user_set",
+        "target_id": 0,  # not a single ID — multiple users
+        "dry_run": not confirm,
+        "would_change": [],
+        "skipped": [],
+        "not_found": [],
+        "applied": False,
+        "verification": {},
+        "audit_log_id": None,
+    }
+
+    now = datetime.utcnow()
+
+    # ── Phase 1: load all 9 testers ────────────────────────────────
+    testers = db.query(User).filter(
+        User.username.in_(TESTER_USERNAMES)
+    ).all()
+    found_names = {u.username for u in testers}
+    result["not_found"] = sorted(set(TESTER_USERNAMES) - found_names)
+
+    # ── Phase 2: build change set ─────────────────────────────────
+    for user in testers:
+        # Skip users who already have an expiry — repair tool should
+        # never overwrite a valid expiry date.
+        if user.membership_expires_at is not None:
+            result["skipped"].append({
+                "user_id": user.id,
+                "username": user.username,
+                "reason": "already has expiry set",
+                "current_expires_at": user.membership_expires_at.isoformat(),
+            })
+            continue
+
+        if user.activated_at is None:
+            # Can't compute activated_at + 365. Flag.
+            result["skipped"].append({
+                "user_id": user.id,
+                "username": user.username,
+                "reason": "no activated_at to base expiry on",
+            })
+            continue
+
+        new_expiry = user.activated_at + timedelta(days=365)
+        if new_expiry < now:
+            # Their year is already up. Surface it — admin decides.
+            result["skipped"].append({
+                "user_id": user.id,
+                "username": user.username,
+                "reason": "activated_at + 365 days is in the past — refusing to expire retroactively",
+                "activated_at": user.activated_at.isoformat(),
+                "proposed_expiry": new_expiry.isoformat(),
+                "days_overdue": (now - new_expiry).days,
+            })
+            continue
+
+        result["would_change"].append({
+            "table": "users",
+            "id": user.id,
+            "before": {"membership_expires_at": None},
+            "after": {"membership_expires_at": new_expiry.isoformat()},
+            "context": {
+                "username": user.username,
+                "activated_at": user.activated_at.isoformat(),
+                "expires_after": "365 days",
+            },
+        })
+
+    result["change_count"] = len(result["would_change"])
+    summary_parts = [f"{len(result['would_change'])} testers to set"]
+    if result["skipped"]:
+        summary_parts.append(f"{len(result['skipped'])} skipped")
+    if result["not_found"]:
+        summary_parts.append(f"{len(result['not_found'])} not found by username")
+    summary = ", ".join(summary_parts)
+    result["summary"] = summary
+
+    # ── Phase 3: dry-run? Log and return ───────────────────────────
+    if not confirm:
+        try:
+            audit_id = _write_audit(
+                db=db, tool="backfill-tester-expiry", target_kind="user_set",
+                target_id=0, admin=admin, dry_run=True, success=True,
+                changes=result["would_change"],
+                summary="DRY RUN — " + summary,
+            )
+            db.commit()
+            result["audit_log_id"] = audit_id
+        except Exception as exc:
+            logger.warning(f"backfill-tester-expiry dry-run audit failed: {exc}")
+            db.rollback()
+        return result
+
+    # Nothing to write? Still success, log it.
+    if not result["would_change"]:
+        try:
+            audit_id = _write_audit(
+                db=db, tool="backfill-tester-expiry", target_kind="user_set",
+                target_id=0, admin=admin, dry_run=False, success=True,
+                changes=[], summary="No-op — " + summary,
+            )
+            db.commit()
+            result["audit_log_id"] = audit_id
+            result["applied"] = True
+        except Exception as exc:
+            logger.warning(f"backfill-tester-expiry no-op audit failed: {exc}")
+            db.rollback()
+        return result
+
+    # ── Phase 4: apply changes ─────────────────────────────────────
+    try:
+        for change in result["would_change"]:
+            target = db.query(User).filter(User.id == change["id"]).first()
+            if not target:
+                raise RuntimeError(
+                    f"User {change['id']} disappeared during repair"
+                )
+            if target.membership_expires_at is not None:
+                # Defensive — someone else set it between our load and now
+                raise RuntimeError(
+                    f"User {target.username} expiry changed mid-repair "
+                    f"(found {target.membership_expires_at}, expected NULL)"
+                )
+            # Parse the ISO string back to datetime for write
+            target.membership_expires_at = datetime.fromisoformat(
+                change["after"]["membership_expires_at"]
+            )
+        db.flush()
+
+        # ── Phase 5: verify ────────────────────────────────────────
+        verification = _verify_tester_expiry(db, result["would_change"])
+        result["verification"] = verification
+        if not verification["all_pass"]:
+            raise RuntimeError(
+                "Post-repair verification failed: "
+                + ", ".join(verification["failed_checks"])
+            )
+
+        # ── Phase 6: audit + commit ────────────────────────────────
+        audit_id = _write_audit(
+            db=db, tool="backfill-tester-expiry", target_kind="user_set",
+            target_id=0, admin=admin, dry_run=False, success=True,
+            changes=result["would_change"], summary=summary,
+        )
+        result["audit_log_id"] = audit_id
+        db.commit()
+        result["applied"] = True
+        return result
+
+    except Exception as exc:
+        db.rollback()
+        logger.exception(f"backfill-tester-expiry repair failed: {exc}")
+        try:
+            audit_id = _write_audit(
+                db=db, tool="backfill-tester-expiry", target_kind="user_set",
+                target_id=0, admin=admin, dry_run=False, success=False,
+                changes=result["would_change"],
+                summary="FAILED: " + summary, error=str(exc)[:1000],
+            )
+            db.commit()
+            result["audit_log_id"] = audit_id
+        except Exception as inner:
+            logger.exception(f"Failed to log failure: {inner}")
+            db.rollback()
+        result["error"] = str(exc)
+        return result
+
+
+def _verify_tester_expiry(db: Session, changes: list) -> dict:
+    """Confirm each user we changed now has the expected expiry."""
+    failed = []
+    checked = 0
+    for change in changes:
+        target = db.query(User).filter(User.id == change["id"]).first()
+        if not target:
+            failed.append(f"user {change['id']} disappeared")
+            continue
+        expected_iso = change["after"]["membership_expires_at"]
+        expected = datetime.fromisoformat(expected_iso)
+        if target.membership_expires_at != expected:
+            failed.append(
+                f"user {change['id']} expiry {target.membership_expires_at} "
+                f"!= expected {expected}"
+            )
+        checked += 1
+    return {
+        "all_pass": len(failed) == 0,
+        "failed_checks": failed,
+        "users_checked": checked,
     }

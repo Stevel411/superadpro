@@ -28314,6 +28314,43 @@ def admin_repair_matrix_indices(
     )
 
 
+@app.post("/admin/repair/backfill-tester-expiry")
+@app.get("/admin/repair/backfill-tester-expiry")
+def admin_repair_backfill_tester_expiry(
+    request: Request, db: Session = Depends(get_db),
+    confirm: bool = False,
+):
+    """One-time repair: set membership_expires_at for 9 pre-launch testers.
+
+    Background: Steve gifted 9 testers a 1-year Pro membership before
+    public launch as a thank-you. Their accounts were activated via an
+    older code path that didn't set membership_expires_at, so they'd
+    stay Pro indefinitely. The membership_tier_consistency scanner
+    flagged this on 13 May 2026.
+
+    Each tester gets: membership_expires_at = activated_at + 365 days.
+    Refuses to write a past date (won't retroactively expire anyone).
+
+    The username list is hardcoded in app/health_repair.py
+    TESTER_USERNAMES — this is intentional. Future users with no
+    expiry should be FLAGGED by the scanner, not silently auto-fixed
+    by a generic tool.
+
+    Dry-run by default. Pass ?confirm=true to actually write.
+    """
+    from . import health_repair
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    return health_repair.repair_backfill_tester_expiry(
+        db=db, admin=user, confirm=confirm,
+    )
+
+
 @app.get("/admin/api/health/scanners")
 def admin_api_health_scanners(request: Request, db: Session = Depends(get_db)):
     """List all registered scanners (without running them)."""
