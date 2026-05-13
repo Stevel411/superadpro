@@ -33,6 +33,13 @@ export default function AdminDashboard() {
       navigate('/admin/email-broadcast');
       return;
     }
+    // System Health is a self-contained admin page at /admin/health
+    // (built 13 May 2026 — plain HTML/JS dashboard for platform-wide
+    // diagnostic scanners). Navigate rather than embed.
+    if (key === 'health') {
+      window.location.href = '/admin/health';
+      return;
+    }
     setTab(key);
   }
 
@@ -62,7 +69,7 @@ export default function AdminDashboard() {
       {tab === 'commissions' && <CommissionsTab/>}
       {tab === 'email' && <EmailAnalyticsTab/>}
       {tab === 'superscene' && <SuperSceneAnalyticsTab/>}
-      {tab === 'health' && <HealthTab/>}
+      {/* health: handled via navigate() in handleTabClick — no inline tab */}
     </AppLayout>
   );
 }
