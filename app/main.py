@@ -28274,6 +28274,430 @@ async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db
     }
 
 
+# ═══════════════════════════════════════════════════════════════
+# PLATFORM HEALTH SCANNERS
+# Read-only diagnostic infrastructure — see app/health_scanners.py
+# for framework + individual scanner implementations.
+# Built 13 May 2026.
+# ═══════════════════════════════════════════════════════════════
+@app.get("/admin/api/health/scanners")
+def admin_api_health_scanners(request: Request, db: Session = Depends(get_db)):
+    """List all registered scanners (without running them)."""
+    from . import health_scanners
+    # Ensure scanner modules are imported so they register themselves
+    from . import health_scanners_tier1  # noqa: F401
+    from . import health_scanners_tier2  # noqa: F401
+    from . import health_scanners_tier3  # noqa: F401
+    from . import health_scanners_tier4  # noqa: F401
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    return {"scanners": health_scanners.list_scanners()}
+
+
+@app.get("/admin/api/health/scan/{scan_name}")
+def admin_api_health_run_scan(scan_name: str, request: Request, db: Session = Depends(get_db)):
+    """Run a single scanner and return its full result.
+
+    Read-only — no DB mutations regardless of what the scanner finds.
+    """
+    from . import health_scanners
+    from . import health_scanners_tier1  # noqa: F401
+    from . import health_scanners_tier2  # noqa: F401
+    from . import health_scanners_tier3  # noqa: F401
+    from . import health_scanners_tier4  # noqa: F401
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    scanner = health_scanners.get_scanner(scan_name)
+    if not scanner:
+        available = [s["name"] for s in health_scanners.list_scanners()]
+        raise HTTPException(
+            status_code=404,
+            detail=f"Unknown scanner '{scan_name}'. Available: {', '.join(available)}",
+        )
+
+    return health_scanners.run_scanner(scanner["fn"], scan_name, db)
+
+
+@app.get("/admin/api/health/summary")
+def admin_api_health_summary(request: Request, db: Session = Depends(get_db)):
+    """Run every registered scanner and return a compact summary.
+
+    Returns one row per scanner with status + headline + issue count
+    but NOT the full issue list (avoids massive responses on the
+    dashboard's overview view; drill into individual scans for detail).
+
+    Sequential execution — if a scanner is slow we'll feel it here, but
+    that's the right signal that the scanner needs optimisation, not
+    that we should hide the timing by parallelising.
+    """
+    from . import health_scanners
+    from . import health_scanners_tier1  # noqa: F401
+    from . import health_scanners_tier2  # noqa: F401
+    from . import health_scanners_tier3  # noqa: F401
+    from . import health_scanners_tier4  # noqa: F401
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    rows = []
+    overall = health_scanners.SEV_OK
+    for s in health_scanners.SCANNER_REGISTRY:
+        result = health_scanners.run_scanner(s["fn"], s["name"], db)
+        rows.append({
+            "name": s["name"],
+            "label": s["label"],
+            "tier": s["tier"],
+            "category": s["category"],
+            "status": result["status"],
+            "duration_ms": result["duration_ms"],
+            "issue_count": len(result.get("issues", [])),
+            "headline": result.get("summary", {}).get("headline", ""),
+            "ran_at": result["ran_at"],
+        })
+        # Update overall status — worst wins
+        if result["status"] == health_scanners.SEV_CRITICAL:
+            overall = health_scanners.SEV_CRITICAL
+        elif result["status"] == health_scanners.SEV_WARNING and overall == health_scanners.SEV_OK:
+            overall = health_scanners.SEV_WARNING
+
+    # Sort: critical first, then warning, then ok; secondary sort by tier+name
+    sev_rank = {"critical": 0, "warning": 1, "ok": 2}
+    rows.sort(key=lambda r: (sev_rank.get(r["status"], 3), r["tier"], r["name"]))
+
+    return {
+        "overall_status": overall,
+        "scanner_count": len(rows),
+        "scanners": rows,
+    }
+
+
+@app.get("/admin/health")
+def admin_health_ui(request: Request, db: Session = Depends(get_db)):
+    """Self-contained admin UI for platform health scanners.
+
+    Plain HTML/JS so it can be tweaked without rebuilding the frontend
+    bundle — same approach as /admin/bpg.
+    """
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platform Health — SuperAdPro Admin</title>
+<style>
+  :root {
+    --bg: #0a1438;
+    --card: #1c223d;
+    --border: #2d3754;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #0ea5e9;
+    --ok: #22c55e;
+    --warn: #f59e0b;
+    --critical: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 24px;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 {
+    font-size: 24px; font-weight: 800; margin: 0 0 8px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .overall {
+    padding: 10px 18px; border-radius: 10px; font-weight: 800;
+    font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .overall.ok { background: rgba(34,197,94,.18); color: var(--ok); border: 1px solid rgba(34,197,94,.35); }
+  .overall.warning { background: rgba(245,158,11,.18); color: var(--warn); border: 1px solid rgba(245,158,11,.35); }
+  .overall.critical { background: rgba(239,68,68,.2); color: var(--critical); border: 1px solid rgba(239,68,68,.4); }
+  .btn {
+    background: var(--accent); color: white; border: none;
+    padding: 10px 18px; border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: 13px; font-family: inherit;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .tier-section { margin-bottom: 28px; }
+  .tier-header {
+    font-size: 11px; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .grid {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+  .scan-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px;
+    transition: border-color 0.15s;
+  }
+  .scan-card.ok { border-left: 4px solid var(--ok); }
+  .scan-card.warning { border-left: 4px solid var(--warn); }
+  .scan-card.critical { border-left: 4px solid var(--critical); }
+  .scan-card.pending { border-left: 4px solid var(--muted); opacity: 0.7; }
+  .scan-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 8px;
+  }
+  .scan-label { font-weight: 700; font-size: 14px; }
+  .scan-badge {
+    font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .scan-badge.ok { background: rgba(34,197,94,.18); color: var(--ok); }
+  .scan-badge.warning { background: rgba(245,158,11,.18); color: var(--warn); }
+  .scan-badge.critical { background: rgba(239,68,68,.2); color: var(--critical); }
+  .scan-badge.pending { background: rgba(148,163,184,.18); color: var(--muted); }
+  .scan-headline { font-size: 13px; color: var(--muted); margin-bottom: 12px; min-height: 18px; }
+  .scan-meta { font-size: 11px; color: var(--muted); display: flex; gap: 10px; justify-content: space-between; }
+  .scan-actions { margin-top: 10px; display: flex; gap: 6px; }
+  .mini-btn {
+    background: rgba(14,165,233,.15); color: var(--accent);
+    border: 1px solid rgba(14,165,233,.3);
+    padding: 5px 10px; border-radius: 6px; cursor: pointer;
+    font-size: 11px; font-weight: 700; font-family: inherit;
+  }
+  .mini-btn:hover { background: rgba(14,165,233,.25); }
+
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px; z-index: 100;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--card); border-radius: 14px; padding: 24px;
+    max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto;
+  }
+  .modal h2 { margin: 0 0 4px; font-size: 18px; }
+  .modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+  .issue {
+    background: rgba(255,255,255,.03); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px; margin-bottom: 8px;
+  }
+  .issue-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .issue-subject { font-weight: 700; font-size: 13px; }
+  .issue-details {
+    font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace;
+    white-space: pre-wrap; word-break: break-all; margin-top: 6px;
+    background: rgba(0,0,0,.2); padding: 8px; border-radius: 4px;
+  }
+  .issue-suggestion {
+    font-size: 12px; color: var(--accent); margin-top: 8px;
+    padding: 6px 10px; background: rgba(14,165,233,.1); border-radius: 6px;
+  }
+  .close-btn {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 20px; padding: 0;
+  }
+  .empty-state {
+    padding: 40px 20px; text-align: center; color: var(--muted);
+    background: var(--card); border: 1px dashed var(--border);
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-bar">
+    <div>
+      <h1>🩺 Platform Health</h1>
+      <div class="subtitle">Read-only diagnostic scanners. Click any card to see details.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div id="overallBadge" class="overall ok">Loading…</div>
+      <button id="rescanBtn" class="btn">Run all scans</button>
+    </div>
+  </div>
+
+  <div id="tierContainer"></div>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this) closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+  var TIER_LABELS = {
+    1: "Tier 1 — Matrix & Compensation Integrity",
+    2: "Tier 2 — Member State & Lifecycle",
+    3: "Tier 3 — Membership Plan Correctness",
+    4: "Tier 4 — Operational",
+  };
+
+  function el(html) {
+    var t = document.createElement('template');
+    t.innerHTML = html.trim();
+    return t.content.firstChild;
+  }
+
+  function fetchJSON(url) {
+    return fetch(url, { credentials: 'include' }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function renderCards(scanners) {
+    var container = document.getElementById('tierContainer');
+    container.innerHTML = '';
+    // Group by tier
+    var byTier = {};
+    scanners.forEach(function(s) {
+      if (!byTier[s.tier]) byTier[s.tier] = [];
+      byTier[s.tier].push(s);
+    });
+    Object.keys(byTier).sort().forEach(function(tier) {
+      var section = el('<div class="tier-section"><div class="tier-header">' +
+        (TIER_LABELS[tier] || ('Tier ' + tier)) +
+        '</div><div class="grid"></div></div>');
+      var grid = section.querySelector('.grid');
+      byTier[tier].forEach(function(s) {
+        var card = el(
+          '<div class="scan-card ' + s.status + '" data-name="' + s.name + '">' +
+            '<div class="scan-card-head">' +
+              '<div class="scan-label">' + s.label + '</div>' +
+              '<div class="scan-badge ' + s.status + '">' + s.status + '</div>' +
+            '</div>' +
+            '<div class="scan-headline">' + (s.headline || '—') + '</div>' +
+            '<div class="scan-meta">' +
+              '<span>' + (s.issue_count || 0) + ' issue' + (s.issue_count === 1 ? '' : 's') + '</span>' +
+              '<span>' + (s.duration_ms || 0) + 'ms</span>' +
+            '</div>' +
+            '<div class="scan-actions">' +
+              '<button class="mini-btn" data-action="details">View details</button>' +
+              '<button class="mini-btn" data-action="rerun">Re-run</button>' +
+            '</div>' +
+          '</div>'
+        );
+        card.querySelector('[data-action="details"]').addEventListener('click', function() {
+          openScanDetails(s.name, s.label);
+        });
+        card.querySelector('[data-action="rerun"]').addEventListener('click', function() {
+          rerunSingle(s.name, card);
+        });
+        grid.appendChild(card);
+      });
+      container.appendChild(section);
+    });
+  }
+
+  function loadSummary() {
+    var badge = document.getElementById('overallBadge');
+    badge.textContent = 'Scanning…';
+    badge.className = 'overall pending';
+    fetchJSON('/admin/api/health/summary').then(function(d) {
+      badge.textContent = d.overall_status;
+      badge.className = 'overall ' + d.overall_status;
+      renderCards(d.scanners);
+    }).catch(function(e) {
+      badge.textContent = 'Error';
+      badge.className = 'overall critical';
+      document.getElementById('tierContainer').innerHTML =
+        '<div class="empty-state">Failed to load scanners: ' + e.message + '</div>';
+    });
+  }
+
+  function rerunSingle(name, cardEl) {
+    cardEl.classList.add('pending');
+    fetchJSON('/admin/api/health/scan/' + name).then(function(r) {
+      cardEl.className = 'scan-card ' + r.status;
+      cardEl.querySelector('.scan-badge').textContent = r.status;
+      cardEl.querySelector('.scan-badge').className = 'scan-badge ' + r.status;
+      cardEl.querySelector('.scan-headline').textContent = (r.summary || {}).headline || '—';
+      var metaSpans = cardEl.querySelectorAll('.scan-meta span');
+      metaSpans[0].textContent = (r.issues || []).length + ' issues';
+      metaSpans[1].textContent = (r.duration_ms || 0) + 'ms';
+    }).catch(function(e) { alert('Failed: ' + e.message); });
+  }
+
+  function openScanDetails(name, label) {
+    var modal = document.getElementById('modalContent');
+    modal.innerHTML = '<h2>' + label + '</h2><div class="modal-sub">Running scanner…</div>';
+    document.getElementById('modalBg').classList.add('open');
+
+    fetchJSON('/admin/api/health/scan/' + name).then(function(r) {
+      var headline = (r.summary || {}).headline || '—';
+      var html = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px">' +
+        '<h2 style="margin:0">' + label + '</h2>' +
+        '<button class="close-btn" onclick="closeModal()">✕</button>' +
+        '</div>' +
+        '<div class="modal-sub">' + headline + ' · <span class="scan-badge ' + r.status + '">' + r.status + '</span> · ' +
+        r.duration_ms + 'ms</div>';
+
+      if (!r.issues || r.issues.length === 0) {
+        html += '<div class="empty-state">✓ No issues found</div>';
+      } else {
+        r.issues.forEach(function(iss) {
+          html += '<div class="issue">' +
+            '<div class="issue-head">' +
+              '<span class="scan-badge ' + iss.severity + '">' + iss.severity + '</span>' +
+              '<span class="issue-subject">' + iss.subject + '</span>' +
+            '</div>';
+          if (iss.details && Object.keys(iss.details).length) {
+            html += '<div class="issue-details">' + JSON.stringify(iss.details, null, 2) + '</div>';
+          }
+          if (iss.suggested_action) {
+            html += '<div class="issue-suggestion">→ ' + iss.suggested_action + '</div>';
+          }
+          html += '</div>';
+        });
+      }
+      modal.innerHTML = html;
+    }).catch(function(e) {
+      modal.innerHTML = '<h2>' + label + '</h2><div class="empty-state">Failed: ' + e.message + '</div>';
+    });
+  }
+
+  function closeModal() {
+    document.getElementById('modalBg').classList.remove('open');
+  }
+  window.closeModal = closeModal;
+
+  document.getElementById('rescanBtn').addEventListener('click', loadSummary);
+
+  // Initial load
+  loadSummary();
+</script>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
+
+
 @app.get("/admin/matrix-debug")
 @app.get("/admin/matrix-debug/{username}")
 def admin_matrix_debug(request: Request, db: Session = Depends(get_db),
