@@ -10640,6 +10640,150 @@ def admin_api_list_orphans(
     }
 
 
+@app.get("/admin/api/wallet-lookup")
+def admin_api_wallet_lookup(
+    request: Request,
+    address: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Look up a wallet address across User.wallet_address, User.sending_wallet,
+    plus all WalletConnect orders and orphan transfers from this address.
+
+    Built for investigating OnchainOrphanTransfer rows: 'who is this
+    from_address?' before you reconcile or mark spam.
+
+    Returns:
+      - matching_users: User rows with this address in either wallet field
+      - walletconnect_orders: WC orders FROM this address (matched on
+        from_address field once confirmed, OR via user.sending_wallet
+        lookup for pending orders)
+      - orphan_transfers: every OnchainOrphanTransfer from this address
+        (resolved and unresolved), sorted by date
+
+    Address matching is case-insensitive (EVM addresses are stored
+    lowercase typically, but defensive against legacy data).
+    """
+    _require_admin(user)
+    from .database import (
+        User as UserModel,
+        WalletConnectPaymentOrder,
+        OnchainOrphanTransfer,
+    )
+
+    addr = (address or "").strip().lower()
+    if not addr or not addr.startswith("0x") or len(addr) < 40:
+        return JSONResponse(
+            {"success": False, "error": "Provide a valid EVM address (?address=0x...)"},
+            status_code=400,
+        )
+
+    # ── Users whose wallet matches ────────────────────────────────
+    matching_users = db.query(UserModel).filter(
+        (func.lower(UserModel.wallet_address) == addr)
+        | (func.lower(UserModel.sending_wallet) == addr)
+    ).all()
+
+    users_payload = [
+        {
+            "user_id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "is_active": u.is_active,
+            "membership_tier": u.membership_tier,
+            "wallet_address": u.wallet_address,
+            "sending_wallet": u.sending_wallet,
+            "balance": float(u.balance or 0),
+            "total_earned": float(u.total_earned or 0),
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+        }
+        for u in matching_users
+    ]
+
+    # ── WalletConnect orders confirmed from this address ──────────
+    confirmed_wc_orders = db.query(WalletConnectPaymentOrder).filter(
+        func.lower(WalletConnectPaymentOrder.from_address) == addr
+    ).order_by(WalletConnectPaymentOrder.created_at.desc()).limit(100).all()
+
+    confirmed_payload = [
+        {
+            "order_id": o.id,
+            "user_id": o.user_id,
+            "product_type": o.product_type,
+            "product_key": o.product_key,
+            "base_amount": float(o.base_amount),
+            "unique_amount": float(o.unique_amount),
+            "status": o.status,
+            "tx_hash": o.tx_hash,
+            "created_at": o.created_at.isoformat() if o.created_at else None,
+            "expires_at": o.expires_at.isoformat() if o.expires_at else None,
+            "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None,
+        }
+        for o in confirmed_wc_orders
+    ]
+
+    # ── Pending/expired WC orders from matching users (for cross-ref) ──
+    pending_payload = []
+    if matching_users:
+        user_ids = [u.id for u in matching_users]
+        pending_wc = db.query(WalletConnectPaymentOrder).filter(
+            WalletConnectPaymentOrder.user_id.in_(user_ids),
+            WalletConnectPaymentOrder.status.in_(["pending", "expired"]),
+        ).order_by(WalletConnectPaymentOrder.created_at.desc()).limit(100).all()
+        pending_payload = [
+            {
+                "order_id": o.id,
+                "user_id": o.user_id,
+                "product_type": o.product_type,
+                "product_key": o.product_key,
+                "base_amount": float(o.base_amount),
+                "unique_amount": float(o.unique_amount),
+                "status": o.status,
+                "created_at": o.created_at.isoformat() if o.created_at else None,
+                "expires_at": o.expires_at.isoformat() if o.expires_at else None,
+            }
+            for o in pending_wc
+        ]
+
+    # ── Orphan transfers from this address ────────────────────────
+    orphans = db.query(OnchainOrphanTransfer).filter(
+        func.lower(OnchainOrphanTransfer.from_address) == addr
+    ).order_by(OnchainOrphanTransfer.seen_at.desc()).limit(100).all()
+
+    orphans_payload = [
+        {
+            "transfer_id": o.id,
+            "tx_hash": o.tx_hash,
+            "amount_usdt": float(o.amount_usdt),
+            "block_number": o.block_number,
+            "likely_rounded": o.likely_rounded_amount,
+            "seen_at": o.seen_at.isoformat() if o.seen_at else None,
+            "resolved": o.resolved,
+            "resolution_note": o.resolution_note,
+        }
+        for o in orphans
+    ]
+
+    # ── Summary ───────────────────────────────────────────────────
+    total_orphan_value = sum(o["amount_usdt"] for o in orphans_payload if not o["resolved"])
+
+    return {
+        "success": True,
+        "queried_address": addr,
+        "summary": {
+            "matching_users": len(users_payload),
+            "confirmed_wc_orders": len(confirmed_payload),
+            "pending_or_expired_orders_from_matching_users": len(pending_payload),
+            "orphan_transfers": len(orphans_payload),
+            "unresolved_orphan_value_usd": round(total_orphan_value, 2),
+        },
+        "users": users_payload,
+        "confirmed_orders_from_address": confirmed_payload,
+        "pending_or_expired_orders_from_users": pending_payload,
+        "orphan_transfers": orphans_payload,
+    }
+
+
 @app.post("/admin/api/orphans/{orphan_id}/resolve")
 async def admin_api_resolve_orphan(
     orphan_id: int,
