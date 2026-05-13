@@ -28264,6 +28264,155 @@ async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db
     }
 
 
+@app.get("/admin/matrix-debug/{username}")
+def admin_matrix_debug(username: str, request: Request, db: Session = Depends(get_db)):
+    """Diagnostic dump of a member's full Credit Nexus state.
+
+    Returns ALL matrices the user owns (active + completed across all pack tiers),
+    ALL positions in each matrix, and ALL commissions earned. Joins everything
+    by hand so we can spot orphaned positions, wrong matrix_id attachments,
+    or commission/position mismatches.
+
+    Built 13 May 2026 to diagnose Steve's "Nexus #1 shows 1/39 filled but
+    commission history has 4 entries from 3 different people" discrepancy.
+
+    Admin-only. Read-only. Returns JSON.
+    """
+    from .database import (
+        User, CreditMatrix, CreditMatrixPosition, CreditMatrixCommission,
+        CreditPackPurchase,
+    )
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    target = db.query(User).filter_by(username=username).first()
+    if not target:
+        raise HTTPException(status_code=404, detail=f"No user '{username}'")
+
+    # All matrices the target owns
+    matrices = db.query(CreditMatrix).filter_by(owner_id=target.id).order_by(
+        CreditMatrix.pack_key, CreditMatrix.advance_number,
+    ).all()
+
+    matrices_out = []
+    for m in matrices:
+        positions = db.query(CreditMatrixPosition).filter_by(matrix_id=m.id).order_by(
+            CreditMatrixPosition.level, CreditMatrixPosition.position_index,
+        ).all()
+        pos_out = []
+        for p in positions:
+            pos_user = db.query(User).filter_by(id=p.user_id).first()
+            pos_out.append({
+                "position_id": p.id,
+                "level": p.level,
+                "position_index": p.position_index,
+                "user_id": p.user_id,
+                "username": pos_user.username if pos_user else f"<missing user {p.user_id}>",
+                "pack_key": p.pack_key,
+                "pack_price": float(p.pack_price or 0),
+                "parent_position_id": p.parent_position_id,
+                "created_at": p.created_at.isoformat() if p.created_at else None,
+            })
+        matrices_out.append({
+            "matrix_id": m.id,
+            "pack_key": m.pack_key,
+            "advance_number": m.advance_number,
+            "status": m.status,
+            "positions_filled_field": m.positions_filled,  # the cached counter on the matrix row
+            "positions_actual_count": len(positions),       # what we just counted in the DB
+            "positions_actual_count_excluding_owner": len([p for p in positions if p.level != 0]),
+            "total_earned": float(m.total_earned or 0),
+            "completion_bonus_paid": float(m.completion_bonus_paid or 0),
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+            "completed_at": m.completed_at.isoformat() if m.completed_at else None,
+            "positions": pos_out,
+        })
+
+    # All commissions earned by the target
+    commissions = db.query(CreditMatrixCommission).filter_by(
+        earner_id=target.id,
+    ).order_by(CreditMatrixCommission.created_at).all()
+
+    comm_out = []
+    for c in commissions:
+        from_user = db.query(User).filter_by(id=c.from_user_id).first()
+        # Find which matrix the commission belongs to
+        comm_matrix = next((m for m in matrices_out if m["matrix_id"] == c.matrix_id), None)
+        comm_out.append({
+            "commission_id": c.id,
+            "matrix_id": c.matrix_id,
+            "matrix_pack_key": comm_matrix["pack_key"] if comm_matrix else "<orphan: matrix not owned by user>",
+            "matrix_advance_number": comm_matrix["advance_number"] if comm_matrix else None,
+            "from_user_id": c.from_user_id,
+            "from_username": from_user.username if from_user else f"<missing {c.from_user_id}>",
+            "from_position_id": c.from_position_id,
+            "level": c.level,
+            "rate": float(c.rate),
+            "pack_price": float(c.pack_price),
+            "amount": float(c.amount),
+            "commission_type": c.commission_type,
+            "status": c.status,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    # All credit pack purchases by the target (so we know what packs they own)
+    purchases = db.query(CreditPackPurchase).filter_by(
+        user_id=target.id,
+    ).order_by(CreditPackPurchase.created_at).all()
+    pur_out = [{
+        "purchase_id": p.id,
+        "pack_key": p.pack_key,
+        "pack_price": float(p.pack_price or 0),
+        "credits_awarded": p.credits_awarded,
+        "status": p.status,
+        "payment_method": p.payment_method,
+        "payment_ref": p.payment_ref,
+        "matrix_entry_id": p.matrix_entry_id,
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+    } for p in purchases]
+
+    # Quick diagnostic summary
+    active_matrices = [m for m in matrices_out if m["status"] == "active"]
+    total_positions_filled_excluding_owner = sum(
+        m["positions_actual_count_excluding_owner"] for m in active_matrices
+    )
+
+    return {
+        "target": {
+            "user_id": target.id,
+            "username": target.username,
+            "email": target.email,
+            "is_admin": target.is_admin,
+            "sponsor_id": target.sponsor_id,
+        },
+        "summary": {
+            "total_matrices": len(matrices_out),
+            "active_matrices": len(active_matrices),
+            "completed_matrices": len([m for m in matrices_out if m["status"] == "completed"]),
+            "total_pack_purchases": len(pur_out),
+            "total_commissions_earned": len(comm_out),
+            "total_positions_filled_across_active_matrices_excluding_owner":
+                total_positions_filled_excluding_owner,
+            "diagnosis_hints": [
+                "If a matrix's positions_filled_field != positions_actual_count, "
+                "the cached counter on credit_matrices.positions_filled is stale.",
+                "If commission.from_position_id points at a position whose matrix_id "
+                "doesn't match commission.matrix_id, the linkage is broken.",
+                "get_matrix_tree() with no pack_key picks .first() — non-deterministic if "
+                "user owns multiple active matrices (one per pack). Visualiser may show "
+                "a different matrix than the one populated by recent purchases.",
+            ],
+        },
+        "purchases": pur_out,
+        "matrices": matrices_out,
+        "commissions": comm_out,
+    }
+
+
 @app.get("/admin/bpg/preview-status")
 def bpg_admin_preview_status(request: Request, db: Session = Depends(get_db)):
     """Quick status check: which templates currently have preview images?
