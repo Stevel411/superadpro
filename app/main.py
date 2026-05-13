@@ -9768,10 +9768,20 @@ def admin_api_users(
     q: str = "",
     status: str = "",          # "active" | "inactive" | ""
     sort: str = "newest",      # "newest" | "oldest" | "balance" | "earned"
-    limit: int = 100,
+    limit: int = 50,
     offset: int = 0
 ):
     _require_admin(user)
+    # Hard-cap limit to prevent accidental DOS via huge result sets.
+    # Real pagination on the frontend means we never need to fetch the
+    # whole table in one go.
+    if limit > 200:
+        limit = 200
+    if limit < 1:
+        limit = 50
+    if offset < 0:
+        offset = 0
+
     query = db.query(User)
     if q:
         query = query.filter(

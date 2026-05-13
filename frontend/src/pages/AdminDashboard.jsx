@@ -315,18 +315,75 @@ function OverviewTab() {
 
 function UsersTab() {
   var [users, setUsers] = useState([]);
+  var [total, setTotal] = useState(0);
+  var [loading, setLoading] = useState(false);
   var [search, setSearch] = useState('');
+  var [debouncedSearch, setDebouncedSearch] = useState('');
+  var [statusFilter, setStatusFilter] = useState('');   // '' | 'active' | 'inactive'
+  var [sortMode, setSortMode] = useState('newest');     // 'newest' | 'oldest' | 'balance' | 'earned'
+  var [page, setPage] = useState(1);
+  var [pageSize] = useState(25);
   var [selected, setSelected] = useState(null);
   var [detail, setDetail] = useState(null);
   var [adjustAmt, setAdjustAmt] = useState('');
   var [adjustReason, setAdjustReason] = useState('');
   var [msg, setMsg] = useState('');
 
-  function loadUsers() {
-    apiGet('/admin/api/users').then(function(d) { setUsers(d.users || []); }).catch(function(){});
-  }
+  // Debounce search input so we don't fire an API call on every keystroke.
+  // 300ms feels responsive without being chatty.
+  useEffect(function() {
+    var t = setTimeout(function() { setDebouncedSearch(search); }, 300);
+    return function() { clearTimeout(t); };
+  }, [search]);
 
-  useEffect(function() { loadUsers(); }, []);
+  // Reset to page 1 whenever the search/filter/sort changes — otherwise
+  // a user on page 4 of "all members" who types a name keeps trying to
+  // look up page 4 of the filtered results, which usually has no rows.
+  useEffect(function() {
+    setPage(1);
+  }, [debouncedSearch, statusFilter, sortMode]);
+
+  // Load users whenever any query param changes.
+  useEffect(function() {
+    setLoading(true);
+    var params = new URLSearchParams({
+      q: debouncedSearch,
+      status: statusFilter,
+      sort: sortMode,
+      limit: String(pageSize),
+      offset: String((page - 1) * pageSize),
+    });
+    apiGet('/admin/api/users?' + params.toString()).then(function(d) {
+      setUsers(d.users || []);
+      setTotal(d.total || 0);
+      setLoading(false);
+    }).catch(function(err) {
+      // Don't silently swallow — surface so we can see issues during dev.
+      // Was previously `.catch(function(){})` which masked real errors.
+      console.error('admin users load failed', err);
+      setUsers([]);
+      setTotal(0);
+      setLoading(false);
+    });
+  }, [debouncedSearch, statusFilter, sortMode, page, pageSize]);
+
+  function reloadCurrentPage() {
+    // Trigger the load effect by bumping a value — easiest is to re-set page
+    // to itself, but React deduplicates that. Use a dummy approach: re-set
+    // debouncedSearch to itself, which is benign and triggers the effect.
+    setDebouncedSearch(function(v) { return v; });
+    // Actually neither of those forces a refetch. Cleanest is a direct call:
+    setLoading(true);
+    var params = new URLSearchParams({
+      q: debouncedSearch, status: statusFilter, sort: sortMode,
+      limit: String(pageSize), offset: String((page - 1) * pageSize),
+    });
+    apiGet('/admin/api/users?' + params.toString()).then(function(d) {
+      setUsers(d.users || []);
+      setTotal(d.total || 0);
+      setLoading(false);
+    }).catch(function() { setLoading(false); });
+  }
 
   function openUser(id) {
     apiGet('/admin/api/user/' + id).then(function(d) {
@@ -355,22 +412,39 @@ function UsersTab() {
     apiPost('/admin/api/user/' + selected + '/toggle-active', {}).then(function(r) {
       setMsg(r.success ? 'Status toggled' : (r.error || 'Failed'));
       openUser(selected);
+      reloadCurrentPage();
     });
   }
 
-  var filtered = users.filter(function(u) {
-    if (!search) return true;
-    var s = search.toLowerCase();
-    return (u.username||'').toLowerCase().includes(s) || (u.email||'').toLowerCase().includes(s) || (u.first_name||'').toLowerCase().includes(s) || String(u.id).includes(s);
-  });
+  var totalPages = Math.max(1, Math.ceil(total / pageSize));
+  var rangeStart = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  var rangeEnd = Math.min(page * pageSize, total);
+
+  // Helper for the filter/sort pill buttons
+  function pillBtn(label, isActive, onClick) {
+    return (
+      <button onClick={onClick} style={{
+        padding: '5px 11px', borderRadius: 999, fontSize: 12, fontWeight: 700,
+        cursor: 'pointer', fontFamily: 'inherit',
+        border: '1px solid ' + (isActive ? 'var(--sap-accent)' : '#e2e8f0'),
+        background: isActive ? 'var(--sap-accent)' : '#fff',
+        color: isActive ? '#fff' : 'var(--sap-text-muted)',
+      }}>{label}</button>
+    );
+  }
 
   return (
     <div style={{display:'grid',gridTemplateColumns:selected?'1fr 1fr':'1fr',gap:16}}>
       {/* User list */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
         <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Members ({users.length})</div>
+          <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>
+            Members ({total})
+            {loading && <span style={{fontSize:11,fontWeight:600,color:'rgba(255,255,255,.6)',marginLeft:8}}>loading…</span>}
+          </div>
         </div>
+
+        {/* Search */}
         <div style={{padding:'12px 16px',borderBottom:'1px solid #e8ecf2'}}>
           <div style={{position:'relative'}}>
             <Search size={14} style={{position:'absolute',left:12,top:10,color:'var(--sap-text-faint)'}}/>
@@ -379,8 +453,34 @@ function UsersTab() {
               style={{width:'100%',padding:'8px 12px 8px 34px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
           </div>
         </div>
-        <div style={{maxHeight:500,overflowY:'auto'}}>
-          {filtered.slice(0,50).map(function(u) {
+
+        {/* Filters + sort */}
+        <div style={{padding:'10px 16px',borderBottom:'1px solid #e8ecf2',display:'flex',flexWrap:'wrap',alignItems:'center',gap:8}}>
+          <span style={{fontSize:11,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:.5,marginRight:2}}>Status:</span>
+          {pillBtn('All', statusFilter === '', function() { setStatusFilter(''); })}
+          {pillBtn('Active', statusFilter === 'active', function() { setStatusFilter('active'); })}
+          {pillBtn('Inactive', statusFilter === 'inactive', function() { setStatusFilter('inactive'); })}
+
+          <span style={{flex:1}}/>
+
+          <span style={{fontSize:11,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:.5,marginRight:2}}>Sort:</span>
+          <select value={sortMode} onChange={function(e) { setSortMode(e.target.value); }}
+            style={{padding:'5px 8px',border:'1px solid #e2e8f0',borderRadius:6,fontSize:12,fontFamily:'inherit',background:'#fff',cursor:'pointer'}}>
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="balance">Highest balance</option>
+            <option value="earned">Highest earned</option>
+          </select>
+        </div>
+
+        {/* User rows */}
+        <div style={{minHeight:200,maxHeight:600,overflowY:'auto'}}>
+          {!loading && users.length === 0 && (
+            <div style={{padding:'40px 20px',textAlign:'center',color:'var(--sap-text-faint)',fontSize:13}}>
+              {debouncedSearch || statusFilter ? 'No matches for this search/filter.' : 'No members yet.'}
+            </div>
+          )}
+          {users.map(function(u) {
             var isActive = u.is_active;
             var isSel = selected === u.id;
             return (
@@ -394,7 +494,10 @@ function UsersTab() {
                     {((u.first_name||'')[0]||'')+(((u.last_name||u.username||'')[0])||'')}
                   </div>
                   <div>
-                    <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{u.first_name || u.username} {u.last_name || ''}</div>
+                    <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>
+                      {u.first_name || u.username} {u.last_name || ''}
+                      {u.is_admin && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(245,158,11,.15)',color:'#b45309',marginLeft:6,verticalAlign:'middle'}}>ADMIN</span>}
+                    </div>
                     <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>@{u.username} · ID: {u.id}</div>
                   </div>
                 </div>
@@ -409,6 +512,28 @@ function UsersTab() {
             );
           })}
         </div>
+
+        {/* Pagination footer */}
+        {total > 0 && (
+          <div style={{padding:'10px 16px',borderTop:'1px solid #e8ecf2',display:'flex',alignItems:'center',justifyContent:'space-between',background:'#fafbfc'}}>
+            <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>
+              Showing <strong style={{color:'var(--sap-text-primary)'}}>{rangeStart}–{rangeEnd}</strong> of <strong style={{color:'var(--sap-text-primary)'}}>{total}</strong>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:4}}>
+              <button onClick={function() { setPage(1); }} disabled={page === 1}
+                style={{padding:'4px 8px',borderRadius:5,border:'1px solid #e2e8f0',background:'#fff',fontSize:11,fontWeight:700,cursor:page===1?'not-allowed':'pointer',opacity:page===1?.4:1,fontFamily:'inherit'}}>« First</button>
+              <button onClick={function() { setPage(function(p) { return Math.max(1, p - 1); }); }} disabled={page === 1}
+                style={{padding:'4px 8px',borderRadius:5,border:'1px solid #e2e8f0',background:'#fff',fontSize:11,fontWeight:700,cursor:page===1?'not-allowed':'pointer',opacity:page===1?.4:1,fontFamily:'inherit'}}>‹ Prev</button>
+              <span style={{padding:'0 8px',fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>
+                Page {page} / {totalPages}
+              </span>
+              <button onClick={function() { setPage(function(p) { return Math.min(totalPages, p + 1); }); }} disabled={page >= totalPages}
+                style={{padding:'4px 8px',borderRadius:5,border:'1px solid #e2e8f0',background:'#fff',fontSize:11,fontWeight:700,cursor:page>=totalPages?'not-allowed':'pointer',opacity:page>=totalPages?.4:1,fontFamily:'inherit'}}>Next ›</button>
+              <button onClick={function() { setPage(totalPages); }} disabled={page >= totalPages}
+                style={{padding:'4px 8px',borderRadius:5,border:'1px solid #e2e8f0',background:'#fff',fontSize:11,fontWeight:700,cursor:page>=totalPages?'not-allowed':'pointer',opacity:page>=totalPages?.4:1,fontFamily:'inherit'}}>Last »</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* User detail */}
