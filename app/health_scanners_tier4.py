@@ -162,64 +162,127 @@ def scan_r2_storage_audit(db: Session) -> dict:
         ))
 
     # ── Phase 3: collect all DB-referenced R2 URLs ────────────────
-    # Strategy: for each table that has R2 URL columns, query non-NULL
-    # values, parse them to extract the R2 key, build a set of keys
-    # the DB cares about. Then compute set differences.
-    from .database import PosterGeneration
-
-    # LinkHub profiles (avatar_r2_url, banner_r2_url, bg_r2_url) — uses
-    # raw SQL since LinkHubProfile model isn't imported in this file
-    # and importing it would risk circular imports. Plain query on the
-    # session's connection is safe.
+    # Strategy: query every table.column that could store an R2 URL,
+    # filter for values that actually start with the R2 public URL
+    # prefix. This is broader than a hard-coded per-model list — it
+    # picks up cases where a URL field could be R2 OR external (e.g.
+    # FunnelPage.image_url can be either an R2 upload or a member-
+    # pasted external URL).
+    #
+    # Earlier iteration (commit c7dc26d) only checked LinkHub +
+    # PosterGeneration and produced a false-positive 94.9% orphan
+    # rate because it missed 30+ other URL columns. Corrected here
+    # by enumerating every (table, column) pair where uploads land.
+    #
+    # Map derived from grepping every "_url" / "image_url" / "video_url"
+    # column declaration in app/database.py against every R2
+    # upload_image() call site in app/main.py. Each entry: SQL to
+    # SELECT non-NULL values of the column(s).
     db_referenced_urls = set()
+    AUDIT_QUERIES = [
+        # LinkHub profile media
+        ("linkhub_profiles", "avatar_r2_url, banner_r2_url, bg_r2_url"),
+        # User-level
+        ("users", "avatar_url, kyc_id_filename"),
+        # BPG poster system
+        ("poster_generations", "chosen_url, reference_photo_url, candidate_urls"),
+        ("poster_templates", "preview_image_url, thumbnail_url"),
+        # Funnels — image_url / video_url can be R2 OR external
+        ("funnel_pages", "image_url, video_url, og_image_url"),
+        # Creative Studio (SuperScene)
+        ("superscene_videos", "video_url"),
+        ("superscene_pipelines", "final_video_url"),
+        ("superscene_pipeline_scenes", "voiceover_url, video_url"),
+        # SuperDeck / Presentation
+        ("presentations", "thumbnail_url"),
+        # Digital products marketplace
+        ("digital_products", "banner_url, file_url, bonus_file_url"),
+        # Courses
+        ("courses", "thumbnail_url"),
+        ("course_lessons", "video_url"),
+        ("member_courses", "thumbnail_url"),
+        ("member_course_lessons", "video_url, pdf_url"),
+        # SuperSeller (some custom video uploads possible)
+        ("superseller_campaigns", "custom_video_url"),
+        # Ad listings + banner ads
+        ("ad_listings", "image_url"),
+        ("banner_ads", "image_url"),
+    ]
 
-    # LinkHub URLs
-    try:
-        result = db.execute(
-            text(
-                "SELECT avatar_r2_url, banner_r2_url, bg_r2_url "
-                "FROM linkhub_profiles "
-                "WHERE avatar_r2_url IS NOT NULL "
-                "OR banner_r2_url IS NOT NULL "
-                "OR bg_r2_url IS NOT NULL"
+    audit_errors = []
+    queries_run = 0
+
+    # Columns that store JSON arrays of URLs rather than single URL strings.
+    # We parse these and add each URL to the set individually so the
+    # contained R2 keys count as referenced.
+    JSON_URL_ARRAY_COLUMNS = {
+        ("poster_generations", "candidate_urls"),
+    }
+
+    for table_name, columns in AUDIT_QUERIES:
+        try:
+            cols = [c.strip() for c in columns.split(",")]
+            where_clause = " OR ".join(f"{c} IS NOT NULL" for c in cols)
+            select_clause = ", ".join(cols)
+            sql = (
+                f"SELECT {select_clause} FROM {table_name} "
+                f"WHERE {where_clause}"
             )
-        )
-        for row in result:
-            for url in row:
-                if url:
-                    db_referenced_urls.add(url)
-    except Exception as exc:
-        # Table missing or other transient error — don't crash the
-        # whole scanner; surface as a warning.
-        issues.append(make_issue(
-            severity=SEV_WARNING,
-            kind="linkhub_query_failed",
-            subject="LinkHub profile R2 audit",
-            details={"error": str(exc)[:200]},
-            suggested_action="Check linkhub_profiles table exists and is queryable",
-        ))
+            result = db.execute(text(sql))
+            for row in result:
+                for col_name, val in zip(cols, row):
+                    if not val or not isinstance(val, str):
+                        continue
+                    # JSON array? parse and add each entry
+                    if (table_name, col_name) in JSON_URL_ARRAY_COLUMNS:
+                        try:
+                            import json as _json
+                            parsed = _json.loads(val)
+                            if isinstance(parsed, list):
+                                for item in parsed:
+                                    if isinstance(item, str):
+                                        db_referenced_urls.add(item)
+                                    elif isinstance(item, dict):
+                                        # candidate_urls may be [{url: ...}]
+                                        for v in item.values():
+                                            if isinstance(v, str):
+                                                db_referenced_urls.add(v)
+                            continue
+                        except Exception:
+                            # If JSON parse fails, fall through to treat
+                            # as a regular URL string
+                            pass
+                    db_referenced_urls.add(val)
+            queries_run += 1
+        except Exception as exc:
+            # Table missing or column missing — log and continue.
+            # NOT silently absorbed — surfaced as a warning so we
+            # know our audit coverage is incomplete.
+            audit_errors.append({
+                "table": table_name,
+                "columns": columns,
+                "error": str(exc)[:200],
+            })
 
-    # BPG poster generation URLs (chosen_url + reference_photo_url)
-    try:
-        poster_rows = db.query(
-            PosterGeneration.chosen_url,
-            PosterGeneration.reference_photo_url,
-        ).filter(
-            (PosterGeneration.chosen_url.isnot(None))
-            | (PosterGeneration.reference_photo_url.isnot(None))
-        ).all()
-        for chosen, ref in poster_rows:
-            if chosen:
-                db_referenced_urls.add(chosen)
-            if ref:
-                db_referenced_urls.add(ref)
-    except Exception as exc:
+    if audit_errors:
+        # Surface a single issue summarizing audit gaps, so the orphan
+        # count is correctly understood as "based on partial coverage".
         issues.append(make_issue(
             severity=SEV_WARNING,
-            kind="poster_query_failed",
-            subject="PosterGeneration R2 audit",
-            details={"error": str(exc)[:200]},
-            suggested_action="Check poster_generations table",
+            kind="r2_audit_partial_coverage",
+            subject=f"R2 audit ran against {queries_run}/{len(AUDIT_QUERIES)} tables",
+            details={
+                "queries_run": queries_run,
+                "queries_failed": len(audit_errors),
+                "failed_tables": audit_errors[:10],
+            },
+            suggested_action=(
+                "Some tables couldn't be audited. Orphan counts below "
+                "are LOWER BOUND for DB references — anything in a "
+                "skipped table would be flagged as orphan when it's "
+                "actually referenced. Review the skipped tables before "
+                "trusting orphan counts for deletion."
+            ),
         ))
 
     # ── Phase 4: convert DB URLs to keys for set comparison ───────
@@ -261,7 +324,29 @@ def scan_r2_storage_audit(db: Session) -> dict:
             (len(orphan_keys) / max(len(r2_keys), 1)) * 100
             if r2_keys else 0
         )
-        sev = SEV_CRITICAL if bucket_orphan_pct > 50 else SEV_WARNING
+        # Severity ladder:
+        #   < 20% orphan rate AND bucket has known sensitive folders → warning
+        #   20-50% → warning (likely real orphans worth cleaning)
+        #   > 50% → critical (suggests audit coverage gap, NOT pure orphans)
+        # The >50% case is treated as critical because at that point it's
+        # almost always a scanner-side issue rather than genuine waste —
+        # we don't want admin to confidently bulk-delete based on a high
+        # orphan percentage when the more likely explanation is "we're
+        # not auditing the right tables yet."
+        if bucket_orphan_pct > 50:
+            sev = SEV_CRITICAL
+        else:
+            sev = SEV_WARNING
+
+        # Identify folders containing sensitive content that should
+        # NEVER be deleted on a hunch — kyc/ is legally sensitive,
+        # superscene/ + superdeck/ + video-creator/ are paid Creative
+        # Studio outputs members own.
+        SENSITIVE_FOLDERS = {"kyc", "superscene", "superdeck", "video-creator"}
+        sensitive_orphans = {
+            folder: count for folder, count in by_folder.items()
+            if folder in SENSITIVE_FOLDERS
+        }
 
         issues.append(make_issue(
             severity=sev,
@@ -274,14 +359,21 @@ def scan_r2_storage_audit(db: Session) -> dict:
                 "approximate_wasted_bytes": total_bytes,
                 "approximate_wasted_mb": round(total_bytes / 1024 / 1024, 2),
                 "by_folder": dict(by_folder),
+                "sensitive_orphans": sensitive_orphans,
+                "audit_coverage": f"{queries_run}/{len(AUDIT_QUERIES)} tables queried",
                 "sample_keys": sample_keys,
             },
             suggested_action=(
-                "Files exist in R2 but no DB row references them. Likely "
-                "from members deleting profile images without the delete "
-                "endpoint also clearing R2. Safe to delete after manual "
-                "spot-check. Future: build /admin/repair/r2-cleanup tool "
-                "(with dry-run + audit log) once orphan count justifies it."
+                "Files exist in R2 with no DB row found referencing them. "
+                "DO NOT bulk-delete based on this report alone — at this "
+                "orphan percentage the more likely cause is that the "
+                "scanner is missing some URL-storing tables, not that the "
+                "files are genuinely orphan. Especially sensitive folders "
+                "(kyc/, superscene/, superdeck/, video-creator/) hold "
+                "legally protected documents or paid member content. "
+                "Manual spot-check required: pick a sample_key, search for "
+                "its filename across the DB, confirm no match before "
+                "considering deletion."
             ),
         ))
 
