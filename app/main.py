@@ -10266,6 +10266,7 @@ def admin_diagnostic_recompute_wallet(
 
 
 @app.post("/admin/diagnostic/manual-grid-activation/{user_id}/{package_tier}")
+@app.get("/admin/diagnostic/manual-grid-activation/{user_id}/{package_tier}")
 def admin_diagnostic_manual_grid_activation(
     user_id: int,
     package_tier: int,
