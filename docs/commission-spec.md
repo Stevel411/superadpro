@@ -2,7 +2,7 @@
 
 **Status:** Locked ground truth — AI assistants must read this before making any claims about commission rates, tier prices, or payout mechanics. Do not fabricate numbers. If a rule is not documented here or contradicts here, ask Steve.
 
-**Last confirmed:** 1 May 2026 (session with Steve — Stream 02 numbers locked).
+**Last confirmed:** 13 May 2026 (Steve flagged level-based commission display as wrong in-session; Nexus visualiser rewritten to match this spec).
 
 **Legend:**
 - ✅ Confirmed by Steve in-session

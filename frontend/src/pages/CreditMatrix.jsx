@@ -410,7 +410,7 @@ export function CreditMatrixContent() {
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--sap-purple)', fontWeight: 600, marginBottom: 4 }}>Level 1 — 25% — {matrixStats.l1_filled}/{matrixStats.l1_max} filled — ${matrixStats.earnings_l1.toFixed(2)} earned</div>
+                <div style={{ fontSize: 13, color: 'var(--sap-purple)', fontWeight: 600, marginBottom: 4 }}>Top row — {matrixStats.l1_filled}/{matrixStats.l1_max} positions filled</div>
 
                 {/* Level 2 */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
@@ -426,7 +426,7 @@ export function CreditMatrixContent() {
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--sap-accent)', fontWeight: 600, marginBottom: 4 }}>Level 2 — 15% — {matrixStats.l2_filled}/{matrixStats.l2_max} filled — ${matrixStats.earnings_l2.toFixed(2)} earned</div>
+                <div style={{ fontSize: 13, color: 'var(--sap-accent)', fontWeight: 600, marginBottom: 4 }}>Middle row — {matrixStats.l2_filled}/{matrixStats.l2_max} positions filled</div>
 
                 {/* Level 3 */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 4, flexWrap: 'wrap' }}>
@@ -443,7 +443,65 @@ export function CreditMatrixContent() {
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--sap-amber)', fontWeight: 600 }}>Level 3 — 10% — {matrixStats.l3_filled}/{matrixStats.l3_max} filled — ${matrixStats.earnings_l3.toFixed(2)} earned</div>
+                <div style={{ fontSize: 13, color: 'var(--sap-amber)', fontWeight: 600 }}>Bottom row — {matrixStats.l3_filled}/{matrixStats.l3_max} positions filled</div>
+
+                {/* Commission breakdown — RELATIONSHIP-based, per
+                    docs/commission-spec.md section 3. NOT level-based.
+                    Previous version showed fabricated "L1 25% / L2 15%
+                    / L3 10%" rates which contradict spec. */}
+                <div style={{ marginTop: 20, padding: '14px 16px', background: 'var(--sap-bg-elevated)', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10, textAlign: 'left' }}>
+                    Commission earnings this Nexus
+                  </div>
+
+                  {/* Direct */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>
+                        Direct referrals
+                        <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(34,197,94,.12)', color: '#15803d', marginLeft: 6, verticalAlign: 'middle', textTransform: 'uppercase' }}>15%</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--sap-text-muted)', marginTop: 2 }}>
+                        {matrixStats.direct_filled || 0} of {matrixStats.direct_max || 3} people you personally referred
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--sap-green-bright)' }}>
+                      ${(matrixStats.earnings_direct || 0).toFixed(2)}
+                    </div>
+                  </div>
+
+                  {/* Spillover */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>
+                        Spillover placements
+                        <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(14,165,233,.12)', color: '#0369a1', marginLeft: 6, verticalAlign: 'middle', textTransform: 'uppercase' }}>10%</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--sap-text-muted)', marginTop: 2 }}>
+                        {matrixStats.spillover_filled || 0} of {matrixStats.spillover_max || 36} placed by others' overflow
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--sap-green-bright)' }}>
+                      ${(matrixStats.earnings_spillover || 0).toFixed(2)}
+                    </div>
+                  </div>
+
+                  {/* Completion */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '8px 0' }}>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>
+                        Completion bonus
+                        <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(245,158,11,.12)', color: '#92400e', marginLeft: 6, verticalAlign: 'middle', textTransform: 'uppercase' }}>10%</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--sap-text-muted)', marginTop: 2 }}>
+                        Pays when all 39 positions fill
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: (matrixStats.earnings_completion || 0) > 0 ? 'var(--sap-green-bright)' : 'var(--sap-text-faint)' }}>
+                      ${(matrixStats.earnings_completion || 0).toFixed(2)}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -563,28 +621,37 @@ export function CreditMatrixContent() {
             })}
           </div>
 
-          {/* Earnings potential */}
-          <div style={{ background: 'linear-gradient(135deg, #f3f0ff, #ede9fe)', borderRadius: 14, border: '1px solid #ddd6fe', padding: '20px', marginBottom: 16 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#4c1d95', marginBottom: 10 }}>{t('creditMatrix.earningsPotential')}</div>
-            <div style={{ fontSize: 13, color: '#6d28d9', marginBottom: 12 }}>{t("creditMatrix.fullNexusDesc")}</div>
-            {[
-              { label: t('creditMatrix.l1Label'), amount: '$693.75' },
-              { label: t('creditMatrix.l2Label'), amount: '$1,248.75' },
-              { label: t('creditMatrix.l3Label'), amount: '$2,497.50' },
-              { label: t('creditMatrix.completionBonusLabel'), amount: '$250.00' },
-            ].map(function(row, i) {
-              return (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
-                  <span style={{ color: 'var(--sap-violet)' }}>{row.label}</span>
-                  <span style={{ fontWeight: 700, color: '#4c1d95' }}>{row.amount}</span>
-                </div>
-              );
-            })}
-            <div style={{ borderTop: '1px solid #c4b5fd', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
-              <span style={{ color: '#4c1d95' }}>{t('creditMatrix.totalPerNexus')}</span>
-              <span style={{ color: '#4c1d95' }}>$4,690.00</span>
+          {/* Earnings potential — RELATIONSHIP-based, computed live
+              from the current pack's price. Previous version showed
+              hardcoded fabricated numbers ($693.75/$1,248.75/$2,497.50
+              totalling $4,690) which had no basis in the spec. */}
+          {matrixData && matrixStats && (
+            <div style={{ background: 'linear-gradient(135deg, #f3f0ff, #ede9fe)', borderRadius: 14, border: '1px solid #ddd6fe', padding: '20px', marginBottom: 16 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#4c1d95', marginBottom: 4 }}>{t('creditMatrix.earningsPotential')}</div>
+              <div style={{ fontSize: 12, color: '#6d28d9', marginBottom: 12 }}>
+                If your <strong>{matrixData.pack_label}</strong> (${matrixData.pack_price}) Nexus fills completely:
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
+                <span style={{ color: 'var(--sap-violet)' }}>3 direct × 15%</span>
+                <span style={{ fontWeight: 700, color: '#4c1d95' }}>${(matrixStats.max_direct_per_cycle || 0).toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
+                <span style={{ color: 'var(--sap-violet)' }}>36 spillover × 10%</span>
+                <span style={{ fontWeight: 700, color: '#4c1d95' }}>${(matrixStats.max_spillover_per_cycle || 0).toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
+                <span style={{ color: 'var(--sap-violet)' }}>Completion bonus (39 × 10%)</span>
+                <span style={{ fontWeight: 700, color: '#4c1d95' }}>${(matrixStats.max_completion_per_cycle || 0).toFixed(2)}</span>
+              </div>
+              <div style={{ borderTop: '1px solid #c4b5fd', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
+                <span style={{ color: '#4c1d95' }}>Max per full Nexus cycle</span>
+                <span style={{ color: '#4c1d95' }}>${(matrixStats.max_total_per_cycle || 0).toFixed(2)}</span>
+              </div>
+              <div style={{ fontSize: 11, color: '#7c3aed', marginTop: 10, opacity: 0.8, lineHeight: 1.4 }}>
+                Direct = people you personally refer. Spillover = members placed in your matrix from others' overflow. Both pay when they buy this pack tier.
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Team activity feed */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px' }}>

@@ -130,11 +130,16 @@ export default function CreditMatrixVisualiser() {
   }
 
   var packPrice = matrix.pack_price || 0;
-  var e1 = stats.earnings_l1 || 0;
-  var e2 = stats.earnings_l2 || 0;
-  var e3 = stats.earnings_l3 || 0;
-  var eTotal = e1 + e2 + e3;
-  var eMax = 3 * packPrice * 0.15 + 9 * packPrice * 0.10 + 27 * packPrice * 0.10;
+  // Earnings are relationship-based (direct/spillover/completion), not
+  // tree-level-based. See docs/commission-spec.md section 3.
+  var eDirect = stats.earnings_direct || 0;
+  var eSpillover = stats.earnings_spillover || 0;
+  var eCompletion = stats.earnings_completion || 0;
+  var eTotal = eDirect + eSpillover + eCompletion;
+  // Max per full cycle: 3 direct × 15% + 36 spillover × 10% + 39 × 10% completion
+  var eMax = (stats.max_total_per_cycle != null)
+    ? stats.max_total_per_cycle
+    : (3 * packPrice * 0.15 + 36 * packPrice * 0.10 + 39 * packPrice * 0.10);
 
   return (
     <AppLayout title={t("matrixVis.title")} subtitle={t("matrixVis.subtitle")}>
@@ -229,7 +234,7 @@ export default function CreditMatrixVisualiser() {
                 {/* Level 1 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
                   <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
-                    Level 1 — 15% commission ({stats.l1_filled || 0}/3 filled)
+                    Top row — {stats.l1_filled || 0}/3 filled
                   </div>
                 </div>
                 <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>
@@ -239,7 +244,7 @@ export default function CreditMatrixVisualiser() {
                 {/* Level 2 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
                   <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
-                    Level 2 — 10% commission ({stats.l2_filled || 0}/9 filled)
+                    Middle row — {stats.l2_filled || 0}/9 filled
                   </div>
                 </div>
                 <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>
@@ -249,7 +254,7 @@ export default function CreditMatrixVisualiser() {
                 {/* Level 3 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
                   <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
-                    Level 3 — 10% commission ({stats.l3_filled || 0}/27 filled)
+                    Bottom row — {stats.l3_filled || 0}/27 filled
                   </div>
                 </div>
                 <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>
@@ -258,27 +263,29 @@ export default function CreditMatrixVisualiser() {
               </div>
             </div>
 
-            {/* Level earnings */}
-            <div style={{ display:'flex', gap:12, marginTop:20 }}>
-              <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level1')}</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e1.toFixed(2)}</div>
-                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l1_filled || 0} × ${packPrice} × 15%</div>
+            {/* Earnings breakdown — relationship-based per
+                docs/commission-spec.md. Previously showed level-based
+                "Level 1/2/3" cards which contradicted spec. */}
+            <div style={{ display:'flex', gap:12, marginTop:20, flexWrap:'wrap' }}>
+              <div style={{ flex:'1 1 200px', background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>Direct — 15%</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${eDirect.toFixed(2)}</div>
+                <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.direct_filled || 0}/{stats.direct_max || 3} personally referred</div>
               </div>
-              <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level2')}</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e2.toFixed(2)}</div>
-                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l2_filled || 0} × ${packPrice} × 10%</div>
+              <div style={{ flex:'1 1 200px', background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>Spillover — 10%</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${eSpillover.toFixed(2)}</div>
+                <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.spillover_filled || 0}/{stats.spillover_max || 36} placed by overflow</div>
               </div>
-              <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level3')}</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e3.toFixed(2)}</div>
-                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
+              <div style={{ flex:'1 1 200px', background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>Completion — 10%</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${eCompletion.toFixed(2)}</div>
+                <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:2 }}>Pays at 39/39</div>
               </div>
-              <div style={{ flex:1, background:tc.grad, borderRadius:10, padding:14, textAlign:'center', border:'none' }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.7)', textTransform:'uppercase' }}>{t('matrixVis.total')}</div>
+              <div style={{ flex:'1 1 200px', background:tc.grad, borderRadius:10, padding:14, textAlign:'center', border:'none' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,.75)', textTransform:'uppercase', letterSpacing:.5 }}>{t('matrixVis.total')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fff', marginTop:4 }}>${eTotal.toFixed(2)}</div>
-                <div style={{ fontSize:13, color:'rgba(255,255,255,.6)', marginTop:2 }}>of ${eMax.toFixed(2)} max</div>
+                <div style={{ fontSize:12, color:'rgba(255,255,255,.7)', marginTop:2 }}>of ${eMax.toFixed(2)} max</div>
               </div>
             </div>
             </div>

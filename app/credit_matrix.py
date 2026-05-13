@@ -594,32 +594,63 @@ def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
             "created_at": pos.created_at.isoformat() if pos.created_at else None,
         })
 
-    # Commission stats — already filtered to this matrix's earnings
+    # Commission stats — already filtered to this matrix's earnings.
+    # Group by COMMISSION TYPE (matrix_direct / matrix_spillover /
+    # matrix_completion), NOT by tree level. The Nexus commission
+    # structure is relationship-based, not level-based — see
+    # docs/commission-spec.md section 3. An earlier version of this
+    # function grouped by level which produced the misleading
+    # "L1 25% / L2 15% / L3 10%" panel that contradicts spec.
     total_earned = db.query(CreditMatrixCommission).filter(
         and_(CreditMatrixCommission.matrix_id == matrix.id, CreditMatrixCommission.earner_id == user_id)
     ).all()
 
-    earnings_by_level = {1: 0, 2: 0, 3: 0}
+    earnings_direct = Decimal("0")
+    earnings_spillover = Decimal("0")
+    earnings_completion = Decimal("0")
     total = Decimal("0")
     for c in total_earned:
-        if c.level in earnings_by_level:
-            earnings_by_level[c.level] += float(c.amount)
+        if c.commission_type == "matrix_direct":
+            earnings_direct += c.amount
+        elif c.commission_type == "matrix_spillover":
+            earnings_spillover += c.amount
+        elif c.commission_type == "matrix_completion":
+            earnings_completion += c.amount
         total += c.amount
 
-    # Filled counts — live, excluding the owner (level 0).
+    # Filled position counts by tree level (purely structural — for the
+    # 3×3×3 spatial layout). These are NOT commission tiers; they're just
+    # where each member sits in the tree shape.
     l1_filled = len([n for n in nodes if n["level"] == 1])
     l2_filled = len([n for n in nodes if n["level"] == 2])
     l3_filled = len([n for n in nodes if n["level"] == 3])
     live_filled = l1_filled + l2_filled + l3_filled
 
+    # Filled counts by RELATIONSHIP (direct vs spillover). This is what
+    # actually drives commission rate. is_direct was already computed
+    # per-node in the loop above — re-use it. Level 0 (the owner themself)
+    # is excluded; only downline counts.
+    direct_filled = len([n for n in nodes if n["level"] > 0 and n["is_direct"]])
+    spillover_filled = len([n for n in nodes if n["level"] > 0 and not n["is_direct"]])
+
     pack = CREDIT_PACKS.get(matrix.pack_key or "", {})
+    pack_price = Decimal(str(pack.get("price", 0)))
+
+    # Maximum earning potential for THIS matrix at full cycle —
+    # honest figures based on the real commission structure, not
+    # the fabricated "$4,690 per Nexus" that lived in the frontend.
+    # Per spec: 3 direct × 15% + 36 spillover × 10% + 39 × 10% completion.
+    max_direct = Decimal("3") * pack_price * Decimal("0.15")
+    max_spillover = Decimal("36") * pack_price * Decimal("0.10")
+    max_completion = Decimal(str(MATRIX_MAX_DOWNLINE)) * pack_price * Decimal("0.10")
+    max_total_per_cycle = max_direct + max_spillover + max_completion
 
     return {
         "matrix": {
             "id": matrix.id,
             "pack_key": matrix.pack_key,
             "pack_label": pack.get("label", matrix.pack_key),
-            "pack_price": pack.get("price", 0),
+            "pack_price": float(pack_price),
             "pack_credits": pack.get("credits", 0),
             "advance_number": matrix.advance_number,
             "status": matrix.status,
@@ -631,16 +662,31 @@ def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
         },
         "tree": nodes,
         "stats": {
+            # Tree-level fill counts (spatial layout only, not commission tiers)
             "l1_filled": l1_filled,
             "l1_max": MATRIX_WIDTH,
             "l2_filled": l2_filled,
             "l2_max": MATRIX_WIDTH ** 2,
             "l3_filled": l3_filled,
             "l3_max": MATRIX_WIDTH ** 3,
-            "earnings_l1": round(earnings_by_level[1], 2),
-            "earnings_l2": round(earnings_by_level[2], 2),
-            "earnings_l3": round(earnings_by_level[3], 2),
+
+            # Relationship-based fill counts (THIS drives commission rate)
+            "direct_filled": direct_filled,
+            "direct_max": MATRIX_WIDTH,   # only the 3 L1 slots can be filled directly
+            "spillover_filled": spillover_filled,
+            "spillover_max": MATRIX_MAX_DOWNLINE - MATRIX_WIDTH,  # 39 - 3 = 36
+
+            # Relationship-based earnings (matches commission types in DB)
+            "earnings_direct": float(earnings_direct),
+            "earnings_spillover": float(earnings_spillover),
+            "earnings_completion": float(earnings_completion),
             "total_earned": float(total),
+
+            # Honest max-cycle potential figures for this matrix's pack tier
+            "max_direct_per_cycle": float(max_direct),
+            "max_spillover_per_cycle": float(max_spillover),
+            "max_completion_per_cycle": float(max_completion),
+            "max_total_per_cycle": float(max_total_per_cycle),
         },
     }
 

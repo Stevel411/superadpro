@@ -2943,8 +2943,22 @@ CREDIT_PACKS = {
 
 MATRIX_WIDTH = 3
 MATRIX_DEPTH = 3
-# 50% AI costs / 15% company / 35% commissions (15% L1, 10% L2, 10% L3)
-MATRIX_COMMISSION_RATES = {1: Decimal("0.15"), 2: Decimal("0.10"), 3: Decimal("0.10")}
+# 50% AI costs / 15% company / 35% commissions
+# Nexus commission is RELATIONSHIP-based, not level-based. The truth:
+#   - matrix_direct:    15% (buyer was personally referred by matrix owner)
+#   - matrix_spillover: 10% (buyer was placed via someone else's overflow)
+#   - matrix_completion: 10% of (39 × pack_price) when matrix fills
+# See docs/commission-spec.md section 3 for ground truth.
+# Authoritative constants live in app/credit_matrix.py as DIRECT_RATE,
+# SPILLOVER_RATE, COMPLETION_BONUS_RATE — this constant is kept for
+# backward-compatible imports only. Earlier comment described it as
+# {L1: 15%, L2: 10%, L3: 10%} which was wrong and caused a frontend
+# regression where the visualiser displayed fabricated rates.
+MATRIX_COMMISSION_RATES = {
+    "direct": Decimal("0.15"),
+    "spillover": Decimal("0.10"),
+    "completion": Decimal("0.10"),
+}
 
 
 class CreditPackPurchase(Base):
