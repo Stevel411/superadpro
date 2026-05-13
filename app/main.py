@@ -10806,25 +10806,17 @@ function shortHash(h) {
   return h.length > 20 ? h.slice(0, 12) + '…' + h.slice(-6) : h;
 }
 
-function pickLikelyOrder(transferAmt, pendingOrders) {
-  // Pick the order whose unique_amount is closest-but-above the transfer amount.
-  // BSC gas fees deduct ~$0.10-$0.30 from the sent amount, so if member's
-  // wallet sent $19.97 they actually arrived as ~$19.78-$19.87.
-  var candidates = pendingOrders.filter(function(o) {
-    var diff = o.unique_amount - transferAmt;
-    return diff >= 0 && diff <= 1.0;  // within $1 above is plausible
-  });
-  if (candidates.length === 0) return null;
-  // Closest match (smallest gas-fee-like difference)
-  candidates.sort(function(a, b) {
-    return (a.unique_amount - transferAmt) - (b.unique_amount - transferAmt);
-  });
-  return candidates[0];
+function pickLikelyOrder(candidates) {
+  // The /admin/api/orphans endpoint already returns matching candidates
+  // (WC orders within 1 cent of the orphan amount, last 7 days, status
+  // pending/expired). Pick the most recent — if a member retried 11
+  // times, the most recent matching order is the most likely intent.
+  if (!candidates || candidates.length === 0) return null;
+  return candidates[0];  // already sorted desc by created_at
 }
 
-function renderWalletGroup(addr, transfers, lookupData) {
+function renderWalletGroup(addr, transfers, lookupData, usernamesByUserId) {
   var user = (lookupData.users && lookupData.users[0]) || null;
-  var pendingOrders = lookupData.pending_or_expired_orders_from_users || [];
 
   var unresolvedTransfers = transfers.filter(function(t) { return !t.resolved; });
   var resolvedTransfers = transfers.filter(function(t) { return t.resolved; });
@@ -10842,43 +10834,58 @@ function renderWalletGroup(addr, transfers, lookupData) {
     '</div>' +
   '</div>';
 
-  // User card
+  // User card — by wallet registration
   if (user) {
     header += '<div class="wallet-user-card">' +
-      '✅ Member identified: <strong>' + user.username + '</strong> (id ' + user.user_id + ')' +
+      '✅ Wallet registered to: <strong>' + user.username + '</strong> (id ' + user.user_id + ')' +
       ' · ' + (user.email || 'no email') +
       ' · ' + user.membership_tier +
       ' · is_active=' + user.is_active +
       ' · balance=' + moneyFmt(user.balance || 0) +
     '</div>';
   } else {
+    // Even without wallet registration, the candidate orders may
+    // reveal who initiated each attempt — see "Likely paid for"
+    // column below.
     header += '<div class="wallet-no-user">' +
-      '⚠ No SuperAdPro member has this wallet address registered. Either a tester wallet OR a member who hasn\\'t entered their sending wallet in their account settings. Safe to mark as spam unless you recognise it.' +
+      '⚠ No SuperAdPro member has this wallet address in their settings. ' +
+      'But the candidate orders below may still identify who initiated each payment attempt — ' +
+      'check the username column.' +
     '</div>';
   }
 
   group.innerHTML = header;
 
-  // Transfers table
+  // Transfers table — uses orphan.candidates which the API already
+  // computed for us (within 1 cent of amount, last 7 days, pending/expired).
   var tableHtml = '<table class="transfer-table">' +
     '<thead><tr>' +
-      '<th>ID</th><th>Amount</th><th>Seen</th><th>Likely paid for</th><th>Action</th>' +
+      '<th>ID</th><th>Amount</th><th>Seen</th><th>Likely order</th><th>Likely payer</th><th>Action</th>' +
     '</tr></thead><tbody>';
 
   unresolvedTransfers.forEach(function(t) {
-    var match = pickLikelyOrder(t.amount_usdt, pendingOrders);
-    var matchHtml = match
-      ? '<span class="product">' + match.product_type + ' / ' + match.product_key + '</span> ' +
-        '(' + moneyFmt(match.unique_amount) + ', order #' + match.order_id + ')'
-      : '<span style="color:var(--muted)">no obvious match</span>';
+    var match = pickLikelyOrder(t.candidates);
+    var matchHtml, payerHtml;
+    if (match) {
+      matchHtml = '<span class="product">' + (match.product_key || '?') + '</span> ' +
+        '<span style="color:var(--muted);font-size:11px">' +
+        '(order #' + match.order_id + ', ' + moneyFmt(match.unique_amount) + ', ' + match.status + ')' +
+        '</span>';
+      var username = usernamesByUserId[match.user_id] || ('user_id=' + match.user_id);
+      payerHtml = '<strong>' + username + '</strong>';
+    } else {
+      matchHtml = '<span style="color:var(--muted)">no candidate within 7 days</span>';
+      payerHtml = '<span style="color:var(--muted)">—</span>';
+    }
 
     tableHtml += '<tr>' +
-      '<td>' + t.transfer_id + '</td>' +
+      '<td>' + t.id + '</td>' +
       '<td class="amount">' + moneyFmt(t.amount_usdt) + '</td>' +
       '<td style="font-size:11px;color:var(--muted)">' + (t.seen_at || '').slice(0, 16).replace('T', ' ') + '</td>' +
       '<td>' + matchHtml + '</td>' +
+      '<td>' + payerHtml + '</td>' +
       '<td class="action-buttons">' +
-        '<a class="mini-btn" href="/admin/orphans" target="_blank">Open</a>' +
+        '<a class="mini-btn" href="/admin/orphans" target="_blank">Resolve</a>' +
       '</td>' +
     '</tr>';
   });
@@ -10886,30 +10893,61 @@ function renderWalletGroup(addr, transfers, lookupData) {
   tableHtml += '</tbody></table>';
   group.insertAdjacentHTML('beforeend', tableHtml);
 
-  // Recommendation block — what to do with this group
-  if (user && unresolvedTransfers.length > 1) {
-    var productGroups = {};
-    unresolvedTransfers.forEach(function(t) {
-      var match = pickLikelyOrder(t.amount_usdt, pendingOrders);
-      var key = match ? (match.product_type + '/' + match.product_key) : 'unknown';
-      productGroups[key] = (productGroups[key] || 0) + 1;
+  // Recommendation block — count unique payers and product types
+  var allCandidates = unresolvedTransfers.map(pickLikelyOrder).filter(Boolean);
+  if (allCandidates.length > 1) {
+    var uniquePayers = {};
+    var productCounts = {};
+    allCandidates.forEach(function(c) {
+      var name = usernamesByUserId[c.user_id] || ('user_id=' + c.user_id);
+      uniquePayers[name] = (uniquePayers[name] || 0) + 1;
+      productCounts[c.product_key] = (productCounts[c.product_key] || 0) + 1;
     });
-    var products = Object.keys(productGroups).map(function(k) {
-      return productGroups[k] + '× ' + k;
+    var payerSummary = Object.keys(uniquePayers).map(function(name) {
+      return uniquePayers[name] + '× ' + name;
     }).join(', ');
+    var productSummary = Object.keys(productCounts).map(function(k) {
+      return productCounts[k] + '× ' + k;
+    }).join(', ');
+    var samePayer = Object.keys(uniquePayers).length === 1;
 
+    var recommendation = '<div class="recommendation">' +
+      '<strong>Pattern:</strong> ' + unresolvedTransfers.length + ' transfers totalling ' +
+      moneyFmt(totalUnresolved) + '. Candidate orders trace back to: ' + payerSummary + '. ' +
+      'Products attempted: ' + productSummary + '.';
+    if (samePayer) {
+      recommendation += ' <br><br><strong>Same member retried multiple times.</strong> ' +
+        'Their wallet isn\\'t in their settings (so wallet-lookup couldn\\'t find them directly) ' +
+        'but the candidate orders identify them. Activate ONE product per type they intended ' +
+        '(typically 1 membership + 1 pack), credit the overpayment to their balance, ' +
+        'mark the rest as duplicate retries.';
+    } else {
+      recommendation += ' <br><br><strong>Multiple distinct members</strong> sent payments from this wallet — ' +
+        'unusual. Either a shared wallet or one party paying on behalf of several members. ' +
+        'Investigate each member individually before reconciling.';
+    }
+    recommendation += '</div>';
+    group.insertAdjacentHTML('beforeend', recommendation);
+  } else if (allCandidates.length === 1) {
+    var c = allCandidates[0];
+    var name = usernamesByUserId[c.user_id] || ('user_id=' + c.user_id);
     group.insertAdjacentHTML('beforeend',
       '<div class="recommendation">' +
-        '<strong>Recommendation:</strong> ' + user.username + ' sent ' + unresolvedTransfers.length +
-        ' transfers totalling ' + moneyFmt(totalUnresolved) + '. They appear to have been trying to pay for: ' + products + '. ' +
-        'They likely retried because each tx fell below the unique-amount tolerance due to BSC gas. ' +
-        'Most likely intent: ONE membership + maybe ONE pack purchase. Overpayment (the retry value) should be credited to their wallet balance, NOT activated as multiple memberships. ' +
-        'Open /admin/orphans to reconcile each transfer individually.' +
+        '<strong>Single transfer match:</strong> Most likely <strong>' + name + '</strong> trying to buy ' +
+        c.product_key + '. Reconcile to order #' + c.order_id + ' to activate.' +
+      '</div>'
+    );
+  } else {
+    group.insertAdjacentHTML('beforeend',
+      '<div class="recommendation" style="background:rgba(245,158,11,.08);border-left-color:var(--warn)">' +
+        '<strong>No candidate orders found.</strong> No WC orders within $0.01 of these amounts in the last 7 days. ' +
+        'Either the orders are older than 7 days, or no member initiated matching orders. ' +
+        'Likely safe to mark as spam unless you recognise the wallet.' +
       '</div>'
     );
   }
 
-  // Resolved transfers (collapsed)
+  // Resolved transfers history (collapsed)
   if (resolvedTransfers.length > 0) {
     var resolvedHtml = '<details style="margin-top:12px"><summary>' +
       resolvedTransfers.length + ' resolved transfer(s) from this wallet (history)</summary>' +
@@ -10917,7 +10955,7 @@ function renderWalletGroup(addr, transfers, lookupData) {
       '<th>ID</th><th>Amount</th><th>Resolution</th></tr></thead><tbody>';
     resolvedTransfers.forEach(function(t) {
       resolvedHtml += '<tr>' +
-        '<td>' + t.transfer_id + '</td>' +
+        '<td>' + t.id + '</td>' +
         '<td class="amount">' + moneyFmt(t.amount_usdt) + '</td>' +
         '<td style="font-size:11px">' + (t.resolution_note || '—') + '</td>' +
       '</tr>';
@@ -10931,7 +10969,7 @@ function renderWalletGroup(addr, transfers, lookupData) {
 
 function loadInvestigation() {
   fetchJSON('/admin/api/orphans?status=pending&limit=200').then(function(orphanResp) {
-    var orphans = orphanResp.orphans || orphanResp.items || [];
+    var orphans = orphanResp.orphans || [];
     if (orphans.length === 0) {
       document.getElementById('content').innerHTML =
         '<div class="empty-state">✓ No unresolved orphan transfers right now.</div>';
@@ -10954,6 +10992,15 @@ function loadInvestigation() {
     var totalValue = orphans.reduce(function(s, o) { return s + (o.amount_usdt || 0); }, 0);
     var addrsWithMultiple = addrs.filter(function(a) { return byAddr[a].length > 1; }).length;
 
+    // Collect every distinct user_id from candidates so we can batch-fetch
+    // usernames in one pass (avoids N tiny requests)
+    var userIds = new Set();
+    orphans.forEach(function(o) {
+      (o.candidates || []).forEach(function(c) {
+        if (c.user_id) userIds.add(c.user_id);
+      });
+    });
+
     var summaryStrip = '<div class="summary-strip">' +
       '<div class="stat-block"><div class="stat-label">Unresolved transfers</div><div class="stat-value warn">' + totalUnresolved + '</div></div>' +
       '<div class="stat-block"><div class="stat-label">Total unresolved value</div><div class="stat-value">' + moneyFmt(totalValue) + '</div></div>' +
@@ -10962,27 +11009,41 @@ function loadInvestigation() {
     '</div>';
 
     document.getElementById('content').innerHTML = summaryStrip +
-      '<div id="walletGroups"><div class="loading">Looking up wallet owners…</div></div>';
+      '<div id="walletGroups"><div class="loading">Looking up wallet owners and candidate payers…</div></div>';
 
-    // For each wallet, run the lookup and render
-    var container = document.getElementById('walletGroups');
-    container.innerHTML = '';
+    // Batch-fetch usernames for every candidate user_id seen
+    var userIdArray = Array.from(userIds);
+    var usernamePromises = userIdArray.map(function(uid) {
+      return fetchJSON('/admin/api/user/' + uid)
+        .then(function(d) { return { uid: uid, username: (d.user && d.user.username) || ('user_id=' + uid) }; })
+        .catch(function() { return { uid: uid, username: 'user_id=' + uid }; });
+    });
 
-    Promise.all(addrs.map(function(addr) {
+    // Also lookup the wallet for each unique address (in case any is registered)
+    var walletPromises = addrs.map(function(addr) {
       return fetchJSON('/admin/api/wallet-lookup?address=' + encodeURIComponent(addr))
         .then(function(lookup) { return { addr: addr, lookup: lookup, transfers: byAddr[addr] }; })
-        .catch(function(e) { return { addr: addr, lookup: { users: [], pending_or_expired_orders_from_users: [] }, transfers: byAddr[addr], error: e.message }; });
-    })).then(function(results) {
+        .catch(function(e) { return { addr: addr, lookup: { users: [] }, transfers: byAddr[addr], error: e.message }; });
+    });
+
+    Promise.all([Promise.all(usernamePromises), Promise.all(walletPromises)]).then(function(results) {
+      var usernameResults = results[0];
+      var walletResults = results[1];
+      var usernamesByUserId = {};
+      usernameResults.forEach(function(r) { usernamesByUserId[r.uid] = r.username; });
+
       // Sort: wallets with retries first, then by total value
-      results.sort(function(a, b) {
+      walletResults.sort(function(a, b) {
         if (a.transfers.length !== b.transfers.length) return b.transfers.length - a.transfers.length;
         var va = a.transfers.reduce(function(s, t) { return s + t.amount_usdt; }, 0);
         var vb = b.transfers.reduce(function(s, t) { return s + t.amount_usdt; }, 0);
         return vb - va;
       });
 
-      results.forEach(function(r) {
-        container.appendChild(renderWalletGroup(r.addr, r.transfers, r.lookup));
+      var container = document.getElementById('walletGroups');
+      container.innerHTML = '';
+      walletResults.forEach(function(r) {
+        container.appendChild(renderWalletGroup(r.addr, r.transfers, r.lookup, usernamesByUserId));
       });
     });
   }).catch(function(e) {
