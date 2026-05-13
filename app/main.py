@@ -28274,8 +28274,10 @@ async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db
     }
 
 
+@app.get("/admin/matrix-debug")
 @app.get("/admin/matrix-debug/{username}")
-def admin_matrix_debug(username: str, request: Request, db: Session = Depends(get_db)):
+def admin_matrix_debug(request: Request, db: Session = Depends(get_db),
+                        username: str = None):
     """Diagnostic dump of a member's full Credit Nexus state.
 
     Returns ALL matrices the user owns (active + completed across all pack tiers),
@@ -28285,6 +28287,11 @@ def admin_matrix_debug(username: str, request: Request, db: Session = Depends(ge
 
     Built 13 May 2026 to diagnose Steve's "Nexus #1 shows 1/39 filled but
     commission history has 4 entries from 3 different people" discrepancy.
+
+    Usage:
+      GET /admin/matrix-debug              — dumps the calling admin's own state
+      GET /admin/matrix-debug/{username}   — dumps a specific user's state
+                                              (case-insensitive match)
 
     Admin-only. Read-only. Returns JSON.
     """
@@ -28299,9 +28306,18 @@ def admin_matrix_debug(username: str, request: Request, db: Session = Depends(ge
     if not getattr(user, "is_admin", False):
         raise HTTPException(status_code=403, detail="Admin only")
 
-    target = db.query(User).filter_by(username=username).first()
-    if not target:
-        raise HTTPException(status_code=404, detail=f"No user '{username}'")
+    # No username → dump the calling admin's own state
+    if not username:
+        target = user
+    else:
+        # Case-insensitive lookup so /matrix-debug/SuperAdPro and
+        # /matrix-debug/superadpro both work.
+        target = db.query(User).filter(User.username.ilike(username)).first()
+        if not target:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No user matching '{username}' (case-insensitive search)",
+            )
 
     # All matrices the target owns
     matrices = db.query(CreditMatrix).filter_by(owner_id=target.id).order_by(
