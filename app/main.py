@@ -28610,6 +28610,7 @@ def admin_health_ui(request: Request, db: Session = Depends(get_db)):
       <div class="subtitle">Read-only diagnostic scanners. Click any card to see details.</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
+      <a href="/admin" class="btn btn-secondary" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">← Back to Admin</a>
       <div id="overallBadge" class="overall ok">Loading…</div>
       <button id="rescanBtn" class="btn">Run all scans</button>
     </div>
