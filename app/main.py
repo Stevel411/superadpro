@@ -27809,12 +27809,51 @@ def bpg_generation_detail(generation_id: int, request: Request, db: Session = De
     }
 
 
+# Helper used by both /choose (R2 archival) and /download (live proxy).
+# xAI Imagine returns URLs on imgen.x.ai that:
+#   (a) reject default Python urllib User-Agent strings with HTTP 403
+#       (verified 12 May 2026 during BPG seed work)
+#   (b) are temporary — expire within ~24-48 hours
+# The User-Agent + Bearer auth pattern below is the working recipe from
+# /admin/bpg/seed-previews. Keep these in sync.
+def _bpg_fetch_xai_image(image_url: str, timeout: int = 60) -> bytes:
+    """Download an xAI Imagine image with the required headers.
+    Raises urllib.error.HTTPError / URLError on failure.
+    """
+    import urllib.request
+    import os as _os
+
+    xai_key = _os.environ.get("XAI_API_KEY", "").strip()
+    req = urllib.request.Request(
+        image_url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; SuperAdPro/1.0; +https://www.superadpro.com)",
+            "Accept": "image/*,*/*;q=0.8",
+            **({"Authorization": f"Bearer {xai_key}"} if xai_key else {}),
+        },
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.read()
+
+
 @app.post("/api/posters/generation/{generation_id}/choose")
 async def bpg_choose_candidate(generation_id: int, request: Request, db: Session = Depends(get_db)):
     """Member picks one of the 4 candidates as their final choice.
     Body: {"chosen_index": 0|1|2|3}
+
+    On choose we archive the chosen image to R2 so the URL stops being a
+    short-lived imgen.x.ai link (expires ~24-48h) and becomes a permanent
+    same-origin URL on superadpro.com. This fixes three things at once:
+      1. Gallery thumbnails would have broken after a day or two
+      2. Cross-origin Download button (browser ignores `download` attr on
+         remote URLs) — same-origin R2 makes it work natively
+      3. Members can re-download their own posters indefinitely
+
+    If R2 is unavailable we degrade gracefully and store the xAI URL — the
+    /download endpoint below proxies live as a safety net in that case.
     """
     from .database import PosterGeneration
+    from . import r2_storage
     import json as _json
 
     user = get_current_user(request, db)
@@ -27837,8 +27876,30 @@ async def bpg_choose_candidate(generation_id: int, request: Request, db: Session
     if chosen_index < 0 or chosen_index >= len(candidates):
         raise HTTPException(status_code=400, detail=f"chosen_index out of range (have {len(candidates)} candidates)")
 
+    xai_url = candidates[chosen_index]
+    final_url = xai_url  # fallback if R2 archival fails
+
+    # Archive to R2 for persistence + same-origin download
+    if r2_storage.r2_available():
+        try:
+            image_bytes = _bpg_fetch_xai_image(xai_url)
+            final_url = r2_storage.upload_image(
+                image_bytes,
+                folder="bpg-final",
+                ext="jpg",
+                content_type="image/jpeg",
+            )
+            logger.info(f"BPG choose: archived gen {generation_id} to R2 → {final_url}")
+        except Exception as exc:
+            # Don't fail the whole save if R2 hiccups — the /download proxy
+            # endpoint can still serve the xAI URL live. Just log it.
+            logger.warning(
+                f"BPG choose: R2 archive failed for gen {generation_id}, "
+                f"keeping xAI URL: {exc}"
+            )
+
     generation.chosen_index = chosen_index
-    generation.chosen_url = candidates[chosen_index]
+    generation.chosen_url = final_url
     generation.status = "chosen"
     db.commit()
 
@@ -27847,6 +27908,87 @@ async def bpg_choose_candidate(generation_id: int, request: Request, db: Session
         "generation_id": generation_id,
         "chosen_url": generation.chosen_url,
     }
+
+
+@app.get("/api/posters/generation/{generation_id}/download")
+def bpg_download_poster(generation_id: int, request: Request,
+                         index: int = None,
+                         db: Session = Depends(get_db)):
+    """Same-origin download endpoint for poster images.
+
+    Two modes:
+      - No `index` query param: download the member's chosen poster
+        (uses generation.chosen_url; requires status='chosen')
+      - `index=0..3`: download a specific candidate before/without saving
+        (used by the result page's Download button when the member has
+         selected a candidate but not yet clicked Save my choice)
+
+    Returns the image as an attachment with Content-Disposition so the
+    browser actually downloads it rather than navigating to the URL.
+    This is needed because:
+      (a) imgen.x.ai is cross-origin so the HTML `download` attribute
+          is silently ignored by browsers
+      (b) imgen.x.ai URLs expire after ~24-48h — by then a raw href
+          would 404. Same-origin R2 URLs (after /choose) avoid this,
+          but for un-saved candidates we proxy live.
+    """
+    from .database import PosterGeneration
+    from fastapi.responses import Response
+    import json as _json
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    generation = db.query(PosterGeneration).filter_by(id=generation_id, user_id=user.id).first()
+    if not generation:
+        raise HTTPException(status_code=404, detail="Generation not found")
+
+    # Figure out which URL to serve
+    if index is not None:
+        # Candidate download (pre-save)
+        candidates = _json.loads(generation.candidate_urls or "[]")
+        if index < 0 or index >= len(candidates):
+            raise HTTPException(status_code=400, detail=f"index out of range (have {len(candidates)} candidates)")
+        source_url = candidates[index]
+        filename_suffix = f"candidate-{index + 1}"
+    else:
+        # Chosen download (post-save)
+        if not generation.chosen_url:
+            raise HTTPException(status_code=400, detail="No chosen poster — pick one and save first, or pass ?index=N")
+        source_url = generation.chosen_url
+        filename_suffix = "final"
+
+    # Fetch the bytes. If the URL is already on our R2 bucket the simple
+    # urllib request still works (no special headers needed). For xAI URLs
+    # we need the User-Agent + Bearer recipe.
+    try:
+        if "imgen.x.ai" in source_url or "x.ai" in source_url:
+            image_bytes = _bpg_fetch_xai_image(source_url)
+        else:
+            # R2 or other same-origin source — plain fetch
+            import urllib.request
+            with urllib.request.urlopen(source_url, timeout=60) as resp:
+                image_bytes = resp.read()
+    except Exception as exc:
+        logger.exception(f"BPG download: fetch failed for gen {generation_id}: {exc}")
+        # If it's an xAI URL that's likely expired, give a useful error
+        if "imgen.x.ai" in source_url:
+            raise HTTPException(
+                status_code=410,
+                detail="Original image expired. Please regenerate this poster.",
+            )
+        raise HTTPException(status_code=502, detail=f"Could not fetch poster image")
+
+    filename = f"superadpro-poster-{generation_id}-{filename_suffix}.jpg"
+    return Response(
+        content=image_bytes,
+        media_type="image/jpeg",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control": "private, max-age=3600",
+        },
+    )
 
 
 @app.get("/api/posters/my-generations")
@@ -28068,25 +28210,12 @@ async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db
                             "error": "no images returned"})
             continue
 
-        # Download the image from xAI. The URLs xAI returns are on their
-        # own CDN and reject default Python urllib User-Agent strings with
-        # HTTP 403 (verified 12 May 2026 — first seed attempt failed all
-        # 6 with download:403). Add a real-browser User-Agent and pass the
-        # Bearer auth header as belt-and-braces in case xAI's CDN also
-        # checks credentials on the image URL itself.
-        import os as _os
+        # Download the image from xAI. Uses _bpg_fetch_xai_image helper
+        # (defined near /api/posters/generation/{id}/choose) which has the
+        # required User-Agent + Bearer auth headers. xAI's CDN rejects
+        # default Python urllib User-Agent strings with HTTP 403.
         try:
-            xai_key = _os.environ.get("XAI_API_KEY", "").strip()
-            req = urllib.request.Request(
-                urls[0],
-                headers={
-                    "User-Agent": "Mozilla/5.0 (compatible; SuperAdPro/1.0; +https://www.superadpro.com)",
-                    "Accept": "image/*,*/*;q=0.8",
-                    **({"Authorization": f"Bearer {xai_key}"} if xai_key else {}),
-                },
-            )
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                image_bytes = resp.read()
+            image_bytes = _bpg_fetch_xai_image(urls[0])
         except Exception as exc:
             logger.exception(f"BPG seed: download failed for {slug}: {exc}")
             results.append({"slug": slug, "status": "failed",

@@ -210,10 +210,7 @@ export default function BrandPosterResult() {
 
               {selectedIndex !== null && (
                 <a
-                  href={candidates[selectedIndex]}
-                  download={'superadpro-poster-' + generationId + '.jpg'}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={'/api/posters/generation/' + generationId + '/download?index=' + selectedIndex}
                   style={{
                     background: 'var(--sap-card-bg)',
                     color: 'var(--sap-text-primary)',
