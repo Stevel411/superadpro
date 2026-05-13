@@ -65,11 +65,11 @@ CAP_AUDIT_WINDOW_DAYS = 60
     category="billing",
     description=(
         "Cross-checks each member's tier flag against billing state: "
-        "membership_expires_at, activated_at, stripe_subscription_id, "
-        "membership_billing, and the membership_renewals table. Catches "
-        "members in inconsistent billing states (expired but still active, "
-        "active but no payment record, billing cycle mismatched with expiry "
-        "interval, orphan Stripe subscriptions on free accounts)."
+        "membership_expires_at, activated_at, membership_billing, and "
+        "the membership_renewals table. Catches members in inconsistent "
+        "billing states (expired but still active, active but no payment "
+        "record, billing cycle mismatched with expiry interval, renewal "
+        "record disagreement with user record)."
     ),
 )
 def scan_membership_tier_consistency(db: Session) -> dict:
@@ -139,11 +139,12 @@ def scan_membership_tier_consistency(db: Session) -> dict:
             ))
 
         # ── c) Active without any expiry record ──────────────────
-        # An active paid tier should have an expiry date OR a Stripe sub.
-        # If neither, we can't tell when to renew them.
+        # An active paid tier should have a membership_expires_at set.
+        # Without it, the renewal cron has nothing to act on and the
+        # member stays Pro indefinitely. This is the issue class that
+        # caught the 9 pre-launch testers on 13 May 2026.
         if (user.is_active and is_paid_tier
-                and not user.membership_expires_at
-                and not user.stripe_subscription_id):
+                and not user.membership_expires_at):
             issues.append(make_issue(
                 severity=SEV_WARNING,
                 kind="active_no_expiry_set",
@@ -152,36 +153,24 @@ def scan_membership_tier_consistency(db: Session) -> dict:
                     "user_id": user.id,
                     "tier": tier,
                     "membership_billing": user.membership_billing,
+                    "activated_at": (
+                        user.activated_at.isoformat()
+                        if user.activated_at else None
+                    ),
                 },
                 suggested_action=(
-                    "Active paid member with no expiry date and no Stripe "
-                    "subscription. Renewal cron has nothing to act on — "
-                    "they'll stay active indefinitely. Set membership_expires_at."
+                    "Active paid member with no expiry date. Renewal cron "
+                    "has nothing to act on — they'll stay active indefinitely. "
+                    "Set membership_expires_at."
                 ),
             ))
 
-        # ── d) Orphan Stripe subscription on free tier ───────────
-        # Free-tier user with a Stripe subscription ID — billing record
-        # exists but the tier wasn't promoted. Could be a webhook race
-        # or a cancelled-and-downgraded user with stale field.
-        if not is_paid_tier and user.stripe_subscription_id:
-            issues.append(make_issue(
-                severity=SEV_WARNING,
-                kind="orphan_stripe_subscription",
-                subject=subject,
-                details={
-                    "user_id": user.id,
-                    "tier": tier,
-                    "stripe_subscription_id": user.stripe_subscription_id,
-                    "is_active": user.is_active,
-                },
-                suggested_action=(
-                    "Free-tier user has a Stripe subscription ID. Either "
-                    "the upgrade webhook didn't promote the tier, or "
-                    "stripe_subscription_id was left stale after downgrade. "
-                    "Cross-reference with Stripe dashboard."
-                ),
-            ))
+        # Note: this platform does not use Stripe for payments. The
+        # stripe_subscription_id column exists on the User model but
+        # is dead code — no caller writes to it. Payment methods in
+        # use: NOWPayments (retiring), WalletConnect (BSC, current),
+        # Airwallex (fiat), and wallet-balance auto-renew. No need to
+        # check for orphan Stripe subscriptions.
 
         # ── e) Annual billing with monthly-length expiry interval ──
         # If activated_at + 90 days > membership_expires_at, this looks
