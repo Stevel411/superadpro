@@ -165,12 +165,13 @@ def scan_membership_tier_consistency(db: Session) -> dict:
                 ),
             ))
 
-        # Note: this platform does not use Stripe for payments. The
-        # stripe_subscription_id column exists on the User model but
-        # is dead code — no caller writes to it. Payment methods in
-        # use: NOWPayments (retiring), WalletConnect (BSC, current),
-        # Airwallex (fiat), and wallet-balance auto-renew. No need to
-        # check for orphan Stripe subscriptions.
+        # Note: this platform does not use Stripe or Airwallex for
+        # payments. The User.stripe_subscription_id column exists but
+        # is dead — no caller writes to it. Payment methods actually
+        # in use: NOWPayments (retiring), WalletConnect/BSC (current,
+        # on-chain self-custody), wallet-balance auto-renew, and
+        # manual admin activation. No need to check for orphan Stripe
+        # subscriptions or Airwallex references.
 
         # ── e) Annual billing with monthly-length expiry interval ──
         # If activated_at + 90 days > membership_expires_at, this looks
