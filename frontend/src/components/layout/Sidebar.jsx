@@ -70,6 +70,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.qrGenerator', { defaultValue: 'QR Generator' }), shortLabel: t('navShort.qrGenerator', { defaultValue: 'QR' }), icon: Globe, path: '/tools/qr-code-generator' },
       { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio', basic: true },
       { label: t('nav.brandPosters', { defaultValue: 'Brand Posters' }), shortLabel: t('navShort.brandPosters', { defaultValue: 'Posters' }), icon: Sparkles, path: '/brand-posters', basic: true },
+      { label: t('nav.myPosters', { defaultValue: 'My Posters' }), shortLabel: t('navShort.myPosters', { defaultValue: 'My Posters' }), icon: Clock, path: '/brand-posters/history', basic: true },
       { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator', basic: true },
       { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub', basic: true },
       { label: t('nav.linkTools'), shortLabel: t('navShort.linkTools', { defaultValue: 'Tools' }), icon: LayoutGrid, path: '/link-tools', basic: true },

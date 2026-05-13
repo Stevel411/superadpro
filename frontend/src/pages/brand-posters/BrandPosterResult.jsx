@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiGet, apiPost } from '../../utils/api';
 import AppLayout from '../../components/layout/AppLayout';
-import { ArrowLeft, Check, Download, Share2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Check, Download, Share2, RefreshCw, Clock } from 'lucide-react';
 
 export default function BrandPosterResult() {
   var { generationId } = useParams();
@@ -11,10 +11,11 @@ export default function BrandPosterResult() {
   var [selectedIndex, setSelectedIndex] = useState(null);
   var [loading, setLoading] = useState(true);
   var [choosing, setChoosing] = useState(false);
+  var [justSaved, setJustSaved] = useState(false);
   var [error, setError] = useState('');
 
-  useEffect(function() {
-    apiGet('/api/posters/generation/' + generationId).then(function(res) {
+  function loadGeneration() {
+    return apiGet('/api/posters/generation/' + generationId).then(function(res) {
       if (res && res.candidates) {
         setGeneration(res);
         setCandidates(res.candidates);
@@ -29,6 +30,10 @@ export default function BrandPosterResult() {
       setError('Could not load generation.');
       setLoading(false);
     });
+  }
+
+  useEffect(function() {
+    loadGeneration();
   }, [generationId]);
 
   async function handleChoose() {
@@ -39,8 +44,12 @@ export default function BrandPosterResult() {
         chosen_index: selectedIndex,
       });
       if (res && res.success) {
-        // Reload to show the chosen state
-        window.location.reload();
+        // Soft-refresh the generation data so the chosen state shows,
+        // and surface a toast pointing the member at their poster
+        // history. Avoid window.location.reload() — it wipes toast
+        // state instantly and feels jarring after a slow generation.
+        setJustSaved(true);
+        await loadGeneration();
       } else {
         setError((res && res.detail) || 'Could not save selection.');
       }
@@ -65,17 +74,80 @@ export default function BrandPosterResult() {
     <AppLayout title="Your generated posters" subtitle="Pick your favourite from the 4 candidates">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px' }}>
 
-        <Link to="/brand-posters" style={{
-          display: 'inline-flex',
+        {/* Secondary nav: back to gallery OR jump to your saved posters.
+            "My posters" exposes the history page that was previously
+            only reachable from the gallery card. */}
+        <div style={{
+          display: 'flex',
           alignItems: 'center',
-          gap: 6,
-          color: 'var(--sap-text-muted)',
-          textDecoration: 'none',
-          fontSize: 14,
+          justifyContent: 'space-between',
+          gap: 12,
           marginBottom: 20,
+          flexWrap: 'wrap',
         }}>
-          <ArrowLeft size={14} /> All templates
-        </Link>
+          <Link to="/brand-posters" style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            color: 'var(--sap-text-muted)',
+            textDecoration: 'none',
+            fontSize: 14,
+          }}>
+            <ArrowLeft size={14} /> All templates
+          </Link>
+
+          <Link to="/brand-posters/history" style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            color: 'var(--sap-accent)',
+            textDecoration: 'none',
+            fontSize: 14,
+            fontWeight: 600,
+          }}>
+            <Clock size={14} /> My posters
+          </Link>
+        </div>
+
+        {/* Save-success toast — appears after Save my choice completes.
+            Persistent (not auto-dismissed) so the link remains tappable. */}
+        {justSaved && (
+          <div style={{
+            background: 'linear-gradient(135deg, #15803d, #16a34a)',
+            color: '#fff',
+            padding: '14px 18px',
+            borderRadius: 12,
+            marginBottom: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            flexWrap: 'wrap',
+            boxShadow: '0 4px 12px rgba(22,163,74,.25)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Check size={20} />
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>Saved.</div>
+                <div style={{ fontSize: 12, opacity: 0.85 }}>This poster is now in your library — download anytime.</div>
+              </div>
+            </div>
+            <Link to="/brand-posters/history" style={{
+              background: 'rgba(255,255,255,.18)',
+              color: '#fff',
+              padding: '7px 14px',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}>
+              View in My Posters <Clock size={13} />
+            </Link>
+          </div>
+        )}
 
         {error && (
           <div style={{
@@ -234,9 +306,12 @@ export default function BrandPosterResult() {
               textAlign: 'center',
               fontSize: 13,
               color: 'var(--sap-text-muted)',
+              lineHeight: 1.6,
             }}>
               Not quite right? <Link to="/brand-posters" style={{ color: 'var(--sap-accent)' }}>Try another template</Link> or
               {' '}<Link to="#" onClick={function(e){ e.preventDefault(); window.history.back(); }} style={{ color: 'var(--sap-accent)' }}>tweak inputs and regenerate</Link>.
+              <br/>
+              Looking for something you made before? <Link to="/brand-posters/history" style={{ color: 'var(--sap-accent)', fontWeight: 600 }}>View all my posters</Link>.
             </div>
           </>
         )}
