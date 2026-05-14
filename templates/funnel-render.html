@@ -56,7 +56,36 @@ h2{font-size:clamp(22px,5vw,36px) !important}
 
 {% if page.gjs_html %}
 <!-- GrapesJS Visual Builder Output -->
-<style>{{ page.gjs_css or '' }}</style>
+{# gjs_css used to be raw CSS from the old GrapesJS editor; the React SuperPages
+   editor stores JSON here instead ({"els":[...],"canvasBg":"#fff",...}). We
+   only emit it inside <style> when it's clearly CSS (starts with a selector or
+   @-rule), never when it's JSON. JSON masquerading as CSS was both broken
+   (browsers ignored it) and an XSS hole (any user text containing </style>
+   broke out). Fixed 14 May 2026. #}
+{% set gjs_css_trimmed = (page.gjs_css or '')|trim %}
+{% if gjs_css_trimmed and not gjs_css_trimmed.startswith('{') and not gjs_css_trimmed.startswith('[') %}
+<style>{{ gjs_css_trimmed|safe }}</style>
+{% endif %}
+{# Pull canvas background image out of the React editor JSON if present —
+   canvasBg colour is already promoted to color_scheme=custom + custom_bg on
+   save, which body{} above honours, but canvasBgImage needs its own emit. #}
+{% if gjs_css_trimmed.startswith('{') %}
+{% set _ = "" %}{# no-op; image is read in script below to avoid Jinja JSON parsing #}
+<script>
+(function(){
+  try {
+    var raw = {{ page.gjs_css|tojson }};
+    var data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (data && data.canvasBgImage) {
+      document.body.style.backgroundImage = 'url(' + data.canvasBgImage + ')';
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundRepeat = 'no-repeat';
+    }
+  } catch (e) { /* non-JSON gjs_css — fine, legacy data */ }
+})();
+</script>
+{% endif %}
 <div id="gjsContent">{{ page.gjs_html|safe }}</div>
 <script>document.getElementById('pageContent').style.display='none';</script>
 <script>

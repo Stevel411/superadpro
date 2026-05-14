@@ -12868,14 +12868,65 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
         page.gjs_styles = json.dumps(gjs_styles) if isinstance(gjs_styles, (list, dict)) else gjs_styles
     gjs_html = body.get("gjs_html")
     if gjs_html is not None:
-        # Strip script tags and event handlers to prevent XSS
+        # Strip script tags, inline event handlers, and javascript: URLs to
+        # prevent XSS. The React editor's exportHTML adds onsubmit="return true"
+        # to forms, which gets stripped here — that's fine, the published
+        # template (funnel-render.html) re-wires forms with its own submit
+        # handler. Members generally don't write raw HTML, but template
+        # imports / embed blocks could carry hostile markup.
+        #
+        # 14 May 2026: tightened the regex set to catch handlers the prior
+        # version missed: unquoted handlers (onclick=alert(1)) and handlers
+        # with mismatched quotes inside attribute values.
         import re
         gjs_html = re.sub(r'<script\b[^>]*>[\s\S]*?</script>', '', gjs_html, flags=re.IGNORECASE)
-        gjs_html = re.sub(r'\bon\w+\s*=\s*["\'][^"\']*["\']', '', gjs_html, flags=re.IGNORECASE)
+        # Inline handlers: on* = "..." | '...' | unquoted-until-space-or->
+        gjs_html = re.sub(r'\bon[a-z]+\s*=\s*"[^"]*"', '', gjs_html, flags=re.IGNORECASE)
+        gjs_html = re.sub(r"\bon[a-z]+\s*=\s*'[^']*'", '', gjs_html, flags=re.IGNORECASE)
+        gjs_html = re.sub(r'\bon[a-z]+\s*=\s*[^\s>]+', '', gjs_html, flags=re.IGNORECASE)
+        # javascript: URLs inside href/src
+        gjs_html = re.sub(r'((?:href|src)\s*=\s*["\']?)\s*javascript:[^"\'\s>]*', r'\1#', gjs_html, flags=re.IGNORECASE)
         page.gjs_html = gjs_html
     gjs_css = body.get("gjs_css")
     if gjs_css is not None:
+        # gjs_css from the React editor is a JSON blob like:
+        # '{"els":[...],"canvasBg":"#ffffff","canvasBgImage":"..."}'
+        # We keep storing it so the editor can rehydrate on reload, but we
+        # ALSO extract canvasBg/canvasBgImage and write them to the proper
+        # color_scheme + custom_bg columns so the published page renderer
+        # (templates/funnel-render.html) shows the right background.
+        #
+        # Bug history: prior to 14 May 2026 the published template emitted
+        # this entire JSON blob inside a <style> tag, which (1) ignored the
+        # member's chosen background entirely and (2) was an XSS vector if
+        # a member typed </style><script> in any text field. The published
+        # page would render on the legacy color_scheme default ('dark' = deep
+        # blue), so members designing on a white canvas saw their content
+        # publish onto a dark background with light text becoming invisible.
         page.gjs_css = gjs_css
+        try:
+            import json as _gjson
+            css_data = _gjson.loads(gjs_css) if isinstance(gjs_css, str) else gjs_css
+            if isinstance(css_data, dict):
+                canvas_bg = css_data.get("canvasBg")
+                canvas_bg_image = css_data.get("canvasBgImage")
+                # Only update color_scheme/custom_bg if the editor actually
+                # provided a canvasBg — older saves with no canvasBg shouldn't
+                # have their existing color_scheme wiped.
+                if canvas_bg:
+                    page.color_scheme = "custom"
+                    page.custom_bg = canvas_bg
+                if canvas_bg_image:
+                    # Store the bg image in og_image_url fallback if no other
+                    # field — actually no, we don't have a bg image column.
+                    # We'll surface this via the template reading gjs_css JSON
+                    # too. Leave it parked for now; the template fix below
+                    # handles it.
+                    pass
+        except (ValueError, TypeError):
+            # Non-JSON gjs_css (legacy GrapesJS used to put real CSS here) —
+            # leave it alone, the template-side fix will handle both shapes.
+            pass
 
     db.commit()
     db.refresh(page)
@@ -12888,6 +12939,69 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
         "preview_url": f"/p/{page.slug}",
         "updated_at": page.updated_at.isoformat() if page.updated_at else None,
     })
+@app.post("/admin/api/funnels/migrate-canvas-bg")
+def admin_migrate_canvas_bg(request: Request, user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """One-shot migration: repair pages where canvasBg lived inside gjs_css JSON.
+
+    Walks every FunnelPage with a JSON-shaped gjs_css, parses it, and writes
+    canvasBg → color_scheme='custom' + custom_bg, so the published renderer
+    honours the member's chosen background instead of falling back to the
+    legacy 'dark' default.
+
+    Idempotent. Skips pages where color_scheme is already 'custom' AND
+    custom_bg matches what we'd write — so it's safe to re-run.
+
+    Admin only. Returns counts so we can verify after the run.
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    import json as _mig_json
+    pages = db.query(FunnelPage).filter(FunnelPage.gjs_css.isnot(None)).all()
+    repaired = 0
+    skipped_already_fixed = 0
+    skipped_no_canvas_bg = 0
+    skipped_non_json = 0
+    errors = []
+
+    for p in pages:
+        raw = (p.gjs_css or "").strip()
+        if not raw or not raw.startswith("{"):
+            skipped_non_json += 1
+            continue
+        try:
+            data = _mig_json.loads(raw)
+        except (ValueError, TypeError):
+            errors.append({"page_id": p.id, "slug": p.slug, "error": "invalid JSON"})
+            continue
+        if not isinstance(data, dict):
+            skipped_non_json += 1
+            continue
+        canvas_bg = data.get("canvasBg")
+        if not canvas_bg:
+            skipped_no_canvas_bg += 1
+            continue
+        # Idempotency check: skip if already set correctly
+        if p.color_scheme == "custom" and p.custom_bg == canvas_bg:
+            skipped_already_fixed += 1
+            continue
+        p.color_scheme = "custom"
+        p.custom_bg = canvas_bg
+        repaired += 1
+
+    db.commit()
+    return JSONResponse({
+        "ok": True,
+        "total_pages_scanned": len(pages),
+        "repaired": repaired,
+        "skipped_already_fixed": skipped_already_fixed,
+        "skipped_no_canvas_bg": skipped_no_canvas_bg,
+        "skipped_non_json": skipped_non_json,
+        "errors": errors,
+    })
+
+
 @app.post("/api/funnels/upload-image")
 async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):

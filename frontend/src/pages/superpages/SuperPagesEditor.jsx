@@ -26,6 +26,22 @@ export default function SuperPagesEditor() {
   const [pageStatus, setPageStatus] = useState('draft');
   const [isNarrow, setIsNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < 900);
   const updatedAtRef = useRef(null);
+  // Last user activity timestamp — auto-save skips firing when the user has
+  // touched the canvas within the last 5 seconds, so a save can't interrupt
+  // an in-progress drag/resize/inline-text edit. Bumped by any pointer, key,
+  // or input event inside the editor. Bug 6 fix, 14 May 2026.
+  const lastActivityRef = useRef(Date.now());
+  useEffect(() => {
+    const bump = () => { lastActivityRef.current = Date.now(); };
+    document.addEventListener('pointerdown', bump);
+    document.addEventListener('keydown', bump);
+    document.addEventListener('input', bump);
+    return () => {
+      document.removeEventListener('pointerdown', bump);
+      document.removeEventListener('keydown', bump);
+      document.removeEventListener('input', bump);
+    };
+  }, []);
 
   // Track viewport width — editor needs desktop space for drag/resize to work
   useEffect(() => {
@@ -150,9 +166,14 @@ export default function SuperPagesEditor() {
   }, [els, canvasBg, canvasBgImage, pageId, pageSettings, setDirty]);
 
   // ── Auto-save every 30s ──
+  // Skip if: not dirty, modal-style editor open, OR the user has interacted
+  // in the last 5 seconds (a drag/resize/inline edit in progress).
   useEffect(() => {
     const interval = setInterval(() => {
-      if (dirty && !editingElement) save();
+      if (!dirty || editingElement) return;
+      const idleMs = Date.now() - lastActivityRef.current;
+      if (idleMs < 5000) return;
+      save();
     }, 30000);
     return () => clearInterval(interval);
   }, [dirty, editingElement, save]);
@@ -374,10 +395,25 @@ export default function SuperPagesEditor() {
                 📱 {t('superPagesEditor.responsivePreview', { defaultValue: 'Responsive Preview — switch to Desktop to edit elements' })}
               </div>
             )}
-            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#ffffff',borderRadius:10,overflow:'hidden',boxShadow:'0 4px 24px rgba(15,23,42,0.08), 0 12px 40px rgba(15,23,42,0.06)',minHeight:600,border:'1px solid #e2e8f0'}}>
+            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#ffffff',borderRadius:10,overflow:'hidden',boxShadow:'0 4px 24px rgba(15,23,42,0.08), 0 12px 40px rgba(15,23,42,0.06)',minHeight:600,border:'1px solid #e2e8f0',display:'flex',flexDirection:'column'}}>
+              {/* Preview iframe — srcDoc deliberately mirrors the public
+                  published template (templates/funnel-render.html) so what
+                  the member sees here matches what visitors will see.
+                  Key bits that must stay in sync with the public template:
+                    - Same font cascade (DM Sans + Sora + Outfit etc.)
+                    - Body background uses canvasBg (member's chosen colour)
+                      because save() promotes canvasBg to color_scheme=custom
+                      on the server, and the public template honours that.
+                    - canvasBgImage applied the same way as published render.
+                    - No transform/scale wrapping — published page doesn't
+                      have it either; the responsive CSS inside exportHTML
+                      handles mobile/tablet via @media queries on .sp-page.
+                  Iframe sizing: height='auto' would collapse to 0 because
+                  iframes need explicit height. Use a tall fixed height and
+                  let it grow with the wrapper's flex column. */}
               <iframe
-                srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
-                style={{width:'100%',height:'100%',border:'none',minHeight:800}}
+                srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans','Rethink Sans',sans-serif;background:${canvasBg || '#ffffff'};${canvasBgImage ? `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;` : ''}min-height:100vh}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
+                style={{width:'100%',flex:1,border:'none',minHeight:800,background:canvasBg||'#ffffff'}}
                 title={t('superPagesEditor.preview')}
               />
             </div>
