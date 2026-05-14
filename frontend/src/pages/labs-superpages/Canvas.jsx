@@ -12,7 +12,7 @@ import { apiPost } from '../../utils/api';
 // for now; we'll migrate them once these three are solid on production.
 const TIPTAP_TYPES = ['heading', 'text', 'label'];
 
-export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId, onShowTemplates }) {
+export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive }) {
   var { t } = useTranslation();
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
@@ -168,42 +168,79 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     } : {}),
   };
 
-  // ── Alignment guides ──
+  // ── Alignment guides + snap ──
+  // Strengthened 14 May 2026 — previously snap only fired against
+  // other elements. First element on an empty canvas had nothing to
+  // snap against; members couldn't tell why "snap doesn't work."
+  //
+  // Now: snaps to canvas centre vertical, canvas left/right edges,
+  // and every other element's edges + centres. Threshold bumped to 8px
+  // (was 6) so the snap engages more easily. Only one guide per axis
+  // is shown — the first match wins — so the canvas doesn't fill
+  // with parallel lines.
   const showGuides = useCallback((el) => {
     const guides = guideRefs.current;
-    // Hide all
     Object.values(guides).forEach(g => { if (g) g.style.display = 'none'; });
+
+    const T = 8; // snap threshold in px
+    let snapX = null, snapY = null;
+    let xGuideShown = false, yGuideShown = false;
 
     const elCX = el.x + el.w / 2;
     const elL = el.x, elR = el.x + el.w;
     const elT = el.y, elB = el.y + el.h, elCY = el.y + el.h / 2;
 
-    // Canvas centre
-    if (Math.abs(elCX - CANVAS_WIDTH / 2) < SNAP_THRESHOLD) {
+    // ── Canvas guides ──
+    // Vertical centre line
+    if (Math.abs(elCX - CANVAS_WIDTH / 2) < T) {
       if (guides.vCentre) { guides.vCentre.style.left = (CANVAS_WIDTH / 2) + 'px'; guides.vCentre.style.display = 'block'; }
-      el.x = CANVAS_WIDTH / 2 - el.w / 2;
+      snapX = CANVAS_WIDTH / 2 - el.w / 2;
+      xGuideShown = true;
+    }
+    // Canvas left edge
+    if (!xGuideShown && Math.abs(elL) < T) {
+      if (guides.vLeft) { guides.vLeft.style.left = '0px'; guides.vLeft.style.display = 'block'; }
+      snapX = 0;
+      xGuideShown = true;
+    }
+    // Canvas right edge
+    if (!xGuideShown && Math.abs(elR - CANVAS_WIDTH) < T) {
+      if (guides.vRight) { guides.vRight.style.left = CANVAS_WIDTH + 'px'; guides.vRight.style.display = 'block'; }
+      snapX = CANVAS_WIDTH - el.w;
+      xGuideShown = true;
     }
 
-    // Other elements
-    els.forEach(other => {
-      if (other.id === el.id) return;
+    // ── Other-element guides ──
+    for (let i = 0; i < els.length; i++) {
+      const other = els[i];
+      if (other.id === el.id) continue;
       const oT = other.y, oB = other.y + other.h, oCY = other.y + other.h / 2;
       const oL = other.x, oR = other.x + other.w, oCX = other.x + other.w / 2;
 
-      // Horizontal snaps
-      if (Math.abs(elT - oT) < SNAP_THRESHOLD) { showGuide('hTop', 'top', oT); el.y = oT; }
-      if (Math.abs(elCY - oCY) < SNAP_THRESHOLD) { showGuide('hMid', 'top', oCY); el.y = oCY - el.h / 2; }
-      if (Math.abs(elB - oB) < SNAP_THRESHOLD) { showGuide('hBot', 'top', oB); el.y = oB - el.h; }
-      if (Math.abs(elT - oB) < SNAP_THRESHOLD) { showGuide('hTop', 'top', oB); el.y = oB; }
-      if (Math.abs(elB - oT) < SNAP_THRESHOLD) { showGuide('hBot', 'top', oT); el.y = oT - el.h; }
+      // Horizontal (y-axis) snaps — top edges, mid, bottom, top-to-bottom, bottom-to-top
+      if (!yGuideShown) {
+        if (Math.abs(elT - oT) < T)      { showGuide('hTop', 'top', oT); snapY = oT;          yGuideShown = true; }
+        else if (Math.abs(elCY - oCY) < T) { showGuide('hMid', 'top', oCY); snapY = oCY - el.h / 2; yGuideShown = true; }
+        else if (Math.abs(elB - oB) < T)   { showGuide('hBot', 'top', oB); snapY = oB - el.h;    yGuideShown = true; }
+        else if (Math.abs(elT - oB) < T)   { showGuide('hTop', 'top', oB); snapY = oB;          yGuideShown = true; }
+        else if (Math.abs(elB - oT) < T)   { showGuide('hBot', 'top', oT); snapY = oT - el.h;    yGuideShown = true; }
+      }
 
-      // Vertical snaps
-      if (Math.abs(elL - oL) < SNAP_THRESHOLD) { showGuide('vLeft', 'left', oL); el.x = oL; }
-      if (Math.abs(elCX - oCX) < SNAP_THRESHOLD) { showGuide('vCentre', 'left', oCX); el.x = oCX - el.w / 2; }
-      if (Math.abs(elR - oR) < SNAP_THRESHOLD) { showGuide('vRight', 'left', oR); el.x = oR - el.w; }
-      if (Math.abs(elL - oR) < SNAP_THRESHOLD) { showGuide('vLeft', 'left', oR); el.x = oR; }
-      if (Math.abs(elR - oL) < SNAP_THRESHOLD) { showGuide('vRight', 'left', oL); el.x = oL - el.w; }
-    });
+      // Vertical (x-axis) snaps
+      if (!xGuideShown) {
+        if (Math.abs(elL - oL) < T)        { showGuide('vLeft', 'left', oL); snapX = oL;          xGuideShown = true; }
+        else if (Math.abs(elCX - oCX) < T) { showGuide('vCentre', 'left', oCX); snapX = oCX - el.w / 2; xGuideShown = true; }
+        else if (Math.abs(elR - oR) < T)   { showGuide('vRight', 'left', oR); snapX = oR - el.w;    xGuideShown = true; }
+        else if (Math.abs(elL - oR) < T)   { showGuide('vLeft', 'left', oR); snapX = oR;          xGuideShown = true; }
+        else if (Math.abs(elR - oL) < T)   { showGuide('vRight', 'left', oL); snapX = oL - el.w;    xGuideShown = true; }
+      }
+
+      if (xGuideShown && yGuideShown) break;
+    }
+
+    // Apply the snaps
+    if (snapX !== null) el.x = snapX;
+    if (snapY !== null) el.y = snapY;
   }, [els]);
 
   const showGuide = (name, prop, val) => {
@@ -219,6 +256,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   const startDrag = useCallback((e, id) => {
     if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize')) return;
     e.preventDefault();
+
+    // Shift-click: toggle additive selection. Don't enter drag mode —
+    // the user is curating the selection set, not moving anything yet.
+    if (e.shiftKey && toggleSelectAdditive) {
+      toggleSelectAdditive(id);
+      return;
+    }
 
     if (id !== selId) {
       selectElement(id);
@@ -258,7 +302,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  }, [els, selId, selectElement, updateElement, markDirty, showGuides]);
+  }, [els, selId, selectElement, updateElement, markDirty, showGuides, toggleSelectAdditive]);
 
   // ── Resize ──
   const startResize = useCallback((e, id, handle) => {
@@ -572,11 +616,14 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         )}
 
         {/* Elements */}
-        {els.map(el => (
+        {els.map(el => {
+          const isPrimary = el.id === selId;
+          const isMulti = selIds && selIds.has(el.id) && !isPrimary;
+          return (
           <div
             key={el.id}
             id={el.id}
-            className={`cel${el.id === selId ? ' selected' : ''}${el.id === editingId ? ' editing' : ''}`}
+            className={`cel${isPrimary ? ' selected' : ''}${isMulti ? ' multi-selected' : ''}${el.id === editingId ? ' editing' : ''}`}
             style={getOuterStyle(el)}
             onMouseDown={e => { if (editingId === el.id) return; startDrag(e, el.id); }}
             onClick={e => {
@@ -636,13 +683,14 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                 style={{ position: 'absolute', background: 'var(--sap-accent)', zIndex: 15, ...style }} />
             ))}
           </div>
-        ))}
+        );})}
       </div>
       </div>
 
       <style>{`
         .cel:hover { outline: 1px dashed rgba(14,165,233,0.35); outline-offset: 1px; }
         .cel.selected { outline: 2px solid #0ea5e9; outline-offset: 1px; }
+        .cel.multi-selected { outline: 2px dashed #a855f7; outline-offset: 1px; }
         .cel.editing { outline: 2px solid #6366f1; outline-offset: 1px; cursor: text !important; }
         .cel.editing * { cursor: text !important; user-select: auto !important; }
         .cel > *:not(.cel-bar):not(.cel-resize) { pointer-events: none; }

@@ -11,6 +11,7 @@ const serialize = (els, canvasBg, canvasBgImage, selId) =>
 export default function useEditorState(initialEls = [], initialBg = '#ffffff', initialBgImage = '') {
   const [els, setEls] = useState(initialEls);
   const [selId, setSelId] = useState(null);
+  const [selIds, setSelIds] = useState(new Set());
   const [canvasBg, setCanvasBg] = useState(initialBg);
   const [canvasBgImage, setCanvasBgImage] = useState(initialBgImage);
   const [dirty, setDirty] = useState(false);
@@ -292,15 +293,162 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
 
   const selectElement = useCallback((id) => {
     setSelId(id);
+    setSelIds(id ? new Set([id]) : new Set());
   }, []);
 
   const deselectAll = useCallback(() => {
     setSelId(null);
+    setSelIds(new Set());
   }, []);
+
+  // ── Multi-select ──
+  //
+  // selIds is the authoritative set of selected element IDs.
+  // selId remains as the "primary" — the one whose properties show
+  // in the right panel and the one a single-click sets. When a single
+  // element is selected, selIds = {selId}.
+  //
+  // shift-click toggles inclusion. Click-without-shift collapses to
+  // single-selection of that one element. Group ops (deleteSelected,
+  // duplicateSelected) operate on the whole set.
+
+  const toggleSelectAdditive = useCallback((id) => {
+    // Shift-click handler: adds the id to the set if not present, or
+    // removes it if it was already selected. Updates selId to track
+    // the most-recently-touched element so the right panel shows
+    // something coherent.
+    setSelIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        // Promote any remaining selected element as new primary
+        const remaining = next.values().next().value;
+        setSelId(remaining || null);
+      } else {
+        next.add(id);
+        setSelId(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback(() => {
+    // For Cmd/Ctrl+A within the editor — select every element.
+    setEls(prev => {
+      const allIds = new Set(prev.map(e => e.id));
+      setSelIds(allIds);
+      setSelId(prev.length > 0 ? prev[prev.length - 1].id : null);
+      return prev;
+    });
+  }, []);
+
+  const deleteSelected = useCallback(() => {
+    setSelIds(currentSelIds => {
+      const toDelete = currentSelIds.size > 0 ? currentSelIds : (selId ? new Set([selId]) : new Set());
+      if (toDelete.size === 0) return currentSelIds;
+      setEls(prev => {
+        const next = prev.filter(e => !toDelete.has(e.id));
+        pushHistory(next, canvasBg, canvasBgImage, null);
+        return next;
+      });
+      setSelId(null);
+      setDirty(true);
+      return new Set();
+    });
+  }, [selId, canvasBg, canvasBgImage, pushHistory]);
+
+  const duplicateSelected = useCallback(() => {
+    setSelIds(currentSelIds => {
+      const toDup = currentSelIds.size > 0 ? currentSelIds : (selId ? new Set([selId]) : new Set());
+      if (toDup.size === 0) return currentSelIds;
+      const newIds = new Set();
+      setEls(prev => {
+        const copies = [];
+        prev.forEach(el => {
+          if (!toDup.has(el.id)) return;
+          const c = JSON.parse(JSON.stringify(el));
+          c.id = uid();
+          c.x += 20;
+          c.y += 20;
+          copies.push(c);
+          newIds.add(c.id);
+        });
+        const next = [...prev, ...copies];
+        const newPrimary = copies.length > 0 ? copies[copies.length - 1].id : null;
+        pushHistory(next, canvasBg, canvasBgImage, newPrimary);
+        setSelId(newPrimary);
+        return next;
+      });
+      setDirty(true);
+      return newIds;
+    });
+  }, [selId, canvasBg, canvasBgImage, pushHistory]);
+
+  // ── Clipboard (in-memory) ──
+  //
+  // Cmd+C / Cmd+V move element data through this ref. Storage is JSON-
+  // serialized so the clipboard survives even if the original elements
+  // are deleted before paste. Paste applies the standard +20/+20 offset
+  // and fresh IDs.
+  const clipboardRef = useRef([]);
+
+  const copySelected = useCallback(() => {
+    const toCopy = selIds.size > 0 ? selIds : (selId ? new Set([selId]) : new Set());
+    if (toCopy.size === 0) return false;
+    setEls(prev => {
+      clipboardRef.current = prev
+        .filter(e => toCopy.has(e.id))
+        .map(e => JSON.parse(JSON.stringify(e)));
+      return prev;
+    });
+    return true;
+  }, [selIds, selId]);
+
+  const paste = useCallback(() => {
+    if (!clipboardRef.current || clipboardRef.current.length === 0) return false;
+    const newIds = new Set();
+    const copies = clipboardRef.current.map(c => {
+      const fresh = JSON.parse(JSON.stringify(c));
+      fresh.id = uid();
+      fresh.x += 20;
+      fresh.y += 20;
+      newIds.add(fresh.id);
+      return fresh;
+    });
+    setEls(prev => {
+      const next = [...prev, ...copies];
+      const newPrimary = copies[copies.length - 1].id;
+      pushHistory(next, canvasBg, canvasBgImage, newPrimary);
+      setSelId(newPrimary);
+      setSelIds(newIds);
+      return next;
+    });
+    setDirty(true);
+    return true;
+  }, [canvasBg, canvasBgImage, pushHistory]);
+
+  // ── Nudge (arrow-key fine positioning) ──
+  //
+  // Moves all selected elements by (dx, dy). Used by the keyboard
+  // handler in SuperPagesEditor for arrow keys (1px) and shift+arrow
+  // (10px). History is debounced via markDirty so a burst of nudges
+  // collapses to one undo step.
+  const nudgeSelected = useCallback((dx, dy) => {
+    const toNudge = selIds.size > 0 ? selIds : (selId ? new Set([selId]) : new Set());
+    if (toNudge.size === 0) return;
+    setEls(prev => prev.map(e => {
+      if (!toNudge.has(e.id)) return e;
+      return { ...e, x: Math.max(0, e.x + dx), y: Math.max(0, e.y + dy) };
+    }));
+    setDirty(true);
+  }, [selIds, selId]);
 
   return {
     els, setEls,
     selId, setSelId, selectElement, deselectAll,
+    selIds, toggleSelectAdditive, selectAll,
+    deleteSelected, duplicateSelected,
+    copySelected, paste, nudgeSelected,
     canvasBg, setCanvasBg,
     canvasBgImage, setCanvasBgImage,
     dirty, setDirty,

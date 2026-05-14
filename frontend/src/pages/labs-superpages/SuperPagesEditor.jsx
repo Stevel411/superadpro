@@ -65,7 +65,10 @@ export default function LabsSuperPagesEditor() {
   const editor = useEditorState();
   const { els, selId, canvasBg, canvasBgImage, dirty, setDirty,
     addElement, deleteElement, duplicateElement, updateElement,
-    setEls, setCanvasBg, setCanvasBgImage, markDirty, undo, redo, deselectAll, clearCanvas, selectElement, markSaved } = editor;
+    setEls, setCanvasBg, setCanvasBgImage, markDirty, undo, redo, deselectAll, clearCanvas, selectElement, markSaved,
+    selIds, toggleSelectAdditive, selectAll,
+    deleteSelected, duplicateSelected,
+    copySelected, paste, nudgeSelected } = editor;
 
   // Which element types route through the Tiptap editor. These auto-enter
   // edit mode when first dropped on the canvas, so the user can type
@@ -243,42 +246,56 @@ export default function LabsSuperPagesEditor() {
   }, [dirty, editingElement, save]);
 
   // ── Keyboard shortcuts ──
+  //
+  // Standard editor bindings. Always check if the user is typing in
+  // an input/textarea/contenteditable first — never steal those keys.
+  //
+  // Cmd/Ctrl modifier (Mac/Windows):
+  //   Z = undo, Y or Shift+Z = redo, S = save
+  //   D = duplicate selected, A = select all, C = copy, V = paste
+  //
+  // Plain keys:
+  //   Delete / Backspace = remove selected
+  //   Escape = deselect all
+  //   Arrow keys = nudge 1px (selected), Shift+Arrow = nudge 10px
   useEffect(() => {
     const handler = (e) => {
-      // Skip the element-delete handler only if the user is genuinely typing
-      // into an editable field. `isContentEditable` stays true on elements
-      // that were once editable but are now locked, so we check the attribute
-      // explicitly — 'true' means actively editable, 'false' or unset means
-      // the element is read-only and Delete should remove the canvas element.
+      // Skip handler when the user is genuinely typing into a field.
       const tgt = e.target;
       if (tgt && (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA')) return;
       if (tgt && tgt.getAttribute && tgt.getAttribute('contenteditable') === 'true') return;
+
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'z') { e.preventDefault(); undo(); }
-        if (e.key === 'y') { e.preventDefault(); redo(); }
-        if (e.key === 's') { e.preventDefault(); save(); }
+        const k = e.key.toLowerCase();
+        if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); return; }
+        if (k === 'z' && e.shiftKey)  { e.preventDefault(); redo(); return; }
+        if (k === 'y')                { e.preventDefault(); redo(); return; }
+        if (k === 's') { e.preventDefault(); save(); return; }
+        if (k === 'd') { e.preventDefault(); duplicateSelected(); return; }
+        if (k === 'a') { e.preventDefault(); selectAll(); return; }
+        if (k === 'c') { e.preventDefault(); copySelected(); showToast('Copied'); return; }
+        if (k === 'v') { e.preventDefault(); if (paste()) showToast('Pasted'); return; }
       }
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selId) { deleteElement(selId); }
+        if (selIds.size > 0 || selId) { e.preventDefault(); deleteSelected(); }
+        return;
       }
-      if (e.key === 'Escape') { deselectAll(); setEditingElement(null); }
-      // Arrow nudge
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && selId) {
+      if (e.key === 'Escape') { deselectAll(); setEditingElement(null); return; }
+      // Arrow nudge — uses nudgeSelected so multi-select moves together
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && (selIds.size > 0 || selId)) {
         e.preventDefault();
         const step = e.shiftKey ? 10 : 1;
-        const el = els.find(x => x.id === selId);
-        if (!el) return;
-        const updates = {};
-        if (e.key === 'ArrowUp') updates.y = Math.max(0, el.y - step);
-        if (e.key === 'ArrowDown') updates.y = el.y + step;
-        if (e.key === 'ArrowLeft') updates.x = Math.max(0, el.x - step);
-        if (e.key === 'ArrowRight') updates.x = el.x + step;
-        updateElement(selId, updates);
+        let dx = 0, dy = 0;
+        if (e.key === 'ArrowUp') dy = -step;
+        if (e.key === 'ArrowDown') dy = step;
+        if (e.key === 'ArrowLeft') dx = -step;
+        if (e.key === 'ArrowRight') dx = step;
+        nudgeSelected(dx, dy);
       }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [selId, els, undo, redo, save, deleteElement, deselectAll, updateElement]);
+  }, [selId, selIds, undo, redo, save, deselectAll, deleteSelected, duplicateSelected, selectAll, copySelected, paste, nudgeSelected]);
 
   // ── Toast ──
   const showToast = (msg) => {
@@ -506,6 +523,8 @@ export default function LabsSuperPagesEditor() {
             deviceView={deviceView}
             pageId={pageId}
             onShowTemplates={() => setShowTemplates(true)}
+            selIds={selIds}
+            toggleSelectAdditive={toggleSelectAdditive}
           />
         )}
         {!previewMode && (
