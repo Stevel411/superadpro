@@ -3358,3 +3358,76 @@ class PosterTemplateShare(Base):
     sharer            = relationship("User", foreign_keys=[sharer_user_id])
     converted_user    = relationship("User", foreign_keys=[converted_user_id])
 
+
+
+class ExplainerVideo(Base):
+    """Member-facing video explainer library.
+
+    Backs the /videos page (members-only library) and admin /admin/videos
+    upload/manage UI. Videos are hosted on Cloudflare R2 — playback URL
+    is the public R2 URL. No YouTube integration in v1.
+
+    Designed around 4 fixed categories matching the Learn door taxonomy:
+    'getting-started' | 'income-streams' | 'tools' | 'advanced'.
+    Adding new categories is a 1-line frontend change; the column itself
+    is just a string so no migration is needed.
+
+    View tracking: a row is added to ExplainerVideoView every time a
+    member plays past the 5-second threshold. The aggregate view_count
+    on the video itself is a denormalised counter updated by the same
+    tracking endpoint — used for sorting and admin analytics.
+
+    Built 14 May 2026 after Steve identified video explainers as the
+    real conversion blocker (not pricing, not features).
+    """
+    __tablename__ = "explainer_videos"
+
+    id            = Column(Integer, primary_key=True, index=True)
+    slug          = Column(String(80), unique=True, nullable=False, index=True)
+                                                  # "what-is-superadpro"
+    title         = Column(String(200), nullable=False)
+    description   = Column(Text, nullable=True)   # 1-3 sentences, shown on the card
+    category      = Column(String(30), nullable=False, index=True, default="getting-started")
+                                                  # getting-started / income-streams / tools / advanced
+
+    # Hosting — R2 only in v1
+    r2_url        = Column(String(500), nullable=False)
+    thumbnail_url = Column(String(500), nullable=True)   # auto-generated frame or custom upload
+    duration_sec  = Column(Integer, nullable=True)       # display "1:30" / "2:45"
+
+    # Display & lifecycle
+    sort_order    = Column(Integer, default=0, index=True)   # within category, ascending
+    is_published  = Column(Boolean, default=False, index=True)
+                                                  # False = draft, only admin sees
+    view_count    = Column(Integer, default=0)    # denormalised; updated by track-view endpoint
+
+    # Authorship & timing
+    created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    created_at    = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at    = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    creator       = relationship("User", foreign_keys=[created_by_user_id])
+
+
+class ExplainerVideoView(Base):
+    """Per-play tracking record. One row per qualifying view (>5s playback).
+
+    Used to compute the view_count on ExplainerVideo, and to power
+    admin analytics: which videos hold attention, which members are
+    watching, watch completion rates, etc.
+
+    Lightweight by design — no per-second heartbeats, just one row
+    when the 5-second threshold is crossed. The played_to_end flag
+    is set when the <video> 'ended' event fires.
+    """
+    __tablename__ = "explainer_video_views"
+
+    id             = Column(Integer, primary_key=True, index=True)
+    video_id       = Column(Integer, ForeignKey("explainer_videos.id"), nullable=False, index=True)
+    user_id        = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    watched_seconds = Column(Integer, default=0)   # how far they got (best-effort)
+    played_to_end  = Column(Boolean, default=False)
+    viewed_at      = Column(DateTime, default=datetime.utcnow, index=True)
+
+    video          = relationship("ExplainerVideo", foreign_keys=[video_id])
+    user           = relationship("User", foreign_keys=[user_id])

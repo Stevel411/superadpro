@@ -89,6 +89,7 @@ function buildNav(t, isAdmin) {
     // they're paired with how-to-promote education, not deployed alone.
     { type: 'group', label: t('nav.learn', { defaultValue: 'Learn' }), shortLabel: t('navShort.learn', { defaultValue: 'Learn' }), key: 'learn', icon: GraduationCap, items: [
       { label: t('nav.training', { defaultValue: 'Training' }), shortLabel: t('navShort.training', { defaultValue: 'Training' }), icon: BookOpen, path: '/training' },
+      { label: t('nav.videos', { defaultValue: 'Videos' }), shortLabel: t('navShort.videos', { defaultValue: 'Videos' }), icon: Tv, path: '/videos' },
       { label: t('nav.compPlan'), shortLabel: t('navShort.compPlan', { defaultValue: 'Plan' }), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.platformTour'), shortLabel: t('navShort.platformTour', { defaultValue: 'Tour' }), icon: Map, path: '/tour' },
       { label: t('nav.marketingMaterials'), shortLabel: t('navShort.marketingMaterials', { defaultValue: 'Media' }), icon: Download, path: '/marketing-materials' },

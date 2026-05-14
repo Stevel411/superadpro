@@ -4766,6 +4766,24 @@ def training_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/videos")
+def videos_page(request: Request):
+    """Member-facing video explainer library (React shell)."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/videos/{slug}")
+def video_detail_page(request: Request, slug: str):
+    """Dedicated page for a single video — better for sharing/bookmarking."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/admin/videos")
+def admin_videos_page(request: Request):
+    """Admin UI for video library (React shell)."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/team-messenger")
 def team_messenger_page(request: Request):
     if _react_index.exists():
@@ -26677,10 +26695,315 @@ def api_training_centre(request: Request, lang: str = "en", user: User = Depends
         return {"modules": []}
 
     return data
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
-# SUPERSCENE — AI Video Creator
-# Routes: credits, generate, poll, history, buy (Stripe + Crypto)
+# EXPLAINER VIDEO LIBRARY
+# Routes: /videos (member library), /videos/{slug} (detail), /admin/videos.
+# Added 14 May 2026 — Steve identified video explainers as the real conversion
+# blocker. Members-only, R2-hosted, categorised by topic.
 # ═══════════════════════════════════════════════════════════════════════════════
+
+VIDEO_CATEGORIES = ["getting-started", "income-streams", "tools", "advanced"]
+
+
+@app.get("/api/videos")
+def api_videos_list(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """List all published videos, grouped by category, for the /videos library page.
+
+    Members-only. Returns ALL videos in one payload so the library page
+    can render category tabs without an extra round-trip. Unpublished
+    drafts are excluded — admin sees them via /admin/api/videos.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import ExplainerVideo
+    rows = (
+        db.query(ExplainerVideo)
+        .filter(ExplainerVideo.is_published == True)
+        .order_by(ExplainerVideo.category.asc(), ExplainerVideo.sort_order.asc(), ExplainerVideo.created_at.desc())
+        .all()
+    )
+    by_category = {c: [] for c in VIDEO_CATEGORIES}
+    for v in rows:
+        bucket = v.category if v.category in by_category else "advanced"
+        by_category[bucket].append({
+            "id": v.id,
+            "slug": v.slug,
+            "title": v.title,
+            "description": v.description or "",
+            "category": v.category,
+            "thumbnail_url": v.thumbnail_url,
+            "duration_sec": v.duration_sec,
+            "view_count": v.view_count or 0,
+        })
+    return {"categories": by_category, "total": len(rows)}
+
+
+@app.get("/api/videos/{slug}")
+def api_video_detail(slug: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Return full details for a single video — used by the /videos/{slug} page."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import ExplainerVideo
+    v = (
+        db.query(ExplainerVideo)
+        .filter(ExplainerVideo.slug == slug, ExplainerVideo.is_published == True)
+        .first()
+    )
+    if not v:
+        return JSONResponse({"error": "Video not found"}, status_code=404)
+    return {
+        "id": v.id,
+        "slug": v.slug,
+        "title": v.title,
+        "description": v.description or "",
+        "category": v.category,
+        "r2_url": v.r2_url,
+        "thumbnail_url": v.thumbnail_url,
+        "duration_sec": v.duration_sec,
+        "view_count": v.view_count or 0,
+        "created_at": v.created_at.isoformat() if v.created_at else None,
+    }
+
+
+@app.post("/api/videos/{slug}/track-view")
+def api_video_track_view(slug: str, request: Request, body: dict = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Track a qualifying view (>5s playback). Inserts an ExplainerVideoView
+    row and increments view_count on the video. Idempotent within a session:
+    repeated calls from the same user on the same video within 5 minutes
+    are de-duplicated so reloads don't inflate counts.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import ExplainerVideo, ExplainerVideoView
+    v = db.query(ExplainerVideo).filter_by(slug=slug, is_published=True).first()
+    if not v:
+        return JSONResponse({"error": "Video not found"}, status_code=404)
+
+    body = body or {}
+    watched_seconds = int(body.get("watched_seconds") or 0)
+    played_to_end = bool(body.get("played_to_end") or False)
+
+    # De-dupe: skip if same user logged a view on this video in last 5 min
+    from datetime import timedelta
+    five_min_ago = datetime.utcnow() - timedelta(minutes=5)
+    recent = (
+        db.query(ExplainerVideoView)
+        .filter(
+            ExplainerVideoView.video_id == v.id,
+            ExplainerVideoView.user_id == user.id,
+            ExplainerVideoView.viewed_at >= five_min_ago,
+        )
+        .first()
+    )
+    if recent:
+        # Update progress on the existing row rather than inserting a new one
+        if watched_seconds > (recent.watched_seconds or 0):
+            recent.watched_seconds = watched_seconds
+        if played_to_end and not recent.played_to_end:
+            recent.played_to_end = True
+        db.commit()
+        return {"ok": True, "deduped": True}
+
+    view = ExplainerVideoView(
+        video_id=v.id,
+        user_id=user.id,
+        watched_seconds=watched_seconds,
+        played_to_end=played_to_end,
+    )
+    db.add(view)
+    v.view_count = (v.view_count or 0) + 1
+    db.commit()
+    return {"ok": True, "view_count": v.view_count}
+
+
+# ── Admin endpoints ─────────────────────────────────────────────────────────
+
+@app.get("/admin/api/videos")
+def admin_videos_list(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin: list ALL videos including drafts. Used by /admin/videos manage UI."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import ExplainerVideo
+    rows = (
+        db.query(ExplainerVideo)
+        .order_by(ExplainerVideo.category.asc(), ExplainerVideo.sort_order.asc(), ExplainerVideo.created_at.desc())
+        .all()
+    )
+    return {
+        "videos": [{
+            "id": v.id,
+            "slug": v.slug,
+            "title": v.title,
+            "description": v.description or "",
+            "category": v.category,
+            "r2_url": v.r2_url,
+            "thumbnail_url": v.thumbnail_url,
+            "duration_sec": v.duration_sec,
+            "sort_order": v.sort_order or 0,
+            "is_published": bool(v.is_published),
+            "view_count": v.view_count or 0,
+            "created_at": v.created_at.isoformat() if v.created_at else None,
+        } for v in rows],
+        "categories": VIDEO_CATEGORIES,
+    }
+
+
+@app.post("/admin/api/videos")
+async def admin_video_create(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin: create a new video record (after upload).
+
+    Expected body:
+      {slug, title, description?, category, r2_url, thumbnail_url?,
+       duration_sec?, sort_order?, is_published?}
+
+    The actual file upload happens via /admin/api/videos/upload — this
+    just stores the metadata pointing at the uploaded R2 object.
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from .database import ExplainerVideo
+    body = await request.json()
+    slug = (body.get("slug") or "").strip().lower()
+    title = (body.get("title") or "").strip()
+    r2_url = (body.get("r2_url") or "").strip()
+    category = (body.get("category") or "getting-started").strip()
+
+    # Validation
+    import re as _re
+    if not _re.match(r'^[a-z0-9-]+$', slug):
+        return JSONResponse({"error": "Slug must be lowercase letters, numbers, and hyphens only"}, status_code=400)
+    if not title:
+        return JSONResponse({"error": "Title required"}, status_code=400)
+    if not r2_url:
+        return JSONResponse({"error": "Video URL required — upload first"}, status_code=400)
+    if category not in VIDEO_CATEGORIES:
+        return JSONResponse({"error": f"Category must be one of {VIDEO_CATEGORIES}"}, status_code=400)
+    if db.query(ExplainerVideo).filter_by(slug=slug).first():
+        return JSONResponse({"error": f"Slug '{slug}' already in use"}, status_code=400)
+
+    v = ExplainerVideo(
+        slug=slug,
+        title=title,
+        description=(body.get("description") or "").strip() or None,
+        category=category,
+        r2_url=r2_url,
+        thumbnail_url=(body.get("thumbnail_url") or "").strip() or None,
+        duration_sec=body.get("duration_sec"),
+        sort_order=int(body.get("sort_order") or 0),
+        is_published=bool(body.get("is_published") or False),
+        created_by_user_id=user.id,
+    )
+    db.add(v)
+    db.commit()
+    db.refresh(v)
+    return {"ok": True, "video_id": v.id, "slug": v.slug}
+
+
+@app.patch("/admin/api/videos/{video_id}")
+async def admin_video_update(video_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin: update a video's metadata. Send only the fields to change."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from .database import ExplainerVideo
+    v = db.query(ExplainerVideo).filter_by(id=video_id).first()
+    if not v:
+        return JSONResponse({"error": "Video not found"}, status_code=404)
+
+    body = await request.json()
+    for field in ("title", "description", "category", "r2_url", "thumbnail_url"):
+        if field in body:
+            val = body[field]
+            if isinstance(val, str):
+                val = val.strip() or None
+            setattr(v, field, val)
+    for field in ("duration_sec", "sort_order"):
+        if field in body and body[field] is not None:
+            setattr(v, field, int(body[field]))
+    if "is_published" in body:
+        v.is_published = bool(body["is_published"])
+    if v.category not in VIDEO_CATEGORIES:
+        return JSONResponse({"error": f"Category must be one of {VIDEO_CATEGORIES}"}, status_code=400)
+
+    db.commit()
+    return {"ok": True}
+
+
+@app.delete("/admin/api/videos/{video_id}")
+def admin_video_delete(video_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin: delete a video record. Does NOT delete the underlying R2
+    object — that's a manual cleanup in case we want to recover it.
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import ExplainerVideo, ExplainerVideoView
+    v = db.query(ExplainerVideo).filter_by(id=video_id).first()
+    if not v:
+        return JSONResponse({"error": "Video not found"}, status_code=404)
+    # Clean up view records first (FK)
+    db.query(ExplainerVideoView).filter_by(video_id=video_id).delete()
+    db.delete(v)
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/admin/api/videos/upload")
+async def admin_video_upload(request: Request, user: User = Depends(get_current_user)):
+    """Admin: upload a video file to R2 and return the public URL.
+
+    Accepts multipart form data with a 'file' field. Stores under
+    videos/{uuid}.{ext}. Returns {ok, url, key} on success.
+
+    Note: FastAPI's UploadFile reads into memory which is fine for the
+    expected file sizes here (a 90s 1080p MP4 is ~30MB). For very large
+    files we'd switch to presigned uploads — but not needed in v1.
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    form = await request.form()
+    upload = form.get("file")
+    if not upload:
+        return JSONResponse({"error": "No file provided"}, status_code=400)
+
+    data = await upload.read()
+    filename = getattr(upload, "filename", "video.mp4")
+    content_type = getattr(upload, "content_type", "video/mp4")
+
+    # Determine extension
+    import os as _os
+    ext = (_os.path.splitext(filename)[1] or ".mp4").lstrip(".").lower()
+    if ext not in ("mp4", "mov", "webm", "m4v"):
+        return JSONResponse({"error": f"Unsupported video format: .{ext}"}, status_code=400)
+
+    # Upload to R2
+    try:
+        from .r2_storage import _get_client, R2_BUCKET, R2_PUBLIC_URL
+        import uuid as _uuid
+        key = f"videos/{_uuid.uuid4().hex}.{ext}"
+        client = _get_client()
+        client.put_object(
+            Bucket=R2_BUCKET,
+            Key=key,
+            Body=data,
+            ContentType=content_type,
+            CacheControl="public, max-age=31536000",  # 1 year — videos don't change
+        )
+        public_url = f"{R2_PUBLIC_URL}/{key}"
+    except Exception as e:
+        logger.error(f"R2 upload failed: {e}")
+        return JSONResponse({"error": f"Upload failed: {e}"}, status_code=500)
+
+    return {"ok": True, "url": public_url, "key": key, "size_bytes": len(data)}
+
+
+
 
 SUPERSCENE_PACK_CREDITS = {
     "starter": 50,

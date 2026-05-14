@@ -29,6 +29,10 @@ export async function apiPut(path, body) {
   return api(path, { method: 'PUT', body: JSON.stringify(body) });
 }
 
+export async function apiPatch(path, body) {
+  return api(path, { method: 'PATCH', body: JSON.stringify(body) });
+}
+
 export async function apiDelete(path) {
   return api(path, { method: 'DELETE' });
 }

@@ -32,6 +32,9 @@ const Watch = React.lazy(() => import('./pages/Watch'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
 const Support = React.lazy(() => import('./pages/Support'));
 const VideoLibrary = React.lazy(() => import('./pages/VideoLibrary'));
+const Videos = React.lazy(() => import('./pages/Videos'));
+const VideoDetail = React.lazy(() => import('./pages/VideoDetail'));
+const AdminVideos = React.lazy(() => import('./pages/AdminVideos'));
 const Upgrade = React.lazy(() => import('./pages/Upgrade'));
 const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
@@ -376,6 +379,9 @@ function AppRoutes() {
       <Route path="/proseller" element={<ProtectedRoute><RequireTier tier="pro"><ProSeller /></RequireTier></ProtectedRoute>} />
       {/* SuperSeller removed */}
       <Route path="/training" element={<ProtectedRoute><TrainingCentre /></ProtectedRoute>} />
+      <Route path="/videos" element={<ProtectedRoute><Videos /></ProtectedRoute>} />
+      <Route path="/videos/:slug" element={<ProtectedRoute><VideoDetail /></ProtectedRoute>} />
+      <Route path="/admin/videos" element={<ProtectedRoute><AdminVideos /></ProtectedRoute>} />
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
       <Route path="/team-messenger" element={<ProtectedRoute><RequireTier tier="basic"><TeamMessenger /></RequireTier></ProtectedRoute>} />
