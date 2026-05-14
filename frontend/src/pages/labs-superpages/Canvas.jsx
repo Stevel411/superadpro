@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useRef, useCallback, useEffect, useState } from 'react';
-import { CANVAS_WIDTH, SNAP_THRESHOLD, SOCIAL_SVGS } from './elementDefaults';
+import { CANVAS_WIDTH, SNAP_THRESHOLD, SOCIAL_SVGS, DEVICE_WIDTHS, effectiveBox, hasOverride, applyDeviceUpdate } from './elementDefaults';
 import InlineToolbar from './InlineToolbar';
 import QuickProps from './QuickProps';
 import TiptapText from './TiptapText';
@@ -45,8 +45,14 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   }, [contextMenu]);
 
   // ── Canvas height ──
-  const maxElY = els.length > 0 ? Math.max(...els.map(e => e.y + e.h)) : 0;
-  const canvasHeight = Math.max(1200, maxElY + 500);
+  // Canvas width matches the current device breakpoint. Element
+  // positions are resolved through effectiveBox(el, deviceView) so
+  // tablet/mobile views show their per-device overrides, with
+  // cascading fallback to the base desktop values.
+  const canvasW = DEVICE_WIDTHS[deviceView] || CANVAS_WIDTH;
+  const elBoxes = els.map(el => ({ el, box: effectiveBox(el, deviceView) }));
+  const maxElY = elBoxes.length > 0 ? Math.max(...elBoxes.map(({ box }) => box.y + box.h)) : 0;
+  const canvasHeight = Math.max(deviceView === 'mobile' ? 700 : 1200, maxElY + 500);
 
   // ── Inline editing ──
   const startInlineEdit = useCallback((id) => {
@@ -175,6 +181,29 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     }
   }, [pageId, aiBusy, markDirty]);
 
+  // ── Device-aware update helper ──
+  //
+  // All position/size mutations from drag/resize/nudge go through this.
+  // When deviceView is 'desktop', writes to base x/y/w/h. When tablet
+  // or mobile, writes into el.tablet or el.mobile so the cascade keeps
+  // working for other devices.
+  const updateDeviceBox = useCallback((id, box) => {
+    if (deviceView === 'desktop') {
+      updateElement(id, box);
+      return;
+    }
+    // For tablet/mobile, splice into the right override sub-object via
+    // setEls callback — we don't have direct setEls access here, so we
+    // route through updateElement with a nested-object update. The
+    // helper applyDeviceUpdate handles the merging.
+    const el = els.find(e => e.id === id);
+    if (!el) return;
+    const next = applyDeviceUpdate(el, deviceView, box);
+    // applyDeviceUpdate returns a full element; only pass back the
+    // device-specific sub-key + nothing else to avoid clobbering.
+    updateElement(id, { [deviceView]: next[deviceView] });
+  }, [deviceView, els, updateElement]);
+
   // ── Background style ──
   // Default to white when no canvasBg is set — matches the light theme.
   const bgStyle = {
@@ -222,9 +251,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
     // ── Canvas guides ──
     // Vertical centre line
-    if (Math.abs(elCX - CANVAS_WIDTH / 2) < T) {
-      if (guides.vCentre) { guides.vCentre.style.left = (CANVAS_WIDTH / 2) + 'px'; guides.vCentre.style.display = 'block'; }
-      snapX = CANVAS_WIDTH / 2 - el.w / 2;
+    if (Math.abs(elCX - canvasW / 2) < T) {
+      if (guides.vCentre) { guides.vCentre.style.left = (canvasW / 2) + 'px'; guides.vCentre.style.display = 'block'; }
+      snapX = canvasW / 2 - el.w / 2;
       xGuideShown = true;
     }
     // Canvas left edge
@@ -234,9 +263,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       xGuideShown = true;
     }
     // Canvas right edge
-    if (!xGuideShown && Math.abs(elR - CANVAS_WIDTH) < T) {
-      if (guides.vRight) { guides.vRight.style.left = CANVAS_WIDTH + 'px'; guides.vRight.style.display = 'block'; }
-      snapX = CANVAS_WIDTH - el.w;
+    if (!xGuideShown && Math.abs(elR - canvasW) < T) {
+      if (guides.vRight) { guides.vRight.style.left = canvasW + 'px'; guides.vRight.style.display = 'block'; }
+      snapX = canvasW - el.w;
       xGuideShown = true;
     }
 
@@ -244,8 +273,11 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     for (let i = 0; i < els.length; i++) {
       const other = els[i];
       if (other.id === el.id) continue;
-      const oT = other.y, oB = other.y + other.h, oCY = other.y + other.h / 2;
-      const oL = other.x, oR = other.x + other.w, oCX = other.x + other.w / 2;
+      // Use effective boxes so snap aligns to what's visually on-screen
+      // for the current device, not the raw desktop values.
+      const ob = effectiveBox(other, deviceView);
+      const oT = ob.y, oB = ob.y + ob.h, oCY = ob.y + ob.h / 2;
+      const oL = ob.x, oR = ob.x + ob.w, oCX = ob.x + ob.w / 2;
 
       // Horizontal (y-axis) snaps — top edges, mid, bottom, top-to-bottom, bottom-to-top
       if (!yGuideShown) {
@@ -271,7 +303,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     // Apply the snaps
     if (snapX !== null) el.x = snapX;
     if (snapY !== null) el.y = snapY;
-  }, [els, showGrid]);
+  }, [els, showGrid, canvasW, deviceView]);
 
   const showGuide = (name, prop, val) => {
     const g = guideRefs.current[name];
@@ -338,7 +370,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const origs = {};
     groupIds.forEach(gid => {
       const ge = els.find(x => x.id === gid);
-      if (ge) origs[gid] = { x: ge.x, y: ge.y };
+      if (ge) {
+        // Read origs from the effective box for the current device,
+        // not raw el.x/el.y — so dragging on tablet/mobile preserves
+        // the override or falls back to base correctly.
+        const b = effectiveBox(ge, deviceView);
+        origs[gid] = { x: b.x, y: b.y, w: b.w, h: b.h };
+      }
     });
 
     dragRef.current = { primary: id, groupIds, origs, startX: e.clientX, startY: e.clientY, finals: {} };
@@ -352,10 +390,17 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // For the primary, snap to guides; the group follows the primary's
       // snapped delta so alignments stay coherent.
       const primaryOrig = d.origs[d.primary];
-      const newEl = { ...el, x: Math.max(0, primaryOrig.x + dx), y: Math.max(0, primaryOrig.y + dy) };
-      showGuides(newEl);
-      const snappedDx = newEl.x - primaryOrig.x;
-      const snappedDy = newEl.y - primaryOrig.y;
+      // Build a temporary box for the snap calculation using effective dims
+      const newBox = {
+        ...el,
+        x: Math.max(0, primaryOrig.x + dx),
+        y: Math.max(0, primaryOrig.y + dy),
+        w: primaryOrig.w,
+        h: primaryOrig.h,
+      };
+      showGuides(newBox);
+      const snappedDx = newBox.x - primaryOrig.x;
+      const snappedDy = newBox.y - primaryOrig.y;
 
       // Apply snapped delta to every group member (including primary).
       d.groupIds.forEach(gid => {
@@ -371,10 +416,11 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const onUp = () => {
       const d = dragRef.current;
       if (d && Object.keys(d.finals).length > 0) {
-        // Commit all group members through updateElement, then markDirty
-        // once so history captures the entire drag as one entry.
+        // Commit all group members through updateDeviceBox so the writes
+        // land in the right device override (base for desktop, .tablet
+        // or .mobile for the other devices).
         Object.entries(d.finals).forEach(([gid, pos]) => {
-          updateElement(gid, pos);
+          updateDeviceBox(gid, pos);
         });
         markDirty();
       }
@@ -386,7 +432,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  }, [els, selId, selIds, selectElement, updateElement, markDirty, showGuides, toggleSelectAdditive, expandToGroup]);
+  }, [els, selId, selIds, selectElement, updateElement, markDirty, showGuides, toggleSelectAdditive, expandToGroup, deviceView, updateDeviceBox]);
 
   // ── Resize ──
   const startResize = useCallback((e, id, handle) => {
@@ -395,7 +441,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const el = els.find(x => x.id === id);
     if (!el) return;
     if (el.locked) return; // locked elements ignore resize
-    resizeRef.current = { id, handle, startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y, origW: el.w, origH: el.h };
+    // Read origs from the effective box for the current device.
+    const b = effectiveBox(el, deviceView);
+    resizeRef.current = { id, handle, startX: e.clientX, startY: e.clientY, origX: b.x, origY: b.y, origW: b.w, origH: b.h };
 
     const onMove = (ev) => {
       const r = resizeRef.current;
@@ -425,7 +473,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const onUp = () => {
       const r = resizeRef.current;
       if (r && r.finalW !== undefined) {
-        updateElement(r.id, { x: r.finalX, y: r.finalY, w: r.finalW, h: r.finalH });
+        // Write through device-aware helper so tablet/mobile edits land
+        // in the right override and don't clobber desktop values.
+        updateDeviceBox(r.id, { x: r.finalX, y: r.finalY, w: r.finalW, h: r.finalH });
         markDirty();
       }
       resizeRef.current = null;
@@ -435,7 +485,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  }, [els, updateElement, markDirty]);
+  }, [els, deviceView, updateDeviceBox, markDirty]);
 
   // ── Drop from palette ──
   const handleDrop = useCallback((e) => {
@@ -662,14 +712,14 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const layoutStyles = ['background', 'borderRadius', 'border', 'padding', 'boxShadow', 'borderLeft', 'borderTop', 'borderRight', 'borderBottom', 'opacity'];
     const isEditing = editingId === el.id;
     const cursor = isEditing ? 'text' : el.locked ? 'not-allowed' : 'grab';
+    // Resolve per-device position via effectiveBox cascade
+    const box = effectiveBox(el, deviceView);
     const style = {
-      position: 'absolute', left: el.x, top: el.y, width: el.w, height: el.h,
+      position: 'absolute', left: box.x, top: box.y, width: box.w, height: box.h,
       cursor, userSelect: isEditing ? 'auto' : 'none', minWidth: 40, minHeight: 20,
     };
     layoutStyles.forEach(k => { if (el.s?.[k]) style[k] = el.s[k]; });
-    // Hidden elements (toggled from layer panel) fade on canvas so the
-    // member knows they're not rendering but can still click to unhide.
-    if (el.hidden) style.opacity = 0.25;
+    if (box.hidden) style.opacity = 0.25;
     return style;
   };
 
@@ -709,8 +759,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         onDragOver={e => e.preventDefault()}
         onDrop={handleDrop}
         style={{
-          width: CANVAS_WIDTH, minHeight: canvasHeight, position: 'relative',
-          flexShrink: 0, // critical — elements use absolute px coords assuming CANVAS_WIDTH
+          width: canvasW, minHeight: canvasHeight, position: 'relative',
+          flexShrink: 0,
+          transition: 'width 0.3s ease',
           borderRadius: 10,
           boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 32px rgba(15,23,42,0.06), 0 20px 60px rgba(15,23,42,0.04)',
           border: '1px solid #e2e8f0',
@@ -835,6 +886,32 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                 background: '#fff', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
                 zIndex: 20, whiteSpace: 'nowrap',
               }}>
+              {/* Device-override badge: visible only when this element has
+                  a tablet/mobile override at the current device view. Click
+                  to reset (strips just the current device's override). */}
+              {deviceView !== 'desktop' && hasOverride(el, deviceView) && (
+                <>
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      // Strip this device's override: pass undefined to clear
+                      updateElement(el.id, { [deviceView]: undefined });
+                      markDirty();
+                    }}
+                    style={{
+                      padding: '2px 8px',
+                      background: deviceView === 'tablet' ? 'rgba(168,85,247,0.12)' : 'rgba(236,72,153,0.12)',
+                      border: 'none', borderRadius: 5, cursor: 'pointer',
+                      fontSize: 10, fontWeight: 900,
+                      color: deviceView === 'tablet' ? '#7c3aed' : '#be185d',
+                      letterSpacing: '0.06em', textTransform: 'uppercase',
+                    }}
+                    title={`This element has a ${deviceView} override. Click to reset to ${deviceView === 'mobile' ? 'tablet/desktop' : 'desktop'}.`}>
+                    {deviceView === 'tablet' ? '⟲ Tablet' : '⟲ Mobile'}
+                  </button>
+                  <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
+                </>
+              )}
               {!['spacer', 'divider', 'box'].includes(el.type) && !TIPTAP_TYPES.includes(el.type) && (
                 <>
                   <button onClick={e => { e.stopPropagation(); if (EDITABLE_TYPES.includes(el.type)) { startInlineEdit(el.id); } else { onEditElement(el.id); } }}

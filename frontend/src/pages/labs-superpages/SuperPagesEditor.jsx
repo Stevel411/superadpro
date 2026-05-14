@@ -592,8 +592,9 @@ export default function LabsSuperPagesEditor() {
           </div>
         )}
 
-        {(previewMode || deviceView !== 'desktop') ? (
-          /* Preview mode — shows rendered HTML with responsive CSS */
+        {previewMode ? (
+          /* Preview-only mode (member clicked Preview button) — shows
+             rendered HTML with full responsive CSS. */
           <div style={{
             flex:1,
             background: '#f1f5f9',
@@ -604,37 +605,15 @@ export default function LabsSuperPagesEditor() {
             alignItems:'center',
             padding:20
           }}>
-            {previewMode && (
-              <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#4338ca',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
-                <span>{t('superPagesEditor.previewMode')}</span>
-                <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'var(--sap-indigo)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>{t('superPagesEditor.backToEditor')}</button>
-              </div>
-            )}
-            {deviceView !== 'desktop' && !previewMode && (
-              <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.25)',borderRadius:8,fontSize:13,color:'#0284c7',fontWeight:600}}>
-                📱 {t('superPagesEditor.responsivePreview', { defaultValue: 'Responsive Preview — switch to Desktop to edit elements' })}
-              </div>
-            )}
+            <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#4338ca',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
+              <span>{t('superPagesEditor.previewMode')}</span>
+              <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'var(--sap-indigo)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>{t('superPagesEditor.backToEditor')}</button>
+            </div>
             <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#ffffff',borderRadius:10,overflow:'hidden',boxShadow:'0 4px 24px rgba(15,23,42,0.08), 0 12px 40px rgba(15,23,42,0.06)',minHeight:600,border:'1px solid #e2e8f0',display:'flex',flexDirection:'column'}}>
-              {/* Preview iframe — srcDoc mirrors the public published template
-                  (templates/funnel-render.html) so what the member sees here
-                  matches what visitors will see.
-
-                  Height handling (fixed 14 May 2026): previously this iframe
-                  had `flex:1; minHeight:800` which clipped pages taller than
-                  the parent at 800px. Now we compute content height from
-                  `els` directly and set iframe `height` explicitly, matching
-                  what exportHTML produces server-side. */}
               {(() => {
-                // Match exportHTML's height calculation exactly so the iframe
-                // sizes to its content rather than collapsing to 800.
                 const maxY = els.length > 0
                   ? Math.max(...els.map(e => (e.y || 0) + (e.h || 0))) + 80
                   : 900;
-                const previewW = deviceView==='mobile'?390:deviceView==='tablet'?768:1100;
-                // Mobile/tablet: elements stack vertically via @media query
-                // in exportHTML; height becomes content-driven, not fixed.
-                // Conservative estimate: 120px per element + 200 chrome.
                 const stackHeight = els.length * 120 + 200;
                 const previewH = deviceView !== 'desktop' ? stackHeight : Math.max(900, maxY);
                 return (
@@ -648,6 +627,10 @@ export default function LabsSuperPagesEditor() {
             </div>
           </div>
         ) : (
+          /* Edit mode — works for all three devices. Canvas resizes
+             to match the device breakpoint; element positions resolved
+             via effectiveBox() in Canvas.jsx. Tablet/mobile edits write
+             into el.tablet / el.mobile sparse override objects. */
           <Canvas
             els={els}
             selId={selId}

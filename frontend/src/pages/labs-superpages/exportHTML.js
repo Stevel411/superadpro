@@ -37,11 +37,15 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
     const allStyles = { position: 'absolute', left: el.x + 'px', top: el.y + 'px', width: el.w + 'px', height: el.h + 'px', boxSizing: 'border-box', ...(el.s || {}) };
     const st = Object.entries(allStyles).map(([k, v]) => k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + v).join(';');
     const elClass = `sp-el sp-${el.type}`;
+    // Element id used as a CSS hook for per-device override rules at the
+    // bottom of this file. Element ids in the editor look like
+    // `e1m2n3...` (uid()), safe for CSS selectors.
+    const elAttrs = `class="${elClass}" id="${el.id}"`;
 
     if (el.type === 'video' && el.txt) {
       const isMP4 = el._isMP4 || /\.(mp4|webm|ogg)/.test(el.txt) || el.txt.includes('funnel-videos');
       if (isMP4) {
-        h += `<video class="${elClass}" src="${el.txt}" style="${st};border-radius:12px;object-fit:cover" autoplay muted loop playsinline></video>`;
+        h += `<video ${elAttrs} src="${el.txt}" style="${st};border-radius:12px;object-fit:cover" autoplay muted loop playsinline></video>`;
       } else {
         let embedUrl = el.txt;
         const ytMatch = embedUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -54,34 +58,34 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         } else if (embedUrl.includes('player.vimeo.com/') && !embedUrl.includes('byline=0')) {
           embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'byline=0&portrait=0&title=0';
         }
-        h += `<iframe class="${elClass}" src="${embedUrl}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
+        h += `<iframe ${elAttrs} src="${embedUrl}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
       }
     } else if (el.type === 'video' && !el.txt?.trim()) {
       // Skip empty video placeholders
     } else if (el.type === 'image' && el.txt) {
-      h += `<img class="${elClass}" src="${el.txt}" style="${st};object-fit:cover">`;
+      h += `<img ${elAttrs} src="${el.txt}" style="${st};object-fit:cover">`;
     } else if (el.type === 'image' && !el.txt?.trim()) {
       // Skip empty image placeholders
     } else if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) {
-      h += `<div class="${elClass}" style="${st}"></div>`;
+      h += `<div ${elAttrs} style="${st}"></div>`;
     } else if ((el.type === 'button' || el.type === 'announcement') && el.url) {
-      h += `<a class="${elClass}" href="${el.url}" style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt || ''}</a>`;
+      h += `<a ${elAttrs} href="${el.url}" style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt || ''}</a>`;
     } else if ((el.type === 'button' || el.type === 'announcement') && !el.url) {
-      h += `<div class="${elClass}" style="${st};display:flex;align-items:center;justify-content:center">${el.txt || ''}</div>`;
+      h += `<div ${elAttrs} style="${st};display:flex;align-items:center;justify-content:center">${el.txt || ''}</div>`;
     } else if (el.type === 'audio' && el._audioUrl) {
-      h += `<audio class="${elClass}" src="${el._audioUrl}" style="${st};border-radius:12px" controls></audio>`;
+      h += `<audio ${elAttrs} src="${el._audioUrl}" style="${st};border-radius:12px" controls></audio>`;
     } else if (el.type === 'embed' && el._embedCode) {
-      h += `<div class="${elClass}" style="${st};overflow:hidden">${el._embedCode}</div>`;
+      h += `<div ${elAttrs} style="${st};overflow:hidden">${el._embedCode}</div>`;
     } else if (el.type === 'countdown') {
       const td = el._targetDate || '';
       const cdId = 'cd_' + el.id;
-      h += `<div class="${elClass}" style="${st}"><div id="${cdId}" data-target="${td}" style="display:flex;gap:12px;justify-content:center;align-items:center;width:100%;height:100%">${['Days', 'Hrs', 'Min', 'Sec'].map((l, i) => `<div style="text-align:center"><div class="cdv" style="font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#fff;background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px;min-width:50px;border:1px solid rgba(255,255,255,0.08)">00</div><div style="font-size:10px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${l}</div></div>`).join('')}</div></div>`;
+      h += `<div ${elAttrs} style="${st}"><div id="${cdId}" data-target="${td}" style="display:flex;gap:12px;justify-content:center;align-items:center;width:100%;height:100%">${['Days', 'Hrs', 'Min', 'Sec'].map((l, i) => `<div style="text-align:center"><div class="cdv" style="font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#fff;background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px;min-width:50px;border:1px solid rgba(255,255,255,0.08)">00</div><div style="font-size:10px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${l}</div></div>`).join('')}</div></div>`;
     } else if (el.type === 'progress') {
       const pct = el._percent || 75, lbl = el._label || 'Progress', clr = el._color || '#0ea5e9';
-      h += `<div class="${elClass}" style="${st}"><div style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:600;color:#e2e8f0">${lbl}</span><span style="font-size:13px;font-weight:700;color:${clr}">${pct}%</span></div><div style="width:100%;height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${clr};border-radius:5px"></div></div></div></div>`;
+      h += `<div ${elAttrs} style="${st}"><div style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:600;color:#e2e8f0">${lbl}</span><span style="font-size:13px;font-weight:700;color:${clr}">${pct}%</span></div><div style="width:100%;height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${clr};border-radius:5px"></div></div></div></div>`;
     } else if (el.type === 'socialicons') {
       const links = el._links || {};
-      h += `<div class="${elClass}" style="${st};display:flex;gap:14px;justify-content:center;align-items:center">${Object.entries(SOCIAL_SVGS).map(([k, d]) => {
+      h += `<div ${elAttrs} style="${st};display:flex;gap:14px;justify-content:center;align-items:center">${Object.entries(SOCIAL_SVGS).map(([k, d]) => {
         const url = links[k] || '#';
         const tag = url && url !== '#' && url !== '' ? 'a' : 'span';
         const href = tag === 'a' ? ` href="${url}" target="_blank"` : '';
@@ -103,28 +107,88 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         'placeholder="$1" name="phone" type="tel"'
       );
       const redir = el._formRedirect ? ` data-redirect="${(el._formRedirect || '').replace(/"/g, '&quot;')}"` : '';
-      h += `<form class="${elClass}" style="${st}" onsubmit="return true"${redir}>${formHtml}</form>`;
+      h += `<form ${elAttrs} style="${st}" onsubmit="return true"${redir}>${formHtml}</form>`;
     } else {
-      h += `<div class="${elClass}" style="${st}">${el.txt || ''}</div>`;
+      h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }
   });
 
   h += '</div></div>';
 
   // ── Responsive CSS ──
-  // On mobile, elements de-absolute and stack via flex column. The
-  // parent .sp-page had a hardcoded min-height calculated from desktop
-  // maxY which is way too tall for stacked content, leaving huge empty
-  // space below the last block. Reset to auto so it sizes to children.
+  //
+  // Strategy (refreshed 15 May 2026 with per-device overrides):
+  //
+  //   1. The blanket "@media (max-width: 768px) stack everything" rule
+  //      stays as a SAFE FALLBACK for elements with no explicit overrides.
+  //      Pages built before the per-device feature still render sensibly.
+  //
+  //   2. Each element with an el.tablet or el.mobile override gets a
+  //      per-id rule that wins over the blanket because it's emitted
+  //      after, has higher specificity (#id), and uses !important.
+  //
+  //   3. Override rules use raw left/top/width/height — NOT the relative
+  //      stack — so members get pixel-precision control over per-device
+  //      layouts when they want it.
+  let overrideTablet = '';
+  let overrideMobile = '';
+  els.forEach(el => {
+    if (el.hidden) return;
+    if (el.tablet) {
+      const t = el.tablet;
+      const parts = [];
+      if (t.x != null) parts.push(`left:${t.x}px!important`);
+      if (t.y != null) parts.push(`top:${t.y}px!important`);
+      if (t.w != null) parts.push(`width:${t.w}px!important;max-width:${t.w}px!important`);
+      if (t.h != null) parts.push(`height:${t.h}px!important;min-height:0!important`);
+      if (t.hidden) parts.push('display:none!important');
+      // Position absolute overrides the blanket "position:relative" stack
+      parts.push('position:absolute!important', 'margin:0!important');
+      if (parts.length) overrideTablet += `#${el.id}{${parts.join(';')}}\n`;
+    }
+    if (el.mobile) {
+      const m = el.mobile;
+      const parts = [];
+      if (m.x != null) parts.push(`left:${m.x}px!important`);
+      if (m.y != null) parts.push(`top:${m.y}px!important`);
+      if (m.w != null) parts.push(`width:${m.w}px!important;max-width:${m.w}px!important`);
+      if (m.h != null) parts.push(`height:${m.h}px!important;min-height:0!important`);
+      if (m.hidden) parts.push('display:none!important');
+      parts.push('position:absolute!important', 'margin:0!important');
+      if (parts.length) overrideMobile += `#${el.id}{${parts.join(';')}}\n`;
+    }
+  });
+
+  // Track which elements have per-device overrides at each breakpoint —
+  // their parent .sp-page needs `position:relative` and a min-height to
+  // accommodate them, not the default stacked flex.
+  const hasTabletOverrides = els.some(el => el.tablet && !el.hidden);
+  const hasMobileOverrides = els.some(el => el.mobile && !el.hidden);
+
+  // For pages with per-device overrides, compute the override max-y so
+  // .sp-page reserves enough height for the laid-out elements.
+  const tabletMaxY = els.reduce((max, el) => {
+    if (!el.tablet) return max;
+    const y = el.tablet.y != null ? el.tablet.y : el.y;
+    const hh = el.tablet.h != null ? el.tablet.h : el.h;
+    return Math.max(max, y + hh);
+  }, 0);
+  const mobileMaxY = els.reduce((max, el) => {
+    if (!el.mobile) return max;
+    const y = el.mobile.y != null ? el.mobile.y : (el.tablet?.y != null ? el.tablet.y : el.y);
+    const hh = el.mobile.h != null ? el.mobile.h : (el.tablet?.h != null ? el.tablet.h : el.h);
+    return Math.max(max, y + hh);
+  }, 0);
+
   h += `<style>
 @media(max-width:768px){
-  .sp-page{width:100%!important;min-height:auto!important;height:auto!important;display:flex;flex-direction:column;align-items:center;padding:20px 16px!important}
-  .sp-el{position:relative!important;left:auto!important;top:auto!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:40px;margin-bottom:12px}
+  .sp-page{width:100%!important;min-height:${hasMobileOverrides ? mobileMaxY + 40 : 'auto'}!important;height:auto!important;${hasMobileOverrides ? 'position:relative!important' : 'display:flex;flex-direction:column;align-items:center;padding:20px 16px!important'}}
+  .sp-el{${hasMobileOverrides ? '' : 'position:relative!important;left:auto!important;top:auto!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:40px;margin-bottom:12px'}}
   .sp-heading{font-size:clamp(22px,5vw,36px)!important}
   .sp-heading *{font-size:inherit!important}
   .sp-text{font-size:14px!important}
   .sp-text *{font-size:inherit!important}
-  .sp-button,.sp-announcement{width:100%!important;max-width:400px!important;height:50px!important}
+  ${hasMobileOverrides ? '' : `.sp-button,.sp-announcement{width:100%!important;max-width:400px!important;height:50px!important}
   .sp-form{width:100%!important;max-width:450px!important;height:auto!important;min-height:200px}
   .sp-form input{width:100%!important;box-sizing:border-box!important}
   .sp-video,.sp-video iframe,.sp-video video{width:100%!important;height:auto!important;min-height:200px;aspect-ratio:16/9}
@@ -143,9 +207,15 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   .sp-audio{width:100%!important;height:auto!important;min-height:50px}
   .sp-logostrip{width:100%!important;height:auto!important;min-height:30px}
   .sp-separator{width:90%!important;height:auto!important;min-height:20px}
-  .sp-faq{width:100%!important;height:auto!important;min-height:80px}
+  .sp-faq{width:100%!important;height:auto!important;min-height:80px}`}
+  ${overrideMobile}
 }
-@media(min-width:769px) and (max-width:1100px){
+@media(min-width:769px) and (max-width:1023px){
+  .sp-page{width:100%!important;${hasTabletOverrides ? `min-height:${tabletMaxY + 40}px!important;position:relative!important;padding:0!important` : 'padding:20px!important'}}
+  ${hasTabletOverrides ? '' : '.sp-el{transform-origin:top left;scale:calc(100vw / 1100)}'}
+  ${overrideTablet}
+}
+@media(min-width:1024px) and (max-width:1100px){
   .sp-page{width:100%!important;padding:20px!important}
   .sp-el{transform-origin:top left;scale:calc(100vw / 1100)}
 }

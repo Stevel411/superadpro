@@ -140,3 +140,84 @@ export const CANVAS_WIDTH = 1100;
 export const SNAP_THRESHOLD = 6;
 export const MAX_HISTORY = 50;
 export const AUTO_SAVE_INTERVAL = 30000;
+
+// ───── Responsive editing ─────
+//
+// Per-device canvas widths used by the editor when the member switches
+// device view. Each width matches the breakpoint we emit @media queries
+// at in exportHTML, so what the member sees in the editor matches the
+// published page.
+export const DEVICE_WIDTHS = {
+  desktop: 1100,
+  tablet: 768,
+  mobile: 390,
+};
+export const TABLET_BREAKPOINT = 1023;   // @media (max-width: 1023px)
+export const MOBILE_BREAKPOINT = 767;    // @media (max-width: 767px)
+
+// Resolve the "effective" position/size for a given device by walking
+// the cascade: device-override → inherit from next-larger device →
+// fall back to base desktop values. Returns a plain object with x/y/w/h
+// and a `hidden` flag.
+//
+// Cascade order:
+//   mobile  → mobile override → tablet override → base
+//   tablet  → tablet override → base
+//   desktop → base
+export function effectiveBox(el, device) {
+  if (!el) return null;
+  if (device === 'desktop') {
+    return {
+      x: el.x, y: el.y, w: el.w, h: el.h,
+      hidden: !!el.hidden,
+    };
+  }
+  if (device === 'tablet') {
+    const t = el.tablet || {};
+    return {
+      x: t.x != null ? t.x : el.x,
+      y: t.y != null ? t.y : el.y,
+      w: t.w != null ? t.w : el.w,
+      h: t.h != null ? t.h : el.h,
+      hidden: t.hidden != null ? !!t.hidden : !!el.hidden,
+    };
+  }
+  if (device === 'mobile') {
+    const m = el.mobile || {};
+    const t = el.tablet || {};
+    return {
+      x: m.x != null ? m.x : (t.x != null ? t.x : el.x),
+      y: m.y != null ? m.y : (t.y != null ? t.y : el.y),
+      w: m.w != null ? m.w : (t.w != null ? t.w : el.w),
+      h: m.h != null ? m.h : (t.h != null ? t.h : el.h),
+      hidden: m.hidden != null ? !!m.hidden : (t.hidden != null ? !!t.hidden : !!el.hidden),
+    };
+  }
+  return { x: el.x, y: el.y, w: el.w, h: el.h, hidden: !!el.hidden };
+}
+
+// Has the element been customised at this device level? (Used for the
+// "Override" visual indicator and Reset action.)
+export function hasOverride(el, device) {
+  if (!el || device === 'desktop') return false;
+  const o = el[device];
+  if (!o) return false;
+  return ['x', 'y', 'w', 'h', 'hidden'].some(k => o[k] != null);
+}
+
+// Mutate a position update into the right place based on current device.
+// Used by drag/resize handlers. For desktop, writes to base x/y/w/h.
+// For tablet/mobile, writes into el.tablet or el.mobile sub-object —
+// only the keys that actually change, so cascade still works for the
+// rest. Returns a new element object (immutable).
+export function applyDeviceUpdate(el, device, updates) {
+  if (device === 'desktop') {
+    return { ...el, ...updates };
+  }
+  const existing = el[device] || {};
+  return {
+    ...el,
+    [device]: { ...existing, ...updates },
+  };
+}
+
