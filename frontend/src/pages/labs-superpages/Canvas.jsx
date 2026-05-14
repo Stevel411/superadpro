@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { CANVAS_WIDTH, SNAP_THRESHOLD, SOCIAL_SVGS } from './elementDefaults';
 import InlineToolbar from './InlineToolbar';
+import QuickProps from './QuickProps';
 import TiptapText from './TiptapText';
 import { apiPost } from '../../utils/api';
 
@@ -12,7 +13,7 @@ import { apiPost } from '../../utils/api';
 // for now; we'll migrate them once these three are solid on production.
 const TIPTAP_TYPES = ['heading', 'text', 'label'];
 
-export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
+export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
   var { t } = useTranslation();
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
@@ -871,6 +872,27 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             ))}
           </div>
         );})}
+
+        {/* Quick properties panel — appears below the selected element,
+            inside the canvas content div so it's positioned in canvas
+            coordinates (matches element x/y). Only single-selection;
+            multi-select uses the floating align toolbar above the canvas
+            for batch ops. */}
+        {selId && !editingId && (() => {
+          const el = els.find(x => x.id === selId);
+          if (!el || el.locked) return null;
+          // Don't show when multi-selecting; that gets the align toolbar.
+          if (selIds && selIds.size > 1) return null;
+          return (
+            <QuickProps
+              el={el}
+              updateElement={updateElement}
+              updateElementStyle={updateElementStyle}
+              markDirty={markDirty}
+              canvasHeight={canvasHeight}
+            />
+          );
+        })()}
       </div>
       </div>
 
