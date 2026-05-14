@@ -381,23 +381,51 @@ if (sections.length > 0) {
 }
 
 // Scale visual builder canvas to viewport
+// FIXED 14 May 2026:
+//   - Was running once at script execution, before images had loaded, so
+//     the parent's min-height was calculated from a too-short content
+//     height (or zero), causing the visible page to collapse below the
+//     topbar. Now re-runs on `load`, on resize, and via ResizeObserver on
+//     the wrapper itself.
+//   - On mobile, the @media query in exportHTML changes children to
+//     position:relative + stacks them, so the wrapper's hardcoded
+//     min-height becomes wrong (way too tall, leaving huge empty space).
+//     Now we read the actual rendered height after layout settles, not
+//     the inline min-height from the desktop calculation.
 (function(){
   const wrap = document.querySelector('#gjsContent > div > div[style*="width:1100px"]');
   if(!wrap) return;
+  const parent = wrap.parentElement;
   function applyScale(){
     const vw = document.documentElement.clientWidth;
     if(vw < 1100){
       const scale = vw / 1100;
       wrap.style.transform = `scale(${scale})`;
       wrap.style.transformOrigin = 'top left';
-      // Shrink outer to match scaled height
-      const h = parseFloat(wrap.style.minHeight || 860);
-      wrap.parentElement.style.minHeight = (h * scale) + 'px';
-      wrap.parentElement.style.overflow = 'hidden';
+      // Use actual rendered height (handles both desktop scale-down and
+      // mobile stacked layout where @media query restructures everything).
+      // requestAnimationFrame ensures we measure after layout.
+      requestAnimationFrame(() => {
+        const actualH = wrap.getBoundingClientRect().height;
+        parent.style.minHeight = (actualH * scale) + 'px';
+        parent.style.overflow = 'hidden';
+      });
+    } else {
+      // Desktop: clear any leftover transform/overrides from a narrower
+      // viewport so resizing back up doesn't leave the page squashed.
+      wrap.style.transform = '';
+      parent.style.minHeight = '';
+      parent.style.overflow = '';
     }
   }
+  // Run on initial paint, on full load (after images), on resize,
+  // and whenever the wrapper's own size changes (fonts loading, etc).
   applyScale();
+  window.addEventListener('load', applyScale);
   window.addEventListener('resize', applyScale);
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(applyScale).observe(wrap);
+  }
 })();
 
 // Track page view

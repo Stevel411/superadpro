@@ -90,9 +90,13 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   h += '</div></div>';
 
   // ── Responsive CSS ──
+  // On mobile, elements de-absolute and stack via flex column. The
+  // parent .sp-page had a hardcoded min-height calculated from desktop
+  // maxY which is way too tall for stacked content, leaving huge empty
+  // space below the last block. Reset to auto so it sizes to children.
   h += `<style>
 @media(max-width:768px){
-  .sp-page{width:100%!important;min-height:auto!important;display:flex;flex-direction:column;align-items:center;padding:20px 16px!important}
+  .sp-page{width:100%!important;min-height:auto!important;height:auto!important;display:flex;flex-direction:column;align-items:center;padding:20px 16px!important}
   .sp-el{position:relative!important;left:auto!important;top:auto!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:40px;margin-bottom:12px}
   .sp-heading{font-size:clamp(22px,5vw,36px)!important}
   .sp-heading *{font-size:inherit!important}

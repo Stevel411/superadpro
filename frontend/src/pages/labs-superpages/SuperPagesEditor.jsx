@@ -406,26 +406,35 @@ export default function LabsSuperPagesEditor() {
               </div>
             )}
             <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#ffffff',borderRadius:10,overflow:'hidden',boxShadow:'0 4px 24px rgba(15,23,42,0.08), 0 12px 40px rgba(15,23,42,0.06)',minHeight:600,border:'1px solid #e2e8f0',display:'flex',flexDirection:'column'}}>
-              {/* Preview iframe — srcDoc deliberately mirrors the public
-                  published template (templates/funnel-render.html) so what
-                  the member sees here matches what visitors will see.
-                  Key bits that must stay in sync with the public template:
-                    - Same font cascade (DM Sans + Sora + Outfit etc.)
-                    - Body background uses canvasBg (member's chosen colour)
-                      because save() promotes canvasBg to color_scheme=custom
-                      on the server, and the public template honours that.
-                    - canvasBgImage applied the same way as published render.
-                    - No transform/scale wrapping — published page doesn't
-                      have it either; the responsive CSS inside exportHTML
-                      handles mobile/tablet via @media queries on .sp-page.
-                  Iframe sizing: height='auto' would collapse to 0 because
-                  iframes need explicit height. Use a tall fixed height and
-                  let it grow with the wrapper's flex column. */}
-              <iframe
-                srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans','Rethink Sans',sans-serif;background:${canvasBg || '#ffffff'};${canvasBgImage ? `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;` : ''}min-height:100vh}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
-                style={{width:'100%',flex:1,border:'none',minHeight:800,background:canvasBg||'#ffffff'}}
-                title={t('superPagesEditor.preview')}
-              />
+              {/* Preview iframe — srcDoc mirrors the public published template
+                  (templates/funnel-render.html) so what the member sees here
+                  matches what visitors will see.
+
+                  Height handling (fixed 14 May 2026): previously this iframe
+                  had `flex:1; minHeight:800` which clipped pages taller than
+                  the parent at 800px. Now we compute content height from
+                  `els` directly and set iframe `height` explicitly, matching
+                  what exportHTML produces server-side. */}
+              {(() => {
+                // Match exportHTML's height calculation exactly so the iframe
+                // sizes to its content rather than collapsing to 800.
+                const maxY = els.length > 0
+                  ? Math.max(...els.map(e => (e.y || 0) + (e.h || 0))) + 80
+                  : 900;
+                const previewW = deviceView==='mobile'?390:deviceView==='tablet'?768:1100;
+                // Mobile/tablet: elements stack vertically via @media query
+                // in exportHTML; height becomes content-driven, not fixed.
+                // Conservative estimate: 120px per element + 200 chrome.
+                const stackHeight = els.length * 120 + 200;
+                const previewH = deviceView !== 'desktop' ? stackHeight : Math.max(900, maxY);
+                return (
+                  <iframe
+                    srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Manrope','DM Sans',sans-serif;background:${canvasBg || '#ffffff'};${canvasBgImage ? `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;` : ''}min-height:100vh}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
+                    style={{width:'100%',height:previewH+'px',border:'none',background:canvasBg||'#ffffff',display:'block'}}
+                    title={t('superPagesEditor.preview')}
+                  />
+                );
+              })()}
             </div>
           </div>
         ) : (
