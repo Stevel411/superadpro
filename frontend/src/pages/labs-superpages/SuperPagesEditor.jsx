@@ -63,7 +63,7 @@ export default function LabsSuperPagesEditor() {
   const editor = useEditorState();
   const { els, selId, canvasBg, canvasBgImage, dirty, setDirty,
     addElement, deleteElement, duplicateElement, updateElement,
-    setEls, setCanvasBg, setCanvasBgImage, markDirty, undo, redo, deselectAll, clearCanvas, selectElement } = editor;
+    setEls, setCanvasBg, setCanvasBgImage, markDirty, undo, redo, deselectAll, clearCanvas, selectElement, markSaved } = editor;
 
   // Which element types route through the Tiptap editor. These auto-enter
   // edit mode when first dropped on the canvas, so the user can type
@@ -163,7 +163,7 @@ export default function LabsSuperPagesEditor() {
       const res = await apiPost('/api/funnels/save', payload);
       if (res.success || res.id) {
         showToast('✓ Saved!');
-        setDirty(false);
+        markSaved();
         if (res.slug) setPageSettings(prev => ({ ...prev, slug: res.slug }));
         if (res.updated_at) updatedAtRef.current = res.updated_at;
       } else {
@@ -173,7 +173,7 @@ export default function LabsSuperPagesEditor() {
       showToast('Save error: ' + e.message);
     }
     setSaving(false);
-  }, [els, canvasBg, canvasBgImage, pageId, pageSettings, setDirty]);
+  }, [els, canvasBg, canvasBgImage, pageId, pageSettings, markSaved]);
 
   // ── Auto-save every 30s ──
   // Skip if: not dirty, modal-style editor open, OR the user has interacted
