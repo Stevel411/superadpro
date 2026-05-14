@@ -1,25 +1,33 @@
 /**
  * LabsPageBuilder.jsx — Experimental page builder sandbox
  * ════════════════════════════════════════════════════════════
- * Lives at /labs/pagebuilder. Admin-only. This is where we iterate
- * on the next-generation SuperPages experience without affecting
- * the live editor at /funnels/visual/{id}.
+ * Lives at /labs/pagebuilder. Admin-only. This is the LAUNCH screen for
+ * the Labs builder: it shows the roadmap (so the plan stays in front of
+ * us each session) AND a picker so admins can open any of their existing
+ * pages in the cloned Labs editor at /labs/pagebuilder/edit/{pageId}.
  *
- * Set up 14 May 2026 as a shell. The roadmap below is the actual
- * plan agreed with Steve in that session. Phase 1 work begins in
- * the next session — until then this page just shows the plan so
- * we can pick up cleanly.
+ * The Labs editor SHARES the same backend (/api/funnels/*) as the live
+ * editor for now — Phase 1 explicitly says we're cloning the working
+ * builder and improving it incrementally, not building a new datastore.
+ * That means edits made in Labs ARE saved to the same FunnelPage rows.
+ * Since only admins reach Labs, only Steve's pages can be touched —
+ * member pages are not at risk.
+ *
+ * If we later need true isolation (e.g. so members can A/B between live
+ * and Labs versions of the same page), we add a labs_funnel_pages table
+ * and a flag — but that's a Phase 3+ concern, not now.
  *
  * Gating: admin check happens here in the component. Non-admins are
  * redirected to the dashboard. Belt-and-braces — they shouldn't be
  * able to navigate here anyway (no public links), but defence-in-depth
  * matters for anything labelled "/labs".
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
-import { Flame, CheckCircle2, Circle, ArrowRight, Beaker, Wrench, LayoutTemplate, Share2, Sparkles } from 'lucide-react';
+import { apiGet } from '../utils/api';
+import { Flame, CheckCircle2, Circle, ArrowRight, Beaker, Wrench, LayoutTemplate, Share2, Sparkles, FileText } from 'lucide-react';
 
 // ────────────────────────────────────────────────────────────────
 // The roadmap — single source of truth for what we agreed.
@@ -33,51 +41,51 @@ const ROADMAP = [
     title: 'Sandbox set up',
     status: 'done',
     icon: Beaker,
-    summary: "Hidden admin-only route at /labs/pagebuilder. Safe iteration space.",
-    detail: "This page. Stand-up so we can pick up cleanly next session without re-discussing scope.",
+    summary: "Hidden admin-only route at /labs/pagebuilder.",
+    detail: "Roadmap visible. Safe iteration space. Shipped 14 May.",
     sessions: '0.25',
   },
   {
     phase: 'Phase 1',
-    title: 'Solidify the existing builder',
-    status: 'next',
+    title: 'Cloned working builder',
+    status: 'done',
     icon: Wrench,
-    summary: "Audit every code path. Fix every bug. Smooth every rough edge.",
-    detail: "Drag/resize behaviour, Tiptap inline editing, element insertion, image/video/audio uploads, lead capture forms, A/B testing logic, mobile rendering. No new features — just make what's there genuinely robust.",
-    sessions: '3-4',
+    summary: "Live builder cloned into /labs/pagebuilder/edit/{id}. Same blocks, same UX, separate codebase.",
+    detail: "Improvements happen here without risking live pages. Editor chrome shows 🧪 LABS so we can never confuse the two.",
+    sessions: '0.5',
   },
   {
     phase: 'Phase 2',
-    title: 'Template library',
-    status: 'planned',
-    icon: LayoutTemplate,
-    summary: "12-20 production-grade templates members can start from.",
-    detail: "Affiliate intro, webinar signup, lead magnet, coming-soon, product launch, course sales, membership pitch, local business, coach/consultant, ecommerce single-product, app waitlist, event registration. Each one a real designed page — not a wireframe.",
-    sessions: '2-3',
+    title: 'Bug fixes + UX polish',
+    status: 'next',
+    icon: Sparkles,
+    summary: "Make it fit for purpose. Iterate on the cloned builder until it's worth paying for.",
+    detail: "Drag/resize smoothness, Tiptap edge cases, upload flows, mobile preview accuracy, form submission. Fix what we find as we use it — no upfront audit, real-world iteration.",
+    sessions: 'ongoing',
   },
   {
     phase: 'Phase 3',
-    title: 'Shareable code system',
+    title: 'Production-grade templates',
     status: 'planned',
-    icon: Share2,
-    summary: "Members can save a page as a short code, paste it to clone the whole page.",
-    detail: 'Like Carrd "Use this site" or Framer templates. Code format: SAP-XXXX-XXXX. Encodes the element JSON + canvas settings. Optional marketplace of public codes with attribution.',
-    sessions: '1-2',
+    icon: LayoutTemplate,
+    summary: "12-20 templates members can start from. Each one a real designed page, not a wireframe.",
+    detail: "Affiliate intro, webinar signup, lead magnet, coming-soon, product launch, course sales, membership pitch, local business, coach/consultant, ecommerce single-product, app waitlist, event registration.",
+    sessions: '2-3',
   },
   {
     phase: 'Phase 4',
-    title: 'Polish + advanced features',
-    status: 'later',
-    icon: Sparkles,
-    summary: "Undo history visualisation, multi-page funnels, A/B testing UI, custom CSS per element.",
-    detail: "None of these are launch blockers — they're upgrades that come after the foundation is solid and the templates are landing well.",
-    sessions: 'TBD',
+    title: 'Shareable code system',
+    status: 'planned',
+    icon: Share2,
+    summary: "Members save a page as SAP-XXXX-XXXX. Others paste to clone the whole page into their drafts.",
+    detail: 'Encodes element JSON + canvas settings. Optional marketplace of public codes with attribution. Network effect — members exchange high-converting pages.',
+    sessions: '1-2',
   },
 ];
 
 const STATUS_META = {
   done:    { label: 'Done',         color: '#16a34a', bg: '#dcfce7', Icon: CheckCircle2 },
-  next:    { label: 'Next session', color: '#0284c7', bg: '#e0f2fe', Icon: Flame },
+  next:    { label: 'Next up',      color: '#0284c7', bg: '#e0f2fe', Icon: Flame },
   planned: { label: 'Planned',      color: '#7c3aed', bg: '#ede9fe', Icon: Circle },
   later:   { label: 'Later',        color: '#64748b', bg: '#f1f5f9', Icon: Circle },
 };
@@ -85,6 +93,8 @@ const STATUS_META = {
 export default function LabsPageBuilder() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [pages, setPages] = useState(null);
+  const [pagesError, setPagesError] = useState(null);
 
   // Admin gate — non-admins get bounced to dashboard. We don't show a
   // "permission denied" page because /labs/* shouldn't even appear to
@@ -94,6 +104,15 @@ export default function LabsPageBuilder() {
     if (loading) return;
     if (!user || !user.is_admin) navigate('/dashboard');
   }, [user, loading, navigate]);
+
+  // Once admin confirmed, load the picker. Same /api/funnels endpoint
+  // the live editor uses — admins pass is_pro() so this works.
+  useEffect(() => {
+    if (loading || !user || !user.is_admin) return;
+    apiGet('/api/funnels')
+      .then(d => setPages(d.funnels || []))
+      .catch(e => setPagesError(e.message || 'Failed to load pages'));
+  }, [loading, user]);
 
   if (loading || !user || !user.is_admin) {
     return (
@@ -125,12 +144,78 @@ export default function LabsPageBuilder() {
             The next-generation Page Builder
           </h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, opacity: 0.85, margin: 0, maxWidth: 640 }}>
-            This is the sandbox. We iterate here, safely, without touching the live editor
-            members use today. When a phase is ready, we promote it. The mission:
-            <strong style={{ color: '#fff', opacity: 1 }}> a stand-out page builder
-            with great templates, drag-and-drop creative freedom, and a shareable code
-            system so members can pass work to each other.</strong>
+            Cloned working builder. Iterate here safely. The mission:
+            <strong style={{ color: '#fff', opacity: 1 }}> remove every bug, make it
+            genuinely fit for purpose, build amazing templates, and ship a share-code
+            system so members can exchange pages.</strong>
           </p>
+        </div>
+
+        {/* Page picker — open any of your pages in the Labs editor */}
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a',
+          marginBottom: 4, fontFamily: "'Sora', sans-serif" }}>
+          Open a page in Labs
+        </h2>
+        <p style={{ fontSize: 13, color: '#64748b', marginTop: 0, marginBottom: 16 }}>
+          Loads in the cloned Labs editor (chrome shows 🧪 LABS). Same data as your live pages —
+          edits here ARE saved. Use a test page until we're confident in Labs.
+        </p>
+        <div style={{
+          background: '#fff', border: '1px solid #e2e8f0',
+          borderRadius: 12, padding: pages && pages.length ? 8 : 24, marginBottom: 32,
+        }}>
+          {pagesError && (
+            <div style={{ color: '#dc2626', fontSize: 13, padding: 16 }}>
+              Couldn't load pages: {pagesError}
+            </div>
+          )}
+          {!pagesError && pages === null && (
+            <div style={{ color: '#94a3b8', fontSize: 13, padding: 16 }}>Loading your pages…</div>
+          )}
+          {!pagesError && pages !== null && pages.length === 0 && (
+            <div style={{ textAlign: 'center', color: '#64748b', fontSize: 14, padding: 12 }}>
+              You don't have any pages yet.{' '}
+              <Link to="/pro/funnels" style={{ color: '#0284c7', fontWeight: 600 }}>
+                Create one in the live builder →
+              </Link>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
+                Then come back here to open it in the Labs editor.
+              </div>
+            </div>
+          )}
+          {pages && pages.length > 0 && pages.map(p => (
+            <Link
+              key={p.id}
+              to={'/labs/pagebuilder/edit/' + p.id}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '12px 14px', borderRadius: 8,
+                color: '#0f172a', textDecoration: 'none',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <div style={{
+                width: 36, height: 36, borderRadius: 8,
+                background: '#e0f2fe', color: '#0284c7',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <FileText size={16} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {p.title}
+                </div>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                  {p.slug ? '/p/' + p.slug : '(no slug)'} · {p.status} · {p.views || 0} views
+                </div>
+              </div>
+              <ArrowRight size={16} style={{ color: '#94a3b8', flexShrink: 0 }} />
+            </Link>
+          ))}
         </div>
 
         {/* Roadmap */}
@@ -195,26 +280,9 @@ export default function LabsPageBuilder() {
           })}
         </div>
 
-        {/* What this sandbox will become */}
-        <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1',
-          borderRadius: 12, padding: 24, marginBottom: 32 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#475569',
-            margin: '0 0 8px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-            When you come back to this page next session
-          </h3>
-          <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6, margin: 0 }}>
-            This shell will be replaced with a working clone of the existing
-            page builder, ready to modify safely. Every change you and Claude
-            make here is invisible to members until we explicitly promote it.
-            The live builder at <code style={{ background: '#fff', padding: '2px 6px',
-            borderRadius: 4, fontSize: 12 }}>/funnels/visual/&#123;id&#125;</code>
-            keeps working unaffected throughout.
-          </p>
-        </div>
-
         {/* Quick links */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 40 }}>
-          <Link to="/funnels" style={linkStyle}>
+          <Link to="/pro/funnels" style={linkStyle}>
             View live page builder list <ArrowRight size={14} />
           </Link>
           <Link to="/admin" style={linkStyle}>

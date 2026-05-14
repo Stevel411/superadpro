@@ -4795,6 +4795,15 @@ def labs_pagebuilder_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/labs/pagebuilder/edit/{page_id}")
+def labs_pagebuilder_editor_page(page_id: int, request: Request):
+    """Labs editor for a specific page. Loads the cloned SuperPages editor
+    from frontend/src/pages/labs-superpages/. Same backend endpoints
+    (/api/funnels/*) as the live editor — admins only, gated client-side.
+    """
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/team-messenger")
 def team_messenger_page(request: Request):
     if _react_index.exists():
