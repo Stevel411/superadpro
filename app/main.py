@@ -4784,6 +4784,17 @@ def admin_videos_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/labs/pagebuilder")
+def labs_pagebuilder_page(request: Request):
+    """Hidden admin-only experimental sandbox for the next-generation page
+    builder. Lives at /labs/pagebuilder. Frontend route gates non-admins
+    with a redirect; this server route just serves the React shell so deep
+    links work. Set up 14 May 2026 — Phase 1 work (polish + audit) begins
+    in the next session.
+    """
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/team-messenger")
 def team_messenger_page(request: Request):
     if _react_index.exists():

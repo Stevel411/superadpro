@@ -8,7 +8,7 @@ import {
   Target, Mail, Trophy, Bot, Film, Gauge,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download, Search, HelpCircle
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download, Search, HelpCircle, Beaker
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -126,6 +126,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.adminDashboard'), shortLabel: t('navShort.adminDashboard', { defaultValue: 'Admin' }), icon: Shield, path: '/admin' },
       { label: t('nav.adminStories', { defaultValue: 'Story Moderation' }), shortLabel: t('navShort.adminStories', { defaultValue: 'Stories' }), icon: Sparkles, path: '/admin/stories' },
       { label: t('nav.adminShowcase', { defaultValue: 'Showcase Moderation' }), shortLabel: t('navShort.adminShowcase', { defaultValue: 'Showcase' }), icon: LayoutGrid, path: '/admin/showcase' },
+      { label: t('nav.labsPageBuilder', { defaultValue: 'Labs: Page Builder' }), shortLabel: t('navShort.labsPageBuilder', { defaultValue: 'Labs' }), icon: Beaker, path: '/labs/pagebuilder' },
     ]});
   }
 

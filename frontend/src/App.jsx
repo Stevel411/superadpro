@@ -35,6 +35,7 @@ const VideoLibrary = React.lazy(() => import('./pages/VideoLibrary'));
 const Videos = React.lazy(() => import('./pages/Videos'));
 const VideoDetail = React.lazy(() => import('./pages/VideoDetail'));
 const AdminVideos = React.lazy(() => import('./pages/AdminVideos'));
+const LabsPageBuilder = React.lazy(() => import('./pages/LabsPageBuilder'));
 const Upgrade = React.lazy(() => import('./pages/Upgrade'));
 const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
@@ -382,6 +383,7 @@ function AppRoutes() {
       <Route path="/videos" element={<ProtectedRoute><Videos /></ProtectedRoute>} />
       <Route path="/videos/:slug" element={<ProtectedRoute><VideoDetail /></ProtectedRoute>} />
       <Route path="/admin/videos" element={<ProtectedRoute><AdminVideos /></ProtectedRoute>} />
+      <Route path="/labs/pagebuilder" element={<ProtectedRoute><LabsPageBuilder /></ProtectedRoute>} />
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
       <Route path="/team-messenger" element={<ProtectedRoute><RequireTier tier="basic"><TeamMessenger /></RequireTier></ProtectedRoute>} />
