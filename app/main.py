@@ -25595,7 +25595,18 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
     return {"ok": True, "sent": sent_count, "total_leads": len(leads)}
 @app.post("/api/leads/broadcast")
 async def api_broadcast_email(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Send a one-off broadcast email to all leads or a filtered set."""
+    """Send a one-off broadcast email to all leads or a filtered set.
+
+    Each send is logged to EmailSendLog (sequence_id=NULL, email_index=NULL)
+    so broadcast history is queryable. Per-recipient failures are captured
+    in the response 'failures' array and (when debug=1) returned with full
+    error detail so support can diagnose 'sent: 0' reports without guessing.
+
+    Updated 14 May 2026 after David Smith (SAP-00179) reported 'sent: 0'
+    despite Brevo logs confirming successful delivery. Prior version
+    silently dropped error messages and wrote nothing to EmailSendLog,
+    leaving no audit trail for broadcast support cases.
+    """
     if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
     body = await request.json()
     subject = (body.get("subject") or "").strip()
@@ -25605,7 +25616,11 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
     if not subject: return JSONResponse({"error": "Subject required"}, status_code=400)
     if not html_content: return JSONResponse({"error": "Email content required"}, status_code=400)
 
-    from .database import MemberLead
+    # Optional debug flag — only honoured for admins. Returns the full per-
+    # recipient error list with reasons. Members get a sanitised summary.
+    debug = (request.query_params.get("debug") == "1") and bool(getattr(user, "is_admin", False))
+
+    from .database import MemberLead, EmailSendLog
     from .brevo_service import send_email, wrap_email_html
 
     q = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.status != "unsubscribed")
@@ -25626,12 +25641,63 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
     member_name = user.first_name or user.username or "SuperAdPro Member"
     wrapped = wrap_email_html(html_content, member_name)
     sent = 0
+    failures = []   # admin/debug payload — per-recipient error detail
+    failure_reasons = {}  # member-safe summary — counter of reason buckets
+
     for lead in leads:
         result = await send_email(lead.email, lead.name or "", subject, wrapped)
         if result.get("ok"):
             sent += 1
+            # Log to EmailSendLog so broadcast history is auditable.
+            # sequence_id=None, email_index=None distinguishes broadcasts
+            # from sequence sends — recent_email_sends queries can filter
+            # on those columns to separate broadcast vs autoresponder.
+            try:
+                log = EmailSendLog(
+                    lead_id=lead.id,
+                    sequence_id=None,
+                    email_index=None,
+                    brevo_message_id=result.get("message_id", ""),
+                    status="sent",
+                )
+                db.add(log)
+                lead.emails_sent = (lead.emails_sent or 0) + 1
+            except Exception as e:
+                # Logging failure must NOT cause us to undercount sends.
+                # The email DID go out — surface it but keep the count.
+                print(f"[broadcast] EmailSendLog write failed for lead {lead.id}: {e}")
+        else:
+            # Capture failure with full detail for admin debug, summary for member
+            err = result.get("error", "unknown error")
+            failures.append({"lead_id": lead.id, "email": lead.email, "error": err})
+            # Bucket: blocked / bounced / quota / config / other
+            err_low = err.lower()
+            if "block" in err_low or "unsubscribe" in err_low:
+                bucket = "blocked or unsubscribed"
+            elif "bounce" in err_low or "does not exist" in err_low:
+                bucket = "invalid email address"
+            elif "quota" in err_low or "credit" in err_low or "limit" in err_low:
+                bucket = "send quota reached"
+            elif "key" in err_low or "auth" in err_low:
+                bucket = "email service configuration"
+            else:
+                bucket = "other"
+            failure_reasons[bucket] = failure_reasons.get(bucket, 0) + 1
+
     _deduct_email_send(user, db, sent)
-    return {"ok": True, "sent": sent, "total": len(leads)}
+    db.commit()
+
+    response = {
+        "ok": True,
+        "sent": sent,
+        "total": len(leads),
+        "failed": len(failures),
+        "failure_summary": failure_reasons,  # safe to show members
+    }
+    if debug:
+        response["failures"] = failures  # admin-only full detail
+    return response
+
 @app.delete("/api/leads/{lead_id}")
 def api_delete_lead(lead_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Delete a single lead."""
