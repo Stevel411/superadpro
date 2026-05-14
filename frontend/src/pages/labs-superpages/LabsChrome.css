@@ -298,6 +298,9 @@
   background: transparent !important;
   background-image: radial-gradient(circle, rgba(14,165,233,0.05) 1px, transparent 1px) !important;
   background-size: 24px 24px !important;
+  /* Generous breathing room — give the canvas physical space from the
+     palette and settings panel edges. Was 28 from inline style. */
+  padding: 36px 48px !important;
   /* Hide the visible scrollbar chrome — scrolling still works via wheel,
      trackpad, and touch. Eliminates the double-scrollbar look. */
   scrollbar-width: none;       /* Firefox */
