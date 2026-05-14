@@ -27,10 +27,10 @@
    ───────────────────────────────────────────────────────────── */
 .labs-chrome {
   /* Page base + atmospheric cobalt/violet radial glow */
-  background: #f8fafc;
+  background: #f1f5fb !important;
   background-image:
-    radial-gradient(ellipse at 15% 25%, rgba(14,165,233,0.12), transparent 45%),
-    radial-gradient(ellipse at 85% 75%, rgba(168,85,247,0.10), transparent 45%);
+    radial-gradient(ellipse at 15% 25%, rgba(14,165,233,0.18), transparent 50%),
+    radial-gradient(ellipse at 85% 75%, rgba(168,85,247,0.16), transparent 50%) !important;
   color: #0f172a;
   font-family: 'Manrope', 'Inter', sans-serif;
   font-weight: 500;
@@ -155,63 +155,68 @@
 /* ─────────────────────────────────────────────────────────────
    3. LEFT PALETTE + LIFTED TILES
    ───────────────────────────────────────────────────────────── */
-.labs-chrome .sp-palette,
-.labs-chrome .block-palette {
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-right: 1px solid rgba(15,23,42,0.06);
-  /* Hide scrollbar — scrolling still works via wheel/trackpad/touch */
+/* Force glass on the palette outer container — overrides the inline
+   linear-gradient bg in BlockPalette.jsx that defeated the rule. */
+.labs-chrome .block-palette,
+.labs-chrome .sp-palette {
+  background: rgba(255,255,255,0.55) !important;
+  background-image: none !important;
+  backdrop-filter: saturate(180%) blur(20px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(20px) !important;
+  border-left: 1px solid rgba(15,23,42,0.06) !important;
+  border-right: 1px solid rgba(15,23,42,0.06) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.labs-chrome .sp-palette::-webkit-scrollbar,
-.labs-chrome .block-palette::-webkit-scrollbar {
+.labs-chrome .block-palette::-webkit-scrollbar,
+.labs-chrome .sp-palette::-webkit-scrollbar {
   width: 0;
   height: 0;
   display: none;
 }
-/* Hide on any scrolling inner panels too (palette has a nested overflow div) */
-.labs-chrome .sp-palette *::-webkit-scrollbar,
-.labs-chrome .block-palette *::-webkit-scrollbar {
+.labs-chrome .block-palette *::-webkit-scrollbar,
+.labs-chrome .sp-palette *::-webkit-scrollbar {
   width: 0;
   height: 0;
   display: none;
 }
-.labs-chrome .sp-palette *,
-.labs-chrome .block-palette * {
+.labs-chrome .block-palette *,
+.labs-chrome .sp-palette * {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-/* Group labels (TEXT / MEDIA / ACTIONS / etc.) */
-.labs-chrome .sp-palette .group-label,
-.labs-chrome .block-palette .palette-section-label {
-  font-family: 'Sora', sans-serif;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #94a3b8;
-  padding: 0 6px;
-  margin-bottom: 11px;
+/* Section labels — Sora 900 uppercase muted. Direct class match;
+   no ancestor scope needed since the className is unique. */
+.labs-chrome .palette-section-label {
+  font-family: 'Sora', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #94a3b8 !important;
+  margin-bottom: 4px;
 }
 
-/* The lifted tiles — pronounced cool-tinted shadow stack */
-.labs-chrome .pal-item,
-.labs-chrome .palette-tile,
-.labs-chrome .sp-palette .tile {
-  aspect-ratio: 1;
-  background: #ffffff;
-  border: 1px solid rgba(15,23,42,0.04);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  position: relative;
-  cursor: grab;
+/* The lifted tiles — pronounced cool-tinted shadow stack.
+   Uses !important throughout because BlockPalette.jsx may have any
+   inline residue and the tile look is locked. */
+.labs-chrome .pal-item {
+  aspect-ratio: 1 !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid rgba(15,23,42,0.04) !important;
+  border-radius: 12px !important;
+  padding: 8px 4px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  position: relative !important;
+  cursor: grab !important;
+  overflow: visible !important;
+  isolation: isolate !important;
   /* Three-layer rest shadow:
      - Inner highlight (top edge catches light)
      - Tight cobalt ambient (close shadow)
@@ -220,82 +225,71 @@
     inset 0 1px 0 rgba(255,255,255,0.9),
     0 1px 2px rgba(14,165,233,0.08),
     0 4px 12px rgba(14,165,233,0.10),
-    0 8px 20px rgba(168,85,247,0.08);
+    0 8px 20px rgba(168,85,247,0.08) !important;
   transition:
     transform 0.18s cubic-bezier(0.4,0,0.2,1),
     box-shadow 0.18s cubic-bezier(0.4,0,0.2,1),
-    border-color 0.18s ease;
+    border-color 0.18s ease !important;
 }
 
-.labs-chrome .pal-item:hover,
-.labs-chrome .palette-tile:hover,
-.labs-chrome .sp-palette .tile:hover {
-  transform: translateY(-3px);
-  border-color: rgba(168,85,247,0.25);
-  /* Hover shadow stack — deeper cobalt, stronger violet ground, plus a glow ring */
+.labs-chrome .pal-item:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(168,85,247,0.25) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
     0 2px 4px rgba(14,165,233,0.12),
     0 8px 20px rgba(14,165,233,0.20),
     0 14px 36px rgba(168,85,247,0.20),
-    0 0 0 1px rgba(168,85,247,0.10);
+    0 0 0 1px rgba(168,85,247,0.10) !important;
 }
 
-.labs-chrome .pal-item:active,
-.labs-chrome .palette-tile:active,
-.labs-chrome .sp-palette .tile:active {
-  transform: translateY(-1px);
-  transition-duration: 0.08s;
+.labs-chrome .pal-item:active {
+  transform: translateY(-1px) !important;
+  transition-duration: 0.08s !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.9),
     0 1px 2px rgba(14,165,233,0.08),
     0 3px 8px rgba(14,165,233,0.14),
-    0 6px 14px rgba(168,85,247,0.16);
+    0 6px 14px rgba(168,85,247,0.16) !important;
 }
 
-/* Tile icons — bolder stroke + rounded caps */
-.labs-chrome .pal-item svg,
-.labs-chrome .palette-tile svg,
-.labs-chrome .sp-palette .tile svg {
-  width: 20px;
-  height: 20px;
-  color: #0ea5e9;
-  stroke-width: 2.5;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: color 0.18s ease;
+/* Tile icons — bolder stroke + rounded caps + colour transitions */
+.labs-chrome .pal-item svg {
+  width: 22px !important;
+  height: 22px !important;
+  color: #0ea5e9 !important;
+  stroke-width: 2.5 !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  transition: color 0.18s ease !important;
 }
-
-.labs-chrome .pal-item:hover svg,
-.labs-chrome .palette-tile:hover svg,
-.labs-chrome .sp-palette .tile:hover svg {
-  color: #a855f7;
+.labs-chrome .pal-item:hover svg {
+  color: #a855f7 !important;
 }
 
 /* Tile label */
-.labs-chrome .pal-item .tile-label,
-.labs-chrome .pal-item span,
-.labs-chrome .palette-tile .tile-label,
-.labs-chrome .sp-palette .tile .label {
-  font-size: 10px;
-  color: #334155;
-  font-weight: 800;
-  letter-spacing: -0.005em;
+.labs-chrome .pal-item .pal-label {
+  font-size: 10px !important;
+  color: #334155 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.005em !important;
+  text-align: center !important;
 }
 
-/* Block category dot (glass=violet, solid=grey) — added via inline span */
+/* Type chip — small dot in the corner showing glass vs solid classification */
 .labs-chrome .tile-type-chip {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  position: absolute !important;
+  top: 5px !important;
+  right: 5px !important;
+  width: 5px !important;
+  height: 5px !important;
+  border-radius: 50% !important;
+  pointer-events: none !important;
 }
-.labs-chrome .tile-type-chip.glass { background: #a855f7; }
-.labs-chrome .tile-type-chip.solid { background: #64748b; }
+.labs-chrome .tile-type-chip.glass { background: #a855f7 !important; }
+.labs-chrome .tile-type-chip.solid { background: #64748b !important; }
 
 /* ─────────────────────────────────────────────────────────────
    4. CANVAS SURROUND (transparent — wash shows through)

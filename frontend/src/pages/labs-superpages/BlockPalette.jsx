@@ -93,9 +93,8 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   ];
 
   return (
-    <div style={{
+    <div className="block-palette" style={{
       width: 284, flexShrink: 0,
-      background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
       borderLeft: '1px solid #e2e8f0',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
