@@ -12,7 +12,7 @@ import { apiPost } from '../../utils/api';
 // for now; we'll migrate them once these three are solid on production.
 const TIPTAP_TYPES = ['heading', 'text', 'label'];
 
-export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId }) {
+export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId, onShowTemplates }) {
   var { t } = useTranslation();
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
@@ -543,8 +543,31 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         {els.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 600 }}>
             <div style={{ fontSize: 40, marginBottom: 12, color: '#7a8899' }}>✦</div>
-            <h3 style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>{t('superPagesEditor.startBuilding')}</h3>
-            <p style={{ fontSize: 12, color: '#475569', maxWidth: 280, textAlign: 'center', lineHeight: 1.6 }}>{t('superPagesEditor.startBuildingDesc')}</p>
+            <h3 style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: '#0f172a', marginBottom: 6, letterSpacing: '-0.02em' }}>{t('superPagesEditor.startBuilding')}</h3>
+            <p style={{ fontSize: 14, color: '#475569', maxWidth: 360, textAlign: 'center', lineHeight: 1.55, fontWeight: 500, marginBottom: 20 }}>{t('superPagesEditor.startBuildingDesc')}</p>
+            {onShowTemplates && (
+              <button onClick={onShowTemplates} style={{
+                padding: '12px 22px',
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, #0ea5e9, #a855f7)',
+                color: '#fff',
+                border: 'none',
+                fontFamily: 'Manrope, sans-serif',
+                fontWeight: 900,
+                fontSize: 14,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(14,165,233,0.3), 0 8px 24px rgba(168,85,247,0.15)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                letterSpacing: '0.005em',
+              }}>
+                ✨ Browse templates
+              </button>
+            )}
+            <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 12, fontWeight: 600 }}>
+              or click any block from the right panel to build from scratch
+            </p>
           </div>
         )}
 

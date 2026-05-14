@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle } from 'lucide-react';
+import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate } from 'lucide-react';
 import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
 /*
@@ -8,7 +8,7 @@ import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
   visually separate from the editor tools (white), and the canvas below feels
   like the workspace centrepiece.
 */
-export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp }) {
+export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates }) {
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
@@ -71,6 +71,29 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       </button>
 
       <div style={{width:1, height:24, background:'#e2e8f0'}}/>
+
+      <div style={{width:1, height:24, background:'#e2e8f0'}}/>
+
+      {/* Templates — gradient-accented button so members notice it.
+          Click opens the LabsTemplatesGallery modal. */}
+      <button onClick={onShowTemplates} style={{
+        ...btn,
+        background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
+        color: '#7c3aed',
+        border: '1px solid rgba(168,85,247,0.3)',
+        fontWeight: 800,
+      }}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(14,165,233,0.18), rgba(168,85,247,0.18))';
+          e.currentTarget.style.borderColor = 'rgba(168,85,247,0.5)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))';
+          e.currentTarget.style.borderColor = 'rgba(168,85,247,0.3)';
+        }}
+        title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
+        <LayoutTemplate size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.templates', { defaultValue: 'Templates' })}</span>
+      </button>
 
       <button onClick={onShowSettings} style={ghost}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}

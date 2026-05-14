@@ -6,6 +6,7 @@ import Canvas from './Canvas';
 import BlockPalette from './BlockPalette';
 import EditorTopbar from './EditorTopbar';
 import HelpPanel from './HelpPanel';
+import LabsTemplatesGallery from './LabsTemplatesGallery';
 import exportHTML from './exportHTML';
 import { apiGet, apiPost } from '../../utils/api';
 import AppLayout from '../../components/layout/AppLayout';
@@ -30,6 +31,7 @@ export default function LabsSuperPagesEditor() {
   const [pageSettings, setPageSettings] = useState({ title: '', metaDescription: '', ogImage: '', slug: '' });
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const [editingElement, setEditingElement] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [deviceView, setDeviceView] = useState('desktop');
@@ -198,6 +200,34 @@ export default function LabsSuperPagesEditor() {
       if (mountedRef.current) setSaving(false);
     }
   }, [els, canvasBg, canvasBgImage, pageId, pageSettings, pageStatus, markSaved]);
+
+  // ── Apply template ──
+  // Loads a template's els[] and canvasBg into the editor, replacing the
+  // current canvas. Each element gets a fresh runtime ID so re-applying
+  // the same template (or applying a template that shares an id with
+  // existing elements) doesn't collide.
+  //
+  // markDirty fires after the state updates, which feeds the new state
+  // into history via the debounced snapshot — so Ctrl+Z reverts the
+  // entire template application as one entry, not 17 individual blocks.
+  const applyTemplate = useCallback((tpl) => {
+    if (!tpl || !Array.isArray(tpl.els)) {
+      showToast('Could not load that template — please try another.');
+      return;
+    }
+    const stamp = Date.now().toString(36);
+    const freshEls = tpl.els.map((el, i) => ({
+      ...el,
+      id: 'tpl_' + stamp + '_' + i,
+    }));
+    setEls(freshEls);
+    setCanvasBg(tpl.canvasBg || '#ffffff');
+    setCanvasBgImage(tpl.canvasBgImage || '');
+    setShowTemplates(false);
+    setDirty(true);
+    markDirty();
+    showToast('✓ Template applied — customise away!');
+  }, [setEls, setCanvasBg, setCanvasBgImage, setDirty, markDirty]);
 
   // ── Auto-save every 30s ──
   // Skip if: not dirty, save in flight, modal-style editor open, OR the user
@@ -396,6 +426,7 @@ export default function LabsSuperPagesEditor() {
         onClear={handleClear}
         onShowSettings={() => setShowSettings(true)}
         onShowHelp={() => setShowHelp(true)}
+        onShowTemplates={() => setShowTemplates(true)}
         onUndo={undo}
         onRedo={redo}
         onBack={() => navigate('/pro/funnels')}
@@ -474,6 +505,7 @@ export default function LabsSuperPagesEditor() {
             onEditElement={handleEditElement}
             deviceView={deviceView}
             pageId={pageId}
+            onShowTemplates={() => setShowTemplates(true)}
           />
         )}
         {!previewMode && (
@@ -564,6 +596,14 @@ export default function LabsSuperPagesEditor() {
 
       {/* Knowledge Base Help Panel */}
       <HelpPanel visible={showHelp} onClose={() => setShowHelp(false)} />
+
+      {/* Templates gallery — modal picker */}
+      <LabsTemplatesGallery
+        open={showTemplates}
+        onClose={() => setShowTemplates(false)}
+        onApply={applyTemplate}
+        hasContent={els.length > 0}
+      />
     </div>
     </AppLayout>
   );
