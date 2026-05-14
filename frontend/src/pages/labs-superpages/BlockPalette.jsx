@@ -13,29 +13,21 @@ const BLOCK_ICONS = {
   countdown: Timer, socialicons: Share2, icontext: FileText, separator: SeparatorHorizontal, logostrip: LayoutGrid, spacer: MoveVertical, box: Square, divider: GripHorizontal, embed: Code,
 };
 
-// Convert a hex colour like '#0ea5e9' into an 'r,g,b' triple used by rgba() in inline styles.
-// Falls back to sky-blue if anything looks off so we never end up with a broken tile.
-function hexToRgb(hex) {
-  if (!hex || typeof hex !== 'string' || !hex.startsWith('#') || hex.length !== 7) return '14,165,233';
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  if ([r, g, b].some(v => isNaN(v))) return '14,165,233';
-  return `${r},${g},${b}`;
-}
-
-// Produce a soft tinted "glass" background for a palette tile. Layers a subtle
-// top-down sheen (suggesting light catching the glass surface) over a very
-// faint wash of the category colour — so tiles feel tinted, not flat.
-function tileBackground(rgb) {
-  return `linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0) 100%), linear-gradient(160deg, rgba(${rgb},0.08) 0%, #ffffff 100%)`;
-}
-
-// Icon-bubble background (resting state) — the icon sits on a tinted chip that
-// echoes the tile's category colour so the two pieces feel unified.
-function iconBubbleBg(rgb) {
-  return `linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 60%), rgba(${rgb},0.14)`;
-}
+// Hybrid block classification (locked 14 May 2026):
+// GLASS = engagement blocks (members interact / read deeply).
+// SOLID = information blocks (members read at a glance).
+// The .tile-type-chip dot in the corner of each palette tile reflects this.
+const BLOCK_TYPE = {
+  // Glass — engagement
+  form: 'glass', testimonial: 'glass', review: 'glass', faq: 'glass',
+  audio: 'glass', video: 'glass', icontext: 'glass', embed: 'glass',
+  // Solid — information (everything else)
+  heading: 'solid', text: 'solid', label: 'solid',
+  image: 'solid', button: 'solid', announcement: 'solid',
+  badge: 'solid', stat: 'solid', progress: 'solid',
+  countdown: 'solid', socialicons: 'solid', separator: 'solid',
+  logostrip: 'solid', spacer: 'solid', box: 'solid', divider: 'solid',
+};
 
 // Resolve a translated label for a palette item. The i18n key pattern is
 // 'superPagesEditor.blk<Suffix>' where <Suffix> is the element's type with a
@@ -243,44 +235,22 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 </span>
               </div>
 
-              {/* Glass tile grid */}
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7}}>
+              {/* Block tiles — visual treatment lives in LabsChrome.css.
+                  We only thread data + handlers here, no decoration. */}
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:9}}>
                 {cat.items.map((item, ii) => {
                   const Icon = BLOCK_ICONS[item.type] || Square;
-                  const rgb = hexToRgb(item.color);
+                  const blockType = BLOCK_TYPE[item.type] || 'solid';
                   return (
                     <div key={ii}
                       onClick={() => onAddElement(item.type)}
                       draggable
                       onDragStart={e => e.dataTransfer.setData('text/plain', item.type)}
                       className="pal-item"
-                      style={{
-                        '--pal-rgb': rgb,
-                        '--pal-color': item.color,
-                        background: tileBackground(rgb),
-                        border: '1px solid rgba(255,255,255,0.8)',
-                        borderRadius: 11,
-                        padding: '12px 4px 10px',
-                        textAlign: 'center', cursor: 'pointer',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                        userSelect: 'none', position: 'relative', overflow: 'hidden',
-                        boxShadow: `0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.03), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(${rgb},0.06)`,
-                        transition: 'transform 0.22s cubic-bezier(0.4,0,0.2,1), box-shadow 0.22s cubic-bezier(0.4,0,0.2,1), border-color 0.22s cubic-bezier(0.4,0,0.2,1)',
-                        isolation: 'isolate',
-                      }}
                     >
-                      <div className="pal-icon" style={{
-                        width: 34, height: 34, borderRadius: 9,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: iconBubbleBg(rgb),
-                        color: item.color,
-                        boxShadow: `0 1px 2px rgba(15,23,42,0.04), 0 2px 6px rgba(${rgb},0.14), inset 0 1px 0 rgba(255,255,255,0.85)`,
-                        transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
-                        position: 'relative', zIndex: 2,
-                      }}>
-                        <Icon size={18} strokeWidth={2.2}/>
-                      </div>
-                      <span className="pal-label" style={{fontSize:13,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',color:'#334155',position:'relative',zIndex:2,transition:'color 0.22s'}}>{blockLabel(t, item)}</span>
+                      <span className={`tile-type-chip ${blockType}`} />
+                      <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
+                      <span className="pal-label">{blockLabel(t, item)}</span>
                     </div>
                   );
                 })}
@@ -322,55 +292,9 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
         )}
       </div>
 
-      {/*
-        The glass effect is built from layered pseudo-elements so the tile body
-        stays clean and the rendered SVG icons are never overlapped by overlay
-        fills. ::before = top specular highlight (the curved arc of reflected
-        light), ::after = faint under-glow tinted by the category colour.
-        On hover the tile lifts 3 px, the shadow deepens with the category hue,
-        and the icon bubble shifts from tinted glass to solid gradient fill.
-      */}
-      <style>{`
-        .pal-item::before {
-          content: ''; position: absolute;
-          top: 0; left: 12%; right: 12%; height: 40%;
-          background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 100%);
-          border-radius: 50% 50% 0 0 / 80% 80% 0 0;
-          pointer-events: none; z-index: 1;
-        }
-        .pal-item::after {
-          content: ''; position: absolute; inset: 0;
-          border-radius: 11px; pointer-events: none; z-index: 0;
-          background: linear-gradient(180deg, transparent 60%, rgba(var(--pal-rgb), 0.05) 100%);
-        }
-        .pal-item:hover {
-          transform: translateY(-3px);
-          border-color: rgba(var(--pal-rgb), 0.3) !important;
-          box-shadow:
-            0 2px 4px rgba(15,23,42,0.04),
-            0 12px 28px rgba(var(--pal-rgb), 0.18),
-            0 18px 40px rgba(var(--pal-rgb), 0.1),
-            inset 0 1px 0 rgba(255,255,255,0.9) !important;
-        }
-        .pal-item:hover .pal-icon {
-          background:
-            linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%),
-            linear-gradient(135deg, var(--pal-color), color-mix(in srgb, var(--pal-color) 70%, #fff)) !important;
-          color: #fff !important;
-          transform: scale(1.1);
-          box-shadow:
-            0 4px 10px rgba(var(--pal-rgb), 0.4),
-            0 2px 4px rgba(var(--pal-rgb), 0.2),
-            inset 0 1px 0 rgba(255,255,255,0.4) !important;
-        }
-        .pal-item:hover .pal-label {
-          color: var(--pal-color) !important;
-        }
-        .pal-item:active {
-          transform: translateY(-1px);
-          transition: transform 0.08s;
-        }
-      `}</style>
+      {/* All tile styling — rest, hover, active, three-layer lift shadow,
+          icon stroke, label weight — is defined in LabsChrome.css under
+          .labs-chrome scope. This component only threads data + handlers. */}
     </div>
   );
 }

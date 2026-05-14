@@ -10,6 +10,7 @@ import exportHTML from './exportHTML';
 import { apiGet, apiPost } from '../../utils/api';
 import AppLayout from '../../components/layout/AppLayout';
 import { useAuth } from '../../hooks/useAuth';
+import './LabsChrome.css';
 
 export default function LabsSuperPagesEditor() {
   var { t } = useTranslation();
@@ -359,7 +360,7 @@ export default function LabsSuperPagesEditor() {
       fullHeight
       bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: 'DM Sans,sans-serif' }}>
+      <div className="labs-chrome" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: "'Manrope', 'Inter', sans-serif" }}>
       <EditorTopbar
         title={pageSettings.title}
         slug={pageSettings.slug}

@@ -12,8 +12,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
-    <div className="sp-editor-subbar" style={{
-      height: 56, background: '#ffffff', borderBottom: '1px solid #e2e8f0',
+    <div className="sp-editor-subbar sp-editor-topbar" style={{
+      height: 56,
+      background: 'rgba(255,255,255,0.7)',
+      backdropFilter: 'saturate(180%) blur(20px)',
+      WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+      borderBottom: '1px solid rgba(15,23,42,0.06)',
       display: 'flex', alignItems: 'center', padding: '0 18px', gap: 8, flexShrink: 0, zIndex: 20,
     }}>
       <style>{`
