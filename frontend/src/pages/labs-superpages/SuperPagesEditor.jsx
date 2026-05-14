@@ -70,7 +70,7 @@ export default function LabsSuperPagesEditor() {
     setEls, setCanvasBg, setCanvasBgImage, markDirty, undo, redo, deselectAll, clearCanvas, selectElement, markSaved,
     selIds, toggleSelectAdditive, selectAll,
     deleteSelected, duplicateSelected,
-    copySelected, paste, nudgeSelected, moveElementZ } = editor;
+    copySelected, paste, nudgeSelected, moveElementZ, selectMany } = editor;
 
   // Which element types route through the Tiptap editor. These auto-enter
   // edit mode when first dropped on the canvas, so the user can type
@@ -544,6 +544,12 @@ export default function LabsSuperPagesEditor() {
             onShowTemplates={() => setShowTemplates(true)}
             selIds={selIds}
             toggleSelectAdditive={toggleSelectAdditive}
+            selectMany={selectMany}
+            duplicateElement={duplicateElement}
+            deleteElement={deleteElement}
+            moveElementZ={moveElementZ}
+            copySelected={copySelected}
+            paste={paste}
           />
         )}
         {!previewMode && (
@@ -641,6 +647,9 @@ export default function LabsSuperPagesEditor() {
         onClose={() => setShowTemplates(false)}
         onApply={applyTemplate}
         hasContent={els.length > 0}
+        currentEls={els}
+        currentBg={canvasBg}
+        currentBgImage={canvasBgImage}
       />
     </div>
     </AppLayout>

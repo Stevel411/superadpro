@@ -301,6 +301,19 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
     setSelIds(new Set());
   }, []);
 
+  // Set the entire selection set at once. Used by marquee drag-select
+  // in Canvas. The last id in the array becomes the primary (the one
+  // whose properties show in the right panel).
+  const selectMany = useCallback((ids) => {
+    if (!ids || ids.length === 0) {
+      setSelId(null);
+      setSelIds(new Set());
+      return;
+    }
+    setSelIds(new Set(ids));
+    setSelId(ids[ids.length - 1]);
+  }, []);
+
   // ── Multi-select ──
   //
   // selIds is the authoritative set of selected element IDs.
@@ -446,7 +459,7 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
   return {
     els, setEls,
     selId, setSelId, selectElement, deselectAll,
-    selIds, toggleSelectAdditive, selectAll,
+    selIds, toggleSelectAdditive, selectAll, selectMany,
     deleteSelected, duplicateSelected,
     copySelected, paste, nudgeSelected,
     canvasBg, setCanvasBg,

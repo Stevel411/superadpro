@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { PALETTE, BG_PRESETS } from './elementDefaults';
+import { loadRecents, loadFavourites, toggleFavourite, pushRecent } from './blockMemory';
 import { Type, AlignLeft, Tag, ImageIcon, Play, Music, RectangleHorizontal, FormInput, Bell,
   MessageSquareQuote, Star, Quote, HelpCircle, BarChart3, Minus,
   Timer, Share2, FileText, SeparatorHorizontal, LayoutGrid, MoveVertical, Square, GripHorizontal, Code, Send } from 'lucide-react';
@@ -61,6 +62,26 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   const [chatSending, setChatSending] = useState(false);
   const chatRef = useRef(null);
   const [search, setSearch] = useState('');
+  const [recents, setRecents] = useState(() => loadRecents());
+  const [favourites, setFavourites] = useState(() => loadFavourites());
+
+  // Helper: build a flat list of all palette items by type, so we can
+  // look up display metadata for a given block type (used by the
+  // Quick row).
+  const ALL_ITEMS_BY_TYPE = {};
+  PALETTE.forEach(cat => cat.items.forEach(item => { ALL_ITEMS_BY_TYPE[item.type] = item; }));
+
+  // Refresh recents whenever a block is added (parent calls onAddElement
+  // which we wrap below to also push to recents).
+  const addAndRemember = (type) => {
+    pushRecent(type);
+    setRecents(loadRecents());
+    onAddElement(type);
+  };
+  const handleToggleFav = (type, e) => {
+    e.stopPropagation();
+    setFavourites(toggleFavourite(type));
+  };
 
   const applyBg = (bg) => { setCanvasBg(bg); markDirty(); };
   const applyBgImage = (url) => { setCanvasBgImage(url); setBgImageUrl(url); markDirty(); };
@@ -309,7 +330,63 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             );
           }
 
-          return filteredCats.map((cat, ci) => (
+          // Quick row — favourites + recents, deduped, capped at 6.
+          // Only shown when not actively searching (search collapses the
+          // palette to just matched blocks).
+          let quickItems = [];
+          if (!q) {
+            const seen = new Set();
+            const push = (type) => {
+              const item = ALL_ITEMS_BY_TYPE[type];
+              if (item && !seen.has(type)) { seen.add(type); quickItems.push(item); }
+            };
+            favourites.forEach(push);
+            recents.forEach(push);
+            quickItems = quickItems.slice(0, 6);
+          }
+
+          const quickRow = quickItems.length > 0 ? (
+            <div key="__quick" style={{marginBottom: 12}}>
+              <div className="palette-section-label" style={{padding:'4px 4px 8px'}}>
+                ⭐ Quick blocks
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:9}}>
+                {quickItems.map((item, ii) => {
+                  const Icon = BLOCK_ICONS[item.type] || Square;
+                  const blockType = BLOCK_TYPE[item.type] || 'solid';
+                  const isFav = favourites.includes(item.type);
+                  return (
+                    <div key={`q_${ii}`}
+                      onClick={() => addAndRemember(item.type)}
+                      draggable
+                      onDragStart={e => e.dataTransfer.setData('text/plain', item.type)}
+                      className="pal-item"
+                    >
+                      <span className={`tile-type-chip ${blockType}`} />
+                      <button
+                        className="pal-fav"
+                        onClick={(e) => handleToggleFav(item.type, e)}
+                        aria-label={isFav ? 'Remove favourite' : 'Add favourite'}
+                        style={{
+                          position: 'absolute', top: 3, left: 3,
+                          width: 16, height: 16, padding: 0,
+                          background: 'none', border: 'none',
+                          cursor: 'pointer',
+                          color: isFav ? '#fbbf24' : 'rgba(15,23,42,0.18)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 12, lineHeight: 1,
+                        }}
+                      >{isFav ? '★' : '☆'}</button>
+                      <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
+                      <span className="pal-label">{blockLabel(t, item)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null;
+
+          const fullCats = filteredCats.map((cat, ci) => (
             <div key={cat.label} style={{marginBottom: 8}}>
               {/* Section head — typography-only treatment. */}
               <div className="palette-section-label" style={{padding:'12px 4px 8px',...(ci===0?{paddingTop:4}:{})}}>
@@ -320,14 +397,29 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 {cat.items.map((item, ii) => {
                   const Icon = BLOCK_ICONS[item.type] || Square;
                   const blockType = BLOCK_TYPE[item.type] || 'solid';
+                  const isFav = favourites.includes(item.type);
                   return (
                     <div key={ii}
-                      onClick={() => onAddElement(item.type)}
+                      onClick={() => addAndRemember(item.type)}
                       draggable
                       onDragStart={e => e.dataTransfer.setData('text/plain', item.type)}
                       className="pal-item"
                     >
                       <span className={`tile-type-chip ${blockType}`} />
+                      <button
+                        className="pal-fav"
+                        onClick={(e) => handleToggleFav(item.type, e)}
+                        aria-label={isFav ? 'Remove favourite' : 'Add favourite'}
+                        style={{
+                          position: 'absolute', top: 3, left: 3,
+                          width: 16, height: 16, padding: 0,
+                          background: 'none', border: 'none',
+                          cursor: 'pointer',
+                          color: isFav ? '#fbbf24' : 'rgba(15,23,42,0.18)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 12, lineHeight: 1,
+                        }}
+                      >{isFav ? '★' : '☆'}</button>
                       <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
                       <span className="pal-label">{blockLabel(t, item)}</span>
                     </div>
@@ -336,6 +428,8 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               </div>
             </div>
           ));
+
+          return <>{quickRow}{fullCats}</>;
         })()}
       </div>
 

@@ -1,5 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LABS_TEMPLATES, TEMPLATE_CATEGORIES } from './labsTemplates';
+import {
+  loadCustomTemplates,
+  saveCustomTemplate,
+  deleteCustomTemplate,
+  encodeTemplateForShare,
+  importTemplateFromCode,
+} from './customTemplates';
 
 // ═══════════════════════════════════════════════════════════════
 // LabsTemplatesGallery — modal template picker
@@ -25,15 +32,82 @@ import { LABS_TEMPLATES, TEMPLATE_CATEGORIES } from './labsTemplates';
 //   hasContent — bool, whether the current canvas has elements (for
 //                the confirm-overwrite warning)
 
-export default function LabsTemplatesGallery({ open, onClose, onApply, hasContent }) {
+export default function LabsTemplatesGallery({ open, onClose, onApply, hasContent, currentEls, currentBg, currentBgImage }) {
   const [filter, setFilter] = useState('all');
   const [confirmTpl, setConfirmTpl] = useState(null);
+  const [customTpls, setCustomTpls] = useState([]);
+  const [mode, setMode] = useState('browse'); // 'browse' | 'save' | 'import' | 'share'
+  const [saveName, setSaveName] = useState('');
+  const [importCode, setImportCode] = useState('');
+  const [shareForTpl, setShareForTpl] = useState(null);
+  const [toast, setToast] = useState('');
+
+  // Load custom templates on open + refresh whenever modal opens.
+  useEffect(() => {
+    if (open) {
+      setCustomTpls(loadCustomTemplates());
+      setMode('browse');
+    }
+  }, [open]);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(''), 2200);
+    return () => clearTimeout(id);
+  }, [toast]);
 
   if (!open) return null;
 
+  // Merge built-ins with personal library; personal shows in "My templates"
+  const allTemplates = [...customTpls, ...LABS_TEMPLATES];
+
   const visible = filter === 'all'
-    ? LABS_TEMPLATES
-    : LABS_TEMPLATES.filter(t => t.category === filter);
+    ? allTemplates
+    : allTemplates.filter(t => t.category === filter);
+
+  const handleSaveCurrent = () => {
+    if (!currentEls || currentEls.length === 0) {
+      setToast('Nothing on the canvas to save');
+      return;
+    }
+    const tpl = saveCustomTemplate(saveName, currentEls, currentBg, currentBgImage);
+    if (tpl) {
+      setCustomTpls(loadCustomTemplates());
+      setSaveName('');
+      setMode('browse');
+      setFilter('My templates');
+      setToast('✓ Saved to your templates');
+    } else {
+      setToast('Could not save — storage may be full');
+    }
+  };
+
+  const handleImport = () => {
+    if (!importCode.trim()) return;
+    const imported = importTemplateFromCode(importCode);
+    if (imported) {
+      setCustomTpls(loadCustomTemplates());
+      setImportCode('');
+      setMode('browse');
+      setFilter('My templates');
+      setToast(`✓ Imported "${imported.name}"`);
+    } else {
+      setToast('Invalid template code');
+    }
+  };
+
+  const handleDelete = (tpl) => {
+    if (!confirm(`Delete "${tpl.name}" from your templates?`)) return;
+    deleteCustomTemplate(tpl.id);
+    setCustomTpls(loadCustomTemplates());
+    setToast('Deleted');
+  };
+
+  const handleShare = (tpl) => {
+    setShareForTpl(tpl);
+    setMode('share');
+  };
 
   const handleCardClick = (tpl) => {
     // If canvas is empty, apply immediately — no confirm needed.
@@ -142,9 +216,171 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
           >×</button>
         </div>
 
+        {/* Personal-template actions toolbar */}
+        {mode === 'browse' && (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 18, alignItems: 'center' }}>
+            <button onClick={() => setMode('save')} style={{
+              padding: '8px 14px',
+              borderRadius: 10,
+              border: '1px solid rgba(14,165,233,0.3)',
+              background: 'linear-gradient(135deg, rgba(14,165,233,0.08), rgba(168,85,247,0.06))',
+              color: '#0284c7',
+              fontFamily: 'Manrope, sans-serif',
+              fontWeight: 800,
+              fontSize: 12,
+              cursor: 'pointer',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+            }}>💾 Save current as template</button>
+            <button onClick={() => setMode('import')} style={{
+              padding: '8px 14px',
+              borderRadius: 10,
+              border: '1px solid rgba(168,85,247,0.3)',
+              background: 'rgba(168,85,247,0.06)',
+              color: '#7c3aed',
+              fontFamily: 'Manrope, sans-serif',
+              fontWeight: 800,
+              fontSize: 12,
+              cursor: 'pointer',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+            }}>📥 Import a SAP code</button>
+            <div style={{ flex: 1 }}/>
+            {customTpls.length > 0 && (
+              <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700 }}>
+                {customTpls.length} personal · {LABS_TEMPLATES.length} built-in
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Save mode — name your current page, then save */}
+        {mode === 'save' && (
+          <div style={{ marginBottom: 18, padding: '16px 18px', background: 'linear-gradient(135deg, rgba(14,165,233,0.06), rgba(168,85,247,0.06))', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 14 }}>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 900, color: '#0f172a', marginBottom: 4, letterSpacing: '-0.015em' }}>Save current page as a template</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12, lineHeight: 1.5 }}>
+              Your template will be saved to this browser. Use the share button on any saved template to copy a SAP code others can import.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                value={saveName}
+                onChange={(e) => setSaveName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSaveCurrent(); if (e.key === 'Escape') setMode('browse'); }}
+                placeholder="Name your template (e.g. My course funnel v2)"
+                autoFocus
+                maxLength={60}
+                style={{
+                  flex: 1, padding: '10px 14px', borderRadius: 9,
+                  border: '1px solid rgba(15,23,42,0.1)', background: '#fff',
+                  fontSize: 13, fontWeight: 600, color: '#0f172a',
+                  fontFamily: 'Manrope,sans-serif', outline: 'none',
+                }}
+              />
+              <button onClick={handleSaveCurrent} style={{
+                padding: '10px 18px', borderRadius: 9, border: 'none',
+                background: 'linear-gradient(135deg,#0ea5e9,#a855f7)', color: '#fff',
+                fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: 12,
+                cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.3)',
+              }}>Save</button>
+              <button onClick={() => setMode('browse')} style={{
+                padding: '10px 14px', borderRadius: 9,
+                border: '1px solid rgba(15,23,42,0.1)', background: '#fff',
+                fontFamily: 'Manrope,sans-serif', fontWeight: 800, fontSize: 12,
+                color: '#475569', cursor: 'pointer',
+              }}>Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {/* Import mode — paste a SAP code */}
+        {mode === 'import' && (
+          <div style={{ marginBottom: 18, padding: '16px 18px', background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.25)', borderRadius: 14 }}>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 900, color: '#0f172a', marginBottom: 4, letterSpacing: '-0.015em' }}>Import a template code</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12, lineHeight: 1.5 }}>
+              Paste the full code (including the SAP-XXXX-XXXX prefix and the long payload after the double colon).
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <textarea
+                value={importCode}
+                onChange={(e) => setImportCode(e.target.value)}
+                placeholder="SAP-XXXX-XXXX::eyJuYW1lIjoi..."
+                rows={3}
+                autoFocus
+                style={{
+                  flex: 1, padding: '10px 14px', borderRadius: 9,
+                  border: '1px solid rgba(15,23,42,0.1)', background: '#fff',
+                  fontSize: 12, fontWeight: 500, color: '#0f172a',
+                  fontFamily: 'monospace', outline: 'none', resize: 'vertical',
+                }}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <button onClick={handleImport} style={{
+                  padding: '10px 18px', borderRadius: 9, border: 'none',
+                  background: 'linear-gradient(135deg,#a855f7,#ec4899)', color: '#fff',
+                  fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: 12,
+                  cursor: 'pointer', boxShadow: '0 4px 12px rgba(168,85,247,0.3)',
+                }}>Import</button>
+                <button onClick={() => setMode('browse')} style={{
+                  padding: '10px 14px', borderRadius: 9,
+                  border: '1px solid rgba(15,23,42,0.1)', background: '#fff',
+                  fontFamily: 'Manrope,sans-serif', fontWeight: 800, fontSize: 12,
+                  color: '#475569', cursor: 'pointer',
+                }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Share mode — show the SAP code for a selected template */}
+        {mode === 'share' && shareForTpl && (() => {
+          const fullCode = encodeTemplateForShare(shareForTpl);
+          return (
+            <div style={{ marginBottom: 18, padding: '16px 18px', background: 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.06))', border: '1px solid rgba(168,85,247,0.3)', borderRadius: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.015em' }}>Share <span style={{ color: '#7c3aed' }}>{shareForTpl.name}</span></div>
+                <button onClick={() => { setMode('browse'); setShareForTpl(null); }} style={{
+                  padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(15,23,42,0.1)',
+                  background: '#fff', color: '#475569', fontFamily: 'Manrope,sans-serif',
+                  fontWeight: 800, fontSize: 11, cursor: 'pointer',
+                }}>Done</button>
+              </div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, lineHeight: 1.5 }}>
+                Anyone with this code can paste it into the Import dialog to recreate your template. The short SAP prefix is the recognisable part — copy the entire thing including the long payload.
+              </div>
+              <textarea
+                readOnly
+                value={fullCode || ''}
+                rows={3}
+                onClick={(e) => e.currentTarget.select()}
+                style={{
+                  width: '100%', padding: '10px 14px', borderRadius: 9,
+                  border: '1px solid rgba(15,23,42,0.1)', background: '#fff',
+                  fontSize: 11, fontWeight: 500, color: '#0f172a',
+                  fontFamily: 'monospace', outline: 'none', resize: 'vertical',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button onClick={() => {
+                if (fullCode) {
+                  navigator.clipboard.writeText(fullCode).then(
+                    () => setToast('Copied to clipboard'),
+                    () => setToast('Could not copy — please select and copy manually')
+                  );
+                }
+              }} style={{
+                marginTop: 8, padding: '8px 16px', borderRadius: 9, border: 'none',
+                background: 'linear-gradient(135deg,#a855f7,#ec4899)', color: '#fff',
+                fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: 12,
+                cursor: 'pointer', boxShadow: '0 4px 12px rgba(168,85,247,0.3)',
+              }}>📋 Copy code</button>
+            </div>
+          );
+        })()}
+
         {/* Category filter pills */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-          {TEMPLATE_CATEGORIES.map((cat) => {
+          {[
+            ...(customTpls.length > 0 ? [{ key: 'My templates', label: '⭐ My templates', colour: '#f59e0b' }] : []),
+            ...TEMPLATE_CATEGORIES,
+          ].map((cat) => {
             const active = filter === cat.key;
             return (
               <button
@@ -287,10 +523,53 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
                   color: tpl.accent,
                   fontFamily: 'Sora, sans-serif',
                 }}>Use this template →</div>
+
+                {/* Custom-template actions — only shown on personal saves */}
+                {tpl._custom && (
+                  <div style={{
+                    display: 'flex', gap: 6, marginTop: 12,
+                    paddingTop: 10, borderTop: '1px solid rgba(15,23,42,0.06)',
+                  }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button onClick={(e) => { e.stopPropagation(); handleShare(tpl); }}
+                      style={{
+                        padding: '5px 10px', borderRadius: 6,
+                        background: 'rgba(168,85,247,0.08)',
+                        border: '1px solid rgba(168,85,247,0.25)',
+                        color: '#7c3aed', cursor: 'pointer',
+                        fontSize: 11, fontWeight: 800,
+                        fontFamily: 'Manrope,sans-serif',
+                      }}>🔗 Share</button>
+                    <div style={{ flex: 1 }}/>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(tpl); }}
+                      title="Delete this template"
+                      style={{
+                        padding: '5px 10px', borderRadius: 6,
+                        background: 'rgba(220,38,38,0.06)',
+                        border: '1px solid rgba(220,38,38,0.2)',
+                        color: '#dc2626', cursor: 'pointer',
+                        fontSize: 11, fontWeight: 800,
+                        fontFamily: 'Manrope,sans-serif',
+                      }}>🗑</button>
+                  </div>
+                )}
               </div>
             </button>
           ))}
         </div>
+
+        {/* Toast — for save/import/delete confirmations */}
+        {toast && (
+          <div style={{
+            position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+            padding: '10px 18px', borderRadius: 10,
+            background: '#0f172a', color: '#fff',
+            fontFamily: 'Manrope,sans-serif', fontWeight: 800, fontSize: 13,
+            boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+            zIndex: 10001,
+          }}>{toast}</div>
+        )}
 
         {/* Confirm-overwrite dialog */}
         {confirmTpl && (

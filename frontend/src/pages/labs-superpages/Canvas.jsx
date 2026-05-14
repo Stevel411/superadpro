@@ -12,7 +12,7 @@ import { apiPost } from '../../utils/api';
 // for now; we'll migrate them once these three are solid on production.
 const TIPTAP_TYPES = ['heading', 'text', 'label'];
 
-export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive }) {
+export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, duplicateElement, deleteElement, moveElementZ, copySelected, paste }) {
   var { t } = useTranslation();
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
@@ -21,9 +21,27 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   const [editingId, setEditingId] = useState(null);
   const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
   const [aiBusy, setAiBusy] = useState(false);
+  const [contextMenu, setContextMenu] = useState(null); // { x, y, elId } or null
   const editableRef = useRef(null);
 
   const EDITABLE_TYPES = ['heading', 'text', 'label', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip'];
+
+  // Dismiss the context menu on outside click / Escape. Capture phase
+  // so we catch the click before it hits other handlers.
+  useEffect(() => {
+    if (!contextMenu) return;
+    const onDown = (e) => {
+      if (e.target.closest('.sp-context-menu')) return;
+      setContextMenu(null);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') setContextMenu(null); };
+    document.addEventListener('mousedown', onDown, true);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown, true);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [contextMenu]);
 
   // ── Canvas height ──
   const maxElY = els.length > 0 ? Math.max(...els.map(e => e.y + e.h)) : 0;
@@ -408,12 +426,66 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     if (window._spAddElement) window._spAddElement(type, x, y);
   }, []);
 
-  // ── Canvas click deselect ──
+  // ── Canvas mousedown — deselect on empty click, or start marquee drag ──
+  // Click on the canvas bg deselects current. Click-and-drag draws a
+  // rectangular marquee; on mouseup, any element whose bounding box
+  // intersects the marquee enters the selection set.
+  const [marquee, setMarquee] = useState(null); // {x1,y1,x2,y2} or null
+  const marqueeRef = useRef(null);
+
   const handleCanvasClick = (e) => {
-    if (e.target === canvasRef.current || e.target.closest('.canvas-empty')) {
-      exitInlineEdit();
-      deselectAll();
+    // Only fire on direct canvas background, not on child elements.
+    if (e.target !== canvasRef.current && !e.target.classList.contains('canvas-empty-state')) {
+      return;
     }
+    exitInlineEdit();
+    // Don't deselect yet — wait to see if this is a click (deselect) or
+    // a drag (marquee select). The mousemove handler decides.
+    const rect = canvasRef.current.getBoundingClientRect();
+    const startX = e.clientX - rect.left;
+    const startY = e.clientY - rect.top;
+    let didDrag = false;
+    marqueeRef.current = { startX, startY, x1: startX, y1: startY, x2: startX, y2: startY };
+
+    const onMove = (ev) => {
+      const m = marqueeRef.current;
+      if (!m) return;
+      const cx = ev.clientX - rect.left;
+      const cy = ev.clientY - rect.top;
+      // Threshold: at least 4px drag distance to enter marquee mode,
+      // so a plain click still feels like a click.
+      if (!didDrag && Math.abs(cx - m.startX) < 4 && Math.abs(cy - m.startY) < 4) return;
+      didDrag = true;
+      m.x1 = Math.min(m.startX, cx);
+      m.y1 = Math.min(m.startY, cy);
+      m.x2 = Math.max(m.startX, cx);
+      m.y2 = Math.max(m.startY, cy);
+      setMarquee({ x1: m.x1, y1: m.y1, x2: m.x2, y2: m.y2 });
+    };
+
+    const onUp = () => {
+      const m = marqueeRef.current;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      marqueeRef.current = null;
+      setMarquee(null);
+      if (!didDrag || !m) {
+        // Plain click on empty canvas — deselect everything.
+        deselectAll();
+        return;
+      }
+      // Marquee drag — find every element whose box intersects.
+      const hits = els.filter(el => {
+        const elL = el.x, elR = el.x + el.w;
+        const elT = el.y, elB = el.y + el.h;
+        return !(elR < m.x1 || elL > m.x2 || elB < m.y1 || elT > m.y2);
+      }).map(el => el.id);
+      if (hits.length === 0) deselectAll();
+      else if (typeof selectMany === 'function') selectMany(hits);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   };
 
   // ── Render element inner content ──
@@ -632,6 +704,22 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             style={{ display: 'none', position: 'absolute', left: 0, height: 1, width: '100%', background: 'rgba(14,165,233,0.4)', zIndex: 100, pointerEvents: 'none' }} />
         ))}
 
+        {/* Marquee selection rectangle */}
+        {marquee && (
+          <div style={{
+            position: 'absolute',
+            left: marquee.x1,
+            top: marquee.y1,
+            width: marquee.x2 - marquee.x1,
+            height: marquee.y2 - marquee.y1,
+            background: 'rgba(14,165,233,0.08)',
+            border: '1px dashed rgba(14,165,233,0.6)',
+            borderRadius: 2,
+            zIndex: 50,
+            pointerEvents: 'none',
+          }}/>
+        )}
+
         {/* Empty state */}
         {els.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 600 }}>
@@ -675,6 +763,14 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             className={`cel${isPrimary ? ' selected' : ''}${isMulti ? ' multi-selected' : ''}${el.id === editingId ? ' editing' : ''}`}
             style={getOuterStyle(el)}
             onMouseDown={e => { if (editingId === el.id) return; startDrag(e, el.id); }}
+            onContextMenu={(e) => {
+              // Right-click: select the element and open context menu at cursor.
+              // Native menu suppressed only when we actually open ours.
+              e.preventDefault();
+              e.stopPropagation();
+              selectElement(el.id);
+              setContextMenu({ x: e.clientX, y: e.clientY, elId: el.id });
+            }}
             onClick={e => {
               // Single-click-to-edit for Tiptap-managed types. A click only
               // fires after a complete mousedown+mouseup without an intervening
@@ -739,6 +835,74 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         );})}
       </div>
       </div>
+
+      {/* Context menu — right-click on any element */}
+      {contextMenu && (() => {
+        const el = els.find(x => x.id === contextMenu.elId);
+        if (!el) return null;
+        const items = [
+          { label: '✎ Edit', action: () => { if (EDITABLE_TYPES.includes(el.type)) startInlineEdit(el.id); else onEditElement(el.id); }, hidden: ['spacer','divider','box'].includes(el.type) },
+          { divider: true },
+          { label: '⧉ Duplicate', shortcut: '⌘D', action: () => { if (duplicateElement) duplicateElement(el.id); } },
+          { label: '📋 Copy', shortcut: '⌘C', action: () => { if (copySelected) copySelected(); } },
+          { label: '📥 Paste', shortcut: '⌘V', action: () => { if (paste) paste(); } },
+          { divider: true },
+          { label: el.locked ? '🔓 Unlock' : '🔒 Lock', action: () => { updateElement(el.id, { locked: !el.locked }); markDirty(); } },
+          { label: el.hidden ? '👁 Show' : '🙈 Hide', action: () => { updateElement(el.id, { hidden: !el.hidden }); markDirty(); } },
+          { divider: true },
+          { label: '⬆ Bring forward', action: () => { if (moveElementZ) moveElementZ(el.id, 1); } },
+          { label: '⬇ Send back', action: () => { if (moveElementZ) moveElementZ(el.id, -1); } },
+          { divider: true },
+          { label: '🗑 Delete', shortcut: 'Del', danger: true, action: () => { if (deleteElement) deleteElement(el.id); } },
+        ].filter(it => !it.hidden);
+
+        // Position menu, clamping to viewport so it never overflows
+        const MENU_W = 220;
+        const MENU_H = Math.min(items.length * 32 + 24, 420);
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const x = Math.min(contextMenu.x, vw - MENU_W - 8);
+        const y = Math.min(contextMenu.y, vh - MENU_H - 8);
+
+        return (
+          <div className="sp-context-menu" style={{
+            position: 'fixed', top: y, left: x, width: MENU_W,
+            background: 'rgba(255,255,255,0.96)',
+            backdropFilter: 'saturate(180%) blur(20px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+            border: '1px solid rgba(14,165,233,0.2)',
+            borderRadius: 10,
+            boxShadow: '0 14px 40px rgba(15,23,42,0.2), 0 4px 12px rgba(14,165,233,0.1)',
+            padding: '6px 0',
+            zIndex: 1000,
+            fontFamily: 'Manrope, sans-serif',
+          }}>
+            {items.map((it, i) => {
+              if (it.divider) {
+                return <div key={i} style={{ height: 1, background: 'rgba(15,23,42,0.08)', margin: '4px 0' }}/>;
+              }
+              return (
+                <div key={i}
+                  onMouseDown={(e) => { e.preventDefault(); }}
+                  onClick={() => { it.action(); setContextMenu(null); }}
+                  style={{
+                    padding: '7px 14px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    fontSize: 12, fontWeight: 700,
+                    color: it.danger ? '#dc2626' : '#0f172a',
+                    transition: 'background 0.12s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = it.danger ? 'rgba(220,38,38,0.08)' : 'rgba(14,165,233,0.08)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <span>{it.label}</span>
+                  {it.shortcut && <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, fontFamily: 'monospace' }}>{it.shortcut}</span>}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       <style>{`
         .cel:hover { outline: 1px dashed rgba(14,165,233,0.35); outline-offset: 1px; }
