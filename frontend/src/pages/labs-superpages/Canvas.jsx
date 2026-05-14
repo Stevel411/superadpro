@@ -253,6 +253,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   };
 
   // ── Drag Move ──
+  // Supports lock (locked elements ignore drag), shift-click toggle for
+  // additive selection, and group-drag when multiple elements are
+  // selected — all selected elements move together with the same delta.
   const startDrag = useCallback((e, id) => {
     if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize')) return;
     e.preventDefault();
@@ -264,34 +267,74 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       return;
     }
 
-    if (id !== selId) {
+    // Locked elements: select but don't drag. Surfaces selection so the
+    // member can unlock via the toolbar.
+    const el = els.find(x => x.id === id);
+    if (!el) return;
+    if (el.locked) {
       selectElement(id);
       return;
     }
 
-    const el = els.find(x => x.id === id);
-    if (!el) return;
-    dragRef.current = { id, startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y };
+    if (id !== selId) {
+      // Click on an unselected element — select and don't drag yet.
+      // Second click-and-drag enters drag mode. (Two-step pattern is the
+      // editor's existing UX — kept for consistency.)
+      selectElement(id);
+      return;
+    }
+
+    // Determine the set to move: if there's a multi-selection that
+    // includes this element, move them all together. Locked elements
+    // in the set are skipped so they stay put even during group-drag.
+    const groupIds = (selIds && selIds.size > 1 && selIds.has(id))
+      ? Array.from(selIds).filter(gid => {
+          const ge = els.find(x => x.id === gid);
+          return ge && !ge.locked;
+        })
+      : [id];
+
+    const origs = {};
+    groupIds.forEach(gid => {
+      const ge = els.find(x => x.id === gid);
+      if (ge) origs[gid] = { x: ge.x, y: ge.y };
+    });
+
+    dragRef.current = { primary: id, groupIds, origs, startX: e.clientX, startY: e.clientY, finals: {} };
 
     const onMove = (ev) => {
       const d = dragRef.current;
       if (!d) return;
       const dx = ev.clientX - d.startX;
       const dy = ev.clientY - d.startY;
-      const newEl = { ...el, x: Math.max(0, d.origX + dx), y: Math.max(0, d.origY + dy) };
+
+      // For the primary, snap to guides; the group follows the primary's
+      // snapped delta so alignments stay coherent.
+      const primaryOrig = d.origs[d.primary];
+      const newEl = { ...el, x: Math.max(0, primaryOrig.x + dx), y: Math.max(0, primaryOrig.y + dy) };
       showGuides(newEl);
-      // Direct DOM update for smooth dragging
-      const dom = document.getElementById(id);
-      if (dom) { dom.style.left = newEl.x + 'px'; dom.style.top = newEl.y + 'px'; }
-      // Store for mouseup
-      dragRef.current.finalX = newEl.x;
-      dragRef.current.finalY = newEl.y;
+      const snappedDx = newEl.x - primaryOrig.x;
+      const snappedDy = newEl.y - primaryOrig.y;
+
+      // Apply snapped delta to every group member (including primary).
+      d.groupIds.forEach(gid => {
+        const o = d.origs[gid];
+        const nx = Math.max(0, o.x + snappedDx);
+        const ny = Math.max(0, o.y + snappedDy);
+        const dom = document.getElementById(gid);
+        if (dom) { dom.style.left = nx + 'px'; dom.style.top = ny + 'px'; }
+        d.finals[gid] = { x: nx, y: ny };
+      });
     };
 
     const onUp = () => {
       const d = dragRef.current;
-      if (d && (d.finalX !== undefined)) {
-        updateElement(d.id, { x: d.finalX, y: d.finalY });
+      if (d && Object.keys(d.finals).length > 0) {
+        // Commit all group members through updateElement, then markDirty
+        // once so history captures the entire drag as one entry.
+        Object.entries(d.finals).forEach(([gid, pos]) => {
+          updateElement(gid, pos);
+        });
         markDirty();
       }
       dragRef.current = null;
@@ -302,7 +345,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  }, [els, selId, selectElement, updateElement, markDirty, showGuides, toggleSelectAdditive]);
+  }, [els, selId, selIds, selectElement, updateElement, markDirty, showGuides, toggleSelectAdditive]);
 
   // ── Resize ──
   const startResize = useCallback((e, id, handle) => {
@@ -310,6 +353,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     e.stopPropagation();
     const el = els.find(x => x.id === id);
     if (!el) return;
+    if (el.locked) return; // locked elements ignore resize
     resizeRef.current = { id, handle, startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y, origW: el.w, origH: el.h };
 
     const onMove = (ev) => {
@@ -521,11 +565,16 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   // ── Element outer styles ──
   const getOuterStyle = (el) => {
     const layoutStyles = ['background', 'borderRadius', 'border', 'padding', 'boxShadow', 'borderLeft', 'borderTop', 'borderRight', 'borderBottom', 'opacity'];
+    const isEditing = editingId === el.id;
+    const cursor = isEditing ? 'text' : el.locked ? 'not-allowed' : 'grab';
     const style = {
       position: 'absolute', left: el.x, top: el.y, width: el.w, height: el.h,
-      cursor: editingId === el.id ? 'text' : 'grab', userSelect: editingId === el.id ? 'auto' : 'none', minWidth: 40, minHeight: 20,
+      cursor, userSelect: isEditing ? 'auto' : 'none', minWidth: 40, minHeight: 20,
     };
     layoutStyles.forEach(k => { if (el.s?.[k]) style[k] = el.s[k]; });
+    // Hidden elements (toggled from layer panel) fade on canvas so the
+    // member knows they're not rendering but can still click to unhide.
+    if (el.hidden) style.opacity = 0.25;
     return style;
   };
 
@@ -663,12 +712,16 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
               <button onClick={e => { e.stopPropagation(); if (window._spDuplicateElement) window._spDuplicateElement(el.id); }}
                 style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }} title={t('superPagesEditor.duplicate')}>⧉</button>
               <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
+              <button onClick={e => { e.stopPropagation(); updateElement(el.id, { locked: !el.locked }); markDirty(); }}
+                style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: el.locked ? '#a855f7' : '#64748b' }}
+                title={el.locked ? 'Unlock element' : 'Lock element'}>{el.locked ? '🔒' : '🔓'}</button>
+              <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
               <button onClick={e => { e.stopPropagation(); if (window._spDeleteElement) window._spDeleteElement(el.id); }}
                 style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--sap-red)' }} title={t('superPagesEditor.deleteElement')}>✕</button>
             </div>
 
-            {/* Resize handles — all 8 directions */}
-            {el.id === selId && [
+            {/* Resize handles — all 8 directions. Hidden when locked. */}
+            {el.id === selId && !el.locked && [
               { pos: 'tl', style: { top: -4, left: -4, width: 10, height: 10, cursor: 'nwse-resize', borderRadius: 3 } },
               { pos: 't',  style: { top: -3, left: '50%', width: 24, height: 6, transform: 'translateX(-50%)', cursor: 'ns-resize', borderRadius: 3 } },
               { pos: 'tr', style: { top: -4, right: -4, width: 10, height: 10, cursor: 'nesw-resize', borderRadius: 3 } },

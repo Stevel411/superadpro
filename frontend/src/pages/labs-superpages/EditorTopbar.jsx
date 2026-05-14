@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate } from 'lucide-react';
+import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers } from 'lucide-react';
 import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
 /*
@@ -8,7 +8,7 @@ import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
   visually separate from the editor tools (white), and the canvas below feels
   like the workspace centrepiece.
 */
-export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates }) {
+export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen }) {
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
@@ -93,6 +93,19 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         }}
         title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
         <LayoutTemplate size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.templates', { defaultValue: 'Templates' })}</span>
+      </button>
+
+      {/* Layers — toggle the floating layer panel */}
+      <button onClick={onToggleLayers} style={{
+        ...ghost,
+        background: layersOpen ? 'rgba(14,165,233,0.1)' : '#ffffff',
+        borderColor: layersOpen ? 'rgba(14,165,233,0.35)' : '#e2e8f0',
+        color: layersOpen ? '#0284c7' : '#475569',
+      }}
+        onMouseEnter={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; } }}
+        onMouseLeave={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; } }}
+        title={t('superPagesEditor.layersLabel', { defaultValue: 'Layers' })}>
+        <Layers size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.layers', { defaultValue: 'Layers' })}</span>
       </button>
 
       <button onClick={onShowSettings} style={ghost}

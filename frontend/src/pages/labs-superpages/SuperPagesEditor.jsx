@@ -7,6 +7,7 @@ import BlockPalette from './BlockPalette';
 import EditorTopbar from './EditorTopbar';
 import HelpPanel from './HelpPanel';
 import LabsTemplatesGallery from './LabsTemplatesGallery';
+import LayerPanel from './LayerPanel';
 import exportHTML from './exportHTML';
 import { apiGet, apiPost } from '../../utils/api';
 import AppLayout from '../../components/layout/AppLayout';
@@ -32,6 +33,7 @@ export default function LabsSuperPagesEditor() {
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showLayers, setShowLayers] = useState(false);
   const [editingElement, setEditingElement] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [deviceView, setDeviceView] = useState('desktop');
@@ -68,7 +70,7 @@ export default function LabsSuperPagesEditor() {
     setEls, setCanvasBg, setCanvasBgImage, markDirty, undo, redo, deselectAll, clearCanvas, selectElement, markSaved,
     selIds, toggleSelectAdditive, selectAll,
     deleteSelected, duplicateSelected,
-    copySelected, paste, nudgeSelected } = editor;
+    copySelected, paste, nudgeSelected, moveElementZ } = editor;
 
   // Which element types route through the Tiptap editor. These auto-enter
   // edit mode when first dropped on the canvas, so the user can type
@@ -444,6 +446,8 @@ export default function LabsSuperPagesEditor() {
         onShowSettings={() => setShowSettings(true)}
         onShowHelp={() => setShowHelp(true)}
         onShowTemplates={() => setShowTemplates(true)}
+        onToggleLayers={() => setShowLayers(s => !s)}
+        layersOpen={showLayers}
         onUndo={undo}
         onRedo={redo}
         onBack={() => navigate('/pro/funnels')}
@@ -453,7 +457,22 @@ export default function LabsSuperPagesEditor() {
         deviceView={deviceView}
         onSetDevice={setDeviceView}
       />
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0, position: 'relative' }}>
+        {/* Floating layer panel — opens from the topbar button.
+            Positioned over the canvas without taking layout space, so
+            members can toggle it as a tool without losing canvas width. */}
+        <LayerPanel
+          open={showLayers && !previewMode}
+          onClose={() => setShowLayers(false)}
+          els={els}
+          selId={selId}
+          selIds={selIds}
+          selectElement={selectElement}
+          toggleSelectAdditive={toggleSelectAdditive}
+          updateElement={updateElement}
+          moveElementZ={moveElementZ}
+          markDirty={markDirty}
+        />
         {(previewMode || deviceView !== 'desktop') ? (
           /* Preview mode — shows rendered HTML with responsive CSS */
           <div style={{

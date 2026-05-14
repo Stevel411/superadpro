@@ -60,6 +60,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   const [chatHistory, setChatHistory] = useState([{role:'ai',text:t('superPagesEditor.aiGreeting', { defaultValue: 'Tell me what to change — "add a heading", "change background to navy", "write sales copy"' })}]);
   const [chatSending, setChatSending] = useState(false);
   const chatRef = useRef(null);
+  const [search, setSearch] = useState('');
 
   const applyBg = (bg) => { setCanvasBg(bg); markDirty(); };
   const applyBgImage = (url) => { setCanvasBgImage(url); setBgImageUrl(url); markDirty(); };
@@ -102,7 +103,42 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       {/* Header */}
       <div style={{padding:'14px 16px',borderBottom:'1px solid #e8ecf2',flexShrink:0}}>
         <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#0f172a'}}>{t('superPagesEditor.blocks')}</h3>
-        <p style={{margin:'2px 0 0',fontSize:13,color:'#475569'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
+        <p style={{margin:'2px 0 8px',fontSize:13,color:'#475569'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
+        {/* Block search — filters tiles by name as you type. */}
+        <div style={{position:'relative'}}>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder={t('superPagesEditor.searchBlocks', { defaultValue: 'Search blocks…' })}
+            style={{
+              width:'100%',
+              padding:'7px 28px 7px 10px',
+              borderRadius:8,
+              border:'1px solid rgba(15,23,42,0.08)',
+              background:'rgba(255,255,255,0.7)',
+              fontSize:12,
+              fontFamily:'Manrope,sans-serif',
+              fontWeight:600,
+              color:'#0f172a',
+              outline:'none',
+              boxSizing:'border-box',
+            }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(15,23,42,0.08)'; }}
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              aria-label="Clear search"
+              style={{
+                position:'absolute', right:6, top:'50%', transform:'translateY(-50%)',
+                width:18, height:18, borderRadius:4, border:'none',
+                background:'rgba(15,23,42,0.08)', color:'#475569',
+                cursor:'pointer', fontSize:11, fontWeight:700,
+                display:'flex', alignItems:'center', justifyContent:'center', padding:0,
+              }}>×</button>
+          )}
+        </div>
       </div>
 
       {/* Background Controls — collapsible */}
@@ -244,18 +280,42 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
 
       {/* Block list */}
       <div style={{flex:1,overflowY:'auto',padding:'12px 10px',minHeight:0}}>
-        {PALETTE.map((cat, ci) => {
-          return (
-            <div key={ci} style={{marginBottom: 8}}>
-              {/* Section head — typography-only treatment.
-                  Visual styling (Sora 900 / 0.14em / uppercase / muted)
-                  comes from .palette-section-label in LabsChrome.css. */}
+        {(() => {
+          // Filter palette items by search term. Match against the resolved
+          // display label (translated) so non-English users find blocks too.
+          // Categories with zero matches are hidden entirely. If nothing
+          // matches, render a friendly empty state.
+          const q = search.trim().toLowerCase();
+          const filteredCats = PALETTE.map(cat => ({
+            ...cat,
+            items: cat.items.filter(item => {
+              if (!q) return true;
+              return blockLabel(t, item).toLowerCase().includes(q)
+                  || item.type.toLowerCase().includes(q);
+            }),
+          })).filter(cat => cat.items.length > 0);
+
+          if (filteredCats.length === 0) {
+            return (
+              <div style={{padding:'32px 16px',textAlign:'center',color:'#64748b',fontSize:12,fontWeight:600}}>
+                No blocks match <strong style={{color:'#0f172a'}}>"{search}"</strong>
+                <div style={{marginTop:8}}>
+                  <button onClick={() => setSearch('')}
+                    style={{padding:'5px 12px',borderRadius:6,border:'1px solid rgba(14,165,233,0.3)',background:'rgba(14,165,233,0.08)',color:'#0284c7',cursor:'pointer',fontSize:11,fontWeight:800}}>
+                    Clear search
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
+          return filteredCats.map((cat, ci) => (
+            <div key={cat.label} style={{marginBottom: 8}}>
+              {/* Section head — typography-only treatment. */}
               <div className="palette-section-label" style={{padding:'12px 4px 8px',...(ci===0?{paddingTop:4}:{})}}>
                 {t('superPagesEditor.cat'+cat.label, { defaultValue: cat.label })}
               </div>
 
-              {/* Block tiles — visual treatment lives in LabsChrome.css.
-                  We only thread data + handlers here, no decoration. */}
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:9}}>
                 {cat.items.map((item, ii) => {
                   const Icon = BLOCK_ICONS[item.type] || Square;
@@ -275,8 +335,8 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 })}
               </div>
             </div>
-          );
-        })}
+          ));
+        })()}
       </div>
 
       {/* AI Chat — light theme */}

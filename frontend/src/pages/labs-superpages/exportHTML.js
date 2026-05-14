@@ -31,6 +31,9 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   h += `<div class="sp-page" style="position:relative;width:1100px;max-width:100%;margin:0 auto;min-height:${Math.max(900, maxY)}px;overflow-x:hidden">`;
 
   sorted.forEach(el => {
+    // Hidden elements (set via layer panel) are excluded from rendering
+    // on both the editor preview iframe and the published page.
+    if (el.hidden) return;
     const allStyles = { position: 'absolute', left: el.x + 'px', top: el.y + 'px', width: el.w + 'px', height: el.h + 'px', boxSizing: 'border-box', ...(el.s || {}) };
     const st = Object.entries(allStyles).map(([k, v]) => k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + v).join(';');
     const elClass = `sp-el sp-${el.type}`;
