@@ -207,14 +207,17 @@
   aspect-ratio: 1 !important;
   background: #ffffff !important;
   background-image: none !important;
-  border: 1px solid rgba(15,23,42,0.04) !important;
-  border-radius: 12px !important;
-  padding: 8px 4px !important;
+  /* Visible cobalt-tinted border for edge definition. Resting border
+     reads as a real card edge against the wash; hover deepens into
+     a violet ring (handled below). */
+  border: 1px solid rgba(14,165,233,0.14) !important;
+  border-radius: 14px !important;
+  padding: 14px 6px !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 5px !important;
+  gap: 7px !important;
   position: relative !important;
   cursor: grab !important;
   overflow: visible !important;
@@ -225,9 +228,9 @@
      - Broader violet ground (atmospheric diffuse) */
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.9),
-    0 1px 2px rgba(14,165,233,0.08),
-    0 4px 12px rgba(14,165,233,0.10),
-    0 8px 20px rgba(168,85,247,0.08) !important;
+    0 1px 2px rgba(14,165,233,0.10),
+    0 4px 12px rgba(14,165,233,0.12),
+    0 8px 20px rgba(168,85,247,0.10) !important;
   transition:
     transform 0.18s cubic-bezier(0.4,0,0.2,1),
     box-shadow 0.18s cubic-bezier(0.4,0,0.2,1),
@@ -236,13 +239,13 @@
 
 .labs-chrome .pal-item:hover {
   transform: translateY(-3px) !important;
-  border-color: rgba(168,85,247,0.25) !important;
+  border-color: rgba(168,85,247,0.35) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
-    0 2px 4px rgba(14,165,233,0.12),
-    0 8px 20px rgba(14,165,233,0.20),
-    0 14px 36px rgba(168,85,247,0.20),
-    0 0 0 1px rgba(168,85,247,0.10) !important;
+    0 2px 4px rgba(14,165,233,0.14),
+    0 8px 20px rgba(14,165,233,0.22),
+    0 14px 36px rgba(168,85,247,0.22),
+    0 0 0 1px rgba(168,85,247,0.12) !important;
 }
 
 .labs-chrome .pal-item:active {
@@ -250,15 +253,16 @@
   transition-duration: 0.08s !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.9),
-    0 1px 2px rgba(14,165,233,0.08),
-    0 3px 8px rgba(14,165,233,0.14),
-    0 6px 14px rgba(168,85,247,0.16) !important;
+    0 1px 2px rgba(14,165,233,0.10),
+    0 3px 8px rgba(14,165,233,0.16),
+    0 6px 14px rgba(168,85,247,0.18) !important;
 }
 
-/* Tile icons — bolder stroke + rounded caps + colour transitions */
+/* Tile icons — bolder stroke + rounded caps + colour transitions.
+   Bumped to 24px to match the larger tile footprint. */
 .labs-chrome .pal-item svg {
-  width: 22px !important;
-  height: 22px !important;
+  width: 24px !important;
+  height: 24px !important;
   color: #0ea5e9 !important;
   stroke-width: 2.5 !important;
   fill: none !important;
@@ -273,7 +277,7 @@
 
 /* Tile label */
 .labs-chrome .pal-item .pal-label {
-  font-size: 10px !important;
+  font-size: 11px !important;
   color: #334155 !important;
   font-weight: 800 !important;
   letter-spacing: -0.005em !important;
