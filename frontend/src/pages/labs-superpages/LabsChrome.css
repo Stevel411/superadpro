@@ -161,6 +161,27 @@
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-right: 1px solid rgba(15,23,42,0.06);
+  /* Hide scrollbar — scrolling still works via wheel/trackpad/touch */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.labs-chrome .sp-palette::-webkit-scrollbar,
+.labs-chrome .block-palette::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+/* Hide on any scrolling inner panels too (palette has a nested overflow div) */
+.labs-chrome .sp-palette *::-webkit-scrollbar,
+.labs-chrome .block-palette *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+.labs-chrome .sp-palette *,
+.labs-chrome .block-palette * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* Group labels (TEXT / MEDIA / ACTIONS / etc.) */
@@ -283,6 +304,16 @@
   background: transparent !important;
   background-image: radial-gradient(circle, rgba(14,165,233,0.05) 1px, transparent 1px) !important;
   background-size: 24px 24px !important;
+  /* Hide the visible scrollbar chrome — scrolling still works via wheel,
+     trackpad, and touch. Eliminates the double-scrollbar look. */
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE / legacy Edge */
+}
+.labs-chrome .sp-canvas-area::-webkit-scrollbar {
+  /* WebKit (Chrome, Safari, modern Edge) */
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -294,6 +325,15 @@
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-left: 1px solid rgba(15,23,42,0.06);
+  /* Hide scrollbar — scrolling still works via wheel/trackpad/touch */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.labs-chrome .sp-settings-panel::-webkit-scrollbar,
+.labs-chrome .settings-panel::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 .labs-chrome .sp-settings-panel h3,
