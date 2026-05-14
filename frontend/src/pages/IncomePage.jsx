@@ -215,7 +215,7 @@ export default function IncomePage() {
             tone="green"
             icon={Users}
             title={t('income.stream.membership', { defaultValue: 'Membership Sponsor' })}
-            subtitle={t('income.stream.membershipSub', { defaultValue: "25% on every direct's monthly fee" })}
+            subtitle={t('income.stream.membershipSub', { defaultValue: "50% on every direct's monthly fee" })}
             tag={membershipActive ? { label: t('income.tag.active', { defaultValue: 'Active' }), tone: 'active' } : { label: t('income.tag.available', { defaultValue: 'Available' }), tone: 'dormant' }}
             stats={membershipActive ? [
               { label: t('income.stat.directs', { defaultValue: 'Directs paying' }), value: data?.directs_active || 0 },
@@ -294,17 +294,12 @@ export default function IncomePage() {
           <StreamCard
             tone="amber"
             icon={GraduationCap}
-            title={t('income.stream.courses', { defaultValue: 'Course Academy' })}
-            subtitle={t('income.stream.coursesSub', { defaultValue: 'Pass-up commissions · infinite depth' })}
-            tag={coursesActive ? { label: t('income.tag.active', { defaultValue: 'Active' }), tone: 'active' } : { label: t('income.tag.available', { defaultValue: 'Available' }), tone: 'dormant' }}
-            stats={coursesActive ? [
-              { label: t('income.stat.earnedAllTime', { defaultValue: 'Earned all time' }), value: formatMoney(data?.course_earned || 0) },
-            ] : null}
-            statusLine={!coursesActive ? t('income.stream.coursesDormant', { defaultValue: 'Buy a course tier to qualify for upline pass-ups on every sale.' }) : null}
-            actions={[
-              { label: t('income.action.browseCourses', { defaultValue: 'Browse courses' }), to: '/courses' },
-              { label: t('income.action.passUp', { defaultValue: 'How pass-up works' }), to: '/courses/how-it-works' },
-            ]}
+            title={t('income.stream.slipstream', { defaultValue: 'SlipStream' })}
+            subtitle={t('income.stream.slipstreamSub', { defaultValue: 'New income system · coming soon' })}
+            tag={{ label: t('income.tag.comingSoon', { defaultValue: 'Coming Soon' }), tone: 'dormant' }}
+            stats={null}
+            statusLine={t('income.stream.slipstreamTeaser', { defaultValue: "A new way to earn from real course sales — designed to be sustainable, ethical, and rewarding. Launching soon. We'll show you how it works the moment it's ready." })}
+            actions={[]}
           />
 
         </div>
@@ -435,7 +430,10 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
       {/* Action links — coloured pills matching the stream's brand.
           Stronger affordance than text+arrow: members read these as
           tappable buttons rather than inline links. Arrow nudges right
-          on hover for subtle interactive feedback. */}
+          on hover for subtle interactive feedback. Skip the entire row
+          (border-top + padding) when there are no actions — used by the
+          SlipStream "coming soon" card to keep it clean. */}
+      {actions && actions.length > 0 && (
       <div style={{
         display: 'flex', gap: 8, flexWrap: 'wrap',
         paddingTop: 14,
@@ -492,6 +490,7 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
           );
         })}
       </div>
+      )}
     </div>
   );
 }

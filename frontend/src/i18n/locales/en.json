@@ -4289,7 +4289,8 @@
     "tag": {
       "active": "Active",
       "tier": "Active",
-      "available": "Available"
+      "available": "Available",
+      "comingSoon": "Coming Soon"
     },
     "stat": {
       "directs": "Directs paying",
@@ -4298,7 +4299,7 @@
     },
     "stream": {
       "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
+      "membershipSub": "50% on every direct's monthly fee",
       "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
       "grid": "Campaign Tier Grid",
       "gridSub": "8×8 Profit Grid · advertise + earn",
@@ -4308,7 +4309,10 @@
       "nexusDormant": "Buy a credit pack to take your position in the 3×3 Credit Nexus.",
       "courses": "Course Academy",
       "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale.",
+      "slipstream": "SlipStream",
+      "slipstreamSub": "New income system · coming soon",
+      "slipstreamTeaser": "A new way to earn from real course sales — designed to be sustainable, ethical, and rewarding. Launching soon. We'll show you how it works the moment it's ready."
     },
     "action": {
       "myReferrals": "My referrals",
