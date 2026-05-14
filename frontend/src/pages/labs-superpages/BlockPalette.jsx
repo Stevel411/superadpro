@@ -218,21 +218,16 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
         )}
       </div>
 
-      {/* Block list — glass tiles */}
+      {/* Block list */}
       <div style={{flex:1,overflowY:'auto',padding:'12px 10px',minHeight:0}}>
         {PALETTE.map((cat, ci) => {
-          // Category-level colour: inherit from the first item's .color so each
-          // section has a matching dot + tint across all tiles.
-          const catColor = cat.items?.[0]?.color || '#0ea5e9';
-          const catRgb = hexToRgb(catColor);
           return (
             <div key={ci} style={{marginBottom: 8}}>
-              {/* Section head with coloured dot */}
-              <div style={{display:'flex',alignItems:'center',gap:7,padding:'12px 4px 8px',...(ci===0?{paddingTop:4}:{})}}>
-                <span style={{width:8,height:8,borderRadius:'50%',background:catColor,flexShrink:0,boxShadow:`0 0 0 3px rgba(${catRgb},0.12)`}}/>
-                <span style={{fontSize:13,fontWeight:800,letterSpacing:1.4,textTransform:'uppercase',color:'#475569'}}>
-                  {t('superPagesEditor.cat'+cat.label, { defaultValue: cat.label })}
-                </span>
+              {/* Section head — typography-only treatment.
+                  Visual styling (Sora 900 / 0.14em / uppercase / muted)
+                  comes from .palette-section-label in LabsChrome.css. */}
+              <div className="palette-section-label" style={{padding:'12px 4px 8px',...(ci===0?{paddingTop:4}:{})}}>
+                {t('superPagesEditor.cat'+cat.label, { defaultValue: cat.label })}
               </div>
 
               {/* Block tiles — visual treatment lives in LabsChrome.css.
