@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers } from 'lucide-react';
+import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers, Grid3x3 } from 'lucide-react';
 import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
 /*
@@ -8,7 +8,7 @@ import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
   visually separate from the editor tools (white), and the canvas below feels
   like the workspace centrepiece.
 */
-export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen }) {
+export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen, onToggleGrid, gridOn }) {
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
@@ -106,6 +106,19 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         onMouseLeave={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; } }}
         title={t('superPagesEditor.layersLabel', { defaultValue: 'Layers' })}>
         <Layers size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.layers', { defaultValue: 'Layers' })}</span>
+      </button>
+
+      {/* Grid — toggle the 8px snap grid overlay */}
+      <button onClick={onToggleGrid} style={{
+        ...ghost,
+        background: gridOn ? 'rgba(168,85,247,0.1)' : '#ffffff',
+        borderColor: gridOn ? 'rgba(168,85,247,0.35)' : '#e2e8f0',
+        color: gridOn ? '#7c3aed' : '#475569',
+      }}
+        onMouseEnter={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#a855f7'; e.currentTarget.style.color = '#a855f7'; } }}
+        onMouseLeave={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; } }}
+        title="Toggle 8px grid + snap (⌘')">
+        <Grid3x3 size={13}/>
       </button>
 
       <button onClick={onShowSettings} style={ghost}

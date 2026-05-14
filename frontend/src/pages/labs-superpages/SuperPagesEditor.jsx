@@ -34,6 +34,7 @@ export default function LabsSuperPagesEditor() {
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showLayers, setShowLayers] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
   const [editingElement, setEditingElement] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [deviceView, setDeviceView] = useState('desktop');
@@ -70,7 +71,9 @@ export default function LabsSuperPagesEditor() {
     setEls, setCanvasBg, setCanvasBgImage, markDirty, undo, redo, deselectAll, clearCanvas, selectElement, markSaved,
     selIds, toggleSelectAdditive, selectAll,
     deleteSelected, duplicateSelected,
-    copySelected, paste, nudgeSelected, moveElementZ, selectMany } = editor;
+    copySelected, paste, nudgeSelected, moveElementZ, selectMany,
+    groupSelected, ungroupSelected, expandToGroup,
+    distributeHorizontal, distributeVertical, alignSelected } = editor;
 
   // Which element types route through the Tiptap editor. These auto-enter
   // edit mode when first dropped on the canvas, so the user can type
@@ -277,6 +280,9 @@ export default function LabsSuperPagesEditor() {
         if (k === 'a') { e.preventDefault(); selectAll(); return; }
         if (k === 'c') { e.preventDefault(); copySelected(); showToast('Copied'); return; }
         if (k === 'v') { e.preventDefault(); if (paste()) showToast('Pasted'); return; }
+        if (k === 'g' && !e.shiftKey) { e.preventDefault(); groupSelected(); showToast('Grouped'); return; }
+        if (k === 'g' && e.shiftKey)  { e.preventDefault(); ungroupSelected(); showToast('Ungrouped'); return; }
+        if (k === "'" || k === ';')  { e.preventDefault(); setShowGrid(g => !g); return; }
       }
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selIds.size > 0 || selId) { e.preventDefault(); deleteSelected(); }
@@ -297,7 +303,7 @@ export default function LabsSuperPagesEditor() {
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [selId, selIds, undo, redo, save, deselectAll, deleteSelected, duplicateSelected, selectAll, copySelected, paste, nudgeSelected]);
+  }, [selId, selIds, undo, redo, save, deselectAll, deleteSelected, duplicateSelected, selectAll, copySelected, paste, nudgeSelected, groupSelected, ungroupSelected]);
 
   // ── Toast ──
   const showToast = (msg) => {
@@ -448,6 +454,8 @@ export default function LabsSuperPagesEditor() {
         onShowTemplates={() => setShowTemplates(true)}
         onToggleLayers={() => setShowLayers(s => !s)}
         layersOpen={showLayers}
+        onToggleGrid={() => setShowGrid(g => !g)}
+        gridOn={showGrid}
         onUndo={undo}
         onRedo={redo}
         onBack={() => navigate('/pro/funnels')}
@@ -473,6 +481,91 @@ export default function LabsSuperPagesEditor() {
           moveElementZ={moveElementZ}
           markDirty={markDirty}
         />
+
+        {/* Floating alignment toolbar — appears at top of canvas
+            when 2+ elements are selected. Lets members align edges
+            or distribute spacing without hunting for menus. */}
+        {!previewMode && selIds && selIds.size > 1 && (
+          <div style={{
+            position: 'absolute',
+            top: 14,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 25,
+            background: 'rgba(255,255,255,0.95)',
+            backdropFilter: 'saturate(180%) blur(20px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+            border: '1px solid rgba(14,165,233,0.2)',
+            borderRadius: 12,
+            boxShadow: '0 4px 14px rgba(14,165,233,0.12), 0 12px 32px rgba(168,85,247,0.14)',
+            padding: '6px 10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            fontFamily: 'Manrope, sans-serif',
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: '#475569', marginRight: 8, letterSpacing: '0.02em' }}>
+              {selIds.size} selected
+            </span>
+            <div style={{ width: 1, height: 18, background: 'rgba(15,23,42,0.1)', marginRight: 4 }}/>
+            {/* Align row */}
+            {[
+              { edge: 'left',    label: '◧', title: 'Align left' },
+              { edge: 'centreH', label: '◫', title: 'Align centre horizontally' },
+              { edge: 'right',   label: '◨', title: 'Align right' },
+              { edge: 'top',     label: '⬒', title: 'Align top' },
+              { edge: 'centreV', label: '⬓', title: 'Align centre vertically' },
+              { edge: 'bottom',  label: '⬓', title: 'Align bottom' },
+            ].map(b => (
+              <button key={b.edge} onClick={() => alignSelected(b.edge)} title={b.title}
+                style={{
+                  width: 26, height: 26, borderRadius: 6, border: '1px solid transparent',
+                  background: 'transparent', color: '#475569', cursor: 'pointer',
+                  fontSize: 14, fontWeight: 700, padding: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(14,165,233,0.1)'; e.currentTarget.style.color = '#0284c7'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; }}
+              >{b.label}</button>
+            ))}
+            {selIds.size > 2 && (
+              <>
+                <div style={{ width: 1, height: 18, background: 'rgba(15,23,42,0.1)', margin: '0 4px' }}/>
+                <button onClick={distributeHorizontal} title="Distribute horizontally"
+                  style={{
+                    padding: '4px 10px', borderRadius: 6,
+                    background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.25)',
+                    color: '#7c3aed', cursor: 'pointer',
+                    fontSize: 11, fontWeight: 800,
+                  }}>↔ Distribute</button>
+                <button onClick={distributeVertical} title="Distribute vertically"
+                  style={{
+                    padding: '4px 10px', borderRadius: 6,
+                    background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.25)',
+                    color: '#7c3aed', cursor: 'pointer',
+                    fontSize: 11, fontWeight: 800,
+                  }}>↕ Distribute</button>
+              </>
+            )}
+            <div style={{ width: 1, height: 18, background: 'rgba(15,23,42,0.1)', margin: '0 4px' }}/>
+            <button onClick={groupSelected} title="Group (⌘G)"
+              style={{
+                padding: '4px 10px', borderRadius: 6,
+                background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
+                border: '1px solid rgba(14,165,233,0.3)',
+                color: '#0284c7', cursor: 'pointer',
+                fontSize: 11, fontWeight: 800,
+              }}>🔗 Group</button>
+            <button onClick={ungroupSelected} title="Ungroup (⌘⇧G)"
+              style={{
+                padding: '4px 10px', borderRadius: 6,
+                background: '#f8fafc', border: '1px solid #e2e8f0',
+                color: '#475569', cursor: 'pointer',
+                fontSize: 11, fontWeight: 800,
+              }}>Ungroup</button>
+          </div>
+        )}
+
         {(previewMode || deviceView !== 'desktop') ? (
           /* Preview mode — shows rendered HTML with responsive CSS */
           <div style={{
@@ -545,6 +638,8 @@ export default function LabsSuperPagesEditor() {
             selIds={selIds}
             toggleSelectAdditive={toggleSelectAdditive}
             selectMany={selectMany}
+            expandToGroup={expandToGroup}
+            showGrid={showGrid}
             duplicateElement={duplicateElement}
             deleteElement={deleteElement}
             moveElementZ={moveElementZ}

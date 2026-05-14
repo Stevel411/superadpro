@@ -355,6 +355,167 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
     });
   }, []);
 
+  // ── Group / ungroup ──
+  //
+  // Group: assigns a shared groupId to all currently-selected elements.
+  // Clicking any group member then auto-selects the whole group (handled
+  // in Canvas.startDrag). Multiple groups can coexist; an element can
+  // belong to only one group at a time.
+  //
+  // Ungroup: clears the groupId from all selected elements.
+  const groupSelected = useCallback(() => {
+    const toGroup = selIds.size > 1 ? Array.from(selIds) : [];
+    if (toGroup.length < 2) return;
+    const gid = 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    setEls(prev => {
+      const next = prev.map(e => toGroup.includes(e.id) ? { ...e, groupId: gid } : e);
+      pushHistory(next, canvasBg, canvasBgImage, selId);
+      return next;
+    });
+    setDirty(true);
+  }, [selIds, selId, canvasBg, canvasBgImage, pushHistory]);
+
+  const ungroupSelected = useCallback(() => {
+    const toUngroup = selIds.size > 0 ? Array.from(selIds) : (selId ? [selId] : []);
+    if (toUngroup.length === 0) return;
+    setEls(prev => {
+      // Strip groupId off every selected element AND any element that
+      // shares a groupId with one of the selected (i.e. ungroup the
+      // entire group, not just the picked members).
+      const groupIdsToStrip = new Set();
+      prev.forEach(e => { if (toUngroup.includes(e.id) && e.groupId) groupIdsToStrip.add(e.groupId); });
+      if (groupIdsToStrip.size === 0) return prev;
+      const next = prev.map(e => {
+        if (groupIdsToStrip.has(e.groupId)) {
+          const { groupId, ...rest } = e;
+          return rest;
+        }
+        return e;
+      });
+      pushHistory(next, canvasBg, canvasBgImage, selId);
+      return next;
+    });
+    setDirty(true);
+  }, [selIds, selId, canvasBg, canvasBgImage, pushHistory]);
+
+  // Expand a selection to include every element in the same group as
+  // any currently-selected element. Used by Canvas.startDrag so clicking
+  // any group member selects the whole group atomically.
+  const expandToGroup = useCallback((id) => {
+    setEls(prev => {
+      const clicked = prev.find(e => e.id === id);
+      if (!clicked || !clicked.groupId) return prev;
+      const members = prev.filter(e => e.groupId === clicked.groupId).map(e => e.id);
+      if (members.length > 0) {
+        setSelIds(new Set(members));
+        setSelId(id);
+      }
+      return prev;
+    });
+  }, []);
+
+  // ── Distribute (smart spacing) ──
+  //
+  // When 3+ elements are selected, redistribute them so the gaps between
+  // consecutive elements (along the chosen axis) are equal. The outermost
+  // elements stay in place; the middle ones move to fill evenly.
+  //
+  // distributeHorizontal: spreads by x. Sort by x, fix leftmost and
+  //   rightmost, distribute middles so gap between adjacent edges is uniform.
+  // distributeVertical: same for y.
+
+  const distributeHorizontal = useCallback(() => {
+    const ids = selIds.size > 2 ? Array.from(selIds) : [];
+    if (ids.length < 3) return;
+    setEls(prev => {
+      const picked = prev.filter(e => ids.includes(e.id));
+      // Sort by current x so the outermost stay put visually
+      picked.sort((a, b) => a.x - b.x);
+      const first = picked[0], last = picked[picked.length - 1];
+      const totalWidth = picked.reduce((s, e) => s + e.w, 0);
+      const span = (last.x + last.w) - first.x;
+      const totalGap = span - totalWidth;
+      const gap = totalGap / (picked.length - 1);
+      // Place each middle element after the previous one + gap
+      let cursorX = first.x + first.w + gap;
+      const updates = {};
+      for (let i = 1; i < picked.length - 1; i++) {
+        updates[picked[i].id] = Math.round(cursorX);
+        cursorX += picked[i].w + gap;
+      }
+      const next = prev.map(e => updates[e.id] !== undefined ? { ...e, x: updates[e.id] } : e);
+      pushHistory(next, canvasBg, canvasBgImage, selId);
+      return next;
+    });
+    setDirty(true);
+  }, [selIds, selId, canvasBg, canvasBgImage, pushHistory]);
+
+  const distributeVertical = useCallback(() => {
+    const ids = selIds.size > 2 ? Array.from(selIds) : [];
+    if (ids.length < 3) return;
+    setEls(prev => {
+      const picked = prev.filter(e => ids.includes(e.id));
+      picked.sort((a, b) => a.y - b.y);
+      const first = picked[0], last = picked[picked.length - 1];
+      const totalHeight = picked.reduce((s, e) => s + e.h, 0);
+      const span = (last.y + last.h) - first.y;
+      const totalGap = span - totalHeight;
+      const gap = totalGap / (picked.length - 1);
+      let cursorY = first.y + first.h + gap;
+      const updates = {};
+      for (let i = 1; i < picked.length - 1; i++) {
+        updates[picked[i].id] = Math.round(cursorY);
+        cursorY += picked[i].h + gap;
+      }
+      const next = prev.map(e => updates[e.id] !== undefined ? { ...e, y: updates[e.id] } : e);
+      pushHistory(next, canvasBg, canvasBgImage, selId);
+      return next;
+    });
+    setDirty(true);
+  }, [selIds, selId, canvasBg, canvasBgImage, pushHistory]);
+
+  // ── Align ──
+  //
+  // Aligns all selected elements along a given edge. The first selected
+  // (lowest in selIds ordering) defines the anchor coordinate; others
+  // move to match.
+  const alignSelected = useCallback((edge) => {
+    // edge: 'left' | 'right' | 'top' | 'bottom' | 'centreH' | 'centreV'
+    const ids = selIds.size > 1 ? Array.from(selIds) : [];
+    if (ids.length < 2) return;
+    setEls(prev => {
+      const picked = prev.filter(e => ids.includes(e.id));
+      // Anchor: outermost edge depending on direction.
+      let anchor;
+      if (edge === 'left')    anchor = Math.min(...picked.map(e => e.x));
+      if (edge === 'right')   anchor = Math.max(...picked.map(e => e.x + e.w));
+      if (edge === 'top')     anchor = Math.min(...picked.map(e => e.y));
+      if (edge === 'bottom')  anchor = Math.max(...picked.map(e => e.y + e.h));
+      if (edge === 'centreH') {
+        // Vertical centreline across selection — average of cx values
+        const avg = picked.reduce((s, e) => s + (e.x + e.w / 2), 0) / picked.length;
+        anchor = avg;
+      }
+      if (edge === 'centreV') {
+        const avg = picked.reduce((s, e) => s + (e.y + e.h / 2), 0) / picked.length;
+        anchor = avg;
+      }
+      const next = prev.map(e => {
+        if (!ids.includes(e.id)) return e;
+        if (edge === 'left')    return { ...e, x: Math.round(anchor) };
+        if (edge === 'right')   return { ...e, x: Math.round(anchor - e.w) };
+        if (edge === 'top')     return { ...e, y: Math.round(anchor) };
+        if (edge === 'bottom')  return { ...e, y: Math.round(anchor - e.h) };
+        if (edge === 'centreH') return { ...e, x: Math.round(anchor - e.w / 2) };
+        if (edge === 'centreV') return { ...e, y: Math.round(anchor - e.h / 2) };
+        return e;
+      });
+      pushHistory(next, canvasBg, canvasBgImage, selId);
+      return next;
+    });
+    setDirty(true);
+  }, [selIds, selId, canvasBg, canvasBgImage, pushHistory]);
+
   const deleteSelected = useCallback(() => {
     setSelIds(currentSelIds => {
       const toDelete = currentSelIds.size > 0 ? currentSelIds : (selId ? new Set([selId]) : new Set());
@@ -460,6 +621,8 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
     els, setEls,
     selId, setSelId, selectElement, deselectAll,
     selIds, toggleSelectAdditive, selectAll, selectMany,
+    groupSelected, ungroupSelected, expandToGroup,
+    distributeHorizontal, distributeVertical, alignSelected,
     deleteSelected, duplicateSelected,
     copySelected, paste, nudgeSelected,
     canvasBg, setCanvasBg,

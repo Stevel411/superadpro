@@ -12,7 +12,7 @@ import { apiPost } from '../../utils/api';
 // for now; we'll migrate them once these three are solid on production.
 const TIPTAP_TYPES = ['heading', 'text', 'label'];
 
-export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, duplicateElement, deleteElement, moveElementZ, copySelected, paste }) {
+export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
   var { t } = useTranslation();
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
@@ -192,10 +192,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   // snap against; members couldn't tell why "snap doesn't work."
   //
   // Now: snaps to canvas centre vertical, canvas left/right edges,
-  // and every other element's edges + centres. Threshold bumped to 8px
-  // (was 6) so the snap engages more easily. Only one guide per axis
-  // is shown — the first match wins — so the canvas doesn't fill
-  // with parallel lines.
+  // every other element's edges + centres, AND optionally to an
+  // 8px grid (toggled via showGrid prop). Threshold 8px so the snap
+  // engages easily. One guide per axis maximum.
   const showGuides = useCallback((el) => {
     const guides = guideRefs.current;
     Object.values(guides).forEach(g => { if (g) g.style.display = 'none'; });
@@ -207,6 +206,18 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const elCX = el.x + el.w / 2;
     const elL = el.x, elR = el.x + el.w;
     const elT = el.y, elB = el.y + el.h, elCY = el.y + el.h / 2;
+
+    // ── Grid snap ──
+    // When the grid is enabled, snap to the nearest grid line (top-left
+    // corner of the element). Applied first so element-to-element snaps
+    // can still override for visually-meaningful alignments.
+    if (showGrid) {
+      const GRID = 8;
+      const nearestX = Math.round(elL / GRID) * GRID;
+      const nearestY = Math.round(elT / GRID) * GRID;
+      if (Math.abs(elL - nearestX) < 4) { snapX = nearestX; }
+      if (Math.abs(elT - nearestY) < 4) { snapY = nearestY; }
+    }
 
     // ── Canvas guides ──
     // Vertical centre line
@@ -259,7 +270,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     // Apply the snaps
     if (snapX !== null) el.x = snapX;
     if (snapY !== null) el.y = snapY;
-  }, [els]);
+  }, [els, showGrid]);
 
   const showGuide = (name, prop, val) => {
     const g = guideRefs.current[name];
@@ -296,21 +307,32 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
     if (id !== selId) {
       // Click on an unselected element — select and don't drag yet.
-      // Second click-and-drag enters drag mode. (Two-step pattern is the
-      // editor's existing UX — kept for consistency.)
-      selectElement(id);
+      // If it belongs to a group, expand selection to the whole group
+      // so the next drag moves the group together.
+      if (el.groupId && expandToGroup) {
+        expandToGroup(id);
+      } else {
+        selectElement(id);
+      }
       return;
     }
 
     // Determine the set to move: if there's a multi-selection that
-    // includes this element, move them all together. Locked elements
-    // in the set are skipped so they stay put even during group-drag.
-    const groupIds = (selIds && selIds.size > 1 && selIds.has(id))
-      ? Array.from(selIds).filter(gid => {
-          const ge = els.find(x => x.id === gid);
-          return ge && !ge.locked;
-        })
-      : [id];
+    // includes this element, move them all together. Also auto-include
+    // group members of the clicked element. Locked elements skipped.
+    let dragIds;
+    if (selIds && selIds.size > 1 && selIds.has(id)) {
+      dragIds = Array.from(selIds);
+    } else if (el.groupId) {
+      // Single-select drag of a group member — drag the whole group
+      dragIds = els.filter(e => e.groupId === el.groupId).map(e => e.id);
+    } else {
+      dragIds = [id];
+    }
+    const groupIds = dragIds.filter(gid => {
+      const ge = els.find(x => x.id === gid);
+      return ge && !ge.locked;
+    });
 
     const origs = {};
     groupIds.forEach(gid => {
@@ -363,7 +385,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  }, [els, selId, selIds, selectElement, updateElement, markDirty, showGuides, toggleSelectAdditive]);
+  }, [els, selId, selIds, selectElement, updateElement, markDirty, showGuides, toggleSelectAdditive, expandToGroup]);
 
   // ── Resize ──
   const startResize = useCallback((e, id, handle) => {
@@ -694,6 +716,22 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           ...bgStyle,
         }}
       >
+        {/* Grid overlay — visible when showGrid is on. 8px grid via
+            crisp background gradient pattern. pointerEvents:none so
+            it doesn't intercept clicks. */}
+        {showGrid && (
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundImage:
+              'linear-gradient(to right, rgba(14,165,233,0.08) 1px, transparent 1px),' +
+              'linear-gradient(to bottom, rgba(14,165,233,0.08) 1px, transparent 1px)',
+            backgroundSize: '8px 8px',
+            pointerEvents: 'none',
+            zIndex: 0,
+            borderRadius: 10,
+          }}/>
+        )}
+
         {/* Alignment guides */}
         {['vCentre', 'vLeft', 'vRight'].map(name => (
           <div key={name} ref={el => guideRefs.current[name] = el}
