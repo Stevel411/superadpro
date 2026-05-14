@@ -26,11 +26,13 @@
    1. ROOT WRAPPER + ATMOSPHERIC PAGE WASH
    ───────────────────────────────────────────────────────────── */
 .labs-chrome {
-  /* Page base + atmospheric cobalt/violet radial glow */
+  /* Page base + atmospheric wash. Cobalt dominant, violet as a subtle
+     accent only — the previous balance read as "magenta tint" on the
+     right edge rather than atmospheric design. */
   background: #f1f5fb !important;
   background-image:
-    radial-gradient(ellipse at 15% 25%, rgba(14,165,233,0.18), transparent 50%),
-    radial-gradient(ellipse at 85% 75%, rgba(168,85,247,0.16), transparent 50%) !important;
+    radial-gradient(ellipse at 12% 30%, rgba(14,165,233,0.20), transparent 55%),
+    radial-gradient(ellipse at 70% 90%, rgba(99,102,241,0.06), transparent 50%) !important;
   color: #0f172a;
   font-family: 'Manrope', 'Inter', sans-serif;
   font-weight: 500;
