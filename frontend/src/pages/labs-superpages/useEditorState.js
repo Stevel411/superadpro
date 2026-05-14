@@ -185,8 +185,18 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
 
     let newEl = null;
     setEls(prev => {
-      const centreX = CENTRE_TYPES.includes(type) ? (CANVAS_WIDTH - w) / 2 : (dropX !== undefined ? dropX : 20);
-      const x = Math.max(0, Math.min(centreX, CANVAS_WIDTH - w));
+      // X positioning rules:
+      //   - CENTRE_TYPES always centre regardless of drop point (heading,
+      //     form, etc. — content the member expects to be horizontally
+      //     centred on the page).
+      //   - For other types: if the user explicitly dropped at a coordinate
+      //     (drag-drop), honour that. If they just clicked the palette
+      //     (dropX undefined), also centre — landing flush-left at x=20
+      //     looks broken to most users.
+      const centreX = (CANVAS_WIDTH - w) / 2;
+      const wantsCentred = CENTRE_TYPES.includes(type) || dropX === undefined;
+      const targetX = wantsCentred ? centreX : dropX;
+      const x = Math.max(0, Math.min(targetX, CANVAS_WIDTH - w));
       const maxY = prev.length > 0 ? Math.max(...prev.map(e => e.y + e.h)) : 0;
       const y = dropY !== undefined ? dropY : maxY + 20;
 

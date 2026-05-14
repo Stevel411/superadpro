@@ -195,12 +195,37 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   <span style={{fontSize:13,color:'#475569',fontWeight:600}}>{t('superPagesEditor.uploadBgImage')}</span>
                   <input type="file" accept="image/*" style={{display:'none'}} onChange={async e => {
                     const f = e.target.files?.[0]; if (!f) return;
+                    // Client-side validation — fail fast before the round-trip so
+                    // the member gets a useful message. Server enforces these
+                    // again. 14 May 2026: prior to this, errors were silently
+                    // console.log'd and the upload appeared to do nothing.
+                    if (!f.type.startsWith('image/')) {
+                      alert('That is not an image file. Please choose a JPG, PNG, GIF, or WebP.');
+                      e.target.value = '';
+                      return;
+                    }
+                    const MAX_MB = 10;
+                    if (f.size > MAX_MB * 1024 * 1024) {
+                      alert(`Image is too large (${(f.size / 1024 / 1024).toFixed(1)}MB). Maximum is ${MAX_MB}MB. Try compressing it first.`);
+                      e.target.value = '';
+                      return;
+                    }
                     const fd = new FormData(); fd.append('file', f);
                     try {
                       const r = await fetch('/api/funnels/upload-image', {method:'POST', body:fd, credentials:'include'});
+                      if (!r.ok) {
+                        alert(`Upload failed (${r.status}). ` + (r.status === 413 ? 'File too large for the server.' : r.status === 401 ? 'Please sign in again.' : 'Please try again.'));
+                        return;
+                      }
                       const d = await r.json();
                       if (d.url) { applyBgImage(d.url); setBgType('image'); }
-                    } catch(err) { console.error(err); }
+                      else alert('Upload failed: ' + (d.error || 'server returned no URL'));
+                    } catch(err) {
+                      console.error('Bg image upload error:', err);
+                      alert('Upload error: ' + (err.message || 'network failure. Please check your connection.'));
+                    } finally {
+                      e.target.value = ''; // reset so picking the same file again triggers onChange
+                    }
                   }} />
                 </label>
                 {canvasBgImage && (

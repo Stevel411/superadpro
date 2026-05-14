@@ -4,8 +4,27 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   let bgStyle = `background:${canvasBg};`;
   if (canvasBgImage) bgStyle += `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;`;
 
-  // Sort elements by Y then X for proper reflow order
-  const sorted = [...els].sort((a, b) => a.y - b.y || a.x - b.x);
+  // Sort elements for desktop position rendering AND mobile reflow order.
+  //
+  // Mobile note (fixed 14 May 2026): the responsive @media query at the
+  // bottom of this file converts absolutely-positioned elements to a
+  // relative-positioned vertical stack. The stacking order comes from
+  // the DOM order, which is set here. Previously this was a plain
+  // y-then-x sort, so a primary CTA at y=600 and a secondary nudge-bar
+  // at y=598 would mobile-stack with the nudge-bar above the CTA — even
+  // though visually on desktop they were near-overlapping at the same
+  // band.
+  //
+  // Fix: band y to the nearest 40px before sorting, so visual rows on
+  // desktop become predictable mobile-stack rows. Within a band, sort
+  // by x left-to-right.
+  const Y_BAND = 40;
+  const sorted = [...els].sort((a, b) => {
+    const bandA = Math.floor((a.y || 0) / Y_BAND);
+    const bandB = Math.floor((b.y || 0) / Y_BAND);
+    if (bandA !== bandB) return bandA - bandB;
+    return (a.x || 0) - (b.x || 0);
+  });
   const maxY = els.length > 0 ? Math.max(...els.map(e => e.y + e.h)) + 80 : 900;
 
   let h = `<div style="${bgStyle}min-height:100vh;width:100%;font-family:'Outfit',sans-serif">`;

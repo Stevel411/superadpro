@@ -144,7 +144,24 @@ export default function LabsSuperPagesEditor() {
   }, []);
 
   // ── Save ──
+  // Reliability notes (14 May 2026):
+  //   - savingRef gates concurrent saves. Without it, autosave + Cmd+S
+  //     could both fire; their server responses could land out of order,
+  //     and the loser's updated_at clash would force a stale-write error
+  //     on the next save attempt.
+  //   - mountedRef avoids setting state on an unmounted component if the
+  //     user navigates away mid-save.
+  //   - On 409 stale-write, we reload updated_at from the server response
+  //     (when available) and surface a clear error so the member can re-save.
+  const savingRef = useRef(false);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const save = useCallback(async () => {
+    // Concurrent-save guard. If a save is already in flight, queue nothing
+    // — autosave will pick up any remaining dirty state on its next tick.
+    if (savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     try {
       const html = exportHTML(els, canvasBg, canvasBgImage);
@@ -161,26 +178,33 @@ export default function LabsSuperPagesEditor() {
         updated_at: updatedAtRef.current,
       };
       const res = await apiPost('/api/funnels/save', payload);
+      if (!mountedRef.current) return;
       if (res.success || res.id) {
         showToast('✓ Saved!');
         markSaved();
         if (res.slug) setPageSettings(prev => ({ ...prev, slug: res.slug }));
         if (res.updated_at) updatedAtRef.current = res.updated_at;
       } else {
-        showToast('Save failed: ' + (res.error || ''));
+        // If server reports a stale write, refresh our updated_at so the
+        // next save attempt isn't blocked by the same clash. Surface to
+        // the user that their last edits weren't saved.
+        if (res.updated_at) updatedAtRef.current = res.updated_at;
+        showToast('Save failed: ' + (res.error || 'unknown — your edits are still local'));
       }
     } catch (e) {
-      showToast('Save error: ' + e.message);
+      if (mountedRef.current) showToast('Save error: ' + e.message);
+    } finally {
+      savingRef.current = false;
+      if (mountedRef.current) setSaving(false);
     }
-    setSaving(false);
-  }, [els, canvasBg, canvasBgImage, pageId, pageSettings, markSaved]);
+  }, [els, canvasBg, canvasBgImage, pageId, pageSettings, pageStatus, markSaved]);
 
   // ── Auto-save every 30s ──
-  // Skip if: not dirty, modal-style editor open, OR the user has interacted
-  // in the last 5 seconds (a drag/resize/inline edit in progress).
+  // Skip if: not dirty, save in flight, modal-style editor open, OR the user
+  // has interacted in the last 5 seconds (a drag/resize/inline edit in progress).
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!dirty || editingElement) return;
+      if (!dirty || editingElement || savingRef.current) return;
       const idleMs = Date.now() - lastActivityRef.current;
       if (idleMs < 5000) return;
       save();
@@ -593,12 +617,28 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
               <label style={{...lS, marginTop:4}}>{t('superPagesEditor.orUploadImage')}</label>
               <input type="file" accept="image/*" onChange={async e => {
                 const f = e.target.files?.[0]; if (!f) return;
+                if (!f.type.startsWith('image/')) {
+                  alert('That is not an image file. Please choose JPG, PNG, GIF, or WebP.');
+                  e.target.value = ''; return;
+                }
+                if (f.size > 10 * 1024 * 1024) {
+                  alert(`Image is too large (${(f.size/1024/1024).toFixed(1)}MB). Max 10MB. Try compressing first.`);
+                  e.target.value = ''; return;
+                }
                 const fd = new FormData(); fd.append('file', f);
                 try {
                   const r = await fetch('/api/funnels/upload-image', {method:'POST', body:fd, credentials:'include'});
+                  if (!r.ok) {
+                    alert(`Upload failed (${r.status}). ` + (r.status === 413 ? 'File too large for the server.' : r.status === 401 ? 'Please sign in again.' : 'Please try again.'));
+                    return;
+                  }
                   const d = await r.json();
                   if (d.url) setLocalTxt(d.url);
-                } catch(err) { alert('Upload failed'); }
+                  else alert('Upload failed: ' + (d.error || 'server returned no URL'));
+                } catch(err) {
+                  console.error('Image upload error:', err);
+                  alert('Upload error: ' + (err.message || 'network failure'));
+                } finally { e.target.value = ''; }
               }} style={{marginBottom:12, fontSize:12}} />
               {localTxt && <img src={localTxt} style={{ maxWidth: '100%', maxHeight: 150, borderRadius: 8, marginBottom: 12 }} alt="" />}
             </>
@@ -622,12 +662,28 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
               <label style={{...lS, marginTop:4}}>{t('superPagesEditor.uploadMp4')}</label>
               <input type="file" accept="video/mp4,video/webm,video/ogg" onChange={async e => {
                 const f = e.target.files?.[0]; if (!f) return;
+                if (!f.type.startsWith('video/')) {
+                  alert('Please choose an MP4, WebM, or OGG video file.');
+                  e.target.value = ''; return;
+                }
+                if (f.size > 100 * 1024 * 1024) {
+                  alert(`Video is too large (${(f.size/1024/1024).toFixed(1)}MB). Max 100MB. For longer videos, upload to YouTube/Vimeo and paste the URL above.`);
+                  e.target.value = ''; return;
+                }
                 const fd = new FormData(); fd.append('file', f);
                 try {
                   const r = await fetch('/api/funnels/upload-video', {method:'POST', body:fd, credentials:'include'});
+                  if (!r.ok) {
+                    alert(`Upload failed (${r.status}). ` + (r.status === 413 ? 'File too large for the server.' : 'Please try again.'));
+                    return;
+                  }
                   const d = await r.json();
                   if (d.url) setLocalTxt(d.url);
-                } catch(err) { alert('Upload failed'); }
+                  else alert('Upload failed: ' + (d.error || 'server returned no URL'));
+                } catch(err) {
+                  console.error('Video upload error:', err);
+                  alert('Upload error: ' + (err.message || 'network failure'));
+                } finally { e.target.value = ''; }
               }} style={{marginBottom:12, fontSize:12}} />
               {localTxt && <div style={{fontSize:13,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Embed: {localTxt}</div>}
             </>
@@ -730,15 +786,32 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
   const [uploading, setUploading] = useState(false);
   const upload = async (e) => {
     const f = e.target.files?.[0]; if (!f) return;
+    if (!f.type.startsWith('audio/')) {
+      alert('Please choose an audio file (MP3, WAV, OGG).');
+      e.target.value = ''; return;
+    }
+    if (f.size > 25 * 1024 * 1024) {
+      alert(`Audio is too large (${(f.size/1024/1024).toFixed(1)}MB). Max 25MB.`);
+      e.target.value = ''; return;
+    }
     setUploading(true);
     const fd = new FormData(); fd.append('file', f);
     try {
       const r = await fetch('/api/funnels/upload-audio', {method:'POST', body:fd, credentials:'include'});
+      if (!r.ok) {
+        alert(`Upload failed (${r.status}). ` + (r.status === 413 ? 'File too large for the server.' : 'Please try again.'));
+        return;
+      }
       const d = await r.json();
       if (d.url) setUrl(d.url);
-      else alert(d.error || 'Upload failed');
-    } catch(err) { alert('Upload failed'); }
-    setUploading(false);
+      else alert('Upload failed: ' + (d.error || 'server returned no URL'));
+    } catch(err) {
+      console.error('Audio upload error:', err);
+      alert('Upload error: ' + (err.message || 'network failure'));
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
   };
   return <>
     <label style={lblStyle}>{t('superPagesEditor.audioUrl')}</label>
