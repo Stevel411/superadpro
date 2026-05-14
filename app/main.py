@@ -25331,7 +25331,11 @@ def _lead_limit(user):
     tier = getattr(user, 'membership_tier', 'free')
     if tier == 'pro': return 5000
     return 0  # Basic members cannot use leads/autoresponder
-DAILY_EMAIL_LIMIT = 200  # Free emails per day for Pro members
+DAILY_EMAIL_LIMIT = 100  # Free emails per day for Pro members.
+                         # Dropped from 200 on 14 May 2026 — Brevo cost analysis
+                         # showed 200/day × heavy Pro members could saturate the
+                         # 20k Starter plan budget. 100/day still covers typical
+                         # campaign volumes; Boost packs available for big sends.
 EMAIL_BOOST_PACKS = [
     {"id": "boost_1k", "credits": 1000, "price": 5.00, "label": "🚀 1,000 Emails", "desc": "Perfect for a targeted campaign"},
     {"id": "boost_5k", "credits": 5000, "price": 19.00, "label": "⚡ 5,000 Emails", "desc": "Run multiple sequences"},

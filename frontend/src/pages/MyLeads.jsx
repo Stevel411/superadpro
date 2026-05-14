@@ -146,7 +146,7 @@ export default function MyLeads() {
 
       {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='sequences' && <SeqTab sequences={sequences} refresh={refresh} flash={flash}/>}
-      {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash}/>}
+      {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash} switchTab={setTab}/>}
       {tab==='import' && <ImpTab stats={stats} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='boost' && <BoostTab emailStats={emailStats} refresh={refresh} flash={flash}/>}
 
@@ -262,16 +262,60 @@ function SeqTab({sequences,refresh,flash}) {
   </div>;
 }
 
-function BcastTab({leads,lists,flash}) {
+function BcastTab({leads,lists,flash,switchTab}) {
 
   var { t } = useTranslation();
   var [sub,setSub]=useState('');var [html,setHtml]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');var [s,setS]=useState(false);var [sent,setSent]=useState(null);
+  // Email allowance — fetched on mount + refetched after each send so the
+  // counter reflects what just happened.
+  var [allowance, setAllowance] = useState(null);
+  function loadAllowance() {
+    apiGet('/api/leads/email-stats').then(function(r) { setAllowance(r); }).catch(function() {});
+  }
+  useEffect(function() { loadAllowance(); }, []);
   var ct=leads.filter(function(l){if(l.status==='unsubscribed')return false;if(fL&&l.list_id!==parseInt(fL))return false;if(fS!=='all'){if(fS==='hot')return l.is_hot;return l.status===fS;}return true;}).length;
-  function send(){if(!sub.trim()){flash('Subject required','err');return;}setS(true);apiPost('/api/leads/broadcast',{subject:sub,html_content:html,filter_status:fS,list_id:fL?parseInt(fL):null}).then(function(r){setS(false);setSent(r.sent||0);var sentN=r.sent||0;var totalN=r.total||0;var failedN=r.failed||0;var msg='Sent to '+sentN+' of '+totalN+' leads';if(failedN>0){var reasons=r.failure_summary||{};var parts=[];Object.keys(reasons).forEach(function(k){parts.push(reasons[k]+' '+k);});if(parts.length)msg=msg+' ('+parts.join(', ')+')';}flash(msg,sentN>0?'ok':'err');}).catch(function(e){setS(false);flash(e.message,'err');});}
+  function send(){if(!sub.trim()){flash('Subject required','err');return;}setS(true);apiPost('/api/leads/broadcast',{subject:sub,html_content:html,filter_status:fS,list_id:fL?parseInt(fL):null}).then(function(r){setS(false);setSent(r.sent||0);var sentN=r.sent||0;var totalN=r.total||0;var failedN=r.failed||0;var msg='Sent to '+sentN+' of '+totalN+' leads';if(failedN>0){var reasons=r.failure_summary||{};var parts=[];Object.keys(reasons).forEach(function(k){parts.push(reasons[k]+' '+k);});if(parts.length)msg=msg+' ('+parts.join(', ')+')';}flash(msg,sentN>0?'ok':'err');loadAllowance();}).catch(function(e){setS(false);flash(e.message,'err');});}
+
+  // Banner tone: green if comfortable headroom, amber if close, red if <ct.
+  // Members see exactly what's about to happen before they click Send.
+  var bannerColor='#16a34a'; var bannerBg='#f0fdf4'; var bannerBorder='#bbf7d0';
+  if (allowance) {
+    var totalAvail = (allowance.free_remaining || 0) + (allowance.boost_credits || 0);
+    if (totalAvail < ct) { bannerColor='#dc2626'; bannerBg='#fef2f2'; bannerBorder='#fecaca'; }
+    else if (allowance.free_remaining < 25) { bannerColor='#b45309'; bannerBg='#fffbeb'; bannerBorder='#fde68a'; }
+  }
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>{t('myLeads.broadcastTitle')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('myLeads.broadcastDesc')}</div></div>
     <div style={{padding:'20px 24px'}}>
+      {/* Email allowance banner — Pro membership covers a free daily quota.
+          Boost packs add credits that never expire for bigger sends. */}
+      {allowance && (
+        <div style={{
+          display:'flex', alignItems:'center', gap:12, marginBottom:16,
+          padding:'10px 14px', background:bannerBg,
+          border:'1px solid '+bannerBorder, borderRadius:10,
+          fontSize:13, color:bannerColor,
+        }}>
+          <div style={{flex:1}}>
+            <span style={{fontWeight:700}}>{allowance.free_remaining} of {allowance.daily_limit} free emails left today</span>
+            {allowance.boost_credits > 0 && (
+              <span style={{color:'var(--sap-text-muted)', marginLeft:8}}>
+                + {allowance.boost_credits} boost credits
+              </span>
+            )}
+            <div style={{fontSize:11, color:'var(--sap-text-muted)', marginTop:2}}>
+              Pro membership includes {allowance.daily_limit}/day. Boost packs from $5 add credits that never expire.
+            </div>
+          </div>
+          <a href="#boost" onClick={function(e){e.preventDefault();if(switchTab)switchTab('boost');}} style={{
+            display:'inline-block', padding:'6px 12px',
+            background:'#fff', border:'1px solid '+bannerBorder,
+            borderRadius:8, color:bannerColor, fontWeight:700,
+            textDecoration:'none', fontSize:12, whiteSpace:'nowrap',
+          }}>Top up</a>
+        </div>
+      )}
       <div style={{display:'flex',gap:10,marginBottom:16}}>
         <div style={{flex:1}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.listLabel')}</label><CustomSelect value={fL} onChange={setFL} options={[{value:'',label:t('myLeads.allLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
         <div style={{flex:1}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.statusLabel')}</label><CustomSelect value={fS} onChange={setFS} options={[{value:'all',label:'All'},{value:'new',label:'New'},{value:'nurturing',label:t('myLeads.nurturing')},{value:'hot',label:'Hot'}]}/></div>
