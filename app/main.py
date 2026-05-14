@@ -29546,6 +29546,312 @@ def admin_matrix_debug(request: Request, db: Session = Depends(get_db),
     }
 
 
+@app.get("/admin/user-debug")
+@app.get("/admin/user-debug/{username_or_id}")
+def admin_user_debug(request: Request, db: Session = Depends(get_db),
+                     username_or_id: str = None):
+    """Generic member diagnostic dump — full state + auto-diagnosis of common
+    support blockers.
+
+    Returns the complete picture of a single user account: identity, tier flags,
+    wallet/email credit balances, recent email sends, recent commissions, recent
+    crypto-payment orders (all 3 types), recent withdrawals, plus a
+    `diagnosis` block that flags the most common blockers (tier/active mismatch,
+    no leads, no email allowance, no wallet, KYC issues, etc.).
+
+    Built 14 May 2026 as a permanent support tool — designed to replace the
+    "Steve runs SQL by hand to figure out why X can't do Y" pattern. First use
+    case is David Smith (@itsamazing, SAP-00179) reporting he can't send a
+    broadcast email after a manual upgrade to Pro.
+
+    Usage:
+      GET /admin/user-debug                    — dumps the calling admin's own state
+      GET /admin/user-debug/{username}         — case-insensitive username lookup
+      GET /admin/user-debug/{user_id}          — numeric id lookup (digit string)
+
+    Admin-only. Read-only. Returns JSON.
+    """
+    from .database import (
+        User, Commission, Withdrawal, MemberLead, EmailSendLog,
+        WalletConnectPaymentOrder, CryptoPaymentOrder, NowPaymentsOrder,
+    )
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    # No arg → dump the calling admin's own state
+    if not username_or_id:
+        target = user
+    else:
+        # Numeric → id lookup; otherwise case-insensitive username
+        if username_or_id.isdigit():
+            target = db.query(User).filter_by(id=int(username_or_id)).first()
+        else:
+            target = db.query(User).filter(User.username.ilike(username_or_id)).first()
+        if not target:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No user matching '{username_or_id}'",
+            )
+
+    tier = (target.membership_tier or "free").lower()
+
+    # ── Recent activity ─────────────────────────────────────────────────
+    # Last 20 broadcast/sequence email sends. Joined via member_leads because
+    # EmailSendLog has no user_id column (lead_id → MemberLead.user_id).
+    recent_sends = (
+        db.query(EmailSendLog, MemberLead)
+        .join(MemberLead, EmailSendLog.lead_id == MemberLead.id)
+        .filter(MemberLead.user_id == target.id)
+        .order_by(EmailSendLog.sent_at.desc())
+        .limit(20)
+        .all()
+    )
+    sends_out = [{
+        "send_id": s.id,
+        "lead_id": s.lead_id,
+        "lead_email": l.email,
+        "sequence_id": s.sequence_id,
+        "email_index": s.email_index,
+        "status": s.status,
+        "brevo_message_id": s.brevo_message_id,
+        "sent_at": s.sent_at.isoformat() if s.sent_at else None,
+        "opened_at": s.opened_at.isoformat() if s.opened_at else None,
+    } for s, l in recent_sends]
+
+    # Last 20 commissions earned (any type, any status)
+    recent_commissions = (
+        db.query(Commission)
+        .filter_by(to_user_id=target.id)
+        .order_by(Commission.created_at.desc())
+        .limit(20)
+        .all()
+    )
+    commissions_out = [{
+        "commission_id": c.id,
+        "from_user_id": c.from_user_id,
+        "amount_usdt": float(c.amount_usdt or 0),
+        "commission_type": c.commission_type,
+        "package_tier": c.package_tier,
+        "status": c.status,
+        "tx_hash": c.tx_hash,
+        "created_at": c.created_at.isoformat() if c.created_at else None,
+        "paid_at": c.paid_at.isoformat() if c.paid_at else None,
+    } for c in recent_commissions]
+
+    # Last 20 withdrawals (any status — including failed/processing)
+    recent_withdrawals = (
+        db.query(Withdrawal)
+        .filter_by(user_id=target.id)
+        .order_by(Withdrawal.requested_at.desc())
+        .limit(20)
+        .all()
+    )
+    withdrawals_out = [{
+        "withdrawal_id": w.id,
+        "amount_usdt": float(w.amount_usdt or 0),
+        "wallet_address": w.wallet_address,
+        "network": w.network,
+        "status": w.status,
+        "wallet_type": w.wallet_type,
+        "attempts": w.attempts,
+        "last_error": w.last_error,
+        "tx_hash": w.tx_hash,
+        "requested_at": w.requested_at.isoformat() if w.requested_at else None,
+        "processed_at": w.processed_at.isoformat() if w.processed_at else None,
+    } for w in recent_withdrawals]
+
+    # Last 10 crypto payment orders across all three providers (helps diagnose
+    # stuck activations / failed upgrades). Wrapped in try/except per-provider
+    # so a renamed table or missing migration doesn't break the whole endpoint.
+    orders_out = {"walletconnect": [], "crypto": [], "nowpayments": [], "errors": []}
+    try:
+        wc_orders = (
+            db.query(WalletConnectPaymentOrder)
+            .filter_by(user_id=target.id)
+            .order_by(WalletConnectPaymentOrder.id.desc())
+            .limit(10)
+            .all()
+        )
+        orders_out["walletconnect"] = [{
+            "order_id": o.id,
+            "status": getattr(o, "status", None),
+            "amount_usdt": float(getattr(o, "amount_usdt", 0) or 0),
+            "purpose": getattr(o, "purpose", None),
+            "created_at": getattr(o, "created_at", None).isoformat()
+                if getattr(o, "created_at", None) else None,
+        } for o in wc_orders]
+    except Exception as e:
+        orders_out["errors"].append(f"walletconnect: {type(e).__name__}: {e}")
+    try:
+        c_orders = (
+            db.query(CryptoPaymentOrder)
+            .filter_by(user_id=target.id)
+            .order_by(CryptoPaymentOrder.id.desc())
+            .limit(10)
+            .all()
+        )
+        orders_out["crypto"] = [{
+            "order_id": o.id,
+            "status": getattr(o, "status", None),
+            "amount_usdt": float(getattr(o, "amount_usdt", 0) or 0),
+            "purpose": getattr(o, "purpose", None),
+            "created_at": getattr(o, "created_at", None).isoformat()
+                if getattr(o, "created_at", None) else None,
+        } for o in c_orders]
+    except Exception as e:
+        orders_out["errors"].append(f"crypto: {type(e).__name__}: {e}")
+    try:
+        np_orders = (
+            db.query(NowPaymentsOrder)
+            .filter_by(user_id=target.id)
+            .order_by(NowPaymentsOrder.id.desc())
+            .limit(10)
+            .all()
+        )
+        orders_out["nowpayments"] = [{
+            "order_id": o.id,
+            "status": getattr(o, "status", None),
+            "price_amount": float(getattr(o, "price_amount", 0) or 0),
+            "purpose": getattr(o, "purpose", None),
+            "created_at": getattr(o, "created_at", None).isoformat()
+                if getattr(o, "created_at", None) else None,
+        } for o in np_orders]
+    except Exception as e:
+        orders_out["errors"].append(f"nowpayments: {type(e).__name__}: {e}")
+
+    # Lead/email allowance summary — uses the SAME helpers the broadcast
+    # endpoint uses, so what we report here is what the broadcast endpoint sees.
+    total_leads = db.query(MemberLead).filter_by(user_id=target.id).count()
+    active_leads = db.query(MemberLead).filter(
+        MemberLead.user_id == target.id,
+        MemberLead.status != "unsubscribed",
+    ).count()
+    lead_limit_value = _lead_limit(target)
+    email_allowed, email_reason = _check_email_allowance(target, db, count=1)
+
+    # ── Auto-diagnosis of common blockers ────────────────────────────────
+    issues = []
+    # The big one: tier and is_active must agree. _lead_limit() does an exact
+    # string match against 'pro' (case-sensitive in code), so a mixed-case or
+    # whitespaced value silently fails.
+    if tier == "pro" and not target.is_active:
+        issues.append(
+            "TIER/ACTIVE MISMATCH: membership_tier='pro' but is_active=False. "
+            "Membership row shows Pro but account is inactive — features that "
+            "check is_active will reject. Fix: UPDATE users SET is_active=true "
+            f"WHERE id={target.id};"
+        )
+    if tier == "free" and target.is_active:
+        issues.append(
+            "TIER/ACTIVE MISMATCH: membership_tier='free' but is_active=True. "
+            "Free account marked active — likely a manual-activation leftover. "
+            "Decide which is correct and fix the other."
+        )
+    if target.membership_tier and target.membership_tier != tier:
+        issues.append(
+            f"TIER CASE/WHITESPACE: membership_tier='{target.membership_tier!r}' "
+            f"normalises to '{tier}'. _lead_limit() and several other checks "
+            "do exact lowercase comparisons — non-normalised values silently "
+            f"fail. Fix: UPDATE users SET membership_tier='{tier}' WHERE id={target.id};"
+        )
+    if lead_limit_value == 0:
+        issues.append(
+            f"LEAD LIMIT IS ZERO: _lead_limit() returned 0 because "
+            f"membership_tier='{target.membership_tier!r}' is not exactly 'pro'. "
+            "User cannot add leads → broadcast endpoint will return sent=0 "
+            "even though it does not 4xx. To enable broadcast: ensure "
+            "membership_tier is exactly the lowercase string 'pro'."
+        )
+    if total_leads > 0 and active_leads == 0:
+        issues.append(
+            f"ALL LEADS UNSUBSCRIBED: {total_leads} leads on file but 0 "
+            "active. Broadcast will send to nobody."
+        )
+    if total_leads == 0 and lead_limit_value > 0:
+        issues.append(
+            "NO LEADS YET: User is eligible to add leads but has none. "
+            "Broadcast will return sent=0 with no leads to send to."
+        )
+    if not email_allowed:
+        issues.append(f"EMAIL ALLOWANCE BLOCKED: {email_reason}")
+    if not target.wallet_address:
+        issues.append(
+            "NO WALLET ADDRESS: User has no wallet_address set. Withdrawals "
+            "and on-chain commission payouts cannot be sent."
+        )
+    if target.email_opt_out:
+        issues.append(
+            "BROADCAST OPT-OUT: User has email_opt_out=True. They are excluded "
+            "from admin broadcasts (transactional emails still send)."
+        )
+    if target.kyc_status not in (None, "none", "approved"):
+        issues.append(
+            f"KYC STATUS: kyc_status='{target.kyc_status}'. Withdrawals over "
+            "the KYC threshold will be blocked until approved."
+        )
+
+    return {
+        "target": {
+            "user_id": target.id,
+            "username": target.username,
+            "email": target.email,
+            "first_name": target.first_name,
+            "last_name": target.last_name,
+            "country": target.country,
+            "is_admin": bool(target.is_admin),
+            "is_active": bool(target.is_active),
+            "membership_tier_raw": target.membership_tier,
+            "membership_tier_normalised": tier,
+            "membership_billing": target.membership_billing,
+            "membership_expires_at": target.membership_expires_at.isoformat()
+                if target.membership_expires_at else None,
+            "activated_at": target.activated_at.isoformat()
+                if target.activated_at else None,
+            "sponsor_id": target.sponsor_id,
+            "kyc_status": target.kyc_status,
+            "email_opt_out": bool(target.email_opt_out),
+            "created_at": target.created_at.isoformat()
+                if target.created_at else None,
+        },
+        "balances": {
+            "balance": float(target.balance or 0),
+            "campaign_balance": float(target.campaign_balance or 0),
+            "total_earned": float(target.total_earned or 0),
+            "total_withdrawn": float(target.total_withdrawn or 0),
+            "email_credits": target.email_credits or 0,
+            "emails_sent_today": target.emails_sent_today or 0,
+            "emails_sent_today_date": target.emails_sent_today_date,
+        },
+        "wallet": {
+            "wallet_address": target.wallet_address,
+            "wallet_network": target.wallet_network,
+            "sending_wallet": target.sending_wallet,
+        },
+        "autoresponder": {
+            "total_leads": total_leads,
+            "active_leads": active_leads,
+            "lead_limit": lead_limit_value,
+            "email_allowed": email_allowed,
+            "email_reason": email_reason,
+            "daily_email_limit": DAILY_EMAIL_LIMIT,
+        },
+        "recent_email_sends": sends_out,
+        "recent_commissions": commissions_out,
+        "recent_withdrawals": withdrawals_out,
+        "recent_orders": orders_out,
+        "diagnosis": {
+            "issue_count": len(issues),
+            "issues": issues,
+            "verdict": "OK — no blockers detected" if not issues
+                else f"{len(issues)} blocker(s) found — see issues list",
+        },
+    }
+
+
 @app.get("/admin/bpg/preview-status")
 def bpg_admin_preview_status(request: Request, db: Session = Depends(get_db)):
     """Quick status check: which templates currently have preview images?
