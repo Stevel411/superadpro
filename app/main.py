@@ -5421,11 +5421,11 @@ def api_membership_activate_from_balance(
             status_code=400,
         )
 
-    # Deduct fee, activate Basic. activated_at + membership_expires_at
+    # Deduct fee, activate as Partner. activated_at + membership_expires_at
     # follow the same pattern as a regular paid activation.
     user.balance = balance - fee
     user.is_active = True
-    user.membership_tier = "basic"
+    user.membership_tier = "partner"
     user.activated_at = user.activated_at or datetime.utcnow()
     user.membership_expires_at = (user.membership_expires_at or datetime.utcnow()) + timedelta(days=31)
 
@@ -6766,7 +6766,12 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Activate user
     user.is_active = True
     user.activated_at = user.activated_at or datetime.utcnow()
-    user.membership_tier = tier
+    # Under flat partner pricing, all new activations are tagged 'partner'.
+    # Founding partners (the migrated first 100) keep their 'founding' tag —
+    # don't overwrite that if the user already has it. Incoming `tier` from
+    # legacy callers (still passing 'basic'/'pro') is normalised to 'partner'.
+    if user.membership_tier != "founding":
+        user.membership_tier = "partner"
     # Set billing type (safe — column may not exist yet in DB)
     try:
         user.membership_billing = "annual" if is_annual else "monthly"

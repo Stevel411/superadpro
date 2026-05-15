@@ -212,9 +212,9 @@ def _cascade_auto_activation(
         icon="🎉",
         title="Activate your membership for free",
         message=(
-            f"You've earned ${MEMBERSHIP_FEE} in commissions! Activate Basic "
-            "membership now using your earnings, or keep them in your wallet "
-            "to withdraw later."
+            f"You've earned ${MEMBERSHIP_FEE} in commissions! Activate your "
+            "Partner membership now using your earnings, or keep them in your "
+            "wallet to withdraw later."
         ),
         link="/upgrade-from-balance",
         # i18n: frontend translates against the user's locale at render time
