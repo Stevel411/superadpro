@@ -40,6 +40,7 @@ const LabsSuperPagesEditor = React.lazy(() => import('./pages/labs-superpages/Su
 const LabsTemplatesPreview = React.lazy(() => import('./pages/labs-superpages/LabsTemplatesPreview'));
 const LabsSandboxList = React.lazy(() => import('./pages/labs-superpages/LabsSandboxList'));
 const Upgrade = React.lazy(() => import('./pages/Upgrade'));
+const PartnerPayment = React.lazy(() => import('./pages/PartnerPayment'));
 const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
 const IncomeDisclaimer = React.lazy(() => import('./pages/IncomeDisclaimer'));
@@ -361,7 +362,14 @@ function AppRoutes() {
       <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
       <Route path="/income-disclaimer" element={<ProtectedRoute><IncomeDisclaimer /></ProtectedRoute>} />
       <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>{'Loading 3D Grid...'}</div>}><IncomeGrid3DPage /></React.Suspense>} />
-      <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+      {/* /upgrade serves the new Partner Payment window (Sprint 2d, 15 May 2026).
+          Legacy Upgrade.jsx kept in codebase as dead code; will be removed in a
+          future cleanup once we're confident the new page handles every case.
+          /upgrade/checkout still routes to legacy UpgradeCheckout for any in-flight
+          checkout sessions that haven't completed yet — that page now short-circuits
+          the deprecated pro-upgrade path with a clear message. */}
+      <Route path="/upgrade" element={<ProtectedRoute><PartnerPayment /></ProtectedRoute>} />
+      <Route path="/upgrade/legacy" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
       <Route path="/upgrade/checkout" element={<ProtectedRoute><UpgradeCheckout /></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}
