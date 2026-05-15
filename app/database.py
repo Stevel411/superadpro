@@ -1960,6 +1960,18 @@ def run_migrations():
     ]
     results = []
     with engine.connect() as conn:
+        # ── Defensive timeouts (added 15 May 2026 launch-night) ──
+        # Prevent any single ALTER/CREATE from hanging the entire app
+        # boot if another connection holds a conflicting lock. Per-statement
+        # timeouts; each statement's exception is already caught in the
+        # loop body and recorded as ('skip', reason).
+        try:
+            conn.execute(text("SET lock_timeout = '5s'"))
+            conn.execute(text("SET statement_timeout = '30s'"))
+        except Exception as _e:
+            # If even setting the timeout fails, fall through — at worst
+            # we're back to the no-timeout behaviour we had before.
+            pass
         for sql in migrations:
             try:
                 conn.execute(text(sql))
@@ -1978,6 +1990,12 @@ except Exception as e:
 # Force critical column additions with direct connection
 try:
     with engine.connect() as conn:
+        # Same defensive timeouts as run_migrations above.
+        try:
+            conn.execute(text("SET lock_timeout = '5s'"))
+            conn.execute(text("SET statement_timeout = '30s'"))
+        except Exception:
+            pass
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS interests VARCHAR"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_country VARCHAR"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR"))
@@ -2533,6 +2551,24 @@ except Exception as e:
 # as perma-comped admin account; renewal cron never fires for far-future expiry.
 try:
     with engine.connect() as conn:
+        # ── Defensive timeouts (added 15 May 2026 after launch-night outage) ──
+        # If another connection holds a lock on the users table (idle
+        # transaction, long-running cron, anything), ALTER TABLE will wait
+        # forever — and because this code runs at import time, that hangs
+        # the entire app boot. A redeploy at 17:00 BST tonight got stuck in
+        # exactly this state for ~30 min, with the primitive health
+        # responder in start.py answering Railway healthchecks while the
+        # real FastAPI app never finished loading.
+        #
+        # lock_timeout: give up acquiring a table lock after 5 seconds.
+        # statement_timeout: give up a single statement after 30 seconds.
+        # Both fire as exceptions, which the outer try/except below catches
+        # and logs. The migration is idempotent so missing a run on one
+        # boot is harmless — it'll succeed on the next deploy when the
+        # lock is free.
+        conn.execute(text("SET lock_timeout = '5s'"))
+        conn.execute(text("SET statement_timeout = '30s'"))
+
         # Phase 1: schema columns
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_founding_member BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS founding_spot_number INTEGER"))
@@ -2598,6 +2634,10 @@ except Exception as e:
 # correctly tagged, the UPDATE matches zero rows.
 try:
     with engine.connect() as conn:
+        # Same defensive timeouts as the flat-pricing migration above —
+        # see comments there for rationale.
+        conn.execute(text("SET lock_timeout = '5s'"))
+        conn.execute(text("SET statement_timeout = '30s'"))
         result = conn.execute(text("""
             UPDATE users
             SET membership_tier = 'founding'
