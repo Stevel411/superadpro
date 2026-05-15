@@ -11036,7 +11036,30 @@ async def admin_trigger_bsc_scan(
         )
 
     try:
-        transfers = scan_treasury_transfers(scan_floor)
+        if from_block and from_block > 0:
+            # Manual override — bypass scan_treasury_transfers' built-in
+            # MAX_SCAN_BLOCKS_PER_RUN=1000 cap which would silently clamp
+            # the floor forward and miss our target block. Call
+            # get_treasury_transfers_in_range directly in chunks.
+            from .walletconnect_payments import get_treasury_transfers_in_range, GETLOGS_WINDOW_BLOCKS
+            stats["forced_from_block"] = from_block
+            transfers = []
+            cursor = from_block
+            chunks_run = 0
+            MAX_CHUNKS = 500  # safety cap on this admin invocation: 500 × 10 = 5,000 blocks
+            while cursor <= stats["latest_block"] and chunks_run < MAX_CHUNKS:
+                chunk_to = min(cursor + GETLOGS_WINDOW_BLOCKS - 1, stats["latest_block"])
+                try:
+                    chunk = get_treasury_transfers_in_range(cursor, chunk_to)
+                    transfers.extend(chunk)
+                except Exception as e:
+                    logger.warning(f"admin_trigger_bsc_scan chunk {cursor}-{chunk_to} failed: {e}")
+                    stats["errors"].append(f"chunk {cursor}-{chunk_to}: {e}")
+                cursor = chunk_to + 1
+                chunks_run += 1
+            stats["chunks_run"] = chunks_run
+        else:
+            transfers = scan_treasury_transfers(scan_floor)
         stats["transfers_seen"] = len(transfers)
     except Exception as e:
         logger.error(f"admin_trigger_bsc_scan: scan failed: {e}")
