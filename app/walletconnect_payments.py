@@ -91,11 +91,20 @@ BSC_AVG_BLOCK_SECONDS = 3
 # split percentages here — those live in the activation handlers and in
 # docs/commission-spec.md.
 PRODUCT_PRICES = {
-    # Membership (Stream 01) — 50/50 split per docs/commission-spec.md
-    "membership_basic":         Decimal("20.00"),
-    "membership_pro":           Decimal("35.00"),
-    "membership_basic_annual":  Decimal("200.00"),
-    "membership_pro_annual":    Decimal("350.00"),
+    # Membership (Stream 01) — flat partner pricing 15 May 2026
+    # Standard partner $20/mo or $200/yr. Founding partner uses the same
+    # 'membership_partner' product_key — the locked price on the user
+    # record overrides this default to charge $15/$150 instead. Legacy
+    # 'basic'/'pro' keys retained for backward compatibility with cached
+    # checkout pages but now resolve to the standard partner price.
+    "membership_partner":         Decimal("20.00"),
+    "membership_partner_annual":  Decimal("200.00"),
+    # Legacy keys — both now resolve to standard partner price. They'll be
+    # removed in a future cleanup sprint once no active flow references them.
+    "membership_basic":           Decimal("20.00"),
+    "membership_pro":             Decimal("20.00"),
+    "membership_basic_annual":    Decimal("200.00"),
+    "membership_pro_annual":      Decimal("200.00"),
     # Campaign Grid (Stream 02) — 95/5 split
     "grid_1":   Decimal("20.00"),
     "grid_2":   Decimal("50.00"),

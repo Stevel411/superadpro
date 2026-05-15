@@ -224,6 +224,23 @@ class User(Base):
     membership_billing      = Column(String, default="monthly")             # "monthly" or "annual"
     activated_at            = Column(DateTime, nullable=True)               # first payment / activation timestamp; preserved on subsequent renewals
     stuck_lapsed_alerted_at = Column(DateTime, nullable=True)               # set by /cron/stuck-lapsed-alert when this user is first detected as stuck-lapsed; cleared on reactivation. Idempotency for the alert email — same user only emails once.
+    # ── Flat-pricing partner model (added 15 May 2026) ─────────────────────
+    # New three-state membership model replacing legacy free/basic/pro tiers:
+    #   - free      → registered but not paying
+    #   - partner   → paying $20/mo, full platform access
+    #   - founding  → one of the 100 founding partners, $15/mo locked for life
+    # Tier gating removed: partner and founding both get full access.
+    # The Pro/Basic distinction no longer exists — every paying member is a
+    # Partner. The original 100 paying members are Founding Partners with a
+    # permanent $15/mo rate. Legacy 'basic'/'pro' values in this column are
+    # migrated to 'founding' on the cutover date for all currently-active users.
+    is_founding_member      = Column(Boolean, default=False, index=True)    # True for the first 100 paying partners
+    founding_spot_number    = Column(Integer, nullable=True, unique=True)   # 1..100 — display rank for founders, NULL otherwise
+    # When set, this overrides all standard pricing logic — the renewal cron
+    # charges this amount instead of computing from tier. Founding partners
+    # have this set to 15.00 at migration; standard partners leave it NULL so
+    # they pay the prevailing $20/mo rate.
+    membership_price_locked = Column(Numeric(10, 2), nullable=True)
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -2476,6 +2493,92 @@ try:
         print("✅ user 179 (itsamazing) membership_expires_at fix applied/verified")
 except Exception as e:
     print(f"⚠️ user 179 expiry fix failed: {e}")
+
+# ─────────────────────────────────────────────────────────────────────────
+# FLAT-PRICING PARTNER MIGRATION (15 May 2026)
+# ─────────────────────────────────────────────────────────────────────────
+# Migrates from legacy three-tier model (free/basic/pro at $0/$20/$35) to
+# flat partner model (free/partner/founding at $0/$20/$15 lifetime locked).
+#
+# Two phases, both idempotent so the block is safe on every Railway startup:
+#
+#   Phase 1 — Schema additions:
+#     - is_founding_member (Boolean, default FALSE, indexed)
+#     - founding_spot_number (Integer, unique, nullable; 1..100 for founders)
+#     - membership_price_locked (Numeric(10,2), nullable; overrides standard
+#       price in renewal cron when set)
+#
+#   Phase 2 — One-shot grandfathering:
+#     - All is_active=TRUE users at migration moment become founding partners
+#     - Assigned founding_spot_number in ascending activated_at order (1, 2, …)
+#     - membership_price_locked set to 15.00 for each
+#     - membership_tier set to 'founding' (replacing legacy 'basic'/'pro')
+#     - membership_expires_at left UNTOUCHED — each user honours their current
+#       paid period; the $15/mo rate kicks in at renewal time
+#     - Idempotent guard: skips any user already flagged is_founding_member,
+#       so a re-run touches zero rows once the migration has succeeded
+#
+# Lapse policy at expiry (handled by renewal cron, not this block):
+#   - Comped accounts that don't pay $15 within grace period → lose founding
+#     status (is_founding_member=FALSE, spot_number cleared, tier='free')
+#   - Paid accounts continue at $15/mo until they cancel
+#
+# Note on user #1 (SuperAdPro admin): permanently active with 2099 expiry —
+# becomes founding spot #1 by virtue of being earliest activated_at. Honoured
+# as perma-comped admin account; renewal cron never fires for far-future expiry.
+try:
+    with engine.connect() as conn:
+        # Phase 1: schema columns
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_founding_member BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS founding_spot_number INTEGER"))
+        # Unique constraint on spot number to prevent two users sharing a spot —
+        # the migration assigns them carefully but a race in /api/claim-founding
+        # could otherwise race. CREATE UNIQUE INDEX IF NOT EXISTS is the
+        # idempotent way (ALTER TABLE ADD UNIQUE CONSTRAINT errors on re-run).
+        conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_founding_spot_number ON users(founding_spot_number) WHERE founding_spot_number IS NOT NULL"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_users_is_founding_member ON users(is_founding_member) WHERE is_founding_member = TRUE"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_price_locked NUMERIC(10,2)"))
+        conn.commit()
+        print("✅ flat-pricing partner columns added/verified on users table")
+
+        # Phase 2: one-shot grandfathering. We use a window function to assign
+        # spot numbers atomically in a single UPDATE statement, ordered by
+        # activated_at ASC. Users without activated_at (shouldn't happen given
+        # the earlier activated_at backfill migration, but defensive) fall to
+        # the end of the order via NULLS LAST.
+        #
+        # The WHERE clause filters on is_founding_member = FALSE so:
+        #   - First run: matches all is_active=TRUE users, assigns spots 1..N
+        #   - Subsequent runs: matches zero rows (already flagged), no-op
+        # This makes it safe to redeploy without re-running the migration.
+        result = conn.execute(text("""
+            WITH ordered_actives AS (
+                SELECT
+                    id,
+                    ROW_NUMBER() OVER (ORDER BY activated_at ASC NULLS LAST, id ASC) AS spot
+                FROM users
+                WHERE is_active = TRUE
+                  AND is_founding_member = FALSE
+            )
+            UPDATE users u
+            SET is_founding_member = TRUE,
+                founding_spot_number = oa.spot,
+                membership_price_locked = 15.00,
+                membership_tier = 'founding'
+            FROM ordered_actives oa
+            WHERE u.id = oa.id
+              AND oa.spot <= 100
+            RETURNING u.id, u.founding_spot_number
+        """))
+        grandfathered = result.fetchall()
+        conn.commit()
+        if grandfathered:
+            spots = sorted([r.founding_spot_number for r in grandfathered])
+            print(f"✅ flat-pricing grandfathering: {len(grandfathered)} users granted founding partner status (spots {spots[0]}..{spots[-1]})")
+        else:
+            print("✅ flat-pricing grandfathering: no users to migrate (already complete)")
+except Exception as e:
+    print(f"⚠️ flat-pricing migration failed: {e}")
 
 # ── Brand Poster Generator tables (added 12 May 2026) ──
 # Three tables for the BPG feature in Creative Studio. Defined as
