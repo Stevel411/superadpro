@@ -195,7 +195,16 @@ export default function Account() {
               <span style={{display:'inline-block',fontSize:14,fontWeight:700,padding:'2px 8px',borderRadius:4,marginTop:3,...(user.is_active?{background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}:{background:'var(--sap-amber-bg)',color:'var(--sap-amber-dark)'})}}>{user.is_active?t('account.activeStatus'):t('account.inactiveStatus')}</span>
             </div>
           </div>
-          <Row k={t("account.memberId")} v={memberId} mono/><Row k={t("account.email")} v={user.email}/><Row k={t("account.tier")} v={(user.membership_tier||'basic').toUpperCase()}/><Row k={t("account.country")} v={user.country||'—'}/><Row k={t("account.sponsor")} v={user.sponsor_username?'@'+user.sponsor_username:t('account.direct')}/><Row k={t("account.joined")} v={user.created_at?new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'} last/>
+          <Row k={t("account.memberId")} v={memberId} mono/><Row k={t("account.email")} v={user.email}/><Row k={t("account.tier")} v={(function() {
+            // Map raw db tier value to friendly user-facing label.
+            // After flat-pricing migration: 'founding' / 'partner' / 'free'.
+            // Legacy 'basic' / 'pro' values shouldn't exist post-migration
+            // but we handle them defensively (resolve to "Partner").
+            var tier = (user.membership_tier || 'free').toLowerCase();
+            if (tier === 'founding') return 'Founding Partner';
+            if (tier === 'partner' || tier === 'basic' || tier === 'pro') return 'Partner';
+            return 'Free';
+          })()}/><Row k={t("account.country")} v={user.country||'—'}/><Row k={t("account.sponsor")} v={user.sponsor_username?'@'+user.sponsor_username:t('account.direct')}/><Row k={t("account.joined")} v={user.created_at?new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'} last/>
         </Card>
 
         <Card title={t("account.editProfile")}>

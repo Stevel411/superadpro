@@ -133,16 +133,15 @@ function findActiveTabId(pathname, tabs) {
 // ──────────────────────────────────────────────────────────────────
 // Tier check — does the member meet the tab's required tier?
 // `requiresTier=null` → always unlocked
-// `requiresTier='basic'` → unlocked for active members (Basic and Pro)
-// `requiresTier='pro'`   → only active Pro members unlock
-// Uses is_active as the canonical "is paid" signal so the UI never
-// disagrees with the server-side TierGateMiddleware. memberTier still
-// matters for distinguishing Pro from Basic.
+// Under flat partner pricing (15 May 2026), every is_active member has
+// full platform access. The legacy 'basic' vs 'pro' distinction in
+// requiresTier values no longer differentiates — both collapse to a
+// simple is_active check. requiresTier values still drive UI labelling
+// elsewhere but no longer gate access.
 // ──────────────────────────────────────────────────────────────────
 function isTabUnlocked(tab, memberTier, isActive) {
   if (!tab.requiresTier) return true;
-  if (tab.requiresTier === 'basic') return !!isActive;
-  if (tab.requiresTier === 'pro')   return !!isActive && (memberTier || '').toLowerCase() === 'pro';
+  if (tab.requiresTier === 'basic' || tab.requiresTier === 'pro') return !!isActive;
   return false;
 }
 

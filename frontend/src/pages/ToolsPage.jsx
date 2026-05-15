@@ -47,13 +47,14 @@ export default function ToolsPage() {
     };
   }, []);
 
-  // Tier detection — used to pick door card eyebrow text and pill labels.
-  // is_active is the canonical "is paid" signal (matches server-side
-  // TierGateMiddleware). membership_tier distinguishes Basic vs Pro among
-  // paying users. A free user has is_active=false AND tier='free'.
+  // Under flat partner pricing (15 May 2026), every is_active member has
+  // full tool access. is_active is the canonical "is paid" signal — the
+  // legacy Pro vs Basic distinction in membership_tier no longer gates
+  // anything. Variables retained for backward compatibility with the
+  // door-card rendering logic below.
   const tier = (user?.membership_tier || 'free').toLowerCase();
   const isActive = !!user?.is_active;
-  const isPro = isActive && tier === 'pro';
+  const isPro = isActive;  // every active member sees the "Pro" door cards
   const isBasicOrAbove = isActive;
 
   return (

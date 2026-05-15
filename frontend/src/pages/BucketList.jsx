@@ -77,8 +77,12 @@ const BUCKET_CONFIG = {
     accent: 'var(--sap-violet)',
     accentPale: '#ddd6fe',
     secondaryLine: function(m, t) {
-      // Grid: just show their tier + active state
-      const tier = m.membership_tier ? m.membership_tier.toUpperCase() : '';
+      // Grid: just show their tier + active state. Map tier to friendly label
+      // under flat partner pricing (15 May 2026).
+      var t_lower = (m.membership_tier || '').toLowerCase();
+      var tier = '';
+      if (t_lower === 'founding') tier = 'FOUNDER';
+      else if (t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro') tier = 'PARTNER';
       const status = m.is_active ? t('commandCentre.rowActive', { defaultValue: 'Active' }) : t('commandCentre.rowInactive', { defaultValue: 'Inactive' });
       return [tier, status].filter(Boolean).join(' · ');
     },
@@ -90,7 +94,10 @@ const BUCKET_CONFIG = {
     accent: 'var(--sap-indigo)',
     accentPale: '#c7d2fe',
     secondaryLine: function(m, t) {
-      const tier = m.membership_tier ? m.membership_tier.toUpperCase() : '';
+      var t_lower = (m.membership_tier || '').toLowerCase();
+      var tier = '';
+      if (t_lower === 'founding') tier = 'FOUNDER';
+      else if (t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro') tier = 'PARTNER';
       const status = m.is_active ? t('commandCentre.rowActive', { defaultValue: 'Active' }) : t('commandCentre.rowInactive', { defaultValue: 'Inactive' });
       return [tier, status].filter(Boolean).join(' · ');
     },
@@ -440,15 +447,22 @@ export default function BucketList(props) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                       <span style={{...TYPE.cardTitleBold, fontSize: 14}}>{m.display_name || m.username}</span>
                       {flag && <span style={{ fontSize: 13 }}>{flag}</span>}
-                      {m.membership_tier && (
-                        <span style={{
-                          fontSize: 9, fontWeight: 800, letterSpacing: 1,
-                          padding: '2px 7px', borderRadius: 4,
-                          background: m.membership_tier === 'pro' ? '#fef3c7' : 'var(--sap-bg-hover)',
-                          color: m.membership_tier === 'pro' ? '#92400e' : 'var(--sap-text-muted)',
-                          textTransform: 'uppercase',
-                        }}>{m.membership_tier}</span>
-                      )}
+                      {m.membership_tier && (function() {
+                        // Map tier to friendly label + colour (15 May 2026 flat pricing).
+                        var t_lower = (m.membership_tier || '').toLowerCase();
+                        var isFounder = t_lower === 'founding';
+                        var isPartner = t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro';
+                        if (!isFounder && !isPartner) return null;  // free user — no badge
+                        var label = isFounder ? 'FOUNDER' : 'PARTNER';
+                        return (
+                          <span style={{
+                            fontSize: 9, fontWeight: 800, letterSpacing: 1,
+                            padding: '2px 7px', borderRadius: 4,
+                            background: isFounder ? '#fef3c7' : 'var(--sap-bg-hover)',
+                            color: isFounder ? '#92400e' : 'var(--sap-text-muted)',
+                          }}>{label}</span>
+                        );
+                      })()}
                     </div>
                     <div style={{...TYPE.bodyMuted, fontSize: 12, marginTop: 2}}>
                       {config.secondaryLine(m, t)}

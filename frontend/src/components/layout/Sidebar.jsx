@@ -435,9 +435,11 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                       // Admin bypasses all locks.
                       var isAdmin = !!(user && user.is_admin);
                       var userIsActive = !!(user && user.is_active);
-                      var isProTier = (user?.membership_tier || 'basic').toLowerCase() === 'pro';
+                      // Under flat partner pricing (15 May 2026), the Pro lock is
+                      // identical to the Basic lock — every is_active member has
+                      // full sidebar access. Variable names retained to minimise diff.
                       var isBasicLocked = sub.basic && !isAdmin && !userIsActive;
-                      var isProLocked = sub.pro && !isAdmin && !isProTier;
+                      var isProLocked = sub.pro && !isAdmin && !userIsActive;
                       var isTierLocked = sub.tierLocked && !isAdmin && !(user?.highest_tier && user.highest_tier > 0);
                       var locked = isBasicLocked || isProLocked || isTierLocked;
                       var subActive = isActive(sub.path);
@@ -497,12 +499,11 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                     <div style={{paddingBottom:4}}>
                       {item.items.map(function(sub, j) {
                         var SubIcon = sub.icon;
-                        // Same three-tier evaluation as the collapsed branch.
+                        // Same flat-pricing evaluation as the collapsed branch above.
                         var isAdmin = !!(user && user.is_admin);
                         var userIsActive = !!(user && user.is_active);
-                        var isProTier = (user?.membership_tier || 'basic').toLowerCase() === 'pro';
                         var isBasicLocked = sub.basic && !isAdmin && !userIsActive;
-                        var isProLocked = sub.pro && !isAdmin && !isProTier;
+                        var isProLocked = sub.pro && !isAdmin && !userIsActive;
                         var isTierLocked = sub.tierLocked && !isAdmin && !(user?.highest_tier && user.highest_tier > 0);
                         var locked = isBasicLocked || isProLocked || isTierLocked;
                         var subActive = isActive(sub.path);

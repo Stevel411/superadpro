@@ -338,20 +338,45 @@ export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, b
             fontSize: 13, color: 'rgba(255,255,255,0.75)',
             flexWrap: 'wrap',
           }}>
-            {tier && (
-              <span style={{
-                padding: '3px 11px', borderRadius: 6,
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
-                textTransform: 'uppercase',
-                // Match Dashboard exactly: gold for Pro, silver for Basic
-                color: tier === 'pro' ? '#ffd700' : '#d4dce8',
-                textShadow: tier === 'pro'
-                  ? '0 1px 2px rgba(0,0,0,0.4)'
-                  : '0 1px 2px rgba(0,0,0,0.3)',
-              }}>{tier}</span>
-            )}
+            {/* Tier badge — same Partner-aware rendering as Dashboard.jsx.
+                Three states under flat partner pricing (15 May 2026):
+                  - free      → "Become a Partner →" inline CTA
+                  - partner   → PARTNER badge (silver)
+                  - founding  → FOUNDER badge (gold)
+                Legacy 'basic'/'pro' values map to 'partner' defensively. */}
+            {user && (function() {
+              var t_lower = (tier || 'free').toLowerCase();
+              var isFounder = t_lower === 'founding';
+              var isPartner = t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro';
+              if (!isFounder && !isPartner) {
+                return (
+                  <Link to="/upgrade" style={{
+                    padding: '3px 11px', borderRadius: 6,
+                    background: 'linear-gradient(135deg, rgba(251,191,36,0.18) 0%, rgba(217,119,6,0.18) 100%)',
+                    border: '1px solid rgba(251,191,36,0.4)',
+                    fontSize: 11, fontWeight: 800, letterSpacing: 0.5,
+                    color: '#fcd34d',
+                    textDecoration: 'none',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                  }}>
+                    {t('tools.becomePartner', { defaultValue: 'Become a Partner →' })}
+                  </Link>
+                );
+              }
+              var label = isFounder ? 'FOUNDER' : 'PARTNER';
+              var color = isFounder ? '#ffd700' : '#d4dce8';
+              var shadow = isFounder ? '0 1px 2px rgba(0,0,0,0.4)' : '0 1px 2px rgba(0,0,0,0.3)';
+              return (
+                <span style={{
+                  padding: '3px 11px', borderRadius: 6,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
+                  color: color,
+                  textShadow: shadow,
+                }}>{label}</span>
+              );
+            })()}
             {activeSinceLabel && (
               <>
                 <span style={{ opacity: 0.4 }}>·</span>

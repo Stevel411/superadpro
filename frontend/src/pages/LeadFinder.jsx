@@ -21,7 +21,9 @@ export default function LeadFinder() {
   var [importResult, setImportResult] = useState(null);
   var [selected, setSelected] = useState({});
 
-  var isPro = user && ((user.membership_tier || '').toLowerCase() === 'pro' || user.is_admin);
+  // Under flat partner pricing (15 May 2026), Lead Finder is available to
+  // every is_active member. Variable name kept as isPro for minimal diff.
+  var isPro = user && (!!user.is_active || user.is_admin);
 
   async function doSearch() {
     // For maps mode: need both niche and location. For web mode: just niche is enough

@@ -733,29 +733,52 @@ export default function Dashboard() {
               fontSize: 13, color: 'rgba(255,255,255,0.75)',
               flexWrap: 'wrap',
             }}>
-              {/* Tier badge — shows FREE / BASIC / PRO based on actual tier.
-                  Three states with distinct colour treatments:
-                    - FREE  → cool slate text, signals "register first"
-                    - BASIC → silver text, the workhorse tier
-                    - PRO   → gold text, premium tier
-                  Now that the data model is honest (membership_tier='free'
-                  for unpaid users), this can simply render the value
-                  directly without any membership-gating logic. */}
-              {user?.membership_tier && (
-                <span style={{
-                  padding: '3px 11px', borderRadius: 6,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
-                  textTransform: 'uppercase',
-                  color: user.membership_tier === 'pro' ? '#ffd700'
-                       : user.membership_tier === 'basic' ? '#d4dce8'
-                       : '#94a3b8',  // FREE — cooler slate
-                  textShadow: user.membership_tier === 'pro'
-                    ? '0 1px 2px rgba(0,0,0,0.4)'
-                    : '0 1px 2px rgba(0,0,0,0.3)',
-                }}>{user.membership_tier}</span>
-              )}
+              {/* ── Tier badge (rewritten 15 May 2026 — flat partner pricing) ──
+                  Three states with distinct treatments:
+                    - free       → "Become a Partner →" CTA (clickable, routes to /upgrade)
+                    - partner    → PARTNER badge, silver text
+                    - founding   → FOUNDER badge, gold text (premium treatment)
+                  Legacy 'basic' / 'pro' values are mapped to 'partner' defensively
+                  so any pre-migration cached data doesn't render as raw text.
+
+                  The free-user CTA replaces what used to be a passive FREE badge.
+                  This converts dead pixel space into an inline conversion prompt
+                  that surfaces alongside the dismissable gold banner above. */}
+              {user && (function() {
+                var tier = (user.membership_tier || 'free').toLowerCase();
+                var isFounder = tier === 'founding';
+                var isPartner = tier === 'partner' || tier === 'basic' || tier === 'pro';
+                if (!isFounder && !isPartner) {
+                  // Free user — render an active CTA link rather than a dead badge.
+                  return (
+                    <Link to="/upgrade" style={{
+                      padding: '3px 11px', borderRadius: 6,
+                      background: 'linear-gradient(135deg, rgba(251,191,36,0.18) 0%, rgba(217,119,6,0.18) 100%)',
+                      border: '1px solid rgba(251,191,36,0.4)',
+                      fontSize: 11, fontWeight: 800, letterSpacing: 0.5,
+                      color: '#fcd34d',
+                      textDecoration: 'none',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                    }}>
+                      {t('dashboard.becomePartner', { defaultValue: 'Become a Partner →' })}
+                    </Link>
+                  );
+                }
+                // Active member — render the appropriate badge.
+                var label = isFounder ? 'FOUNDER' : 'PARTNER';
+                var color = isFounder ? '#ffd700' : '#d4dce8';
+                var shadow = isFounder ? '0 1px 2px rgba(0,0,0,0.4)' : '0 1px 2px rgba(0,0,0,0.3)';
+                return (
+                  <span style={{
+                    padding: '3px 11px', borderRadius: 6,
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
+                    color: color,
+                    textShadow: shadow,
+                  }}>{label}</span>
+                );
+              })()}
               {/* Active since — only shown for genuinely active members.
                   Previously this rendered for everyone using created_at,
                   which lied about free users (they have a created date but
