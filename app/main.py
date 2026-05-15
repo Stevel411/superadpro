@@ -5415,19 +5415,14 @@ def api_membership_activate_from_balance(
 
     # ── Founding partner spot allocation (15 May 2026) ─────────────────
     # If founding spots remain, this user pays $15 and claims a spot.
-    # Atomic via pg_advisory_xact_lock to serialise concurrent founding-spot
-    # claims across all activation rails. Same fix as _activate_membership
-    # (the previous `SELECT COUNT(*) ... FOR UPDATE` pattern was invalid
-    # SQL — Postgres rejects FOR UPDATE with aggregates).
+    # Atomic via FOR UPDATE row lock on founding-member count, same as
+    # the WalletConnect / NOWPayments / direct-Stripe paths.
     standard_fee = decimal.Decimal(str(MEMBERSHIP_FEE))
     fee = standard_fee
     founding_spot_claimed = None
     try:
-        FOUNDING_LOCK_KEY = 7423957  # Must match the key used in _activate_membership
-        db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
-                   {"k": FOUNDING_LOCK_KEY})
         founding_count_row = db.execute(text(
-            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE FOR UPDATE"
         )).fetchone()
         founding_count = founding_count_row.cnt if founding_count_row else 0
         if founding_count < 100:
@@ -6770,29 +6765,13 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     if activation_type == "fresh" and not getattr(user, "is_founding_member", False):
         try:
             FOUNDING_TOTAL = 100
-            # ── Race-safe founding spot claim (FIXED 15 May 2026) ──
-            # Previous version used `SELECT COUNT(*) ... FOR UPDATE` which
-            # PostgreSQL rejects (FOR UPDATE not allowed with aggregates).
-            # That blew up at runtime on every fresh paying signup, leaving
-            # the user with no claimed spot, payment confirmed but inactive.
-            # Discovered during launch when Jason (user 264) and a test
-            # purchase by Steve both stuck in this state.
-            #
-            # Fix: use a transaction-scoped advisory lock to serialise
-            # concurrent claims. pg_advisory_xact_lock blocks any other
-            # session calling the same key until this transaction commits
-            # or rolls back. Then a plain COUNT(*) gives an accurate count
-            # without lock contention.
-            #
-            # The constant 7423957 is an arbitrary 32-bit integer key —
-            # any value works as long as nothing else in the codebase
-            # uses the same key.
-            FOUNDING_LOCK_KEY = 7423957
-            db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
-                       {"k": FOUNDING_LOCK_KEY})
-            current_count_row = db.execute(text(
-                "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
-            )).fetchone()
+            # Row-level lock: serialise concurrent founding-spot claims.
+            # The query reads the current count under lock; the matching
+            # UPDATE writes back under the same transaction so a parallel
+            # claim attempt waits and then re-reads.
+            current_count_row = db.execute(text("""
+                SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE FOR UPDATE
+            """)).fetchone()
             current_count = current_count_row.cnt if current_count_row else 0
             if current_count < FOUNDING_TOTAL:
                 next_spot = current_count + 1
@@ -10832,227 +10811,6 @@ async def admin_api_recover_nowpayments_order(
         db.rollback()
         logger.error(f"ADMIN ORDER RECOVERY FAILED: order_id={order.id} error={e}", exc_info=True)
         return JSONResponse({"success": False, "error": f"Activation failed: {e}"}, status_code=500)
-
-
-@app.get("/admin/api/diagnose-order/{internal_order_id}")
-async def admin_api_diagnose_order(
-    internal_order_id: str,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Diagnostic: full state of a NOWPayments order by its internal_order_id
-    (e.g. 'SAP-264-104'). Read-only — does not change anything.
-
-    Returns:
-      - Order state (status, np_payment_id, price, timestamps, product info)
-      - User state (is_active, membership_tier, founding flags, balance)
-      - Sponsor info (id, username, is_active)
-      - Whether a Payment row exists for this order
-      - NOWPayments API status for the payment_id (if any)
-
-    Added 15 May 2026 to diagnose the platform-wide IPN-not-activating bug
-    discovered when Jason (user 264) paid SAP-264-104 successfully but his
-    account remained inactive. Sister endpoint to /admin/api/recover-by-internal-id
-    below — diagnose first, recover second.
-    """
-    _require_admin(user)
-    from .database import NowPaymentsOrder
-    from . import nowpayments_service as nps
-
-    order = db.query(NowPaymentsOrder).filter(
-        NowPaymentsOrder.internal_order_id == internal_order_id
-    ).first()
-    if not order:
-        return JSONResponse({"error": f"Order not found: {internal_order_id}"}, status_code=404)
-
-    target = db.query(User).filter(User.id == order.user_id).first()
-    sponsor = None
-    if target and target.sponsor_id:
-        sponsor = db.query(User).filter(User.id == target.sponsor_id).first()
-
-    existing_payment = None
-    if order.np_payment_id:
-        existing_payment = db.query(Payment).filter(
-            Payment.tx_hash == f"np_{order.np_payment_id}"
-        ).first()
-
-    np_live_status = None
-    if order.np_payment_id:
-        try:
-            np_resp = nps.get_payment_status(int(order.np_payment_id))
-            if np_resp:
-                np_live_status = {
-                    "payment_status": np_resp.get("payment_status"),
-                    "pay_amount": np_resp.get("pay_amount"),
-                    "actually_paid": np_resp.get("actually_paid"),
-                    "pay_currency": np_resp.get("pay_currency"),
-                    "outcome_currency": np_resp.get("outcome_currency"),
-                }
-        except Exception as e:
-            np_live_status = {"error": str(e)}
-
-    return {
-        "order": {
-            "id": order.id,
-            "internal_order_id": order.internal_order_id,
-            "user_id": order.user_id,
-            "product_type": order.product_type,
-            "product_key": order.product_key,
-            "price_usd": float(order.price_usd or 0),
-            "status": order.status,
-            "np_payment_id": order.np_payment_id,
-            "np_invoice_id": order.np_invoice_id,
-            "actually_paid": str(order.actually_paid) if order.actually_paid else None,
-            "outcome_amount": str(order.outcome_amount) if order.outcome_amount else None,
-            "outcome_currency": order.outcome_currency,
-            "created_at": order.created_at.isoformat() if order.created_at else None,
-            "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None,
-        },
-        "user": {
-            "id": target.id if target else None,
-            "username": target.username if target else None,
-            "is_active": target.is_active if target else None,
-            "membership_tier": target.membership_tier if target else None,
-            "is_founding_member": getattr(target, "is_founding_member", None) if target else None,
-            "founding_spot_number": getattr(target, "founding_spot_number", None) if target else None,
-            "membership_price_locked": str(getattr(target, "membership_price_locked", None) or "") if target else None,
-            "balance": str(target.balance) if target else None,
-        } if target else None,
-        "sponsor": {
-            "id": sponsor.id,
-            "username": sponsor.username,
-            "is_active": sponsor.is_active,
-        } if sponsor else None,
-        "existing_payment_for_np_id": {
-            "id": existing_payment.id,
-            "tx_hash": existing_payment.tx_hash,
-            "amount_usdt": str(existing_payment.amount_usdt),
-            "created_at": existing_payment.created_at.isoformat() if existing_payment.created_at else None,
-        } if existing_payment else None,
-        "nowpayments_live_status": np_live_status,
-    }
-
-
-@app.post("/admin/api/recover-by-internal-id/{internal_order_id}")
-async def admin_api_recover_by_internal_id(
-    internal_order_id: str,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Same logic as /admin/api/nowpayments-order/{order_id}/recover but
-    accepts the human-readable internal_order_id (e.g. 'SAP-264-104') instead
-    of the numeric primary key. Added 15 May 2026 alongside the diagnostic
-    endpoint so an admin can recover an order directly by the ID they see
-    in the NOWPayments dashboard, without first looking up the DB primary key.
-
-    Returns full exception traceback on failure so we can diagnose the
-    platform-wide IPN-not-activating issue.
-    """
-    _require_admin(user)
-    from .database import NowPaymentsOrder
-
-    order = db.query(NowPaymentsOrder).filter(
-        NowPaymentsOrder.internal_order_id == internal_order_id
-    ).first()
-    if not order:
-        return JSONResponse({"success": False, "error": f"Order not found: {internal_order_id}"}, status_code=404)
-
-    # Delegate to the existing recover function — same logic, same safety guards.
-    # We just need to translate internal_order_id → numeric id and call through.
-    # To get the full exception detail on failure (instead of just "Activation
-    # failed: {e}"), we duplicate the body here with traceback capture.
-    from . import nowpayments_service as nps
-    from datetime import datetime
-    import json as _json, uuid, traceback
-
-    if order.status in ("finished", "confirmed"):
-        return {"success": False, "error": "Order already activated", "current_status": order.status,
-                "user_id": order.user_id}
-
-    if order.np_payment_id:
-        existing_payment = db.query(Payment).filter(
-            Payment.tx_hash == f"np_{order.np_payment_id}"
-        ).first()
-        if existing_payment:
-            return {
-                "success": False,
-                "error": "Activation already happened — Payment row exists. Refusing to double-activate.",
-                "existing_payment_id": existing_payment.id,
-            }
-
-    if not order.np_payment_id:
-        return JSONResponse({"success": False, "error": "Order has no NOWPayments payment_id"}, status_code=400)
-
-    np_resp = nps.get_payment_status(int(order.np_payment_id))
-    np_status = (np_resp or {}).get("payment_status") or (np_resp or {}).get("status") or ""
-    np_status = str(np_status).lower()
-    if np_status not in ("finished", "confirmed", "partially_paid"):
-        return JSONResponse(
-            {"success": False, "error": f"NOWPayments shows status='{np_status}', not safe to activate",
-             "np_response": np_resp},
-            status_code=400,
-        )
-
-    target = db.query(User).filter(User.id == order.user_id).first()
-    if not target:
-        return JSONResponse({"success": False, "error": f"Target user {order.user_id} not found"}, status_code=404)
-
-    try:
-        order.status = "finished"
-        order.confirmed_at = datetime.utcnow()
-        order.actually_paid = (np_resp or {}).get("actually_paid") or order.actually_paid
-        order.outcome_amount = (np_resp or {}).get("outcome_amount") or order.outcome_amount
-        order.outcome_currency = (np_resp or {}).get("outcome_currency") or order.outcome_currency
-        db.flush()
-
-        meta = _json.loads(order.product_meta) if order.product_meta else {}
-
-        payment = Payment(
-            from_user_id=target.id, to_user_id=None,
-            amount_usdt=order.price_usd,
-            payment_type=f"nowpayments_{order.product_type}",
-            tx_hash=f"np_recover_{order.np_payment_id or uuid.uuid4().hex[:12]}",
-            status="confirmed",
-        )
-        db.add(payment)
-        db.flush()
-
-        _nowpayments_activate_product(db, target, order, meta)
-        db.commit()
-
-        logger.warning(
-            f"ADMIN RECOVER-BY-INTERNAL-ID: admin={user.username} "
-            f"order={internal_order_id} target={target.username} "
-            f"product={order.product_type}/{order.product_key} price=${order.price_usd}"
-        )
-        return {
-            "success": True,
-            "order_id": order.id,
-            "internal_order_id": internal_order_id,
-            "user_id": target.id,
-            "username": target.username,
-            "product_type": order.product_type,
-            "product_key": order.product_key,
-            "price_usd": float(order.price_usd or 0),
-            "is_active_after": target.is_active,
-            "membership_tier_after": target.membership_tier,
-            "is_founding_member_after": getattr(target, "is_founding_member", None),
-            "founding_spot_number_after": getattr(target, "founding_spot_number", None),
-        }
-    except Exception as e:
-        db.rollback()
-        tb = traceback.format_exc()
-        logger.error(
-            f"ADMIN RECOVER-BY-INTERNAL-ID FAILED: order={internal_order_id} "
-            f"target_user_id={target.id} error={e}\n{tb}"
-        )
-        # Return the full traceback so we can diagnose what's breaking
-        # _activate_membership / _nowpayments_activate_product in the
-        # platform-wide IPN-not-activating issue.
-        return JSONResponse(
-            {"success": False, "error": f"Activation failed: {e}", "traceback": tb},
-            status_code=500,
-        )
 
 
 # ── /admin/orphans (Step 5, 7 May 2026) ──────────────────────────────
