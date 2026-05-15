@@ -5415,14 +5415,18 @@ def api_membership_activate_from_balance(
 
     # ── Founding partner spot allocation (15 May 2026) ─────────────────
     # If founding spots remain, this user pays $15 and claims a spot.
-    # Atomic via FOR UPDATE row lock on founding-member count, same as
-    # the WalletConnect / NOWPayments / direct-Stripe paths.
+    # Atomic via pg_advisory_xact_lock — see _activate_membership for
+    # rationale. The lock key 7423957 must match across all activation
+    # rails so they all serialise against each other.
     standard_fee = decimal.Decimal(str(MEMBERSHIP_FEE))
     fee = standard_fee
     founding_spot_claimed = None
     try:
+        FOUNDING_LOCK_KEY = 7423957
+        db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
+                   {"k": FOUNDING_LOCK_KEY})
         founding_count_row = db.execute(text(
-            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE FOR UPDATE"
+            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
         )).fetchone()
         founding_count = founding_count_row.cnt if founding_count_row else 0
         if founding_count < 100:
@@ -6765,13 +6769,27 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     if activation_type == "fresh" and not getattr(user, "is_founding_member", False):
         try:
             FOUNDING_TOTAL = 100
-            # Row-level lock: serialise concurrent founding-spot claims.
-            # The query reads the current count under lock; the matching
-            # UPDATE writes back under the same transaction so a parallel
-            # claim attempt waits and then re-reads.
-            current_count_row = db.execute(text("""
-                SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE FOR UPDATE
-            """)).fetchone()
+            # ── Race-safe founding spot claim (RE-APPLIED 15 May 2026 evening) ──
+            # Previous version used `SELECT COUNT(*) ... FOR UPDATE` which
+            # PostgreSQL rejects (FOR UPDATE not allowed with aggregate
+            # functions). The exception was caught by the surrounding
+            # try/except and the user fell through to standard $20 pricing
+            # despite paying the $15 founding amount.
+            #
+            # Fix: pg_advisory_xact_lock serialises concurrent claims via
+            # a transaction-scoped Postgres advisory lock. Released
+            # automatically on commit/rollback. The COUNT() is then a
+            # plain aggregate, no FOR UPDATE needed.
+            #
+            # Lock key 7423957 is arbitrary but must match across all
+            # activation rails (currently only this one — the balance
+            # rail at line ~5418 used to use the same key before revert).
+            FOUNDING_LOCK_KEY = 7423957
+            db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
+                       {"k": FOUNDING_LOCK_KEY})
+            current_count_row = db.execute(text(
+                "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+            )).fetchone()
             current_count = current_count_row.cnt if current_count_row else 0
             if current_count < FOUNDING_TOTAL:
                 next_spot = current_count + 1
@@ -10929,6 +10947,178 @@ def admin_api_list_orphans(
             "likely_rounded": likely_rounded_count,
         },
     }
+
+
+@app.post("/admin/api/trigger-bsc-scan")
+@app.get("/admin/api/trigger-bsc-scan")
+async def admin_trigger_bsc_scan(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Manually trigger the BSC payment scanner cron.
+
+    Use case: external cron scheduler (cron-job.org / Railway cron) is
+    down or hasn't fired recently, leaving paying customers stuck in
+    'paid on-chain but not activated' state. This endpoint runs the
+    same logic as /cron/scan-bsc-payments but via admin session auth
+    rather than CRON_SECRET, so it can be invoked from the admin's
+    browser without sharing the secret.
+
+    Added 15 May 2026 evening during launch-day incident where the
+    cron had stopped firing for 2+ hours and a test signup (test12)
+    was sitting unmatched despite an on-chain confirmation.
+
+    Returns the same stats dict as the cron endpoint: expired count,
+    transfers seen, matched, activated, orphans added.
+    """
+    _require_admin(user)
+
+    from .database import (
+        WalletConnectPaymentOrder, OnchainOrphanTransfer,
+    )
+    from .walletconnect_payments import (
+        expire_stale_orders,
+        match_incoming_transfer,
+        scan_treasury_transfers,
+        estimate_scan_floor_block,
+        set_scan_cursor,
+        is_likely_rounded_amount,
+        _get_web3_bsc,
+    )
+    import json as _json
+    import uuid
+
+    stats = {
+        "expired": 0,
+        "scan_floor": 0,
+        "latest_block": 0,
+        "scanned_blocks": 0,
+        "transfers_seen": 0,
+        "matched": 0,
+        "activated": 0,
+        "orphans_added": 0,
+        "errors": [],
+        "triggered_by": user.username,
+    }
+
+    try:
+        stats["expired"] = expire_stale_orders(db)
+    except Exception as e:
+        logger.error(f"admin_trigger_bsc_scan: expire_stale_orders failed: {e}")
+        stats["errors"].append(f"expire: {e}")
+
+    try:
+        w3 = _get_web3_bsc()
+        latest_block = w3.eth.block_number
+        scan_floor = estimate_scan_floor_block(db, latest_block)
+        stats["latest_block"] = latest_block
+        stats["scan_floor"] = scan_floor
+        stats["scanned_blocks"] = max(latest_block - scan_floor + 1, 0)
+    except Exception as e:
+        logger.error(f"admin_trigger_bsc_scan: floor calc failed: {e}")
+        return JSONResponse(
+            {"error": f"BSC RPC unavailable: {e}", "stats": stats},
+            status_code=503,
+        )
+
+    try:
+        transfers = scan_treasury_transfers(scan_floor)
+        stats["transfers_seen"] = len(transfers)
+    except Exception as e:
+        logger.error(f"admin_trigger_bsc_scan: scan failed: {e}")
+        stats["errors"].append(f"scan: {e}")
+        transfers = []
+
+    for tx in transfers:
+        try:
+            matched_order = match_incoming_transfer(db, tx)
+        except Exception as e:
+            logger.error(f"admin_trigger_bsc_scan: match failed for tx {tx.get('tx_hash')}: {e}")
+            stats["errors"].append(f"match {tx.get('tx_hash','?')[:12]}: {e}")
+            continue
+
+        if matched_order:
+            try:
+                buyer = db.query(User).filter(User.id == matched_order.user_id).first()
+                if not buyer:
+                    stats["errors"].append(f"buyer_missing: order {matched_order.id}")
+                    continue
+
+                tx_ref = f"wc_{matched_order.tx_hash}" if matched_order.tx_hash else f"wc_{uuid.uuid4().hex[:12]}"
+                existing_payment = db.query(Payment).filter(Payment.tx_hash == tx_ref).first()
+                if not existing_payment:
+                    payment = Payment(
+                        from_user_id=buyer.id,
+                        to_user_id=None,
+                        amount_usdt=matched_order.unique_amount,
+                        payment_type=f"walletconnect_{matched_order.product_type}",
+                        tx_hash=tx_ref,
+                        status="confirmed",
+                    )
+                    db.add(payment)
+                    db.flush()
+
+                meta = _json.loads(matched_order.product_meta) if matched_order.product_meta else {}
+                if not hasattr(matched_order, "price_usd") or matched_order.price_usd is None:
+                    try:
+                        matched_order.price_usd = matched_order.base_amount
+                    except Exception:
+                        object.__setattr__(matched_order, "price_usd", matched_order.base_amount)
+
+                _nowpayments_activate_product(db, buyer, matched_order, meta)
+                db.commit()
+
+                stats["matched"] += 1
+                stats["activated"] += 1
+                logger.warning(
+                    f"ADMIN_BSC_SCAN: admin={user.username} ACTIVATED "
+                    f"order {matched_order.id} user={buyer.id} "
+                    f"{matched_order.product_type}/{matched_order.product_key} "
+                    f"tx={matched_order.tx_hash}"
+                )
+            except Exception as e:
+                logger.error(
+                    f"admin_trigger_bsc_scan: activation failed for order "
+                    f"{matched_order.id}: {e}"
+                )
+                stats["errors"].append(f"activate {matched_order.id}: {e}")
+                db.rollback()
+        else:
+            try:
+                tx_hash = tx.get("tx_hash")
+                already_confirmed = db.query(WalletConnectPaymentOrder).filter(
+                    WalletConnectPaymentOrder.tx_hash == tx_hash
+                ).first()
+                if already_confirmed:
+                    continue
+                already_orphan = db.query(OnchainOrphanTransfer).filter(
+                    OnchainOrphanTransfer.tx_hash == tx_hash
+                ).first()
+                if already_orphan:
+                    continue
+                orphan = OnchainOrphanTransfer(
+                    tx_hash=tx_hash,
+                    from_address=(tx.get("from_address") or "").lower(),
+                    amount_usdt=tx.get("amount_usdt"),
+                    block_number=tx.get("block_number"),
+                    likely_rounded_amount=is_likely_rounded_amount(tx.get("amount_usdt")),
+                )
+                db.add(orphan)
+                db.commit()
+                stats["orphans_added"] += 1
+            except Exception as e:
+                logger.warning(f"admin_trigger_bsc_scan: orphan add failed: {e}")
+                db.rollback()
+                stats["errors"].append(f"orphan {tx.get('tx_hash','?')[:12]}: {e}")
+
+    try:
+        set_scan_cursor(db, stats["latest_block"])
+    except Exception as e:
+        logger.warning(f"admin_trigger_bsc_scan: cursor update failed: {e}")
+        stats["errors"].append(f"cursor: {e}")
+
+    return stats
 
 
 @app.get("/admin/orphan-investigation")
