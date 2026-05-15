@@ -74,20 +74,13 @@ BASIC_REQUIRED_PREFIXES = (
     "/api/watch",
 )
 
-# Endpoints that require Pro membership ($35/mo).
-# Admins bypass. membership_tier = 'pro' is the gate (and is_active must be True).
-PRO_REQUIRED_PREFIXES = (
-    "/api/copilot",
-    "/api/funnels",
-    "/api/lead-finder",
-    "/api/leads",
-    "/api/niche-finder",
-    "/api/proseller",
-    "/api/social-posts",
-    "/api/superseller",
-    "/api/swipe-file",
-    "/api/video-scripts",
-)
+# Endpoints that require Pro membership — DEPRECATED 15 May 2026.
+# Under flat partner pricing there is only one paid tier. Every former
+# Pro-only endpoint is now available to any is_active member. This list
+# is kept empty so the gate logic short-circuits cleanly. A future cleanup
+# sprint can remove the PRO_REQUIRED_PREFIXES branching in _required_tier
+# and __call__ entirely.
+PRO_REQUIRED_PREFIXES = ()
 
 
 def _required_tier(path: str):

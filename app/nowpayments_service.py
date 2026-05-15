@@ -38,11 +38,20 @@ SITE_URL = os.environ.get("SITE_URL", "https://www.superadpro.com")
 # ── Product prices (USD) — single source of truth ───────────────
 # Memberships & grids share prices with crypto_payments.py
 PRODUCT_CATALOG = {
-    # Memberships
-    "membership_basic":         {"price": Decimal("20.00"),  "type": "membership",  "desc": "SuperAdPro Basic Membership (Monthly)"},
-    "membership_pro":           {"price": Decimal("35.00"),  "type": "membership",  "desc": "SuperAdPro Pro Membership (Monthly)"},
-    "membership_basic_annual":  {"price": Decimal("200.00"), "type": "membership",  "desc": "SuperAdPro Basic Membership (Annual — Save $40)"},
-    "membership_pro_annual":    {"price": Decimal("350.00"), "type": "membership",  "desc": "SuperAdPro Pro Membership (Annual — Save $70)"},
+    # Memberships — flat partner pricing 15 May 2026
+    # Standard partner $20/mo or $200/yr. Founding partner uses the same
+    # product key — the locked price on the user record overrides this
+    # default at activation time. Legacy 'basic'/'pro' keys retained for
+    # backward compatibility with any cached checkout pages but now resolve
+    # to the standard partner price.
+    "membership_partner":         {"price": Decimal("20.00"),  "type": "membership",  "desc": "SuperAdPro Partner Membership (Monthly)"},
+    "membership_partner_annual":  {"price": Decimal("200.00"), "type": "membership",  "desc": "SuperAdPro Partner Membership (Annual — Save $40)"},
+    # Legacy keys — all now resolve to standard partner price under flat
+    # pricing. Will be removed in a future cleanup sprint.
+    "membership_basic":           {"price": Decimal("20.00"),  "type": "membership",  "desc": "SuperAdPro Partner Membership (Monthly)"},
+    "membership_pro":             {"price": Decimal("20.00"),  "type": "membership",  "desc": "SuperAdPro Partner Membership (Monthly)"},
+    "membership_basic_annual":    {"price": Decimal("200.00"), "type": "membership",  "desc": "SuperAdPro Partner Membership (Annual — Save $40)"},
+    "membership_pro_annual":      {"price": Decimal("200.00"), "type": "membership",  "desc": "SuperAdPro Partner Membership (Annual — Save $40)"},
     # Grid / Campaign Tiers
     "grid_1":               {"price": Decimal("20.00"),   "type": "grid", "desc": "Campaign Tier 1 — Starter"},
     "grid_2":               {"price": Decimal("50.00"),   "type": "grid", "desc": "Campaign Tier 2 — Builder"},
@@ -59,8 +68,11 @@ PRODUCT_CATALOG = {
     "email_boost_50000":    {"price": Decimal("99.00"), "type": "email_boost", "desc": "Email Boost — 50,000 Credits"},
     # Pay It Forward — gift voucher (fixed $20)
     "pif_voucher":          {"price": Decimal("20.00"), "type": "pif", "desc": "Pay It Forward — Gift Voucher"},
-    # Pro upgrade — $15 difference between Basic and Pro
-    "membership_pro_upgrade": {"price": Decimal("15.00"), "type": "membership_upgrade", "desc": "Upgrade to Pro Membership"},
+    # Pro upgrade — deprecated 15 May 2026. Under flat partner pricing
+    # there are no tier upgrades. Key retained at $0 so any orphaned
+    # checkout link returns a clear error rather than 500ing. The legacy
+    # /api/upgrade-to-pro endpoint also returns 410 Gone.
+    "membership_pro_upgrade": {"price": Decimal("0.00"), "type": "membership_upgrade", "desc": "Deprecated — tier upgrades no longer exist"},
 }
 
 # ── Credit Matrix (Profit Nexus) packs ───────────────────────────

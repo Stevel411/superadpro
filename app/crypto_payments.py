@@ -38,10 +38,18 @@ ORDER_EXPIRY_MINUTES = 30
 
 # Products and their base prices
 PRODUCT_PRICES = {
-    "membership_basic":         Decimal("20.00"),
-    "membership_pro":           Decimal("35.00"),
-    "membership_basic_annual":  Decimal("200.00"),
-    "membership_pro_annual":    Decimal("350.00"),
+    # Memberships — flat partner pricing 15 May 2026 (matches
+    # walletconnect_payments.PRODUCT_PRICES and nowpayments_service
+    # PRODUCT_CATALOG). Standard partner $20/mo or $200/yr. Founding
+    # partner uses the same product key — the locked price on the
+    # user record overrides this at activation time.
+    "membership_partner":         Decimal("20.00"),
+    "membership_partner_annual":  Decimal("200.00"),
+    # Legacy keys — all resolve to standard partner price post-cutover.
+    "membership_basic":           Decimal("20.00"),
+    "membership_pro":             Decimal("20.00"),
+    "membership_basic_annual":    Decimal("200.00"),
+    "membership_pro_annual":      Decimal("200.00"),
     "grid_1":   Decimal("20.00"),
     "grid_2":   Decimal("50.00"),
     "grid_3":   Decimal("100.00"),

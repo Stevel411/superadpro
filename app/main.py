@@ -5421,11 +5421,11 @@ def api_membership_activate_from_balance(
             status_code=400,
         )
 
-    # Deduct fee, activate Basic. activated_at + membership_expires_at
+    # Deduct fee, activate as Partner. activated_at + membership_expires_at
     # follow the same pattern as a regular paid activation.
     user.balance = balance - fee
     user.is_active = True
-    user.membership_tier = "basic"
+    user.membership_tier = "partner"
     user.activated_at = user.activated_at or datetime.utcnow()
     user.membership_expires_at = (user.membership_expires_at or datetime.utcnow()) + timedelta(days=31)
 
@@ -6697,13 +6697,29 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     from decimal import Decimal
     import uuid
 
-    # Pricing — single source of truth
-    MEMBERSHIP_PRICES = {"pro": Decimal("35.00"), "basic": Decimal("20.00")}
-    ANNUAL_MEMBERSHIP_PRICES = {"pro": Decimal("350.00"), "basic": Decimal("200.00")}
-    COMMISSION_CAPS = {"pro": Decimal("17.50"), "basic": Decimal("10.00")}
+    # ── Flat partner pricing (15 May 2026) ─────────────────────────────────
+    # Single source of truth: $20/mo standard, $15/mo for founding partners
+    # (signalled by user.membership_price_locked being set at migration time).
+    # Annual billing: $200 standard, $150 founding (10× the monthly rate, ~2
+    # months free, matches the old basic-annual savings ratio).
+    # Sponsor commission: flat $10 per membership payment regardless of buyer's
+    # price — protects founding partner economics (sponsor unaffected by which
+    # cohort their recruit lands in).
+    STANDARD_PARTNER_PRICE   = Decimal("20.00")
+    FOUNDING_PARTNER_PRICE   = Decimal("15.00")
+    STANDARD_ANNUAL_PRICE    = Decimal("200.00")
+    FOUNDING_ANNUAL_PRICE    = Decimal("150.00")
+    FLAT_SPONSOR_COMMISSION  = Decimal("10.00")
 
+    # Determine fee. If the user has a locked price (founders, grandfathered
+    # accounts), honour it. Otherwise standard partner price applies.
     is_annual = (billing == "annual")
-    fee = ANNUAL_MEMBERSHIP_PRICES.get(tier, Decimal("200.00")) if is_annual else MEMBERSHIP_PRICES.get(tier, Decimal("20.00"))
+    locked_price = getattr(user, "membership_price_locked", None)
+    if locked_price is not None:
+        # Founding partner: monthly = locked price, annual = locked × 10
+        fee = (Decimal(str(locked_price)) * Decimal("10")) if is_annual else Decimal(str(locked_price))
+    else:
+        fee = STANDARD_ANNUAL_PRICE if is_annual else STANDARD_PARTNER_PRICE
 
     # ── Engine classification: must run BEFORE we mutate user state ──
     activation_type = _classify_membership_activation(user, tier, billing)
@@ -6750,7 +6766,12 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Activate user
     user.is_active = True
     user.activated_at = user.activated_at or datetime.utcnow()
-    user.membership_tier = tier
+    # Under flat partner pricing, all new activations are tagged 'partner'.
+    # Founding partners (the migrated first 100) keep their 'founding' tag —
+    # don't overwrite that if the user already has it. Incoming `tier` from
+    # legacy callers (still passing 'basic'/'pro') is normalised to 'partner'.
+    if user.membership_tier != "founding":
+        user.membership_tier = "partner"
     # Set billing type (safe — column may not exist yet in DB)
     try:
         user.membership_billing = "annual" if is_annual else "monthly"
@@ -6798,17 +6819,23 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
             sponsor_tier = getattr(sponsor, "membership_tier", "free") or "free"
+            # Flat $10 sponsor commission on every membership payment, regardless
+            # of buyer's tier or billing cycle. Locked in 15 May 2026 alongside
+            # flat partner pricing:
+            #   - founding partner ($15/mo) → sponsor gets $10 (66% of fee)
+            #   - standard partner ($20/mo) → sponsor gets $10 (50% of fee)
+            #   - annual founding ($150/yr) → sponsor gets $100 (10× monthly)
+            #   - annual standard ($200/yr) → sponsor gets $100
+            # The annual commission is 10× monthly so annual recruits aren't
+            # disadvantaged for sponsors (matches old "2 months free" ratio).
+            # Behaviour for free sponsors is unchanged: they accrue commission
+            # to their balance and the cascade notification below prompts them
+            # to activate to access it (Option B — never auto-consume without
+            # consent).
             if is_annual:
-                # Annual: cap commission at sponsor's own annual tier
-                # Basic sponsor -> max $100. Pro sponsor -> max $175.
-                ANNUAL_CAPS = {"pro": Decimal("175.00"), "basic": Decimal("100.00")}
-                max_commission = ANNUAL_CAPS.get(sponsor_tier, Decimal("100.00"))
-                sponsor_share = min(fee * Decimal("0.50"), max_commission)
+                sponsor_share = Decimal("100.00")
             else:
-                # Monthly: cap commission at sponsor's own monthly tier
-                # Basic sponsor -> max $10. Pro sponsor -> max $17.50.
-                max_commission = COMMISSION_CAPS.get(sponsor_tier, Decimal("10.00"))
-                sponsor_share = min(fee * Decimal("0.50"), max_commission)
+                sponsor_share = FLAT_SPONSOR_COMMISSION
 
             sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
             sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
@@ -6829,7 +6856,7 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                 to_user_id=sponsor.id, from_user_id=user.id,
                 amount_usdt=sponsor_share, commission_type="membership_sponsor",
                 package_tier=0,
-                notes=f"Membership commission from {user.username} ({source}) — capped at {sponsor_tier} tier",
+                notes=f"Partner membership commission from {user.username} ({source})",
                 status="paid",
                 paid_at=datetime.utcnow(),
             )
@@ -6959,14 +6986,19 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
         logger.warning(f"cache_invalidate_user failed in _activate_membership: {e}")
     return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
 def _stripe_renew_membership(db, user, tier, subscription_id):
-    """Process monthly renewal — sponsor gets capped commission."""
+    """Process monthly renewal — flat partner pricing.
+
+    Fee honours user.membership_price_locked if set (founding partners
+    pay their locked $15), otherwise $20 standard.
+    Sponsor receives flat $10 commission regardless of buyer's price.
+    """
     from datetime import datetime, timedelta
     from decimal import Decimal
     import uuid
 
-    COMMISSION_CAPS = {"pro": Decimal("17.50"), "basic": Decimal("10.00")}
-    fee = Decimal("35.00") if tier == "pro" else Decimal("20.00")
-    sponsor_share = fee * Decimal("0.50")
+    locked_price = getattr(user, "membership_price_locked", None)
+    fee = Decimal(str(locked_price)) if locked_price is not None else Decimal("20.00")
+    sponsor_share = Decimal("10.00")
 
     user.is_active = True
     user.activated_at = user.activated_at or datetime.utcnow()
@@ -6979,20 +7011,17 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
     )
     db.add(payment)
 
-    # Pay sponsor commission on renewal (capped at sponsor's tier)
+    # Pay sponsor flat $10 commission on renewal
     if user.sponsor_id:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
-            sponsor_tier = getattr(sponsor, "membership_tier", "free") or "free"
-            max_commission = COMMISSION_CAPS.get(sponsor_tier, Decimal("10.00"))
-            capped_share = min(sponsor_share, max_commission)
-            sponsor.balance = Decimal(str(sponsor.balance or 0)) + capped_share
-            sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + capped_share
+            sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
+            sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
             db.add(Commission(
                 to_user_id=sponsor.id, from_user_id=user.id,
-                amount_usdt=capped_share, commission_type="membership_renewal",
+                amount_usdt=sponsor_share, commission_type="membership_renewal",
                 package_tier=0,
-                notes=f"Renewal commission from {user.username} — capped at {sponsor_tier} tier",
+                notes=f"Partner renewal commission from {user.username}",
                 status="pending", paid_at=datetime.utcnow(),
             ))
 
@@ -7088,7 +7117,10 @@ async def api_switch_to_annual(request: Request, db: Session = Depends(get_db),
         return JSONResponse({"error": "You're already on annual billing"}, status_code=400)
 
     tier = (user.membership_tier or "free").lower()
-    if tier not in ("basic", "pro"):
+    # Under flat partner pricing, legacy 'basic'/'pro' values still resolve as
+    # active partners — they were migrated to 'founding' on cutover but pre-
+    # cutover callers might still hit this endpoint with 'basic'/'pro' values.
+    if tier not in ("basic", "pro", "partner", "founding"):
         return JSONResponse({"error": f"Unknown tier '{tier}'"}, status_code=400)
 
     # Purchase consent gate
@@ -7103,8 +7135,9 @@ async def api_switch_to_annual(request: Request, db: Session = Depends(get_db),
         pass
     payment_method = (body.get("payment_method") or "balance").strip().lower()
 
-    # Annual fees by tier — single source of truth, matches MEMBERSHIP_PRICES
-    annual_fee = decimal.Decimal("350.00") if tier == "pro" else decimal.Decimal("200.00")
+    # Annual fee honours locked price (founders pay $150) else standard $200
+    locked_price = getattr(user, "membership_price_locked", None)
+    annual_fee = (decimal.Decimal(str(locked_price)) * decimal.Decimal("10")) if locked_price is not None else decimal.Decimal("200.00")
 
     if payment_method != "balance":
         # Crypto and wallet rails route through their own endpoints.
@@ -7147,31 +7180,29 @@ async def api_switch_to_annual(request: Request, db: Session = Depends(get_db),
 @app.post("/api/upgrade-to-pro")
 async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
                               user: User = Depends(get_current_user)):
-    """Upgrade Basic → Pro. 100% to company, no sponsor commission.
+    """Deprecated 15 May 2026: flat partner pricing removed tier upgrades.
 
-    Two billing options (added 7 May 2026):
-      - monthly: $15 (the difference between Basic $20 and Pro $35)
-      - annual:  $350 (fresh Pro-annual activation; replaces remaining
-                 Basic time with a 365-day Pro membership). Saves $70 vs
-                 paying $35 × 12.
+    Under the new model there is a single paid tier (Partner) with full
+    platform access. Every is_active member already has what 'Pro' used
+    to grant. This endpoint stays mounted to handle old links and cached
+    pages gracefully, but always returns an informational response.
 
-    Three payment rails per Step 4 triple-rail audit:
-      - balance:        deduct from user.balance (default if no payment_method)
-      - crypto:         create a NOWPayments invoice, return checkout URL
-      - WalletConnect:  via /api/onchain/create-intent + product_key
-                        ('membership_pro_upgrade' for monthly,
-                         'membership_pro_annual'  for annual)
-
-    Bug history (6 May 2026): this endpoint previously called
-    _activate_membership directly with no payment step, granting free
-    Pro upgrades to any authenticated Basic member.
-
-    Bug history (7 May 2026): this endpoint became balance-only after
-    the security fix. Step 4 triple-rail audit added crypto+WC rails.
-    Same day, this endpoint added the annual-upgrade option since
-    members previously had no way to buy Pro-annual without first
-    going to a confusing fresh-checkout flow.
+    The legacy function body below is preserved as dead code for now —
+    a future cleanup sprint will remove it once we've confirmed no
+    callers depend on the old upgrade path.
     """
+    return JSONResponse({
+        "error": (
+            "Tier upgrades no longer exist. Every active partner has full "
+            "platform access — there's nothing to upgrade to."
+        ),
+        "deprecated": True,
+    }, status_code=410)  # 410 Gone — explicitly retired endpoint
+
+    # ──────────────────────── LEGACY CODE BELOW ────────────────────────
+    # The remainder of this function is unreachable. Left in place for
+    # the next cleanup sprint to remove cleanly along with the related
+    # upgrade-fee payment_type variants in the Payment table.
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not user.is_active:
