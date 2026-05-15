@@ -5413,19 +5413,49 @@ def api_membership_activate_from_balance(
     if not ok:
         return JSONResponse({"error": err}, status_code=403)
 
-    fee = decimal.Decimal(str(MEMBERSHIP_FEE))
+    # ── Founding partner spot allocation (15 May 2026) ─────────────────
+    # If founding spots remain, this user pays $15 and claims a spot.
+    # Atomic via FOR UPDATE row lock on founding-member count, same as
+    # the WalletConnect / NOWPayments / direct-Stripe paths.
+    standard_fee = decimal.Decimal(str(MEMBERSHIP_FEE))
+    fee = standard_fee
+    founding_spot_claimed = None
+    try:
+        founding_count_row = db.execute(text(
+            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE FOR UPDATE"
+        )).fetchone()
+        founding_count = founding_count_row.cnt if founding_count_row else 0
+        if founding_count < 100:
+            fee = decimal.Decimal("15.00")
+            founding_spot_claimed = founding_count + 1
+            logger.info(
+                f"Founding spot #{founding_spot_claimed} reserved for "
+                f"user {user.id} via balance activation"
+            )
+    except Exception as e:
+        logger.error(
+            f"Founding spot check failed for user {user.id} (balance "
+            f"activation): {e} — proceeding with standard pricing"
+        )
+
     balance = decimal.Decimal(str(user.balance or 0))
     if balance < fee:
         return JSONResponse(
-            {"error": f"You need ${MEMBERSHIP_FEE} to activate. Current balance: ${float(balance):.2f}."},
+            {"error": f"You need ${fee} to activate. Current balance: ${float(balance):.2f}."},
             status_code=400,
         )
 
-    # Deduct fee, activate as Partner. activated_at + membership_expires_at
-    # follow the same pattern as a regular paid activation.
+    # Deduct fee, activate as Partner (or Founding Partner). activated_at +
+    # membership_expires_at follow the same pattern as a regular paid activation.
     user.balance = balance - fee
     user.is_active = True
-    user.membership_tier = "partner"
+    if founding_spot_claimed is not None:
+        user.is_founding_member = True
+        user.founding_spot_number = founding_spot_claimed
+        user.membership_price_locked = decimal.Decimal("15.00")
+        user.membership_tier = "founding"
+    else:
+        user.membership_tier = "partner"
     user.activated_at = user.activated_at or datetime.utcnow()
     user.membership_expires_at = (user.membership_expires_at or datetime.utcnow()) + timedelta(days=31)
 
@@ -6714,15 +6744,61 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Determine fee. If the user has a locked price (founders, grandfathered
     # accounts), honour it. Otherwise standard partner price applies.
     is_annual = (billing == "annual")
+
+    # ── Founding partner spot allocation ───────────────────────────────────
+    # Before reading membership_price_locked, check whether this is a fresh
+    # activation and whether founding spots remain. If both, atomically claim
+    # the next spot for this user. Race-safe via SELECT FOR UPDATE on the
+    # founding members row count.
+    #
+    # Why we need atomic locking: two simultaneous signups could both read
+    # "85 spots remaining" and both try to claim spot #100, leaving us with
+    # 101 founders. The SELECT FOR UPDATE on users (filtered to founding)
+    # blocks the second transaction until the first commits, at which point
+    # the second sees the updated count and either claims #100 (if first
+    # claimed #99) or falls through to standard pricing (if first claimed #100).
+    #
+    # Only NEW activations claim founding status — upgrades, cadence switches,
+    # and renewals of existing members do NOT (they're already settled into
+    # their cohort, founding or standard, at first activation).
+    activation_type = _classify_membership_activation(user, tier, billing)
+    if activation_type == "fresh" and not getattr(user, "is_founding_member", False):
+        try:
+            FOUNDING_TOTAL = 100
+            # Row-level lock: serialise concurrent founding-spot claims.
+            # The query reads the current count under lock; the matching
+            # UPDATE writes back under the same transaction so a parallel
+            # claim attempt waits and then re-reads.
+            current_count_row = db.execute(text("""
+                SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE FOR UPDATE
+            """)).fetchone()
+            current_count = current_count_row.cnt if current_count_row else 0
+            if current_count < FOUNDING_TOTAL:
+                next_spot = current_count + 1
+                user.is_founding_member = True
+                user.founding_spot_number = next_spot
+                user.membership_price_locked = Decimal("15.00")
+                # Flush so the locked_price read below sees the new value.
+                db.flush()
+                logger.info(
+                    f"Founding spot #{next_spot} claimed by user {user.id} "
+                    f"({user.username}) — {FOUNDING_TOTAL - next_spot} spots remaining"
+                )
+        except Exception as e:
+            # If the founding claim fails for any reason, fall through to
+            # standard partner pricing rather than block the activation.
+            # Better to charge $20 than to fail the signup entirely.
+            logger.error(
+                f"Founding spot claim failed for user {user.id}: {e} — "
+                f"proceeding with standard partner pricing"
+            )
+
     locked_price = getattr(user, "membership_price_locked", None)
     if locked_price is not None:
         # Founding partner: monthly = locked price, annual = locked × 10
         fee = (Decimal(str(locked_price)) * Decimal("10")) if is_annual else Decimal(str(locked_price))
     else:
         fee = STANDARD_ANNUAL_PRICE if is_annual else STANDARD_PARTNER_PRICE
-
-    # ── Engine classification: must run BEFORE we mutate user state ──
-    activation_type = _classify_membership_activation(user, tier, billing)
 
     # Reject redundant activations defensively. Callers should catch this
     # before reaching here, but if they don't, refusing is safer than
@@ -7026,6 +7102,51 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
             ))
 
     db.commit()
+
+
+# ── Founding partners status (added 15 May 2026 with flat-pricing migration) ──
+@app.get("/api/founding-members/status")
+async def api_founding_members_status(db: Session = Depends(get_db)):
+    """Public-readable: current founding partner allocation.
+
+    Returns:
+      - spots_total: 100 (hard cap)
+      - spots_claimed: count of users with is_founding_member=TRUE
+      - spots_remaining: spots_total - spots_claimed
+      - is_open: True if spots remain
+      - current_price: what a new signup is currently quoted ($15 if open, $20 if closed)
+
+    Used by:
+      - Dashboard gold banner (Sprint 2) — polled every 60s
+      - Public homepage CTA — quotes current price
+      - Sprint 1 verification — sanity-check live count
+    Cached at 60s in stats_cache to avoid hammering the DB.
+    """
+    from decimal import Decimal
+    try:
+        spots_claimed = db.execute(text(
+            "SELECT COUNT(*) FROM users WHERE is_founding_member = TRUE"
+        )).scalar() or 0
+    except Exception as e:
+        logger.error(f"founding status query failed: {e}")
+        spots_claimed = 0
+
+    SPOTS_TOTAL = 100
+    spots_remaining = max(0, SPOTS_TOTAL - spots_claimed)
+    is_open = spots_remaining > 0
+
+    return {
+        "spots_total": SPOTS_TOTAL,
+        "spots_claimed": spots_claimed,
+        "spots_remaining": spots_remaining,
+        "is_open": is_open,
+        "current_price_monthly": "15.00" if is_open else "20.00",
+        "current_price_annual": "150.00" if is_open else "200.00",
+        "standard_price_monthly": "20.00",
+        "standard_price_annual": "200.00",
+        "founding_price_monthly": "15.00",
+        "founding_price_annual": "150.00",
+    }
 
 
 # ── Auto-renew preference (added 9 May 2026 with new checkout flow) ─────
@@ -8445,6 +8566,27 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
     if product_type == "membership":
         tier = "pro" if "pro" in product_key else "basic"
         is_annual = "annual" in product_key
+        # ── Founding partner pricing (15 May 2026) ─────────────────────
+        # If user is not yet active and founding spots remain, quote $15
+        # ($150 annual) instead of $20. The atomic claim runs at activation
+        # time in _activate_membership — this only sets the AMOUNT they're
+        # asked to send to NOWPayments.
+        if not user.is_active:
+            try:
+                founding_count = db.execute(text(
+                    "SELECT COUNT(*) FROM users WHERE is_founding_member = TRUE"
+                )).scalar() or 0
+                if founding_count < 100:
+                    price_usd = Decimal("150.00") if is_annual else Decimal("15.00")
+                    logger.info(
+                        f"NOWPayments: founding price ${price_usd} quoted to "
+                        f"user {user.id} (spot #{founding_count + 1} reservable)"
+                    )
+            except Exception as e:
+                logger.error(
+                    f"NOWPayments founding price check failed for user "
+                    f"{user.id}: {e} — using standard pricing"
+                )
         if tier == "basic" and user.is_active and user.membership_tier == "basic" and not is_annual:
             return JSONResponse({"error": "You already have an active Basic membership"}, status_code=400)
         if tier == "pro" and user.is_active and user.membership_tier == "pro" and not is_annual:

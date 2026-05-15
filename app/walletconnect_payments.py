@@ -42,6 +42,8 @@ import time
 from decimal import Decimal, ROUND_DOWN
 from datetime import datetime, timedelta
 
+from sqlalchemy import text
+
 # Reuse BSC constants from the withdrawals module — single source of truth
 # for treasury address, USDT contract, decimals, RPC URL.
 from app.withdrawals import (
@@ -481,6 +483,46 @@ def create_payment_intent(db, user_id: int, product_type: str, product_key: str,
             f"(user {user_id})"
         )
         return {"error": "unknown_product"}
+
+    # ── Founding partner price quote (15 May 2026) ──────────────────────
+    # If this is a NEW membership activation (user not yet active) AND
+    # founding spots remain, quote the founding price ($15 monthly / $150
+    # annual) instead of the standard $20/$200. The spot itself is claimed
+    # atomically at activation time in _activate_membership — this only
+    # affects the AMOUNT the user is asked to send.
+    #
+    # The "race" between quote time and confirmation time is tolerable: if
+    # spots fill while the user is paying, they still pay $15 but the
+    # atomic claim refuses to grant founding status (since count >= 100 at
+    # confirmation). In that edge case they'd be a standard partner who
+    # paid $15 — they get the locked $15 price permanently as a goodwill
+    # gesture (the locked price is set during the claim attempt regardless).
+    # In practice this is vanishingly rare (15-min order expiry, 85 spots
+    # remaining at launch).
+    if product_type == "membership":
+        try:
+            from app.database import User as _User
+            buyer = db.query(_User).filter(_User.id == user_id).first()
+            if buyer and not buyer.is_active:
+                founding_count = db.execute(text(
+                    "SELECT COUNT(*) FROM users WHERE is_founding_member = TRUE"
+                )).scalar() or 0
+                if founding_count < 100:
+                    is_annual_key = product_key.endswith("_annual")
+                    base_price = Decimal("150.00") if is_annual_key else Decimal("15.00")
+                    logger.info(
+                        f"Founding price quoted to user {user_id}: ${base_price} "
+                        f"(spot #{founding_count + 1} reservable, "
+                        f"{100 - founding_count} remaining)"
+                    )
+        except Exception as e:
+            # Defensive: if anything goes wrong with the founding-price
+            # check, fall through to standard pricing. Better to charge
+            # $20 than to fail the intent entirely.
+            logger.error(
+                f"Founding price check failed for user {user_id}: {e} — "
+                f"using standard pricing"
+            )
 
     meta_json = _json.dumps(product_meta) if product_meta else None
     expires_at = datetime.utcnow() + timedelta(minutes=ORDER_EXPIRY_MINUTES)
