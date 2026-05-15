@@ -1697,9 +1697,14 @@ def run_migrations():
         # Video campaign SEO columns
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS slug VARCHAR",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS keywords VARCHAR",
-        # Ensure admin/owner account is always Pro, active, and top of network
-        "UPDATE users SET membership_tier = 'pro', is_active = true WHERE is_admin = true",
-        "UPDATE users SET membership_tier = 'pro', is_active = true, is_admin = true WHERE username = 'SuperAdPro'",
+        # Ensure admin/owner account is always active and top of network.
+        # Pre-flat-pricing this also set membership_tier='pro' on every startup
+        # but that clobbered the founding-partner status applied by the flat-
+        # pricing migration further below. Admin tier is now set by the flat-
+        # pricing migration to 'founding' (admin counts as a founding partner)
+        # and we leave it alone on subsequent restarts.
+        "UPDATE users SET is_active = true WHERE is_admin = true",
+        "UPDATE users SET is_active = true, is_admin = true WHERE username = 'SuperAdPro'",
         # ── Credit Matrix tables ──
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS matrix_earnings NUMERIC(18,6) DEFAULT 0",
         """CREATE TABLE IF NOT EXISTS credit_pack_purchases (
@@ -2579,6 +2584,35 @@ try:
             print("✅ flat-pricing grandfathering: no users to migrate (already complete)")
 except Exception as e:
     print(f"⚠️ flat-pricing migration failed: {e}")
+
+# ── Post-migration tier normalisation ─────────────────────────────────────
+# Defensive idempotent fixup: any user flagged is_founding_member=TRUE who
+# still has a legacy tier ('basic'/'pro') gets normalised to 'founding'.
+# This handles the case where the admin-seed block (lines ~1701-1702) clobbered
+# admin user tiers BACK to 'pro' after the migration set them to 'founding'.
+# The seed block has now been corrected to leave membership_tier alone, but
+# this one-shot fixup ensures any user whose tier got clobbered in the gap
+# gets corrected on the next startup.
+#
+# Idempotent: WHERE membership_tier != 'founding' means once everyone is
+# correctly tagged, the UPDATE matches zero rows.
+try:
+    with engine.connect() as conn:
+        result = conn.execute(text("""
+            UPDATE users
+            SET membership_tier = 'founding'
+            WHERE is_founding_member = TRUE
+              AND membership_tier != 'founding'
+            RETURNING id
+        """))
+        normalised = result.fetchall()
+        conn.commit()
+        if normalised:
+            print(f"✅ flat-pricing tier normalisation: {len(normalised)} founding members had tier corrected to 'founding'")
+        else:
+            print("✅ flat-pricing tier normalisation: all founding members correctly tagged")
+except Exception as e:
+    print(f"⚠️ tier normalisation failed: {e}")
 
 # ── Brand Poster Generator tables (added 12 May 2026) ──
 # Three tables for the BPG feature in Creative Studio. Defined as
