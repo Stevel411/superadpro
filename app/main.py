@@ -10953,6 +10953,7 @@ def admin_api_list_orphans(
 @app.get("/admin/api/trigger-bsc-scan")
 async def admin_trigger_bsc_scan(
     request: Request,
+    from_block: int = 0,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -10969,8 +10970,15 @@ async def admin_trigger_bsc_scan(
     cron had stopped firing for 2+ hours and a test signup (test12)
     was sitting unmatched despite an on-chain confirmation.
 
-    Returns the same stats dict as the cron endpoint: expired count,
-    transfers seen, matched, activated, orphans added.
+    Optional query param `from_block` overrides the persisted scan
+    cursor and forces a rescan from a specific block. Useful when
+    the cursor has advanced past a transaction that wasn't picked
+    up properly (e.g. RPC indexing lag missed a Transfer event the
+    first time, but the cursor advanced anyway). The wider scan
+    re-examines those blocks. match_incoming_transfer is idempotent
+    via tx_hash so already-processed transfers won't double-credit.
+
+    Returns the same stats dict as the cron endpoint.
     """
     _require_admin(user)
 
@@ -11011,7 +11019,12 @@ async def admin_trigger_bsc_scan(
     try:
         w3 = _get_web3_bsc()
         latest_block = w3.eth.block_number
-        scan_floor = estimate_scan_floor_block(db, latest_block)
+        if from_block and from_block > 0:
+            # Manual override — rescan from specified block. Bypasses cursor.
+            scan_floor = int(from_block)
+            stats["forced_from_block"] = scan_floor
+        else:
+            scan_floor = estimate_scan_floor_block(db, latest_block)
         stats["latest_block"] = latest_block
         stats["scan_floor"] = scan_floor
         stats["scanned_blocks"] = max(latest_block - scan_floor + 1, 0)
