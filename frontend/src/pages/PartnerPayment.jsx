@@ -73,7 +73,9 @@ export default function PartnerPayment() {
   // Derived state
   var isActive = !!user?.is_active;
   var tier = (user?.membership_tier || 'free').toLowerCase();
-  var isFounder = tier === 'founding';
+  // Founding status lives on a dedicated boolean field, not the tier
+  // string (tier is just 'partner' or 'free' under flat-pricing).
+  var isFounder = user?.is_founding_member === true;
   var foundingOpen = !!(status && status.is_open && !isActive);
   var refreshUser = setUser ? function() {
     // Re-fetch user state after activation. AuthProvider exposes setUser

@@ -78,10 +78,11 @@ const BUCKET_CONFIG = {
     accentPale: '#ddd6fe',
     secondaryLine: function(m, t) {
       // Grid: just show their tier + active state. Map tier to friendly label
-      // under flat partner pricing (15 May 2026).
+      // under flat partner pricing (15 May 2026). Founding-ness is a
+      // separate boolean — tier itself is 'partner'/'free'.
       var t_lower = (m.membership_tier || '').toLowerCase();
       var tier = '';
-      if (t_lower === 'founding') tier = 'FOUNDER';
+      if (m.is_founding_member === true) tier = 'FOUNDER';
       else if (t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro') tier = 'PARTNER';
       const status = m.is_active ? t('commandCentre.rowActive', { defaultValue: 'Active' }) : t('commandCentre.rowInactive', { defaultValue: 'Inactive' });
       return [tier, status].filter(Boolean).join(' · ');
@@ -96,7 +97,7 @@ const BUCKET_CONFIG = {
     secondaryLine: function(m, t) {
       var t_lower = (m.membership_tier || '').toLowerCase();
       var tier = '';
-      if (t_lower === 'founding') tier = 'FOUNDER';
+      if (m.is_founding_member === true) tier = 'FOUNDER';
       else if (t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro') tier = 'PARTNER';
       const status = m.is_active ? t('commandCentre.rowActive', { defaultValue: 'Active' }) : t('commandCentre.rowInactive', { defaultValue: 'Inactive' });
       return [tier, status].filter(Boolean).join(' · ');
@@ -449,9 +450,10 @@ export default function BucketList(props) {
                       {flag && <span style={{ fontSize: 13 }}>{flag}</span>}
                       {m.membership_tier && (function() {
                         // Map tier to friendly label + colour (15 May 2026 flat pricing).
+                        // Founding-ness lives on a separate boolean field.
                         var t_lower = (m.membership_tier || '').toLowerCase();
-                        var isFounder = t_lower === 'founding';
-                        var isPartner = t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro';
+                        var isFounder = m.is_founding_member === true;
+                        var isPartner = !isFounder && (t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro');
                         if (!isFounder && !isPartner) return null;  // free user — no badge
                         var label = isFounder ? 'FOUNDER' : 'PARTNER';
                         return (

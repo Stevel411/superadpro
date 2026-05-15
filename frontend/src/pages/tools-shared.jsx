@@ -346,8 +346,10 @@ export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, b
                 Legacy 'basic'/'pro' values map to 'partner' defensively. */}
             {user && (function() {
               var t_lower = (tier || 'free').toLowerCase();
-              var isFounder = t_lower === 'founding';
-              var isPartner = t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro';
+              // Use the dedicated is_founding_member boolean — tier
+              // string is just 'partner'/'free' under flat-pricing.
+              var isFounder = user.is_founding_member === true;
+              var isPartner = !isFounder && (t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro');
               if (!isFounder && !isPartner) {
                 return (
                   <Link to="/upgrade" style={{

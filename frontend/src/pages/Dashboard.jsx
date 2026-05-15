@@ -746,8 +746,15 @@ export default function Dashboard() {
                   that surfaces alongside the dismissable gold banner above. */}
               {user && (function() {
                 var tier = (user.membership_tier || 'free').toLowerCase();
-                var isFounder = tier === 'founding';
-                var isPartner = tier === 'partner' || tier === 'basic' || tier === 'pro';
+                // Founding-ness is tracked on a SEPARATE boolean field —
+                // tier is just 'partner' or 'free' under flat-pricing,
+                // founding members are flagged via is_founding_member.
+                // (Previous version only looked at tier === 'founding'
+                // and never matched, so founding partners rendered as
+                // PARTNER on their own dashboard — Steve caught this
+                // checking Test12 after activation.)
+                var isFounder = user.is_founding_member === true;
+                var isPartner = !isFounder && (tier === 'partner' || tier === 'basic' || tier === 'pro');
                 if (!isFounder && !isPartner) {
                   // Free user — render an active CTA link rather than a dead badge.
                   return (

@@ -196,12 +196,10 @@ export default function Account() {
             </div>
           </div>
           <Row k={t("account.memberId")} v={memberId} mono/><Row k={t("account.email")} v={user.email}/><Row k={t("account.tier")} v={(function() {
-            // Map raw db tier value to friendly user-facing label.
-            // After flat-pricing migration: 'founding' / 'partner' / 'free'.
-            // Legacy 'basic' / 'pro' values shouldn't exist post-migration
-            // but we handle them defensively (resolve to "Partner").
+            // Founding-ness is a separate boolean flag from tier under
+            // flat-pricing — tier itself is just 'partner' or 'free'.
+            if (user.is_founding_member === true) return 'Founding Partner';
             var tier = (user.membership_tier || 'free').toLowerCase();
-            if (tier === 'founding') return 'Founding Partner';
             if (tier === 'partner' || tier === 'basic' || tier === 'pro') return 'Partner';
             return 'Free';
           })()}/><Row k={t("account.country")} v={user.country||'—'}/><Row k={t("account.sponsor")} v={user.sponsor_username?'@'+user.sponsor_username:t('account.direct')}/><Row k={t("account.joined")} v={user.created_at?new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'} last/>
