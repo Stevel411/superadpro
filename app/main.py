@@ -4806,6 +4806,27 @@ def labs_pagebuilder_preview_templates(request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/labs/pagebuilder/sandbox")
+def labs_pagebuilder_sandbox_list(request: Request):
+    """Sandbox pages list view. Lists every Labs sandbox page the admin
+    has created (stored in their browser's localStorage — no database
+    involvement here). Admin-only via client-side gate."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/labs/pagebuilder/sandbox/edit/{sandbox_id}")
+def labs_pagebuilder_sandbox_edit(sandbox_id: str, request: Request):
+    """Sandbox editor for a specific sandbox page. The sandboxId is a
+    localStorage key (not a database id) — server doesn't validate it
+    or touch any database row. React component loads the page from
+    localStorage on mount. Admin-only via client-side gate.
+
+    This route exists for two reasons: (1) admin auth check happens
+    at the layout level, (2) deep-link reload works because the React
+    shell loads here and then routes itself."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/labs/pagebuilder/edit/{page_id}")
 def labs_pagebuilder_editor_page(page_id: int, request: Request):
     """Labs editor for a specific page. Loads the cloned SuperPages editor

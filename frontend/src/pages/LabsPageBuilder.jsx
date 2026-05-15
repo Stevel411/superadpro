@@ -161,8 +161,60 @@ export default function LabsPageBuilder() {
           edits here ARE saved. Use a test page until we're confident in Labs.
         </p>
 
-        {/* Browse-templates portfolio CTA — read-only preview of all 6
-            built-in templates. Doesn't touch any data. */}
+        {/* PRIMARY: Sandbox flow — fully isolated from live database */}
+        <Link
+          to="/labs/pagebuilder/sandbox"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            padding: '18px 22px',
+            borderRadius: 12,
+            background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
+            border: '1px solid rgba(14,165,233,0.35)',
+            color: '#0f172a',
+            textDecoration: 'none',
+            marginBottom: 12,
+            transition: 'transform 0.15s, box-shadow 0.15s, border-color 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.borderColor = 'rgba(168,85,247,0.5)';
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(14,165,233,0.18)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = '';
+            e.currentTarget.style.borderColor = 'rgba(14,165,233,0.35)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <div style={{
+            width: 46, height: 46,
+            borderRadius: 11,
+            background: 'linear-gradient(135deg, #0ea5e9, #a855f7)',
+            color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22,
+            flexShrink: 0,
+            boxShadow: '0 4px 14px rgba(14,165,233,0.35)',
+          }}>🧪</div>
+          <div style={{ flex: 1 }}>
+            <div style={{
+              fontFamily: 'Sora, sans-serif',
+              fontSize: 16,
+              fontWeight: 900,
+              letterSpacing: '-0.015em',
+              marginBottom: 3,
+            }}>Sandbox pages <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(14,165,233,0.15)', color: '#0284c7', letterSpacing: '0.06em', textTransform: 'uppercase', marginLeft: 6 }}>Recommended</span></div>
+            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, lineHeight: 1.5 }}>
+              Build and test without touching live data. Sandbox pages live in browser localStorage only.
+              When ready, export to production as a real funnel.
+            </div>
+          </div>
+          <ArrowRight size={18} style={{ color: '#0284c7', flexShrink: 0 }}/>
+        </Link>
+
+        {/* Browse-templates portfolio CTA */}
         <Link
           to="/labs/pagebuilder/preview-templates"
           style={{
@@ -171,8 +223,8 @@ export default function LabsPageBuilder() {
             gap: 14,
             padding: '16px 20px',
             borderRadius: 12,
-            background: 'linear-gradient(135deg, rgba(14,165,233,0.06), rgba(168,85,247,0.06))',
-            border: '1px solid rgba(14,165,233,0.25)',
+            background: 'rgba(168,85,247,0.04)',
+            border: '1px solid rgba(168,85,247,0.18)',
             color: '#0f172a',
             textDecoration: 'none',
             marginBottom: 16,
@@ -181,23 +233,23 @@ export default function LabsPageBuilder() {
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
             e.currentTarget.style.borderColor = 'rgba(168,85,247,0.4)';
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(14,165,233,0.15)';
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(168,85,247,0.15)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = '';
-            e.currentTarget.style.borderColor = 'rgba(14,165,233,0.25)';
+            e.currentTarget.style.borderColor = 'rgba(168,85,247,0.18)';
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
           <div style={{
             width: 42, height: 42,
             borderRadius: 10,
-            background: 'linear-gradient(135deg, #0ea5e9, #a855f7)',
+            background: 'linear-gradient(135deg, #a855f7, #ec4899)',
             color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 20,
             flexShrink: 0,
-            boxShadow: '0 4px 12px rgba(14,165,233,0.3)',
+            boxShadow: '0 4px 12px rgba(168,85,247,0.3)',
           }}>✨</div>
           <div style={{ flex: 1 }}>
             <div style={{
@@ -211,8 +263,22 @@ export default function LabsPageBuilder() {
               See all 6 built-in templates rendered at full size · Read-only · Doesn't touch live data
             </div>
           </div>
-          <ArrowRight size={18} style={{ color: '#0284c7', flexShrink: 0 }}/>
+          <ArrowRight size={18} style={{ color: '#7c3aed', flexShrink: 0 }}/>
         </Link>
+
+        <h3 style={{
+          fontSize: 11,
+          fontWeight: 900,
+          color: '#94a3b8',
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          margin: '24px 0 8px',
+          fontFamily: 'Sora, sans-serif',
+        }}>Legacy · Open a live page in Labs</h3>
+        <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 0, marginBottom: 12, fontStyle: 'italic' }}>
+          ⚠ This opens a real funnel page in the Labs editor. Edits ARE saved to the production database.
+          Prefer the Sandbox flow above for testing.
+        </p>
 
         <div style={{
           background: '#fff', border: '1px solid #e2e8f0',

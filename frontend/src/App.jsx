@@ -38,6 +38,7 @@ const AdminVideos = React.lazy(() => import('./pages/AdminVideos'));
 const LabsPageBuilder = React.lazy(() => import('./pages/LabsPageBuilder'));
 const LabsSuperPagesEditor = React.lazy(() => import('./pages/labs-superpages/SuperPagesEditor'));
 const LabsTemplatesPreview = React.lazy(() => import('./pages/labs-superpages/LabsTemplatesPreview'));
+const LabsSandboxList = React.lazy(() => import('./pages/labs-superpages/LabsSandboxList'));
 const Upgrade = React.lazy(() => import('./pages/Upgrade'));
 const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
@@ -387,6 +388,8 @@ function AppRoutes() {
       <Route path="/admin/videos" element={<ProtectedRoute><AdminVideos /></ProtectedRoute>} />
       <Route path="/labs/pagebuilder" element={<ProtectedRoute><LabsPageBuilder /></ProtectedRoute>} />
       <Route path="/labs/pagebuilder/preview-templates" element={<ProtectedRoute><LabsTemplatesPreview /></ProtectedRoute>} />
+      <Route path="/labs/pagebuilder/sandbox" element={<ProtectedRoute><LabsSandboxList /></ProtectedRoute>} />
+      <Route path="/labs/pagebuilder/sandbox/edit/:sandboxId" element={<ProtectedRoute><LabsSuperPagesEditor /></ProtectedRoute>} />
       <Route path="/labs/pagebuilder/edit/:pageId" element={<ProtectedRoute><LabsSuperPagesEditor /></ProtectedRoute>} />
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />

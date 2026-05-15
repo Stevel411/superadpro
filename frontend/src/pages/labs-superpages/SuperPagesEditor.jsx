@@ -13,10 +13,18 @@ import { apiGet, apiPost } from '../../utils/api';
 import AppLayout from '../../components/layout/AppLayout';
 import { useAuth } from '../../hooks/useAuth';
 import './LabsChrome.css';
+import { loadSandboxPage, saveSandboxPage, exportToProductionPayload } from './sandboxStore';
 
 export default function LabsSuperPagesEditor() {
   var { t } = useTranslation();
-  const { pageId } = useParams();
+  // Two URL shapes:
+  //   /labs/pagebuilder/edit/{pageId}              → DB-backed (legacy)
+  //   /labs/pagebuilder/sandbox/edit/{sandboxId}   → localStorage-backed
+  // useParams gives us whichever param was matched; sandboxId presence
+  // is the signal to use sandbox mode.
+  const { pageId, sandboxId } = useParams();
+  const isSandbox = !!sandboxId;
+  const effectiveId = sandboxId || pageId;
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
@@ -128,7 +136,33 @@ export default function LabsSuperPagesEditor() {
 
   // ── Load page data ──
   useEffect(() => {
-    if (!pageId) { setLoading(false); return; }
+    if (!effectiveId) { setLoading(false); return; }
+
+    if (isSandbox) {
+      // Sandbox load: pull from localStorage. No network, no auth check
+      // beyond the admin gate above. If the sandbox id is bad, bounce
+      // back to the list.
+      const sb = loadSandboxPage(sandboxId);
+      if (!sb) {
+        showToast('Sandbox page not found');
+        navigate('/labs/pagebuilder/sandbox');
+        return;
+      }
+      setPageSettings({
+        title: sb.name || '',
+        metaDescription: sb.metaDescription || '',
+        ogImage: sb.ogImage || '',
+        slug: '',
+      });
+      setPageStatus('draft'); // sandboxes are always draft
+      setEls(sb.els || []);
+      setCanvasBg(sb.canvasBg || '#ffffff');
+      setCanvasBgImage(sb.canvasBgImage || '');
+      setLoading(false);
+      return;
+    }
+
+    // DB-backed load (legacy /edit/{pageId} route)
     apiGet(`/api/funnels/load/${pageId}`).then(data => {
       setPageSettings({ title: data.title || '', metaDescription: data.meta_description || '', ogImage: data.image_url || '', slug: data.slug || '' });
       setPageStatus(data.status || 'draft');
@@ -151,7 +185,7 @@ export default function LabsSuperPagesEditor() {
       showToast('Failed to load page: ' + e.message);
       setLoading(false);
     });
-  }, [pageId, setEls, setCanvasBg, setCanvasBgImage]);
+  }, [pageId, sandboxId, isSandbox, effectiveId, setEls, setCanvasBg, setCanvasBgImage, navigate]);
 
   // ── Auto-collapse the sidebar on editor entry ──
   // The SuperPages editor benefits from maximum canvas width. Most users
@@ -200,6 +234,28 @@ export default function LabsSuperPagesEditor() {
     savingRef.current = true;
     setSaving(true);
     try {
+      if (isSandbox) {
+        // Sandbox save: localStorage only. Synchronous, no network. We
+        // wrap in the same try/catch shape so the autosave timing still
+        // works the same way.
+        const result = saveSandboxPage(sandboxId, {
+          name: pageSettings.title || 'Untitled sandbox',
+          metaDescription: pageSettings.metaDescription || '',
+          ogImage: pageSettings.ogImage || '',
+          els,
+          canvasBg,
+          canvasBgImage,
+        });
+        if (result) {
+          showToast('✓ Saved to sandbox');
+          markSaved();
+        } else {
+          showToast('Save failed — localStorage may be full');
+        }
+        return;
+      }
+
+      // DB-backed save (legacy /edit/{pageId} route)
       const html = exportHTML(els, canvasBg, canvasBgImage);
       const payload = {
         id: parseInt(pageId),
@@ -221,9 +277,6 @@ export default function LabsSuperPagesEditor() {
         if (res.slug) setPageSettings(prev => ({ ...prev, slug: res.slug }));
         if (res.updated_at) updatedAtRef.current = res.updated_at;
       } else {
-        // If server reports a stale write, refresh our updated_at so the
-        // next save attempt isn't blocked by the same clash. Surface to
-        // the user that their last edits weren't saved.
         if (res.updated_at) updatedAtRef.current = res.updated_at;
         showToast('Save failed: ' + (res.error || 'unknown — your edits are still local'));
       }
@@ -233,7 +286,55 @@ export default function LabsSuperPagesEditor() {
       savingRef.current = false;
       if (mountedRef.current) setSaving(false);
     }
-  }, [els, canvasBg, canvasBgImage, pageId, pageSettings, pageStatus, markSaved]);
+  }, [els, canvasBg, canvasBgImage, pageId, sandboxId, isSandbox, pageSettings, pageStatus, markSaved]);
+
+  // ── Export sandbox → production ──
+  //
+  // Available only in sandbox mode. Copies the current sandbox page
+  // into a new funnel record via /api/funnels/save. Starts as 'draft'
+  // — never auto-published. The original sandbox stays put in case
+  // the member wants to keep iterating.
+  const exportToProduction = useCallback(async () => {
+    if (!isSandbox) return;
+    if (!els || els.length === 0) {
+      showToast('Add at least one element before exporting to production');
+      return;
+    }
+    if (!confirm('Export this sandbox to a real funnel page in your live account?\n\nIt will appear as a DRAFT in /pro/funnels so you can review before publishing. The sandbox version stays in Labs.')) {
+      return;
+    }
+    setSaving(true);
+    try {
+      const sb = loadSandboxPage(sandboxId);
+      if (!sb) throw new Error('Could not load sandbox');
+      // Compose payload from sandbox state + current edits in memory
+      const payload = exportToProductionPayload({
+        ...sb,
+        name: pageSettings.title || sb.name,
+        metaDescription: pageSettings.metaDescription || sb.metaDescription,
+        ogImage: pageSettings.ogImage || sb.ogImage,
+        els,
+        canvasBg,
+        canvasBgImage,
+      });
+      // Also attach the rendered HTML so the public page renders right away
+      payload.gjs_html = exportHTML(els, canvasBg, canvasBgImage);
+      const res = await apiPost('/api/funnels/save', payload);
+      if (res.success || res.id) {
+        showToast('✓ Exported! Opening in /pro/funnels…');
+        // Small delay so the toast is visible
+        setTimeout(() => {
+          navigate('/pro/funnels');
+        }, 1200);
+      } else {
+        showToast('Export failed: ' + (res.error || 'unknown'));
+      }
+    } catch (e) {
+      showToast('Export error: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  }, [isSandbox, sandboxId, els, canvasBg, canvasBgImage, pageSettings, navigate]);
 
   // ── Apply template ──
   // Loads a template's els[] and canvasBg into the editor, replacing the
@@ -354,9 +455,24 @@ export default function LabsSuperPagesEditor() {
     clearCanvas();
     setCanvasBg('#ffffff');
     setCanvasBgImage('');
-    // Persist to the server with the cleared state. We construct the payload
-    // here directly rather than calling save() because React state updates
-    // from clearCanvas/setCanvasBg haven't flushed yet.
+
+    if (isSandbox) {
+      // Sandbox: just write the cleared state to localStorage.
+      const result = saveSandboxPage(sandboxId, {
+        els: [],
+        canvasBg: '#ffffff',
+        canvasBgImage: '',
+      });
+      if (result) {
+        setDirty(false);
+        showToast('✓ Sandbox cleared');
+      } else {
+        showToast('Cleared locally — save failed');
+      }
+      return;
+    }
+
+    // DB-backed clear (legacy)
     setSaving(true);
     try {
       const clearedEls = [];
@@ -389,6 +505,13 @@ export default function LabsSuperPagesEditor() {
   };
 
   const togglePublish = async () => {
+    if (isSandbox) {
+      // Sandbox pages can't be published directly. They have to be
+      // exported to production first, which creates a real funnel
+      // record that THEN can be published.
+      exportToProduction();
+      return;
+    }
     const newStatus = pageStatus === 'published' ? 'draft' : 'published';
     // Guard: don't let users publish an empty page — it renders as a blank screen
     if (newStatus === 'published' && (!els || els.length === 0)) {
@@ -460,8 +583,8 @@ export default function LabsSuperPagesEditor() {
 
   return (
     <AppLayout
-      title={'🧪 LABS · ' + (pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' }))}
-      subtitle={pageSettings.slug ? '/' + pageSettings.slug + ' · Editing in Labs sandbox' : 'Editing in Labs sandbox'}
+      title={(isSandbox ? '🧪 SANDBOX · ' : '🧪 LABS · ') + (pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' }))}
+      subtitle={isSandbox ? 'Sandbox · localStorage only · Doesn\'t touch live site' : (pageSettings.slug ? '/' + pageSettings.slug + ' · Editing in Labs sandbox' : 'Editing in Labs sandbox')}
       fullHeight
       bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
@@ -484,7 +607,7 @@ export default function LabsSuperPagesEditor() {
         gridOn={showGrid}
         onUndo={undo}
         onRedo={redo}
-        onBack={() => navigate('/pro/funnels')}
+        onBack={() => navigate(isSandbox ? '/labs/pagebuilder/sandbox' : '/pro/funnels')}
         onTogglePublish={togglePublish}
         onTogglePreview={() => setPreviewMode(!previewMode)}
         previewMode={previewMode}
