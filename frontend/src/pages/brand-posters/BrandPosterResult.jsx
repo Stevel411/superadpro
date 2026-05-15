@@ -13,6 +13,11 @@ export default function BrandPosterResult() {
   var [choosing, setChoosing] = useState(false);
   var [justSaved, setJustSaved] = useState(false);
   var [error, setError] = useState('');
+  // Track per-candidate image load failures so we can show a graceful
+  // "expired — please regenerate" message instead of the browser's
+  // broken-image icon. xAI URLs expire after 24-48h; once expired
+  // the proxy endpoint returns 410 Gone and the <img> onError fires.
+  var [failedIndexes, setFailedIndexes] = useState({});
 
   function loadGeneration() {
     return apiGet('/api/posters/generation/' + generationId).then(function(res) {
@@ -191,6 +196,48 @@ export default function BrandPosterResult() {
 
         {candidates.length > 0 && (
           <>
+            {/* If every candidate failed to load, show an explanatory
+                banner above the grid with a direct link to regenerate. */}
+            {Object.keys(failedIndexes).length === candidates.length && (
+              <div style={{
+                background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+                border: '1px solid #f59e0b',
+                color: '#78350f',
+                padding: 16,
+                borderRadius: 10,
+                marginBottom: 20,
+                display: 'flex',
+                gap: 12,
+                alignItems: 'flex-start',
+              }}>
+                <Clock size={20} style={{ flexShrink: 0, marginTop: 2 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, marginBottom: 6 }}>This poster set has expired</div>
+                  <div style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
+                    AI-generated poster candidates are kept for 24–48 hours. After that, you'll need to generate a fresh set. Your saved final poster (if you chose one) is unaffected and lives permanently in your library.
+                  </div>
+                  {generation && generation.template_slug && (
+                    <Link
+                      to={'/brand-posters/' + generation.template_slug}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        background: '#f59e0b',
+                        color: '#fff',
+                        textDecoration: 'none',
+                        padding: '8px 14px',
+                        borderRadius: 8,
+                        fontSize: 13,
+                        fontWeight: 700,
+                      }}
+                    >
+                      <RefreshCw size={14} /> Regenerate this poster
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
             {/* 2x2 grid of candidates */}
             <div style={{
               display: 'grid',
@@ -200,26 +247,65 @@ export default function BrandPosterResult() {
             }}>
               {candidates.map(function(url, idx) {
                 var selected = selectedIndex === idx;
+                var isFailed = !!failedIndexes[idx];
                 return (
                   <div
                     key={idx}
-                    onClick={function() { setSelectedIndex(idx); }}
+                    onClick={function() {
+                      // Don't allow selecting an expired candidate
+                      if (isFailed) return;
+                      setSelectedIndex(idx);
+                    }}
                     style={{
                       position: 'relative',
                       borderRadius: 14,
                       overflow: 'hidden',
-                      cursor: 'pointer',
+                      cursor: isFailed ? 'not-allowed' : 'pointer',
                       border: selected ? '3px solid var(--sap-accent)' : '3px solid transparent',
                       transition: 'all 0.15s',
                       aspectRatio: '3/4',
                       background: '#1e293b',
+                      opacity: isFailed ? 0.6 : 1,
                     }}>
-                    <img src={url} alt={'Candidate ' + (idx + 1)} style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block',
-                    }}/>
+                    {isFailed ? (
+                      <div style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        padding: 20,
+                        color: '#cbd5e1',
+                        fontSize: 13,
+                        lineHeight: 1.5,
+                      }}>
+                        <Clock size={32} style={{ marginBottom: 12, opacity: 0.7 }} />
+                        <div style={{ fontWeight: 700, marginBottom: 6 }}>This image expired</div>
+                        <div style={{ fontSize: 12, color: '#94a3b8' }}>
+                          AI poster previews are available for 24–48 hours. Please regenerate this poster set to see candidates.
+                        </div>
+                      </div>
+                    ) : (
+                      <img
+                        src={url}
+                        alt={'Candidate ' + (idx + 1)}
+                        onError={function() {
+                          setFailedIndexes(function(prev) {
+                            var next = Object.assign({}, prev);
+                            next[idx] = true;
+                            return next;
+                          });
+                        }}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
+                    )}
                     {selected && (
                       <div style={{
                         position: 'absolute',

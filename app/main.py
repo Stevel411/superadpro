@@ -11184,6 +11184,155 @@ async def admin_trigger_bsc_scan(
     return stats
 
 
+@app.post("/admin/api/bpg/audit-and-backfill")
+@app.get("/admin/api/bpg/audit-and-backfill")
+def admin_bpg_audit_and_backfill(
+    request: Request,
+    backfill: bool = False,
+    limit: int = 100,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Audit all chosen poster generations and optionally backfill to R2.
+
+    Why: xAI Imagine URLs expire after 24-48 hours. Any chosen poster
+    whose chosen_url still points at imgen.x.ai will become a broken
+    image once that window passes. Members who came back to view their
+    history days later would see broken images everywhere.
+
+    The /choose endpoint archives to R2 going forward, but historical
+    generations (created before R2 archival was wired up, OR generations
+    where R2 was momentarily unavailable and the warning was swallowed)
+    still hold xAI URLs.
+
+    This endpoint does two things:
+      1) Always audits — lists every chosen generation still holding an
+         xAI URL, checks whether the URL is still fetchable (still within
+         the 24-48h window), and counts how many are salvageable vs lost.
+      2) If backfill=true — attempts to fetch each still-fetchable URL
+         and archive to R2, updating chosen_url to the R2 URL. Skips
+         generations whose URL is already expired (returns 4xx).
+
+    Use case tonight: identify gen 5 and any siblings, see what's
+    salvageable, mark the rest for regeneration UI.
+
+    Query params:
+      - backfill: false (default) → audit only, no DB writes
+                  true            → also archive recoverable URLs to R2
+      - limit:    max generations to process (default 100, hard cap 500)
+    """
+    _require_admin(user)
+
+    from .database import PosterGeneration
+    from . import r2_storage
+    import urllib.request
+    import urllib.error
+
+    limit = max(1, min(int(limit or 100), 500))
+
+    # All chosen generations whose chosen_url is still on xAI
+    rows = db.query(PosterGeneration).filter(
+        PosterGeneration.status == "chosen",
+        PosterGeneration.chosen_url.isnot(None),
+        (PosterGeneration.chosen_url.like("%imgen.x.ai%") |
+         PosterGeneration.chosen_url.like("%x.ai%"))
+    ).order_by(PosterGeneration.created_at.desc()).limit(limit).all()
+
+    r2_ok = r2_storage.r2_available()
+
+    stats = {
+        "scanned": len(rows),
+        "still_xai": 0,
+        "fetchable": 0,
+        "expired": 0,
+        "backfilled": 0,
+        "backfill_failed": 0,
+        "r2_available": r2_ok,
+        "mode": "backfill" if backfill else "audit_only",
+        "by_age_bucket": {
+            "under_24h": {"total": 0, "fetchable": 0, "expired": 0},
+            "24h_to_48h": {"total": 0, "fetchable": 0, "expired": 0},
+            "over_48h": {"total": 0, "fetchable": 0, "expired": 0},
+        },
+        "examples": [],
+        "errors": [],
+    }
+
+    now = datetime.utcnow()
+    for gen in rows:
+        stats["still_xai"] += 1
+        url = gen.chosen_url
+        age_hours = (now - gen.created_at).total_seconds() / 3600 if gen.created_at else None
+        if age_hours is None:
+            bucket = "over_48h"
+        elif age_hours < 24:
+            bucket = "under_24h"
+        elif age_hours < 48:
+            bucket = "24h_to_48h"
+        else:
+            bucket = "over_48h"
+        stats["by_age_bucket"][bucket]["total"] += 1
+
+        # Probe via the production fetch helper (it already handles auth)
+        is_fetchable = False
+        probe_status = None
+        try:
+            image_bytes = _bpg_fetch_xai_image(url, timeout=15)
+            is_fetchable = True
+            stats["fetchable"] += 1
+            stats["by_age_bucket"][bucket]["fetchable"] += 1
+            probe_status = 200
+        except urllib.error.HTTPError as e:
+            stats["expired"] += 1
+            stats["by_age_bucket"][bucket]["expired"] += 1
+            probe_status = e.code
+            image_bytes = None
+        except Exception as e:
+            stats["expired"] += 1
+            stats["by_age_bucket"][bucket]["expired"] += 1
+            probe_status = f"err:{type(e).__name__}"
+            image_bytes = None
+
+        # Backfill if requested + fetchable + R2 available
+        backfill_result = None
+        if backfill and is_fetchable and r2_ok and image_bytes:
+            try:
+                new_url = r2_storage.upload_image(
+                    image_bytes,
+                    folder="bpg-final-backfill",
+                    ext="jpg",
+                    content_type="image/jpeg",
+                )
+                gen.chosen_url = new_url
+                db.commit()
+                stats["backfilled"] += 1
+                backfill_result = {"r2_url": new_url}
+                logger.info(
+                    f"ADMIN_BPG_BACKFILL: admin={user.username} gen={gen.id} "
+                    f"user={gen.user_id} → {new_url}"
+                )
+            except Exception as e:
+                db.rollback()
+                stats["backfill_failed"] += 1
+                backfill_result = {"error": str(e)}
+                stats["errors"].append(f"gen {gen.id} backfill: {e}")
+
+        # Keep a few examples in the response for visibility
+        if len(stats["examples"]) < 10:
+            stats["examples"].append({
+                "generation_id": gen.id,
+                "user_id": gen.user_id,
+                "created_at": gen.created_at.isoformat() if gen.created_at else None,
+                "age_hours": round(age_hours, 2) if age_hours is not None else None,
+                "fetchable": is_fetchable,
+                "probe_status": probe_status,
+                "bucket": bucket,
+                "backfill_result": backfill_result,
+            })
+
+    return stats
+
+
 @app.get("/admin/orphan-investigation")
 def admin_orphan_investigation_page(request: Request, db: Session = Depends(get_db)):
     """Self-contained investigation page for unresolved OnchainOrphanTransfers.
