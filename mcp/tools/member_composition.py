@@ -136,7 +136,7 @@ def member_composition(db):
     # the migration must handle specially.
     paid_no_expiry_users = db.execute(text("""
         SELECT u.id, u.username, u.activated_at::text AS activated_at,
-               u.membership_tier, u.is_admin
+               u.membership_tier, u.is_admin, u.membership_billing
         FROM users u
         WHERE u.is_active = TRUE
           AND u.membership_expires_at IS NULL
@@ -158,16 +158,47 @@ def member_composition(db):
             )
           )
     """)).fetchall()
-    paid_no_expiry = [
-        {
+    paid_no_expiry = []
+    for r in paid_no_expiry_users:
+        # For each, fetch their most recent confirmed payment record so admin
+        # can see what they actually paid for (monthly vs annual, product, $).
+        payment_records = []
+        npo_rows = db.execute(text("""
+            SELECT product_key, price_usd::text AS price_usd, confirmed_at::text AS confirmed_at, status
+            FROM nowpayments_orders
+            WHERE user_id = :uid AND (status = 'finished' OR confirmed_at IS NOT NULL)
+            ORDER BY confirmed_at DESC NULLS LAST LIMIT 3
+        """), {"uid": r.id}).fetchall()
+        for p in npo_rows:
+            payment_records.append({
+                "rail": "nowpayments",
+                "product_key": p.product_key,
+                "price_usd": p.price_usd,
+                "confirmed_at": p.confirmed_at,
+                "status": p.status,
+            })
+        wco_rows = db.execute(text("""
+            SELECT product_key, base_amount::text AS base_amount, confirmed_at::text AS confirmed_at
+            FROM walletconnect_payment_orders
+            WHERE user_id = :uid AND status = 'confirmed'
+            ORDER BY confirmed_at DESC LIMIT 3
+        """), {"uid": r.id}).fetchall()
+        for p in wco_rows:
+            payment_records.append({
+                "rail": "walletconnect",
+                "product_key": p.product_key,
+                "price_usd": p.base_amount,
+                "confirmed_at": p.confirmed_at,
+            })
+        paid_no_expiry.append({
             "user_id": r.id,
             "username": r.username,
             "activated_at": r.activated_at,
             "membership_tier": r.membership_tier,
+            "membership_billing": r.membership_billing,
             "is_admin": r.is_admin,
-        }
-        for r in paid_no_expiry_users
-    ]
+            "recent_payments": payment_records,
+        })
 
     # Far-future expiry users (Steve's perma-comped admin/founder account fits here)
     far_future_users = db.execute(text("""
