@@ -53,3 +53,4 @@ from . import lookup_user               # noqa: F401
 from . import lookup_payment_by_txid    # noqa: F401
 from . import recent_signups            # noqa: F401
 from . import list_orphan_transfers     # noqa: F401
+from . import lookup_poster_generation  # noqa: F401
