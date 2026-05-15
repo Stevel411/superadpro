@@ -29388,6 +29388,19 @@ async def bpg_generate(request: Request, db: Session = Depends(get_db)):
 def bpg_generation_detail(generation_id: int, request: Request, db: Session = Depends(get_db)):
     """Get full details of one generation including all candidate URLs.
     Used by the result picker page to show the 4 candidates.
+
+    Candidate URLs from xAI's imgen.x.ai are NOT directly browser-loadable:
+      (a) they reject cross-origin <img src> requests with HTTP 403
+      (b) they require Authorization: Bearer ${XAI_API_KEY} header which
+          a basic <img> tag cannot send
+      (c) they expire within 24-48 hours
+    So we rewrite each xAI URL into a same-origin proxy URL the browser
+    CAN load — `/api/posters/generation/{id}/candidate/{idx}/image` —
+    which fetches via _bpg_fetch_xai_image server-side using the held
+    Bearer token, then streams the bytes back inline.
+
+    URLs that are already on our R2 bucket (post-save, after /choose)
+    are kept as-is — they load fine cross-origin.
     """
     from .database import PosterGeneration, PosterTemplate
     import json as _json
@@ -29402,17 +29415,102 @@ def bpg_generation_detail(generation_id: int, request: Request, db: Session = De
 
     tpl = db.query(PosterTemplate).filter_by(id=gen.template_id).first()
 
+    raw_candidates = _json.loads(gen.candidate_urls or "[]")
+    proxied_candidates = []
+    for idx, url in enumerate(raw_candidates):
+        if url and ("imgen.x.ai" in url or "x.ai" in url):
+            proxied_candidates.append(
+                f"/api/posters/generation/{gen.id}/candidate/{idx}/image"
+            )
+        else:
+            # R2 or other already-browser-loadable URL — keep as-is
+            proxied_candidates.append(url)
+
+    # Same treatment for chosen_url — could be an xAI URL if /choose
+    # didn't archive to R2 yet (or failed to).
+    chosen_url = gen.chosen_url
+    if chosen_url and ("imgen.x.ai" in chosen_url or "x.ai" in chosen_url):
+        if gen.chosen_index is not None:
+            chosen_url = f"/api/posters/generation/{gen.id}/candidate/{gen.chosen_index}/image"
+
     return {
         "id": gen.id,
         "template_slug": tpl.slug if tpl else None,
         "template_name": tpl.name if tpl else None,
         "status": gen.status,
-        "candidates": _json.loads(gen.candidate_urls or "[]"),
+        "candidates": proxied_candidates,
         "chosen_index": gen.chosen_index,
-        "chosen_url": gen.chosen_url,
+        "chosen_url": chosen_url,
         "error_message": gen.error_message,
         "created_at": gen.created_at.isoformat() if gen.created_at else None,
     }
+
+
+@app.get("/api/posters/generation/{generation_id}/candidate/{index}/image")
+def bpg_candidate_image_proxy(generation_id: int, index: int,
+                              request: Request,
+                              db: Session = Depends(get_db)):
+    """Inline image proxy for browser <img src> rendering.
+
+    Same fetch logic as /download but returns the image with
+    Content-Disposition: inline (renderable in <img>) and a stricter
+    Cache-Control because candidate URLs expire from xAI in ~24h
+    anyway — once expired, the cached bytes here would be the only copy.
+    Cache TTL is 23h: long enough that re-rendering the result page
+    doesn't hammer xAI, short enough that a /choose archival to R2
+    will be reflected on next page load.
+    """
+    from .database import PosterGeneration
+    from fastapi.responses import Response
+    import json as _json
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    generation = db.query(PosterGeneration).filter_by(
+        id=generation_id, user_id=user.id
+    ).first()
+    if not generation:
+        raise HTTPException(status_code=404, detail="Generation not found")
+
+    candidates = _json.loads(generation.candidate_urls or "[]")
+    if index < 0 or index >= len(candidates):
+        raise HTTPException(
+            status_code=400,
+            detail=f"index out of range (have {len(candidates)} candidates)"
+        )
+    source_url = candidates[index]
+    if not source_url:
+        raise HTTPException(status_code=404, detail="No candidate URL at that index")
+
+    try:
+        if "imgen.x.ai" in source_url or "x.ai" in source_url:
+            image_bytes = _bpg_fetch_xai_image(source_url)
+        else:
+            import urllib.request
+            with urllib.request.urlopen(source_url, timeout=60) as resp:
+                image_bytes = resp.read()
+    except Exception as exc:
+        logger.exception(
+            f"BPG candidate proxy: fetch failed for gen {generation_id} "
+            f"candidate {index}: {exc}"
+        )
+        if "imgen.x.ai" in source_url:
+            raise HTTPException(
+                status_code=410,
+                detail="Original image expired. Please regenerate this poster.",
+            )
+        raise HTTPException(status_code=502, detail="Could not fetch poster image")
+
+    return Response(
+        content=image_bytes,
+        media_type="image/jpeg",
+        headers={
+            "Content-Disposition": "inline",
+            "Cache-Control": "private, max-age=82800",  # 23h
+        },
+    )
 
 
 # Helper used by both /choose (R2 archival) and /download (live proxy).
