@@ -264,6 +264,70 @@ def member_composition(db):
           )
     """)).scalar() or 0
 
+    # ── Diagnostic: membership_expires_at distribution for active accounts ──
+    # This tells us when each cohort's current paid/comped period actually
+    # ends — critical for the migration because we need to honour existing
+    # paid periods before applying the new $15/mo rate.
+    expiry_distribution_rows = db.execute(text("""
+        SELECT
+          CASE
+            WHEN membership_expires_at IS NULL THEN 'no_expiry_set'
+            WHEN membership_expires_at < NOW() THEN 'already_expired'
+            WHEN membership_expires_at < NOW() + INTERVAL '32 days' THEN 'expires_within_month'
+            WHEN membership_expires_at < NOW() + INTERVAL '95 days' THEN 'expires_1_to_3_months'
+            WHEN membership_expires_at < NOW() + INTERVAL '370 days' THEN 'expires_3_to_12_months'
+            WHEN membership_expires_at < NOW() + INTERVAL '1100 days' THEN 'expires_1_to_3_years'
+            ELSE 'expires_far_future'
+          END AS bucket,
+          COUNT(*) AS cnt
+        FROM users
+        WHERE is_active = TRUE
+        GROUP BY bucket
+    """)).fetchall()
+    expiry_distribution = {row.bucket: row.cnt for row in expiry_distribution_rows}
+    for key in ('no_expiry_set', 'already_expired', 'expires_within_month',
+                'expires_1_to_3_months', 'expires_3_to_12_months',
+                'expires_1_to_3_years', 'expires_far_future'):
+        expiry_distribution.setdefault(key, 0)
+
+    # Cross-classify expiry with paid-vs-comped so we can see EXACTLY when
+    # each cohort's price flips to $15/mo:
+    #   - paid members: at their next renewal date
+    #   - comped members: at their expiry date (or never if no_expiry_set)
+    expiry_by_paid_status = {}
+    for paid_status in ('paid', 'comped'):
+        paid_filter = "EXISTS" if paid_status == 'paid' else "NOT EXISTS"
+        rows = db.execute(text(f"""
+            SELECT
+              CASE
+                WHEN u.membership_expires_at IS NULL THEN 'no_expiry_set'
+                WHEN u.membership_expires_at < NOW() THEN 'already_expired'
+                WHEN u.membership_expires_at < NOW() + INTERVAL '32 days' THEN 'expires_within_month'
+                WHEN u.membership_expires_at < NOW() + INTERVAL '95 days' THEN 'expires_1_to_3_months'
+                WHEN u.membership_expires_at < NOW() + INTERVAL '370 days' THEN 'expires_3_to_12_months'
+                WHEN u.membership_expires_at < NOW() + INTERVAL '1100 days' THEN 'expires_1_to_3_years'
+                ELSE 'expires_far_future'
+              END AS bucket,
+              COUNT(*) AS cnt
+            FROM users u
+            WHERE u.is_active = TRUE
+              AND {paid_filter} (
+                SELECT 1 FROM payments p
+                WHERE p.from_user_id = u.id
+                  AND p.status IN ('paid', 'confirmed', 'finished', 'completed')
+                UNION
+                SELECT 1 FROM nowpayments_orders npo
+                WHERE npo.user_id = u.id
+                  AND (npo.status = 'finished' OR npo.confirmed_at IS NOT NULL)
+                UNION
+                SELECT 1 FROM walletconnect_payment_orders wco
+                WHERE wco.user_id = u.id
+                  AND wco.status = 'confirmed'
+              )
+            GROUP BY bucket
+        """)).fetchall()
+        expiry_by_paid_status[paid_status] = {row.bucket: row.cnt for row in rows}
+
     # Bottom-line classification (mutually exclusive):
     # - genuine_paying_customers: has real payment evidence (regardless of
     #   whether their first month was a gift — they paid subsequently)
@@ -290,6 +354,8 @@ def member_composition(db):
         "annual_expiring_next_90d": expiring_90d,
         "earliest_active_activation": earliest_active,
         "latest_active_activation": latest_active,
+        "expiry_distribution_active": expiry_distribution,
+        "expiry_by_paid_status": expiry_by_paid_status,
         "paid_classification": {
             "paid_real_money": paid_real_money_count,
             "paid_for_membership_specifically": paid_for_membership_count,
