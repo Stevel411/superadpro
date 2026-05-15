@@ -49,7 +49,26 @@ engine = create_engine(
     # request — better to fail fast at 10s and let Railway's load
     # balancer route to the other replica.
     pool_timeout=10,
-    connect_args={"connect_timeout": 5},
+    # Connection-level defensive timeouts (added 15 May 2026 after a
+    # launch-night outage where a stuck database lock from a previous
+    # container instance hung the entire app boot — every ALTER TABLE
+    # in the import-time migration blocks waited forever for the lock).
+    #
+    # options sets Postgres session parameters that take effect on every
+    # connection from this pool. lock_timeout=5s makes any statement that
+    # can't acquire its lock in 5 seconds raise QueryCanceledError, which
+    # the surrounding try/except in each migration block catches and
+    # logs. The migration is idempotent so a missed run is harmless —
+    # next deploy when the lock is free picks it up.
+    #
+    # statement_timeout=60s is a longer fallback for non-lock-related
+    # hangs (e.g. accidentally writing a query that scans an enormous
+    # table at startup). Long enough that legitimate migrations complete,
+    # short enough that we never hang a deploy for more than a minute.
+    connect_args={
+        "connect_timeout": 5,
+        "options": "-c lock_timeout=5000 -c statement_timeout=60000",
+    },
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
