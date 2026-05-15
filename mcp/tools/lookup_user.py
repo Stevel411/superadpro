@@ -49,7 +49,7 @@ def lookup_user(db, identifier: str = ""):
             SELECT id, username, email, is_active, is_admin, membership_tier,
                    is_founding_member, founding_spot_number, membership_price_locked,
                    balance, sponsor_id, activated_at, membership_expires_at,
-                   created_at, last_login_at
+                   created_at
             FROM users WHERE id = :id
         """), {"id": int(ident)}).fetchone()
     if not user_row:
@@ -57,7 +57,7 @@ def lookup_user(db, identifier: str = ""):
             SELECT id, username, email, is_active, is_admin, membership_tier,
                    is_founding_member, founding_spot_number, membership_price_locked,
                    balance, sponsor_id, activated_at, membership_expires_at,
-                   created_at, last_login_at
+                   created_at
             FROM users WHERE LOWER(username) = LOWER(:u)
         """), {"u": ident}).fetchone()
 
@@ -123,7 +123,6 @@ def lookup_user(db, identifier: str = ""):
             "activated_at": user_row.activated_at.isoformat() if user_row.activated_at else None,
             "membership_expires_at": user_row.membership_expires_at.isoformat() if user_row.membership_expires_at else None,
             "created_at": user_row.created_at.isoformat() if user_row.created_at else None,
-            "last_login_at": user_row.last_login_at.isoformat() if user_row.last_login_at else None,
         },
         "sponsor": sponsor,
         "recent_walletconnect_orders": [
