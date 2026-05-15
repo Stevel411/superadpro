@@ -130,6 +130,63 @@ def member_composition(db):
     earliest_active = earliest_row.earliest.isoformat() if earliest_row and earliest_row.earliest else None
     latest_active = earliest_row.latest.isoformat() if earliest_row and earliest_row.latest else None
 
+    # ── Edge-case user IDs needing review ──
+    # We surface user IDs (no PII otherwise) for migration edge cases so admin
+    # can investigate before the migration runs. Each subset is a state that
+    # the migration must handle specially.
+    paid_no_expiry_users = db.execute(text("""
+        SELECT u.id, u.username, u.activated_at::text AS activated_at,
+               u.membership_tier, u.is_admin
+        FROM users u
+        WHERE u.is_active = TRUE
+          AND u.membership_expires_at IS NULL
+          AND (
+            EXISTS (
+              SELECT 1 FROM payments p
+              WHERE p.from_user_id = u.id
+                AND p.status IN ('paid', 'confirmed', 'finished', 'completed')
+            )
+            OR EXISTS (
+              SELECT 1 FROM nowpayments_orders npo
+              WHERE npo.user_id = u.id
+                AND (npo.status = 'finished' OR npo.confirmed_at IS NOT NULL)
+            )
+            OR EXISTS (
+              SELECT 1 FROM walletconnect_payment_orders wco
+              WHERE wco.user_id = u.id
+                AND wco.status = 'confirmed'
+            )
+          )
+    """)).fetchall()
+    paid_no_expiry = [
+        {
+            "user_id": r.id,
+            "username": r.username,
+            "activated_at": r.activated_at,
+            "membership_tier": r.membership_tier,
+            "is_admin": r.is_admin,
+        }
+        for r in paid_no_expiry_users
+    ]
+
+    # Far-future expiry users (Steve's perma-comped admin/founder account fits here)
+    far_future_users = db.execute(text("""
+        SELECT u.id, u.username, u.is_admin,
+               u.membership_expires_at::text AS expires_at
+        FROM users u
+        WHERE u.is_active = TRUE
+          AND u.membership_expires_at > NOW() + INTERVAL '1100 days'
+    """)).fetchall()
+    far_future_active = [
+        {
+            "user_id": r.id,
+            "username": r.username,
+            "is_admin": r.is_admin,
+            "expires_at": r.expires_at,
+        }
+        for r in far_future_users
+    ]
+
     # ═══════════════════════════════════════════════════════════════════════
     # PAID-VS-COMPED CLASSIFICATION
     # ─────────────────────────────────────────────────────────────────────
@@ -354,6 +411,10 @@ def member_composition(db):
         "annual_expiring_next_90d": expiring_90d,
         "earliest_active_activation": earliest_active,
         "latest_active_activation": latest_active,
+        "edge_cases_for_review": {
+            "paid_with_no_expiry_set": paid_no_expiry,
+            "far_future_expiry_active": far_future_active,
+        },
         "expiry_distribution_active": expiry_distribution,
         "expiry_by_paid_status": expiry_by_paid_status,
         "paid_classification": {
