@@ -73,6 +73,24 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+# ── Migration kill-switch (added 15 May 2026 launch-night) ─────────
+# When SKIP_MIGRATIONS=true is set in environment, all module-level
+# migration blocks below are bypassed. The app boots without running
+# any ALTER TABLE / CREATE INDEX / seed logic.
+#
+# When to use: deploy is stuck in a crash loop because two container
+# instances are running migrations simultaneously and deadlocking on
+# the users table. Set the flag, deploy, app boots clean, then unset
+# the flag for the next deploy when there's no contention.
+#
+# Safe because: migrations are idempotent. The schema only needs to
+# be initialised ONCE; on subsequent boots the ALTER TABLE...IF NOT
+# EXISTS statements are no-ops anyway. Skipping them on a single
+# boot where the schema is already correct is harmless.
+SKIP_MIGRATIONS = os.getenv("SKIP_MIGRATIONS", "").lower() in ("true", "1", "yes")
+if SKIP_MIGRATIONS:
+    print("⚠️ SKIP_MIGRATIONS=true — bypassing all module-level migration blocks")
+
 # ── Grid constants ────────────────────────────────────────────
 GRID_WIDTH    = 8      # positions per level
 GRID_LEVELS   = 8      # levels deep
@@ -1517,6 +1535,7 @@ class NowPaymentsOrder(Base):
 
 
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     Base.metadata.create_all(bind=engine)
 except Exception as e:
     print(f"⚠️ create_all skipped: {e}")
@@ -2002,12 +2021,14 @@ def run_migrations():
     return results
 
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     run_migrations()
 except Exception as e:
     print(f"⚠️ run_migrations skipped: {e}")
 
 # Force critical column additions with direct connection
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         # Same defensive timeouts as run_migrations above.
         try:
@@ -2471,6 +2492,7 @@ except Exception as e:
 # rolled back, leaving the SQLAlchemy model out of sync with the live schema and
 # breaking the entire app (every User query 500s with UndefinedColumn).
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS activated_at TIMESTAMP"))
         conn.execute(text("UPDATE users SET activated_at = COALESCE(membership_expires_at - INTERVAL '31 days', created_at) WHERE is_active = TRUE AND activated_at IS NULL"))
@@ -2482,6 +2504,7 @@ except Exception as e:
 
 # ── stuck_lapsed_alerted_at migration (isolated, same reason as activated_at above) ──
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS stuck_lapsed_alerted_at TIMESTAMP"))
         conn.commit()
@@ -2495,6 +2518,7 @@ except Exception as e:
 # columns let us audit which orders were auto-recovered and how short
 # they were so we can tune the tolerance threshold over time.
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         conn.execute(text("ALTER TABLE nowpayments_orders ADD COLUMN IF NOT EXISTS partial_recovery_logged BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE nowpayments_orders ADD COLUMN IF NOT EXISTS partial_recovery_shortfall_usd NUMERIC(18,6)"))
@@ -2522,6 +2546,7 @@ except Exception as e:
 # Idempotent: only sets the date if currently NULL. Safe to run on every
 # startup; once fixed, the WHERE clause matches zero rows.
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         conn.execute(text("""
             UPDATE users
@@ -2569,6 +2594,7 @@ except Exception as e:
 # becomes founding spot #1 by virtue of being earliest activated_at. Honoured
 # as perma-comped admin account; renewal cron never fires for far-future expiry.
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         # ── Defensive timeouts (added 15 May 2026 after launch-night outage) ──
         # If another connection holds a lock on the users table (idle
@@ -2652,6 +2678,7 @@ except Exception as e:
 # Idempotent: WHERE membership_tier != 'founding' means once everyone is
 # correctly tagged, the UPDATE matches zero rows.
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         # Same defensive timeouts as the flat-pricing migration above —
         # see comments there for rationale.
@@ -2684,6 +2711,7 @@ except Exception as e:
 # This block uses CREATE TABLE IF NOT EXISTS so it's idempotent and
 # safe to run on every startup. Mirrors the SQLAlchemy schema 1:1.
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         # poster_templates — the master catalogue (6 templates seeded
         # from app/poster_templates.py at first endpoint hit)
@@ -2768,6 +2796,7 @@ except Exception as e:
 
 # ── Rename supercut -> superscene tables (one-time migration) ──
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         # Rename tables if old names exist
         for old, new in [("supercut_credits", "superscene_credits"), ("supercut_videos", "superscene_videos"), ("supercut_orders", "superscene_orders")]:
@@ -2788,6 +2817,7 @@ except Exception as e:
 
 # ── SuperScene tables (own block so earlier failures don't skip these) ──
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS superscene_credits (
@@ -2933,6 +2963,7 @@ except Exception as e:
 
 # ── Gift Vouchers (Pay It Forward) ──
 try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     with engine.connect() as conn:
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS gift_vouchers (
