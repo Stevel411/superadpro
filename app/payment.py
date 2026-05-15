@@ -52,24 +52,34 @@ USDT_ABI = [
 
 MEMBERSHIP_FEE = 20.0
 MEMBERSHIP_SPONSOR_SHARE = 10.0   # 50% to sponsor
-MEMBERSHIP_COMPANY_SHARE = 10.0   # 50% to company treasury
+MEMBERSHIP_COMPANY_SHARE = 10.0   # 50% to company treasury at $20, 33% at $15
 
-# Annual pricing (17% discount vs monthly)
+# Annual pricing — flat partner model 15 May 2026.
+# Standard partner $200/yr. Founding partner $150/yr (10× monthly locked rate).
+# Sponsor commission: flat $100 on annual (10× the monthly $10) regardless
+# of buyer's price. Legacy 'basic'/'pro' keys retained but resolve identically
+# to standard partner — there is no longer a Pro tier to charge differently for.
 ANNUAL_PRICES = {
-    "basic": 200.0,   # vs $240/year monthly ($20 × 12)
-    "pro":   350.0,   # vs $420/year monthly ($35 × 12)
+    "partner": 200.0,
+    "basic":   200.0,  # legacy alias
+    "pro":     200.0,  # legacy alias (no longer $350)
 }
 ANNUAL_SPONSOR_SHARE = {
-    "basic": 100.0,   # 50% of $200
-    "pro":   175.0,   # 50% of $350
+    "partner": 100.0,
+    "basic":   100.0,
+    "pro":     100.0,  # flat — no longer tier-based
 }
 ANNUAL_COMPANY_SHARE = {
-    "basic": 100.0,   # 50% of $200
-    "pro":   175.0,   # 50% of $350
+    "partner": 100.0,
+    "basic":   100.0,
+    "pro":     100.0,
 }
-PRO_MONTHLY_FEE = 35.0
-PRO_SPONSOR_SHARE = 17.50
-PRO_COMPANY_SHARE = 17.50
+# Legacy constants — retained as imports for callers that haven't migrated
+# but now reflect flat partner economics. PRO_MONTHLY_FEE is the same as
+# standard partner; PRO_SPONSOR_SHARE/COMPANY_SHARE are flat $10 each.
+PRO_MONTHLY_FEE = 20.0      # was 35.0 pre-flat-pricing
+PRO_SPONSOR_SHARE = 10.00   # was 17.50
+PRO_COMPANY_SHARE = 10.00   # was 17.50
 
 
 def get_usdt_contract():
