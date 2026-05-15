@@ -1092,47 +1092,46 @@ export default function Dashboard() {
       {/* New member toast notifications */}
       {toasts.length > 0 && <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420, transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)', willChange: 'transform' }}>
         {toasts.map(function(toast) {
-          var isPro = toast.tier === 'pro';
-          var commission = isPro ? '$17.50' : '$10.00';
-          var bg = isPro
+          // ── Tier-aware toast styling (Sprint 2c follow-up, 15 May 2026) ──
+          // Under the flat-pricing model toasts have two visual variants:
+          //   - Founding (gold): toast.tier === 'founding' OR toast.is_founding_member
+          //   - Partner (silver): everyone else (includes legacy 'basic'/'pro'
+          //     users mapped server-side to 'partner').
+          // Sponsor commission is flat $10/mo regardless of variant.
+          var isFounding = toast.tier === 'founding' || toast.is_founding_member === true;
+          var commission = '$10.00';
+          var bg = isFounding
             ? 'linear-gradient(135deg, #b8860b, #daa520 30%, #ffd700 50%, #daa520 70%, #b8860b)'
             : 'linear-gradient(135deg, #8e9aaf, #b8c4d4 30%, #d4dce8 50%, #b8c4d4 70%, #8e9aaf)';
-          var borderColor = isPro ? 'rgba(255,235,150,.3)' : 'rgba(220,230,240,.4)';
-          var glowColor = isPro ? 'rgba(255,215,0,.2)' : 'rgba(180,195,215,.15)';
-          var iconBg = isPro ? 'rgba(23,37,84,.3)' : 'rgba(23,37,84,.15)';
-          var iconBorder = isPro ? 'rgba(23,37,84,.2)' : 'rgba(23,37,84,.1)';
-          var subColor = isPro ? 'rgba(15,29,58,.65)' : 'rgba(15,29,58,.6)';
-          var badgeBg = isPro ? 'rgba(15,29,58,.15)' : 'rgba(15,29,58,.1)';
-          var badgeBorder = isPro ? 'rgba(15,29,58,.12)' : 'rgba(15,29,58,.08)';
-          var closeBg = isPro ? 'rgba(15,29,58,.1)' : 'rgba(15,29,58,.06)';
+          var borderColor = isFounding ? 'rgba(255,235,150,.3)' : 'rgba(220,230,240,.4)';
+          var glowColor = isFounding ? 'rgba(255,215,0,.2)' : 'rgba(180,195,215,.15)';
+          var iconBg = isFounding ? 'rgba(23,37,84,.3)' : 'rgba(23,37,84,.15)';
+          var iconBorder = isFounding ? 'rgba(23,37,84,.2)' : 'rgba(23,37,84,.1)';
+          var subColor = isFounding ? 'rgba(15,29,58,.65)' : 'rgba(15,29,58,.6)';
+          var badgeBg = isFounding ? 'rgba(15,29,58,.15)' : 'rgba(15,29,58,.1)';
+          var badgeBorder = isFounding ? 'rgba(15,29,58,.12)' : 'rgba(15,29,58,.08)';
+          var closeBg = isFounding ? 'rgba(15,29,58,.1)' : 'rgba(15,29,58,.06)';
 
           return <div key={toast.key} style={{
             background: bg, borderRadius: 14, padding: '18px 20px',
             boxShadow: '0 12px 40px rgba(0,0,0,.5), 0 2px 16px ' + glowColor,
             border: '1px solid ' + borderColor,
             animation: 'toastSlideIn .4s ease-out', display: 'flex', alignItems: 'flex-start', gap: 14,
-            // minWidth 380 is what we want on desktop, but on a 360px
-            // phone this caused the toast to extend off the right edge
-            // (toast container is `position:fixed; right:24` so a 380px
-            // child clips badly). Capping to min(380, viewport - margins)
-            // keeps the desktop look intact while letting the toast shrink
-            // to fit phones. The container's maxWidth: 420 elsewhere caps
-            // the upper bound.
             minWidth: 'min(380px, calc(100vw - 48px))',
           }}>
             <div style={{ width: 48, height: 48, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid ' + iconBorder }}>
               <span style={{ fontSize: 24 }}>🎉</span>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: 'var(--sap-cobalt-deep)', marginBottom: 4, letterSpacing: '.3px' }}>{isPro ? t('dashboard.newProMember') : t('dashboard.newTeamMember')}</div>
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: 'var(--sap-cobalt-deep)', marginBottom: 4, letterSpacing: '.3px' }}>{isFounding ? t('dashboard.newFoundingMember', { defaultValue: 'New Founding Partner!' }) : t('dashboard.newTeamMember', { defaultValue: 'New Team Member!' })}</div>
               <div style={{ fontSize: 13, color: 'var(--sap-cobalt-deep)', lineHeight: 1.5 }}>
-                <strong style={{ color: 'var(--sap-cobalt-deep)' }}>{toast.first_name} {toast.last_name}</strong> {t('dashboard.justJoinedYourTeam')}
+                <strong style={{ color: 'var(--sap-cobalt-deep)' }}>{toast.first_name} {toast.last_name}</strong> {t('dashboard.justJoinedYourTeam', { defaultValue: 'just joined your team' })}
               </div>
               <div style={{ fontSize: 12, color: subColor, marginTop: 3 }}>
-                {t('dashboard.youllEarn')} <strong style={{ color: 'var(--sap-cobalt-deep)' }}>{commission}{t('dashboard.perMonth')}</strong>
+                {t('dashboard.youllEarn', { defaultValue: "You'll earn" })} <strong style={{ color: 'var(--sap-cobalt-deep)' }}>{commission}{t('dashboard.perMonth', { defaultValue: '/month from this referral' })}</strong>
               </div>
               <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: 'var(--sap-cobalt-deep)', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ ' + t('dashboard.proMember') : t('dashboard.basicMember')}</span>
+                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: 'var(--sap-cobalt-deep)', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isFounding ? '★ ' + t('dashboard.foundingPartner', { defaultValue: 'Founder' }) : t('dashboard.partnerMember', { defaultValue: 'Partner' })}</span>
                 <span style={{ fontSize: 13, color: 'rgba(15,29,58,.4)' }}>@{toast.username}</span>
               </div>
             </div>

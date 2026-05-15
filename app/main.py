@@ -4156,14 +4156,31 @@ def api_new_members(request: Request, since: str = None,
 
     members = []
     for m in new_members:
-        tier = (m.membership_tier or 'basic').lower()
-        commission = 17.50 if tier == 'pro' else 10.00
+        # ── Flat-pricing tier mapping (15 May 2026) ──
+        # Under the new model: every paying member is 'partner' tier,
+        # with founding members flagged via is_founding_member=True.
+        # The 'basic'/'pro' legacy values still exist on some users
+        # (rare — pre-migration accounts that didn't get re-tagged) and
+        # are mapped to 'partner' for display.
+        # Commission is a flat $10/mo regardless of tier (legacy spec
+        # had $17.50 for Pro / $10 for Basic; flat-pricing simplified).
+        raw_tier = (m.membership_tier or '').lower()
+        is_founder = bool(getattr(m, 'is_founding_member', False))
+        if is_founder:
+            tier = 'founding'
+        elif raw_tier in ('partner', 'basic', 'pro'):
+            tier = 'partner'
+        else:
+            tier = raw_tier or 'partner'
+        commission = 10.00  # flat sponsor commission under new model
         members.append({
             "id": m.id,
             "username": m.username,
             "first_name": m.first_name or m.username,
             "last_name": m.last_name or '',
             "tier": tier,
+            "is_founding_member": is_founder,
+            "founding_spot_number": getattr(m, 'founding_spot_number', None),
             "commission": commission,
             "joined_at": m.activated_at.isoformat() if m.activated_at else None,
         })
