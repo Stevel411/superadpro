@@ -1,12 +1,68 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
-## 🎯 Immediate Next Task
+## 🎯 Immediate Next Task (16 May 2026)
 
-**Command Centre redesign.** Steve wants to revisit the Command Centre concept with fresh thinking about both the dashboard AND the current menu/sidebar structure.
+**Platform launched 15 May 2026 with incident.** Test12 verified working as Founding Partner #18 on real on-chain payment. Platform is up and serving customers, but the launch session exposed real issues that need follow-up.
 
-Earlier mockups exist (`hub-dashboard.html`, `command-centre-desktop.html`, `command-centre-mockup.html`, `recruiting-hq-mockup.html`) — Steve has these files available and may upload them. Don't assume they're still directionally right; let him describe what he wants.
+**Tomorrow's priority list, ordered by impact:**
 
-Handover details at `/mnt/user-data/outputs/handover-command-centre-2026-04-24.md` if it still exists. Otherwise ask Steve to describe his ideas for the dashboard and menu. Four framing questions: (1) what are your ideas? (2) polish, reorganise, or rebuild? (3) who is it for — all members, tier-adaptive, or state-adaptive? (4) reference earlier mockups or start fresh?
+1. **BSC scanner cron not firing on schedule.** Confirmed last night — orphan transfers stopped getting filed for 2+ hours, test12's transfer only matched after manual admin trigger. Daily-briefing cron fires fine, so it's specific to the BSC scan cron. Investigate cron-job.org config, Railway scheduler, or whatever wires `/cron/scan-bsc-payments`. **Until fixed: if a paying signup gets stuck, hit `/admin/api/trigger-bsc-scan?from_block=98475000` from your admin browser to recover them.**
+
+2. **Alchemy RPC rate-limiting on free tier.** ~50% of chunks failed during the manual scan last night. Test12's specific block succeeded by luck. Add a backup RPC endpoint (Ankr, QuickNode, or BSC's public RPC) as fallback, or upgrade Alchemy tier.
+
+3. **`SKIP_MIGRATIONS=true` is still set in Railway env vars** — bypasses migrations on every deploy. Safe for now but needs careful unsetting during a quiet window. The proper fix is to move migrations off import-time (eliminates the two-container contention root cause that caused the launch-night outage).
+
+4. **3 stuck NOWPayments orders** (SAP-151-101, SAP-187-99, SAP-224-98) need marking expired. Pure data hygiene.
+
+5. **Jason's orphan transfer** (orphan id 16, 20.83 USDT from `0xa96be...`) needs marking resolved/refunded.
+
+6. **BPG audit + backfill** — run `/admin/api/bpg/audit-and-backfill` (audit only, GET), then `?backfill=true` for anything still salvageable. Endpoint shipped last night.
+
+7. **Translations** — Sprint 1/2/2c added ~40 new English strings (founding partner copy, badge labels, expired-poster banner) not yet translated into the 19 other languages. Spanish/French/German/etc users see English fallback for those strings.
+
+8. **Audit other places that surface raw xAI URLs to the browser.** Creative Studio gallery, posters history page — same proxy pattern as `/api/posters/generation/{id}/candidate/{idx}/image` needs applying everywhere xAI URLs leak to `<img src>`.
+
+9. **Tier 2 admin MCP tools** to build: `activate_user_manually`, `mark_order_expired`, `reconcile_orphan_transfer`, `grant_founding_spot`. All with dry-run mode + audit log. Removes the need for browser-session admin triggers entirely.
+
+10. **CompensationPlan.jsx, PassupVisualiser.jsx, CompensationHubPage.jsx, IncomeMembershipPage, IncomePage** still show old Basic/Pro commission economics in places. Public templates (membership.html, upgrade.html) still reference $35/Pro. Comp plan PDFs in 20 languages outdated.
+
+11. **Member email broadcast** to 15 grandfathered founders + 108 free members announcing Partner Programme.
+
+12. **Command Centre redesign** (the previous "next task" before the launch). Steve had ideas for dashboard + menu restructure — see earlier mockups (`hub-dashboard.html`, `command-centre-desktop.html`, `command-centre-mockup.html`, `recruiting-hq-mockup.html`). Picks up once the launch-incident follow-ups are clear.
+
+## 🚨 Lessons From the 15 May 2026 Launch Incident — INTERNALISE THESE
+
+The launch session was brutal — original SQL bug, multiple deploy hangs, customer payment misdiagnosis, hours of firefighting. Several specific failure modes recurred. Encode them so future sessions don't repeat them.
+
+### Lesson 1 — Verify before declaring done
+
+**The pattern:** ship a fix, claim "done", move on, only to discover the next morning (or via Steve catching it manually) that the fix didn't actually work because no live verification happened.
+
+**The rule:** After ANY change to a money path (activation, commission, payment, withdrawal, founding spot claim), the next action MUST be a live end-to-end test before declaring done. Not just `python -m compileall`. Not just `npm run build`. An actual real-world flow exercised end-to-end against production or a staging mirror. If that's not possible (no test signup available), say so explicitly and mark the task "shipped but not verified" rather than "complete".
+
+### Lesson 2 — Read the SQL before pushing
+
+**The pattern:** the original founding-spot bug was `SELECT COUNT(*) ... FOR UPDATE` — invalid PostgreSQL (FOR UPDATE forbidden with aggregates). Caught silently by a surrounding try/except. Every paying signup since the deploy got mispriced. Cost: ~24 hours of broken signups + manual customer recovery.
+
+**The rule:** any new raw SQL goes through three checks BEFORE the commit: (a) is this valid PostgreSQL syntax — actually parse it mentally or run it against a dev DB; (b) is the try/except wrapping it going to swallow real errors and let the code fall through to a wrong outcome; (c) if this fails for any reason, what's the user-visible failure mode? Bias toward failing loud (raise) over failing silent (fall-through to wrong default).
+
+### Lesson 3 — Investigate before theorising
+
+**The pattern:** Jason payment incident — I built an elaborate "this is a scam" theory based on confidence rather than data. Steve was about to send rude reply variants accusing a paying customer. The actual answer was visible in the database in one query.
+
+**The rule:** when something doesn't match expectations, the FIRST action is `lookup_user(identifier)` / `lookup_payment_by_txid(tx_hash)` / `list_orphan_transfers()` / `recent_signups()`. Never start with a theory. The MCP diagnostic tools exist specifically for this — use them before forming any narrative. If a theory forms anyway, the next action is data verification, not "let me draft three reply variants".
+
+### Lesson 4 — Migrations don't belong at import-time
+
+**The pattern:** Railway redeploy spawned two backend containers running module-level `run_migrations()` simultaneously. Each tried `ALTER TABLE users ...`, deadlocked, ran 5-second lock_timeout, retried forever. The main app couldn't import. The whole site went down. Recovery required emergency `SKIP_MIGRATIONS=true` kill-switch.
+
+**The rule:** migrations don't belong at import-time. Move them to a one-shot release-phase command (Railway pre-deploy hook or equivalent). Until that's done, `SKIP_MIGRATIONS=true` stays in Railway env vars, and any schema change goes through a deliberate manual migration run rather than relying on auto-application on deploy.
+
+### Lesson 5 — Confident-then-wrong is a real failure mode
+
+**The pattern:** multiple times in one session I made a confident call ("Jason is a scammer", "the order is matched", "test11 paid via WalletConnect"), built reasoning around it, then was wrong. Each one wasted Steve's time and risked a real customer outcome.
+
+**The rule:** when about to make a high-stakes confident claim that drives a customer-facing decision (refund / accuse / activate / refuse), pause. Ask: am I pattern-matching from memory or from data this turn? If memory, query the database or the MCP tool FIRST before stating the conclusion. If still uncertain after data lookup, say "I'm not sure" rather than presenting a guess as conviction.
 
 ## Project Overview
 
@@ -102,6 +158,60 @@ Strong success criteria let the work be checked objectively. Weak criteria ("mak
 
 ### Surface Assumptions Before Coding
 If the request is ambiguous, state the interpretation you're about to run with before you start — don't silently pick one and proceed. If multiple interpretations are viable and the choice materially affects the approach, present them as options. Push back when a simpler approach exists rather than quietly over-engineering. Stop and name confusion rather than flailing through it — asking one clarifying question costs less than rewriting a wrong answer.
+
+## Claude Code Operating Rules — READ BEFORE FIRST ACTION
+
+If this session is running in Claude Code (local shell access on Steve's machine, not a sandboxed chat interface), the rules below apply on top of everything else in this file. Claude Code can `railway logs`, `psql`, `gh`, `git push`, run the dev server, hit production endpoints, modify env vars — vastly more capability than a chat session. That capability is dangerous without the discipline below.
+
+### Production safety
+
+- **Never push to `main` in the same turn the user requested a change.** Always: make the change → run pre-push checks → SHOW Steve the diff and wait for explicit "go" or "push it" before the actual `git push`. The only exception is genuine production emergencies where Steve has said "just fix it" — and even then, announce the push before doing it.
+- **`SKIP_MIGRATIONS=true` is currently set in Railway and must stay set** until migrations are moved off import-time. Don't unset it without an explicit conversation and a maintenance window.
+- **Never run destructive SQL on production** (`DELETE`, `DROP`, `TRUNCATE`, `ALTER TABLE ... DROP COLUMN`, untested `UPDATE` without `WHERE` covering only the intended rows). For data corrections, write the SELECT first, show Steve the rows that would be affected, get confirmation, then UPDATE.
+- **`docs/commission-spec.md` is the locked ground truth for commission rates and tier prices.** Do not write commission code without reading it. The spec wins over the code if they disagree — raise the discrepancy with Steve, don't silently make the code "match memory".
+
+### Verify before declaring done
+
+- For ANY money path change (activation, commission, payment, withdrawal, founding spot, balance credit), the next action after pushing MUST be a live end-to-end test against production. Not just compileall, not just npm build. An actual real flow.
+- If a live test isn't possible right now (no test signup, off-hours), say so explicitly and mark "shipped but not verified" — don't claim "complete".
+- After ANY `frontend/src/*` edit: `cd frontend && npm install --legacy-peer-deps && npm run build` and commit `static/app/`. Railway's nixpacks.toml does NOT run npm. Source-only pushes ship a stale bundle silently.
+- After ANY `app/*.py` edit: `python3 -m compileall -q app/` before push. Verifies imports and syntax. Won't catch runtime bugs but catches the cheap ones.
+- After ANY new raw SQL: read it carefully — does this parse as valid PostgreSQL? Is the try/except going to swallow real errors? What's the user-visible failure if it fails?
+
+### Diagnose with data, not theories
+
+- When something doesn't match expectations, the FIRST action is a database / MCP tool lookup, not a hypothesis. Available diagnostic tools (use them):
+  - `lookup_user(identifier)` — full state of one user
+  - `lookup_payment_by_txid(tx_hash)` — trace TXID through every payment table
+  - `list_orphan_transfers(status)` — unmatched on-chain transfers
+  - `recent_signups(hours)` — recent users + activation state
+  - `lookup_poster_generation(id)` — BPG generation state + URL probe
+  - `platform_pulse` — overall health snapshot
+  - `payment_integrity` — stuck payments, expired-not-cleared orders
+  - `commission_audit` / `commission_anomalies` — commission correctness
+- If you've made a confident wrong call earlier in this conversation, OWN IT. Don't quietly pivot. Say what was wrong and what changed your mind.
+- Never psychoanalyse a paying customer based on circumstantial evidence. The Jason incident on 15 May was a customer paying via NOWPayments who Claude was about to accuse of being a scammer. The actual answer was in one database query.
+
+### Deploy mechanics
+
+- Repo: `Stevel411/superadpro`. Author convention for ALL commits: `Claude (via Steve) <claude@superadpro.dev>`.
+- Token in env (don't echo): use the GitHub token stored in `.env` or shell config. If missing, ask Steve.
+- Railway auto-deploys main. Wait ~2 min per deploy. Check site is back up via `curl https://www.superadpro.com/api/founding-members/status` — JSON response = real app, plain text or hang = still booting / broken.
+- If a deploy hangs (Railway shows healthy primitive responder but real endpoints time out), suspect migration contention. With SKIP_MIGRATIONS=true set this shouldn't happen — if it does, something else is wrong, investigate logs.
+
+### Working pattern with Steve
+
+- Steve works night shifts. Long sessions (5-12 hours). Direct iterative style.
+- Don't ask clarifying questions when the answer is in the codebase / database. Look first, ask only when genuinely needed.
+- Don't expand scope. If Steve asks for X, deliver X. Adjacent improvements that ARE worth doing get raised separately ("I noticed Y while doing X — want me to handle that too?") — never silently included.
+- Match Steve's energy. When he's tired and says "just fix it", focus. When he's exploring ideas, brainstorm.
+- The default mode is senior engineer doing the work, not assistant suggesting steps for Steve to take. Don't say "you could run X command" — run X command yourself.
+
+### When NOT to use Claude Code
+
+- Marketing copy, customer emails, broadcast announcements — those are fine here but bias toward Steve drafting tone himself
+- Strategic decisions (pricing, product direction, comp plan structure) — surface options, Steve picks
+- Anything affecting member balances, founding spots, or commission economics in production — verify with Steve before executing
 
 ## Mandatory Checks Before Every Push
 
