@@ -438,6 +438,33 @@ def member_composition(db):
     # - comped_active_members:   active but no payment evidence
     comped_active_count = active_count - paid_real_money_count
 
+    # ── Diagnostic: any active users NOT flagged as founding members ──
+    # This should be zero after the flat-pricing migration runs.
+    # Surfaces user IDs so we can see exactly who got missed.
+    not_founding_active_users = db.execute(text("""
+        SELECT id, username, is_admin, membership_tier,
+               activated_at::text AS activated_at,
+               is_founding_member,
+               founding_spot_number,
+               membership_price_locked::text AS membership_price_locked
+        FROM users
+        WHERE is_active = TRUE
+          AND (is_founding_member = FALSE OR is_founding_member IS NULL)
+    """)).fetchall()
+    not_founding_diagnostic = [
+        {
+            "user_id": r.id,
+            "username": r.username,
+            "is_admin": r.is_admin,
+            "membership_tier": r.membership_tier,
+            "activated_at": r.activated_at,
+            "is_founding_member": r.is_founding_member,
+            "founding_spot_number": r.founding_spot_number,
+            "membership_price_locked": r.membership_price_locked,
+        }
+        for r in not_founding_active_users
+    ]
+
     # ── Founding spot planning maths ──
     # Updated policy: only members who paid real money get grandfathered.
     FOUNDING_TOTAL = 100
@@ -461,6 +488,7 @@ def member_composition(db):
         "edge_cases_for_review": {
             "paid_with_no_expiry_set": paid_no_expiry,
             "far_future_expiry_active": far_future_active,
+            "active_but_not_founding": not_founding_diagnostic,
         },
         "expiry_distribution_active": expiry_distribution,
         "expiry_by_paid_status": expiry_by_paid_status,
