@@ -441,6 +441,35 @@ def member_composition(db):
     # ── Diagnostic: any active users NOT flagged as founding members ──
     # This should be zero after the flat-pricing migration runs.
     # Surfaces user IDs so we can see exactly who got missed.
+    # ── Diagnostic: every active user's founding status ──
+    # Surfaces full state of all is_active users so we can spot any drift
+    # between is_active, is_founding_member, and membership_tier.
+    all_active_diagnostic_rows = db.execute(text("""
+        SELECT id, username, is_admin, membership_tier,
+               activated_at::text AS activated_at,
+               is_founding_member,
+               founding_spot_number,
+               membership_price_locked::text AS membership_price_locked,
+               membership_expires_at::text AS membership_expires_at
+        FROM users
+        WHERE is_active = TRUE
+        ORDER BY founding_spot_number NULLS LAST, id
+    """)).fetchall()
+    all_active_diagnostic = [
+        {
+            "user_id": r.id,
+            "username": r.username,
+            "is_admin": r.is_admin,
+            "membership_tier": r.membership_tier,
+            "is_founding_member": r.is_founding_member,
+            "founding_spot_number": r.founding_spot_number,
+            "membership_price_locked": r.membership_price_locked,
+            "activated_at": r.activated_at,
+            "membership_expires_at": r.membership_expires_at,
+        }
+        for r in all_active_diagnostic_rows
+    ]
+
     not_founding_active_users = db.execute(text("""
         SELECT id, username, is_admin, membership_tier,
                activated_at::text AS activated_at,
@@ -489,6 +518,7 @@ def member_composition(db):
             "paid_with_no_expiry_set": paid_no_expiry,
             "far_future_expiry_active": far_future_active,
             "active_but_not_founding": not_founding_diagnostic,
+            "all_active_users_state": all_active_diagnostic,
         },
         "expiry_distribution_active": expiry_distribution,
         "expiry_by_paid_status": expiry_by_paid_status,
