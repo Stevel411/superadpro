@@ -160,6 +160,60 @@ export default function LabsPageBuilder() {
           Loads in the cloned Labs editor (chrome shows 🧪 LABS). Same data as your live pages —
           edits here ARE saved. Use a test page until we're confident in Labs.
         </p>
+
+        {/* Browse-templates portfolio CTA — read-only preview of all 6
+            built-in templates. Doesn't touch any data. */}
+        <Link
+          to="/labs/pagebuilder/preview-templates"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            padding: '16px 20px',
+            borderRadius: 12,
+            background: 'linear-gradient(135deg, rgba(14,165,233,0.06), rgba(168,85,247,0.06))',
+            border: '1px solid rgba(14,165,233,0.25)',
+            color: '#0f172a',
+            textDecoration: 'none',
+            marginBottom: 16,
+            transition: 'transform 0.15s, box-shadow 0.15s, border-color 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.borderColor = 'rgba(168,85,247,0.4)';
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(14,165,233,0.15)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = '';
+            e.currentTarget.style.borderColor = 'rgba(14,165,233,0.25)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <div style={{
+            width: 42, height: 42,
+            borderRadius: 10,
+            background: 'linear-gradient(135deg, #0ea5e9, #a855f7)',
+            color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 20,
+            flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(14,165,233,0.3)',
+          }}>✨</div>
+          <div style={{ flex: 1 }}>
+            <div style={{
+              fontFamily: 'Sora, sans-serif',
+              fontSize: 15,
+              fontWeight: 900,
+              letterSpacing: '-0.015em',
+              marginBottom: 2,
+            }}>Browse the template portfolio</div>
+            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>
+              See all 6 built-in templates rendered at full size · Read-only · Doesn't touch live data
+            </div>
+          </div>
+          <ArrowRight size={18} style={{ color: '#0284c7', flexShrink: 0 }}/>
+        </Link>
+
         <div style={{
           background: '#fff', border: '1px solid #e2e8f0',
           borderRadius: 12, padding: pages && pages.length ? 8 : 24, marginBottom: 32,

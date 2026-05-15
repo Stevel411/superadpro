@@ -4795,6 +4795,17 @@ def labs_pagebuilder_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/labs/pagebuilder/preview-templates")
+def labs_pagebuilder_preview_templates(request: Request):
+    """Read-only portfolio view of every built-in Labs template. Renders
+    each template at full size in its own sandboxed iframe so the member
+    can see what each template actually looks like before applying it
+    in the editor. Admin-only via the client-side gate. Doesn't touch
+    the funnels table or any database — purely renders the static
+    template definitions from labsTemplates.js."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/labs/pagebuilder/edit/{page_id}")
 def labs_pagebuilder_editor_page(page_id: int, request: Request):
     """Labs editor for a specific page. Loads the cloned SuperPages editor
