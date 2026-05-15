@@ -223,12 +223,12 @@ export default function IncomePage() {
             ] : null}
             statusLine={!membershipActive ? t('income.stream.membershipDormant', { defaultValue: 'Share your link to activate the easiest stream — paid every month they stay.' }) : null}
             actions={(function() {
-              // Build action list dynamically based on member tier:
-              // - Free member: lead with "Activate membership" CTA so the
-              //   primary action on the page is conversion.
-              // - Basic member: lead with "Upgrade to Pro" so they see the
-              //   path to higher commissions on Pro referrals.
-              // - Pro member: no extra CTA (already on the highest tier).
+              // Build action list dynamically based on activation state:
+              // - Inactive: lead with "Become a Partner" CTA so the primary
+              //   action on the page is conversion.
+              // - Active partner/founder: no extra CTA (already have full
+              //   access; legacy 'Upgrade to Pro' path removed 15 May 2026
+              //   with the flat-pricing migration).
               // Standard navigation actions follow in all cases.
               var standardActions = [
                 { label: t('income.action.myReferrals', { defaultValue: 'My referrals' }), to: '/command-centre' },
@@ -237,16 +237,9 @@ export default function IncomePage() {
               ];
               if (!user) return standardActions;
               if (user.is_admin) return standardActions;
-              var tier = (user.membership_tier || 'basic').toLowerCase();
               if (!user.is_active) {
                 return [
-                  { label: t('income.action.activateMembership', { defaultValue: 'Activate membership' }), to: '/upgrade', primary: true },
-                  ...standardActions,
-                ];
-              }
-              if (tier !== 'pro') {
-                return [
-                  { label: t('income.action.upgradeToPro', { defaultValue: 'Upgrade to Pro' }), to: '/upgrade', primary: true },
+                  { label: t('income.action.becomePartner', { defaultValue: 'Become a Partner' }), to: '/upgrade', primary: true },
                   ...standardActions,
                 ];
               }

@@ -254,21 +254,19 @@ function ProtectedRoute({ children }) {
 // ────────────────────────────────────────────────────────────────────
 // RequireTier — client-side tier gate.
 //
-// Usage: <RequireTier tier="basic"> or <RequireTier tier="pro">
+// Under flat partner pricing (15 May 2026), every paid member has full
+// platform access. Legacy `tier="basic"` and `tier="pro"` checks both
+// collapse to a single check: is the user an active paying partner
+// (any of partner/founding/legacy basic/pro)?
 //
-// - Free members hitting a tier="basic" route → redirect to /pay-membership
-// - Free or Basic members hitting a tier="pro" route → redirect to /upgrade-to-pro
+// - Free members hitting any gated route → redirect to /upgrade (the
+//   activation page; will become the new Partner Payment window in Sprint 2d)
 // - Admin always passes
 //
-// This is the client-side mirror of the server-side TierGateMiddleware
-// (app/tier_gate.py). Both layers must agree on which tier a route needs.
-// The server is the source of truth — this guard exists so members get
-// a clean redirect rather than a 403 after the page loads.
-//
-// Pricing per docs/commission-spec.md:
-//   Basic = $20/mo or $200/yr (sets is_active = true)
-//   Pro   = $35/mo or $350/yr (sets is_active = true AND tier = 'pro')
-// ────────────────────────────────────────────────────────────────────
+// The legacy `tier="pro"` distinction is no longer meaningful but the
+// parameter is kept for backward compatibility with existing call sites.
+// A future cleanup sprint will replace all <RequireTier tier="..."> with
+// a simpler <RequireActive> component.
 function RequireTier({ tier, children }) {
   const { user, loading } = useAuth();
   if (loading) return (
@@ -286,24 +284,12 @@ function RequireTier({ tier, children }) {
   if (user.is_admin) return children;
 
   const isActive = !!user.is_active;
-  const userTier = (user.membership_tier || 'free').toLowerCase();
 
-  // /upgrade is the unified upgrade page — tier-aware (shows Basic
-  // signup for free users, Pro signup for Basic users). The
-  // /pay-membership backend route redirects to /upgrade anyway.
-  if (tier === 'basic') {
-    if (!isActive) return <Navigate to="/upgrade" replace />;
-    return children;
-  }
-  if (tier === 'pro') {
-    if (!isActive) return <Navigate to="/upgrade" replace />;
-    // Pro-locked feature: user is already Basic-active, just deep-link them
-    // straight into the Pro checkout page — they've already implicitly chosen
-    // Pro by clicking a Pro-locked feature in the sidebar/UI.
-    if (userTier !== 'pro') return <Navigate to="/upgrade/checkout?plan=pro" replace />;
-    return children;
-  }
-  // Unknown tier — fail-open to avoid breaking unintended pages
+  // Under flat pricing every is_active member sees every gated feature.
+  // The `tier` parameter is preserved for backward compatibility but no
+  // longer differentiates access. Inactive users redirect to /upgrade
+  // (the activation page), regardless of which tier was originally requested.
+  if (!isActive) return <Navigate to="/upgrade" replace />;
   return children;
 }
 

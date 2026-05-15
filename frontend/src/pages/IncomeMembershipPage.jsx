@@ -97,7 +97,11 @@ export default function IncomeMembershipPage() {
   }
 
   const directCount = data.direct_count || 0;
-  const isBasic = (data.membership_tier || '').toLowerCase() === 'basic';
+  // isBasic is always false under flat partner pricing (15 May 2026) —
+  // legacy 'basic' tier no longer exists. UpgradeToProCard never renders.
+  // The component definition below is kept as dead code; future cleanup
+  // sprint will delete it once we're confident nothing else references it.
+  const isBasic = false;
   // 3-mode threshold logic — single source of truth for the page
   const mode1 = directCount === 0;
   const mode2 = directCount >= 1 && directCount <= 4;

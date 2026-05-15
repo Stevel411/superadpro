@@ -125,7 +125,22 @@ export default function UpgradeCheckout() {
     }
 
     if (plan === 'pro') {
-      // Single endpoint handles all rails for pro upgrade
+      // Deprecated 15 May 2026: flat partner pricing removed tier upgrades.
+      // The /api/upgrade-to-pro endpoint returns 410 Gone. Show a clear
+      // message and direct the user back to the activation/membership flow.
+      // Sprint 2d will replace this entire page with the new Partner Payment
+      // window — until then this short-circuit prevents members from getting
+      // confusing errors if they hit a stale "Upgrade to Pro" link.
+      setLoading(false);
+      setError(t('checkout.proUpgradeDeprecated', {
+        defaultValue: 'Pro tier upgrades no longer exist — every active partner has full platform access. Returning you to the membership page…'
+      }));
+      setTimeout(function() { navigate('/upgrade'); }, 2500);
+      return;
+    }
+    if (false) {
+      // Legacy upgrade-to-pro code — kept as dead code for Sprint 2d to
+      // remove cleanly once the new Partner Payment window ships.
       var paymentMethod = rail === 'crypto' ? 'crypto' : (rail === 'wallet' ? 'wallet' : 'balance');
       apiPost('/api/upgrade-to-pro', { payment_method: paymentMethod, billing: cadence })
         .then(function(d) {

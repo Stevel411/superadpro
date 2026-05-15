@@ -585,8 +585,12 @@ function UsersTab() {
                 {detail.is_active ? '⛔ Deactivate Account' : '✅ Activate Account'}
               </button>
 
-              {/* Change tier */}
-              {!detail.is_admin && (
+              {/* Change tier — DEPRECATED 15 May 2026 under flat partner pricing.
+                  Legacy Basic/Pro toggle no longer applies; every paying member
+                  is a Partner. Button hidden but underlying admin endpoint
+                  /admin/api/user/{id}/change-tier still works if needed for
+                  data fixes during the transition period. */}
+              {false && !detail.is_admin && (
                 <button onClick={function() {
                   var newTier = (detail.membership_tier || 'basic') === 'pro' ? 'basic' : 'pro';
                   if (!window.confirm('Change ' + detail.username + ' to ' + newTier.toUpperCase() + '?')) return;
