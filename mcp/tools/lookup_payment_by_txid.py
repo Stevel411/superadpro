@@ -79,7 +79,8 @@ def lookup_payment_by_txid(db, tx_hash: str = ""):
     try:
         orph = db.execute(text("""
             SELECT id, from_address, amount_usdt, block_number,
-                   detected_at, status, resolved_at, resolved_to_user_id, notes
+                   likely_rounded_amount, seen_at, resolved,
+                   resolution_note, resolved_at, resolved_by_user_id
             FROM onchain_orphan_transfers
             WHERE LOWER(tx_hash) = :h
             LIMIT 5
@@ -92,11 +93,12 @@ def lookup_payment_by_txid(db, tx_hash: str = ""):
                     "from_address": r.from_address,
                     "amount_usdt": float(r.amount_usdt or 0),
                     "block_number": r.block_number,
-                    "detected_at": r.detected_at.isoformat() if r.detected_at else None,
-                    "status": r.status,
+                    "likely_rounded_amount": bool(r.likely_rounded_amount),
+                    "seen_at": r.seen_at.isoformat() if r.seen_at else None,
+                    "resolved": bool(r.resolved),
+                    "resolution_note": r.resolution_note,
                     "resolved_at": r.resolved_at.isoformat() if r.resolved_at else None,
-                    "resolved_to_user_id": r.resolved_to_user_id,
-                    "notes": r.notes,
+                    "resolved_by_user_id": r.resolved_by_user_id,
                 }
                 for r in orph
             ]

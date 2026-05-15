@@ -6,10 +6,8 @@ WalletConnectPaymentOrder (usually because the order expired before
 the on-chain tx confirmed), it gets filed as an orphan. These are
 recoverable but need manual reconciliation.
 
-Built 15 May 2026 after Jason's stuck-payment incident where the only
-way to see orphan state was screenshots of /admin/orphans.
+Built 15 May 2026 after Jason's stuck-payment incident.
 """
-from datetime import datetime, timezone
 from sqlalchemy import text
 from .registry import register_tool
 
@@ -20,9 +18,8 @@ from .registry import register_tool
         "List recent OnchainOrphanTransfer rows — USDT transfers that arrived at "
         "the treasury but couldn't be auto-matched to a pending order. Usually "
         "happens when a member's order expired (15-min window) before the on-chain "
-        "transaction confirmed. Funds are safe but need manual reconciliation. "
-        "Returns from-address, amount, tx_hash, and timestamps so admin can "
-        "identify which user the orphan belongs to."
+        "transaction confirmed, or they sent a rounded amount. Funds are safe but "
+        "need manual reconciliation. Returns from-address, amount, tx_hash."
     ),
     category="diagnostic",
     input_schema={
@@ -35,34 +32,34 @@ from .registry import register_tool
             },
             "status": {
                 "type": "string",
-                "description": "Filter by orphan status: 'pending' (default), 'resolved', 'all'",
-                "default": "pending",
+                "description": "Filter: 'unresolved' (default), 'resolved', 'all'",
+                "default": "unresolved",
             },
         },
     },
 )
-def list_orphan_transfers(db, limit: int = 20, status: str = "pending"):
+def list_orphan_transfers(db, limit: int = 20, status: str = "unresolved"):
     limit = max(1, min(int(limit), 100))
     where = ""
-    params = {"lim": limit}
-    if status == "pending":
-        where = "WHERE status = 'pending' OR status IS NULL"
+    if status == "unresolved":
+        where = "WHERE resolved = FALSE"
     elif status == "resolved":
-        where = "WHERE status = 'resolved'"
+        where = "WHERE resolved = TRUE"
     elif status != "all":
-        return {"error": "status must be one of: pending, resolved, all"}
+        return {"error": "status must be one of: unresolved, resolved, all"}
 
     try:
         rows = db.execute(text(f"""
             SELECT id, tx_hash, from_address, amount_usdt, block_number,
-                   detected_at, status, resolved_at, resolved_to_user_id, notes
+                   likely_rounded_amount, seen_at, resolved,
+                   resolution_note, resolved_at, resolved_by_user_id
             FROM onchain_orphan_transfers
             {where}
-            ORDER BY detected_at DESC
+            ORDER BY seen_at DESC
             LIMIT :lim
-        """), params).fetchall()
+        """), {"lim": limit}).fetchall()
     except Exception as e:
-        return {"error": f"Query failed (table may not exist): {e}", "orphans": []}
+        return {"error": f"Query failed: {e}", "orphans": []}
 
     return {
         "count": len(rows),
@@ -74,11 +71,12 @@ def list_orphan_transfers(db, limit: int = 20, status: str = "pending"):
                 "from_address": r.from_address,
                 "amount_usdt": float(r.amount_usdt or 0),
                 "block_number": r.block_number,
-                "detected_at": r.detected_at.isoformat() if r.detected_at else None,
-                "status": r.status,
+                "likely_rounded_amount": bool(r.likely_rounded_amount),
+                "seen_at": r.seen_at.isoformat() if r.seen_at else None,
+                "resolved": bool(r.resolved),
+                "resolution_note": r.resolution_note,
                 "resolved_at": r.resolved_at.isoformat() if r.resolved_at else None,
-                "resolved_to_user_id": r.resolved_to_user_id,
-                "notes": r.notes,
+                "resolved_by_user_id": r.resolved_by_user_id,
             }
             for r in rows
         ],
