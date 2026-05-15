@@ -190,6 +190,22 @@ def member_composition(db):
                 "price_usd": p.base_amount,
                 "confirmed_at": p.confirmed_at,
             })
+        p_rows = db.execute(text("""
+            SELECT amount_usdt::text AS amount, payment_type, tx_hash, status, created_at::text AS created_at
+            FROM payments
+            WHERE from_user_id = :uid
+              AND status IN ('paid', 'confirmed', 'finished', 'completed')
+            ORDER BY created_at DESC LIMIT 3
+        """), {"uid": r.id}).fetchall()
+        for p in p_rows:
+            payment_records.append({
+                "rail": "payments_table",
+                "payment_type": p.payment_type,
+                "amount_usdt": p.amount,
+                "tx_hash": p.tx_hash,
+                "status": p.status,
+                "created_at": p.created_at,
+            })
         paid_no_expiry.append({
             "user_id": r.id,
             "username": r.username,
