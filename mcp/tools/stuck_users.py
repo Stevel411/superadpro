@@ -22,10 +22,15 @@ from .registry import register_tool
 def stuck_users(db):
     now = datetime.now(timezone.utc)
 
-    # Stuck crypto payments (>30 min pending, not yet expired)
+    # Stuck WalletConnect/BSC payments (>30 min pending, not yet expired).
+    # Fixed 15 May 2026: previously queried legacy crypto_payment_orders
+    # (Polygon table), which is empty now. Current rail is
+    # walletconnect_payment_orders. Discovered during the Jason/SAP-264-104
+    # incident when this tool returned 0 stuck users despite a real
+    # stuck-payment situation.
     stuck_crypto = db.execute(text("""
         SELECT user_id, COUNT(*) as count, MIN(created_at) as oldest
-        FROM crypto_payment_orders
+        FROM walletconnect_payment_orders
         WHERE status = 'pending'
           AND created_at < :threshold
           AND expires_at > NOW()

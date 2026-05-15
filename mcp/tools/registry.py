@@ -45,3 +45,11 @@ from . import stuck_users               # noqa: F401
 from . import payment_integrity         # noqa: F401
 from . import financial_sanity          # noqa: F401
 from . import member_composition        # noqa: F401
+# ── Tier 1 diagnostic tools (15 May 2026) ──
+# Per-user / per-payment lookups. Built after the launch-day SQL bug
+# incident where Claude had no way to investigate Jason (user 264)
+# without screenshot-shovelling from Steve.
+from . import lookup_user               # noqa: F401
+from . import lookup_payment_by_txid    # noqa: F401
+from . import recent_signups            # noqa: F401
+from . import list_orphan_transfers     # noqa: F401
