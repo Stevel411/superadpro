@@ -9,6 +9,7 @@ import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Z
 import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
 import DashboardHeroCarousel from '../components/DashboardHeroCarousel';
+import FoundingPartnerBanner from '../components/FoundingPartnerBanner';
 
 // ── Dashboard data cache — survives navigation, clears on full page reload ──
 var _dashCache = { data: null, ts: 0 };
@@ -280,6 +281,13 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* ── Founding Partner banner (added 15 May 2026 with flat-pricing migration) ──
+          Shown only to free users. Polls /api/founding-members/status every
+          60s. Hides itself when spots fill (is_open=false) or when dismissed
+          for the session. Component handles all its own conditional rendering;
+          we mount unconditionally and let it decide whether to draw. */}
+      <FoundingPartnerBanner user={user} />
 
       {/* Hero carousel — rotating display of platform products & income streams.
           60-second rotation between Credit Nexus, Brand Poster Generator, Pay
