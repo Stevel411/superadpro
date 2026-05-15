@@ -5,25 +5,26 @@ Built specifically to plan the flat-pricing migration (15 May 2026): we need to
 know exactly how many members fall into each tier × billing bucket before
 deciding who gets grandfathered as a founding member at $15/mo lifetime.
 
-Use cases:
-  - "How many founding spots will be left after we grandfather existing actives?"
-  - "How many annual subscribers will roll onto $15/mo when their term expires?"
-  - "What's the earliest activation date — i.e. who gets founding spot #1?"
-  - Post-migration sanity check: "Did the right number of users get grandfathered?"
+ALSO classifies active members by whether they paid REAL MONEY or were
+manually activated by admin / activated via referral gift. The grandfathering
+rule should reward actual paying customers, not comped accounts.
+
+Classification rules (per active user):
+  - "paid_real_money" if ANY of:
+      * Has at least one confirmed payments row (status in paid/confirmed/finished)
+      * Has at least one nowpayments_orders row with status='finished' or confirmed_at
+      * Has at least one walletconnect_payment_orders row with status='confirmed'
+      * Has membership_renewals with renewal_source IN ('wallet', 'auto_renew_from_balance')
+        AND total_renewals > 0 (they actually renewed from real money)
+  - "manual_activation" if active but no payment record found and:
+      * membership_renewals.renewal_source = 'manual', OR
+      * No membership_renewals row at all (admin-flipped is_active directly)
+  - "referral_gift_only" if active and:
+      * membership_activated_by_referral = TRUE
+      * AND no other payment evidence (gift was their only "payment")
 
 Returns aggregates only — no user IDs, no PII. The earliest/latest dates are
 ISO timestamps without identifying which user they belong to.
-
-Returns:
-  by_tier:                   counts grouped by membership_tier
-  by_billing:                counts grouped by membership_billing (active users only)
-  by_billing_and_tier:       cross-tab of paying members
-  active_count:              total is_active=True
-  active_excluding_grace:    is_active=True AND not in grace period
-  in_grace_period_count:     count currently in grace
-  annual_expiring_next_30d:  annual subs renewing within 30 days
-  annual_expiring_next_90d:  annual subs renewing within 90 days
-  founding_spot_planning:    derived numbers Steve actually needs
 """
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import text
@@ -35,10 +36,11 @@ from .registry import register_tool
     description=(
         "Member cohort breakdown for migration planning. Returns counts grouped "
         "by membership tier (free/basic/pro), billing cycle (monthly/annual), "
-        "grace-period status, and annual-expiry windows. Built for the flat-"
-        "pricing migration so we can plan grandfathering precisely. Read-only, "
-        "no PII — aggregates and dates only. Use this before any pricing change "
-        "and again after to verify the migration landed correctly."
+        "grace-period status, annual-expiry windows, AND classification by "
+        "whether each active member paid real money or was comped via admin "
+        "activation / referral gift. Built for the flat-pricing migration so we "
+        "can grandfather only genuine paying customers. Read-only, no PII — "
+        "aggregates and dates only."
     ),
     category="composition",
     input_schema={"type": "object", "properties": {}},
@@ -58,7 +60,6 @@ def member_composition(db):
         GROUP BY membership_tier
     """)).fetchall()
     by_tier = {row.membership_tier or "null": row.cnt for row in tier_rows}
-    # Ensure expected keys present even if zero
     for key in ("free", "basic", "pro"):
         by_tier.setdefault(key, 0)
 
@@ -74,8 +75,6 @@ def member_composition(db):
         by_billing.setdefault(key, 0)
 
     # ── Cross-tab: tier × billing for active payers ──
-    # This is the key data — tells us exactly how many fall into each bucket
-    # that needs different grandfathering treatment.
     crosstab_rows = db.execute(text("""
         SELECT membership_tier, membership_billing, COUNT(*) AS cnt
         FROM users
@@ -86,7 +85,6 @@ def member_composition(db):
     for row in crosstab_rows:
         key = f"{row.membership_tier or 'null'}_{row.membership_billing or 'null'}"
         by_billing_and_tier[key] = row.cnt
-    # Ensure expected keys present
     for key in ("basic_monthly", "basic_annual", "pro_monthly", "pro_annual"):
         by_billing_and_tier.setdefault(key, 0)
 
@@ -103,9 +101,7 @@ def member_composition(db):
 
     active_excluding_grace = active_count - in_grace_count
 
-    # ── Annual subscribers expiring within X days ──
-    # Useful for predicting when grandfathered annual subscribers will roll
-    # over to $15/mo monthly billing. Helps plan cash flow.
+    # ── Annual subscribers expiring soon ──
     expiring_30d = db.execute(text("""
         SELECT COUNT(*) FROM users
         WHERE is_active = TRUE
@@ -125,8 +121,6 @@ def member_composition(db):
     """), {"cutoff": in_90_days}).scalar() or 0
 
     # ── Activation date range for founding spot numbering ──
-    # Earliest active member gets spot #1, etc. We surface the date range so
-    # Steve can see how far back the grandfather cohort reaches.
     earliest_row = db.execute(text("""
         SELECT MIN(activated_at) AS earliest, MAX(activated_at) AS latest
         FROM users
@@ -136,15 +130,152 @@ def member_composition(db):
     earliest_active = earliest_row.earliest.isoformat() if earliest_row and earliest_row.earliest else None
     latest_active = earliest_row.latest.isoformat() if earliest_row and earliest_row.latest else None
 
+    # ═══════════════════════════════════════════════════════════════════════
+    # PAID-VS-COMPED CLASSIFICATION
+    # ─────────────────────────────────────────────────────────────────────
+    # Goal: identify which active members reached active state by paying
+    # real money vs being comped (admin manual activation, referral gift only).
+    # ═══════════════════════════════════════════════════════════════════════
+
+    # Users who have at least one confirmed payment of any kind — this is the
+    # "paid real money" set. We treat any of three rails as evidence:
+    #   - payments table with status indicating success
+    #   - nowpayments_orders with status='finished' (the IPN-confirmed terminal state)
+    #   - walletconnect_payment_orders with status='confirmed'
+    paid_real_money_count = db.execute(text("""
+        SELECT COUNT(DISTINCT u.id)
+        FROM users u
+        WHERE u.is_active = TRUE
+          AND (
+            EXISTS (
+              SELECT 1 FROM payments p
+              WHERE p.from_user_id = u.id
+                AND p.status IN ('paid', 'confirmed', 'finished', 'completed')
+            )
+            OR EXISTS (
+              SELECT 1 FROM nowpayments_orders npo
+              WHERE npo.user_id = u.id
+                AND (npo.status = 'finished' OR npo.confirmed_at IS NOT NULL)
+            )
+            OR EXISTS (
+              SELECT 1 FROM walletconnect_payment_orders wco
+              WHERE wco.user_id = u.id
+                AND wco.status = 'confirmed'
+            )
+          )
+    """)).scalar() or 0
+
+    # Subset: those who paid REAL MONEY specifically for membership (any product
+    # purchase counts as "paid customer" for grandfathering purposes — if they
+    # bought a Campaign Tier or credit pack, they're a real customer too —
+    # but it's useful to split out membership-specific payments).
+    paid_for_membership_count = db.execute(text("""
+        SELECT COUNT(DISTINCT u.id)
+        FROM users u
+        WHERE u.is_active = TRUE
+          AND (
+            EXISTS (
+              SELECT 1 FROM nowpayments_orders npo
+              WHERE npo.user_id = u.id
+                AND npo.product_type = 'membership'
+                AND (npo.status = 'finished' OR npo.confirmed_at IS NOT NULL)
+            )
+            OR EXISTS (
+              SELECT 1 FROM walletconnect_payment_orders wco
+              WHERE wco.user_id = u.id
+                AND wco.product_type = 'membership'
+                AND wco.status = 'confirmed'
+            )
+            OR EXISTS (
+              SELECT 1 FROM payments p
+              WHERE p.from_user_id = u.id
+                AND p.payment_type = 'membership'
+                AND p.status IN ('paid', 'confirmed', 'finished', 'completed')
+            )
+          )
+    """)).scalar() or 0
+
+    # Active members whose only renewal_source is 'manual' AND who have no
+    # payment record → admin-comped accounts.
+    manual_only_count = db.execute(text("""
+        SELECT COUNT(*)
+        FROM users u
+        LEFT JOIN membership_renewals mr ON mr.user_id = u.id
+        WHERE u.is_active = TRUE
+          AND COALESCE(mr.renewal_source, '') = 'manual'
+          AND NOT EXISTS (
+            SELECT 1 FROM payments p
+            WHERE p.from_user_id = u.id
+              AND p.status IN ('paid', 'confirmed', 'finished', 'completed')
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM nowpayments_orders npo
+            WHERE npo.user_id = u.id
+              AND (npo.status = 'finished' OR npo.confirmed_at IS NOT NULL)
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM walletconnect_payment_orders wco
+            WHERE wco.user_id = u.id
+              AND wco.status = 'confirmed'
+          )
+    """)).scalar() or 0
+
+    # Active members with NO membership_renewals row at all → admin flipped
+    # is_active directly without ever creating a renewal row.
+    no_renewal_row_count = db.execute(text("""
+        SELECT COUNT(*)
+        FROM users u
+        WHERE u.is_active = TRUE
+          AND NOT EXISTS (
+            SELECT 1 FROM membership_renewals mr WHERE mr.user_id = u.id
+          )
+    """)).scalar() or 0
+
+    # Active members activated by referral gift (first-month gift, no money
+    # from them). Note: this is OR-overlapping with paid_real_money — a user
+    # could have been gifted month 1 then paid for month 2+. So we report this
+    # AND a "gift-only" subset that excludes anyone with real payment evidence.
+    gifted_total_count = db.execute(text("""
+        SELECT COUNT(*)
+        FROM users
+        WHERE is_active = TRUE
+          AND membership_activated_by_referral = TRUE
+    """)).scalar() or 0
+
+    gifted_only_count = db.execute(text("""
+        SELECT COUNT(*)
+        FROM users u
+        WHERE u.is_active = TRUE
+          AND u.membership_activated_by_referral = TRUE
+          AND NOT EXISTS (
+            SELECT 1 FROM payments p
+            WHERE p.from_user_id = u.id
+              AND p.status IN ('paid', 'confirmed', 'finished', 'completed')
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM nowpayments_orders npo
+            WHERE npo.user_id = u.id
+              AND (npo.status = 'finished' OR npo.confirmed_at IS NOT NULL)
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM walletconnect_payment_orders wco
+            WHERE wco.user_id = u.id
+              AND wco.status = 'confirmed'
+          )
+    """)).scalar() or 0
+
+    # Bottom-line classification (mutually exclusive):
+    # - genuine_paying_customers: has real payment evidence (regardless of
+    #   whether their first month was a gift — they paid subsequently)
+    # - comped_active_members:   active but no payment evidence
+    comped_active_count = active_count - paid_real_money_count
+
     # ── Founding spot planning maths ──
-    # The number Steve actually wants: "how many founding spots are left after
-    # I grandfather existing actives?"
-    # Policy locked: ALL currently-active members (excluding grace) become
-    # founding members 1..N. The rest of the 100 spots open to new signups.
+    # Updated policy: only members who paid real money get grandfathered.
     FOUNDING_TOTAL = 100
-    spots_used_by_grandfathering = min(active_excluding_grace, FOUNDING_TOTAL)
+    spots_used_by_grandfathering = min(paid_real_money_count, FOUNDING_TOTAL)
     spots_remaining_for_new_signups = max(0, FOUNDING_TOTAL - spots_used_by_grandfathering)
-    overflow_actives = max(0, active_excluding_grace - FOUNDING_TOTAL)
+    overflow_actives = max(0, paid_real_money_count - FOUNDING_TOTAL)
 
     return {
         "timestamp": now.isoformat(),
@@ -159,10 +290,28 @@ def member_composition(db):
         "annual_expiring_next_90d": expiring_90d,
         "earliest_active_activation": earliest_active,
         "latest_active_activation": latest_active,
+        "paid_classification": {
+            "paid_real_money": paid_real_money_count,
+            "paid_for_membership_specifically": paid_for_membership_count,
+            "comped_active_members": comped_active_count,
+            "manual_activation_no_payment": manual_only_count,
+            "no_renewal_row_admin_flipped": no_renewal_row_count,
+            "referral_gift_total": gifted_total_count,
+            "referral_gift_only_no_subsequent_payment": gifted_only_count,
+            "note": (
+                "paid_real_money + comped_active_members = active_count. "
+                "manual_activation_no_payment and no_renewal_row_admin_flipped "
+                "are diagnostic subsets of comped_active_members. "
+                "referral_gift_only excludes members who paid after their gift."
+            ),
+        },
         "founding_spot_planning": {
             "total_spots": FOUNDING_TOTAL,
+            "policy": "Only paid_real_money members are grandfathered as founding members.",
             "spots_used_by_grandfathering": spots_used_by_grandfathering,
             "spots_remaining_for_new_signups": spots_remaining_for_new_signups,
             "overflow_actives_no_founding_status": overflow_actives,
+            "comped_actives_excluded_from_grandfathering": comped_active_count,
         },
     }
+
