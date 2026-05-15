@@ -2444,6 +2444,39 @@ try:
 except Exception as e:
     print(f"⚠️ partial_recovery migration failed: {e}")
 
+# ── One-shot data fix: user 179 'itsamazing' missing membership_expires_at ──
+# Discovered 15 May 2026 during flat-pricing migration planning. User 179 was
+# manually recovered via payments_table row 'manual_recovery_grid_1' on
+# 13 May 2026 (a Grid Tier 1 purchase that fell through and was admin-restored
+# at 13:52:23). That recovery flipped is_active=True and membership_tier='pro'
+# but did NOT populate membership_expires_at, leaving the renewal cron unable
+# to schedule their next charge.
+#
+# Fix: set membership_expires_at = activated_at + 31 days = 2026-06-13.
+# Effect: user receives 31 days of membership starting from their activation
+# (gives them the month they effectively paid for, even though the $20 was
+# for a Grid tier not membership — fair handling of the data inconsistency).
+# At expiry the standard renewal cron picks them up like any other monthly
+# member, and once the flat-pricing migration ships they'll roll onto $15/mo
+# founding rate.
+#
+# Idempotent: only sets the date if currently NULL. Safe to run on every
+# startup; once fixed, the WHERE clause matches zero rows.
+try:
+    with engine.connect() as conn:
+        conn.execute(text("""
+            UPDATE users
+            SET membership_expires_at = activated_at + INTERVAL '31 days'
+            WHERE id = 179
+              AND is_active = TRUE
+              AND membership_expires_at IS NULL
+              AND activated_at IS NOT NULL
+        """))
+        conn.commit()
+        print("✅ user 179 (itsamazing) membership_expires_at fix applied/verified")
+except Exception as e:
+    print(f"⚠️ user 179 expiry fix failed: {e}")
+
 # ── Brand Poster Generator tables (added 12 May 2026) ──
 # Three tables for the BPG feature in Creative Studio. Defined as
 # SQLAlchemy models above, but kept as an isolated CREATE TABLE block
