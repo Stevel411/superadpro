@@ -44,3 +44,4 @@ from . import user_impact               # noqa: F401
 from . import stuck_users               # noqa: F401
 from . import payment_integrity         # noqa: F401
 from . import financial_sanity          # noqa: F401
+from . import member_composition        # noqa: F401
