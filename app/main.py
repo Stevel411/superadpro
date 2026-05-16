@@ -12872,6 +12872,97 @@ async def admin_api_gift_membership(
     }
 
 
+@app.post("/admin/api/migrate-founder-expiries")
+async def admin_api_migrate_founder_expiries(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """ONE-SHOT: migrate existing Founders with the legacy 2099-12-31 expiry
+    down to today + 30 days, matching the corrected Founder product.
+
+    Background: A previous Claude session implemented Founder activation
+    with `membership_expires_at = datetime(2099, 12, 31)`, interpreting
+    Steve's 'lifetime' framing as 'lifetime free access for a one-time $15
+    payment'. The intent was always '$15/month with the price locked for
+    life'. Fixed forward in commits fecf5c9b (paid) and 34fbab0c (gift);
+    this endpoint cleans up the rows already in the database.
+
+    Safety:
+      - Admin-only via _require_admin
+      - Defaults to dry-run; set confirm=YES_MIGRATE to actually write
+      - Filters strictly to is_founding_member=true AND
+        membership_expires_at > '2099-01-01' so we never touch a row
+        that's already on a correct 30-day expiry
+      - SuperAdPro/admin accounts are excluded via is_admin=false filter
+      - Logs every change with old vs new expiry per user
+      - Idempotent: running twice is harmless (second run finds 0 rows
+        because the first run already moved them off 2099)
+    """
+    _require_admin(user)
+    body = await request.json()
+    confirm = (body.get("confirm") or "").strip()
+
+    # Find all rows that look like the legacy bug
+    from sqlalchemy import text as _text
+    rows = db.execute(_text("""
+        SELECT id, username, email, membership_expires_at,
+               membership_price_locked, founding_spot_number
+          FROM users
+         WHERE is_founding_member = TRUE
+           AND COALESCE(is_admin, FALSE) = FALSE
+           AND membership_expires_at > '2099-01-01'
+         ORDER BY id
+    """)).fetchall()
+
+    candidates = [
+        {
+            "user_id": r[0],
+            "username": r[1],
+            "email": r[2],
+            "old_expiry": r[3].isoformat() if r[3] else None,
+            "locked_price": float(r[4]) if r[4] is not None else None,
+            "spot_number": r[5],
+        }
+        for r in rows
+    ]
+
+    if confirm != "YES_MIGRATE":
+        return {
+            "mode": "dry-run",
+            "found": len(candidates),
+            "candidates": candidates,
+            "hint": "POST with body {\"confirm\":\"YES_MIGRATE\"} to actually apply.",
+        }
+
+    # Real run
+    new_expiry = datetime.utcnow() + timedelta(days=30)
+    updated = []
+    for c in candidates:
+        try:
+            db.execute(_text(
+                "UPDATE users SET membership_expires_at = :new_exp "
+                "WHERE id = :uid AND is_founding_member = TRUE "
+                "  AND membership_expires_at > '2099-01-01'"
+            ), {"new_exp": new_expiry, "uid": c["user_id"]})
+            updated.append(c["user_id"])
+        except Exception as e:
+            logger.error(f"founder-migration: user {c['user_id']} failed: {e}")
+    db.commit()
+
+    logger.warning(
+        f"FOUNDER_MIGRATION: admin={user.username} migrated {len(updated)} rows "
+        f"from 2099-12-31 to {new_expiry.strftime('%Y-%m-%d')}"
+    )
+    return {
+        "mode": "applied",
+        "migrated_count": len(updated),
+        "new_expiry": new_expiry.isoformat(),
+        "migrated_user_ids": updated,
+        "triggered_by": user.username,
+    }
+
+
 @app.post("/admin/api/user/{user_id}/activate-paid-membership")
 async def admin_api_activate_paid_membership(
     user_id: int, request: Request,

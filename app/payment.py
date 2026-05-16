@@ -786,7 +786,11 @@ def process_auto_renewals(db: Session) -> dict:
         # ── 3-day low balance warning ──────────────────────────
         warning_threshold = renewal.next_renewal_date - timedelta(days=3)
         if now >= warning_threshold and not renewal.in_grace_period:
-            if user.balance < MEMBERSHIP_FEE and not user.low_balance_warned:
+            # Use the user's locked price if set (Founder $15), otherwise
+            # the standard $20. Same fee logic as the renewal branch below.
+            locked = getattr(user, 'membership_price_locked', None)
+            user_fee_for_warning = Decimal(str(locked)) if locked is not None else Decimal(str(MEMBERSHIP_FEE))
+            if Decimal(str(user.balance or 0)) < user_fee_for_warning and not user.low_balance_warned:
                 user.low_balance_warned = True
                 results["warned"].append(user.id)
                 # Notify the user — best-effort, won't break the renewal cron
@@ -798,7 +802,7 @@ def process_auto_renewals(db: Session) -> dict:
                         icon="⏰",
                         title="Membership renewal in 3 days — top up your balance",
                         message=(f"Your membership renews on {renewal.next_renewal_date.strftime('%d %b')}. "
-                                 f"Your wallet balance is below ${MEMBERSHIP_FEE:.0f} — top up or your "
+                                 f"Your wallet balance is below ${user_fee_for_warning:.0f} — top up or your "
                                  f"membership will enter a 5-day grace period."),
                         link="/wallet",
                     ))
@@ -808,32 +812,44 @@ def process_auto_renewals(db: Session) -> dict:
 
         # ── Renewal due ─────────────────────────────────────────
         if now >= renewal.next_renewal_date and not renewal.in_grace_period:
+            # Compute the actual fee for THIS user. Founders have
+            # membership_price_locked = $15 (or whatever's set); Partners
+            # have it NULL and pay the standard $20.
+            # The sponsor cut stays a flat $10 regardless of buyer price —
+            # this mirrors the rule already used in main.py's
+            # process_membership_renewal handler (line 7344-7346).
+            locked = getattr(user, 'membership_price_locked', None)
+            user_fee = Decimal(str(locked)) if locked is not None else Decimal(str(MEMBERSHIP_FEE))
+            sponsor_share = Decimal(str(MEMBERSHIP_SPONSOR_SHARE))  # flat $10
+
             # Respect opt-out: if the member has disabled auto-renewal from
             # balance (set in checkout or via account settings), skip the
             # deduction and go straight to grace period regardless of
             # balance. The grace period notification gives them 5 days to
             # manually renew.
             auto_renew_enabled = bool(getattr(renewal, 'auto_renew_from_balance', True))
-            if auto_renew_enabled and user.balance >= MEMBERSHIP_FEE:
-                # Sufficient balance — auto-renew with 50/50 split
+            if auto_renew_enabled and Decimal(str(user.balance or 0)) >= user_fee:
+                # Sufficient balance — auto-renew. Founder pays $15, Partner
+                # pays $20; sponsor always gets flat $10 on renewal.
                 sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
 
-                user.balance      = Decimal(str(user.balance or 0)) - Decimal(str(MEMBERSHIP_FEE))
+                user.balance      = Decimal(str(user.balance or 0)) - user_fee
                 user.low_balance_warned = False
 
                 if sponsor:
-                    sponsor.balance      = Decimal(str(sponsor.balance or 0)) + Decimal(str(MEMBERSHIP_SPONSOR_SHARE))
-                    sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + Decimal(str(MEMBERSHIP_SPONSOR_SHARE))
+                    sponsor.balance      = Decimal(str(sponsor.balance or 0)) + sponsor_share
+                    sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
 
+                company_share = user_fee - sponsor_share
                 db.add(Commission(
                     from_user_id    = user.id,
                     to_user_id      = sponsor.id if sponsor else None,
-                    amount_usdt     = MEMBERSHIP_SPONSOR_SHARE if sponsor else 0,
+                    amount_usdt     = sponsor_share if sponsor else Decimal("0"),
                     commission_type = "membership_renewal",
                     package_tier    = 0,
                     status          = "paid",
                     paid_at         = now,
-                    notes           = f"Monthly renewal — ${MEMBERSHIP_SPONSOR_SHARE} sponsor / ${MEMBERSHIP_COMPANY_SHARE} company",
+                    notes           = f"Monthly renewal — ${user_fee} paid (${sponsor_share} sponsor / ${company_share} company)",
                 ))
 
                 renewal.last_renewed_at   = now
