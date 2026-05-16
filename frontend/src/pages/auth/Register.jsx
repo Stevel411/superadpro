@@ -43,6 +43,23 @@ export default function Register() {
   const giftCode = (params.get('gift') || '').trim().toUpperCase();
   const isGiftFlow = !!giftCode;
 
+  // For company-funnel signups (via=start), peek at the rotator's next
+  // pick so we can show the prospect WHO their sponsor will be. Reading
+  // doesn't advance the queue — that only happens on form submission.
+  // So if this user bounces, the next visitor sees the same name; if
+  // this user submits, the queue advances on the backend and the next
+  // visitor sees the next person.
+  const [previewSponsor, setPreviewSponsor] = useState(null);
+  useEffect(function() {
+    if (!viaIsCompanyFunnel) return;
+    fetch('/api/start/next-sponsor')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d && d.username) setPreviewSponsor(d.username);
+      })
+      .catch(function() { /* silent — fall back to generic copy */ });
+  }, []);
+
   // Pre-launch gate: hit /api/registration-status and only show the form if open.
   // null = still checking, true = open (or admin bypass), false = closed.
   // Forward ref and gift query params so the backend's bypass checks
@@ -309,26 +326,40 @@ export default function Register() {
               </div>
             </div>
           ) : viaIsCompanyFunnel ? (
-            // Hide the sponsor field entirely when the visitor came through
-            // /start or another company funnel. The backend rotator will
-            // assign a real Founder as sponsor automatically; showing an
-            // empty 'Sponsor's username' field with 'SuperAdPro' as the
-            // placeholder text was being read as "you're being assigned
-            // to the company account." Removing it eliminates that
-            // confusion and signals trust — they don't have to know or
-            // care who their sponsor is, the system handles it.
+            // Hide the editable sponsor field on the /start funnel. Instead,
+            // show who the prospect will be matched with — peeked from the
+            // rotator's next-pick endpoint. Reading doesn't advance the
+            // queue; the actual advance happens when this form submits.
+            // If the peek fails (offline, queue empty, etc), we fall back
+            // to the generic 'matched with active Founder' copy.
             <div style={styles.field}>
               <div style={{
                 background: 'rgba(34,211,238,.08)',
-                border: '1px solid rgba(34,211,238,.2)',
+                border: '1px solid rgba(34,211,238,.25)',
                 borderRadius: 10,
-                padding: '12px 16px',
+                padding: '14px 18px',
                 fontSize: 13,
-                color: 'rgba(255,255,255,.75)',
+                color: 'rgba(255,255,255,.78)',
                 lineHeight: 1.5,
               }}>
-                <div style={{ fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>You'll be matched with an active Founder</div>
-                We'll connect you with one of our 23 active Founding Partners — they're successful members of the platform and your point of contact.
+                {previewSponsor ? (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#22d3ee', letterSpacing: '.14em', textTransform: 'uppercase', marginBottom: 8 }}>
+                      Your sponsor
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontFamily: "'Sora',sans-serif", marginBottom: 6, letterSpacing: '-.01em' }}>
+                      @{previewSponsor}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.55)' }}>
+                      Active Founding Partner · your point of contact on the platform
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>You'll be matched with an active Founder</div>
+                    We'll connect you with one of our active Founding Partners — they're successful members of the platform and your point of contact.
+                  </>
+                )}
               </div>
             </div>
           ) : (

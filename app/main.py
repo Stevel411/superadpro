@@ -5563,6 +5563,41 @@ def _pick_next_rotator_sponsor(db: Session):
     return picked_user_id
 
 
+@app.get("/api/start/next-sponsor")
+def api_start_next_sponsor(request: Request, db: Session = Depends(get_db)):
+    """Return the username of the Founder currently at the front of the
+    rotator queue, WITHOUT advancing the queue. Used by the registration
+    page (when via=start) to display "Your sponsor: <name>" so the prospect
+    sees who they'll be matched with.
+
+    Public — no auth. Returns only a username, no PII. Reading is a pure
+    SELECT so this endpoint can be hit by anyone without affecting rotator
+    state. The actual queue advance still happens at form submission via
+    _pick_next_rotator_sponsor in the /api/register handler.
+
+    Cached 10s by Cloudflare since most page-views happen in clusters
+    around an ad campaign launch and we don't need second-level precision.
+    """
+    from sqlalchemy import text as _text
+    try:
+        row = db.execute(_text(
+            "SELECT u.username "
+            "FROM rotator_queue rq "
+            "JOIN users u ON u.id = rq.user_id "
+            "WHERE u.is_active = true "
+            "  AND u.rotator_opted_in = true "
+            "ORDER BY rq.queue_position ASC "
+            "LIMIT 1"
+        )).fetchone()
+        username = row[0] if row else None
+    except Exception:
+        username = None
+    return JSONResponse(
+        {"username": username},
+        headers={"Cache-Control": "public, max-age=10"},
+    )
+
+
 @app.get("/api/start/stats")
 def api_start_stats(request: Request, db: Session = Depends(get_db)):
     """Live platform stats for the /start hero. PUBLIC — no auth.
