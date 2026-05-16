@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.6",
+    "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^8.17.10",
     "@reown/appkit": "^1.8.19",
     "@reown/appkit-adapter-wagmi": "^1.8.19",
@@ -28,6 +29,7 @@
     "@tiptap/starter-kit": "^3.22.4",
     "chart.js": "^4.5.1",
     "fabric": "^5.3.0",
+    "gsap": "^3.15.0",
     "html2canvas": "^1.4.1",
     "i18next": "^25.8.18",
     "jspdf": "^4.2.1",

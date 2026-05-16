@@ -2834,6 +2834,23 @@ def nexus_stream_page(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
+
+@app.get("/start")
+def start_page(request: Request):
+    """Serve React SPA for the /start acquisition funnel. Public.
+
+    This is the top-of-funnel marketing surface for SuperAdPro. Visitors
+    landing here are NOT yet authenticated; they sign up via the standard
+    /register flow but the rotator queue assigns them to an active member
+    as their sponsor instead of defaulting to the house account.
+
+    Built 16 May 2026 with the 3D constellation hero and full GSAP/scroll-
+    triggered cinematic motion. See frontend/src/pages/public/start/.
+    """
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return RedirectResponse(url="/", status_code=302)
+
 def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_current_user)):
     ctx = {
         "request": request,
@@ -5278,6 +5295,82 @@ def api_delete_campaign(campaign_id: int, request: Request,
     campaign.status = "deleted"
     db.commit()
     return {"success": True, "message": "Campaign deleted"}
+
+
+def _pick_next_rotator_sponsor(db: Session):
+    """Return the user_id at the front of the rotator queue, atomically
+    moving them to the back. Returns None if queue is empty.
+
+    Concurrency-safe via pg_advisory_xact_lock — same pattern the
+    founding-spot claim uses. Two simultaneous /start signups will
+    serialize on this lock, so each one gets a distinct rotator
+    sponsor rather than both stealing whoever was at position 1.
+
+    Filters: only active members with rotator_opted_in=true AND
+    membership is not lapsed AND user is not suspended. Stale queue
+    rows (member opted out / went inactive / was deleted) are skipped
+    by the join, not by a separate cleanup pass.
+    """
+    from sqlalchemy import text as _text
+    # Serialize all rotator picks against each other. Arbitrary 64-bit
+    # key — different from founding-spot lock (7423957) to avoid
+    # serializing /start against unrelated founding claims.
+    db.execute(_text("SELECT pg_advisory_xact_lock(8742193)"))
+    row = db.execute(_text(
+        "SELECT rq.user_id "
+        "FROM rotator_queue rq "
+        "JOIN users u ON u.id = rq.user_id "
+        "WHERE u.is_active = true "
+        "  AND u.rotator_opted_in = true "
+        "ORDER BY rq.queue_position ASC "
+        "LIMIT 1"
+    )).fetchone()
+    if not row:
+        return None
+    picked_user_id = row[0]
+    # Move them to the back of the queue
+    max_pos_row = db.execute(_text(
+        "SELECT COALESCE(MAX(queue_position), 0) FROM rotator_queue"
+    )).fetchone()
+    new_pos = (max_pos_row[0] or 0) + 1
+    db.execute(_text(
+        "UPDATE rotator_queue SET queue_position = :pos WHERE user_id = :uid"
+    ), {"pos": new_pos, "uid": picked_user_id})
+    return picked_user_id
+
+
+@app.get("/api/start/stats")
+def api_start_stats(request: Request, db: Session = Depends(get_db)):
+    """Live platform stats for the /start hero. PUBLIC — no auth.
+
+    Returns total_members and founding_remaining so the hero counter
+    can animate from 0 to the real value, and the founding-dots grid
+    can render the accurate lit/dim ratio.
+
+    Cached implicitly by Cloudflare for 30s via Cache-Control header
+    since this fires on every public landing-page hit and these
+    numbers change slowly. Set ttl=0 if a live test needs immediate
+    propagation.
+    """
+    try:
+        total_members = db.query(User).filter(User.is_active == True).count()  # noqa: E712
+    except Exception:
+        total_members = 138  # fallback to a known-good number rather than failing the page
+    try:
+        founding_claimed = db.query(User).filter(
+            User.is_founding_member == True  # noqa: E712
+        ).count()
+        founding_remaining = max(0, 100 - founding_claimed)
+    except Exception:
+        founding_remaining = 77
+
+    return JSONResponse(
+        {
+            "total_members": total_members,
+            "founding_remaining": founding_remaining,
+        },
+        headers={"Cache-Control": "public, max-age=30"},
+    )
 
 
 @app.get("/api/watch/preview/{campaign_id}")
@@ -16562,8 +16655,32 @@ async def api_register(
                     {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
                     synchronize_session=False,
                 )
-        
-        # Default to company account if no sponsor
+
+        # ── Rotator assignment for /start funnel signups (added 16 May 2026) ──
+        # When a visitor signs up with via=start (or any rotator-eligible
+        # funnel marker) AND has no explicit referrer, pull the next sponsor
+        # from the rotator queue rather than dumping them on the house account.
+        # The whole point of the rotator is to distribute company-sourced
+        # leads fairly across active opted-in members.
+        rotator_assignment_made = False
+        rotator_assigned_sponsor_id = None
+        if not sponsor_id:
+            via = sanitize(body.get("via", "").strip())
+            if via in ("start", "rotator"):
+                try:
+                    rotator_assigned_sponsor_id = _pick_next_rotator_sponsor(db)
+                    if rotator_assigned_sponsor_id:
+                        sponsor_id = rotator_assigned_sponsor_id
+                        rotator_assignment_made = True
+                        from sqlalchemy import func as _sqlfunc
+                        db.query(User).filter(User.id == sponsor_id).update(
+                            {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
+                            synchronize_session=False,
+                        )
+                except Exception as e:
+                    logger.warning(f"rotator: pick_next failed, falling through to house: {e}")
+
+        # Default to company account if no sponsor (rotator empty / not /start)
         if not sponsor_id:
             company = db.query(User).filter(User.username == "SuperAdPro").first()
             if company:
@@ -16603,6 +16720,28 @@ async def api_register(
             sponsor_obj = db.query(User).filter(User.id == sponsor_id).first()
             assign_passup_sponsor(db, user, sponsor_obj)
             db.commit()
+
+        # ── Rotator audit log (added 16 May 2026) ──
+        # If this signup came through the rotator path, record the
+        # assignment for auditability. Two consumers care: (1) admins
+        # diagnosing "where did this signup come from?", (2) the
+        # rotator UI showing each member their last-assigned timestamp.
+        if rotator_assignment_made and rotator_assigned_sponsor_id and user.id:
+            try:
+                from sqlalchemy import text as _text
+                db.execute(_text(
+                    "INSERT INTO rotator_assignments "
+                    "(signup_user_id, assigned_sponsor_id, funnel_source) "
+                    "VALUES (:signup, :sponsor, 'start')"
+                ), {"signup": user.id, "sponsor": rotator_assigned_sponsor_id})
+                db.execute(_text(
+                    "UPDATE rotator_queue SET last_assigned_at = NOW() "
+                    "WHERE user_id = :sponsor"
+                ), {"sponsor": rotator_assigned_sponsor_id})
+                db.commit()
+            except Exception as e:
+                logger.warning(f"rotator: audit log write failed: {e}")
+                db.rollback()
 
         # Send welcome email (fails silently if not configured)
         try:

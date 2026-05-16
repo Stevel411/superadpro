@@ -2016,6 +2016,29 @@ def run_migrations():
         "  value TEXT,"
         "  updated_at TIMESTAMP NOT NULL DEFAULT NOW()"
         ")",
+        # ── Rotator queue (added 16 May 2026 for /start funnel) ──
+        # Round-robin pool of active members who opted in to receive
+        # rotator-distributed signups. Queue position is just an integer:
+        # lowest = next in line; after assignment we set their position
+        # to MAX+1 to move them to the back. Concurrency-safe via the
+        # existing pg_advisory_xact_lock pattern.
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS rotator_opted_in BOOLEAN DEFAULT FALSE",
+        "CREATE TABLE IF NOT EXISTS rotator_queue ("
+        "  id SERIAL PRIMARY KEY,"
+        "  user_id INTEGER UNIQUE REFERENCES users(id),"
+        "  queue_position INTEGER NOT NULL,"
+        "  joined_at TIMESTAMP DEFAULT NOW(),"
+        "  last_assigned_at TIMESTAMP"
+        ")",
+        "CREATE INDEX IF NOT EXISTS idx_rotator_queue_position ON rotator_queue(queue_position)",
+        "CREATE TABLE IF NOT EXISTS rotator_assignments ("
+        "  id SERIAL PRIMARY KEY,"
+        "  signup_user_id INTEGER REFERENCES users(id),"
+        "  assigned_sponsor_id INTEGER REFERENCES users(id),"
+        "  assigned_at TIMESTAMP DEFAULT NOW(),"
+        "  funnel_source VARCHAR(64) DEFAULT 'start'"
+        ")",
+        "CREATE INDEX IF NOT EXISTS idx_rotator_assignments_signup ON rotator_assignments(signup_user_id)",
     ]
     results = []
     with engine.connect() as conn:

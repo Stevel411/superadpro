@@ -223,6 +223,7 @@ import ExplorePage from './pages/public/ExplorePage';
 import ExploreHub from './pages/public/ExploreHub';
 import FreeTools from './pages/public/FreeTools';
 import JoinFunnel from './pages/public/JoinFunnel';
+const StartPage = React.lazy(() => import('./pages/public/start/StartPage'));
 import { FAQ, Legal } from './pages/public/PublicPages';
 import InternalFAQ from './pages/FAQ';
 import PublicIncomeDisclosure from './pages/public/PublicIncomeDisclosure';
@@ -448,6 +449,7 @@ function AppRoutes() {
       <Route path="/membership" element={<Lazy><MembershipStreamPage /></Lazy>} />
       <Route path="/explore/compensation" element={<Lazy><CompensationHubPage /></Lazy>} />
       <Route path="/nexus" element={<Lazy><NexusStreamPage /></Lazy>} />
+      <Route path="/start" element={<Lazy><StartPage /></Lazy>} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/legal" element={<Legal />} />
       <Route path="/legal/income-disclosure" element={<PublicIncomeDisclosure />} />
