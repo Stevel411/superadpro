@@ -20,9 +20,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 var VIDEO_SRC =
-  'https://videos.pexels.com/video-files/34305614/14533125_1440_2560_60fps.mp4';
+  'https://videos.pexels.com/video-files/6339869/6339869-hd_1920_1080_30fps.mp4';
 var VIDEO_POSTER =
-  'https://images.pexels.com/videos/34305614/adventure-autumn-car-clouds-34305614.jpeg?auto=compress&cs=tinysrgb&w=1920';
+  'https://images.pexels.com/videos/6339869/board-coffee-pause-diagrams-discussion-6339869.jpeg?auto=compress&cs=tinysrgb&w=1920';
 
 export default function BackgroundVideo({ src, poster, force }) {
   var [shouldMount, setShouldMount] = useState(false);

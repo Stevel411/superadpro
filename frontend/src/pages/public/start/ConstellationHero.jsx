@@ -32,9 +32,9 @@ var NODE_COUNT      = 240;             // number of "members" in the scene
 var EDGE_COUNT      = 380;             // connection lines
 var CLUSTER_RADIUS  = 8;                // sphere of space the nodes occupy
 var CAMERA_DRIFT_S  = 60;               // seconds per full slow camera orbit
-var GOLD_PRIMARY    = new THREE.Color('#fcd34d');
-var GOLD_DEEP       = new THREE.Color('#f59e0b');
-var GOLD_BURN       = new THREE.Color('#d97706');
+var CYAN_PRIMARY    = new THREE.Color('#22d3ee');
+var SKY_DEEP       = new THREE.Color('#0ea5e9');
+var SKY_BURN       = new THREE.Color('#0284c7');
 var INK_NEUTRAL     = new THREE.Color('#cbd5e1');
 
 // ─── Deterministic seeded positions ────────────────────────────
@@ -114,9 +114,9 @@ function NodeCloud({ nodes }) {
       tmpMatrix.setPosition(n.x, n.y, n.z);
       meshRef.current.setMatrixAt(i, tmpMatrix);
       if (n.isFounder) {
-        tmpColor.lerpColors(GOLD_PRIMARY, GOLD_DEEP, Math.random());
+        tmpColor.lerpColors(CYAN_PRIMARY, SKY_DEEP, Math.random());
       } else {
-        tmpColor.lerpColors(INK_NEUTRAL, GOLD_PRIMARY, n.brightness * 0.3);
+        tmpColor.lerpColors(INK_NEUTRAL, CYAN_PRIMARY, n.brightness * 0.3);
       }
       meshRef.current.setColorAt(i, tmpColor);
     }
