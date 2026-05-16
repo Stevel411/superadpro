@@ -12349,50 +12349,283 @@ async def admin_api_gift_membership(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Gift a free membership to a user with a custom duration."""
+    """Gift a free membership to a user.
+
+    Tier options (15 May 2026 — replaces legacy basic/pro):
+      - founder: lifetime founding partner. Sets is_founding_member=true and
+        membership_price_locked=$15, BUT does NOT consume one of the 100
+        founding spots (gifts go to influencers / team / promo, real customers
+        get the spots). founding_spot_number stays NULL on gifted founders to
+        distinguish them from paid founding members.
+      - partner: standard partner tier for N months (1/3/6/9/12 admin's choice).
+
+    No Payment row written. No sponsor commission paid. No personal_referrals
+    bump. This is a gift — purely admin-granted access with no money trail.
+    For real money received via bank transfer or other off-platform path use
+    /admin/api/user/{user_id}/activate-paid-membership instead.
+    """
     _require_admin(user)
     body = await request.json()
-    tier = body.get("tier", "basic")
-    months = body.get("months", 1)
+    tier = body.get("tier", "partner")
+    months = int(body.get("months", 1) or 1)
 
-    if tier not in ("basic", "pro"):
-        raise HTTPException(status_code=400, detail="Invalid tier — must be 'basic' or 'pro'")
-    if months not in (1, 3, 6, 12):
-        raise HTTPException(status_code=400, detail="Invalid duration — must be 1, 3, 6, or 12 months")
+    if tier not in ("founder", "partner"):
+        raise HTTPException(status_code=400, detail="Invalid tier — must be 'founder' or 'partner'")
+    if tier == "partner" and months not in (1, 3, 6, 9, 12):
+        raise HTTPException(status_code=400, detail="Invalid duration — must be 1, 3, 6, 9, or 12 months")
 
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Track whether this is the user's first paid activation so we know
-    # whether to bump the sponsor's personal_referrals counter (otherwise
-    # admin gifts silently leave sponsor leaderboard counters stuck).
-    was_active_paid = bool(target.is_active and target.activated_at)
-
-    target.membership_tier = tier
     target.is_active = True
     target.activated_at = target.activated_at or datetime.utcnow()
-    target.membership_expires_at = datetime.utcnow() + timedelta(days=months * 31)
+    target.membership_tier = "partner"
 
-    if not was_active_paid and target.sponsor_id:
-        sponsor = db.query(User).filter(User.id == target.sponsor_id).first()
-        if sponsor:
-            sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
-            try:
-                cache_invalidate_leaderboard()
-            except Exception:
-                pass
+    if tier == "founder":
+        # Gifted founder: lifetime, founding flag set, locked price set, but
+        # spot count NOT consumed (gifts don't burn real customer inventory).
+        target.is_founding_member = True
+        target.membership_price_locked = decimal.Decimal("15.00")
+        target.membership_expires_at = datetime(2099, 12, 31)
+        duration_label = "lifetime"
+    else:
+        target.membership_expires_at = datetime.utcnow() + timedelta(days=months * 31)
+        duration_label = f"{months} months" if months != 12 else "1 year"
 
     db.commit()
-    expiry = target.membership_expires_at.strftime('%d %b %Y')
-    logger.info(f"Admin gifted membership: {target.username} → {tier.upper()} for {months} months (expires {expiry})")
+    logger.info(
+        f"Admin gifted membership: {target.username} → {tier.upper()} "
+        f"({duration_label}, no commission, no payment record)"
+    )
+    expiry_label = "lifetime" if tier == "founder" else target.membership_expires_at.strftime('%d %b %Y')
     return {
         "success": True,
         "username": target.username,
         "tier": tier,
+        "months": months if tier == "partner" else None,
+        "expires": expiry_label,
+        "message": f"{target.username} now has {tier.upper()} membership ({expiry_label})",
+    }
+
+
+@app.post("/admin/api/user/{user_id}/activate-paid-membership")
+async def admin_api_activate_paid_membership(
+    user_id: int, request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Activate a member who paid via bank transfer (or any other off-platform path).
+
+    This routes through the SAME activation handler used by NOWPayments and
+    WalletConnect/BSC payments, so the resulting database state is identical
+    to a real crypto-paid signup. Sponsor commission fires, Payment row is
+    written with source='bank_transfer' (the tx_hash will be 'bank_transfer_<uuid>'
+    for audit trail), founding spot is atomically claimed if 'founder' selected,
+    personal_referrals bumped on the sponsor, leaderboard cache invalidated.
+
+    Tier options:
+      - founder: $15 received, lifetime, claims one of the 100 founding spots
+        atomically (blocks with error if all 100 are taken). Sponsor receives
+        $10, company retains $5. The $10/$5 split applies ONLY to this Founder's
+        own membership — when this Founder later refers a Partner at $20, that
+        Partner generates the standard $10/$10 split (Founders do NOT permanently
+        change commission economics for their downline).
+      - partner: $20 × N months received, sponsor receives $10 × N months
+        upfront lump sum (capped at sponsor's tier per existing rules).
+
+    Optional bank_reference for the admin's own audit trail (e.g. bank
+    statement reference number) — recorded in the Payment row's notes.
+    """
+    _require_admin(user)
+    body = await request.json()
+    tier = body.get("tier", "partner")
+    months = int(body.get("months", 1) or 1)
+    bank_reference = (body.get("bank_reference") or "").strip()[:200]  # cap length
+
+    if tier not in ("founder", "partner"):
+        raise HTTPException(status_code=400, detail="Invalid tier — must be 'founder' or 'partner'")
+    if tier == "partner" and months not in (1, 3, 6, 9, 12):
+        raise HTTPException(status_code=400, detail="Invalid duration — must be 1, 3, 6, 9, or 12 months")
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if target.is_active and tier == "founder":
+        # Don't accidentally double-activate. For Founder this is especially
+        # critical because we'd burn a real founding spot on someone who
+        # already has membership.
+        raise HTTPException(
+            status_code=400,
+            detail=f"@{target.username} is already active — paid-activation is for fresh signups only",
+        )
+
+    # ── Founder path: atomic spot claim + sponsor commission ────────────
+    if tier == "founder":
+        FOUNDING_LOCK_KEY = 7423957  # MUST match _activate_membership and balance-activation
+        try:
+            db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": FOUNDING_LOCK_KEY})
+            current_count = db.execute(text(
+                "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+            )).fetchone().cnt
+            if current_count >= 100:
+                # Lock released on the rollback/end-of-transaction; no manual unlock needed.
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        "All 100 founding spots are claimed — use Partner instead. "
+                        "(Bank-paid customer should be told they missed the Founder window.)"
+                    ),
+                )
+            spot_number = current_count + 1
+            target.is_founding_member = True
+            target.founding_spot_number = spot_number
+            target.membership_price_locked = decimal.Decimal("15.00")
+        except HTTPException:
+            raise
+        except Exception as exc:
+            logger.error(f"Founder activation failed for user {user_id}: {exc}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Founder activation failed: {exc}")
+
+        fee = decimal.Decimal("15.00")
+        target.is_active = True
+        target.activated_at = target.activated_at or datetime.utcnow()
+        target.membership_tier = "founding"  # tag founders distinctly per existing convention
+        target.membership_expires_at = datetime(2099, 12, 31)  # lifetime
+
+        # Write Payment row for audit trail. tx_hash format mirrors what
+        # _activate_membership writes for crypto/walletconnect, so financial_sanity
+        # and other tools can attribute this to a "bank_transfer" source.
+        import uuid
+        notes = f"Bank-paid Founder activation (spot {spot_number})"
+        if bank_reference:
+            notes += f" — bank ref: {bank_reference}"
+        db.add(Payment(
+            from_user_id=target.id, to_user_id=None,
+            amount_usdt=fee, payment_type="membership",
+            tx_hash=f"bank_transfer_{uuid.uuid4().hex[:16]}",
+            status="confirmed",
+        ))
+
+        # Sponsor commission: $10 to sponsor, $5 retained by company (residual).
+        # Same FLAT $10 rule as paid activation. Company's $5 is implicit — it's
+        # the gap between $15 received and $10 paid out, sitting in the platform's
+        # operating funds. No explicit company-commission row needed.
+        sponsor_credited = None
+        if target.sponsor_id:
+            sponsor = db.query(User).filter(User.id == target.sponsor_id).first()
+            if sponsor:
+                sponsor_share = decimal.Decimal("10.00")
+                sponsor.balance = decimal.Decimal(str(sponsor.balance or 0)) + sponsor_share
+                sponsor.total_earned = decimal.Decimal(str(sponsor.total_earned or 0)) + sponsor_share
+                from sqlalchemy import func as _sqlfunc
+                db.query(User).filter(User.id == sponsor.id).update({
+                    User.personal_referrals: _sqlfunc.coalesce(User.personal_referrals, 0) + 1,
+                }, synchronize_session=False)
+                db.add(Commission(
+                    to_user_id=sponsor.id, from_user_id=target.id,
+                    amount_usdt=sponsor_share, commission_type="membership_sponsor",
+                    package_tier=0,
+                    notes=f"Founder membership from {target.username} (bank_transfer)",
+                    status="paid",
+                    paid_at=datetime.utcnow(),
+                ))
+                sponsor_credited = {"username": sponsor.username, "amount": float(sponsor_share)}
+
+        try:
+            cache_invalidate_leaderboard()
+        except Exception:
+            pass
+
+        db.commit()
+        logger.info(
+            f"Admin paid-activated FOUNDER: {target.username} (spot {spot_number}) "
+            f"— $15 received via bank transfer, sponsor commission "
+            f"{'paid to @' + sponsor_credited['username'] if sponsor_credited else 'skipped (no sponsor)'}"
+        )
+        return {
+            "success": True,
+            "tier": "founder",
+            "username": target.username,
+            "founding_spot_number": spot_number,
+            "amount_received_usd": 15.00,
+            "company_retained_usd": 5.00,
+            "sponsor_credited": sponsor_credited,
+            "expires": "lifetime",
+            "message": (
+                f"@{target.username} activated as Founder (spot #{spot_number}). "
+                f"$15 received, $5 retained, sponsor "
+                f"{'@' + sponsor_credited['username'] + ' credited $10' if sponsor_credited else 'commission skipped (no sponsor)'}."
+            ),
+        }
+
+    # ── Partner path: $20 × months received, $10 × months sponsor commission ──
+    fee = decimal.Decimal("20.00") * decimal.Decimal(str(months))
+    sponsor_amount = decimal.Decimal("10.00") * decimal.Decimal(str(months))
+
+    target.is_active = True
+    target.activated_at = target.activated_at or datetime.utcnow()
+    target.membership_tier = "partner"
+    target.membership_expires_at = datetime.utcnow() + timedelta(days=months * 31)
+
+    import uuid
+    notes = f"Bank-paid Partner activation ({months} month{'s' if months != 1 else ''})"
+    if bank_reference:
+        notes += f" — bank ref: {bank_reference}"
+    db.add(Payment(
+        from_user_id=target.id, to_user_id=None,
+        amount_usdt=fee, payment_type="membership",
+        tx_hash=f"bank_transfer_{uuid.uuid4().hex[:16]}",
+        status="confirmed",
+    ))
+
+    sponsor_credited = None
+    if target.sponsor_id:
+        sponsor = db.query(User).filter(User.id == target.sponsor_id).first()
+        if sponsor:
+            sponsor.balance = decimal.Decimal(str(sponsor.balance or 0)) + sponsor_amount
+            sponsor.total_earned = decimal.Decimal(str(sponsor.total_earned or 0)) + sponsor_amount
+            from sqlalchemy import func as _sqlfunc
+            db.query(User).filter(User.id == sponsor.id).update({
+                User.personal_referrals: _sqlfunc.coalesce(User.personal_referrals, 0) + 1,
+            }, synchronize_session=False)
+            db.add(Commission(
+                to_user_id=sponsor.id, from_user_id=target.id,
+                amount_usdt=sponsor_amount, commission_type="membership_sponsor",
+                package_tier=0,
+                notes=f"Partner membership from {target.username} — {months}mo (bank_transfer)",
+                status="paid",
+                paid_at=datetime.utcnow(),
+            ))
+            sponsor_credited = {"username": sponsor.username, "amount": float(sponsor_amount)}
+
+    try:
+        cache_invalidate_leaderboard()
+    except Exception:
+        pass
+
+    db.commit()
+    expiry = target.membership_expires_at.strftime('%d %b %Y')
+    duration_label = f"{months} month{'s' if months != 1 else ''}" if months != 12 else "1 year"
+    logger.info(
+        f"Admin paid-activated PARTNER: {target.username} (${float(fee)}, {duration_label}) "
+        f"via bank transfer, sponsor commission "
+        f"{'paid to @' + sponsor_credited['username'] if sponsor_credited else 'skipped (no sponsor)'}"
+    )
+    return {
+        "success": True,
+        "tier": "partner",
+        "username": target.username,
         "months": months,
+        "amount_received_usd": float(fee),
+        "sponsor_credited": sponsor_credited,
         "expires": expiry,
-        "message": f"{target.username} now has {tier.upper()} membership until {expiry}"
+        "message": (
+            f"@{target.username} activated as Partner for {duration_label}. "
+            f"${float(fee)} received, sponsor "
+            f"{'@' + sponsor_credited['username'] + ' credited $' + str(float(sponsor_amount)) if sponsor_credited else 'commission skipped (no sponsor)'}."
+        ),
     }
 # ── Content Moderation Queue ──
 @app.get("/admin/api/moderation-queue")

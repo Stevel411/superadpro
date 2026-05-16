@@ -633,7 +633,14 @@ function UsersTab() {
                 </button>
               )}
 
-              {/* Gift Membership */}
+              {/* Activate Paid Membership — for bank transfers / off-platform
+                  payments. Routes through the proper commission cascade so
+                  the resulting state is identical to a crypto-paid signup. */}
+              {!detail.is_admin && <PaidActivation userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
+
+              {/* Gift Free Membership — for influencers, team, or promo.
+                  No commission paid, no Payment row. Founder gifts bypass
+                  the 100-spot count so they don't burn real customer inventory. */}
               {!detail.is_admin && <GiftMembership userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
 
               {/* Activate Grid Tier — manual recovery for members who paid
@@ -1457,19 +1464,115 @@ function SuperSceneAnalyticsTab() {
 
 function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-red)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>; }
 
+function PaidActivation(props) {
+  var [tier, setTier] = useState('founder');
+  var [months, setMonths] = useState(1);
+  var [bankRef, setBankRef] = useState('');
+  var [activating, setActivating] = useState(false);
+
+  var amountReceived = tier === 'founder' ? 15 : (20 * months);
+  var sponsorGets = tier === 'founder' ? 10 : (10 * months);
+  var companyGets = tier === 'founder' ? 5 : (10 * months);
+  var durationLabel = tier === 'founder' ? 'lifetime' : (months === 12 ? '1 year' : months + ' months');
+
+  function activate() {
+    if (activating) return;
+    var msg = 'Activate @' + props.username + ' as ' + tier.toUpperCase() +
+      ' (' + durationLabel + ')?\n\n' +
+      '$' + amountReceived + ' received via bank transfer\n' +
+      'Sponsor gets $' + sponsorGets + '\n' +
+      'Company retains $' + companyGets;
+    if (!window.confirm(msg)) return;
+    setActivating(true);
+    var body = { tier: tier, months: months };
+    if (bankRef.trim()) body.bank_reference = bankRef.trim();
+    apiPost('/admin/api/user/' + props.userId + '/activate-paid-membership', body)
+      .then(function(r) {
+        if (r.success) props.onDone(r.message || 'Activated');
+        else props.onDone(r.error || r.detail || 'Failed');
+        setActivating(false);
+      })
+      .catch(function(e) { props.onDone(e.message || 'Failed'); setActivating(false); });
+  }
+
+  return (
+    <div style={{borderTop:'1px solid #e2e8f0',paddingTop:12,marginTop:4,marginBottom:12}}>
+      <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>💳 Activate Paid Membership</div>
+      <div style={{fontSize:11,color:'var(--sap-text-faint)',marginBottom:8,fontStyle:'italic'}}>
+        For real money received via bank transfer or off-platform payment. Triggers sponsor commission.
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:8}}>
+        <div style={{flex:1}}>
+          <div style={{fontSize:13,color:'var(--sap-text-faint)',marginBottom:3}}>Tier</div>
+          <div style={{display:'flex',gap:4}}>
+            {['founder','partner'].map(function(t) {
+              return <button key={t} onClick={function() { setTier(t); }}
+                style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (tier===t?'#f59e0b':'var(--sap-border)'),
+                  background:tier===t?(t==='founder'?'#f59e0b':'var(--sap-purple)'):'#fff',
+                  color:tier===t?'#fff':'var(--sap-text-muted)',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',textTransform:'uppercase'}}>
+                {t}
+              </button>;
+            })}
+          </div>
+        </div>
+        {tier === 'partner' && (
+          <div style={{flex:1.5}}>
+            <div style={{fontSize:13,color:'var(--sap-text-faint)',marginBottom:3}}>Months</div>
+            <div style={{display:'flex',gap:3}}>
+              {[1,3,6,9,12].map(function(m) {
+                return <button key={m} onClick={function() { setMonths(m); }}
+                  style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (months===m?'var(--sap-purple)':'var(--sap-border)'),
+                    background:months===m?'var(--sap-purple)':'#fff',color:months===m?'#fff':'var(--sap-text-muted)',
+                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                  {m === 12 ? '1yr' : m + 'mo'}
+                </button>;
+              })}
+            </div>
+          </div>
+        )}
+        {tier === 'founder' && (
+          <div style={{flex:1.5,display:'flex',alignItems:'flex-end'}}>
+            <div style={{padding:'7px 10px',borderRadius:6,background:'#fef3c7',color:'#92400e',fontSize:12,fontWeight:700,width:'100%',textAlign:'center'}}>
+              ★ Lifetime · $15 fixed
+            </div>
+          </div>
+        )}
+      </div>
+      <input
+        value={bankRef}
+        onChange={function(e) { setBankRef(e.target.value); }}
+        placeholder="Bank reference (optional, for your audit trail)"
+        style={{width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid var(--sap-border)',fontSize:12,fontFamily:'inherit',marginBottom:8,boxSizing:'border-box'}}
+      />
+      <div style={{fontSize:11,color:'var(--sap-text-faint)',marginBottom:8,textAlign:'center'}}>
+        Received: <strong>${amountReceived}</strong> · Sponsor gets: <strong>${sponsorGets}</strong> · Company retains: <strong>${companyGets}</strong>
+      </div>
+      <button onClick={activate} disabled={activating}
+        style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:activating?'default':'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
+          background: tier === 'founder' ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#8b5cf6,#7c3aed)',
+          color:'#fff',opacity:activating?.6:1}}>
+        {activating ? 'Activating...' : '💳 Activate ' + tier.toUpperCase() + ' (' + durationLabel + ') · $' + amountReceived + ' received'}
+      </button>
+    </div>
+  );
+}
+
+
 function GiftMembership(props) {
-  var [tier, setTier] = useState('pro');
-  var [months, setMonths] = useState(12);
+  var [tier, setTier] = useState('partner');
+  var [months, setMonths] = useState(1);
   var [gifting, setGifting] = useState(false);
+
+  var durationLabel = tier === 'founder' ? 'lifetime' : (months === 12 ? '1 year' : months + ' months');
 
   function gift() {
     if (gifting) return;
-    if (!window.confirm('Gift ' + tier.toUpperCase() + ' membership for ' + months + ' months to @' + props.username + '?')) return;
+    if (!window.confirm('Gift ' + tier.toUpperCase() + ' membership (' + durationLabel + ') to @' + props.username + '?\n\nNo commission paid. No Payment record. Founder gifts do NOT consume a founding spot.')) return;
     setGifting(true);
     apiPost('/admin/api/user/' + props.userId + '/gift-membership', { tier: tier, months: months })
       .then(function(r) {
-        if (r.success) props.onDone(r.message || 'Membership gifted!');
-        else props.onDone(r.error || 'Failed');
+        if (r.success) props.onDone(r.message || 'Membership gifted');
+        else props.onDone(r.error || r.detail || 'Failed');
         setGifting(false);
       })
       .catch(function(e) { props.onDone(e.message || 'Failed'); setGifting(false); });
@@ -1477,39 +1580,52 @@ function GiftMembership(props) {
 
   return (
     <div style={{borderTop:'1px solid #e2e8f0',paddingTop:12,marginTop:4}}>
-      <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:8}}>🎁 Gift Free Membership</div>
+      <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>🎁 Gift Free Membership</div>
+      <div style={{fontSize:11,color:'var(--sap-text-faint)',marginBottom:8,fontStyle:'italic'}}>
+        For influencers, team, or promo. No commission paid. Founder gifts bypass the 100-spot cap.
+      </div>
       <div style={{display:'flex',gap:6,marginBottom:8}}>
         <div style={{flex:1}}>
           <div style={{fontSize:13,color:'var(--sap-text-faint)',marginBottom:3}}>Tier</div>
           <div style={{display:'flex',gap:4}}>
-            {['basic','pro'].map(function(t) {
+            {['founder','partner'].map(function(t) {
               return <button key={t} onClick={function() { setTier(t); }}
-                style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (tier===t?'var(--sap-purple)':'var(--sap-border)'),
-                  background:tier===t?(t==='pro'?'var(--sap-purple)':'var(--sap-accent)'):'#fff',
+                style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (tier===t?'#f59e0b':'var(--sap-border)'),
+                  background:tier===t?(t==='founder'?'#f59e0b':'var(--sap-purple)'):'#fff',
                   color:tier===t?'#fff':'var(--sap-text-muted)',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',textTransform:'uppercase'}}>
                 {t}
               </button>;
             })}
           </div>
         </div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:13,color:'var(--sap-text-faint)',marginBottom:3}}>Duration</div>
-          <div style={{display:'flex',gap:4}}>
-            {[1,3,6,12].map(function(m) {
-              return <button key={m} onClick={function() { setMonths(m); }}
-                style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (months===m?'var(--sap-purple)':'var(--sap-border)'),
-                  background:months===m?'var(--sap-purple)':'#fff',color:months===m?'#fff':'var(--sap-text-muted)',
-                  fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
-                {m === 12 ? '1yr' : m + 'mo'}
-              </button>;
-            })}
+        {tier === 'partner' && (
+          <div style={{flex:1.5}}>
+            <div style={{fontSize:13,color:'var(--sap-text-faint)',marginBottom:3}}>Months</div>
+            <div style={{display:'flex',gap:3}}>
+              {[1,3,6,9,12].map(function(m) {
+                return <button key={m} onClick={function() { setMonths(m); }}
+                  style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (months===m?'var(--sap-purple)':'var(--sap-border)'),
+                    background:months===m?'var(--sap-purple)':'#fff',color:months===m?'#fff':'var(--sap-text-muted)',
+                    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                  {m === 12 ? '1yr' : m + 'mo'}
+                </button>;
+              })}
+            </div>
           </div>
-        </div>
+        )}
+        {tier === 'founder' && (
+          <div style={{flex:1.5,display:'flex',alignItems:'flex-end'}}>
+            <div style={{padding:'7px 10px',borderRadius:6,background:'#fef3c7',color:'#92400e',fontSize:12,fontWeight:700,width:'100%',textAlign:'center'}}>
+              ★ Lifetime (gift)
+            </div>
+          </div>
+        )}
       </div>
       <button onClick={gift} disabled={gifting}
         style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:gifting?'default':'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
-          background:'linear-gradient(135deg,#8b5cf6,#7c3aed)',color:'#fff',opacity:gifting?.6:1}}>
-        {gifting ? 'Gifting...' : '🎁 Gift ' + tier.toUpperCase() + ' for ' + (months === 12 ? '1 year' : months + ' months') + ' to @' + props.username}
+          background: tier === 'founder' ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#8b5cf6,#7c3aed)',
+          color:'#fff',opacity:gifting?.6:1}}>
+        {gifting ? 'Gifting...' : '🎁 Gift ' + tier.toUpperCase() + ' (' + durationLabel + ') to @' + props.username}
       </button>
     </div>
   );
