@@ -8718,14 +8718,22 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
     order.internal_order_id = internal_order_id
 
     # ── Create NOWPayments invoice ──
+    # IMPORTANT: always pass custom_price=price_usd (not just for upgrades).
+    # Otherwise create_invoice falls back to PRODUCT_CATALOG[product_key]['price']
+    # which is the standard $20, bypassing our founding-price override at line ~8637.
+    # Test13 hit this bug on 16 May 2026: backend computed $15 founding price
+    # correctly, but the NOWPayments invoice was created at $20 because
+    # custom_price was None unless is_upgrade was True.
     result = nps.create_invoice(
         product_key=product_key,
         user_id=user.id,
         order_id=order.id,
-        custom_price=price_usd if product_meta.get("is_upgrade") else None,
-        custom_description=f"SuperAdPro — {nps.PRODUCT_CATALOG.get(product_key, {}).get('desc', product_key)}"
-            if not product_meta.get("is_upgrade")
-            else "SuperAdPro Pro Membership Upgrade",
+        custom_price=price_usd,
+        custom_description=(
+            "SuperAdPro Pro Membership Upgrade"
+            if product_meta.get("is_upgrade")
+            else f"SuperAdPro — {nps.PRODUCT_CATALOG.get(product_key, {}).get('desc', product_key)}"
+        ),
     )
 
     if not result["success"]:

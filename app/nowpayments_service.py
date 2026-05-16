@@ -147,12 +147,21 @@ def create_invoice(
     if not NOWPAYMENTS_API_KEY:
         return {"success": False, "error": "NOWPayments API key not configured"}
 
-    # Look up product or use custom price (for SuperScene pay-per-use)
+    # Look up product or use custom price.
+    # custom_price wins when provided — callers compute dynamic prices
+    # (founding discount, tier upgrades) that override the catalog price.
+    # If caller doesn't pass custom_price, we fall back to the catalog.
+    # Test13 bug on 16 May 2026: founding-price override at /api/nowpayments/
+    # create-invoice set price_usd=$15, but create_invoice ignored that and
+    # used the $20 catalog price because product_key was in the catalog.
     if product_key in PRODUCT_CATALOG:
         product = PRODUCT_CATALOG[product_key]
-        price_amount = float(product["price"])
-        description = product["desc"]
+        description = custom_description or product["desc"]
         product_type_for_redirect = product.get("type", "membership")
+        if custom_price is not None:
+            price_amount = float(custom_price)
+        else:
+            price_amount = float(product["price"])
     elif custom_price is not None:
         price_amount = float(custom_price)
         description = custom_description or f"SuperAdPro Purchase: {product_key}"
