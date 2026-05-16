@@ -61,6 +61,48 @@ def financial_sanity(db, hours: int = 24):
     except Exception:
         pass
 
+    # WalletConnect/BSC inflows — self-custody payments signed directly by the
+    # member from their own wallet. Lives in walletconnect_payment_orders since
+    # 7 May 2026 when the BSC rail launched parallel to NOWPayments.
+    # `base_amount` is the sticker price (matches the convention used for
+    # crypto_payment_orders above); `unique_amount` is the cent-offset version
+    # the user actually sends (a few cents less). Using base_amount keeps this
+    # report a "product revenue" view consistent with the legacy crypto rail.
+    wc_in = 0.0
+    wc_count = 0
+    wc_by_product: dict[str, dict] = {}
+    try:
+        wc_rows = db.execute(text("""
+            SELECT product_type, COUNT(*) as cnt, COALESCE(SUM(base_amount), 0) as total
+            FROM walletconnect_payment_orders
+            WHERE status = 'confirmed' AND confirmed_at >= :t
+            GROUP BY product_type
+        """), {"t": since}).fetchall()
+        for r in wc_rows:
+            wc_by_product[r.product_type] = {"count": r.cnt, "total_usd": float(r.total or 0)}
+            wc_count += r.cnt
+            wc_in += float(r.total or 0)
+    except Exception:
+        pass
+
+    # Orphan transfers — money at the treasury that DID arrive but couldn't be
+    # auto-matched to a pending order. Surfaced separately (not summed into the
+    # main inflow total) because it represents unallocated funds awaiting manual
+    # reconciliation rather than confirmed product revenue.
+    orphan_unresolved_usd = 0.0
+    orphan_unresolved_count = 0
+    try:
+        orphan_row = db.execute(text("""
+            SELECT COUNT(*), COALESCE(SUM(amount_usdt), 0)
+            FROM onchain_orphan_transfers
+            WHERE resolved = false AND seen_at >= :t
+        """), {"t": since}).fetchone()
+        if orphan_row:
+            orphan_unresolved_count = orphan_row[0]
+            orphan_unresolved_usd = float(orphan_row[1] or 0)
+    except Exception:
+        pass
+
     # ── OUTFLOWS: commissions paid ──
     course_comms_out = db.execute(text("""
         SELECT COALESCE(SUM(amount), 0)
@@ -138,7 +180,7 @@ def financial_sanity(db, hours: int = 24):
     # Inflows should ~ commissions + platform retention + AI costs (not tracked here)
     # For a rough check: commissions paid shouldn't exceed inflows (that would mean
     # we're paying out money we didn't collect).
-    total_in = total_crypto_in + np_in
+    total_in = total_crypto_in + np_in + wc_in
     total_platform_retained = (
         float(company_retained_grid)
         + float(company_retained_membership)
@@ -171,6 +213,11 @@ def financial_sanity(db, hours: int = 24):
             "crypto_total_usd": round(total_crypto_in, 2),
             "nowpayments_count": np_count,
             "nowpayments_total_usd": round(np_in, 2),
+            "walletconnect_count": wc_count,
+            "walletconnect_total_usd": round(wc_in, 2),
+            "walletconnect_by_product": wc_by_product,
+            "orphan_transfers_unresolved_count": orphan_unresolved_count,
+            "orphan_transfers_unresolved_usd": round(orphan_unresolved_usd, 2),
             "total_usd": round(total_in, 2),
         },
         "outflows": {
