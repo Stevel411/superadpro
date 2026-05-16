@@ -5478,6 +5478,49 @@ def admin_api_rotator_state(
     }
 
 
+def _enrol_user_to_rotator(db: Session, user_id: int) -> bool:
+    """Add a user to the rotator queue at the back, flip rotator_opted_in=TRUE.
+
+    Idempotent: if the user is already in rotator_queue, no-op. If they're
+    already opted in, no-op. Safe to call from any code path that creates
+    or activates a Founder — the caller doesn't need to check whether
+    the user is already enrolled.
+
+    Returns True if a new row was inserted, False if the user was already
+    in the queue.
+
+    Concurrency: queue_position is computed as MAX+1 inside this call. Two
+    simultaneous Founder activations could theoretically race and produce
+    duplicate positions, but rotator_queue.user_id is UNIQUE so the second
+    INSERT would fail (caught by ON CONFLICT DO NOTHING). The picker
+    sorts by queue_position ASC and tolerates duplicate positions —
+    worst case is one extra signup landing on the same Founder before
+    they rotate. Not worth the cost of a serialised lock for what's at
+    most one or two activations per minute in real load.
+    """
+    from sqlalchemy import text as _text
+    try:
+        max_pos_row = db.execute(_text(
+            "SELECT COALESCE(MAX(queue_position), 0) FROM rotator_queue"
+        )).fetchone()
+        new_pos = (max_pos_row[0] or 0) + 1
+        result = db.execute(_text(
+            "INSERT INTO rotator_queue (user_id, queue_position, joined_at) "
+            "VALUES (:uid, :pos, NOW()) ON CONFLICT (user_id) DO NOTHING"
+        ), {"uid": user_id, "pos": new_pos})
+        db.execute(_text(
+            "UPDATE users SET rotator_opted_in = TRUE "
+            "WHERE id = :uid AND COALESCE(rotator_opted_in, FALSE) = FALSE"
+        ), {"uid": user_id})
+        inserted = bool(getattr(result, 'rowcount', 0))
+        if inserted:
+            logger.info(f"rotator: enrolled user_id={user_id} at queue_position={new_pos}")
+        return inserted
+    except Exception as e:
+        logger.warning(f"rotator: enrol failed for user_id={user_id}: {e}")
+        return False
+
+
 def _pick_next_rotator_sponsor(db: Session):
     """Return the user_id at the front of the rotator queue, atomically
     moving them to the back. Returns None if queue is empty.
@@ -5878,6 +5921,11 @@ def api_membership_activate_from_balance(
         user.founding_spot_number = founding_spot_claimed
         user.membership_price_locked = decimal.Decimal("15.00")
         user.membership_tier = "founding"
+        # Auto-enrol the new Founder into the rotator queue. db.flush()
+        # would have been called by SQLAlchemy by now or will be on the
+        # eventual commit — _enrol_user_to_rotator's INSERT just needs
+        # user.id, which is already persisted.
+        _enrol_user_to_rotator(db, user.id)
     else:
         user.membership_tier = "partner"
     user.activated_at = user.activated_at or datetime.utcnow()
@@ -7218,6 +7266,11 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                 user.membership_price_locked = Decimal("15.00")
                 # Flush so the locked_price read below sees the new value.
                 db.flush()
+                # Auto-enrol the new Founder into the rotator queue so they
+                # start receiving distributed /start signups immediately.
+                # Idempotent — safe if somehow already enrolled (gift→paid
+                # upgrade path, manual admin intervention, etc.).
+                _enrol_user_to_rotator(db, user.id)
                 logger.info(
                     f"Founding spot #{next_spot} claimed by user {user.id} "
                     f"({user.username}) — {FOUNDING_TOTAL - next_spot} spots remaining"
@@ -13065,6 +13118,12 @@ async def admin_api_gift_membership(
         duration_label = f"{months} months" if months != 12 else "1 year"
 
     db.commit()
+    # If this was a gifted Founder, auto-enrol them into the rotator queue
+    # so they start receiving distributed signups. Same idempotent helper
+    # used by the paid path — no-op for non-Founder gifts.
+    if tier == "founder":
+        _enrol_user_to_rotator(db, target.id)
+        db.commit()
     logger.info(
         f"Admin gifted membership: {target.username} → {tier.upper()} "
         f"({duration_label}, no commission, no payment record)"
@@ -13317,6 +13376,13 @@ async def admin_api_activate_paid_membership(
         except Exception:
             pass
 
+        db.commit()
+        # Auto-enrol this newly activated Founder into the rotator queue.
+        # Safe to call after commit because _enrol_user_to_rotator does its
+        # own INSERT — we just need target.id to be persisted. Idempotent so
+        # re-running on a Founder who somehow already exists in the queue
+        # is a no-op.
+        _enrol_user_to_rotator(db, target.id)
         db.commit()
         logger.info(
             f"Admin paid-activated FOUNDER: {target.username} (spot {spot_number}) "
