@@ -5297,6 +5297,113 @@ def api_delete_campaign(campaign_id: int, request: Request,
     return {"success": True, "message": "Campaign deleted"}
 
 
+@app.get("/admin/api/rotator-state")
+def admin_api_rotator_state(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: full rotator queue introspection.
+
+    Returns:
+      queue: every row in rotator_queue with the joined user details
+        (queue_position, user_id, username, is_active, rotator_opted_in,
+        is_admin, is_founding_member, last_assigned_at)
+      eligible_pick: who would be picked next given the current filters
+      recent_assignments: last 20 rotator-assigned signups with sponsors
+      diagnostics: counts that explain queue state at a glance
+
+    Built 16 May 2026 in response to Steve reporting that /start signups
+    were landing on the house account — needed visibility to diagnose
+    whether the queue was empty, had ineligible rows, or had a picker
+    bug. Keep this endpoint long term; rotator state should always be
+    inspectable.
+    """
+    _require_admin(user)
+    from sqlalchemy import text as _text
+
+    queue_rows = db.execute(_text("""
+        SELECT rq.queue_position, rq.user_id, u.username,
+               u.is_active, u.rotator_opted_in, u.is_admin,
+               u.is_founding_member, u.founding_spot_number,
+               rq.joined_at, rq.last_assigned_at
+          FROM rotator_queue rq
+          JOIN users u ON u.id = rq.user_id
+         ORDER BY rq.queue_position ASC
+    """)).fetchall()
+    queue = [{
+        "queue_position": r[0],
+        "user_id": r[1],
+        "username": r[2],
+        "is_active": bool(r[3]),
+        "rotator_opted_in": bool(r[4]),
+        "is_admin": bool(r[5]),
+        "is_founding_member": bool(r[6]),
+        "founding_spot_number": r[7],
+        "joined_at": r[8].isoformat() if r[8] else None,
+        "last_assigned_at": r[9].isoformat() if r[9] else None,
+        "eligible_for_pick": bool(r[3]) and bool(r[4]),
+    } for r in queue_rows]
+
+    eligible_pick_row = db.execute(_text(
+        "SELECT rq.user_id, u.username "
+        "  FROM rotator_queue rq "
+        "  JOIN users u ON u.id = rq.user_id "
+        " WHERE u.is_active = true "
+        "   AND u.rotator_opted_in = true "
+        " ORDER BY rq.queue_position ASC "
+        " LIMIT 1"
+    )).fetchone()
+    eligible_pick = None
+    if eligible_pick_row:
+        eligible_pick = {"user_id": eligible_pick_row[0], "username": eligible_pick_row[1]}
+
+    recent_rows = db.execute(_text("""
+        SELECT ra.id, ra.signup_user_id, su.username AS signup_username,
+               ra.assigned_sponsor_id, sp.username AS sponsor_username,
+               ra.funnel_source, ra.assigned_at
+          FROM rotator_assignments ra
+          LEFT JOIN users su ON su.id = ra.signup_user_id
+          LEFT JOIN users sp ON sp.id = ra.assigned_sponsor_id
+         ORDER BY ra.id DESC
+         LIMIT 20
+    """)).fetchall()
+    recent_assignments = [{
+        "id": r[0],
+        "signup_user_id": r[1],
+        "signup_username": r[2],
+        "assigned_sponsor_id": r[3],
+        "assigned_sponsor_username": r[4],
+        "funnel_source": r[5],
+        "assigned_at": r[6].isoformat() if r[6] else None,
+    } for r in recent_rows]
+
+    total_in_queue = len(queue)
+    eligible_count = sum(1 for q in queue if q["eligible_for_pick"])
+    opted_in_users = db.execute(_text(
+        "SELECT COUNT(*) FROM users WHERE rotator_opted_in = true"
+    )).scalar() or 0
+    active_founders = db.execute(_text(
+        "SELECT COUNT(*) FROM users "
+        " WHERE is_active = true "
+        "   AND is_founding_member = true "
+        "   AND COALESCE(is_admin, FALSE) = FALSE"
+    )).scalar() or 0
+
+    return {
+        "diagnostics": {
+            "total_in_queue": total_in_queue,
+            "eligible_for_pick_now": eligible_count,
+            "opted_in_users_total": opted_in_users,
+            "active_non_admin_founders": active_founders,
+            "queue_works": eligible_pick is not None,
+        },
+        "next_pick_would_be": eligible_pick,
+        "queue": queue,
+        "recent_assignments": recent_assignments,
+    }
+
+
 def _pick_next_rotator_sponsor(db: Session):
     """Return the user_id at the front of the rotator queue, atomically
     moving them to the back. Returns None if queue is empty.

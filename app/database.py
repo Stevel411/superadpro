@@ -2186,7 +2186,16 @@ def autoenrol_founders_to_rotator():
             """)).fetchall()
 
             if not rows:
-                return  # silent no-op
+                # No eligible Founders to enrol (either all already in queue,
+                # or none active). Log so deploy logs always show migration ran.
+                existing_count = conn.execute(text(
+                    "SELECT COUNT(*) FROM rotator_queue"
+                )).scalar() or 0
+                print(
+                    f"✓ Rotator auto-enrol: 0 new enrolments needed "
+                    f"(queue already has {existing_count} member(s))"
+                )
+                return
 
             # Current max position so we slot new enrolments at the back
             mx_row = conn.execute(text(
