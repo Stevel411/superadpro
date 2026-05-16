@@ -1074,6 +1074,27 @@ class EmailSendLog(Base):
     clicked_at      = Column(DateTime, nullable=True)
 
 
+class BroadcastLog(Base):
+    """Platform-broadcast email audit trail.
+
+    Distinct from EmailSendLog (which tracks autoresponder sends to
+    member-owned leads). This tracks broadcasts FROM SuperAdPro TO
+    members — e.g. pricing changes, feature launches, founding offer
+    announcements. One row per recipient per broadcast.
+
+    Added 16 May 2026 for the Founding Partner pricing broadcast.
+    """
+    __tablename__ = "broadcast_log"
+    id               = Column(Integer, primary_key=True, index=True)
+    broadcast_key    = Column(String(64), index=True, nullable=False)  # e.g. "founder_offer_2026_05"
+    user_id          = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    email_address    = Column(String, nullable=False)  # snapshot at send time
+    brevo_message_id = Column(String, nullable=True)
+    status           = Column(String, default="sent")  # sent | failed | skipped
+    error_message    = Column(Text, nullable=True)
+    sent_at          = Column(DateTime, default=datetime.utcnow, index=True)
+
+
 # ═══════════════════════════════════════════════════════════════
 #  MEMBER COURSE MARKETPLACE
 # ═══════════════════════════════════════════════════════════════

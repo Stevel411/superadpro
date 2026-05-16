@@ -12,16 +12,64 @@ SITE_URL      = os.getenv("SITE_URL", "https://www.superadpro.com")
 FROM_DISPLAY  = "SuperAdPro"
 
 
-def send_email(to_email: str, subject: str, html_body: str, text_body: str = "") -> bool:
+def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
+               from_email: str = None, from_name: str = None,
+               reply_to_email: str = None, reply_to_name: str = None,
+               return_message_id: bool = False):
+    """Send a transactional email via Brevo.
+
+    By default uses the platform's noreply sender. For broadcasts that
+    should appear FROM Steve personally, pass from_email='steve@superadpro.com'
+    and from_name='Steve Lawson'. reply_to_email lets replies go to a
+    different address than the sender.
+
+    Returns True/False by default. Pass return_message_id=True to get
+    a (success, brevo_message_id) tuple for audit logging.
+    """
     if not BREVO_API_KEY:
-        logger.error("BREVO_API_KEY not set"); return False
-    payload = json.dumps({"sender":{"name":FROM_DISPLAY,"email":FROM_EMAIL},"to":[{"email":to_email}],"subject":subject,"htmlContent":html_body,"textContent":text_body or subject}).encode("utf-8")
-    req = urllib.request.Request("https://api.brevo.com/v3/smtp/email", data=payload, headers={"accept":"application/json","api-key":BREVO_API_KEY,"content-type":"application/json"}, method="POST")
+        logger.error("BREVO_API_KEY not set")
+        return (False, None) if return_message_id else False
+    payload_dict = {
+        "sender": {
+            "name": from_name or FROM_DISPLAY,
+            "email": from_email or FROM_EMAIL,
+        },
+        "to": [{"email": to_email}],
+        "subject": subject,
+        "htmlContent": html_body,
+        "textContent": text_body or subject,
+    }
+    if reply_to_email:
+        payload_dict["replyTo"] = {
+            "email": reply_to_email,
+            "name": reply_to_name or from_name or FROM_DISPLAY,
+        }
+    payload = json.dumps(payload_dict).encode("utf-8")
+    req = urllib.request.Request(
+        "https://api.brevo.com/v3/smtp/email",
+        data=payload,
+        headers={
+            "accept": "application/json",
+            "api-key": BREVO_API_KEY,
+            "content-type": "application/json",
+        },
+        method="POST",
+    )
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
-            ok = resp.status in (200, 201); logger.info(f"Email sent to {to_email}: {resp.status}"); return ok
+            ok = resp.status in (200, 201)
+            msg_id = None
+            if ok:
+                try:
+                    body = json.loads(resp.read().decode("utf-8"))
+                    msg_id = body.get("messageId")
+                except Exception:
+                    pass
+            logger.info(f"Email sent to {to_email}: {resp.status}")
+            return (ok, msg_id) if return_message_id else ok
     except Exception as e:
-        logger.error(f"Email failed to {to_email}: {e}"); return False
+        logger.error(f"Email failed to {to_email}: {e}")
+        return (False, None) if return_message_id else False
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -299,3 +347,166 @@ def send_nurture_email(to_email, first_name, email_num):
         hbg = "linear-gradient(135deg,#fef2f2,#fee2e2)"
 
     return send_email(to_email, subj, _nurture_shell(f"Email {email_num} of 5", hbg, hero, body))
+
+
+# ═══════════════════════════════════════════════════════════════
+# FOUNDING PARTNER BROADCAST — 16 May 2026
+# ═══════════════════════════════════════════════════════════════
+def render_founder_offer_email(first_name: str, spots_remaining: int = 82) -> dict:
+    """Render the Founding Partner pricing broadcast for one recipient.
+
+    Returns {'subject', 'html', 'text'} so callers can either send
+    immediately or preview the rendered output.
+
+    spots_remaining is interpolated into the body — read the live count
+    from /api/founding-members/status at send time so the email is
+    accurate at the moment of delivery.
+
+    Tone: Steve-personal, founder voice, plain numbers, no hype.
+    From: steve@superadpro.com (not noreply) so replies go to Steve.
+    """
+    safe_name = (first_name or "there").strip() or "there"
+    cta = f"{SITE_URL}/upgrade"
+
+    # Subject line — fixed per Steve's call on the draft
+    subject = f"{spots_remaining} founding member spots available"
+
+    # Hero section — same shell pattern as other emails
+    hero = (
+        f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f172a;line-height:1.3">'
+        f"Hi {safe_name},</p>"
+        f'<p style="margin:0;font-size:15px;color:#334155;line-height:1.7">'
+        f"Steve here &mdash; founder of SuperAdPro. I'm writing because I made a change to the platform "
+        f"this week that affects you directly, and I'd rather tell you about it personally than let you "
+        f"find out by accident.</p>"
+    )
+
+    # Body sections — built as cards so they render reliably across mail clients
+    section_short = _card(
+        '<p style="margin:0 0 12px;font-size:15px;color:#0f172a;line-height:1.7"><strong>The short version:</strong> '
+        'I scrapped the old Basic and Pro tier structure. From now on there\'s just one paid membership, '
+        'called <strong>Partner</strong>, at $20/month. Everyone gets the full platform &mdash; Creative Studio, '
+        'the Brand Poster Generator, MyLeads CRM, the AI tools, the lot. No upgrade prompts. No locked features. '
+        'One price, everything included.</p>',
+        bg='#f8fafc', border='#e2e8f0',
+    )
+
+    section_founding_intro = (
+        '<p style="margin:24px 0 12px;font-size:17px;font-weight:800;color:#0f172a">'
+        'Now here\'s the bit that matters for you specifically.</p>'
+    )
+
+    section_founding_offer = _card(
+        '<p style="margin:0 0 12px;font-size:15px;color:#78350f;line-height:1.7">'
+        'I\'ve put aside the first 100 paid memberships as <strong>Founding Partner spots</strong> at '
+        '<strong>$15/month &mdash; locked for life</strong>. That means whatever I charge new members next year '
+        'or the year after, your price never changes. Ever.</p>'
+        '<p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">'
+        'Founding Partners also get a badge on their profile, early access to anything new I build, and the '
+        'recognition that you backed this platform when it was just starting out.</p>',
+        bg='#fffbeb', border='#fde68a',
+    )
+
+    section_spots_left = (
+        '<div style="text-align:center;margin:24px 0">'
+        f'<p style="margin:0;font-size:28px;font-weight:900;color:#d97706;line-height:1.2">'
+        f'As of right now, there are {spots_remaining} spots left.</p>'
+        '</div>'
+    )
+
+    section_no_pressure = (
+        '<p style="margin:0 0 16px;font-size:15px;color:#334155;line-height:1.7">'
+        'You don\'t have to take one. Your free account stays open either way. But if you\'ve been on the '
+        'fence, this is the cheapest the membership will ever be, and the offer disappears the moment '
+        'spot #100 is claimed.</p>'
+    )
+
+    section_math = _card(
+        '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#15803d;margin:0 0 14px">'
+        'Quick math at $15/month</p>'
+        + _check(
+            'Refer 1 Partner &rarr; you earn $10/month back',
+            'Refer 2 Partners &rarr; membership pays for itself with $5/month profit',
+            'Refer 5 Partners &rarr; $35/month profit',
+            'Plus you\'re earning from your whole network through the Profit Grid, the Nexus matrix, and the Course Academy',
+        ),
+        bg='#f0fdf4', border='#bbf7d0',
+    )
+
+    section_cta = _btn(cta, "Claim my Founding Partner spot &rarr;", "#d97706")
+
+    section_reply = (
+        '<p style="margin:24px 0 0;font-size:14px;color:#475569;line-height:1.7">'
+        'If you\'ve got questions or want to push back on the pricing change, just reply to this email. '
+        'It comes straight to me.</p>'
+        '<p style="margin:14px 0 0;font-size:14px;color:#475569;line-height:1.7">'
+        'Either way &mdash; thanks for being here.</p>'
+        '<p style="margin:18px 0 4px;font-size:15px;font-weight:700;color:#0f172a">Steve</p>'
+        '<p style="margin:0;font-size:13px;color:#64748b">Founder, SuperAdPro</p>'
+    )
+
+    body = (
+        section_short
+        + section_founding_intro
+        + section_founding_offer
+        + section_spots_left
+        + section_no_pressure
+        + section_math
+        + section_cta
+        + section_reply
+    )
+
+    html = _shell(
+        "Quick update from Steve",
+        "linear-gradient(135deg,#ffffff,#f1f5f9)",
+        hero,
+        body,
+    )
+
+    # Plain-text fallback for mail clients that don't render HTML
+    text = (
+        f"Hi {safe_name},\n\n"
+        "Steve here — founder of SuperAdPro. I'm writing because I made a change to the platform "
+        "this week that affects you directly.\n\n"
+        "The short version: I scrapped the Basic and Pro tier structure. From now on there's just "
+        "one paid membership, called Partner, at $20/month. Everyone gets the full platform.\n\n"
+        f"Now here's the bit that matters for you: I've put aside the first 100 paid memberships as "
+        f"Founding Partner spots at $15/month — locked for life. As of right now, there are "
+        f"{spots_remaining} spots left.\n\n"
+        "You don't have to take one. Your free account stays open either way. But this is the "
+        "cheapest the membership will ever be, and the offer disappears the moment spot #100 is claimed.\n\n"
+        "Quick math at $15/month:\n"
+        "  - Refer 1 Partner → you earn $10/month back\n"
+        "  - Refer 2 Partners → membership pays for itself with $5/month profit\n"
+        "  - Refer 5 Partners → $35/month profit\n"
+        "  - Plus you're earning from your whole network through Profit Grid, Nexus matrix, Course Academy\n\n"
+        f"Claim a spot: {cta}\n\n"
+        "If you've got questions or want to push back on the pricing change, just reply to this email. "
+        "It comes straight to me.\n\n"
+        "Either way — thanks for being here.\n\n"
+        "Steve\n"
+        "Founder, SuperAdPro\n"
+    )
+
+    return {"subject": subject, "html": html, "text": text}
+
+
+def send_founder_offer_broadcast_one(to_email: str, first_name: str,
+                                     spots_remaining: int = 82):
+    """Send the founder-offer broadcast to a single recipient.
+
+    Used by the admin batch endpoint. Returns (success, brevo_message_id).
+    From address is steve@superadpro.com so replies route to Steve's inbox.
+    """
+    rendered = render_founder_offer_email(first_name, spots_remaining)
+    return send_email(
+        to_email,
+        rendered["subject"],
+        rendered["html"],
+        rendered["text"],
+        from_email="steve@superadpro.com",
+        from_name="Steve Lawson",
+        reply_to_email="steve@superadpro.com",
+        reply_to_name="Steve Lawson",
+        return_message_id=True,
+    )
