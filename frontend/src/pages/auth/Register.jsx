@@ -308,6 +308,29 @@ export default function Register() {
                 <div style={{ fontSize: 12, color: 'var(--sap-green-mid)', fontWeight: 700, whiteSpace: 'nowrap' }}>{t('auth.verified')}</div>
               </div>
             </div>
+          ) : viaIsCompanyFunnel ? (
+            // Hide the sponsor field entirely when the visitor came through
+            // /start or another company funnel. The backend rotator will
+            // assign a real Founder as sponsor automatically; showing an
+            // empty 'Sponsor's username' field with 'SuperAdPro' as the
+            // placeholder text was being read as "you're being assigned
+            // to the company account." Removing it eliminates that
+            // confusion and signals trust — they don't have to know or
+            // care who their sponsor is, the system handles it.
+            <div style={styles.field}>
+              <div style={{
+                background: 'rgba(34,211,238,.08)',
+                border: '1px solid rgba(34,211,238,.2)',
+                borderRadius: 10,
+                padding: '12px 16px',
+                fontSize: 13,
+                color: 'rgba(255,255,255,.75)',
+                lineHeight: 1.5,
+              }}>
+                <div style={{ fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>You'll be matched with an active Founder</div>
+                We'll connect you with one of our 23 active Founding Partners — they're successful members of the platform and your point of contact.
+              </div>
+            </div>
           ) : (
             <div style={styles.field}>
               <label style={styles.label}>{t('common.sponsorUsername')} <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>{t('auth.whoReferred')}</span></label>
