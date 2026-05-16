@@ -114,12 +114,12 @@ export default function VideoLibrary() {
                       </div>
                     )}
                     {c.video_url && (
-                      <a href={c.video_url} target="_blank" rel="noreferrer"
+                      <Link to={'/watch?preview=' + c.id}
                         style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,.35)',opacity:0,transition:'opacity .2s',cursor:'pointer'}}
                         onMouseEnter={function(e){e.currentTarget.style.opacity='1';}}
                         onMouseLeave={function(e){e.currentTarget.style.opacity='0';}}>
                         <Play size={28} color="#fff" fill="#fff"/>
-                      </a>
+                      </Link>
                     )}
                   </div>
 
@@ -166,10 +166,10 @@ export default function VideoLibrary() {
                       />
                     )}
                     {c.video_url && (
-                      <a href={c.video_url} target="_blank" rel="noreferrer"
+                      <Link to={'/watch?preview=' + c.id}
                         style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:700,color:'var(--sap-accent)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(14,165,233,.2)',background:'rgba(14,165,233,.04)',textDecoration:'none',cursor:'pointer'}}>
                         <Eye size={12}/> {t('videos.view')}
-                      </a>
+                      </Link>
                     )}
                     <button onClick={function(){deleteCampaign(c.id, c.title);}} disabled={deleting === c.id}
                       style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:700,color:'var(--sap-red)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(220,38,38,.15)',background:'rgba(220,38,38,.04)',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>

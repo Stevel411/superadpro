@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
@@ -104,9 +104,34 @@ export default function Watch() {
   const timerRef = useRef(null);
   const iframeRef = useRef(null);
 
+  const [searchParams] = useSearchParams();
+  const previewCampaignId = searchParams.get('preview');
+  const isPreviewMode = !!previewCampaignId;
+
   useEffect(() => {
+    if (isPreviewMode) {
+      // Preview mode: campaign owner (or admin) wants to see their own
+      // ad rendered in the Watch chrome. No rotation, no timer, no quota,
+      // no completion submission. We synthesise a data payload of the
+      // same shape /api/watch returns so the rest of the render pipeline
+      // works unchanged — just gated by the is_preview flag where the
+      // owner-only UI needs to differ.
+      apiGet('/api/watch/preview/' + previewCampaignId).then(r => {
+        setData({
+          is_preview: true,
+          videos: [r.video],
+          watched_today: 0,
+          daily_required: 1,
+          is_exempt: false,
+          quota_reached: false,
+          has_campaign_tier: true,
+        });
+        setLoading(false);
+      }).catch(() => setLoading(false));
+      return;
+    }
     apiGet('/api/watch').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
+  }, [isPreviewMode, previewCampaignId]);
 
   useEffect(() => {
     if (!data?.videos?.length) return;
@@ -137,13 +162,14 @@ export default function Watch() {
   }, [currentIdx, data]);
 
   useEffect(() => {
+    if (isPreviewMode) return;  // Preview: no timer, no countdown
     if (currentIdx < 0 || !data?.videos?.length) return;
     const cur = data.videos[currentIdx];
     if (cur?.is_watched || paused || timerDone) return;
     if (secondsLeft > 0) { timerRef.current = setTimeout(() => setSecondsLeft(s => s - 1), 1000); }
     else { setTimerDone(true); }
     return () => clearTimeout(timerRef.current);
-  }, [secondsLeft, paused, timerDone, data, currentIdx]);
+  }, [secondsLeft, paused, timerDone, data, currentIdx, isPreviewMode]);
 
   useEffect(() => {
     const onHide = () => { if (document.hidden) setPaused(true); };
@@ -161,6 +187,12 @@ export default function Watch() {
 
   const [markError, setMarkError] = useState(null);
   const markAsWatched = async () => {
+    // Preview mode hard-stop: campaign owners previewing their own ad
+    // must NEVER hit /api/watch/complete. This guard is belt-and-braces
+    // alongside hiding the button — defence in depth in case the button
+    // ever renders by mistake. The button itself is already hidden when
+    // data.is_preview === true (see render section).
+    if (isPreviewMode) return;
     if (submitted || currentIdx < 0) return;
     const video = data.videos[currentIdx];
     if (!video) return;
@@ -600,7 +632,7 @@ export default function Watch() {
                 <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title||t('watch.loading')}</div>
                 <div style={{fontSize:14,color:'var(--sap-text-muted)',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform||'video'} · {current?.category||t('watch.general')}</div>
               </div>
-              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>▶ {t('watch.watching')}</div>
+              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>{isPreviewMode ? '👁 ' + t('watch.previewMode', { defaultValue: 'Preview' }) : '▶ ' + t('watch.watching')}</div>
             </div>
 
             {/* Video */}
@@ -660,34 +692,57 @@ export default function Watch() {
             )}
 
             {/* Desktop footer */}
-            <div className="watch-hint" style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,background:'var(--sap-bg-input)',borderTop:'1px solid #f1f3f7'}}>
-              <div style={{display:'flex',alignItems:'center',gap:14}}>
-                <TimerRing size={56}/>
-                <div>
-                  <div style={{fontSize:14,fontWeight:700,color:statusColor}}>{statusText}</div>
-                  <div style={{fontSize:14,color:'#b8c4d0',marginTop:2}}>{t('watch.mustWatch30s')}</div>
+            {isPreviewMode ? (
+              <div className="watch-hint" style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,background:'linear-gradient(90deg, rgba(14,165,233,.08), rgba(124,58,237,.08))',borderTop:'1px solid rgba(14,165,233,.18)'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:9,fontWeight:800,letterSpacing:1.2,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.25)',padding:'4px 10px',borderRadius:6}}>👁 {t('watch.previewMode', { defaultValue: 'Preview Mode' })}</span>
+                  <div style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:600}}>{t('watch.previewHint', { defaultValue: 'You\u2019re viewing your own ad — no timer, no view counted.' })}</div>
                 </div>
+                <Link to="/video-library"
+                  style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 16px',background:'var(--sap-accent)',color:'#fff',borderRadius:8,fontSize:14,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
+                  ← {t('watch.backToCampaigns', { defaultValue: 'Back to My Campaigns' })}
+                </Link>
               </div>
-              <button onClick={markAsWatched} disabled={!btnReady}
-                className={'mark-btn ' + (btnReady ? 'ready' : 'disabled')}>
-                {submitted ? t('watch.submitting') : t('watch.markAsWatched')}
-              </button>
-            </div>
+            ) : (
+              <div className="watch-hint" style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,background:'var(--sap-bg-input)',borderTop:'1px solid #f1f3f7'}}>
+                <div style={{display:'flex',alignItems:'center',gap:14}}>
+                  <TimerRing size={56}/>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:700,color:statusColor}}>{statusText}</div>
+                    <div style={{fontSize:14,color:'#b8c4d0',marginTop:2}}>{t('watch.mustWatch30s')}</div>
+                  </div>
+                </div>
+                <button onClick={markAsWatched} disabled={!btnReady}
+                  className={'mark-btn ' + (btnReady ? 'ready' : 'disabled')}>
+                  {submitted ? t('watch.submitting') : t('watch.markAsWatched')}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* ── MOBILE: Timer + Mark button ── */}
-          <div className="watch-mobile-timer" style={{display:'none',alignItems:'center',gap:14,padding:'14px 20px',background:'#fff',borderTop:'1px solid #e8ecf2',borderBottom:'1px solid #e8ecf2'}}>
-            <TimerRing size={56}/>
-            <div style={{flex:1}}>
-              <div style={{fontSize:14,fontWeight:700,color:statusColor,marginBottom:2}}>{statusText}</div>
-              <div style={{fontSize:14,color:'var(--sap-text-muted)',fontWeight:500}}>{t('watch.ofVideos', {watched, limit})}</div>
+          {isPreviewMode ? (
+            <div className="watch-mobile-timer" style={{display:'none',alignItems:'center',gap:10,padding:'14px 20px',background:'linear-gradient(90deg, rgba(14,165,233,.08), rgba(124,58,237,.08))',borderTop:'1px solid rgba(14,165,233,.18)',borderBottom:'1px solid rgba(14,165,233,.18)',flexWrap:'wrap'}}>
+              <span style={{fontSize:9,fontWeight:800,letterSpacing:1.2,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.25)',padding:'4px 10px',borderRadius:6}}>👁 {t('watch.previewMode', { defaultValue: 'Preview Mode' })}</span>
+              <Link to="/video-library"
+                style={{marginLeft:'auto',display:'inline-flex',alignItems:'center',gap:6,padding:'10px 16px',background:'var(--sap-accent)',color:'#fff',borderRadius:8,fontSize:13,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
+                ← {t('watch.backToCampaigns', { defaultValue: 'Back to My Campaigns' })}
+              </Link>
             </div>
-            <button onClick={markAsWatched} disabled={!btnReady}
-              className={'mark-btn ' + (btnReady ? 'ready' : 'disabled')}
-              style={{padding:'13px 20px',fontSize:13}}>
-              {submitted ? '...' : btnReady ? t('watch.mark') : `${secondsLeft}s`}
-            </button>
-          </div>
+          ) : (
+            <div className="watch-mobile-timer" style={{display:'none',alignItems:'center',gap:14,padding:'14px 20px',background:'#fff',borderTop:'1px solid #e8ecf2',borderBottom:'1px solid #e8ecf2'}}>
+              <TimerRing size={56}/>
+              <div style={{flex:1}}>
+                <div style={{fontSize:14,fontWeight:700,color:statusColor,marginBottom:2}}>{statusText}</div>
+                <div style={{fontSize:14,color:'var(--sap-text-muted)',fontWeight:500}}>{t('watch.ofVideos', {watched, limit})}</div>
+              </div>
+              <button onClick={markAsWatched} disabled={!btnReady}
+                className={'mark-btn ' + (btnReady ? 'ready' : 'disabled')}
+                style={{padding:'13px 20px',fontSize:13}}>
+                {submitted ? '...' : btnReady ? t('watch.mark') : `${secondsLeft}s`}
+              </button>
+            </div>
+          )}
 
           {/* ── MOBILE: Progress dots (only when limit > 1) ── */}
           {limit > 1 && (

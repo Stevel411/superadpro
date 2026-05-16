@@ -5279,6 +5279,64 @@ def api_delete_campaign(campaign_id: int, request: Request,
     db.commit()
     return {"success": True, "message": "Campaign deleted"}
 
+
+@app.get("/api/watch/preview/{campaign_id}")
+def api_watch_preview(campaign_id: int, request: Request,
+                      db: Session = Depends(get_db),
+                      user: User = Depends(get_current_user)):
+    """Owner-preview of a single campaign in the Watch player chrome.
+
+    Returns the same video shape /api/watch returns inside its videos[] array,
+    wrapped in a payload the React Watch page can render in 'preview' mode.
+
+    Permissions:
+      - Campaign owner (user_id == requester) can preview their own ad
+      - Admins can preview any campaign
+      - Everyone else gets 404 (not 403, to avoid leaking existence)
+
+    Preview mode characteristics (enforced by the React page reading
+    is_preview=True in the response):
+      - No 30s timer, no 'Mark as watched' button
+      - Never hits /api/watch/complete, so no VideoWatch row is written
+      - No quota tick, no earnings, no rotation involvement
+      - views_delivered is NOT incremented (owner can't accidentally burn
+        their own ad budget by previewing)
+
+    Created 16 May 2026 to replace the broken 'View' button on the React
+    My Campaigns page, which was sending owners to the raw YouTube URL in
+    a new tab — leaking viewers off platform and skipping the actual Watch
+    chrome the owner wanted to preview.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    campaign = db.query(VideoCampaign).filter(
+        VideoCampaign.id == campaign_id,
+        VideoCampaign.status != "deleted",
+    ).first()
+    if not campaign:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+    # Owner OR admin only. Anyone else gets 404 (deliberate — don't reveal
+    # that the campaign exists to non-owners).
+    is_owner = campaign.user_id == user.id
+    is_admin = bool(getattr(user, "is_admin", False))
+    if not (is_owner or is_admin):
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+    return {
+        "is_preview": True,
+        "video": {
+            "id": campaign.id,
+            "title": campaign.title,
+            "platform": campaign.platform or "youtube",
+            "category": campaign.category or "General",
+            "embed_url": campaign.embed_url,
+            "cta_url": campaign.cta_url or None,
+            "is_watched": False,
+            "seconds_remaining": 0,
+            "is_resumed": False,
+        },
+    }
+
+
 @app.get("/upload")
 @app.get("/create-campaign")
 def upload_video(request: Request):
