@@ -29,23 +29,6 @@ export default function StartPage() {
   var heroTextRef = useRef(null);
   var [stats, setStats] = useState({ members: 138, foundingRemaining: 77 });
 
-  // Temporary live toggle so Steve can compare video vs constellation
-  // vs both layered. Persisted in localStorage so a refresh holds
-  // the choice. Remove the toggle UI once a decision is locked in.
-  var [bgMode, setBgMode] = useState('both');
-  useEffect(function() {
-    try {
-      var saved = localStorage.getItem('startBgMode');
-      if (saved === 'video' || saved === 'constellation' || saved === 'both') {
-        setBgMode(saved);
-      }
-    } catch (e) { /* localStorage unavailable */ }
-  }, []);
-  function pickMode(m) {
-    setBgMode(m);
-    try { localStorage.setItem('startBgMode', m); } catch (e) {}
-  }
-
   // Fetch live platform numbers — never hardcode what the DB knows.
   // Falls back to the static values above if the endpoint is missing
   // or returns garbage; page still loads.
@@ -203,29 +186,12 @@ export default function StartPage() {
 
         {/* ═════════ BEAT 1 — 3D CONSTELLATION + VIDEO HERO ═════════ */}
         <section className="hero-section">
-          <div className={'hero-canvas-wrap bgmode-' + bgMode}>
-            {(bgMode === 'video' || bgMode === 'both') && (
-              <BackgroundVideo force={true} />
-            )}
-            {(bgMode === 'constellation' || bgMode === 'both') && (
-              <Suspense fallback={<div className="hero-canvas-loading"/>}>
-                <ConstellationHero />
-              </Suspense>
-            )}
+          <div className="hero-canvas-wrap bgmode-both">
+            <BackgroundVideo force={true} />
+            <Suspense fallback={<div className="hero-canvas-loading"/>}>
+              <ConstellationHero />
+            </Suspense>
             <div className="hero-vignette"/>
-          </div>
-
-          {/* TEMPORARY: live toggle so Steve can A/B/C the three modes
-              against each other. Remove this block once a mode is
-              locked in. localStorage'd so refresh keeps the choice. */}
-          <div className="bgmode-toggle" role="group" aria-label="Background mode">
-            <span className="bgmode-toggle-label">BACKGROUND</span>
-            <button className={'bgmode-btn ' + (bgMode === 'both' ? 'active' : '')}
-                    onClick={function(){ pickMode('both'); }}>Both</button>
-            <button className={'bgmode-btn ' + (bgMode === 'video' ? 'active' : '')}
-                    onClick={function(){ pickMode('video'); }}>Video</button>
-            <button className={'bgmode-btn ' + (bgMode === 'constellation' ? 'active' : '')}
-                    onClick={function(){ pickMode('constellation'); }}>Stars</button>
           </div>
 
           <div className="hero-overlay" ref={heroTextRef}>
@@ -492,17 +458,6 @@ var startStyles = `
 /* Constellation needs to render above the video when both are present;
    the canvas auto-positions to inset:0 via inline style */
 .bgmode-both canvas{z-index:2;mix-blend-mode:screen;opacity:.85}
-
-/* ── Live A/B/C mode toggle (temporary; remove once locked) ── */
-.bgmode-toggle{position:absolute;top:88px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:8px 10px;background:rgba(5,10,31,.6);backdrop-filter:blur(16px);border:1px solid rgba(34,211,238,.25);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase}
-.bgmode-toggle-label{color:rgba(34,211,238,.6);font-weight:700;padding-right:6px;border-right:1px solid rgba(34,211,238,.18);margin-right:2px}
-.bgmode-btn{background:transparent;border:1px solid rgba(250,251,255,.1);color:rgba(250,251,255,.55);padding:6px 11px;border-radius:6px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
-.bgmode-btn:hover{color:#fff;border-color:rgba(34,211,238,.4)}
-.bgmode-btn.active{background:linear-gradient(135deg,#06b6d4,#0ea5e9);color:#fff;border-color:#06b6d4}
-@media (max-width:600px){
-  .bgmode-toggle{top:auto;bottom:88px;right:12px;font-size:9px;padding:6px 8px}
-  .bgmode-btn{padding:5px 8px;font-size:9px}
-}
 .hero-overlay{position:relative;z-index:5;max-width:1100px}
 
 .hero-tag{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#22d3ee;letter-spacing:.26em;text-transform:uppercase;margin-bottom:32px;display:inline-flex;align-items:center;gap:14px}
@@ -520,14 +475,14 @@ var startStyles = `
 
 .hero-sub{font-size:19px;line-height:1.55;color:rgba(250,251,255,.85);max-width:660px;margin:24px auto 56px;opacity:0;text-shadow:0 1px 12px rgba(5,10,31,.6)}
 
-.hero-stats{display:inline-flex;gap:64px;margin-bottom:60px}
+.hero-stats{display:flex;gap:64px;margin:0 auto 60px;justify-content:center;flex-wrap:wrap;width:100%;max-width:720px}
 .hero-stat{text-align:left;opacity:0}
 .hero-stat-num{font-family:'Sora',sans-serif;font-weight:900;font-size:38px;letter-spacing:-.03em;color:#22d3ee;line-height:1;text-shadow:0 0 28px rgba(6,182,212,.3);display:block;margin-bottom:6px}
 .hero-stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(250,251,255,.42);font-weight:600}
 
 /* ── Hero CTA row — sits between sub-headline and stats, the
    primary conversion surface above the fold ── */
-.hero-cta-row{display:inline-flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center;margin:6px auto 44px}
+.hero-cta-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center;margin:8px auto 40px;width:100%;max-width:720px}
 .hero-cta-primary{display:inline-flex;align-items:center;gap:14px;padding:22px 48px;border-radius:14px;font-family:'Sora',sans-serif;font-size:18px;font-weight:800;letter-spacing:.005em;text-decoration:none;background:linear-gradient(135deg,#06b6d4,#0ea5e9);color:#fff;box-shadow:0 8px 32px rgba(6,182,212,.45),inset 0 0 0 1px rgba(255,255,255,.22);transition:transform .25s ease-out;position:relative;overflow:hidden;will-change:transform,box-shadow;opacity:0}
 .hero-cta-primary:hover{transform:translateY(-3px)}
 .hero-cta-label{position:relative;z-index:2}
