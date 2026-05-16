@@ -11856,6 +11856,18 @@ def admin_broadcast_reengagement(
     if mode == "dry-run":
         _ensure_broadcast_log_table(db)
         eligible = _reengagement_recipients(db, REENGAGEMENT_BROADCAST_KEY)
+        # Build a {user_id: username} map for sponsors in one query.
+        # The User model has sponsor_id FK but no `sponsor` relationship
+        # attribute, so we can't lazy-load via u.sponsor.username — that
+        # was a latent bug in the founder_offer template that never
+        # surfaced because nobody ran its dry-run after launch.
+        sponsor_ids = {u.sponsor_id for u in eligible if u.sponsor_id}
+        sponsor_map = {}
+        if sponsor_ids:
+            for sid, sname in db.query(User.id, User.username).filter(
+                User.id.in_(sponsor_ids)
+            ).all():
+                sponsor_map[sid] = sname
         rows = []
         for u in eligible[:200]:
             rows.append({
@@ -11864,7 +11876,7 @@ def admin_broadcast_reengagement(
                 "email": u.email,
                 "first_name": u.first_name or "",
                 "created_at": u.created_at.isoformat() if u.created_at else None,
-                "sponsor_username": (u.sponsor.username if u.sponsor else None),
+                "sponsor_username": sponsor_map.get(u.sponsor_id),
             })
         return {
             "mode": "dry-run",
