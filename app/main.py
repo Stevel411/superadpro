@@ -5201,6 +5201,67 @@ def delete_campaign(
         campaign.status = "deleted"
         db.commit()
     return RedirectResponse(url="/video-library", status_code=303)
+@app.get("/api/video-library")
+def api_video_library(request: Request,
+                      db: Session = Depends(get_db),
+                      user: User = Depends(get_current_user)):
+    """JSON endpoint that serves the React VideoLibrary page.
+
+    Ports the data shape that the (now-disabled) Jinja2 _old_video_library_DISABLED
+    used to send to its template, but returns JSON for the React component to
+    consume via apiGet('/api/video-library').
+
+    Returns:
+      - campaigns: list of VideoCampaign rows owned by this user, newest first,
+        excluding soft-deleted entries
+      - total_campaigns / active_campaigns / total_views: aggregate stats for
+        the three big stat cards at the top of the page
+
+    Created 16 May 2026 to fix a shipped-but-broken React page: when the
+    library was migrated from Jinja2 to React, the page route was wired up
+    (line 21433) but the matching JSON API was never created. apiGet on
+    /api/video-library 404'd, the React component's silent .catch swallowed
+    the error, and the empty-state UI rendered with a 'Create First' button —
+    making it look like the user's just-uploaded campaign had vanished.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.status != "deleted",
+    ).order_by(VideoCampaign.created_at.desc()).all()
+
+    # Aggregate stats for the three cards at the top of the page.
+    # active_campaigns counts only campaigns currently delivering — pending,
+    # paused_no_tier, and completed campaigns are excluded from the "active"
+    # count so the user sees a true picture of what's currently working.
+    total_views_delivered = sum((c.views_delivered or 0) for c in campaigns)
+    active_count = sum(1 for c in campaigns if c.status == "active")
+
+    return {
+        "total_campaigns": len(campaigns),
+        "active_campaigns": active_count,
+        "total_views": total_views_delivered,
+        "campaigns": [
+            {
+                "id": c.id,
+                "title": c.title,
+                "status": c.status,
+                "platform": c.platform,
+                "category": c.category,
+                "video_url": c.video_url,
+                "embed_url": c.embed_url,
+                "views_target": c.views_target or 0,
+                "views_delivered": c.views_delivered or 0,
+                "target_country": c.target_country,
+                "target_interests": c.target_interests,
+            }
+            for c in campaigns
+        ],
+    }
+
+
 @app.delete("/api/campaigns/{campaign_id}")
 def api_delete_campaign(campaign_id: int, request: Request,
                         db: Session = Depends(get_db),
