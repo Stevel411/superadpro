@@ -5297,6 +5297,80 @@ def api_delete_campaign(campaign_id: int, request: Request,
     return {"success": True, "message": "Campaign deleted"}
 
 
+@app.post("/admin/api/rotator-reenrol-founders")
+def admin_api_rotator_reenrol_founders(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Re-run the founder-to-rotator auto-enrol on demand.
+
+    Same logic as the boot-time migration in database.py — idempotent,
+    only adds Founders not already in the queue, flips rotator_opted_in
+    where currently FALSE. Lets us fix an empty queue without needing
+    a redeploy. Admin only.
+    """
+    _require_admin(user)
+    from sqlalchemy import text as _text
+    try:
+        rows = db.execute(_text("""
+            SELECT u.id, u.username
+              FROM users u
+              LEFT JOIN rotator_queue rq ON rq.user_id = u.id
+             WHERE u.is_active = TRUE
+               AND u.is_founding_member = TRUE
+               AND COALESCE(u.is_admin, FALSE) = FALSE
+               AND rq.user_id IS NULL
+             ORDER BY u.founding_spot_number NULLS LAST, u.id
+        """)).fetchall()
+
+        if not rows:
+            existing = db.execute(_text(
+                "SELECT COUNT(*) FROM rotator_queue"
+            )).scalar() or 0
+            return {
+                "success": True,
+                "enrolled": 0,
+                "queue_size": existing,
+                "message": f"No new enrolments needed. Queue already has {existing} member(s).",
+            }
+
+        mx = db.execute(_text(
+            "SELECT COALESCE(MAX(queue_position), 0) FROM rotator_queue"
+        )).scalar() or 0
+        next_pos = mx + 1
+        inserted = 0
+        for r in rows:
+            uid = r[0]
+            try:
+                db.execute(_text(
+                    "INSERT INTO rotator_queue (user_id, queue_position, joined_at) "
+                    "VALUES (:uid, :pos, NOW()) ON CONFLICT (user_id) DO NOTHING"
+                ), {"uid": uid, "pos": next_pos})
+                db.execute(_text(
+                    "UPDATE users SET rotator_opted_in = TRUE WHERE id = :uid"
+                ), {"uid": uid})
+                inserted += 1
+                next_pos += 1
+            except Exception as e:
+                logger.warning(f"rotator reenrol: user {uid} failed: {e}")
+        db.commit()
+        new_total = db.execute(_text("SELECT COUNT(*) FROM rotator_queue")).scalar() or 0
+        return {
+            "success": True,
+            "enrolled": inserted,
+            "queue_size": new_total,
+            "message": f"Enrolled {inserted} Founder(s). Queue now has {new_total} member(s).",
+        }
+    except Exception as e:
+        logger.exception(f"rotator reenrol endpoint failed: {e}")
+        db.rollback()
+        return JSONResponse(
+            {"success": False, "error": str(e)},
+            status_code=500,
+        )
+
+
 @app.get("/admin/api/rotator-state")
 def admin_api_rotator_state(
     request: Request,

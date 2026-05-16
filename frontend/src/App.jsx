@@ -63,6 +63,7 @@ const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const PassupVisualiser = React.lazy(() => import('./pages/PassupVisualiser'));
 const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminRotatorState = React.lazy(() => import('./pages/admin/AdminRotatorState'));
 const AdminEmailBroadcast = React.lazy(() => import('./pages/AdminEmailBroadcast'));
 const AdminStories = React.lazy(() => import('./pages/AdminStories'));
 const AdminShowcase = React.lazy(() => import('./pages/AdminShowcase'));
@@ -391,6 +392,7 @@ function AppRoutes() {
       <Route path="/team-messenger" element={<ProtectedRoute><RequireTier tier="basic"><TeamMessenger /></RequireTier></ProtectedRoute>} />
       <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/rotator" element={<ProtectedRoute><Lazy><AdminRotatorState /></Lazy></ProtectedRoute>} />
       <Route path="/admin/stories" element={<ProtectedRoute><AdminStories /></ProtectedRoute>} />
       <Route path="/admin/showcase" element={<ProtectedRoute><AdminShowcase /></ProtectedRoute>} />
       <Route path="/admin/orphans" element={<ProtectedRoute><AdminOrphans /></ProtectedRoute>} />
