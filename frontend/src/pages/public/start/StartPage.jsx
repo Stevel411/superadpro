@@ -435,20 +435,21 @@ var startStyles = `
 .hero-section{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 32px 60px;overflow:hidden}
 .hero-canvas-wrap{position:absolute;inset:0;z-index:1}
 .hero-canvas-loading{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(245,158,11,.08),transparent 60%)}
-.hero-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(5,10,31,.7) 80%,rgba(5,10,31,.95) 100%);pointer-events:none;z-index:4}
+.hero-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(5,10,31,.25) 75%,rgba(5,10,31,.55) 100%);pointer-events:none;z-index:4}
 
 /* ── BackgroundVideo: poster + lazy video + dark overlay ── */
 .bg-video-wrap{position:absolute;inset:0;z-index:1;overflow:hidden}
-.bg-video-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85) brightness(.6)}
-.bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease-out;filter:saturate(.85) brightness(.6)}
+.bg-video-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1) brightness(.92)}
+.bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease-out;filter:saturate(1) brightness(.92)}
 .bg-video-loaded{opacity:1}
-.bg-video-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,10,31,.55) 0%,rgba(5,10,31,.65) 50%,rgba(5,10,31,.85) 100%);pointer-events:none}
+.bg-video-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,10,31,.15) 0%,rgba(5,10,31,.25) 55%,rgba(5,10,31,.55) 100%);pointer-events:none}
 
-/* When layered with the constellation, dim the video slightly more
-   so the network metaphor reads above it as the foreground depth */
+/* When layered with the constellation, dim the video a touch more
+   so the network metaphor still reads above it — but nowhere near
+   the gloom of the previous treatment */
 .bgmode-both .bg-video-poster,
-.bgmode-both .bg-video{filter:saturate(.7) brightness(.45)}
-.bgmode-both .bg-video-overlay{background:linear-gradient(180deg,rgba(5,10,31,.7) 0%,rgba(5,10,31,.75) 50%,rgba(5,10,31,.9) 100%)}
+.bgmode-both .bg-video{filter:saturate(.92) brightness(.78)}
+.bgmode-both .bg-video-overlay{background:linear-gradient(180deg,rgba(5,10,31,.25) 0%,rgba(5,10,31,.35) 55%,rgba(5,10,31,.65) 100%)}
 
 /* When video-only, no constellation layer needs to be visible */
 .bgmode-video canvas{display:none}
@@ -471,7 +472,7 @@ var startStyles = `
 .hero-tag{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#fcd34d;letter-spacing:.26em;text-transform:uppercase;margin-bottom:32px;display:inline-flex;align-items:center;gap:14px}
 .hero-tag::before,.hero-tag::after{content:'';width:36px;height:1px;background:#fcd34d;opacity:.6}
 
-.hero-headline{font-family:'Sora',sans-serif;font-size:clamp(48px,7vw,108px);font-weight:900;line-height:.93;letter-spacing:-.05em;margin-bottom:24px}
+.hero-headline{font-family:'Sora',sans-serif;font-size:clamp(48px,7vw,108px);font-weight:900;line-height:.93;letter-spacing:-.05em;margin-bottom:24px;text-shadow:0 2px 24px rgba(5,10,31,.55), 0 1px 2px rgba(5,10,31,.4)}
 .hero-headline-line2{display:block;margin-top:8px;font-weight:300;letter-spacing:-.03em;font-size:.62em;color:#fde68a;opacity:.85}
 .hero-word{display:inline-block;opacity:0;will-change:transform,opacity}
 .hero-word-bright{color:#fcd34d;text-shadow:0 0 40px rgba(251,191,36,.4)}
@@ -481,7 +482,7 @@ var startStyles = `
 .hero-promise-val{font-family:'Sora',sans-serif;font-weight:900;font-size:clamp(64px,8.5vw,124px);letter-spacing:-.06em;line-height:.85;background:linear-gradient(180deg,#fef3c7 0%,#fcd34d 38%,#d97706 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 70px rgba(251,191,36,.55));display:inline-block;will-change:filter}
 .hero-promise-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(250,251,255,.55);font-weight:600;margin-top:12px}
 
-.hero-sub{font-size:19px;line-height:1.55;color:rgba(250,251,255,.65);max-width:660px;margin:24px auto 56px;opacity:0}
+.hero-sub{font-size:19px;line-height:1.55;color:rgba(250,251,255,.85);max-width:660px;margin:24px auto 56px;opacity:0;text-shadow:0 1px 12px rgba(5,10,31,.6)}
 
 .hero-stats{display:inline-flex;gap:64px;margin-bottom:60px}
 .hero-stat{text-align:left;opacity:0}
