@@ -16774,6 +16774,17 @@ async def api_register(
         if existing:
             return JSONResponse({"error": "Username or email already registered."}, status_code=400)
 
+        # Funnel marker — when via=start the company /start funnel
+        # is authoritative. Even if a ref slipped through (stale cookie,
+        # bookmark, hand-rolled API call), the rotator MUST win on this
+        # path. This is the explicit signal that the visitor came
+        # through the company's paid acquisition surface, not via a
+        # personal referral link. Ignoring the ref here is the only
+        # way to stop a stale cookie from hijacking the funnel.
+        via = sanitize(body.get("via", "").strip())
+        if via in ("start", "rotator"):
+            ref = ""
+
         sponsor_id = None
         if ref:
             sponsor = db.query(User).filter(User.username == ref).first()
@@ -16795,21 +16806,19 @@ async def api_register(
         # leads fairly across active opted-in members.
         rotator_assignment_made = False
         rotator_assigned_sponsor_id = None
-        if not sponsor_id:
-            via = sanitize(body.get("via", "").strip())
-            if via in ("start", "rotator"):
-                try:
-                    rotator_assigned_sponsor_id = _pick_next_rotator_sponsor(db)
-                    if rotator_assigned_sponsor_id:
-                        sponsor_id = rotator_assigned_sponsor_id
-                        rotator_assignment_made = True
-                        from sqlalchemy import func as _sqlfunc
-                        db.query(User).filter(User.id == sponsor_id).update(
-                            {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
-                            synchronize_session=False,
-                        )
-                except Exception as e:
-                    logger.warning(f"rotator: pick_next failed, falling through to house: {e}")
+        if not sponsor_id and via in ("start", "rotator"):
+            try:
+                rotator_assigned_sponsor_id = _pick_next_rotator_sponsor(db)
+                if rotator_assigned_sponsor_id:
+                    sponsor_id = rotator_assigned_sponsor_id
+                    rotator_assignment_made = True
+                    from sqlalchemy import func as _sqlfunc
+                    db.query(User).filter(User.id == sponsor_id).update(
+                        {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
+                        synchronize_session=False,
+                    )
+            except Exception as e:
+                logger.warning(f"rotator: pick_next failed, falling through to house: {e}")
 
         # Default to company account if no sponsor (rotator empty / not /start)
         if not sponsor_id:

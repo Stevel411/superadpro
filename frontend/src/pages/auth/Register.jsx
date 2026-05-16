@@ -15,7 +15,18 @@ export default function Register() {
     const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
     return m ? decodeURIComponent(m[1]) : '';
   }
-  const refCode = params.get('ref') || params.get('r') || readCookie('ref') || '';
+  // Read the funnel-source marker. When ?via=start is present (the
+  // /start company acquisition page), we deliberately IGNORE any
+  // stale referral cookie — that page's whole purpose is rotator
+  // distribution to active Founders, not honouring an old personal
+  // referral. Without this gate, a user who once clicked someone's
+  // /ref/<username> link will silently bypass the rotator for the
+  // next 30 days, defeating the funnel.
+  const via = params.get('via') || '';
+  const viaIsCompanyFunnel = (via === 'start' || via === 'rotator');
+  const refCode = viaIsCompanyFunnel
+    ? ''  // company funnel: ignore cookie, let backend rotator pick
+    : (params.get('ref') || params.get('r') || readCookie('ref') || '');
 
   // Gift voucher claim flow (added 8 May 2026).
   // When a recipient lands on /gift/{code} → clicks "Create Free Account",
@@ -77,6 +88,10 @@ export default function Register() {
         password: form.password,
         confirm_password: form.confirm_password,
         ref: form.ref.trim(),
+        // Funnel marker — backend uses this to decide whether to
+        // engage the rotator queue (via=start | via=rotator) or
+        // fall through to the standard sponsor flow.
+        via: via,
         // Include gift_code so backend's pre-launch gate can recognise
         // gift-claim signups as legitimate even when the URL has no ?ref=
         gift_code: giftCode || '',
