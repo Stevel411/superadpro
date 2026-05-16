@@ -12838,12 +12838,20 @@ async def admin_api_gift_membership(
     target.membership_tier = "partner"
 
     if tier == "founder":
-        # Gifted founder: lifetime, founding flag set, locked price set, but
-        # spot count NOT consumed (gifts don't burn real customer inventory).
+        # Gifted Founder: one month free, founding flag set, locked price set,
+        # but spot count NOT consumed (gifts don't burn real customer inventory).
+        # founding_spot_number stays NULL so paid-Founders' spot numbers remain
+        # contiguous 1..100. After the 30 days, the recipient needs to pay $15
+        # to renew — exactly like a paid Founder, just with their first month
+        # comped. (Corrected 16 May 2026 — was previously datetime(2099,12,31),
+        # which inadvertently gave gifted Founders permanent free access.)
+        # Existing gifted-Founder rows in the DB with 2099 expiries are
+        # GRANDFATHERED — we don't retroactively expire someone's gift; the
+        # new 30-day policy applies only to gifts going forward.
         target.is_founding_member = True
         target.membership_price_locked = decimal.Decimal("15.00")
-        target.membership_expires_at = datetime(2099, 12, 31)
-        duration_label = "lifetime"
+        target.membership_expires_at = datetime.utcnow() + timedelta(days=30)
+        duration_label = "1 month free, then $15/mo to renew"
     else:
         target.membership_expires_at = datetime.utcnow() + timedelta(days=months * 31)
         duration_label = f"{months} months" if months != 12 else "1 year"
@@ -12853,14 +12861,14 @@ async def admin_api_gift_membership(
         f"Admin gifted membership: {target.username} → {tier.upper()} "
         f"({duration_label}, no commission, no payment record)"
     )
-    expiry_label = "lifetime" if tier == "founder" else target.membership_expires_at.strftime('%d %b %Y')
+    expiry_label = target.membership_expires_at.strftime('%d %b %Y')
     return {
         "success": True,
         "username": target.username,
         "tier": tier,
-        "months": months if tier == "partner" else None,
+        "months": months if tier == "partner" else 1,
         "expires": expiry_label,
-        "message": f"{target.username} now has {tier.upper()} membership ({expiry_label})",
+        "message": f"{target.username} now has {tier.upper()} membership ({duration_label}, expires {expiry_label})",
     }
 
 

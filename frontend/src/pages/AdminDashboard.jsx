@@ -1568,7 +1568,9 @@ function GiftMembership(props) {
   var [months, setMonths] = useState(1);
   var [gifting, setGifting] = useState(false);
 
-  var durationLabel = tier === 'founder' ? 'lifetime' : (months === 12 ? '1 year' : months + ' months');
+  var durationLabel = tier === 'founder'
+    ? '1 month free, then $15/mo'
+    : (months === 12 ? '1 year' : months + ' months');
 
   function gift() {
     if (gifting) return;
@@ -1621,7 +1623,7 @@ function GiftMembership(props) {
         {tier === 'founder' && (
           <div style={{flex:1.5,display:'flex',alignItems:'flex-end'}}>
             <div style={{padding:'7px 10px',borderRadius:6,background:'#fef3c7',color:'#92400e',fontSize:12,fontWeight:700,width:'100%',textAlign:'center'}}>
-              ★ Lifetime (gift)
+              ★ 1 month free · then $15/mo
             </div>
           </div>
         )}
