@@ -79,7 +79,7 @@ def _nurture_shell(tag, hero_bg, hero, body):
 def send_welcome_email(to_email, first_name, username):
     hero = f'<div style="font-size:48px;margin-bottom:14px">&#127881;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Welcome to SuperAdPro, <span style="color:#0ea5e9">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Your account is live and ready. You\'re now part of a growing community of digital marketers using AI to build their business.</p>'
     creds = f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="background:linear-gradient(135deg,#172554,#1e3a8a);border-radius:14px;padding:22px 26px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Username</td><td align="right" style="font-size:14px;color:#fff;font-weight:700">{username}</td></tr></table></td></tr><tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Status</td><td align="right" style="font-size:14px;color:#4ade80;font-weight:700">&#10003; Active</td></tr></table></td></tr><tr><td style="padding:9px 0"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Dashboard</td><td align="right" style="font-size:13px;color:#fff;font-weight:600">superadpro.com/dashboard</td></tr></table></td></tr></table></td></tr></table>'
-    body = creds + _card('<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What you can do right now</p>' + _check('Share your referral link and earn $10-$17.50 per referral every month', 'Create AI videos, images, and music in the Creative Studio', 'Build your personal LinkHub page and share it everywhere', 'Watch daily videos to qualify for campaign commissions'), bg='#f0f9ff', border='#bae6fd') + _btn(f"{SITE_URL}/dashboard", "Go to my dashboard &rarr;")
+    body = creds + _card('<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What you can do right now</p>' + _check('Share your referral link and earn $10/month for every Partner you refer', 'Create AI videos, images, and music in the Creative Studio', 'Build your personal LinkHub page and share it everywhere', 'Watch daily videos to qualify for campaign commissions'), bg='#f0f9ff', border='#bae6fd') + _btn(f"{SITE_URL}/dashboard", "Go to my dashboard &rarr;")
     return send_email(to_email, f"Welcome to SuperAdPro, {first_name}!", _shell("Welcome", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body), f"Welcome to SuperAdPro, {first_name}! Username: {username}. Login: {SITE_URL}/dashboard")
 
 
@@ -105,50 +105,105 @@ def send_password_reset_email(to_email, first_name, reset_url):
 # ═══════════════════════════════════════════════════════════════
 # EMAIL 4: MEMBERSHIP ACTIVATED
 # ═══════════════════════════════════════════════════════════════
-def send_membership_activated_email(to_email, first_name, billing="monthly", is_upgrade=False, tier="basic"):
-    # ── Pro upgrade variant ──
-    # When a Basic member upgrades to Pro, send an upgrade-specific email
-    # rather than the generic "welcome to the platform" message that
-    # implies a fresh signup. Triggered by is_upgrade=True from
-    # _activate_membership in main.py.
-    if is_upgrade and tier == "pro":
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#9889;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">You\'re now on Pro, <span style="color:#8b5cf6">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7">Your upgrade is active. All Pro tools are now unlocked on your account.</p>'
-        body = _card(
-            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#8b5cf6;margin:0 0 14px">What\'s new on Pro</p>' +
-            _check(
-                'SuperPages — full drag-and-drop landing-page builder with 8 templates',
-                'ProSeller AI — automated sales agents and content campaigns',
-                'My Leads — autoresponder sequences, broadcasts, lead capture',
-                'Create Course — sell your own courses through Course Academy',
-                '$17.50 per Pro referral / month (up from $10 on Basic)',
-            ),
-            bg='#faf5ff', border='#ddd6fe',
-        ) + _card(
-            '<p style="margin:0;font-size:15px;color:#166534;text-align:center;line-height:1.6"><strong>Your Pro income jump:</strong> Every Pro referral now pays you $17.50/month instead of $10 — that\'s 75% more from the same effort.</p>',
-            bg='#f0fdf4', border='#bbf7d0',
+def send_membership_activated_email(to_email, first_name, billing="monthly",
+                                    is_upgrade=False, tier="basic",
+                                    is_founding_member=False,
+                                    founding_spot_number=None):
+    """Send the "your membership is active" email.
+
+    Under flat-pricing (15 May 2026) there's a single paid tier called
+    'Partner'. is_founding_member=True means the member claimed one of
+    the first 100 founding spots and gets a celebratory variant that
+    emphasises the $15/mo lifetime lock.
+
+    Legacy parameters kept for caller compatibility:
+      - is_upgrade: no-op now. Pro upgrades retired (/api/upgrade-to-pro
+        returns 410 Gone). Callers may still pass it; we ignore it.
+      - tier: also no-op (everyone paid is 'partner'). Kept so the
+        call site at app/main.py:7058 doesn't break.
+
+    The Pro-upgrade email variant that used to live here was deleted
+    on 16 May 2026 because no live code path can trigger it anymore.
+    """
+    # ── Founding Partner variant ──
+    if is_founding_member:
+        spot_line = (
+            f" — you're Founding Partner #{founding_spot_number} of 100"
+            if founding_spot_number else " — you're one of the first 100 Founding Partners"
         )
-        # Annual upsell — only for monthly Pro members
-        if billing == "monthly":
-            body += _card(
-                f'<p style="margin:0;font-size:14px;color:#1e40af;text-align:center;line-height:1.6">&#128176; <strong>Lock in 12 months of Pro and save $70</strong> by switching to annual billing ($350 / year vs $35 &times; 12). Switch from your <a href="{SITE_URL}/upgrade" style="color:#2563eb;font-weight:700;text-decoration:underline">upgrade page</a>.</p>',
-                bg='#eff6ff', border='#bfdbfe',
-            )
-        body += _btn(f"{SITE_URL}/dashboard", "Explore my Pro tools &rarr;", "#8b5cf6")
+        hero = (
+            f'<div style="font-size:48px;margin-bottom:14px">&#11088;</div>'
+            f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">'
+            f"Welcome, Founding Partner <span style=\"color:#d97706\">{first_name}!</span></p>"
+            f'<p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">'
+            f"Your SuperAdPro membership is active{spot_line}. "
+            f"You're locked in at $15/month for life — that price never changes for you, "
+            f"no matter what we charge new members down the line.</p>"
+        )
+        body = _card(
+            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#d97706;margin:0 0 14px">What being a Founding Partner means</p>' +
+            _check(
+                '$15/month price locked for life — never increases for you',
+                'Founding Partner badge displayed across the platform',
+                'Full SuperAdPro platform — Creative Studio, Brand Posters, MyLeads, all AI tools',
+                'Earn $10/month for every Partner you refer — recurring while they stay active',
+                'Build all four income streams: Membership, Profit Grid, Profit Nexus, Course Academy',
+            ),
+            bg='#fffbeb', border='#fde68a',
+        ) + _card(
+            '<p style="margin:0;font-size:15px;color:#166534;text-align:center;line-height:1.7">'
+            '<strong>The math is simple:</strong> 2 Partner referrals at $10/month each '
+            'covers your $15/month founding membership, with $5/month profit. After that, '
+            'every additional referral is pure income.</p>',
+            bg='#f0fdf4', border='#bbf7d0',
+        ) + _btn(f"{SITE_URL}/dashboard", "Go to my dashboard &rarr;", "#d97706")
         return send_email(
             to_email,
-            f"You're upgraded to Pro!",
-            _shell("Pro is live", "linear-gradient(135deg,#faf5ff,#ede9fe)", hero, body),
-            f"Hi {first_name}, your SuperAdPro Pro upgrade is now active. Go to {SITE_URL}/dashboard",
+            f"You're a Founding Partner, {first_name}! \u2b50",
+            _shell("Founding Partner", "linear-gradient(135deg,#fffbeb,#fef3c7)", hero, body),
+            f"Hi {first_name}, your SuperAdPro Founding Partner membership is active. "
+            f"You're locked in at $15/month for life. Go to {SITE_URL}/dashboard",
         )
 
-    # ── Standard activation (fresh signup) ──
-    hero = f'<div style="font-size:48px;margin-bottom:14px">&#128640;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">You\'re officially a member, <span style="color:#8b5cf6">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7">Your SuperAdPro membership is now active. Here\'s everything you\'ve unlocked:</p>'
-    body = _card(_check('Earn 50% referral commissions ($10 per Basic, $17.50 per Pro) every month', 'Creative Studio — AI video clips, full videos, images, music, voiceover, and lip sync', 'Watch daily campaign videos to qualify for grid commissions', 'Build your LinkHub page and track links with Link Tools', 'Withdraw earnings via USDT anytime from $10'), bg='#faf5ff', border='#ddd6fe') + _card('<p style="margin:0;font-size:15px;color:#166534;text-align:center;line-height:1.6"><strong>Pro tip:</strong> Refer just 2 Basic members and your $20/month membership pays for itself. Pro referrals are even better at $17.50 each.</p>', bg='#f0fdf4', border='#bbf7d0')
-    # Annual upsell — only for monthly members
+    # ── Standard Partner activation ──
+    hero = (
+        f'<div style="font-size:48px;margin-bottom:14px">&#128640;</div>'
+        f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">'
+        f"You're officially a Partner, <span style=\"color:#0ea5e9\">{first_name}!</span></p>"
+        f'<p style="margin:0;font-size:15px;color:#1e40af;line-height:1.7">'
+        f"Your SuperAdPro membership is now active. Here's everything you've unlocked:</p>"
+    )
+    body = _card(
+        _check(
+            'Earn $10/month for every Partner you refer — recurring while they stay active',
+            'Full Creative Studio — AI video, images, music, voiceover, and lip sync',
+            'Brand Poster Generator with templates for every niche',
+            'MyLeads CRM, LinkHub, SuperPages, and all platform tools',
+            'Watch daily campaign videos to qualify for grid commissions',
+            'Withdraw earnings via USDT anytime from $10',
+        ),
+        bg='#f0f9ff', border='#bae6fd',
+    ) + _card(
+        '<p style="margin:0;font-size:15px;color:#166534;text-align:center;line-height:1.6">'
+        '<strong>Pro tip:</strong> Refer 2 Partners and your $20/month membership pays for itself. '
+        'Every additional referral is pure income.</p>',
+        bg='#f0fdf4', border='#bbf7d0',
+    )
     if billing == "monthly":
-        body += _card(f'<p style="margin:0;font-size:14px;color:#1e40af;text-align:center;line-height:1.6">&#128176; <strong>Prefer to pay yearly?</strong> Save 17% by switching to annual billing — that\'s <strong>$40/year</strong> off Basic or <strong>$70/year</strong> off Pro. You can switch anytime from your <a href="{SITE_URL}/upgrade" style="color:#2563eb;font-weight:700;text-decoration:underline">upgrade page</a>.</p>', bg='#eff6ff', border='#bfdbfe')
-    body += _btn(f"{SITE_URL}/dashboard", "Explore my dashboard &rarr;", "#8b5cf6")
-    return send_email(to_email, f"Your SuperAdPro membership is active!", _shell("You're in!", "linear-gradient(135deg,#faf5ff,#ede9fe)", hero, body), f"Hi {first_name}, your SuperAdPro membership is now active. Go to {SITE_URL}/dashboard")
+        body += _card(
+            '<p style="margin:0;font-size:14px;color:#1e40af;text-align:center;line-height:1.6">'
+            f'&#128176; <strong>Prefer to pay yearly?</strong> Save 17% by switching to annual billing — '
+            f'$200/year instead of $240. Switch anytime from your '
+            f'<a href="{SITE_URL}/upgrade" style="color:#2563eb;font-weight:700;text-decoration:underline">account page</a>.</p>',
+            bg='#eff6ff', border='#bfdbfe',
+        )
+    body += _btn(f"{SITE_URL}/dashboard", "Explore my dashboard &rarr;", "#0ea5e9")
+    return send_email(
+        to_email,
+        f"Your SuperAdPro Partner membership is active!",
+        _shell("You're in!", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body),
+        f"Hi {first_name}, your SuperAdPro Partner membership is now active. Go to {SITE_URL}/dashboard",
+    )
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -171,36 +226,76 @@ def send_nurture_email(to_email, first_name, email_num):
     a = f"{SITE_URL}/pay-membership"
 
     if email_num == 1:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128075;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Hey {first_name}, your account is ready — but it\'s not activated yet</p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">You created your SuperAdPro account but haven\'t activated your membership. Here\'s what\'s waiting for you.</p>'
-        body = _card('<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What activating unlocks</p>' + _check('Earn $10/month for every Basic referral, $17.50 for every Pro referral — recurring', 'Access the 8-level income grid and earn from your whole network', 'Creative Studio — AI video clips, images, music, voiceover, and more', 'Watch daily campaign videos and qualify for commissions'), bg='#f0f9ff', border='#bae6fd') + _card('<p style="margin:0;font-size:15px;color:#166534;line-height:1.7"><strong>The maths is simple:</strong> Refer just 2 Basic members and your $20/month membership pays for itself. Everything after that is profit.</p>', bg='#f0fdf4', border='#bbf7d0') + _btn(a, "Activate my membership &mdash; $20/month &rarr;") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:12px">Cancel anytime</p>'
-        subj = f"You're in — but you haven't activated yet, {first_name}"
-        hbg = "linear-gradient(135deg,#f0f9ff,#e0f2fe)"
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128075;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Hey {first_name}, your account is ready &mdash; but it\'s not activated yet</p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">You created your SuperAdPro account but haven\'t activated your membership. Here\'s what\'s waiting &mdash; including the founding partner offer that won\'t be around forever.</p>'
+        body = _card(
+            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#d97706;margin:0 0 10px">&#11088; Founding Partner offer &mdash; limited to the first 100</p>'
+            '<p style="margin:0;font-size:14px;color:#78350f;line-height:1.6">Activate now and lock in <strong>$15/month for life</strong> as a Founding Partner. That price never goes up, no matter what we charge new members later. Once the 100 spots are filled, the offer is gone permanently.</p>',
+            bg='#fffbeb', border='#fde68a',
+        ) + _card(
+            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What activating unlocks</p>' +
+            _check(
+                'Earn $10/month for every Partner you refer &mdash; recurring while they remain active',
+                'Full Creative Studio &mdash; AI video, images, music, voiceover, lip sync',
+                'Brand Poster Generator + MyLeads CRM + SuperPages',
+                'Access the 8-level Profit Grid and earn from your whole network',
+                'Build all four income streams: Membership, Grid, Nexus, Course Academy',
+            ),
+            bg='#f0f9ff', border='#bae6fd',
+        ) + _btn(a, "Claim my Founding Partner spot &rarr;", "#d97706") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:12px">$15/month locked for life &middot; Cancel anytime</p>'
+        subj = f"You're in &mdash; but you haven't claimed your founding spot yet, {first_name}"
+        hbg = "linear-gradient(135deg,#fffbeb,#fef3c7)"
 
     elif email_num == 2:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128176;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#4c1d95;line-height:1.2">Let\'s talk about what $20 actually buys you</p><p style="margin:0;font-size:15px;color:#6d28d9;line-height:1.7">Most subscriptions cost $20/month and give you software. SuperAdPro gives you software <strong>and</strong> an income.</p>'
-        stats = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#0ea5e9;margin:0 0 4px">$10</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">per Basic referral<br>per month</p></td><td width="2%"></td><td width="32%" style="background:#faf5ff;border:1px solid #ddd6fe;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#8b5cf6;margin:0 0 4px">$17.50</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">per Pro referral<br>per month</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#0ea5e9;margin:0 0 4px">8</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">income grid<br>levels deep</p></td></tr></table>'
-        comp = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="49%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;vertical-align:top"><p style="font-size:13px;font-weight:800;color:#94a3b8;margin:0 0 12px">&#10060; Free account</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">No commission earnings</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">No grid access</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">Limited tools</p></td><td width="2%"></td><td width="49%" style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:18px;vertical-align:top"><p style="font-size:13px;font-weight:800;color:#16a34a;margin:0 0 12px">&#10003; Active member</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">$10-$17.50 per referral/month</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">Full 8-level income grid</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">Creative Studio + all AI tools</p></td></tr></table>'
-        body = stats + comp + _card('<p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7"><strong>Here\'s the thing:</strong> Your referral link is already live. Every person who visits it and joins is in your network — but you won\'t earn a single dollar unless your membership is active.</p>', bg='#faf5ff', border='#ddd6fe') + _btn(a, "Start earning &mdash; activate now &rarr;", "#7c3aed")
-        subj = f"Here's what $20 actually gets you on SuperAdPro"
-        hbg = "linear-gradient(135deg,#faf5ff,#ede9fe)"
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128176;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#4c1d95;line-height:1.2">Let\'s talk about what $15/month actually buys you</p><p style="margin:0;font-size:15px;color:#6d28d9;line-height:1.7">Most subscriptions cost $15/month and give you software. SuperAdPro gives you software <strong>and</strong> an income &mdash; and Founding Partners lock that price in for life.</p>'
+        stats = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="32%" style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#d97706;margin:0 0 4px">$15</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">Founding Partner<br>per month, locked</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#0ea5e9;margin:0 0 4px">$10</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">earned per referral<br>per month</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#0ea5e9;margin:0 0 4px">8</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">Profit Grid<br>levels deep</p></td></tr></table>'
+        comp = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="49%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;vertical-align:top"><p style="font-size:13px;font-weight:800;color:#94a3b8;margin:0 0 12px">&#10060; Free account</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">No commission earnings</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">No grid access</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">Limited tools</p></td><td width="2%"></td><td width="49%" style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:18px;vertical-align:top"><p style="font-size:13px;font-weight:800;color:#16a34a;margin:0 0 12px">&#10003; Active Partner</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">$10/month per referral, recurring</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">Full 8-level Profit Grid</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">Creative Studio + all AI tools</p></td></tr></table>'
+        body = stats + comp + _card('<p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7"><strong>Here\'s the thing:</strong> Your referral link is already live. Every person who visits it and joins is in your network &mdash; but you won\'t earn a single dollar unless your membership is active. And if you activate before the first 100 founding spots are gone, you lock in $15/month for life.</p>', bg='#faf5ff', border='#ddd6fe') + _btn(a, "Claim my Founding Partner spot &rarr;", "#d97706")
+        subj = f"Here's what $15/month locked for life actually gets you"
+        hbg = "linear-gradient(135deg,#fffbeb,#fef3c7)"
 
     elif email_num == 3:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#129327;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#15803d;line-height:1.2">What if your membership paid for itself?</p><p style="margin:0;font-size:15px;color:#166534;line-height:1.7">It can. Here\'s the exact maths — no fluff, no hype.</p>'
-        calc = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:24px"><tr><td><p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#15803d;margin:0 0 16px">The self-funding formula</p><table width="100%" cellpadding="0" cellspacing="0"><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">Your monthly membership cost</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#0f172a;text-align:right">&minus; $20.00</td></tr><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">1 Basic referral &times; $10/month</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#16a34a;text-align:right">+ $10.00</td></tr><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">2 Basic referrals &times; $10/month</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#16a34a;text-align:right">+ $20.00</td></tr><tr><td style="padding:12px 0;font-size:16px;font-weight:800;color:#0f172a">Net cost to you</td><td style="padding:12px 0;font-size:18px;font-weight:900;color:#15803d;text-align:right">$0.00 &#127881;</td></tr></table></td></tr></table>'
-        body = calc + _card('<p style="margin:0;font-size:15px;color:#0284c7;line-height:1.7"><strong>And it compounds:</strong> 5 referrals = $50/month profit. 10 referrals = $100/month. Refer Pro members at $17.50 each and the numbers are even better. Plus you earn from their networks through the 8-level income grid.</p>', bg='#f0f9ff', border='#bae6fd') + _btn(a, "Activate &amp; start referring &rarr;", "#22c55e")
-        subj = f"2 referrals = your membership costs you nothing, {first_name}"
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#129327;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#15803d;line-height:1.2">What if your membership paid for itself?</p><p style="margin:0;font-size:15px;color:#166534;line-height:1.7">It can. Here\'s the exact math at the Founding Partner price &mdash; no fluff, no hype.</p>'
+        calc = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:24px"><tr><td><p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#15803d;margin:0 0 16px">The self-funding formula &mdash; Founding Partner price</p><table width="100%" cellpadding="0" cellspacing="0"><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">Your monthly Founding Partner cost</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#0f172a;text-align:right">&minus; $15.00</td></tr><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">1 Partner referral &times; $10/month</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#16a34a;text-align:right">+ $10.00</td></tr><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">2 Partner referrals &times; $10/month</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#16a34a;text-align:right">+ $20.00</td></tr><tr><td style="padding:12px 0;font-size:16px;font-weight:800;color:#0f172a">Net result with just 2 referrals</td><td style="padding:12px 0;font-size:18px;font-weight:900;color:#15803d;text-align:right">+ $5.00 profit &#127881;</td></tr></table></td></tr></table>'
+        body = calc + _card('<p style="margin:0;font-size:15px;color:#0284c7;line-height:1.7"><strong>And it compounds:</strong> 5 referrals = $35/month profit. 10 referrals = $85/month. Plus you earn from their networks through the 8-level Profit Grid, the Nexus matrix, and Course Academy pass-ups. The Founding Partner price stays locked at $15/month forever.</p>', bg='#f0f9ff', border='#bae6fd') + _btn(a, "Claim my founding spot &amp; start earning &rarr;", "#d97706")
+        subj = f"2 referrals = $5/month profit at the founding price, {first_name}"
         hbg = "linear-gradient(135deg,#f0fdf4,#dcfce7)"
 
     elif email_num == 4:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128064;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#92400e;line-height:1.2">You\'re missing out on tools <em>and</em> income, {first_name}</p><p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">Every day without an active membership is a day you\'re not earning from your network or using the AI tools that come with it.</p>'
-        body = _card('<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#92400e;margin:0 0 14px">What you\'re missing right now</p>' + _check('Recurring commissions from every member you refer', 'Creative Studio — AI-powered video, image, and music generation', 'Grid earnings from people joining your network', 'Campaign tier bonuses and watch-to-earn qualifications'), bg='#fffbeb', border='#fde68a') + _card('<p style="margin:0;font-size:15px;color:#9a3412;line-height:1.7"><strong>Timing matters.</strong> The earlier you activate, the stronger your position in the grid — and the more people who can join your network from the start.</p>', bg='#fff7ed', border='#fed7aa') + _card('<p style="margin:0;font-size:15px;color:#166534;line-height:1.7">&#10003; <strong>The good news:</strong> Your account is still here, your referral link is still live, and your position is waiting. One click and you\'re in.</p>', bg='#f0fdf4', border='#bbf7d0') + _btn(a, "Activate my account now &rarr;", "#f59e0b") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:12px">$20/month &middot; Cancel anytime &middot; Earnings depend on your referrals and activity</p>'
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128064;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#92400e;line-height:1.2">You\'re missing out on tools <em>and</em> income, {first_name}</p><p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">Every day without an active membership is a day you\'re not earning from your network or using the AI tools that come with it. And every day, more Founding Partner spots get claimed.</p>'
+        body = _card(
+            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#92400e;margin:0 0 14px">What you\'re missing right now</p>' +
+            _check(
+                'Recurring $10/month commissions from every Partner you refer',
+                'Creative Studio &mdash; AI video, image, music, voiceover, lip sync',
+                'Brand Poster Generator + MyLeads CRM + SuperPages',
+                'Profit Grid earnings from people joining your network',
+                'Founding Partner $15/month price &mdash; locked for life if you act now',
+            ),
+            bg='#fffbeb', border='#fde68a',
+        ) + _card(
+            '<p style="margin:0;font-size:15px;color:#9a3412;line-height:1.7"><strong>Timing matters.</strong> The earlier you activate, the stronger your position in the grid &mdash; and the more Founding Partner spots are still available. Once 100 are claimed, the $15/month locked price is gone for good.</p>',
+            bg='#fff7ed', border='#fed7aa',
+        ) + _card(
+            '<p style="margin:0;font-size:15px;color:#166534;line-height:1.7">&#10003; <strong>The good news:</strong> Your account is still here, your referral link is still live, and your founding spot is still available. One click and you\'re in.</p>',
+            bg='#f0fdf4', border='#bbf7d0',
+        ) + _btn(a, "Claim my founding spot now &rarr;", "#d97706") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:12px">$15/month locked for life &middot; Cancel anytime &middot; Earnings depend on your referrals and activity</p>'
         subj = f"You're missing out on tools and income, {first_name}"
         hbg = "linear-gradient(135deg,#fffbeb,#fef3c7)"
 
     else:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128680;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#991b1b;line-height:1.2">This is our last nudge, {first_name}</p><p style="margin:0;font-size:15px;color:#7f1d1d;line-height:1.7">This is the final email in this sequence. After this, we\'ll stop — but your account stays open and your referral link stays live.</p>'
-        body = _card('<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#64748b;margin:0 0 14px">A quick summary of what\'s waiting</p>' + _check('$10/month for every Basic referral, $17.50 for Pro — recurring while they remain active', '8-level income grid earning from your whole network', 'Creative Studio — AI video, images, music, voiceover, lip sync', 'SuperPages landing page builder, LinkHub, and Link Tools', 'Withdraw earnings in USDT anytime from $10')) + _btn(a, "Activate my membership &mdash; $20/month", "#ef4444") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:16px;line-height:1.8">Not interested? No hard feelings — your free account stays open.<br>We won\'t send any more activation emails after this one.</p>'
-        subj = f"This is our last email to you, {first_name} — we mean it"
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128680;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#991b1b;line-height:1.2">This is our last nudge, {first_name}</p><p style="margin:0;font-size:15px;color:#7f1d1d;line-height:1.7">This is the final email in this sequence. After this, we\'ll stop &mdash; but your account stays open and your referral link stays live.</p>'
+        body = _card(
+            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#64748b;margin:0 0 14px">A quick summary of what\'s waiting</p>' +
+            _check(
+                '$10/month for every Partner you refer &mdash; recurring while they stay active',
+                '8-level Profit Grid earning from your whole network',
+                'Creative Studio &mdash; AI video, images, music, voiceover, lip sync',
+                'Brand Poster Generator, MyLeads CRM, SuperPages, LinkHub',
+                'Withdraw earnings in USDT anytime from $10',
+                'Founding Partner $15/month price &mdash; locked for life if claimed before 100 spots are filled',
+            ),
+        ) + _btn(a, "Claim my Founding Partner spot &mdash; $15/month locked", "#d97706") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:16px;line-height:1.8">Not interested? No hard feelings &mdash; your free account stays open.<br>We won\'t send any more activation emails after this one.</p>'
+        subj = f"This is our last email to you, {first_name} &mdash; we mean it"
         hbg = "linear-gradient(135deg,#fef2f2,#fee2e2)"
 
     return send_email(to_email, subj, _nurture_shell(f"Email {email_num} of 5", hbg, hero, body))

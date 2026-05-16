@@ -7062,6 +7062,8 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
             billing=user.membership_billing or "monthly",
             is_upgrade=is_upgrade,
             tier=tier,
+            is_founding_member=bool(getattr(user, "is_founding_member", False)),
+            founding_spot_number=getattr(user, "founding_spot_number", None),
         )
     except Exception as exc:
         logger.warning(f"Welcome email failed for user {user.id} ({user.username}): {exc}")
@@ -7070,22 +7072,32 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Best-effort, won't break the activation transaction if it fails.
     try:
         from .database import Notification
+        is_founder = bool(getattr(user, "is_founding_member", False))
+        spot_no = getattr(user, "founding_spot_number", None)
         if activation_type == "tier_upgrade":
-            title = f"⚡ Upgraded to Pro!"
-            message = f"Welcome to Pro membership. All Pro tools are now unlocked. Next step: activate a Campaign Tier to start earning."
+            # Dead branch under flat-pricing — /api/upgrade-to-pro returns
+            # 410 Gone. Kept for safety in case any legacy path still
+            # passes activation_type="tier_upgrade", but the message is
+            # now generic rather than Pro-specific.
+            title = "✅ Membership upgraded"
+            message = "Your membership has been updated. Visit your dashboard to confirm."
         elif activation_type == "cadence_switch":
             title = f"✅ Switched to annual {tier} membership"
             message = f"You're locked in for 365 days at the discounted annual rate. Active until {user.membership_expires_at.strftime('%d %b %Y')}."
+        elif is_founder:
+            spot_text = f" #{spot_no}" if spot_no else ""
+            title = f"⭐ Founding Partner{spot_text} — welcome!"
+            message = f"Your $15/month price is locked for life. Active until {user.membership_expires_at.strftime('%d %b %Y')}. Next step: activate a Campaign Tier to start earning."
         elif is_annual:
-            title = f"✅ {tier.title()} membership activated (annual)"
-            message = f"Annual {tier} membership active until {user.membership_expires_at.strftime('%d %b %Y')}. Next step: activate a Campaign Tier to start earning."
+            title = f"✅ Partner membership activated (annual)"
+            message = f"Annual Partner membership active until {user.membership_expires_at.strftime('%d %b %Y')}. Next step: activate a Campaign Tier to start earning."
         else:
-            title = f"✅ {tier.title()} membership activated"
-            message = f"Your {tier} membership is active until {user.membership_expires_at.strftime('%d %b %Y')}. Next step: activate a Campaign Tier to start earning."
+            title = f"✅ Partner membership activated"
+            message = f"Your Partner membership is active until {user.membership_expires_at.strftime('%d %b %Y')}. Next step: activate a Campaign Tier to start earning."
         notif = Notification(
             user_id=user.id,
             type="system",
-            icon="✅",
+            icon=("⭐" if is_founder else "✅"),
             title=title,
             message=message,
             link="/campaign-tiers",
