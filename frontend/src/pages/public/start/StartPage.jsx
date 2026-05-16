@@ -86,6 +86,21 @@ export default function StartPage() {
         { y: 20, opacity: 0 },
         { y: 0, opacity: 1, duration: 1, stagger: 0.12, ease: 'power3.out', delay: 2.2 }
       );
+      // Hero CTA — appears after the stats so the offer (price/locked/spots)
+      // has registered before we ask for the click. Subtle continuous
+      // pulse to draw the eye without being aggressive.
+      gsap.fromTo('.hero-cta-row > *',
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, stagger: 0.18, ease: 'expo.out', delay: 2.55 }
+      );
+      gsap.to('.hero-cta-primary', {
+        boxShadow: '0 14px 48px rgba(6,182,212,.65), inset 0 0 0 1px rgba(255,255,255,.35)',
+        duration: 1.8,
+        delay: 3.6,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      });
 
       // Animated counter for the founding spots remaining — counts DOWN
       // from 100 to the live remaining count. Tells the scarcity story
@@ -234,6 +249,15 @@ export default function StartPage() {
 
             <p className="hero-sub">When spot #100 is claimed this offer closes forever. Standard membership reverts to $20/month. Founding Partners keep their $15 rate for life — no exceptions, no annual increases.</p>
 
+            <div className="hero-cta-row">
+              <Link to="/register?via=start" className="hero-cta-primary">
+                <span className="hero-cta-label">Claim your Founder spot</span>
+                <span className="hero-cta-arrow">→</span>
+                <span className="hero-cta-shimmer"/>
+              </Link>
+              <Link to="#how-it-works" className="hero-cta-ghost">See how it works</Link>
+            </div>
+
             <div className="hero-stats">
               <div className="hero-stat"><span className="hero-stat-num">$15</span><div className="hero-stat-label">/mo locked</div></div>
               <div className="hero-stat"><span className="hero-stat-num">100</span><div className="hero-stat-label">total spots</div></div>
@@ -247,9 +271,11 @@ export default function StartPage() {
         {/* ═════════ BEAT 2 — FUSION ═════════ */}
         <section className="fusion-section beat">
           <div className="beat-inner">
-            <div className="beat-tag">Section 02 &mdash; What it actually is</div>
-            <h2 className="beat-h">Two halves of one platform.<span className="beat-h-accent">Fused at the seam.</span></h2>
-            <p className="beat-sub">Most affiliate platforms have no real product. Most AI tools have no upside structure. SuperAdPro is what happens when you build both, on purpose, into one system.</p>
+            <div className="beat-header">
+              <div className="beat-tag">Section 02 &mdash; What it actually is</div>
+              <h2 className="beat-h">Two halves of one platform.<span className="beat-h-accent">Fused at the seam.</span></h2>
+              <p className="beat-sub">Most affiliate platforms have no real product. Most AI tools have no upside structure. SuperAdPro is what happens when you build both, on purpose, into one system.</p>
+            </div>
 
             <div className="fusion-grid">
               <div className="fusion-left fusion-side">
@@ -284,11 +310,13 @@ export default function StartPage() {
         </section>
 
         {/* ═════════ BEAT 3 — THE TOOLS ═════════ */}
-        <section className="tools-section beat">
+        <section id="how-it-works" className="tools-section beat">
           <div className="beat-inner">
-            <div className="beat-tag">Section 03 &mdash; The tools</div>
-            <h2 className="beat-h">Real software for operators.<span className="beat-h-accent">Not feature theatre.</span></h2>
-            <p className="beat-sub">Each of these ships, runs daily, and is used by real members. Membership unlocks every one of them.</p>
+            <div className="beat-header">
+              <div className="beat-tag">Section 03 &mdash; The tools</div>
+              <h2 className="beat-h">Real software for operators.<span className="beat-h-accent">Not feature theatre.</span></h2>
+              <p className="beat-sub">Each of these ships, runs daily, and is used by real members. Membership unlocks every one of them.</p>
+            </div>
 
             <div className="tools-grid">
               {[
@@ -318,9 +346,11 @@ export default function StartPage() {
         {/* ═════════ BEAT 4 — CONVERGENCE (PINNED) ═════════ */}
         <section className="converge-section beat">
           <div className="beat-inner converge-inner">
-            <div className="beat-tag">Section 04 &mdash; The earning</div>
-            <h2 className="beat-h">Four streams. One destination.<span className="beat-h-accent">Everything funnels back.</span></h2>
-            <p className="beat-sub">Most platforms ask you to stack disconnected income sources. SuperAdPro runs four streams off the same network &mdash; the activity that drives one feeds the others.</p>
+            <div className="beat-header">
+              <div className="beat-tag">Section 04 &mdash; The earning</div>
+              <h2 className="beat-h">Four streams. One destination.<span className="beat-h-accent">Everything funnels back.</span></h2>
+              <p className="beat-sub">Most platforms ask you to stack disconnected income sources. SuperAdPro runs four streams off the same network &mdash; the activity that drives one feeds the others.</p>
+            </div>
 
             <svg className="converge-svg" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet">
               <defs>
@@ -380,8 +410,10 @@ export default function StartPage() {
         {/* ═════════ BEAT 5 — FOUNDING MOMENT ═════════ */}
         <section className="founding-section beat">
           <div className="beat-inner founding-inner">
-            <div className="beat-tag" style={{margin:'0 auto 22px',justifyContent:'center'}}>Section 05 &mdash; The founding</div>
-            <h2 className="beat-h" style={{textAlign:'center'}}>A founding rate. Locked for life.<span className="beat-h-accent" style={{textAlign:'center'}}>Only one hundred members get it.</span></h2>
+            <div className="beat-header">
+              <div className="beat-tag">Section 05 &mdash; The founding</div>
+              <h2 className="beat-h">A founding rate. Locked for life.<span className="beat-h-accent">Only one hundred members get it.</span></h2>
+            </div>
 
             <div className="founding-dots-grid">
               {Array.from({ length: 100 }).map(function(_, i) {
@@ -395,7 +427,7 @@ export default function StartPage() {
               <span className="founding-price-val">$15</span>
               <div className="founding-price-foot">/ month &mdash; locked for life</div>
             </div>
-            <p className="beat-sub" style={{margin:'0 auto',textAlign:'center',maxWidth:560}}>
+            <p className="beat-sub" style={{maxWidth:560,margin:'24px auto 0'}}>
               This price will not exist after spot 100. The standard membership is $20/month. The difference compounds over years.
             </p>
           </div>
@@ -404,9 +436,11 @@ export default function StartPage() {
         {/* ═════════ BEAT 6 — PORTAL ═════════ */}
         <section className="portal-section beat">
           <div className="beat-inner portal-inner">
-            <div className="beat-tag" style={{margin:'0 auto 22px',justifyContent:'center'}}>Section 06 &mdash; The doorway</div>
-            <h2 className="portal-headline">Step in.</h2>
-            <p className="portal-sub portal-cta">Free to create an account. No credit card. Activate membership when you are ready.</p>
+            <div className="beat-header">
+              <div className="beat-tag">Section 06 &mdash; The doorway</div>
+              <h2 className="portal-headline">Step in.</h2>
+              <p className="portal-sub portal-cta">Free to create an account. No credit card. Activate membership when you are ready.</p>
+            </div>
             <div className="portal-ctas">
               <Link to="/register?via=start" className="portal-cta portal-cta-primary">
                 Create free account &rarr;
@@ -491,17 +525,44 @@ var startStyles = `
 .hero-stat-num{font-family:'Sora',sans-serif;font-weight:900;font-size:38px;letter-spacing:-.03em;color:#22d3ee;line-height:1;text-shadow:0 0 28px rgba(6,182,212,.3);display:block;margin-bottom:6px}
 .hero-stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(250,251,255,.42);font-weight:600}
 
+/* ── Hero CTA row — sits between sub-headline and stats, the
+   primary conversion surface above the fold ── */
+.hero-cta-row{display:inline-flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center;margin:6px auto 44px}
+.hero-cta-primary{display:inline-flex;align-items:center;gap:14px;padding:22px 48px;border-radius:14px;font-family:'Sora',sans-serif;font-size:18px;font-weight:800;letter-spacing:.005em;text-decoration:none;background:linear-gradient(135deg,#06b6d4,#0ea5e9);color:#fff;box-shadow:0 8px 32px rgba(6,182,212,.45),inset 0 0 0 1px rgba(255,255,255,.22);transition:transform .25s ease-out;position:relative;overflow:hidden;will-change:transform,box-shadow;opacity:0}
+.hero-cta-primary:hover{transform:translateY(-3px)}
+.hero-cta-label{position:relative;z-index:2}
+.hero-cta-arrow{position:relative;z-index:2;font-size:22px;transition:transform .25s}
+.hero-cta-primary:hover .hero-cta-arrow{transform:translateX(4px)}
+.hero-cta-shimmer{position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.3),transparent);transform:translateX(-100%);transition:transform .7s;z-index:1}
+.hero-cta-primary:hover .hero-cta-shimmer{transform:translateX(100%)}
+.hero-cta-ghost{display:inline-flex;align-items:center;gap:8px;padding:22px 32px;border-radius:14px;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;text-decoration:none;background:rgba(250,251,255,.06);color:#fff;border:1px solid rgba(250,251,255,.16);backdrop-filter:blur(8px);transition:background .3s,border-color .3s;opacity:0}
+.hero-cta-ghost:hover{background:rgba(250,251,255,.1);border-color:rgba(34,211,238,.4)}
+
 .hero-scroll-cue{position:absolute;bottom:24px;left:0;right:0;text-align:center;z-index:5;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(250,251,255,.5);letter-spacing:.22em;text-transform:uppercase;animation:scrollNudge 2.6s ease-in-out 3.8s infinite both}
 @keyframes scrollNudge{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(8px);opacity:.95}}
 
 /* ═══════════ BEAT SHARED STYLES ═══════════ */
-.beat{position:relative;padding:120px 32px}
+.beat{position:relative;padding:140px 32px}
 .beat-inner{max-width:1280px;margin:0 auto}
-.beat-tag{display:inline-flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#22d3ee;letter-spacing:.22em;text-transform:uppercase;margin-bottom:24px}
-.beat-tag::before{content:'';width:40px;height:1px;background:#22d3ee;opacity:.7}
-.beat-h{font-family:'Sora',sans-serif;font-size:clamp(38px,5vw,72px);font-weight:900;line-height:1;letter-spacing:-.04em;margin-bottom:20px}
+
+/* Centred section header wrapper used by beats 2-4. Beats 5 and 6
+   were already centred via inline styles. Constrains text width for
+   readability rather than letting the headline stretch the full
+   1280px container. */
+.beat-header{max-width:780px;margin:0 auto 64px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px}
+.beat-tag{display:inline-flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#22d3ee;letter-spacing:.22em;text-transform:uppercase;justify-content:center}
+.beat-tag::before,.beat-tag::after{content:'';width:40px;height:1px;background:#22d3ee;opacity:.7}
+.beat-h{font-family:'Sora',sans-serif;font-size:clamp(38px,5vw,72px);font-weight:900;line-height:1;letter-spacing:-.04em;margin:0}
 .beat-h-accent{display:block;font-weight:300;letter-spacing:-.025em;opacity:.7;line-height:1.1;font-size:.6em;margin-top:8px;color:#a5f3fc}
-.beat-sub{font-size:18px;line-height:1.6;color:rgba(250,251,255,.6);max-width:680px}
+.beat-sub{font-size:18px;line-height:1.6;color:rgba(250,251,255,.6);max-width:620px;margin:0}
+
+/* Softer section transitions — fade-out at bottom of each beat and
+   fade-in at top of the next, instead of a hard divider line. Adds
+   atmospheric depth that makes the page feel continuous, like film. */
+.beat::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,rgba(5,10,31,.6),transparent);pointer-events:none;z-index:1}
+.beat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(0deg,rgba(5,10,31,.6),transparent);pointer-events:none;z-index:1}
+.beat > *{position:relative;z-index:2}
+.sap-divider{display:none}  /* hard dividers replaced by gradient fades above */
 
 /* ═══════════ BEAT 2 — FUSION ═══════════ */
 .fusion-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin-top:64px}

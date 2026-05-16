@@ -2141,6 +2141,94 @@ try:
 except Exception as e:
     print(f"⚠️ migrate_founder_expiries_one_shot skipped: {e}")
 
+
+def autoenrol_founders_to_rotator():
+    """ONE-SHOT data migration (added 16 May 2026).
+
+    Auto-enrols all active Founders into the rotator_queue with
+    sequential queue positions, so the /start funnel can distribute
+    public signups to them immediately. Founders opt OUT later from
+    their dashboard if they don't want rotator-assigned signups.
+
+    Steve's call: rotator should serve Founders specifically (not all
+    paying members) — they paid for the early-member privilege and
+    the /start page is pitched around becoming one of the first 100.
+
+    Idempotent: only inserts rotator_queue rows for Founders that
+    aren't already in the queue, and only flips rotator_opted_in
+    where it's currently FALSE. Re-running on subsequent boots is
+    a no-op.
+
+    Scope:
+      - is_active = TRUE (skip lapsed founders)
+      - is_founding_member = TRUE
+      - COALESCE(is_admin, FALSE) = FALSE (skip SuperAdPro)
+      - id NOT IN existing rotator_queue
+    """
+    try:
+        with engine.connect() as conn:
+            try:
+                conn.execute(text("SET lock_timeout = '5s'"))
+                conn.execute(text("SET statement_timeout = '30s'"))
+            except Exception:
+                pass
+
+            # Eligible Founders not yet in the queue
+            rows = conn.execute(text("""
+                SELECT u.id, u.username
+                  FROM users u
+                  LEFT JOIN rotator_queue rq ON rq.user_id = u.id
+                 WHERE u.is_active = TRUE
+                   AND u.is_founding_member = TRUE
+                   AND COALESCE(u.is_admin, FALSE) = FALSE
+                   AND rq.user_id IS NULL
+                 ORDER BY u.founding_spot_number NULLS LAST, u.id
+            """)).fetchall()
+
+            if not rows:
+                return  # silent no-op
+
+            # Current max position so we slot new enrolments at the back
+            mx_row = conn.execute(text(
+                "SELECT COALESCE(MAX(queue_position), 0) FROM rotator_queue"
+            )).fetchone()
+            next_pos = (mx_row[0] or 0) + 1
+
+            inserted = 0
+            for r in rows:
+                uid, uname = r[0], r[1]
+                try:
+                    conn.execute(text("""
+                        INSERT INTO rotator_queue (user_id, queue_position, joined_at)
+                        VALUES (:uid, :pos, NOW())
+                        ON CONFLICT (user_id) DO NOTHING
+                    """), {"uid": uid, "pos": next_pos})
+                    conn.execute(text("""
+                        UPDATE users
+                           SET rotator_opted_in = TRUE
+                         WHERE id = :uid
+                           AND COALESCE(rotator_opted_in, FALSE) = FALSE
+                    """), {"uid": uid})
+                    inserted += 1
+                    next_pos += 1
+                except Exception as ie:
+                    print(f"  ⚠️ rotator enrol failed for {uname} (id={uid}): {ie}")
+            conn.commit()
+            if inserted:
+                print(
+                    f"✓ Rotator auto-enrol: {inserted} active Founder(s) added to queue, "
+                    f"opted_in=TRUE flipped"
+                )
+    except Exception as e:
+        print(f"⚠️ autoenrol_founders_to_rotator skipped: {e}")
+
+
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    autoenrol_founders_to_rotator()
+except Exception as e:
+    print(f"⚠️ autoenrol_founders_to_rotator skipped: {e}")
+
 # Force critical column additions with direct connection
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
