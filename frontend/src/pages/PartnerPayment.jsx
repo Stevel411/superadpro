@@ -30,6 +30,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { Check, Sparkles, Wallet, Coins, CreditCard, Loader2 } from 'lucide-react';
+import { useConsentGate } from '../components/PurchaseConsentModal';
 
 // Lazy-load WalletConnect components — they pull in wagmi/viem (~150kB)
 // so we only import them if the user picks the wallet rail.
@@ -52,6 +53,16 @@ export default function PartnerPayment() {
   var [rail, setRail] = useState('');                  // 'balance' | 'crypto' | 'wallet'
   var [loading, setLoading] = useState(false);
   var [error, setError] = useState('');
+
+  // Purchase consent gate — required by the backend before any money-in
+  // endpoint will accept the request. PARTNER PAYMENT WAS MISSING THIS
+  // GATE (added 16 May 2026 after broadcast went out and users hit
+  // "You must read and accept the purchase terms" errors). Modal is
+  // rendered in the page tree; ensureConsent() returns a Promise that
+  // resolves true if accepted, false if cancelled.
+  var consentGate = useConsentGate();
+  var ensureConsent = consentGate.ensureConsent;
+  var consentModal = consentGate.consentModal;
 
   // Poll founding status — initial fetch + 60s interval
   useEffect(function() {
@@ -94,10 +105,16 @@ export default function PartnerPayment() {
     : '0';
 
   // ── Submit handler ──────────────────────────────────────────────
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!rail || loading) return;
-    setLoading(true);
     setError('');
+
+    // Backend rejects any money-in request without a fresh consent record.
+    // Open the consent modal first; only proceed if the user accepts.
+    var ok = await ensureConsent();
+    if (!ok) return;
+
+    setLoading(true);
 
     if (rail === 'crypto') {
       var productKey = cadence === 'annual' ? 'membership_partner_annual' : 'membership_partner';
@@ -374,9 +391,12 @@ export default function PartnerPayment() {
 
         {/* ── CTA ── */}
         {rail === 'wallet' ? (
-          // WalletConnect flow renders its own buttons (Connect → Pay)
+          // WalletConnect flow renders its own buttons (Connect → Pay).
+          // onBeforeClick wires the consent gate into the wallet rail —
+          // WalletPayLink calls it before creating the on-chain intent,
+          // so the user sees the same consent modal regardless of rail.
           <Suspense fallback={<button className="pp-cta-btn" disabled>{t('partner.loadingWallet', { defaultValue: 'Loading wallet…' })}</button>}>
-            <WalletConnectProvider>
+            <WalletConnectProvider onBeforeClick={ensureConsent}>
               <WalletConnectGate
                 hideWhenConnected
                 label={t('partner.connectWallet', { defaultValue: 'Connect your wallet to pay ${{amount}}', amount: price })}
@@ -431,6 +451,10 @@ export default function PartnerPayment() {
         </div>
 
       </div>
+      {/* Purchase consent modal — opens via ensureConsent() before any
+          buy API hit. Backend rejects purchases without a fresh consent
+          (within the last 5 min), so this gate is required on every rail. */}
+      {consentModal}
     </AppLayout>
   );
 }
