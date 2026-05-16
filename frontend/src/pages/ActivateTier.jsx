@@ -198,7 +198,7 @@ export default function ActivateTier() {
               </div>
             </div>
 
-            <Link to="/my-campaigns" style={{
+            <Link to="/video-library" style={{
               display:'flex', alignItems:'center', justifyContent:'center', gap:8,
               width:'100%', padding:'14px 18px', borderRadius:12,
               fontSize:14, fontWeight:700, textDecoration:'none',
