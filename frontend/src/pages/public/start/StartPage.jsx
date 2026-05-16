@@ -188,7 +188,7 @@ export default function StartPage() {
         <section className="hero-section">
           <div className={'hero-canvas-wrap bgmode-' + bgMode}>
             {(bgMode === 'video' || bgMode === 'both') && (
-              <BackgroundVideo />
+              <BackgroundVideo force={true} />
             )}
             {(bgMode === 'constellation' || bgMode === 'both') && (
               <Suspense fallback={<div className="hero-canvas-loading"/>}>

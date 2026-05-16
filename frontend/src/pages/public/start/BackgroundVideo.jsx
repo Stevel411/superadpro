@@ -3,29 +3,19 @@
  * ─────────────────────────────────────────────────────────────
  * Hero background video loop. Autoplays muted on capable
  * devices; falls back to a poster image (Pexels JPEG thumbnail)
- * for users on slow connections, reduced motion, or where
- * autoplay is denied by the browser.
+ * for users on slow connections, reduced motion (when not
+ * explicitly forced on by the user), or where autoplay is
+ * denied by the browser.
  *
  * Default placeholder source is a Pexels CC0 drone shot of an
  * autumn mountain road (Alex Moliski, free for commercial use,
  * no attribution required per Pexels license). Swap the src
  * prop or VIDEO_SRC default when Steve provides the final clip.
  *
- * Performance:
- *   - Video element is mounted lazily (after 800ms) so the
- *     hero text and 3D constellation finish their first paint
- *     before the network starts pulling 5-15MB of MP4.
- *   - Poster image renders immediately as a fallback surface.
- *   - On Save-Data, reduced-motion, or width <= 600px, video
- *     does NOT mount — poster only. Saves mobile data + battery.
- *   - object-fit: cover handles both portrait and landscape
- *     source clips.
- *
- * Visual treatment:
- *   - 65% black overlay on top of the video so hero text stays
- *     legible regardless of source brightness
- *   - Slight desaturation + blur so it reads as atmosphere not
- *     as foreground content
+ * IMPORTANT: pass force={true} when the user has explicitly
+ * opted in via UI (e.g. the bgmode toggle). The accessibility
+ * gates below are sensible defaults for first-load behaviour
+ * but should not block a user who explicitly wants the video.
  */
 import { useEffect, useRef, useState } from 'react';
 
@@ -34,30 +24,37 @@ var VIDEO_SRC =
 var VIDEO_POSTER =
   'https://images.pexels.com/videos/34305614/adventure-autumn-car-clouds-34305614.jpeg?auto=compress&cs=tinysrgb&w=1920';
 
-export default function BackgroundVideo({ src, poster }) {
+export default function BackgroundVideo({ src, poster, force }) {
   var [shouldMount, setShouldMount] = useState(false);
   var [loaded, setLoaded] = useState(false);
   var videoRef = useRef(null);
 
   useEffect(function() {
-    // Respect prefers-reduced-motion: never autoplay anything that moves
+    // If the parent explicitly forced video on (toggle clicked,
+    // user navigated here specifically to see motion, etc.) skip
+    // all the accessibility/data gates and mount immediately.
+    if (force) {
+      setShouldMount(true);
+      return;
+    }
+    // Respect prefers-reduced-motion as soft default
     if (typeof window !== 'undefined' && window.matchMedia) {
       var motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
       if (motionMq.matches) return;
     }
-    // Respect Save-Data (set by users on metered connections)
+    // Respect Save-Data on metered connections
     if (typeof navigator !== 'undefined' && navigator.connection) {
       if (navigator.connection.saveData) return;
       if (navigator.connection.effectiveType === 'slow-2g' ||
           navigator.connection.effectiveType === '2g') return;
     }
-    // Skip video on small viewports — battery and data discipline
+    // Skip on very small viewports — saves battery/data
     if (typeof window !== 'undefined' && window.innerWidth < 600) return;
-    // Defer mount until after first paint, so the constellation and
-    // hero text are rendered first.
-    var t = setTimeout(function() { setShouldMount(true); }, 800);
-    return function() { clearTimeout(t); };
-  }, []);
+    // Mount immediately on capable desktop devices. The previous
+    // 800ms deferral was over-cautious — the video tag's own preload
+    // handles its loading lifecycle without blocking other paints.
+    setShouldMount(true);
+  }, [force]);
 
   // Fade the video in when its first frame is ready, to avoid a
   // hard switch from poster to playback
@@ -66,8 +63,22 @@ export default function BackgroundVideo({ src, poster }) {
     if (videoRef.current) {
       var p = videoRef.current.play();
       if (p && typeof p.catch === 'function') {
-        p.catch(function() { /* autoplay denied — poster stays */ });
+        p.catch(function(err) {
+          // Autoplay denied — log it so we can see why in devtools
+          if (typeof console !== 'undefined' && console.warn) {
+            console.warn('[BackgroundVideo] autoplay denied:', err && err.message);
+          }
+        });
       }
+    }
+  }
+
+  function handleError(e) {
+    // Surface video load failures to the console for debugging.
+    // If you see this in production, the source URL is probably
+    // returning a non-200 or blocked by CORS.
+    if (typeof console !== 'undefined' && console.warn) {
+      console.warn('[BackgroundVideo] video element error', e);
     }
   }
 
@@ -91,6 +102,7 @@ export default function BackgroundVideo({ src, poster }) {
           playsInline
           preload="auto"
           onLoadedData={handleLoadedData}
+          onError={handleError}
         />
       )}
       <div className="bg-video-overlay"/>
