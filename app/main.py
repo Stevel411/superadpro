@@ -12880,14 +12880,19 @@ async def admin_api_activate_paid_membership(
     personal_referrals bumped on the sponsor, leaderboard cache invalidated.
 
     Tier options:
-      - founder: $15 received, lifetime, claims one of the 100 founding spots
-        atomically (blocks with error if all 100 are taken). Sponsor receives
-        $10, company retains $5. The $10/$5 split applies ONLY to this Founder's
-        own membership — when this Founder later refers a Partner at $20, that
-        Partner generates the standard $10/$10 split (Founders do NOT permanently
-        change commission economics for their downline).
+      - founder: $15 received THIS MONTH, claims one of the 100 founding
+        spots atomically (blocks with error if all 100 are taken). The
+        $15 price is locked for life — every monthly renewal forever will
+        be $15, never $20. The member still pays monthly the same way a
+        Partner does; the 'lifetime' framing refers to the price being
+        permanent, NOT to the membership being a one-time payment.
+        Sponsor receives $10 on this activation, company retains $5. The
+        same $10/$5 split fires automatically on every monthly renewal
+        because membership_price_locked drives the fee and the renewal
+        handler pays the sponsor a flat $10 regardless of the price the
+        member paid.
       - partner: $20 × N months received, sponsor receives $10 × N months
-        upfront lump sum (capped at sponsor's tier per existing rules).
+        upfront lump sum. Recurring afterwards at $20/mo standard rate.
 
     Optional bank_reference for the admin's own audit trail (e.g. bank
     statement reference number) — recorded in the Payment row's notes.
@@ -12902,6 +12907,12 @@ async def admin_api_activate_paid_membership(
         raise HTTPException(status_code=400, detail="Invalid tier — must be 'founder' or 'partner'")
     if tier == "partner" and months not in (1, 3, 6, 9, 12):
         raise HTTPException(status_code=400, detail="Invalid duration — must be 1, 3, 6, 9, or 12 months")
+    # Founders re-pay every 30 days; multi-month upfront isn't offered.
+    # Force-coerce months to 1 server-side regardless of what the client sent,
+    # so even a hand-rolled API call can't accidentally activate a Founder
+    # for 12 months in one shot.
+    if tier == "founder":
+        months = 1
 
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
@@ -12947,7 +12958,13 @@ async def admin_api_activate_paid_membership(
         target.is_active = True
         target.activated_at = target.activated_at or datetime.utcnow()
         target.membership_tier = "founding"  # tag founders distinctly per existing convention
-        target.membership_expires_at = datetime(2099, 12, 31)  # lifetime
+        # Founder = $15/month locked for life. The 'lifetime' part refers to
+        # the PRICE never changing (locked at $15 forever), not to the
+        # membership term itself. Founders re-pay every 30 days the same as
+        # Partners — they just always pay $15 instead of $20. So we set
+        # expiry to today + 30 days exactly like a 1-month Partner activation.
+        # (Corrected 16 May 2026 — was previously datetime(2099, 12, 31).)
+        target.membership_expires_at = datetime.utcnow() + timedelta(days=30)
 
         # Write Payment row for audit trail. tx_hash format mirrors what
         # _activate_membership writes for crypto/walletconnect, so financial_sanity

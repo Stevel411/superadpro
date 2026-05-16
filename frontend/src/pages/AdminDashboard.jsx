@@ -1473,7 +1473,12 @@ function PaidActivation(props) {
   var amountReceived = tier === 'founder' ? 15 : (20 * months);
   var sponsorGets = tier === 'founder' ? 10 : (10 * months);
   var companyGets = tier === 'founder' ? 5 : (10 * months);
-  var durationLabel = tier === 'founder' ? 'lifetime' : (months === 12 ? '1 year' : months + ' months');
+  // Founders pay $15/month (price locked for life, never the term). Partners
+  // can be activated for 1/3/6/9/12 months upfront. The "lifetime" descriptor
+  // belongs on the price, not on the membership duration.
+  var durationLabel = tier === 'founder'
+    ? '1 month at $15 (price locked for life)'
+    : (months === 12 ? '1 year' : months + ' months');
 
   function activate() {
     if (activating) return;
@@ -1533,7 +1538,7 @@ function PaidActivation(props) {
         {tier === 'founder' && (
           <div style={{flex:1.5,display:'flex',alignItems:'flex-end'}}>
             <div style={{padding:'7px 10px',borderRadius:6,background:'#fef3c7',color:'#92400e',fontSize:12,fontWeight:700,width:'100%',textAlign:'center'}}>
-              ★ Lifetime · $15 fixed
+              ★ $15/month · price locked for life
             </div>
           </div>
         )}
