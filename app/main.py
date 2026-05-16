@@ -10426,6 +10426,21 @@ def admin_api_user_detail(
             "country": u.country,
             "kyc_status": getattr(u, 'kyc_status', None),
             "two_factor_enabled": getattr(u, 'totp_enabled', False),
+            # ── Billing state (added 16 May 2026) ──
+            # These three drive whether and when the member is charged.
+            # membership_expires_at: when the auto-renew cron will next
+            #   attempt to deduct from their wallet balance. A date in
+            #   2099 means the legacy 'lifetime' bug is still on this
+            #   row; should be ~today+30 for active members.
+            # membership_price_locked: NULL means standard $20 partner
+            #   rate; 15.00 means founder locked at $15.
+            # is_founding_member + founding_spot_number: founder status.
+            #   spot_number is 1..100 for paid founders, NULL for gifted
+            #   founders (gifts don't burn real customer inventory).
+            "membership_expires_at": u.membership_expires_at.isoformat() if u.membership_expires_at else None,
+            "membership_price_locked": float(u.membership_price_locked) if getattr(u, 'membership_price_locked', None) is not None else None,
+            "is_founding_member": bool(getattr(u, 'is_founding_member', False)),
+            "founding_spot_number": getattr(u, 'founding_spot_number', None),
             "created_at": u.created_at.isoformat() if u.created_at else None,
         },
         "grids": [{

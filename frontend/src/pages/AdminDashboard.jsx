@@ -569,6 +569,57 @@ function UsersTab() {
                 <div><span style={{fontWeight:700,color:'var(--sap-text-muted)'}}>KYC:</span> <span style={{color:'var(--sap-text-primary)',textTransform:'capitalize'}}>{detail.kyc_status || 'none'}</span></div>
                 <div><span style={{fontWeight:700,color:'var(--sap-text-muted)'}}>2FA:</span> <span style={{color:detail.two_factor_enabled?'var(--sap-green)':'var(--sap-text-faint)'}}>{detail.two_factor_enabled?'Enabled':'Off'}</span></div>
               </div>
+
+              {/* ── Membership billing (added 16 May 2026) ──
+                  Shows next-renewal date, locked price (for founders),
+                  and founding-spot status. Lets admin verify billing
+                  state at a glance — previously these fields were
+                  in the DB but invisible in the UI. */}
+              {(() => {
+                var exp = detail.membership_expires_at;
+                var expDate = exp ? new Date(exp) : null;
+                var expYear = expDate ? expDate.getFullYear() : null;
+                var isLegacyBug = expYear && expYear >= 2099;
+                var daysLeft = expDate ? Math.floor((expDate.getTime() - Date.now()) / 86400000) : null;
+                var expDisplay = !expDate ? '—'
+                  : isLegacyBug ? '⚠ 2099-12-31 (legacy bug)'
+                  : expDate.toLocaleDateString('en-GB') + (daysLeft !== null ? ' (' + (daysLeft >= 0 ? 'in ' + daysLeft + 'd' : daysLeft + 'd ago') + ')' : '');
+                return (
+                  <div style={{marginTop:14,paddingTop:14,borderTop:'1px solid #e8ecf2'}}>
+                    <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:8}}>Membership billing</div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:12}}>
+                      <div>
+                        <span style={{fontWeight:700,color:'var(--sap-text-muted)'}}>Next renewal:</span>{' '}
+                        <span style={{color: isLegacyBug ? 'var(--sap-red)' : (daysLeft !== null && daysLeft < 3 ? 'var(--sap-amber-dark, #b45309)' : 'var(--sap-text-primary)'), fontWeight: isLegacyBug ? 800 : 500}}>
+                          {expDisplay}
+                        </span>
+                      </div>
+                      <div>
+                        <span style={{fontWeight:700,color:'var(--sap-text-muted)'}}>Price/mo:</span>{' '}
+                        <span style={{color:'var(--sap-text-primary)',fontWeight:700}}>
+                          {detail.membership_price_locked != null
+                            ? '$' + Number(detail.membership_price_locked).toFixed(2) + ' (locked)'
+                            : detail.is_active ? '$20.00 (standard)' : '—'}
+                        </span>
+                      </div>
+                      <div>
+                        <span style={{fontWeight:700,color:'var(--sap-text-muted)'}}>Founder:</span>{' '}
+                        {detail.is_founding_member ? (
+                          <span style={{color:'var(--sap-amber-dark, #b45309)',fontWeight:800}}>
+                            ★ Yes{detail.founding_spot_number ? ' (spot #' + detail.founding_spot_number + '/100)' : ' (gifted)'}
+                          </span>
+                        ) : (
+                          <span style={{color:'var(--sap-text-faint)'}}>No</span>
+                        )}
+                      </div>
+                      <div>
+                        <span style={{fontWeight:700,color:'var(--sap-text-muted)'}}>Activated:</span>{' '}
+                        <span style={{color:'var(--sap-text-primary)'}}>{detail.created_at ? new Date(detail.created_at).toLocaleDateString('en-GB') : '—'}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
