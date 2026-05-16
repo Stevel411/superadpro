@@ -13,11 +13,11 @@
  * set, ConstellationHero shunts to a static SVG fallback.
  */
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PublicLayout from '../../../components/layout/PublicLayout';
-import { apiGet } from '../../../utils/api';
+import { apiGet, apiPost } from '../../../utils/api';
 import BackgroundVideo from './BackgroundVideo';
 
 var ConstellationHero = lazy(function() { return import('./ConstellationHero'); });
@@ -28,6 +28,33 @@ export default function StartPage() {
   var pageRef = useRef(null);
   var heroTextRef = useRef(null);
   var [stats, setStats] = useState({ members: 138, foundingRemaining: 77 });
+  var [claiming, setClaiming] = useState(false);
+  var navigate = useNavigate();
+
+  // Claim handler — pings /api/start/peek-next-sponsor to advance the
+  // rotator and get the next Founder, then navigates to /register with
+  // that Founder as the ref. Each click of the CTA consumes one queue
+  // position, so the next visitor (or the same visitor on a second
+  // click) sees a different Founder. Steve's spec verbatim.
+  function handleClaim(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (claiming) return;
+    setClaiming(true);
+    apiPost('/api/start/peek-next-sponsor', {})
+      .then(function(d) {
+        var sponsor = (d && d.sponsor_username) ? d.sponsor_username : 'SuperAdPro';
+        // Pass both via=start (funnel marker) AND the picked sponsor
+        // as ref. Backend register handler will use the explicit ref
+        // rather than re-engaging the rotator.
+        navigate('/register?via=start&ref=' + encodeURIComponent(sponsor));
+      })
+      .catch(function() {
+        // Network/backend hiccup — don't trap the user, send them to
+        // register without a ref so the rotator fires at submit time
+        // as a last-resort fallback.
+        navigate('/register?via=start');
+      });
+  }
 
   // Fetch live platform numbers — never hardcode what the DB knows.
   // Falls back to the static values above if the endpoint is missing
@@ -216,11 +243,11 @@ export default function StartPage() {
             <p className="hero-sub">When spot #100 is claimed this offer closes forever. Standard membership reverts to $20/month. Founding Partners keep their $15 rate for life — no exceptions, no annual increases.</p>
 
             <div className="hero-cta-row">
-              <Link to="/register?via=start" className="hero-cta-primary">
-                <span className="hero-cta-label">Claim your Founder spot</span>
+              <a href="/register?via=start" onClick={handleClaim} className="hero-cta-primary" style={claiming ? {pointerEvents:'none',opacity:.6} : undefined}>
+                <span className="hero-cta-label">{claiming ? 'Finding your sponsor…' : 'Claim your Founder spot'}</span>
                 <span className="hero-cta-arrow">→</span>
                 <span className="hero-cta-shimmer"/>
-              </Link>
+              </a>
               <Link to="#how-it-works" className="hero-cta-ghost">See how it works</Link>
             </div>
 
@@ -408,10 +435,10 @@ export default function StartPage() {
               <p className="portal-sub portal-cta">Free to create an account. No credit card. Activate membership when you are ready.</p>
             </div>
             <div className="portal-ctas">
-              <Link to="/register?via=start" className="portal-cta portal-cta-primary">
-                Create free account &rarr;
+              <a href="/register?via=start" onClick={handleClaim} className="portal-cta portal-cta-primary" style={claiming ? {pointerEvents:'none',opacity:.6} : undefined}>
+                {claiming ? 'Finding your sponsor…' : 'Create free account →'}
                 <span className="portal-shimmer"/>
-              </Link>
+              </a>
               <Link to="/explore" className="portal-cta portal-cta-ghost">Take the 60-second tour</Link>
             </div>
             <div className="portal-signoff portal-cta">Made in the UK &middot; Built for operators</div>

@@ -5598,6 +5598,73 @@ def api_start_next_sponsor(request: Request, db: Session = Depends(get_db)):
     )
 
 
+@app.post("/api/start/peek-next-sponsor")
+def api_start_peek_next_sponsor(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Advance the rotator queue by one and return the picked Founder's
+    username. PUBLIC — no auth required.
+
+    Called from the /start CTA click handler. Steve's design: every
+    click of 'Claim your Founder spot' shows a different Founder's
+    name on the register page. Each call here advances the queue.
+
+    Because this endpoint advances the queue, the register flow that
+    follows must use the explicit ref it returns rather than calling
+    the rotator a second time on submit. Frontend passes ?ref=<name>
+    via the URL; backend register handler uses that explicit ref.
+
+    Returns:
+      { sponsor_username: <str>, queue_size: <int> } on success
+      { sponsor_username: 'SuperAdPro', queue_size: 0, fallback: true }
+        if the queue is empty (so the page still works gracefully)
+
+    Concurrency: _pick_next_rotator_sponsor uses pg_advisory_xact_lock,
+    so two simultaneous clicks each get a distinct Founder, not the
+    same one.
+    """
+    try:
+        picked_id = _pick_next_rotator_sponsor(db)
+        if not picked_id:
+            db.commit()
+            return {
+                "sponsor_username": "SuperAdPro",
+                "queue_size": 0,
+                "fallback": True,
+            }
+        # Look up the username for the picked id
+        from sqlalchemy import text as _text
+        row = db.execute(_text(
+            "SELECT username FROM users WHERE id = :id"
+        ), {"id": picked_id}).fetchone()
+        sponsor_username = row[0] if row else "SuperAdPro"
+        # Count remaining queue size for diagnostics
+        qsize = db.execute(_text(
+            "SELECT COUNT(*) FROM rotator_queue"
+        )).scalar() or 0
+        db.commit()
+        logger.info(
+            f"rotator peek: served '{sponsor_username}' (user_id={picked_id}) "
+            f"to /start CTA click — queue advanced"
+        )
+        return {
+            "sponsor_username": sponsor_username,
+            "queue_size": qsize,
+            "fallback": False,
+        }
+    except Exception as e:
+        logger.exception(f"peek-next-sponsor failed: {e}")
+        db.rollback()
+        # Don't break the page — fall back to house account.
+        return {
+            "sponsor_username": "SuperAdPro",
+            "queue_size": 0,
+            "fallback": True,
+            "error": str(e),
+        }
+
+
 @app.get("/api/start/stats")
 def api_start_stats(request: Request, db: Session = Depends(get_db)):
     """Live platform stats for the /start hero. PUBLIC — no auth.
@@ -17068,16 +17135,13 @@ async def api_register(
         if existing:
             return JSONResponse({"error": "Username or email already registered."}, status_code=400)
 
-        # Funnel marker — when via=start the company /start funnel
-        # is authoritative. Even if a ref slipped through (stale cookie,
-        # bookmark, hand-rolled API call), the rotator MUST win on this
-        # path. This is the explicit signal that the visitor came
-        # through the company's paid acquisition surface, not via a
-        # personal referral link. Ignoring the ref here is the only
-        # way to stop a stale cookie from hijacking the funnel.
+        # Funnel marker — when via=start the visitor came through the
+        # company /start funnel. The frontend Register page is wired
+        # to ignore the referral cookie on this path; the only ref
+        # that arrives here with via=start is the explicit one the
+        # peek-next-sponsor handler put in the URL (the rotator's
+        # already-advanced pick). Honour it directly.
         via = sanitize(body.get("via", "").strip())
-        if via in ("start", "rotator"):
-            ref = ""
 
         sponsor_id = None
         if ref:
@@ -17092,12 +17156,14 @@ async def api_register(
                     synchronize_session=False,
                 )
 
-        # ── Rotator assignment for /start funnel signups (added 16 May 2026) ──
-        # When a visitor signs up with via=start (or any rotator-eligible
-        # funnel marker) AND has no explicit referrer, pull the next sponsor
-        # from the rotator queue rather than dumping them on the house account.
-        # The whole point of the rotator is to distribute company-sourced
-        # leads fairly across active opted-in members.
+        # ── Rotator FALLBACK for /start funnel signups without a ref ──
+        # In the normal happy path, /start's peek-next-sponsor already
+        # advanced the queue and put the picked Founder in ?ref=, so
+        # sponsor_id is already resolved above. This branch fires only
+        # when via=start arrived WITHOUT a ref — e.g. peek-next-sponsor
+        # failed earlier, JS error, or someone hit /register?via=start
+        # directly. In that case we still want the rotator to apply, so
+        # call the picker as a last-resort.
         rotator_assignment_made = False
         rotator_assigned_sponsor_id = None
         if not sponsor_id and via in ("start", "rotator"):

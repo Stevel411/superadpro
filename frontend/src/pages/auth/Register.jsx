@@ -15,18 +15,25 @@ export default function Register() {
     const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
     return m ? decodeURIComponent(m[1]) : '';
   }
-  // Read the funnel-source marker. When ?via=start is present (the
-  // /start company acquisition page), we deliberately IGNORE any
-  // stale referral cookie — that page's whole purpose is rotator
-  // distribution to active Founders, not honouring an old personal
-  // referral. Without this gate, a user who once clicked someone's
-  // /ref/<username> link will silently bypass the rotator for the
-  // next 30 days, defeating the funnel.
+  // Sponsor resolution, in precedence order:
+  //   1. URL ?ref= or ?r= — explicit, came from either /ref/:username
+  //      OR from /start's peek-next-sponsor handler (the rotator-assigned
+  //      Founder for this specific click). Always wins.
+  //   2. Cookie (only if NOT via=start) — preserves the sponsor from a
+  //      previous /ref/:username visit for organic /register arrivals.
+  //   3. Empty — no sponsor; backend will assign rotator/house as
+  //      appropriate.
+  // When via=start the cookie is deliberately ignored so a stale referral
+  // cookie cannot hijack the company funnel.
   const via = params.get('via') || '';
   const viaIsCompanyFunnel = (via === 'start' || via === 'rotator');
-  const refCode = viaIsCompanyFunnel
-    ? ''  // company funnel: ignore cookie, let backend rotator pick
-    : (params.get('ref') || params.get('r') || readCookie('ref') || '');
+  const urlRef = params.get('ref') || params.get('r') || '';
+  const refCode = urlRef || (viaIsCompanyFunnel ? '' : readCookie('ref') || '');
+  // Distinguishes a "rotator-assigned" sponsor (came via /start) from a
+  // "personal referral" sponsor (came via /ref/:username or a personal
+  // link share). Tiny UI difference: the rotator-assigned case gets a
+  // friendlier "You've been matched with..." framing.
+  const refIsRotatorPick = viaIsCompanyFunnel && !!urlRef;
 
   // Gift voucher claim flow (added 8 May 2026).
   // When a recipient lands on /gift/{code} → clicks "Create Free Account",
@@ -42,23 +49,6 @@ export default function Register() {
   // navigate back to /gift/{code} → click claim again. Most never did.
   const giftCode = (params.get('gift') || '').trim().toUpperCase();
   const isGiftFlow = !!giftCode;
-
-  // For company-funnel signups (via=start), peek at the rotator's next
-  // pick so we can show the prospect WHO their sponsor will be. Reading
-  // doesn't advance the queue — that only happens on form submission.
-  // So if this user bounces, the next visitor sees the same name; if
-  // this user submits, the queue advances on the backend and the next
-  // visitor sees the next person.
-  const [previewSponsor, setPreviewSponsor] = useState(null);
-  useEffect(function() {
-    if (!viaIsCompanyFunnel) return;
-    fetch('/api/start/next-sponsor')
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        if (d && d.username) setPreviewSponsor(d.username);
-      })
-      .catch(function() { /* silent — fall back to generic copy */ });
-  }, []);
 
   // Pre-launch gate: hit /api/registration-status and only show the form if open.
   // null = still checking, true = open (or admin bypass), false = closed.
@@ -241,7 +231,11 @@ export default function Register() {
 
         {refCode && (
           <div style={styles.refBadge}>
-            🤝 Referred by <strong>{refCode}</strong>
+            {refIsRotatorPick ? (
+              <>🤝 You've been matched with <strong>{refCode}</strong> — an active Founder</>
+            ) : (
+              <>🤝 Referred by <strong>{refCode}</strong></>
+            )}
           </div>
         )}
 
@@ -326,12 +320,13 @@ export default function Register() {
               </div>
             </div>
           ) : viaIsCompanyFunnel ? (
-            // Hide the editable sponsor field on the /start funnel. Instead,
-            // show who the prospect will be matched with — peeked from the
-            // rotator's next-pick endpoint. Reading doesn't advance the
-            // queue; the actual advance happens when this form submits.
-            // If the peek fails (offline, queue empty, etc), we fall back
-            // to the generic 'matched with active Founder' copy.
+            // Fallback: visitor arrived with via=start but no ref param.
+            // This shouldn't normally happen — /start's click handler
+            // calls peek-next-sponsor before redirecting, and that
+            // endpoint always returns a sponsor (Founder or house
+            // account fallback). If we DO land here it means JS failed,
+            // the network call errored, or someone hand-typed the URL.
+            // Show generic copy; backend rotator will fire at submit.
             <div style={styles.field}>
               <div style={{
                 background: 'rgba(34,211,238,.08)',
@@ -342,24 +337,8 @@ export default function Register() {
                 color: 'rgba(255,255,255,.78)',
                 lineHeight: 1.5,
               }}>
-                {previewSponsor ? (
-                  <>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#22d3ee', letterSpacing: '.14em', textTransform: 'uppercase', marginBottom: 8 }}>
-                      Your sponsor
-                    </div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontFamily: "'Sora',sans-serif", marginBottom: 6, letterSpacing: '-.01em' }}>
-                      @{previewSponsor}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.55)' }}>
-                      Active Founding Partner · your point of contact on the platform
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div style={{ fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>You'll be matched with an active Founder</div>
-                    We'll connect you with one of our active Founding Partners — they're successful members of the platform and your point of contact.
-                  </>
-                )}
+                <div style={{ fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>You'll be matched with an active Founder</div>
+                We'll connect you with one of our active Founding Partners — they're successful members of the platform and your point of contact.
               </div>
             </div>
           ) : (
