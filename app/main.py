@@ -11731,6 +11731,237 @@ def admin_broadcast_founder_offer(
         return stats
 
 
+# ════════════════════════════════════════════════════════════
+# Re-engagement broadcast (added 16 May 2026)
+# ────────────────────────────────────────────────────────────
+# Target audience: users who registered in the last 72h but never
+# activated. Soft tone (no mention of the checkout bug — Steve's call),
+# pitches Founding Partner spots as the only sweetener. Same scaffolding
+# as founder_offer above (preview/dry-run/send modes, broadcast_log
+# idempotency, explicit confirm guard, Brevo send-from steve@).
+#
+# CRITICAL difference from founder_offer: recipients filter is
+# "created in the last 72h" not "created before today UTC". The cohort
+# is intentionally narrow so the soft "you signed up recently" tone
+# maps to the recipient's actual experience.
+# ════════════════════════════════════════════════════════════
+
+REENGAGEMENT_BROADCAST_KEY = "reengagement_2026_05_16"
+REENGAGEMENT_WINDOW_HOURS = 72
+
+
+def _reengagement_recipients(db: Session, broadcast_key: str):
+    """Return User rows eligible for the re-engagement broadcast.
+
+    Criteria (intentionally tighter than founder_offer):
+      - is_active = False (paying members don't need this nudge)
+      - email present
+      - created in the last REENGAGEMENT_WINDOW_HOURS (default 72)
+      - NOT already in broadcast_log for this broadcast_key (idempotent
+        re-runs skip the previously-sent — running twice can't double-mail)
+    """
+    from datetime import timedelta as _td
+    since = datetime.utcnow() - _td(hours=REENGAGEMENT_WINDOW_HOURS)
+
+    already_sent_user_ids = db.execute(text(
+        "SELECT DISTINCT user_id FROM broadcast_log WHERE broadcast_key = :k"
+    ), {"k": broadcast_key}).fetchall()
+    already_sent_set = {row[0] for row in already_sent_user_ids}
+
+    q = db.query(User).filter(
+        User.is_active == False,  # noqa: E712 — SQLAlchemy needs == False
+        User.email.isnot(None),
+        User.email != "",
+        User.created_at >= since,
+    ).order_by(User.id.asc())
+    return [u for u in q.all() if u.id not in already_sent_set]
+
+
+@app.get("/admin/api/broadcast/reengagement")
+def admin_broadcast_reengagement(
+    request: Request,
+    mode: str = "preview",
+    confirm: str = "",
+    limit: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Re-engagement broadcast — preview / dry-run / send. Mirrors the
+    founder_offer pattern.
+
+    Modes:
+      preview  → render the HTML for inspection, no send, no DB writes
+      dry-run  → list eligible recipients, no send, no DB writes
+      send     → actually send. Requires confirm=YES_SEND_NOW.
+                 Logs every send to broadcast_log.
+      limit=N  → cap recipients per call (useful for phased sends)
+
+    Idempotent: anyone already in broadcast_log for this broadcast_key
+    is skipped automatically.
+    """
+    _require_admin(user)
+    mode = (mode or "preview").lower()
+    if mode not in ("preview", "dry-run", "send"):
+        return JSONResponse(
+            {"error": "mode must be one of: preview, dry-run, send"},
+            status_code=400,
+        )
+
+    # Same live-spots-count source as founder_offer so the figure
+    # interpolated into the email body matches reality at send time
+    try:
+        spots_row = db.execute(text(
+            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+        )).fetchone()
+        spots_claimed = spots_row.cnt if spots_row else 0
+        spots_remaining = max(0, 100 - spots_claimed)
+    except Exception as e:
+        logger.warning(f"reengagement_broadcast: spots count failed: {e}")
+        spots_remaining = 78  # fallback (rough estimate; not load-bearing)
+
+    # ── Mode: PREVIEW ──
+    if mode == "preview":
+        from .email_utils import render_reengagement_email
+        rendered = render_reengagement_email("[FirstName]", spots_remaining)
+        _ensure_broadcast_log_table(db)
+        eligible = _reengagement_recipients(db, REENGAGEMENT_BROADCAST_KEY)
+        return HTMLResponse(
+            f'<html><head><title>Re-engagement Broadcast Preview</title>'
+            f'<style>body{{font-family:system-ui;max-width:900px;margin:20px auto;padding:0 20px;color:#1e293b}}'
+            f'.meta{{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:16px;margin-bottom:20px}}'
+            f'.subj{{font-size:18px;font-weight:700;margin:0 0 10px}}'
+            f'pre{{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;overflow:auto;font-size:12px}}'
+            f'h2{{margin-top:30px;border-top:1px solid #cbd5e1;padding-top:20px}}</style></head>'
+            f'<body><h1>Re-engagement broadcast — PREVIEW</h1>'
+            f'<div class="meta">'
+            f'<p class="subj">Subject: {rendered["subject"]}</p>'
+            f'<p><strong>From:</strong> Steve Lawson &lt;steve@superadpro.com&gt;</p>'
+            f'<p><strong>Reply-To:</strong> steve@superadpro.com</p>'
+            f'<p><strong>Eligible recipients:</strong> {len(eligible)} '
+            f'(inactive users registered in last {REENGAGEMENT_WINDOW_HOURS}h, not previously sent this broadcast)</p>'
+            f'<p><strong>Current founding spots remaining:</strong> {spots_remaining}</p>'
+            f'<p style="margin-top:14px;font-size:14px">'
+            f'<a href="?mode=dry-run">→ Preview recipient list (dry-run)</a> · '
+            f'<a href="?mode=send&confirm=YES_SEND_NOW" style="color:#dc2626;font-weight:700">'
+            f'⚠️ Send to all {len(eligible)} now</a></p>'
+            f'</div>'
+            f'<h2>Rendered HTML</h2>'
+            f'<div style="border:1px solid #cbd5e1;border-radius:8px;overflow:hidden">{rendered["html"]}</div>'
+            f'<h2>Plain-text fallback</h2>'
+            f'<pre>{rendered["text"]}</pre>'
+            f'</body></html>'
+        )
+
+    # ── Mode: DRY-RUN ──
+    if mode == "dry-run":
+        _ensure_broadcast_log_table(db)
+        eligible = _reengagement_recipients(db, REENGAGEMENT_BROADCAST_KEY)
+        rows = []
+        for u in eligible[:200]:
+            rows.append({
+                "id": u.id,
+                "username": u.username,
+                "email": u.email,
+                "first_name": u.first_name or "",
+                "created_at": u.created_at.isoformat() if u.created_at else None,
+                "sponsor_username": (u.sponsor.username if u.sponsor else None),
+            })
+        return {
+            "mode": "dry-run",
+            "eligible_count": len(eligible),
+            "spots_remaining_in_email": spots_remaining,
+            "window_hours": REENGAGEMENT_WINDOW_HOURS,
+            "recipients_preview": rows,
+            "note": (
+                "No emails sent. To actually send, hit "
+                "?mode=send&confirm=YES_SEND_NOW"
+            ),
+        }
+
+    # ── Mode: SEND ──
+    if mode == "send":
+        if confirm != "YES_SEND_NOW":
+            return JSONResponse({
+                "error": "Send requires confirm=YES_SEND_NOW",
+                "hint": (
+                    "This guard prevents accidentally firing the broadcast "
+                    "by mistype. Append &confirm=YES_SEND_NOW to the URL."
+                ),
+            }, status_code=400)
+
+        _ensure_broadcast_log_table(db)
+        eligible = _reengagement_recipients(db, REENGAGEMENT_BROADCAST_KEY)
+        if limit and limit > 0:
+            eligible = eligible[:int(limit)]
+
+        from .email_utils import send_reengagement_broadcast_one
+        stats = {
+            "mode": "send",
+            "broadcast_key": REENGAGEMENT_BROADCAST_KEY,
+            "spots_remaining_in_email": spots_remaining,
+            "window_hours": REENGAGEMENT_WINDOW_HOURS,
+            "attempted": len(eligible),
+            "sent": 0,
+            "failed": 0,
+            "errors": [],
+            "triggered_by": user.username,
+        }
+
+        for u in eligible:
+            try:
+                ok, msg_id = send_reengagement_broadcast_one(
+                    u.email,
+                    u.first_name or u.username,
+                    spots_remaining,
+                )
+                if ok:
+                    db.execute(text("""
+                        INSERT INTO broadcast_log
+                            (broadcast_key, user_id, email_address,
+                             brevo_message_id, status)
+                        VALUES (:k, :uid, :em, :mid, 'sent')
+                    """), {"k": REENGAGEMENT_BROADCAST_KEY, "uid": u.id,
+                           "em": u.email, "mid": msg_id})
+                    db.commit()
+                    stats["sent"] += 1
+                else:
+                    db.execute(text("""
+                        INSERT INTO broadcast_log
+                            (broadcast_key, user_id, email_address,
+                             status, error_message)
+                        VALUES (:k, :uid, :em, 'failed', 'Brevo send returned False')
+                    """), {"k": REENGAGEMENT_BROADCAST_KEY, "uid": u.id,
+                           "em": u.email})
+                    db.commit()
+                    stats["failed"] += 1
+                    stats["errors"].append(
+                        f"user {u.id} ({u.email}): Brevo returned False"
+                    )
+            except Exception as e:
+                try:
+                    db.execute(text("""
+                        INSERT INTO broadcast_log
+                            (broadcast_key, user_id, email_address,
+                             status, error_message)
+                        VALUES (:k, :uid, :em, 'failed', :err)
+                    """), {"k": REENGAGEMENT_BROADCAST_KEY, "uid": u.id,
+                           "em": u.email, "err": str(e)[:500]})
+                    db.commit()
+                except Exception:
+                    db.rollback()
+                stats["failed"] += 1
+                stats["errors"].append(f"user {u.id}: {type(e).__name__}: {e}")
+                logger.exception(
+                    f"reengagement_broadcast: send failed for user {u.id}: {e}"
+                )
+
+        logger.warning(
+            f"ADMIN_BROADCAST: reengagement SENT by admin={user.username} "
+            f"sent={stats['sent']} failed={stats['failed']}"
+        )
+        return stats
+
+
 @app.get("/admin/orphan-investigation")
 def admin_orphan_investigation_page(request: Request, db: Session = Depends(get_db)):
     """Self-contained investigation page for unresolved OnchainOrphanTransfers.

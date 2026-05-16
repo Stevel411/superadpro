@@ -510,3 +510,150 @@ def send_founder_offer_broadcast_one(to_email: str, first_name: str,
         reply_to_name="Steve Lawson",
         return_message_id=True,
     )
+
+
+def render_reengagement_email(first_name: str, spots_remaining: int = 82) -> dict:
+    """Render the soft-tone re-engagement broadcast for recent inactive signups.
+
+    Returns {'subject', 'html', 'text'}. Sent on 16 May 2026 to the cohort
+    of users who signed up in the last 72h but never activated. Tone is
+    deliberately soft (no mention of the checkout bug, no urgency language
+    beyond the spot count) — Steve picked 'general / not specific about
+    technical issues' for this audience.
+
+    spots_remaining is interpolated live at send time via the same source
+    used by render_founder_offer_email (SELECT COUNT(*) WHERE
+    is_founding_member = TRUE; 100 - that). Keeps the spot number accurate
+    at moment of delivery.
+
+    From: steve@superadpro.com (not noreply) so replies route to Steve.
+    """
+    safe_name = (first_name or "there").strip() or "there"
+    cta = f"{SITE_URL}/upgrade"
+
+    subject = "Quick note from Steve — your SuperAdPro account is ready when you are"
+
+    hero = (
+        f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f172a;line-height:1.3">'
+        f"Hi {safe_name},</p>"
+        f'<p style="margin:0;font-size:15px;color:#334155;line-height:1.7">'
+        f"Steve here, founder of SuperAdPro. You created an account with us in the last few days "
+        f"and I wanted to drop you a personal note rather than letting the welcome email do all the work."
+        f"</p>"
+    )
+
+    section_no_pressure_open = (
+        '<p style="margin:0 0 16px;font-size:15px;color:#334155;line-height:1.7">'
+        "If life got in the way, that's completely fine. Your free account is still active right "
+        "now, exactly as you left it."
+        "</p>"
+    )
+
+    section_founding_intro = (
+        '<p style="margin:24px 0 12px;font-size:17px;font-weight:800;color:#0f172a">'
+        "One small thing worth knowing before you decide either way."
+        "</p>"
+    )
+
+    section_founding_offer = _card(
+        '<p style="margin:0 0 12px;font-size:15px;color:#78350f;line-height:1.7">'
+        "I set aside the first 100 paid memberships as <strong>Founding Partner</strong> spots. "
+        "The price is <strong>$15/month locked for life</strong> instead of the standard $20/month "
+        "&mdash; whatever I charge new members next year or the year after, a Founding Partner's "
+        "price never changes."
+        "</p>",
+        bg='#fffbeb', border='#fde68a',
+    )
+
+    section_spots_left = (
+        '<div style="text-align:center;margin:24px 0">'
+        f'<p style="margin:0;font-size:28px;font-weight:900;color:#d97706;line-height:1.2">'
+        f'As of right now, there are {spots_remaining} spots left.'
+        f'</p>'
+        '</div>'
+    )
+
+    section_no_pressure_close = (
+        '<p style="margin:0 0 16px;font-size:15px;color:#334155;line-height:1.7">'
+        "No pressure on it. Your free account stays open whether or not you take one. But if "
+        "you'd been weighing it up, this is the cheapest the membership will ever be, and the "
+        "offer goes away the moment spot #100 is claimed."
+        "</p>"
+    )
+
+    section_cta = _btn(cta, "Visit your account &rarr;", "#0ea5e9")
+
+    section_reply = (
+        '<p style="margin:24px 0 0;font-size:14px;color:#475569;line-height:1.7">'
+        "Either way &mdash; thanks for signing up, and welcome."
+        "</p>"
+        '<p style="margin:14px 0 0;font-size:14px;color:#475569;line-height:1.7">'
+        "If you've got any questions or want to push back on anything, just reply to this email. "
+        "It comes straight to me."
+        "</p>"
+        '<p style="margin:18px 0 4px;font-size:15px;font-weight:700;color:#0f172a">Steve</p>'
+        '<p style="margin:0;font-size:13px;color:#64748b">Founder, SuperAdPro</p>'
+    )
+
+    body = (
+        section_no_pressure_open
+        + section_founding_intro
+        + section_founding_offer
+        + section_spots_left
+        + section_no_pressure_close
+        + section_cta
+        + section_reply
+    )
+
+    html = _shell(
+        "A note from Steve",
+        "linear-gradient(135deg,#ffffff,#f1f5f9)",
+        hero,
+        body,
+    )
+
+    text = (
+        f"Hi {safe_name},\n\n"
+        "Steve here, founder of SuperAdPro. You created an account with us in the last few days "
+        "and I wanted to drop you a personal note rather than letting the welcome email do all the work.\n\n"
+        "If life got in the way, that's completely fine. Your free account is still active right "
+        "now, exactly as you left it.\n\n"
+        "One small thing worth knowing before you decide either way: I set aside the first 100 "
+        "paid memberships as Founding Partner spots. The price is $15/month locked for life instead "
+        "of the standard $20/month — whatever I charge new members next year or the year after, a "
+        "Founding Partner's price never changes.\n\n"
+        f"As of right now, there are {spots_remaining} spots left.\n\n"
+        "No pressure on it. Your free account stays open whether or not you take one. But if you'd "
+        "been weighing it up, this is the cheapest the membership will ever be, and the offer goes "
+        "away the moment spot #100 is claimed.\n\n"
+        f"Visit your account: {cta}\n\n"
+        "Either way — thanks for signing up, and welcome.\n\n"
+        "If you've got any questions or want to push back on anything, just reply to this email. "
+        "It comes straight to me.\n\n"
+        "Steve\n"
+        "Founder, SuperAdPro\n"
+    )
+
+    return {"subject": subject, "html": html, "text": text}
+
+
+def send_reengagement_broadcast_one(to_email: str, first_name: str,
+                                    spots_remaining: int = 82):
+    """Send the re-engagement broadcast to a single recipient.
+
+    Wrapper around send_email that matches the founder_offer broadcast
+    sender pattern: from steve@superadpro.com, reply-to steve. Returns
+    (success, brevo_message_id) for the admin batch endpoint to log.
+    """
+    rendered = render_reengagement_email(first_name, spots_remaining)
+    return send_email(
+        to_email,
+        rendered["subject"],
+        rendered["html"],
+        rendered["text"],
+        from_email="steve@superadpro.com",
+        from_name="Steve Lawson",
+        reply_to_email="steve@superadpro.com",
+        reply_to_name="Steve Lawson",
+        return_message_id=True,
+    )
