@@ -2070,6 +2070,77 @@ try:
 except Exception as e:
     print(f"⚠️ run_migrations skipped: {e}")
 
+
+def migrate_founder_expiries_one_shot():
+    """ONE-SHOT data migration (added 16 May 2026).
+
+    A previous Claude session implemented Founder activation with
+    `membership_expires_at = datetime(2099, 12, 31)`, interpreting
+    'lifetime' as 'lifetime free access for a one-time $15 payment'.
+    The intent was always '$15/month with the price locked for life'.
+
+    This function corrects existing rows. It is idempotent — runs on
+    every app boot but only touches rows that still have the 2099
+    bug. Once all legacy rows are fixed, subsequent runs are no-ops.
+
+    Scope is intentionally tight:
+      - is_founding_member = TRUE (only Founders are affected by the bug)
+      - membership_expires_at > '2099-01-01' (so already-correct rows
+        with today+30 expiries are never touched)
+      - is_admin = FALSE (SuperAdPro house account stays untouched)
+
+    New expiry: today + 30 days. Members continue paying $15/month at
+    their locked price after migration (renewal cron in payment.py
+    correctly honours membership_price_locked as of commit df548287).
+    """
+    from datetime import datetime as _dt, timedelta as _td
+    new_expiry = _dt.utcnow() + _td(days=30)
+    try:
+        with engine.connect() as conn:
+            try:
+                conn.execute(text("SET lock_timeout = '5s'"))
+                conn.execute(text("SET statement_timeout = '30s'"))
+            except Exception:
+                pass
+            # Count first (cheap, no-op if zero) so we log meaningful state
+            count_row = conn.execute(text(
+                "SELECT COUNT(*) FROM users "
+                "WHERE is_founding_member = TRUE "
+                "  AND COALESCE(is_admin, FALSE) = FALSE "
+                "  AND membership_expires_at > '2099-01-01'"
+            )).fetchone()
+            n = count_row[0] if count_row else 0
+            if n == 0:
+                # No legacy rows — already migrated (or none existed).
+                # Silent — no need to log every boot.
+                return
+            # Apply
+            result = conn.execute(text(
+                "UPDATE users "
+                "   SET membership_expires_at = :new_exp "
+                " WHERE is_founding_member = TRUE "
+                "   AND COALESCE(is_admin, FALSE) = FALSE "
+                "   AND membership_expires_at > '2099-01-01'"
+            ), {"new_exp": new_expiry})
+            conn.commit()
+            affected = getattr(result, 'rowcount', n)
+            print(
+                f"✓ Founder expiry migration: {affected} legacy 2099 row(s) "
+                f"reset to {new_expiry.strftime('%Y-%m-%d')} "
+                f"(monthly billing at locked $15/mo resumes from this date)"
+            )
+    except Exception as e:
+        # Don't crash app boot over a data migration. Worst case is the
+        # rows stay buggy for another deploy cycle; not worth halting.
+        print(f"⚠️ founder expiry migration skipped: {e}")
+
+
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    migrate_founder_expiries_one_shot()
+except Exception as e:
+    print(f"⚠️ migrate_founder_expiries_one_shot skipped: {e}")
+
 # Force critical column additions with direct connection
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
