@@ -18,6 +18,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PublicLayout from '../../../components/layout/PublicLayout';
 import { apiGet } from '../../../utils/api';
+import BackgroundVideo from './BackgroundVideo';
 
 var ConstellationHero = lazy(function() { return import('./ConstellationHero'); });
 
@@ -27,6 +28,23 @@ export default function StartPage() {
   var pageRef = useRef(null);
   var heroTextRef = useRef(null);
   var [stats, setStats] = useState({ members: 138, foundingRemaining: 77 });
+
+  // Temporary live toggle so Steve can compare video vs constellation
+  // vs both layered. Persisted in localStorage so a refresh holds
+  // the choice. Remove the toggle UI once a decision is locked in.
+  var [bgMode, setBgMode] = useState('both');
+  useEffect(function() {
+    try {
+      var saved = localStorage.getItem('startBgMode');
+      if (saved === 'video' || saved === 'constellation' || saved === 'both') {
+        setBgMode(saved);
+      }
+    } catch (e) { /* localStorage unavailable */ }
+  }, []);
+  function pickMode(m) {
+    setBgMode(m);
+    try { localStorage.setItem('startBgMode', m); } catch (e) {}
+  }
 
   // Fetch live platform numbers — never hardcode what the DB knows.
   // Falls back to the static values above if the endpoint is missing
@@ -166,13 +184,31 @@ export default function StartPage() {
 
       <div className="start-page" ref={pageRef}>
 
-        {/* ═════════ BEAT 1 — 3D CONSTELLATION HERO ═════════ */}
+        {/* ═════════ BEAT 1 — 3D CONSTELLATION + VIDEO HERO ═════════ */}
         <section className="hero-section">
-          <div className="hero-canvas-wrap">
-            <Suspense fallback={<div className="hero-canvas-loading"/>}>
-              <ConstellationHero />
-            </Suspense>
+          <div className={'hero-canvas-wrap bgmode-' + bgMode}>
+            {(bgMode === 'video' || bgMode === 'both') && (
+              <BackgroundVideo />
+            )}
+            {(bgMode === 'constellation' || bgMode === 'both') && (
+              <Suspense fallback={<div className="hero-canvas-loading"/>}>
+                <ConstellationHero />
+              </Suspense>
+            )}
             <div className="hero-vignette"/>
+          </div>
+
+          {/* TEMPORARY: live toggle so Steve can A/B/C the three modes
+              against each other. Remove this block once a mode is
+              locked in. localStorage'd so refresh keeps the choice. */}
+          <div className="bgmode-toggle" role="group" aria-label="Background mode">
+            <span className="bgmode-toggle-label">BACKGROUND</span>
+            <button className={'bgmode-btn ' + (bgMode === 'both' ? 'active' : '')}
+                    onClick={function(){ pickMode('both'); }}>Both</button>
+            <button className={'bgmode-btn ' + (bgMode === 'video' ? 'active' : '')}
+                    onClick={function(){ pickMode('video'); }}>Video</button>
+            <button className={'bgmode-btn ' + (bgMode === 'constellation' ? 'active' : '')}
+                    onClick={function(){ pickMode('constellation'); }}>Stars</button>
           </div>
 
           <div className="hero-overlay" ref={heroTextRef}>
@@ -399,8 +435,38 @@ var startStyles = `
 .hero-section{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 32px 60px;overflow:hidden}
 .hero-canvas-wrap{position:absolute;inset:0;z-index:1}
 .hero-canvas-loading{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(245,158,11,.08),transparent 60%)}
-.hero-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(5,10,31,.7) 80%,rgba(5,10,31,.95) 100%);pointer-events:none;z-index:2}
-.hero-overlay{position:relative;z-index:3;max-width:1100px}
+.hero-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(5,10,31,.7) 80%,rgba(5,10,31,.95) 100%);pointer-events:none;z-index:4}
+
+/* ── BackgroundVideo: poster + lazy video + dark overlay ── */
+.bg-video-wrap{position:absolute;inset:0;z-index:1;overflow:hidden}
+.bg-video-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85) brightness(.6)}
+.bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease-out;filter:saturate(.85) brightness(.6)}
+.bg-video-loaded{opacity:1}
+.bg-video-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,10,31,.55) 0%,rgba(5,10,31,.65) 50%,rgba(5,10,31,.85) 100%);pointer-events:none}
+
+/* When layered with the constellation, dim the video slightly more
+   so the network metaphor reads above it as the foreground depth */
+.bgmode-both .bg-video-poster,
+.bgmode-both .bg-video{filter:saturate(.7) brightness(.45)}
+.bgmode-both .bg-video-overlay{background:linear-gradient(180deg,rgba(5,10,31,.7) 0%,rgba(5,10,31,.75) 50%,rgba(5,10,31,.9) 100%)}
+
+/* When video-only, no constellation layer needs to be visible */
+.bgmode-video canvas{display:none}
+/* Constellation needs to render above the video when both are present;
+   the canvas auto-positions to inset:0 via inline style */
+.bgmode-both canvas{z-index:2;mix-blend-mode:screen;opacity:.85}
+
+/* ── Live A/B/C mode toggle (temporary; remove once locked) ── */
+.bgmode-toggle{position:absolute;top:88px;right:24px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:8px 10px;background:rgba(5,10,31,.6);backdrop-filter:blur(16px);border:1px solid rgba(252,211,77,.25);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase}
+.bgmode-toggle-label{color:rgba(252,211,77,.6);font-weight:700;padding-right:6px;border-right:1px solid rgba(252,211,77,.18);margin-right:2px}
+.bgmode-btn{background:transparent;border:1px solid rgba(250,251,255,.1);color:rgba(250,251,255,.55);padding:6px 11px;border-radius:6px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.bgmode-btn:hover{color:#fff;border-color:rgba(252,211,77,.4)}
+.bgmode-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a0f00;border-color:#fbbf24}
+@media (max-width:600px){
+  .bgmode-toggle{top:auto;bottom:88px;right:12px;font-size:9px;padding:6px 8px}
+  .bgmode-btn{padding:5px 8px;font-size:9px}
+}
+.hero-overlay{position:relative;z-index:5;max-width:1100px}
 
 .hero-tag{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#fcd34d;letter-spacing:.26em;text-transform:uppercase;margin-bottom:32px;display:inline-flex;align-items:center;gap:14px}
 .hero-tag::before,.hero-tag::after{content:'';width:36px;height:1px;background:#fcd34d;opacity:.6}
@@ -422,7 +488,7 @@ var startStyles = `
 .hero-stat-num{font-family:'Sora',sans-serif;font-weight:900;font-size:38px;letter-spacing:-.03em;color:#fcd34d;line-height:1;text-shadow:0 0 28px rgba(251,191,36,.3);display:block;margin-bottom:6px}
 .hero-stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(250,251,255,.42);font-weight:600}
 
-.hero-scroll-cue{position:absolute;bottom:24px;left:0;right:0;text-align:center;z-index:3;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(250,251,255,.5);letter-spacing:.22em;text-transform:uppercase;animation:scrollNudge 2.6s ease-in-out 3.8s infinite both}
+.hero-scroll-cue{position:absolute;bottom:24px;left:0;right:0;text-align:center;z-index:5;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(250,251,255,.5);letter-spacing:.22em;text-transform:uppercase;animation:scrollNudge 2.6s ease-in-out 3.8s infinite both}
 @keyframes scrollNudge{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(8px);opacity:.95}}
 
 /* ═══════════ BEAT SHARED STYLES ═══════════ */
