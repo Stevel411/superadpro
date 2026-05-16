@@ -10306,6 +10306,18 @@ def admin_panel(request: Request, user: User = Depends(get_current_user)):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/dashboard")
+
+
+@app.get("/admin/rotator")
+def admin_rotator_panel(request: Request, user: User = Depends(get_current_user)):
+    """Rotator diagnostics page — serves the React shell. The actual
+    auth gate is on the data endpoints (/admin/api/rotator-state and
+    /admin/api/rotator-reenrol-founders) which require admin."""
+    if not user or not is_admin(user):
+        raise HTTPException(status_code=403, detail="Access denied")
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return RedirectResponse(url="/admin")
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN API — dual-purpose: dashboard UI + AI agent automation
 # ═══════════════════════════════════════════════════════════════
