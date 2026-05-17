@@ -53,6 +53,7 @@ from app.withdrawals import (
     BSC_CHAIN_ID,
     BSC_RPC_URL,
     _get_web3_bsc,
+    call_bsc_rpc_with_failover,
 )
 
 logger = logging.getLogger("superadpro.walletconnect")
@@ -267,7 +268,6 @@ def get_treasury_transfers_in_range(from_block: int, to_block: int) -> list:
          "amount_usdt":..., "block_number":...}
     """
     from web3 import Web3
-    w3 = _get_web3_bsc()
 
     # Pad treasury address to 32 bytes for the indexed topic match.
     # Transfer event signature is:
@@ -275,12 +275,20 @@ def get_treasury_transfers_in_range(from_block: int, to_block: int) -> list:
     # so topic[0] = TRANSFER_EVENT_TOPIC, topic[2] = padded `to` address.
     treasury_padded = "0x" + TREASURY_ADDRESS_BSC[2:].lower().zfill(64)
 
-    logs = w3.eth.get_logs({
-        "fromBlock": from_block,
-        "toBlock": to_block,
-        "address": Web3.to_checksum_address(USDT_CONTRACT_BSC),
-        "topics": [TRANSFER_EVENT_TOPIC, None, treasury_padded],
-    })
+    # Use the multi-RPC failover wrapper — eth_getLogs is the call most
+    # likely to hit Alchemy free-tier rate limits, and historically the
+    # one whose silent failures lost transfers (SAP-00205, 15 May 2026).
+    # If primary 429s, the helper transparently retries against public
+    # BSC dataseed endpoints.
+    logs = call_bsc_rpc_with_failover(
+        "eth.get_logs",
+        {
+            "fromBlock": from_block,
+            "toBlock": to_block,
+            "address": Web3.to_checksum_address(USDT_CONTRACT_BSC),
+            "topics": [TRANSFER_EVENT_TOPIC, None, treasury_padded],
+        },
+    )
 
     results = []
     for log in logs:
@@ -352,8 +360,10 @@ def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, in
       MAX_SCAN_BLOCKS_PER_RUN = 1000 (catch-up cap after extended outages)
     """
     try:
-        w3 = _get_web3_bsc()
-        latest = w3.eth.block_number
+        # Use failover wrapper — if Alchemy rate-limits the block_number
+        # call, we fall through to public RPCs instead of bailing out
+        # on the whole scan.
+        latest = call_bsc_rpc_with_failover("eth.block_number")
     except Exception as e:
         logger.error(f"scan_treasury_transfers: cannot read latest block: {e}")
         # safe_cursor = -1 sentinel → caller must NOT advance the cursor

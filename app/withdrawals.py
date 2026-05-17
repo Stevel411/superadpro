@@ -48,6 +48,30 @@ USDT_CONTRACT_BSC    = "0x55d398326f99059fF775485246999027B3197955"
 BSC_CHAIN_ID         = 56
 BSC_RPC_URL          = os.environ.get("BSC_RPC_URL", "https://bsc-dataseed.binance.org/")
 
+# ── Multi-RPC fallback list (Layer 2, 17 May 2026) ────────────────────
+# When the primary BSC_RPC_URL (typically Alchemy free tier) returns a
+# rate-limit / 429 / "limit exceeded" error, the scanner and other RPC
+# consumers try these public free endpoints in order. All are zero-cost
+# public RPCs maintained by Binance / community providers, no API key
+# required. Order matters — listed by historical reliability under load.
+#
+# Configurable via BSC_RPC_FALLBACKS env var (comma-separated). Empty
+# string disables fallback (single-RPC mode, original behaviour).
+_DEFAULT_BSC_FALLBACKS = ",".join([
+    "https://bsc-dataseed1.binance.org/",
+    "https://bsc-dataseed2.binance.org/",
+    "https://bsc-dataseed3.binance.org/",
+    "https://bsc-dataseed4.binance.org/",
+    "https://bsc-dataseed1.defibit.io/",
+    "https://bsc-dataseed1.ninicoin.io/",
+    "https://binance.llamarpc.com/",
+])
+BSC_RPC_FALLBACKS = [
+    u.strip() for u in
+    os.environ.get("BSC_RPC_FALLBACKS", _DEFAULT_BSC_FALLBACKS).split(",")
+    if u.strip()
+]
+
 # ── Tron (TRC-20) — primary alternative withdrawal network from 6 May 2026 ──
 # Treasury private key in env: TREASURY_PRIVATE_KEY_TRON
 # RPC:                          TRON_RPC_URL (default: https://api.trongrid.io)
@@ -526,13 +550,129 @@ def send_usdt_tron(to_address, amount_usdt):
 # ── BSC (BEP-20) send path ─────────────────────────────────────────────
 # EVM-compatible — same web3.py library as Polygon, different RPC + contract.
 
-def _get_web3_bsc():
-    """Build a Web3 instance connected to BSC."""
+def _build_web3_for_url(url):
+    """Build a Web3 instance for a single RPC URL. Raises ConnectionError
+    if the endpoint is unreachable or reports as disconnected.
+    """
     from web3 import Web3
-    w3 = Web3(Web3.HTTPProvider(BSC_RPC_URL))
+    w3 = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 15}))
     if not w3.is_connected():
-        raise ConnectionError(f"Cannot connect to BSC RPC at {BSC_RPC_URL}")
+        raise ConnectionError(f"Cannot connect to BSC RPC at {url}")
     return w3
+
+
+def _get_web3_bsc():
+    """Build a Web3 instance connected to BSC, trying primary first then
+    fallbacks in order. Returns the first working instance.
+
+    Back-compat: callers that just need any working w3 keep working
+    unchanged. The failover wraps the previous single-URL behaviour —
+    if primary is up, returns it (same latency as before). If primary
+    is unreachable, transparently falls through to public BSC dataseed
+    endpoints (free, no API key needed).
+
+    For per-call retry against fallback providers on errors that occur
+    AFTER connection (e.g. eth_getLogs returns 429 because we exceeded
+    a per-second cap), use call_bsc_rpc_with_failover() instead — this
+    function only handles unreachable-RPC failover.
+    """
+    primary_err = None
+    try:
+        return _build_web3_for_url(BSC_RPC_URL)
+    except Exception as e:
+        primary_err = e
+        logger.warning(f"BSC primary RPC unreachable ({BSC_RPC_URL}): {e}")
+
+    for fallback in BSC_RPC_FALLBACKS:
+        if fallback == BSC_RPC_URL:
+            continue  # already tried as primary
+        try:
+            w3 = _build_web3_for_url(fallback)
+            logger.info(f"BSC RPC failover succeeded on {fallback}")
+            return w3
+        except Exception as e:
+            logger.warning(f"BSC fallback RPC {fallback} also unreachable: {e}")
+            continue
+
+    raise ConnectionError(
+        f"All BSC RPC endpoints unreachable. Primary {BSC_RPC_URL} "
+        f"failed ({primary_err}); tried {len(BSC_RPC_FALLBACKS)} fallback(s)."
+    )
+
+
+# Sentinel: exceptions whose stringified form indicates the upstream
+# provider rate-limited us (rather than a real on-chain / data error).
+# When we see one of these on an eth_getLogs / eth_blockNumber call, we
+# retry against fallback providers instead of giving up.
+_RATE_LIMIT_SIGNALS = (
+    "429",
+    "rate limit",
+    "rate-limit",
+    "ratelimit",
+    "too many requests",
+    "limit exceeded",
+    "-32005",        # JSON-RPC code Alchemy uses
+    "quota",
+    "throttle",
+)
+
+
+def _looks_like_rate_limit(err: Exception) -> bool:
+    msg = str(err).lower()
+    return any(sig in msg for sig in _RATE_LIMIT_SIGNALS)
+
+
+def call_bsc_rpc_with_failover(fn_name: str, *args, **kwargs):
+    """Call a Web3.eth method by NAME against the primary BSC RPC, retrying
+    against fallback RPCs on rate-limit / connection errors.
+
+    fn_name: dotted path on the w3 instance (e.g. "eth.get_logs",
+             "eth.block_number"). For attributes (block_number),
+             pass with args=() / kwargs={}; the helper detects and
+             returns the attribute value instead of calling.
+
+    Args / kwargs are passed through to the underlying call.
+
+    Non-rate-limit exceptions raise immediately — we only failover on
+    errors that look like upstream throttling. Real bugs (bad request
+    args, invalid block range > 10 etc) surface to the caller unchanged.
+
+    Returns the result of the first successful provider. Raises the
+    last exception if every provider fails.
+    """
+    # Build the candidate URL list: primary first, then fallbacks (skip
+    # duplicates if primary is also in the fallback list).
+    candidates = [BSC_RPC_URL] + [u for u in BSC_RPC_FALLBACKS if u != BSC_RPC_URL]
+    last_err = None
+    for i, url in enumerate(candidates):
+        try:
+            w3 = _build_web3_for_url(url)
+            # Walk the dotted attribute chain
+            target = w3
+            for part in fn_name.split("."):
+                target = getattr(target, part)
+            # If it's callable, invoke; else return the attribute value
+            if callable(target):
+                result = target(*args, **kwargs)
+            else:
+                result = target
+            if i > 0:
+                logger.info(f"BSC RPC call {fn_name} succeeded on fallback #{i} ({url})")
+            return result
+        except Exception as e:
+            last_err = e
+            if _looks_like_rate_limit(e) or isinstance(e, ConnectionError):
+                logger.warning(
+                    f"BSC RPC {fn_name} on {url} failed (rate-limit/conn): {e}; "
+                    f"trying next provider ({len(candidates) - i - 1} remaining)"
+                )
+                continue
+            # Not a rate-limit error — fail fast
+            raise
+    raise ConnectionError(
+        f"All {len(candidates)} BSC RPC endpoints failed for {fn_name}. "
+        f"Last error: {last_err}"
+    )
 
 
 def _get_bsc_private_key():
