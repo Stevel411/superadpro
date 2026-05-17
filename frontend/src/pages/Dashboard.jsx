@@ -10,6 +10,7 @@ import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
 import DashboardHeroCarousel from '../components/DashboardHeroCarousel';
 import FoundingPartnerBanner from '../components/FoundingPartnerBanner';
+import FastStartHero from '../components/FastStartHero';
 
 // ── Dashboard data cache — survives navigation, clears on full page reload ──
 var _dashCache = { data: null, ts: 0 };
@@ -288,6 +289,14 @@ export default function Dashboard() {
           for the session. Component handles all its own conditional rendering;
           we mount unconditionally and let it decide whether to draw. */}
       <FoundingPartnerBanner user={user} />
+
+      {/* ── Fast Start hero (added 17 May 2026) ──
+          Drives Grid Tier 1 activation. Component handles its own
+          state (loads /api/fast-start/state, conditionally renders
+          hero / continue-card / nothing based on the server state
+          machine). Mounting unconditionally is the right pattern —
+          the component is null-render-safe. */}
+      <FastStartHero />
 
       {/* Hero carousel — rotating display of platform products & income streams.
           60-second rotation between Credit Nexus, Brand Poster Generator, Pay

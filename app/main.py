@@ -2906,6 +2906,23 @@ def grid_stream_page(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/", status_code=302)
 
+
+@app.get("/grid/activate")
+def grid_activate_page(request: Request):
+    """Serve React SPA for the Grid Tier 1 activation explainer page.
+
+    Member-facing — paywall enforcement happens on the React side
+    (RequireTier="basic" in App.jsx). Unauthenticated visitors get
+    bounced to /login by the same ProtectedRoute wrapper.
+
+    Added 17 May 2026 alongside the Fast Start dashboard hero.
+    Hits the existing grid_1 WalletConnect + NOWPayments flow.
+    """
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return RedirectResponse(url="/", status_code=302)
+
+
 @app.get("/membership")
 def membership_stream_page(request: Request):
     """Serve React SPA for the Stream 01 Membership compensation page. Public."""
@@ -5790,6 +5807,159 @@ def api_start_stats(request: Request, db: Session = Depends(get_db)):
         },
         headers={"Cache-Control": "public, max-age=30"},
     )
+
+
+# ── Fast Start Hero (17 May 2026) ─────────────────────────────────────
+# Dashboard hero that prompts paid Partners to activate Grid Tier 1.
+# Three endpoints power the React surface:
+#   GET  /api/fast-start/state — current state machine + live stats
+#   POST /api/fast-start/press — record click, transition to "in progress"
+#   POST /api/fast-start/hide  — × dismiss, transition to permanent-hidden
+# The hero is auto-hidden when a user activates grid_1 (side-effect lives
+# in _nowpayments_activate_product).
+
+@app.get("/api/fast-start/state")
+def api_fast_start_state(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Returns the dashboard hero state + live stats.
+
+    Response shape:
+      {
+        "state": "hero" | "continue" | "hidden",
+        "username": "...",
+        "next_position": "SAP-00148",          # what they'd claim if they bought now
+        "activated_last_24h": 7,
+        "activated_last_hour": 1,
+        "has_grid_position": false             # belt-and-braces: hero never shown to users who do
+      }
+
+    State derivation:
+      - has_grid_position OR hidden_at set  → "hidden"
+      - pressed_at set, hidden_at null      → "continue"
+      - otherwise                            → "hero"
+
+    Auth required. Anonymous users get 401 from get_current_user.
+    """
+    from .database import Grid, GridPosition
+
+    # Defensive: belt-and-braces check that the user doesn't already own
+    # a Grid Tier 1. If they do, force "hidden" regardless of column
+    # state — protects against stale fast_start_hidden_at NULL on users
+    # who activated grid_1 before this feature shipped.
+    has_t1_grid = db.query(Grid.id).filter(
+        Grid.owner_id == user.id,
+        Grid.package_tier == 1,
+    ).first() is not None
+
+    if has_t1_grid or user.fast_start_hidden_at is not None:
+        state = "hidden"
+    elif user.fast_start_pressed_at is not None:
+        state = "continue"
+    else:
+        state = "hero"
+
+    # Live stats — only compute if we're going to render something
+    if state == "hidden":
+        return JSONResponse({
+            "state": "hidden",
+            "username": user.username,
+            "has_grid_position": has_t1_grid,
+        })
+
+    # next_position — the SAP-#### they'd be assigned if they bought right now.
+    # Defined as 'count of distinct Grid Tier 1 owners + 1' since each user
+    # who activates T1 gets their own Grid row, and the SAP-#### sequence
+    # tracks the activation order. Falls back gracefully on any DB error.
+    try:
+        existing_t1_owners = db.query(Grid.owner_id).filter(
+            Grid.package_tier == 1
+        ).distinct().count()
+        next_position = f"SAP-{(existing_t1_owners + 1):05d}"
+    except Exception:
+        next_position = None
+
+    # Activated last 24h / 1h — count of distinct users whose T1 grid
+    # was created in those windows. Grid.created_at fires at the exact
+    # moment process_tier_purchase calls get_or_create_active_grid.
+    now = datetime.utcnow()
+    try:
+        activated_24h = db.query(Grid.owner_id).filter(
+            Grid.package_tier == 1,
+            Grid.created_at >= now - timedelta(hours=24),
+        ).distinct().count()
+    except Exception:
+        activated_24h = 0
+    try:
+        activated_1h = db.query(Grid.owner_id).filter(
+            Grid.package_tier == 1,
+            Grid.created_at >= now - timedelta(hours=1),
+        ).distinct().count()
+    except Exception:
+        activated_1h = 0
+
+    return JSONResponse({
+        "state": state,
+        "username": user.username,
+        "next_position": next_position,
+        "activated_last_24h": activated_24h,
+        "activated_last_hour": activated_1h,
+        "has_grid_position": has_t1_grid,
+    })
+
+
+@app.post("/api/fast-start/press")
+def api_fast_start_press(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Record that the user clicked 'Activate Grid'. Sets
+    fast_start_pressed_at if not already set so subsequent dashboard
+    visits show the degraded "Continue activation →" state.
+
+    Idempotent: if pressed_at is already set, no-op. If hidden_at is
+    set we still no-op — they've already moved past this surface.
+
+    Returns the same shape as /api/fast-start/state for convenience
+    (so the frontend doesn't have to make two calls).
+    """
+    if user.fast_start_pressed_at is None and user.fast_start_hidden_at is None:
+        user.fast_start_pressed_at = datetime.utcnow()
+        db.add(user)
+        try:
+            db.commit()
+        except Exception as e:
+            logger.error(f"fast_start press persist failed for user {user.id}: {e}")
+            db.rollback()
+    # Return current state — re-read so the response reflects the write
+    return api_fast_start_state(request, db, user)
+
+
+@app.post("/api/fast-start/hide")
+def api_fast_start_hide(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """× dismiss the degraded continue-card permanently.
+
+    Sets fast_start_hidden_at if not already set. From this point the
+    hero never renders on this user's dashboard (until/unless they
+    activate Grid Tier 1, which also lands here via the activation
+    handler).
+    """
+    if user.fast_start_hidden_at is None:
+        user.fast_start_hidden_at = datetime.utcnow()
+        db.add(user)
+        try:
+            db.commit()
+        except Exception as e:
+            logger.error(f"fast_start hide persist failed for user {user.id}: {e}")
+            db.rollback()
+    return api_fast_start_state(request, db, user)
 
 
 @app.get("/api/watch/preview/{campaign_id}")
@@ -9981,6 +10151,21 @@ def _nowpayments_activate_product(db, user, order, meta):
         if not result["success"]:
             logger.error(f"NOWPayments grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
         else:
+            # Fast Start hero — once the user activates Grid Tier 1 the hero
+            # has done its job and should never reappear. Set hidden_at so
+            # the dashboard React surface stops rendering it. (Higher tiers
+            # don't gate the hero — the hero is specifically for users with
+            # zero grid positions, so only T1 activation matters here, but
+            # we set it on any grid activation as a defensive measure since
+            # any grid purchase means the user has crossed the activation
+            # threshold.) Added 17 May 2026.
+            try:
+                if user.fast_start_hidden_at is None:
+                    user.fast_start_hidden_at = datetime.utcnow()
+                    db.add(user)
+                    # No commit here — caller's transaction will flush.
+            except Exception as _e:
+                logger.warning(f"fast_start_hidden_at set failed for user {user.id}: {_e}")
             # ── Notifications: best-effort, MUST NOT break the activation transaction ──
             # process_tier_purchase calls db.commit() internally so commissions and
             # grid placements are already persisted. Notifications below are pure

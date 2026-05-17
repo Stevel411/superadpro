@@ -201,6 +201,22 @@ class User(Base):
     sending_wallet      = Column(String, nullable=True)    # wallet they send crypto payments FROM
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
+    # Fast Start hero — dashboard activation prompt for paid Partners
+    # who haven't yet bought their Grid Tier 1 ($20 grid_1 product).
+    # Added 17 May 2026 to drive Grid Tier 1 activation conversion.
+    #
+    # State machine (used by the dashboard React surface):
+    #   - Both NULL          → hero shown in full ("Activate Grid" ignition)
+    #   - pressed_at set,    → user clicked the button but didn't finish payment.
+    #     hidden_at NULL       Render the degraded "Continue activation →" link
+    #                          with × dismiss button.
+    #   - hidden_at set      → user dismissed permanently OR bought Grid Tier 1.
+    #                          Nothing renders. (Auto-set on successful grid_1
+    #                          activation in _nowpayments_activate_product.)
+    #
+    # Both nullable timestamps so absence = pristine never-seen state.
+    fast_start_pressed_at = Column(DateTime, nullable=True)
+    fast_start_hidden_at  = Column(DateTime, nullable=True)
     membership_tier     = Column(String, default="free")     # free (registered, no membership), basic ($20/mo or $200/yr), pro ($35/mo or $350/yr).
                                                               # Default is 'free' deliberately — earlier this defaulted to 'basic' which made
                                                               # every newly registered user look like a Basic-tier member regardless of payment.
@@ -2881,6 +2897,38 @@ try:
         print("✅ stuck_lapsed_alerted_at column added/verified on users table")
 except Exception as e:
     print(f"⚠️ stuck_lapsed_alerted_at migration failed: {e}")
+
+# ── Fast Start hero columns (added 17 May 2026) ──
+# Two nullable timestamps tracking the dashboard "Activate Grid" hero state.
+# Both NULL = pristine never-seen. pressed_at set = "in progress". hidden_at
+# set = "dismissed or activated, never show again". Isolated migration so a
+# failure here doesn't cascade through other column adds.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS fast_start_pressed_at TIMESTAMP"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS fast_start_hidden_at TIMESTAMP"))
+        conn.commit()
+        print("✅ fast_start_pressed_at + fast_start_hidden_at columns added/verified on users table")
+except Exception as e:
+    print(f"⚠️ fast_start_* migration failed: {e}")
+
+# UN-GATED column add for fast_start — runs regardless of SKIP_MIGRATIONS
+# because IF NOT EXISTS makes this a trivially safe no-op once the column
+# exists, and we need these columns NOW to ship the dashboard hero.
+# Same precedent as the SAP-00205 orphan one-shot (commit ff77dc5).
+try:
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("SET lock_timeout = '5s'"))
+            conn.execute(text("SET statement_timeout = '15s'"))
+        except Exception:
+            pass
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS fast_start_pressed_at TIMESTAMP"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS fast_start_hidden_at TIMESTAMP"))
+        conn.commit()
+except Exception as e:
+    print(f"⚠️ fast_start_* un-gated column add failed: {e}")
 
 # ── Partial-payment auto-recovery audit fields (added 12 May 2026) ──
 # When a NOWPayments partial payment is within 5% tolerance of the
