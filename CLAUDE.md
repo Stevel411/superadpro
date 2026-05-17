@@ -1,5 +1,66 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
+## 🎯 Most Recent Session (16-17 May 2026) — what shipped
+
+Saturday session, ~12 hours of focused work. All commits live on production.
+
+**Frontend / marketing surface:**
+- New `/start` acquisition funnel — full page rebuild
+- 3D constellation hero (`@react-three/fiber`, 240 nodes, 380 edges, GSAP scroll choreography across six beats)
+- Background video (Pavel Danilyuk Pexels CC0, diverse team stacking hands, landscape 1080p, 5.4MB)
+- Cobalt + cyan + white palette (replaced amber/gold throughout)
+- Headline: "Be one of the first 100. Locked at $15/mo forever."
+- Animated counter counts DOWN from 100 to live `founding_remaining`
+- Single CTA per page ("Claim your Founder spot") — bottom CTA removed
+- Centred layout, soft section transitions, "Back to top" closer
+
+**Rotator system (the main piece of engineering):**
+- `rotator_queue` + `rotator_assignments` tables shipped
+- All 23 active Founders auto-enrolled into the queue
+- Each click of "Claim your Founder spot" hits `POST /api/start/peek-next-sponsor` which advances the queue and returns the picked Founder's username
+- Register page shows "You've been matched with @{founder} — an active Founder"
+- Auto-enrol wired into all 4 Founder-creation paths going forward (paid activation, gift, WalletConnect/crypto, balance conversion) — new Founders never need manual queue-addition
+- Admin diagnostics page at `/admin/rotator` with verdict banner, queue table, recent assignments, "Re-enrol Founders" button as belt-and-braces
+
+**Founder billing fixes (data integrity):**
+- Discovered legacy bug: Founder `membership_expires_at = datetime(2099, 12, 31)` interpreted "lifetime" as "lifetime free access from one $15 payment" instead of "$15/month with price locked for life"
+- Fixed forward: paid activation → today + 30 days, gift → today + 30 days
+- `process_auto_renewals` in `app/payment.py` now reads `membership_price_locked` — Founders charged $15, Partners $20, sponsor always gets flat $10
+- Boot-time data migration migrated 23 legacy 2099-expiry rows to correct monthly billing
+- Admin user-detail panel now surfaces `membership_expires_at`, `membership_price_locked`, `is_founding_member`, `founding_spot_number` so this never goes invisible again
+
+**Other:**
+- My Campaigns "View" button fixed (was sending users to raw YouTube; now opens `/watch?preview=<id>`)
+- Re-engagement broadcast sent to 41 inactive signups (41/41 delivered)
+- Fixed bug where stale referral cookie was hijacking the `/start` funnel — frontend now ignores cookies when `via=start`
+- Email broadcast to 41 inactive signups (commit `34109559`, `da951544`)
+
+**Key commits (chronological):**
+`e13af2b9` Watch preview · `34109559` re-engagement · `f331300e` /start initial · `186e922a` JOIN button + rotator auto-enrol · `538d5995` admin /rotator page · `7fe8e390` Founder activation auto-enrol all 4 paths · `12465e3c` peek-on-click rotation · `a751a1e2` removed duplicate CTA
+
+**Project workflow change:**
+Steve created a Claude Project (this one) on 17 May 2026 to separate engineering work (this project) from strategic/brainstorming work (chat sessions outside the project). Going forward: structural engineering happens here with full context; product/brand/business decisions happen in chats outside.
+
+---
+
+## 🎯 Next Up — pick from this list when starting a new session
+
+1. **Member-facing rotator opt-out toggle.** Currently Founders email support to be removed from the rotator. Build a toggle in their account settings page that flips `users.rotator_opted_in`. Estimated 20-30 min.
+
+2. **Rotator dashboard widget for Founders.** Show each opted-in Founder their current queue position + last-assigned timestamp, so they have visibility into when the next signup will come their way. 30-45 min.
+
+3. **Latent `u.sponsor.username` bug in founder_offer broadcast endpoint.** Same pattern that crashed re-engagement dry-run before it was fixed. Won't fire until admin runs `founder_offer` dry-run. 5-min fix.
+
+4. **Live count polling on `/start`.** Re-fetch `/api/start/stats` every 30s while visitor is on page; animate the founding-spots-remaining number down if it changed. Powerful scarcity signal. 10 min.
+
+5. **AI Trading Hub concept** (parked from April) — Pro feature, plain-English strategy → AI bot → backtest → live deploy. Phase 1: Strategy Builder + Backtester. ~3-4 sessions of work. Discuss in chat session first before starting engineering.
+
+6. **BPG strategic positioning flywheel** (parked from 12 May) — BPG showcase on `/credit-nexus`, featured tile on `/creative-studio`, harden non-pack-owner upsell on `/brand-posters`. ~1.5-2 hours focused work.
+
+7. **Command Centre dashboard + menu redesign** — Steve had mockups (`hub-dashboard.html`, `command-centre-desktop.html`, `recruiting-hq-mockup.html`). On hold until launch-incident follow-ups clear.
+
+---
+
 ## 🎯 Immediate Next Task (16 May 2026)
 
 **Platform launched 15 May 2026 with incident.** Test12 verified working as Founding Partner #18 on real on-chain payment. Platform is up and serving customers, but the launch session exposed real issues that need follow-up.
