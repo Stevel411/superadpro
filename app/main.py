@@ -490,6 +490,55 @@ async def startup_event():
     backup_thread = threading.Thread(target=_daily_backup_loop, daemon=True)
     backup_thread.start()
     print("✅ Daily backup scheduler started")
+
+    # ── In-process BSC scanner (Layer 3, 17 May 2026) ─────────────────
+    # Removes the external-trigger dependency that left ~2-hour scan gaps
+    # on launch night and lost SAP-00205's $14.54. Runs a scan every
+    # BSC_INPROC_SCHEDULER_INTERVAL_SECONDS (default 30s) in a daemon
+    # thread inside this replica.
+    #
+    # Multi-replica safety: Postgres advisory lock pg_try_advisory_lock(
+    # BSC_SCAN_LOCK_ID) is acquired NON-BLOCKING before each scan.
+    # If another replica is currently scanning, this replica skips the
+    # tick silently — no double-scan, no cursor races. Lock auto-releases
+    # at end of session (or function exit if using xact-scoped helper).
+    #
+    # The /cron/scan-bsc-payments endpoint stays live as a manual-trigger
+    # backup. Disable the in-process scheduler with
+    # BSC_INPROC_SCHEDULER_ENABLED=false if you ever need to revert.
+    inproc_enabled = os.environ.get("BSC_INPROC_SCHEDULER_ENABLED", "true").lower() == "true"
+    inproc_interval = int(os.environ.get("BSC_INPROC_SCHEDULER_INTERVAL_SECONDS", "30"))
+    BSC_SCAN_LOCK_ID = 1885347291  # arbitrary 32-bit constant unique to this platform
+
+    if not inproc_enabled:
+        print("ℹ️ In-process BSC scanner DISABLED via BSC_INPROC_SCHEDULER_ENABLED")
+    else:
+        def _bsc_scanner_loop():
+            import time as _time
+            from .database import SessionLocal
+            from sqlalchemy import text as _text
+            # Wait 30s after boot before first tick — gives the rest of
+            # startup (migrations, warmup, etc) time to settle so we don't
+            # contend on the connection pool with cold-start traffic.
+            _time.sleep(30)
+            print(f"✅ In-process BSC scanner started (interval {inproc_interval}s)")
+            while True:
+                try:
+                    _run_inproc_bsc_scan(SessionLocal, BSC_SCAN_LOCK_ID, _text)
+                except Exception as e:
+                    # NEVER let the loop die — log and continue. A killed
+                    # loop would silently reintroduce the gap problem
+                    # we're trying to fix.
+                    try:
+                        logger.error(f"inproc bsc scan iteration failed: {e}", exc_info=True)
+                    except Exception:
+                        print(f"⚠️ inproc bsc scan iteration failed: {e}")
+                _time.sleep(inproc_interval)
+
+        scanner_thread = threading.Thread(target=_bsc_scanner_loop, daemon=True, name="bsc-scanner")
+        scanner_thread.start()
+        print(f"✅ In-process BSC scanner scheduled (interval {inproc_interval}s, lock_id {BSC_SCAN_LOCK_ID})")
+
 templates = Jinja2Templates(directory="templates")
 # Make Decimal values render cleanly in templates
 templates.env.filters["money"] = lambda v: f"{float(v or 0):.2f}"
@@ -8915,6 +8964,236 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
         db.rollback()
 
     return stats
+
+
+def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
+    """One iteration of the in-process BSC scanner (Layer 3, 17 May 2026).
+
+    Called from a daemon thread on each interval tick. Acquires a
+    Postgres advisory lock so only ONE replica runs the scan at a time
+    — multiple Railway replicas all running the scheduler is safe; they
+    coordinate via the DB lock and the losers skip silently.
+
+    Mirrors the cron handler's logic but without the FastAPI request /
+    auth machinery, since this runs inside the process. The HTTP cron
+    endpoint stays live as a manual-trigger backup.
+
+    Args:
+        SessionLocal: SQLAlchemy session factory (from .database)
+        lock_id:      int32 constant for pg_try_advisory_lock — same
+                      across all replicas, different from any other
+                      lock IDs the platform uses
+        sql_text:     sqlalchemy.text — passed in to avoid re-importing
+
+    Returns: dict of scan stats (same shape as cron handler), or
+             {"skipped": "lock_busy"} if another replica is scanning.
+    """
+    from .database import (
+        WalletConnectPaymentOrder, OnchainOrphanTransfer, Payment, User
+    )
+    from .walletconnect_payments import (
+        expire_stale_orders,
+        match_incoming_transfer,
+        scan_treasury_transfers_with_cursor,
+        estimate_scan_floor_block,
+        set_scan_cursor,
+        get_scan_cursor,
+        is_likely_rounded_amount,
+    )
+    from app.withdrawals import call_bsc_rpc_with_failover
+    import json as _json
+    import uuid
+
+    db = SessionLocal()
+    lock_held = False
+    try:
+        # Try to acquire the advisory lock. pg_try_advisory_lock returns
+        # bool — TRUE if we got it, FALSE if another replica already has it.
+        # NON-BLOCKING: this returns immediately. The lock is held for the
+        # duration of this DB session and released when we close it below.
+        got_lock = db.execute(
+            sql_text("SELECT pg_try_advisory_lock(:lid)"),
+            {"lid": lock_id},
+        ).scalar()
+        if not got_lock:
+            # Another replica is currently scanning. Skip silently.
+            return {"skipped": "lock_busy"}
+        lock_held = True
+
+        stats = {
+            "expired": 0,
+            "scan_floor": 0,
+            "latest_block": 0,
+            "scanned_blocks": 0,
+            "transfers_seen": 0,
+            "matched": 0,
+            "activated": 0,
+            "orphans_added": 0,
+            "errors": [],
+            "failed_chunks": [],
+            "safe_cursor": 0,
+        }
+
+        # 1. Expire stale pending orders first
+        try:
+            stats["expired"] = expire_stale_orders(db)
+        except Exception as e:
+            logger.error(f"inproc_bsc_scan: expire_stale_orders failed: {e}")
+            stats["errors"].append(f"expire: {e}")
+
+        # 2. Compute scan floor
+        try:
+            latest_block = call_bsc_rpc_with_failover("eth.block_number")
+            scan_floor = estimate_scan_floor_block(db, latest_block)
+            stats["latest_block"] = latest_block
+            stats["scan_floor"] = scan_floor
+            stats["scanned_blocks"] = max(latest_block - scan_floor + 1, 0)
+        except Exception as e:
+            logger.error(f"inproc_bsc_scan: floor calc failed: {e}")
+            return {"error": f"BSC RPC unavailable: {e}", "stats": stats}
+
+        # 3. Paginated scan with safe_cursor tracking
+        try:
+            transfers, safe_cursor, failed_chunks = scan_treasury_transfers_with_cursor(scan_floor)
+            stats["transfers_seen"] = len(transfers)
+            stats["safe_cursor"] = safe_cursor
+            stats["failed_chunks"] = [[f, t] for f, t in failed_chunks]
+            if failed_chunks:
+                logger.warning(
+                    f"inproc_bsc_scan: {len(failed_chunks)} chunk(s) failed; "
+                    f"cursor will hold at block {safe_cursor}"
+                )
+        except Exception as e:
+            logger.error(f"inproc_bsc_scan: scan failed: {e}")
+            stats["errors"].append(f"scan: {e}")
+            transfers = []
+            safe_cursor = -1
+            failed_chunks = []
+
+        # 4. Match each transfer; orphan-file the rest. Reuse the
+        #    canonical NOWPayments activator on match for parity with
+        #    the HTTP cron path.
+        for tx in transfers:
+            try:
+                matched_order = match_incoming_transfer(db, tx)
+            except Exception as e:
+                logger.error(f"inproc_bsc_scan: match failed for tx {tx.get('tx_hash')}: {e}")
+                stats["errors"].append(f"match {tx.get('tx_hash','?')[:12]}: {e}")
+                continue
+
+            if matched_order:
+                try:
+                    buyer = db.query(User).filter(User.id == matched_order.user_id).first()
+                    if not buyer:
+                        stats["errors"].append(f"buyer_missing: order {matched_order.id}")
+                        continue
+
+                    tx_ref = f"wc_{matched_order.tx_hash}" if matched_order.tx_hash else f"wc_{uuid.uuid4().hex[:12]}"
+                    existing_payment = db.query(Payment).filter(Payment.tx_hash == tx_ref).first()
+                    if not existing_payment:
+                        payment = Payment(
+                            from_user_id=buyer.id,
+                            to_user_id=None,
+                            amount_usdt=matched_order.unique_amount,
+                            payment_type=f"walletconnect_{matched_order.product_type}",
+                            tx_hash=tx_ref,
+                            status="confirmed",
+                        )
+                        db.add(payment)
+                        db.flush()
+
+                    meta = _json.loads(matched_order.product_meta) if matched_order.product_meta else {}
+                    if not hasattr(matched_order, "price_usd") or matched_order.price_usd is None:
+                        try:
+                            matched_order.price_usd = matched_order.base_amount
+                        except Exception:
+                            object.__setattr__(matched_order, "price_usd", matched_order.base_amount)
+
+                    _nowpayments_activate_product(db, buyer, matched_order, meta)
+                    db.commit()
+
+                    stats["matched"] += 1
+                    stats["activated"] += 1
+                    logger.info(
+                        f"inproc_bsc_scan: ACTIVATED order {matched_order.id} "
+                        f"user={buyer.id} {matched_order.product_type}/"
+                        f"{matched_order.product_key} tx={matched_order.tx_hash}"
+                    )
+                except Exception as e:
+                    logger.error(f"inproc_bsc_scan: activation failed for order {matched_order.id}: {e}")
+                    stats["errors"].append(f"activate {matched_order.id}: {e}")
+                    db.rollback()
+            else:
+                try:
+                    tx_hash = tx.get("tx_hash")
+                    already_confirmed = db.query(WalletConnectPaymentOrder).filter(
+                        WalletConnectPaymentOrder.tx_hash == tx_hash
+                    ).first()
+                    if already_confirmed:
+                        continue
+                    existing_orphan = db.query(OnchainOrphanTransfer).filter(
+                        OnchainOrphanTransfer.tx_hash == tx_hash
+                    ).first()
+                    if existing_orphan:
+                        continue
+                    orphan = OnchainOrphanTransfer(
+                        tx_hash=tx_hash,
+                        from_address=(tx.get("from_address") or "").lower(),
+                        amount_usdt=tx.get("amount_usdt"),
+                        block_number=tx.get("block_number"),
+                        likely_rounded_amount=is_likely_rounded_amount(tx.get("amount_usdt")),
+                    )
+                    db.add(orphan)
+                    db.commit()
+                    stats["orphans_added"] += 1
+                    logger.info(
+                        f"inproc_bsc_scan: orphan filed tx={tx_hash[:12]}... "
+                        f"amount=${tx.get('amount_usdt')}"
+                    )
+                except Exception as e:
+                    logger.error(f"inproc_bsc_scan: orphan persist failed: {e}")
+                    stats["errors"].append(f"orphan {tx.get('tx_hash','?')[:12]}: {e}")
+                    db.rollback()
+
+        # 5. Persist cursor — safe_cursor logic same as cron
+        try:
+            if safe_cursor > 0:
+                current_cursor = None
+                try:
+                    current_cursor = get_scan_cursor(db)
+                except Exception:
+                    pass
+                if current_cursor is None or safe_cursor > current_cursor:
+                    set_scan_cursor(db, safe_cursor)
+                    db.commit()
+        except Exception as e:
+            logger.error(f"inproc_bsc_scan: cursor persist failed: {e}")
+            stats["errors"].append(f"cursor: {e}")
+            db.rollback()
+
+        # Heartbeat log: only on a successful, non-trivial scan, to keep
+        # logs quiet during idle periods. The cron equivalent doesn't log
+        # heartbeat either — both rely on errors/matches/orphans to surface.
+        if stats["transfers_seen"] > 0 or stats["matched"] > 0 or stats["orphans_added"] > 0:
+            logger.info(
+                f"inproc_bsc_scan tick: floor={stats['scan_floor']} "
+                f"latest={stats['latest_block']} transfers={stats['transfers_seen']} "
+                f"matched={stats['matched']} orphans={stats['orphans_added']} "
+                f"safe_cursor={stats['safe_cursor']}"
+            )
+
+        return stats
+    finally:
+        if lock_held:
+            try:
+                db.execute(sql_text("SELECT pg_advisory_unlock(:lid)"), {"lid": lock_id})
+                db.commit()
+            except Exception as e:
+                logger.warning(f"inproc_bsc_scan: advisory_unlock failed: {e}")
+        try:
+            db.close()
+        except Exception:
+            pass
 
 
 @app.get("/admin/walletconnect-health")
