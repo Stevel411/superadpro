@@ -523,19 +523,39 @@ async def startup_event():
             _time.sleep(30)
             print(f"✅ In-process BSC scanner started (interval {inproc_interval}s)", flush=True)
             tick_count = 0
+            # Log a quiet heartbeat every Nth tick even on idle scans, so
+            # Railway logs always show the scanner is alive without spamming.
+            # At 30s interval, every 60 ticks = every 30 minutes.
+            HEARTBEAT_EVERY_N_TICKS = 60
             while True:
                 tick_count += 1
                 try:
                     result = _run_inproc_bsc_scan(SessionLocal, BSC_SCAN_LOCK_ID, _text)
-                    # Heartbeat every tick — temporary verbose logging during
-                    # Layer-3 burn-in (17 May 2026). Once confirmed working,
-                    # this can be quieted to every Nth tick.
-                    if isinstance(result, dict):
-                        if "skipped" in result:
-                            print(f"[bsc-scan tick {tick_count}] skipped: {result.get('skipped')}", flush=True)
-                        elif "error" in result:
-                            print(f"[bsc-scan tick {tick_count}] ERROR: {result.get('error')}", flush=True)
-                        else:
+                    # Logging policy:
+                    #   - Always log exceptions / errors / unexpected result types
+                    #   - Always log non-trivial activity (transfers, matches, orphans)
+                    #   - Always log when a chunk fails (Layer-1 cursor-hold-back)
+                    #   - Every Nth tick: short heartbeat so logs prove liveness
+                    #   - Otherwise: silent
+                    if not isinstance(result, dict):
+                        print(f"[bsc-scan tick {tick_count}] unexpected result type: {type(result).__name__}", flush=True)
+                    elif "error" in result:
+                        print(f"[bsc-scan tick {tick_count}] ERROR: {result.get('error')}", flush=True)
+                    elif "skipped" in result:
+                        # lock_busy = another replica is scanning. Log only
+                        # every Nth so we don't spam — it's the expected state.
+                        if tick_count % HEARTBEAT_EVERY_N_TICKS == 0:
+                            print(f"[bsc-scan tick {tick_count}] skipped: {result.get('skipped')} (heartbeat)", flush=True)
+                    else:
+                        interesting = (
+                            result.get("transfers_seen", 0) > 0
+                            or result.get("matched", 0) > 0
+                            or result.get("orphans_added", 0) > 0
+                            or len(result.get("failed_chunks", [])) > 0
+                            or result.get("errors")
+                        )
+                        if interesting or tick_count % HEARTBEAT_EVERY_N_TICKS == 0:
+                            tag = "" if interesting else " (heartbeat)"
                             print(
                                 f"[bsc-scan tick {tick_count}] floor={result.get('scan_floor')} "
                                 f"latest={result.get('latest_block')} "
@@ -543,11 +563,9 @@ async def startup_event():
                                 f"matched={result.get('matched', 0)} "
                                 f"orphans={result.get('orphans_added', 0)} "
                                 f"safe_cursor={result.get('safe_cursor', 0)} "
-                                f"failed_chunks={len(result.get('failed_chunks', []))}",
+                                f"failed_chunks={len(result.get('failed_chunks', []))}{tag}",
                                 flush=True,
                             )
-                    else:
-                        print(f"[bsc-scan tick {tick_count}] unexpected result type: {type(result).__name__}", flush=True)
                 except Exception as e:
                     # NEVER let the loop die — log and continue. A killed
                     # loop would silently reintroduce the gap problem

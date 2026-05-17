@@ -2325,6 +2325,77 @@ try:
 except Exception as e:
     print(f"⚠️ file_missed_orphan_sap00205_one_shot skipped: {e}")
 
+
+def resolve_layer3_test_orphan_one_shot():
+    """ONE-SHOT data migration (added 17 May 2026).
+
+    On 17 May Steve sent a \$1 USDT BEP-20 transfer to the BSC treasury
+    as the live verification test that Layer 3's in-process scanner
+    was running. The scanner correctly picked it up within ~60 seconds
+    and filed it as OnchainOrphanTransfer id=30 (tx
+    0x1387e02e...c44, block 98827412). This was the end-to-end proof
+    that closed out the BSC scanner reliability work.
+
+    Orphan stays in the table for audit purposes but should be marked
+    resolved so it doesn't sit as 'unresolved' forever. The \$1 is a
+    small test cost retained by the company (not refunded).
+
+    Idempotent: only acts when the row exists, is the matching tx_hash,
+    and is currently unresolved. Re-running is a no-op.
+    """
+    test_tx = "0x1387e02ead14b0b1e1029e372912a67142fde26894e501b614d136307d438c44"
+    try:
+        with engine.connect() as conn:
+            try:
+                conn.execute(text("SET lock_timeout = '5s'"))
+                conn.execute(text("SET statement_timeout = '15s'"))
+            except Exception:
+                pass
+
+            row = conn.execute(
+                text("""
+                    SELECT id, resolved FROM onchain_orphan_transfers
+                     WHERE tx_hash = :tx
+                """),
+                {"tx": test_tx},
+            ).fetchone()
+            if not row:
+                # Orphan never landed — unexpected since we verified live, but
+                # don't crash boot. Future restarts may pick it up if it does
+                # arrive late.
+                return
+            if row[1]:  # already resolved
+                return
+
+            conn.execute(text("""
+                UPDATE onchain_orphan_transfers
+                   SET resolved = TRUE,
+                       resolved_at = NOW(),
+                       resolution_note = :note
+                 WHERE tx_hash = :tx
+                   AND resolved = FALSE
+            """), {
+                "tx": test_tx,
+                "note": (
+                    "Layer-3 in-process BSC scanner verification test, 17 May 2026. "
+                    "Steve sent $1 USDT from his personal wallet to treasury to "
+                    "confirm the new in-process scheduler was alive and processing "
+                    "transfers end-to-end. Scanner picked it up within ~60s, "
+                    "proving Layer 3 working. $1 retained as company test cost "
+                    "(not refunded). Closes out BSC scanner reliability work."
+                ),
+            })
+            conn.commit()
+            print(f"✓ Layer-3 test orphan #{row[0]} marked resolved")
+    except Exception as e:
+        print(f"⚠️ resolve_layer3_test_orphan_one_shot skipped: {e}")
+
+
+try:
+    resolve_layer3_test_orphan_one_shot()
+except Exception as e:
+    print(f"⚠️ resolve_layer3_test_orphan_one_shot skipped: {e}")
+
 # Force critical column additions with direct connection
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
