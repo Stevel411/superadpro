@@ -50,16 +50,22 @@ const WalletPayLink = lazy(function() {
 const GOLD_GRAD = 'linear-gradient(135deg,#78350f,#b45309,#fbbf24)';
 const GREEN_GRAD = 'linear-gradient(135deg,#064e3b,#047857,#10b981)';
 
-// Representative sample seats for the mini-grid. 16 cells total in a
-// 4×4 layout, 3 filled spread across rows/columns to give the user a
-// visual sense of what their grid looks like a few referrals in.
-// Positions chosen so the filled seats are spread visually (not stacked
-// in one column) — direct in top row, two auto-place seats spread
-// across rows 2 and 3. NOT live data.
+// Representative sample seats for the mini-grid. 16 cells in a 4×4
+// layout, 3 filled in positions 1, 2, 3 — gold direct first, then two
+// green auto-place seats filling left-to-right.
+//
+// This mirrors how a real Grid Tier 1 fills in sequence: position 1 is
+// the first direct referral the user brings in (gold), positions 2 and
+// 3 are spillover from upline activity (green). Tells a more accurate
+// story than a random scatter — and visually the row of three filled
+// seats followed by 13 empty cells communicates "your grid starts here
+// and there's room to grow".
+//
+// NOT live data.
 const SAMPLE_SEATS = [
-  { position: 2,  username: 'member_a',  isDirect: true  },  // top row, second cell
-  { position: 7,  username: 'member_b',  isDirect: false },  // middle row, third cell
-  { position: 12, username: 'member_c',  isDirect: false },  // third row, fourth cell
+  { position: 1, username: 'member_a', isDirect: true  },
+  { position: 2, username: 'member_b', isDirect: false },
+  { position: 3, username: 'member_c', isDirect: false },
 ];
 
 const css = `
@@ -72,7 +78,7 @@ const css = `
   padding: 24px 20px 60px;
   color: #fff;
 }
-.gact-shell { max-width: 680px; margin: 0 auto; }
+.gact-shell { max-width: 720px; margin: 0 auto; }
 
 .gact-eyebrow {
   font-family: 'JetBrains Mono', monospace;
@@ -109,15 +115,16 @@ const css = `
 }
 
 /* White card — the mini grid sits inside this so it visually mirrors
-   the live visualiser (white card on dark page). Kept compact so the
-   CTA buttons below stay visible without scrolling on desktop. */
+   the live visualiser (white card on dark page). Wider than the
+   default page shell (680px) so each individual seat stays small —
+   wide-but-shallow card keeps CTA visible above the fold. */
 .gact-card {
   background: #fff;
   color: #0a1438;
   border-radius: 14px;
   overflow: hidden;
   margin: 0 auto 22px;
-  max-width: 440px;
+  max-width: 620px;
   box-shadow: 0 12px 36px -12px rgba(0,0,0,.40);
 }
 .gact-card-header {
@@ -138,18 +145,18 @@ const css = `
   font-weight: 600;
 }
 
-.gact-card-body { padding: 16px 18px 18px; }
+.gact-card-body { padding: 14px 18px 16px; }
 
 .gact-progress {
   height: 6px;
   background: #f1f5f9;
   border-radius: 4px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   overflow: hidden;
 }
 .gact-progress-fill {
   height: 100%;
-  width: 17%;
+  width: 12.5%;
   border-radius: 4px;
   background: linear-gradient(90deg, #064e3b, #10b981);
 }
@@ -157,7 +164,7 @@ const css = `
 .gact-legend {
   display: flex; gap: 14px; flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 .gact-legend-item {
   display: flex; align-items: center; gap: 6px;
@@ -175,15 +182,19 @@ const css = `
 .gact-legend-swatch.spill  { background: linear-gradient(135deg,#064e3b,#047857,#10b981); color: #fff; }
 .gact-legend-swatch.empty  { background: #f8fafc; border: 1px dashed #94a3b8; color: #94a3b8; }
 
-/* Mini-grid: 4×4 layout. Compact — each seat is ~70px on desktop so the
-   full card is ~310px tall, leaving the CTA visible above the fold. */
+/* Mini-grid: 6 columns × 4 rows = 24 cells. Wider layout (the grid
+   itself stretches horizontally across the card) with individually
+   smaller nodes — Steve's feedback after the 4×4 version pushed the
+   CTA below the fold. With aspect-ratio:1 each seat is ~85px in the
+   620px card, so the full grid stands ~360px tall — comparable to
+   the previous 4×4 but with far more visual presence. */
 .gact-mini-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
 }
 .gact-seat {
-  border-radius: 8px;
+  border-radius: 7px;
   aspect-ratio: 1;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -193,11 +204,11 @@ const css = `
 }
 .gact-seat.empty {
   background: #f8fafc;
-  border: 1.5px dashed #e2e8f0;
+  border: 1px dashed #e2e8f0;
   color: #cbd5e1;
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
 }
 .gact-seat.filled {
   border: 1.5px solid;
@@ -206,25 +217,25 @@ const css = `
 .gact-seat-badge {
   position: absolute;
   top: -3px; right: -3px;
-  width: 12px; height: 12px;
+  width: 11px; height: 11px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 7px; font-weight: 800;
+  font-size: 6px; font-weight: 800;
   border: 1.5px solid #fff;
 }
 .gact-seat-badge.direct { background: #fbbf24; color: #78350f; }
 .gact-seat-badge.spill  { background: #10b981; color: #fff; }
 .gact-seat-avatar {
-  width: 20px; height: 20px;
+  width: 16px; height: 16px;
   border-radius: 50%;
   background: rgba(255,255,255,.22);
-  border: 1.5px solid rgba(255,255,255,.35);
+  border: 1px solid rgba(255,255,255,.35);
   display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 800;
+  font-size: 8px; font-weight: 800;
   margin-bottom: 2px;
 }
 .gact-seat-name {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
   max-width: 86%;
   overflow: hidden; text-overflow: ellipsis;
@@ -468,7 +479,7 @@ export default function GridActivatePage() {
           <div className="gact-card">
             <div className="gact-card-header">
               <div className="gact-card-header-title">T1 Starter — $20</div>
-              <div className="gact-card-header-meta">3 of 16 (illustrative)</div>
+              <div className="gact-card-header-meta">3 of 24 (illustrative)</div>
             </div>
             <div className="gact-card-body">
               <div className="gact-progress">
@@ -486,7 +497,7 @@ export default function GridActivatePage() {
                 </div>
               </div>
               <div className="gact-mini-grid">
-                {Array.from({ length: 16 }, function(_, i) {
+                {Array.from({ length: 24 }, function(_, i) {
                   const idx = i + 1;
                   const seat = SAMPLE_SEATS.find(function(s) { return s.position === idx; });
                   if (seat) {
