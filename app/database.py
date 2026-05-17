@@ -2329,7 +2329,7 @@ except Exception as e:
 def resolve_layer3_test_orphan_one_shot():
     """ONE-SHOT data migration (added 17 May 2026).
 
-    On 17 May Steve sent a \$1 USDT BEP-20 transfer to the BSC treasury
+    On 17 May Steve sent a $1 USDT BEP-20 transfer to the BSC treasury
     as the live verification test that Layer 3's in-process scanner
     was running. The scanner correctly picked it up within ~60 seconds
     and filed it as OnchainOrphanTransfer id=30 (tx
@@ -2337,7 +2337,7 @@ def resolve_layer3_test_orphan_one_shot():
     that closed out the BSC scanner reliability work.
 
     Orphan stays in the table for audit purposes but should be marked
-    resolved so it doesn't sit as 'unresolved' forever. The \$1 is a
+    resolved so it doesn't sit as 'unresolved' forever. The $1 is a
     small test cost retained by the company (not refunded).
 
     Idempotent: only acts when the row exists, is the matching tx_hash,
