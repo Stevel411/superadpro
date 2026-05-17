@@ -521,18 +521,44 @@ async def startup_event():
             # startup (migrations, warmup, etc) time to settle so we don't
             # contend on the connection pool with cold-start traffic.
             _time.sleep(30)
-            print(f"✅ In-process BSC scanner started (interval {inproc_interval}s)")
+            print(f"✅ In-process BSC scanner started (interval {inproc_interval}s)", flush=True)
+            tick_count = 0
             while True:
+                tick_count += 1
                 try:
-                    _run_inproc_bsc_scan(SessionLocal, BSC_SCAN_LOCK_ID, _text)
+                    result = _run_inproc_bsc_scan(SessionLocal, BSC_SCAN_LOCK_ID, _text)
+                    # Heartbeat every tick — temporary verbose logging during
+                    # Layer-3 burn-in (17 May 2026). Once confirmed working,
+                    # this can be quieted to every Nth tick.
+                    if isinstance(result, dict):
+                        if "skipped" in result:
+                            print(f"[bsc-scan tick {tick_count}] skipped: {result.get('skipped')}", flush=True)
+                        elif "error" in result:
+                            print(f"[bsc-scan tick {tick_count}] ERROR: {result.get('error')}", flush=True)
+                        else:
+                            print(
+                                f"[bsc-scan tick {tick_count}] floor={result.get('scan_floor')} "
+                                f"latest={result.get('latest_block')} "
+                                f"transfers={result.get('transfers_seen', 0)} "
+                                f"matched={result.get('matched', 0)} "
+                                f"orphans={result.get('orphans_added', 0)} "
+                                f"safe_cursor={result.get('safe_cursor', 0)} "
+                                f"failed_chunks={len(result.get('failed_chunks', []))}",
+                                flush=True,
+                            )
+                    else:
+                        print(f"[bsc-scan tick {tick_count}] unexpected result type: {type(result).__name__}", flush=True)
                 except Exception as e:
                     # NEVER let the loop die — log and continue. A killed
                     # loop would silently reintroduce the gap problem
                     # we're trying to fix.
+                    import traceback
+                    tb = traceback.format_exc()
                     try:
-                        logger.error(f"inproc bsc scan iteration failed: {e}", exc_info=True)
+                        logger.error(f"[bsc-scan tick {tick_count}] iteration failed: {e}\n{tb}")
                     except Exception:
-                        print(f"⚠️ inproc bsc scan iteration failed: {e}")
+                        pass
+                    print(f"[bsc-scan tick {tick_count}] EXCEPTION: {e}\n{tb}", flush=True)
                 _time.sleep(inproc_interval)
 
         scanner_thread = threading.Thread(target=_bsc_scanner_loop, daemon=True, name="bsc-scanner")
