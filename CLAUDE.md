@@ -1,6 +1,48 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
-## 🎯 Most Recent Session (16-17 May 2026) — what shipped
+## 🎯 Most Recent Session (17 May 2026 PM) — BSC scanner reliability solved
+
+Mid-Sunday session, ~3 hours focused on production reliability. All commits live, all verified end-to-end.
+
+**Customer support case closed (SAP-00205 Christel @chrissxx):**
+- She reported 3 payments for 2 positions. Traced all three on-chain: $14.54 (orphan), $15.39 (Ardy's payment that activated him as Founder #16, NOT a duplicate), $15.09 (her own Founder #17 activation).
+- Real issue: the $14.54 hit treasury at block 98459311 during the launch-night BSC-scanner outage and was never filed as an orphan, never visible to admin tooling. Sat in treasury invisible for 2 days.
+- Steve refunded $14.54 from treasury → her wallet (tx `0xe088cbab...1422`). Books reconciled via one-shot migration that filed the original orphan retroactively with the refund txid in the resolution note (commit `6da0724` + `ff77dc5`).
+- Filed reusable admin endpoint `/admin/api/orphans/file-missed` for any future scanner-miss cases (commit `b9a9743`).
+
+**BSC scanner reliability — 3-layer structural fix, all free, all shipped:**
+
+Root cause: the cron previously advanced its scan cursor to `latest_block` regardless of whether individual 10-block chunks inside the scan loop failed. Chunk-level failures (typically Alchemy free-tier rate-limits) only logged warnings; cursor silently skipped over failed ranges. Transfers in those blocks were lost forever. That's how Christel's $14.54 went missing.
+
+- **Layer 1 — self-healing cursor (`6f54548`).** New `scan_treasury_transfers_with_cursor()` returns `(transfers, safe_cursor, failed_chunks)`. `safe_cursor` is the highest block in an unbroken chain of successful chunks from the floor. Failed chunk → cursor stays at the pre-failure boundary → next run automatically re-scans. Match logic is already idempotent on `tx_hash`, so retries are cheap and safe. Verified with 6-scenario logic test including exact Christel reproduction.
+
+- **Layer 2 — multi-RPC failover (`f6c110c`).** New `call_bsc_rpc_with_failover(method_name, *args)` in `app/withdrawals.py`. Tries primary RPC, transparently retries against 7 free public BSC dataseed + LlamaRPC endpoints on rate-limit / connection errors. Detects rate-limits via signal strings (`429`, `-32005`, `limit exceeded`, `rate limit`, `quota`, etc). Real bugs (`ValueError` on bad args) propagate immediately — failover only triggers on throttling. Used for both `eth_getLogs` and `eth_blockNumber` in the scanner. `_get_web3_bsc()` itself also failovers on connection. Verified with 7-scenario logic test. Configurable via `BSC_RPC_FALLBACKS` env var (defaults to the 7-URL list).
+
+- **Layer 3 — in-process scheduler with advisory lock (`f8f91e8`).** Daemon thread spawned in `startup_event()`, runs every 30s (configurable via `BSC_INPROC_SCHEDULER_INTERVAL_SECONDS`). Before each scan acquires `pg_try_advisory_lock(1885347291)` — non-blocking. Multi-replica safe: only one replica scans per tick, others skip silently with `{"skipped": "lock_busy"}`. Lock auto-releases on session close. Loop is loss-proof — any exception is caught, traceback logged, sleeps and retries. Disable with `BSC_INPROC_SCHEDULER_ENABLED=false`. Pattern matches the existing daily-backup daemon thread.
+
+**Verification — end-to-end live test on production:**
+- Steve's first test ($1) accidentally went to old retired Polygon wallet `0x7174...` — bookmark trap.
+- Second test (tx `0x1387e02e...c44`, $1 → treasury, block 98827412) picked up by in-proc scanner within ~60 seconds, filed as orphan #30. Real proof Layer 3 works.
+- External cron-job.org trigger ("SuperAdPro WalletConnect watcher") disabled by Steve. In-process scheduler is now the sole driver of BSC scans. Original cron stays paused (not deleted) as one-click revert.
+
+**Cleanup (`52ed3ab`, `ba4765a`):**
+- Verbose heartbeat logging from burn-in (`711b882`) quieted to: always log transfers/matches/orphans/errors/failed chunks; otherwise only every 60th tick (~30 min) prints a "(heartbeat)" line so logs prove liveness without spamming.
+- Test orphan #30 marked resolved with full audit note.
+
+**Key commits (chronological):**
+`b9a9743` admin orphan file-missed endpoint · `6da0724` retroactive file Christel orphan · `ff77dc5` un-gate from SKIP_MIGRATIONS · `6f54548` Layer 1 self-healing cursor · `f6c110c` Layer 2 multi-RPC failover · `f8f91e8` Layer 3 in-process scheduler · `711b882` burn-in heartbeat · `52ed3ab` quiet heartbeat + resolve test orphan · `ba4765a` cosmetic SyntaxWarning fix
+
+**What to look for in Railway logs (steady state):**
+- Boot: `✅ In-process BSC scanner scheduled (interval 30s, lock_id 1885347291)` × N replicas, then `✅ In-process BSC scanner started (interval 30s)` × N replicas
+- Real activity: `[bsc-scan tick N] floor=... latest=... transfers=1 matched=1 orphans=0 ...`
+- Lock skip on extra replicas: occasional `[bsc-scan tick N] skipped: lock_busy (heartbeat)`
+- Liveness: `[bsc-scan tick N] ... (heartbeat)` every ~30 min on idle
+- Layer 1 in action: `cron_scan_bsc_payments: cursor → 98xxxxxxx (held back from 98yyyyyyy due to N failed chunk(s) — retry next run)`
+- Layer 2 in action: `BSC RPC call eth.get_logs succeeded on fallback #1 (https://bsc-dataseed1.binance.org/)`
+
+---
+
+## 🎯 Previous Session (16-17 May 2026 AM) — what shipped
 
 Saturday session, ~12 hours of focused work. All commits live on production.
 
@@ -61,35 +103,36 @@ Steve created a Claude Project (this one) on 17 May 2026 to separate engineering
 
 ---
 
-## 🎯 Immediate Next Task (16 May 2026)
+## 🎯 Immediate Next Task (17 May 2026 update)
 
-**Platform launched 15 May 2026 with incident.** Test12 verified working as Founding Partner #18 on real on-chain payment. Platform is up and serving customers, but the launch session exposed real issues that need follow-up.
+**Platform launched 15 May 2026 with incident.** Test12 verified working as Founding Partner #18 on real on-chain payment. Two days later: BSC scanner reliability is now structurally solved (3 layers, all free, all live — see 17 May session log above). External cron-job.org trigger disabled. SAP-00205 Christel's $14.54 refunded and books reconciled.
 
-**Tomorrow's priority list, ordered by impact:**
+**Remaining items, ordered by impact:**
 
-1. **BSC scanner cron not firing on schedule.** Confirmed last night — orphan transfers stopped getting filed for 2+ hours, test12's transfer only matched after manual admin trigger. Daily-briefing cron fires fine, so it's specific to the BSC scan cron. Investigate cron-job.org config, Railway scheduler, or whatever wires `/cron/scan-bsc-payments`. **Until fixed: if a paying signup gets stuck, hit `/admin/api/trigger-bsc-scan?from_block=98475000` from your admin browser to recover them.**
+1. **`SKIP_MIGRATIONS=true` is still set in Railway env vars** — bypasses migrations on every deploy. Safe for now but needs careful unsetting during a quiet window. The proper fix is to move migrations off import-time (eliminates the two-container contention root cause that caused the launch-night outage).
 
-2. **Alchemy RPC rate-limiting on free tier.** ~50% of chunks failed during the manual scan last night. Test12's specific block succeeded by luck. Add a backup RPC endpoint (Ankr, QuickNode, or BSC's public RPC) as fallback, or upgrade Alchemy tier.
+2. **3 stuck NOWPayments orders** (SAP-151-101, SAP-187-99, SAP-224-98) need marking expired. Pure data hygiene.
 
-3. **`SKIP_MIGRATIONS=true` is still set in Railway env vars** — bypasses migrations on every deploy. Safe for now but needs careful unsetting during a quiet window. The proper fix is to move migrations off import-time (eliminates the two-container contention root cause that caused the launch-night outage).
+3. **Jason's orphan transfer** (orphan id 16, 20.83 USDT from `0xa96be...`) needs marking resolved/refunded.
 
-4. **3 stuck NOWPayments orders** (SAP-151-101, SAP-187-99, SAP-224-98) need marking expired. Pure data hygiene.
+4. **BPG audit + backfill** — run `/admin/api/bpg/audit-and-backfill` (audit only, GET), then `?backfill=true` for anything still salvageable. Endpoint shipped earlier.
 
-5. **Jason's orphan transfer** (orphan id 16, 20.83 USDT from `0xa96be...`) needs marking resolved/refunded.
+5. **Translations** — Sprint 1/2/2c added ~40 new English strings (founding partner copy, badge labels, expired-poster banner) not yet translated into the 19 other languages. Spanish/French/German/etc users see English fallback for those strings.
 
-6. **BPG audit + backfill** — run `/admin/api/bpg/audit-and-backfill` (audit only, GET), then `?backfill=true` for anything still salvageable. Endpoint shipped last night.
+6. **Audit other places that surface raw xAI URLs to the browser.** Creative Studio gallery, posters history page — same proxy pattern as `/api/posters/generation/{id}/candidate/{idx}/image` needs applying everywhere xAI URLs leak to `<img src>`.
 
-7. **Translations** — Sprint 1/2/2c added ~40 new English strings (founding partner copy, badge labels, expired-poster banner) not yet translated into the 19 other languages. Spanish/French/German/etc users see English fallback for those strings.
+7. **Tier 2 admin MCP tools** to build: `activate_user_manually`, `mark_order_expired`, `reconcile_orphan_transfer`, `grant_founding_spot`. All with dry-run mode + audit log. Removes the need for browser-session admin triggers entirely.
 
-8. **Audit other places that surface raw xAI URLs to the browser.** Creative Studio gallery, posters history page — same proxy pattern as `/api/posters/generation/{id}/candidate/{idx}/image` needs applying everywhere xAI URLs leak to `<img src>`.
+8. **CompensationPlan.jsx, PassupVisualiser.jsx, CompensationHubPage.jsx, IncomeMembershipPage, IncomePage** still show old Basic/Pro commission economics in places. Public templates (membership.html, upgrade.html) still reference $35/Pro. Comp plan PDFs in 20 languages outdated.
 
-9. **Tier 2 admin MCP tools** to build: `activate_user_manually`, `mark_order_expired`, `reconcile_orphan_transfer`, `grant_founding_spot`. All with dry-run mode + audit log. Removes the need for browser-session admin triggers entirely.
+9. **Member email broadcast** to 15 grandfathered founders + 108 free members announcing Partner Programme.
 
-10. **CompensationPlan.jsx, PassupVisualiser.jsx, CompensationHubPage.jsx, IncomeMembershipPage, IncomePage** still show old Basic/Pro commission economics in places. Public templates (membership.html, upgrade.html) still reference $35/Pro. Comp plan PDFs in 20 languages outdated.
+10. **Command Centre redesign** (the previous "next task" before the launch). Steve had ideas for dashboard + menu restructure — see earlier mockups (`hub-dashboard.html`, `command-centre-desktop.html`, `command-centre-mockup.html`, `recruiting-hq-mockup.html`). Picks up once the launch-incident follow-ups are clear.
 
-11. **Member email broadcast** to 15 grandfathered founders + 108 free members announcing Partner Programme.
-
-12. **Command Centre redesign** (the previous "next task" before the launch). Steve had ideas for dashboard + menu restructure — see earlier mockups (`hub-dashboard.html`, `command-centre-desktop.html`, `command-centre-mockup.html`, `recruiting-hq-mockup.html`). Picks up once the launch-incident follow-ups are clear.
+**Resolved 17 May 2026 (no longer on the list):**
+- ~~BSC scanner cron not firing on schedule~~ — Layer 3 in-process scheduler replaces external trigger.
+- ~~Alchemy RPC rate-limiting on free tier~~ — Layer 2 multi-RPC failover.
+- ~~Christel's $14.54 refund + reconciliation~~ — refunded + orphan #29 resolved via one-shot migration.
 
 ## 🚨 Lessons From the 15 May 2026 Launch Incident — INTERNALISE THESE
 
