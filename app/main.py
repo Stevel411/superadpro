@@ -13124,6 +13124,132 @@ async def admin_api_reconcile_orphan(
     }
 
 
+@app.post("/admin/api/orphans/file-missed")
+async def admin_api_file_missed_orphan(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """File an on-chain transfer that the BSC scanner missed entirely.
+
+    Used when the watcher cron failed to scan a block range and a real
+    USDT transfer to treasury never landed in `onchain_orphan_transfers`.
+    Manually inserts the row so the platform's books reflect reality,
+    then optionally marks it resolved with a note (typical case: admin
+    refunded the user from treasury and is reconciling the pair).
+
+    Body:
+        tx_hash       (required) — full 0x... BSC tx hash
+        from_address  (required) — sender wallet (0x..., 40 hex chars)
+        amount_usdt   (required) — decimal USDT amount as string or number
+        block_number  (optional) — BSC block number, helpful for forensics
+        resolved      (optional, default False) — mark resolved immediately
+        resolution_note (optional) — required if resolved=True; explains
+                        what was done (e.g. "refunded off-chain via tx 0x...")
+
+    Idempotency: tx_hash is unique on `onchain_orphan_transfers`.
+    Returns 409 if the tx_hash already exists. To resolve an existing
+    orphan, use /admin/api/orphans/{id}/resolve instead.
+    """
+    _require_admin(user)
+    from .database import OnchainOrphanTransfer
+    from decimal import Decimal, InvalidOperation
+
+    body = await request.json()
+    tx_hash = (body.get("tx_hash") or "").strip().lower()
+    from_address = (body.get("from_address") or "").strip().lower()
+    amount_raw = body.get("amount_usdt")
+    block_number = body.get("block_number")
+    resolved = bool(body.get("resolved", False))
+    resolution_note = (body.get("resolution_note") or "").strip()[:1000]
+
+    # Validate inputs
+    if not tx_hash.startswith("0x") or len(tx_hash) != 66:
+        return JSONResponse(
+            {"success": False, "error": "tx_hash must be 0x + 64 hex chars"},
+            status_code=400,
+        )
+    if not from_address.startswith("0x") or len(from_address) != 42:
+        return JSONResponse(
+            {"success": False, "error": "from_address must be 0x + 40 hex chars"},
+            status_code=400,
+        )
+    try:
+        amount_usdt = Decimal(str(amount_raw))
+    except (InvalidOperation, TypeError):
+        return JSONResponse(
+            {"success": False, "error": "amount_usdt must be a decimal number"},
+            status_code=400,
+        )
+    if amount_usdt <= 0:
+        return JSONResponse(
+            {"success": False, "error": "amount_usdt must be positive"},
+            status_code=400,
+        )
+    if resolved and not resolution_note:
+        return JSONResponse(
+            {"success": False, "error": "resolution_note required when resolved=true"},
+            status_code=400,
+        )
+
+    # Reject if already in the table — use the existing resolve endpoint instead
+    existing = db.query(OnchainOrphanTransfer).filter(
+        OnchainOrphanTransfer.tx_hash == tx_hash
+    ).first()
+    if existing:
+        return JSONResponse(
+            {
+                "success": False,
+                "error": f"Orphan already exists (id={existing.id}, resolved={existing.resolved}). "
+                         f"Use /admin/api/orphans/{existing.id}/resolve to update.",
+            },
+            status_code=409,
+        )
+
+    # Flag rounded amounts (matches the cron scanner's heuristic)
+    try:
+        from .walletconnect_payments import is_likely_rounded_amount
+        likely_rounded = is_likely_rounded_amount(float(amount_usdt))
+    except Exception:
+        likely_rounded = False
+
+    orphan = OnchainOrphanTransfer(
+        tx_hash=tx_hash,
+        from_address=from_address,
+        amount_usdt=amount_usdt,
+        block_number=int(block_number) if block_number else None,
+        likely_rounded_amount=likely_rounded,
+        seen_at=datetime.utcnow(),
+        resolved=resolved,
+        resolution_note=resolution_note or None,
+        resolved_at=datetime.utcnow() if resolved else None,
+        resolved_by_user_id=user.id if resolved else None,
+    )
+    db.add(orphan)
+    db.commit()
+    db.refresh(orphan)
+
+    logger.info(
+        f"ADMIN ORPHAN FILE-MISSED: admin={user.username} "
+        f"tx={tx_hash} from={from_address} amount=${amount_usdt} "
+        f"block={block_number} resolved={resolved} "
+        f"note='{resolution_note[:120]}'"
+    )
+
+    return {
+        "success": True,
+        "orphan_id": orphan.id,
+        "tx_hash": tx_hash,
+        "amount_usdt": str(amount_usdt),
+        "resolved": resolved,
+        "message": (
+            "Orphan filed retroactively and marked resolved."
+            if resolved else
+            "Orphan filed. Use /admin/orphans to reconcile or resolve."
+        ),
+    }
+
+
 @app.post("/admin/api/user/{user_id}/change-tier")
 async def admin_api_change_tier(
     user_id: int, request: Request,
