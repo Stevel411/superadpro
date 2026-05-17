@@ -5841,8 +5841,11 @@ def api_fast_start_state(
       - pressed_at set, hidden_at null      → "continue"
       - otherwise                            → "hero"
 
-    Auth required. Anonymous users get 401 from get_current_user.
+    Auth required. Anonymous users get 401.
     """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
     from .database import Grid, GridPosition
 
     # Defensive: belt-and-braces check that the user doesn't already own
@@ -5926,6 +5929,9 @@ def api_fast_start_press(
     Returns the same shape as /api/fast-start/state for convenience
     (so the frontend doesn't have to make two calls).
     """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
     if user.fast_start_pressed_at is None and user.fast_start_hidden_at is None:
         user.fast_start_pressed_at = datetime.utcnow()
         db.add(user)
@@ -5951,6 +5957,9 @@ def api_fast_start_hide(
     activate Grid Tier 1, which also lands here via the activation
     handler).
     """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
     if user.fast_start_hidden_at is None:
         user.fast_start_hidden_at = datetime.utcnow()
         db.add(user)
