@@ -5848,6 +5848,22 @@ def api_fast_start_state(
 
     from .database import Grid, GridPosition
 
+    # Gating rule: hero only renders for paid Partners.
+    # Free users (is_active=False) have nothing meaningful to do with
+    # "Activate Grid" — they need to buy Partner membership ($20/mo)
+    # first, which is a separate funnel entirely. The hero's headline
+    # "Activate for $20" would be misleading for them since $20 buys
+    # them Partner, not a Grid Tier 1 (that's an additional $20).
+    # Force "hidden" so the dashboard renders without the hero, leaving
+    # the existing Founding Partner banner / hero carousel to do the
+    # membership conversion job.
+    if not user.is_active:
+        return JSONResponse({
+            "state": "hidden",
+            "username": user.username,
+            "has_grid_position": False,
+        })
+
     # Defensive: belt-and-braces check that the user doesn't already own
     # a Grid Tier 1. If they do, force "hidden" regardless of column
     # state — protects against stale fast_start_hidden_at NULL on users
