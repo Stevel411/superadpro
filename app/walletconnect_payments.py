@@ -312,43 +312,93 @@ def get_treasury_transfers_in_range(from_block: int, to_block: int) -> list:
 
 def scan_treasury_transfers(scan_floor_block: int) -> list:
     """Paginated scan of all treasury USDT Transfer events from
+    `scan_floor_block` up to the latest block.
+
+    Back-compat shim. Calls scan_treasury_transfers_with_cursor and
+    returns only the transfers, discarding the safe-cursor value.
+    New code should call scan_treasury_transfers_with_cursor directly.
+    """
+    transfers, _safe_cursor, _failed = scan_treasury_transfers_with_cursor(scan_floor_block)
+    return transfers
+
+
+def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, int, list[tuple[int, int]]]:
+    """Paginated scan of all treasury USDT Transfer events from
     `scan_floor_block` up to the latest block, in GETLOGS_WINDOW_BLOCKS
     chunks. Caps total range at MAX_SCAN_BLOCKS_PER_RUN.
 
-    The watcher cron handler computes scan_floor_block by:
-      - Querying the oldest still-pending WalletConnectPaymentOrder
-      - Estimating its block via (now - created_at).total_seconds() / 3
-      - Passing that block as scan_floor_block
+    Returns: (transfers, safe_cursor, failed_chunks)
+      transfers     — all successfully-fetched Transfer events
+      safe_cursor   — highest block we can safely advance the cursor to.
+                      This is the last block of the LAST CONSECUTIVE
+                      successful chunk from the floor. If chunk N+1
+                      fails, safe_cursor stops at the end of chunk N
+                      regardless of how many chunks after N+1 succeeded.
+                      Reason: cursor MUST NOT skip over a failed chunk,
+                      or transfers in that range are silently lost
+                      forever (this is the bug that lost Christel's
+                      $14.54 at block 98459311 on 15 May 2026 — Alchemy
+                      free-tier rate-limited the chunk containing her
+                      tx, cron logged the error and advanced the cursor
+                      past it anyway, transfer never re-scanned).
+      failed_chunks — list of (from, to) tuples for chunks that errored,
+                      useful for logging and admin diagnostics.
 
-    With no pending orders, caller passes (latest - GETLOGS_WINDOW_BLOCKS)
-    so we still do a minimal scan in case of late-arriving payments.
+    Caller (cron_scan_bsc_payments) persists safe_cursor as the new
+    wc_scan_cursor — guaranteeing the next run re-scans any failed range.
+
+    Bug-history-relevant constants:
+      GETLOGS_WINDOW_BLOCKS = 10   (Alchemy free-tier eth_getLogs cap)
+      MAX_SCAN_BLOCKS_PER_RUN = 1000 (catch-up cap after extended outages)
     """
     try:
         w3 = _get_web3_bsc()
         latest = w3.eth.block_number
     except Exception as e:
         logger.error(f"scan_treasury_transfers: cannot read latest block: {e}")
-        return []
+        # safe_cursor = -1 sentinel → caller must NOT advance the cursor
+        return [], -1, []
 
     # Bound the floor to MAX_SCAN_BLOCKS_PER_RUN behind the head — protects
     # against cursor drift after extended outages.
     earliest_allowed = max(latest - MAX_SCAN_BLOCKS_PER_RUN, 0)
     floor = max(scan_floor_block, earliest_allowed)
     if floor > latest:
-        return []
+        # Nothing to scan — return floor-1 so caller leaves cursor where it is
+        return [], floor - 1, []
 
-    all_transfers = []
+    all_transfers: list = []
+    failed_chunks: list[tuple[int, int]] = []
+    # safe_cursor tracks the LAST CONSECUTIVE successful chunk's upper bound.
+    # Initialised to floor-1 so a fully-failed first chunk leaves the cursor
+    # exactly where it was (no advance), guaranteeing retry next run.
+    safe_cursor = floor - 1
+    first_failure_seen = False
+
     cursor = floor
     while cursor <= latest:
         chunk_to = min(cursor + GETLOGS_WINDOW_BLOCKS - 1, latest)
         try:
             chunk_transfers = get_treasury_transfers_in_range(cursor, chunk_to)
             all_transfers.extend(chunk_transfers)
+            # Only advance safe_cursor through CONSECUTIVE successes.
+            # After the first failure, later successes are still kept in
+            # `all_transfers` (we process what we got), but safe_cursor
+            # stays at the last pre-failure block so the failed range
+            # is re-scanned next run.
+            if not first_failure_seen:
+                safe_cursor = chunk_to
         except Exception as e:
             logger.error(f"scan_treasury_transfers chunk {cursor}-{chunk_to} failed: {e}")
-            # Keep going with next chunk — partial results better than none
+            failed_chunks.append((cursor, chunk_to))
+            first_failure_seen = True
+            # Keep going with next chunk — partial results better than none.
+            # safe_cursor frozen at the pre-failure boundary; next cron
+            # run re-scans the failed range AND everything after it (cheap
+            # because match/orphan inserts are idempotent on tx_hash).
         cursor = chunk_to + 1
-    return all_transfers
+
+    return all_transfers, safe_cursor, failed_chunks
 
 
 def get_scan_cursor(db) -> int | None:

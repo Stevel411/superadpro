@@ -8688,7 +8688,7 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
     from .walletconnect_payments import (
         expire_stale_orders,
         match_incoming_transfer,
-        scan_treasury_transfers,
+        scan_treasury_transfers_with_cursor,
         estimate_scan_floor_block,
         set_scan_cursor,
         is_likely_rounded_amount,
@@ -8707,6 +8707,8 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
         "activated": 0,
         "orphans_added": 0,
         "errors": [],
+        "failed_chunks": [],   # list of [from, to] block-range tuples for chunks that errored
+        "safe_cursor": 0,      # highest block the cursor was actually advanced to
     }
 
     # 1. Expire stale pending orders FIRST so a late-arriving payment
@@ -8733,14 +8735,27 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
             status_code=503,
         )
 
-    # 3. Paginated scan
+    # 3. Paginated scan with chunk-failure tracking
+    #    Returns the safe cursor — highest block that's part of an unbroken
+    #    chain of successful chunks from the floor. If any chunk fails, the
+    #    cursor will NOT advance past it on this run, guaranteeing retry.
     try:
-        transfers = scan_treasury_transfers(scan_floor)
+        transfers, safe_cursor, failed_chunks = scan_treasury_transfers_with_cursor(scan_floor)
         stats["transfers_seen"] = len(transfers)
+        stats["safe_cursor"] = safe_cursor
+        stats["failed_chunks"] = [[f, t] for f, t in failed_chunks]
+        if failed_chunks:
+            logger.warning(
+                f"cron_scan_bsc_payments: {len(failed_chunks)} chunk(s) failed; "
+                f"cursor will hold at block {safe_cursor} so they retry next run. "
+                f"failed_ranges={failed_chunks[:5]}{'...' if len(failed_chunks) > 5 else ''}"
+            )
     except Exception as e:
         logger.error(f"cron_scan_bsc_payments: scan failed: {e}")
         stats["errors"].append(f"scan: {e}")
         transfers = []
+        safe_cursor = -1
+        failed_chunks = []
 
     # 4. Match each transfer; persist orphans for the rest
     for tx in transfers:
@@ -8859,22 +8874,40 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
                 stats["errors"].append(f"orphan {tx.get('tx_hash','?')[:12]}: {e}")
                 db.rollback()
 
-    # 5. Persist scan cursor — advance to latest_block so the next run
-    #    resumes from the next block. CRITICAL: we advance the cursor
-    #    even if no transfers were seen, otherwise we'd re-scan the
-    #    same blocks forever. The cap in estimate_scan_floor_block
-    #    ensures we don't get stuck scanning enormous catch-up ranges
-    #    if cron has been down.
+    # 5. Persist scan cursor — advance ONLY to safe_cursor (the highest
+    #    block in the unbroken chain of successful chunks from the floor).
+    #    If any chunk between floor and latest_block failed, safe_cursor
+    #    is < latest_block, and the next run will retry the failed range.
+    #
+    #    The previous version advanced to latest_block whenever stats["errors"]
+    #    was empty — but inner-loop chunk failures didn't add to stats["errors"]
+    #    (they only logged), so cursor silently skipped over failed chunks.
+    #    This was the bug that lost SAP-00205's $14.54 at block 98459311 on
+    #    15 May 2026.
     try:
-        if stats["latest_block"] > 0 and not stats["errors"]:
-            set_scan_cursor(db, stats["latest_block"])
-            db.commit()
-        elif stats["errors"]:
-            # Don't advance the cursor if there were errors — we want
-            # the next run to retry the same range.
+        if safe_cursor > 0:
+            current_cursor = None
+            try:
+                from .walletconnect_payments import get_scan_cursor
+                current_cursor = get_scan_cursor(db)
+            except Exception:
+                pass
+            # Only advance — never move cursor backwards
+            if current_cursor is None or safe_cursor > current_cursor:
+                set_scan_cursor(db, safe_cursor)
+                db.commit()
+                if failed_chunks:
+                    logger.info(
+                        f"cron_scan_bsc_payments: cursor → {safe_cursor} "
+                        f"(held back from {stats['latest_block']} due to "
+                        f"{len(failed_chunks)} failed chunk(s) — retry next run)"
+                    )
+        elif safe_cursor == -1:
+            # Sentinel from scan function: floor calc itself failed.
+            # Do not touch the cursor.
             logger.warning(
-                f"cron_scan_bsc_payments: not advancing cursor due to errors: "
-                f"{stats['errors']}"
+                "cron_scan_bsc_payments: not advancing cursor — "
+                "scan_treasury_transfers couldn't read latest block"
             )
     except Exception as e:
         logger.error(f"cron_scan_bsc_payments: cursor persist failed: {e}")
@@ -11610,7 +11643,7 @@ async def admin_trigger_bsc_scan(
     from .walletconnect_payments import (
         expire_stale_orders,
         match_incoming_transfer,
-        scan_treasury_transfers,
+        scan_treasury_transfers_with_cursor,
         estimate_scan_floor_block,
         set_scan_cursor,
         is_likely_rounded_amount,
@@ -11680,13 +11713,25 @@ async def admin_trigger_bsc_scan(
                 cursor = chunk_to + 1
                 chunks_run += 1
             stats["chunks_run"] = chunks_run
+            # Forced runs don't update the persisted cursor — they're an
+            # operator override, not a normal scan. The cron's own runs
+            # advance the cursor.
+            safe_cursor_for_persist = None
         else:
-            transfers = scan_treasury_transfers(scan_floor)
+            transfers, safe_cursor_for_persist, failed_chunks = scan_treasury_transfers_with_cursor(scan_floor)
+            stats["failed_chunks"] = [[f, t] for f, t in failed_chunks]
+            stats["safe_cursor"] = safe_cursor_for_persist
+            if failed_chunks:
+                logger.warning(
+                    f"admin_trigger_bsc_scan: {len(failed_chunks)} chunk(s) failed; "
+                    f"cursor will hold at block {safe_cursor_for_persist}"
+                )
         stats["transfers_seen"] = len(transfers)
     except Exception as e:
         logger.error(f"admin_trigger_bsc_scan: scan failed: {e}")
         stats["errors"].append(f"scan: {e}")
         transfers = []
+        safe_cursor_for_persist = None
 
     for tx in transfers:
         try:
@@ -11770,8 +11815,18 @@ async def admin_trigger_bsc_scan(
                 db.rollback()
                 stats["errors"].append(f"orphan {tx.get('tx_hash','?')[:12]}: {e}")
 
+    # Cursor advance: only for non-forced runs that actually computed a
+    # safe_cursor. Forced runs are operator overrides and don't persist.
     try:
-        set_scan_cursor(db, stats["latest_block"])
+        if safe_cursor_for_persist is not None and safe_cursor_for_persist > 0:
+            from .walletconnect_payments import get_scan_cursor
+            try:
+                current = get_scan_cursor(db)
+            except Exception:
+                current = None
+            if current is None or safe_cursor_for_persist > current:
+                set_scan_cursor(db, safe_cursor_for_persist)
+                db.commit()
     except Exception as e:
         logger.warning(f"admin_trigger_bsc_scan: cursor update failed: {e}")
         stats["errors"].append(f"cursor: {e}")
