@@ -1,6 +1,43 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
-## 🎯 Most Recent Session (17 May 2026 PM) — BSC scanner reliability solved
+## 🎯 Most Recent Session (17 May 2026 evening) — Fast Start Grid activation flow
+
+Built and shipped the Fast Start activation funnel for Grid Tier 1 ($20 `grid_1` product) — Steve's brainstorm from earlier in the day. Verified end-to-end with two real iteration rounds on the explainer page layout.
+
+**Two new surfaces:**
+
+- **Dashboard FastStartHero** (`FastStartHero.jsx`) at the top of `/dashboard` for active Partners without a T1 grid. Cobalt card with a red 160px ignition button (pulsing rings, the ONLY non-cobalt accent in the brand), Sora headline "Your Grid is waiting / Activate Your Grid for $20", three live stats (next available SAP-#####, activated last 24h, activated last hour). Degrades to a one-line "Continue activation →" card with × dismiss after first click. Renders null after activation OR dismissal. Three states tracked server-side via two new nullable timestamps `users.fast_start_pressed_at` and `users.fast_start_hidden_at`.
+
+- **`/grid/activate` explainer page** (`GridActivatePage.jsx`) — dark cobalt page, white-card mini-Grid (6 columns × 4 rows = 24 cells) showing 3 sample seats in positions 1-2-3 (gold direct + two green auto-place, matching the live visualiser's encoding so the visual story is continuous). Mini-grid header reads "T1 Starter — $20 / 3 of 24 (illustrative)" with a 12.5% progress bar. CTA section hooks BOTH active payment systems: WalletConnect self-custody primary, NOWPayments fallback — both wired to `grid_1` and resolve to the same `process_tier_purchase` activation. Success state (triggered by `?activated=1` or server-confirmed `has_grid_position`): "You're in" headline, position card with SAP-#####/tier/sponsor/status, "Create your first campaign →" next CTA.
+
+**Backend wiring:**
+
+- Three API endpoints: `GET /api/fast-start/state` (returns state + stats + 401 if unauth), `POST /api/fast-start/press` (records click, idempotent), `POST /api/fast-start/hide` (× dismiss, idempotent). All gated by `if not user: return 401`.
+- `_nowpayments_activate_product` (the canonical activation handler used by both WC and NOWPayments paths) sets `fast_start_hidden_at` when ANY grid tier activates, so the hero never reappears after the user buys in.
+- Predicate gating: hero ONLY renders for `is_active=True` users (paid Partners) who don't yet own a T1 grid. Free users never see it — they should hit the Founding Partner banner / hero carousel for membership conversion first. Belt-and-braces: also force-hidden if user already has a `Grid` row at `package_tier=1`, protecting against stale columns on users who activated before this feature shipped.
+- New columns added under SKIP_MIGRATIONS-gated path AND an un-gated `IF NOT EXISTS` path (same precedent as commit `ff77dc5`) so the columns land on the next deploy regardless of the kill-switch.
+
+**Live test verification:**
+
+- test12 (SAP-00293, Founder #18) — hero correctly hides because they already own a T1 grid from 16 May. Belt-and-braces predicate confirmed working.
+- Steve's free-tier account — hero correctly hides after the `is_active=True` gating fix.
+- Steve's real activation click (when account was free) — bounced to Partner upgrade via `RequireTier` route guard, the correct funnel behaviour.
+
+**Iteration rounds:**
+
+1. Initial ship: 4×4 grid with sample seats stacked vertically in left column (positions 1, 5, 9) — felt cramped, CTA below fold.
+2. Tightened layout, spread seats diagonally (positions 2, 7, 12) — still too tall on desktop.
+3. Final: wider 6×4 grid (24 cells), seats in positions 1-2-3 reading as a sequential row of three filled — semantically accurate (real T1 fills sequentially from pos 1) AND visually fits with CTA above fold. Steve approved.
+
+**Brand note (flagged):**
+Mini-grid keeps gold/green seat encoding even though the brand palette says "no amber/gold." This is a functional encoding tied to the comp plan's Direct vs Auto-Place distinction in the live visualiser — changing it on the mini-grid would break the visual continuity between this page and `/grid-visualiser`. Steve has the call to revisit if needed.
+
+**Key commits (chronological):**
+`48c1082` Fast Start flow shipped (hero + page + endpoints + columns) · `4ac0f59` 401 guards on endpoints (sanity check caught NoneType crash) · `14a7fcc` gate to active Partners only · `4d68b7c` tighter grid + diagonal seats · `695fc61` final 6×4 wide grid with seats 1-2-3
+
+---
+
+## 🎯 Previous Session (17 May 2026 PM) — BSC scanner reliability solved
 
 Mid-Sunday session, ~3 hours focused on production reliability. All commits live, all verified end-to-end.
 
