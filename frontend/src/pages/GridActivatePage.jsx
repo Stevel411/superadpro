@@ -51,12 +51,15 @@ const GOLD_GRAD = 'linear-gradient(135deg,#78350f,#b45309,#fbbf24)';
 const GREEN_GRAD = 'linear-gradient(135deg,#064e3b,#047857,#10b981)';
 
 // Representative sample seats for the mini-grid. 16 cells total in a
-// 4×4 layout, ~3 filled to give the user a visual sense of what their
-// own grid will look like a few referrals in. NOT live data.
+// 4×4 layout, 3 filled spread across rows/columns to give the user a
+// visual sense of what their grid looks like a few referrals in.
+// Positions chosen so the filled seats are spread visually (not stacked
+// in one column) — direct in top row, two auto-place seats spread
+// across rows 2 and 3. NOT live data.
 const SAMPLE_SEATS = [
-  { position: 1,  username: 'member_a',  isDirect: true  },
-  { position: 5,  username: 'member_b',  isDirect: false },
-  { position: 9,  username: 'member_c',  isDirect: false },
+  { position: 2,  username: 'member_a',  isDirect: true  },  // top row, second cell
+  { position: 7,  username: 'member_b',  isDirect: false },  // middle row, third cell
+  { position: 12, username: 'member_c',  isDirect: false },  // third row, fourth cell
 ];
 
 const css = `
@@ -66,10 +69,10 @@ const css = `
     radial-gradient(circle at 0% 100%, rgba(14,165,233,.15), transparent 55%),
     linear-gradient(180deg, #0a1438 0%, #1e3a8a 100%);
   min-height: 100vh;
-  padding: 32px 20px 80px;
+  padding: 24px 20px 60px;
   color: #fff;
 }
-.gact-shell { max-width: 720px; margin: 0 auto; }
+.gact-shell { max-width: 680px; margin: 0 auto; }
 
 .gact-eyebrow {
   font-family: 'JetBrains Mono', monospace;
@@ -78,65 +81,70 @@ const css = `
   text-transform: uppercase;
   letter-spacing: 1.6px;
   color: #22d3ee;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   text-align: center;
 }
 .gact-title {
   font-family: 'Sora', sans-serif;
-  font-size: 38px;
+  font-size: 30px;
   font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -.6px;
-  margin: 0 0 14px;
+  line-height: 1.1;
+  letter-spacing: -.5px;
+  margin: 0 0 10px;
   text-align: center;
 }
 @media (max-width: 600px) {
-  .gact-title { font-size: 28px; }
+  .gact-title { font-size: 24px; }
 }
 .gact-sub {
   font-family: 'DM Sans', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   color: rgba(255,255,255,.7);
-  margin: 0 0 36px;
+  margin: 0 0 22px;
   text-align: center;
-  line-height: 1.55;
+  line-height: 1.5;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* White card — the mini grid sits inside this so it visually mirrors
-   the live visualiser (white card on dark page). */
+   the live visualiser (white card on dark page). Kept compact so the
+   CTA buttons below stay visible without scrolling on desktop. */
 .gact-card {
   background: #fff;
   color: #0a1438;
-  border-radius: 18px;
+  border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 28px;
-  box-shadow: 0 20px 60px -20px rgba(0,0,0,.45);
+  margin: 0 auto 22px;
+  max-width: 440px;
+  box-shadow: 0 12px 36px -12px rgba(0,0,0,.40);
 }
 .gact-card-header {
   background: linear-gradient(135deg, #172554, #1e3a8a);
-  padding: 22px 26px;
+  padding: 14px 18px;
   display: flex; align-items: center; justify-content: space-between;
 }
 .gact-card-header-title {
   font-family: 'Sora', sans-serif;
-  font-size: 17px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   color: #fff;
 }
 .gact-card-header-meta {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: rgba(255,255,255,.7);
+  font-size: 10px;
+  color: rgba(255,255,255,.65);
   font-weight: 600;
 }
 
-.gact-card-body { padding: 26px 26px 24px; }
+.gact-card-body { padding: 16px 18px 18px; }
 
 .gact-progress {
-  height: 8px;
+  height: 6px;
   background: #f1f5f9;
   border-radius: 4px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   overflow: hidden;
 }
 .gact-progress-fill {
@@ -147,75 +155,76 @@ const css = `
 }
 
 .gact-legend {
-  display: flex; gap: 18px; flex-wrap: wrap;
+  display: flex; gap: 14px; flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 .gact-legend-item {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 6px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: #475569;
 }
 .gact-legend-swatch {
-  width: 14px; height: 14px; border-radius: 50%;
+  width: 12px; height: 12px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 8px; font-weight: 800;
+  font-size: 7px; font-weight: 800;
 }
 .gact-legend-swatch.direct { background: linear-gradient(135deg,#78350f,#b45309,#fbbf24); color: #78350f; }
 .gact-legend-swatch.spill  { background: linear-gradient(135deg,#064e3b,#047857,#10b981); color: #fff; }
 .gact-legend-swatch.empty  { background: #f8fafc; border: 1px dashed #94a3b8; color: #94a3b8; }
 
-/* Mini-grid: 4×4 layout. Smaller than the live 8×8 since we're
-   illustrating, not displaying real data. */
+/* Mini-grid: 4×4 layout. Compact — each seat is ~70px on desktop so the
+   full card is ~310px tall, leaving the CTA visible above the fold. */
 .gact-mini-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 .gact-seat {
-  border-radius: 10px;
+  border-radius: 8px;
   aspect-ratio: 1;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   position: relative;
   overflow: hidden;
 }
 .gact-seat.empty {
   background: #f8fafc;
-  border: 2px dashed #e2e8f0;
-  color: #94a3b8;
+  border: 1.5px dashed #e2e8f0;
+  color: #cbd5e1;
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
 }
 .gact-seat.filled {
-  border: 2px solid;
+  border: 1.5px solid;
   color: #fff;
 }
 .gact-seat-badge {
   position: absolute;
-  top: -4px; right: -4px;
-  width: 14px; height: 14px;
+  top: -3px; right: -3px;
+  width: 12px; height: 12px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 8px; font-weight: 800;
+  font-size: 7px; font-weight: 800;
   border: 1.5px solid #fff;
 }
 .gact-seat-badge.direct { background: #fbbf24; color: #78350f; }
 .gact-seat-badge.spill  { background: #10b981; color: #fff; }
 .gact-seat-avatar {
-  width: 26px; height: 26px;
+  width: 20px; height: 20px;
   border-radius: 50%;
-  background: rgba(255,255,255,.2);
-  border: 2px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.22);
+  border: 1.5px solid rgba(255,255,255,.35);
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 800;
-  margin-bottom: 3px;
+  font-size: 9px; font-weight: 800;
+  margin-bottom: 2px;
 }
 .gact-seat-name {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   max-width: 86%;
   overflow: hidden; text-overflow: ellipsis;
@@ -226,30 +235,30 @@ const css = `
 .gact-cta-section {
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.10);
-  border-radius: 18px;
-  padding: 28px;
+  border-radius: 14px;
+  padding: 20px 22px;
 }
 .gact-cta-title {
   font-family: 'Sora', sans-serif;
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
 }
 .gact-cta-sub {
   font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(255,255,255,.65);
-  margin: 0 0 22px;
+  margin: 0 0 16px;
 }
 .gact-warning {
   background: rgba(220,38,38,.10);
   border: 1px solid rgba(220,38,38,.3);
   color: #fca5a5;
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-top: 18px;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 14px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   text-align: center;
   line-height: 1.5;
 }
@@ -449,7 +458,7 @@ export default function GridActivatePage() {
           </p>
 
           {/* WC connect button — only renders when not connected */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
             <Suspense fallback={null}>
               <WalletConnectGate variant="compact" />
             </Suspense>
