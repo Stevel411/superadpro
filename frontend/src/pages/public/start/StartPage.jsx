@@ -432,14 +432,17 @@ export default function StartPage() {
             <div className="beat-header">
               <div className="beat-tag">Section 06 &mdash; The doorway</div>
               <h2 className="portal-headline">Step in.</h2>
-              <p className="portal-sub portal-cta">Free to create an account. No credit card. Activate membership when you are ready.</p>
+              <p className="portal-sub portal-cta">
+                The Founding Partner spots are filling. The only way in is at the top of this page.
+              </p>
             </div>
             <div className="portal-ctas">
-              <a href="/register?via=start" onClick={handleClaim} className="portal-cta portal-cta-primary" style={claiming ? {pointerEvents:'none',opacity:.6} : undefined}>
-                {claiming ? 'Finding your sponsor…' : 'Create free account →'}
-                <span className="portal-shimmer"/>
-              </a>
-              <Link to="/explore" className="portal-cta portal-cta-ghost">Take the 60-second tour</Link>
+              <button
+                type="button"
+                onClick={function() { window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="portal-cta portal-cta-ghost portal-back-to-top">
+                ↑ Back to the top
+              </button>
             </div>
             <div className="portal-signoff portal-cta">Made in the UK &middot; Built for operators</div>
             <div className="portal-disclaimer portal-cta">
@@ -608,6 +611,7 @@ var startStyles = `
 .portal-cta-primary:hover .portal-shimmer{transform:translateX(100%)}
 .portal-cta-ghost{display:inline-flex;align-items:center;gap:10px;padding:22px 38px;border-radius:14px;font-family:'Sora',sans-serif;font-size:16px;font-weight:600;text-decoration:none;background:rgba(250,251,255,.05);color:#fff;border:1px solid rgba(250,251,255,.12);backdrop-filter:blur(8px);transition:background .35s,border-color .35s}
 .portal-cta-ghost:hover{background:rgba(250,251,255,.1);border-color:rgba(34,211,238,.35)}
+.portal-back-to-top{cursor:pointer;font-family:inherit}
 
 .portal-signoff{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(250,251,255,.32);font-weight:600;margin-bottom:32px}
 .portal-signoff::before,.portal-signoff::after{content:'';display:inline-block;width:36px;height:1px;background:rgba(250,251,255,.18);margin:0 14px;vertical-align:middle}
