@@ -2238,6 +2238,87 @@ try:
 except Exception as e:
     print(f"⚠️ autoenrol_founders_to_rotator skipped: {e}")
 
+
+def file_missed_orphan_sap00205_one_shot():
+    """ONE-SHOT data migration (added 17 May 2026).
+
+    On 15 May during the launch incident, SAP-00205 (@chrissxx, user 205)
+    sent $14.54 USDT to treasury at BSC block 98459311 — payment for
+    her Basic order #17 which had already started to expire. The BSC
+    watcher cron was running unreliably that day and never scanned the
+    block, so the transfer never landed in onchain_orphan_transfers.
+
+    Result: $14.54 sat in treasury invisible to all platform tooling.
+    She raised it 17 May; Steve refunded the $14.54 from treasury back
+    to her wallet 0xe7cBdA5...E73e via tx 0xe088cbab...1422 (block
+    98812922) and asked for the books to balance.
+
+    This migration retroactively files the original transfer as a
+    resolved orphan with a resolution_note linking the refund tx, so
+    financial sanity checks see a clean $14.54-in / $14.54-out pair
+    instead of a phantom inbound.
+
+    Idempotent: tx_hash has a unique constraint. Re-running on later
+    boots is a no-op (insertion silently skipped or pre-check returns).
+    """
+    target_tx = "0xad61d059a75d9d9d055f72ab7c4efb9e47b91dac6404ee3cd2cf58b4a21cd6c0"
+    refund_tx = "0xe088cbabff8d91ee11b5edbb0c40942e6879dca8f9329e83a62410ab5b8d1422"
+    try:
+        with engine.connect() as conn:
+            try:
+                conn.execute(text("SET lock_timeout = '5s'"))
+                conn.execute(text("SET statement_timeout = '30s'"))
+            except Exception:
+                pass
+
+            existing = conn.execute(
+                text("SELECT id, resolved FROM onchain_orphan_transfers WHERE tx_hash = :tx"),
+                {"tx": target_tx},
+            ).fetchone()
+            if existing:
+                # Already filed by a previous boot — silent no-op.
+                return
+
+            conn.execute(text("""
+                INSERT INTO onchain_orphan_transfers (
+                    tx_hash, from_address, amount_usdt, block_number,
+                    likely_rounded_amount, seen_at,
+                    resolved, resolution_note, resolved_at
+                ) VALUES (
+                    :tx, :frm, :amt, :blk,
+                    FALSE, NOW(),
+                    TRUE, :note, NOW()
+                )
+            """), {
+                "tx": target_tx,
+                "frm": "0xe7cbda5d119abe105e29f9d62c7069ae3c34e73e",
+                "amt": "14.54",
+                "blk": 98459311,
+                "note": (
+                    "SAP-00205 (chrissxx) paid $14.54 to expired Basic order #17 "
+                    "on 15 May at block 98459311. BSC watcher cron missed the block "
+                    "during the launch incident — transfer never auto-filed. "
+                    f"Refunded $14.54 from treasury on 17 May via {refund_tx} "
+                    "(block 98812922). Books balance: $14.54 in / $14.54 out. "
+                    "Filed retroactively by one-shot migration."
+                ),
+            })
+            conn.commit()
+            print(
+                f"✓ SAP-00205 missed orphan filed retroactively: "
+                f"$14.54 USDT from chrissxx, refund linked to {refund_tx[:18]}..."
+            )
+    except Exception as e:
+        # Don't crash boot over a one-shot data fix.
+        print(f"⚠️ file_missed_orphan_sap00205_one_shot skipped: {e}")
+
+
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    file_missed_orphan_sap00205_one_shot()
+except Exception as e:
+    print(f"⚠️ file_missed_orphan_sap00205_one_shot skipped: {e}")
+
 # Force critical column additions with direct connection
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
