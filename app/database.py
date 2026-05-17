@@ -2313,8 +2313,14 @@ def file_missed_orphan_sap00205_one_shot():
         print(f"⚠️ file_missed_orphan_sap00205_one_shot skipped: {e}")
 
 
+# NOTE: file_missed_orphan_sap00205_one_shot intentionally runs OUTSIDE
+# the SKIP_MIGRATIONS gate. SKIP_MIGRATIONS exists to skip schema work
+# and long-running migrations at boot to avoid container contention.
+# This is a single-row idempotent INSERT WHERE NOT EXISTS — no schema
+# change, no batch update, can't cause contention. The whole reason we
+# need this fix is that the books are wrong; gating it behind a flag
+# that may not be unset for a while would leave them wrong indefinitely.
 try:
-    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     file_missed_orphan_sap00205_one_shot()
 except Exception as e:
     print(f"⚠️ file_missed_orphan_sap00205_one_shot skipped: {e}")
