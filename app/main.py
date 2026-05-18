@@ -16479,10 +16479,26 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
                         owner = db.query(User).filter(User.id == page.user_id).first()
                         member_name = (owner.first_name or owner.username) if owner else "SuperAdPro"
                         wrapped = wrap_email_html(first_email.get("body_html", ""), member_name)
-                        await brevo_send(email, body.get("name", ""), first_email.get("subject", "Welcome!"), wrapped)
+                        # Capture Brevo's messageId from the send response so the
+                        # /webhook/brevo handler can match incoming open/click
+                        # events back to this EmailSendLog row. Without this,
+                        # autoresponder-driven opens/clicks silently undercount
+                        # because the webhook lookup by brevo_message_id finds
+                        # nothing and no-ops. Fixed 18 May 2026.
+                        send_result = await brevo_send(
+                            email, body.get("name", ""),
+                            first_email.get("subject", "Welcome!"), wrapped,
+                        )
+                        brevo_msg_id = (send_result or {}).get("message_id", "") if isinstance(send_result, dict) else ""
                         crm_lead.emails_sent = 1
                         from .database import EmailSendLog
-                        log = EmailSendLog(lead_id=crm_lead.id, sequence_id=default_seq.id, email_index=0, status="sent")
+                        log = EmailSendLog(
+                            lead_id=crm_lead.id,
+                            sequence_id=default_seq.id,
+                            email_index=0,
+                            brevo_message_id=brevo_msg_id or None,
+                            status="sent",
+                        )
                         db.add(log)
                 except Exception as e:
                     print(f"[AutoResponder] First email send error: {e}")
@@ -24505,15 +24521,25 @@ def _send_sequence_email(db, lead, email_index: int):
             logger.info(f"Autoresponder quota reached for user {owner.id} — email to lead {lead.id} deferred to next cron tick: {reason}")
             return False  # cron will retry on next tick when quota resets
 
-    # Send via Brevo
+    # Send via Brevo. Capture Brevo's messageId from the send response so
+    # the /webhook/brevo handler can match incoming open/click events back
+    # to this EmailSendLog row. Without this, autoresponder-driven opens
+    # and clicks silently undercount because the webhook lookup by
+    # brevo_message_id finds nothing and no-ops. Fixed 18 May 2026.
     from .email_utils import send_email
-    success = send_email(lead.email, subject, body_html)
+    send_result = send_email(lead.email, subject, body_html, return_message_id=True)
+    if isinstance(send_result, tuple):
+        success, brevo_msg_id = send_result
+    else:
+        # Defensive fallback for any code path that ever ignored the flag
+        success, brevo_msg_id = bool(send_result), None
 
     if success:
         log = EmailSendLog(
             lead_id=lead.id,
             sequence_id=lead.email_sequence_id,
             email_index=email_index,
+            brevo_message_id=brevo_msg_id or None,
             status="sent",
         )
         db.add(log)
