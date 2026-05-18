@@ -5626,26 +5626,23 @@ def admin_api_fix_broken_form_placeholders(
         (r'\{t\("superPagesEditor\.phonePlaceholder"\)\}',     "Your phone"),
     ]
 
-    # FunnelPage stores element data in content_json (the GrapesJS-style
-    # serialized state). We need to scan both content_json and
-    # html_export (the published HTML cached for /p/{slug} renders).
+    # FunnelPage stores the published HTML in gjs_html (what /p/{slug}
+    # actually serves) and the GrapesJS editor state in gjs_components.
+    # Older pages may also have content in sections_json. Scan all three
+    # so we catch every place the broken placeholder string can live.
     pages = db.query(FunnelPage).all()
     updated = 0
     for p in pages:
         changed = False
-        if p.content_json:
-            new_content = p.content_json
+        for col_name in ("gjs_html", "gjs_components", "gjs_styles", "sections_json"):
+            current = getattr(p, col_name, None)
+            if not current:
+                continue
+            new_val = current
             for pattern, fallback in replacements:
-                new_content = _re.sub(pattern, fallback, new_content)
-            if new_content != p.content_json:
-                p.content_json = new_content
-                changed = True
-        if p.html_export:
-            new_html = p.html_export
-            for pattern, fallback in replacements:
-                new_html = _re.sub(pattern, fallback, new_html)
-            if new_html != p.html_export:
-                p.html_export = new_html
+                new_val = _re.sub(pattern, fallback, new_val)
+            if new_val != current:
+                setattr(p, col_name, new_val)
                 changed = True
         if changed:
             updated += 1
