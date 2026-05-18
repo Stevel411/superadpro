@@ -865,10 +865,18 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
   const [redirectUrl, setRedirectUrl] = useState(el._formRedirect || '');
 
   const buildHTML = () => {
+    // Resolve i18n strings BEFORE the template literal — previously
+    // these were embedded as `{t('...')}` inside the template string,
+    // which doesn't evaluate t() and so the literal Handlebars-style
+    // text was saved into the page's HTML as the placeholder. Fixed
+    // 18 May 2026 — same fix applied to labs-superpages editor.
+    const namePlaceholder  = t('superPagesEditor.firstNamePlaceholder');
+    const emailPlaceholder = t('superPagesEditor.emailPlaceholder');
+    const phonePlaceholder = t('superPagesEditor.phonePlaceholder');
     let fields = '';
-    if (showName) fields += `<input placeholder={t('superPagesEditor.firstNamePlaceholder')} style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
-    fields += `<input placeholder={t('superPagesEditor.emailPlaceholder')} type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
-    if (showPhone) fields += `<input placeholder={t('superPagesEditor.phonePlaceholder')} type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    if (showName) fields += `<input placeholder="${namePlaceholder}" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    fields += `<input placeholder="${emailPlaceholder}" type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    if (showPhone) fields += `<input placeholder="${phonePlaceholder}" type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
     return `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtitle}</div>${fields}<div style="width:100%;padding:12px;border-radius:10px;background:${btnColor};color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer">${btnText}</div></div>`;
   };
 

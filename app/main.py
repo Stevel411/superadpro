@@ -5481,6 +5481,84 @@ def admin_api_rotator_reenrol_founders(
         )
 
 
+@app.post("/admin/api/fix-broken-form-placeholders")
+def admin_api_fix_broken_form_placeholders(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot DB cleanup: replace literal `{t('superPagesEditor.X')}`
+    placeholder strings in funnel_pages with their resolved English
+    text.
+
+    Background: the buildHTML() function in both the production and
+    labs SuperPagesEditor had a bug where i18n template syntax
+    `{t('superPagesEditor.firstNamePlaceholder')}` was embedded inside
+    a JS template literal, which doesn't evaluate t(). The literal
+    Handlebars-style text got saved as the placeholder attribute on
+    form inputs, showing up as raw template syntax on the public page.
+
+    Editor fixed 18 May 2026; this endpoint repairs pages already
+    saved with the bad data.
+
+    Scans FunnelPage rows where content_json or html_export contains
+    the broken pattern, regex-replaces with English fallback text,
+    and saves. Idempotent — running twice is a no-op on the second
+    pass because the broken pattern is gone after the first.
+
+    Admin only. Returns count of pages updated.
+    """
+    _require_admin(user)
+    from .database import FunnelPage
+    import re as _re
+
+    # Map of broken placeholder strings to English fallbacks.
+    # Future locale-aware version would replace based on the page
+    # owner's preferred language, but for now English is a safe
+    # default — the bug shipped to all locales identically anyway.
+    replacements = [
+        (r"\{t\('superPagesEditor\.firstNamePlaceholder'\)\}", "Your name"),
+        (r"\{t\('superPagesEditor\.emailPlaceholder'\)\}",     "Your email"),
+        (r"\{t\('superPagesEditor\.phonePlaceholder'\)\}",     "Your phone"),
+        # Double-quoted variants in case anyone hand-edited
+        (r'\{t\("superPagesEditor\.firstNamePlaceholder"\)\}', "Your name"),
+        (r'\{t\("superPagesEditor\.emailPlaceholder"\)\}',     "Your email"),
+        (r'\{t\("superPagesEditor\.phonePlaceholder"\)\}',     "Your phone"),
+    ]
+
+    # FunnelPage stores element data in content_json (the GrapesJS-style
+    # serialized state). We need to scan both content_json and
+    # html_export (the published HTML cached for /p/{slug} renders).
+    pages = db.query(FunnelPage).all()
+    updated = 0
+    for p in pages:
+        changed = False
+        if p.content_json:
+            new_content = p.content_json
+            for pattern, fallback in replacements:
+                new_content = _re.sub(pattern, fallback, new_content)
+            if new_content != p.content_json:
+                p.content_json = new_content
+                changed = True
+        if p.html_export:
+            new_html = p.html_export
+            for pattern, fallback in replacements:
+                new_html = _re.sub(pattern, fallback, new_html)
+            if new_html != p.html_export:
+                p.html_export = new_html
+                changed = True
+        if changed:
+            updated += 1
+
+    db.commit()
+    logger.info(f"Form-placeholder cleanup: updated {updated} of {len(pages)} pages")
+    return {
+        "success": True,
+        "pages_scanned": len(pages),
+        "pages_updated": updated,
+    }
+
+
 @app.post("/admin/api/backfill-lead-attribution")
 def admin_api_backfill_lead_attribution(
     request: Request,
