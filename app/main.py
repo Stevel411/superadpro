@@ -29455,6 +29455,260 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
             "earnings": total_earnings_30d,
         },
     }
+@app.get("/api/funnels/activity")
+def api_funnels_activity(request: Request, user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """Recent activity feed for the /pro/funnels Campaign Hub.
+
+    Commit C of the Unified Campaign Hub (18 May 2026 series). Sits below
+    the "My Pages" grid and surfaces the next thing the user should do.
+
+    Returns five blocks plus a contextual next_action prompt:
+
+      hot_leads          Top 3 unconverted leads with the strongest
+                         engagement signal — to be called/emailed manually.
+      new_24h            Most recent leads (last 24h) — "say hi" prompts.
+      sequence_complete  Leads who've received every email in their
+                         sequence and have nowhere else to go in the
+                         autoresponder — broadcast targets.
+      recent_commissions Most recent paid commissions to the user — keeps
+                         the dopamine loop visible.
+      next_action        Single contextual prompt: "🔥 You have N hot
+                         leads ready to call" / "📧 N leads finished
+                         your sequence" / "👋 New leads to greet" /
+                         "📈 Drive traffic" / "💪 Steady state".
+
+    Pure read aggregation — no schema changes, no writes, idempotent.
+    Designed to be safe even when SKIP_MIGRATIONS is set (only touches
+    columns that have existed since launch, except attribution_user_id
+    which we read defensively inside try/except like /api/funnels does).
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    from .database import (
+        FunnelPage, MemberLead, EmailSequence, Commission, User as _User,
+    )
+    from sqlalchemy import func as _func, or_ as _or
+
+    now = datetime.utcnow()
+    cutoff_24h = now - timedelta(hours=24)
+
+    # ── Hot leads: top 3 unconverted leads ranked by engagement ──
+    # "Unconverted" = attribution_user_id is null. If they've already
+    # activated, they're not a lead the page owner can chase any more.
+    # Ranking: prefer is_hot=True, then most recent click, then most
+    # recent open. Anything with zero engagement falls out.
+    # Defensive try/except around attribution_user_id filter — see notes
+    # in /api/funnels above.
+    hot_leads = []
+    try:
+        q = db.query(MemberLead, FunnelPage.title).outerjoin(
+            FunnelPage, FunnelPage.id == MemberLead.source_funnel_id
+        ).filter(
+            MemberLead.user_id == user.id,
+            MemberLead.attribution_user_id.is_(None),
+            _or(
+                MemberLead.is_hot == True,
+                MemberLead.emails_opened > 0,
+                MemberLead.emails_clicked > 0,
+            ),
+        ).order_by(
+            MemberLead.is_hot.desc(),
+            MemberLead.last_clicked_at.desc().nullslast(),
+            MemberLead.last_opened_at.desc().nullslast(),
+        ).limit(3).all()
+        for ml, page_title in q:
+            last_engaged = ml.last_clicked_at or ml.last_opened_at
+            hot_leads.append({
+                "id": ml.id,
+                "name": ml.name or (ml.email.split("@")[0] if ml.email else "—"),
+                "email": ml.email,
+                "source_funnel_title": page_title or "—",
+                "last_engagement_at": last_engaged.isoformat() if last_engaged else None,
+                "opens": int(ml.emails_opened or 0),
+                "clicks": int(ml.emails_clicked or 0),
+                "is_hot": bool(ml.is_hot),
+            })
+    except Exception as _hot_err:
+        db.rollback()
+        logger.warning(f"activity: hot_leads query failed: {_hot_err}")
+
+    # ── New leads in last 24h ──
+    new_24h_count = 0
+    new_24h = []
+    try:
+        new_24h_count = db.query(_func.count(MemberLead.id)).filter(
+            MemberLead.user_id == user.id,
+            MemberLead.created_at >= cutoff_24h,
+        ).scalar() or 0
+        q = db.query(MemberLead, FunnelPage.title).outerjoin(
+            FunnelPage, FunnelPage.id == MemberLead.source_funnel_id
+        ).filter(
+            MemberLead.user_id == user.id,
+            MemberLead.created_at >= cutoff_24h,
+        ).order_by(MemberLead.created_at.desc()).limit(5).all()
+        for ml, page_title in q:
+            new_24h.append({
+                "id": ml.id,
+                "name": ml.name or (ml.email.split("@")[0] if ml.email else "—"),
+                "email": ml.email,
+                "source_funnel_title": page_title or "—",
+                "created_at": ml.created_at.isoformat() if ml.created_at else None,
+            })
+    except Exception as _new_err:
+        db.rollback()
+        logger.warning(f"activity: new_24h query failed: {_new_err}")
+
+    # ── Sequence-complete leads ──
+    # Leads who've received every email in their sequence (emails_sent >=
+    # sequence.num_emails) AND aren't yet attributed (no point broadcasting
+    # to leads who already converted). These are the broadcast targets.
+    # We count the total and return the 5 most recently-completed ones for
+    # the preview list.
+    seq_complete_count = 0
+    seq_complete = []
+    try:
+        # Subquery: lead's emails_sent + their sequence's num_emails
+        seq_q = db.query(MemberLead, EmailSequence, FunnelPage.title).join(
+            EmailSequence, EmailSequence.id == MemberLead.email_sequence_id,
+        ).outerjoin(
+            FunnelPage, FunnelPage.id == MemberLead.source_funnel_id,
+        ).filter(
+            MemberLead.user_id == user.id,
+            MemberLead.attribution_user_id.is_(None),
+            MemberLead.emails_sent >= EmailSequence.num_emails,
+            MemberLead.emails_sent > 0,
+        )
+        # Count first (cheap — no order/limit)
+        seq_complete_count = seq_q.count()
+        # Then top 5 for the preview
+        for ml, seq, page_title in seq_q.order_by(
+            MemberLead.updated_at.desc().nullslast(),
+            MemberLead.created_at.desc(),
+        ).limit(5).all():
+            seq_complete.append({
+                "id": ml.id,
+                "name": ml.name or (ml.email.split("@")[0] if ml.email else "—"),
+                "email": ml.email,
+                "sequence_title": seq.title or "Sequence",
+                "emails_sent": int(ml.emails_sent or 0),
+                "source_funnel_title": page_title or "—",
+            })
+    except Exception as _seq_err:
+        db.rollback()
+        logger.warning(f"activity: sequence_complete query failed: {_seq_err}")
+
+    # ── Recent paid commissions to this user ──
+    # Lifetime feed (no time cutoff). 5 most recent. Joined to User for
+    # username display. We filter to status='paid' only — pending rows
+    # would be misleading on a "you earned this" feed.
+    recent_commissions = []
+    try:
+        rows = db.query(Commission, _User.username).outerjoin(
+            _User, _User.id == Commission.from_user_id
+        ).filter(
+            Commission.to_user_id == user.id,
+            Commission.status == "paid",
+        ).order_by(Commission.paid_at.desc().nullslast()).limit(5).all()
+        # Map commission_type to friendlier labels for the feed.
+        TYPE_LABELS = {
+            "membership_sponsor": "Sponsor",
+            "Membership Sponsor": "Sponsor",
+            "membership_renewal_sponsor": "Renewal",
+            "gift_membership_sponsor": "Gift sponsor",
+            "founder_sponsor": "Founder sponsor",
+            "founder_renewal_sponsor": "Founder renewal",
+            "direct_sponsor": "Direct sponsor",
+            "uni_level": "Team build",
+            "course_sponsor": "Course sponsor",
+            "course_passup": "Course pass-up",
+            "grid_position": "Grid",
+            "grid_passup": "Grid pass-up",
+            "nexus_sponsor": "Credit Nexus",
+        }
+        for c, from_username in rows:
+            recent_commissions.append({
+                "amount_usdt": float(c.amount_usdt or 0),
+                "type_raw": c.commission_type or "",
+                "type_label": TYPE_LABELS.get(c.commission_type, (c.commission_type or "Commission").replace("_", " ").title()),
+                "from_username": from_username or "—",
+                "paid_at": c.paid_at.isoformat() if c.paid_at else None,
+            })
+    except Exception as _com_err:
+        db.rollback()
+        logger.warning(f"activity: recent_commissions query failed: {_com_err}")
+
+    # ── Contextual next-action prompt ──
+    # Priority ladder — first match wins. Each prompt is shaped so the
+    # frontend can render it as a single pill with one CTA.
+    hot_count = len(hot_leads)
+    has_any_page = db.query(_func.count(FunnelPage.id)).filter(
+        FunnelPage.user_id == user.id
+    ).scalar() or 0
+    has_any_lead = db.query(_func.count(MemberLead.id)).filter(
+        MemberLead.user_id == user.id
+    ).scalar() or 0
+
+    if hot_count >= 1:
+        next_action = {
+            "emoji": "🔥",
+            "label": f"You have {hot_count} hot lead{'s' if hot_count != 1 else ''} ready to engage",
+            "cta_label": "Open SuperLeads →",
+            "cta_url": "/pro/leads",
+            "tone": "hot",
+        }
+    elif seq_complete_count >= 5:
+        next_action = {
+            "emoji": "📧",
+            "label": f"{seq_complete_count} leads finished your sequence — time to broadcast",
+            "cta_label": "Send broadcast →",
+            "cta_url": "/pro/leads?tab=broadcast",
+            "tone": "broadcast",
+        }
+    elif new_24h_count >= 1:
+        next_action = {
+            "emoji": "👋",
+            "label": f"{new_24h_count} new lead{'s' if new_24h_count != 1 else ''} in the last 24h — say hi",
+            "cta_label": "Open SuperLeads →",
+            "cta_url": "/pro/leads",
+            "tone": "new",
+        }
+    elif has_any_page == 0:
+        next_action = {
+            "emoji": "🚀",
+            "label": "Start by building your first SuperPage",
+            "cta_label": "Browse templates →",
+            "cta_url": "#templates",
+            "tone": "empty",
+        }
+    elif has_any_lead == 0:
+        next_action = {
+            "emoji": "📈",
+            "label": "Drive traffic to your pages — share your referral link",
+            "cta_label": "Get your link →",
+            "cta_url": "/pro/refer",
+            "tone": "traffic",
+        }
+    else:
+        next_action = {
+            "emoji": "💪",
+            "label": "Steady state — keep promoting your pages",
+            "cta_label": "Share a page →",
+            "cta_url": "#your-pages",
+            "tone": "steady",
+        }
+
+    return {
+        "hot_leads": hot_leads,
+        "new_24h": new_24h,
+        "new_24h_count": int(new_24h_count),
+        "sequence_complete": seq_complete,
+        "sequence_complete_count": int(seq_complete_count),
+        "recent_commissions": recent_commissions,
+        "next_action": next_action,
+    }
 @app.get("/api/linkhub-stats")
 def api_linkhub_stats(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
