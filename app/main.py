@@ -5488,15 +5488,13 @@ def admin_api_diag_member_leads(
     db: Session = Depends(get_db),
 ):
     """Admin diagnostic: list the last 20 MemberLead rows in the table
-    (any user), and the last 20 belonging to the calling admin.
-
-    Built 18 May 2026 to diagnose a contradiction where /pro/funnels
-    showed 1 opt-in but /pro/leads showed 0 — both reading from the
-    same MemberLead table. This endpoint reveals what's actually
-    persisted in the table so the contradiction can be resolved.
+    (any user), and the last 20 belonging to the calling admin. Also
+    runs each of the five endpoints that MyLeads.jsx loads in parallel
+    via Promise.all — if ANY of them errors, the .catch swallows the
+    whole batch and the page shows zeros. This isolates which one.
     """
     _require_admin(user)
-    from .database import MemberLead
+    from .database import MemberLead, EmailSequence, LeadList
 
     last_all = db.query(MemberLead).order_by(MemberLead.id.desc()).limit(20).all()
     mine = db.query(MemberLead).filter(MemberLead.user_id == user.id).order_by(MemberLead.id.desc()).limit(20).all()
@@ -5510,10 +5508,53 @@ def admin_api_diag_member_leads(
             "emails_sent": l.emails_sent, "created_at": l.created_at.isoformat() if l.created_at else None,
         }
 
+    # ── Probe each of the 5 endpoints MyLeads.jsx calls in parallel ──
+    # Replicate each query inline so we can see which one raises.
+    probes = {}
+
+    # /api/leads — list leads
+    try:
+        leads = db.query(MemberLead).filter(MemberLead.user_id == user.id).limit(5).all()
+        probes["api_leads"] = {"ok": True, "count": len(leads)}
+    except Exception as e:
+        probes["api_leads"] = {"ok": False, "error": str(e)[:300]}
+
+    # /api/leads/sequences — list sequences
+    try:
+        seqs = db.query(EmailSequence).filter(EmailSequence.user_id == user.id).limit(5).all()
+        probes["api_leads_sequences"] = {"ok": True, "count": len(seqs)}
+    except Exception as e:
+        probes["api_leads_sequences"] = {"ok": False, "error": str(e)[:300]}
+
+    # /api/leads/lists — list lead lists
+    try:
+        lists = db.query(LeadList).filter(LeadList.user_id == user.id).limit(5).all()
+        probes["api_leads_lists"] = {"ok": True, "count": len(lists)}
+    except Exception as e:
+        probes["api_leads_lists"] = {"ok": False, "error": str(e)[:300]}
+
+    # /api/leads/stats — stats
+    try:
+        total = db.query(MemberLead).filter(MemberLead.user_id == user.id).count()
+        hot = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.is_hot == True).count()
+        probes["api_leads_stats"] = {"ok": True, "total": total, "hot": hot}
+    except Exception as e:
+        probes["api_leads_stats"] = {"ok": False, "error": str(e)[:300]}
+
+    # /api/leads/email-stats — email stats
+    try:
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+        sent = user.emails_sent_today or 0
+        creds = user.email_credits or 0
+        probes["api_leads_email_stats"] = {"ok": True, "sent_today": sent, "credits": creds}
+    except Exception as e:
+        probes["api_leads_email_stats"] = {"ok": False, "error": str(e)[:300]}
+
     return {
         "calling_admin_id": user.id,
         "total_rows_in_table": total_all,
         "total_rows_for_me": total_mine,
+        "endpoint_probes": probes,
         "last_20_all": [row(l) for l in last_all],
         "last_20_mine": [row(l) for l in mine],
     }
