@@ -185,97 +185,85 @@ export default function FunnelsNew() {
         Nine pre-built starting points for the most common use cases.
       </div>
 
-      {/* 3×3 template grid */}
+      {/* 3×3 template grid
+          Order locked 18 May 2026: first row reads Lead Capture →
+          Video Sales → Blank Canvas (top-right). Blank Canvas earns
+          the prominent slot because it's the 'escape from templates'
+          option — putting it bottom-right made it feel like an
+          afterthought. The two highest-conversion templates (Lead
+          Capture, Video Sales) flank it on the top row. */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 12,
       }}>
-        {TEMPLATES.map(tpl => {
-          const Icon = tpl.icon;
-          const isLoading = creating && creatingKey === tpl.key;
-          return (
-            <div
-              key={tpl.key}
-              onClick={() => handleTemplateClick(tpl)}
-              style={{
-                background: '#fff',
-                border: '1px solid #e8ecf2',
-                borderRadius: 12,
-                overflow: 'hidden',
-                cursor: creating ? 'wait' : 'pointer',
-                opacity: creating && !isLoading ? 0.6 : 1,
-                transition: 'transform .15s, box-shadow .15s',
-              }}
-              onMouseEnter={e => {
-                if (creating) return;
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 20px rgba(10,20,56,.10)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = '';
-                e.currentTarget.style.boxShadow = '';
-              }}>
-              <div style={{
-                height: 100,
-                background: tpl.gradient,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-              }}>
-                <Icon size={36} strokeWidth={1.8}/>
-              </div>
-              <div style={{padding:'12px 14px'}}>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,color:'#0a1438',marginBottom:2}}>
-                  {tpl.title}
-                  {isLoading && <span style={{marginLeft:6,color:'#0ea5e9',fontWeight:600,fontSize:11}}>building…</span>}
+        {(() => {
+          // Build the render order: first two templates, then Blank
+          // Canvas in slot 3, then the rest. Single inline render
+          // function to keep this co-located with the grid for
+          // clarity — anyone editing this can see the order at a glance.
+          const ordered = [
+            TEMPLATES[0],          // Lead capture
+            TEMPLATES[1],          // Video sales letter
+            BLANK_CANVAS,          // ← top-right slot
+            ...TEMPLATES.slice(2), // Product offer, Webinar, Business opp, Digital, Affiliate, Thank you
+          ];
+          return ordered.map(tpl => {
+            const isBlank = tpl.key === 'blank';
+            const Icon = tpl.icon;
+            const isLoading = creating && creatingKey === tpl.key;
+            const isOtherLoading = creating && !isLoading;
+            return (
+              <div
+                key={tpl.key}
+                onClick={() => handleTemplateClick(tpl)}
+                style={{
+                  background: '#fff',
+                  border: isBlank ? '2px dashed #cbd5e1' : '1px solid #e8ecf2',
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  cursor: creating ? 'wait' : 'pointer',
+                  opacity: isOtherLoading ? 0.6 : 1,
+                  transition: 'transform .15s, box-shadow .15s, border-color .15s',
+                }}
+                onMouseEnter={e => {
+                  if (creating) return;
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  if (isBlank) {
+                    e.currentTarget.style.borderColor = '#0ea5e9';
+                  } else {
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(10,20,56,.10)';
+                  }
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = '';
+                  if (isBlank) {
+                    e.currentTarget.style.borderColor = '#cbd5e1';
+                  } else {
+                    e.currentTarget.style.boxShadow = '';
+                  }
+                }}>
+                <div style={{
+                  height: 100,
+                  background: isBlank ? '#f8fafc' : tpl.gradient,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: isBlank ? '#94a3b8' : '#fff',
+                }}>
+                  <Icon size={36} strokeWidth={1.8}/>
                 </div>
-                <div style={{fontSize:11,color:'#64748b',lineHeight:1.4}}>{tpl.desc}</div>
+                <div style={{padding:'12px 14px'}}>
+                  <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,color:'#0a1438',marginBottom:2}}>
+                    {tpl.title}
+                    {isLoading && <span style={{marginLeft:6,color:'#0ea5e9',fontWeight:600,fontSize:11}}>building…</span>}
+                  </div>
+                  <div style={{fontSize:11,color:'#64748b',lineHeight:1.4}}>{tpl.desc}</div>
+                </div>
               </div>
-            </div>
-          );
-        })}
-
-        {/* Blank Canvas — 9th tile, dashed border, no gradient */}
-        <div
-          onClick={() => handleTemplateClick(BLANK_CANVAS)}
-          style={{
-            background: '#fff',
-            border: '2px dashed #cbd5e1',
-            borderRadius: 12,
-            overflow: 'hidden',
-            cursor: creating ? 'wait' : 'pointer',
-            opacity: creating && creatingKey !== 'blank' ? 0.6 : 1,
-            transition: 'transform .15s, box-shadow .15s',
-          }}
-          onMouseEnter={e => {
-            if (creating) return;
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.borderColor = '#0ea5e9';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = '';
-            e.currentTarget.style.borderColor = '#cbd5e1';
-          }}>
-          <div style={{
-            height: 100,
-            background: '#f8fafc',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#94a3b8',
-          }}>
-            <BLANK_CANVAS.icon size={36} strokeWidth={1.8}/>
-          </div>
-          <div style={{padding:'12px 14px'}}>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,color:'#0a1438',marginBottom:2}}>
-              {BLANK_CANVAS.title}
-              {creating && creatingKey === 'blank' && <span style={{marginLeft:6,color:'#0ea5e9',fontWeight:600,fontSize:11}}>building…</span>}
-            </div>
-            <div style={{fontSize:11,color:'#64748b',lineHeight:1.4}}>{BLANK_CANVAS.desc}</div>
-          </div>
-        </div>
+            );
+          });
+        })()}
       </div>
 
       {/* Campaign Setup Modal — opens when a tile is clicked */}
