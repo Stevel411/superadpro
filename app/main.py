@@ -5481,6 +5481,44 @@ def admin_api_rotator_reenrol_founders(
         )
 
 
+@app.get("/admin/api/diag-member-leads")
+def admin_api_diag_member_leads(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: list the last 20 MemberLead rows in the table
+    (any user), and the last 20 belonging to the calling admin.
+
+    Built 18 May 2026 to diagnose a contradiction where /pro/funnels
+    showed 1 opt-in but /pro/leads showed 0 — both reading from the
+    same MemberLead table. This endpoint reveals what's actually
+    persisted in the table so the contradiction can be resolved.
+    """
+    _require_admin(user)
+    from .database import MemberLead
+
+    last_all = db.query(MemberLead).order_by(MemberLead.id.desc()).limit(20).all()
+    mine = db.query(MemberLead).filter(MemberLead.user_id == user.id).order_by(MemberLead.id.desc()).limit(20).all()
+    total_mine = db.query(MemberLead).filter(MemberLead.user_id == user.id).count()
+    total_all = db.query(MemberLead).count()
+
+    def row(l):
+        return {
+            "id": l.id, "user_id": l.user_id, "email": l.email,
+            "source_funnel_id": l.source_funnel_id, "status": l.status,
+            "emails_sent": l.emails_sent, "created_at": l.created_at.isoformat() if l.created_at else None,
+        }
+
+    return {
+        "calling_admin_id": user.id,
+        "total_rows_in_table": total_all,
+        "total_rows_for_me": total_mine,
+        "last_20_all": [row(l) for l in last_all],
+        "last_20_mine": [row(l) for l in mine],
+    }
+
+
 @app.post("/admin/api/fix-broken-form-placeholders")
 def admin_api_fix_broken_form_placeholders(
     request: Request,
