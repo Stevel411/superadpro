@@ -747,10 +747,14 @@ def _attribute_lead_to_activation(db: Session, user_id: int) -> int:
 
     # Case-insensitive email match — capture forms are case-insensitive
     # for the user experience, so we match the same way here.
+    # Also exclude self-attribution: a user filling their own form on
+    # their own page is testing, not a real conversion. Matches the
+    # same guard in the admin backfill endpoint for consistency.
     email_lc = user.email.strip().lower()
     matches = db.query(MemberLead).filter(
         MemberLead.email.ilike(email_lc),
         MemberLead.attribution_user_id.is_(None),
+        MemberLead.user_id != user.id,
     ).all()
 
     if not matches:
