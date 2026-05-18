@@ -5481,6 +5481,78 @@ def admin_api_rotator_reenrol_founders(
         )
 
 
+@app.post("/admin/api/backfill-lead-attribution")
+def admin_api_backfill_lead_attribution(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot backfill: link existing active users to existing
+    MemberLead rows by email match.
+
+    Going forward, lead attribution is set automatically when a user
+    activates Partner membership (via _attribute_lead_to_activation
+    called from initialise_renewal_record). But that only covers NEW
+    activations from the moment Commit B ships. This endpoint backfills
+    historical data — for each currently-active user, find any
+    MemberLead rows with matching email and attribute them.
+
+    Idempotent: only sets rows where attribution_user_id IS NULL.
+    Safe to run multiple times. Admin only.
+
+    Returns: counts of users scanned, leads matched, errors.
+    """
+    _require_admin(user)
+    from .database import MemberLead
+
+    scanned = 0
+    attributed = 0
+    errors = 0
+
+    # Process only active users — we don't attribute leads to free or
+    # inactive users (they haven't 'converted' in any meaningful sense).
+    active_users = db.query(User).filter(User.is_active == True).all()
+
+    now = datetime.utcnow()
+    for u in active_users:
+        scanned += 1
+        if not u.email:
+            continue
+        try:
+            email_lc = u.email.strip().lower()
+            matches = db.query(MemberLead).filter(
+                MemberLead.email.ilike(email_lc),
+                MemberLead.attribution_user_id.is_(None),
+            ).all()
+            for lead in matches:
+                # Edge case: don't attribute a lead to the same user who
+                # owns it (would happen if a member captured their own
+                # email via their own form for testing — happens often).
+                # That's not a conversion; that's the affiliate themselves.
+                if lead.user_id == u.id:
+                    continue
+                lead.attribution_user_id = u.id
+                lead.attribution_set_at = now
+                if lead.status not in ("converted", "unsubscribed"):
+                    lead.status = "converted"
+                attributed += 1
+        except Exception as e:
+            logger.warning(f"backfill_lead_attribution: user {u.id} failed: {e}")
+            errors += 1
+
+    db.commit()
+    logger.info(
+        f"Lead attribution backfill: scanned={scanned} active users, "
+        f"attributed={attributed} leads, errors={errors}"
+    )
+    return {
+        "success": True,
+        "users_scanned": scanned,
+        "leads_attributed": attributed,
+        "errors": errors,
+    }
+
+
 @app.get("/admin/api/rotator-state")
 def admin_api_rotator_state(
     request: Request,
@@ -28907,24 +28979,31 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
 
     Powers the enriched /pro/funnels view. Returns the funnel list with
     per-page engagement stats (visits, opt-ins, conversion rate, leads,
-    hot leads, sequence open rate) plus a top-level 30-day rollup for
-    the ROI strip at the top of the page.
+    hot leads, sequence open rate, conversions, earnings) plus a
+    top-level 30-day rollup for the ROI strip at the top of the page.
 
-    No new schema — all metrics computed via joins over existing tables
-    (FunnelEvent, MemberLead, EmailSendLog). Cached/optimised reads
-    where possible; this query runs every dashboard load.
+    Attribution model (lands in Commit B, 18 May 2026):
+      MemberLead.attribution_user_id is set when a captured lead
+      activates Partner membership and email-matches a MemberLead.
+      Per-page conversions = leads where attribution_user_id is set
+      AND there's a Commission row paying the page owner (from the
+      new user, type membership_sponsor/_renewal_sponsor, status=paid).
+      Earnings = sum of those commission amounts in the 30-day window.
 
-    Lead attribution + earnings-per-page land in a follow-up commit
-    once the lead_attribution_user_id column ships. Today we return
-    earnings_30d as None to keep the API shape stable for the frontend
-    that will start rendering "—" or a placeholder until attribution
-    goes live.
+      A conversion only counts if the page owner actually got paid.
+      If a lead converted via someone else's sponsor link, the funnel
+      captured them but didn't earn — that's a $0 conversion and we
+      don't credit it here (would mislead the page owner about which
+      pages are actually making money).
+
+    All metrics computed via grouped SQL queries — no N+1, single
+    payload per dashboard load.
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not is_pro(user):
         return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
-    from .database import FunnelPage, FunnelEvent, MemberLead, EmailSendLog
+    from .database import FunnelPage, FunnelEvent, MemberLead, EmailSendLog, Commission
     from sqlalchemy import func as _func, and_ as _and
 
     now = datetime.utcnow()
@@ -29035,6 +29114,48 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
             opened = int(r.opened or 0)
             open_rate_rows[r.source_funnel_id] = (opened / sent) if sent > 0 else 0.0
 
+    # ── Per-page 30-day conversions + earnings (attribution layer) ──
+    # Conversions: count of MemberLead rows where attribution_user_id is
+    # set AND there exists a Commission row in the 30-day window paying
+    # this page's owner from that attributed user. Earnings: sum of
+    # those commission amounts.
+    conversions_30d_rows = {}
+    earnings_30d_rows = {}
+    if funnel_ids:
+        # Join MemberLead -> Commission via attribution_user_id.
+        # Commission.from_user_id = the attributed (paying) user.
+        # Commission.to_user_id   = the page owner (= user.id, our caller).
+        # We filter to membership-related commission types only —
+        # courses, grids, etc don't count as "funnel conversions" because
+        # they're separate purchase products, not the result of the
+        # lead-capture-to-membership chain that the funnel tracks.
+        commission_types = [
+            "membership_sponsor",
+            "Membership Sponsor",      # legacy capitalisation in historical rows
+            "membership_renewal_sponsor",
+            "gift_membership_sponsor",
+        ]
+        rows = db.query(
+            MemberLead.source_funnel_id,
+            _func.count(_func.distinct(MemberLead.id)).label("conv"),
+            _func.coalesce(_func.sum(Commission.amount_usdt), 0).label("earned"),
+        ).join(
+            Commission,
+            _and(
+                Commission.from_user_id == MemberLead.attribution_user_id,
+                Commission.to_user_id == user.id,
+                Commission.commission_type.in_(commission_types),
+                Commission.status == "paid",
+                Commission.paid_at >= cutoff_30d,
+            ),
+        ).filter(
+            MemberLead.source_funnel_id.in_(funnel_ids),
+            MemberLead.attribution_user_id.isnot(None),
+        ).group_by(MemberLead.source_funnel_id).all()
+        for r in rows:
+            conversions_30d_rows[r.source_funnel_id] = int(r.conv or 0)
+            earnings_30d_rows[r.source_funnel_id] = float(r.earned or 0)
+
     # ── Assemble per-funnel response ──
     funnel_data = []
     for f in funnels:
@@ -29060,15 +29181,17 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
             "leads_new_24h": int(leads_24h_rows.get(f.id, 0)),
             "sequence_open_rate": round(float(open_rate_rows.get(f.id, 0.0)), 4),
             "last_lead_at": last_lead_at.isoformat() if last_lead_at else None,
-            # Attribution + earnings — placeholder until Commit B ship
-            "earnings_30d": None,
-            "conversions_30d": None,
+            # Attribution + earnings (Commit B, live)
+            "conversions_30d": int(conversions_30d_rows.get(f.id, 0)),
+            "earnings_30d": round(float(earnings_30d_rows.get(f.id, 0.0)), 2),
         })
 
     # ── Top-level 30-day rollup (for the ROI strip) ──
     total_visitors_30d = sum(views_30d_rows.values()) if views_30d_rows else 0
     total_leads_30d = sum(optins_30d_rows.values()) if optins_30d_rows else 0
     total_hot_leads = sum(leads_hot_rows.values()) if leads_hot_rows else 0
+    total_conversions_30d = sum(conversions_30d_rows.values()) if conversions_30d_rows else 0
+    total_earnings_30d = round(sum(earnings_30d_rows.values()), 2) if earnings_30d_rows else 0.0
 
     return {
         "funnels": funnel_data,
@@ -29076,8 +29199,8 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
             "visitors": total_visitors_30d,
             "leads": total_leads_30d,
             "hot_leads": total_hot_leads,
-            "earnings": None,        # placeholder, lands in Commit B
-            "conversions": None,     # placeholder, lands in Commit B
+            "conversions": total_conversions_30d,
+            "earnings": total_earnings_30d,
         },
     }
 @app.get("/api/linkhub-stats")

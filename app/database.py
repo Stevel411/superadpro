@@ -1072,6 +1072,15 @@ class MemberLead(Base):
     last_opened_at  = Column(DateTime, nullable=True)
     last_clicked_at = Column(DateTime, nullable=True)
     is_hot          = Column(Boolean, default=False)       # auto-flagged: opens > 2 or clicks > 0
+    # When a lead's email matches a User who later activates Partner
+    # membership, we set attribution_user_id to that user's id. This is
+    # the link that makes per-page commission attribution possible — the
+    # campaign dashboard joins MemberLead -> User -> Commission via this
+    # field to answer "which page earned me $X this month?". Set by the
+    # _attribute_lead_to_activation helper called from
+    # initialise_renewal_record (the unified post-activation hook).
+    attribution_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    attribution_set_at  = Column(DateTime, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -2639,6 +2648,15 @@ try:
             sequence_id INTEGER REFERENCES email_sequences(id),
             created_at TIMESTAMP DEFAULT NOW())"""))
         conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS list_id INTEGER REFERENCES lead_lists(id)"))
+
+        # ── Lead attribution (campaign dashboard, 18 May 2026) ──
+        # When a captured lead later activates Partner membership, the
+        # activation pipeline sets attribution_user_id to the new
+        # user's id. This is the join that powers per-page commission
+        # attribution on /pro/funnels.
+        conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS attribution_user_id INTEGER REFERENCES users(id)"))
+        conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS attribution_set_at TIMESTAMP"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_leads_attribution ON member_leads(attribution_user_id)"))
 
         # New columns on funnel_pages for AI funnel generator
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS has_capture_form BOOLEAN DEFAULT FALSE"))

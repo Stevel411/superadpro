@@ -722,8 +722,65 @@ def _reply_for_existing_withdrawal(db, user, withdrawal, requested_wallet_type, 
 #  MEMBERSHIP AUTO-RENEWAL
 # ═══════════════════════════════════════════════════════════════
 
+def _attribute_lead_to_activation(db: Session, user_id: int) -> int:
+    """When a user activates Partner membership, match their email to any
+    pre-existing MemberLead rows and set attribution_user_id on them.
+
+    This is the join that powers per-page commission attribution on
+    /pro/funnels — "this lead came from your Lead Capture page → became
+    a paying member → you earned $10". Without this attribution column
+    set, the dashboard can't trace conversions back to the page that
+    captured them.
+
+    Idempotent: only updates rows where attribution_user_id IS NULL.
+    Re-running on every renewal (via initialise_renewal_record) is
+    therefore safe — once attribution is set, it stays set.
+
+    Returns the number of MemberLead rows that were attributed (0 if
+    the user wasn't anyone's captured lead, or if attribution already
+    set on a prior renewal).
+    """
+    from .database import MemberLead
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or not user.email:
+        return 0
+
+    # Case-insensitive email match — capture forms are case-insensitive
+    # for the user experience, so we match the same way here.
+    email_lc = user.email.strip().lower()
+    matches = db.query(MemberLead).filter(
+        MemberLead.email.ilike(email_lc),
+        MemberLead.attribution_user_id.is_(None),
+    ).all()
+
+    if not matches:
+        return 0
+
+    now = datetime.utcnow()
+    for lead in matches:
+        lead.attribution_user_id = user.id
+        lead.attribution_set_at = now
+        # Update lead status to 'converted' — a converted lead is one
+        # whose email matches an active paying member. Useful filter
+        # for the leads page ("show me leads who haven't yet activated").
+        if lead.status not in ("converted", "unsubscribed"):
+            lead.status = "converted"
+    db.commit()
+    logger.info(
+        f"Attributed {len(matches)} MemberLead row(s) to user {user_id} "
+        f"on activation (email match: {email_lc})"
+    )
+    return len(matches)
+
+
 def initialise_renewal_record(db: Session, user_id: int, source: str = "referral") -> None:
-    """Create or update MembershipRenewal when a member first activates."""
+    """Create or update MembershipRenewal when a member first activates.
+
+    Also calls _attribute_lead_to_activation() to backfill the
+    MemberLead.attribution_user_id column for any pre-existing leads
+    matching this user's email. The attribution call is idempotent —
+    safe to re-run on every renewal.
+    """
     from datetime import timedelta
     existing = db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user_id).first()
     now = datetime.utcnow()
@@ -746,6 +803,15 @@ def initialise_renewal_record(db: Session, user_id: int, source: str = "referral
         existing.grace_period_start = None
         existing.total_renewals    = (existing.total_renewals or 0) + 1
     db.commit()
+
+    # Lead attribution — wire the new user to any pre-existing
+    # MemberLead row matching their email. Runs after the
+    # MembershipRenewal commit so any DB error here doesn't roll back
+    # the renewal record itself. Idempotent.
+    try:
+        _attribute_lead_to_activation(db, user_id)
+    except Exception as e:
+        logger.warning(f"Lead attribution failed for user {user_id}: {e}")
 
 
 def process_auto_renewals(db: Session) -> dict:
