@@ -345,6 +345,9 @@ export default function Funnels() {
           borderRadius: 14,
           padding: '18px 24px',
           marginBottom: 24,
+          maxWidth: 760,
+          marginLeft: 'auto',
+          marginRight: 'auto',
           boxShadow: '0 4px 12px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04)',
         }}>
           <div style={{
