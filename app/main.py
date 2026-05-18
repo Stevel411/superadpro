@@ -16044,6 +16044,85 @@ def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_cur
         "gjs_css": page.gjs_css or "",
         "updated_at": page.updated_at.isoformat() if page.updated_at else None,
     })
+
+
+def _apply_campaign_binding(db, user, page, body):
+    """Phase 1 (Campaign Hub): apply list + sequence binding to a page.
+
+    Reads three optional fields from the request body and writes the
+    appropriate FK on the FunnelPage:
+      default_list_id          → bind to existing LeadList by ID
+      create_new_list_name     → auto-create a list with this name + bind
+      capture_sequence_id      → bind to existing EmailSequence by ID
+
+    Each field is independent and idempotent. Ownership checked — the
+    user can only bind to their own lists/sequences. If a list with the
+    create_new_list_name already exists for this user, it's reused
+    rather than duplicated.
+
+    Used by /api/funnels/save and /api/funnels/from-template so both
+    page-create paths share identical binding behaviour.
+
+    Caller is responsible for db.commit() — this only mutates the
+    session state.
+    """
+    from .database import LeadList, EmailSequence
+
+    # ── default_list_id ──
+    if "default_list_id" in body:
+        new_list_id = body.get("default_list_id")
+        if new_list_id:
+            try:
+                lst = db.query(LeadList).filter(
+                    LeadList.id == int(new_list_id),
+                    LeadList.user_id == user.id,
+                ).first()
+                if lst:
+                    page.default_list_id = lst.id
+            except (TypeError, ValueError):
+                pass
+        else:
+            page.default_list_id = None
+
+    # ── create_new_list_name ──
+    if "create_new_list_name" in body:
+        new_name = (body.get("create_new_list_name") or "").strip()
+        if new_name and len(new_name) <= 100:
+            existing = db.query(LeadList).filter(
+                LeadList.user_id == user.id,
+                LeadList.name == new_name,
+            ).first()
+            if existing:
+                page.default_list_id = existing.id
+            else:
+                new_list = LeadList(
+                    user_id=user.id,
+                    name=new_name,
+                    description=f"Auto-created for SuperPage '{page.title or 'Untitled'}'",
+                    color="#0ea5e9",
+                    created_at=datetime.utcnow(),
+                )
+                db.add(new_list)
+                db.flush()
+                page.default_list_id = new_list.id
+
+    # ── capture_sequence_id ──
+    if "capture_sequence_id" in body:
+        new_seq_id = body.get("capture_sequence_id")
+        if new_seq_id:
+            try:
+                seq = db.query(EmailSequence).filter(
+                    EmailSequence.id == int(new_seq_id),
+                    EmailSequence.user_id == user.id,
+                ).first()
+                if seq:
+                    page.capture_sequence_id = seq.id
+            except (TypeError, ValueError):
+                pass
+        else:
+            page.capture_sequence_id = None
+
+
 @app.post("/api/funnels/save")
 async def funnel_save(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
@@ -16201,6 +16280,11 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
             # Non-JSON gjs_css (legacy GrapesJS used to put real CSS here) —
             # leave it alone, the template-side fix will handle both shapes.
             pass
+
+    # ── Phase 1 (Campaign Hub): campaign binding ──
+    # Accepts default_list_id, create_new_list_name, capture_sequence_id.
+    # Shared with /api/funnels/from-template via _apply_campaign_binding.
+    _apply_campaign_binding(db, user, page, body)
 
     db.commit()
     db.refresh(page)
@@ -16498,6 +16582,13 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         db.add(page)
         db.flush()
         page.slug = generate_unique_slug(db, user.username, title)
+
+        # ── Phase 1: apply campaign binding from the modal payload ──
+        # Same three fields as /api/funnels/save: default_list_id (use
+        # existing), create_new_list_name (auto-create), capture_sequence_id
+        # (use existing). The modal sends one or none per field.
+        _apply_campaign_binding(db, user, page, body)
+
         db.commit()
         return {"success": True, "id": page.id, "edit_url": f"/pro/funnel/{page.id}/edit"}
 
@@ -16847,6 +16938,10 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
     db.flush()
     slug_base = _re.sub(r'[^a-z0-9]+', '-', tpl["title"].lower()).strip('-')
     page.slug = f"{user.username.lower()}/{slug_base}-{page.id}"
+
+    # ── Phase 1: apply campaign binding from the modal payload ──
+    _apply_campaign_binding(db, user, page, body)
+
     db.commit()
 
     return {"success": True, "edit_url": f"/funnels/visual/{page.id}"}
@@ -29984,6 +30079,55 @@ def api_funnels_activity(request: Request, user: User = Depends(get_current_user
         "sequence_complete_count": int(seq_complete_count),
         "recent_commissions": recent_commissions,
         "next_action": next_action,
+    }
+@app.get("/api/funnels/setup-options")
+def api_funnels_setup_options(request: Request, user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """Phase 1 (Campaign Hub): feed the campaign-setup modal.
+
+    Returns the user's existing LeadLists and EmailSequences so the
+    modal can present them as dropdown options. The modal also offers
+    'Create new list' and 'Skip' — those are pure frontend states,
+    no data needed for them here.
+
+    Pro-only. Sorted by recency (most-recently-created first) so
+    fresh items show up at the top of the dropdowns.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    from .database import LeadList, EmailSequence
+
+    lists = db.query(LeadList).filter(
+        LeadList.user_id == user.id
+    ).order_by(LeadList.created_at.desc()).all()
+    sequences = db.query(EmailSequence).filter(
+        EmailSequence.user_id == user.id,
+        EmailSequence.is_active == True,
+    ).order_by(EmailSequence.created_at.desc()).all()
+
+    return {
+        "lists": [
+            {
+                "id": l.id,
+                "name": l.name,
+                "lead_count": int(l.lead_count or 0),
+                "color": l.color or "#0ea5e9",
+                "created_at": l.created_at.isoformat() if l.created_at else None,
+            }
+            for l in lists
+        ],
+        "sequences": [
+            {
+                "id": s.id,
+                "title": s.title or "Untitled sequence",
+                "num_emails": int(s.num_emails or 0),
+                "niche": s.niche or "",
+                "created_at": s.created_at.isoformat() if s.created_at else None,
+            }
+            for s in sequences
+        ],
     }
 @app.get("/api/linkhub-stats")
 def api_linkhub_stats(request: Request, user: User = Depends(get_current_user),

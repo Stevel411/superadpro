@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
 import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, Flame, UserPlus, Send, DollarSign, ArrowRight } from 'lucide-react';
+import CampaignSetupModal from '../components/CampaignSetupModal';
 
 // ─── Browser-framed template preview components ─────────────────────────
 // Each is a miniature mock-up of what the template looks like, rendered as
@@ -411,21 +412,71 @@ export default function Funnels() {
     setActivityError(err.message || 'Failed to load activity feed.');
   });
 
+  // Pending template state — set when user clicks a template/blank
+  // and we open the campaign-setup modal. Holds the template key and
+  // the suggested list name (derived from the template title) so the
+  // modal can pre-fill its auto-create input. Cleared when the modal
+  // confirms or cancels.
+  const [pendingTemplate, setPendingTemplate] = useState(null);
+
   useEffect(() => { load(); loadActivity(); }, []);
 
-  const createFromTemplate = async (key) => {
+  // Friendly titles for the auto-create list name. Maps template key
+  // → "<title> leads" string used as the modal's suggested name.
+  const TEMPLATE_LIST_NAMES = {
+    'blank': 'New page leads',
+    'lead-capture': 'Lead capture leads',
+    'video-sales': 'Video sales leads',
+    'product-offer': 'Product offer leads',
+    'coaching-program': 'Coaching leads',
+    'webinar-registration': 'Webinar registrants',
+    'network-opportunity': 'Business opportunity leads',
+    'digital-product': 'Digital product leads',
+    'affiliate-income': 'Affiliate funnel leads',
+    'thank-you': 'Thank you leads',
+  };
+
+  // Step 1 — user clicks template/blank. We don't create yet; we
+  // open the campaign-setup modal first. Required by product spec
+  // (locked 18 May 2026): user MUST make an explicit decision about
+  // list + sequence binding before the page is created.
+  const createFromTemplate = (key) => {
+    if (creating) return;
+    setPendingTemplate({
+      key,
+      suggestedListName: TEMPLATE_LIST_NAMES[key] || 'New campaign leads',
+    });
+  };
+
+  // Step 2 — modal confirmed. Make the real API call with the
+  // campaign-binding payload merged in.
+  const handleCampaignConfirm = async (bindingPayload) => {
+    const key = pendingTemplate.key;
+    setPendingTemplate(null);
     setCreating(true); setCreatingKey(key);
     try {
       if (key === 'blank') {
-        const res = await apiPost('/api/funnels/save', { title: 'Untitled Page', status: 'draft' });
+        const res = await apiPost('/api/funnels/save', {
+          title: 'Untitled Page',
+          status: 'draft',
+          ...bindingPayload,
+        });
         if (res.id) window.location.href = `/pro/funnel/${res.id}/edit`;
       } else {
-        const res = await apiPost('/api/funnels/from-template', { niche: key });
+        const res = await apiPost('/api/funnels/from-template', {
+          niche: key,
+          ...bindingPayload,
+        });
         if (res.id) { window.location.href = `/pro/funnel/${res.id}/edit`; }
         else if (res.edit_url) { const parts = res.edit_url.match(/\/(\d+)\//); if (parts) window.location.href = `/pro/funnel/${parts[1]}/edit`; }
       }
     } catch (e) { alert(e.message); }
     setCreating(false); setCreatingKey(null);
+  };
+
+  // Step 2b — user cancelled. Abort entirely; no page is created.
+  const handleCampaignCancel = () => {
+    setPendingTemplate(null);
   };
 
   const deletePage = async (id) => {
@@ -1021,6 +1072,20 @@ export default function Funnels() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Campaign Setup Modal (Phase 1) ──
+          Shown when user clicks any template/blank tile. Forces an
+          explicit decision about list + sequence binding before the
+          page is actually created. Confirm → handleCampaignConfirm
+          runs the create API call. Cancel → aborts the flow. */}
+      {pendingTemplate && (
+        <CampaignSetupModal
+          suggestedListName={pendingTemplate.suggestedListName}
+          pageTypeLabel="page"
+          onConfirm={handleCampaignConfirm}
+          onCancel={handleCampaignCancel}
+        />
       )}
     </AppLayout>
   );
