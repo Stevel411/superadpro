@@ -16594,6 +16594,16 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
         referrer=referrer, device=device, ip_address=request.client.host if request.client else None)
     db.add(event)
 
+    # ── Increment the denormalised leads_captured counter ──
+    # Some legacy UI surfaces read page.leads_captured directly rather
+    # than computing from MemberLead rows. Keep this in sync on every
+    # capture so those surfaces show the right number. The live
+    # /api/funnels endpoint uses MemberLead aggregates regardless, so
+    # this is belt-and-braces. Missing increment was a latent bug
+    # (existed before today's work but never surfaced because nobody
+    # checked legacy lead counts vs live counts). Added 18 May 2026.
+    page.leads_captured = (page.leads_captured or 0) + 1
+
     # ── Commit the core lead data FIRST ──
     # Two-phase commit: get the FunnelLead + FunnelEvent saved before
     # attempting the CRM / autoresponder side-effects. Previously the
