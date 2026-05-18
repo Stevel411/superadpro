@@ -619,147 +619,15 @@ export default function Funnels() {
       )}
 
 
-      {/* Your Pages section (preserved from original) */}
-      {pages.length > 0 && (
-        <div id="your-pages" style={{marginTop:32}}>
-          {/* Three small PUBLISHED/LEADS/VIEWS stat cards were removed
-              18 May 2026 — they duplicated the data now in the ROI strip
-              at the top of the page. Steve flagged the redundancy. */}
-
-          <h2 style={{margin:'0 0 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.yourPages')}</h2>
-
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
-            {pages.map(p => {
-              // Engagement fields from /api/funnels — undefined if the
-              // page was just created or never had traffic. Fall back to
-              // 0 so the layout doesn't break for fresh accounts.
-              const views30 = p.views_30d ?? 0;
-              const optins30 = p.optins_30d ?? 0;
-              const convRate = p.conversion_rate_30d ?? 0;
-              const leadsHot = p.leads_hot ?? 0;
-              const leadsNew24h = p.leads_new_24h ?? 0;
-              const openRate = p.sequence_open_rate ?? 0;
-              const hasTraffic = views30 > 0 || (p.leads_total ?? 0) > 0;
-
-              return (
-              <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden'}}>
-                <div style={{padding:'12px 14px'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
-                    <div style={{width:6,height:6,borderRadius:'50%',background:p.status==='published'?'#10b981':'#cbd5e1'}}/>
-                    <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.title||t('superPages.untitled')}</div>
-                    {p.is_ai_generated && <span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4}}>AI</span>}
-                  </div>
-                  {p.slug && <div style={{fontSize:13,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
-                </div>
-
-                {/* ── Engagement panel (replaces the legacy views+leads row) ──
-                    Two-line stats grid. Line 1: 30-day visitors / opt-ins /
-                    conversion rate. Line 2: hot leads / new 24h / open rate.
-                    All values fall back to 0 silently — fresh pages show
-                    zeros, not blanks, so the user can see "yes the system
-                    is tracking, just no data yet". */}
-                <div style={{padding:'10px 14px',borderTop:'1px solid #f1f3f7',borderBottom:'1px solid #f1f3f7',background:'#fcfdfe'}}>
-                  <div style={{display:'flex',gap:10,marginBottom:hasTraffic?6:0}}>
-                    <CardStat icon={Eye} value={views30} label="30d views" />
-                    <CardStat icon={FileText} value={optins30} label="opt-ins" />
-                    <CardStat
-                      value={views30 > 0 ? `${(convRate * 100).toFixed(1)}%` : '—'}
-                      label="conv. rate"
-                      dim={views30 === 0}
-                    />
-                  </div>
-                  {hasTraffic && (
-                    <div style={{display:'flex',gap:10}}>
-                      <CardStat
-                        value={leadsHot}
-                        label="🔥 hot"
-                        accentColor={leadsHot > 0 ? '#dc2626' : null}
-                      />
-                      <CardStat
-                        value={leadsNew24h}
-                        label="new 24h"
-                        accentColor={leadsNew24h > 0 ? '#10b981' : null}
-                      />
-                      <CardStat
-                        value={(p.leads_total ?? 0) > 0 && p.sequence_open_rate !== null
-                          ? `${(openRate * 100).toFixed(0)}%`
-                          : '—'}
-                        label="open rate"
-                        dim={(p.leads_total ?? 0) === 0}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div style={{padding:'8px 14px',display:'flex',gap:5}}>
-                  {confirmDelete === p.id ? (
-                    <>
-                      <div style={{flex:1,fontSize:13,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('superPages.deletePrompt')}</div>
-                      <button onClick={() => deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer'}}>{t('superPages.deleteYes')}</button>
-                      <button onClick={() => setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:13,fontWeight:700,cursor:'pointer'}}>{t('superPages.deleteNo')}</button>
-                    </>
-                  ) : (
-                    <>
-                      <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn2')}</a>
-                      {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn2')}</a>)}
-                      <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
-                      <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
-                    </>
-                  )}
-                </div>
-
-                {/* ── Phase 1.5: campaign wiring footer ──
-                    Shows current list + sequence binding on each card.
-                    Clickable — opens the CampaignSetupModal in edit
-                    mode pre-filled with the page's current bindings.
-                    Distinct background tint so it reads as metadata,
-                    not a primary action. */}
-                <div
-                  onClick={() => setEditingWiring(p)}
-                  title="Edit campaign wiring"
-                  style={{
-                    padding:'8px 14px 10px',
-                    borderTop:'1px dashed #e8ecf2',
-                    background:'#f8fafc',
-                    cursor:'pointer',
-                    display:'flex',
-                    alignItems:'center',
-                    gap:6,
-                    fontSize:11,
-                    color:'var(--sap-text-muted)',
-                    fontFamily:'Sora,sans-serif',
-                    fontWeight:600,
-                  }}>
-                  <Send size={10} color="#0ea5e9" strokeWidth={2.2}/>
-                  <span style={{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                    {p.default_list_name ? (
-                      <>→ <span style={{color:'#0a1438'}}>{p.default_list_name}</span></>
-                    ) : (
-                      <span style={{color:'#dc2626'}}>⚠ No list bound</span>
-                    )}
-                    {p.capture_sequence_title && (
-                      <> · <span style={{color:'#0a1438'}}>{p.capture_sequence_title}</span>{p.capture_sequence_num_emails ? ` (${p.capture_sequence_num_emails})` : ''}</>
-                    )}
-                  </span>
-                  <span style={{color:'var(--sap-accent)',fontWeight:700}}>Edit →</span>
-                </div>
-              </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* ── Activity Feed ─ Commit C ──────────────────────────────
-          Sits below the My Pages grid. Always renders (even for
+          Now sits ABOVE the My Pages grid (Steve, 18 May 2026) —
+          puts the populated 4-card row at eye level instead of
+          hiding under sparse page tiles. Always renders (even for
           users with zero pages) so the contextual next-action pill
           can prompt them. Four data cards in a responsive grid:
 
             🔥 Hot leads   👋 New 24h   📧 Seq. complete   💰 Recent comm.
 
-          Above the grid: one contextual pill ("next action") that
-          adapts to the user's state — hot leads available, sequence
-          complete, new leads, no pages, no traffic, or steady.
           Data comes from /api/funnels/activity (Commit C backend). */}
       <div style={{marginTop:32}}>
         <h2 style={{margin:'0 0 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>Recent activity</h2>
@@ -898,6 +766,137 @@ export default function Funnels() {
           </div>
         )}
       </div>
+
+      {/* Your Pages section (preserved from original) */}
+      {pages.length > 0 && (
+        <div id="your-pages" style={{marginTop:32}}>
+          {/* Three small PUBLISHED/LEADS/VIEWS stat cards were removed
+              18 May 2026 — they duplicated the data now in the ROI strip
+              at the top of the page. Steve flagged the redundancy. */}
+
+          <h2 style={{margin:'0 0 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.yourPages')}</h2>
+
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
+            {pages.map(p => {
+              // Engagement fields from /api/funnels — undefined if the
+              // page was just created or never had traffic. Fall back to
+              // 0 so the layout doesn't break for fresh accounts.
+              const views30 = p.views_30d ?? 0;
+              const optins30 = p.optins_30d ?? 0;
+              const convRate = p.conversion_rate_30d ?? 0;
+              const leadsHot = p.leads_hot ?? 0;
+              const leadsNew24h = p.leads_new_24h ?? 0;
+              const openRate = p.sequence_open_rate ?? 0;
+              const hasTraffic = views30 > 0 || (p.leads_total ?? 0) > 0;
+
+              return (
+              <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden'}}>
+                <div style={{padding:'12px 14px'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
+                    <div style={{width:6,height:6,borderRadius:'50%',background:p.status==='published'?'#10b981':'#cbd5e1'}}/>
+                    <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.title||t('superPages.untitled')}</div>
+                    {p.is_ai_generated && <span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4}}>AI</span>}
+                  </div>
+                  {p.slug && <div style={{fontSize:13,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
+                </div>
+
+                {/* ── Engagement panel (replaces the legacy views+leads row) ──
+                    Two-line stats grid. Line 1: 30-day visitors / opt-ins /
+                    conversion rate. Line 2: hot leads / new 24h / open rate.
+                    All values fall back to 0 silently — fresh pages show
+                    zeros, not blanks, so the user can see "yes the system
+                    is tracking, just no data yet". */}
+                <div style={{padding:'10px 14px',borderTop:'1px solid #f1f3f7',borderBottom:'1px solid #f1f3f7',background:'#fcfdfe'}}>
+                  <div style={{display:'flex',gap:10,marginBottom:hasTraffic?6:0}}>
+                    <CardStat icon={Eye} value={views30} label="30d views" />
+                    <CardStat icon={FileText} value={optins30} label="opt-ins" />
+                    <CardStat
+                      value={views30 > 0 ? `${(convRate * 100).toFixed(1)}%` : '—'}
+                      label="conv. rate"
+                      dim={views30 === 0}
+                    />
+                  </div>
+                  {hasTraffic && (
+                    <div style={{display:'flex',gap:10}}>
+                      <CardStat
+                        value={leadsHot}
+                        label="🔥 hot"
+                        accentColor={leadsHot > 0 ? '#dc2626' : null}
+                      />
+                      <CardStat
+                        value={leadsNew24h}
+                        label="new 24h"
+                        accentColor={leadsNew24h > 0 ? '#10b981' : null}
+                      />
+                      <CardStat
+                        value={(p.leads_total ?? 0) > 0 && p.sequence_open_rate !== null
+                          ? `${(openRate * 100).toFixed(0)}%`
+                          : '—'}
+                        label="open rate"
+                        dim={(p.leads_total ?? 0) === 0}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div style={{padding:'8px 14px',display:'flex',gap:5}}>
+                  {confirmDelete === p.id ? (
+                    <>
+                      <div style={{flex:1,fontSize:13,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('superPages.deletePrompt')}</div>
+                      <button onClick={() => deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer'}}>{t('superPages.deleteYes')}</button>
+                      <button onClick={() => setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:13,fontWeight:700,cursor:'pointer'}}>{t('superPages.deleteNo')}</button>
+                    </>
+                  ) : (
+                    <>
+                      <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn2')}</a>
+                      {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn2')}</a>)}
+                      <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
+                      <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
+                    </>
+                  )}
+                </div>
+
+                {/* ── Phase 1.5: campaign wiring footer ──
+                    Shows current list + sequence binding on each card.
+                    Clickable — opens the CampaignSetupModal in edit
+                    mode pre-filled with the page's current bindings.
+                    Distinct background tint so it reads as metadata,
+                    not a primary action. */}
+                <div
+                  onClick={() => setEditingWiring(p)}
+                  title="Edit campaign wiring"
+                  style={{
+                    padding:'8px 14px 10px',
+                    borderTop:'1px dashed #e8ecf2',
+                    background:'#f8fafc',
+                    cursor:'pointer',
+                    display:'flex',
+                    alignItems:'center',
+                    gap:6,
+                    fontSize:11,
+                    color:'var(--sap-text-muted)',
+                    fontFamily:'Sora,sans-serif',
+                    fontWeight:600,
+                  }}>
+                  <Send size={10} color="#0ea5e9" strokeWidth={2.2}/>
+                  <span style={{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                    {p.default_list_name ? (
+                      <>→ <span style={{color:'#0a1438'}}>{p.default_list_name}</span></>
+                    ) : (
+                      <span style={{color:'#dc2626'}}>⚠ No list bound</span>
+                    )}
+                    {p.capture_sequence_title && (
+                      <> · <span style={{color:'#0a1438'}}>{p.capture_sequence_title}</span>{p.capture_sequence_num_emails ? ` (${p.capture_sequence_num_emails})` : ''}</>
+                    )}
+                  </span>
+                  <span style={{color:'var(--sap-accent)',fontWeight:700}}>Edit →</span>
+                </div>
+              </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <style>{`
         .sp-template-grid{display:grid;grid-template-columns:repeat(3,1fr)}
