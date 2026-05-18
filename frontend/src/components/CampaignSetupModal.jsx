@@ -35,16 +35,30 @@ export default function CampaignSetupModal({
   onConfirm,
   // Fired when user clicks Cancel — usually aborts the page-create flow.
   onCancel,
+  // Phase 1.5 — when re-wiring an existing page, pass the current
+  // binding state so the modal pre-selects the right radio rows
+  // and dropdown values. Falsy values = "Skip" (matches the create-
+  // flow default).
+  initialListId = null,
+  initialSequenceId = null,
+  // When set, the modal renders in edit-mode: title changes from
+  // "Set up your campaign" to "Edit campaign wiring", the confirm
+  // button reads "Save changes" instead of "Create my page".
+  editMode = false,
+  // Page title shown in the edit-mode subtitle, so the user knows
+  // which page they're editing. Optional.
+  editingPageTitle = null,
 }) {
   // Modes for each field: 'skip' (default), 'create', 'existing'
-  const [listMode, setListMode] = useState('skip');
-  const [seqMode, setSeqMode] = useState('skip');
+  // In edit mode, we pre-select 'existing' if the page already has a binding.
+  const [listMode, setListMode] = useState(initialListId ? 'existing' : 'skip');
+  const [seqMode, setSeqMode] = useState(initialSequenceId ? 'existing' : 'skip');
   // For listMode='existing'
-  const [selectedListId, setSelectedListId] = useState(null);
+  const [selectedListId, setSelectedListId] = useState(initialListId);
   // For listMode='create' — editable name (pre-filled with suggested)
   const [newListName, setNewListName] = useState(suggestedListName);
   // For seqMode='existing'
-  const [selectedSeqId, setSelectedSeqId] = useState(null);
+  const [selectedSeqId, setSelectedSeqId] = useState(initialSequenceId);
   // Lists + sequences from the API
   const [options, setOptions] = useState(null);
   const [loadError, setLoadError] = useState(null);
@@ -120,19 +134,25 @@ export default function CampaignSetupModal({
               background:'linear-gradient(135deg,#0a1438 0%,#1e3a8a 100%)',
               display:'flex', alignItems:'center', justifyContent:'center',
             }}>
-              <Plus size={16} color="#fff" strokeWidth={2.5}/>
+              {editMode ? <Send size={16} color="#fff" strokeWidth={2.5}/> : <Plus size={16} color="#fff" strokeWidth={2.5}/>}
             </div>
             <h2 style={{
               margin:0, fontFamily:'Sora,sans-serif', fontSize:18,
               fontWeight:800, color:'#0a1438', letterSpacing:'-0.01em',
-            }}>Set up your campaign</h2>
+            }}>{editMode ? 'Edit campaign wiring' : 'Set up your campaign'}</h2>
           </div>
           <p style={{
             margin:0, fontSize:13, color:'#475569', lineHeight:1.5,
           }}>
-            Pick where leads from this {pageTypeLabel} go, and which
-            email sequence runs on capture. Both are optional but
-            recommended — wired campaigns convert far better.
+            {editMode ? (
+              <>Change where leads from <strong>{editingPageTitle || 'this page'}</strong> go,
+              or which sequence runs on capture. Changes apply to future
+              captures only — existing leads stay where they are.</>
+            ) : (
+              <>Pick where leads from this {pageTypeLabel} go, and which
+              email sequence runs on capture. Both are optional but
+              recommended — wired campaigns convert far better.</>
+            )}
           </p>
         </div>
 
@@ -280,7 +300,7 @@ export default function CampaignSetupModal({
               fontFamily:'Sora,sans-serif',
               display:'flex', alignItems:'center', gap:6,
             }}>
-            Create my {pageTypeLabel} <ArrowRight size={14}/>
+            {editMode ? 'Save changes' : `Create my ${pageTypeLabel}`} <ArrowRight size={14}/>
           </button>
         </div>
       </div>

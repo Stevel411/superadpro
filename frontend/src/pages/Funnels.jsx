@@ -419,6 +419,11 @@ export default function Funnels() {
   // confirms or cancels.
   const [pendingTemplate, setPendingTemplate] = useState(null);
 
+  // Phase 1.5 — editing campaign wiring on an EXISTING page. Holds
+  // the FunnelPage object (with default_list_id, capture_sequence_id,
+  // and current names from /api/funnels). Modal opens in edit mode.
+  const [editingWiring, setEditingWiring] = useState(null);
+
   useEffect(() => { load(); loadActivity(); }, []);
 
   // Friendly titles for the auto-create list name. Maps template key
@@ -477,6 +482,35 @@ export default function Funnels() {
   // Step 2b — user cancelled. Abort entirely; no page is created.
   const handleCampaignCancel = () => {
     setPendingTemplate(null);
+  };
+
+  // Phase 1.5 — user confirmed edit-wiring modal. Updates an existing
+  // page's binding via POST /api/funnels/{id}/wiring. On success we
+  // update the local page object in-place so the card re-renders with
+  // the new binding immediately (no full reload).
+  const handleWiringConfirm = async (bindingPayload) => {
+    const page = editingWiring;
+    setEditingWiring(null);
+    if (!page) return;
+    try {
+      const res = await apiPost(`/api/funnels/${page.id}/wiring`, bindingPayload);
+      if (res?.success) {
+        setPages(prev => prev.map(p => p.id === page.id ? {
+          ...p,
+          default_list_id: res.default_list_id,
+          default_list_name: res.default_list_name,
+          capture_sequence_id: res.capture_sequence_id,
+          capture_sequence_title: res.capture_sequence_title,
+          capture_sequence_num_emails: res.capture_sequence_num_emails,
+        } : p));
+      }
+    } catch (e) {
+      alert(`Couldn't update wiring: ${e.message || e}`);
+    }
+  };
+
+  const handleWiringCancel = () => {
+    setEditingWiring(null);
   };
 
   const deletePage = async (id) => {
@@ -824,6 +858,42 @@ export default function Funnels() {
                     </>
                   )}
                 </div>
+
+                {/* ── Phase 1.5: campaign wiring footer ──
+                    Shows current list + sequence binding on each card.
+                    Clickable — opens the CampaignSetupModal in edit
+                    mode pre-filled with the page's current bindings.
+                    Distinct background tint so it reads as metadata,
+                    not a primary action. */}
+                <div
+                  onClick={() => setEditingWiring(p)}
+                  title="Edit campaign wiring"
+                  style={{
+                    padding:'8px 14px 10px',
+                    borderTop:'1px dashed #e8ecf2',
+                    background:'#f8fafc',
+                    cursor:'pointer',
+                    display:'flex',
+                    alignItems:'center',
+                    gap:6,
+                    fontSize:11,
+                    color:'var(--sap-text-muted)',
+                    fontFamily:'Sora,sans-serif',
+                    fontWeight:600,
+                  }}>
+                  <Send size={10} color="#0ea5e9" strokeWidth={2.2}/>
+                  <span style={{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                    {p.default_list_name ? (
+                      <>→ <span style={{color:'#0a1438'}}>{p.default_list_name}</span></>
+                    ) : (
+                      <span style={{color:'#dc2626'}}>⚠ No list bound</span>
+                    )}
+                    {p.capture_sequence_title && (
+                      <> · <span style={{color:'#0a1438'}}>{p.capture_sequence_title}</span>{p.capture_sequence_num_emails ? ` (${p.capture_sequence_num_emails})` : ''}</>
+                    )}
+                  </span>
+                  <span style={{color:'var(--sap-accent)',fontWeight:700}}>Edit →</span>
+                </div>
               </div>
               );
             })}
@@ -1085,6 +1155,23 @@ export default function Funnels() {
           pageTypeLabel="page"
           onConfirm={handleCampaignConfirm}
           onCancel={handleCampaignCancel}
+        />
+      )}
+
+      {/* ── Edit Campaign Wiring Modal (Phase 1.5) ──
+          Shown when user clicks the wiring footer on a My Pages card.
+          Same modal in edit-mode — pre-filled with the page's current
+          binding state. Confirm hits POST /api/funnels/{id}/wiring. */}
+      {editingWiring && (
+        <CampaignSetupModal
+          suggestedListName={`${editingWiring.title || 'Untitled'} leads`}
+          pageTypeLabel="page"
+          editMode={true}
+          editingPageTitle={editingWiring.title || 'Untitled page'}
+          initialListId={editingWiring.default_list_id || null}
+          initialSequenceId={editingWiring.capture_sequence_id || null}
+          onConfirm={handleWiringConfirm}
+          onCancel={handleWiringCancel}
         />
       )}
     </AppLayout>

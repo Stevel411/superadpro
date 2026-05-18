@@ -29780,12 +29780,30 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
             )
 
     # ── Assemble per-funnel response ──
+    # Phase 1.5: include the page's current campaign wiring so the
+    # "Your Pages" cards can render a footer showing what's bound and
+    # let the user click to edit. We resolve list_id → name + sequence_id
+    # → title via a single batched query each, to avoid N+1 selects.
+    bound_list_ids = [f.default_list_id for f in funnels if f.default_list_id]
+    bound_seq_ids = [f.capture_sequence_id for f in funnels if f.capture_sequence_id]
+    list_names = {}
+    seq_titles = {}
+    if bound_list_ids:
+        from .database import LeadList as _LL
+        for ll in db.query(_LL.id, _LL.name).filter(_LL.id.in_(bound_list_ids)).all():
+            list_names[ll.id] = ll.name
+    if bound_seq_ids:
+        from .database import EmailSequence as _ES
+        for es in db.query(_ES.id, _ES.title, _ES.num_emails).filter(_ES.id.in_(bound_seq_ids)).all():
+            seq_titles[es.id] = {"title": es.title or "Sequence", "num_emails": int(es.num_emails or 0)}
+
     funnel_data = []
     for f in funnels:
         views_30d = int(views_30d_rows.get(f.id, 0))
         optins_30d = int(optins_30d_rows.get(f.id, 0))
         conversion_rate_30d = (optins_30d / views_30d) if views_30d > 0 else 0.0
         last_lead_at = last_lead_rows.get(f.id)
+        bound_seq = seq_titles.get(f.capture_sequence_id) if f.capture_sequence_id else None
         funnel_data.append({
             "id": f.id,
             "title": f.title or "Untitled",
@@ -29807,6 +29825,12 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
             # Attribution + earnings (Commit B, live)
             "conversions_30d": int(conversions_30d_rows.get(f.id, 0)),
             "earnings_30d": round(float(earnings_30d_rows.get(f.id, 0.0)), 2),
+            # Phase 1.5 — campaign wiring state for the card footer
+            "default_list_id": f.default_list_id,
+            "default_list_name": list_names.get(f.default_list_id) if f.default_list_id else None,
+            "capture_sequence_id": f.capture_sequence_id,
+            "capture_sequence_title": bound_seq["title"] if bound_seq else None,
+            "capture_sequence_num_emails": bound_seq["num_emails"] if bound_seq else None,
         })
 
     # ── Top-level 30-day rollup (for the ROI strip) ──
@@ -30129,6 +30153,74 @@ def api_funnels_setup_options(request: Request, user: User = Depends(get_current
             for s in sequences
         ],
     }
+
+
+@app.post("/api/funnels/{page_id}/wiring")
+async def api_funnels_update_wiring(page_id: int, request: Request,
+                                     user: User = Depends(get_current_user),
+                                     db: Session = Depends(get_db)):
+    """Phase 1.5 (Campaign Hub): update campaign binding on an existing page.
+
+    Dedicated endpoint for the "Edit campaign wiring" modal on the My
+    Pages cards. Same payload as the page-create modal:
+      default_list_id          → bind to existing list
+      create_new_list_name     → auto-create a list with this name + bind
+      capture_sequence_id      → bind to existing sequence
+      (passing null on either ID = explicit unbind)
+
+    Separated from /api/funnels/save so the canvas editor's frequent
+    saves don't accidentally clobber bindings — the binding endpoint
+    requires explicit user action via the modal.
+
+    Returns the resolved state for immediate UI refresh without a full
+    /api/funnels reload.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+
+    page = db.query(FunnelPage).filter(
+        FunnelPage.id == page_id, FunnelPage.user_id == user.id
+    ).first()
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    _apply_campaign_binding(db, user, page, body)
+    db.commit()
+    db.refresh(page)
+
+    # Resolve names for the response so the UI updates immediately
+    from .database import LeadList, EmailSequence
+    list_name = None
+    seq_title = None
+    seq_num_emails = None
+    if page.default_list_id:
+        lst = db.query(LeadList).filter(LeadList.id == page.default_list_id).first()
+        if lst:
+            list_name = lst.name
+    if page.capture_sequence_id:
+        seq = db.query(EmailSequence).filter(EmailSequence.id == page.capture_sequence_id).first()
+        if seq:
+            seq_title = seq.title or "Sequence"
+            seq_num_emails = int(seq.num_emails or 0)
+
+    return {
+        "success": True,
+        "page_id": page.id,
+        "default_list_id": page.default_list_id,
+        "default_list_name": list_name,
+        "capture_sequence_id": page.capture_sequence_id,
+        "capture_sequence_title": seq_title,
+        "capture_sequence_num_emails": seq_num_emails,
+    }
+
+
 @app.get("/api/linkhub-stats")
 def api_linkhub_stats(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
