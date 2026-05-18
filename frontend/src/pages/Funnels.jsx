@@ -126,104 +126,6 @@ function CardStat({ icon: Icon, value, label, dim = false, accentColor = null })
   );
 }
 
-function LeadCapturePreview() {
-  const { t } = useTranslation();
-  return (
-    <BrowserFrame url="yoursite.com/free-guide" bg="linear-gradient(180deg,#f0f9ff,#fff)">
-      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',textAlign:'center',lineHeight:1.3,marginBottom:4}}>{t('superPages.previewLeadHeadline')}</div>
-      <div style={{fontSize:8,color:'#475569',textAlign:'center',marginBottom:10}}>{t('superPages.previewLeadSubtext')}</div>
-      <div style={{background:'#fff',border:'0.5px solid #cbd5e1',borderRadius:4,padding:'5px 8px',fontSize:8,color:'#7a8899',marginBottom:6}}>{t('superPages.previewLeadEmail')}</div>
-      <div style={{background:'#0ea5e9',color:'#fff',padding:6,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewLeadCTA')} →</div>
-    </BrowserFrame>
-  );
-}
-
-function VideoSalesPreview() {
-  const { t } = useTranslation();
-  return (
-    <BrowserFrame url="yoursite.com/watch" bg="#0f172a">
-      <div style={{fontSize:13,fontWeight:700,color:'#fff',textAlign:'center',marginBottom:7}}>{t('superPages.previewVideoHeadline')}</div>
-      <div style={{background:'#1e293b',borderRadius:4,padding:16,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:6,border:'0.5px solid #334155'}}>
-        <div style={{width:22,height:22,borderRadius:'50%',background:'rgba(255,255,255,.95)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div style={{borderLeft:'7px solid #0f172a',borderTop:'4px solid transparent',borderBottom:'4px solid transparent',marginLeft:3}}/>
-        </div>
-      </div>
-      <div style={{background:'#8b5cf6',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewVideoCTA')} →</div>
-    </BrowserFrame>
-  );
-}
-
-function ProductOfferPreview() {
-  const { t } = useTranslation();
-  return (
-    <BrowserFrame url="yoursite.com/offer" bg="linear-gradient(180deg,#fef3c7,#fff)">
-      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:6}}>{t('superPages.previewProductHeadline')}</div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginBottom:6}}>
-        <div style={{background:'#fff',border:'0.5px solid #e2e8f0',borderRadius:4,padding:6,textAlign:'center'}}>
-          <div style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>$47</div>
-          <div style={{fontSize:7,color:'#475569'}}>{t('superPages.previewProductStarter')}</div>
-        </div>
-        <div style={{background:'#fef3c7',border:'1px solid #f59e0b',borderRadius:4,padding:6,textAlign:'center'}}>
-          <div style={{fontSize:12,fontWeight:700,color:'#92400e'}}>$97</div>
-          <div style={{fontSize:7,color:'#92400e',fontWeight:600}}>{t('superPages.previewProductPro')}</div>
-        </div>
-      </div>
-      <div style={{background:'#dc2626',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewProductCTA')} →</div>
-    </BrowserFrame>
-  );
-}
-
-function CoachingPreview() {
-  const { t } = useTranslation();
-  return (
-    <BrowserFrame url="yoursite.com/book" bg="linear-gradient(180deg,#fce7f3,#fff)">
-      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:7}}>{t('superPages.previewCoachingHeadline')}</div>
-      <div style={{background:'#fff',border:'0.5px solid #fbcfe8',borderRadius:4,padding:7,marginBottom:6}}>
-        <div style={{fontSize:7,color:'#9d174d',fontWeight:600,marginBottom:4,textAlign:'center'}}>{t('superPages.previewCoachingSelectDay')}</div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2}}>
-          {[0,1,2,3,4,5,6].map(i=><div key={i} style={{background:i===3?'#ec4899':(i%2===0?'#fbcfe8':'#f9a8d4'),borderRadius:2,height:8}}/>)}
-        </div>
-      </div>
-      <div style={{background:'#ec4899',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewCoachingCTA')} →</div>
-    </BrowserFrame>
-  );
-}
-
-function WebinarPreview() {
-  const { t } = useTranslation();
-  return (
-    <BrowserFrame url="yoursite.com/webinar" bg="linear-gradient(180deg,#dcfce7,#fff)">
-      <div style={{color:'#f59e0b',fontSize:8,textAlign:'center',marginBottom:3,letterSpacing:1}}>★★★★★</div>
-      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:5}}>{t('superPages.previewWebinarHeadline')}</div>
-      <div style={{background:'#fff',border:'0.5px solid #bbf7d0',borderRadius:4,padding:6,marginBottom:6}}>
-        <div style={{height:3,background:'#86efac',borderRadius:1,width:'90%',marginBottom:2}}/>
-        <div style={{height:3,background:'#86efac',borderRadius:1,width:'75%',marginBottom:2}}/>
-        <div style={{height:3,background:'#86efac',borderRadius:1,width:'60%'}}/>
-      </div>
-      <div style={{background:'#16a34a',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewWebinarCTA')} →</div>
-    </BrowserFrame>
-  );
-}
-
-// ─── Template definitions ────────────────────────────────────────────────
-// Primary = shown on landing, 5 cards + Blank Canvas in a 3-col grid.
-// Secondary = behind "View more templates" toggle.
-
-const PRIMARY_TEMPLATES = [
-  { key: 'lead-capture', titleKey: 'tplLeadCapture', descKey: 'tplLeadCaptureDesc', Preview: LeadCapturePreview },
-  { key: 'video-sales', titleKey: 'tplVideoSales', descKey: 'tplVideoSalesDesc', Preview: VideoSalesPreview },
-  { key: 'product-offer', titleKey: 'tplProductOffer', descKey: 'tplProductOfferDesc', Preview: ProductOfferPreview },
-  { key: 'coaching-program', titleKey: 'tplCoaching', descKey: 'tplCoachingDesc', Preview: CoachingPreview },
-  { key: 'webinar-registration', titleKey: 'tplWebinar', descKey: 'tplWebinarDesc', Preview: WebinarPreview },
-];
-
-const SECONDARY_TEMPLATES = [
-  { key: 'network-opportunity', titleKey: 'tplBusinessOpp', descKey: 'tplBusinessOppDesc' },
-  { key: 'digital-product', titleKey: 'tplDigitalProduct', descKey: 'tplDigitalProductDesc' },
-  { key: 'affiliate-income', titleKey: 'tplAffiliate', descKey: 'tplAffiliateDesc' },
-  { key: 'thank-you', titleKey: 'tplThankYou', descKey: 'tplThankYouDesc' },
-];
-
 // ─── timeAgo ─ compact relative-time formatter for the activity feed ─
 // Renders ISO timestamps as "12m ago", "3h ago", "2d ago" etc. Falls
 // back to "—" for null/undefined so cards never show "NaN ago".
@@ -372,10 +274,9 @@ export default function Funnels() {
   const [creating, setCreating] = useState(false);
   const [creatingKey, setCreatingKey] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const [showAiWizard, setShowAiWizard] = useState(false);
-  const [showMoreTemplates, setShowMoreTemplates] = useState(false);
-  const [aiForm, setAiForm] = useState({ niche: '', audience: '', story: '', tone: 'professional' });
-  const [aiGenerating, setAiGenerating] = useState(false);
+  // Phase 2 (18 May 2026): templates + AI wizard moved to
+  // /pro/funnels/new. showAiWizard, showMoreTemplates, aiForm,
+  // aiGenerating state removed — they belong on the create page.
   // Commit C — Activity feed payload from /api/funnels/activity.
   // Stays null until first load resolves so the section can render
   // a skeleton row until real data lands. Loaded in parallel with the
@@ -412,77 +313,12 @@ export default function Funnels() {
     setActivityError(err.message || 'Failed to load activity feed.');
   });
 
-  // Pending template state — set when user clicks a template/blank
-  // and we open the campaign-setup modal. Holds the template key and
-  // the suggested list name (derived from the template title) so the
-  // modal can pre-fill its auto-create input. Cleared when the modal
-  // confirms or cancels.
-  const [pendingTemplate, setPendingTemplate] = useState(null);
-
   // Phase 1.5 — editing campaign wiring on an EXISTING page. Holds
   // the FunnelPage object (with default_list_id, capture_sequence_id,
   // and current names from /api/funnels). Modal opens in edit mode.
   const [editingWiring, setEditingWiring] = useState(null);
 
   useEffect(() => { load(); loadActivity(); }, []);
-
-  // Friendly titles for the auto-create list name. Maps template key
-  // → "<title> leads" string used as the modal's suggested name.
-  const TEMPLATE_LIST_NAMES = {
-    'blank': 'New page leads',
-    'lead-capture': 'Lead capture leads',
-    'video-sales': 'Video sales leads',
-    'product-offer': 'Product offer leads',
-    'coaching-program': 'Coaching leads',
-    'webinar-registration': 'Webinar registrants',
-    'network-opportunity': 'Business opportunity leads',
-    'digital-product': 'Digital product leads',
-    'affiliate-income': 'Affiliate funnel leads',
-    'thank-you': 'Thank you leads',
-  };
-
-  // Step 1 — user clicks template/blank. We don't create yet; we
-  // open the campaign-setup modal first. Required by product spec
-  // (locked 18 May 2026): user MUST make an explicit decision about
-  // list + sequence binding before the page is created.
-  const createFromTemplate = (key) => {
-    if (creating) return;
-    setPendingTemplate({
-      key,
-      suggestedListName: TEMPLATE_LIST_NAMES[key] || 'New campaign leads',
-    });
-  };
-
-  // Step 2 — modal confirmed. Make the real API call with the
-  // campaign-binding payload merged in.
-  const handleCampaignConfirm = async (bindingPayload) => {
-    const key = pendingTemplate.key;
-    setPendingTemplate(null);
-    setCreating(true); setCreatingKey(key);
-    try {
-      if (key === 'blank') {
-        const res = await apiPost('/api/funnels/save', {
-          title: 'Untitled Page',
-          status: 'draft',
-          ...bindingPayload,
-        });
-        if (res.id) window.location.href = `/pro/funnel/${res.id}/edit`;
-      } else {
-        const res = await apiPost('/api/funnels/from-template', {
-          niche: key,
-          ...bindingPayload,
-        });
-        if (res.id) { window.location.href = `/pro/funnel/${res.id}/edit`; }
-        else if (res.edit_url) { const parts = res.edit_url.match(/\/(\d+)\//); if (parts) window.location.href = `/pro/funnel/${parts[1]}/edit`; }
-      }
-    } catch (e) { alert(e.message); }
-    setCreating(false); setCreatingKey(null);
-  };
-
-  // Step 2b — user cancelled. Abort entirely; no page is created.
-  const handleCampaignCancel = () => {
-    setPendingTemplate(null);
-  };
 
   // Phase 1.5 — user confirmed edit-wiring modal. Updates an existing
   // page's binding via POST /api/funnels/{id}/wiring. On success we
@@ -523,18 +359,8 @@ export default function Funnels() {
     catch (e) { alert(e.message); }
   };
 
-  const generateAiFunnel = async () => {
-    if (!aiForm.niche.trim()) { alert(t('superPages.nicheRequired')); return; }
-    setAiGenerating(true);
-    try {
-      const res = await apiPost('/api/pro/generate-funnel', aiForm);
-      const pageId = res.id || res.funnel_id;
-      if (pageId) { window.location.href = `/pro/funnel/${pageId}/edit`; }
-      else if (res.error) alert(res.error);
-      else alert(t('superPages.generationFailed'));
-    } catch (e) { alert(t('superPages.errorPrefix') + e.message); }
-    setAiGenerating(false);
-  };
+  // generateAiFunnel removed in Phase 2 dashboard split — moved to
+  // FunnelsNew.jsx where the AI wizard now lives.
 
   // Removed totalViews/totalLeads/published computations on 18 May 2026 —
   // they fed the three small stat cards above 'Your Pages' which we deleted
@@ -581,7 +407,45 @@ export default function Funnels() {
         </div>
       )}
 
-      {/* Header — logo + subtitle + My Pages button */}
+      {/* ── Phase 2 (Dashboard split, 18 May 2026) ──
+          The dashboard now opens with the cobalt next-action banner.
+          Templates moved to /pro/funnels/new. AI hero moved with them.
+          Banner at top anchors the dark colour at the page header
+          rather than breaking the visual flow mid-page. */}
+
+      {/* Next-action banner — promoted from the activity section to
+          the top of the page. Always renders once activity loads;
+          shows a contextual prompt or "steady state" fallback. While
+          loading, a skeleton placeholder of the same height holds the
+          slot so the page doesn't jump. */}
+      {activity?.next_action ? (
+        <a
+          href={activity.next_action.cta_url}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '14px 18px',
+            borderRadius: 12,
+            background: 'linear-gradient(135deg,#0a1438 0%,#1e3a8a 100%)',
+            color: '#fff',
+            textDecoration: 'none',
+            marginBottom: 20,
+            boxShadow: '0 4px 12px rgba(10,20,56,.15)',
+          }}>
+          <span style={{fontSize:22,lineHeight:1}}>{activity.next_action.emoji}</span>
+          <span style={{flex:1,fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700,letterSpacing:'-0.01em'}}>
+            {activity.next_action.label}
+          </span>
+          <span style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#22d3ee',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap'}}>
+            {activity.next_action.cta_label}
+          </span>
+        </a>
+      ) : (
+        <div style={{height:52,background:'linear-gradient(135deg,#0a1438 0%,#1e3a8a 100%)',borderRadius:12,marginBottom:20,opacity:0.6}}/>
+      )}
+
+      {/* Header — title + subtitle + New page button */}
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <svg width="40" height="40" viewBox="0 0 48 48" style={{flexShrink:0}}>
@@ -594,31 +458,31 @@ export default function Funnels() {
             <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)',lineHeight:1}}>
               Super<span style={{color:'var(--sap-accent)'}}>Pages</span>
             </h1>
-            <p style={{margin:'4px 0 0',fontSize:12,color:'var(--sap-text-muted)'}}>{t('superPages.subtitleShort')}</p>
+            <p style={{margin:'4px 0 0',fontSize:12,color:'var(--sap-text-muted)'}}>Your campaign pages, lists, and earnings — at a glance.</p>
           </div>
         </div>
-        {pages.length > 0 && (
-          <button onClick={() => document.getElementById('your-pages')?.scrollIntoView({behavior:'smooth'})} style={{background:'#fff',color:'var(--sap-text-primary)',border:'1px solid #e2e8f0',padding:'8px 14px',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-            {t('superPages.myPagesButton')} · {pages.length}
-          </button>
-        )}
+        <a
+          href="/pro/funnels/new"
+          style={{
+            background: 'linear-gradient(135deg,#0a1438,#1e3a8a)',
+            color: '#fff',
+            border: 'none',
+            padding: '10px 18px',
+            borderRadius: 10,
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontFamily: 'Sora,sans-serif',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            boxShadow: '0 4px 12px rgba(10,20,56,.18)',
+          }}>
+          <Plus size={14}/> New page
+        </a>
       </div>
 
-      {/* AI Hero — light theme banner */}
-      <div style={{background:'linear-gradient(135deg,#eff6ff 0%,#e0e7ff 50%,#f3e8ff 100%)',border:'1px solid #c7d2fe',borderRadius:14,padding:'20px 24px',marginBottom:24,display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,flexWrap:'wrap'}}>
-        <div style={{display:'flex',alignItems:'center',gap:14,flex:1,minWidth:240}}>
-          <div style={{width:46,height:46,borderRadius:12,background:'linear-gradient(135deg,#0ea5e9,#8b5cf6)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:'0 6px 16px rgba(14,165,233,.25)'}}>
-            <Sparkles size={22} color="#fff" strokeWidth={2.2}/>
-          </div>
-          <div>
-            <div style={{fontSize:15,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:2,fontFamily:'Sora,sans-serif'}}>{t('superPages.heroHeadline')}</div>
-            <div style={{fontSize:12,color:'#475569'}}>{t('superPages.heroSubtext')}</div>
-          </div>
-        </div>
-        <button onClick={() => setShowAiWizard(true)} style={{background:'var(--sap-text-primary)',color:'#fff',border:'none',padding:'11px 20px',borderRadius:9,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0}}>
-          {t('superPages.heroButton')} →
-        </button>
-      </div>
 
       {/* ── ROI strip ─ Last 30 days at a glance ──
           Mid-scale stat card balancing readability with proportion.
@@ -700,75 +564,60 @@ export default function Funnels() {
         </div>
       )}
 
-      {/* Section label */}
-      <div style={{fontSize:13,fontWeight:700,color:'#475569',textTransform:'uppercase',letterSpacing:1,marginBottom:12}}>
-        {t('superPages.orStartFromTemplate')}
-      </div>
+      {/* Templates moved to /pro/funnels/new — see "+ New page" button above */}
 
-      {/* 3-column template grid — 5 templates + Blank Canvas as 6th tile */}
-      <div className="sp-template-grid" style={{gap:14,marginBottom:16}}>
-        {PRIMARY_TEMPLATES.map(tpl => {
-          const { Preview } = tpl;
-          const isCreating = creating && creatingKey === tpl.key;
-          return (
-            <div key={tpl.key} className="tpl-card" onClick={() => !creating && createFromTemplate(tpl.key)} style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden',cursor:creating?'wait':'pointer',transition:'all .2s',display:'flex',flexDirection:'column'}}>
-              <div style={{padding:'10px 10px 0'}}>
-                <Preview/>
-              </div>
-              <div style={{padding:'12px 14px 14px',flex:1,display:'flex',flexDirection:'column'}}>
-                <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:2,fontFamily:'Sora,sans-serif'}}>{t('superPages.' + tpl.titleKey)}</div>
-                <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:10,flex:1}}>{t('superPages.' + tpl.descKey)}</div>
-                <div style={{padding:'7px 12px',borderRadius:6,fontSize:13,fontWeight:600,background:isCreating?'#f1f5f9':'transparent',color:isCreating?'#475569':'#0284c7',border:`1px solid ${isCreating?'#e2e8f0':'#bae6fd'}`,textAlign:'center'}}>
-                  {isCreating ? t('superPages.creatingEllipsis') : t('superPages.useThisTemplate') + ' →'}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Blank Canvas — 6th tile, dashed */}
-        <div className="tpl-card" onClick={() => !creating && createFromTemplate('blank')} style={{background:'#fff',borderRadius:10,border:'1.5px dashed #cbd5e1',overflow:'hidden',cursor:creating?'wait':'pointer',transition:'all .2s',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 20px',minHeight:260}}>
-          <div style={{width:44,height:44,borderRadius:'50%',background:'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:12}}>
-            <Plus size={20} color="#475569" strokeWidth={2}/>
+      {/* Empty state — shown when user has zero pages. Replaces the
+          template grid that used to greet new users at the top of
+          the dashboard. */}
+      {!loading && pages.length === 0 && !loadError && (
+        <div style={{
+          background:'#fff',
+          border:'1.5px dashed #cbd5e1',
+          borderRadius:14,
+          padding:'40px 24px',
+          textAlign:'center',
+          marginBottom:24,
+        }}>
+          <div style={{
+            width:56,
+            height:56,
+            borderRadius:14,
+            background:'linear-gradient(135deg,#0a1438,#1e3a8a)',
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'center',
+            margin:'0 auto 14px',
+          }}>
+            <Plus size={24} color="#fff" strokeWidth={2}/>
           </div>
-          <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:3,fontFamily:'Sora,sans-serif'}}>{t('superPages.blankCanvasName')}</div>
-          <div style={{fontSize:13,color:'var(--sap-text-muted)',textAlign:'center'}}>{t('superPages.blankCanvasTagline')}</div>
-        </div>
-      </div>
-
-      {/* View more templates toggle */}
-      {!showMoreTemplates && (
-        <div style={{textAlign:'center',marginBottom:24}}>
-          <button onClick={() => setShowMoreTemplates(true)} style={{background:'transparent',border:'none',color:'#0284c7',fontSize:12,fontWeight:600,cursor:'pointer',padding:'8px 16px',fontFamily:'inherit'}}>
-            {t('superPages.viewMoreTemplates', {count: SECONDARY_TEMPLATES.length})} →
-          </button>
-        </div>
-      )}
-
-      {/* Expanded secondary templates */}
-      {showMoreTemplates && (
-        <div style={{marginBottom:24}}>
-          <div className="sp-template-grid" style={{gap:14}}>
-            {SECONDARY_TEMPLATES.map(tpl => {
-              const isCreating = creating && creatingKey === tpl.key;
-              return (
-                <div key={tpl.key} className="tpl-card" onClick={() => !creating && createFromTemplate(tpl.key)} style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden',cursor:creating?'wait':'pointer',transition:'all .2s',padding:'20px 16px',display:'flex',flexDirection:'column',minHeight:160}}>
-                  <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4,fontFamily:'Sora,sans-serif'}}>{t('superPages.' + tpl.titleKey)}</div>
-                  <div style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:14,flex:1,lineHeight:1.5}}>{t('superPages.' + tpl.descKey)}</div>
-                  <div style={{padding:'7px 12px',borderRadius:6,fontSize:13,fontWeight:600,background:isCreating?'#f1f5f9':'transparent',color:isCreating?'#475569':'#0284c7',border:`1px solid ${isCreating?'#e2e8f0':'#bae6fd'}`,textAlign:'center'}}>
-                    {isCreating ? t('superPages.creatingEllipsis') : t('superPages.useThisTemplate') + ' →'}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{textAlign:'center',marginTop:12}}>
-            <button onClick={() => setShowMoreTemplates(false)} style={{background:'transparent',border:'none',color:'#475569',fontSize:13,fontWeight:500,cursor:'pointer',padding:'4px 10px',fontFamily:'inherit'}}>
-              {t('superPages.showLess')}
-            </button>
-          </div>
+          <h3 style={{margin:'0 0 6px',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700,color:'#0a1438'}}>
+            Build your first SuperPage
+          </h3>
+          <p style={{margin:'0 0 16px',fontSize:13,color:'#64748b',maxWidth:380,marginLeft:'auto',marginRight:'auto'}}>
+            Pick a template, generate one with AI, or start from blank.
+            Leads land in your CRM automatically.
+          </p>
+          <a
+            href="/pro/funnels/new"
+            style={{
+              display:'inline-flex',
+              alignItems:'center',
+              gap:6,
+              padding:'10px 20px',
+              borderRadius:10,
+              background:'linear-gradient(135deg,#0a1438,#1e3a8a)',
+              color:'#fff',
+              fontSize:13,
+              fontWeight:700,
+              fontFamily:'Sora,sans-serif',
+              textDecoration:'none',
+              boxShadow:'0 4px 12px rgba(10,20,56,.18)',
+            }}>
+            Get started <ArrowRight size={14}/>
+          </a>
         </div>
       )}
+
 
       {/* Your Pages section (preserved from original) */}
       {pages.length > 0 && (
@@ -932,45 +781,8 @@ export default function Funnels() {
           </div>
         )}
 
-        {/* Next-action pill — cobalt background, white text, single
-            CTA. Visible as soon as activity loads. */}
-        {activity?.next_action && (
-          <a
-            href={activity.next_action.cta_url}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              padding: '14px 18px',
-              borderRadius: 12,
-              background: 'linear-gradient(135deg,#0a1438 0%,#1e3a8a 100%)',
-              color: '#fff',
-              textDecoration: 'none',
-              marginBottom: 16,
-              boxShadow: '0 4px 12px rgba(10,20,56,.15)',
-            }}>
-            <span style={{fontSize:22,lineHeight:1}}>{activity.next_action.emoji}</span>
-            <span style={{
-              flex:1,
-              fontFamily:'Sora,sans-serif',
-              fontSize:14,
-              fontWeight:700,
-              letterSpacing:'-0.01em',
-            }}>{activity.next_action.label}</span>
-            <span style={{
-              display:'inline-flex',
-              alignItems:'center',
-              gap:6,
-              fontSize:12,
-              fontWeight:700,
-              color:'#22d3ee',
-              fontFamily:'Sora,sans-serif',
-              whiteSpace:'nowrap',
-            }}>
-              {activity.next_action.cta_label}
-            </span>
-          </a>
-        )}
+        {/* Next-action pill promoted to top of page (above header) —
+            see Phase 2 dashboard refactor. */}
 
         {/* Skeleton row while activity loads (preserves layout
             height so the page doesn't jump). */}
@@ -1095,68 +907,8 @@ export default function Funnels() {
         .tpl-card:active{transform:scale(.99)!important}
       `}</style>
 
-      {/* AI Funnel Wizard Modal (preserved from original) */}
-      {showAiWizard && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)',padding:16}} onClick={() => !aiGenerating && setShowAiWizard(false)}>
-          <div onClick={e => e.stopPropagation()} style={{background:'#fff',borderRadius:16,padding:28,width:'100%',maxWidth:500,maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
-              <Sparkles size={20} color="var(--sap-accent)"/>
-              <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.aiFunnelGenerator')}</h3>
-            </div>
-            <p style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>{t('superPages.aiWizardIntro')}</p>
-
-            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.nicheQuestionFull')}</label>
-            <input value={aiForm.niche} onChange={e => setAiForm(p => ({...p, niche: e.target.value}))} placeholder={t('superPages.nichePlaceholderFull')}
-              style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
-
-            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.audienceQuestionFull')}</label>
-            <input value={aiForm.audience} onChange={e => setAiForm(p => ({...p, audience: e.target.value}))} placeholder={t('superPages.audiencePlaceholderFull')}
-              style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
-
-            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.storyQuestion')}</label>
-            <textarea value={aiForm.story} onChange={e => setAiForm(p => ({...p, story: e.target.value}))} placeholder={t('superPages.storyPlaceholder')}
-              rows={3} style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box',resize:'vertical',fontFamily:'inherit'}}/>
-
-            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.toneQuestion')}</label>
-            <div style={{display:'flex',gap:8,marginBottom:20}}>
-              {['professional', 'casual', 'urgent', 'inspirational'].map(tone => (
-                <button key={tone} onClick={() => setAiForm(p => ({...p, tone}))} style={{
-                  flex:1, padding:'8px 0', borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer', textTransform:'capitalize',
-                  border: aiForm.tone === tone ? '2px solid #0ea5e9' : '2px solid #e2e8f0',
-                  background: aiForm.tone === tone ? 'rgba(14,165,233,.06)' : '#fff',
-                  color: aiForm.tone === tone ? 'var(--sap-accent)' : 'var(--sap-text-muted)', fontFamily:'inherit',
-                }}>{tone}</button>
-              ))}
-            </div>
-
-            <div style={{display:'flex',gap:8}}>
-              <button onClick={generateAiFunnel} disabled={aiGenerating} style={{
-                flex:1, padding:'12px', borderRadius:10, border:'none', cursor:'pointer',
-                background: aiGenerating ? 'var(--sap-text-muted)' : 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color:'#fff',
-                fontFamily:'Sora,sans-serif', fontSize:13, fontWeight:700,
-              }}>{aiGenerating ? t('superPages.generating') : t('superPages.generateMyPage')}</button>
-              <button onClick={() => setShowAiWizard(false)} disabled={aiGenerating} style={{
-                padding:'12px 20px', borderRadius:10, border:'1px solid #e2e8f0', cursor:'pointer',
-                background:'#fff', color:'var(--sap-text-muted)', fontSize:13, fontWeight:600, fontFamily:'inherit',
-              }}>{t('superPages.cancel')}</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Campaign Setup Modal (Phase 1) ──
-          Shown when user clicks any template/blank tile. Forces an
-          explicit decision about list + sequence binding before the
-          page is actually created. Confirm → handleCampaignConfirm
-          runs the create API call. Cancel → aborts the flow. */}
-      {pendingTemplate && (
-        <CampaignSetupModal
-          suggestedListName={pendingTemplate.suggestedListName}
-          pageTypeLabel="page"
-          onConfirm={handleCampaignConfirm}
-          onCancel={handleCampaignCancel}
-        />
-      )}
+      {/* AI wizard modal + create-mode CampaignSetupModal moved
+          to /pro/funnels/new as part of Phase 2 dashboard split. */}
 
       {/* ── Edit Campaign Wiring Modal (Phase 1.5) ──
           Shown when user clicks the wiring footer on a My Pages card.

@@ -23859,6 +23859,25 @@ async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/pro/funnels/new")
+async def pro_funnels_new_page(request: Request, db: Session = Depends(get_db)):
+    """Phase 2 (Dashboard split, 18 May 2026) — serves the React
+    /pro/funnels/new create page. Same auth gate as the listing.
+
+    Every new React route under /pro/funnels needs a matching backend
+    handler that returns the React shell, otherwise direct URL access
+    (refresh, deep-link, share) 404s — React Router only handles
+    client-side navigation."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/?login=1", status_code=302)
+    if not is_pro(user):
+        return RedirectResponse(url="/upgrade", status_code=302)
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.post("/api/pro/generate-funnel")
 async def api_pro_generate_funnel(request: Request, db: Session = Depends(get_db)):
     """AI generates a complete landing page + email sequence from 4 inputs."""
