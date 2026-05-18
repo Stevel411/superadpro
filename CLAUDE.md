@@ -1,6 +1,49 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
-## 🎯 Most Recent Session (18 May 2026 evening) — Phase 1 + 1.5 + 2: Campaign Hub foundation + Dashboard rebuild
+## 🎯 Most Recent Session (19 May 2026 night) — Share Code system commits 1 + 2
+
+Short, clean session. Two commits shipped + live-verified. Started with a spec conversation, locked the scope, built it.
+
+**Spec locked in conversation (saved direction A):**
+- **Unit: FunnelPage only.** Not "campaigns in a box" — just pages. Lists, sequences, and stats stay with the original owner; importers wire their own campaign on import via the existing Phase 1 modal flow.
+- **Two share lanes, one system:** private (Alice DMs a code to Bob) and marketplace (admin-curated, v1). Same `share_codes` table; marketplace is a filtered listing UI on top.
+- **No attribution shown anywhere.** Not on imported pages, not on marketplace cards. Network marketers don't want "Template by Alice" on a page they're trying to look like the authority on — Steve's call, and correct. The `owner_user_id` column exists for admin/abuse tracking only; never exposed in any response to the importer.
+- **Marketplace v1: admin-curated only.** Users can submit, Steve approves. v2 can open up later if quality holds.
+- **Asset handling: deliberately deferred.** R2 URLs are public and stable so imported pages just reference the original assets. Network marketers typically swap imagery to their own brand anyway; copy-on-import was overkill for v1. Flagged for revisit if abuse or breakage shows up.
+
+**Shipped:**
+
+- **Commit 1 (`6054280`) — schema + generate + Share button.**
+  - `ShareCode` model (`share_codes` table: code, owner_user_id, source_page_id, payload_json, is_public, uses_count, expires_at) + CREATE TABLE + 3 indexes in `run_migrations()`.
+  - `_build_share_payload(page)` snapshots a FunnelPage into a `{"v": 1, "page": {...}}` dict. `SHARE_CODE_V1_FIELDS` whitelists only visual/content columns (24 fields) — ownership, slug, stats, bindings, A/B pointers, attribution metadata all excluded.
+  - `_generate_unique_share_code()` — SAP-XXXX-XXXX with unambiguous alphabet (no 0/O/1/I) so codes are safe to read aloud. 32^8 keyspace, collision-checked.
+  - `POST /api/share-codes/generate` (Pro-gated) + `GET /api/share-codes/my` (placeholder for future "my shared pages" UI).
+  - Frontend: sky-blue Share2 button in the page-card action row, between Duplicate and Delete. Share modal with three states (loading / success-with-code / error). Click-outside or X to close. Copy-to-clipboard with Check feedback on success.
+  - **Live-verified:** Steve generated `SAP-7B3T-KJLH` from his Lead Capture Page, modal rendered clean, code copied to clipboard.
+
+- **Commit 2 (`daf0e85`) — import + ref-link rewriter + Import UI.**
+  - `POST /api/share-codes/import` (Pro-gated) — normalises codes (accepts with/without dashes and SAP- prefix), validates v1 payload, builds fresh draft FunnelPage owned by importer.
+  - `_rewrite_referral_links(text, new_username)` — regex sub of `/r/USERNAME` and `?ref=USERNAME` / `&ref=USERNAME` patterns. Returns (rewritten_text, count). Runs on raw strings so JSON-encoded blobs (sections_json, gjs_components) stay valid. Applied across 14 text-bearing fields in the snapshot.
+  - Heuristic warning: if no rewrites happened but the CTA contains `/r/`, `ref=`, or `affiliate`, flag it in the response so the importer reviews before publishing. Cheap; better to over-flag than miss a stranger's monetised link.
+  - Imported page forced to `status='draft'`, stats zeroed, bindings cleared (`default_list_id`, `capture_sequence_id`), AI flags removed. Importer wires their campaign on first publish via Phase 1 modal.
+  - `uses_count` incremented per successful import.
+  - **Owner identity NEVER exposed** in the response.
+  - Frontend: outlined-cobalt "Import code" button next to "+ New page" in header. Import modal with monospace uppercase letter-spaced input. Inline errors, submit on Enter. Success state shows rewrite count, any warnings (amber), and "Open page editor →" CTA. `load()` refires in background so the new card is on the dashboard when modal closes.
+  - **Live-verified:** Steve imported his own code, page count went 6→7, success modal showed "No referral links found to rewrite", green clone-created-as-draft panel rendered correctly.
+
+**Stopped before commit 3 (marketplace):** Steve switched to mobile after commit 2 verification. Mobile UI worked but desktop editor was unreachable on mobile to truly verify the imported page. Agreed to ship marketplace at desktop next session. Marketplace is the lightest of the three commits — a single admin-flip endpoint + a browse page reading the same `share_codes` table.
+
+**Tonight's commits:**
+```
+6054280  Share Code commit 1: schema + generate endpoint + Share button
+daf0e85  Share Code commit 2: import endpoint + ref-link rewriter + UI
+```
+
+**Mobile editor gap noted but not actioned:** GrapesJS visual editor is desktop-only by design. Imported pages can't be reviewed on mobile. Worth flagging if we add a "view-only" mobile preview later — would close the import-on-mobile loop.
+
+---
+
+## 🎯 Previous Session (18 May 2026 evening) — Phase 1 + 1.5 + 2: Campaign Hub foundation + Dashboard rebuild
 
 Long evening session, 13 commits on top of the morning's Activity-Feed commits. Architectural shift from "three disconnected tools (SuperPages + SuperLeads + Sequences)" to "campaigns implicit in the data model — every page binds to a list at create time, captures auto-land in the right list." Direction A (no new Campaign table — wire the existing three tables tighter).
 
