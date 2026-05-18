@@ -29,9 +29,9 @@ function BrowserFrame({ url, children, bg = 'linear-gradient(180deg,#f0f9ff,#fff
 }
 
 // ─── ROI strip components ─────────────────────────────────────────
-// Light-theme stat tiles for the "Last 30 days" headline strip — one
-// per stage of the funnel (visitors → leads → conversions → earned).
-// Dark navy numbers on white background for max contrast / readability.
+// Hero-scale stat tiles for the "Last 30 days" headline card — one per
+// stage of the funnel (visitors → leads → conversions → earned). Big
+// dark-navy numbers on white background for max contrast and impact.
 // 'dim' fades the value (slate-300) for placeholders waiting on data;
 // 'accent' renders the value in cobalt-cyan for the 'earned' metric.
 function RoiStat({ value, label, dim = false, accent = false, first = false }) {
@@ -40,28 +40,31 @@ function RoiStat({ value, label, dim = false, accent = false, first = false }) {
   else if (accent) valueColor = '#0ea5e9';
   return (
     <div style={{
-      padding: '0 18px',
+      padding: '0 12px',
       textAlign: 'center',
-      minWidth: 88,
       borderLeft: first ? 'none' : '1px solid #f1f5f9',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
     }}>
       <div style={{
         fontFamily: "'Sora', sans-serif",
-        fontSize: 24,
+        fontSize: 48,
         fontWeight: 800,
         color: valueColor,
         lineHeight: 1,
-        letterSpacing: '-0.02em',
+        letterSpacing: '-0.03em',
       }}>
         {value}
       </div>
       <div style={{
-        fontSize: 10,
-        fontWeight: 600,
-        letterSpacing: 0.8,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: 1.2,
         textTransform: 'uppercase',
         color: '#94a3b8',
-        marginTop: 6,
+        marginTop: 12,
         fontFamily: "'JetBrains Mono', monospace",
       }}>
         {label}
@@ -329,75 +332,69 @@ export default function Funnels() {
       </div>
 
       {/* ── ROI strip ─ Last 30 days at a glance ──
-          Light card with high-contrast numbering. Cobalt eyebrow label
-          identifies the timeframe; dark navy numbers sit on white so
-          they pop. Each stat sits in its own tile divided by hairline
-          rules. Conversions + earnings show '—' (in slate-300) until
-          Commit B lands the lead-attribution layer that powers them. */}
+          Hero-scale stat card. Big numbers (Sora 48px) so the page
+          owner sees the headline funnel chain at a glance. White card,
+          dark navy numbers, cobalt accents. Cyan eyebrow + bold left
+          stripe identify the timeframe. Conversions + earnings show
+          '—' (in slate-300) until Commit B lands the lead-attribution
+          layer that powers them. */}
       {pages.length > 0 && rollup30d && (
         <div style={{
           background: '#ffffff',
           border: '1px solid #e2e8f0',
-          borderRadius: 14,
-          padding: '18px 24px',
-          marginBottom: 24,
-          boxShadow: '0 1px 3px rgba(15,23,42,.04)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 24,
-          flexWrap: 'wrap',
+          borderRadius: 16,
+          padding: '28px 32px',
+          marginBottom: 28,
+          boxShadow: '0 4px 12px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04)',
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            flexShrink: 0,
+            gap: 14,
+            marginBottom: 22,
           }}>
             <div style={{
               width: 6,
-              height: 36,
+              height: 44,
               borderRadius: 3,
               background: 'linear-gradient(180deg, #0ea5e9, #06b6d4)',
             }} />
             <div>
               <div style={{
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 700,
-                letterSpacing: 1.4,
+                letterSpacing: 1.6,
                 textTransform: 'uppercase',
                 color: '#0ea5e9',
                 fontFamily: "'JetBrains Mono', monospace",
-                marginBottom: 2,
+                marginBottom: 4,
               }}>
                 Last 30 days
               </div>
               <div style={{
-                fontSize: 12,
-                color: '#64748b',
-                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 18,
+                fontWeight: 700,
+                color: '#0a1438',
+                fontFamily: "'Sora', sans-serif",
+                letterSpacing: '-0.01em',
               }}>
                 Your funnel performance
               </div>
             </div>
           </div>
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: 0,
-            flex: 1,
-            justifyContent: 'flex-end',
-            flexWrap: 'wrap',
-          }}>
+            alignItems: 'stretch',
+          }} className="roi-stats-grid">
             <RoiStat value={rollup30d.visitors} label="visitors" first />
-            <RoiArrow />
             <RoiStat value={rollup30d.leads} label="leads" />
-            <RoiArrow />
             <RoiStat
               value={rollup30d.conversions === null ? '—' : rollup30d.conversions}
               label="conversions"
               dim={rollup30d.conversions === null}
             />
-            <RoiArrow />
             <RoiStat
               value={rollup30d.earnings === null ? '—' : `$${rollup30d.earnings}`}
               label="earned"
@@ -405,6 +402,11 @@ export default function Funnels() {
               accent
             />
           </div>
+          <style>{`
+            @media (max-width: 720px) {
+              .roi-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px 0 !important; }
+            }
+          `}</style>
         </div>
       )}
 
