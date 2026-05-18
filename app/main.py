@@ -5581,7 +5581,7 @@ def admin_api_diag_member_leads(
     }
 
 
-@app.post("/admin/api/fix-broken-form-placeholders")
+@app.api_route("/admin/api/fix-broken-form-placeholders", methods=["GET", "POST"])
 def admin_api_fix_broken_form_placeholders(
     request: Request,
     user: User = Depends(get_current_user),
@@ -5659,7 +5659,7 @@ def admin_api_fix_broken_form_placeholders(
     }
 
 
-@app.post("/admin/api/backfill-lead-attribution")
+@app.api_route("/admin/api/backfill-lead-attribution", methods=["GET", "POST"])
 def admin_api_backfill_lead_attribution(
     request: Request,
     user: User = Depends(get_current_user),
