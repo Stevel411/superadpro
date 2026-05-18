@@ -1,6 +1,42 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
-## 🎯 Most Recent Session (18 May 2026) — Unified Campaign Hub + Lead Attribution + 7 latent bug fixes
+## 🎯 Most Recent Session (18 May 2026 evening) — Phase 1 + 1.5 + 2: Campaign Hub foundation + Dashboard rebuild
+
+Long evening session, 13 commits on top of the morning's Activity-Feed commits. Architectural shift from "three disconnected tools (SuperPages + SuperLeads + Sequences)" to "campaigns implicit in the data model — every page binds to a list at create time, captures auto-land in the right list." Direction A (no new Campaign table — wire the existing three tables tighter).
+
+**Sparked by:** Steve flagged that `/pro/funnels` was visually disjointed and product-fragmented. Discussion led to competitive research on AWeber + GetResponse via web_search — both ask "which list does this page feed?" at page-create time; SuperAdPro didn't. The gap was the rebuild target.
+
+**Six-phase plan locked (Direction A):**
+1. List-per-page binding foundation ✅
+2. Edit Campaign Wiring on existing pages ✅
+3. Dashboard split into `/pro/funnels` + `/pro/funnels/new` ✅
+4. CRM hygiene (source badges, move-between-lists) ⏳
+5. Cross-navigation between Pages/Lists/Sequences ⏳
+6. AI campaign setup + polish ⏳
+
+**Three major builds shipped tonight:**
+
+- **Phase 1 (Campaign Hub foundation, commits `cc05a436`+`55deb025`+`2b7e529c`):** New `funnel_pages.default_list_id` nullable FK + index, migration runs on deploy. Existing `capture_sequence_id` column repurposed as the default-sequence binding. Two new admin endpoints — `/admin/api/campaign-binding-status` (read-only state report) and `/admin/api/backfill-campaign-binding?dry_run=true|false` (idempotent backfill: creates `<page.title> leads` list for every page with captured leads but no binding, assigns historical MemberLeads). Steve ran dry-run first, eyeballed plan, then executed live — 2 lists created, 2 historical leads adopted, 22 of 22 leads now have list_id populated. Capture endpoints (both modern `/api/leads/capture` and legacy `/f/{slug}`) now write `MemberLead.list_id = page.default_list_id` automatically. New shared `_apply_campaign_binding(db, user, page, body)` helper called from all three creation paths (save, modern template_builder, legacy NICHE_TEMPLATES). New `CampaignSetupModal` component (required at page-create, no bypass — locked product spec) with two sections (List + Sequence), three radio options each (Skip / Auto-create / Use existing), both defaulting to "Skip" to force conscious decision. New `/api/funnels/setup-options` endpoint feeding the modal dropdowns. **Live-verified by Steve: created an opt-in page through the modal, picked a list, published, submitted form with test email, lead landed in chosen list. End-to-end working.**
+
+- **Phase 1.5 (Edit Campaign Wiring, commit `f7909e13`):** Each My Pages card grows a clickable wiring footer showing current binding state — green-cobalt `→ Fitness Leads · Welcome series (5)` for bound pages, red `⚠ No list bound · Fix →` for unbound. Click opens the same CampaignSetupModal in edit-mode (pre-filled with current bindings, "Save changes" button, subtitle clarifies change applies to FUTURE captures only — existing leads untouched). New `POST /api/funnels/{id}/wiring` endpoint shares the same `_apply_campaign_binding` helper. `/api/funnels` response gained `default_list_id/default_list_name/capture_sequence_id/capture_sequence_title/capture_sequence_num_emails` via batched joins (no N+1).
+
+- **Phase 2 (Dashboard split, commit `58aea227` + 5 visual tweak commits):** `/pro/funnels` becomes pure dashboard — cobalt next-action banner anchoring the TOP (always renders, skeleton placeholder while loading), header + cobalt "+ New page" button, ROI strip, Recent Activity row (moved ABOVE My Pages on Steve's flag — `14b30615`), Your Pages grid with subtle two-layer cobalt-tinted shadows that lift cards off the background (`e08b56d8`), no templates, no AI hero, no AI wizard modal. `/pro/funnels/new` is the new create page — back button next to title (promoted from tiny breadcrumb after Steve flagged it was missable, `d2c75124`) + bottom-of-page back button duplicate, big cobalt-to-teal "Build me a page" AI hero powered by Grok 4.1, 3×3 template grid with 9 tiles (Lead Capture / Video Sales / Blank Canvas top-right slot 3 `3b2c067c` / Product Offer / Webinar / Business Opp / Digital Product / Affiliate / Thank You — Coaching dropped). Each gradient tile uses unique cobalt-spectrum colours (cobalt #0a1438, royal #1e3a8a, sky #0ea5e9, cyan #06b6d4, electric #22d3ee, teal #0e7490) — no amber, no purple, no red. Blank Canvas tile has dashed border + centered text (`fee64474` — gradient tiles stay left-aligned because their icon-on-gradient cover anchors the eye). New shared `frontend/src/data/funnelTemplates.js` — single source of truth for the 9 templates. New backend handler `@app.get("/pro/funnels/new")` so direct URL access doesn't 404.
+
+**Mockup-driven iteration:** before any code landed for Phase 2, I rendered the dashboard + create page in the Visualizer with the Claude design MD constraints. Steve eyeballed the mockup, locked the design (banner-at-top + always-visible + 9-tile 3×3 grid with unique gradients), then I built it. The mockup → lock → build → small-tweaks-from-Steve cycle ran cleanly across 5 follow-up commits.
+
+**One workflow lesson:** the JSX block reorder in `14b30615` (Activity-above-Pages) used a Python script when str_replace would have been brittle on 100+ line blocks. Earlier in the session I'd wrestled str_replace through a similar cleanup and ended up with duplicated dead code that needed `sed` to clean up. Lesson: for moves bigger than ~30 lines or when content has fuzzy boundaries, reach for Python/sed earlier rather than fighting str_replace.
+
+**Live DB state at session end:**
+- 11 pages total · 2 currently bound (the 2 backfilled) + 1+ created via modal during testing
+- 5 LeadLists + 1+ created via modal
+- 22 MemberLeads · all 22 have `list_id` populated
+- 9 unbound pages remaining (pre-Phase-1 pages) — Steve can fix via the dashboard wiring footers when convenient
+
+**Labs editor parity gap flagged (commit `360d3e82`):** the new CampaignSetupModal + wiring footer live on production `/pro/funnels` only. Backend bindings ARE universal (Labs editor calls the same `/api/funnels/save` that uses `_apply_campaign_binding`), but Labs at `/labs/pagebuilder` (`LabsPageBuilder.jsx`) has its own template browser and doesn't trigger the modal. Deferred to pre-cutover audit because Labs is admin-only — no real user friction yet.
+
+---
+
+## 🎯 Previous Session (18 May 2026 morning) — Unified Campaign Hub + Lead Attribution + 7 latent bug fixes
 
 Long session, 18 commits. Three major builds shipped, six latent bugs surfaced and fixed properly (not papered over), end-to-end attribution test executed and verified with real $15.31 USDT on-chain transaction.
 
