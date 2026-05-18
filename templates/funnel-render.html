@@ -112,6 +112,7 @@ document.querySelectorAll('#gjsContent form').forEach(form => {
     }
     if (!data.email) { alert('Please enter your email'); return; }
     const btn = form.querySelector('button[type="submit"]');
+    const originalBtnText = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
     try {
       const res = await fetch('/api/leads/capture', {
@@ -119,8 +120,11 @@ document.querySelectorAll('#gjsContent form').forEach(form => {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
       });
-      const result = await res.json();
-      if (result.success) {
+      // Parse response defensively — sometimes the body isn't JSON
+      // (502 from an upstream load balancer, etc.)
+      let result = null;
+      try { result = await res.json(); } catch(_) { result = null; }
+      if (res.ok && result && result.success) {
         const redirectTo = result.redirect || form.getAttribute('data-redirect');
         if (redirectTo) {
           window.location.href = redirectTo;
@@ -128,9 +132,23 @@ document.querySelectorAll('#gjsContent form').forEach(form => {
           if (btn) btn.textContent = '✓ Success!';
           form.reset();
         }
+      } else {
+        // Show the actual error message to the user instead of
+        // freezing on 'Submitting...'. Previously this branch didn't
+        // exist — non-success responses left the button disabled
+        // forever and the user couldn't retry without refresh.
+        // Fixed 18 May 2026.
+        const errMsg = (result && (result.error || result.detail))
+          ? String(result.error || result.detail).split('\n')[0]
+          : 'Something went wrong. Please try again.';
+        alert(errMsg);
+        if (btn) { btn.disabled = false; btn.textContent = originalBtnText || 'Try Again'; }
       }
     } catch(err) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Try Again'; }
+      // Network errors only reach here. JSON-body errors with non-2xx
+      // status hit the else branch above.
+      alert('Connection error. Please check your internet and try again.');
+      if (btn) { btn.disabled = false; btn.textContent = originalBtnText || 'Try Again'; }
     }
   });
 });

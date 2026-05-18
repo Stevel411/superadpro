@@ -2658,6 +2658,13 @@ try:
         conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS attribution_set_at TIMESTAMP"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_leads_attribution ON member_leads(attribution_user_id)"))
 
+        # ── EmailSendLog brevo_message_id (18 May 2026) ──
+        # Added in commit 029bf94 to the model + CREATE TABLE, but no
+        # ALTER for pre-existing tables. On Steve's live DB this caused
+        # capture_lead to fail with InFailedSqlTransaction when
+        # attempting to insert an EmailSendLog row with the column.
+        conn.execute(text("ALTER TABLE email_send_log ADD COLUMN IF NOT EXISTS brevo_message_id VARCHAR"))
+
         # New columns on funnel_pages for AI funnel generator
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS has_capture_form BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS capture_form_heading VARCHAR"))

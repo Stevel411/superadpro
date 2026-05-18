@@ -16594,7 +16594,27 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
         referrer=referrer, device=device, ip_address=request.client.host if request.client else None)
     db.add(event)
 
+    # ── Commit the core lead data FIRST ──
+    # Two-phase commit: get the FunnelLead + FunnelEvent saved before
+    # attempting the CRM / autoresponder side-effects. Previously the
+    # CRM sync ran in the same transaction, so any inner SQL error
+    # (e.g. missing column on a pre-existing table with SKIP_MIGRATIONS=
+    # true) poisoned the transaction and rolled back the lead itself.
+    # The user saw 'Submitting...' freeze. Fixed 18 May 2026.
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Lead capture commit failed for page {page.id}: {e}")
+        return JSONResponse(
+            {"error": "Failed to save your details. Please try again."},
+            status_code=500,
+        )
+
     # ── Auto-add to CRM (MemberLead) for autoresponder ──
+    # Wrapped in its own transaction so CRM failures don't lose the
+    # lead. Any error inside this block rolls back the CRM-only work
+    # and we still return success to the user.
     try:
         existing_crm = db.query(MemberLead).filter(
             MemberLead.user_id == page.user_id, MemberLead.email == email.lower()
@@ -16651,11 +16671,40 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
                         )
                         db.add(log)
                 except Exception as e:
-                    print(f"[AutoResponder] First email send error: {e}")
+                    # Email-send-specific failure (Brevo API, missing
+                    # column on email_send_log etc.). Don't rollback —
+                    # we still want the MemberLead saved.
+                    db.rollback()
+                    logger.warning(f"[AutoResponder] First email send error: {e}")
+                    # Re-add the CRM lead without the email_sent counter
+                    # since rollback wiped it. The lead matters more
+                    # than the immediate send — cron will retry.
+                    try:
+                        db.add(MemberLead(
+                            user_id=page.user_id, email=email.lower(),
+                            name=body.get("name", "").strip(),
+                            source_funnel_id=page.id,
+                            source_url=f"/p/{page.slug}" if page.slug else "SuperPage",
+                            status="nurturing" if default_seq else "new",
+                            email_sequence_id=default_seq.id if default_seq else None,
+                        ))
+                        db.commit()
+                    except Exception as e2:
+                        db.rollback()
+                        logger.warning(f"[CRM] Lead re-save after email error failed: {e2}")
+        # Commit CRM side-effects (only reached if no email error)
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            logger.warning(f"[CRM] Lead sync commit failed: {e}")
     except Exception as e:
-        print(f"[CRM] Lead sync error: {e}")
+        # Outer CRM block — most likely missing column on member_leads
+        # (attribution_*) when SKIP_MIGRATIONS=true. Rollback the
+        # poisoned session so we can still respond cleanly.
+        db.rollback()
+        logger.warning(f"[CRM] Lead sync error (rolled back): {e}")
 
-    db.commit()
     redirect_url = None
     if page.next_page_id:
         next_pg = db.query(FunnelPage).filter(FunnelPage.id == page.next_page_id).first()
