@@ -28,6 +28,84 @@ function BrowserFrame({ url, children, bg = 'linear-gradient(180deg,#f0f9ff,#fff
   );
 }
 
+// ─── ROI strip components ─────────────────────────────────────────
+// Used by the "Last 30 days" headline strip — one stat per stage of
+// the funnel (visitors → leads → conversions → earned). Each stat
+// can be 'dimmed' to show that the value isn't yet populated (e.g.
+// conversions + earnings before the attribution column lands).
+function RoiStat({ value, label, dim = false, accent = false }) {
+  return (
+    <div style={{ textAlign: 'right', minWidth: 80 }}>
+      <div style={{
+        fontFamily: "'Sora', sans-serif",
+        fontSize: 22,
+        fontWeight: 800,
+        color: dim ? 'rgba(255,255,255,.35)' : (accent ? '#22d3ee' : '#fff'),
+        lineHeight: 1,
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: 0.8,
+        textTransform: 'uppercase',
+        color: 'rgba(255,255,255,.55)',
+        marginTop: 4,
+        fontFamily: "'JetBrains Mono', monospace",
+      }}>
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function RoiArrow() {
+  return (
+    <div style={{ color: 'rgba(255,255,255,.3)', fontSize: 14 }}>→</div>
+  );
+}
+
+// ─── CardStat ─ compact stat tile used inside the My Pages cards ──
+// One per metric. Icon optional. accentColor lights up the value when
+// it crosses a meaningful threshold (e.g. hot leads > 0). 'dim' fades
+// the whole tile when the value is N/A (e.g. open rate before any
+// emails sent).
+function CardStat({ icon: Icon, value, label, dim = false, accentColor = null }) {
+  const valueColor = dim
+    ? 'var(--sap-text-muted)'
+    : (accentColor || 'var(--sap-text-primary)');
+  return (
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        marginBottom: 2,
+      }}>
+        {Icon && <Icon size={10} color="var(--sap-text-muted)" />}
+        <span style={{
+          fontFamily: "'Sora', sans-serif",
+          fontSize: 14,
+          fontWeight: 800,
+          color: valueColor,
+          lineHeight: 1,
+        }}>{value}</span>
+      </div>
+      <div style={{
+        fontSize: 9,
+        fontWeight: 600,
+        letterSpacing: 0.4,
+        textTransform: 'uppercase',
+        color: 'var(--sap-text-muted)',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }}>{label}</div>
+    </div>
+  );
+}
+
 function LeadCapturePreview() {
   const { t } = useTranslation();
   return (
@@ -129,6 +207,10 @@ const SECONDARY_TEMPLATES = [
 export default function Funnels() {
   const { t } = useTranslation();
   const [pages, setPages] = useState([]);
+  // 30-day rollup for the ROI strip — populated alongside `pages` from
+  // /api/funnels. Stays null until the first load resolves so the strip
+  // can render a skeleton until real numbers arrive.
+  const [rollup30d, setRollup30d] = useState(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [creatingKey, setCreatingKey] = useState(null);
@@ -139,7 +221,11 @@ export default function Funnels() {
   const [aiGenerating, setAiGenerating] = useState(false);
   const navigate = useNavigate();
 
-  const load = () => apiGet('/api/funnels').then(d => { setPages(d.funnels || d.pages || []); setLoading(false); }).catch(() => setLoading(false));
+  const load = () => apiGet('/api/funnels').then(d => {
+    setPages(d.funnels || d.pages || []);
+    setRollup30d(d.rollup_30d || null);
+    setLoading(false);
+  }).catch(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const createFromTemplate = async (key) => {
@@ -227,6 +313,65 @@ export default function Funnels() {
         </button>
       </div>
 
+      {/* ── ROI strip ─ Last 30 days at a glance ──
+          Renders only when the user has at least one page AND we have
+          rollup data back from the API. The strip tells the chain story
+          (visitors → leads → conversions → earnings) so members see the
+          end-to-end picture before scrolling into per-page details.
+          Conversions + earnings show '—' until Commit B lands the
+          lead-attribution layer that powers them. */}
+      {pages.length > 0 && rollup30d && (
+        <div style={{
+          background: 'linear-gradient(135deg, #0a1438 0%, #1e3a8a 100%)',
+          color: '#fff',
+          borderRadius: 14,
+          padding: '18px 24px',
+          marginBottom: 24,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+          flexWrap: 'wrap',
+        }}>
+          <div style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: 1.4,
+            textTransform: 'uppercase',
+            color: '#22d3ee',
+            fontFamily: "'JetBrains Mono', monospace",
+            flexShrink: 0,
+          }}>
+            Last 30 days
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 18,
+            flexWrap: 'wrap',
+            flex: 1,
+            justifyContent: 'flex-end',
+          }}>
+            <RoiStat value={rollup30d.visitors} label="visitors" />
+            <RoiArrow />
+            <RoiStat value={rollup30d.leads} label="leads" />
+            <RoiArrow />
+            <RoiStat
+              value={rollup30d.conversions === null ? '—' : rollup30d.conversions}
+              label="conversions"
+              dim={rollup30d.conversions === null}
+            />
+            <RoiArrow />
+            <RoiStat
+              value={rollup30d.earnings === null ? '—' : `$${rollup30d.earnings}`}
+              label="earned"
+              dim={rollup30d.earnings === null}
+              accent
+            />
+          </div>
+        </div>
+      )}
+
       {/* Section label */}
       <div style={{fontSize:13,fontWeight:700,color:'#475569',textTransform:'uppercase',letterSpacing:1,marginBottom:12}}>
         {t('superPages.orStartFromTemplate')}
@@ -312,20 +457,68 @@ export default function Funnels() {
           <h2 style={{margin:'0 0 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.yourPages')}</h2>
 
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
-            {pages.map(p => (
+            {pages.map(p => {
+              // Engagement fields from /api/funnels — undefined if the
+              // page was just created or never had traffic. Fall back to
+              // 0 so the layout doesn't break for fresh accounts.
+              const views30 = p.views_30d ?? 0;
+              const optins30 = p.optins_30d ?? 0;
+              const convRate = p.conversion_rate_30d ?? 0;
+              const leadsHot = p.leads_hot ?? 0;
+              const leadsNew24h = p.leads_new_24h ?? 0;
+              const openRate = p.sequence_open_rate ?? 0;
+              const hasTraffic = views30 > 0 || (p.leads_total ?? 0) > 0;
+
+              return (
               <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden'}}>
                 <div style={{padding:'12px 14px'}}>
                   <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
                     <div style={{width:6,height:6,borderRadius:'50%',background:p.status==='published'?'#10b981':'#cbd5e1'}}/>
                     <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.title||t('superPages.untitled')}</div>
+                    {p.is_ai_generated && <span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4}}>AI</span>}
                   </div>
                   {p.slug && <div style={{fontSize:13,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
                 </div>
-                <div style={{padding:'8px 14px',display:'flex',gap:12,borderBottom:'1px solid #f1f3f7',borderTop:'1px solid #f1f3f7'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.views||0}</span><span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('superPages.viewsLabel2').toLowerCase()}</span></div>
-                  <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.leads_captured||0}</span><span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('superPages.leadsLabel2').toLowerCase()}</span></div>
-                  {p.is_ai_generated && <span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>AI</span>}
+
+                {/* ── Engagement panel (replaces the legacy views+leads row) ──
+                    Two-line stats grid. Line 1: 30-day visitors / opt-ins /
+                    conversion rate. Line 2: hot leads / new 24h / open rate.
+                    All values fall back to 0 silently — fresh pages show
+                    zeros, not blanks, so the user can see "yes the system
+                    is tracking, just no data yet". */}
+                <div style={{padding:'10px 14px',borderTop:'1px solid #f1f3f7',borderBottom:'1px solid #f1f3f7',background:'#fcfdfe'}}>
+                  <div style={{display:'flex',gap:10,marginBottom:hasTraffic?6:0}}>
+                    <CardStat icon={Eye} value={views30} label="30d views" />
+                    <CardStat icon={FileText} value={optins30} label="opt-ins" />
+                    <CardStat
+                      value={views30 > 0 ? `${(convRate * 100).toFixed(1)}%` : '—'}
+                      label="conv. rate"
+                      dim={views30 === 0}
+                    />
+                  </div>
+                  {hasTraffic && (
+                    <div style={{display:'flex',gap:10}}>
+                      <CardStat
+                        value={leadsHot}
+                        label="🔥 hot"
+                        accentColor={leadsHot > 0 ? '#dc2626' : null}
+                      />
+                      <CardStat
+                        value={leadsNew24h}
+                        label="new 24h"
+                        accentColor={leadsNew24h > 0 ? '#10b981' : null}
+                      />
+                      <CardStat
+                        value={(p.leads_total ?? 0) > 0 && p.sequence_open_rate !== null
+                          ? `${(openRate * 100).toFixed(0)}%`
+                          : '—'}
+                        label="open rate"
+                        dim={(p.leads_total ?? 0) === 0}
+                      />
+                    </div>
+                  )}
                 </div>
+
                 <div style={{padding:'8px 14px',display:'flex',gap:5}}>
                   {confirmDelete === p.id ? (
                     <>
@@ -343,7 +536,8 @@ export default function Funnels() {
                   )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

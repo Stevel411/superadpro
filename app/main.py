@@ -28903,22 +28903,183 @@ def api_passup_visualiser(request: Request, user: User = Depends(get_current_use
 @app.get("/api/funnels")
 def api_funnels_list(request: Request, user: User = Depends(get_current_user),
                      db: Session = Depends(get_db)):
-    """List user's SuperPages/funnels."""
+    """List user's SuperPages/funnels with campaign-dashboard metrics.
+
+    Powers the enriched /pro/funnels view. Returns the funnel list with
+    per-page engagement stats (visits, opt-ins, conversion rate, leads,
+    hot leads, sequence open rate) plus a top-level 30-day rollup for
+    the ROI strip at the top of the page.
+
+    No new schema — all metrics computed via joins over existing tables
+    (FunnelEvent, MemberLead, EmailSendLog). Cached/optimised reads
+    where possible; this query runs every dashboard load.
+
+    Lead attribution + earnings-per-page land in a follow-up commit
+    once the lead_attribution_user_id column ships. Today we return
+    earnings_30d as None to keep the API shape stable for the frontend
+    that will start rendering "—" or a placeholder until attribution
+    goes live.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not is_pro(user):
         return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
-    from .database import FunnelPage
+    from .database import FunnelPage, FunnelEvent, MemberLead, EmailSendLog
+    from sqlalchemy import func as _func, and_ as _and
+
+    now = datetime.utcnow()
+    cutoff_30d = now - timedelta(days=30)
+    cutoff_24h = now - timedelta(hours=24)
+
+    # Fetch all funnels for the user. Single query — we'll batch the
+    # related stats with grouped queries below rather than N+1ing.
     funnels = db.query(FunnelPage).filter(
         FunnelPage.user_id == user.id
     ).order_by(FunnelPage.created_at.desc()).all()
-    return {"funnels": [{
-        "id": f.id, "title": f.title or "Untitled", "slug": f.slug or "",
-        "status": f.status or "draft", "views": f.views or 0,
-        "leads_captured": f.leads_captured or 0,
-        "is_ai_generated": f.is_ai_generated or False,
-        "created_at": f.created_at.isoformat() if f.created_at else None,
-    } for f in funnels]}
+    funnel_ids = [f.id for f in funnels]
+
+    # ── Per-page 30-day visit count ──
+    # FunnelEvent.event_type='view' is what /p/{slug} writes (dedup by
+    # IP within 5 min, so the count is meaningfully unique-ish).
+    views_30d_rows = {}
+    if funnel_ids:
+        rows = db.query(
+            FunnelEvent.page_id,
+            _func.count(FunnelEvent.id).label("c"),
+        ).filter(
+            FunnelEvent.page_id.in_(funnel_ids),
+            FunnelEvent.event_type == "view",
+            FunnelEvent.created_at >= cutoff_30d,
+        ).group_by(FunnelEvent.page_id).all()
+        views_30d_rows = {r.page_id: r.c for r in rows}
+
+    # ── Per-page 30-day optin count ──
+    # We prefer counting MemberLead rows (the CRM truth) over FunnelEvent
+    # type=optin (which is more for analytics dashboards). source_funnel_id
+    # is set by /api/leads/capture so it's the authoritative join.
+    optins_30d_rows = {}
+    if funnel_ids:
+        rows = db.query(
+            MemberLead.source_funnel_id,
+            _func.count(MemberLead.id).label("c"),
+        ).filter(
+            MemberLead.source_funnel_id.in_(funnel_ids),
+            MemberLead.created_at >= cutoff_30d,
+        ).group_by(MemberLead.source_funnel_id).all()
+        optins_30d_rows = {r.source_funnel_id: r.c for r in rows}
+
+    # ── Per-page all-time lead counts (total, hot, new-24h) ──
+    leads_total_rows = {}
+    leads_hot_rows = {}
+    leads_24h_rows = {}
+    if funnel_ids:
+        rows = db.query(
+            MemberLead.source_funnel_id,
+            _func.count(MemberLead.id).label("c"),
+        ).filter(MemberLead.source_funnel_id.in_(funnel_ids)).group_by(
+            MemberLead.source_funnel_id
+        ).all()
+        leads_total_rows = {r.source_funnel_id: r.c for r in rows}
+
+        rows_hot = db.query(
+            MemberLead.source_funnel_id,
+            _func.count(MemberLead.id).label("c"),
+        ).filter(
+            MemberLead.source_funnel_id.in_(funnel_ids),
+            MemberLead.is_hot == True,
+        ).group_by(MemberLead.source_funnel_id).all()
+        leads_hot_rows = {r.source_funnel_id: r.c for r in rows_hot}
+
+        rows_24h = db.query(
+            MemberLead.source_funnel_id,
+            _func.count(MemberLead.id).label("c"),
+        ).filter(
+            MemberLead.source_funnel_id.in_(funnel_ids),
+            MemberLead.created_at >= cutoff_24h,
+        ).group_by(MemberLead.source_funnel_id).all()
+        leads_24h_rows = {r.source_funnel_id: r.c for r in rows_24h}
+
+    # ── Per-page most recent lead timestamp ──
+    last_lead_rows = {}
+    if funnel_ids:
+        rows = db.query(
+            MemberLead.source_funnel_id,
+            _func.max(MemberLead.created_at).label("ts"),
+        ).filter(MemberLead.source_funnel_id.in_(funnel_ids)).group_by(
+            MemberLead.source_funnel_id
+        ).all()
+        last_lead_rows = {r.source_funnel_id: r.ts for r in rows}
+
+    # ── Per-page open-rate (avg of leads' open ratios on this page) ──
+    # Defined as: of all leads sourced from this page who have received
+    # at least 1 email, what's the average (emails_opened / emails_sent)?
+    # A lead with emails_sent=0 is excluded from the denominator entirely
+    # — we're not punishing a page for leads that haven't yet been emailed.
+    open_rate_rows = {}
+    if funnel_ids:
+        # Compute as sum(emails_opened) / sum(emails_sent) — this is the
+        # "weighted" open rate (treats every email equally), not the
+        # "averaged" rate (treats every lead equally). Weighted reads
+        # truer for tiny lists where one chatty lead would skew an
+        # averaged calculation.
+        rows = db.query(
+            MemberLead.source_funnel_id,
+            _func.sum(MemberLead.emails_sent).label("sent"),
+            _func.sum(MemberLead.emails_opened).label("opened"),
+        ).filter(
+            MemberLead.source_funnel_id.in_(funnel_ids),
+            MemberLead.emails_sent > 0,
+        ).group_by(MemberLead.source_funnel_id).all()
+        for r in rows:
+            sent = int(r.sent or 0)
+            opened = int(r.opened or 0)
+            open_rate_rows[r.source_funnel_id] = (opened / sent) if sent > 0 else 0.0
+
+    # ── Assemble per-funnel response ──
+    funnel_data = []
+    for f in funnels:
+        views_30d = int(views_30d_rows.get(f.id, 0))
+        optins_30d = int(optins_30d_rows.get(f.id, 0))
+        conversion_rate_30d = (optins_30d / views_30d) if views_30d > 0 else 0.0
+        last_lead_at = last_lead_rows.get(f.id)
+        funnel_data.append({
+            "id": f.id,
+            "title": f.title or "Untitled",
+            "slug": f.slug or "",
+            "status": f.status or "draft",
+            "views": f.views or 0,                          # all-time, legacy field
+            "leads_captured": f.leads_captured or 0,        # all-time, legacy field
+            "is_ai_generated": f.is_ai_generated or False,
+            "created_at": f.created_at.isoformat() if f.created_at else None,
+            # New campaign-dashboard fields ─────────────────────
+            "views_30d": views_30d,
+            "optins_30d": optins_30d,
+            "conversion_rate_30d": round(conversion_rate_30d, 4),
+            "leads_total": int(leads_total_rows.get(f.id, 0)),
+            "leads_hot": int(leads_hot_rows.get(f.id, 0)),
+            "leads_new_24h": int(leads_24h_rows.get(f.id, 0)),
+            "sequence_open_rate": round(float(open_rate_rows.get(f.id, 0.0)), 4),
+            "last_lead_at": last_lead_at.isoformat() if last_lead_at else None,
+            # Attribution + earnings — placeholder until Commit B ship
+            "earnings_30d": None,
+            "conversions_30d": None,
+        })
+
+    # ── Top-level 30-day rollup (for the ROI strip) ──
+    total_visitors_30d = sum(views_30d_rows.values()) if views_30d_rows else 0
+    total_leads_30d = sum(optins_30d_rows.values()) if optins_30d_rows else 0
+    total_hot_leads = sum(leads_hot_rows.values()) if leads_hot_rows else 0
+
+    return {
+        "funnels": funnel_data,
+        "rollup_30d": {
+            "visitors": total_visitors_30d,
+            "leads": total_leads_30d,
+            "hot_leads": total_hot_leads,
+            "earnings": None,        # placeholder, lands in Commit B
+            "conversions": None,     # placeholder, lands in Commit B
+        },
+    }
 @app.get("/api/linkhub-stats")
 def api_linkhub_stats(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
