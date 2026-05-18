@@ -324,6 +324,13 @@ export default function Funnels() {
   // shareModal holds {page, code, loading, error, copied} or null.
   const [shareModal, setShareModal] = useState(null);
 
+  // Import-code modal — opened by the "Import code" button in the
+  // header. Holds {value, loading, error, success} where success is
+  // the import response payload (page_id, edit_url, ref_rewrites,
+  // warnings) when import succeeds. The success state replaces the
+  // input form so users get clear feedback before navigating away.
+  const [importModal, setImportModal] = useState(null);
+
   useEffect(() => { load(); loadActivity(); }, []);
 
   // Phase 1.5 — user confirmed edit-wiring modal. Updates an existing
@@ -383,6 +390,43 @@ export default function Funnels() {
       // Clipboard API can fail on insecure contexts — fall back to a
       // visible prompt so the user can still grab the code manually.
       alert(`Copy failed. Code: ${shareModal.code}`);
+    }
+  };
+
+  // Submit the import-code form. Accepts the code in any reasonable
+  // shape (with/without dashes, with/without SAP- prefix) — the
+  // backend normalises so we only need to send the raw value. On
+  // success we swap the modal to the success state showing the
+  // rewrite count and any warnings.
+  const handleImportSubmit = async () => {
+    const code = (importModal?.value || '').trim();
+    if (!code) {
+      setImportModal(m => m ? { ...m, error: 'Paste a code first.' } : m);
+      return;
+    }
+    setImportModal(m => m ? { ...m, loading: true, error: null } : m);
+    try {
+      const res = await apiPost('/api/share-codes/import', { code });
+      if (res?.success && res.page_id) {
+        setImportModal({
+          value: code,
+          loading: false,
+          error: null,
+          success: {
+            page_id: res.page_id,
+            edit_url: res.edit_url,
+            ref_rewrites: res.ref_rewrites || 0,
+            warnings: res.warnings || [],
+          },
+        });
+        // Refresh the page list in the background so the new draft
+        // shows up immediately when the user closes the modal.
+        load();
+      } else {
+        setImportModal(m => m ? { ...m, loading: false, error: res?.error || 'Import failed.' } : m);
+      }
+    } catch (e) {
+      setImportModal(m => m ? { ...m, loading: false, error: e.message || String(e) } : m);
     }
   };
 
@@ -498,26 +542,46 @@ export default function Funnels() {
             <p style={{margin:'4px 0 0',fontSize:12,color:'var(--sap-text-muted)'}}>Your campaign pages, lists, and earnings — at a glance.</p>
           </div>
         </div>
-        <a
-          href="/pro/funnels/new"
-          style={{
-            background: 'linear-gradient(135deg,#0a1438,#1e3a8a)',
-            color: '#fff',
-            border: 'none',
-            padding: '10px 18px',
-            borderRadius: 10,
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: 'pointer',
-            fontFamily: 'Sora,sans-serif',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            boxShadow: '0 4px 12px rgba(10,20,56,.18)',
-          }}>
-          <Plus size={14}/> New page
-        </a>
+        <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+          <button
+            onClick={() => setImportModal({ value: '', loading: false, error: null, success: null })}
+            style={{
+              background: '#fff',
+              color: 'var(--sap-text-primary)',
+              border: '1.5px solid #cbd5e1',
+              padding: '9px 16px',
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'Sora,sans-serif',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}>
+            <Share2 size={14}/> Import code
+          </button>
+          <a
+            href="/pro/funnels/new"
+            style={{
+              background: 'linear-gradient(135deg,#0a1438,#1e3a8a)',
+              color: '#fff',
+              border: 'none',
+              padding: '10px 18px',
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'Sora,sans-serif',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              boxShadow: '0 4px 12px rgba(10,20,56,.18)',
+            }}>
+            <Plus size={14}/> New page
+          </a>
+        </div>
       </div>
 
 
@@ -1077,6 +1141,146 @@ export default function Funnels() {
                   }}>
                   {shareModal.copied ? <><Check size={16}/> Copied</> : <><Copy size={16}/> Copy code</>}
                 </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Import Code modal ──
+          Opens from the "Import code" button in the header. Two
+          stages: input form (paste code + Import button) and success
+          state (rewrite count, warnings, "Open page" link). Errors
+          render inline above the input. Close button always works. */}
+      {importModal && (
+        <div
+          onClick={() => setImportModal(null)}
+          style={{
+            position:'fixed', inset:0, background:'rgba(10,20,56,.55)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            zIndex:1000, padding:20,
+          }}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background:'#fff', borderRadius:12, padding:'24px 24px 20px',
+              maxWidth:460, width:'100%',
+              boxShadow:'0 20px 50px rgba(10,20,56,.25)',
+              fontFamily:'DM Sans, sans-serif',
+            }}>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+              <div style={{
+                width:36, height:36, borderRadius:8, background:'#f0f9ff',
+                display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <Share2 size={18} color="#0284c7" />
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:'Sora, sans-serif',fontWeight:700,fontSize:16,color:'#0a1438'}}>
+                  {importModal.success ? 'Page imported' : 'Import a page'}
+                </div>
+                <div style={{fontSize:12,color:'#64748b',marginTop:2}}>
+                  {importModal.success
+                    ? 'Saved to your drafts. Review before publishing.'
+                    : 'Paste a SAP code to clone the page into your drafts.'}
+                </div>
+              </div>
+              <button
+                onClick={() => setImportModal(null)}
+                style={{background:'none', border:'none', cursor:'pointer', padding:6, borderRadius:6, color:'#94a3b8'}}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {!importModal.success && (
+              <>
+                {importModal.error && (
+                  <div style={{
+                    background:'#fef2f2', border:'1px solid #fecaca', borderRadius:8,
+                    padding:'10px 12px', color:'#b91c1c', fontSize:13, lineHeight:1.4,
+                    marginTop:12, marginBottom:4,
+                  }}>
+                    {importModal.error}
+                  </div>
+                )}
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="SAP-XXXX-XXXX"
+                  value={importModal.value}
+                  onChange={(e) => setImportModal(m => m ? { ...m, value: e.target.value, error: null } : m)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !importModal.loading) handleImportSubmit(); }}
+                  disabled={importModal.loading}
+                  style={{
+                    width:'100%', boxSizing:'border-box',
+                    padding:'13px 14px', marginTop:12,
+                    borderRadius:8, border:'1.5px solid #cbd5e1',
+                    fontFamily:'JetBrains Mono, ui-monospace, monospace',
+                    fontSize:16, fontWeight:600, letterSpacing:1,
+                    color:'#0a1438', textAlign:'center',
+                    textTransform:'uppercase',
+                  }}
+                />
+                <button
+                  onClick={handleImportSubmit}
+                  disabled={importModal.loading || !importModal.value.trim()}
+                  style={{
+                    width:'100%', padding:'11px 16px', borderRadius:8,
+                    border:'none', cursor: importModal.loading || !importModal.value.trim() ? 'not-allowed' : 'pointer',
+                    background: importModal.loading || !importModal.value.trim() ? '#cbd5e1' : '#0ea5e9',
+                    color:'#fff', fontWeight:700, fontSize:14,
+                    fontFamily:'Sora, sans-serif', marginTop:12,
+                  }}>
+                  {importModal.loading ? 'Importing…' : 'Import page'}
+                </button>
+              </>
+            )}
+
+            {importModal.success && (
+              <>
+                <div style={{
+                  background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10,
+                  padding:'14px 16px', marginTop:12,
+                }}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                    <Check size={16} color="#16a34a"/>
+                    <div style={{fontWeight:700,fontSize:14,color:'#0a1438'}}>Clone created as draft</div>
+                  </div>
+                  {importModal.success.ref_rewrites > 0 && (
+                    <div style={{fontSize:13,color:'#475569',lineHeight:1.5}}>
+                      Rewrote {importModal.success.ref_rewrites} referral link{importModal.success.ref_rewrites === 1 ? '' : 's'} to your username automatically.
+                    </div>
+                  )}
+                  {importModal.success.ref_rewrites === 0 && (
+                    <div style={{fontSize:13,color:'#475569',lineHeight:1.5}}>
+                      No referral links found to rewrite.
+                    </div>
+                  )}
+                </div>
+
+                {importModal.success.warnings && importModal.success.warnings.length > 0 && (
+                  <div style={{
+                    background:'#fffbeb', border:'1px solid #fde68a', borderRadius:10,
+                    padding:'12px 14px', marginTop:10,
+                  }}>
+                    {importModal.success.warnings.map((w, i) => (
+                      <div key={i} style={{fontSize:13,color:'#92400e',lineHeight:1.5}}>{w}</div>
+                    ))}
+                  </div>
+                )}
+
+                <a
+                  href={importModal.success.edit_url}
+                  style={{
+                    display:'block', textAlign:'center',
+                    width:'100%', boxSizing:'border-box',
+                    padding:'11px 16px', borderRadius:8,
+                    background:'#0ea5e9', color:'#fff',
+                    fontWeight:700, fontSize:14, fontFamily:'Sora, sans-serif',
+                    textDecoration:'none', marginTop:12,
+                  }}>
+                  Open page editor →
+                </a>
               </>
             )}
           </div>

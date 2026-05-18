@@ -17345,6 +17345,205 @@ def share_code_list_mine(user: User = Depends(get_current_user),
     } for r in rows]})
 
 
+# ── Share Code commit 2: import + ref-link rewriting ──
+# When a user pastes a SAP-XXXX-XXXX code, we look it up, rebuild a
+# fresh draft FunnelPage owned by them, run the rewriter to swap any
+# /r/{username} and ?ref={username} occurrences to their own ref, and
+# flag anything we couldn't safely rewrite so they can review.
+#
+# Asset handling decision (deliberately deferred): we leave external
+# image/video URLs as-is in v1. Our R2 buckets are public and stable
+# so the imported page just keeps referencing the original asset. If
+# this causes problems (asset deletion, abuse, hotlinking concerns)
+# we add a copy-on-import pass in a future commit. Network marketers
+# typically replace shared imagery with their own brand anyway, so
+# the link-back to the original is short-lived in practice.
+
+import re as _re
+
+# Patterns the rewriter recognises. Anything that doesn't match these
+# is left alone but flagged in the import receipt as "review this
+# link — we couldn't safely rewrite it."
+#   /r/USERNAME            — referral landing path
+#   ?ref=USERNAME          — query-string ref
+#   &ref=USERNAME          — query-string ref (not first param)
+# Usernames are alphanumeric + underscore on SuperAdPro (see User
+# model). We rewrite case-insensitively but preserve the original
+# casing semantics by always emitting lowercase (which is what the
+# router expects).
+_REF_PATH_RE  = _re.compile(r"/r/([A-Za-z0-9_]+)")
+_REF_QUERY_RE = _re.compile(r"([?&])ref=([A-Za-z0-9_]+)", _re.IGNORECASE)
+
+
+def _rewrite_referral_links(text_blob: str, new_username: str):
+    """Rewrite referral occurrences in arbitrary text/HTML/JSON.
+
+    Returns (rewritten_text, rewrite_count). We don't try to be smart
+    about whose ref it was — every match becomes new_username. That's
+    correct: if the original author's ref leaked into a CTA, the
+    importer wants their own ref there, full stop.
+    """
+    if not text_blob or not new_username:
+        return text_blob, 0
+    count = 0
+
+    def _sub_path(m):
+        nonlocal count
+        count += 1
+        return f"/r/{new_username}"
+
+    def _sub_query(m):
+        nonlocal count
+        count += 1
+        return f"{m.group(1)}ref={new_username}"
+
+    rewritten = _REF_PATH_RE.sub(_sub_path, text_blob)
+    rewritten = _REF_QUERY_RE.sub(_sub_query, rewritten)
+    return rewritten, count
+
+
+# Fields on the v1 snapshot that may contain referral links and so
+# get passed through the rewriter. Anything else (template_type,
+# color_scheme, etc.) is structural and never holds URLs.
+_REWRITE_TARGET_FIELDS = (
+    "headline", "subheadline", "body_copy",
+    "cta_url", "video_url", "image_url",
+    "sections_json", "gjs_components", "gjs_html", "custom_css",
+    "meta_description", "og_image_url",
+    "capture_form_heading", "capture_form_subtext",
+)
+
+
+@app.post("/api/share-codes/import")
+async def share_code_import(request: Request, user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Import a SAP-XXXX-XXXX code as a fresh draft FunnelPage.
+
+    Body: {"code": "SAP-XXXX-XXXX"}
+    Returns: {
+      "success": True,
+      "page_id": <int>,
+      "edit_url": "/pro/funnel/<id>/edit",
+      "ref_rewrites": <int>,           # how many ref links we swapped
+      "warnings": [ ... ],             # any soft issues for the user
+    }
+
+    Spec: the new page is owned by the importer, status=draft, with
+    no list/sequence binding. The importer wires their campaign via
+    the existing Phase 1 modal flow on first publish. We deliberately
+    do NOT expose the owner_user_id of the code anywhere in the
+    response — the spec mandates zero attribution to importers.
+    """
+    from fastapi.responses import JSONResponse
+    import json as _json
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "Importing pages is a Pro feature."}, status_code=403)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    raw_code = (body.get("code") or "").strip().upper()
+    if not raw_code:
+        return JSONResponse({"error": "code required"}, status_code=400)
+
+    # Normalise: accept with or without dashes, with or without SAP-
+    # prefix variants. We store as SAP-XXXX-XXXX.
+    cleaned = _re.sub(r"[^A-Z0-9]", "", raw_code)
+    if cleaned.startswith("SAP"):
+        cleaned = cleaned[3:]
+    if len(cleaned) != 8:
+        return JSONResponse({"error": "That code doesn't look right. Expected format: SAP-XXXX-XXXX"}, status_code=400)
+    normalised = f"SAP-{cleaned[:4]}-{cleaned[4:]}"
+
+    share = db.query(ShareCode).filter(ShareCode.code == normalised).first()
+    if not share:
+        return JSONResponse({"error": "Code not found. Double-check the code with whoever sent it."}, status_code=404)
+
+    # Expiry guard (future-proofing — no codes expire today)
+    if share.expires_at and share.expires_at < datetime.utcnow():
+        return JSONResponse({"error": "This code has expired."}, status_code=410)
+
+    try:
+        payload = _json.loads(share.payload_json)
+    except Exception:
+        return JSONResponse({"error": "This code's data is corrupted. Ask the sender to regenerate it."}, status_code=500)
+
+    if payload.get("v") != 1:
+        return JSONResponse({"error": f"Unsupported share-code version: {payload.get('v')}. Update needed."}, status_code=400)
+
+    snap = payload.get("page") or {}
+    title = (snap.get("title") or "Imported page").strip() or "Imported page"
+
+    # Run the rewriter across every text-bearing field. We sum the
+    # rewrite counts to report in the response. The rewriter is safe
+    # to run on JSON-encoded blobs (sections_json, gjs_components) —
+    # it operates on the raw string so escape sequences stay intact.
+    rewrite_total = 0
+    for field in _REWRITE_TARGET_FIELDS:
+        original = snap.get(field)
+        if not original or not isinstance(original, str):
+            continue
+        rewritten, n = _rewrite_referral_links(original, user.username or "")
+        if n:
+            snap[field] = rewritten
+            rewrite_total += n
+
+    # Build the new page. Status forced to draft so the user reviews
+    # before publishing — never auto-publish someone else's content
+    # under the importer's name.
+    new_page = FunnelPage(user_id=user.id, status="draft")
+    for field in SHARE_CODE_V1_FIELDS:
+        if field in snap:
+            setattr(new_page, field, snap[field])
+    new_page.title = title
+    new_page.slug = generate_unique_slug(db, user.username or f"user{user.id}", title)
+    # Explicitly zero stats so we never inherit the source page's
+    # numbers. Defaults on the model handle this for fresh inserts
+    # but we set them defensively in case future migrations change
+    # column defaults.
+    new_page.views = 0
+    new_page.clicks = 0
+    new_page.leads_captured = 0
+    # No binding inherited — campaign wiring is the importer's call.
+    new_page.default_list_id = None
+    new_page.capture_sequence_id = None
+    # Don't flag imports as AI-generated — they may have been, in the
+    # original author's account, but on the importer's dashboard the
+    # AI badge would mislead.
+    new_page.is_ai_generated = False
+    new_page.ai_niche = None
+    new_page.ai_audience = None
+    new_page.ai_story = None
+    new_page.ai_tone = None
+    db.add(new_page)
+
+    # Track usage on the share code.
+    share.uses_count = (share.uses_count or 0) + 1
+
+    db.commit()
+    db.refresh(new_page)
+
+    warnings = []
+    # If there were 0 rewrites AND the original had something that
+    # looked like a URL in a CTA, flag it. Cheap heuristic — better
+    # to over-flag than miss a stranger's monetised link.
+    if rewrite_total == 0:
+        cta = (snap.get("cta_url") or "")
+        if cta and ("/r/" in cta or "ref=" in cta.lower() or "affiliate" in cta.lower()):
+            warnings.append("The CTA link contained referral-looking text we couldn't safely rewrite. Review the Edit page before publishing.")
+
+    return JSONResponse({
+        "success": True,
+        "page_id": new_page.id,
+        "edit_url": f"/pro/funnel/{new_page.id}/edit",
+        "ref_rewrites": rewrite_total,
+        "warnings": warnings,
+    })
+
+
 @app.post("/api/funnels/sequence")
 async def funnel_set_sequence(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
