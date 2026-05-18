@@ -98,20 +98,40 @@ export default function FunnelsNew() {
 
   return (
     <AppLayout>
-      {/* Breadcrumb back */}
-      <div style={{marginBottom:20,fontSize:12}}>
-        <Link to="/pro/funnels" style={{color:'#0ea5e9',textDecoration:'none',display:'inline-flex',alignItems:'center',gap:4}}>
-          <ArrowLeft size={12}/> Back to SuperPages
+      {/* Page header with prominent back button — small cyan breadcrumb
+          link was too easy to miss when scrolling. Now a proper sized
+          "Back to SuperPages" button sits left of the title so the
+          exit route is always visible at the top of the page. A second
+          copy lives at the bottom of the template grid so a user who's
+          scrolled all the way down doesn't have to scroll back up. */}
+      <div style={{display:'flex',alignItems:'flex-start',gap:14,marginBottom:24,flexWrap:'wrap'}}>
+        <Link
+          to="/pro/funnels"
+          style={{
+            display:'inline-flex',
+            alignItems:'center',
+            gap:6,
+            padding:'8px 14px',
+            borderRadius:9,
+            background:'#fff',
+            color:'#0a1438',
+            border:'1px solid #e2e8f0',
+            textDecoration:'none',
+            fontSize:13,
+            fontWeight:600,
+            fontFamily:'Sora,sans-serif',
+            flexShrink:0,
+            marginTop:4,
+          }}>
+          <ArrowLeft size={14}/> Back
         </Link>
-      </div>
-
-      {/* Page header */}
-      <div style={{marginBottom:24}}>
-        <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0a1438',letterSpacing:'-0.01em'}}>
-          Start a new page
-        </h1>
-        <div style={{marginTop:4,fontSize:13,color:'#64748b'}}>
-          Generate one with AI, pick a template, or start from blank.
+        <div style={{flex:1,minWidth:0}}>
+          <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0a1438',letterSpacing:'-0.01em'}}>
+            Start a new page
+          </h1>
+          <div style={{marginTop:4,fontSize:13,color:'#64748b'}}>
+            Generate one with AI, pick a template, or start from blank.
+          </div>
         </div>
       </div>
 
@@ -264,6 +284,31 @@ export default function FunnelsNew() {
             );
           });
         })()}
+      </div>
+
+      {/* Bottom back-link — duplicate of the header Back button so
+          users who've scrolled through all 9 templates don't have
+          to scroll back up to leave. Centered and muted so it
+          doesn't compete with the template tiles for attention. */}
+      <div style={{textAlign:'center',marginTop:28}}>
+        <Link
+          to="/pro/funnels"
+          style={{
+            display:'inline-flex',
+            alignItems:'center',
+            gap:6,
+            padding:'9px 18px',
+            borderRadius:9,
+            background:'#fff',
+            color:'#475569',
+            border:'1px solid #e2e8f0',
+            textDecoration:'none',
+            fontSize:13,
+            fontWeight:600,
+            fontFamily:'Sora,sans-serif',
+          }}>
+          <ArrowLeft size={14}/> Back to SuperPages
+        </Link>
       </div>
 
       {/* Campaign Setup Modal — opens when a tile is clicked */}
