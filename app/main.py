@@ -725,6 +725,27 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
 
 def is_admin(user): return user is not None and getattr(user, "is_admin", False)
 
+
+def _safe_json(s):
+    """Safely parse a JSON string column into a list. Returns [] if the
+    column is null, empty, or contains malformed JSON.
+
+    Originally defined in main.py.backup line 16751 — got dropped during
+    a refactor but two call sites still reference it (api_leads_sequences
+    line 28671, send_sequence_email line 28856). NameError was throwing
+    on every /api/leads/sequences call, killing the Promise.all that
+    MyLeads.jsx uses to load the leads page, leaving the entire page
+    blank. Restored 18 May 2026.
+    """
+    import json as _j
+    if not s:
+        return []
+    try:
+        return _j.loads(s)
+    except Exception:
+        return []
+
+
 def is_pro(user):
     """Pro-tier or admin. Use for gating Pro features."""
     if user is None:
