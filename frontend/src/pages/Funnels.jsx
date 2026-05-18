@@ -790,7 +790,23 @@ export default function Funnels() {
               const hasTraffic = views30 > 0 || (p.leads_total ?? 0) > 0;
 
               return (
-              <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden'}}>
+              <div
+                key={p.id}
+                className="page-card"
+                style={{
+                  background: '#fff',
+                  border: '1px solid #eef1f5',
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                  // Two-layer cobalt-tinted shadow lifts the card
+                  // off the page background without screaming for
+                  // attention. The page-card:hover rule (in the
+                  // style block at the bottom of this file) deepens
+                  // the shadow and adds a 1px upward translate so
+                  // the card feels live without becoming distracting.
+                  boxShadow: '0 1px 3px rgba(10,20,56,.04), 0 1px 2px rgba(10,20,56,.06)',
+                  transition: 'transform .15s, box-shadow .15s, border-color .15s',
+                }}>
                 <div style={{padding:'12px 14px'}}>
                   <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
                     <div style={{width:6,height:6,borderRadius:'50%',background:p.status==='published'?'#10b981':'#cbd5e1'}}/>
@@ -903,6 +919,7 @@ export default function Funnels() {
         @media(max-width:960px){.sp-template-grid{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:600px){.sp-template-grid{grid-template-columns:1fr}}
         .tpl-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.06),0 2px 8px rgba(15,23,42,.03)!important;border-color:#cbd5e1!important}
+        .page-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(10,20,56,.08),0 2px 4px rgba(10,20,56,.06)!important;border-color:#dbe1eb!important}
         .tpl-card:active{transform:scale(.99)!important}
       `}</style>
 
