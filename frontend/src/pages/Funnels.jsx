@@ -50,21 +50,21 @@ function RoiStat({ value, label, dim = false, accent = false, first = false }) {
     }}>
       <div style={{
         fontFamily: "'Sora', sans-serif",
-        fontSize: 48,
+        fontSize: 36,
         fontWeight: 800,
         color: valueColor,
         lineHeight: 1,
-        letterSpacing: '-0.03em',
+        letterSpacing: '-0.025em',
       }}>
         {value}
       </div>
       <div style={{
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: 700,
         letterSpacing: 1.2,
         textTransform: 'uppercase',
         color: '#94a3b8',
-        marginTop: 12,
+        marginTop: 10,
         fontFamily: "'JetBrains Mono', monospace",
       }}>
         {label}
@@ -284,9 +284,9 @@ export default function Funnels() {
     setAiGenerating(false);
   };
 
-  const totalViews = pages.reduce((a, p) => a + (p.views || 0), 0);
-  const totalLeads = pages.reduce((a, p) => a + (p.leads_captured || 0), 0);
-  const published = pages.filter(p => p.status === 'published').length;
+  // Removed totalViews/totalLeads/published computations on 18 May 2026 —
+  // they fed the three small stat cards above 'Your Pages' which we deleted
+  // (they duplicated the ROI strip data at the top of the page).
 
   if (loading) return <AppLayout title={t('superPages.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
@@ -332,53 +332,53 @@ export default function Funnels() {
       </div>
 
       {/* ── ROI strip ─ Last 30 days at a glance ──
-          Hero-scale stat card. Big numbers (Sora 48px) so the page
-          owner sees the headline funnel chain at a glance. White card,
-          dark navy numbers, cobalt accents. Cyan eyebrow + bold left
-          stripe identify the timeframe. Conversions + earnings show
-          '—' (in slate-300) until Commit B lands the lead-attribution
-          layer that powers them. */}
+          Mid-scale stat card balancing readability with proportion.
+          36px Sora numbers — big enough to register at a glance but
+          not so big they dominate. Subtitle dynamically reflects the
+          page count so the user knows the rollup is across all their
+          pages (not just one). Conversions + earnings show '—' (in
+          slate-300) until Commit B lands the lead-attribution layer. */}
       {pages.length > 0 && rollup30d && (
         <div style={{
           background: '#ffffff',
           border: '1px solid #e2e8f0',
           borderRadius: 16,
-          padding: '28px 32px',
-          marginBottom: 28,
+          padding: '22px 28px',
+          marginBottom: 24,
           boxShadow: '0 4px 12px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04)',
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 14,
-            marginBottom: 22,
+            gap: 12,
+            marginBottom: 18,
           }}>
             <div style={{
-              width: 6,
-              height: 44,
+              width: 5,
+              height: 38,
               borderRadius: 3,
               background: 'linear-gradient(180deg, #0ea5e9, #06b6d4)',
             }} />
             <div>
               <div style={{
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 700,
-                letterSpacing: 1.6,
+                letterSpacing: 1.5,
                 textTransform: 'uppercase',
                 color: '#0ea5e9',
                 fontFamily: "'JetBrains Mono', monospace",
-                marginBottom: 4,
+                marginBottom: 3,
               }}>
                 Last 30 days
               </div>
               <div style={{
-                fontSize: 18,
+                fontSize: 15,
                 fontWeight: 700,
                 color: '#0a1438',
                 fontFamily: "'Sora', sans-serif",
                 letterSpacing: '-0.01em',
               }}>
-                Your funnel performance
+                Performance across {pages.length} {pages.length === 1 ? 'page' : 'pages'}
               </div>
             </div>
           </div>
@@ -404,7 +404,7 @@ export default function Funnels() {
           </div>
           <style>{`
             @media (max-width: 720px) {
-              .roi-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px 0 !important; }
+              .roi-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 20px 0 !important; }
             }
           `}</style>
         </div>
@@ -483,14 +483,9 @@ export default function Funnels() {
       {/* Your Pages section (preserved from original) */}
       {pages.length > 0 && (
         <div id="your-pages" style={{marginTop:32}}>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:16,maxWidth:480}}>
-            {[{label:t('superPages.publishedLabel'),val:published,color:'var(--sap-green)'},{label:t('superPages.leadsLabel2'),val:totalLeads,color:'var(--sap-accent)'},{label:t('superPages.viewsLabel2'),val:totalViews,color:'var(--sap-purple)'}].map((s,i) => (
-              <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:'12px 14px',borderLeft:`3px solid ${s.color}`}}>
-                <div style={{fontSize:13,fontWeight:700,letterSpacing:.8,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{s.label}</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-text-primary)',margin:'2px 0'}}>{s.val}</div>
-              </div>
-            ))}
-          </div>
+          {/* Three small PUBLISHED/LEADS/VIEWS stat cards were removed
+              18 May 2026 — they duplicated the data now in the ROI strip
+              at the top of the page. Steve flagged the redundancy. */}
 
           <h2 style={{margin:'0 0 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.yourPages')}</h2>
 
