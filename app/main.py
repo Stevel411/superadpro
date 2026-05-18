@@ -29119,42 +29119,60 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
     # set AND there exists a Commission row in the 30-day window paying
     # this page's owner from that attributed user. Earnings: sum of
     # those commission amounts.
+    #
+    # Wrapped in try/except — on environments where SKIP_MIGRATIONS is
+    # set, the attribution_user_id column may not exist yet. We log
+    # and fall through with empty dicts so the rest of the endpoint
+    # still returns useful data (visits, opt-ins, leads). Once
+    # SKIP_MIGRATIONS flips back to false on a deploy, this will start
+    # returning real numbers automatically.
     conversions_30d_rows = {}
     earnings_30d_rows = {}
     if funnel_ids:
-        # Join MemberLead -> Commission via attribution_user_id.
-        # Commission.from_user_id = the attributed (paying) user.
-        # Commission.to_user_id   = the page owner (= user.id, our caller).
-        # We filter to membership-related commission types only —
-        # courses, grids, etc don't count as "funnel conversions" because
-        # they're separate purchase products, not the result of the
-        # lead-capture-to-membership chain that the funnel tracks.
-        commission_types = [
-            "membership_sponsor",
-            "Membership Sponsor",      # legacy capitalisation in historical rows
-            "membership_renewal_sponsor",
-            "gift_membership_sponsor",
-        ]
-        rows = db.query(
-            MemberLead.source_funnel_id,
-            _func.count(_func.distinct(MemberLead.id)).label("conv"),
-            _func.coalesce(_func.sum(Commission.amount_usdt), 0).label("earned"),
-        ).join(
-            Commission,
-            _and(
-                Commission.from_user_id == MemberLead.attribution_user_id,
-                Commission.to_user_id == user.id,
-                Commission.commission_type.in_(commission_types),
-                Commission.status == "paid",
-                Commission.paid_at >= cutoff_30d,
-            ),
-        ).filter(
-            MemberLead.source_funnel_id.in_(funnel_ids),
-            MemberLead.attribution_user_id.isnot(None),
-        ).group_by(MemberLead.source_funnel_id).all()
-        for r in rows:
-            conversions_30d_rows[r.source_funnel_id] = int(r.conv or 0)
-            earnings_30d_rows[r.source_funnel_id] = float(r.earned or 0)
+        try:
+            # Join MemberLead -> Commission via attribution_user_id.
+            # Commission.from_user_id = the attributed (paying) user.
+            # Commission.to_user_id   = the page owner (= user.id, our caller).
+            # We filter to membership-related commission types only —
+            # courses, grids, etc don't count as "funnel conversions" because
+            # they're separate purchase products, not the result of the
+            # lead-capture-to-membership chain that the funnel tracks.
+            commission_types = [
+                "membership_sponsor",
+                "Membership Sponsor",      # legacy capitalisation in historical rows
+                "membership_renewal_sponsor",
+                "gift_membership_sponsor",
+            ]
+            rows = db.query(
+                MemberLead.source_funnel_id,
+                _func.count(_func.distinct(MemberLead.id)).label("conv"),
+                _func.coalesce(_func.sum(Commission.amount_usdt), 0).label("earned"),
+            ).join(
+                Commission,
+                _and(
+                    Commission.from_user_id == MemberLead.attribution_user_id,
+                    Commission.to_user_id == user.id,
+                    Commission.commission_type.in_(commission_types),
+                    Commission.status == "paid",
+                    Commission.paid_at >= cutoff_30d,
+                ),
+            ).filter(
+                MemberLead.source_funnel_id.in_(funnel_ids),
+                MemberLead.attribution_user_id.isnot(None),
+            ).group_by(MemberLead.source_funnel_id).all()
+            for r in rows:
+                conversions_30d_rows[r.source_funnel_id] = int(r.conv or 0)
+                earnings_30d_rows[r.source_funnel_id] = float(r.earned or 0)
+        except Exception as _attr_err:
+            # Roll back the transaction — once a query raises, the
+            # SQLAlchemy session is in an aborted state and subsequent
+            # queries (or the final db.commit on view tracking) will
+            # also fail. Rolling back resets it cleanly.
+            db.rollback()
+            logger.warning(
+                f"Funnels API: attribution join failed (likely missing "
+                f"attribution_user_id column, run migration): {_attr_err}"
+            )
 
     # ── Assemble per-funnel response ──
     funnel_data = []

@@ -230,6 +230,10 @@ export default function Funnels() {
   // /api/funnels. Stays null until the first load resolves so the strip
   // can render a skeleton until real numbers arrive.
   const [rollup30d, setRollup30d] = useState(null);
+  // Surface API errors to the user rather than swallowing them in a
+  // silent catch. Renders a red banner at the top of the page when
+  // /api/funnels fails. 18 May 2026.
+  const [loadError, setLoadError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [creatingKey, setCreatingKey] = useState(null);
@@ -244,7 +248,17 @@ export default function Funnels() {
     setPages(d.funnels || d.pages || []);
     setRollup30d(d.rollup_30d || null);
     setLoading(false);
-  }).catch(() => setLoading(false));
+  }).catch((err) => {
+    // Surface API failure rather than swallowing it — silent catch was
+    // hiding a 500 from the backend when the attribution migration
+    // hadn't run, leaving the user with a blank page and no signal
+    // anything was wrong. Now we log and show a banner so the failure
+    // is visible (and Steve can flag it without it being hidden under
+    // an empty UI). 18 May 2026.
+    console.error('Funnels API load failed:', err);
+    setLoadError(err.message || 'Failed to load your pages. Please try again.');
+    setLoading(false);
+  });
   useEffect(() => { load(); }, []);
 
   const createFromTemplate = async (key) => {
@@ -293,6 +307,43 @@ export default function Funnels() {
 
   return (
     <AppLayout>
+      {/* Error banner — visible when /api/funnels fails so the user
+          isn't left looking at an empty page wondering what's wrong.
+          Replaces the previous silent .catch() pattern. */}
+      {loadError && (
+        <div style={{
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#991b1b',
+          borderRadius: 10,
+          padding: '12px 16px',
+          marginBottom: 16,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          fontSize: 13,
+          fontWeight: 600,
+        }}>
+          <span style={{ fontSize: 18 }}>⚠</span>
+          <span style={{ flex: 1 }}>{loadError}</span>
+          <button
+            onClick={() => { setLoadError(null); setLoading(true); load(); }}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 6,
+              border: '1px solid #991b1b',
+              background: '#fff',
+              color: '#991b1b',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}>
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Header — logo + subtitle + My Pages button */}
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
