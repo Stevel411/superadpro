@@ -66,10 +66,30 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         return `<${tag}${href} style="display:inline-flex"><svg viewBox="0 0 24 24" width="22" height="22" fill="#94a3b8"><path d="${d}"/></svg></${tag}>`;
       }).join('')}</div>`;
     } else if (el.type === 'form') {
-      let formHtml = (el.txt || '').replace(
+      // Build the form body in two passes to support both the new
+      // (post-18-May-2026) buildHTML output that emits <button
+      // data-sp-submit="1"> directly, AND any existing pages still
+      // using the legacy styled-<div> button pattern.
+      let formHtml = el.txt || '';
+
+      // PASS 1 (new) — promote our hook button to type="submit". This
+      // is the reliable path: works regardless of what custom text
+      // the user typed for the button label.
+      formHtml = formHtml.replace(
+        /<button data-sp-submit="1"([^>]*)>/gi,
+        '<button type="submit"$1>'
+      );
+
+      // PASS 2 (legacy) — historical pages have a styled <div> instead
+      // of a real <button>. Try to upgrade it using the original text
+      // allowlist. Pages saved before 18 May 2026 fall through this
+      // path. New pages won't match because they already have a
+      // button (handled by Pass 1).
+      formHtml = formHtml.replace(
         /<div([^>]*?)style="([^"]*?)"([^>]*)>(Get Access|Submit|Sign Up|Join|Download|Get Started|Subscribe|Claim|Register|Save My Seat|Reserve)[^<]*<\/div>/gi,
         '<button type="submit" style="$2;border:none;cursor:pointer;font-family:inherit">$4</button>'
       );
+
       formHtml = formHtml.replace(
         /placeholder="([^"]*?name[^"]*?)"/gi,
         'placeholder="$1" name="name"'

@@ -1437,7 +1437,13 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
     if (showName) fields += `<input placeholder="${namePlaceholder}" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
     fields += `<input placeholder="${emailPlaceholder}" type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
     if (showPhone) fields += `<input placeholder="${phonePlaceholder}" type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
-    return `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtitle}</div>${fields}<div style="width:100%;padding:12px;border-radius:10px;background:${btnColor};color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer">${btnText}</div></div>`;
+    // Emit a real <button> tag (not a styled <div>) with the
+    // data-sp-submit hook attribute. exportHTML.js finds it via this
+    // attribute rather than regex-matching the visible text, so the
+    // user can customise btnText to anything ('Start Free Trial',
+    // 'Yes! Count me in →') and the form still has a real submit
+    // button. Same fix as production superpages editor. 18 May 2026.
+    return `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtitle}</div>${fields}<button data-sp-submit="1" style="width:100%;padding:12px;border-radius:10px;background:${btnColor};color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer;border:none;font-family:inherit">${btnText}</button></div>`;
   };
 
   const apply = () => {
