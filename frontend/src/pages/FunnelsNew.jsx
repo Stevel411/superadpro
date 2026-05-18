@@ -273,7 +273,7 @@ export default function FunnelsNew() {
                 }}>
                   <Icon size={36} strokeWidth={1.8}/>
                 </div>
-                <div style={{padding:'12px 14px'}}>
+                <div style={{padding:'12px 14px', textAlign: isBlank ? 'center' : 'left'}}>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,color:'#0a1438',marginBottom:2}}>
                     {tpl.title}
                     {isLoading && <span style={{marginLeft:6,color:'#0ea5e9',fontWeight:600,fontSize:11}}>building…</span>}
