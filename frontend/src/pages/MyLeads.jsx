@@ -32,7 +32,18 @@ var TC = ['var(--sap-indigo)','var(--sap-accent)','var(--sap-green)','var(--sap-
 
 export default function MyLeads() {
   var { t } = useTranslation();
-  var [tab, setTab] = useState('leads');
+  // Read ?tab= from URL on mount so /pro/leads?tab=broadcast lands
+  // directly on the Broadcast composer. Used by the Funnels activity
+  // feed's "Send broadcast" CTA. Falls back to 'leads' for anything
+  // not in the tab list. Added 18 May 2026 (Campaign Hub Commit C).
+  var INITIAL_TAB = (function(){
+    try {
+      var qp = new URLSearchParams(window.location.search).get('tab') || '';
+      var valid = TAB_CONFIG.map(function(t){ return t.key; });
+      return valid.indexOf(qp) >= 0 ? qp : 'leads';
+    } catch(e) { return 'leads'; }
+  })();
+  var [tab, setTab] = useState(INITIAL_TAB);
   var [leads, setLeads] = useState([]);
   var [sequences, setSequences] = useState([]);
   var [lists, setLists] = useState([]);
