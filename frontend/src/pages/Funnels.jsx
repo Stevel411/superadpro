@@ -40,13 +40,14 @@ function RoiStat({ value, label, dim = false, accent = false, first = false }) {
   else if (accent) valueColor = '#0ea5e9';
   return (
     <div style={{
-      padding: '0 12px',
+      padding: '0 28px',
       textAlign: 'center',
       borderLeft: first ? 'none' : '1px solid #f1f5f9',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
+      minWidth: 130,
     }}>
       <div style={{
         fontFamily: "'Sora', sans-serif",
@@ -64,7 +65,7 @@ function RoiStat({ value, label, dim = false, accent = false, first = false }) {
         letterSpacing: 1.2,
         textTransform: 'uppercase',
         color: '#94a3b8',
-        marginTop: 10,
+        marginTop: 8,
         fontFamily: "'JetBrains Mono', monospace",
       }}>
         {label}
@@ -342,8 +343,8 @@ export default function Funnels() {
         <div style={{
           background: '#ffffff',
           border: '1px solid #e2e8f0',
-          borderRadius: 16,
-          padding: '22px 28px',
+          borderRadius: 14,
+          padding: '16px 24px',
           marginBottom: 24,
           boxShadow: '0 4px 12px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04)',
         }}>
@@ -351,28 +352,28 @@ export default function Funnels() {
             display: 'flex',
             alignItems: 'center',
             gap: 12,
-            marginBottom: 18,
+            marginBottom: 12,
           }}>
             <div style={{
-              width: 5,
-              height: 38,
-              borderRadius: 3,
+              width: 4,
+              height: 32,
+              borderRadius: 2,
               background: 'linear-gradient(180deg, #0ea5e9, #06b6d4)',
             }} />
             <div>
               <div style={{
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: 700,
-                letterSpacing: 1.5,
+                letterSpacing: 1.4,
                 textTransform: 'uppercase',
                 color: '#0ea5e9',
                 fontFamily: "'JetBrains Mono', monospace",
-                marginBottom: 3,
+                marginBottom: 2,
               }}>
                 Last 30 days
               </div>
               <div style={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 700,
                 color: '#0a1438',
                 fontFamily: "'Sora', sans-serif",
@@ -383,10 +384,11 @@ export default function Funnels() {
             </div>
           </div>
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 0,
+            display: 'flex',
+            justifyContent: 'center',
             alignItems: 'stretch',
+            flexWrap: 'wrap',
+            gap: 0,
           }} className="roi-stats-grid">
             <RoiStat value={rollup30d.visitors} label="visitors" first />
             <RoiStat value={rollup30d.leads} label="leads" />
@@ -404,7 +406,7 @@ export default function Funnels() {
           </div>
           <style>{`
             @media (max-width: 720px) {
-              .roi-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 20px 0 !important; }
+              .roi-stats-grid { gap: 16px 0 !important; }
             }
           `}</style>
         </div>
