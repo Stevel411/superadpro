@@ -36,6 +36,7 @@ from .database import DigitalProduct, DigitalProductPurchase, DigitalProductRevi
 from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
 from .database import CoPilotBriefing
 from .database import MemberLead
+from .database import ShareCode
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .database import MemberStory, MemberShowcase
 from .database import AdminBroadcast
@@ -17183,6 +17184,167 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
         if next_pg:
             redirect_url = f"/p/{next_pg.slug}"
     return JSONResponse({"success": True, "redirect": redirect_url})
+
+
+# ────────────────────────────────────────────────────────────────────────
+# Share Code system (commit 1: schema + generate)
+# ────────────────────────────────────────────────────────────────────────
+# Lets a member generate a portable SAP-XXXX-XXXX code that snapshots
+# the visual/content fields of one of their FunnelPages. The code's
+# payload contains everything needed to recreate the page in another
+# member's drafts on import — but deliberately excludes ownership,
+# stats, slug, and binding (default_list_id, capture_sequence_id).
+# The importer wires their own list/sequence via the Phase 1 modal.
+#
+# Spec locked 18 May 2026:
+#   - Page-only (no list, no sequence carried)
+#   - No attribution shown anywhere
+#   - Auto-rewrite of /r/{username} and ?ref={username} happens at
+#     IMPORT time, not snapshot time — keeps the payload neutral and
+#     lets us improve the rewriter without re-issuing codes.
+#   - Asset URLs left as-is in payload; copy-on-import handled by
+#     the import endpoint (commit 2).
+# ────────────────────────────────────────────────────────────────────────
+
+# Fields on FunnelPage we DO carry across in a v1 snapshot. Anything
+# not in this set is deliberately excluded — ownership, slug, stats,
+# bindings, A/B variant pointers, attribution metadata. Adding a new
+# visual/content field to FunnelPage means adding it here too.
+SHARE_CODE_V1_FIELDS = (
+    "title",
+    "template_type",
+    "headline",
+    "subheadline",
+    "body_copy",
+    "cta_text",
+    "cta_url",
+    "video_url",
+    "image_url",
+    "sections_json",
+    "color_scheme",
+    "accent_color",
+    "custom_bg",
+    "font_family",
+    "custom_css",
+    "gjs_components",
+    "gjs_styles",
+    "gjs_html",
+    "gjs_css",
+    "meta_description",
+    "og_image_url",
+    "has_capture_form",
+    "capture_form_heading",
+    "capture_form_subtext",
+)
+
+
+def _build_share_payload(page: FunnelPage) -> dict:
+    """Return the v1 snapshot dict for a FunnelPage.
+
+    Versioned via top-level "v" key so importers stay forward-compatible
+    when SHARE_CODE_V1_FIELDS grows. Unknown fields are ignored on
+    import; missing fields fall back to FunnelPage defaults.
+    """
+    snapshot = {field: getattr(page, field, None) for field in SHARE_CODE_V1_FIELDS}
+    return {"v": 1, "page": snapshot}
+
+
+def _generate_unique_share_code(db: Session) -> str:
+    """Generate a SAP-XXXX-XXXX code that doesn't collide with an existing one.
+
+    Uses an unambiguous alphabet (no 0/O/1/I) so codes are safe to read
+    aloud and type. 8 chars across two groups → 32^8 ≈ 1.1 trillion
+    keyspace; collisions effectively impossible at our scale, but we
+    still check.
+    """
+    import secrets
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no 0/O/1/I
+    for _ in range(8):
+        a = "".join(secrets.choice(alphabet) for _ in range(4))
+        b = "".join(secrets.choice(alphabet) for _ in range(4))
+        code = f"SAP-{a}-{b}"
+        if not db.query(ShareCode).filter(ShareCode.code == code).first():
+            return code
+    # Astronomically unlikely; raise rather than loop forever.
+    raise RuntimeError("Could not generate unique share code after 8 attempts")
+
+
+@app.post("/api/share-codes/generate")
+async def share_code_generate(request: Request, user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """Generate a SAP-XXXX-XXXX share code for one of the user's pages.
+
+    Body: {"page_id": <int>}
+    Returns: {"code": "SAP-XXXX-XXXX", "created_at": "..."}
+    """
+    from fastapi.responses import JSONResponse
+    import json as _json
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "Sharing pages is a Pro feature."}, status_code=403)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    page_id = body.get("page_id")
+    if not page_id:
+        return JSONResponse({"error": "page_id required"}, status_code=400)
+
+    page = db.query(FunnelPage).filter(
+        FunnelPage.id == page_id,
+        FunnelPage.user_id == user.id,
+    ).first()
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+
+    payload = _build_share_payload(page)
+    code = _generate_unique_share_code(db)
+
+    share = ShareCode(
+        code=code,
+        owner_user_id=user.id,
+        source_page_id=page.id,
+        payload_json=_json.dumps(payload),
+        is_public=False,
+        uses_count=0,
+    )
+    db.add(share)
+    db.commit()
+    db.refresh(share)
+
+    return JSONResponse({
+        "code": share.code,
+        "created_at": share.created_at.isoformat() if share.created_at else None,
+    })
+
+
+@app.get("/api/share-codes/my")
+def share_code_list_mine(user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """List share codes the current user has generated.
+
+    Returns the 50 most recent. Used by the Funnels dashboard to show
+    a user which of their pages they've already shared.
+    """
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    rows = (db.query(ShareCode)
+              .filter(ShareCode.owner_user_id == user.id)
+              .order_by(ShareCode.created_at.desc())
+              .limit(50)
+              .all())
+    return JSONResponse({"codes": [{
+        "code": r.code,
+        "source_page_id": r.source_page_id,
+        "uses_count": r.uses_count,
+        "is_public": r.is_public,
+        "created_at": r.created_at.isoformat() if r.created_at else None,
+    } for r in rows]})
+
+
 @app.post("/api/funnels/sequence")
 async def funnel_set_sequence(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):

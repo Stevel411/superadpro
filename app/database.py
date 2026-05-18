@@ -1059,6 +1059,39 @@ class LeadList(Base):
     created_at  = Column(DateTime, default=datetime.utcnow)
 
 
+class ShareCode(Base):
+    """Portable page-share codes (SAP-XXXX-XXXX).
+
+    Lets members hand other members a self-contained snapshot of a
+    FunnelPage that imports as a fresh draft. Page-only by design —
+    list and sequence bindings are NOT carried across; the importer
+    wires their own campaign on import via the Phase 1 modal flow.
+
+    Visibility:
+      - is_public=False (default) — private, only the code-holder can import
+      - is_public=True            — appears in the admin-curated marketplace
+
+    Spec locked 18 May 2026: no attribution shown to importers, ever.
+    The owner_user_id column is admin-side tracking only — used for
+    abuse handling and marketplace submission audit. It is NEVER
+    exposed in the import payload or any public-facing endpoint.
+
+    payload_json is the canonical snapshot. Schema-versioned via the
+    top-level "v" key so importers stay forward-compatible across
+    future FunnelPage column additions.
+    """
+    __tablename__ = "share_codes"
+    id            = Column(Integer, primary_key=True, index=True)
+    code          = Column(String(20), unique=True, index=True, nullable=False)  # SAP-XXXX-XXXX
+    owner_user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    source_page_id = Column(Integer, ForeignKey("funnel_pages.id"), nullable=True)  # nullable: page may be deleted later
+    payload_json  = Column(Text, nullable=False)           # full v1 snapshot
+    is_public     = Column(Boolean, default=False, index=True)  # admin-flipped for marketplace
+    uses_count    = Column(Integer, default=0)             # incremented per successful import
+    created_at    = Column(DateTime, default=datetime.utcnow)
+    expires_at    = Column(DateTime, nullable=True)        # NULL = never expires; reserved for future revocation
+
+
 class MemberLead(Base):
     """Email leads captured by each member's funnel forms (Pro tier)."""
     __tablename__ = "member_leads"
@@ -2693,6 +2726,26 @@ try:
         # default_sequence binding — no new column needed there.
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS default_list_id INTEGER REFERENCES lead_lists(id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_funnel_pages_default_list ON funnel_pages(default_list_id)"))
+
+        # ── Share Code system (19 May 2026): portable page-share codes ──
+        # SAP-XXXX-XXXX codes that let members hand a page snapshot to
+        # another member. Page-only — list/sequence binding stays
+        # local to the recipient and is wired via the Phase 1 modal
+        # on import. is_public is admin-flipped for the marketplace.
+        # payload_json is schema-versioned via the top-level "v" key.
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS share_codes (
+            id SERIAL PRIMARY KEY,
+            code VARCHAR(20) UNIQUE NOT NULL,
+            owner_user_id INTEGER NOT NULL REFERENCES users(id),
+            source_page_id INTEGER REFERENCES funnel_pages(id),
+            payload_json TEXT NOT NULL,
+            is_public BOOLEAN DEFAULT FALSE,
+            uses_count INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW(),
+            expires_at TIMESTAMP)"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_share_codes_code ON share_codes(code)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_share_codes_owner ON share_codes(owner_user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_share_codes_public ON share_codes(is_public) WHERE is_public = TRUE"))
 
         # ── Member Course Marketplace tables ──
         conn.execute(text("""CREATE TABLE IF NOT EXISTS member_courses (

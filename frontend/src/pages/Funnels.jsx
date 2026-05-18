@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
-import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, Flame, UserPlus, Send, DollarSign, ArrowRight } from 'lucide-react';
+import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, Flame, UserPlus, Send, DollarSign, ArrowRight, Share2, X, Check } from 'lucide-react';
 import CampaignSetupModal from '../components/CampaignSetupModal';
 
 // ─── Browser-framed template preview components ─────────────────────────
@@ -318,6 +318,12 @@ export default function Funnels() {
   // and current names from /api/funnels). Modal opens in edit mode.
   const [editingWiring, setEditingWiring] = useState(null);
 
+  // Share Code system (19 May 2026) — when a user clicks the Share
+  // button on a page card we POST to /api/share-codes/generate and
+  // show the returned SAP-XXXX-XXXX code in a modal with copy button.
+  // shareModal holds {page, code, loading, error, copied} or null.
+  const [shareModal, setShareModal] = useState(null);
+
   useEffect(() => { load(); loadActivity(); }, []);
 
   // Phase 1.5 — user confirmed edit-wiring modal. Updates an existing
@@ -347,6 +353,37 @@ export default function Funnels() {
 
   const handleWiringCancel = () => {
     setEditingWiring(null);
+  };
+
+  // Open the share modal for a page and immediately fire the generate
+  // request. We show the modal in a loading state, then drop the code
+  // in once the API returns. If generation fails, the modal stays open
+  // with an error message and a Close button — no silent swallows.
+  const openShareModal = async (page) => {
+    setShareModal({ page, code: null, loading: true, error: null, copied: false });
+    try {
+      const res = await apiPost('/api/share-codes/generate', { page_id: page.id });
+      if (res?.code) {
+        setShareModal({ page, code: res.code, loading: false, error: null, copied: false });
+      } else {
+        setShareModal({ page, code: null, loading: false, error: res?.error || 'Could not generate share code', copied: false });
+      }
+    } catch (e) {
+      setShareModal({ page, code: null, loading: false, error: e.message || String(e), copied: false });
+    }
+  };
+
+  const copyShareCode = async () => {
+    if (!shareModal?.code) return;
+    try {
+      await navigator.clipboard.writeText(shareModal.code);
+      setShareModal(m => m ? { ...m, copied: true } : m);
+      setTimeout(() => setShareModal(m => m ? { ...m, copied: false } : m), 2000);
+    } catch (e) {
+      // Clipboard API can fail on insecure contexts — fall back to a
+      // visible prompt so the user can still grab the code manually.
+      alert(`Copy failed. Code: ${shareModal.code}`);
+    }
   };
 
   const deletePage = async (id) => {
@@ -867,6 +904,7 @@ export default function Funnels() {
                       <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn2')}</a>
                       {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn2')}</a>)}
                       <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
+                      <button onClick={() => openShareModal(p)} title="Generate share code" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #bae6fd',background:'#f0f9ff',cursor:'pointer'}}><Share2 size={12} color="#0284c7"/></button>
                       <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
                     </>
                   )}
@@ -941,6 +979,108 @@ export default function Funnels() {
           onConfirm={handleWiringConfirm}
           onCancel={handleWiringCancel}
         />
+      )}
+
+      {/* ── Share Code modal ──
+          Renders when shareModal is non-null. Three visual states:
+          loading (spinner-ish dots), success (code + copy button),
+          error (red message + close). The Close button always works
+          regardless of state — no way to trap the user inside. */}
+      {shareModal && (
+        <div
+          onClick={() => setShareModal(null)}
+          style={{
+            position:'fixed', inset:0, background:'rgba(10,20,56,.55)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            zIndex:1000, padding:20,
+          }}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background:'#fff', borderRadius:12, padding:'24px 24px 20px',
+              maxWidth:440, width:'100%',
+              boxShadow:'0 20px 50px rgba(10,20,56,.25)',
+              fontFamily:'DM Sans, sans-serif',
+            }}>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+              <div style={{
+                width:36, height:36, borderRadius:8, background:'#f0f9ff',
+                display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <Share2 size={18} color="#0284c7" />
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:'Sora, sans-serif',fontWeight:700,fontSize:16,color:'#0a1438'}}>
+                  Share this page
+                </div>
+                <div style={{fontSize:12,color:'#64748b',marginTop:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                  {shareModal.page?.title || 'Untitled page'}
+                </div>
+              </div>
+              <button
+                onClick={() => setShareModal(null)}
+                style={{
+                  background:'none', border:'none', cursor:'pointer',
+                  padding:6, borderRadius:6, color:'#94a3b8',
+                }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{fontSize:13,color:'#475569',lineHeight:1.5,marginBottom:16}}>
+              Anyone with this code can paste it into their account to clone this page into their drafts. Lists, sequences, and stats stay with you — they wire their own campaign on import.
+            </div>
+
+            {shareModal.loading && (
+              <div style={{
+                background:'#f8fafc', borderRadius:8, padding:'18px 16px',
+                textAlign:'center', color:'#64748b', fontSize:13,
+              }}>
+                Generating code…
+              </div>
+            )}
+
+            {shareModal.error && (
+              <div style={{
+                background:'#fef2f2', border:'1px solid #fecaca', borderRadius:8,
+                padding:'12px 14px', color:'#b91c1c', fontSize:13, lineHeight:1.4,
+              }}>
+                {shareModal.error}
+              </div>
+            )}
+
+            {shareModal.code && (
+              <>
+                <div style={{
+                  background:'linear-gradient(135deg, #f0f9ff 0%, #ecfeff 100%)',
+                  border:'1px solid #bae6fd', borderRadius:10,
+                  padding:'18px 16px', textAlign:'center', marginBottom:12,
+                }}>
+                  <div style={{
+                    fontFamily:'JetBrains Mono, ui-monospace, monospace',
+                    fontSize:22, fontWeight:700, color:'#0a1438',
+                    letterSpacing:1.5,
+                  }}>
+                    {shareModal.code}
+                  </div>
+                </div>
+                <button
+                  onClick={copyShareCode}
+                  style={{
+                    width:'100%', padding:'11px 16px', borderRadius:8,
+                    border:'none', cursor:'pointer',
+                    background: shareModal.copied ? '#16a34a' : '#0ea5e9',
+                    color:'#fff', fontWeight:700, fontSize:14,
+                    fontFamily:'Sora, sans-serif',
+                    display:'flex', alignItems:'center', justifyContent:'center', gap:6,
+                    transition:'background .2s',
+                  }}>
+                  {shareModal.copied ? <><Check size={16}/> Copied</> : <><Copy size={16}/> Copy code</>}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </AppLayout>
   );
