@@ -1,6 +1,69 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
-## 🎯 Most Recent Session (17 May 2026 evening) — Fast Start Grid activation flow
+## 🎯 Most Recent Session (18 May 2026) — Unified Campaign Hub + Lead Attribution + 7 latent bug fixes
+
+Long session, 18 commits. Three major builds shipped, six latent bugs surfaced and fixed properly (not papered over), end-to-end attribution test executed and verified with real $15.31 USDT on-chain transaction.
+
+**Three major builds shipped:**
+
+- **Unified Campaign Hub (Commit A — `f62ac80` and 6 polish iterations):** Enriched `/api/funnels` with per-page engagement joins (views_30d, optins_30d, conversion_rate_30d, leads_total, leads_hot, leads_new_24h, sequence_open_rate, last_lead_at) + top-level `rollup_30d` (visitors, leads, hot_leads, conversions, earnings). All metrics computed via grouped SQL — no N+1. On `/pro/funnels`: ROI strip rendered between AI hero and template grid as 760px-max-width white card with inline `[LAST 30 DAYS]` cyan pill + dynamic "Performance across {N} page(s)" subtitle, 36px Sora navy stat numbers (visitors → leads → conversions → earned). Per-page cards enriched with two-line stats (30d views · opt-ins · conv rate / 🔥 hot · new 24h · open rate). 7 design iterations to reach the polished final state: cobalt-on-cobalt → light-card → hero-48px → Goldilocks-36px → centred → inline-pill-header → max-width-constrained.
+
+- **Lead Attribution Layer (Commit B — `83c1deb` + `d898a86`):** New `member_leads.attribution_user_id` FK column + `attribution_set_at` timestamp + boot-time `ALTER TABLE...IF NOT EXISTS` migration with index. New `_attribute_lead_to_activation(db, user_id)` helper in `payment.py` — case-insensitive email-match on MemberLead rows where `attribution_user_id IS NULL` AND `user_id != activating_user.id` (self-attribution guard). Hooked into `initialise_renewal_record` — the unified post-activation hook called from all 4 activation paths (balance redemption, WalletConnect, NOWPayments, Stripe legacy). Idempotent — re-running on every renewal is a no-op. New admin backfill endpoint `/admin/api/backfill-lead-attribution`. `/api/funnels` extended with conversions_30d + earnings_30d via `MemberLead JOIN Commission` (on `Commission.from_user_id = MemberLead.attribution_user_id`, `Commission.to_user_id = page.user_id`, types `membership_sponsor/membership_renewal_sponsor/gift_membership_sponsor`, status='paid', within 30d cutoff). **Conversions only count where the page owner actually got paid** — funnel captured them via wrong sponsor link = $0 = not credited. Avoids misleading "X conversions but $0 earned" UI.
+
+- **End-to-end attribution test verified (commit chain → real $15.31 USDT tx `0x771f9512...d6ad`):** Real test executed: Steve built a fresh capture page `/p/SuperAdPro/test`, submitted form with `stevelawsonmarketing+attribtest1@gmail.com`, redirect to ref link confirmed, signed up `test30` via referral (sponsor_id=1 ✓), paid $15.31 USDT WalletConnect from personal wallet → Founder spot #31 claimed → activation hook fired → MemberLead.attribution_user_id set → Commission row created paying Steve $10 → `/pro/funnels` ROI strip flipped: `8 visitors → 2 leads → 1 conversion → $10 earned`, per-page card showed `1 30D view · 1 opt-in · 100% conv rate · 1 new 24h`. Founder economics ($10 sponsor + $5 company, locked-for-life) live-verified for the first time on production.
+
+**Six latent pre-existing bugs surfaced and fixed (not introduced today, just exposed by today's work):**
+
+1. **`_safe_json` undefined NameError** — function defined in `main.py.backup` line 16751 but **missing from current `main.py`**. Two call sites (api_leads_sequences line 28671, send_sequence_email line 28856) threw `NameError` on every call. `/api/leads/sequences` 500'd, killing the `Promise.all` batch in `MyLeads.jsx` — `.catch()` swallowed it, `/pro/leads` rendered as completely empty with 0 leads despite 14 in DB. Restored helper in `main.py` near line 728 (commit `3e71737`).
+
+2. **`brevo_message_id` column missing on live DB** — added to `EmailSendLog` model + CREATE TABLE in commit `029bf94` (this morning's Brevo webhook fix) but no `ALTER TABLE` migration. Pre-existing tables didn't have the column. INSERTs failed → transaction poisoning → InFailedSqlTransaction errors → capture endpoint silently failed → form button stuck on "Submitting...". Fixed: ALTER added (`5aa97d9`) + two-phase commit in capture_lead (lead saved before CRM block, rollback on inner failures, lead re-saved without email log if Brevo errors).
+
+3. **`SKIP_MIGRATIONS=true` blocking all new column adds** — env var set May 15 launch night, never cleared. Every new column shipped since then (attribution_user_id, brevo_message_id, etc.) wasn't reaching production DB. Resolved when Steve deleted the variable on Railway dashboard; all queued migrations ran cleanly on next deploy. **This is the root cause of bugs #2-4. Lesson: when this flag is on, FIRST move is clearing it, not shipping more schema-dependent features.**
+
+4. **Form placeholder `{t('...')}` literal saved as HTML** — `buildHTML()` in both `superpages/SuperPagesEditor.jsx` (line 869) and `labs-superpages/SuperPagesEditor.jsx` (line 1429) embedded i18n template syntax inside JS template literals, which don't evaluate `t()`. Literal Handlebars-style text saved as the form input's `placeholder` attribute. Affected every form block created via either editor. Fix: resolve `t()` into local vars BEFORE the template literal. Also shipped admin cleanup endpoint `/admin/api/fix-broken-form-placeholders` that regex-replaces broken patterns with English fallbacks in `gjs_html/gjs_components/gjs_styles/sections_json` columns (NOTE: NOT `content_json/html_export` — those don't exist). Commits `8a92a53` + `abd58cb`.
+
+5. **Form button text-allowlist regex** — `exportHTML.js` in both editors used hardcoded text matching (`Get Access|Submit|Sign Up|Join|...`) to convert styled `<div>` to `<button type="submit">`. Custom button labels ("Start Free Trial", "Yes! Count me in →") never matched → forms had NO submit button → form never fires. Also lost trailing characters via greedy `[^<]*` + `$4` backreference (Get Access → → just "Get Access"). Fix: `buildHTML()` emits real `<button data-sp-submit="1">` with exact user text; `exportHTML.js` uses two-pass strategy (new attribute-based + legacy text-allowlist fallback for pre-existing pages). Commit `93b4e9a`. Both editors in lockstep.
+
+6. **Frontend silent `.catch(() => ...)` everywhere** — `Funnels.jsx` and `MyLeads.jsx` (and probably more) used `.catch(() => setLoading(false))` to handle Promise rejections. Any API failure swallowed silently, leaving the page rendering as if got zeros. Funnels.jsx fixed in `2dd8a66` (proper error banner + Retry button). MyLeads.jsx still has the pattern but the underlying _safe_json bug is fixed so it's no longer triggering. **Anti-pattern audit queued for next session — grep ALL frontend files and surface or remove every silent catch.**
+
+**New admin tooling shipped:**
+
+- `GET/POST /admin/api/diag-member-leads` — DB state inspection + probes all 5 endpoints that `MyLeads.jsx` calls. Returns total rows globally, total for caller, last 20 of each, plus `endpoint_probes` dict showing which calls succeed/fail. Built specifically to diagnose the funnels-shows-1-leads-shows-0 contradiction; will be reused for future debugging.
+- `GET/POST /admin/api/backfill-lead-attribution` — one-shot historical email-match between active users and pre-existing MemberLead rows. Idempotent. Returns `{users_scanned, leads_attributed, errors}`.
+- `GET/POST /admin/api/fix-broken-form-placeholders` — regex-cleanup of literal `{t('...')}` strings in FunnelPage HTML columns.
+- All converted from POST-only to GET+POST (commit `b62d51b`) so Steve can run them from the browser URL bar — DevTools paste is blocked in his Chrome.
+
+**SKIP_MIGRATIONS now OFF on Railway** — Steve deleted the variable mid-session. All pending migrations ran cleanly on next deploy: attribution_user_id, attribution_set_at, brevo_message_id, lead_lists.list_id (if not already). `/pro/leads` now shows 14 MemberLead rows correctly.
+
+**Key commits (chronological — 18 today):**
+`f62ac80` Campaign Hub Commit A initial · `1273108` ROI light-card redesign · `076be73` ROI hero-scale · `eb250a0` Goldilocks 36px + dynamic page count + drop dup stat cards · `2938e6e` ROI centred stats reduced height · `39ad054` inline centred pill header · `d3aa555` 760px max-width centred · `83c1deb` Campaign Hub Commit B attribution · `d898a86` self-attribution guard parity · `2dd8a66` Funnels error banner replaces silent catch · `8a92a53` placeholder bug fix · `5aa97d9` form submit freeze fix + two-phase commit · `93b4e9a` button conversion robust + Labs parity · `064fef8` leads_captured counter increment · `7b8bcbf` diag-member-leads endpoint · `5932590` diag probes for all 5 MyLeads endpoints · `3e71737` _safe_json restored · `b62d51b` admin endpoints GET+POST · `abd58cb` cleanup endpoint correct column names
+
+**Open items queued for next session:**
+
+- **Commit C — Recent Activity Feed** (the third and final commit in the Campaign Hub series). Below My Pages: hot leads to call (top 3 most engaged unconverted), new leads last 24h, sequence-complete broadcast opportunities, recent commissions list, contextual "next action" prompt based on user state.
+- **Subdomain feature** (`{username}.superadpro.com` free for active Partners, ~3-4 days).
+- **Custom CNAME domain $5/mo service fee** (~2-3 weeks). Architecture locked: separate `custom_domain_monthly` product following `email_boost` pattern. Three new User columns (`custom_domain`, `custom_domain_paid_until`, `custom_domain_verified_at`). NO Commission rows — service fee, 100% company revenue. Activation slots into `_nowpayments_activate_product` next to email_boost branch.
+- **Share Code system** — pack FunnelPage + EmailSequence + LeadList as portable JSON.
+- **Creative Studio → Page Builder embed** ("Use in funnel" button + "Pick from my assets" dropdown).
+- **Labs Phase 2 polish + pre-cutover audit** — both editors are in code parity (form bugs, placeholder bugs, button conversion). Before cutover: parity test (same funnel page in both editors, compare what reaches MemberLead), grep both for shared dependencies, sweep ALL silent-catch patterns site-wide.
+- **Silent-catch anti-pattern sweep** — search frontend for `.catch(()` and surface or remove every silent swallow.
+- **CompensationPlan.jsx / PassupVisualiser.jsx** still show old Basic/Pro economics — need rewrite to reflect Partner+Founder current state.
+- **Translations** — ~40 new English strings need translating into 19 other languages.
+- **Audit other places that surface raw xAI URLs** (Steve flagged earlier).
+
+**Lower-priority follow-ups:**
+
+- 11 unresolved orphans on `0xa96be652a08d9905f15b7fbe2255708709becd09` totalling ~$190 USDT spanning 14-17 May (orphan IDs 14, 16, 18-26, 31). No user record. Needs Steve's call: spam-mark / investigate / refund.
+- 5 dust orphans (#28, #27, #17, #15, #13, #12) — address-poisoning, safe to mark resolved as spam. Steve confirmed "keep orphans queued".
+- 3 NOWPayments orders SAP-151-101 (richard1980), SAP-187-99 (mvucic14), SAP-224-98 (chrisbrown) — already auto-marked `abandoned` by cron, no action needed.
+- Tier 2 admin MCP tools (activate_user_manually, mark_order_expired, etc.).
+
+**Operating lesson from today (worth keeping):**
+When `SKIP_MIGRATIONS=true` is set, that's the FIRST thing to address before shipping schema-dependent features. Today's work shipped Commit B without that check, leading to ~2 hours of follow-on firefighting that should have been one clean ship. Pattern: I built features that depended on columns that didn't exist on the live DB, the live DB silently rejected the related INSERTs, the SQLAlchemy session got poisoned, and downstream UI showed empty states with no signal anything was wrong. The defensive try/except patches I added are belt-and-braces — the real fix was clearing the flag. **Next time: flag the env-var state on first turn before any schema-related work.**
+
+---
+
+## 🎯 Previous Session (17 May 2026 evening) — Fast Start Grid activation flow
 
 Built and shipped the Fast Start activation funnel for Grid Tier 1 ($20 `grid_1` product) — Steve's brainstorm from earlier in the day. Verified end-to-end with two real iteration rounds on the explainer page layout.
 
