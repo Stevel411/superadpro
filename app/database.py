@@ -729,7 +729,13 @@ class FunnelPage(Base):
     has_capture_form     = Column(Boolean, default=False)
     capture_form_heading = Column(String, nullable=True)
     capture_form_subtext = Column(String, nullable=True)
-    capture_sequence_id  = Column(Integer, nullable=True)      # FK to email_sequences
+    capture_sequence_id  = Column(Integer, nullable=True)      # FK to email_sequences — the default sequence to run when this page captures a lead. Existed before Phase 1; Phase 1 makes this explicitly set at page-create time rather than inferred at capture time.
+    # Phase 1 (Campaign Hub, 18 May 2026): explicit list binding. When
+    # a form on this page captures a lead, the new MemberLead.list_id
+    # is set to default_list_id automatically. Set at page-create via
+    # the campaign-setup modal — either picks an existing list or
+    # auto-creates one called "<Page title> leads".
+    default_list_id      = Column(Integer, ForeignKey("lead_lists.id"), nullable=True, index=True)
     leads_captured       = Column(Integer, default=0)
     is_ai_generated      = Column(Boolean, default=False)
     ai_niche            = Column(String, nullable=True)
@@ -2676,6 +2682,17 @@ try:
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_audience VARCHAR"))
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_story TEXT"))
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_tone VARCHAR"))
+
+        # ── Phase 1 (Campaign Hub, 18 May 2026): explicit list binding ──
+        # Pages now bind to a specific LeadList. When the capture endpoint
+        # runs, MemberLead.list_id is set from page.default_list_id, so
+        # leads land in the right bucket automatically. This is the
+        # foundational change that unlocks source-page visibility,
+        # cross-navigation, and the campaign-setup modal.
+        # capture_sequence_id (already exists, line 2678) serves as the
+        # default_sequence binding — no new column needed there.
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS default_list_id INTEGER REFERENCES lead_lists(id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_funnel_pages_default_list ON funnel_pages(default_list_id)"))
 
         # ── Member Course Marketplace tables ──
         conn.execute(text("""CREATE TABLE IF NOT EXISTS member_courses (

@@ -5728,6 +5728,233 @@ def admin_api_backfill_lead_attribution(
     }
 
 
+@app.get("/admin/api/campaign-binding-status")
+@app.post("/admin/api/campaign-binding-status")
+def admin_api_campaign_binding_status(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Phase 1 diagnostic: report current campaign binding state.
+
+    Reports across the whole platform:
+      - How many pages have default_list_id set vs NULL
+      - How many MemberLead rows have list_id set vs NULL
+      - Per-page summary: pages with their captured-lead count, current
+        default_list_id, and whether they'd be touched by the backfill
+      - Orphan leads: count by source_funnel_id where source page has
+        no default_list_id
+
+    Read-only. Safe to call any time. Admin only.
+
+    Pair this with /admin/api/backfill-campaign-binding which actually
+    runs the backfill (with a dry_run flag).
+    """
+    _require_admin(user)
+    from .database import FunnelPage, MemberLead, LeadList
+    from sqlalchemy import func as _func
+
+    total_pages = db.query(_func.count(FunnelPage.id)).scalar() or 0
+    pages_with_list = db.query(_func.count(FunnelPage.id)).filter(
+        FunnelPage.default_list_id.isnot(None)
+    ).scalar() or 0
+    pages_without_list = total_pages - pages_with_list
+
+    total_leads = db.query(_func.count(MemberLead.id)).scalar() or 0
+    leads_with_list = db.query(_func.count(MemberLead.id)).filter(
+        MemberLead.list_id.isnot(None)
+    ).scalar() or 0
+    leads_without_list = total_leads - leads_with_list
+
+    total_lists = db.query(_func.count(LeadList.id)).scalar() or 0
+
+    # Pages that have captured at least one lead — these are the ones
+    # the backfill will care about. (Pages with zero leads don't need
+    # a list yet; they can pick one when they capture their first.)
+    pages_with_leads = db.query(
+        FunnelPage.id, FunnelPage.user_id, FunnelPage.title,
+        FunnelPage.default_list_id,
+        _func.count(MemberLead.id).label("lead_count"),
+    ).join(
+        MemberLead, MemberLead.source_funnel_id == FunnelPage.id
+    ).group_by(
+        FunnelPage.id, FunnelPage.user_id, FunnelPage.title,
+        FunnelPage.default_list_id
+    ).order_by(_func.count(MemberLead.id).desc()).limit(50).all()
+
+    page_summary = []
+    backfill_would_create_lists = 0
+    backfill_would_assign_leads = 0
+    for p in pages_with_leads:
+        action = "skip — already bound"
+        if not p.default_list_id:
+            action = f"create '<title> leads' list, assign {p.lead_count} leads"
+            backfill_would_create_lists += 1
+            backfill_would_assign_leads += int(p.lead_count or 0)
+        page_summary.append({
+            "page_id": p.id,
+            "user_id": p.user_id,
+            "title": p.title,
+            "default_list_id": p.default_list_id,
+            "captured_leads": int(p.lead_count or 0),
+            "backfill_action": action,
+        })
+
+    return {
+        "totals": {
+            "pages": int(total_pages),
+            "pages_with_default_list": int(pages_with_list),
+            "pages_without_default_list": int(pages_without_list),
+            "leads": int(total_leads),
+            "leads_with_list_id": int(leads_with_list),
+            "leads_without_list_id": int(leads_without_list),
+            "lead_lists": int(total_lists),
+        },
+        "backfill_preview": {
+            "lists_to_create": backfill_would_create_lists,
+            "leads_to_assign": backfill_would_assign_leads,
+            "note": "Run POST /admin/api/backfill-campaign-binding?dry_run=true to dry-run, or dry_run=false to execute.",
+        },
+        "pages_with_leads": page_summary,
+    }
+
+
+@app.get("/admin/api/backfill-campaign-binding")
+@app.post("/admin/api/backfill-campaign-binding")
+def admin_api_backfill_campaign_binding(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    dry_run: bool = True,
+):
+    """Phase 1 backfill: wire existing pages to lead lists.
+
+    For every page that has captured at least one MemberLead but
+    doesn't have default_list_id set:
+      1. Create a new LeadList named '<page.title> leads' owned by
+         page.user_id.
+      2. Set page.default_list_id = new_list.id.
+      3. Update every MemberLead with source_funnel_id == page.id
+         AND list_id IS NULL to point at the new list.
+      4. Update list.lead_count to match.
+
+    Idempotent. Pages already bound to a list are skipped entirely.
+    Pages with no captured leads are also skipped — they can pick a
+    list when they capture their first.
+
+    Default mode is DRY RUN: returns the plan without committing.
+    Set ?dry_run=false (or POST with dry_run=false in query) to
+    actually execute.
+
+    Admin only. Safe to run multiple times.
+    """
+    _require_admin(user)
+    from .database import FunnelPage, MemberLead, LeadList
+    from sqlalchemy import func as _func
+
+    actions = []
+    lists_created = 0
+    pages_bound = 0
+    leads_assigned = 0
+    errors = []
+
+    # Find pages with captured leads and no default_list_id set
+    candidates = db.query(
+        FunnelPage.id, FunnelPage.user_id, FunnelPage.title,
+        _func.count(MemberLead.id).label("lead_count"),
+    ).join(
+        MemberLead, MemberLead.source_funnel_id == FunnelPage.id
+    ).filter(
+        FunnelPage.default_list_id.is_(None),
+    ).group_by(
+        FunnelPage.id, FunnelPage.user_id, FunnelPage.title
+    ).all()
+
+    now = datetime.utcnow()
+    for c in candidates:
+        try:
+            list_name = f"{(c.title or 'Untitled page').strip()[:80]} leads"
+            actions.append({
+                "page_id": c.id,
+                "user_id": c.user_id,
+                "page_title": c.title,
+                "list_name_to_create": list_name,
+                "leads_to_assign": int(c.lead_count or 0),
+            })
+            if dry_run:
+                continue
+
+            # ── Execute ──
+            # Look for an existing list with the same name (idempotency
+            # safety: if a previous backfill run partially succeeded, or
+            # the user manually created a list with this exact name, we
+            # reuse it rather than duplicating).
+            existing = db.query(LeadList).filter(
+                LeadList.user_id == c.user_id,
+                LeadList.name == list_name,
+            ).first()
+            if existing:
+                new_list = existing
+            else:
+                new_list = LeadList(
+                    user_id=c.user_id,
+                    name=list_name,
+                    description=f"Auto-created by Phase 1 backfill for SuperPage '{c.title}'",
+                    color="#0ea5e9",  # cobalt cyan
+                    created_at=now,
+                )
+                db.add(new_list)
+                db.flush()  # to get new_list.id
+                lists_created += 1
+
+            # Bind the page
+            page = db.query(FunnelPage).filter(FunnelPage.id == c.id).first()
+            if page and not page.default_list_id:
+                page.default_list_id = new_list.id
+                pages_bound += 1
+
+            # Assign all unattached leads from this page to the new list
+            assigned = db.query(MemberLead).filter(
+                MemberLead.source_funnel_id == c.id,
+                MemberLead.list_id.is_(None),
+            ).update({"list_id": new_list.id}, synchronize_session=False)
+            leads_assigned += int(assigned or 0)
+
+            # Refresh list lead_count to match reality (covers both new
+            # assignments and any leads that were already on this list)
+            new_count = db.query(_func.count(MemberLead.id)).filter(
+                MemberLead.list_id == new_list.id
+            ).scalar() or 0
+            new_list.lead_count = int(new_count)
+
+        except Exception as e:
+            errors.append({"page_id": c.id, "error": str(e)[:300]})
+            logger.warning(f"backfill_campaign_binding: page {c.id} failed: {e}")
+
+    if not dry_run and not errors:
+        db.commit()
+        logger.info(
+            f"Phase 1 backfill: lists_created={lists_created}, "
+            f"pages_bound={pages_bound}, leads_assigned={leads_assigned}"
+        )
+    elif errors and not dry_run:
+        db.rollback()
+        logger.error(f"Phase 1 backfill: rolled back due to errors: {errors}")
+
+    return {
+        "dry_run": dry_run,
+        "committed": (not dry_run) and (not errors),
+        "actions_planned": actions,
+        "summary": {
+            "candidate_pages": len(candidates),
+            "lists_created": lists_created if not dry_run else len([a for a in actions]),
+            "pages_bound": pages_bound if not dry_run else len([a for a in actions]),
+            "leads_assigned": leads_assigned if not dry_run else sum(a["leads_to_assign"] for a in actions),
+        },
+        "errors": errors,
+    }
+
+
 @app.get("/admin/api/rotator-state")
 def admin_api_rotator_state(
     request: Request,
