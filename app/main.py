@@ -16954,20 +16954,41 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
             MemberLead.user_id == page.user_id, MemberLead.email == email.lower()
         ).first()
         if not existing_crm:
+            # Phase 1 (Campaign Hub): set list_id from the page's binding.
+            # page.default_list_id is set when the user creates the page
+            # via the campaign-setup modal (or by the Phase 1 backfill for
+            # pre-existing pages). NULL is fine — the lead just lands
+            # unbound and the user can move it via SuperLeads.
             crm_lead = MemberLead(
                 user_id=page.user_id, email=email.lower(),
                 name=body.get("name", "").strip(),
                 source_funnel_id=page.id,
                 source_url=f"/p/{page.slug}" if page.slug else "SuperPage",
                 status="new",
+                list_id=page.default_list_id,
             )
             db.add(crm_lead)
 
-            # Auto-assign default sequence if the page owner has one set
+            # ── Sequence assignment ──
+            # Page-level binding wins. If page.capture_sequence_id is set
+            # (chosen by the user in the campaign-setup modal at create
+            # time), use that. Otherwise fall back to the legacy
+            # "most-recent active sequence" heuristic for backward compat
+            # with pages built before Phase 1. Going forward, every new
+            # page will have capture_sequence_id explicitly set or
+            # explicitly None (= "no sequence").
             from .database import EmailSequence
-            default_seq = db.query(EmailSequence).filter(
-                EmailSequence.user_id == page.user_id, EmailSequence.is_active == True
-            ).order_by(EmailSequence.created_at.desc()).first()
+            default_seq = None
+            if page.capture_sequence_id:
+                default_seq = db.query(EmailSequence).filter(
+                    EmailSequence.id == page.capture_sequence_id,
+                    EmailSequence.user_id == page.user_id,
+                    EmailSequence.is_active == True,
+                ).first()
+            if not default_seq:
+                default_seq = db.query(EmailSequence).filter(
+                    EmailSequence.user_id == page.user_id, EmailSequence.is_active == True
+                ).order_by(EmailSequence.created_at.desc()).first()
             if default_seq:
                 crm_lead.email_sequence_id = default_seq.id
                 crm_lead.status = "nurturing"
@@ -17013,6 +17034,9 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
                     # Re-add the CRM lead without the email_sent counter
                     # since rollback wiped it. The lead matters more
                     # than the immediate send — cron will retry.
+                    # Phase 1: preserve list_id binding on the recovered
+                    # lead too — otherwise a Brevo glitch silently breaks
+                    # the page's campaign wiring for that lead.
                     try:
                         db.add(MemberLead(
                             user_id=page.user_id, email=email.lower(),
@@ -17021,6 +17045,7 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
                             source_url=f"/p/{page.slug}" if page.slug else "SuperPage",
                             status="nurturing" if default_seq else "new",
                             email_sequence_id=default_seq.id if default_seq else None,
+                            list_id=page.default_list_id,
                         ))
                         db.commit()
                     except Exception as e2:
@@ -17029,6 +17054,24 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
         # Commit CRM side-effects (only reached if no email error)
         try:
             db.commit()
+            # ── Phase 1: bump lead_count on the bound list ──
+            # Stored counter on LeadList. Used by the lists UI as a
+            # fast display. We refresh from a COUNT(*) query rather
+            # than +1 to stay accurate even if multiple captures
+            # raced or if the recovery path also fired. Cheap query,
+            # bounded by user's lead count on this one list.
+            if page.default_list_id:
+                from .database import LeadList
+                from sqlalchemy import func as _func_lc
+                lst = db.query(LeadList).filter(
+                    LeadList.id == page.default_list_id
+                ).first()
+                if lst:
+                    new_count = db.query(_func_lc.count(MemberLead.id)).filter(
+                        MemberLead.list_id == page.default_list_id
+                    ).scalar() or 0
+                    lst.lead_count = int(new_count)
+                    db.commit()
         except Exception as e:
             db.rollback()
             logger.warning(f"[CRM] Lead sync commit failed: {e}")
@@ -24655,6 +24698,11 @@ async def api_capture_lead(username: str, slug: str, request: Request, db: Sessi
     brevo_contact_id = _create_brevo_contact(lead_email, lead_name, owner.id)
 
     # Save the lead
+    # Phase 1: honour page-level list binding (default_list_id).
+    # The legacy /f/{slug} path mirrors the modern /api/leads/capture
+    # behaviour — both must populate list_id from the page's binding
+    # so leads land in the right bucket regardless of which capture
+    # endpoint the form happens to submit to.
     lead = MemberLead(
         user_id=owner.id,
         email=lead_email,
@@ -24664,6 +24712,7 @@ async def api_capture_lead(username: str, slug: str, request: Request, db: Sessi
         brevo_contact_id=brevo_contact_id,
         status="nurturing",
         email_sequence_id=page.capture_sequence_id if page else None,
+        list_id=page.default_list_id if page else None,
     )
     db.add(lead)
 
