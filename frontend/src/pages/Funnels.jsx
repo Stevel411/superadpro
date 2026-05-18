@@ -334,54 +334,51 @@ export default function Funnels() {
 
       {/* ── ROI strip ─ Last 30 days at a glance ──
           Mid-scale stat card balancing readability with proportion.
-          36px Sora numbers — big enough to register at a glance but
-          not so big they dominate. Subtitle dynamically reflects the
-          page count so the user knows the rollup is across all their
-          pages (not just one). Conversions + earnings show '—' (in
-          slate-300) until Commit B lands the lead-attribution layer. */}
+          Header is one centred line: cyan timeframe pill + Sora
+          subtitle showing the page count. Stats cluster centred
+          below. Conversions + earnings show '—' (in slate-300)
+          until Commit B lands the lead-attribution layer. */}
       {pages.length > 0 && rollup30d && (
         <div style={{
           background: '#ffffff',
           border: '1px solid #e2e8f0',
           borderRadius: 14,
-          padding: '16px 24px',
+          padding: '18px 24px',
           marginBottom: 24,
           boxShadow: '0 4px 12px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04)',
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
-            marginBottom: 12,
+            justifyContent: 'center',
+            gap: 14,
+            marginBottom: 14,
+            flexWrap: 'wrap',
           }}>
-            <div style={{
-              width: 4,
-              height: 32,
-              borderRadius: 2,
-              background: 'linear-gradient(180deg, #0ea5e9, #06b6d4)',
-            }} />
-            <div>
-              <div style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: 1.4,
-                textTransform: 'uppercase',
-                color: '#0ea5e9',
-                fontFamily: "'JetBrains Mono', monospace",
-                marginBottom: 2,
-              }}>
-                Last 30 days
-              </div>
-              <div style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: '#0a1438',
-                fontFamily: "'Sora', sans-serif",
-                letterSpacing: '-0.01em',
-              }}>
-                Performance across {pages.length} {pages.length === 1 ? 'page' : 'pages'}
-              </div>
-            </div>
+            <span style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: 1.5,
+              textTransform: 'uppercase',
+              color: '#0ea5e9',
+              fontFamily: "'JetBrains Mono', monospace",
+              padding: '4px 10px',
+              borderRadius: 999,
+              background: 'rgba(14,165,233,.10)',
+              border: '1px solid rgba(14,165,233,.20)',
+              whiteSpace: 'nowrap',
+            }}>
+              Last 30 days
+            </span>
+            <span style={{
+              fontSize: 18,
+              fontWeight: 700,
+              color: '#0a1438',
+              fontFamily: "'Sora', sans-serif",
+              letterSpacing: '-0.01em',
+            }}>
+              Performance across {pages.length} {pages.length === 1 ? 'page' : 'pages'}
+            </span>
           </div>
           <div style={{
             display: 'flex',
