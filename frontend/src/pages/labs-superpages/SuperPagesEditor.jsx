@@ -1453,9 +1453,24 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
       </div>
     </div>
 
-    {/* Preview */}
+    {/* Preview — reflects the live state values so the member can see
+        their typography/colour choices before hitting Apply. Previously
+        this preview hardcoded Sora 700 16px, ignoring the form state
+        entirely (audit follow-up to B-1, 20 May 2026). */}
     <div style={{ padding: 16, background: 'var(--sap-text-primary)', borderRadius: 12, marginBottom: 14, textAlign: 'center' }}>
-      <div style={{ display: 'inline-block', padding: type === 'announcement' ? '10px 24px' : '12px 32px', borderRadius: type === 'announcement' ? 8 : 12, background: bgColor, color: txtColor, fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: type === 'announcement' ? 13 : 16 }}>{txt}</div>
+      <div style={{
+        display: 'inline-block',
+        padding: type === 'announcement' ? '10px 24px' : '12px 32px',
+        borderRadius: type === 'announcement' ? 8 : 14,
+        background: bgColor,
+        color: txtColor,
+        fontFamily,
+        fontWeight,
+        fontSize,
+        lineHeight: 1.2,
+        maxWidth: '100%',
+        overflowWrap: 'break-word',
+      }}>{txt}</div>
     </div>
 
     <BtnRow onApply={apply} onClose={onClose} />
