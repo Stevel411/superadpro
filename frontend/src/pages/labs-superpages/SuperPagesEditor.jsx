@@ -49,7 +49,19 @@ export default function LabsSuperPagesEditor() {
   const [previewMode, setPreviewMode] = useState(false);
   const [deviceView, setDeviceView] = useState('desktop');
   const [pageStatus, setPageStatus] = useState('draft');
-  const [isNarrow, setIsNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < 900);
+  // ── Narrow-viewport guard ──
+  // The three-panel layout (inspector 260 + canvas 1100 + palette 280)
+  // needs roughly 1100px of horizontal space minimum to look right.
+  // Set 20 May 2026 after the new layout shipped — was 900px previously
+  // which was both too lax for the new layout AND too strict for some
+  // legitimate tablet-landscape sizes that should be allowed.
+  //
+  // 1100 = canvas content width itself, so anything below that means
+  // the canvas would overflow and horizontal-scroll, which kills the
+  // editing experience. Real laptops at 1280-1366 fit comfortably;
+  // tablet-landscape iPads at 1024 don't quite, hence the gate.
+  const NARROW_THRESHOLD = 1100;
+  const [isNarrow, setIsNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < NARROW_THRESHOLD);
   const updatedAtRef = useRef(null);
   // Last user activity timestamp — auto-save skips firing when the user has
   // touched the canvas within the last 5 seconds, so a save can't interrupt
@@ -70,7 +82,7 @@ export default function LabsSuperPagesEditor() {
 
   // Track viewport width — editor needs desktop space for drag/resize to work
   useEffect(() => {
-    const onResize = () => setIsNarrow(window.innerWidth < 900);
+    const onResize = () => setIsNarrow(window.innerWidth < NARROW_THRESHOLD);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
