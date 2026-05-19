@@ -14,6 +14,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import { useAuth } from '../../hooks/useAuth';
 import './LabsChrome.css';
 import { loadSandboxPage, saveSandboxPage, exportToProductionPayload } from './sandboxStore';
+import { FONTS, FONT_SIZES } from './elementDefaults';
 
 export default function LabsSuperPagesEditor() {
   var { t } = useTranslation();
@@ -294,20 +295,25 @@ export default function LabsSuperPagesEditor() {
   // into a new funnel record via /api/funnels/save. Starts as 'draft'
   // — never auto-published. The original sandbox stays put in case
   // the member wants to keep iterating.
+  // Sandbox publish flow — exports the localStorage sandbox into a real
+  // funnel page in /pro/funnels AND publishes it live so the member can
+  // immediately preview the working URL. Audit B-3 (20 May 2026): the
+  // old flow exported as DRAFT with no live URL, which left members
+  // stranded with no way to test their page. Now we publish directly
+  // and open the live URL in a new tab so they can verify CTAs etc.
   const exportToProduction = useCallback(async () => {
     if (!isSandbox) return;
     if (!els || els.length === 0) {
-      showToast('Add at least one element before exporting to production');
+      showToast('Add at least one element before publishing');
       return;
     }
-    if (!confirm('Export this sandbox to a real funnel page in your live account?\n\nIt will appear as a DRAFT in /pro/funnels so you can review before publishing. The sandbox version stays in Labs.')) {
+    if (!confirm('Publish this sandbox page to a live URL?\n\nThis creates a real funnel page in your /pro/funnels list AND publishes it live so you can test the working URL. The sandbox version stays in Labs so you can keep iterating.')) {
       return;
     }
     setSaving(true);
     try {
       const sb = loadSandboxPage(sandboxId);
       if (!sb) throw new Error('Could not load sandbox');
-      // Compose payload from sandbox state + current edits in memory
       const payload = exportToProductionPayload({
         ...sb,
         name: pageSettings.title || sb.name,
@@ -317,20 +323,29 @@ export default function LabsSuperPagesEditor() {
         canvasBg,
         canvasBgImage,
       });
-      // Also attach the rendered HTML so the public page renders right away
       payload.gjs_html = exportHTML(els, canvasBg, canvasBgImage);
+      // Force-publish on first export so the live URL works immediately.
+      payload.status = 'published';
       const res = await apiPost('/api/funnels/save', payload);
       if (res.success || res.id) {
-        showToast('✓ Exported! Opening in /pro/funnels…');
-        // Small delay so the toast is visible
+        const liveUrl = res.preview_url || (res.slug ? `/p/${res.slug}` : null);
+        if (liveUrl) {
+          // Open live URL in new tab so member can verify CTAs work
+          window.open(liveUrl, '_blank', 'noopener,noreferrer');
+          showToast('✓ Published — live page opening in new tab');
+        } else {
+          showToast('✓ Published — opening in /pro/funnels');
+        }
+        // Also navigate the current tab to /pro/funnels after a delay
+        // so the member has the page in their funnel manager too
         setTimeout(() => {
           navigate('/pro/funnels');
-        }, 1200);
+        }, 1800);
       } else {
-        showToast('Export failed: ' + (res.error || 'unknown'));
+        showToast('Publish failed: ' + (res.error || 'unknown'));
       }
     } catch (e) {
-      showToast('Export error: ' + e.message);
+      showToast('Publish error: ' + e.message);
     } finally {
       setSaving(false);
     }
@@ -1335,17 +1350,26 @@ function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
 
 function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
   var { t } = useTranslation();
-
-  var { t } = useTranslation();
   const [txt, setTxt] = useState(el.txt || (type === 'announcement' ? '🔥 LIMITED TIME OFFER — Join Now and Save 50%!' : 'Join Now'));
   const [url, setUrl] = useState(el.url || '');
   const [bgColor, setBgColor] = useState(el.s?.background || 'var(--sap-accent)');
   const [txtColor, setTxtColor] = useState(el.s?.color || '#fff');
+  // Typography controls — added 20 May 2026 (audit B-1). Without these
+  // the button can't match the visual hierarchy of the page above it.
+  // Pull from the style sub-object with reasonable defaults that match
+  // the elementDefaults seed values.
+  const [fontFamily, setFontFamily] = useState(el.s?.fontFamily || 'Sora,sans-serif');
+  const [fontSize, setFontSize] = useState(el.s?.fontSize || (type === 'announcement' ? '14px' : '18px'));
+  const [fontWeight, setFontWeight] = useState(el.s?.fontWeight || '700');
 
   const apply = () => {
     updateElement(elId, {
       txt, url,
-      s: { ...el.s, background: bgColor, color: txtColor }
+      s: {
+        ...el.s,
+        background: bgColor, color: txtColor,
+        fontFamily, fontSize, fontWeight,
+      }
     });
     markDirty(); onClose();
   };
@@ -1367,10 +1391,36 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
     <label style={lblStyle}>{type === 'announcement' ? 'Banner Text' : 'Button Text'}</label>
     <input value={txt} onChange={e => setTxt(e.target.value)} style={{ ...inputStyle, marginBottom: 10 }} />
 
-    {type === 'button' && <>
-      <label style={lblStyle}>{t('superPagesEditor.linkUrl')}</label>
-      <input value={url} onChange={e => setUrl(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder')} style={{ ...inputStyle, marginBottom: 10 }} />
-    </>}
+    {/* Link URL — shown for both button AND announcement banner.
+        Previously gated to type==='button' only, which meant banners
+        could never have a clickable destination (audit A-1, 20 May 2026). */}
+    <label style={lblStyle}>{t('superPagesEditor.linkUrl', { defaultValue: 'Link URL' })}</label>
+    <input value={url} onChange={e => setUrl(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder', { defaultValue: 'https://…' })} style={{ ...inputStyle, marginBottom: 10 }} />
+
+    {/* Typography — font family, size, weight. Added 20 May 2026 (audit
+        B-1, A-2) to give the button proper visual control. Default values
+        match the seed in elementDefaults.js so existing buttons render
+        identically until a member changes them. */}
+    <label style={lblStyle}>{t('superPagesEditor.typography', { defaultValue: 'Typography' })}</label>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px', gap: 8, marginBottom: 12 }}>
+      <select value={fontFamily} onChange={e => setFontFamily(e.target.value)}
+        style={{ ...inputStyle, fontFamily }}>
+        {FONTS.map(f => (
+          <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+        ))}
+      </select>
+      <select value={fontSize} onChange={e => setFontSize(e.target.value)} style={inputStyle}>
+        {FONT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+      </select>
+      <select value={fontWeight} onChange={e => setFontWeight(e.target.value)} style={inputStyle}>
+        <option value="400">Regular</option>
+        <option value="500">Medium</option>
+        <option value="600">Semibold</option>
+        <option value="700">Bold</option>
+        <option value="800">Extra Bold</option>
+        <option value="900">Black</option>
+      </select>
+    </div>
 
     <label style={lblStyle}>{t('superPagesEditor.backgroundColour')}</label>
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>

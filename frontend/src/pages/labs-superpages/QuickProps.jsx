@@ -22,9 +22,13 @@ import { useRef } from 'react';
 
 export default function QuickProps({ el, updateElement, updateElementStyle, markDirty, canvasHeight }) {
   if (!el) return null;
-  // Hide for elements where this panel would clutter — text editing
-  // already has its own InlineToolbar. Show on visual blocks.
-  const SKIP_TYPES = ['spacer', 'divider'];
+  // Hide for blocks where this panel adds noise rather than value:
+  //   - spacer/divider have no styling to set this way
+  //   - action blocks (button, form, announcement) have their own
+  //     deep-edit modal that covers everything in here plus typography
+  //     and link — duplicating those controls here just clutters the
+  //     canvas (audit B-4, 20 May 2026)
+  const SKIP_TYPES = ['spacer', 'divider', 'button', 'form', 'announcement'];
   if (SKIP_TYPES.includes(el.type)) return null;
 
   const fgRef = useRef(null);

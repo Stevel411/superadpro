@@ -19,21 +19,24 @@ These elements are what convert visitors into leads/members. Highest stakes.
 
 **Expected behaviour (commercial-grade):**
 - Renders as a clickable element with bold styling, hover state
-- Edit affordances: text, link URL, background colour (solid + gradient), text colour, border radius, font size/weight, hover effects
-- Visual hint in editor when button has no URL set ("this will not click through")
+- Edit affordances: text, **link URL**, **font family**, **font size/weight**, background colour (solid + gradient), text colour, border radius, hover effects
+- Visual hint in editor when button has no URL set
 - Published page: renders as `<a href="…">` with `target="_blank"` and `rel="noopener noreferrer"` if external link
 - Mobile: full-width with sensible side padding, large tap target
+- Member can preview a published page from inside the editor — one click, opens the live URL
 
-**Findings from code read (20 May 2026):**
+**Findings (confirmed via live walkthrough 20 May 2026):**
 
 | # | Severity | Issue |
 |---|----------|-------|
-| B-1 | 🔴 Blocker | Button has no link in canvas render (`Canvas.jsx:651-652`). User clicks the button in preview mode and nothing happens. They have to click `✎ LINK` to open `ButtonEditor` to set `el.url`, and even then the canvas preview doesn't navigate. Buttons currently feel decorative, not functional. |
-| B-2 | 🟠 Serious | Canvas gives no visual cue that a button has no URL set. Two identical-looking buttons, one converts, one doesn't, no indication which is which. |
-| B-3 | 🟠 Serious | The QuickProps panel (the always-visible right rail) doesn't expose URL — user must know to use the floating `✎ LINK` toolbar to find it. Link is the #1 thing you set on a button; it should be top-level. |
-| B-4 | 🟠 Serious | Export at `exportHTML.js:71-72` produces `<a href="${el.url}" …>` with no validation. URL injection risk (XSS via `javascript:` URL scheme) and no `target="_blank"` / `rel="noopener noreferrer"` for external links. |
-| B-5 | 🟡 Cosmetic | No hover-state styling in either canvas render or export. Member can't preview hover effect, can't customise it. |
-| B-6 | 🟡 Cosmetic | Default button text "Join Now" — fine as default, but no inline editing hint. |
+| B-1 | 🔴 Blocker | **Button edit modal is missing typography controls.** Member can change bg colour + text colour + text content + URL, but cannot change font family, font size, or font weight. A CTA button can't match the visual hierarchy of the page above it. |
+| B-2 | 🔴 Blocker | **Preview mode doesn't navigate when button clicked.** The iframe should render the exported HTML with working `<a href>` wrappers, but per Steve clicking the button in Preview mode does nothing. Need to verify whether `el.url` is actually being saved through the modal Apply button. |
+| B-3 | 🔴 Blocker | **Publish flow from sandbox has no preview path.** Clicking Publish in a sandbox page exports the page into `/pro/funnels` as a draft (silently — the toast says "Published"). Member then has to navigate manually to `/pro/funnels`, find the page, and publish for real. No link is provided from the editor to view the live URL. |
+| B-4 | 🟠 Serious | **QuickProps bar (the floating glass card below selected element) is bloated and confusing.** Shows opacity slider + bg colour swatch + text colour swatch + radius. Steve described as "external window with transparency and size editor that doesn't work". For a Button specifically, none of these are commercial-grade priorities — bg/text colour duplicates the deep-edit modal, opacity is rarely used on a button, radius is fine but should probably live in the modal too. Recommendation: hide QuickProps for Action-category blocks (button, form, banner), since they have their own deep editor. |
+| B-5 | 🟠 Serious | QuickProps text-colour swatch doesn't render reliably when colour is a CSS variable (e.g. `var(--sap-accent)`) — `swatchColour()` returns `#ffffff` fallback. Cosmetic but feels broken. |
+| B-6 | 🟠 Serious | Canvas gives no visual cue that a button has no URL set. Two identical-looking buttons, one converts, one doesn't, no indication which is which. |
+| B-7 | 🟠 Serious | Export at `exportHTML.js:71-72` produces `<a href="${el.url}">` with no validation. URL injection risk (XSS via `javascript:` URL scheme) and no `target="_blank"` / `rel="noopener noreferrer"` for external links. |
+| B-8 | 🟡 Cosmetic | No hover-state styling in either canvas render or export. |
 
 ### 1.2 Opt-In Form
 
@@ -41,38 +44,25 @@ These elements are what convert visitors into leads/members. Highest stakes.
 - Renders as a form with name + email inputs and a submit button
 - Edit affordances: form title/subtitle, button label, success message, field labels, field add/remove (just email? name + email? phone too?), GDPR checkbox toggle, redirect URL on success
 - Submission: writes to FunnelLead table (already exists in DB), sends to AutoResponder, fires confirmation email
-- Visual hint in editor: shows the form will collect leads to the user's Lead dashboard
 - Published page: real working form that captures into the FunnelLead table
 - Mobile: stacks vertically, full-width inputs, large tap target on submit button
 
-**Findings from code read (initial pass):**
+**Findings:** Live walkthrough pending — Steve to test next. Code-read flagged:
 
 | # | Severity | Issue |
 |---|----------|-------|
-| F-1 | 🔴 Blocker (suspected — needs verification) | Form default in `elementDefaults.js:17` is a giant string of inline HTML rendered via `dangerouslySetInnerHTML`. The "submit button" inside the form is just a styled `<div>`, not a `<button>`. Even if export tries to wire it up (need to read `exportHTML.js:94+`), the form submission flow needs to be traced end to end. |
-| F-2 | TBD | Need to read full form export path and verify FunnelLead writes |
-| F-3 | TBD | Need to check what fields are configurable per-form vs hardcoded |
-| F-4 | TBD | Field-add UX — can user add a "phone" field, or are they stuck with name+email? |
-| F-5 | TBD | Success state — does the form replace itself with a thank-you message, or redirect, or just clear? |
-
-Live walkthrough with Steve needed to confirm what actually happens when a published form is submitted.
+| F-1 | TBD | Form default is one giant string of inline HTML rendered via `dangerouslySetInnerHTML`. Submit "button" inside is a styled `<div>`, not a `<button>`. Need full export-path trace. |
 
 ### 1.3 Announcement Banner
 
-**Expected behaviour (commercial-grade):**
-- Renders as a horizontal banner across the page, eye-catching colour
-- Edit affordances: text, link URL (yes, banners should link too — they're CTAs), background colour, dismissible toggle
-- Mobile: full-width, smaller font, still readable
-- Published: optionally sticky to top of page
-
-**Findings from code read:**
+**Findings (code-read, awaiting live confirmation):**
 
 | # | Severity | Issue |
 |---|----------|-------|
-| A-1 | 🔴 Blocker | Same as B-1 — Announcement renders without link wrapper in canvas. |
-| A-2 | 🔴 Blocker | `ButtonEditor` at `SuperPagesEditor.jsx:1370` conditionally shows the URL field **only for `type==='button'`, not `type==='announcement'`**. So even though export reads `el.url` for both, there's no way to set a URL on a banner. |
-| A-3 | 🟠 Serious | No dismissible toggle. Banner is permanent. |
-| A-4 | 🟠 Serious | No "sticky to top" toggle. Banner just sits at whatever Y position the user dragged it. |
+| A-1 | 🔴 Blocker | Banner can't have a URL set — `ButtonEditor` URL field is conditionally gated to `type==='button'` only, so the editor never shows the URL input for banners. Export reads `el.url` but it's always undefined. |
+| A-2 | 🟠 Serious | Same typography gap as B-1 — no font family / size / weight controls. |
+| A-3 | 🟠 Serious | No dismissible toggle. |
+| A-4 | 🟠 Serious | No "sticky to top" toggle. |
 
 ---
 

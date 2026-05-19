@@ -69,7 +69,19 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
     } else if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) {
       h += `<div ${elAttrs} style="${st}"></div>`;
     } else if ((el.type === 'button' || el.type === 'announcement') && el.url) {
-      h += `<a ${elAttrs} href="${el.url}" style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt || ''}</a>`;
+      // URL sanitisation (audit B-7, 20 May 2026):
+      //   - Block dangerous schemes (javascript:, data:, vbscript:) — XSS guard
+      //   - For absolute http(s) URLs, add target="_blank" + rel="noopener noreferrer"
+      //     so external links open in a new tab and can't reach back via window.opener
+      //   - Anchor links (#section) and relative paths render without target/rel
+      //     since they're same-page or same-origin
+      const raw = String(el.url).trim();
+      const lower = raw.toLowerCase();
+      const blocked = lower.startsWith('javascript:') || lower.startsWith('data:') || lower.startsWith('vbscript:');
+      const safeUrl = blocked ? '#' : raw;
+      const isExternal = /^https?:\/\//i.test(safeUrl);
+      const extraAttrs = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+      h += `<a ${elAttrs} href="${safeUrl}"${extraAttrs} style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt || ''}</a>`;
     } else if ((el.type === 'button' || el.type === 'announcement') && !el.url) {
       h += `<div ${elAttrs} style="${st};display:flex;align-items:center;justify-content:center">${el.txt || ''}</div>`;
     } else if (el.type === 'audio' && el._audioUrl) {
