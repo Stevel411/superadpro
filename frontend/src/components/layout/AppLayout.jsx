@@ -21,7 +21,7 @@ function useIsMobile() {
 
 var MOBILE_TABS = ['/watch', '/dashboard', '/wallet', '/'];
 
-export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight }) {
+export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight, hideSidebar, hideTopbar }) {
   var [sidebarOpen, setSidebarOpen] = useState(false);
   var closeSidebar = useCallback(function() { setSidebarOpen(false); }, []);
   var openSidebar = useCallback(function() { setSidebarOpen(true); }, []);
@@ -110,12 +110,18 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
           On desktop: always visible (CSS @media min-width:768px overrides transform).
           On mobile: visible only when sidebarOpen=true (CSS @media max-width:767px slides it in/out).
           Conditional mounting was breaking the slide-in animation AND made debugging
-          harder when the menu didn't appear (10 May 2026 launch-day mobile bug). */}
-      <Sidebar open={sidebarOpen} onClose={closeSidebar}
-               collapsed={!isMobile && collapsed}
-               onToggleCollapsed={!isMobile ? function() { dismissFirstView(); toggleCollapsed(); } : undefined}
-               firstView={!isMobile && firstView} />
+          harder when the menu didn't appear (10 May 2026 launch-day mobile bug).
 
+          hideSidebar (20 May 2026): SuperPages editor in sandbox mode passes
+          this to claim the full viewport for the three-panel layout
+          (inspector / canvas / blocks). When hidden, --sidebar-offset is
+          forced to 0 below so main content fills the screen edge-to-edge. */}
+      {!hideSidebar && (
+        <Sidebar open={sidebarOpen} onClose={closeSidebar}
+                 collapsed={!isMobile && collapsed}
+                 onToggleCollapsed={!isMobile ? function() { dismissFirstView(); toggleCollapsed(); } : undefined}
+                 firstView={!isMobile && firstView} />
+      )}
       {/* Main content — in fullHeight mode, lock to parent's 100dvh so main's
           overflow:hidden is authoritative and child scroll containers own the scroll */}
       <div className="flex-1 flex flex-col min-w-0"
@@ -123,9 +129,11 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
           { marginLeft: 'var(--sidebar-offset,0)' },
           fullHeight ? { height: '100dvh', minHeight: 0 } : {}
         )}>
-        <Topbar title={title} subtitle={subtitle} onMenuClick={openSidebar}>
-          {topbarActions}
-        </Topbar>
+        {!hideTopbar && (
+          <Topbar title={title} subtitle={subtitle} onMenuClick={openSidebar}>
+            {topbarActions}
+          </Topbar>
+        )}
         {/* Persistent Income tabs strip — rendered on any Income family route
             (Wallet, Comp Plan, Campaign Grid, etc.) so members can hop
             between sub-pages with one click. Same Platform-Tour pattern. */}
@@ -169,7 +177,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
       {/* CSS to handle sidebar offset on desktop only + MOBILE RESPONSIVE */}
       <style>{`
         @media(min-width:768px){
-          :root { --sidebar-offset: ${desktopOffset}px; }
+          :root { --sidebar-offset: ${hideSidebar ? 0 : desktopOffset}px; }
         }
         @media(max-width:767px){
           :root { --sidebar-offset: 0px; }

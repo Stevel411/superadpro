@@ -15,6 +15,7 @@ import { useAuth } from '../../hooks/useAuth';
 import './LabsChrome.css';
 import { loadSandboxPage, saveSandboxPage, exportToProductionPayload } from './sandboxStore';
 import { FONTS, FONT_SIZES } from './elementDefaults';
+import ElementInspectorPanel from './ElementInspectorPanel';
 
 export default function LabsSuperPagesEditor() {
   var { t } = useTranslation();
@@ -601,6 +602,8 @@ export default function LabsSuperPagesEditor() {
       title={(isSandbox ? '🧪 SANDBOX · ' : '🧪 LABS · ') + (pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' }))}
       subtitle={isSandbox ? 'Sandbox · localStorage only · Doesn\'t touch live site' : (pageSettings.slug ? '/' + pageSettings.slug + ' · Editing in Labs sandbox' : 'Editing in Labs sandbox')}
       fullHeight
+      hideSidebar={isSandbox}
+      hideTopbar={isSandbox}
       bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       <div className="labs-chrome" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: "'Manrope', 'Inter', sans-serif" }}>
@@ -765,35 +768,72 @@ export default function LabsSuperPagesEditor() {
             </div>
           </div>
         ) : (
-          /* Edit mode — works for all three devices. Canvas resizes
-             to match the device breakpoint; element positions resolved
-             via effectiveBox() in Canvas.jsx. Tablet/mobile edits write
-             into el.tablet / el.mobile sparse override objects. */
-          <Canvas
-            els={els}
-            selId={selId}
-            canvasBg={canvasBg}
-            canvasBgImage={canvasBgImage}
-            selectElement={selectElement}
-            deselectAll={deselectAll}
-            updateElement={updateElement}
-            updateElementStyle={updateElementStyle}
-            markDirty={markDirty}
-            onEditElement={handleEditElement}
-            deviceView={deviceView}
-            pageId={pageId}
-            onShowTemplates={() => setShowTemplates(true)}
-            selIds={selIds}
-            toggleSelectAdditive={toggleSelectAdditive}
-            selectMany={selectMany}
-            expandToGroup={expandToGroup}
-            showGrid={showGrid}
-            duplicateElement={duplicateElement}
-            deleteElement={deleteElement}
-            moveElementZ={moveElementZ}
-            copySelected={copySelected}
-            paste={paste}
-          />
+          <>
+            {/* ── Phase 1 Inspector Panel (sandbox mode only) ──
+                Left-rail element properties. Replaces the modal-based
+                ButtonEditor for buttons. Other element types still use
+                the modal via ✎ EDIT on the canvas toolbar — that's the
+                fallback for the Phase 1 rollout (20 May 2026).
+
+                Only mounted in sandbox mode and only when an element is
+                selected. The empty state is rendered inside the panel
+                itself so the column doesn't visually collapse. */}
+            {isSandbox && (
+              <div style={{
+                width: 260,
+                flexShrink: 0,
+                background: '#ffffff',
+                borderRight: '1px solid var(--sap-border-faint, #f1f5f9)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+              }}>
+                <ElementInspectorPanel
+                  el={els.find(x => x.id === selId) || null}
+                  updateElement={updateElement}
+                  markDirty={markDirty}
+                  onDuplicate={() => selId && duplicateElement(selId)}
+                  onDelete={() => selId && deleteElement(selId)}
+                  onToggleLock={() => {
+                    if (!selId) return;
+                    const e = els.find(x => x.id === selId);
+                    if (e) updateElement(selId, { locked: !e.locked });
+                    markDirty();
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Edit mode — works for all three devices. Canvas resizes
+                to match the device breakpoint; element positions resolved
+                via effectiveBox() in Canvas.jsx. Tablet/mobile edits write
+                into el.tablet / el.mobile sparse override objects. */}
+            <Canvas
+              els={els}
+              selId={selId}
+              canvasBg={canvasBg}
+              canvasBgImage={canvasBgImage}
+              selectElement={selectElement}
+              deselectAll={deselectAll}
+              updateElement={updateElement}
+              updateElementStyle={updateElementStyle}
+              markDirty={markDirty}
+              onEditElement={handleEditElement}
+              deviceView={deviceView}
+              pageId={pageId}
+              onShowTemplates={() => setShowTemplates(true)}
+              selIds={selIds}
+              toggleSelectAdditive={toggleSelectAdditive}
+              selectMany={selectMany}
+              expandToGroup={expandToGroup}
+              showGrid={showGrid}
+              duplicateElement={duplicateElement}
+              deleteElement={deleteElement}
+              moveElementZ={moveElementZ}
+              copySelected={copySelected}
+              paste={paste}
+            />
+          </>
         )}
         {!previewMode && (
           <BlockPalette
