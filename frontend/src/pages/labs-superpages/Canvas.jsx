@@ -13,6 +13,17 @@ import { apiPost } from '../../utils/api';
 // for now; we'll migrate them once these three are solid on production.
 const TIPTAP_TYPES = ['heading', 'text', 'label'];
 
+// Element types that have been ported to the new left-rail Inspector panel
+// (ElementInspectorPanel.jsx). For these, the floating canvas toolbar's
+// ✎ EDIT / ✎ LINK chip is hidden — the Inspector covers everything the
+// chip used to do, and showing both made the canvas feel double-edited.
+//
+// Phase 1 ports Button (and the Inspector also handles Banner since they
+// share a code path). Phase 2 will add the other 24 types here one at a
+// time. Once this list contains every type, we can delete the old modal
+// system entirely.
+const INSPECTOR_TYPES = ['button'];
+
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
   var { t } = useTranslation();
   const canvasRef = useRef(null);
@@ -912,7 +923,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                   <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
                 </>
               )}
-              {!['spacer', 'divider', 'box'].includes(el.type) && !TIPTAP_TYPES.includes(el.type) && (
+              {!['spacer', 'divider', 'box'].includes(el.type) && !TIPTAP_TYPES.includes(el.type) && !INSPECTOR_TYPES.includes(el.type) && (
                 <>
                   <button onClick={e => { e.stopPropagation(); if (EDITABLE_TYPES.includes(el.type)) { startInlineEdit(el.id); } else { onEditElement(el.id); } }}
                     style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 800, color: EDITABLE_TYPES.includes(el.type) ? 'var(--sap-indigo)' : 'var(--sap-accent)' }}>
@@ -978,7 +989,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         const el = els.find(x => x.id === contextMenu.elId);
         if (!el) return null;
         const items = [
-          { label: '✎ Edit', action: () => { if (EDITABLE_TYPES.includes(el.type)) startInlineEdit(el.id); else onEditElement(el.id); }, hidden: ['spacer','divider','box'].includes(el.type) },
+          { label: '✎ Edit', action: () => { if (EDITABLE_TYPES.includes(el.type)) startInlineEdit(el.id); else onEditElement(el.id); }, hidden: ['spacer','divider','box'].includes(el.type) || INSPECTOR_TYPES.includes(el.type) },
           { divider: true },
           { label: '⧉ Duplicate', shortcut: '⌘D', action: () => { if (duplicateElement) duplicateElement(el.id); } },
           { label: '📋 Copy', shortcut: '⌘C', action: () => { if (copySelected) copySelected(); } },
