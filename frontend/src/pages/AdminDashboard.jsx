@@ -647,7 +647,7 @@ function UsersTab() {
                   if (!window.confirm('Change ' + detail.username + ' to ' + newTier.toUpperCase() + '?')) return;
                   apiPost('/admin/api/user/' + selected + '/change-tier', {tier: newTier}).then(function(r) {
                     setMsg(r.success ? 'Tier changed to ' + newTier : (r.error || 'Failed'));
-                    openUser(selected); loadUsers();
+                    openUser(selected); reloadCurrentPage();
                   });
                 }}
                 style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
@@ -661,7 +661,7 @@ function UsersTab() {
                 <button onClick={function() {
                   if (!window.confirm('Reset 2FA for ' + detail.username + '?\n\nThis disables their two-factor authentication and clears their stored secret. They will need to set up 2FA again from their Account page before they can make withdrawals.\n\nUse only when the member has confirmed they have lost access to their authenticator app.')) return;
                   apiPost('/admin/api/user/' + selected + '/reset-2fa', {}).then(function(r) {
-                    if (r.success) { setMsg('2FA reset for ' + detail.username + '. They have been notified in-app.'); openUser(selected); loadUsers(); }
+                    if (r.success) { setMsg('2FA reset for ' + detail.username + '. They have been notified in-app.'); openUser(selected); reloadCurrentPage(); }
                     else setMsg(r.error || 'Reset failed');
                   }).catch(function(e) { setMsg(e.message || 'Reset failed'); });
                 }}
@@ -675,7 +675,7 @@ function UsersTab() {
                 <button onClick={function() {
                   if (!window.confirm('PERMANENTLY DELETE ' + detail.username + '? This cannot be undone.')) return;
                   apiDelete('/admin/api/user/' + selected).then(function(r) {
-                    if (r.ok) { setMsg('User deleted'); setSelected(null); setDetail(null); loadUsers(); }
+                    if (r.ok) { setMsg('User deleted'); setSelected(null); setDetail(null); reloadCurrentPage(); }
                     else setMsg(r.error || 'Delete failed');
                   }).catch(function(e) { setMsg(e.message || 'Delete failed'); });
                 }}
@@ -687,12 +687,12 @@ function UsersTab() {
               {/* Activate Paid Membership — for bank transfers / off-platform
                   payments. Routes through the proper commission cascade so
                   the resulting state is identical to a crypto-paid signup. */}
-              {!detail.is_admin && <PaidActivation userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
+              {!detail.is_admin && <PaidActivation userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); reloadCurrentPage(); }}/>}
 
               {/* Gift Free Membership — for influencers, team, or promo.
                   No commission paid, no Payment row. Founder gifts bypass
                   the 100-spot count so they don't burn real customer inventory. */}
-              {!detail.is_admin && <GiftMembership userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
+              {!detail.is_admin && <GiftMembership userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); reloadCurrentPage(); }}/>}
 
               {/* Activate Grid Tier — manual recovery for members who paid
                   via a path that didn't auto-activate (rare, but happens).
@@ -700,7 +700,7 @@ function UsersTab() {
                   endpoint that the URL-based recipe uses; the endpoint
                   routes through process_tier_purchase so upline commissions
                   cascade identically to the normal payment flow. */}
-              {!detail.is_admin && <GridActivation userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
+              {!detail.is_admin && <GridActivation userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); reloadCurrentPage(); }}/>}
 
               {/* Adjust balance */}
               <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:6}}>Adjust Balance</div>

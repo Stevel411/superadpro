@@ -11892,10 +11892,44 @@ def admin_api_toggle_active(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Flip is_active for an EXISTING activated member (temporary suspend / unsuspend).
+
+    GUARD RAIL (added 20 May 2026 after momentumhub half-state incident):
+    this endpoint is for toggling a user who has been PROPERLY activated at
+    some point in the past — it does NOT serve as a one-click "give a free
+    signup an active flag". Flipping is_active=true without setting
+    membership_tier, activated_at, membership_expires_at, etc. produces a
+    half-state user that subsequent activation handlers refuse to process
+    ("already active"). User 225 (momentumhub) was trapped in this state
+    until a manual recovery endpoint shipped.
+
+    If the target user has never been activated (no activated_at, no real
+    membership_tier), refuse and direct the admin to the proper activation
+    handler (gift-membership or activate-paid-membership).
+    """
     _require_admin(user)
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
+
+    # If we're about to flip to active=true, make sure the user has been
+    # properly activated at some point. activated_at + a real tier are the
+    # signals — a 'free' tier with NULL activated_at means this user has
+    # never been activated through any of the legitimate paths.
+    would_become_active = not target.is_active
+    if would_become_active:
+        tier = (target.membership_tier or "free").lower()
+        if target.activated_at is None or tier in ("free", "", None):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"@{target.username} has never been activated — toggle-active is for "
+                    f"suspending/unsuspending existing members, not for first activation. "
+                    f"Use 'Activate Paid Membership' (for off-platform payments) or "
+                    f"'Gift Free Membership' (for comped access) to activate this user properly."
+                ),
+            )
+
     target.is_active = not target.is_active
     db.commit()
     logger.info(f"Admin toggle active: {target.username} → {'active' if target.is_active else 'inactive'}")
@@ -14576,12 +14610,24 @@ async def admin_api_activate_paid_membership(
         raise HTTPException(status_code=404, detail="User not found")
 
     if target.is_active and tier == "founder":
-        # Don't accidentally double-activate. For Founder this is especially
-        # critical because we'd burn a real founding spot on someone who
-        # already has membership.
-        raise HTTPException(
-            status_code=400,
-            detail=f"@{target.username} is already active — paid-activation is for fresh signups only",
+        # Don't accidentally double-activate a properly-activated Founder —
+        # we'd burn a real founding spot on someone who already has membership.
+        # BUT: a "half-state" user (is_active=true with NULL activated_at and
+        # tier in (NULL, 'free')) is exactly the state we want this handler
+        # to RECOVER from, not reject. That state is what trapped momentumhub
+        # on 19 May 2026. Detect it explicitly and let the handler proceed.
+        already_real_member = (
+            target.activated_at is not None
+            and (target.membership_tier or "free").lower() not in ("free", "")
+        )
+        if already_real_member:
+            raise HTTPException(
+                status_code=400,
+                detail=f"@{target.username} is already active — paid-activation is for fresh signups only",
+            )
+        logger.info(
+            f"Paid-activation recovering half-state user @{target.username} "
+            f"(is_active=true but activated_at=NULL and tier='{target.membership_tier or 'NULL'}')"
         )
 
     # ── Founder path: atomic spot claim + sponsor commission ────────────
@@ -14667,12 +14713,12 @@ async def admin_api_activate_paid_membership(
         except Exception:
             pass
 
-        db.commit()
-        # Auto-enrol this newly activated Founder into the rotator queue.
-        # Safe to call after commit because _enrol_user_to_rotator does its
-        # own INSERT — we just need target.id to be persisted. Idempotent so
-        # re-running on a Founder who somehow already exists in the queue
-        # is a no-op.
+        # Enrol Founder into rotator queue BEFORE the commit so the whole
+        # activation lands atomically. Previously this ran after a commit
+        # and a second commit followed — a rotator failure would leave the
+        # user activated but not enrolled, requiring manual cleanup.
+        # _enrol_user_to_rotator does its own try/except so failures are
+        # logged but don't break the activation.
         _enrol_user_to_rotator(db, target.id)
         db.commit()
         logger.info(
