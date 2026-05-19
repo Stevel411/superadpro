@@ -15790,7 +15790,14 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
         page = FunnelPage(user_id=user.id)
         db.add(page)
 
-    # Generate slug from title + username (only if new page or no slug yet)
+    # Generate slug from title + username. Original logic only ran when
+    # page.slug was empty AND it was a new page — but Steve found pages
+    # in his gallery with empty slugs (20 May 2026), suggesting some
+    # legacy path saved pages without slugs OR the if-not check has
+    # been silently skipping over null slugs that should have been
+    # regenerated. Belt-and-braces: ensure every saved page has a slug,
+    # regenerating only when one is genuinely missing (so we don't
+    # break working slugs that members have shared).
     import re
     title = body.get("title", "My Page").strip()
     if not page.slug:
@@ -29638,6 +29645,30 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
     funnels = db.query(FunnelPage).filter(
         FunnelPage.user_id == user.id
     ).order_by(FunnelPage.created_at.desc()).all()
+
+    # ── Slug repair (20 May 2026) ──
+    # Steve found pages in /pro/funnels with green-dot 'published' status
+    # but no View button. Root cause: their FunnelPage.slug was empty,
+    # which made the gallery's `p.status === 'published' && p.slug`
+    # condition false and hid the View link, leaving the published page
+    # with no clickable preview path from the dashboard.
+    #
+    # This loop repairs any slug-less pages on the next gallery load.
+    # Safe to run on every request because the if-not-slug check is cheap
+    # and only fires for actually-broken rows. Slug generation is
+    # collision-safe so two legacy pages with the same title won't clash.
+    repaired_any = False
+    for f in funnels:
+        if not f.slug:
+            f.slug = generate_unique_slug(db, user.username, f.title or 'page', exclude_page_id=f.id)
+            repaired_any = True
+    if repaired_any:
+        try:
+            db.commit()
+        except Exception as _slug_err:
+            db.rollback()
+            logger.warning(f"Funnels API: slug repair failed: {_slug_err}")
+
     funnel_ids = [f.id for f in funnels]
 
     # ── Per-page 30-day visit count ──
