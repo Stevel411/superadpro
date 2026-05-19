@@ -310,7 +310,7 @@ export default function ShareStory() {
             </div>
             <input
               className="ss-input" type="text" maxLength={MAX.milestone_label}
-              placeholder={t('shareStory.milestonePlaceholder', { defaultValue: 'e.g. first $17.50, first grid completion' })}
+              placeholder={t('shareStory.milestonePlaceholder', { defaultValue: 'e.g. first $10, first grid completion' })}
               value={milestoneLabel}
               onChange={function(e) { setMilestoneLabel(e.target.value); }}
             />

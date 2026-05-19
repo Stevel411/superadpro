@@ -307,7 +307,7 @@ function CoachingMode({ user, t }) {
           fontSize: 16, color: 'var(--sap-text-secondary, #475569)', lineHeight: 1.5,
           maxWidth: 560, margin: '0 auto 28px',
         }}>
-          {t('membership.coachingSub', { defaultValue: 'Every Pro member you refer pays you $17.50/month for as long as they stay. 5 directs = $87.50 every month, automatically. Let\'s get your first one.' })}
+          {t('membership.coachingSub', { defaultValue: 'Every active member you refer pays you $10/month for as long as they stay. 5 directs = $50 every month, automatically. Let\'s get your first one.' })}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
           <Link to="/social-share" style={{

@@ -2,19 +2,28 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-// Live platform pricing from app/crypto_payments.py
-var PRICE_MONTHLY = { basic: 20, pro: 35 };
-var PRICE_ANNUAL  = { basic: 200, pro: 350 };
-var COMMISSION_RATE = 0.5;
+// Live platform pricing under flat-pricing (locked 15 May 2026):
+// Partner $20/mo, Founding $15/mo locked (first 100). Both pay the
+// sponsor a flat $10/mo commission. Annual = $200/yr Partner only;
+// Founding is monthly-only at the locked rate. Legacy basic/pro keys
+// retained as aliases so any unmigrated reference still resolves to
+// the correct flat-pricing value.
+var PRICE_MONTHLY = { basic: 20, pro: 20, partner: 20, founding: 15 };
+var PRICE_ANNUAL  = { basic: 200, pro: 200, partner: 200, founding: null };
+// Flat $10/mo per active referral, regardless of which tier they're on.
+// No more 50% rate / per-tier split — that was the Basic/Pro model.
+var FLAT_COMMISSION_MONTHLY = 10;
+var FLAT_COMMISSION_ANNUAL  = 100;
 
-// Hero counter target: $17.50 (stored as cents = 1750 for clean integer state)
-var HERO_TARGET_CENTS = 1750;
+// Hero counter target: $10/mo (the flat sponsor commission), stored as
+// cents = 1000 for clean integer state.
+var HERO_TARGET_CENTS = 1000;
 
 export default function MembershipStreamPage() {
   var { t } = useTranslation();
 
   // Calculator state
-  var [plan, setPlan] = useState('pro');      // 'basic' | 'pro'
+  var [plan, setPlan] = useState('partner');      // 'partner' | 'founding'
   var [refs, setRefs] = useState(10);
   var [pulseKey, setPulseKey] = useState(0);  // bumps trigger pulse animation
 
@@ -46,10 +55,12 @@ export default function MembershipStreamPage() {
   }, []);
 
   // ═════════ Calculator math ═════════
-  var monthlyPrice = PRICE_MONTHLY[plan];
-  var annualPrice  = PRICE_ANNUAL[plan];
-  var commissionPerRefMonthly = monthlyPrice * COMMISSION_RATE;   // 10 or 17.50
-  var commissionPerRefAnnual  = annualPrice * COMMISSION_RATE;    // 100 or 175
+  var monthlyPrice = PRICE_MONTHLY[plan] || 20;
+  var annualPrice  = PRICE_ANNUAL[plan] || 200;
+  // Flat $10/mo, $100/yr — same for every active referral regardless
+  // of tier. The legacy 50% × tier-price formula no longer applies.
+  var commissionPerRefMonthly = FLAT_COMMISSION_MONTHLY;
+  var commissionPerRefAnnual  = FLAT_COMMISSION_ANNUAL;
 
   var monthlyResidual  = refs * commissionPerRefMonthly;
   var twelveMonthTotal = monthlyResidual * 12;
@@ -255,25 +266,25 @@ export default function MembershipStreamPage() {
                 <label style={{marginBottom: '4px'}}>
                   {t('membershipStream.calc.planLabel')}{' '}
                   <span className="v" key={'plan' + pulseKey}>
-                    {plan === 'pro' ? t('membershipStream.calc.planPro') : t('membershipStream.calc.planBasic')}
+                    {plan === 'founding' ? t('membershipStream.calc.planFounding', { defaultValue: 'Founding' }) : t('membershipStream.calc.planPartner', { defaultValue: 'Partner' })}
                   </span>
                 </label>
                 <div className="calc-plan-buttons">
                   <button
                     type="button"
-                    className={'plan-btn' + (plan === 'basic' ? ' active' : '')}
-                    onClick={function() { selectPlan('basic'); }}
+                    className={'plan-btn' + (plan === 'partner' ? ' active' : '')}
+                    onClick={function() { selectPlan('partner'); }}
                   >
-                    <div className="p-name">{t('membershipStream.calc.planBasic')}</div>
-                    <div className="p-price">{t('membershipStream.calc.planBasicPrice')}</div>
+                    <div className="p-name">{t('membershipStream.calc.planPartner', { defaultValue: 'Partner' })}</div>
+                    <div className="p-price">{t('membershipStream.calc.planPartnerPrice', { defaultValue: '$20/mo' })}</div>
                   </button>
                   <button
                     type="button"
-                    className={'plan-btn' + (plan === 'pro' ? ' active' : '')}
-                    onClick={function() { selectPlan('pro'); }}
+                    className={'plan-btn' + (plan === 'founding' ? ' active' : '')}
+                    onClick={function() { selectPlan('founding'); }}
                   >
-                    <div className="p-name">{t('membershipStream.calc.planPro')}</div>
-                    <div className="p-price">{t('membershipStream.calc.planProPrice')}</div>
+                    <div className="p-name">{t('membershipStream.calc.planFounding', { defaultValue: 'Founding ★' })}</div>
+                    <div className="p-price">{t('membershipStream.calc.planFoundingPrice', { defaultValue: '$15/mo locked' })}</div>
                   </button>
                 </div>
               </div>

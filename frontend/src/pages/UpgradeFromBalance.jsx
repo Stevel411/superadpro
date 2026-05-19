@@ -146,7 +146,7 @@ export default function UpgradeFromBalance() {
           <p style={{ color: 'var(--sap-text-muted)', marginBottom: 8, lineHeight: 1.6 }}>
             {t('upgradeFromBalance.notYetBody', {
               balance: balance, fee: fee, needed: needed,
-              defaultValue: 'You currently have ${{balance}} in your commission balance. Once you reach ${{fee}}, you can activate Basic membership using your earnings — no out-of-pocket cost.',
+              defaultValue: 'You currently have ${{balance}} in your commission balance. Once you reach ${{fee}}, you can activate Partner membership using your earnings — no out-of-pocket cost.',
             })}
           </p>
           <p style={{
@@ -205,7 +205,7 @@ export default function UpgradeFromBalance() {
             <div style={{
               fontFamily: 'Sora, sans-serif', fontSize: 24, fontWeight: 900,
               lineHeight: 1.1, marginBottom: 6, letterSpacing: '-0.3px',
-            }}>{t('upgradeFromBalance.heroTitle', { defaultValue: 'Activate Basic membership for free' })}</div>
+            }}>{t('upgradeFromBalance.heroTitle', { defaultValue: 'Activate Partner membership for free' })}</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>
               {t('upgradeFromBalance.heroSubtitle', { defaultValue: 'Your commission earnings cover it — no out-of-pocket cost.' })}
             </div>
@@ -227,12 +227,12 @@ export default function UpgradeFromBalance() {
           <p style={{ color: 'var(--sap-text-secondary, #475569)', lineHeight: 1.7, marginBottom: 12 }}>
             {t('upgradeFromBalance.choiceBody1', {
               balance: balance,
-              defaultValue: 'You\'ve earned ${{balance}} in commissions so far. You can use ${{fee}} of that to activate Basic membership now, or keep your earnings in your wallet to withdraw whenever you like.',
+              defaultValue: 'You\'ve earned ${{balance}} in commissions so far. You can use ${{fee}} of that to activate Partner membership now, or keep your earnings in your wallet to withdraw whenever you like.',
               fee: fee,
             })}
           </p>
           <p style={{ color: 'var(--sap-text-secondary, #475569)', lineHeight: 1.7, marginBottom: 24 }}>
-            {t('upgradeFromBalance.choiceBody2', { defaultValue: 'Activating unlocks higher commission rates and full Basic features. Keeping your earnings means they stay in your wallet — you can activate later when you\'re ready.' })}
+            {t('upgradeFromBalance.choiceBody2', { defaultValue: 'Activating unlocks the full platform. Keeping your earnings means they stay in your wallet — you can activate later when you\'re ready.' })}
           </p>
 
           {/* Balance summary box */}
@@ -245,7 +245,7 @@ export default function UpgradeFromBalance() {
               <span style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, color: 'var(--sap-text-primary)' }}>${balance}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>{t('upgradeFromBalance.basicFee', { defaultValue: 'Basic membership fee' })}</span>
+              <span style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>{t('upgradeFromBalance.basicFee', { defaultValue: 'Partner membership fee' })}</span>
               <span style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, color: 'var(--sap-text-primary)' }}>−${fee}</span>
             </div>
             <div style={{ height: 1, background: '#e2e8f0', margin: '8px 0' }} />
@@ -281,7 +281,7 @@ export default function UpgradeFromBalance() {
               {activating
                 ? t('upgradeFromBalance.activating', { defaultValue: 'Activating…' })
                 : <>
-                    {t('upgradeFromBalance.activateBtn', { defaultValue: 'Activate Basic for ${{fee}}', fee: fee })}
+                    {t('upgradeFromBalance.activateBtn', { defaultValue: 'Activate Partner for ${{fee}}', fee: fee })}
                     <ArrowRight size={16} />
                   </>
               }

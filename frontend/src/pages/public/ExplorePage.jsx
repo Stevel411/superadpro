@@ -493,11 +493,11 @@ export default function ExplorePage(props) {
                 <p className="tool-lineup-sub">{t('explore.toolsSub', { defaultValue: 'Nine tools, split across two tiers. Every Basic member gets the first six. Pro members get three more.' })}</p>
               </div>
 
-              {/* Basic tier */}
+              {/* Partner tier — flat pricing, all tools included */}
               <div className="tool-tier">
                 <div className="tool-tier-head">
-                  <div className="tool-tier-badge tier-basic">{t('explore.toolsBasicBadge', { defaultValue: 'Basic · $20/mo' })}</div>
-                  <div className="tool-tier-label">{t('explore.toolsBasicLabel', { defaultValue: 'Included with every membership' })}</div>
+                  <div className="tool-tier-badge tier-basic">{t('explore.toolsBadge', { defaultValue: 'Partner · $20/mo' })}</div>
+                  <div className="tool-tier-label">{t('explore.toolsLabel', { defaultValue: 'Everything included — every tool, every member' })}</div>
                 </div>
                 <div className="tool-grid">
                   <div className="tool-card" data-c="sky">
@@ -542,31 +542,21 @@ export default function ExplorePage(props) {
                     <div className="tool-card-name">{t('explore.toolSuperDeckName', { defaultValue: 'SuperDeck' })}</div>
                     <div className="tool-card-body">{t('explore.toolSuperDeckBody', { defaultValue: 'AI slide-deck builder. Describe your pitch, get a polished presentation in minutes.' })}</div>
                   </div>
-                </div>
-              </div>
-
-              {/* Pro tier */}
-              <div className="tool-tier">
-                <div className="tool-tier-head">
-                  <div className="tool-tier-badge tier-pro">{t('explore.toolsProBadge', { defaultValue: 'Pro · $35/mo' })}</div>
-                  <div className="tool-tier-label">{t('explore.toolsProLabel', { defaultValue: 'Everything in Basic, plus three more' })}</div>
-                </div>
-                <div className="tool-grid">
-                  <div className="tool-card tool-card-pro" data-c="sky">
+                  <div className="tool-card" data-c="sky">
                     <div className="tool-card-icon">
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     </div>
                     <div className="tool-card-name">{t('explore.toolSuperPagesName', { defaultValue: 'SuperPages' })}</div>
                     <div className="tool-card-body">{t('explore.toolSuperPagesBody', { defaultValue: 'Drag-and-drop landing pages. 8 templates, free-form blocks, instant publish.' })}</div>
                   </div>
-                  <div className="tool-card tool-card-pro" data-c="green">
+                  <div className="tool-card" data-c="green">
                     <div className="tool-card-icon">
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                     </div>
                     <div className="tool-card-name">{t('explore.toolAutoResponderName', { defaultValue: 'AutoResponder' })}</div>
                     <div className="tool-card-body">{t('explore.toolAutoResponderBody', { defaultValue: 'Automated email sequences for your leads. AI-generated copy, visual timeline editor.' })}</div>
                   </div>
-                  <div className="tool-card tool-card-pro" data-c="indigo">
+                  <div className="tool-card" data-c="indigo">
                     <div className="tool-card-icon">
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     </div>

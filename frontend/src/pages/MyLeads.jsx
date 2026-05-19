@@ -299,7 +299,7 @@ function BcastTab({leads,lists,flash,switchTab}) {
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>{t('myLeads.broadcastTitle')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('myLeads.broadcastDesc')}</div></div>
     <div style={{padding:'20px 24px'}}>
-      {/* Email allowance banner — Pro membership covers a free daily quota.
+      {/* Email allowance banner — Partner membership covers a free daily quota.
           Boost packs add credits that never expire for bigger sends. */}
       {allowance && (
         <div style={{
@@ -316,7 +316,7 @@ function BcastTab({leads,lists,flash,switchTab}) {
               </span>
             )}
             <div style={{fontSize:11, color:'var(--sap-text-muted)', marginTop:2}}>
-              Pro membership includes {allowance.daily_limit}/day. Boost packs from $5 add credits that never expire.
+              Your membership includes {allowance.daily_limit}/day. Boost packs from $5 add credits that never expire.
             </div>
           </div>
           <a href="#boost" onClick={function(e){e.preventDefault();if(switchTab)switchTab('boost');}} style={{

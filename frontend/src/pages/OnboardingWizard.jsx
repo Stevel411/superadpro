@@ -193,7 +193,7 @@ export default function OnboardingWizard() {
           <div style={{ background: '#eff6ff', borderRadius: 10, padding: '14px 18px', textAlign: 'left', marginBottom: 24, border: '1px solid #bfdbfe' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>{t('onboarding.howYouEarn')}</div>
             <div style={{ fontSize: 12, color: '#3b82f6', lineHeight: 1.7 }}>
-              Every person who signs up through your link becomes your referral. You earn $10/month for Basic members and $17.50/month for Pro members — recurring, every month they stay active.
+              Every person who signs up through your link becomes your referral. You earn $10/month for every active member — recurring, every month they stay active.
             </div>
           </div>
 
