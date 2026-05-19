@@ -490,7 +490,7 @@ export default function ExplorePage(props) {
               <div className="tool-lineup-head">
                 <div className="tool-lineup-eyebrow">{t('explore.toolsEyebrow', { defaultValue: 'What\'s inside' })}</div>
                 <h3 className="tool-lineup-title">{t('explore.toolsTitle', { defaultValue: 'The tools that come with your membership.' })}</h3>
-                <p className="tool-lineup-sub">{t('explore.toolsSub', { defaultValue: 'Nine tools, split across two tiers. Every Basic member gets the first six. Pro members get three more.' })}</p>
+                <p className="tool-lineup-sub">{t('explore.toolsSub', { defaultValue: 'Thirteen tools, all included with your Partner membership. AI content tools for generating assets, builder tools for distribution.' })}</p>
               </div>
 
               {/* Partner tier — flat pricing, all tools included */}
