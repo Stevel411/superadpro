@@ -18,11 +18,13 @@ const TIPTAP_TYPES = ['heading', 'text', 'label'];
 // ✎ EDIT / ✎ LINK chip is hidden — the Inspector covers everything the
 // chip used to do, and showing both made the canvas feel double-edited.
 //
-// Phase 1 ports Button (and the Inspector also handles Banner since they
-// share a code path). Phase 2 will add the other 24 types here one at a
-// time. Once this list contains every type, we can delete the old modal
-// system entirely.
-const INSPECTOR_TYPES = ['button'];
+// Phase 1: Button (covers banner — they share a code path)
+// Phase 2A: Heading, Text, Label — Tiptap text types styled via Inspector
+//           (content still edited inline via double-click)
+//
+// Phase 2B+ will continue porting types. Once this list contains every
+// type, we can delete the old modal system entirely.
+const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label'];
 
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
   var { t } = useTranslation();

@@ -28,7 +28,11 @@ export default function QuickProps({ el, updateElement, updateElementStyle, mark
   //     deep-edit modal that covers everything in here plus typography
   //     and link — duplicating those controls here just clutters the
   //     canvas (audit B-4, 20 May 2026)
-  const SKIP_TYPES = ['spacer', 'divider', 'button', 'form', 'announcement'];
+  //   - Inspector-ported text types (heading, text, label) — the
+  //     Inspector panel on the left handles typography/colour/alignment
+  //     properly, so the floating QuickProps just gets in the way
+  //     (Phase 2A, 20 May 2026)
+  const SKIP_TYPES = ['spacer', 'divider', 'button', 'form', 'announcement', 'heading', 'text', 'label'];
   if (SKIP_TYPES.includes(el.type)) return null;
 
   const fgRef = useRef(null);

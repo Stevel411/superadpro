@@ -289,6 +289,254 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
   );
 }
 
+// ── Text-types property section (heading / text / label) ────────
+//
+// Heading, Text, and Label share the same shape: rich-text content
+// edited INLINE via Tiptap (double-click to edit), styled via this
+// Inspector panel. Different from Button — the Inspector here only
+// handles styling, NOT content, because content lives in the inline
+// editor's output.
+//
+// Tiptap manages inline marks (bold/italic/link inside the text) at
+// the character level. This panel manages BLOCK-level style — font
+// family, size, weight, colour, alignment, line height. Those apply
+// to the whole element via el.s.
+//
+// Added 20 May 2026 (Phase 2A).
+function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // Local state mirrors el.s for snappy input feel. The actual data
+  // lives in el.s — these are just UI-side mirrors.
+  const [fontFamily, setFontFamily] = useState(el.s?.fontFamily || 'Sora,sans-serif');
+  const [fontWeight, setFontWeight] = useState(el.s?.fontWeight || (el.type === 'heading' ? '800' : '400'));
+  const fontSizeRaw = el.s?.fontSize || (el.type === 'heading' ? '48px' : el.type === 'label' ? '14px' : '18px');
+  const [fontSizeNum, setFontSizeNum] = useState(parseInt(String(fontSizeRaw).replace(/px$/, ''), 10) || 18);
+  const [textColor, setTextColor] = useState(el.s?.color || (el.type === 'heading' ? '#0f172a' : 'var(--sap-text-primary)'));
+  const [textAlign, setTextAlign] = useState(el.s?.textAlign || 'left');
+  const lineHeightRaw = el.s?.lineHeight || '1.4';
+  const [lineHeightNum, setLineHeightNum] = useState(parseFloat(String(lineHeightRaw)) || 1.4);
+
+  // Resync when selection changes (different element selected)
+  useEffect(() => {
+    setFontFamily(el.s?.fontFamily || 'Sora,sans-serif');
+    setFontWeight(el.s?.fontWeight || (el.type === 'heading' ? '800' : '400'));
+    const fs = el.s?.fontSize || (el.type === 'heading' ? '48px' : el.type === 'label' ? '14px' : '18px');
+    setFontSizeNum(parseInt(String(fs).replace(/px$/, ''), 10) || 18);
+    setTextColor(el.s?.color || '#0f172a');
+    setTextAlign(el.s?.textAlign || 'left');
+    setLineHeightNum(parseFloat(String(el.s?.lineHeight || '1.4')) || 1.4);
+  }, [el.id]);
+
+  // ── Live-edit helpers ─────────────────────────────────────
+  const commitStyle = (key, value) => {
+    updateElementStyle(el.id, { [key]: value });
+    markDirty();
+  };
+  const commitFontFamily = (v) => { setFontFamily(v); commitStyle('fontFamily', v); };
+  const commitFontWeight = (v) => { setFontWeight(v); commitStyle('fontWeight', v); };
+  const commitFontSize = (numPx) => { setFontSizeNum(numPx); commitStyle('fontSize', numPx + 'px'); };
+  const commitColor = (v) => { setTextColor(v); commitStyle('color', v); };
+  const commitAlign = (v) => { setTextAlign(v); commitStyle('textAlign', v); };
+  const commitLineHeight = (n) => {
+    setLineHeightNum(n);
+    commitStyle('lineHeight', String(n));
+  };
+
+  // Text-type colour palette — leans toward readable dark/medium tones
+  // since most page text is on a light background. Three quick swatches
+  // plus a custom colour input.
+  const TEXT_COLOURS = [
+    { value: '#0f172a', label: 'Slate-900' },
+    { value: '#334155', label: 'Slate-700' },
+    { value: '#64748b', label: 'Slate-500' },
+    { value: '#ffffff', label: 'White' },
+    { value: '#0ea5e9', label: 'Cyan' },
+    { value: '#6366f1', label: 'Indigo' },
+    { value: '#ef4444', label: 'Red' },
+    { value: '#f59e0b', label: 'Amber' },
+  ];
+
+  return (
+    <>
+      {/* Content guidance — text is edited INLINE not here */}
+      <div style={{
+        ...sectionStyle,
+        padding: 10,
+        background: 'var(--sap-bg-elevated, #f8fafc)',
+        border: '1px dashed var(--sap-border-faint, #e2e8f0)',
+        borderRadius: 6,
+        fontSize: 11,
+        color: 'var(--sap-text-muted, #64748b)',
+        lineHeight: 1.5,
+      }}>
+        💡 <strong style={{ color: 'var(--sap-text-primary, #0f172a)' }}>Double-click the {el.type}</strong> on the canvas to edit its text directly. Use this panel to style it.
+      </div>
+
+      {/* Typography */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Typography</label>
+        <select
+          value={fontFamily}
+          onChange={e => commitFontFamily(e.target.value)}
+          style={{ ...inputStyle, marginBottom: 8, fontFamily }}
+        >
+          {FONTS.map(f => (
+            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+          ))}
+        </select>
+
+        {/* Size slider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 800,
+            color: 'var(--sap-text-muted, #64748b)',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            minWidth: 26,
+          }}>Size</span>
+          <input
+            type="range"
+            min="8" max="128" step="1"
+            value={fontSizeNum}
+            onChange={e => commitFontSize(parseInt(e.target.value, 10))}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 38, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{fontSizeNum}px</span>
+        </div>
+
+        <select
+          value={fontWeight}
+          onChange={e => commitFontWeight(e.target.value)}
+          style={inputStyle}
+        >
+          <option value="400">Regular</option>
+          <option value="500">Medium</option>
+          <option value="600">Semibold</option>
+          <option value="700">Bold</option>
+          <option value="800">Extra Bold</option>
+          <option value="900">Black</option>
+        </select>
+      </div>
+
+      {/* Alignment */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Alignment</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
+          {[
+            { value: 'left', label: '← Left', icon: '⇤' },
+            { value: 'center', label: 'Centre', icon: '⇔' },
+            { value: 'right', label: 'Right →', icon: '⇥' },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => commitAlign(opt.value)}
+              style={{
+                padding: '8px 6px',
+                borderRadius: 6,
+                border: textAlign === opt.value
+                  ? '2px solid var(--sap-accent, #0ea5e9)'
+                  : '1px solid var(--sap-border, #e2e8f0)',
+                background: textAlign === opt.value
+                  ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))'
+                  : 'var(--sap-bg-elevated, #f8fafc)',
+                color: textAlign === opt.value
+                  ? 'var(--sap-accent, #0ea5e9)'
+                  : 'var(--sap-text-primary, #0f172a)',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+                textAlign: 'center',
+              }}
+            >{opt.label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Line height — affects how text wraps and spacing */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Line height</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <input
+            type="range"
+            min="1" max="3" step="0.05"
+            value={lineHeightNum}
+            onChange={e => commitLineHeight(parseFloat(e.target.value))}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 36, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{lineHeightNum.toFixed(2)}</span>
+        </div>
+      </div>
+
+      {/* Colour */}
+      <div style={sectionStyleLast}>
+        <label style={labelStyle}>Colour</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, marginBottom: 8 }}>
+          {TEXT_COLOURS.map((c) => (
+            <button
+              key={c.value}
+              type="button"
+              onClick={() => commitColor(c.value)}
+              title={c.label}
+              aria-label={c.label}
+              style={{
+                aspectRatio: '1',
+                borderRadius: 5,
+                background: c.value,
+                cursor: 'pointer',
+                border: textColor === c.value
+                  ? '2px solid var(--sap-accent, #0ea5e9)'
+                  : '1px solid var(--sap-border, #e2e8f0)',
+                padding: 0,
+              }}
+            />
+          ))}
+        </div>
+        {/* Custom colour picker */}
+        <label style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '6px 10px',
+          background: 'var(--sap-bg-elevated, #f8fafc)',
+          border: '1px solid var(--sap-border, #e2e8f0)',
+          borderRadius: 6,
+          cursor: 'pointer',
+        }} title="Custom colour">
+          <div style={{
+            width: 18, height: 18, borderRadius: 4,
+            background: textColor.startsWith('#') ? textColor : '#0f172a',
+            border: '1px solid var(--sap-border-faint, #e2e8f0)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <input
+              type="color"
+              value={textColor.startsWith('#') ? textColor : '#0f172a'}
+              onChange={e => commitColor(e.target.value)}
+              style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', padding: 0, cursor: 'pointer' }}
+            />
+          </div>
+          <span style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', fontWeight: 600 }}>
+            Custom colour
+          </span>
+          <span style={{ flex: 1 }} />
+          <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--sap-text-faint, #94a3b8)' }}>
+            {textColor.startsWith('#') ? textColor.toUpperCase() : ''}
+          </span>
+        </label>
+      </div>
+    </>
+  );
+}
+
 // ── Placeholder for unsupported types ──────────────────────────
 //
 // Until Phase 2 ports the other 25 element types, we show a friendly
@@ -392,10 +640,13 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
       </div>
 
       {/* Type-specific properties.
-          Phase 1 supports Button only; other types show the placeholder.
-          Phase 2 (next session) ports each type to its own ButtonProperties-style component. */}
+          Phase 1: Button (commit d893935)
+          Phase 2A: Heading, Text, Label — same TextTypeProperties since they share a Tiptap inline-edit model (commit 20 May 2026)
+          Remaining 22 types fall back to the placeholder note pointing at the legacy modal. */}
       {el.type === 'button' ? (
         <ButtonProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : ['heading', 'text', 'label'].includes(el.type) ? (
+        <TextTypeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : (
         <UnsupportedTypeNote type={el.type} />
       )}
