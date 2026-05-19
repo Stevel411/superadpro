@@ -70,10 +70,18 @@ const sectionStyleLast = {
 
 // ── Button-specific property section ───────────────────────────
 //
-// All controls write through updateElement on every change. The
-// element on the canvas re-renders immediately because Canvas.jsx
-// reads from el.txt / el.url / el.s on every render.
-function ButtonProperties({ el, updateElement, markDirty }) {
+// All controls write through updateElement/updateElementStyle on
+// every change. The element on the canvas re-renders immediately
+// because Canvas.jsx reads from el.txt / el.url / el.s on every
+// render.
+//
+// Style commits MUST go through updateElementStyle (not updateElement
+// with a spread `s` object) — updateElementStyle does the merge
+// inside the setter, reading the LATEST e.s. Closure-spread merges
+// from useState are stale, so quick successive style changes
+// overwrite each other. Bug fixed 20 May 2026 after the first
+// preview test showed buttons rendering without their background.
+function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) {
   // Local state mirrors el props so input feel is snappy. We sync
   // back to props on every change (live edit).
   const [txt, setTxt] = useState(el.txt || 'Join Now');
@@ -99,8 +107,6 @@ function ButtonProperties({ el, updateElement, markDirty }) {
   }, [el.id]);
 
   // ── Live-edit helpers ───────────────────────────────────────
-  // Each control update writes directly through updateElement so the
-  // canvas reflects the change in the same render cycle.
   const commitTxt = (v) => {
     setTxt(v);
     updateElement(el.id, { txt: v });
@@ -111,8 +117,12 @@ function ButtonProperties({ el, updateElement, markDirty }) {
     updateElement(el.id, { url: v });
     markDirty();
   };
+  // Style commits go through updateElementStyle so each merge reads
+  // the latest e.s — no stale-closure overwrite when commits happen
+  // in rapid succession (the bug that made buttons lose their
+  // background after a typography change).
   const commitStyle = (key, value) => {
-    updateElement(el.id, { s: { ...el.s, [key]: value } });
+    updateElementStyle(el.id, { [key]: value });
     markDirty();
   };
   const commitBg = (v) => { setBgColor(v); commitStyle('background', v); };
@@ -313,7 +323,7 @@ function UnsupportedTypeNote({ type }) {
 //
 // Header is constant across all states: shows element type + the
 // quick actions (duplicate / lock / delete).
-export default function ElementInspectorPanel({ el, updateElement, markDirty, onDuplicate, onDelete, onToggleLock }) {
+export default function ElementInspectorPanel({ el, updateElement, updateElementStyle, markDirty, onDuplicate, onDelete, onToggleLock }) {
   // No-selection state
   if (!el) {
     return (
@@ -385,7 +395,7 @@ export default function ElementInspectorPanel({ el, updateElement, markDirty, on
           Phase 1 supports Button only; other types show the placeholder.
           Phase 2 (next session) ports each type to its own ButtonProperties-style component. */}
       {el.type === 'button' ? (
-        <ButtonProperties el={el} updateElement={updateElement} markDirty={markDirty} />
+        <ButtonProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : (
         <UnsupportedTypeNote type={el.type} />
       )}

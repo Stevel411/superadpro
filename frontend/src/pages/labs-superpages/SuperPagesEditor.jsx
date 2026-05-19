@@ -791,6 +791,7 @@ export default function LabsSuperPagesEditor() {
                 <ElementInspectorPanel
                   el={els.find(x => x.id === selId) || null}
                   updateElement={updateElement}
+                  updateElementStyle={updateElementStyle}
                   markDirty={markDirty}
                   onDuplicate={() => selId && duplicateElement(selId)}
                   onDelete={() => selId && deleteElement(selId)}
