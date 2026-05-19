@@ -1,35 +1,34 @@
 /**
- * ToolsPage.jsx — Tools door overview page (Door 3)
+ * ToolsPage.jsx — Tools overview page
  * ════════════════════════════════════════════════════════════════
- * /tools is now an OVERVIEW-ONLY page. Members land here and see
- * three door cards representing the three tool categories:
+ * /tools is an OVERVIEW-ONLY page. Members land here and see two
+ * door cards representing the two tool categories:
  *
- *   Free Tools   → /tools/free
- *   Basic Tools  → /tools/basic
- *   Pro Tools    → /tools/pro
+ *   AI Content Tools  → /tools/ai-content
+ *   Builder Tools     → /tools/builder
  *
- * The actual tool grids live on those three sub-pages, NOT on this
- * overview page. This matches the Income door pattern: /income is
- * the overview, /wallet / /compensation-plan / /campaign-tiers etc.
- * are the destinations.
+ * The actual tool grids live on those two sub-pages. The persistent
+ * ToolsTabs strip (rendered by AppLayout) handles navigation between
+ * the three tools-family pages so members can hop around without
+ * coming back here.
  *
- * The persistent ToolsTabs strip (rendered by AppLayout) handles
- * navigation between the four tools-family pages so members can hop
- * around without coming back here.
+ * Locked legacy structure (Free / Basic / Pro) was retired 20 May 2026
+ * along with the dual-tier membership purge. Under flat-pricing every
+ * active member gets all 13 tools — the categorisation here is about
+ * user intent (creating creative vs building/distributing), not pricing.
+ *
+ * Locked card state still shows for free members (is_active=false),
+ * with a CTA to activate Partner membership.
  *
  * Sidebar collapses on mount via the existing sap-sidebar-set-collapsed
  * event — same pattern as IncomePage.
- *
- * Approved layout: /mnt/user-data/outputs/tools-page-mockup.html
- * (refined per founder direction 26 Apr 2026 — overview-only, no
- * inline tool grids).
  */
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
-import { Lock, Plus, Wrench, Zap } from 'lucide-react';
+import { Lock, Sparkles, Wrench } from 'lucide-react';
 import { SubPageHero } from './tools-shared';
 
 export default function ToolsPage() {
@@ -37,7 +36,6 @@ export default function ToolsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Sidebar collapse on mount, restore on unmount
   useEffect(() => {
     let priorCollapsed = false;
     try { priorCollapsed = window.localStorage.getItem('sap-sidebar-collapsed') === '1'; } catch (e) {}
@@ -47,21 +45,14 @@ export default function ToolsPage() {
     };
   }, []);
 
-  // Under flat partner pricing (15 May 2026), every is_active member has
-  // full tool access. is_active is the canonical "is paid" signal — the
-  // legacy Pro vs Basic distinction in membership_tier no longer gates
-  // anything. Variables retained for backward compatibility with the
-  // door-card rendering logic below.
-  const tier = (user?.membership_tier || 'free').toLowerCase();
+  // Under flat-pricing (locked 15 May 2026), every is_active member has
+  // full tool access. Free members see locked cards with an upgrade CTA.
   const isActive = !!user?.is_active;
-  const isPro = isActive;  // every active member sees the "Pro" door cards
-  const isBasicOrAbove = isActive;
 
   return (
     <AppLayout title={t('tools.pageTitle', { defaultValue: 'Tools' })}>
       <div style={{ maxWidth: 1200, margin: '0 auto', paddingBottom: 32 }}>
 
-        {/* ── Identity hero (shared Dashboard-style component) ── */}
         <SubPageHero
           user={user}
           t={t}
@@ -69,7 +60,6 @@ export default function ToolsPage() {
           eyebrowDefault="Your Tools"
         />
 
-        {/* ── Three door cards (the entire content of /tools) ── */}
         <div style={{
           fontSize: 13, fontWeight: 800,
           letterSpacing: '0.16em', textTransform: 'uppercase',
@@ -79,43 +69,39 @@ export default function ToolsPage() {
           {t('tools.categoriesSection', { defaultValue: 'Your tool categories' })}
         </div>
         <div className="tools-doors-grid" style={{
-          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16,
+          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16,
         }}>
           <DoorCard
-            tone="green"
-            icon={Plus}
-            eyebrow={t('tools.door.free.eyebrow', { defaultValue: 'Open to everyone' })}
-            title={t('tools.door.free.title', { defaultValue: 'Free Tools' })}
-            desc={t('tools.door.free.desc', { defaultValue: 'Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.' })}
-            count={t('tools.door.free.count', { defaultValue: '3 tools' })}
-            navigate={navigate}
-            destination="/tools/free"
-            locked={false}
-            actionLabel={t('tools.door.open', { defaultValue: 'Open' })}
-          />
-          <DoorCard
             tone="cyan"
-            icon={Wrench}
-            eyebrow={isBasicOrAbove ? t('tools.door.basic.eyebrowOpen', { defaultValue: 'Basic plan & up' }) : t('tools.door.basic.eyebrowLocked', { defaultValue: 'Upgrade to unlock' })}
-            title={t('tools.door.basic.title', { defaultValue: 'Basic Membership Tools' })}
-            desc={t('tools.door.basic.desc', { defaultValue: 'Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.' })}
-            count={isBasicOrAbove ? t('tools.door.basic.count', { defaultValue: '5 tools' }) : t('tools.door.basic.countLocked', { defaultValue: '5 tools · locked' })}
+            icon={Sparkles}
+            eyebrow={isActive
+              ? t('tools.door.ai.eyebrowOpen', { defaultValue: 'Included with your membership' })
+              : t('tools.door.ai.eyebrowLocked', { defaultValue: 'Activate to unlock' })}
+            title={t('tools.door.ai.title', { defaultValue: 'AI Content Tools' })}
+            desc={t('tools.door.ai.desc', { defaultValue: 'Creative Studio, Content Creator, SuperDeck, Banner Creator, Meme Generator, QR Generator, Niche Finder. Generate assets, copy, and ideas with AI.' })}
+            count={isActive
+              ? t('tools.door.ai.count', { defaultValue: '7 tools' })
+              : t('tools.door.ai.countLocked', { defaultValue: '7 tools · locked' })}
             navigate={navigate}
-            destination="/tools/basic"
-            locked={!isBasicOrAbove}
-            actionLabel={isBasicOrAbove ? t('tools.door.open', { defaultValue: 'Open' }) : t('tools.door.upgrade', { defaultValue: 'Upgrade' })}
+            destination="/tools/ai-content"
+            locked={!isActive}
+            actionLabel={isActive ? t('tools.door.open', { defaultValue: 'Open' }) : t('tools.door.activate', { defaultValue: 'Activate' })}
           />
           <DoorCard
-            tone="amber"
-            icon={Zap}
-            eyebrow={isPro ? t('tools.door.pro.eyebrowOpen', { defaultValue: 'Pro plan unlocked' }) : t('tools.door.pro.eyebrowLocked', { defaultValue: 'Upgrade to unlock' })}
-            title={t('tools.door.pro.title', { defaultValue: 'Pro Membership Tools' })}
-            desc={t('tools.door.pro.desc', { defaultValue: 'SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.' })}
-            count={isPro ? t('tools.door.pro.count', { defaultValue: '5 tools' }) : t('tools.door.pro.countLocked', { defaultValue: '5 tools · locked' })}
+            tone="indigo"
+            icon={Wrench}
+            eyebrow={isActive
+              ? t('tools.door.builder.eyebrowOpen', { defaultValue: 'Included with your membership' })
+              : t('tools.door.builder.eyebrowLocked', { defaultValue: 'Activate to unlock' })}
+            title={t('tools.door.builder.title', { defaultValue: 'Builder Tools' })}
+            desc={t('tools.door.builder.desc', { defaultValue: 'SuperPages, LinkHub, Link Tools, AutoResponder, Lead Finder, ProSeller. Build pages, capture leads, distribute campaigns.' })}
+            count={isActive
+              ? t('tools.door.builder.count', { defaultValue: '6 tools' })
+              : t('tools.door.builder.countLocked', { defaultValue: '6 tools · locked' })}
             navigate={navigate}
-            destination="/tools/pro"
-            locked={!isPro}
-            actionLabel={isPro ? t('tools.door.open', { defaultValue: 'Open' }) : t('tools.door.upgrade', { defaultValue: 'Upgrade' })}
+            destination="/tools/builder"
+            locked={!isActive}
+            actionLabel={isActive ? t('tools.door.open', { defaultValue: 'Open' }) : t('tools.door.activate', { defaultValue: 'Activate' })}
           />
         </div>
 
@@ -131,18 +117,17 @@ export default function ToolsPage() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// DoorCard — one of the three big category cards
+// DoorCard — one of the two big category cards
 // ════════════════════════════════════════════════════════════════
 // Locked cards still navigate to the sub-page (which itself shows the
 // upgrade card as its content). Member sees the full upgrade message
 // on the destination page rather than being bounced to /upgrade.
 function DoorCard({ tone, icon: Icon, eyebrow, title, desc, count, navigate, destination, locked, actionLabel }) {
-  const accent = { green: '#22c55e', cyan: '#0ea5e9', amber: '#f59e0b' }[tone] || '#94a3b8';
+  const accent = { cyan: '#0ea5e9', indigo: '#6366f1' }[tone] || '#94a3b8';
   const iconBg = locked ? '#94a3b8' : accent;
   const pillStyle = {
-    green: { bg: '#dcfce7', color: '#15803d' },
-    cyan:  { bg: '#cffafe', color: '#0e7490' },
-    amber: { bg: '#fef3c7', color: '#b45309' },
+    cyan:   { bg: '#cffafe', color: '#0e7490' },
+    indigo: { bg: '#e0e7ff', color: '#4338ca' },
   }[tone] || { bg: '#f1f5f9', color: '#475569' };
 
   return (

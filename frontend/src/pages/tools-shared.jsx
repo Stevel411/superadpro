@@ -1,29 +1,34 @@
 /**
  * tools-shared.jsx — Tool inventory + reusable card components
  * ════════════════════════════════════════════════════════════════
- * Shared between ToolsPage (overview), FreeToolsPage, BasicToolsPage,
- * ProToolsPage. Single source of truth for the 13 tools + the reusable
- * ToolGrid and UpgradeCard components.
+ * Shared between ToolsPage (overview), AIContentToolsPage,
+ * BuilderToolsPage. Single source of truth for the 13 tools + the
+ * reusable ToolGrid and SubPageHero components.
  *
- * Why this exists:
- *   /tools renders three door cards but no tool grids.
- *   /tools/free, /tools/basic, /tools/pro each render one tool grid
- *   (or an UpgradeCard if the member's tier doesn't have access).
+ * Tool categorisation (locked 20 May 2026):
+ *   AI Content Tools (7) — tools whose primary interaction is "AI
+ *     generates an asset for you": Creative Studio, Content Creator,
+ *     SuperDeck, Banner Creator, Meme Generator, QR Generator,
+ *     Niche Finder.
+ *   Builder Tools (6) — tools whose primary interaction is "you build
+ *     and distribute": SuperPages, LinkHub, Link Tools, AutoResponder,
+ *     Lead Finder, ProSeller.
  *
- *   Without a shared module, we'd duplicate the tool inventory across
- *   4 files — a maintenance nightmare. This module is the canonical
- *   list. If we add a new tool, we add it here once and all four
- *   pages pick it up.
+ * Previous structure (Free / Basic / Pro) was an artefact of the
+ * dual-tier Basic/Pro membership model retired 15 May 2026. Under
+ * flat-pricing every active member gets all 13 tools — there's no
+ * per-tool tier gate, just "are they active". The buckets above are
+ * about user intent, not pricing.
+ *
+ * If we add a new tool, we add it here once and both pages pick it up.
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  // Free tool icons
-  Image, Smile, QrCode,
-  // Basic tool icons
-  Sparkles, FileText, Link2, LayoutGrid, Monitor,
-  // Pro tool icons
-  Globe, Mail, Search, Star, GraduationCap,
+  // AI Content tool icons
+  Sparkles, FileText, Monitor, Image, Smile, QrCode, Star,
+  // Builder tool icons
+  Globe, Link2, LayoutGrid, Mail, Search, GraduationCap,
 } from 'lucide-react';
 
 // ──────────────────────────────────────────────────────────────────
@@ -34,32 +39,67 @@ import {
 // tool object. The destination routes match what already exists on the
 // platform — no new tool pages needed, just better navigation to them.
 
-export function getFreeTools(t) {
+export function getAIContentTools(t) {
   return [
-    { id: 'banner', icon: Image,  name: t('tools.free.banner.name', { defaultValue: 'Banner Creator' }),  desc: t('tools.free.banner.desc', { defaultValue: 'AI-generated banners and profile images for social platforms.' }), to: '/tools/banner-creator' },
-    { id: 'meme',   icon: Smile,  name: t('tools.free.meme.name', { defaultValue: 'Meme Generator' }),     desc: t('tools.free.meme.desc', { defaultValue: 'Quick template-based memes and viral images.' }),                  to: '/tools/meme-generator' },
-    { id: 'qr',     icon: QrCode, name: t('tools.free.qr.name', { defaultValue: 'QR Generator' }),         desc: t('tools.free.qr.desc', { defaultValue: 'Custom QR codes for any link. Trackable.' }),                          to: '/tools/qr-code-generator' },
+    { id: 'studio',  icon: Sparkles, name: t('tools.ai.studio.name', { defaultValue: 'Creative Studio' }), desc: t('tools.ai.studio.desc', { defaultValue: 'AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse.' }), to: '/creative-studio' },
+    { id: 'content', icon: FileText, name: t('tools.ai.content.name', { defaultValue: 'Content Creator' }), desc: t('tools.ai.content.desc', { defaultValue: 'AI-written posts, articles, captions, scripts.' }), to: '/content-creator' },
+    { id: 'deck',    icon: Monitor,  name: t('tools.ai.deck.name', { defaultValue: 'SuperDeck' }), desc: t('tools.ai.deck.desc', { defaultValue: 'AI presentation builder with 18 fonts and present mode.' }), to: '/superdeck' },
+    { id: 'banner',  icon: Image,    name: t('tools.ai.banner.name', { defaultValue: 'Banner Creator' }), desc: t('tools.ai.banner.desc', { defaultValue: 'AI-generated banners and profile images for social platforms.' }), to: '/tools/banner-creator' },
+    { id: 'meme',    icon: Smile,    name: t('tools.ai.meme.name', { defaultValue: 'Meme Generator' }), desc: t('tools.ai.meme.desc', { defaultValue: 'Quick template-based memes and viral images.' }), to: '/tools/meme-generator' },
+    { id: 'qr',      icon: QrCode,   name: t('tools.ai.qr.name', { defaultValue: 'QR Generator' }), desc: t('tools.ai.qr.desc', { defaultValue: 'Custom QR codes for any link. Trackable.' }), to: '/tools/qr-code-generator' },
+    { id: 'niche',   icon: Star,     name: t('tools.ai.niche.name', { defaultValue: 'Niche Finder' }), desc: t('tools.ai.niche.desc', { defaultValue: 'Discover under-served niches with AI-powered analysis.' }), to: '/niche-finder' },
   ];
+}
+
+export function getBuilderTools(t) {
+  return [
+    { id: 'pages',     icon: Globe,         name: t('tools.builder.pages.name', { defaultValue: 'SuperPages' }), desc: t('tools.builder.pages.desc', { defaultValue: 'Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused.' }), to: '/pro/funnels' },
+    { id: 'linkhub',   icon: Link2,         name: t('tools.builder.linkhub.name', { defaultValue: 'LinkHub' }), desc: t('tools.builder.linkhub.desc', { defaultValue: 'Linktree-style page hosting all your links in one place.' }), to: '/linkhub' },
+    { id: 'links',     icon: LayoutGrid,    name: t('tools.builder.links.name', { defaultValue: 'Link Tools' }), desc: t('tools.builder.links.desc', { defaultValue: 'Shorteners, cloakers, pixel-tracking, A/B redirect.' }), to: '/link-tools' },
+    { id: 'auto',      icon: Mail,          name: t('tools.builder.auto.name', { defaultValue: 'AutoResponder' }), desc: t('tools.builder.auto.desc', { defaultValue: 'Email sequences, broadcasts, lead nurture. Powered by Brevo.' }), to: '/pro/leads' },
+    { id: 'leads',     icon: Search,        name: t('tools.builder.leads.name', { defaultValue: 'Lead Finder' }), desc: t('tools.builder.leads.desc', { defaultValue: 'Outscraper-powered local business and web prospect finder.' }), to: '/lead-finder' },
+    { id: 'proseller', icon: GraduationCap, name: t('tools.builder.seller.name', { defaultValue: 'ProSeller' }), desc: t('tools.builder.seller.desc', { defaultValue: 'Personal AI sales coach. Strategy, copy, objection handling.' }), to: '/proseller' },
+  ];
+}
+
+// ──────────────────────────────────────────────────────────────────
+// Legacy aliases — kept for any external code still importing them.
+// Both now return the unified flat-pricing inventory (callers can
+// migrate to getAIContentTools / getBuilderTools at leisure).
+// ──────────────────────────────────────────────────────────────────
+export function getFreeTools(t) {
+  // Old "Free" bucket was Banner / Meme / QR — now lives in AI Content.
+  return getAIContentTools(t).filter(function(tool) {
+    return ['banner', 'meme', 'qr'].indexOf(tool.id) !== -1;
+  });
 }
 
 export function getBasicTools(t) {
+  // Old "Basic" bucket: Creative Studio, Content Creator, LinkHub,
+  // Link Tools, SuperDeck. Map to current inventory.
+  var ai = getAIContentTools(t);
+  var builder = getBuilderTools(t);
   return [
-    { id: 'studio',  icon: Sparkles,   name: t('tools.basic.studio.name', { defaultValue: 'Creative Studio' }), desc: t('tools.basic.studio.desc', { defaultValue: 'AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse.' }), to: '/creative-studio' },
-    { id: 'content', icon: FileText,   name: t('tools.basic.content.name', { defaultValue: 'Content Creator' }), desc: t('tools.basic.content.desc', { defaultValue: 'AI-written posts, articles, captions, scripts.' }),                                  to: '/content-creator' },
-    { id: 'linkhub', icon: Link2,      name: t('tools.basic.linkhub.name', { defaultValue: 'LinkHub' }),        desc: t('tools.basic.linkhub.desc', { defaultValue: 'Linktree-style page hosting all your links in one place.' }),                       to: '/linkhub' },
-    { id: 'links',   icon: LayoutGrid, name: t('tools.basic.links.name', { defaultValue: 'Link Tools' }),       desc: t('tools.basic.links.desc', { defaultValue: 'Shorteners, cloakers, pixel-tracking, A/B redirect.' }),                              to: '/link-tools' },
-    { id: 'deck',    icon: Monitor,    name: t('tools.basic.deck.name', { defaultValue: 'SuperDeck' }),         desc: t('tools.basic.deck.desc', { defaultValue: 'AI presentation builder with 18 fonts and present mode.' }),                          to: '/superdeck' },
-  ];
+    ai.find(function(x) { return x.id === 'studio'; }),
+    ai.find(function(x) { return x.id === 'content'; }),
+    builder.find(function(x) { return x.id === 'linkhub'; }),
+    builder.find(function(x) { return x.id === 'links'; }),
+    ai.find(function(x) { return x.id === 'deck'; }),
+  ].filter(Boolean);
 }
 
 export function getProTools(t) {
+  // Old "Pro" bucket: SuperPages, AutoResponder, Lead Finder,
+  // Niche Finder, ProSeller. Map to current inventory.
+  var ai = getAIContentTools(t);
+  var builder = getBuilderTools(t);
   return [
-    { id: 'pages',     icon: Globe,          name: t('tools.pro.pages.name', { defaultValue: 'SuperPages' }),    desc: t('tools.pro.pages.desc', { defaultValue: 'Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused.' }), to: '/pro/funnels' },
-    { id: 'auto',      icon: Mail,           name: t('tools.pro.auto.name', { defaultValue: 'AutoResponder' }),  desc: t('tools.pro.auto.desc', { defaultValue: 'Email sequences, broadcasts, lead nurture. Powered by Brevo.' }),                  to: '/pro/leads' },
-    { id: 'leads',     icon: Search,         name: t('tools.pro.leads.name', { defaultValue: 'Lead Finder' }),   desc: t('tools.pro.leads.desc', { defaultValue: 'Outscraper-powered local business and web prospect finder.' }),                  to: '/lead-finder' },
-    { id: 'niche',     icon: Star,           name: t('tools.pro.niche.name', { defaultValue: 'Niche Finder' }),  desc: t('tools.pro.niche.desc', { defaultValue: 'Discover under-served niches with AI-powered analysis.' }),                       to: '/niche-finder' },
-    { id: 'proseller', icon: GraduationCap,  name: t('tools.pro.seller.name', { defaultValue: 'ProSeller' }),    desc: t('tools.pro.seller.desc', { defaultValue: 'Personal AI sales coach. Strategy, copy, objection handling.' }),                to: '/proseller' },
-  ];
+    builder.find(function(x) { return x.id === 'pages'; }),
+    builder.find(function(x) { return x.id === 'auto'; }),
+    builder.find(function(x) { return x.id === 'leads'; }),
+    ai.find(function(x) { return x.id === 'niche'; }),
+    builder.find(function(x) { return x.id === 'proseller'; }),
+  ].filter(Boolean);
 }
 
 // ──────────────────────────────────────────────────────────────────
@@ -72,11 +112,12 @@ export function getProTools(t) {
 // ToolGrid — 4-column grid of tool cards, used on the three sub-pages
 // ──────────────────────────────────────────────────────────────────
 export function ToolGrid({ tools, tone }) {
-  const accent = { green: '#22c55e', cyan: '#0ea5e9', amber: '#f59e0b' }[tone] || '#94a3b8';
+  const accent = { green: '#22c55e', cyan: '#0ea5e9', indigo: '#6366f1', amber: '#f59e0b' }[tone] || '#94a3b8';
   const pillStyle = {
-    green: { bg: '#dcfce7', bgHover: '#bbf7d0', color: '#15803d' },
-    cyan:  { bg: '#cffafe', bgHover: '#a5f3fc', color: '#0e7490' },
-    amber: { bg: '#fef3c7', bgHover: '#fde68a', color: '#b45309' },
+    green:  { bg: '#dcfce7', bgHover: '#bbf7d0', color: '#15803d' },
+    cyan:   { bg: '#cffafe', bgHover: '#a5f3fc', color: '#0e7490' },
+    indigo: { bg: '#e0e7ff', bgHover: '#c7d2fe', color: '#4338ca' },
+    amber:  { bg: '#fef3c7', bgHover: '#fde68a', color: '#b45309' },
   }[tone] || { bg: '#f1f5f9', bgHover: '#e2e8f0', color: '#475569' };
 
   return (

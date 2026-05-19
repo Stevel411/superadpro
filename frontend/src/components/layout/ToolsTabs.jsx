@@ -32,16 +32,20 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import {
-  Compass, Plus, Wrench, Zap, Lock,
+  Compass, Sparkles, Wrench, Lock,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
 // ──────────────────────────────────────────────────────────────────
-// The 4 visible tabs + their deep-page match lists
+// The 3 visible tabs + their deep-page match lists
 // ──────────────────────────────────────────────────────────────────
 // Each tab's `match` array lists every pathname that should highlight
 // this tab as active. Order matters — first match wins, so more specific
 // patterns should come first.
+//
+// Two-category structure locked 20 May 2026, replacing the legacy
+// Free/Basic/Pro three-bucket layout. Under flat-pricing every active
+// member sees all tools — the bucket is about user intent, not pricing.
 function buildTabs(t) {
   return [
     {
@@ -50,55 +54,52 @@ function buildTabs(t) {
       icon: Compass, tone: 'violet',
       path: '/tools',
       match: ['/tools'],
-      // Tier-gating: this tab never locks, members always see Overview
       requiresTier: null,
     },
     {
-      id: 'free',
-      label: t('tools.tabs.free', { defaultValue: 'Free Tools' }),
-      icon: Plus, tone: 'green',
-      path: '/tools/free',
-      // Free is open to all, also matches the actual tool pages so when
-      // a member is deep inside Banner Creator etc. the Free tab lights up.
+      id: 'ai-content',
+      label: t('tools.tabs.aiContent', { defaultValue: 'AI Content' }),
+      icon: Sparkles, tone: 'cyan',
+      path: '/tools/ai-content',
+      // Match the sub-page + the seven AI-content tool pages so that
+      // when a member is deep inside Creative Studio etc. the right
+      // tab lights up.
       match: [
+        '/tools/ai-content',
+        '/creative-studio',
+        '/content-creator',
+        '/superdeck',
+        '/tools/banner-creator',
+        '/tools/meme-generator',
+        '/tools/qr-code-generator',
+        '/niche-finder',
+        // Legacy paths kept here so deep-pages still highlight correctly
+        // until the legacy redirects clear out of cache.
         '/tools/free',
+        '/tools/basic',
         '/free/banner-creator',
         '/free/meme-generator',
         '/free/qr-code-generator',
       ],
-      requiresTier: null, // Free tools open to everyone
+      requiresTier: 'paid',
     },
     {
-      id: 'basic',
-      label: t('tools.tabs.basic', { defaultValue: 'Basic Membership' }),
-      icon: Wrench, tone: 'cyan',
-      path: '/tools/basic',
-      // Basic tier match: covers the sub-page + all 5 actual basic tool pages
+      id: 'builder',
+      label: t('tools.tabs.builder', { defaultValue: 'Builder' }),
+      icon: Wrench, tone: 'indigo',
+      path: '/tools/builder',
       match: [
-        '/tools/basic',
-        '/creative-studio',
-        '/content-creator',
+        '/tools/builder',
+        '/pro/funnels',
         '/linkhub',
         '/link-tools',
-        '/superdeck',
-      ],
-      requiresTier: 'basic', // Basic+ unlocks
-    },
-    {
-      id: 'pro',
-      label: t('tools.tabs.pro', { defaultValue: 'Pro Membership' }),
-      icon: Zap, tone: 'amber',
-      path: '/tools/pro',
-      // Pro tier match: covers the sub-page + all 5 actual pro tool pages
-      match: [
-        '/tools/pro',
-        '/pro/funnels',
         '/pro/leads',
         '/lead-finder',
-        '/niche-finder',
         '/proseller',
+        // Legacy /tools/pro maps here under the new structure.
+        '/tools/pro',
       ],
-      requiresTier: 'pro', // Only Pro unlocks
+      requiresTier: 'paid',
     },
   ];
 }
@@ -106,8 +107,11 @@ function buildTabs(t) {
 // Tone → color theme map for the tab's icon box
 const TONE = {
   violet: { bg: '#ede9fe', color: '#7c3aed' },
-  green:  { bg: '#dcfce7', color: '#16a34a' },
   cyan:   { bg: '#cffafe', color: '#0891b2' },
+  indigo: { bg: '#e0e7ff', color: '#4338ca' },
+  // Legacy tones retained for any external consumer; safe to remove
+  // once we're sure nothing else imports them.
+  green:  { bg: '#dcfce7', color: '#16a34a' },
   amber:  { bg: '#fef3c7', color: '#f59e0b' },
 };
 // Locked tab uses a muted grey treatment regardless of original tone.
@@ -141,7 +145,9 @@ function findActiveTabId(pathname, tabs) {
 // ──────────────────────────────────────────────────────────────────
 function isTabUnlocked(tab, memberTier, isActive) {
   if (!tab.requiresTier) return true;
-  if (tab.requiresTier === 'basic' || tab.requiresTier === 'pro') return !!isActive;
+  // Flat-pricing accepts 'paid' as the canonical value, 'basic'/'pro'
+  // as legacy aliases. All three collapse to a simple is_active check.
+  if (tab.requiresTier === 'paid' || tab.requiresTier === 'basic' || tab.requiresTier === 'pro') return !!isActive;
   return false;
 }
 
@@ -301,24 +307,26 @@ export default function ToolsTabs() {
 // ──────────────────────────────────────────────────────────────────
 export function isToolsFamilyRoute(pathname) {
   const TOOLS_PATHS = [
-    // Overview + sub-pages
+    // Overview + sub-pages — /tools prefix catches /tools/ai-content
+    // and /tools/builder via the matching loop below.
     '/tools',
-    // Free tools (deep pages)
-    '/free/banner-creator',
-    '/free/meme-generator',
-    '/free/qr-code-generator',
-    // Basic tools (deep pages)
+    // AI Content tools (deep pages)
     '/creative-studio',
     '/content-creator',
+    '/superdeck',
+    '/niche-finder',
+    // Builder tools (deep pages)
     '/linkhub',
     '/link-tools',
-    '/superdeck',
-    // Pro tools (deep pages)
     '/pro/funnels',
     '/pro/leads',
     '/lead-finder',
-    '/niche-finder',
     '/proseller',
+    // Legacy quick-tool routes — kept until the /free/* paths are
+    // confirmed retired or redirected.
+    '/free/banner-creator',
+    '/free/meme-generator',
+    '/free/qr-code-generator',
   ];
   for (var i = 0; i < TOOLS_PATHS.length; i++) {
     var p = TOOLS_PATHS[i];

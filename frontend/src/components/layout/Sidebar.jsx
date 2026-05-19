@@ -57,13 +57,15 @@ function buildNav(t, isAdmin) {
 
     { type: 'divider' },
 
-    // ── TOOLS ── Free creators / Basic creators / Pro creators ─
-    // Three lock states:
-    //   - no flag         → free (open to everyone)
-    //   - basic: true     → Basic membership ($20/mo) required
-    //   - pro: true       → Pro membership ($35/mo) required
-    // Free items at the top so non-paying members see usable tools first;
-    // Basic items in the middle; Pro items at the bottom.
+    // ── TOOLS ── AI Content tools / Builder tools ─
+    // Two lock states under flat-pricing (locked 15 May 2026):
+    //   - no flag         → free (open to everyone — banner, meme, qr)
+    //   - basic: true     → Partner membership ($20/mo) required
+    // The `basic:` flag name is preserved as a structural marker for
+    // anything that requires paid membership. Legacy `pro:` is treated
+    // identically (any active member sees the tool). Sub-categorisation
+    // into AI Content vs Builder happens on the /tools page; here in
+    // the sidebar we keep the existing flat list grouped by tool.
     { type: 'group', label: t('nav.tools', { defaultValue: 'Tools' }), shortLabel: t('navShort.tools', { defaultValue: 'Tools' }), key: 'tools', icon: Wrench, items: [
       { label: t('nav.bannerCreator', { defaultValue: 'Banner Creator' }), shortLabel: t('navShort.bannerCreator', { defaultValue: 'Banner' }), icon: PenLine, path: '/tools/banner-creator' },
       { label: t('nav.memeGenerator', { defaultValue: 'Meme Generator' }), shortLabel: t('navShort.memeGenerator', { defaultValue: 'Meme' }), icon: Sparkles, path: '/tools/meme-generator' },

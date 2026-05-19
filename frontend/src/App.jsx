@@ -48,9 +48,8 @@ const AiTool = React.lazy(() => import('./pages/AiTool'));
 const IncomeChains = React.lazy(() => import('./pages/IncomeChains'));
 const IncomePage = React.lazy(() => import('./pages/IncomePage'));
 const ToolsPage = React.lazy(() => import('./pages/ToolsPage'));
-const FreeToolsPage = React.lazy(() => import('./pages/FreeToolsPage'));
-const BasicToolsPage = React.lazy(() => import('./pages/BasicToolsPage'));
-const ProToolsPage = React.lazy(() => import('./pages/ProToolsPage'));
+const AIContentToolsPage = React.lazy(() => import('./pages/AIContentToolsPage'));
+const BuilderToolsPage = React.lazy(() => import('./pages/BuilderToolsPage'));
 const IncomeMembershipPage = React.lazy(() => import('./pages/IncomeMembershipPage'));
 const LearnPage = React.lazy(() => import('./pages/LearnPage'));
 const EducationPage = React.lazy(() => import('./pages/EducationPage'));
@@ -142,9 +141,8 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/IncomeChains'),
   () => import('./pages/IncomePage'),
   () => import('./pages/ToolsPage'),
-  () => import('./pages/FreeToolsPage'),
-  () => import('./pages/BasicToolsPage'),
-  () => import('./pages/ProToolsPage'),
+  () => import('./pages/AIContentToolsPage'),
+  () => import('./pages/BuilderToolsPage'),
   () => import('./pages/IncomeMembershipPage'),
   () => import('./pages/LearnPage'),
   () => import('./pages/EducationPage'),
@@ -421,9 +419,13 @@ function AppRoutes() {
       <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
       <Route path="/income/membership" element={<ProtectedRoute><IncomeMembershipPage /></ProtectedRoute>} />
       <Route path="/tools" element={<ProtectedRoute><ToolsPage /></ProtectedRoute>} />
-      <Route path="/tools/free" element={<ProtectedRoute><FreeToolsPage /></ProtectedRoute>} />
-      <Route path="/tools/basic" element={<ProtectedRoute><BasicToolsPage /></ProtectedRoute>} />
-      <Route path="/tools/pro" element={<ProtectedRoute><ProToolsPage /></ProtectedRoute>} />
+      <Route path="/tools/ai-content" element={<ProtectedRoute><AIContentToolsPage /></ProtectedRoute>} />
+      <Route path="/tools/builder" element={<ProtectedRoute><BuilderToolsPage /></ProtectedRoute>} />
+      {/* Legacy routes — redirect to the new structure. Free + Basic AI tools
+          live under AI Content; Basic builder tools + Pro tools live under Builder. */}
+      <Route path="/tools/free" element={<Navigate to="/tools/ai-content" replace />} />
+      <Route path="/tools/basic" element={<Navigate to="/tools/ai-content" replace />} />
+      <Route path="/tools/pro" element={<Navigate to="/tools/builder" replace />} />
       <Route path="/learn" element={<ProtectedRoute><LearnPage /></ProtectedRoute>} />
       <Route path="/learn/education" element={<ProtectedRoute><EducationPage /></ProtectedRoute>} />
       <Route path="/learn/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
