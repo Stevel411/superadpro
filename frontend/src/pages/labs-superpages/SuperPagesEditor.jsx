@@ -1387,7 +1387,47 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
     { bg: 'linear-gradient(135deg,#10b981,#0ea5e9)', label: 'Green→Cyan' },
   ];
 
+  // Parse fontSize into a number for the slider — strip 'px' suffix
+  // and fall back to 18 if parsing fails. The slider edits an integer
+  // and we re-append 'px' before saving to state.
+  const fontSizeNum = parseInt(String(fontSize).replace(/px$/i, ''), 10) || 18;
+
   return <>
+    {/* Live preview — pinned to the TOP of the modal so it's always
+        visible while editing typography. Previously the preview lived
+        at the bottom; opening the font-family dropdown then covered
+        it (Steve, 20 May 2026), making it impossible to see the
+        chosen font in context. */}
+    <div style={{
+      padding: 20,
+      background: 'var(--sap-text-primary)',
+      borderRadius: 12,
+      marginBottom: 16,
+      textAlign: 'center',
+      position: 'sticky',
+      top: 0,
+      zIndex: 2,
+    }}>
+      <div style={{
+        fontSize: 10, fontWeight: 800, letterSpacing: '0.14em',
+        textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)',
+        marginBottom: 12,
+      }}>Live preview</div>
+      <div style={{
+        display: 'inline-block',
+        padding: type === 'announcement' ? '10px 24px' : '12px 32px',
+        borderRadius: type === 'announcement' ? 8 : 14,
+        background: bgColor,
+        color: txtColor,
+        fontFamily,
+        fontWeight,
+        fontSize,
+        lineHeight: 1.2,
+        maxWidth: '100%',
+        overflowWrap: 'break-word',
+      }}>{txt}</div>
+    </div>
+
     <label style={lblStyle}>{type === 'announcement' ? 'Banner Text' : 'Button Text'}</label>
     <input value={txt} onChange={e => setTxt(e.target.value)} style={{ ...inputStyle, marginBottom: 10 }} />
 
@@ -1397,20 +1437,19 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
     <label style={lblStyle}>{t('superPagesEditor.linkUrl', { defaultValue: 'Link URL' })}</label>
     <input value={url} onChange={e => setUrl(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder', { defaultValue: 'https://…' })} style={{ ...inputStyle, marginBottom: 10 }} />
 
-    {/* Typography — font family, size, weight. Added 20 May 2026 (audit
-        B-1, A-2) to give the button proper visual control. Default values
-        match the seed in elementDefaults.js so existing buttons render
-        identically until a member changes them. */}
+    {/* Typography — font family (dropdown), font size (slider for
+        tactile control), font weight (dropdown). Slider sized 8-120px
+        to match FONT_SIZES range. Added 20 May 2026 (audit B-1, A-2)
+        with the slider design coming out of the first test pass —
+        Steve fed back that dropdowns for size are awkward when you
+        want to feel the size change against the preview. */}
     <label style={lblStyle}>{t('superPagesEditor.typography', { defaultValue: 'Typography' })}</label>
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px', gap: 8, marginBottom: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px', gap: 8, marginBottom: 10 }}>
       <select value={fontFamily} onChange={e => setFontFamily(e.target.value)}
         style={{ ...inputStyle, fontFamily }}>
         {FONTS.map(f => (
           <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
         ))}
-      </select>
-      <select value={fontSize} onChange={e => setFontSize(e.target.value)} style={inputStyle}>
-        {FONT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
       <select value={fontWeight} onChange={e => setFontWeight(e.target.value)} style={inputStyle}>
         <option value="400">Regular</option>
@@ -1420,6 +1459,24 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
         <option value="800">Extra Bold</option>
         <option value="900">Black</option>
       </select>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted, #64748b)', letterSpacing: '0.06em', textTransform: 'uppercase', minWidth: 30 }}>Size</span>
+      <input
+        type="range"
+        min="8" max="120" step="1"
+        value={fontSizeNum}
+        onChange={e => setFontSize(e.target.value + 'px')}
+        style={{ flex: 1, accentColor: '#0ea5e9', cursor: 'pointer' }}
+        title={`Font size: ${fontSizeNum}px`}
+      />
+      <span style={{
+        fontFamily: 'monospace', fontSize: 13, fontWeight: 700,
+        color: 'var(--sap-text-primary, #0f172a)',
+        minWidth: 48, textAlign: 'right',
+        background: 'var(--sap-bg-elevated, #f1f5f9)',
+        padding: '4px 8px', borderRadius: 6,
+      }}>{fontSizeNum}px</span>
     </div>
 
     <label style={lblStyle}>{t('superPagesEditor.backgroundColour')}</label>
@@ -1451,26 +1508,6 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
         <input type="color" value={txtColor} onChange={e => setTxtColor(e.target.value)}
           style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', cursor: 'pointer', padding: 0 }} />
       </div>
-    </div>
-
-    {/* Preview — reflects the live state values so the member can see
-        their typography/colour choices before hitting Apply. Previously
-        this preview hardcoded Sora 700 16px, ignoring the form state
-        entirely (audit follow-up to B-1, 20 May 2026). */}
-    <div style={{ padding: 16, background: 'var(--sap-text-primary)', borderRadius: 12, marginBottom: 14, textAlign: 'center' }}>
-      <div style={{
-        display: 'inline-block',
-        padding: type === 'announcement' ? '10px 24px' : '12px 32px',
-        borderRadius: type === 'announcement' ? 8 : 14,
-        background: bgColor,
-        color: txtColor,
-        fontFamily,
-        fontWeight,
-        fontSize,
-        lineHeight: 1.2,
-        maxWidth: '100%',
-        overflowWrap: 'break-word',
-      }}>{txt}</div>
     </div>
 
     <BtnRow onApply={apply} onClose={onClose} />
