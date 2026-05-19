@@ -37,7 +37,9 @@ export default function BuilderToolsPage() {
     };
   }, []);
 
-  const isActive = !!user?.is_active;
+  // Admin bypass: admins always see full tool access regardless of
+  // activation state (handy for QA, content review, support).
+  const isActive = !!user?.is_active || !!user?.is_admin;
   const tools = getBuilderTools(t);
 
   return (

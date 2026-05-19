@@ -164,7 +164,14 @@ export default function ToolsTabs() {
   const tabs = buildTabs(t);
   const activeId = findActiveTabId(location.pathname, tabs);
   const memberTier = user?.membership_tier;
-  const isActive = !!user?.is_active;
+  // userIsActive (admin always counts as active for gating purposes).
+  // Renamed from `isActive` to avoid the variable-shadow bug below: the
+  // tab loop also defines a local `isActive` for "is this tab selected",
+  // which previously clobbered this user-level flag at line ~213 and
+  // caused every non-selected tab to render as locked. (Bug visible to
+  // admin master-affiliate accounts — every tab except the one being
+  // viewed showed a padlock despite full access.)
+  const userIsActive = !!user?.is_active || !!user?.is_admin;
 
   return (
     <div style={{
@@ -211,7 +218,7 @@ export default function ToolsTabs() {
           {tabs.map((tab) => {
             const TabIcon = tab.icon;
             const isActive = tab.id === activeId;
-            const unlocked = isTabUnlocked(tab, memberTier, isActive);
+            const unlocked = isTabUnlocked(tab, memberTier, userIsActive);
             const tone = unlocked ? (TONE[tab.tone] || TONE.violet) : LOCKED_TONE;
             // Locked tabs still navigate — to the sub-page where the
             // upgrade card greets the member. No hard block here.

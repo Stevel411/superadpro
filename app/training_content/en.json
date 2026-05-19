@@ -10,7 +10,7 @@
           "id": "gs-1",
           "duration": "3 min",
           "title": "Welcome to SuperAdPro",
-          "content": "Welcome to SuperAdPro! This platform gives you multiple ways to earn: referral commissions (50% recurring), campaign tier grid bonuses, and course sales. At the heart of it all is Watch & Earn — the engine that delivers views to campaign tier holders and keeps the entire grid commission system running. Your dashboard is your command centre — it shows your earnings, team growth, and available tools at a glance. Start by setting up your profile, then share your referral link to begin building your network."
+          "content": "Welcome to SuperAdPro! This platform gives you several ways to earn: referral commissions ($10/month flat for every active member you refer), campaign tier grid bonuses (40% direct + 6.25% × 8 levels uni-level), and credit nexus pack commissions. At the heart of it all is Watch & Earn — the engine that delivers views to campaign tier holders and keeps the entire grid commission system running. Your dashboard is your command centre — it shows your earnings, team growth, and available tools at a glance. Start by setting up your profile, then share your referral link to begin building your network."
         },
         {
           "id": "gs-2",
@@ -28,7 +28,7 @@
           "id": "gs-4",
           "duration": "3 min",
           "title": "Your Referral Link Explained",
-          "content": "Your referral link is www.superadpro.com/join/[your-username]. Anyone who signs up through this link becomes your direct referral. You earn 50% commission on their membership fee every month they stay active. Share it on social media, in messages, on your LinkHub page, or via QR code."
+          "content": "Your referral link is www.superadpro.com/join/[your-username]. Anyone who signs up through this link becomes your direct referral. You earn $10/month for every active member you refer — every month they stay active. Share it on social media, in messages, on your LinkHub page, or via QR code."
         }
       ]
     },
@@ -41,84 +41,78 @@
         {
           "id": "earn-1",
           "duration": "4 min",
-          "title": "Referral Commissions (50%)",
-          "content": "When someone joins through your link and pays their membership ($20 Basic or $35 Pro), you earn 50% commission — $10 or $17.50 per month, every month they stay active. This is recurring income. Focus on finding people who will use the platform, not just sign up."
+          "title": "Referral Commissions ($10/mo flat)",
+          "content": "When someone joins through your link and activates their Partner membership ($20/month, or $15/month locked for the first 100 Founding members), you earn a flat $10 commission every month they stay active. This is recurring income — same rate per active referral regardless of which tier they hold. No caps, no tier-based splits. Focus on finding people who'll actually use the platform, not just sign up. Five active referrals = $50/month covering your membership 2.5× over. Ten = $100/month and you're in profit."
         },
         {
           "id": "earn-2",
           "duration": "8 min",
           "title": "The 8-Tier Campaign Grid",
-          "content": "The grid system has 8 tiers from Starter ($20) to Ultimate ($1,000). When you purchase a campaign tier, you submit a video ad that receives a set number of views delivered by the Watch & Earn community. You are also placed in your sponsor's grid — each grid holds 64 members across 8 levels. As the grid fills through referrals and auto-placement, commissions flow: 40% direct to your sponsor, 6.25% per level across 8 levels of your upline, and 5% into a completion bonus pool. When a grid reaches 64 members, it COMPLETES and the owner receives the completion bonus (up to $3,200 on the Ultimate tier). Then a new grid opens automatically and the process starts again. Once your campaign's view target has been delivered, you can repurchase the same tier — this reactivates your qualification to earn commissions at that level and submits a fresh video ad for a new round of views. This is genuine long-term recurring income: as long as you and your team keep repurchasing tiers, the commissions keep flowing. The key principle is that you must have an active campaign at a tier to earn commissions from that tier. Repurchasing keeps you qualified and keeps your income active."
+          "content": "The grid system has 8 tiers from Starter ($20) to Champion ($1,000). When you purchase a campaign tier, you submit a video ad that receives a set number of views delivered by the Watch & Earn community — from 2,000 views at Starter up to 120,000 views at Champion. You're also placed in your sponsor's grid; each grid holds 64 members across 8 levels. As the grid fills through referrals and auto-placement, commissions flow: 40% direct to your sponsor, 6.25% per level across 8 levels of your upline, 5% to the platform, and 5% into a completion bonus pool. When a grid reaches 64 members, it COMPLETES and the owner receives the completion bonus — $64 at Starter, scaling up to $3,200 at Champion. A new grid then opens automatically and the process starts again. Once your campaign's view target has been delivered, you have a 14-day grace period where you remain qualified. After that you can repurchase the same tier — this reactivates your qualification, submits a fresh video ad for a new round of views, and keeps your earning status active. The qualification rule (updated 29 April 2026): you must hold an active campaign tier (or be inside the 14-day grace period) to earn Grid commissions at that tier. Buying the tier alone qualifies you — submitting a campaign video is what gets your message in front of the watcher community."
         },
         {
           "id": "earn-3",
-          "duration": "3 min",
-          "title": "Course Academy",
-          "content": "Pro members can create and sell courses on the marketplace. You set the price, create lessons with text, video, and quizzes, and earn from every sale. All courses go through AI review before publishing to maintain quality. The marketplace is open to all members as buyers."
-        },
-        {
-          "id": "earn-4",
-          "duration": "4 min",
+          "duration": "5 min",
           "title": "Watch & Earn — The Grid Engine",
-          "content": "Watch & Earn is the engine that powers the entire campaign tier and grid system. When you watch videos, you're delivering real views to other members' campaign tiers. Every campaign tier purchase comes with a view target — those views are delivered by the community through Watch & Earn. This is what keeps campaign tiers active, which is what qualifies members to earn commissions from the grid. Without Watch & Earn, campaign tiers would never complete their view targets, and the commission structure wouldn't function. So when you watch, you're not just earning — you're powering the entire affiliate network. Your daily watch allocation depends on your membership tier, and every completed watch counts towards a campaign holder's view target."
+          "content": "Watch & Earn is the engine that powers everything. Every Campaign Tier purchase comes with a view target — those views are delivered by the SuperAdPro community through Watch & Earn. When you watch videos, you're delivering real views to other members' campaigns. This is what keeps tiers completing, which is what keeps the commission ladder flowing. The rule for unlocking your Campaign Wallet: you must complete your daily watch quota. Once you've watched today's required video(s), your Campaign Wallet is unlocked for withdrawal until midnight. Miss a day and the wallet locks again until the next watch is complete. The Affiliate Wallet (your $10/month referral commissions) is always available to withdraw — the daily watch only gates the Campaign Wallet earnings from Grid commissions. This is the social contract: members buy tiers and put their video into the queue, and members watch videos to honour that contract. When everyone watches their daily quota, every campaign completes on schedule, every commission flows, and the platform grows. The daily watch is small (typically one video, 30-60 seconds) but it's the rule that keeps SuperAdPro working for everyone."
         }
       ]
     },
     {
-      "id": "marketing-tools",
-      "emoji": "🛠️",
-      "color": "#8b5cf6",
-      "title": "Marketing Tools",
+      "id": "ai-content-tools",
+      "emoji": "🎨",
+      "color": "#0ea5e9",
+      "title": "AI Content Tools",
       "lessons": [
         {
-          "id": "mkt-1",
+          "id": "ai-1",
           "duration": "4 min",
           "title": "LinkHub — Your Bio Link Page",
           "content": "LinkHub lets you create a beautiful one-page website with all your links, social profiles, and referral links. Think of it as your personal landing page. Customise colours, fonts, and layout. Share a single LinkHub URL instead of multiple links. Perfect for social media bios."
         },
         {
-          "id": "mkt-2",
+          "id": "ai-2",
           "duration": "5 min",
           "title": "Link Tools — Shortener, Rotator, Geo-Redirect",
           "content": "Link Tools gives you three powerful utilities: Short Links (branded shortlinks that track clicks), Link Rotators (split traffic across multiple URLs — great for A/B testing), and Geo-Redirects (send visitors to different pages based on their country). All links include click analytics."
         },
         {
-          "id": "mkt-3",
-          "duration": "4 min",
-          "title": "The Marketing Suite",
-          "content": "The Marketing Suite includes AI-powered tools for content creation: Niche Finder (discover profitable niches), Social Post Generator (30 days of posts), Video Script Generator (hooks + scripts), Email Swipe File (ready-to-send templates), and Launch Wizard (step-by-step launch plan). All content is generated specifically for your niche."
+          "id": "ai-3",
+          "duration": "5 min",
+          "title": "Content Creator & Creative Studio",
+          "content": "Content Creator is your AI text engine: posts, articles, captions, scripts, email copy, ad copy. Tell it your niche and what you need — it writes ready-to-use content with your referral link baked in where appropriate. Creative Studio is your AI visual engine: images, video, music, voiceover, lip-sync, captions. Both are pay-as-you-go with credit packs, and your sponsor earns a micro-commission ($0.025) on every credit your referrals use. Quick-asset tools — Banner Creator, Meme Generator, QR Generator, SuperDeck (AI slide builder) — round out the toolkit for everyday social and presentation work."
         }
       ]
     },
     {
-      "id": "pro-features",
-      "emoji": "⚡",
-      "color": "#f59e0b",
-      "title": "Pro Member Tools",
+      "id": "builder-tools",
+      "emoji": "🔧",
+      "color": "#6366f1",
+      "title": "Builder Tools",
       "lessons": [
         {
-          "id": "pro-1",
+          "id": "build-1",
           "duration": "6 min",
-          "title": "SuperSeller — AI Sales Autopilot",
-          "content": "SuperSeller is your AI-powered marketing machine. Enter your niche, and it generates a complete campaign: landing page, 30 social posts, 5-email nurture sequence, 3 video scripts, ad copy, and a 30-day strategy. Leads captured through your landing page automatically enter the email autoresponder. You can edit your page, add a sales video, customise the CTA, and inject tracking pixels."
+          "title": "Content Creator — AI Copy at Scale",
+          "content": "Content Creator generates AI-written content for every channel: long-form articles, social posts (with platform-specific formats for X, LinkedIn, Facebook, Instagram), video scripts, email sequences, ad copy, and sales pages. Tell it your niche, your tone, your audience — it produces ready-to-publish copy in seconds. Use it for your daily posting cadence, your follow-up email sequences in AutoResponder, and the copy on your SuperPages funnels. Output gets your referral link embedded automatically where appropriate. Pay-as-you-go from your wallet."
         },
         {
-          "id": "pro-2",
+          "id": "build-2",
           "duration": "5 min",
           "title": "SuperPages — Landing Page Builder",
-          "content": "SuperPages is a drag-and-drop landing page builder with 24 block types, 8 templates, gradient builder, responsive preview, and form editor. Build professional funnels without any coding. Pages are hosted on your SuperAdPro account and include lead capture forms that feed into your CRM."
+          "content": "SuperPages is a drag-and-drop landing page builder with 24+ block types, 8 templates, gradient builder, responsive preview, and a built-in form editor. Build professional funnels without any coding. Pages are hosted on your SuperAdPro account and include lead capture forms that feed directly into your AutoResponder and Lead dashboard."
         },
         {
-          "id": "pro-3",
+          "id": "build-3",
           "duration": "4 min",
           "title": "Email Autoresponder",
-          "content": "When leads sign up through your SuperSeller or SuperPages funnels, they automatically receive a drip email sequence — 5 emails over 7 days. Each email is AI-generated for your niche and includes your referral link. The autoresponder runs automatically via the cron system. Track opens, clicks, and conversions in your Leads dashboard."
+          "content": "When leads sign up through your SuperPages funnels or LinkHub forms, they automatically enter a drip email sequence. You can use the AI-generated default sequence (5 emails over 7 days, written for your niche) or build your own in the visual timeline editor. Each email includes your referral link. Delivery runs through Brevo. Track opens, clicks, and conversions in your Leads dashboard."
         },
         {
-          "id": "pro-4",
-          "duration": "3 min",
-          "title": "ProSeller CRM & Lead Dashboard",
-          "content": "Your Leads dashboard shows every email lead captured through your funnels. See their status (new, nurturing, hot, converted), how many emails they've opened, and which links they clicked. Hot leads (2+ opens or any click) are auto-flagged so you can follow up personally."
+          "id": "build-4",
+          "duration": "4 min",
+          "title": "Lead Finder & ProSeller",
+          "content": "Lead Finder helps you find real businesses to prospect — search by niche and location (Google Maps mode for local businesses, web mode for online prospects), then import results straight into your AutoResponder. ProSeller is your AI sales coach: paste in a lead's details or a conversation snippet, and ProSeller helps you craft the right response, handle objections, and close. Your Leads dashboard shows every captured lead with status (new, nurturing, hot, converted), open/click history, and auto-flagged hot prospects (2+ opens or any click)."
         }
       ]
     },
@@ -132,25 +126,25 @@
           "id": "tip-1",
           "duration": "3 min",
           "title": "The 3-3-3 Method",
-          "content": "Share 3 social posts per day, reach out to 3 new people, and follow up with 3 existing contacts. Consistency beats intensity. Most successful affiliates earn through steady daily action, not viral moments. Use the Social Post Generator to create your daily content in seconds."
+          "content": "Share 3 social posts per day, reach out to 3 new people, and follow up with 3 existing contacts. Consistency beats intensity. Most successful affiliates earn through steady daily action, not viral moments. Use Content Creator to generate your daily posts in seconds — it'll write a week's worth of platform-specific content from a single niche prompt."
         },
         {
           "id": "tip-2",
           "duration": "4 min",
-          "title": "Leveraging Your SuperSeller Page",
-          "content": "Your SuperSeller landing page is your 24/7 salesperson. Add a personal sales video to build trust. Share the link in your social bios, email signatures, and WhatsApp messages. The AI chat agent handles objections while you sleep. Check your leads dashboard daily for hot prospects."
+          "title": "Leveraging Your SuperPages Funnel",
+          "content": "Your SuperPages landing page is your 24/7 salesperson. Add a personal sales video at the top to build trust. Share the link in your social bios, email signatures, and WhatsApp messages. Capture leads with the built-in form — they flow straight into your AutoResponder for nurture. Check your Leads dashboard daily for hot prospects (auto-flagged when they open 2+ emails or click any link) and reach out personally with help from ProSeller."
         },
         {
           "id": "tip-3",
           "duration": "4 min",
           "title": "Building a Team That Stays",
-          "content": "Retention is more valuable than recruitment. Help your referrals set up their profiles and create their first SuperSeller campaign within 24 hours of joining. Send them a welcome message through Team Messenger. Members who earn in their first week are 5x more likely to stay active."
+          "content": "Retention is more valuable than recruitment. Help your referrals set up their profiles and publish their first SuperPages funnel within 24 hours of joining. Send them a welcome message through Team Messenger. Members who complete their daily watch quota and earn their first commission within the first week are 5x more likely to stay active long-term — make that your onboarding goal for every new direct."
         },
         {
           "id": "tip-4",
           "duration": "2 min",
           "title": "Using QR Codes for Offline Marketing",
-          "content": "Generate QR codes for your referral link, LinkHub page, or SuperSeller funnel. Print them on business cards, flyers, or stickers. Place them in coffee shops, gyms, and co-working spaces. QR codes bridge the gap between offline networking and online signup."
+          "content": "Generate QR codes for your referral link, LinkHub page, or SuperPages funnel. Print them on business cards, flyers, or stickers. Place them in coffee shops, gyms, and co-working spaces. QR codes bridge the gap between offline networking and online signup."
         }
       ]
     }

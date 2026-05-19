@@ -46,8 +46,9 @@ export default function ToolsPage() {
   }, []);
 
   // Under flat-pricing (locked 15 May 2026), every is_active member has
-  // full tool access. Free members see locked cards with an upgrade CTA.
-  const isActive = !!user?.is_active;
+  // full tool access. Admins always pass regardless of activation state.
+  // Free, non-admin members see locked cards with an upgrade CTA.
+  const isActive = !!user?.is_active || !!user?.is_admin;
 
   return (
     <AppLayout title={t('tools.pageTitle', { defaultValue: 'Tools' })}>
