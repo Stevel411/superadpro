@@ -965,11 +965,27 @@ export default function Funnels() {
                     </>
                   ) : (
                     <>
-                      <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn2')}</a>
-                      {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn2')}</a>)}
-                      <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
-                      <button onClick={() => openShareModal(p)} title="Generate share code" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #bae6fd',background:'#f0f9ff',cursor:'pointer'}}><Share2 size={12} color="#0284c7"/></button>
-                      <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
+                      {/* Primary actions group — Edit + View share the remaining
+                          flex space equally so cards with View AND cards without
+                          View both have a Edit button of the same visual weight.
+                          Previously Edit was flex:1 and View was content-width,
+                          so cards without View had a wide Edit and cards with
+                          View had a narrow Edit — inconsistent across the gallery.
+                          (20 May 2026 — Steve called out the inconsistency.) */}
+                      <div style={{display:'flex',gap:6,flex:1,minWidth:0}}>
+                        <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn2')}</a>
+                        {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn2')}</a>)}
+                      </div>
+                      {/* Secondary actions group — utility icons (duplicate, share,
+                          delete) cluster together on the right, visually separate
+                          from the primary actions. Fixed width per icon so they
+                          line up consistently across all cards regardless of
+                          primary-action width. */}
+                      <div style={{display:'flex',gap:4,flexShrink:0}}>
+                        <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={13} color="var(--sap-text-muted)"/></button>
+                        <button onClick={() => openShareModal(p)} title="Generate share code" style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #bae6fd',background:'#f0f9ff',cursor:'pointer'}}><Share2 size={13} color="#0284c7"/></button>
+                        <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={13} color="var(--sap-red)"/></button>
+                      </div>
                     </>
                   )}
                 </div>
