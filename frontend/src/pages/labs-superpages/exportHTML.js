@@ -35,7 +35,23 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
     // on both the editor preview iframe and the published page.
     if (el.hidden) return;
     const allStyles = { position: 'absolute', left: el.x + 'px', top: el.y + 'px', width: el.w + 'px', height: el.h + 'px', boxSizing: 'border-box', ...(el.s || {}) };
-    const st = Object.entries(allStyles).map(([k, v]) => k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + v).join(';');
+    // Filter out null/undefined values which would serialise as "undefined" /
+    // "null" strings and break the style attribute parsing. Defensive guard
+    // added 20 May 2026 while diagnosing 'Subscribe button renders as naked
+    // text in preview' bug — if a commit ever produces a null style value
+    // this guarantees it doesn't corrupt the output.
+    const st = Object.entries(allStyles)
+      .filter(([k, v]) => v !== null && v !== undefined && v !== '')
+      .map(([k, v]) => k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + v)
+      .join(';');
+    // Diagnostic — runs once per render. Logged to browser console so Steve
+    // can grab the output during preview testing. Remove once we've found
+    // and fixed the preview-vs-canvas discrepancy.
+    if (typeof console !== 'undefined' && (el.type === 'button' || el.type === 'announcement')) {
+      try {
+        console.log('[exportHTML]', el.type, el.id, { txt: el.txt, url: el.url, s: el.s, generated_style: st });
+      } catch (e) {}
+    }
     const elClass = `sp-el sp-${el.type}`;
     // Element id used as a CSS hook for per-device override rules at the
     // bottom of this file. Element ids in the editor look like
