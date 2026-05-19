@@ -47,11 +47,15 @@ These elements are what convert visitors into leads/members. Highest stakes.
 - Published page: real working form that captures into the FunnelLead table
 - Mobile: stacks vertically, full-width inputs, large tap target on submit button
 
-**Findings:** Live walkthrough pending — Steve to test next. Code-read flagged:
+**Findings (verified via live test 18 May 2026, prior chat):**
 
-| # | Severity | Issue |
-|---|----------|-------|
-| F-1 | TBD | Form default is one giant string of inline HTML rendered via `dangerouslySetInnerHTML`. Submit "button" inside is a styled `<div>`, not a `<button>`. Need full export-path trace. |
+| # | Severity | Issue | Status |
+|---|----------|-------|--------|
+| F-1 | ✅ | Capture endpoint writes correctly to FunnelLead + MemberLead + FunnelEvent. Form submit → fetch POST → success → redirect (or alert on failure). | RESOLVED |
+| F-2 | ✅ | End-to-end test confirmed: 1 opt-in landed cleanly in MemberLead with proper `source_funnel_id`, surfaced on /pro/funnels card with live SQL counts. | RESOLVED |
+| F-3 | ✅ | `page.leads_captured` counter increment fix shipped as commit `064fef8` (18 May 2026) — legacy surfaces stay in sync with live MemberLead count. | RESOLVED |
+| F-4 | 🟡 | Editor exposes form title/subtitle/button label/redirect URL via modal. Field add/remove (phone, custom fields) NOT yet exposed — currently hardcoded to name+email. Acceptable for v1, expand in Phase 2 port. | Deferred |
+| F-5 | 🟡 | Inspector port to new left-rail panel — pending Phase 2A. Currently still uses the modal editor. | Deferred (Phase 2A) |
 
 ### 1.3 Announcement Banner
 
