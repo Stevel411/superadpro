@@ -50,17 +50,17 @@ export default function LabsSuperPagesEditor() {
   const [deviceView, setDeviceView] = useState('desktop');
   const [pageStatus, setPageStatus] = useState('draft');
   // ── Narrow-viewport guard ──
-  // The three-panel layout (inspector 260 + canvas 1100 + palette 280)
-  // needs roughly 1100px of horizontal space minimum to look right.
-  // Set 20 May 2026 after the new layout shipped — was 900px previously
-  // which was both too lax for the new layout AND too strict for some
-  // legitimate tablet-landscape sizes that should be allowed.
+  // Temporarily lowered to 600 for the diagnostic phase (20 May 2026):
+  //   - DevTools docked-to-side eats ~400px which was triggering the
+  //     splash and masking the actual preview bug we're chasing
+  //   - Steve is admin and can tolerate a cramped layout during audit
   //
-  // 1100 = canvas content width itself, so anything below that means
-  // the canvas would overflow and horizontal-scroll, which kills the
-  // editing experience. Real laptops at 1280-1366 fit comfortably;
-  // tablet-landscape iPads at 1024 don't quite, hence the gate.
-  const NARROW_THRESHOLD = 1100;
+  // Long-term plan once the preview bug is identified and fixed:
+  //   - Keep a guard but make panels collapse to overlays rather than
+  //     blocking the whole editor. Phase 2 work.
+  //   - Realistic threshold for the new three-panel layout is closer
+  //     to 1100px, but blocking that aggressively is hostile to dev workflow.
+  const NARROW_THRESHOLD = 600;
   const [isNarrow, setIsNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < NARROW_THRESHOLD);
   const updatedAtRef = useRef(null);
   // Last user activity timestamp — auto-save skips firing when the user has
