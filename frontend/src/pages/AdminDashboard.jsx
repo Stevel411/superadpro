@@ -546,7 +546,26 @@ function UsersTab() {
       {/* User detail */}
       {selected && detail && (
         <div style={{display:'flex',flexDirection:'column',gap:14}}>
-          {msg && <div style={{padding:'8px 12px',borderRadius:8,fontSize:12,fontWeight:700,background:msg.includes('adjust')||msg.includes('toggle')?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',color:msg.includes('adjust')||msg.includes('toggle')?'var(--sap-green)':'var(--sap-red)'}}>{msg}</div>}
+          {msg && (function() {
+            // Success is the default; red only when the message is actually
+            // an error. Previous logic keyword-matched "adjust"/"toggle" for
+            // green and rendered everything else red — which meant successful
+            // activations, gifts, deletes, 2FA resets all rendered as scary
+            // red banners despite succeeding. Now we look for explicit error
+            // signals at the start of the message.
+            var lower = (msg || '').toLowerCase();
+            var isError = lower.startsWith('failed') ||
+                          lower.startsWith('error') ||
+                          lower.startsWith('reset failed') ||
+                          lower.startsWith('delete failed') ||
+                          lower.includes('not found') ||
+                          lower.includes('invalid');
+            return <div style={{
+              padding:'8px 12px',borderRadius:8,fontSize:12,fontWeight:700,
+              background: isError ? 'var(--sap-red-bg)' : 'var(--sap-green-bg-mid)',
+              color: isError ? 'var(--sap-red)' : 'var(--sap-green)'
+            }}>{msg}</div>;
+          })()}
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
             <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
