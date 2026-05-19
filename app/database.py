@@ -976,7 +976,7 @@ BADGES = {
     "earned_500":       {"icon": "💎", "title": "$500 Club",          "desc": "Earned $500 in total"},
     "earned_1000":      {"icon": "🏆", "title": "$1,000 Milestone",   "desc": "Earned $1,000 in total"},
     "earned_5000":      {"icon": "👑", "title": "$5,000 Legend",      "desc": "Earned $5,000 in total"},
-    "pro_member":       {"icon": "⭐", "title": "Pro Upgraded",       "desc": "Upgraded to Pro membership"},
+    "founding_member":  {"icon": "⭐", "title": "Founding Partner",   "desc": "Claimed one of the 100 founding spots ($15/mo locked for life)"},
     "first_funnel":     {"icon": "📄", "title": "Funnel Creator",     "desc": "Created your first funnel page"},
     "first_linkhub":    {"icon": "🔗", "title": "Link Master",        "desc": "Created your LinkHub page"},
     "grid_tier_3":      {"icon": "📊", "title": "Grid Climber",       "desc": "Reached Campaign Tier 3"},
@@ -2643,8 +2643,13 @@ try:
         # ── Campaign grace period + qualification model (2026-03-11) ──
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS grace_expires_at TIMESTAMP"))
 
-        # ── Pro Tier: membership_tier + email system (2026-03-11) ──
-        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_tier VARCHAR DEFAULT 'basic'"))
+        # ── membership_tier column (2026-03-11; default updated 20 May 2026) ──
+        # Default changed from 'basic' (legacy dual-tier model) to 'free'
+        # under flat-pricing. The ALTER TABLE IF NOT EXISTS is a no-op on
+        # existing databases — this just makes future fresh databases get
+        # the right default. Existing legacy rows are handled by the
+        # 'legacy tier purge' migration further down.
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_tier VARCHAR DEFAULT 'free'"))
 
         conn.execute(text("""CREATE TABLE IF NOT EXISTS email_sequences (
             id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id),
@@ -3212,6 +3217,122 @@ try:
             print("✅ flat-pricing tier normalisation: all founding members correctly tagged")
 except Exception as e:
     print(f"⚠️ tier normalisation failed: {e}")
+
+# ── Legacy 'basic'/'pro' tier purge (20 May 2026) ──
+# Locked tier model under flat pricing: free / partner / founding.
+# 'basic' and 'pro' are legacy strings from the dual-tier model that
+# was retired 15 May 2026. They should no longer exist on any user row.
+#
+# Two cases to clean up:
+#   1. is_active=TRUE  AND tier IN ('basic','pro') AND is_founding_member=FALSE
+#      → these are paying members on the old tier strings. They paid for
+#        Basic or Pro before the flat-pricing migration and were either
+#        missed by the founding-grandfather (only first 100 got promoted)
+#        or activated through a code path that still wrote the legacy
+#        string. Normalise to 'partner' — they're paying $20/mo (or
+#        whatever the renewal cron charges) and 'partner' is the
+#        correct flat-pricing label.
+#
+#   2. is_active=FALSE AND tier IN ('basic','pro')
+#      → inactive users still tagged with a legacy tier. The 10 May
+#        migration covered the basic case; this is the catch-all for
+#        any 'pro' inactives plus any 'basic' rows that slipped through.
+#        Normalise to 'free' — they're not paying, the tier is metadata
+#        only at this point.
+#
+# Idempotent: subsequent boots match zero rows. The defensive timeouts
+# match the rest of the migration block (5s lock, 30s statement).
+#
+# Founders are explicitly excluded from case 1 (is_founding_member=FALSE
+# filter) so even if a paid-Founder row somehow has tier='basic' it gets
+# normalised to 'partner' via case 1, NOT to 'founding'. Founder status
+# is owned by is_founding_member + the prior 'flat-pricing tier
+# normalisation' block — this migration doesn't override it.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text("SET lock_timeout = '5s'"))
+        conn.execute(text("SET statement_timeout = '30s'"))
+
+        # Case 1: active legacy paying members → partner
+        result_active = conn.execute(text("""
+            UPDATE users
+            SET membership_tier = 'partner'
+            WHERE is_active = TRUE
+              AND membership_tier IN ('basic', 'pro')
+              AND COALESCE(is_founding_member, FALSE) = FALSE
+            RETURNING id, username
+        """))
+        moved_to_partner = result_active.fetchall()
+
+        # Case 2: inactive legacy → free
+        result_inactive = conn.execute(text("""
+            UPDATE users
+            SET membership_tier = 'free'
+            WHERE is_active = FALSE
+              AND membership_tier IN ('basic', 'pro')
+            RETURNING id, username
+        """))
+        moved_to_free = result_inactive.fetchall()
+
+        conn.commit()
+
+        if moved_to_partner:
+            usernames = ", ".join(f"@{r.username}" for r in moved_to_partner[:10])
+            extra = f" (and {len(moved_to_partner) - 10} more)" if len(moved_to_partner) > 10 else ""
+            print(f"✅ legacy tier purge: {len(moved_to_partner)} active users moved basic/pro → partner: {usernames}{extra}")
+        if moved_to_free:
+            usernames = ", ".join(f"@{r.username}" for r in moved_to_free[:10])
+            extra = f" (and {len(moved_to_free) - 10} more)" if len(moved_to_free) > 10 else ""
+            print(f"✅ legacy tier purge: {len(moved_to_free)} inactive users moved basic/pro → free: {usernames}{extra}")
+        if not moved_to_partner and not moved_to_free:
+            print("✅ legacy tier purge: no rows to migrate (already clean)")
+except Exception as e:
+    print(f"⚠️ legacy tier purge failed: {e}")
+
+# ── Achievement badge_id migration: pro_member → founding_member (20 May 2026) ──
+# The 'pro_member' badge was awarded under the Basic/Pro dual-tier model
+# when a user upgraded to Pro. Under flat-pricing that badge has no meaning
+# (no Pro tier exists). We repurpose the slot for the 100-spot Founding
+# achievement, which is genuinely valuable under the new model.
+#
+# Migration policy: any user who was a Founder at migration time keeps the
+# badge (renamed to 'founding_member'). Any user who had 'pro_member' but
+# is NOT a founding member has the badge deleted — it's no longer earnable.
+# Idempotent.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text("SET lock_timeout = '5s'"))
+        conn.execute(text("SET statement_timeout = '30s'"))
+
+        # Step 1: rename pro_member → founding_member for users who are founding
+        renamed = conn.execute(text("""
+            UPDATE achievements
+            SET badge_id = 'founding_member'
+            WHERE badge_id = 'pro_member'
+              AND user_id IN (SELECT id FROM users WHERE is_founding_member = TRUE)
+            RETURNING user_id
+        """)).fetchall()
+
+        # Step 2: delete pro_member for users who are NOT founding (no
+        # equivalent meaning under flat-pricing)
+        deleted = conn.execute(text("""
+            DELETE FROM achievements
+            WHERE badge_id = 'pro_member'
+            RETURNING user_id
+        """)).fetchall()
+
+        conn.commit()
+        if renamed or deleted:
+            print(
+                f"✅ achievement migration: {len(renamed)} pro_member → founding_member, "
+                f"{len(deleted)} pro_member badges deleted (non-founding holders)"
+            )
+        else:
+            print("✅ achievement migration: no pro_member badges to migrate")
+except Exception as e:
+    print(f"⚠️ achievement migration failed: {e}")
 
 # ── Brand Poster Generator tables (added 12 May 2026) ──
 # Three tables for the BPG feature in Creative Studio. Defined as

@@ -53,9 +53,9 @@
         <a href="/linkhub" class="nav-item{% if active_page=='linkhub' %} active{% endif %}"><span class="nav-icon">🌐</span>LinkHub</a>
         <a href="/link-tools" class="nav-item{% if active_page=='link-tools' %} active{% endif %}"><span class="nav-icon">🔗</span>Link Tools</a>
         <a href="/content-creator" class="nav-item{% if active_page=='content-creator' %} active{% endif %}"><span class="nav-icon">🤖</span>Content Creator</a>
-        <a href="/pro/funnels" class="nav-item{% if active_page=='funnels' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">🚀</span>SuperPages{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
-        <a href="/superseller" class="nav-item{% if active_page=='superseller' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">⚡</span>SuperSeller{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
-        <a href="/pro/leads" class="nav-item{% if active_page=='pro-leads' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">📧</span>AutoResponder{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
+        <a href="/pro/funnels" class="nav-item{% if active_page=='funnels' %} active{% endif %}" style="{% if not user or not user.is_active %}color:#64748b{% endif %}"><span class="nav-icon">🚀</span>SuperPages{% if not user or not user.is_active %} 🔒{% endif %}</a>
+        <a href="/superseller" class="nav-item{% if active_page=='superseller' %} active{% endif %}" style="{% if not user or not user.is_active %}color:#64748b{% endif %}"><span class="nav-icon">⚡</span>SuperSeller{% if not user or not user.is_active %} 🔒{% endif %}</a>
+        <a href="/pro/leads" class="nav-item{% if active_page=='pro-leads' %} active{% endif %}" style="{% if not user or not user.is_active %}color:#64748b{% endif %}"><span class="nav-icon">📧</span>AutoResponder{% if not user or not user.is_active %} 🔒{% endif %}</a>
       </div>
     </div>
 

@@ -154,7 +154,7 @@ def send_password_reset_email(to_email, first_name, reset_url):
 # EMAIL 4: MEMBERSHIP ACTIVATED
 # ═══════════════════════════════════════════════════════════════
 def send_membership_activated_email(to_email, first_name, billing="monthly",
-                                    is_upgrade=False, tier="basic",
+                                    is_upgrade=False, tier="partner",
                                     is_founding_member=False,
                                     founding_spot_number=None):
     """Send the "your membership is active" email.

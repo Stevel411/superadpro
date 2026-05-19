@@ -168,12 +168,12 @@ def scan_member_state_anomalies(db: Session) -> dict:
             ))
 
         # ── d) is_active vs membership_tier disagreement ─────────
-        # Per User model comment: free ↔ inactive, basic/pro ↔ active.
-        # Admins are exempt — they're flagged is_admin=True and may have
-        # any tier without payment.
+        # Under flat-pricing (locked 15 May 2026): free ↔ inactive,
+        # partner/founding ↔ active. Admins are exempt — flagged
+        # is_admin=True and may have any tier without payment.
         if not user.is_admin:
             tier = (user.membership_tier or "free").lower().strip()
-            is_paid_tier = tier in ("basic", "pro")
+            is_paid_tier = tier in ("partner", "founding")
             if is_paid_tier and not user.is_active:
                 issues.append(make_issue(
                     severity=SEV_WARNING,

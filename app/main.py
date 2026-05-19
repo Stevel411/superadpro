@@ -748,12 +748,20 @@ def _safe_json(s):
 
 
 def is_pro(user):
-    """Pro-tier or admin. Use for gating Pro features."""
+    """Active paid member or admin. Used to gate features that were
+    formerly Pro-only — under flat-pricing (locked 15 May 2026) any
+    is_active member has access. The function name is retained for
+    historical grep continuity; semantics are 'has paid access'.
+
+    Returns True for admins, Founding members ($15 locked), and
+    Partner members ($20/mo). Returns False for free signups and
+    deactivated/lapsed members.
+    """
     if user is None:
         return False
     if getattr(user, "is_admin", False):
         return True
-    return (getattr(user, "membership_tier", "free") or "free").lower() == "pro"
+    return bool(getattr(user, "is_active", False))
 
 def set_secure_cookie(response, user_id):
     """Create an HMAC-signed session token. Cannot be forged without SESSION_SECRET."""
@@ -3730,8 +3738,11 @@ def register_process(
     # 3. In-app notification for sponsor
     if sponsor_id:
         try:
-            tier = (user.membership_tier or 'basic').lower()
-            commission = '$17.50' if tier == 'pro' else '$10.00'
+            # Sponsor commission is flat $10 under flat-pricing (locked
+            # 15 May 2026) regardless of whether the referral is Partner
+            # ($20/mo) or Founding ($15/mo locked). Old logic showed
+            # $17.50 for 'pro' tier — that tier no longer exists.
+            commission = '$10.00'
             create_notification(db, sponsor_id, 'team',
                 f'{first_name} joined your team!',
                 f'{first_name} ({username}) just signed up through your referral link. You\'ll earn {commission}/month from this referral.',
@@ -6829,11 +6840,11 @@ def api_membership_activate_from_balance(
         logger.warning(f"Renewal record creation failed for user {user.id} after balance activation: {exc}")
 
     db.commit()
-    logger.info(f"Member {user.username} activated Basic via balance redemption (${MEMBERSHIP_FEE} consumed).")
+    logger.info(f"Member {user.username} activated as Partner via balance redemption (${MEMBERSHIP_FEE} consumed).")
 
     return {
         "success": True,
-        "tier": "basic",
+        "tier": "partner",
         "remaining_balance": float(user.balance),
     }
 
@@ -7506,8 +7517,8 @@ async def get_copilot_briefing(request: Request, db: Session = Depends(get_db),
     """Get today's Co-Pilot briefing. Generates once per day, cached after that."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, "membership_tier", "free") != "pro" and not user.is_admin:
-        return JSONResponse({"error": "Pro membership required"}, status_code=403)
+    if not user.is_active and not user.is_admin:
+        return JSONResponse({"error": "Active membership required"}, status_code=403)
 
     today = datetime.utcnow().strftime("%Y-%m-%d")
     cached = db.query(CoPilotBriefing).filter(CoPilotBriefing.user_id == user.id).first()
@@ -7553,8 +7564,8 @@ async def refresh_copilot_briefing(request: Request, db: Session = Depends(get_d
     """Force-regenerate the Co-Pilot briefing on demand."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, "membership_tier", "free") != "pro" and not user.is_admin:
-        return JSONResponse({"error": "Pro membership required"}, status_code=403)
+    if not user.is_active and not user.is_admin:
+        return JSONResponse({"error": "Active membership required"}, status_code=403)
 
     import json as _json
     today = datetime.utcnow().strftime("%Y-%m-%d")
@@ -7590,8 +7601,8 @@ async def copilot_ask(request: Request, db: Session = Depends(get_db),
     """Ask the Co-Pilot a business-focused question about your account. Haiku-powered, 10/day limit."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, "membership_tier", "free") != "pro" and not user.is_admin:
-        return JSONResponse({"error": "Pro membership required"}, status_code=403)
+    if not user.is_active and not user.is_admin:
+        return JSONResponse({"error": "Active membership required"}, status_code=403)
 
     body = await request.json()
     question = (body.get("question") or "").strip()[:300]
@@ -7714,7 +7725,7 @@ def _classify_membership_activation(user, target_tier: str, target_billing: str)
     Call this BEFORE mutating user.is_active, user.membership_tier, or
     user.membership_billing, otherwise the classification is wrong.
     """
-    target_tier = (target_tier or "basic").lower()
+    target_tier = (target_tier or "partner").lower()
     target_billing = (target_billing or "monthly").lower()
 
     if not user.is_active:
@@ -7735,16 +7746,18 @@ def _classify_membership_activation(user, target_tier: str, target_billing: str)
 
     if current_tier == target_tier and current_billing == target_billing:
         return "redundant"
-    if current_tier == "basic" and target_tier == "pro":
-        return "tier_upgrade"
+    # Pre-flat-pricing this handled Basic→Pro tier upgrades. Under
+    # flat-pricing (locked 15 May 2026) there's only one paid tier so
+    # tier_upgrade is impossible — left here as defensive dead code
+    # because the engine still classifies cadence_switch separately
+    # below.
     if current_tier == target_tier and current_billing == "monthly" and target_billing == "annual":
         return "cadence_switch"
 
-    # Edge cases that shouldn't happen via legitimate flows:
-    #   - pro → basic (downgrade not supported on platform)
+    # Edge cases:
+    #   - tier changes (Basic↔Pro) — no longer exist under flat-pricing
     #   - annual → monthly within same tier (no UI surfaces this)
-    # Treat as fresh activation defensively. If we ever add a real
-    # downgrade flow we'd add a "downgrade" case here.
+    # Treat as fresh activation defensively.
     return "fresh"
 
 
@@ -8403,146 +8416,10 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
         "deprecated": True,
     }, status_code=410)  # 410 Gone — explicitly retired endpoint
 
-    # ──────────────────────── LEGACY CODE BELOW ────────────────────────
-    # The remainder of this function is unreachable. Left in place for
-    # the next cleanup sprint to remove cleanly along with the related
-    # upgrade-fee payment_type variants in the Payment table.
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not user.is_active:
-        return JSONResponse({"error": "You need an active Basic membership first"}, status_code=400)
-    if (user.membership_tier or "free") == "pro" or user.is_admin:
-        return JSONResponse({"error": "You're already on Pro"}, status_code=400)
-
-    # Purchase consent gate
-    ok, err = require_fresh_consent(db, user.id, purpose="upgrade_to_pro")
-    if not ok:
-        return JSONResponse({"error": err}, status_code=403)
-
-    body = {}
-    try:
-        body = await request.json()
-    except Exception:
-        pass
-    payment_method = (body.get("payment_method") or "balance").strip().lower()
-    billing = (body.get("billing") or "monthly").strip().lower()
-    if billing not in ("monthly", "annual"):
-        billing = "monthly"
-
-    # Fee depends on billing. Annual is a fresh Pro-annual purchase
-    # (full $350) — not a prorated upgrade — to keep the math obvious
-    # and avoid edge cases like "user upgraded with 2 days of Basic
-    # left, what should the credit be?". The remaining Basic time is
-    # absorbed; member gets a clean 365-day Pro window from now.
-    if billing == "annual":
-        upgrade_fee = decimal.Decimal("350.00")
-    else:
-        upgrade_fee = decimal.Decimal("15.00")
-
-    # ── Rail 1: balance ──
-    if payment_method == "balance":
-        balance = decimal.Decimal(str(user.balance or 0))
-        if balance < upgrade_fee:
-            shortfall = upgrade_fee - balance
-            return JSONResponse(
-                {
-                    "error": (
-                        f"You need ${float(upgrade_fee):.2f} in your wallet to upgrade. "
-                        f"Current balance: ${float(balance):.2f} (short ${float(shortfall):.2f}). "
-                        f"Top up your wallet or pay directly with crypto from the upgrade page."
-                    )
-                },
-                status_code=400,
-            )
-
-        # Deduct BEFORE activating so the state change is atomic
-        user.balance = balance - upgrade_fee
-        return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True, billing=billing)
-
-    # ── Rail 2: crypto via NOWPayments ──
-    elif payment_method == "crypto":
-        from . import nowpayments_service as nps
-        from .database import NowPaymentsOrder
-        if not nps.is_configured():
-            return JSONResponse({"error": "Crypto payments not configured"}, status_code=503)
-
-        # Annual buys the standard Pro-annual product; monthly uses the
-        # dedicated $15 upgrade SKU added in Step 4.
-        product_key = "membership_pro_annual" if billing == "annual" else "membership_pro_upgrade"
-
-        # Cancel any existing pending orders for this product
-        db.query(NowPaymentsOrder).filter(
-            NowPaymentsOrder.user_id == user.id,
-            NowPaymentsOrder.product_key == product_key,
-            NowPaymentsOrder.status == "pending",
-        ).update({"status": "cancelled"})
-        db.flush()
-
-        # product_type = 'membership' for the annual fresh-purchase path
-        # (matches the existing membership branch in _nowpayments_activate_product
-        # which sets is_upgrade from product_meta).
-        product_type = "membership" if billing == "annual" else "membership_upgrade"
-
-        order = NowPaymentsOrder(
-            user_id=user.id,
-            product_type=product_type,
-            product_key=product_key,
-            price_usd=upgrade_fee,
-            status="pending",
-        )
-        # For the annual fresh-purchase path, stamp is_upgrade in
-        # product_meta so the membership branch knows this is upgrading
-        # an existing Basic member rather than a brand-new activation.
-        if billing == "annual":
-            import json as _json
-            order.product_meta = _json.dumps({"is_upgrade": True})
-
-        db.add(order)
-        db.flush()
-        order.internal_order_id = f"SAP-{user.id}-{order.id}"
-
-        result = nps.create_invoice(
-            product_key=product_key,
-            user_id=user.id,
-            order_id=order.id,
-        )
-        if not result["success"]:
-            order.status = "failed"
-            db.commit()
-            return JSONResponse({"error": result.get("error", "Payment creation failed")}, status_code=500)
-
-        order.np_invoice_id = result.get("np_id")
-        db.commit()
-        return {
-            "success": True,
-            "action": "crypto_checkout",
-            "invoice_url": result.get("invoice_url"),
-            "order_id": order.id,
-        }
-
-    return JSONResponse({"error": "Invalid payment_method (use 'balance' or 'crypto')"}, status_code=400)
-def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
-    """Process campaign tier purchase after Stripe payment — full commission chain."""
-    from .grid import process_tier_purchase
-    import uuid
-
-    # Record payment
-    tx_ref = f"stripe_grid_{uuid.uuid4().hex[:12]}"
-    payment = Payment(
-        from_user_id=user.id, to_user_id=None,
-        amount_usdt=price_usd, payment_type=f"grid_tier_{package_tier}",
-        tx_hash=tx_ref, status="confirmed",
-    )
-    db.add(payment)
-    db.flush()
-
-    # Full commission processing: 40% direct, 50% uni-level (8 levels), 5% platform, 5% bonus
-    # Plus spillover fill into all upline grids at this tier
-    result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier)
-    if not result["success"]:
-        logger.error(f"Grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
-
-    db.commit()
+    # Legacy upgrade-to-pro body removed 20 May 2026. The 410 return
+    # above made everything below unreachable; this comment replaces
+    # ~140 lines of dead tier-upgrade payment / Stripe subscription /
+    # commission logic that no longer applies under flat-pricing.
 # ═══════════════════════════════════════════════════════════════
 #  CRYPTO PAYMENTS — USDT on Polygon via Alchemy
 # ═══════════════════════════════════════════════════════════════
@@ -8818,7 +8695,11 @@ def _crypto_activate_product(db, user, order, meta):
 
     # ── Membership ──
     if order.product_type == "membership":
-        tier = "pro" if "pro" in product_key else "basic"
+        # Flat-pricing: every membership product activates as "partner".
+        # The "founder" vs "partner" pricing distinction is owned by the
+        # user record (is_founding_member + membership_price_locked), not
+        # the product_key.
+        tier = "partner"
         billing = "annual" if "annual" in product_key else "monthly"
         return _activate_membership(db, user, tier, source="crypto", billing=billing)
     # ── Grid / Campaign Tier ──
@@ -9780,7 +9661,8 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
                 c.execute(_text(f"DELETE FROM users WHERE id IN ({ids_str})"))
                 c.commit()
 
-        # Reset admin balances and set to Pro tier
+        # Reset admin balances and set to Partner tier (flat-pricing,
+        # 15 May 2026 — 'pro' tier no longer exists)
         with engine.connect() as c:
             c.execute(_text("""
                 UPDATE users SET 
@@ -9788,7 +9670,7 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
                     grid_earnings=0, level_earnings=0, upline_earnings=0,
                     course_earnings=0, marketplace_earnings=0, bonus_earnings=0,
                     personal_referrals=0, total_team=0, course_sale_count=0,
-                    membership_tier='pro', is_active=true
+                    membership_tier='partner', is_active=true
                 WHERE id = :aid
             """), {"aid": admin_id})
             c.commit()
@@ -9910,7 +9792,11 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
 
     # ── Membership: check if upgrading ──
     if product_type == "membership":
-        tier = "pro" if "pro" in product_key else "basic"
+        # Flat-pricing: every membership product activates as "partner".
+        # The "founder" vs "partner" pricing distinction is owned by the
+        # user record (is_founding_member + membership_price_locked), not
+        # the product_key.
+        tier = "partner"
         is_annual = "annual" in product_key
         # ── Founding partner pricing (15 May 2026) ─────────────────────
         # If user is not yet active and founding spots remain, quote $15
@@ -9933,14 +9819,14 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
                     f"NOWPayments founding price check failed for user "
                     f"{user.id}: {e} — using standard pricing"
                 )
-        if tier == "basic" and user.is_active and user.membership_tier == "basic" and not is_annual:
-            return JSONResponse({"error": "You already have an active Basic membership"}, status_code=400)
-        if tier == "pro" and user.is_active and user.membership_tier == "pro" and not is_annual:
-            return JSONResponse({"error": "You already have an active Pro membership"}, status_code=400)
-        # Upgrade: Basic → Pro = $15 difference (monthly only, not annual)
-        if tier == "pro" and user.is_active and user.membership_tier == "basic" and not is_annual:
-            price_usd = Decimal("15.00")
-            product_meta["is_upgrade"] = True
+        # Already-paying guard. Under flat-pricing the only paid tier is
+        # 'partner' (with the 'founding' subset for the first 100). If the
+        # user is already is_active they can't re-buy membership — they're
+        # on the renewal track. Old logic had separate Basic/Pro guards
+        # plus a Basic→Pro upgrade price path (the $15 difference); flat
+        # pricing has no upgrade path because there's nothing to upgrade to.
+        if tier in ("basic", "pro", "partner") and user.is_active and not is_annual:
+            return JSONResponse({"error": "You already have an active membership"}, status_code=400)
 
     # ── Grid: check active membership ──
     if product_type == "grid" and not user.is_active:
@@ -10353,7 +10239,11 @@ def _nowpayments_activate_product(db, user, order, meta):
 
     # ── Membership ──
     if order.product_type == "membership":
-        tier = "pro" if "pro" in product_key else "basic"
+        # Flat-pricing: every membership product activates as "partner".
+        # The "founder" vs "partner" pricing distinction is owned by the
+        # user record (is_founding_member + membership_price_locked), not
+        # the product_key.
+        tier = "partner"
         billing = "annual" if "annual" in product_key else "monthly"
         is_upgrade = meta.get("is_upgrade", False)
         _activate_membership(db, user, tier, source="nowpayments", is_upgrade=is_upgrade, billing=billing)
@@ -10573,29 +10463,17 @@ def _nowpayments_activate_product(db, user, order, meta):
         except Exception as e:
             logger.error(f"PIF activation error for user {user.id}: {e}", exc_info=True)
 
-    # ── Membership Pro Upgrade (Step 4 triple-rail audit, 7 May 2026) ──
-    # The $15 difference between Basic and Pro. Only meaningful for users
-    # currently on Basic tier — silently no-ops for anyone else (e.g. user
-    # was already on Pro by the time the on-chain payment confirmed via
-    # some other path, possibly racing with /api/upgrade-to-pro from
-    # balance). The crypto/on-chain payment is treated as paying the $15
-    # difference, same as the balance deduction would.
+    # ── Membership Pro Upgrade — retired 15 May 2026 ──
+    # Flat-pricing eliminated tier upgrades. The 'membership_upgrade'
+    # product_type can still appear on historical orders that confirm
+    # late, but there's no upgrade to apply — every active member
+    # already has full platform access. Log and skip cleanly.
     elif order.product_type == "membership_upgrade":
-        try:
-            if user.membership_tier != "basic":
-                logger.warning(
-                    f"Pro upgrade activation for user {user.id} skipped — current tier "
-                    f"is {user.membership_tier!r}, not 'basic'. Order {order.id} confirmed but "
-                    f"no upgrade applied (refund manually if needed)."
-                )
-            else:
-                # Reuses the canonical membership activation handler so commission
-                # chains, expiry extensions, etc. all run consistently.
-                _activate_membership(db, user, "pro", source="crypto_upgrade", is_upgrade=True)
-                _ref_prefix = "wc" if type(order).__name__ == "WalletConnectPaymentOrder" else "np"
-                logger.info(f"Pro upgrade: {user.username} upgraded Basic → Pro via {_ref_prefix}, order {order.id}")
-        except Exception as e:
-            logger.error(f"Pro upgrade activation error for user {user.id}: {e}", exc_info=True)
+        logger.warning(
+            f"Legacy membership_upgrade order {order.id} confirmed for user "
+            f"{user.id} — tier upgrades retired under flat-pricing. No "
+            f"activation applied; refund manually if the customer expected one."
+        )
 @app.get("/api/nowpayments/order/{order_id}")
 async def nowpayments_order_status(order_id: int, request: Request,
                                     db: Session = Depends(get_db),
@@ -14063,42 +13941,27 @@ async def admin_api_file_missed_orphan(
 
 
 @app.post("/admin/api/user/{user_id}/change-tier")
-async def admin_api_change_tier(
-    user_id: int, request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Change a user's membership tier (basic/pro)."""
-    _require_admin(user)
-    body = await request.json()
-    new_tier = body.get("tier", "basic")
-    if new_tier not in ("basic", "pro"):
-        raise HTTPException(status_code=400, detail="Invalid tier")
-    target = db.query(User).filter(User.id == user_id).first()
-    if not target:
-        raise HTTPException(status_code=404, detail="User not found")
-    old_tier = target.membership_tier or "free"
-    was_active_paid = bool(target.is_active and old_tier in ("basic", "pro") and target.activated_at)
-    target.membership_tier = new_tier
+async def admin_api_change_tier(user_id: int):
+    """DELETED 20 May 2026 — Basic/Pro tier model retired.
 
-    # If this admin action is the user's FIRST transition into a paid tier
-    # (i.e. they weren't previously a paying member), bump the sponsor's
-    # personal_referrals counter so the leaderboard reflects this paid sign-up.
-    # Without this, admin-driven upgrades silently left sponsor counters stuck.
-    if not was_active_paid and target.sponsor_id:
-        sponsor = db.query(User).filter(User.id == target.sponsor_id).first()
-        if sponsor:
-            sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
-            target.is_active = True
-            target.activated_at = target.activated_at or datetime.utcnow()
-            try:
-                cache_invalidate_leaderboard()
-            except Exception:
-                pass
+    Under flat-pricing there is only one paid tier (Partner) plus the
+    Founding inventory (first 100 paying members at $15 locked). There
+    is no "change tier" admin action — initial activation goes through
+    activate-paid-membership or gift-membership, both of which set the
+    correct tier directly.
 
-    db.commit()
-    logger.info(f"Admin changed tier: {target.username} {old_tier} → {new_tier}")
-    return {"success": True, "username": target.username, "old_tier": old_tier, "new_tier": new_tier}
+    The old endpoint accepted 'basic' or 'pro' as the new tier and had
+    a half-state bug where it would set is_active=true without setting
+    activated_at on first transitions. Returns 410 Gone so any stale
+    UI or curl call fails loudly rather than silently corrupting data.
+    """
+    raise HTTPException(
+        status_code=410,
+        detail=(
+            "change-tier endpoint retired — Basic/Pro tier model no longer exists. "
+            "Use activate-paid-membership or gift-membership for activation."
+        ),
+    )
 @app.post("/admin/api/user/{user_id}/gift-membership")
 async def admin_api_gift_membership(
     user_id: int, request: Request,
@@ -19254,7 +19117,7 @@ def check_achievements(db: Session, user: User):
         "earned_500": earned >= 500,
         "earned_1000": earned >= 1000,
         "earned_5000": earned >= 5000,
-        "pro_member": getattr(user, 'membership_tier', None) == 'pro' or getattr(user, 'is_admin', False),
+        "founding_member": bool(getattr(user, 'is_founding_member', False)),
         "first_funnel": db.query(FunnelPage).filter(FunnelPage.user_id == user.id).first() is not None,
         "first_linkhub": db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first() is not None,
     }
@@ -19676,9 +19539,13 @@ def _compute_daily_metrics(db: Session) -> dict:
     # ── Total platform state ────────────────────────────────────
     metrics["total_members"] = db.query(User).count()
     metrics["active_members"] = db.query(User).filter(User.is_active == True).count()
-    metrics["pro_members"] = db.query(User).filter(
+    # 'pro_members' was a meaningful split under the Basic/Pro dual-tier
+    # model. Under flat-pricing the meaningful split is founding vs
+    # non-founding paying members. 100 founding spots total, so this
+    # count is bounded above by 100.
+    metrics["founding_members"] = db.query(User).filter(
         User.is_active == True,
-        User.membership_tier == "pro",
+        User.is_founding_member == True,
     ).count()
     
     # ── Last 24h activity ───────────────────────────────────────
@@ -19797,7 +19664,7 @@ def _format_metrics_for_email(metrics: dict) -> str:
     lines = []
     lines.append("PLATFORM HEALTH")
     lines.append(f"  Total members: {metrics['total_members']}")
-    lines.append(f"  Active members: {metrics['active_members']} (Pro: {metrics['pro_members']})")
+    lines.append(f"  Active members: {metrics['active_members']} (Founding: {metrics['founding_members']}/100)")
     lines.append("")
     lines.append("LAST 24 HOURS")
     lines.append(f"  New signups: {metrics['signups_24h']}")
@@ -20916,7 +20783,7 @@ def recompute_personal_referrals(secret: str, db: Session = Depends(get_db)):
         )
         .filter(User.sponsor_id.isnot(None))
         .filter(User.is_active == True)
-        .filter(User.membership_tier.in_(("basic", "pro")))
+        .filter(User.membership_tier.in_(("partner", "founding")))
         .filter(User.activated_at.isnot(None))
         .group_by(User.sponsor_id)
         .all()
@@ -21226,13 +21093,19 @@ def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
         return {"error": str(e), "tb": _tb.format_exc()[-1500:]}
 @app.get("/admin/fix-owner")
 def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
-    """Force SuperAdPro account to Pro + admin + permanent membership."""
+    """Force SuperAdPro account to Founding + admin + permanent membership.
+
+    Under flat-pricing (15 May 2026) the SuperAdPro house account is
+    Founding spot #15 with permanent 2099 expiry as a perma-comped
+    admin. Tier changed from legacy 'pro' to 'founding' to match the
+    new model.
+    """
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqt
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid"}, status_code=403)
     try:
-        db.execute(sqt("UPDATE users SET membership_tier = 'pro', is_active = true, is_admin = true, membership_expires_at = '2099-12-31' WHERE username = 'SuperAdPro'"))
+        db.execute(sqt("UPDATE users SET membership_tier = 'founding', is_founding_member = TRUE, membership_price_locked = 15.00, is_active = true, is_admin = true, membership_expires_at = '2099-12-31' WHERE username = 'SuperAdPro'"))
         db.commit()
         user = db.query(User).filter(User.username == "SuperAdPro").first()
         if user:
@@ -22294,7 +22167,7 @@ def admin_test_grid_e2e(
             sfx = sec.token_hex(3)
             u = User(username=f"gridtest_L{lvl}_{sfx}", email=f"gridtest_L{lvl}_{sfx}@test.local",
                      password="test", first_name=f"Level{lvl}", sponsor_id=chain_users[-1].id,
-                     is_active=True, membership_tier="basic")
+                     is_active=True, membership_tier="partner")
             db.add(u)
             db.flush()
             vc = VideoCampaign(user_id=u.id, title=f"Test Campaign L{lvl}",
@@ -22316,7 +22189,7 @@ def admin_test_grid_e2e(
             sfx = sec.token_hex(3)
             buyer = User(username=f"gridtest_buyer_{b+1}_{sfx}", email=f"gridtest_buyer_{b+1}_{sfx}@test.local",
                          password="test", first_name=f"Buyer{b+1}", sponsor_id=last_sponsor.id,
-                         is_active=True, membership_tier="basic")
+                         is_active=True, membership_tier="partner")
             db.add(buyer)
             db.flush()
             buyer_ids.append(buyer.id)
@@ -22508,7 +22381,7 @@ def admin_test_course_passup_e2e(
                 pass_up_sponsor_id=pass_up_id,
                 is_active=True,
                 is_admin=is_admin,
-                membership_tier="basic",
+                membership_tier="partner",
                 balance=_D("0"),
                 total_earned=_D("0"),
                 course_earnings=_D("0"),
@@ -22576,7 +22449,7 @@ def admin_test_course_passup_e2e(
                 first_name="Buyer",
                 sponsor_id=sponsor.id,
                 is_active=True,
-                membership_tier="basic",
+                membership_tier="partner",
                 balance=_D(str(course_price + 10)),  # enough to cover wallet payment
                 total_earned=_D("0"),
                 course_earnings=_D("0"),
@@ -23547,7 +23420,7 @@ async def _old_proseller_DISABLED(request: Request, db: Session = Depends(get_db
         return RedirectResponse("/login?next=/proseller", status_code=302)
 
     # Pro tier gate
-    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return RedirectResponse("/upgrade", status_code=302)
 
     # Load prospects for this user
@@ -24006,7 +23879,7 @@ async def api_pro_generate_funnel(request: Request, db: Session = Depends(get_db
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
@@ -24288,7 +24161,7 @@ async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(ge
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     import secrets
@@ -24315,7 +24188,7 @@ async def api_pro_funnel_create_from_template(request: Request, db: Session = De
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     body = await request.json()
@@ -24509,7 +24382,7 @@ async def api_pro_funnel_chat(funnel_id: int, request: Request, db: Session = De
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
@@ -24747,7 +24620,7 @@ async def api_pro_funnel_ai_modify(funnel_id: int, request: Request, db: Session
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return JSONResponse({"error": "Pro tier required"}, status_code=403)
 
     page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
@@ -24975,7 +24848,7 @@ async def _old_pro_leads_DISABLED(request: Request, db: Session = Depends(get_db
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/pro/leads", status_code=302)
-    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return RedirectResponse("/upgrade", status_code=302)
 
     from .database import MemberLead
@@ -25675,7 +25548,7 @@ async def api_superseller_create(request: Request,
     """Create a new SuperSeller campaign — just creates the record, no AI yet."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if user.membership_tier != "pro" and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return JSONResponse({"error": "SuperSeller requires Pro membership"}, status_code=403)
 
     from .database import SuperSellerCampaign
@@ -26310,7 +26183,7 @@ async def api_superseller_create_custom_agent(request: Request, user: User = Dep
     """Create a custom AI sales agent for ANY offer — not just SuperAdPro."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if user.membership_tier != "pro" and not user.is_admin:
+    if not user.is_active and not user.is_admin:
         return JSONResponse({"error": "Custom AI Agents require Pro membership"}, status_code=403)
 
     from .database import SuperSellerCampaign
@@ -27147,7 +27020,7 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
 
     # Activate the membership
     user.is_active = True
-    user.membership_tier = "basic"
+    user.membership_tier = "partner"
     # Set activated_at — this is what the dashboard's new-member toast
     # polling (/api/dashboard/new-members) filters on. Without this, gift
     # recipients silently activate but the gifter never sees the cha-ching
@@ -28865,25 +28738,28 @@ def api_membership_stream(request: Request, user: User = Depends(get_current_use
     # ── Counts by status & tier ──
     # Status definitions:
     #   active     = is_active=True AND has paid (membership_tier set)
-    #   lapsed     = had paid before but is_active=False now (best proxy:
-    #                inactive direct who has had a paying tier set)
-    #   never_paid = is_active=False AND no paying history (tier null/basic with
-    #                no commissions ever earned by the sponsor for this member)
-    # Without a separate `last_paid_at` column we approximate using is_active +
-    # commission history. Good enough for v1; we can refine later.
+    #   lapsed     = had paid before but is_active=False now (proxy: had a
+    #                membership commission earned by the sponsor for them)
+    #   never_paid = is_active=False AND no paying history
+    #
+    # Under flat-pricing (locked 15 May 2026) there's only one paid tier
+    # (Partner), with a Founding subset for the first 100 active members
+    # at $15/mo locked. Both pay the sponsor the same flat $10/mo
+    # commission, so we don't need per-tier MRR math — just active vs not.
+    # 'founding' is tracked separately for display but commission-wise
+    # identical to 'partner'.
     active_count = 0
     lapsed_count = 0
     never_paid_count = 0
-    active_basic_count = 0
-    active_pro_count = 0
+    active_founding_count = 0
+    active_partner_count = 0
     for r in referrals:
         if r.is_active:
             active_count += 1
-            tier = (r.membership_tier or 'basic').lower()
-            if tier == 'pro':
-                active_pro_count += 1
+            if getattr(r, 'is_founding_member', False):
+                active_founding_count += 1
             else:
-                active_basic_count += 1
+                active_partner_count += 1
         else:
             # Inactive — has the sponsor ever earned a membership commission
             # tied to this referral? If yes, they once paid → lapsed. If no →
@@ -28929,24 +28805,18 @@ def api_membership_stream(request: Request, user: User = Depends(get_current_use
     delta = this_month_membership - last_month_membership
 
     # ── Current MRR & projection ──
-    # Commission rates are tier-dependent for the SPONSOR not the direct — so
-    # the rate depends on the viewing user's tier, not the direct's.
-    # Pro sponsors earn $17.50/Pro-direct + $10/Basic-direct
-    # Basic sponsors earn $10/Pro-direct + $10/Basic-direct (capped)
-    # Reference: docs/commission-spec.md (commission ground truth).
-    # If the rates above are wrong, raise with Steve before adjusting.
-    is_pro_viewer = (user.membership_tier or '').lower() == 'pro'
-    if is_pro_viewer:
-        mrr = (active_pro_count * 17.50) + (active_basic_count * 10.0)
-        # Projection assumes all Basic directs upgrade to Pro
-        projection = (active_pro_count + active_basic_count) * 17.50
-        projection_basis = "if all Basic upgrade to Pro"
-    else:
-        mrr = active_count * 10.0
-        # As a Basic sponsor, the upside is the sponsor upgrading themselves
-        # which would lift the per-direct rate to $17.50.
-        projection = active_count * 17.50
-        projection_basis = "if you upgrade to Pro"
+    # Under flat-pricing (locked 15 May 2026) sponsor commission is a
+    # flat $10/mo per active direct regardless of whether the direct is
+    # Partner ($20/mo) or Founding ($15/mo locked). No tier-dependent
+    # rates, no upgrade-projection upside — the math is just:
+    #   MRR = active_count × $10/mo
+    # Reference: project rules (16 May 2026 Founder economics) and
+    # docs/commission-spec.md (commission ground truth).
+    mrr = active_count * 10.0
+    # Projection = recover lapsed directs. Each lapsed direct returning
+    # at $10/mo is the only "growth without new signups" lever.
+    projection = (active_count + lapsed_count) * 10.0
+    projection_basis = "if all lapsed directs reactivate"
 
     # ── Quality metrics (only really meaningful for 5+ directs) ──
     # Activation rate = paid count / total signups
@@ -28993,13 +28863,13 @@ def api_membership_stream(request: Request, user: User = Depends(get_current_use
 
     return {
         "username": user.username,
-        "membership_tier": (user.membership_tier or 'basic').lower(),
+        "membership_tier": (user.membership_tier or 'free').lower(),
         "active_since": active_since,
         # Counts
         "direct_count": direct_count,
         "active_count": active_count,
-        "active_pro_count": active_pro_count,
-        "active_basic_count": active_basic_count,
+        "active_founding_count": active_founding_count,
+        "active_partner_count": active_partner_count,
         "lapsed_count": lapsed_count,
         "never_paid_count": never_paid_count,
         # Earnings
@@ -29121,8 +28991,8 @@ def api_leads_data(request: Request, user: User = Depends(get_current_user),
     """My Leads data. Pro only."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, 'membership_tier', 'free') != 'pro' and not user.is_admin:
-        return JSONResponse({"error": "Pro membership required", "upgrade": True}, status_code=403)
+    if not user.is_active and not user.is_admin:
+        return JSONResponse({"error": "Active membership required", "upgrade": True}, status_code=403)
     from .database import MemberLead
     leads = db.query(MemberLead).filter(
         MemberLead.user_id == user.id
@@ -29139,11 +29009,18 @@ def api_leads_data(request: Request, user: User = Depends(get_current_user),
 # ═══════════════════════════════════════════════════════════════
 
 def _lead_limit(user):
-    """Return max leads allowed. Pro only feature — Basic gets 0."""
-    tier = getattr(user, 'membership_tier', 'free')
-    if tier == 'pro': return 5000
-    return 0  # Basic members cannot use leads/autoresponder
-DAILY_EMAIL_LIMIT = 100  # Free emails per day for Pro members.
+    """Return max leads allowed. Under flat-pricing (locked 15 May 2026)
+    any active paying member (Partner or Founding) gets 5000 leads. Free
+    members get 0. Admins get the paid limit. Previously Pro-only at 5000
+    with Basic getting 0; that distinction no longer exists."""
+    if user is None:
+        return 0
+    if getattr(user, 'is_admin', False):
+        return 5000
+    if getattr(user, 'is_active', False):
+        return 5000
+    return 0  # Free members cannot use leads/autoresponder
+DAILY_EMAIL_LIMIT = 100  # Free emails per day for active paying members.
                          # Dropped from 200 on 14 May 2026 — Brevo cost analysis
                          # showed 200/day × heavy Pro members could saturate the
                          # 20k Starter plan budget. 100/day still covers typical
@@ -30695,7 +30572,15 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
     ).order_by(User.created_at.desc()).limit(10).all()
     for r in new_refs:
         name = r.first_name or r.username
-        tier = "Pro" if r.membership_tier == "pro" else "Basic"
+        # Tier label: 'Founding' for the first 100 paid members,
+        # 'Partner' for everyone else who's paid, 'free' for signups
+        # who haven't activated yet.
+        if getattr(r, 'is_founding_member', False):
+            tier = "Founding"
+        elif getattr(r, 'is_active', False):
+            tier = "Partner"
+        else:
+            tier = "free"
         feed.append({
             "type": "new_referral", "emoji": "🎉",
             "text": f"{name} joined your team ({tier} member)",
@@ -30775,12 +30660,12 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
             total_balance = float(u.balance or 0)
             campaign_balance = float(u.campaign_balance or 0)
             name = u.first_name or u.username
-            tier = (u.membership_tier or 'basic').title()
+            tier = (u.membership_tier or 'free').title()
 
             # ── Personalised action tip based on their situation ──
             if total_refs == 0:
                 tip_icon = "&#128161;"
-                tip_text = f"You haven't referred anyone yet. Share your referral link on social media today — just one Basic referral earns you $10 every month."
+                tip_text = f"You haven't referred anyone yet. Share your referral link on social media today — just one Partner referral earns you $10 every month."
                 tip_cta = f'<a href="https://www.superadpro.com/affiliate" style="color:#0ea5e9;font-weight:700;text-decoration:none">Share your referral link &rarr;</a>'
             elif total_refs < 5:
                 remaining = 5 - total_refs
@@ -34663,36 +34548,48 @@ def admin_user_debug(request: Request, db: Session = Depends(get_db),
 
     # ── Auto-diagnosis of common blockers ────────────────────────────────
     issues = []
-    # The big one: tier and is_active must agree. _lead_limit() does an exact
-    # string match against 'pro' (case-sensitive in code), so a mixed-case or
-    # whitespaced value silently fails.
-    if tier == "pro" and not target.is_active:
+    # Under flat-pricing (locked 15 May 2026): valid tiers are 'free' /
+    # 'partner' / 'founding'. 'basic' and 'pro' should no longer exist
+    # in production data — flag if seen.
+    if tier in ("basic", "pro"):
         issues.append(
-            "TIER/ACTIVE MISMATCH: membership_tier='pro' but is_active=False. "
-            "Membership row shows Pro but account is inactive — features that "
-            "check is_active will reject. Fix: UPDATE users SET is_active=true "
-            f"WHERE id={target.id};"
+            f"LEGACY TIER: membership_tier='{tier}' is from the retired Basic/Pro "
+            f"dual-tier model. Should be 'partner' (active paying), 'founding' "
+            f"(first 100), or 'free' (signup). The legacy tier purge migration "
+            f"should have caught this — investigate why it didn't. Fix: UPDATE "
+            f"users SET membership_tier='partner' WHERE id={target.id}; (or "
+            f"'free' if not paying)."
         )
     if tier == "free" and target.is_active:
         issues.append(
             "TIER/ACTIVE MISMATCH: membership_tier='free' but is_active=True. "
-            "Free account marked active — likely a manual-activation leftover. "
-            "Decide which is correct and fix the other."
+            "Free account marked active — half-state activation leftover (the "
+            "20 May 2026 patched activate-paid-membership handler should "
+            "recover this on the next admin click). Fix: click 'Activate Paid "
+            "Membership' in the admin panel for this user."
+        )
+    if tier in ("partner", "founding") and not target.is_active:
+        issues.append(
+            f"TIER/ACTIVE MISMATCH: membership_tier='{tier}' but is_active=False. "
+            "Membership row shows a paid tier but account is inactive — "
+            "lapsed renewal or admin deactivation. Fix: confirm renewal "
+            "status or use reactivate-stuck-lapsed endpoint."
         )
     if target.membership_tier and target.membership_tier != tier:
         issues.append(
             f"TIER CASE/WHITESPACE: membership_tier='{target.membership_tier!r}' "
-            f"normalises to '{tier}'. _lead_limit() and several other checks "
-            "do exact lowercase comparisons — non-normalised values silently "
-            f"fail. Fix: UPDATE users SET membership_tier='{tier}' WHERE id={target.id};"
+            f"normalises to '{tier}'. Several internal checks do exact lowercase "
+            f"comparisons — non-normalised values silently fail. Fix: UPDATE "
+            f"users SET membership_tier='{tier}' WHERE id={target.id};"
         )
     if lead_limit_value == 0:
         issues.append(
-            f"LEAD LIMIT IS ZERO: _lead_limit() returned 0 because "
-            f"membership_tier='{target.membership_tier!r}' is not exactly 'pro'. "
-            "User cannot add leads → broadcast endpoint will return sent=0 "
-            "even though it does not 4xx. To enable broadcast: ensure "
-            "membership_tier is exactly the lowercase string 'pro'."
+            f"LEAD LIMIT IS ZERO: _lead_limit() returned 0 because the user "
+            f"is not an active paying member (is_active={target.is_active}, "
+            f"tier='{target.membership_tier!r}'). User cannot add leads → "
+            "broadcast endpoint will return sent=0 even though it doesn't "
+            "4xx. To enable broadcast: activate the user as Partner or "
+            "Founding via the admin panel."
         )
     if total_leads > 0 and active_leads == 0:
         issues.append(

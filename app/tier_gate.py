@@ -1,32 +1,31 @@
 """
-Tier-based API access gate.
+Membership access gate for API endpoints.
 
-Single source of truth for which API endpoints require which membership tier.
+Single source of truth for which API endpoints require a paid membership.
 Runs as middleware so we don't have to add `if not user.is_active` to 80
 endpoint handlers individually.
 
-Three tiers:
+Two tiers exist under flat-pricing (locked 15 May 2026):
   - free:   anyone authenticated (or unauthenticated, for some paths)
-  - basic:  must have user.is_active = True (i.e. paying $20/mo or $200/yr)
-  - pro:    must have membership_tier = 'pro' (i.e. paying $35/mo or $350/yr)
+  - paid:   user.is_active = True (Partner $20/mo OR Founding $15/mo locked)
 
-Pricing per docs/commission-spec.md (locked ground truth, 1 May 2026).
+The 'paid' bucket is what used to be Basic+Pro under the dual-tier model.
+There is no second 'pro-only' bucket any more — all features that were
+formerly Pro-only are now available to any is_active member. Single gate.
 
-Admins bypass all tier checks.
+Admins bypass all gate checks.
 
-The mapping below uses path-prefix matching. The longest matching prefix wins.
-This means /api/lead-finder/anything is gated as 'pro' even if a more general
-/api/ rule existed (which it doesn't — there is no catch-all rule).
-
-Routes NOT in either list are unrestricted (free tier or unauthenticated access).
+Path-prefix matching: longest matching prefix wins. Routes NOT in the
+list are unrestricted (free tier or unauthenticated access).
 """
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 
-# Endpoints that require Basic membership ($20/mo) or above.
-# Admins bypass. is_active=True is the gate.
-BASIC_REQUIRED_PREFIXES = (
+# Endpoints that require an ACTIVE PAID membership (Partner or Founding).
+# Admins bypass. is_active=True is the gate — there's no separate Pro
+# bucket any more under flat-pricing.
+PAID_REQUIRED_PREFIXES = (
     "/api/achievements",
     "/api/activity-feed",
     "/api/affiliate",
@@ -57,7 +56,7 @@ BASIC_REQUIRED_PREFIXES = (
     "/api/pay-it-forward",
     # NOTE: /api/purchase-consent is intentionally NOT in this list.
     # It's the consent-gathering endpoint that runs BEFORE every paid
-    # action (including the very first one — buying Basic membership).
+    # action (including the very first one — buying membership itself).
     # Free members about to buy MUST be able to load and record consent.
     # All actual money-flow endpoints (campaign-tiers, credit-matrix,
     # courses, etc.) remain gated and call purchase-consent first.
@@ -67,44 +66,30 @@ BASIC_REQUIRED_PREFIXES = (
     "/api/superdeck",
     "/api/superscene",
     "/api/team-messages",
-    "/api/upgrade-to-pro",
+    "/api/upgrade-to-pro",  # legacy path, kept gated so it 403s cleanly
     "/api/video-creator",
     "/api/vip",
     "/api/wallet",
     "/api/watch",
 )
 
-# Endpoints that require Pro membership — DEPRECATED 15 May 2026.
-# Under flat partner pricing there is only one paid tier. Every former
-# Pro-only endpoint is now available to any is_active member. This list
-# is kept empty so the gate logic short-circuits cleanly. A future cleanup
-# sprint can remove the PRO_REQUIRED_PREFIXES branching in _required_tier
-# and __call__ entirely.
-PRO_REQUIRED_PREFIXES = ()
 
-
-def _required_tier(path: str):
-    """Return 'basic', 'pro', or None if path requires no tier gate.
-    Pro check first because it's more specific in case of overlap."""
-    for prefix in PRO_REQUIRED_PREFIXES:
+def _requires_paid_membership(path: str) -> bool:
+    """True if the path requires a paid (is_active) member."""
+    for prefix in PAID_REQUIRED_PREFIXES:
         if path.startswith(prefix):
-            return "pro"
-    for prefix in BASIC_REQUIRED_PREFIXES:
-        if path.startswith(prefix):
-            return "basic"
-    return None
+            return True
+    return False
 
 
-def _build_403(required_tier: str, redirect_url: str):
-    """Return a JSON 403 response that the React frontend can detect and
-    redirect on. The 'redirect' field is a hint for client-side handling;
-    backend doesn't actually issue the redirect."""
+def _build_403_paid(redirect_url: str = "/upgrade"):
+    """JSON 403 the React frontend can detect and act on. The 'redirect'
+    field is a hint for client-side handling; backend doesn't actually
+    issue the redirect."""
     return JSONResponse(
         {
-            "error": (
-                f"This feature requires {required_tier.title()} membership."
-            ),
-            "tier_required": required_tier,
+            "error": "This feature requires an active Partner membership.",
+            "tier_required": "paid",
             "redirect": redirect_url,
             "upgrade_required": True,
         },
@@ -113,10 +98,11 @@ def _build_403(required_tier: str, redirect_url: str):
 
 
 class TierGateMiddleware(BaseHTTPMiddleware):
-    """Gates API endpoints by membership tier.
+    """Gates API endpoints by paid membership.
 
-    For non-API paths, falls through to the route handler (React route guards
-    handle page-level redirects; this middleware only protects API data).
+    For non-API paths, falls through to the route handler (React route
+    guards handle page-level redirects; this middleware only protects
+    API data endpoints).
     """
 
     async def dispatch(self, request, call_next):
@@ -128,8 +114,7 @@ class TierGateMiddleware(BaseHTTPMiddleware):
         if not path.startswith("/api/"):
             return await call_next(request)
 
-        required = _required_tier(path)
-        if required is None:
+        if not _requires_paid_membership(path):
             return await call_next(request)
 
         # We need the user. Manually look up the session cookie like
@@ -165,21 +150,8 @@ class TierGateMiddleware(BaseHTTPMiddleware):
                 status_code=401,
             )
 
-        # Basic tier gate: is_active must be True
-        if required == "basic":
-            if not getattr(user, "is_active", False):
-                return _build_403("basic", "/upgrade")
-            return await call_next(request)
+        # Paid gate: is_active must be True
+        if not getattr(user, "is_active", False):
+            return _build_403_paid("/upgrade")
 
-        # Pro tier gate: is_active=True AND membership_tier='pro'
-        if required == "pro":
-            tier = (getattr(user, "membership_tier", "free") or "free").lower()
-            if not getattr(user, "is_active", False):
-                # They need to become Basic first, then upgrade to Pro
-                return _build_403("basic", "/upgrade")
-            if tier != "pro":
-                return _build_403("pro", "/upgrade")
-            return await call_next(request)
-
-        # Unknown required level — fail safe
         return await call_next(request)

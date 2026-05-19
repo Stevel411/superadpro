@@ -510,8 +510,8 @@ function UsersTab() {
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   <span style={{fontSize:13,fontWeight:700,padding:'2px 6px',borderRadius:3,background:isActive?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',color:isActive?'var(--sap-green)':'var(--sap-red)'}}>{isActive?'Active':'Inactive'}</span>
-                  {u.membership_tier === 'pro' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.1)',color:'var(--sap-purple)'}}>PRO</span>}
-                  {u.membership_tier === 'basic' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(14,165,233,.1)',color:'var(--sap-accent)'}}>BASIC</span>}
+                  {u.is_founding_member && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(34,211,238,.15)',color:'var(--sap-accent-bright, #06b6d4)'}}>FOUNDING</span>}
+                  {!u.is_founding_member && u.membership_tier === 'partner' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(14,165,233,.1)',color:'var(--sap-accent)'}}>PARTNER</span>}
                   {(!u.membership_tier || u.membership_tier === 'free') && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(148,163,184,.15)',color:'var(--sap-text-muted, #64748b)'}}>FREE</span>}
                   <span style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>${(u.balance||0).toFixed(0)}</span>
                 </div>
@@ -654,26 +654,6 @@ function UsersTab() {
                   background:detail.is_active?'var(--sap-red-bg)':'var(--sap-green-bg-mid)',color:detail.is_active?'var(--sap-red)':'var(--sap-green)',marginBottom:8}}>
                 {detail.is_active ? '⛔ Deactivate Account' : '✅ Activate Account'}
               </button>
-
-              {/* Change tier — DEPRECATED 15 May 2026 under flat partner pricing.
-                  Legacy Basic/Pro toggle no longer applies; every paying member
-                  is a Partner. Button hidden but underlying admin endpoint
-                  /admin/api/user/{id}/change-tier still works if needed for
-                  data fixes during the transition period. */}
-              {false && !detail.is_admin && (
-                <button onClick={function() {
-                  var newTier = (detail.membership_tier || 'basic') === 'pro' ? 'basic' : 'pro';
-                  if (!window.confirm('Change ' + detail.username + ' to ' + newTier.toUpperCase() + '?')) return;
-                  apiPost('/admin/api/user/' + selected + '/change-tier', {tier: newTier}).then(function(r) {
-                    setMsg(r.success ? 'Tier changed to ' + newTier : (r.error || 'Failed'));
-                    openUser(selected); reloadCurrentPage();
-                  });
-                }}
-                style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
-                  background:(detail.membership_tier||'basic')==='pro'?'var(--sap-amber-bg)':'var(--sap-purple-pale)',color:(detail.membership_tier||'basic')==='pro'?'var(--sap-amber-dark)':'var(--sap-violet)',marginBottom:8}}>
-                  {(detail.membership_tier||'basic')==='pro' ? '⬇ Downgrade to Basic' : '⬆ Upgrade to Pro'}
-                </button>
-              )}
 
               {/* Reset 2FA — for members who have lost their authenticator device */}
               {detail.two_factor_enabled && (

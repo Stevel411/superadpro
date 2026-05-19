@@ -97,11 +97,6 @@ export default function IncomeMembershipPage() {
   }
 
   const directCount = data.direct_count || 0;
-  // isBasic is always false under flat partner pricing (15 May 2026) —
-  // legacy 'basic' tier no longer exists. UpgradeToProCard never renders.
-  // The component definition below is kept as dead code; future cleanup
-  // sprint will delete it once we're confident nothing else references it.
-  const isBasic = false;
   // 3-mode threshold logic — single source of truth for the page
   const mode1 = directCount === 0;
   const mode2 = directCount >= 1 && directCount <= 4;
@@ -154,16 +149,6 @@ export default function IncomeMembershipPage() {
           {t('membership.streamSection', { defaultValue: 'How Membership compares to your other streams' })}
         </div>
         <StreamComparisonStrip data={data} t={t} />
-
-        {/* ── Upgrade card (only for Basic-tier viewers) ── */}
-        {isBasic && (
-          <>
-            <div style={EYE_STYLE}>
-              {t('membership.upgradeSection', { defaultValue: 'Upgrade your membership · earn more from each direct' })}
-            </div>
-            <UpgradeToProCard data={data} t={t} />
-          </>
-        )}
 
       </div>
     </AppLayout>
@@ -744,71 +729,3 @@ function StreamComparisonStrip({ data, t }) {
   );
 }
 
-// ════════════════════════════════════════════════════════════════
-// UpgradeToProCard — only shown to Basic-tier viewers
-// ════════════════════════════════════════════════════════════════
-function UpgradeToProCard({ data, t }) {
-  const activeDirects = data.active_count || 0;
-  // Per spec: Basic sponsor earns $10/mo per direct (capped). After Pro upgrade,
-  // earns $17.50/Pro-direct + $10/Basic-direct. Difference = +$7.50 per Pro direct.
-  // Conservative phrasing: "+$X/mo right away" using current actives × $7.50.
-  // Real-world impact also depends on each direct's tier; this card uses $7.50
-  // as the per-direct upside since that's the average Pro→Basic gap.
-  const upside = activeDirects * 7.50;
-  return (
-    <div style={{
-      background: 'linear-gradient(135deg, #fff 0%, #fff 50%, #fef3c7 100%)',
-      border: '1px solid var(--sap-border, #e2e8f0)',
-      borderRadius: 16,
-      padding: '28px 36px 28px 40px',
-      position: 'relative', overflow: 'hidden',
-      boxShadow: '0 2px 6px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.05)',
-      display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap',
-    }}>
-      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 5, background: '#f59e0b' }} />
-      <div style={{
-        width: 72, height: 72, borderRadius: 18,
-        background: '#f59e0b', color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-        boxShadow: '0 8px 20px rgba(245,158,11,0.3)',
-      }}>
-        <Zap size={32} strokeWidth={2} />
-      </div>
-      <div style={{ flex: 1, minWidth: 280 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#b45309', marginBottom: 6 }}>
-          {t('membership.upgradeEyebrow', { defaultValue: "You're on Basic" })}
-        </div>
-        <div style={{
-          fontFamily: "'Sora', sans-serif", fontSize: 24, fontWeight: 800,
-          letterSpacing: '-0.4px', marginBottom: 8, color: 'var(--sap-text-primary, #0f172a)',
-        }}>
-          {t('membership.upgradeTitle', { defaultValue: 'Upgrade to Pro to earn $17.50 per direct' })}
-        </div>
-        <div style={{ fontSize: 14, color: 'var(--sap-text-secondary, #475569)', lineHeight: 1.5 }}>
-          {t('membership.upgradeDesc', {
-            defaultValue: 'As a Basic member you currently earn $10/mo per direct. Pro members earn $17.50/mo per direct — a 75% pay raise on every existing and future referral. With your current {{n}} actives that\'s +${{upside}}/mo right away.',
-            n: activeDirects, upside: upside.toFixed(2),
-          })}
-        </div>
-      </div>
-      <div style={{ flexShrink: 0, textAlign: 'right' }}>
-        <div style={{
-          fontFamily: "'Sora', sans-serif", fontSize: 22, fontWeight: 800,
-          color: 'var(--sap-text-primary, #0f172a)', lineHeight: 1, marginBottom: 4,
-        }}>
-          $35<small style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>/mo</small>
-        </div>
-        <Link to="/wallet" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          padding: '11px 22px', background: '#f59e0b', color: '#1f1300',
-          borderRadius: 12, fontSize: 14, fontWeight: 800,
-          boxShadow: '0 4px 12px rgba(245,158,11,0.3)',
-          marginTop: 12, textDecoration: 'none',
-        }}>
-          {t('membership.upgradeBtn', { defaultValue: 'Upgrade now →' })}
-        </Link>
-      </div>
-    </div>
-  );
-}

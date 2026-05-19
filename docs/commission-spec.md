@@ -2,48 +2,71 @@
 
 **Status:** Locked ground truth — AI assistants must read this before making any claims about commission rates, tier prices, or payout mechanics. Do not fabricate numbers. If a rule is not documented here or contradicts here, ask Steve.
 
-**Last confirmed:** 13 May 2026 (Steve flagged level-based commission display as wrong in-session; Nexus visualiser rewritten to match this spec).
+**Last confirmed:** 20 May 2026 (Steve directed the Basic/Pro purge; this document rewritten to reflect locked flat-pricing model.)
 
 **Legend:**
 - ✅ Confirmed by Steve in-session
 - 🟡 Present in code but not explicitly confirmed by Steve this session — verify before using in customer-facing material
-- ❌ Do not use (known wrong / rejected)
+- ❌ Do not use (known wrong / rejected / historical)
 
 ---
 
 ## 1. Membership (Stream 01) ✅
 
-### Pricing
+### Tier model (locked 15 May 2026, vocabulary purge 20 May 2026)
 
-| Tier | Monthly | Annual | Annual savings |
+Three tiers exist. **There is no Basic. There is no Pro.** Those strings appeared in the dual-tier model that was retired and should not appear in any new code, documentation, or customer-facing copy.
+
+| Tier | Price | Who | Notes |
 |---|---|---|---|
-| Basic | $20/mo | $200/yr | $40 (≈ 2 months free) |
-| Pro | $35/mo | $350/yr | $70 (≈ 2 months free) |
+| `free` | $0 | Signups who haven't paid yet | Limited access. Can use signup features only. |
+| `partner` | $20/mo or $200/yr | Standard paying members | 50/50 sponsor/company commission split |
+| `founding` | $15/mo locked for life | First 100 paying members | $10 flat to sponsor, $5 to company. Spot is permanent for the member. |
 
-### Commission — 50% of whatever the referral pays
+**Founding inventory:** 100 spots total, atomically claimed. Once all 100 are gone, only `partner` can be activated for any further signup. See app/main.py `_activate_membership` and `admin_api_activate_paid_membership` for the atomic spot-claim logic guarded by `pg_advisory_xact_lock(7423957)`.
 
-| Referral plan | Sponsor earns |
-|---|---|
-| Basic monthly ($20) | $10/mo |
-| Pro monthly ($35) | $17.50/mo |
-| Basic annual ($200) | $100 upfront |
-| Pro annual ($350) | $175 upfront |
+### Commission — sponsor receives $10 flat per direct, every month
 
-### Tier cap rule ✅
-
-**Sponsor commission is capped at the sponsor's own tier, for BOTH monthly and annual.** Excess retained by the company.
-
-| Sponsor tier | Referral | Sponsor earns |
+| Direct's plan | Sponsor earns | Company keeps |
 |---|---|---|
-| Basic | Basic monthly | $10 |
-| Basic | Pro monthly | **$10** (capped — excess $7.50 → company) |
-| Basic | Basic annual | $100 |
-| Basic | Pro annual | **$100** (capped — excess $75 → company) |
-| Pro | any | full 50% |
+| Partner monthly ($20) | $10/mo | $10/mo |
+| Partner annual ($200) | $100 upfront, then standard $10/mo on renewal | $100 + $10/mo |
+| Founding monthly ($15) | $10/mo | $5/mo |
 
-**Customer-facing framing (per Steve):** do NOT mention that excess reverts to the company. Use softer language: *"Commissions paid at your own tier — upgrade to earn the higher rate."*
+**No tier cap. No per-direct-tier rate split.** Every active direct pays the sponsor the same $10/mo regardless of which tier the direct is on, and regardless of which tier the sponsor is on. The sponsor's own tier does not change what they earn — Founding and Partner sponsors receive identical $10/mo per active direct.
 
-**Code reference:** `app/main.py` — `_activate_membership()` around line 4776. Change shipped 24 Apr 2026 to cap annual same as monthly.
+**On Founder renewal:** Every monthly renewal of a Founding member's $15/mo subscription pays the sponsor $10 and the company $5, in perpetuity, for as long as the Founder stays active. The renewal cron (`payment.process_auto_renewals`) reads `membership_price_locked` on the user record (`$15.00` for Founding members) to charge the correct amount and routes the commission accordingly.
+
+**On Partner renewal:** Every monthly renewal of a Partner's $20/mo subscription pays the sponsor $10 and the company $10. No cap.
+
+### Founder's downline economics ✅
+
+A Founding member's direct referrals are standard Partners at $20/mo with the standard $10/$10 split. **Founders do not change commission economics for their own downline.** Being a Founder means the Founder personally pays $15/mo locked; it does not give them preferential commission rates on the people they refer, nor does it pass the locked $15 price to their referrals.
+
+### Customer-facing framing ✅
+
+Lead with "AI marketing tools for $20/month" — the toolkit is the headline. The compensation plan is optional and not the primary positioning. Per Steve's "tools first" messaging discipline, do not lead with earnings claims.
+
+If discussing the commission directly, use language like *"You earn $10 per active referral, every month they stay active."* Do not invoke the company share unless asked. Do not invoke tier caps or per-tier rate differences — those concepts no longer exist.
+
+### Code references
+
+- Activation: `app/main.py::_activate_membership` and `app/main.py::admin_api_activate_paid_membership`
+- Renewal: `app/payment.py::process_auto_renewals`
+- Founding spot claim lock key: `7423957` (must match across all four activation paths)
+- Tier purge migration: `app/database.py` "Legacy 'basic'/'pro' tier purge" block — runs idempotently at boot to normalise legacy rows
+
+### Historical (do not use) ❌
+
+The dual-tier Basic/Pro model existed until 15 May 2026 and was fully purged from code and vocabulary 20 May 2026. The following are NOT current and should never appear in customer-facing material:
+
+- "Basic" / "Pro" tier names
+- $35/mo Pro pricing or $350/yr Pro annual pricing
+- $17.50/mo sponsor commission (was Pro-tier rate)
+- "Cap rule" / "tier cap" language (sponsors earned their own-tier rate max, excess to company)
+- "Upgrade to Pro" CTAs
+
+If you encounter any of these in code, copy, templates, or AI prompts, flag for cleanup. The legacy `app/main.py.backup` snapshot still contains them; that file is historical and is not loaded by FastAPI.
 
 ---
 
@@ -51,7 +74,7 @@
 
 ### Tier ladder ✅
 
-8 tiers (per `app/database.py` `CREDIT_PACKS` constant — note same ladder as Nexus):
+8 tiers (per `app/database.py` `CREDIT_PACKS` constant — same ladder as Nexus):
 $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 
 ### Per-entry payout at Tier N ✅
@@ -63,6 +86,8 @@ $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 | Platform | 5% | Company retention |
 | Bonus pool | 5% | Accumulates toward completion bonus |
 
+**Income stream framing:** Campaign Tiers contribute 95% to affiliates, 5% to the company. The 5% is platform-admin only, NOT a primary revenue line.
+
 ### Completion bonuses ✅
 
 Hardcoded in code: $64 / $160 / $320 / $640 / $1,280 / $1,920 / $2,560 / $3,200 (by tier position 1→8).
@@ -73,7 +98,7 @@ Found in `app/grid.py::_user_is_qualified` — must have an **active (or in-grac
 
 ### Earning potential ❌
 
-**Deck currently shows "$560 — $28,000+" — this is fabricated. Recalculate from real tier ladder + completion bonus schedule before publishing, and confirm with Steve.**
+**The deck must NOT show fabricated ranges like "$560 — $28,000+".** Any earnings figures must be recalculated from the real tier ladder + completion bonus schedule and confirmed with Steve before publishing.
 
 ---
 
@@ -92,6 +117,8 @@ $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 | Spillover | **10%** | Buyer was placed in the matrix via someone else |
 | Completion bonus | **10%** | When all 39 matrix positions (3 + 9 + 27) fill |
 
+**Income stream framing:** Credit Nexus is 85% to affiliates, 15% to the company.
+
 ### Tier ownership requirement ✅
 
 **NONE.** A member earns on every pack purchased in their matrix regardless of what they own themselves. This is a deliberate design choice by Steve — explicitly different from Grid and Courses.
@@ -106,7 +133,7 @@ $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 
 The commission is **relationship-based, not level-based.** Earlier drafts of the deck said "L1 15% / L2 10% / L3 10%" — this is incorrect. Steve confirmed: 15% if direct, 10% if spillover, regardless of which level the buyer sits at in the matrix.
 
-**Code reference:** `app/credit_matrix.py::pay_matrix_commissions` (relationship-based). Stale comment at `app/database.py` line 2310 describes it level-based — that comment is wrong, the implementation is right.
+**Code reference:** `app/credit_matrix.py::pay_matrix_commissions` (relationship-based).
 
 ---
 
@@ -114,21 +141,14 @@ The commission is **relationship-based, not level-based.** Earlier drafts of the
 
 ### Status: UNCONFIRMED IN SESSION — needs full review with Steve
 
-Steve has not confirmed the following details this session. The deck currently carries the original site-deck language ("upload your own course", "100% of first sale", "infinite pass-up cascade") — which may or may not match current code/intent.
-
 ### What code currently says 🟡
 
 - **Tier prices:** $100 Starter / $300 Advanced / $500 Elite (per `app/course_engine.py`)
 - **Sale structure:** 1+Up pass-up. Sales 1, 3, 5, 7, 9+ → 100% to seller. Sales 2, 4, 6, 8 → 100% pass up to the seller's sponsor.
-- **Tier ownership required:** ✅ Steve confirmed this session — must own the course tier to receive commissions on that tier. Pass-up skips unqualified recipients; if no-one qualifies in the entire chain, commission goes to the company.
+- **Tier ownership required:** ✅ Steve confirmed previously — must own the course tier to receive commissions on that tier. Pass-up skips unqualified recipients; if no-one qualifies in the entire chain, commission goes to the company.
 - **"Upload your own":** not currently supported in the engine (resell-only from marketplace library).
 
-### What deck currently says
-
-- "Create your own courses on any topic OR resell from marketplace"
-- "Keep 100% of your first sale"
-- "Infinite pass-up cascade"
-- Worked example: $97 mid-tier course
+**Income stream framing:** Courses contribute 100% to affiliates (no company cut).
 
 ### Open questions for Steve 🟡
 
@@ -139,15 +159,36 @@ Steve has not confirmed the following details this session. The deck currently c
 
 ---
 
-## 5. Other cross-cutting rules
+## 5. Withdrawals (Stream 05) ✅
+
+Every withdrawal pays the company $1 (admin fee). The rest goes to the member's BSC wallet.
+
+---
+
+## 6. Income streams summary (locked truth, 5 May 2026, reconfirmed 20 May 2026)
+
+| Stream | Affiliate share | Company share | Primary revenue? |
+|---|---|---|---|
+| Membership (Partner) | 50% ($10/mo) | 50% ($10/mo) | ✅ Yes — primary recurring |
+| Membership (Founding) | $10/mo flat | $5/mo flat | ✅ Yes — first 100 only |
+| Campaign Tiers | 95% | 5% (admin only) | ❌ No |
+| Credit Nexus | 85% | 15% | ✅ Yes |
+| Courses | 100% | 0% | ❌ No |
+| Withdrawals | — | $1/withdrawal | ❌ No (offset only) |
+
+---
+
+## 7. Other cross-cutting rules
 
 ### Commission retention wording ✅
 
-Per Steve's request: **do not publicly mention that capped/unqualified commissions revert to the company.** Use member-facing language that emphasises upgrading or qualifying to earn more, not what happens to the excess.
+Per Steve's request: **do not publicly mention that capped/unqualified commissions revert to the company.** Use member-facing language that emphasises qualifying to earn, not what happens to the excess.
+
+Under flat-pricing this is mostly a Grid/Course concern (unqualified upline → company keeps the 40%/100% pass-up). It does NOT apply to membership commissions any more, because there is no cap and no per-tier rate split.
 
 ### Tier qualification — general principle 🟡
 
-Both Grid and Courses require tier ownership/qualification. Nexus does not. Member-facing material should make the distinction clear to avoid confusion.
+Grid and Courses require tier ownership/qualification. Nexus does not. Member-facing material should make the distinction clear to avoid confusion.
 
 ---
 
@@ -158,3 +199,4 @@ Both Grid and Courses require tier ownership/qualification. Nexus does not. Memb
 3. **If code contradicts this file, this file wins** — raise the discrepancy with Steve rather than "fixing" code to match assumptions.
 4. **When Steve confirms something, upgrade the flag from 🟡 to ✅ and update "Last confirmed" at the top.**
 5. **If Steve rejects a previous understanding, mark it ❌ and note why** — don't silently delete wrong assumptions; future sessions need to see the history of corrections.
+6. **Never use Basic/Pro vocabulary.** It was fully retired 20 May 2026 across code, copy, and docs. If you find it anywhere, flag for cleanup.

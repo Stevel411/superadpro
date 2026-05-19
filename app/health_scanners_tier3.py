@@ -30,29 +30,21 @@ from .database import (
     User, Commission, MembershipRenewal,
 )
 
-# Commission caps — copied from app/main.py::_activate_membership to avoid
-# circular imports. Per docs/commission-spec.md section 1:
-#   Basic sponsor: $10/mo or $100/yr max
-#   Pro sponsor:   $17.50/mo or $175/yr max
-#   Free/unknown sponsor: falls back to Basic cap (matches production)
-MONTHLY_CAPS = {"pro": Decimal("17.50"), "basic": Decimal("10.00")}
-ANNUAL_CAPS = {"pro": Decimal("175.00"), "basic": Decimal("100.00")}
-DEFAULT_MONTHLY_CAP = Decimal("10.00")
-DEFAULT_ANNUAL_CAP = Decimal("100.00")
-
-# Membership pricing — used to back-derive billing type from amount
-# when notes don't tell us
-BASIC_MONTHLY = Decimal("20.00")
-BASIC_ANNUAL = Decimal("200.00")
-PRO_MONTHLY = Decimal("35.00")
-PRO_ANNUAL = Decimal("350.00")
+# Flat-pricing commission rule (locked 15 May 2026):
+#   Every Partner or Founding membership pays the sponsor a flat $10/mo.
+#   No tier-dependent rates, no caps, no annual/monthly split.
+# This replaces the legacy Basic/Pro capped-commission model documented
+# in earlier versions of docs/commission-spec.md.
+FLAT_MEMBERSHIP_COMMISSION = Decimal("10.00")
 
 CENT = Decimal("0.01")
 
-# Only audit recent commissions for the cap rule — older commissions
-# may have been paid under earlier cap rules (cap on annual was added
-# 24 Apr 2026 per spec). Default: last 60 days.
-CAP_AUDIT_WINDOW_DAYS = 60
+# Only audit recent commissions for the rule — older commissions may have
+# been paid under earlier rules (the dual-tier capped model existed until
+# 15 May 2026). Default: last 30 days, narrower than before because the
+# rule changed within the last few weeks and pre-15 May commissions
+# audited against the new rule will all "fail".
+CAP_AUDIT_WINDOW_DAYS = 30
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -90,7 +82,7 @@ def scan_membership_tier_consistency(db: Session) -> dict:
 
         subject = f"user {user.username} (id {user.id})"
         tier = (user.membership_tier or "free").lower().strip()
-        is_paid_tier = tier in ("basic", "pro")
+        is_paid_tier = tier in ("partner", "founding")
 
         # ── a) Expired but still active ──────────────────────────
         # is_active=True but membership_expires_at is in the past.
@@ -352,46 +344,25 @@ def scan_commission_cap_audit(db: Session) -> dict:
             ))
             continue
 
-        # Determine the billing type and expected uncapped commission.
+        # Determine the billing type and expected commission.
         amount_paid = Decimal(str(c.amount_usdt))
-        sponsor_tier = (sponsor.membership_tier or "free").lower().strip()
 
-        # Determine billing type from buyer's record + notes if possible.
-        # Fall back to inferring from amount.
-        billing = (buyer.membership_billing or "monthly").lower()
-        is_annual = billing == "annual"
-
-        # Determine the buyer's price paid at the time of this commission.
-        # We don't have a price field on the commission row — we infer
-        # from buyer's tier + billing flag at audit time. This isn't perfect
-        # if the buyer changed billing cycles, but the cap rule is most
-        # commonly violated on the SPONSOR side (Pro vs Basic), not the
-        # buyer side, so this approximation is acceptable.
-        buyer_tier = (buyer.membership_tier or "free").lower().strip()
-        if buyer_tier == "pro":
-            buyer_price = PRO_ANNUAL if is_annual else PRO_MONTHLY
-        elif buyer_tier == "basic":
-            buyer_price = BASIC_ANNUAL if is_annual else BASIC_MONTHLY
-        else:
-            # Buyer is free now but commissions exist — they downgraded.
-            # Skip the audit on this row since we can't reconstruct what
-            # they paid.
-            continue
-
-        natural_50 = buyer_price * Decimal("0.50")
-        if is_annual:
-            cap = ANNUAL_CAPS.get(sponsor_tier, DEFAULT_ANNUAL_CAP)
-        else:
-            cap = MONTHLY_CAPS.get(sponsor_tier, DEFAULT_MONTHLY_CAP)
-        expected = min(natural_50, cap)
+        # Under flat-pricing every membership_sponsor commission is $10
+        # flat. No tier-dependent math, no caps, no per-direct rate. If
+        # the recorded amount drifts from $10, that's a bug — either
+        # an old capped commission paid under prior rules (will fall
+        # outside the audit window) or a real drift to investigate.
+        expected = FLAT_MEMBERSHIP_COMMISSION
 
         # Compare with a 1-cent tolerance
         if abs(amount_paid - expected) > CENT:
+            sponsor_tier = (sponsor.membership_tier or "free").lower().strip()
+            buyer_tier = (buyer.membership_tier or "free").lower().strip()
             # Direction matters for what the bug type is
             over = amount_paid > expected
             issues.append(make_issue(
                 severity=SEV_CRITICAL,
-                kind="cap_overpaid" if over else "cap_underpaid",
+                kind="commission_overpaid" if over else "commission_underpaid",
                 subject=(
                     f"commission #{c.id} → {sponsor.username} "
                     f"(${float(amount_paid):.2f})"
@@ -408,19 +379,16 @@ def scan_commission_cap_audit(db: Session) -> dict:
                     "buyer_id": buyer.id,
                     "buyer_username": buyer.username,
                     "buyer_tier_now": buyer_tier,
-                    "buyer_billing": billing,
-                    "natural_50_pct": float(natural_50),
-                    "cap_applied": float(cap),
                     "commission_type": c.commission_type,
                     "notes": c.notes,
                 },
                 suggested_action=(
-                    "Commission amount doesn't match the cap rule for current "
-                    "sponsor/buyer tiers. CAVEAT: scanner reads tiers from "
-                    "current state — if the sponsor was a different tier at "
-                    "payment time, the discrepancy may be historical and "
-                    "correct. Cross-reference Commission.paid_at against any "
-                    "tier changes."
+                    "Membership sponsor commission doesn't match the flat $10 "
+                    "rule. CAVEAT: scanner audits against the post-15-May "
+                    "flat-pricing rule. Commissions paid under the prior "
+                    "dual-tier capped model (Basic/Pro) will show as drifts "
+                    "if they fall inside the audit window — verify paid_at "
+                    "against the 15 May 2026 cutover before flagging."
                 ),
             ))
 
@@ -431,11 +399,11 @@ def scan_commission_cap_audit(db: Session) -> dict:
     if not issues:
         headline = (
             f"All {len(commissions)} membership commissions in last "
-            f"{CAP_AUDIT_WINDOW_DAYS} days correctly capped"
+            f"{CAP_AUDIT_WINDOW_DAYS} days correctly at flat $10"
         )
     else:
         headline = (
-            f"{len(issues)} cap violations across {len(commissions)} "
+            f"{len(issues)} commission drifts across {len(commissions)} "
             f"membership commissions (last {CAP_AUDIT_WINDOW_DAYS} days)"
         )
 
