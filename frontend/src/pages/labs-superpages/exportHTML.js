@@ -61,7 +61,23 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
     if (el.type === 'video' && el.txt) {
       const isMP4 = el._isMP4 || /\.(mp4|webm|ogg)/.test(el.txt) || el.txt.includes('funnel-videos');
       if (isMP4) {
-        h += `<video ${elAttrs} src="${el.txt}" style="${st};border-radius:12px;object-fit:cover" autoplay muted loop playsinline></video>`;
+        // Per-element playback flags (added Phase 2C, 20 May 2026).
+        // Existing pages stay on the historical "autoplay muted loop"
+        // defaults because !== false means missing flags also count as
+        // on. New default for controls is OFF (autoplaying loops look
+        // cleaner without UI).
+        const vAutoplay = el._videoAutoplay !== false;
+        const vLoop = el._videoLoop !== false;
+        const vMuted = el._videoMuted !== false;
+        const vControls = !!el._videoControls;
+        const attrs = [
+          vAutoplay && 'autoplay',
+          vLoop && 'loop',
+          vMuted && 'muted',
+          vControls && 'controls',
+          'playsinline',
+        ].filter(Boolean).join(' ');
+        h += `<video ${elAttrs} src="${el.txt}" style="${st};border-radius:12px;object-fit:cover" ${attrs}></video>`;
       } else {
         let embedUrl = el.txt;
         const ytMatch = embedUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -79,7 +95,15 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
     } else if (el.type === 'video' && !el.txt?.trim()) {
       // Skip empty video placeholders
     } else if (el.type === 'image' && el.txt) {
-      h += `<img ${elAttrs} src="${el.txt}" style="${st};object-fit:cover">`;
+      // _imageAlt + _imageFit added Phase 2C. Both have safe defaults
+      // for older images (empty alt, cover fit) so retro-compat is
+      // intact without a backfill. Alt text is escaped via attribute-
+      // quoting; we deliberately don't HTML-encode here because the
+      // browser handles attribute quoting and double-encoding would
+      // turn an "&" in alt text into "&amp;amp;".
+      const altText = (el._imageAlt || '').replace(/"/g, '&quot;');
+      const fit = el._imageFit || 'cover';
+      h += `<img ${elAttrs} src="${el.txt}" alt="${altText}" style="${st};object-fit:${fit}">`;
     } else if (el.type === 'image' && !el.txt?.trim()) {
       // Skip empty image placeholders
     } else if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) {

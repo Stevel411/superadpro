@@ -26,7 +26,7 @@ const TIPTAP_TYPES = ['heading', 'text', 'label'];
 //
 // Phase 2C+ will continue porting types. Once this list contains every
 // type, we can delete the old modal system entirely.
-const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement', 'form'];
+const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement', 'form', 'image', 'video', 'audio'];
 
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
   var { t } = useTranslation();
@@ -643,8 +643,27 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
       const isMP4 = el._isMP4 || /\.(mp4|webm|ogg)/.test(videoSrc) || videoSrc.includes('funnel-videos');
       if (isMP4) {
+        // Honour the four playback flags (added Phase 2C, 20 May 2026).
+        // Defaults match historical behaviour: autoplay+muted+loop on,
+        // controls off. We pass each as an actual prop / attribute so
+        // React renders the correct element shape — `controls` is the
+        // only one that's a boolean attribute the user toggles freely;
+        // the others are auto-tied (autoplay requires muted in most
+        // browsers, so we keep that pairing in the export comment).
+        const vAutoplay = el._videoAutoplay !== false;
+        const vLoop = el._videoLoop !== false;
+        const vMuted = el._videoMuted !== false;
+        const vControls = !!el._videoControls;
         return <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <video src={videoSrc} style={{ width: '100%', height: '100%', borderRadius: 12, objectFit: 'cover', pointerEvents: 'none' }} controls />
+          <video
+            src={videoSrc}
+            style={{ width: '100%', height: '100%', borderRadius: 12, objectFit: 'cover', pointerEvents: 'none' }}
+            autoPlay={vAutoplay}
+            loop={vLoop}
+            muted={vMuted}
+            controls={vControls}
+            playsInline
+          />
           <div style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'grab' }} />
         </div>;
       }
@@ -657,7 +676,18 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#475569', fontSize: 13 }}>{t('superPagesEditor.clickVideoToAdd')}</div>;
     }
     if (el.type === 'image' && el.txt) {
-      return <img src={el.txt} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: el.s?.borderRadius || '8px' }} alt="" />;
+      // _imageFit (added Phase 2C) + _imageAlt for a11y. Both fall
+      // back to the historical defaults so pre-2C images render
+      // identically.
+      return <img
+        src={el.txt}
+        alt={el._imageAlt || ''}
+        style={{
+          width: '100%', height: '100%',
+          objectFit: el._imageFit || 'cover',
+          borderRadius: el.s?.borderRadius || '8px',
+        }}
+      />;
     }
     if (el.type === 'image' && !el.txt) {
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#475569', fontSize: 13 }}>{t('superPagesEditor.clickImageToUpload')}</div>;

@@ -794,6 +794,485 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
 // Phase 2B introduces toggles for banner dismissible/sticky; this
 // abstracts the pattern for future use (form-field "required", form
 // "GDPR opt-in", etc.).
+// ── MediaProperties — Image / Video / Audio shared component ────
+//
+// Phase 2C of the Inspector port (20 May 2026, Steve & Claude).
+// Single component handling all three media types — they share enough
+// (source URL OR file upload + preview) that a branched component is
+// clearer than three near-duplicate ones.
+//
+// Storage shape recap:
+//   image: el.txt = src URL,         el.s.borderRadius = corner roundness
+//                                    el._imageAlt = accessibility text (new)
+//                                    el._imageFit = object-fit value (new, default 'cover')
+//   video: el.txt = src URL (MP4 OR youtube/vimeo URL)
+//          el._isMP4 = flag (set when uploaded), else auto-detected by extension
+//          For MP4: el._videoAutoplay / _videoLoop / _videoMuted / _videoControls (new)
+//          For iframe: no extra controls — YT/Vimeo params auto-applied at export
+//   audio: el._audioUrl = src URL (note: NOT el.txt — historical quirk)
+//          el.s.borderRadius = corner roundness
+//
+// Source detection for video:
+//   - URL contains 'youtube' or 'vimeo' → iframe mode (no MP4 controls)
+//   - URL ends in .mp4 / .webm / .ogg, or _isMP4 flag is set → MP4 mode
+//   - Empty URL → both panels offered, fields disabled until source picked
+function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // ── Source URL state ─────────────────────────────────────────
+  // For image + video the source lives on el.txt. For audio it lives
+  // on el._audioUrl (legacy quirk, retained for backward compatibility
+  // with already-published audio elements). We unify here so the rest
+  // of the component reads one variable, then write back to the
+  // correct field on commit.
+  const srcKey = el.type === 'audio' ? '_audioUrl' : 'txt';
+  const initialSrc = el.type === 'audio' ? (el._audioUrl || '') : (el.txt || '');
+  const [src, setSrc] = useState(initialSrc);
+
+  // Image-specific state
+  const [imageAlt, setImageAlt] = useState(el._imageAlt || '');
+  const [imageFit, setImageFit] = useState(el._imageFit || 'cover');
+  const [imageRadius, setImageRadius] = useState(
+    parseInt((el.s?.borderRadius || '12px'), 10) || 12
+  );
+
+  // Video-specific state. _isMP4 is the explicit flag set on file
+  // upload; we also auto-detect from URL extension below. The four
+  // playback toggles default to the historical hardcoded behaviour
+  // (autoplay muted loop, no controls) so existing pages render
+  // identically until the member touches a control.
+  const [videoAutoplay, setVideoAutoplay] = useState(el._videoAutoplay !== false);
+  const [videoLoop, setVideoLoop] = useState(el._videoLoop !== false);
+  const [videoMuted, setVideoMuted] = useState(el._videoMuted !== false);
+  const [videoControls, setVideoControls] = useState(!!el._videoControls);
+
+  // Audio uses the same radius mechanism as image since the UA's
+  // built-in audio player has a visible pill background we may want
+  // to round.
+  const [audioRadius, setAudioRadius] = useState(
+    parseInt((el.s?.borderRadius || '12px'), 10) || 12
+  );
+
+  // Upload UI state — shared. We don't track per-type since only one
+  // upload can be in-flight on the selected element at a time.
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  // Resync on selection change. Same pattern as the other Properties
+  // components — when the user clicks a different element of the same
+  // type, refresh local state from the new el.
+  useEffect(() => {
+    setSrc(el.type === 'audio' ? (el._audioUrl || '') : (el.txt || ''));
+    setImageAlt(el._imageAlt || '');
+    setImageFit(el._imageFit || 'cover');
+    setImageRadius(parseInt((el.s?.borderRadius || '12px'), 10) || 12);
+    setVideoAutoplay(el._videoAutoplay !== false);
+    setVideoLoop(el._videoLoop !== false);
+    setVideoMuted(el._videoMuted !== false);
+    setVideoControls(!!el._videoControls);
+    setAudioRadius(parseInt((el.s?.borderRadius || '12px'), 10) || 12);
+    setUploadError('');
+  }, [el.id]);
+
+  // ── Source detection (video only) ────────────────────────────
+  // Returns 'iframe' (YouTube / Vimeo embed), 'mp4' (HTML5 video),
+  // or 'empty' (no source yet).
+  const videoMode = (() => {
+    if (!src) return 'empty';
+    if (/youtube\.com|youtu\.be|vimeo\.com/i.test(src)) return 'iframe';
+    if (el._isMP4 || /\.(mp4|webm|ogg)(\?|$)/i.test(src) || src.includes('funnel-videos')) return 'mp4';
+    return 'iframe'; // default to iframe for unknown URLs (YouTube paste in progress, etc.)
+  })();
+
+  // ── Helpers ──────────────────────────────────────────────────
+  // commitSource writes the source URL through to el.txt (or
+  // _audioUrl). For video pasted as YouTube/Vimeo watch URL we
+  // convert to the embed URL inline — same auto-convert behaviour
+  // the legacy modal had, so members can paste any YouTube link.
+  const commitSource = (newSrc) => {
+    let v = newSrc;
+    if (el.type === 'video' && v) {
+      const yt = v.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if (yt) v = `https://www.youtube.com/embed/${yt[1]}`;
+      const vm = v.match(/vimeo\.com\/(\d+)/);
+      if (vm && !v.includes('player.vimeo.com')) v = `https://player.vimeo.com/video/${vm[1]}`;
+    }
+    setSrc(v);
+    updateElement(el.id, { [srcKey]: v });
+    markDirty();
+  };
+
+  // upload handles the file-input → /api/funnels/upload-* roundtrip.
+  // Endpoints match what the legacy modal used. On success we write
+  // the returned URL into the source and (for video) flag _isMP4 so
+  // the canvas renderer + export both pick the HTML5 path.
+  const upload = async (file, kind) => {
+    if (!file) return;
+    setUploadError('');
+    // Type validation — bounce wrong file types early with a
+    // human-readable message rather than letting the server reject.
+    const typeOk = (
+      (kind === 'image' && file.type.startsWith('image/')) ||
+      (kind === 'video' && file.type.startsWith('video/')) ||
+      (kind === 'audio' && (file.type.startsWith('audio/') || file.type === 'audio/mpeg'))
+    );
+    if (!typeOk) {
+      setUploadError(`Wrong file type — expected ${kind}.`);
+      return;
+    }
+    // Size caps mirror the legacy modal: 10MB images, 100MB videos.
+    // Audio kept at 25MB — enough for a few minutes of MP3 (handy
+    // for podcast clips / welcome messages) without being abusable.
+    const cap = kind === 'image' ? 10 : kind === 'video' ? 100 : 25;
+    if (file.size > cap * 1024 * 1024) {
+      setUploadError(`Too big (${(file.size / 1024 / 1024).toFixed(1)}MB). Max ${cap}MB.`);
+      return;
+    }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const r = await fetch(`/api/funnels/upload-${kind}`, {
+        method: 'POST', body: fd, credentials: 'include',
+      });
+      if (!r.ok) {
+        setUploadError(`Upload failed (${r.status}).`);
+        return;
+      }
+      const d = await r.json();
+      if (!d.url) {
+        setUploadError(d.error || 'Server returned no URL.');
+        return;
+      }
+      // Write URL + (video only) the _isMP4 marker so the renderer
+      // picks the right branch even if the URL doesn't have a video
+      // extension (CDN paths often don't).
+      const patch = { [srcKey]: d.url };
+      if (kind === 'video') patch._isMP4 = true;
+      updateElement(el.id, patch);
+      setSrc(d.url);
+      markDirty();
+    } catch (err) {
+      setUploadError('Network error.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // ── Render ───────────────────────────────────────────────────
+  return (
+    <>
+      {/* Source section — URL + upload, common to all three types */}
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Source</div>
+
+        {/* URL input. The placeholder hints at what works for this type. */}
+        <input
+          type="text"
+          value={src}
+          onChange={e => commitSource(e.target.value)}
+          placeholder={
+            el.type === 'image' ? 'https://… or upload below'
+            : el.type === 'video' ? 'YouTube / Vimeo URL, or upload MP4'
+            : 'https://…/audio.mp3 or upload below'
+          }
+          style={inputStyle}
+        />
+
+        {/* Upload row. We use a visible labeled button (rather than the
+            default file-input chrome which is OS-dependent and ugly) by
+            hiding the actual <input> off-screen and triggering it via
+            the label's `for=` reference. */}
+        <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <label
+            htmlFor={`media-upload-${el.id}`}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '6px 12px',
+              background: uploading ? 'var(--sap-bg-elevated, #f8fafc)' : 'var(--sap-accent, #0ea5e9)',
+              color: uploading ? 'var(--sap-text-muted, #94a3b8)' : '#fff',
+              border: 'none', borderRadius: 6,
+              fontSize: 11, fontWeight: 700,
+              cursor: uploading ? 'wait' : 'pointer',
+              fontFamily: 'inherit',
+            }}>
+            {uploading ? 'Uploading…' : '↑ Upload'}
+          </label>
+          <input
+            id={`media-upload-${el.id}`}
+            type="file"
+            accept={
+              el.type === 'image' ? 'image/*'
+              : el.type === 'video' ? 'video/mp4,video/webm,video/ogg'
+              : 'audio/mpeg,audio/wav,audio/ogg,audio/mp3'
+            }
+            disabled={uploading}
+            onChange={e => {
+              const f = e.target.files?.[0];
+              if (f) upload(f, el.type);
+              e.target.value = '';
+            }}
+            style={{ display: 'none' }}
+          />
+          {/* Hint about size limits — sits next to the button so members
+              know the cap before they try a 500MB file. */}
+          <span style={{ fontSize: 10, color: 'var(--sap-text-muted, #94a3b8)' }}>
+            Max {el.type === 'image' ? '10MB' : el.type === 'video' ? '100MB' : '25MB'}
+          </span>
+        </div>
+
+        {/* Upload error — only shown when something went wrong. Cleared
+            on next selection change. */}
+        {uploadError && (
+          <div style={{
+            marginTop: 8,
+            fontSize: 11,
+            color: 'var(--sap-red, #ef4444)',
+            background: 'rgba(239,68,68,0.06)',
+            border: '1px solid rgba(239,68,68,0.2)',
+            borderRadius: 6,
+            padding: '6px 10px',
+          }}>
+            {uploadError}
+          </div>
+        )}
+
+        {/* Live preview — type-specific. Shows the current source as it
+            will appear after publish. For empty source we show a hint
+            tile so the inspector doesn't look broken. */}
+        {src ? (
+          <div style={{ marginTop: 10 }}>
+            {el.type === 'image' && (
+              <img src={src} alt={imageAlt} style={{
+                maxWidth: '100%', maxHeight: 120,
+                borderRadius: `${imageRadius}px`,
+                display: 'block', margin: '0 auto',
+                objectFit: imageFit,
+              }} />
+            )}
+            {el.type === 'video' && videoMode === 'iframe' && (
+              <div style={{
+                fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+                background: 'var(--sap-bg-elevated, #f8fafc)',
+                border: '1px solid var(--sap-border-faint, #e2e8f0)',
+                borderRadius: 6, padding: '8px 10px',
+                wordBreak: 'break-all',
+              }}>
+                <strong>Embed:</strong> {src}
+              </div>
+            )}
+            {el.type === 'video' && videoMode === 'mp4' && (
+              <video src={src} style={{
+                maxWidth: '100%', maxHeight: 120,
+                display: 'block', margin: '0 auto',
+                borderRadius: 6,
+              }} muted />
+            )}
+            {el.type === 'audio' && (
+              <audio src={src} controls style={{ width: '100%', marginTop: 4 }} />
+            )}
+          </div>
+        ) : (
+          <div style={{
+            marginTop: 10,
+            fontSize: 11, color: 'var(--sap-text-muted, #94a3b8)',
+            textAlign: 'center',
+            padding: '14px',
+            background: 'var(--sap-bg-elevated, #f8fafc)',
+            border: '1px dashed var(--sap-border, #e2e8f0)',
+            borderRadius: 6,
+          }}>
+            {el.type === 'image' ? '🖼' : el.type === 'video' ? '🎬' : '🔊'} Paste a URL or upload a file
+          </div>
+        )}
+      </div>
+
+      {/* ── Image-specific section ────────────────────────────────
+          - Alt text: accessibility — was missing entirely in the
+            legacy modal. Captured here so screen readers describe
+            the image and SEO crawlers index it.
+          - Fit: how the image scales inside its bounding box.
+          - Corner radius: the existing borderRadius style, exposed
+            as a slider. */}
+      {el.type === 'image' && (
+        <>
+          <div style={sectionStyle}>
+            <div style={labelStyle}>Alt text</div>
+            <input
+              type="text"
+              value={imageAlt}
+              onChange={e => {
+                setImageAlt(e.target.value);
+                updateElement(el.id, { _imageAlt: e.target.value });
+                markDirty();
+              }}
+              placeholder="Describe the image for screen readers + SEO"
+              style={inputStyle}
+            />
+          </div>
+
+          <div style={sectionStyle}>
+            <div style={labelStyle}>Fit</div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {[
+                { v: 'cover', l: 'Cover', hint: 'Fill, crop edges' },
+                { v: 'contain', l: 'Contain', hint: 'Fit fully, may show bg' },
+                { v: 'fill', l: 'Fill', hint: 'Stretch to box' },
+              ].map(opt => (
+                <button
+                  key={opt.v}
+                  onClick={() => {
+                    setImageFit(opt.v);
+                    updateElement(el.id, { _imageFit: opt.v });
+                    markDirty();
+                  }}
+                  title={opt.hint}
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    background: imageFit === opt.v ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-bg-elevated, #f8fafc)',
+                    color: imageFit === opt.v ? '#fff' : 'var(--sap-text-primary, #0f172a)',
+                    border: '1px solid ' + (imageFit === opt.v ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                    borderRadius: 5,
+                    fontSize: 11, fontWeight: 700,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}>
+                  {opt.l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={sectionStyleLast}>
+            <div style={labelStyle}>Corners</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input
+                type="range"
+                min={0} max={48} step={1}
+                value={imageRadius}
+                onChange={e => {
+                  const v = parseInt(e.target.value, 10);
+                  setImageRadius(v);
+                  updateElementStyle(el.id, { borderRadius: `${v}px` });
+                  markDirty();
+                }}
+                style={{ flex: 1 }}
+              />
+              <span style={{
+                fontSize: 11, fontFamily: 'monospace',
+                color: 'var(--sap-text-muted, #64748b)',
+                minWidth: 36, textAlign: 'right',
+              }}>{imageRadius}px</span>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Video-specific section ───────────────────────────────
+          Only relevant for MP4 mode — YouTube/Vimeo iframes don't
+          honour these (the embed URL params control them and we
+          already set sensible ones at export). For iframe mode we
+          show a one-line note instead of the toggles, so members
+          aren't confused by switches that do nothing. */}
+      {el.type === 'video' && (
+        <div style={sectionStyleLast}>
+          <div style={labelStyle}>Playback</div>
+          {videoMode === 'iframe' && (
+            <div style={{
+              fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+              padding: '8px 10px',
+              background: 'var(--sap-bg-elevated, #f8fafc)',
+              border: '1px solid var(--sap-border-faint, #e2e8f0)',
+              borderRadius: 6, lineHeight: 1.4,
+            }}>
+              YouTube / Vimeo: playback is controlled by the platform. Embed-side controls (autoplay, captions, branding) are auto-tuned at export.
+            </div>
+          )}
+          {videoMode === 'mp4' && (
+            <>
+              <ToggleRow
+                label="Autoplay"
+                hint="Start playing as soon as the page loads. Most browsers require muted+autoplay together."
+                value={videoAutoplay}
+                onChange={v => {
+                  setVideoAutoplay(v);
+                  updateElement(el.id, { _videoAutoplay: v });
+                  markDirty();
+                }}
+              />
+              <ToggleRow
+                label="Loop"
+                hint="Restart from the beginning when the video ends."
+                value={videoLoop}
+                onChange={v => {
+                  setVideoLoop(v);
+                  updateElement(el.id, { _videoLoop: v });
+                  markDirty();
+                }}
+              />
+              <ToggleRow
+                label="Muted"
+                hint="Start with no sound. Required by most browsers for autoplay."
+                value={videoMuted}
+                onChange={v => {
+                  setVideoMuted(v);
+                  updateElement(el.id, { _videoMuted: v });
+                  markDirty();
+                }}
+              />
+              <ToggleRow
+                label="Show controls"
+                hint="Display the play / pause / volume bar."
+                value={videoControls}
+                onChange={v => {
+                  setVideoControls(v);
+                  updateElement(el.id, { _videoControls: v });
+                  markDirty();
+                }}
+              />
+            </>
+          )}
+          {videoMode === 'empty' && (
+            <div style={{
+              fontSize: 11, color: 'var(--sap-text-muted, #94a3b8)',
+              padding: '8px 10px', fontStyle: 'italic',
+            }}>
+              Set a source above to configure playback.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Audio-specific section ───────────────────────────────
+          Only a corner-radius slider. The native audio element is
+          a pill-shaped player; radius lets members soften or
+          square the corners to match their page aesthetic. */}
+      {el.type === 'audio' && (
+        <div style={sectionStyleLast}>
+          <div style={labelStyle}>Corners</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <input
+              type="range"
+              min={0} max={48} step={1}
+              value={audioRadius}
+              onChange={e => {
+                const v = parseInt(e.target.value, 10);
+                setAudioRadius(v);
+                updateElementStyle(el.id, { borderRadius: `${v}px` });
+                markDirty();
+              }}
+              style={{ flex: 1 }}
+            />
+            <span style={{
+              fontSize: 11, fontFamily: 'monospace',
+              color: 'var(--sap-text-muted, #64748b)',
+              minWidth: 36, textAlign: 'right',
+            }}>{audioRadius}px</span>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function ToggleRow({ label, hint, value, onChange }) {
   return (
     <label style={{
@@ -1594,6 +2073,8 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <FormProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : ['heading', 'text', 'label'].includes(el.type) ? (
         <TextTypeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : ['image', 'video', 'audio'].includes(el.type) ? (
+        <MediaProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : (
         <UnsupportedTypeNote type={el.type} />
       )}
