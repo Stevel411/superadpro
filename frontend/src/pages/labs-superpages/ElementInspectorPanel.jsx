@@ -604,11 +604,89 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
     setStripeColor(m ? m[2] : '#0ea5e9');
   }, [el.id]);
 
+  // ── Background colour + opacity helpers ─────────────────────────
+  // Background can be many shapes — hex (#rrggbb), rgba(), gradient,
+  // CSS variable. These helpers normalise to (hex, alpha) for the
+  // UI, and serialise back to whichever form keeps the value clean
+  // (hex when fully opaque, rgba() when translucent).
+
+  // True if the background is a gradient or CSS function we shouldn't
+  // try to colour-pick or alpha-tweak. Disables the opacity slider.
+  function bgIsGradient(v) {
+    if (!v || typeof v !== 'string') return false;
+    const s = v.trim().toLowerCase();
+    return s.startsWith('linear-gradient(') ||
+           s.startsWith('radial-gradient(') ||
+           s.startsWith('conic-gradient(') ||
+           s.startsWith('var(');
+  }
+
+  // Extract a #rrggbb hex equivalent of the current background for
+  // the colour picker. rgba(r,g,b,a) → strip alpha and return hex.
+  // hex → return as-is. Anything else (gradient, variable, named
+  // colour) → fallback to a sensible cobalt so the picker shows
+  // something readable rather than blank.
+  function parseBgHex(v) {
+    if (!v || typeof v !== 'string') return '#1e293b';
+    if (/^#[0-9a-f]{6}$/i.test(v)) return v;
+    const m = v.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+    if (m) {
+      const r = parseInt(m[1], 10).toString(16).padStart(2, '0');
+      const g = parseInt(m[2], 10).toString(16).padStart(2, '0');
+      const b = parseInt(m[3], 10).toString(16).padStart(2, '0');
+      return `#${r}${g}${b}`;
+    }
+    return '#1e293b';
+  }
+
+  // Extract alpha (0..1) from the current background. Hex → 1.
+  // rgba(...,a) → a. rgb(...) → 1. Gradient/variable → 1 (slider
+  // disabled anyway). Anything else → 1.
+  function parseBgAlpha(v) {
+    if (!v || typeof v !== 'string') return 1;
+    const m = v.match(/^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([\d.]+)\s*\)$/i);
+    if (m) {
+      const a = parseFloat(m[1]);
+      return isNaN(a) ? 1 : Math.max(0, Math.min(1, a));
+    }
+    return 1;
+  }
+
+  // Convert hex → rgba components for serialising with an alpha.
+  function hexToRgb(hex) {
+    const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || '');
+    if (!m) return { r: 30, g: 41, b: 59 };
+    return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
+  }
+
+  // Re-emit the background string given a hex and an alpha. If alpha
+  // is effectively 1 we use the cleaner hex form; otherwise rgba()
+  // so the value carries opacity through the export pipeline cleanly.
+  function buildBg(hex, alpha) {
+    const a = Math.max(0, Math.min(1, alpha));
+    if (a >= 0.999) return hex;
+    const { r, g, b } = hexToRgb(hex);
+    // Round to 2 decimals to keep the string short and tidy.
+    return `rgba(${r}, ${g}, ${b}, ${Math.round(a * 100) / 100})`;
+  }
+
   // Commit helpers
   const commitBackground = (v) => {
     setBackground(v);
     updateElementStyle(el.id, { background: v });
     markDirty();
+  };
+  // From the colour picker — preserve the current alpha if we're
+  // editing an existing rgba background.
+  const commitBackgroundFromPicker = (hex) => {
+    const currentAlpha = parseBgAlpha(background);
+    commitBackground(buildBg(hex, currentAlpha));
+  };
+  // From the opacity slider — preserve the current hex, swap alpha.
+  const commitBackgroundAlpha = (alpha) => {
+    if (bgIsGradient(background)) return; // no-op on gradients
+    const hex = parseBgHex(background);
+    commitBackground(buildBg(hex, alpha));
   };
   const commitRadius = (n) => {
     setRadius(n);
@@ -639,20 +717,34 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
     <div style={lastSection ? sectionStyleLast : sectionStyle}>
       <div style={labelStyle}>Container</div>
 
-      {/* Background — colour picker + raw text */}
+      {/* Background — colour picker + opacity slider + raw text.
+
+          20 May 2026 (Steve flag): added opacity slider so members
+          can make element backgrounds translucent. Works for solid
+          colours (#hex and rgba); gradients and CSS variables get
+          the slider disabled because applying opacity to a gradient
+          requires rewriting every colour stop to rgba(), which is
+          a follow-up if anyone asks for it.
+
+          State model:
+          - background string in el.s.background is the source of
+            truth (e.g. 'rgba(15,23,41,0.4)' or '#1e293b' or
+            'linear-gradient(...)').
+          - The picker shows the hex equivalent for display.
+          - The slider derives current alpha from rgba() if present,
+            defaults to 100% for plain hex.
+          - On any change we re-serialise: if alpha is 100% and the
+            colour is a hex, emit hex; otherwise emit rgba(). Keeps
+            the output clean for the export pipeline. */}
       <div style={{ marginBottom: 10 }}>
         <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginBottom: 4 }}>
           Background
         </div>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          {/* The colour picker only works for hex values. For
-              gradients / variables it shows the current swatch
-              as a fallback colour but pinning it to the gradient
-              start. */}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
           <input
             type="color"
-            value={(/^#[0-9a-f]{6}$/i).test(background) ? background : '#1e293b'}
-            onChange={e => commitBackground(e.target.value)}
+            value={parseBgHex(background)}
+            onChange={e => commitBackgroundFromPicker(e.target.value)}
             style={{
               width: 32, height: 28, padding: 0,
               border: '1px solid var(--sap-border, #e2e8f0)',
@@ -664,10 +756,33 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
             type="text"
             value={background}
             onChange={e => commitBackground(e.target.value)}
-            placeholder="#1e293b or linear-gradient(…)"
+            placeholder="#1e293b or rgba(…) or linear-gradient(…)"
             style={{ ...inputStyle, flex: 1 }}
           />
         </div>
+        {/* Opacity slider — disabled when the background is a
+            gradient or CSS variable. Hidden state info on hover. */}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>
+          <span title={bgIsGradient(background) ? 'Opacity only available for solid colours' : 'Background opacity'}>Opacity</span>
+          <span style={{ fontFamily: 'monospace' }}>
+            {bgIsGradient(background) ? '—' : `${Math.round(parseBgAlpha(background) * 100)}%`}
+          </span>
+        </div>
+        <input
+          type="range" min={0} max={100} step={1}
+          value={Math.round(parseBgAlpha(background) * 100)}
+          onChange={e => commitBackgroundAlpha(parseInt(e.target.value, 10) / 100)}
+          disabled={bgIsGradient(background)}
+          style={{
+            width: '100%',
+            opacity: bgIsGradient(background) ? 0.4 : 1,
+            cursor: bgIsGradient(background) ? 'not-allowed' : 'pointer',
+          }}
+        />
       </div>
 
       {/* Corner radius slider */}
@@ -2217,6 +2332,29 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [videoMuted, setVideoMuted] = useState(el._videoMuted !== false);
   const [videoControls, setVideoControls] = useState(!!el._videoControls);
 
+  // YouTube branding controls (20 May 2026 — Steve flag).
+  // YouTube prohibits *fully* removing their branding from embeds in
+  // their TOS, but they DO provide query-string flags that reduce
+  // it significantly. We expose them as toggles:
+  //   _ytModestBranding (default ON) — modestbranding=1, hides the
+  //     YouTube watermark from the bottom-right of the player chrome.
+  //   _ytHideRelated   (default ON) — rel=0, stops the wall of
+  //     unrelated videos at the end.
+  //   _ytHideControls  (default OFF) — controls=0, hides the whole
+  //     player control bar. Aggressive; only useful for autoplay
+  //     visuals where the user shouldn't pause/scrub.
+  //   _ytFacade        (default OFF) — replaces the embed with a
+  //     clean thumbnail + custom play button until clicked. Hides
+  //     ALL YouTube branding until play. Massive perf win too
+  //     (page doesn't load YouTube's ~600KB player until needed).
+  // Defaults chosen so existing pages get the modest+rel=0 cleanup
+  // automatically (a sensible polish bump) without changing
+  // anything dramatic.
+  const [ytModestBranding, setYtModestBranding] = useState(el._ytModestBranding !== false);
+  const [ytHideRelated, setYtHideRelated] = useState(el._ytHideRelated !== false);
+  const [ytHideControls, setYtHideControls] = useState(!!el._ytHideControls);
+  const [ytFacade, setYtFacade] = useState(!!el._ytFacade);
+
   // Audio uses the same radius mechanism as image since the UA's
   // built-in audio player has a visible pill background we may want
   // to round.
@@ -2241,6 +2379,10 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
     setVideoLoop(el._videoLoop !== false);
     setVideoMuted(el._videoMuted !== false);
     setVideoControls(!!el._videoControls);
+    setYtModestBranding(el._ytModestBranding !== false);
+    setYtHideRelated(el._ytHideRelated !== false);
+    setYtHideControls(!!el._ytHideControls);
+    setYtFacade(!!el._ytFacade);
     setAudioRadius(parseInt((el.s?.borderRadius || '12px'), 10) || 12);
     setUploadError('');
   }, [el.id]);
@@ -2570,15 +2712,66 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
         <div style={sectionStyleLast}>
           <div style={labelStyle}>Playback</div>
           {videoMode === 'iframe' && (
-            <div style={{
-              fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
-              padding: '8px 10px',
-              background: 'var(--sap-bg-elevated, #f8fafc)',
-              border: '1px solid var(--sap-border-faint, #e2e8f0)',
-              borderRadius: 6, lineHeight: 1.4,
-            }}>
-              YouTube / Vimeo: playback is controlled by the platform. Embed-side controls (autoplay, captions, branding) are auto-tuned at export.
-            </div>
+            <>
+              {/* YouTube specifically — show real branding controls.
+                  Vimeo has different query params and is less of a
+                  branding-noise problem in practice, so we treat it
+                  with the simpler hint below. */}
+              {/youtube\.com|youtu\.be/i.test(src) ? (
+                <>
+                  <ToggleRow
+                    label="Hide YouTube logo (modest branding)"
+                    hint="Suppresses the YouTube watermark in the player chrome. YouTube still shows their logo on the play button — they prohibit full removal in their TOS."
+                    value={ytModestBranding}
+                    onChange={v => {
+                      setYtModestBranding(v);
+                      updateElement(el.id, { _ytModestBranding: v });
+                      markDirty();
+                    }}
+                  />
+                  <ToggleRow
+                    label="Hide related videos at end"
+                    hint="Stops the wall of suggested videos that normally appears when the video finishes."
+                    value={ytHideRelated}
+                    onChange={v => {
+                      setYtHideRelated(v);
+                      updateElement(el.id, { _ytHideRelated: v });
+                      markDirty();
+                    }}
+                  />
+                  <ToggleRow
+                    label="Hide player controls"
+                    hint="Removes the play/pause/scrub bar entirely. Use only with autoplay or as a background visual — viewers can't interact otherwise."
+                    value={ytHideControls}
+                    onChange={v => {
+                      setYtHideControls(v);
+                      updateElement(el.id, { _ytHideControls: v });
+                      markDirty();
+                    }}
+                  />
+                  <ToggleRow
+                    label="Use clean thumbnail until clicked (facade)"
+                    hint="Replace the embed with a custom thumbnail and play button. Visitors see no YouTube branding until they hit play. Loads ~600KB faster too."
+                    value={ytFacade}
+                    onChange={v => {
+                      setYtFacade(v);
+                      updateElement(el.id, { _ytFacade: v });
+                      markDirty();
+                    }}
+                  />
+                </>
+              ) : (
+                <div style={{
+                  fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+                  padding: '8px 10px',
+                  background: 'var(--sap-bg-elevated, #f8fafc)',
+                  border: '1px solid var(--sap-border-faint, #e2e8f0)',
+                  borderRadius: 6, lineHeight: 1.4,
+                }}>
+                  Vimeo / other embed: playback controlled by the platform. Embed-side defaults are auto-tuned at export.
+                </div>
+              )}
+            </>
           )}
           {videoMode === 'mp4' && (
             <>

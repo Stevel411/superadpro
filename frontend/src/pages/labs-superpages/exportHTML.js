@@ -81,16 +81,56 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       } else {
         let embedUrl = el.txt;
         const ytMatch = embedUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        const ytId = ytMatch ? ytMatch[1] : null;
         if (ytMatch) embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
         const vmMatch = embedUrl.match(/(?:vimeo\.com\/)(\d+)/);
         if (vmMatch && !embedUrl.includes('player.vimeo.com')) embedUrl = `https://player.vimeo.com/video/${vmMatch[1]}`;
-        
-        if (embedUrl.includes('youtube.com/embed/') && !embedUrl.includes('modestbranding')) {
-          embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'modestbranding=1&rel=0&showinfo=0&color=white&iv_load_policy=3';
-        } else if (embedUrl.includes('player.vimeo.com/') && !embedUrl.includes('byline=0')) {
-          embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'byline=0&portrait=0&title=0';
+
+        // YouTube facade mode (20 May 2026). When _ytFacade is on,
+        // emit the bare thumbnail + custom play button instead of the
+        // YouTube embed. On click, JS swaps in the real iframe with
+        // autoplay=1 so the experience continues normally. Visitors
+        // see NO YouTube branding until they hit play (and even then
+        // we apply the modest+rel=0 flags), and the initial page is
+        // ~600KB lighter — the YouTube embed isn't loaded at all
+        // unless engaged.
+        if (ytId && el._ytFacade) {
+          const thumb = `https://i.ytimg.com/vi/${ytId}/maxresdefault.jpg`;
+          // Build the modest-branding query the facade will apply on
+          // click. Reuses the same toggles as the standard embed.
+          const ytParams = [];
+          if (el._ytModestBranding !== false) ytParams.push('modestbranding=1');
+          if (el._ytHideRelated !== false) ytParams.push('rel=0');
+          if (el._ytHideControls) ytParams.push('controls=0');
+          ytParams.push('showinfo=0');
+          ytParams.push('autoplay=1'); // facade always autoplays on click
+          const facadeSrc = `https://www.youtube.com/embed/${ytId}?${ytParams.join('&')}`;
+          h += `<div ${elAttrs} data-sp-facade="${facadeSrc}" style="${st};background-image:url(${thumb});background-size:cover;background-position:center;border-radius:12px;position:relative;cursor:pointer;overflow:hidden">
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(0,0,0,0.18),rgba(0,0,0,0.32))">
+    <div style="width:78px;height:78px;border-radius:50%;background:rgba(255,255,255,0.95);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(0,0,0,0.35),0 2px 6px rgba(0,0,0,0.25)">
+      <div style="width:0;height:0;border-left:24px solid #0a1438;border-top:15px solid transparent;border-bottom:15px solid transparent;margin-left:6px"></div>
+    </div>
+  </div>
+</div>`;
+        } else {
+          // Standard iframe path. Apply per-element YouTube branding
+          // flags (modest/rel/controls). Defaults preserved as
+          // !== false so existing pages get the modest+rel polish
+          // automatically.
+          if (embedUrl.includes('youtube.com/embed/') && !embedUrl.includes('?')) {
+            const ytParams = [];
+            if (el._ytModestBranding !== false) ytParams.push('modestbranding=1');
+            if (el._ytHideRelated !== false) ytParams.push('rel=0');
+            if (el._ytHideControls) ytParams.push('controls=0');
+            ytParams.push('showinfo=0');
+            ytParams.push('iv_load_policy=3'); // hide video annotations
+            ytParams.push('color=white');      // progress bar colour
+            embedUrl += '?' + ytParams.join('&');
+          } else if (embedUrl.includes('player.vimeo.com/') && !embedUrl.includes('byline=0')) {
+            embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'byline=0&portrait=0&title=0';
+          }
+          h += `<iframe ${elAttrs} src="${embedUrl}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
         }
-        h += `<iframe ${elAttrs} src="${embedUrl}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
       }
     } else if (el.type === 'video' && !el.txt?.trim()) {
       // Skip empty video placeholders
@@ -248,6 +288,16 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   // is in private mode or storage is full (otherwise the rest of the
   // page wouldn't execute either).
   h += `<script>(function(){try{var els=document.querySelectorAll('[data-sap-dismissible="1"]');for(var i=0;i<els.length;i++){var el=els[i];if(el.id&&localStorage.getItem('sap-bn-'+el.id)==='1'){el.style.display='none';}}}catch(e){}})();</script>`;
+
+  // ── YouTube facade click-to-play (20 May 2026) ──
+  // When _ytFacade is on, the exporter emits a <div data-sp-facade="<embed-url>">
+  // instead of an iframe. This script wires the click that swaps it for
+  // the real iframe with autoplay. The visitor sees no YouTube branding
+  // until they engage; the iframe (and ~600KB of YouTube player JS) is
+  // never loaded otherwise.
+  //
+  // Plain DOM, no dependencies — matches the dismissible-banner pattern.
+  h += `<script>(function(){try{var els=document.querySelectorAll('[data-sp-facade]');for(var i=0;i<els.length;i++){(function(el){el.addEventListener('click',function(){var src=el.getAttribute('data-sp-facade');if(!src)return;var ifr=document.createElement('iframe');ifr.src=src;ifr.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');ifr.setAttribute('allowfullscreen','');ifr.style.cssText='width:100%;height:100%;border:none;border-radius:12px;position:absolute;inset:0';el.innerHTML='';el.style.cursor='default';el.appendChild(ifr);});})(els[i]);}}catch(e){}})();</script>`;
 
   h += '</div></div>';
 

@@ -706,9 +706,71 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // Auto-convert YouTube/Vimeo watch URLs to embed URLs at render time
       let videoSrc = el.txt;
       const ytMatch = videoSrc.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      const ytId = ytMatch ? ytMatch[1] : null;
       if (ytMatch) videoSrc = `https://www.youtube.com/embed/${ytMatch[1]}`;
       const vmMatch = videoSrc.match(/(?:vimeo\.com\/)(\d+)/);
       if (vmMatch && !videoSrc.includes('player.vimeo.com')) videoSrc = `https://player.vimeo.com/video/${vmMatch[1]}`;
+
+      // 20 May 2026 — apply YouTube branding-reduction flags. Built
+      // as query params on the embed URL. modestbranding=1 suppresses
+      // the corner watermark; rel=0 stops related-videos at end;
+      // controls=0 hides the entire player UI (aggressive).
+      if (ytId) {
+        const ytParams = [];
+        if (el._ytModestBranding !== false) ytParams.push('modestbranding=1');
+        if (el._ytHideRelated !== false) ytParams.push('rel=0');
+        if (el._ytHideControls) ytParams.push('controls=0');
+        // Add showinfo=0 too — deprecated but still honoured on
+        // some clients and harmless on others.
+        ytParams.push('showinfo=0');
+        if (ytParams.length) videoSrc = `${videoSrc}?${ytParams.join('&')}`;
+      }
+
+      // 20 May 2026 — YouTube facade. When _ytFacade is on, instead
+      // of rendering YouTube's heavy embed we render the bare
+      // thumbnail (served from img.youtube.com, no branding baked
+      // into the image itself) with a custom play button overlay.
+      // No YouTube logo visible until the visitor clicks play. The
+      // iframe load is deferred to that click — saves ~600KB of
+      // initial-page weight too.
+      //
+      // In the editor we show the facade as a static preview (no
+      // click-through) so the editor click handlers still drive
+      // selection. The actual click-to-play swap happens in the
+      // exported HTML via a small JS handler.
+      if (ytId && el._ytFacade) {
+        const thumb = `https://i.ytimg.com/vi/${ytId}/maxresdefault.jpg`;
+        return <div style={{
+          position: 'relative', width: '100%', height: '100%',
+          backgroundImage: `url(${thumb})`,
+          backgroundSize: 'cover', backgroundPosition: 'center',
+          borderRadius: 12,
+        }}>
+          {/* Custom play button overlay — no YouTube branding. */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.18), rgba(0,0,0,0.32))',
+            borderRadius: 12, pointerEvents: 'none',
+          }}>
+            <div style={{
+              width: 78, height: 78, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.95)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.25)',
+            }}>
+              <div style={{
+                width: 0, height: 0,
+                borderLeft: '24px solid #0a1438',
+                borderTop: '15px solid transparent',
+                borderBottom: '15px solid transparent',
+                marginLeft: 6,
+              }}/>
+            </div>
+          </div>
+          <div style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'grab' }} />
+        </div>;
+      }
 
       const isMP4 = el._isMP4 || /\.(mp4|webm|ogg)/.test(videoSrc) || videoSrc.includes('funnel-videos');
       if (isMP4) {
