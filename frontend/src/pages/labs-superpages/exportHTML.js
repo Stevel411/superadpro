@@ -178,12 +178,18 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       const trackClr = el._trackColor || 'rgba(255,255,255,0.08)';
       h += `<div ${elAttrs} style="${st}"><div style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:600;color:#e2e8f0">${lbl}</span><span style="font-size:13px;font-weight:700;color:${clr}">${pct}%</span></div><div style="width:100%;height:10px;background:${trackClr};border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${clr};border-radius:5px"></div></div></div></div>`;
     } else if (el.type === 'socialicons') {
+      // _iconColor (Phase 2E, 20 May 2026) — was hardcoded #94a3b8
+      // which was invisible against the dark default page bg only
+      // by coincidence (it matched the slate-400 muted text colour).
+      // On light pages the icons disappeared. Default preserved
+      // for pre-2E socialicons.
       const links = el._links || {};
+      const iconFill = el._iconColor || '#94a3b8';
       h += `<div ${elAttrs} style="${st};display:flex;gap:14px;justify-content:center;align-items:center">${Object.entries(SOCIAL_SVGS).map(([k, d]) => {
         const url = links[k] || '#';
         const tag = url && url !== '#' && url !== '' ? 'a' : 'span';
         const href = tag === 'a' ? ` href="${url}" target="_blank"` : '';
-        return `<${tag}${href} style="display:inline-flex"><svg viewBox="0 0 24 24" width="22" height="22" fill="#94a3b8"><path d="${d}"/></svg></${tag}>`;
+        return `<${tag}${href} style="display:inline-flex"><svg viewBox="0 0 24 24" width="22" height="22" fill="${iconFill}"><path d="${d}"/></svg></${tag}>`;
       }).join('')}</div>`;
     } else if (el.type === 'form') {
       // Build the form body in two passes to support both the new

@@ -26,7 +26,7 @@ const TIPTAP_TYPES = ['heading', 'text', 'label', 'badge'];
 //
 // Phase 2C+ will continue porting types. Once this list contains every
 // type, we can delete the old modal system entirely.
-const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement', 'form', 'image', 'video', 'audio', 'review', 'testimonial', 'faq', 'stat', 'badge', 'progress'];
+const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement', 'form', 'image', 'video', 'audio', 'review', 'testimonial', 'faq', 'stat', 'badge', 'progress', 'icontext', 'separator', 'logostrip', 'box', 'divider', 'spacer', 'countdown', 'socialicons', 'embed'];
 
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
   var { t } = useTranslation();
@@ -722,9 +722,12 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       </div>;
     }
     if (el.type === 'socialicons') {
+      // _iconColor (Phase 2E, 20 May 2026) — was hardcoded so members
+      // couldn't change it. Default preserves old look for pre-2E pages.
+      const iconFill = el._iconColor || 'var(--sap-text-faint)';
       return <div style={{ display: 'flex', gap: 14, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
         {Object.keys(SOCIAL_SVGS).map(k => (
-          <svg key={k} viewBox="0 0 24 24" width={22} height={22} fill="var(--sap-text-faint)" style={{ opacity: 0.7 }}><path d={SOCIAL_SVGS[k]} /></svg>
+          <svg key={k} viewBox="0 0 24 24" width={22} height={22} fill={iconFill} style={{ opacity: 0.7 }}><path d={SOCIAL_SVGS[k]} /></svg>
         ))}
       </div>;
     }

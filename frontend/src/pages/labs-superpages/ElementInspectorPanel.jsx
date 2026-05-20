@@ -1277,6 +1277,639 @@ function BadgeProperties({ el, updateElement, updateElementStyle, markDirty }) {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════
+// Phase 2E — Final 11 types: structural + utility + structured config
+// ═══════════════════════════════════════════════════════════════
+//
+// Completes the Inspector port (20 May 2026, 26 of 26 types covered).
+// Three sub-groups by Inspector shape:
+//
+//   1. HTML-content with text colours (IconText, Separator, Logostrip)
+//      → Inline-edit hint + title/body colour pickers
+//        (same surgical-regex-replace pattern as CardLikeProperties)
+//
+//   2. Layout primitives (Spacer, Box, Divider)
+//      → ContainerSection (already built) for Box; per-type micro
+//        controls for Spacer (size hint only) and Divider (bg + height)
+//
+//   3. Structured config (Countdown, Socials, Embed)
+//      → Dedicated mini-components per type
+//        Countdown: datetime-local input
+//        Socials: 6 platform URL inputs + icon colour
+//        Embed: textarea for raw HTML
+
+// ── HtmlTextProperties — IconText, Separator, Logostrip ────────
+//
+// All three are HTML-in-el.txt edited inline. The Inspector handles
+// just the colour story: title (the prominent text) and body (the
+// supporting text). Uses the same regex-replace mechanism as
+// CardLikeProperties but with per-type position mapping.
+//
+// Defaults table:
+//   icontext     0 = emoji not styled, 1 = heading colour, 2 = body colour
+//                Actually the emoji has no color attribute, so:
+//                positions = [heading, body] (matches 0, 1)
+//   separator    0 = divider line bg (kept), 1 = star colour, 2 = line bg
+//                Tricky — separator HTML has 'background:rgba()' for
+//                the lines, not 'color:'. So matches[] only catches
+//                'color:#XXX' on the star span. We expose just one
+//                control (centre symbol colour) and let line colour
+//                be a separate field if needed later.
+//   logostrip    'As seen in:' label and 4 brand labels — multiple
+//                colour spans. We expose title (label) + body (brands).
+//
+// Each control rewrites the Nth color in el.txt.
+function HtmlTextProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // Per-type position maps + default fallbacks. Position numbers are
+  // indexes into [...el.txt.matchAll(/color:.../)].
+  const TYPE_CONFIG = {
+    icontext: {
+      title: { pos: 0, def: '#ffffff', label: 'Heading colour' },
+      body:  { pos: 1, def: '#94a3b8', label: 'Description colour' },
+    },
+    separator: {
+      // Separator only has one color decl (the star span). Use the
+      // same field for the title; we hide the body picker for this type.
+      title: { pos: 0, def: '#64748b', label: 'Centre symbol colour' },
+      body:  null,
+    },
+    logostrip: {
+      title: { pos: 0, def: '#475569', label: '"As seen in" colour' },
+      body:  { pos: 1, def: '#64748b', label: 'Brand label colour' },
+    },
+  };
+  const cfg = TYPE_CONFIG[el.type] || TYPE_CONFIG.icontext;
+
+  // Parse colours from current el.txt for initial display
+  const parseColors = (el) => {
+    const matches = [...(el.txt || '').matchAll(/color\s*:\s*([^;'"]+)/gi)].map(m => m[1].trim());
+    return {
+      title: el._titleColor || matches[cfg.title.pos] || cfg.title.def,
+      body: cfg.body ? (el._bodyColor || matches[cfg.body.pos] || cfg.body.def) : null,
+    };
+  };
+
+  const initial = parseColors(el);
+  const [titleColor, setTitleColor] = useState(initial.title);
+  const [bodyColor, setBodyColor] = useState(initial.body);
+
+  useEffect(() => {
+    const c = parseColors(el);
+    setTitleColor(c.title);
+    setBodyColor(c.body);
+  }, [el.id]);
+
+  // Same regex-replace utility as CardLikeProperties.
+  const replaceNthColor = (html, nthMatch, newColor) => {
+    let i = 0;
+    return html.replace(/(color\s*:\s*)([^;'"]+)/gi, (full, prefix) => {
+      const out = (i === nthMatch) ? `${prefix}${newColor}` : full;
+      i++;
+      return out;
+    });
+  };
+
+  const commitTitle = (v) => {
+    setTitleColor(v);
+    const newTxt = replaceNthColor(el.txt || '', cfg.title.pos, v);
+    updateElement(el.id, { txt: newTxt, _titleColor: v });
+    markDirty();
+  };
+  const commitBody = (v) => {
+    if (!cfg.body) return;
+    setBodyColor(v);
+    const newTxt = replaceNthColor(el.txt || '', cfg.body.pos, v);
+    updateElement(el.id, { txt: newTxt, _bodyColor: v });
+    markDirty();
+  };
+
+  return (
+    <>
+      {/* Inline-edit hint */}
+      <div style={{
+        ...sectionStyle,
+        background: 'var(--sap-bg-elevated, #f8fafc)',
+        border: '1px dashed var(--sap-border, #e2e8f0)',
+        borderBottom: 'none',
+        padding: '10px 12px',
+        borderRadius: 6,
+        marginBottom: 12,
+      }}>
+        <div style={{
+          fontSize: 10, fontWeight: 800, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>Content</div>
+        <div style={{
+          fontSize: 11, color: 'var(--sap-text-secondary, #475569)',
+          lineHeight: 1.5,
+        }}>
+          Double-click the element on the canvas to edit text inline.
+        </div>
+      </div>
+
+      {/* Title colour */}
+      <div style={cfg.body ? sectionStyle : sectionStyleLast}>
+        <div style={labelStyle}>{cfg.title.label}</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(titleColor) ? titleColor : '#0f172a'}
+            onChange={e => commitTitle(e.target.value)}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={titleColor}
+            onChange={e => commitTitle(e.target.value)}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      {/* Body colour — hidden for Separator (only one color slot) */}
+      {cfg.body && (
+        <div style={sectionStyleLast}>
+          <div style={labelStyle}>{cfg.body.label}</div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <input
+              type="color"
+              value={(/^#[0-9a-f]{6}$/i).test(bodyColor) ? bodyColor : '#475569'}
+              onChange={e => commitBody(e.target.value)}
+              style={{
+                width: 32, height: 28, padding: 0,
+                border: '1px solid var(--sap-border, #e2e8f0)',
+                borderRadius: 5, cursor: 'pointer', background: 'transparent',
+              }}
+            />
+            <input
+              type="text"
+              value={bodyColor}
+              onChange={e => commitBody(e.target.value)}
+              style={{ ...inputStyle, flex: 1 }}
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ── BoxProperties — Box layout primitive ───────────────────────
+//
+// Empty container element used as a visual frame around other
+// elements. Pure container styling — ContainerSection handles
+// background, padding, radius. Box also has a border by default
+// so we expose border colour as an extra control.
+function BoxProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // Parse border colour from `s.border` if it's in the form
+  // '1px solid #XXX'. Hidden if border is unset or non-trivial.
+  const borderRaw = el.s?.border || '';
+  const borderMatch = borderRaw.match(/^(\d+)px\s+solid\s+(.+)$/);
+  const [borderWidth, setBorderWidth] = useState(borderMatch ? parseInt(borderMatch[1], 10) : 1);
+  const [borderColor, setBorderColor] = useState(borderMatch ? borderMatch[2] : 'rgba(255,255,255,0.08)');
+
+  useEffect(() => {
+    const m = (el.s?.border || '').match(/^(\d+)px\s+solid\s+(.+)$/);
+    setBorderWidth(m ? parseInt(m[1], 10) : 1);
+    setBorderColor(m ? m[2] : 'rgba(255,255,255,0.08)');
+  }, [el.id]);
+
+  const commitBorder = (w, c) => {
+    setBorderWidth(w);
+    setBorderColor(c);
+    const value = w > 0 ? `${w}px solid ${c}` : '';
+    updateElementStyle(el.id, { border: value });
+    markDirty();
+  };
+
+  return (
+    <>
+      {/* Container styling — bg, padding, radius. No accent stripe. */}
+      <ContainerSection
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        includeAccentStripe={false}
+        lastSection={false}
+      />
+
+      {/* Border — Box defaults to a subtle 1px line; expose width + colour */}
+      <div style={sectionStyleLast}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>
+          <span style={labelStyle}>Border</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{borderWidth}px</span>
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(borderColor) ? borderColor : '#e2e8f0'}
+            onChange={e => commitBorder(borderWidth || 1, e.target.value)}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="range" min={0} max={6} step={1}
+            value={borderWidth}
+            onChange={e => commitBorder(parseInt(e.target.value, 10), borderColor)}
+            style={{ flex: 1 }}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── DividerProperties — Thin horizontal rule ───────────────────
+//
+// A 2px-tall coloured bar. Members customise colour + thickness.
+// Uses el.s.background (the bar fill) and el.h (thickness; resized
+// directly via the canvas handle but also surfaceable here as a
+// micro slider for precision).
+function DividerProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  const [color, setColor] = useState(el.s?.background || '#334155');
+  const [thickness, setThickness] = useState(el.h || 2);
+
+  useEffect(() => {
+    setColor(el.s?.background || '#334155');
+    setThickness(el.h || 2);
+  }, [el.id]);
+
+  const commitColor = (v) => {
+    setColor(v);
+    updateElementStyle(el.id, { background: v });
+    markDirty();
+  };
+  const commitThickness = (n) => {
+    setThickness(n);
+    // height is stored on el.h (not el.s.height) because resize
+    // handles write to el.h directly. We mirror that here so the
+    // canvas handle and the inspector slider stay consistent.
+    updateElement(el.id, { h: n });
+    markDirty();
+  };
+
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(color) ? color : '#334155'}
+            onChange={e => commitColor(e.target.value)}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={color}
+            onChange={e => commitColor(e.target.value)}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+      <div style={sectionStyleLast}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>
+          <span style={labelStyle}>Thickness</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{thickness}px</span>
+        </div>
+        <input
+          type="range" min={1} max={20} step={1}
+          value={thickness}
+          onChange={e => commitThickness(parseInt(e.target.value, 10))}
+          style={{ width: '100%' }}
+        />
+      </div>
+    </>
+  );
+}
+
+// ── SpacerProperties — Layout spacer ───────────────────────────
+//
+// A transparent block used only to push other elements apart.
+// No visible styling — only height matters. The canvas resize
+// handles already cover this so the Inspector just shows a
+// gentle hint message + a numeric height field for precision.
+function SpacerProperties({ el, updateElement, markDirty }) {
+  const [height, setHeight] = useState(el.h || 40);
+  useEffect(() => { setHeight(el.h || 40); }, [el.id]);
+  const commitHeight = (n) => {
+    setHeight(n);
+    updateElement(el.id, { h: n });
+    markDirty();
+  };
+
+  return (
+    <>
+      <div style={{
+        ...sectionStyle,
+        background: 'var(--sap-bg-elevated, #f8fafc)',
+        border: '1px dashed var(--sap-border, #e2e8f0)',
+        borderBottom: 'none',
+        padding: '10px 12px',
+        borderRadius: 6,
+        marginBottom: 12,
+      }}>
+        <div style={{
+          fontSize: 10, fontWeight: 800, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>About</div>
+        <div style={{
+          fontSize: 11, color: 'var(--sap-text-secondary, #475569)',
+          lineHeight: 1.5,
+        }}>
+          Spacers are invisible — they push other elements apart vertically. Drag the bottom handle on the canvas to resize, or use the slider below for precision.
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>
+          <span style={labelStyle}>Height</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{height}px</span>
+        </div>
+        <input
+          type="range" min={8} max={200} step={4}
+          value={height}
+          onChange={e => commitHeight(parseInt(e.target.value, 10))}
+          style={{ width: '100%' }}
+        />
+      </div>
+    </>
+  );
+}
+
+// ── CountdownProperties — Target datetime ──────────────────────
+//
+// Countdown is driven by _targetDate (an ISO string parsed by the
+// page-render script that updates the visible HH:MM:SS digits).
+// Inspector exposes the datetime picker plus a brief explanation
+// of how the countdown behaves at zero.
+function CountdownProperties({ el, updateElement, markDirty }) {
+  const [date, setDate] = useState(el._targetDate || '');
+  useEffect(() => { setDate(el._targetDate || ''); }, [el.id]);
+  const commit = (v) => {
+    setDate(v);
+    updateElement(el.id, { _targetDate: v });
+    markDirty();
+  };
+
+  // Format a friendly representation of how long until the target.
+  // Used as a status line beneath the picker so members can sanity-
+  // check what they entered.
+  const friendly = (() => {
+    if (!date) return null;
+    try {
+      const target = new Date(date).getTime();
+      const now = Date.now();
+      const diff = target - now;
+      if (diff < 0) return { txt: 'Target is in the past — countdown will show all zeroes.', tone: 'warn' };
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      return { txt: `Counts down ${days}d ${hours}h from now.`, tone: 'ok' };
+    } catch {
+      return null;
+    }
+  })();
+
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Target date &amp; time</div>
+        <input
+          type="datetime-local"
+          value={date}
+          onChange={e => commit(e.target.value)}
+          style={{ ...inputStyle, cursor: 'pointer' }}
+        />
+        {friendly && (
+          <div style={{
+            marginTop: 8,
+            fontSize: 11, lineHeight: 1.5,
+            color: friendly.tone === 'warn' ? 'var(--sap-amber-dark, #92400e)' : 'var(--sap-text-muted, #64748b)',
+            background: friendly.tone === 'warn' ? 'rgba(245,158,11,0.08)' : 'transparent',
+            padding: friendly.tone === 'warn' ? '6px 8px' : 0,
+            borderRadius: 5,
+          }}>
+            {friendly.txt}
+          </div>
+        )}
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={{
+          fontSize: 10, fontWeight: 800, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>Behaviour</div>
+        <div style={{
+          fontSize: 11, color: 'var(--sap-text-secondary, #475569)',
+          lineHeight: 1.5,
+        }}>
+          The countdown ticks live on the published page. When the target time passes the digits stay at zero — there's no auto-redirect or other action. Use a Banner or Form to handle what happens after expiry.
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── SocialsProperties — Six platform URL inputs ────────────────
+//
+// Socials renders a row of platform icons; each one becomes a link
+// when its URL is set, otherwise renders as a non-clickable
+// placeholder. _links is a flat object: { youtube, instagram,
+// tiktok, facebook, x, linkedin }.
+//
+// We also expose icon colour — the default '#94a3b8' (slate-400)
+// blends into dark backgrounds but is hard to see on light pages.
+// Stored at el._iconColor; exportHTML + canvas render both read it.
+function SocialsProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  const PLATFORMS = [
+    { key: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/@…' },
+    { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/…' },
+    { key: 'tiktok', label: 'TikTok', placeholder: 'https://tiktok.com/@…' },
+    { key: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/…' },
+    { key: 'x', label: 'X / Twitter', placeholder: 'https://x.com/…' },
+    { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://linkedin.com/in/…' },
+  ];
+
+  // Normalise: legacy '#' values (from older versions) treated as empty.
+  const normalise = (raw) => {
+    const out = {};
+    PLATFORMS.forEach(p => {
+      const v = raw?.[p.key];
+      out[p.key] = (v && v !== '#') ? v : '';
+    });
+    return out;
+  };
+
+  const [links, setLinks] = useState(normalise(el._links));
+  const [iconColor, setIconColor] = useState(el._iconColor || '#94a3b8');
+
+  useEffect(() => {
+    setLinks(normalise(el._links));
+    setIconColor(el._iconColor || '#94a3b8');
+  }, [el.id]);
+
+  const commitLink = (key, value) => {
+    const next = { ...links, [key]: value };
+    setLinks(next);
+    updateElement(el.id, { _links: next });
+    markDirty();
+  };
+
+  const commitIconColor = (v) => {
+    setIconColor(v);
+    updateElement(el.id, { _iconColor: v });
+    markDirty();
+  };
+
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Platform URLs</div>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #94a3b8)', marginBottom: 8, lineHeight: 1.4 }}>
+          Platforms with a URL become clickable on the published page. Empty ones render as non-clickable placeholders so the row stays evenly spaced.
+        </div>
+        {PLATFORMS.map(p => (
+          <div key={p.key} style={{ marginBottom: 8 }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700,
+              color: 'var(--sap-text-secondary, #475569)',
+              marginBottom: 3,
+            }}>
+              {p.label}
+            </div>
+            <input
+              type="text"
+              value={links[p.key] || ''}
+              onChange={e => commitLink(p.key, e.target.value)}
+              placeholder={p.placeholder}
+              style={inputStyle}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={labelStyle}>Icon colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(iconColor) ? iconColor : '#94a3b8'}
+            onChange={e => commitIconColor(e.target.value)}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={iconColor}
+            onChange={e => commitIconColor(e.target.value)}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+        <div style={{
+          marginTop: 6,
+          fontSize: 10, color: 'var(--sap-text-muted, #94a3b8)',
+          lineHeight: 1.4,
+        }}>
+          Light pages: try #475569 or your brand colour
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── EmbedProperties — Raw HTML embed code ──────────────────────
+//
+// Members paste an <iframe>, <script>, or any third-party widget
+// HTML here. The editor doesn't validate the content — it's
+// trusted as-is and rendered via dangerouslySetInnerHTML on the
+// canvas (and as raw output via exportHTML).
+//
+// Security note: raw HTML embeds are a member-trust feature.
+// Members can only embed code on their OWN pages, and pages are
+// served from /p/{username}/{slug}. There's no cross-member XSS
+// risk because they can't inject into someone else's page. But
+// the visitor experience can break if the embed is malformed —
+// hence the help text below the textarea.
+function EmbedProperties({ el, updateElement, markDirty }) {
+  const [code, setCode] = useState(el._embedCode || '');
+  useEffect(() => { setCode(el._embedCode || ''); }, [el.id]);
+  const commit = (v) => {
+    setCode(v);
+    updateElement(el.id, { _embedCode: v });
+    markDirty();
+  };
+
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Embed code</div>
+        <textarea
+          value={code}
+          onChange={e => commit(e.target.value)}
+          rows={8}
+          placeholder='<iframe src="..."></iframe>'
+          style={{
+            width: '100%',
+            padding: '8px 10px',
+            border: '1px solid var(--sap-border, #e2e8f0)',
+            borderRadius: 6,
+            fontSize: 11,
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            background: 'var(--sap-bg-elevated, #f8fafc)',
+            color: 'var(--sap-text-primary, #0f172a)',
+            resize: 'vertical',
+            boxSizing: 'border-box',
+            outline: 'none',
+          }}
+        />
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={{
+          fontSize: 10, fontWeight: 800, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>Tips</div>
+        <div style={{
+          fontSize: 11, color: 'var(--sap-text-secondary, #475569)',
+          lineHeight: 1.5,
+        }}>
+          Most embeds need <code style={{ background: 'var(--sap-bg-elevated)', padding: '0 4px', borderRadius: 3 }}>{'<iframe>'}</code>. Use the element's resize handles on the canvas to fit the embed inside. Calendly, YouTube playlists, custom widgets, etc. all work here.
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Banner-specific property section ───────────────────────────
 //
 // Announcement banner — close cousin of Button (same canvas render
@@ -2842,6 +3475,20 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <ProgressProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'badge' ? (
         <BadgeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : ['icontext', 'separator', 'logostrip'].includes(el.type) ? (
+        <HtmlTextProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : el.type === 'box' ? (
+        <BoxProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : el.type === 'divider' ? (
+        <DividerProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : el.type === 'spacer' ? (
+        <SpacerProperties el={el} updateElement={updateElement} markDirty={markDirty} />
+      ) : el.type === 'countdown' ? (
+        <CountdownProperties el={el} updateElement={updateElement} markDirty={markDirty} />
+      ) : el.type === 'socialicons' ? (
+        <SocialsProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : el.type === 'embed' ? (
+        <EmbedProperties el={el} updateElement={updateElement} markDirty={markDirty} />
       ) : (
         <UnsupportedTypeNote type={el.type} />
       )}
