@@ -755,12 +755,120 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
 // is centred but members sometimes want left/right for sidebar use.
 function CardLikeProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [textAlign, setTextAlign] = useState(el.s?.textAlign || 'center');
+
+  // ── Title + body text colour state (added 20 May 2026) ─────
+  // Steve reported: 'I feel like there is possibly some kind of
+  // layering over the text in some of these elements as the text
+  // colour and boldness is not showing clearly'. Root cause: the
+  // element's HTML content (el.txt) has inline `color:#XXX` styles
+  // baked into the markup — defaults assume a dark page so the text
+  // is white / slate-200. Changing the container background to a
+  // light colour leaves the text colour unchanged, producing low
+  // contrast.
+  //
+  // Fix: surface explicit title + body colour controls. On commit,
+  // we regex-replace the `color:#XXX` declarations inside el.txt
+  // surgically. Title is the first colour pattern in document
+  // order; body is the second. This holds for every card-like
+  // default we ship (FAQ, Review, Testimonial, Stat) and for any
+  // inline-edited variants where the member added text but didn't
+  // rebuild the colour structure.
+  //
+  // Stars (Review/Testimonial use #fbbf24 amber stars) are NOT
+  // touched by these controls — that colour is intentional accent
+  // styling distinct from content text colour, and lives at a
+  // different position in the HTML that we deliberately don't
+  // match.
+
+  // Per-type default colours — used to seed local state when the
+  // element has no explicit _titleColor / _bodyColor yet.
+  const DEFAULTS = {
+    faq: { title: '#ffffff', body: '#94a3b8' },
+    review: { title: '#e2e8f0', body: '#64748b' },
+    testimonial: { title: '#e2e8f0', body: '#64748b' },
+    stat: { title: '#0ea5e9', body: '#64748b' },
+  };
+
+  // Seed colour values from el.txt by parsing existing inline
+  // `color:#XXX` declarations. Stars are skipped — they're the
+  // first color match in Review/Testimonial defaults, but
+  // we want title = quote text (second match) and body = attribution
+  // (third match). So we have a per-type "skip stars" rule.
+  const parseColors = (el) => {
+    const txt = el.txt || '';
+    // Capture all color values; skip the amber star colour for
+    // Review/Testimonial since it's a fixed accent, not a content
+    // colour. (We allow any colour in that slot — the heuristic
+    // matches what the defaults emit.)
+    const matches = [...txt.matchAll(/color\s*:\s*([^;'"]+)/gi)].map(m => m[1].trim());
+    const defaults = DEFAULTS[el.type] || { title: '#0f172a', body: '#475569' };
+    if (el.type === 'review' || el.type === 'testimonial') {
+      // matches[0] = stars (#fbbf24 by default), matches[1] = quote, matches[2] = attribution
+      return {
+        title: el._titleColor || matches[1] || defaults.title,
+        body: el._bodyColor || matches[2] || defaults.body,
+      };
+    }
+    // FAQ + Stat: matches[0] = title, matches[1] = body
+    return {
+      title: el._titleColor || matches[0] || defaults.title,
+      body: el._bodyColor || matches[1] || defaults.body,
+    };
+  };
+
+  const initial = parseColors(el);
+  const [titleColor, setTitleColor] = useState(initial.title);
+  const [bodyColor, setBodyColor] = useState(initial.body);
+
   useEffect(() => {
     setTextAlign(el.s?.textAlign || 'center');
+    const c = parseColors(el);
+    setTitleColor(c.title);
+    setBodyColor(c.body);
   }, [el.id]);
+
   const commitAlign = (v) => {
     setTextAlign(v);
     updateElementStyle(el.id, { textAlign: v });
+    markDirty();
+  };
+
+  // Rewrite the Nth color declaration in el.txt with `newColor`.
+  // `nthMatch` is 0-indexed across all `color:` declarations in
+  // document order (stars are 0 for review/testimonial, so title
+  // is 1 and body is 2 for those; for FAQ/Stat title is 0, body
+  // is 1).
+  const replaceNthColor = (html, nthMatch, newColor) => {
+    let i = 0;
+    return html.replace(/(color\s*:\s*)([^;'"]+)/gi, (full, prefix) => {
+      const out = (i === nthMatch) ? `${prefix}${newColor}` : full;
+      i++;
+      return out;
+    });
+  };
+
+  const commitTitleColor = (v) => {
+    setTitleColor(v);
+    const isReviewType = el.type === 'review' || el.type === 'testimonial';
+    // Skip-stars offset: stars are first color in Review/Testimonial,
+    // so title is the second match (index 1). FAQ/Stat have no
+    // accent colour, so title is the first match (index 0).
+    const nth = isReviewType ? 1 : 0;
+    const newTxt = replaceNthColor(el.txt || '', nth, v);
+    // Also store on the element so future selections re-seed from
+    // the explicit value rather than re-parsing the HTML each time
+    // (which would lose the change if the HTML was edited inline
+    // and the colour pattern shifted position).
+    updateElement(el.id, { txt: newTxt, _titleColor: v });
+    markDirty();
+  };
+
+  const commitBodyColor = (v) => {
+    setBodyColor(v);
+    const isReviewType = el.type === 'review' || el.type === 'testimonial';
+    const nth = isReviewType ? 2 : 1;
+    const newTxt = replaceNthColor(el.txt || '', nth, v);
+    updateElement(el.id, { txt: newTxt, _bodyColor: v });
     markDirty();
   };
 
@@ -768,6 +876,16 @@ function CardLikeProperties({ el, updateElement, updateElementStyle, markDirty }
   // ship with one — review uses cyan, testimonial uses amber). FAQ
   // and Stat don't, so we hide that control for them.
   const showStripe = el.type === 'review' || el.type === 'testimonial';
+
+  // Type-specific label hints for the colour controls — what 'title'
+  // and 'body' actually mean for each element type so members aren't
+  // guessing.
+  const titleLabel = el.type === 'faq' ? 'Question colour'
+    : el.type === 'stat' ? 'Number colour'
+    : 'Quote colour';
+  const bodyLabel = el.type === 'faq' ? 'Answer colour'
+    : el.type === 'stat' ? 'Label colour'
+    : 'Attribution colour';
 
   return (
     <>
@@ -828,6 +946,60 @@ function CardLikeProperties({ el, updateElement, updateElementStyle, markDirty }
           </div>
         </div>
       )}
+
+      {/* Title colour — first prominent piece of text in the element.
+          For FAQ = the question header, for Stat = the big number,
+          for Review/Testimonial = the quote. Label adjusts per type. */}
+      <div style={sectionStyle}>
+        <div style={labelStyle}>{titleLabel}</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(titleColor) ? titleColor : '#0f172a'}
+            onChange={e => commitTitleColor(e.target.value)}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer',
+              background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={titleColor}
+            onChange={e => commitTitleColor(e.target.value)}
+            placeholder="#ffffff"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      {/* Body colour — secondary text. For FAQ = the answer paragraph,
+          for Stat = the label below the number, for Review/Testimonial
+          = the attribution line. */}
+      <div style={sectionStyle}>
+        <div style={labelStyle}>{bodyLabel}</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(bodyColor) ? bodyColor : '#475569'}
+            onChange={e => commitBodyColor(e.target.value)}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer',
+              background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={bodyColor}
+            onChange={e => commitBodyColor(e.target.value)}
+            placeholder="#94a3b8"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
 
       {/* Container styling — background, radius, padding, optional stripe */}
       <ContainerSection
