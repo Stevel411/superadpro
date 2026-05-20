@@ -945,10 +945,31 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
       // Write URL + (video only) the _isMP4 marker so the renderer
       // picks the right branch even if the URL doesn't have a video
       // extension (CDN paths often don't).
+      //
+      // Also set _videoControls: true for new MP4 uploads (20 May 2026,
+      // Steve flagged: 'the video plays but there is nowhere I can see
+      // to unmute the video once it's been published'). Without the
+      // native controls bar the visitor has no play/pause/volume UI at
+      // all — autoplay+muted+loop is fine for backgroundy hero videos
+      // but useless for content videos where the visitor needs to start
+      // playback or unmute audio.
+      //
+      // We only flip this on UPLOAD, not on every video selection, so
+      // existing pre-2C pages that deliberately omit controls (silent
+      // background loops) keep their original look on re-save. New
+      // uploads get controls by default, and the toggle is still there
+      // to turn them off if the member wants the silent-loop pattern.
       const patch = { [srcKey]: d.url };
-      if (kind === 'video') patch._isMP4 = true;
+      if (kind === 'video') {
+        patch._isMP4 = true;
+        patch._videoControls = true;
+      }
       updateElement(el.id, patch);
       setSrc(d.url);
+      // Mirror the controls default into local state so the toggle UI
+      // reflects the change immediately rather than after the next
+      // selection-resync useEffect fires.
+      if (kind === 'video') setVideoControls(true);
       markDirty();
     } catch (err) {
       setUploadError('Network error.');
