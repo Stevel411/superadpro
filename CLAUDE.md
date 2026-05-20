@@ -1,6 +1,184 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
-## 🎯 Most Recent Session (19 May 2026 night) — Share Code system commits 1 + 2
+## 🎯 Most Recent Session (19 May 2026 late) — Page Builder Phase 1 + 2A + Railway outage
+
+Long, productive day session. Continued from morning's flat-pricing purge work into the Labs Page Builder commercial-grade audit. Shipped the new left-rail Inspector panel architecture and ported 4 of 26 element types to it. Session ended when Railway had a major outage (Google Cloud suspended Railway's account). Used the outage as a forcing function to decide on infra strategy.
+
+### Page Builder Phase 1 + 2A — what shipped
+
+**The architectural pivot (decision):**
+Steve identified mid-session that the modal-based per-element editing was fundamentally broken — modal blocks the canvas, can't see edits in context, multiple competing editors (floating action chip + QuickProps + modal) on one element. Proposed a left-rail persistent properties panel like Figma/Webflow/Framer. We confirmed direction via two design mockups, then built it.
+
+**The new layout (sandbox mode only):**
+- Cobalt app sidebar HIDDEN in sandbox mode (full viewport for editor)
+- Three-panel: Inspector (260px left) | Canvas (centre) | Block palette (280px right)
+- Both panels symmetrically framed
+- Inspector lives in `frontend/src/pages/labs-superpages/ElementInspectorPanel.jsx` (new file, ~600 lines after Phase 2A)
+- Production pages at `/labs/pagebuilder/edit/{pageId}` still use old layout — sandbox flag gates the new UX so we can keep iterating safely
+
+**Phase 1 (Button) — `d893935`:**
+- `AppLayout` got `hideSidebar` + `hideTopbar` props (zeroes `--sidebar-offset` when sidebar is hidden)
+- `ButtonProperties` sub-component with Content / Typography / Background / Text colour sections
+- Live editing — every control commits on change, no Apply button
+- 24 fonts, size slider 8-120px, weight Regular→Black, 12-swatch background grid (solids + gradients), 5-swatch text colour + custom picker
+- Useeffect resyncs local state when `el.id` changes
+
+**Phase 2A (Heading / Text / Label) — `fabffc8`:**
+- One shared `TextTypeProperties` component for all three Tiptap text types
+- Text content stays inline-edited via double-click (Tiptap unchanged); panel handles BLOCK-level style only
+- Sections: Typography / Alignment (3-way toggle) / Line height slider / Colour (8-swatch + custom)
+- Type-specific defaults: heading 48px Extra Bold, label 14px Bold, text 18px Regular
+- "💡 Double-click to edit text" tip banner at the top so members learn the inline pattern
+
+### Critical bugs found and fixed during Phase 1
+
+1. **Stale-closure style overwrites (`d3950ed`):** `commitStyle` was reading `el.s` from React closure for the merge, so rapid commits (background → colour → font) overwrote each other based on stale state. Canvas looked right (reads latest) but saved data was corrupt. Fix: switched to `updateElementStyle` (in `useEditorState.js`) which merges INSIDE the setter, reading the latest `e.s`. Apply this pattern to all future Phase 2 ports.
+
+2. **Defensive null/undefined style filter (`f1eb106`):** if any commit ever writes a null style value, the serialised string becomes `"background:undefined"` which breaks the entire `style=""` attribute parse and the element renders with NO inline styles. Added `.filter(([k,v]) => v !== null && v !== undefined && v !== '')` to exportHTML's style serialiser. Defence in depth.
+
+3. **Dual-editor bug (`ec5fb43`):** clicking a button opened BOTH the new Inspector panel AND the old modal (floating `✎ LINK` chip on canvas still triggered it). Fixed via new `INSPECTOR_TYPES` constant in `Canvas.jsx` — currently `['button', 'heading', 'text', 'label']`. When a type is in this list, the chip is hidden, QuickProps is hidden, right-click `✎ Edit` is hidden. As Phase 2 adds more types to this constant, the old modal triggers auto-disappear.
+
+4. **Narrow-viewport guard (`f709804`):** threshold dropped 900 → 600 for diagnostic phase. The new 3-panel layout actually needs ~1100px but blocking that aggressively is hostile to dev workflow when DevTools is docked. Phase 3 work: replace the splash with collapse-to-overlay behaviour at <1100px.
+
+### Adjacent fixes from same session
+
+- **Funnels gallery slug repair (`4d58c62`):** legacy pages with empty slugs were missing the View button on `/pro/funnels` even when published. Added auto-repair loop on `/api/funnels` list endpoint — scans for missing slugs, generates them via `generate_unique_slug`, commits in-place. Self-healing on next gallery load.
+- **Funnels gallery action-row balance (`0f06102`):** Edit + View buttons now share equal flex space inside a `display:flex flex:1` container. Icon group (duplicate / share / delete) sits as separate fixed 32x32 squares on the right. Consistent row across cards regardless of View presence.
+- **Sandbox publish UX (`6b6cf41`):** Publish in sandbox now sets `status:'published'` AND opens the live URL in a new tab AND navigates current tab to `/pro/funnels`. Was previously silently exporting as draft with no preview path.
+- **URL sanitisation in exportHTML (`6b6cf41`):** blocks `javascript:`, `data:`, `vbscript:` schemes; auto-adds `target="_blank" rel="noopener noreferrer"` for absolute http(s) URLs on buttons/banners.
+
+### Audit doc
+
+`docs/labs-page-builder-audit.md` (commit `17a6100`, updated through session) is the canonical defect tracker. Per-category severity-tagged. Updated `F-1/F-2/F-3` to ✅ RESOLVED after `conversation_search` confirmed Form capture flow was verified working end-to-end on 18 May 2026 (lead landed in MemberLead with proper attribution, surfaced on /pro/funnels card).
+
+### Phase progress
+
+| Phase | Types | Status | Notes |
+|---|---|---|---|
+| 1 | Button (+ Banner via shared path) | ✅ | `d893935` |
+| 2A | Heading, Text, Label | ✅ | `fabffc8` |
+| 2B | Image, Video, Audio | Queued | Next session |
+| 2C | Form (proper port + field add/remove) | Queued | Form FUNCTIONALLY works; just needs UI port |
+| 2D | Review, Testimonial, FAQ, Badge, Stat, Progress | Queued | |
+| 2E | Countdown, Socials, IconText, Separator, Logos, Spacer, Box, Divider, Embed | Queued | Layout/decoration |
+
+**4 of 26 types ported.** Pattern is now well-established. Each subsequent batch can copy ButtonProperties or TextTypeProperties shape and adapt.
+
+### Tonight's commits (chronological)
+
+```
+17a6100  Start Labs Page Builder commercial-grade audit
+6b6cf41  Labs Page Builder audit: Button & Banner blockers fixed (5 of 8)
+c109884  Labs Page Builder: ButtonEditor modal preview now reflects live typography state
+b3cffe6  Labs Page Builder ButtonEditor: preview pinned to top + font size slider
+d893935  Labs Page Builder Phase 1: left-rail Element Inspector panel for Button
+d3950ed  Labs Inspector: fix stale-closure bug that wiped button styles on preview
+f1eb106  Labs exportHTML: defensive style filter + diagnostic for preview bug
+2e09249  Labs editor: viewport guard threshold 900 → 1100
+f709804  Labs editor: narrow-viewport threshold 900 → 600 for diagnostic phase
+4d58c62  Funnels list: auto-repair missing slugs so View button appears for published pages
+ec5fb43  Labs canvas: hide old modal trigger for Inspector-ported types
+0f06102  Funnels gallery: balance card action row sizing — primary group + icon group
+4aac741  Audit doc: mark Form (F-1 through F-3) as verified working end-to-end
+fabffc8  Phase 2A: port Heading, Text, Label to Inspector (TextTypeProperties)
+```
+
+---
+
+## 🛡 Infrastructure Resilience Plan (decided 19 May 2026 during Railway outage)
+
+**Context:** Railway suffered a major outage 22:21-23:37+ UTC on 19 May 2026 — Google Cloud suspended Railway's account, every Railway-hosted service worldwide went down. SuperAdPro included. Discussed migration options live.
+
+### Decision: Stay on Railway, build resilience instead of migrating
+
+**Reasoning:**
+- Today's outage was caused by Google Cloud, not Railway's competence. Render runs on AWS — has its own bad days.
+- No host is bulletproof. Migrating to escape one outage just queues you for someone else's.
+- Migration time (4-6h for Render: rewrite nixpacks.toml → render.yaml, pg_dump/restore, env var migration) is high-cost right now. That time is better spent on Phase 2 of the page builder which directly drives membership conversions.
+- Railway's dev experience is genuinely excellent for solo-builder velocity.
+
+### Trigger points for migration (defined in advance, NOT reactive):
+
+Move to **Render** (AWS-based, predictable flat pricing, HA Postgres, same git-push workflow) when ANY of these is true:
+
+1. **3+ Railway outages in 90 days** each lasting >30 minutes
+2. **500+ paid members reached** (i.e. $5k+ MRR) — reputational cost of next outage now exceeds 6h migration cost
+3. **Railway pricing 2x's at scale** above projected per-member cost
+
+Until then, **keep building**. This is the trader's discipline: define the stop-loss in advance, don't panic-exit on one bad day.
+
+### Resilience work to do REGARDLESS of host (priority order):
+
+1. **Daily Postgres backups to external storage** (S3 or Backblaze B2)
+   - ~2 hours of work: script + cron on separate cheap VM (or Cloudflare Worker / AWS Lambda)
+   - Single biggest resilience win without changing hosts
+   - If Railway disappears tomorrow, we have our data
+   - **Queue this for the next quiet session**
+
+2. **Outage comms playbook**
+   - Twitter/X post template ("aware of an issue, investigating, ETA…")
+   - Email template for paying members
+   - In-app banner mechanism (toggle from admin or DB flag)
+   - Pre-written so we can respond in minutes, not hours
+   - **Draft alongside the backup work**
+
+3. **Status page** (optional / later)
+   - Simple `/status` endpoint reading platform_pulse + last known migration state
+   - Public version showing "all systems operational" / "investigating" / "resolved"
+   - Worth doing once member count > 100
+
+### Alternatives evaluated, ranked
+
+1. **Render** — best fit if we migrate (AWS not GCP, flat pricing, HA Postgres, same workflow). Cost: ~$25-50/month.
+2. **Fly.io** — strong technically but wrong fit (global edge we don't need, "pricing requires a spreadsheet", more infra work). Pass.
+3. **AWS / GCP directly** — not at scale yet. Revisit at 10k+ members.
+
+**Key insight Steve articulated:** the right move is structural (backups + comms), not reactive (panic migration). Apply forex discipline to infra decisions.
+
+---
+
+## 🎯 Previous Session (19 May 2026 night) — Share Code system commits 1 + 2
+
+Short, clean session. Two commits shipped + live-verified. Started with a spec conversation, locked the scope, built it.
+
+**Spec locked in conversation (saved direction A):**
+- **Unit: FunnelPage only.** Not "campaigns in a box" — just pages. Lists, sequences, and stats stay with the original owner; importers wire their own campaign on import via the existing Phase 1 modal flow.
+- **Two share lanes, one system:** private (Alice DMs a code to Bob) and marketplace (admin-curated, v1). Same `share_codes` table; marketplace is a filtered listing UI on top.
+- **No attribution shown anywhere.** Not on imported pages, not on marketplace cards. Network marketers don't want "Template by Alice" on a page they're trying to look like the authority on — Steve's call, and correct. The `owner_user_id` column exists for admin/abuse tracking only; never exposed in any response to the importer.
+- **Marketplace v1: admin-curated only.** Users can submit, Steve approves. v2 can open up later if quality holds.
+- **Asset handling: deliberately deferred.** R2 URLs are public and stable so imported pages just reference the original assets. Network marketers typically swap imagery to their own brand anyway; copy-on-import was overkill for v1. Flagged for revisit if abuse or breakage shows up.
+
+**Shipped:**
+
+- **Commit 1 (`6054280`) — schema + generate + Share button.**
+  - `ShareCode` model (`share_codes` table: code, owner_user_id, source_page_id, payload_json, is_public, uses_count, expires_at) + CREATE TABLE + 3 indexes in `run_migrations()`.
+  - `_build_share_payload(page)` snapshots a FunnelPage into a `{"v": 1, "page": {...}}` dict. `SHARE_CODE_V1_FIELDS` whitelists only visual/content columns (24 fields) — ownership, slug, stats, bindings, A/B pointers, attribution metadata all excluded.
+  - `_generate_unique_share_code()` — SAP-XXXX-XXXX with unambiguous alphabet (no 0/O/1/I) so codes are safe to read aloud. 32^8 keyspace, collision-checked.
+  - `POST /api/share-codes/generate` (Pro-gated) + `GET /api/share-codes/my` (placeholder for future "my shared pages" UI).
+  - Frontend: sky-blue Share2 button in the page-card action row, between Duplicate and Delete. Share modal with three states (loading / success-with-code / error). Click-outside or X to close. Copy-to-clipboard with Check feedback on success.
+  - **Live-verified:** Steve generated `SAP-7B3T-KJLH` from his Lead Capture Page, modal rendered clean, code copied to clipboard.
+
+- **Commit 2 (`daf0e85`) — import + ref-link rewriter + Import UI.**
+  - `POST /api/share-codes/import` (Pro-gated) — normalises codes (accepts with/without dashes and SAP- prefix), validates v1 payload, builds fresh draft FunnelPage owned by importer.
+  - `_rewrite_referral_links(text, new_username)` — regex sub of `/r/USERNAME` and `?ref=USERNAME` / `&ref=USERNAME` patterns. Returns (rewritten_text, count). Runs on raw strings so JSON-encoded blobs (sections_json, gjs_components) stay valid. Applied across 14 text-bearing fields in the snapshot.
+  - Heuristic warning: if no rewrites happened but the CTA contains `/r/`, `ref=`, or `affiliate`, flag it in the response so the importer reviews before publishing. Cheap; better to over-flag than miss a stranger's monetised link.
+  - Imported page forced to `status='draft'`, stats zeroed, bindings cleared (`default_list_id`, `capture_sequence_id`), AI flags removed. Importer wires their campaign on first publish via Phase 1 modal.
+  - `uses_count` incremented per successful import.
+  - **Owner identity NEVER exposed** in the response.
+  - Frontend: outlined-cobalt "Import code" button next to "+ New page" in header. Import modal with monospace uppercase letter-spaced input. Inline errors, submit on Enter. Success state shows rewrite count, any warnings (amber), and "Open page editor →" CTA. `load()` refires in background so the new card is on the dashboard when modal closes.
+  - **Live-verified:** Steve imported his own code, page count went 6→7, success modal showed "No referral links found to rewrite", green clone-created-as-draft panel rendered correctly.
+
+**Stopped before commit 3 (marketplace):** Steve switched to mobile after commit 2 verification. Mobile UI worked but desktop editor was unreachable on mobile to truly verify the imported page. Marketplace deprioritised on 20 May session — refocused on Page Builder audit instead per Steve's call. Spec stays locked for whenever we come back to it.
+
+**Share Code commits:**
+```
+6054280  Share Code commit 1: schema + generate endpoint + Share button
+daf0e85  Share Code commit 2: import endpoint + ref-link rewriter + UI
+```
+
+**Mobile editor gap noted but not actioned:** GrapesJS visual editor is desktop-only by design. Imported pages can't be reviewed on mobile. Worth flagging if we add a "view-only" mobile preview later — would close the import-on-mobile loop.
+
+---
 
 Short, clean session. Two commits shipped + live-verified. Started with a spec conversation, locked the scope, built it.
 
@@ -267,19 +445,45 @@ Steve created a Claude Project (this one) on 17 May 2026 to separate engineering
 
 ## 🎯 Next Up — pick from this list when starting a new session
 
-1. **Member-facing rotator opt-out toggle.** Currently Founders email support to be removed from the rotator. Build a toggle in their account settings page that flips `users.rotator_opted_in`. Estimated 20-30 min.
+**HIGHEST PRIORITY (carried over from 19 May late session):**
 
-2. **Rotator dashboard widget for Founders.** Show each opted-in Founder their current queue position + last-assigned timestamp, so they have visibility into when the next signup will come their way. 30-45 min.
+1. **Page Builder Phase 2B — Media types (Image / Video / Audio).** Next batch in the systematic port. Pattern is established — copy `TextTypeProperties` shape, adapt for media-specific controls (source URL, alt text, object-fit, autoplay flags for video/audio, captions). Add types to `INSPECTOR_TYPES` in Canvas.jsx + dispatcher in ElementInspectorPanel.jsx. Realistic: one focused session.
 
-3. **Latent `u.sponsor.username` bug in founder_offer broadcast endpoint.** Same pattern that crashed re-engagement dry-run before it was fixed. Won't fire until admin runs `founder_offer` dry-run. 5-min fix.
+2. **Page Builder Phase 2C — Form (proper port).** Form is functionally working (verified 18 May, leads land in MemberLead with attribution); just needs UI port to the Inspector + field add/remove UX (currently hardcoded to name+email). One session.
 
-4. **Live count polling on `/start`.** Re-fetch `/api/start/stats` every 30s while visitor is on page; animate the founding-spots-remaining number down if it changed. Powerful scarcity signal. 10 min.
+3. **Page Builder Phase 2D — Content/Social Proof batch (Review, Testimonial, FAQ, Badge, Stat, Progress).** Similar shape across these — can probably batch in one or two sessions.
 
-5. **AI Trading Hub concept** (parked from April) — Pro feature, plain-English strategy → AI bot → backtest → live deploy. Phase 1: Strategy Builder + Backtester. ~3-4 sessions of work. Discuss in chat session first before starting engineering.
+4. **Page Builder Phase 2E — Layout/Decoration batch (Countdown, Socials, IconText, Separator, Logos, Spacer, Box, Divider, Embed).** Nine types, simplest of the lot. Probably one session.
 
-6. **BPG strategic positioning flywheel** (parked from 12 May) — BPG showcase on `/credit-nexus`, featured tile on `/creative-studio`, harden non-pack-owner upsell on `/brand-posters`. ~1.5-2 hours focused work.
+5. **Once all 26 types ported: delete the old modal system.** Strip `ButtonEditor` from SuperPagesEditor.jsx (~1500 lines), remove the floating `✎ EDIT` chip code, remove QuickProps entirely. Major cleanup.
 
-7. **Command Centre dashboard + menu redesign** — Steve had mockups (`hub-dashboard.html`, `command-centre-desktop.html`, `recruiting-hq-mockup.html`). On hold until launch-incident follow-ups clear.
+6. **Production rollout of the new editor layout.** Currently gated to `isSandbox` mode. Flip the flag and remove the `hideSidebar`/`hideTopbar` conditional gating so `/labs/pagebuilder/edit/{pageId}` (DB-backed pages) gets the new UX too. Also: replace the narrow-viewport splash with collapse-to-overlay behaviour (panels become drawers at <1100px instead of blocking the editor).
+
+**INFRA RESILIENCE (decided this session, do in a quiet window):**
+
+7. **Daily Postgres backups to external storage** (S3 or B2). ~2 hours. Single biggest resilience improvement we can make without switching hosts. See `🛡 Infrastructure Resilience Plan` section above for full context.
+
+8. **Outage comms playbook** — Twitter/X template, email template, in-app banner mechanism. Draft alongside #7.
+
+**STILL VALID FROM EARLIER SESSIONS:**
+
+9. **Member-facing rotator opt-out toggle.** Currently Founders email support to be removed from the rotator. Build a toggle in their account settings page that flips `users.rotator_opted_in`. Estimated 20-30 min.
+
+10. **Rotator dashboard widget for Founders.** Show each opted-in Founder their current queue position + last-assigned timestamp, so they have visibility into when the next signup will come their way. 30-45 min.
+
+11. **Latent `u.sponsor.username` bug in founder_offer broadcast endpoint.** Same pattern that crashed re-engagement dry-run before it was fixed. Won't fire until admin runs `founder_offer` dry-run. 5-min fix.
+
+12. **Live count polling on `/start`.** Re-fetch `/api/start/stats` every 30s while visitor is on page; animate the founding-spots-remaining number down if it changed. Powerful scarcity signal. 10 min.
+
+13. **Share Code marketplace (commit 3).** Spec locked from previous session; admin moderation panel + `/pro/funnels/templates` browse page. Deprioritised on 20 May in favour of Page Builder audit but spec stays intact for whenever we resume.
+
+14. **i18n translation batch** for 19 non-English locales — `frontend/src/i18n/locales/*.json` flat-pricing keys still carry Basic/Pro/$35/$17.50; `app/training_content/` only has en.json (de/es/fr/hi/it/pt deleted, backend falls back to English).
+
+15. **AI Trading Hub concept** (parked from April) — Pro feature, plain-English strategy → AI bot → backtest → live deploy. Phase 1: Strategy Builder + Backtester. ~3-4 sessions of work. Discuss in chat session first before starting engineering.
+
+16. **BPG strategic positioning flywheel** (parked from 12 May) — BPG showcase on `/credit-nexus`, featured tile on `/creative-studio`, harden non-pack-owner upsell on `/brand-posters`. ~1.5-2 hours focused work.
+
+17. **Command Centre dashboard + menu redesign** — Steve had mockups (`hub-dashboard.html`, `command-centre-desktop.html`, `recruiting-hq-mockup.html`). On hold until launch-incident follow-ups clear.
 
 ---
 
