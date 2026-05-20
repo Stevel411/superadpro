@@ -899,6 +899,20 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [btnFontSize, setBtnFontSize] = useState(parseInt(el._formBtnFontSize, 10) || 14);
   const [btnWeight, setBtnWeight] = useState(el._formBtnWeight || '700');
 
+  // Button shape state — added 20 May 2026.
+  // The earlier typography slider only changed the button's text size,
+  // not the button block itself. Steve flagged this — the button looked
+  // 'fixed size within the form' because padding/width/radius were
+  // hardcoded. Now exposed as live controls.
+  //
+  //   btnPadding — vertical padding inside button (8-24px). Effective
+  //                button height = padding × 2 + text size.
+  //   btnWidth   — 'full' (100% form width) or 'auto' (hugs text).
+  //   btnRadius  — corner roundness (0-32px).
+  const [btnPadding, setBtnPadding] = useState(parseInt(el._formBtnPadding, 10) || 12);
+  const [btnWidth, setBtnWidth] = useState(el._formBtnWidth || 'full');
+  const [btnRadius, setBtnRadius] = useState(parseInt(el._formBtnRadius, 10) || 10);
+
   // Resync when selection changes
   useEffect(() => {
     setHeading(el._formHeading || 'Get Free Access');
@@ -920,6 +934,9 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
     setFieldSize(parseInt(el._formFieldSize, 10) || 13);
     setBtnFontSize(parseInt(el._formBtnFontSize, 10) || 14);
     setBtnWeight(el._formBtnWeight || '700');
+    setBtnPadding(parseInt(el._formBtnPadding, 10) || 12);
+    setBtnWidth(el._formBtnWidth || 'full');
+    setBtnRadius(parseInt(el._formBtnRadius, 10) || 10);
   }, [el.id]);
 
   // ── HTML regeneration ─────────────────────────────────────────
@@ -956,8 +973,18 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
     // Heading + subtitle + button styles now driven by cfg.
     const headingStyle = `font-family:${cfg.headingFont};font-weight:${cfg.headingWeight};font-size:${cfg.headingSize}px;color:${cfg.headingColor};margin-bottom:6px`;
     const subtitleStyle = `font-size:${cfg.subtitleSize}px;color:${cfg.subtitleColor};margin-bottom:16px`;
-    const btnStyle = `width:100%;padding:12px;border-radius:10px;background:${cfg.btnColor};color:#fff;font-weight:${cfg.btnWeight};font-size:${cfg.btnFontSize}px;text-align:center;box-sizing:border-box;cursor:pointer;border:none;font-family:inherit`;
-    return `<div style="text-align:center;padding:4px"><div style="${headingStyle}">${cfg.heading}</div><div style="${subtitleStyle}">${cfg.subtitle}</div>${fields}${gdprBlock}<button data-sp-submit="1" style="${btnStyle}">${cfg.btnText}</button></div>`;
+    // Button shape — width 'full' fills the form, 'auto' hugs the
+    // text (and centres via inline-block wrapper). Padding controls
+    // effective height; radius controls roundness.
+    const btnWidthStyle = cfg.btnWidth === 'auto' ? 'width:auto;display:inline-block' : 'width:100%;display:block';
+    const btnStyle = `${btnWidthStyle};padding:${cfg.btnPadding}px ${Math.max(cfg.btnPadding * 2, 20)}px;border-radius:${cfg.btnRadius}px;background:${cfg.btnColor};color:#fff;font-weight:${cfg.btnWeight};font-size:${cfg.btnFontSize}px;text-align:center;box-sizing:border-box;cursor:pointer;border:none;font-family:inherit`;
+    // For 'auto' width buttons we wrap in a flex container so the
+    // button is horizontally centered within the form.
+    const btnHtml = `<button data-sp-submit="1" style="${btnStyle}">${cfg.btnText}</button>`;
+    const btnWrapped = cfg.btnWidth === 'auto'
+      ? `<div style="text-align:center">${btnHtml}</div>`
+      : btnHtml;
+    return `<div style="text-align:center;padding:4px"><div style="${headingStyle}">${cfg.heading}</div><div style="${subtitleStyle}">${cfg.subtitle}</div>${fields}${gdprBlock}${btnWrapped}</div>`;
   };
 
   // ── Live-edit helper ──────────────────────────────────────────
@@ -975,6 +1002,8 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
       subtitleSize, subtitleColor,
       fieldSize,
       btnFontSize, btnWeight,
+      // Button shape
+      btnPadding, btnWidth, btnRadius,
       ...overrides,
     };
     // Update local React state for whichever fields the caller
@@ -996,6 +1025,9 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
     if ('fieldSize' in overrides) setFieldSize(overrides.fieldSize);
     if ('btnFontSize' in overrides) setBtnFontSize(overrides.btnFontSize);
     if ('btnWeight' in overrides) setBtnWeight(overrides.btnWeight);
+    if ('btnPadding' in overrides) setBtnPadding(overrides.btnPadding);
+    if ('btnWidth' in overrides) setBtnWidth(overrides.btnWidth);
+    if ('btnRadius' in overrides) setBtnRadius(overrides.btnRadius);
 
     // Regenerate HTML from the merged config and write the whole
     // form state back in one updateElement call (atomic).
@@ -1018,6 +1050,9 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
       _formFieldSize: cfg.fieldSize,
       _formBtnFontSize: cfg.btnFontSize,
       _formBtnWeight: cfg.btnWeight,
+      _formBtnPadding: cfg.btnPadding,
+      _formBtnWidth: cfg.btnWidth,
+      _formBtnRadius: cfg.btnRadius,
     });
     markDirty();
   };
@@ -1304,6 +1339,89 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
           <option value="700">Bold</option>
           <option value="800">Extra Bold</option>
         </select>
+
+        {/* Button height (via padding) — controls how tall the button
+            is. Effective height ≈ padding × 2 + text size. Horizontal
+            padding scales proportionally (max of 2× vertical or 20px)
+            so the button stays visually balanced. */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 800,
+            color: 'var(--sap-text-muted, #64748b)',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            minWidth: 50,
+          }}>Height</span>
+          <input
+            type="range"
+            min="6" max="28" step="1"
+            value={btnPadding}
+            onChange={e => commitFormChange({ btnPadding: parseInt(e.target.value, 10) })}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 38, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{btnPadding}px</span>
+        </div>
+
+        {/* Button corner radius — 0 = sharp square, 32 = pill */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 800,
+            color: 'var(--sap-text-muted, #64748b)',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            minWidth: 50,
+          }}>Corners</span>
+          <input
+            type="range"
+            min="0" max="32" step="1"
+            value={btnRadius}
+            onChange={e => commitFormChange({ btnRadius: parseInt(e.target.value, 10) })}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 38, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{btnRadius}px</span>
+        </div>
+
+        {/* Button width — Full = fills form, Auto = hugs text */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4, marginBottom: 8 }}>
+          {[
+            { value: 'full', label: 'Full width' },
+            { value: 'auto', label: 'Hug text' },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => commitFormChange({ btnWidth: opt.value })}
+              style={{
+                padding: '8px 6px',
+                borderRadius: 6,
+                border: btnWidth === opt.value
+                  ? '2px solid var(--sap-accent, #0ea5e9)'
+                  : '1px solid var(--sap-border, #e2e8f0)',
+                background: btnWidth === opt.value
+                  ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))'
+                  : 'var(--sap-bg-elevated, #f8fafc)',
+                color: btnWidth === opt.value
+                  ? 'var(--sap-accent, #0ea5e9)'
+                  : 'var(--sap-text-primary, #0f172a)',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+                textAlign: 'center',
+              }}
+            >{opt.label}</button>
+          ))}
+        </div>
+
         <label style={{ ...labelStyle, marginTop: 4 }}>Button colour</label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 5 }}>
           {BTN_COLOURS.map((c, i) => (
