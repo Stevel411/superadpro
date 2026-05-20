@@ -3389,25 +3389,25 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
   // No-selection state
   if (!el) {
     return (
-      <div style={{
+      <div className="ins-cobalt" style={{
         padding: '20px 16px',
         fontSize: 12,
-        color: 'var(--sap-text-muted, #64748b)',
+        color: 'rgba(255,255,255,0.65)',
         lineHeight: 1.6,
       }}>
         <div style={{
           fontSize: 10, fontWeight: 800,
-          color: 'var(--sap-text-faint, #94a3b8)',
+          color: 'rgba(255,255,255,0.5)',
           letterSpacing: '0.12em', textTransform: 'uppercase',
           marginBottom: 8,
         }}>Editing</div>
         <div style={{
           padding: 16,
-          background: 'var(--sap-bg-elevated, #f8fafc)',
-          border: '1px dashed var(--sap-border, #e2e8f0)',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px dashed rgba(255,255,255,0.18)',
           borderRadius: 8,
           textAlign: 'center',
-          color: 'var(--sap-text-muted, #64748b)',
+          color: 'rgba(255,255,255,0.7)',
         }}>
           <div style={{ fontSize: 24, marginBottom: 6, opacity: 0.4 }}>✎</div>
           <div>Select an element on the canvas to edit its properties here.</div>
@@ -3420,7 +3420,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
   const typeLabel = el.type.charAt(0).toUpperCase() + el.type.slice(1);
 
   return (
-    <div style={{
+    <div className="ins-cobalt" style={{
       padding: '14px 16px',
       height: '100%',
       overflowY: 'auto',

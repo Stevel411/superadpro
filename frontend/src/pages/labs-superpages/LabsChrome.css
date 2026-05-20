@@ -155,17 +155,13 @@
 
 /* ─────────────────────────────────────────────────────────────
    3. LEFT PALETTE + LIFTED TILES
+
+   20 May 2026: removed the !important glass override that was
+   defeating the inline cobalt gradient set in BlockPalette.jsx.
+   Panel chrome is now cobalt to match the editor topbar.
    ───────────────────────────────────────────────────────────── */
-/* Force glass on the palette outer container — overrides the inline
-   linear-gradient bg in BlockPalette.jsx that defeated the rule. */
 .labs-chrome .block-palette,
 .labs-chrome .sp-palette {
-  background: rgba(255,255,255,0.55) !important;
-  background-image: none !important;
-  backdrop-filter: saturate(180%) blur(20px) !important;
-  -webkit-backdrop-filter: saturate(180%) blur(20px) !important;
-  border-left: 1px solid rgba(15,23,42,0.06) !important;
-  border-right: 1px solid rgba(15,23,42,0.06) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -187,16 +183,86 @@
   -ms-overflow-style: none;
 }
 
-/* Section labels — Sora 900 uppercase muted. Direct class match;
-   no ancestor scope needed since the className is unique. */
+/* Section labels — Sora 900 uppercase. White-tinted for cobalt
+   panel chrome (was muted slate #94a3b8 for white panel). */
 .labs-chrome .palette-section-label {
   font-family: 'Sora', sans-serif !important;
   font-size: 10px !important;
   font-weight: 900 !important;
   letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
-  color: #94a3b8 !important;
+  color: rgba(255,255,255,0.55) !important;
   margin-bottom: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. INSPECTOR COBALT OVERRIDES (.ins-cobalt)
+
+   Added 20 May 2026. The Inspector panel (left side) was designed
+   for a white background with 65+ inline dark-slate text colours
+   scattered across 15 properties components. Rather than recolour
+   every line, we add a className wrapper and target common
+   patterns via CSS to make text readable on cobalt.
+
+   Light-touch first pass. Catches: section titles, control
+   labels, slider value labels, input borders/text, dropdown
+   chrome. Doesn't catch: every isolated inline style; expect
+   some controls to still look slightly off. Refine after Steve
+   reacts to the direction.
+   ───────────────────────────────────────────────────────────── */
+
+/* Headings inside the Inspector (e.g. 'EDITING', 'HEADING',
+   'SUBTITLE', 'CONSENT', section dividers). */
+.labs-chrome .ins-cobalt > div > div[style*="text-transform"][style*="uppercase"],
+.labs-chrome .ins-cobalt div[style*="text-transform:uppercase"],
+.labs-chrome .ins-cobalt div[style*="text-transform: uppercase"] {
+  color: rgba(255,255,255,0.55) !important;
+}
+
+/* Inputs, textareas, selects — give them a translucent cobalt
+   look with readable white text. */
+.labs-chrome .ins-cobalt input[type="text"],
+.labs-chrome .ins-cobalt input[type="url"],
+.labs-chrome .ins-cobalt input[type="number"],
+.labs-chrome .ins-cobalt input:not([type]),
+.labs-chrome .ins-cobalt textarea,
+.labs-chrome .ins-cobalt select {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  color: #ffffff !important;
+}
+.labs-chrome .ins-cobalt input::placeholder,
+.labs-chrome .ins-cobalt textarea::placeholder {
+  color: rgba(255,255,255,0.4) !important;
+}
+.labs-chrome .ins-cobalt input:focus,
+.labs-chrome .ins-cobalt textarea:focus,
+.labs-chrome .ins-cobalt select:focus {
+  border-color: #22d3ee !important;
+  outline: none !important;
+}
+
+/* Generic text inside the inspector defaults to white-translucent
+   so labels become readable. Element-specific overrides below
+   keep important colours (active states, swatches, etc.). */
+.labs-chrome .ins-cobalt {
+  color: rgba(255,255,255,0.85);
+}
+
+/* Dropdown native chrome — make the arrow visible on cobalt. */
+.labs-chrome .ins-cobalt select {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  padding-right: 26px !important;
+}
+
+/* The 'EDITING' header strip at top of the Inspector — make the
+   border read on cobalt. */
+.labs-chrome .ins-cobalt > div:first-child[style*="border-bottom"] {
+  border-bottom-color: rgba(255,255,255,0.08) !important;
 }
 
 /* The lifted tiles — pronounced cool-tinted shadow stack.

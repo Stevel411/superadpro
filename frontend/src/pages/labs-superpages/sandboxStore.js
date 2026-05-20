@@ -149,6 +149,11 @@ export function duplicateSandboxPage(id) {
 // Helper for the "Export to production" button. Returns a payload
 // shaped for /api/funnels/save (creates a new funnel record). The
 // caller handles the actual API call.
+//
+// 20 May 2026: carries default_list_id + capture_sequence_id when
+// the user pre-staged campaign wiring inside the sandbox editor.
+// /api/funnels/save's _apply_campaign_binding helper handles the
+// binding side; we just need to include the picked IDs in the body.
 export function exportToProductionPayload(sandboxPage) {
   if (!sandboxPage) return null;
   return {
@@ -162,5 +167,10 @@ export function exportToProductionPayload(sandboxPage) {
       canvasBgImage: sandboxPage.canvasBgImage || '',
     }),
     status: 'draft', // exports start as drafts, never auto-published
+    // Wiring carried across from sandbox if pre-staged. Null when
+    // unbound — /api/funnels/save accepts null/missing and leaves
+    // the new page unbound (the same UX as a fresh DB-only create).
+    default_list_id: sandboxPage.default_list_id || null,
+    capture_sequence_id: sandboxPage.capture_sequence_id || null,
   };
 }

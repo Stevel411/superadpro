@@ -187,6 +187,20 @@ export default function LabsSuperPagesEditor() {
       setEls(sb.els || []);
       setCanvasBg(sb.canvasBg || '#ffffff');
       setCanvasBgImage(sb.canvasBgImage || '');
+      // Sandbox wiring — empty by default, populated if the user has
+      // previously picked a list/sequence via the topbar wiring modal.
+      // The values are real list/sequence IDs from the user's account
+      // (the picker calls /api/funnels/setup-options) and are applied
+      // at graduation time in exportToProductionPayload().
+      // 20 May 2026 — added so sandbox pages can pre-stage their
+      // campaign wiring instead of being unbound at publish.
+      setWiring({
+        default_list_id: sb.default_list_id || null,
+        default_list_name: sb.default_list_name || null,
+        capture_sequence_id: sb.capture_sequence_id || null,
+        capture_sequence_title: sb.capture_sequence_title || null,
+        capture_sequence_num_emails: sb.capture_sequence_num_emails || null,
+      });
       setLoading(false);
       return;
     }
@@ -1156,8 +1170,15 @@ export default function LabsSuperPagesEditor() {
 
           Skipped for sandbox pages (they have no DB row to bind).
           The topbar button is also hidden for sandbox so this is
-          belt-and-braces. */}
-      {showWiring && !isSandbox && (
+          belt-and-braces.
+
+          20 May 2026: sandbox now ALSO opens this modal — Steve flag
+          'I would like to see what the page would look like... ability
+          to select the list for email'. Sandbox path doesn't POST to
+          the wiring endpoint; it saves picked values into the sandbox
+          payload locally so they're applied at graduation time
+          (exportToProductionPayload reads them into the new DB page). */}
+      {showWiring && (
         <CampaignSetupModal
           suggestedListName={`${pageSettings.title || 'Untitled'} leads`}
           pageTypeLabel="page"
@@ -1167,6 +1188,44 @@ export default function LabsSuperPagesEditor() {
           initialSequenceId={wiring.capture_sequence_id || null}
           onConfirm={async (bindingPayload) => {
             setShowWiring(false);
+            if (isSandbox) {
+              // Sandbox path — no DB call. Resolve the picked IDs to
+              // names via /api/funnels/setup-options, then persist
+              // into the sandbox payload. The names give the topbar
+              // button a label to show immediately.
+              try {
+                const opts = await apiGet('/api/funnels/setup-options');
+                const pickedList = bindingPayload.default_list_id
+                  ? (opts.lists || []).find(l => l.id === bindingPayload.default_list_id) : null;
+                const pickedSeq = bindingPayload.capture_sequence_id
+                  ? (opts.sequences || []).find(s => s.id === bindingPayload.capture_sequence_id) : null;
+                const nextWiring = {
+                  default_list_id: bindingPayload.default_list_id || null,
+                  default_list_name: pickedList?.name || null,
+                  capture_sequence_id: bindingPayload.capture_sequence_id || null,
+                  capture_sequence_title: pickedSeq?.title || null,
+                  capture_sequence_num_emails: pickedSeq?.num_emails || null,
+                };
+                setWiring(nextWiring);
+                // Persist into sandbox storage so it survives reload
+                // and is read by exportToProductionPayload at publish.
+                saveSandboxPage(sandboxId, {
+                  ...nextWiring,
+                  // Echo current canvas state so save isn't destructive.
+                  els, canvasBg, canvasBgImage,
+                  name: pageSettings.title,
+                  metaDescription: pageSettings.metaDescription,
+                  ogImage: pageSettings.ogImage,
+                });
+                showToast(nextWiring.default_list_name
+                  ? `✓ Will publish to "${nextWiring.default_list_name}"`
+                  : '✓ Wiring saved to sandbox');
+              } catch (e) {
+                showToast('Wiring error: ' + (e?.message || e));
+              }
+              return;
+            }
+            // DB-backed path — POST to the wiring endpoint.
             try {
               const res = await apiPost(`/api/funnels/${pageId}/wiring`, bindingPayload);
               if (res?.success) {

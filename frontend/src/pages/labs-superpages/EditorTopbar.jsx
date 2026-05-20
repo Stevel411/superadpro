@@ -186,12 +186,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           mid-edit. Added 20 May 2026 after Steve flagged that the
           original "pick list before you start editing" modal was a
           one-way door — if you changed your mind, you had to leave the
-          editor. Now any DB-backed page exposes this button so the
-          wiring is changeable without losing context.
-          Sandbox pages don't have wiring (they're localStorage-only,
-          only graduate to a real list on publish), so the button is
-          hidden for them. */}
-      {!isSandbox && onShowWiring && (
+          editor. Now any page (sandbox or DB-backed) exposes this
+          button so the wiring is changeable without losing context.
+          Sandbox pages persist the picked list/sequence into the
+          sandbox payload — applied at graduation time in
+          exportToProductionPayload. */}
+      {onShowWiring && (
         <button onClick={onShowWiring} style={{
           ...ghost,
           background: currentListName ? 'rgba(34,211,238,0.14)' : 'rgba(255,255,255,0.06)',

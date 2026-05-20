@@ -126,9 +126,9 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
     }}>
 
       {/* Header */}
-      <div style={{padding:'14px 16px',borderBottom:'1px solid #e8ecf2',flexShrink:0}}>
-        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#0f172a'}}>{t('superPagesEditor.blocks')}</h3>
-        <p style={{margin:'2px 0 8px',fontSize:13,color:'#475569'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
+      <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)',flexShrink:0}}>
+        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#ffffff'}}>{t('superPagesEditor.blocks')}</h3>
+        <p style={{margin:'2px 0 8px',fontSize:13,color:'rgba(255,255,255,0.6)'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
         {/* Block search — filters tiles by name as you type. */}
         <div style={{position:'relative'}}>
           <input
@@ -139,17 +139,17 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               width:'100%',
               padding:'7px 28px 7px 10px',
               borderRadius:8,
-              border:'1px solid rgba(15,23,42,0.08)',
-              background:'rgba(255,255,255,0.7)',
+              border:'1px solid rgba(255,255,255,0.18)',
+              background:'rgba(255,255,255,0.08)',
               fontSize:12,
               fontFamily:'Manrope,sans-serif',
               fontWeight:600,
-              color:'#0f172a',
+              color:'#ffffff',
               outline:'none',
               boxSizing:'border-box',
             }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(15,23,42,0.08)'; }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#22d3ee'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
           />
           {search && (
             <button
@@ -158,7 +158,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               style={{
                 position:'absolute', right:6, top:'50%', transform:'translateY(-50%)',
                 width:18, height:18, borderRadius:4, border:'none',
-                background:'rgba(15,23,42,0.08)', color:'#475569',
+                background:'rgba(255,255,255,0.18)', color:'rgba(255,255,255,0.9)',
                 cursor:'pointer', fontSize:11, fontWeight:700,
                 display:'flex', alignItems:'center', justifyContent:'center', padding:0,
               }}>×</button>
@@ -167,13 +167,13 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       </div>
 
       {/* Background Controls — collapsible */}
-      <div style={{borderBottom:'1px solid #e8ecf2',flexShrink:0}}>
+      <div style={{borderBottom:'1px solid rgba(255,255,255,0.08)',flexShrink:0}}>
         <div onClick={() => setBgOpen(!bgOpen)} style={{padding:'10px 16px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <div style={{width:24,height:24,borderRadius:6,border:'1px solid #e2e8f0',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg||'#ffffff',boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.5)'}}/>
+            <div style={{width:24,height:24,borderRadius:6,border:'1px solid rgba(255,255,255,0.18)',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg||'#ffffff',boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.3)'}}/>
             <div>
-              <div style={{fontSize:13,fontWeight:800,letterSpacing:0.5,textTransform:'uppercase',color:'#475569'}}>{t('superPagesEditor.pageBackground')}</div>
-              <div style={{fontSize:13,color:'#475569',marginTop:1}}>
+              <div style={{fontSize:13,fontWeight:800,letterSpacing:0.5,textTransform:'uppercase',color:'rgba(255,255,255,0.7)'}}>{t('superPagesEditor.pageBackground')}</div>
+              <div style={{fontSize:13,color:'rgba(255,255,255,0.55)',marginTop:1}}>
                 {canvasBgImage ? t('superPagesEditor.bgImage', { defaultValue: 'Image' })
                   : canvasBg?.startsWith('linear') ? t('superPagesEditor.bgGradient', { defaultValue: 'Gradient' })
                   : canvasBg || t('superPagesEditor.bgSolid', { defaultValue: 'Solid' })}
