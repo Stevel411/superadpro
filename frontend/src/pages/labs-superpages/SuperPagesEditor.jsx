@@ -16,6 +16,7 @@ import './LabsChrome.css';
 import { loadSandboxPage, saveSandboxPage, exportToProductionPayload } from './sandboxStore';
 import { FONTS, FONT_SIZES } from './elementDefaults';
 import ElementInspectorPanel from './ElementInspectorPanel';
+import CampaignSetupModal from '../../components/CampaignSetupModal';
 
 export default function LabsSuperPagesEditor() {
   var { t } = useTranslation();
@@ -40,6 +41,20 @@ export default function LabsSuperPagesEditor() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState('');
   const [pageSettings, setPageSettings] = useState({ title: '', metaDescription: '', ogImage: '', slug: '' });
+  // Campaign wiring state (20 May 2026) — which list captures leads from
+  // this page and which email sequence sends to them. Surfaced via an
+  // editor topbar button so members can change wiring mid-edit instead
+  // of having to abandon the editor to do it from the gallery card.
+  // Sandbox pages don't have wiring (localStorage-only); only DB-backed
+  // pages populate this. Shape mirrors the wiring API response.
+  const [wiring, setWiring] = useState({
+    default_list_id: null,
+    default_list_name: null,
+    capture_sequence_id: null,
+    capture_sequence_title: null,
+    capture_sequence_num_emails: null,
+  });
+  const [showWiring, setShowWiring] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -180,6 +195,15 @@ export default function LabsSuperPagesEditor() {
     apiGet(`/api/funnels/load/${pageId}`).then(data => {
       setPageSettings({ title: data.title || '', metaDescription: data.meta_description || '', ogImage: data.image_url || '', slug: data.slug || '' });
       setPageStatus(data.status || 'draft');
+      // Wiring fields — null when unbound. The editor topbar button
+      // reads currentListName from this state.
+      setWiring({
+        default_list_id: data.default_list_id || null,
+        default_list_name: data.default_list_name || null,
+        capture_sequence_id: data.capture_sequence_id || null,
+        capture_sequence_title: data.capture_sequence_title || null,
+        capture_sequence_num_emails: data.capture_sequence_num_emails || null,
+      });
       updatedAtRef.current = data.updated_at;
       // Parse canvas data from gjs_css (our JSON state) or gjs_components
       try {
@@ -629,6 +653,9 @@ export default function LabsSuperPagesEditor() {
         onSave={save}
         onClear={handleClear}
         onShowSettings={() => setShowSettings(true)}
+        onShowWiring={() => setShowWiring(true)}
+        currentListName={wiring.default_list_name}
+        isSandbox={isSandbox}
         onShowHelp={() => setShowHelp(true)}
         onShowTemplates={() => setShowTemplates(true)}
         onToggleLayers={() => setShowLayers(s => !s)}
@@ -1100,6 +1127,51 @@ export default function LabsSuperPagesEditor() {
         currentBg={canvasBg}
         currentBgImage={canvasBgImage}
       />
+
+      {/* Campaign wiring modal (20 May 2026) — opens from the Campaign
+          button in the editor topbar. Same component as the gallery's
+          "Edit wiring" modal, just instantiated in editMode so the
+          confirm goes to the wiring-update endpoint rather than the
+          page-create endpoint.
+
+          Skipped for sandbox pages (they have no DB row to bind).
+          The topbar button is also hidden for sandbox so this is
+          belt-and-braces. */}
+      {showWiring && !isSandbox && (
+        <CampaignSetupModal
+          suggestedListName={`${pageSettings.title || 'Untitled'} leads`}
+          pageTypeLabel="page"
+          editMode={true}
+          editingPageTitle={pageSettings.title || 'Untitled page'}
+          initialListId={wiring.default_list_id || null}
+          initialSequenceId={wiring.capture_sequence_id || null}
+          onConfirm={async (bindingPayload) => {
+            setShowWiring(false);
+            try {
+              const res = await apiPost(`/api/funnels/${pageId}/wiring`, bindingPayload);
+              if (res?.success) {
+                // Mirror the response into local state so the topbar
+                // button label updates immediately without a reload.
+                setWiring({
+                  default_list_id: res.default_list_id || null,
+                  default_list_name: res.default_list_name || null,
+                  capture_sequence_id: res.capture_sequence_id || null,
+                  capture_sequence_title: res.capture_sequence_title || null,
+                  capture_sequence_num_emails: res.capture_sequence_num_emails || null,
+                });
+                showToast(res.default_list_name
+                  ? `✓ Leads now go to "${res.default_list_name}"`
+                  : '✓ Wiring updated');
+              } else {
+                showToast('Wiring update failed: ' + (res?.error || 'unknown'));
+              }
+            } catch (e) {
+              showToast('Wiring error: ' + (e?.message || e));
+            }
+          }}
+          onCancel={() => setShowWiring(false)}
+        />
+      )}
     </div>
     </AppLayout>
   );

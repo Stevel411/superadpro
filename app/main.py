@@ -15706,6 +15706,30 @@ def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_cur
     if not page:
         return JSONResponse({"error": "Page not found"}, status_code=404)
     import json
+
+    # ── Campaign wiring (added 20 May 2026) ──
+    # Resolve list + sequence names alongside their IDs so the editor's
+    # in-page "Campaign wiring" button can show the current binding
+    # without an extra round-trip. Previously the editor had no idea
+    # which list a published page was bound to — only the Funnels gallery
+    # showed that. Surfacing it inside the editor means users can change
+    # the list mid-edit (Steve, 20 May 2026: "we should have the include
+    # list function inside the editor rather than the modal that pops up
+    # first incase we want to change our minds").
+    from .database import LeadList, EmailSequence
+    list_name = None
+    seq_title = None
+    seq_num_emails = None
+    if page.default_list_id:
+        lst = db.query(LeadList).filter(LeadList.id == page.default_list_id).first()
+        if lst:
+            list_name = lst.name
+    if page.capture_sequence_id:
+        seq = db.query(EmailSequence).filter(EmailSequence.id == page.capture_sequence_id).first()
+        if seq:
+            seq_title = seq.title or "Sequence"
+            seq_num_emails = int(seq.num_emails or 0)
+
     return JSONResponse({
         "id": page.id,
         "title": page.title,
@@ -15717,6 +15741,13 @@ def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_cur
         "gjs_html": page.gjs_html or "",
         "gjs_css": page.gjs_css or "",
         "updated_at": page.updated_at.isoformat() if page.updated_at else None,
+        # Wiring fields — null when nothing bound (the page captures leads
+        # but doesn't route them anywhere yet).
+        "default_list_id": page.default_list_id,
+        "default_list_name": list_name,
+        "capture_sequence_id": page.capture_sequence_id,
+        "capture_sequence_title": seq_title,
+        "capture_sequence_num_emails": seq_num_emails,
     })
 
 

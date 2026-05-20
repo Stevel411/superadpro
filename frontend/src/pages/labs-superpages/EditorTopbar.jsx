@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers, Grid3x3 } from 'lucide-react';
+import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers, Grid3x3, Link2 } from 'lucide-react';
 import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
 /*
@@ -8,7 +8,7 @@ import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
   visually separate from the editor tools (white), and the canvas below feels
   like the workspace centrepiece.
 */
-export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen, onToggleGrid, gridOn }) {
+export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onShowWiring, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen, onToggleGrid, gridOn, currentListName, isSandbox }) {
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
@@ -126,6 +126,35 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; }}>
         <Settings size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.settings')}</span>
       </button>
+
+      {/* Campaign wiring — change the lead-capture list / sequence
+          mid-edit. Added 20 May 2026 after Steve flagged that the
+          original "pick list before you start editing" modal was a
+          one-way door — if you changed your mind, you had to leave the
+          editor. Now any DB-backed page exposes this button so the
+          wiring is changeable without losing context.
+          Sandbox pages don't have wiring (they're localStorage-only,
+          only graduate to a real list on publish), so the button is
+          hidden for them. */}
+      {!isSandbox && onShowWiring && (
+        <button onClick={onShowWiring} style={{
+          ...ghost,
+          background: currentListName ? 'rgba(14,165,233,0.06)' : '#ffffff',
+          borderColor: currentListName ? 'rgba(14,165,233,0.3)' : '#e2e8f0',
+          color: currentListName ? '#0284c7' : '#475569',
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = currentListName ? 'rgba(14,165,233,0.3)' : '#e2e8f0';
+            e.currentTarget.style.color = currentListName ? '#0284c7' : '#475569';
+          }}
+          title={currentListName ? `Leads go to: ${currentListName}` : 'Choose where leads from this page are sent'}>
+          <Link2 size={13}/>
+          <span style={{marginLeft:3, maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+            {currentListName ? currentListName : 'Campaign'}
+          </span>
+        </button>
+      )}
       <button onClick={onShowHelp} style={{...ghost, color: '#0ea5e9'}}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.background = 'rgba(14,165,233,0.06)'; }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}>
