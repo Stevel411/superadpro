@@ -808,41 +808,51 @@ export default function LabsSuperPagesEditor() {
           </div>
         ) : (
           <>
-            {/* ── Phase 1 Inspector Panel (sandbox mode only) ──
-                Left-rail element properties. Replaces the modal-based
-                ButtonEditor for buttons. Other element types still use
-                the modal via ✎ EDIT on the canvas toolbar — that's the
-                fallback for the Phase 1 rollout (20 May 2026).
+            {/* ── Inspector Panel (mounted in both modes) ──
+                Left-rail element properties. Pattern proven across 15 of
+                26 element types as of Phase 2D (20 May 2026):
+                  Phase 1   Button
+                  Phase 2A  Heading, Text, Label
+                  Phase 2B  Banner, Form
+                  Phase 2C  Image, Video, Audio
+                  Phase 2D  Review, Testimonial, FAQ, Stat, Badge, Progress
+                Remaining 11 types (Phase 2E) fall back to a placeholder
+                'use the canvas toolbar Edit button' note in the panel.
 
-                Only mounted in sandbox mode and only when an element is
-                selected. The empty state is rendered inside the panel
-                itself so the column doesn't visually collapse. */}
-            {isSandbox && (
-              <div style={{
-                width: 260,
-                flexShrink: 0,
-                background: '#ffffff',
-                borderRight: '1px solid var(--sap-border-faint, #f1f5f9)',
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-              }}>
-                <ElementInspectorPanel
-                  el={els.find(x => x.id === selId) || null}
-                  updateElement={updateElement}
-                  updateElementStyle={updateElementStyle}
-                  markDirty={markDirty}
-                  onDuplicate={() => selId && duplicateElement(selId)}
-                  onDelete={() => selId && deleteElement(selId)}
-                  onToggleLock={() => {
-                    if (!selId) return;
-                    const e = els.find(x => x.id === selId);
-                    if (e) updateElement(selId, { locked: !e.locked });
-                    markDirty();
-                  }}
-                />
-              </div>
-            )}
+                Originally sandbox-only during Phase 1 rollout — gate
+                removed once enough types were ported that production
+                pages (DB-backed editor) lost the Inspector and members
+                couldn't edit their already-published Review/Stat/etc
+                elements without re-saving from sandbox. 20 May 2026
+                bug report from Steve: 'all these elements are not able
+                to be edited in the panel'. Fix: mount Inspector for
+                both modes. The empty state is rendered inside the
+                panel itself so the column doesn't visually collapse
+                when nothing is selected. */}
+            <div style={{
+              width: 260,
+              flexShrink: 0,
+              background: '#ffffff',
+              borderRight: '1px solid var(--sap-border-faint, #f1f5f9)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}>
+              <ElementInspectorPanel
+                el={els.find(x => x.id === selId) || null}
+                updateElement={updateElement}
+                updateElementStyle={updateElementStyle}
+                markDirty={markDirty}
+                onDuplicate={() => selId && duplicateElement(selId)}
+                onDelete={() => selId && deleteElement(selId)}
+                onToggleLock={() => {
+                  if (!selId) return;
+                  const e = els.find(x => x.id === selId);
+                  if (e) updateElement(selId, { locked: !e.locked });
+                  markDirty();
+                }}
+              />
+            </div>
 
             {/* Edit mode — works for all three devices. Canvas resizes
                 to match the device breakpoint; element positions resolved
