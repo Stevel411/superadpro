@@ -27,8 +27,8 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   });
   const maxY = els.length > 0 ? Math.max(...els.map(e => e.y + e.h)) + 80 : 900;
 
-  let h = `<div style="${bgStyle}min-height:100vh;width:100%;font-family:'Outfit',sans-serif">`;
-  h += `<div class="sp-page" style="position:relative;width:1100px;max-width:100%;margin:0 auto;min-height:${Math.max(900, maxY)}px;overflow-x:hidden">`;
+  let h = `<div style="${bgStyle}position:relative;min-height:100vh;width:100%;overflow-x:hidden;font-family:'Outfit',sans-serif">`;
+  h += `<div class="sp-page" style="position:relative;width:1100px;max-width:100%;margin:0 auto;min-height:${Math.max(900, maxY)}px">`;
 
   sorted.forEach(el => {
     // Hidden elements (set via layer panel) are excluded from rendering
@@ -103,20 +103,41 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       const stickyOverride = (el.type === 'announcement' && el.sticky)
         ? ';position:fixed;top:0;left:0;right:0;width:100%;z-index:9999'
         : '';
+      // Banner full-bleed fix (20 May 2026):
+      // Non-sticky banners default to width:1100px (canvas width), which
+      // leaves an empty strip on either side on viewports >1100px because
+      // .sp-page is `width:1100px;max-width:100%;margin:0 auto`. The
+      // banner gradient ended at .sp-page's edge, not the viewport's.
+      //
+      // Fix: for non-sticky banners (banners ARE conceptually full-bleed
+      // — they ARE the page-wide ribbon), override width to 100vw and
+      // pull left to -50vw from .sp-page-center via left:50% +
+      // margin-left:-50vw. .sp-page's overflow-x:hidden was moved up to
+      // the outer wrapper so this break-out actually shows.
+      // Sticky banners keep their own override (above) so we don't
+      // double-apply.
+      const fullBleedOverride = (el.type === 'announcement' && !el.sticky)
+        ? ';left:50%;margin-left:-50vw;width:100vw'
+        : '';
       // Phase 2B (banner only): dismissible adds a data attribute the
       // page-level script (emitted at the foot of the body) looks for,
       // plus an inline × control. The dismiss state persists per-visitor
       // via localStorage keyed on the page slug + element id.
       const dismissibleData = (el.type === 'announcement' && el.dismissible) ? ' data-sap-dismissible="1"' : '';
-      h += `<a ${elAttrs}${dismissibleData} href="${safeUrl}"${extraAttrs} style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center${stickyOverride}">${el.txt || ''}${(el.type === 'announcement' && el.dismissible) ? '<span class="sap-banner-close" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;line-height:1;opacity:0.7;padding:4px 8px" onclick="event.preventDefault();event.stopPropagation();this.closest(\'a,div\').style.display=\'none\';try{localStorage.setItem(\'sap-bn-\'+this.closest(\'[id]\').id,\'1\');}catch(e){}">×</span>' : ''}</a>`;
+      h += `<a ${elAttrs}${dismissibleData} href="${safeUrl}"${extraAttrs} style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center${stickyOverride}${fullBleedOverride}">${el.txt || ''}${(el.type === 'announcement' && el.dismissible) ? '<span class="sap-banner-close" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;line-height:1;opacity:0.7;padding:4px 8px" onclick="event.preventDefault();event.stopPropagation();this.closest(\'a,div\').style.display=\'none\';try{localStorage.setItem(\'sap-bn-\'+this.closest(\'[id]\').id,\'1\');}catch(e){}">×</span>' : ''}</a>`;
     } else if ((el.type === 'button' || el.type === 'announcement') && !el.url) {
       // Same banner sticky + dismissible handling for unlinked banners.
       // Banner without a URL is rare but valid (e.g. plain info ribbon).
       const stickyOverride = (el.type === 'announcement' && el.sticky)
         ? ';position:fixed;top:0;left:0;right:0;width:100%;z-index:9999'
         : '';
+      // Full-bleed override for non-sticky banners — see explanatory
+      // comment in the with-URL branch above. Identical mechanism.
+      const fullBleedOverride = (el.type === 'announcement' && !el.sticky)
+        ? ';left:50%;margin-left:-50vw;width:100vw'
+        : '';
       const dismissibleData = (el.type === 'announcement' && el.dismissible) ? ' data-sap-dismissible="1"' : '';
-      h += `<div ${elAttrs}${dismissibleData} style="${st};display:flex;align-items:center;justify-content:center;position:${(el.type === 'announcement' && el.sticky) ? 'fixed' : 'absolute'}${stickyOverride}">${el.txt || ''}${(el.type === 'announcement' && el.dismissible) ? '<span class="sap-banner-close" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;line-height:1;opacity:0.7;padding:4px 8px" onclick="event.stopPropagation();this.closest(\'[id]\').style.display=\'none\';try{localStorage.setItem(\'sap-bn-\'+this.closest(\'[id]\').id,\'1\');}catch(e){}">×</span>' : ''}</div>`;
+      h += `<div ${elAttrs}${dismissibleData} style="${st};display:flex;align-items:center;justify-content:center;position:${(el.type === 'announcement' && el.sticky) ? 'fixed' : 'absolute'}${stickyOverride}${fullBleedOverride}">${el.txt || ''}${(el.type === 'announcement' && el.dismissible) ? '<span class="sap-banner-close" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;line-height:1;opacity:0.7;padding:4px 8px" onclick="event.stopPropagation();this.closest(\'[id]\').style.display=\'none\';try{localStorage.setItem(\'sap-bn-\'+this.closest(\'[id]\').id,\'1\');}catch(e){}">×</span>' : ''}</div>`;
     } else if (el.type === 'audio' && el._audioUrl) {
       h += `<audio ${elAttrs} src="${el._audioUrl}" style="${st};border-radius:12px" controls></audio>`;
     } else if (el.type === 'embed' && el._embedCode) {
