@@ -871,6 +871,7 @@ function ToggleRow({ label, hint, value, onChange }) {
 //
 // Email field is always on — every opt-in form must capture email.
 function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // Content state
   const [heading, setHeading] = useState(el._formHeading || 'Get Free Access');
   const [subtitle, setSubtitle] = useState(el._formSubtitle || 'Enter your details below');
   const [showName, setShowName] = useState(el._formShowName !== false);
@@ -881,6 +882,22 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [btnColor, setBtnColor] = useState(el._formBtnColor || 'var(--sap-accent)');
   const [redirectUrl, setRedirectUrl] = useState(el._formRedirect || '');
   const [successMsg, setSuccessMsg] = useState(el._formSuccessMsg || 'Thanks! Check your email for next steps.');
+
+  // Typography state — added 20 May 2026 (audit response).
+  // Previously these were hardcoded in buildFormHTML, which meant
+  // members had no way to adjust the inner text size, weight, or
+  // colour. Each field reads from el._form* with a sensible default
+  // matching the historical hardcoded value (so existing forms
+  // render identically until the member touches a control).
+  const [headingFont, setHeadingFont] = useState(el._formHeadingFont || 'Sora,sans-serif');
+  const [headingSize, setHeadingSize] = useState(parseInt(el._formHeadingSize, 10) || 20);
+  const [headingWeight, setHeadingWeight] = useState(el._formHeadingWeight || '800');
+  const [headingColor, setHeadingColor] = useState(el._formHeadingColor || '#ffffff');
+  const [subtitleSize, setSubtitleSize] = useState(parseInt(el._formSubtitleSize, 10) || 13);
+  const [subtitleColor, setSubtitleColor] = useState(el._formSubtitleColor || '#94a3b8');
+  const [fieldSize, setFieldSize] = useState(parseInt(el._formFieldSize, 10) || 13);
+  const [btnFontSize, setBtnFontSize] = useState(parseInt(el._formBtnFontSize, 10) || 14);
+  const [btnWeight, setBtnWeight] = useState(el._formBtnWeight || '700');
 
   // Resync when selection changes
   useEffect(() => {
@@ -894,6 +911,15 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
     setBtnColor(el._formBtnColor || 'var(--sap-accent)');
     setRedirectUrl(el._formRedirect || '');
     setSuccessMsg(el._formSuccessMsg || 'Thanks! Check your email for next steps.');
+    setHeadingFont(el._formHeadingFont || 'Sora,sans-serif');
+    setHeadingSize(parseInt(el._formHeadingSize, 10) || 20);
+    setHeadingWeight(el._formHeadingWeight || '800');
+    setHeadingColor(el._formHeadingColor || '#ffffff');
+    setSubtitleSize(parseInt(el._formSubtitleSize, 10) || 13);
+    setSubtitleColor(el._formSubtitleColor || '#94a3b8');
+    setFieldSize(parseInt(el._formFieldSize, 10) || 13);
+    setBtnFontSize(parseInt(el._formBtnFontSize, 10) || 14);
+    setBtnWeight(el._formBtnWeight || '700');
   }, [el.id]);
 
   // ── HTML regeneration ─────────────────────────────────────────
@@ -907,20 +933,31 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
   // GDPR checkbox added in Phase 2B — emitted as a <label> with a
   // required checkbox so form submission is blocked until ticked.
   // Placed between fields and submit button so it's visible.
+  //
+  // Typography fields (headingFont, headingSize, ...) added 20 May
+  // 2026 — were previously hardcoded. Defaults match the historical
+  // values so existing forms render identically.
   const buildFormHTML = (cfg) => {
+    // Field input style — fieldSize controls placeholder/text size.
+    const fieldStyle = `width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:${cfg.fieldSize}px;margin-bottom:8px;box-sizing:border-box`;
+
     let fields = '';
     if (cfg.showName) {
-      fields += `<input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+      fields += `<input placeholder="Your first name" style="${fieldStyle}">`;
     }
-    fields += `<input placeholder="Your email" type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    fields += `<input placeholder="Your email" type="email" style="${fieldStyle}">`;
     if (cfg.showPhone) {
-      fields += `<input placeholder="Your phone" type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+      fields += `<input placeholder="Your phone" type="tel" style="${fieldStyle}">`;
     }
     let gdprBlock = '';
     if (cfg.gdpr) {
       gdprBlock = `<label style="display:flex;align-items:flex-start;gap:8px;margin:8px 0 12px;text-align:left;font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;cursor:pointer"><input type="checkbox" required style="margin-top:2px;flex-shrink:0;accent-color:#0ea5e9;cursor:pointer"><span>${cfg.gdprText}</span></label>`;
     }
-    return `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${cfg.heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${cfg.subtitle}</div>${fields}${gdprBlock}<button data-sp-submit="1" style="width:100%;padding:12px;border-radius:10px;background:${cfg.btnColor};color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer;border:none;font-family:inherit">${cfg.btnText}</button></div>`;
+    // Heading + subtitle + button styles now driven by cfg.
+    const headingStyle = `font-family:${cfg.headingFont};font-weight:${cfg.headingWeight};font-size:${cfg.headingSize}px;color:${cfg.headingColor};margin-bottom:6px`;
+    const subtitleStyle = `font-size:${cfg.subtitleSize}px;color:${cfg.subtitleColor};margin-bottom:16px`;
+    const btnStyle = `width:100%;padding:12px;border-radius:10px;background:${cfg.btnColor};color:#fff;font-weight:${cfg.btnWeight};font-size:${cfg.btnFontSize}px;text-align:center;box-sizing:border-box;cursor:pointer;border:none;font-family:inherit`;
+    return `<div style="text-align:center;padding:4px"><div style="${headingStyle}">${cfg.heading}</div><div style="${subtitleStyle}">${cfg.subtitle}</div>${fields}${gdprBlock}<button data-sp-submit="1" style="${btnStyle}">${cfg.btnText}</button></div>`;
   };
 
   // ── Live-edit helper ──────────────────────────────────────────
@@ -933,6 +970,11 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
     const cfg = {
       heading, subtitle, showName, showPhone, gdpr, gdprText,
       btnText, btnColor,
+      // Typography
+      headingFont, headingSize, headingWeight, headingColor,
+      subtitleSize, subtitleColor,
+      fieldSize,
+      btnFontSize, btnWeight,
       ...overrides,
     };
     // Update local React state for whichever fields the caller
@@ -945,6 +987,15 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
     if ('gdprText' in overrides) setGdprText(overrides.gdprText);
     if ('btnText' in overrides) setBtnText(overrides.btnText);
     if ('btnColor' in overrides) setBtnColor(overrides.btnColor);
+    if ('headingFont' in overrides) setHeadingFont(overrides.headingFont);
+    if ('headingSize' in overrides) setHeadingSize(overrides.headingSize);
+    if ('headingWeight' in overrides) setHeadingWeight(overrides.headingWeight);
+    if ('headingColor' in overrides) setHeadingColor(overrides.headingColor);
+    if ('subtitleSize' in overrides) setSubtitleSize(overrides.subtitleSize);
+    if ('subtitleColor' in overrides) setSubtitleColor(overrides.subtitleColor);
+    if ('fieldSize' in overrides) setFieldSize(overrides.fieldSize);
+    if ('btnFontSize' in overrides) setBtnFontSize(overrides.btnFontSize);
+    if ('btnWeight' in overrides) setBtnWeight(overrides.btnWeight);
 
     // Regenerate HTML from the merged config and write the whole
     // form state back in one updateElement call (atomic).
@@ -958,6 +1009,15 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
       _formGdprText: cfg.gdprText,
       _formBtnText: cfg.btnText,
       _formBtnColor: cfg.btnColor,
+      _formHeadingFont: cfg.headingFont,
+      _formHeadingSize: cfg.headingSize,
+      _formHeadingWeight: cfg.headingWeight,
+      _formHeadingColor: cfg.headingColor,
+      _formSubtitleSize: cfg.subtitleSize,
+      _formSubtitleColor: cfg.subtitleColor,
+      _formFieldSize: cfg.fieldSize,
+      _formBtnFontSize: cfg.btnFontSize,
+      _formBtnWeight: cfg.btnWeight,
     });
     markDirty();
   };
@@ -983,7 +1043,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
 
   return (
     <>
-      {/* Heading + Subtitle */}
+      {/* Heading — text + typography */}
       <div style={sectionStyle}>
         <label style={labelStyle}>Heading</label>
         <input
@@ -991,16 +1051,136 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
           value={heading}
           onChange={e => commitFormChange({ heading: e.target.value })}
           placeholder="Get Free Access"
-          style={{ ...inputStyle, marginBottom: 6 }}
+          style={{ ...inputStyle, marginBottom: 8 }}
         />
+        {/* Font family */}
+        <select
+          value={headingFont}
+          onChange={e => commitFormChange({ headingFont: e.target.value })}
+          style={{ ...inputStyle, marginBottom: 8, fontFamily: headingFont }}
+        >
+          {FONTS.map(f => (
+            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+          ))}
+        </select>
+        {/* Size slider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 800,
+            color: 'var(--sap-text-muted, #64748b)',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            minWidth: 26,
+          }}>Size</span>
+          <input
+            type="range"
+            min="12" max="48" step="1"
+            value={headingSize}
+            onChange={e => commitFormChange({ headingSize: parseInt(e.target.value, 10) })}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 38, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{headingSize}px</span>
+        </div>
+        {/* Weight + Colour on one row */}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <select
+            value={headingWeight}
+            onChange={e => commitFormChange({ headingWeight: e.target.value })}
+            style={{ ...inputStyle, flex: 1 }}
+          >
+            <option value="400">Regular</option>
+            <option value="500">Medium</option>
+            <option value="600">Semibold</option>
+            <option value="700">Bold</option>
+            <option value="800">Extra Bold</option>
+            <option value="900">Black</option>
+          </select>
+          <label style={{
+            width: 32, height: 32, borderRadius: 6,
+            background: headingColor,
+            border: '1px solid var(--sap-border, #e2e8f0)',
+            cursor: 'pointer',
+            position: 'relative', overflow: 'hidden',
+            flexShrink: 0,
+          }} title="Heading colour">
+            <input
+              type="color"
+              value={headingColor.startsWith('#') ? headingColor : '#ffffff'}
+              onChange={e => commitFormChange({ headingColor: e.target.value })}
+              style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', padding: 0, cursor: 'pointer' }}
+            />
+          </label>
+        </div>
+      </div>
+
+      {/* Subtitle — text + size/colour */}
+      <div style={sectionStyle}>
         <label style={labelStyle}>Subtitle</label>
         <input
           type="text"
           value={subtitle}
           onChange={e => commitFormChange({ subtitle: e.target.value })}
           placeholder="Enter your details below"
-          style={inputStyle}
+          style={{ ...inputStyle, marginBottom: 8 }}
         />
+        {/* Size slider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 800,
+            color: 'var(--sap-text-muted, #64748b)',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            minWidth: 26,
+          }}>Size</span>
+          <input
+            type="range"
+            min="10" max="24" step="1"
+            value={subtitleSize}
+            onChange={e => commitFormChange({ subtitleSize: parseInt(e.target.value, 10) })}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 38, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{subtitleSize}px</span>
+        </div>
+        {/* Subtitle colour as a single picker tile + hex readout */}
+        <label style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '6px 10px',
+          background: 'var(--sap-bg-elevated, #f8fafc)',
+          border: '1px solid var(--sap-border, #e2e8f0)',
+          borderRadius: 6,
+          cursor: 'pointer',
+        }} title="Subtitle colour">
+          <div style={{
+            width: 18, height: 18, borderRadius: 4,
+            background: subtitleColor,
+            border: '1px solid var(--sap-border-faint, #e2e8f0)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <input
+              type="color"
+              value={subtitleColor.startsWith('#') ? subtitleColor : '#94a3b8'}
+              onChange={e => commitFormChange({ subtitleColor: e.target.value })}
+              style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', padding: 0, cursor: 'pointer' }}
+            />
+          </div>
+          <span style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', fontWeight: 600 }}>
+            Subtitle colour
+          </span>
+          <span style={{ flex: 1 }} />
+          <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--sap-text-faint, #94a3b8)' }}>
+            {subtitleColor.startsWith('#') ? subtitleColor.toUpperCase() : ''}
+          </span>
+        </label>
       </div>
 
       {/* Fields toggles */}
@@ -1033,6 +1213,30 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
           value={showPhone}
           onChange={v => commitFormChange({ showPhone: v })}
         />
+        {/* Field text size — controls placeholder/typed text size in
+            the input boxes. Affects all fields uniformly. */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 800,
+            color: 'var(--sap-text-muted, #64748b)',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            minWidth: 56,
+          }}>Field text</span>
+          <input
+            type="range"
+            min="11" max="20" step="1"
+            value={fieldSize}
+            onChange={e => commitFormChange({ fieldSize: parseInt(e.target.value, 10) })}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 38, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{fieldSize}px</span>
+        </div>
       </div>
 
       {/* GDPR consent */}
@@ -1065,6 +1269,41 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
           placeholder="Get Access →"
           style={{ ...inputStyle, marginBottom: 8 }}
         />
+        {/* Button typography — size + weight, no font family (button
+            inherits from page for visual consistency with the rest of
+            the form). */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 800,
+            color: 'var(--sap-text-muted, #64748b)',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            minWidth: 26,
+          }}>Size</span>
+          <input
+            type="range"
+            min="11" max="24" step="1"
+            value={btnFontSize}
+            onChange={e => commitFormChange({ btnFontSize: parseInt(e.target.value, 10) })}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 38, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{btnFontSize}px</span>
+        </div>
+        <select
+          value={btnWeight}
+          onChange={e => commitFormChange({ btnWeight: e.target.value })}
+          style={{ ...inputStyle, marginBottom: 8 }}
+        >
+          <option value="500">Medium</option>
+          <option value="600">Semibold</option>
+          <option value="700">Bold</option>
+          <option value="800">Extra Bold</option>
+        </select>
         <label style={{ ...labelStyle, marginTop: 4 }}>Button colour</label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 5 }}>
           {BTN_COLOURS.map((c, i) => (
