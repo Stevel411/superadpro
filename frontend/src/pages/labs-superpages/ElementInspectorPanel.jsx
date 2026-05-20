@@ -2951,6 +2951,23 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
 
   return (
     <>
+      {/* Form container — background, padding, radius. Added
+          20 May 2026 (Steve flag): the form's outer wrapper had
+          a hardcoded grey-translucent default
+          (rgba(15,23,41,0.4) — see elementDefaults.js form entry)
+          and no UI control to change it, so the form sat as a
+          murky grey panel on every page. ContainerSection edits
+          el.s.background / el.s.borderRadius / el.s.padding via
+          updateElementStyle — same component used by Box,
+          Review, Testimonial, etc. so the UX is consistent. */}
+      <ContainerSection
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        includeAccentStripe={false}
+        lastSection={false}
+      />
+
       {/* Heading — text + typography */}
       <div style={sectionStyle}>
         <label style={labelStyle}>Heading</label>
