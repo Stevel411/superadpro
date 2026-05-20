@@ -117,7 +117,11 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   return (
     <div className="block-palette" style={{
       width: 284, flexShrink: 0,
-      borderLeft: '1px solid #e2e8f0',
+      // 20 May 2026: experimental cobalt panel chrome. Was inheriting
+      // light page background; now sits as cobalt gradient to bracket
+      // the canvas with the Inspector on the left.
+      background: 'linear-gradient(180deg, #0a1438, #1e3a8a)',
+      borderLeft: '1px solid rgba(255,255,255,0.08)',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
 

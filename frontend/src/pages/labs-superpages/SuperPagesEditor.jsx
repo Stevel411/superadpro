@@ -646,7 +646,7 @@ export default function LabsSuperPagesEditor() {
       // /pro/funnels) and via the Back button next to it.
       hideSidebar={true}
       hideTopbar={true}
-      bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
+      bgStyle={{ padding: 0, background: '#0a1438', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       <div className="labs-chrome" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: "'Manrope', 'Inter', sans-serif" }}>
       <EditorTopbar
@@ -838,8 +838,12 @@ export default function LabsSuperPagesEditor() {
             <div style={{
               width: 260,
               flexShrink: 0,
-              background: '#ffffff',
-              borderRight: '1px solid var(--sap-border-faint, #f1f5f9)',
+              // 20 May 2026: experimental cobalt panel chrome. Was
+              // #ffffff. The Inspector's inner content renders its own
+              // white cards on top, so this provides the dark surround
+              // around them — Webflow-style chrome.
+              background: 'linear-gradient(180deg, #0a1438, #1e3a8a)',
+              borderRight: '1px solid rgba(255,255,255,0.08)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
