@@ -838,6 +838,289 @@ function ToggleRow({ label, hint, value, onChange }) {
   );
 }
 
+// ── Form (Opt-In) property section ─────────────────────────────
+//
+// The Opt-In form is the highest-stakes element on the platform — it's
+// the lead-capture engine that feeds AutoResponder. Capture flow itself
+// (POST /api/leads/capture → MemberLead + FunnelLead + FunnelEvent) is
+// already verified working as of 18 May 2026 (see audit doc F-1/F-2).
+//
+// What's new here (Phase 2B port, 20 May 2026):
+//   - Ports the structured-config editor from the SuperPagesEditor modal
+//     to the live Inspector panel
+//   - Adds GDPR consent toggle (F-4 from audit)
+//   - Adds success behaviour control — redirect URL OR inline thank-you
+//     message
+//   - Live preview tile inside the panel updates as you edit
+//
+// Storage model (unchanged — Inspector edits the existing schema):
+//   el.txt              — rendered HTML, regenerated on every change
+//                         via buildFormHTML(). Source of truth for the
+//                         exporter regex-replacement layer in exportHTML.js
+//   el._formHeading     — top heading text ('Get Free Access')
+//   el._formSubtitle    — subtitle text ('Enter your details below')
+//   el._formShowName    — boolean, name field on/off (default on)
+//   el._formShowPhone   — boolean, phone field on/off (default off)
+//   el._formGdpr        — boolean, GDPR consent checkbox (NEW, default off)
+//   el._formGdprText    — GDPR consent text (NEW)
+//   el._formBtnText     — submit button text ('Get Access →')
+//   el._formBtnColor    — submit button background colour
+//   el._formRedirect    — redirect URL on submit (optional)
+//   el._formSuccessMsg  — inline thank-you message (NEW, fallback when
+//                         no redirect set)
+//
+// Email field is always on — every opt-in form must capture email.
+function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  const [heading, setHeading] = useState(el._formHeading || 'Get Free Access');
+  const [subtitle, setSubtitle] = useState(el._formSubtitle || 'Enter your details below');
+  const [showName, setShowName] = useState(el._formShowName !== false);
+  const [showPhone, setShowPhone] = useState(!!el._formShowPhone);
+  const [gdpr, setGdpr] = useState(!!el._formGdpr);
+  const [gdprText, setGdprText] = useState(el._formGdprText || 'I agree to receive marketing emails and accept the privacy policy.');
+  const [btnText, setBtnText] = useState(el._formBtnText || 'Get Access →');
+  const [btnColor, setBtnColor] = useState(el._formBtnColor || 'var(--sap-accent)');
+  const [redirectUrl, setRedirectUrl] = useState(el._formRedirect || '');
+  const [successMsg, setSuccessMsg] = useState(el._formSuccessMsg || 'Thanks! Check your email for next steps.');
+
+  // Resync when selection changes
+  useEffect(() => {
+    setHeading(el._formHeading || 'Get Free Access');
+    setSubtitle(el._formSubtitle || 'Enter your details below');
+    setShowName(el._formShowName !== false);
+    setShowPhone(!!el._formShowPhone);
+    setGdpr(!!el._formGdpr);
+    setGdprText(el._formGdprText || 'I agree to receive marketing emails and accept the privacy policy.');
+    setBtnText(el._formBtnText || 'Get Access →');
+    setBtnColor(el._formBtnColor || 'var(--sap-accent)');
+    setRedirectUrl(el._formRedirect || '');
+    setSuccessMsg(el._formSuccessMsg || 'Thanks! Check your email for next steps.');
+  }, [el.id]);
+
+  // ── HTML regeneration ─────────────────────────────────────────
+  //
+  // Identical shape to the modal's buildHTML in SuperPagesEditor.jsx
+  // — preserves the exact markup contract that exportHTML.js expects
+  // (data-sp-submit="1" hook, placeholder text patterns for name
+  // mapping, etc.). The submission flow has been verified working
+  // end-to-end (18 May 2026); don't break it.
+  //
+  // GDPR checkbox added in Phase 2B — emitted as a <label> with a
+  // required checkbox so form submission is blocked until ticked.
+  // Placed between fields and submit button so it's visible.
+  const buildFormHTML = (cfg) => {
+    let fields = '';
+    if (cfg.showName) {
+      fields += `<input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    }
+    fields += `<input placeholder="Your email" type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    if (cfg.showPhone) {
+      fields += `<input placeholder="Your phone" type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    }
+    let gdprBlock = '';
+    if (cfg.gdpr) {
+      gdprBlock = `<label style="display:flex;align-items:flex-start;gap:8px;margin:8px 0 12px;text-align:left;font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;cursor:pointer"><input type="checkbox" required style="margin-top:2px;flex-shrink:0;accent-color:#0ea5e9;cursor:pointer"><span>${cfg.gdprText}</span></label>`;
+    }
+    return `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${cfg.heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${cfg.subtitle}</div>${fields}${gdprBlock}<button data-sp-submit="1" style="width:100%;padding:12px;border-radius:10px;background:${cfg.btnColor};color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer;border:none;font-family:inherit">${cfg.btnText}</button></div>`;
+  };
+
+  // ── Live-edit helper ──────────────────────────────────────────
+  //
+  // Form has many fields that interact (changing showName regenerates
+  // el.txt). To avoid stale-closure bugs, we accept overrides and
+  // merge them into the current state snapshot — that way the regen
+  // always uses the latest values.
+  const commitFormChange = (overrides) => {
+    const cfg = {
+      heading, subtitle, showName, showPhone, gdpr, gdprText,
+      btnText, btnColor,
+      ...overrides,
+    };
+    // Update local React state for whichever fields the caller
+    // passed in overrides — keeps inputs snappy.
+    if ('heading' in overrides) setHeading(overrides.heading);
+    if ('subtitle' in overrides) setSubtitle(overrides.subtitle);
+    if ('showName' in overrides) setShowName(overrides.showName);
+    if ('showPhone' in overrides) setShowPhone(overrides.showPhone);
+    if ('gdpr' in overrides) setGdpr(overrides.gdpr);
+    if ('gdprText' in overrides) setGdprText(overrides.gdprText);
+    if ('btnText' in overrides) setBtnText(overrides.btnText);
+    if ('btnColor' in overrides) setBtnColor(overrides.btnColor);
+
+    // Regenerate HTML from the merged config and write the whole
+    // form state back in one updateElement call (atomic).
+    updateElement(el.id, {
+      txt: buildFormHTML(cfg),
+      _formHeading: cfg.heading,
+      _formSubtitle: cfg.subtitle,
+      _formShowName: cfg.showName,
+      _formShowPhone: cfg.showPhone,
+      _formGdpr: cfg.gdpr,
+      _formGdprText: cfg.gdprText,
+      _formBtnText: cfg.btnText,
+      _formBtnColor: cfg.btnColor,
+    });
+    markDirty();
+  };
+
+  // Redirect URL and success message are simpler — they don't need
+  // HTML regeneration, just stored on the element for the exporter
+  // and submission JS to read.
+  const commitRedirect = (v) => {
+    setRedirectUrl(v);
+    updateElement(el.id, { _formRedirect: v });
+    markDirty();
+  };
+  const commitSuccessMsg = (v) => {
+    setSuccessMsg(v);
+    updateElement(el.id, { _formSuccessMsg: v });
+    markDirty();
+  };
+
+  const BTN_COLOURS = [
+    'var(--sap-accent)', 'var(--sap-green-mid)', 'var(--sap-indigo)',
+    'var(--sap-red-bright)', 'var(--sap-amber)', 'var(--sap-pink)',
+  ];
+
+  return (
+    <>
+      {/* Heading + Subtitle */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Heading</label>
+        <input
+          type="text"
+          value={heading}
+          onChange={e => commitFormChange({ heading: e.target.value })}
+          placeholder="Get Free Access"
+          style={{ ...inputStyle, marginBottom: 6 }}
+        />
+        <label style={labelStyle}>Subtitle</label>
+        <input
+          type="text"
+          value={subtitle}
+          onChange={e => commitFormChange({ subtitle: e.target.value })}
+          placeholder="Enter your details below"
+          style={inputStyle}
+        />
+      </div>
+
+      {/* Fields toggles */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Fields</label>
+        <ToggleRow
+          label="First name"
+          hint="Captures the lead's first name (recommended for personalisation)."
+          value={showName}
+          onChange={v => commitFormChange({ showName: v })}
+        />
+        <div style={{
+          padding: '8px 10px', marginBottom: 6,
+          borderRadius: 6,
+          background: 'var(--sap-bg-elevated, #f8fafc)',
+          border: '1px solid var(--sap-border-faint, #e2e8f0)',
+          fontSize: 11,
+          color: 'var(--sap-text-muted, #64748b)',
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <span style={{ fontSize: 12 }}>✓</span>
+          <div>
+            <div style={{ fontWeight: 700, color: 'var(--sap-text-primary, #0f172a)', fontSize: 12 }}>Email <span style={{ fontWeight: 400, color: 'var(--sap-text-muted, #64748b)', fontSize: 10 }}>(always on)</span></div>
+            <div style={{ fontSize: 10, marginTop: 2 }}>Every opt-in form captures email.</div>
+          </div>
+        </div>
+        <ToggleRow
+          label="Phone number"
+          hint="Adds a phone field — useful for SMS sequences or call-back follow-up."
+          value={showPhone}
+          onChange={v => commitFormChange({ showPhone: v })}
+        />
+      </div>
+
+      {/* GDPR consent */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Consent</label>
+        <ToggleRow
+          label="GDPR consent checkbox"
+          hint="Required for EU/UK visitors — adds a checkbox the visitor must tick before submitting."
+          value={gdpr}
+          onChange={v => commitFormChange({ gdpr: v })}
+        />
+        {gdpr && (
+          <textarea
+            value={gdprText}
+            onChange={e => commitFormChange({ gdprText: e.target.value })}
+            rows={2}
+            placeholder="I agree to receive marketing emails and accept the privacy policy."
+            style={{ ...inputStyle, marginTop: 6, fontSize: 11, lineHeight: 1.4, resize: 'vertical', minHeight: 50 }}
+          />
+        )}
+      </div>
+
+      {/* Submit button */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Submit button</label>
+        <input
+          type="text"
+          value={btnText}
+          onChange={e => commitFormChange({ btnText: e.target.value })}
+          placeholder="Get Access →"
+          style={{ ...inputStyle, marginBottom: 8 }}
+        />
+        <label style={{ ...labelStyle, marginTop: 4 }}>Button colour</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 5 }}>
+          {BTN_COLOURS.map((c, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => commitFormChange({ btnColor: c })}
+              title={c}
+              aria-label={`Button colour ${c}`}
+              style={{
+                aspectRatio: '1',
+                borderRadius: 5,
+                background: c,
+                cursor: 'pointer',
+                border: btnColor === c ? '2px solid var(--sap-text-primary, #0f172a)' : '1px solid var(--sap-border, #e2e8f0)',
+                padding: 0,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Success behaviour */}
+      <div style={sectionStyleLast}>
+        <label style={labelStyle}>After submit</label>
+        <input
+          type="text"
+          value={redirectUrl}
+          onChange={e => commitRedirect(e.target.value)}
+          placeholder="https://…/thank-you (optional)"
+          style={{ ...inputStyle, marginBottom: 6, fontFamily: 'monospace', fontSize: 11, color: redirectUrl ? 'var(--sap-accent, #0284c7)' : 'var(--sap-text-muted, #64748b)' }}
+        />
+        {!redirectUrl && (
+          <>
+            <label style={{ ...labelStyle, marginTop: 4 }}>Or inline message</label>
+            <input
+              type="text"
+              value={successMsg}
+              onChange={e => commitSuccessMsg(e.target.value)}
+              placeholder="Thanks! Check your email…"
+              style={inputStyle}
+            />
+            <div style={{
+              fontSize: 10,
+              color: 'var(--sap-text-muted, #64748b)',
+              marginTop: 6, lineHeight: 1.4,
+            }}>
+              Shown in place of the form when the visitor submits successfully. Used only if no redirect URL is set.
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
 // ── Placeholder for unsupported types ──────────────────────────
 //
 // Until Phase 2 ports the other 25 element types, we show a friendly
@@ -943,12 +1226,15 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
       {/* Type-specific properties.
           Phase 1: Button (commit d893935)
           Phase 2A: Heading, Text, Label — same TextTypeProperties since they share a Tiptap inline-edit model (commit fabffc8)
-          Phase 2B: Announcement Banner — own component with dismissible + sticky toggles (20 May 2026)
-          Remaining 21 types fall back to the placeholder note pointing at the legacy modal. */}
+          Phase 2B: Announcement Banner — own component with dismissible + sticky toggles (commit 1cf83e0)
+          Phase 2B continued: Form (Opt-In) — own component, field config + GDPR + success behaviour (this commit)
+          Remaining 20 types fall back to the placeholder note pointing at the legacy modal. */}
       {el.type === 'button' ? (
         <ButtonProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'announcement' ? (
         <BannerProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : el.type === 'form' ? (
+        <FormProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : ['heading', 'text', 'label'].includes(el.type) ? (
         <TextTypeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : (

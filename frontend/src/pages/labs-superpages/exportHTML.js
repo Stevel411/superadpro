@@ -166,8 +166,17 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         /placeholder="([^"]*?phone[^"]*?)"/gi,
         'placeholder="$1" name="phone" type="tel"'
       );
+      // Behaviour attributes — _formRedirect maps to data-redirect
+      // (existing, makes the form navigate on success), and
+      // _formSuccessMsg maps to data-success-message (Phase 2B, used
+      // when no redirect is set — renders an inline thank-you instead
+      // of just toggling the submit button text). The funnel-render
+      // template JS reads both, preferring redirect.
       const redir = el._formRedirect ? ` data-redirect="${(el._formRedirect || '').replace(/"/g, '&quot;')}"` : '';
-      h += `<form ${elAttrs} style="${st}" onsubmit="return true"${redir}>${formHtml}</form>`;
+      const successMsg = (el._formSuccessMsg && !el._formRedirect)
+        ? ` data-success-message="${String(el._formSuccessMsg).replace(/"/g, '&quot;')}"`
+        : '';
+      h += `<form ${elAttrs} style="${st}" onsubmit="return true"${redir}${successMsg}>${formHtml}</form>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }

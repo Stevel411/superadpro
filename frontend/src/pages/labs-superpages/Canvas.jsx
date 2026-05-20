@@ -21,11 +21,12 @@ const TIPTAP_TYPES = ['heading', 'text', 'label'];
 // Phase 1: Button
 // Phase 2A: Heading, Text, Label — Tiptap text types styled via Inspector
 //           (content still edited inline via double-click)
-// Phase 2B: Announcement (banner) — own component with dismissible + sticky
+// Phase 2B: Announcement (banner) — dismissible + sticky toggles
+// Phase 2B (continued): Form (opt-in) — field config + GDPR + success
 //
 // Phase 2C+ will continue porting types. Once this list contains every
 // type, we can delete the old modal system entirely.
-const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement'];
+const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement', 'form'];
 
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
   var { t } = useTranslation();

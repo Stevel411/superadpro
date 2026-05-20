@@ -129,8 +129,20 @@ document.querySelectorAll('#gjsContent form').forEach(form => {
         if (redirectTo) {
           window.location.href = redirectTo;
         } else {
-          if (btn) btn.textContent = '✓ Success!';
-          form.reset();
+          // Inline success message — replace the form body with a
+          // thank-you message rather than just toggling the button.
+          // The data-success-message attribute is emitted by the form
+          // Inspector when no redirect URL is set (Phase 2B port,
+          // 20 May 2026). Falls back to '✓ Success!' button text if
+          // no message is set — backward compatible with pages built
+          // before the Inspector existed.
+          const successMsg = form.getAttribute('data-success-message');
+          if (successMsg) {
+            form.innerHTML = '<div style="padding:24px;text-align:center"><div style="font-size:36px;margin-bottom:8px;line-height:1">✓</div><div style="font-family:Sora,sans-serif;font-weight:700;font-size:18px;color:#10b981;line-height:1.4">' + successMsg.replace(/</g, '&lt;') + '</div></div>';
+          } else {
+            if (btn) btn.textContent = '✓ Success!';
+            form.reset();
+          }
         }
       } else {
         // Show the actual error message to the user instead of
