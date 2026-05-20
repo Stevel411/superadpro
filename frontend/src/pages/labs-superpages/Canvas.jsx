@@ -784,10 +784,14 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     <div className="sp-canvas-area" style={{
       flex: 1,
       minWidth: 0, // critical — allow flex parent to shrink below children's intrinsic size so overflow:auto can take effect
+      // 20 May 2026 v2: Steve flag — more breathing room around canvas.
+      // Padding bumped 28 → 40. Background stays light grey so the
+      // canvas area reads as the document workspace against the cobalt
+      // brand chrome on either side. Subtle radial gradient retained.
       background: '#f1f5f9',
       backgroundImage: 'radial-gradient(ellipse at 30% 20%, rgba(14,165,233,0.04), transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.03), transparent 50%)',
       overflow: 'auto',
-      padding: 28,
+      padding: 40,
       // No justify-content / align-items here: those collapse overflow scroll
       // when the centred child is wider than the container. We use the inner
       // "scroll content" wrapper below to centre via auto-margin instead, so

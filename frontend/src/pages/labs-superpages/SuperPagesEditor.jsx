@@ -660,7 +660,7 @@ export default function LabsSuperPagesEditor() {
       // /pro/funnels) and via the Back button next to it.
       hideSidebar={true}
       hideTopbar={true}
-      bgStyle={{ padding: 0, background: '#0a1438', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
+      bgStyle={{ padding: 0, background: '#1e3a8a', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       <div className="labs-chrome" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: "'Manrope', 'Inter', sans-serif" }}>
       <EditorTopbar
@@ -850,13 +850,14 @@ export default function LabsSuperPagesEditor() {
                 panel itself so the column doesn't visually collapse
                 when nothing is selected. */}
             <div style={{
-              width: 260,
+              width: 320,
               flexShrink: 0,
-              // 20 May 2026: experimental cobalt panel chrome. Was
-              // #ffffff. The Inspector's inner content renders its own
-              // white cards on top, so this provides the dark surround
-              // around them — Webflow-style chrome.
-              background: 'linear-gradient(180deg, #0a1438, #1e3a8a)',
+              // 20 May 2026 v2: Steve flagged the dark-to-darker gradient
+              // as too dark in some areas. Switched to a flat lighter
+              // cobalt (#1e3a8a) for uniform brand surface across the
+              // panel. Width bumped 260 → 320 for breathing room
+              // around controls inside.
+              background: '#1e3a8a',
               borderRight: '1px solid rgba(255,255,255,0.08)',
               overflow: 'hidden',
               display: 'flex',

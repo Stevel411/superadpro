@@ -227,9 +227,19 @@
 .labs-chrome .ins-cobalt input:not([type]),
 .labs-chrome .ins-cobalt textarea,
 .labs-chrome .ins-cobalt select {
-  background: rgba(255,255,255,0.08) !important;
-  border: 1px solid rgba(255,255,255,0.15) !important;
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
   color: #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 1px 2px rgba(0,0,0,0.18) !important;
+  transition: all 0.15s ease !important;
+}
+.labs-chrome .ins-cobalt input:hover,
+.labs-chrome .ins-cobalt textarea:hover,
+.labs-chrome .ins-cobalt select:hover {
+  background: rgba(255,255,255,0.13) !important;
+  border-color: rgba(255,255,255,0.28) !important;
 }
 .labs-chrome .ins-cobalt input::placeholder,
 .labs-chrome .ins-cobalt textarea::placeholder {
@@ -239,7 +249,11 @@
 .labs-chrome .ins-cobalt textarea:focus,
 .labs-chrome .ins-cobalt select:focus {
   border-color: #22d3ee !important;
+  background: rgba(255,255,255,0.13) !important;
   outline: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 0 0 2px rgba(34,211,238,0.25) !important;
 }
 
 /* Generic text inside the inspector defaults to white-translucent
@@ -272,10 +286,12 @@
   aspect-ratio: 1 !important;
   background: #ffffff !important;
   background-image: none !important;
-  /* Visible cobalt-tinted border for edge definition. Resting border
-     reads as a real card edge against the wash; hover deepens into
-     a violet ring (handled below). */
-  border: 1px solid rgba(14,165,233,0.14) !important;
+  /* 20 May 2026 v2: stronger shadows for cobalt panel background.
+     Was tuned for white panel where cobalt-tinted shadows added
+     depth; on cobalt the cobalt shadows disappear so we now use
+     darker shadow values for proper lift. Resting state shows a
+     real card lifted off the cobalt surface. */
+  border: 1px solid rgba(255,255,255,0.12) !important;
   border-radius: 14px !important;
   padding: 14px 6px !important;
   display: flex !important;
@@ -287,15 +303,15 @@
   cursor: grab !important;
   overflow: visible !important;
   isolation: isolate !important;
-  /* Three-layer rest shadow:
+  /* Three-layer rest shadow on cobalt:
      - Inner highlight (top edge catches light)
-     - Tight cobalt ambient (close shadow)
-     - Broader violet ground (atmospheric diffuse) */
+     - Tight dark ambient (close shadow, reads on cobalt)
+     - Broader dark ground (atmospheric diffuse) */
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.9),
-    0 1px 2px rgba(14,165,233,0.10),
-    0 4px 12px rgba(14,165,233,0.12),
-    0 8px 20px rgba(168,85,247,0.10) !important;
+    0 1px 3px rgba(0,0,0,0.18),
+    0 6px 16px rgba(0,0,0,0.22),
+    0 12px 28px rgba(0,0,0,0.18) !important;
   transition:
     transform 0.18s cubic-bezier(0.4,0,0.2,1),
     box-shadow 0.18s cubic-bezier(0.4,0,0.2,1),
@@ -304,13 +320,13 @@
 
 .labs-chrome .pal-item:hover {
   transform: translateY(-3px) !important;
-  border-color: rgba(168,85,247,0.35) !important;
+  border-color: rgba(34,211,238,0.5) !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
-    0 2px 4px rgba(14,165,233,0.14),
-    0 8px 20px rgba(14,165,233,0.22),
-    0 14px 36px rgba(168,85,247,0.22),
-    0 0 0 1px rgba(168,85,247,0.12) !important;
+    0 2px 4px rgba(0,0,0,0.22),
+    0 10px 24px rgba(0,0,0,0.28),
+    0 18px 44px rgba(0,0,0,0.22),
+    0 0 0 1px rgba(34,211,238,0.25) !important;
 }
 
 .labs-chrome .pal-item:active {
@@ -318,9 +334,9 @@
   transition-duration: 0.08s !important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.9),
-    0 1px 2px rgba(14,165,233,0.10),
-    0 3px 8px rgba(14,165,233,0.16),
-    0 6px 14px rgba(168,85,247,0.18) !important;
+    0 1px 2px rgba(0,0,0,0.2),
+    0 4px 10px rgba(0,0,0,0.24),
+    0 8px 18px rgba(0,0,0,0.2) !important;
 }
 
 /* Tile icons — bolder stroke + rounded caps + colour transitions.
