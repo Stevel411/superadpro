@@ -22,18 +22,15 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   const isPublished = status === 'published';
   return (
     <div className="sp-editor-subbar sp-editor-topbar" style={{
-      height: 56,
-      // Cobalt brand top bar — restyled 20 May 2026 (Steve flag).
-      // Previously a translucent-white sub-bar that sat under the
-      // AppLayout cobalt topbar in DB-backed mode; in sandbox mode
-      // (where AppLayout is hidden) this left the editor with no
-      // brand anchor, floating on white. Steve's call: there should
-      // only be ONE top bar, and it should be cobalt. The light-chrome
-      // approach is abandoned — brand congruence wins over the
-      // "editor tools should feel different from navigation" goal.
-      background: 'linear-gradient(135deg, #0a1438, #1e3a8a)',
+      // 20 May 2026 v3: Steve flag — match platform standard topbar.
+      // Was 56px gradient(135deg, #0a1438, #1e3a8a). Now 72px flat
+      // #1e3a8a to match the panel chrome and platform-standard
+      // height (Topbar.jsx uses 72px). Gives the topbar room to
+      // breathe at the platform's expected dimensions.
+      height: 72,
+      background: '#1e3a8a',
       borderBottom: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex', alignItems: 'center', padding: '0 18px', gap: 8, flexShrink: 0, zIndex: 20,
+      display: 'flex', alignItems: 'center', padding: '0 22px', gap: 8, flexShrink: 0, zIndex: 20,
     }}>
       <style>{`
         /* Neutralise the global 'button lifts 1 px on hover' rule inside the

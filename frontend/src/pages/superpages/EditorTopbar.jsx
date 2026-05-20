@@ -13,10 +13,13 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   const isPublished = status === 'published';
   return (
     <div className="sp-editor-subbar" style={{
-      height: 56,
-      background: 'linear-gradient(135deg, #0a1438, #1e3a8a)',
+      // 20 May 2026 v3: matched to platform-standard 72px height
+      // and flat cobalt to mirror panel chrome. Same treatment as
+      // the labs editor topbar.
+      height: 72,
+      background: '#1e3a8a',
       borderBottom: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex', alignItems: 'center', padding: '0 18px', gap: 8, flexShrink: 0, zIndex: 20,
+      display: 'flex', alignItems: 'center', padding: '0 22px', gap: 8, flexShrink: 0, zIndex: 20,
     }}>
       <style>{`
         .sp-editor-subbar button:hover,

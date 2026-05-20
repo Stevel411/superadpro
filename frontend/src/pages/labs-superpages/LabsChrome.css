@@ -219,41 +219,52 @@
   color: rgba(255,255,255,0.55) !important;
 }
 
-/* Inputs, textareas, selects — give them a translucent cobalt
-   look with readable white text. */
+/* Inputs, textareas, selects — white card treatment on cobalt
+   panel for visual congruence with the BlockPalette tiles (which
+   are also white cards on cobalt). Steve flag 20 May 2026: 'ensure
+   all fields inside the left side panel are white background with
+   dark text so its all congruent'. Was previously translucent
+   white-on-cobalt with white text; now solid white with dark
+   slate text for proper card lift. */
 .labs-chrome .ins-cobalt input[type="text"],
 .labs-chrome .ins-cobalt input[type="url"],
 .labs-chrome .ins-cobalt input[type="number"],
 .labs-chrome .ins-cobalt input:not([type]),
 .labs-chrome .ins-cobalt textarea,
 .labs-chrome .ins-cobalt select {
-  background: rgba(255,255,255,0.10) !important;
+  background: #ffffff !important;
   border: 1px solid rgba(255,255,255,0.18) !important;
-  color: #ffffff !important;
+  color: #0f172a !important;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    0 1px 2px rgba(0,0,0,0.18) !important;
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 1px 2px rgba(0,0,0,0.18),
+    0 4px 10px rgba(0,0,0,0.15) !important;
   transition: all 0.15s ease !important;
 }
 .labs-chrome .ins-cobalt input:hover,
 .labs-chrome .ins-cobalt textarea:hover,
 .labs-chrome .ins-cobalt select:hover {
-  background: rgba(255,255,255,0.13) !important;
-  border-color: rgba(255,255,255,0.28) !important;
+  border-color: rgba(34,211,238,0.4) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 1px 3px rgba(0,0,0,0.22),
+    0 6px 14px rgba(0,0,0,0.18) !important;
 }
 .labs-chrome .ins-cobalt input::placeholder,
 .labs-chrome .ins-cobalt textarea::placeholder {
-  color: rgba(255,255,255,0.4) !important;
+  color: rgba(15,23,42,0.4) !important;
 }
 .labs-chrome .ins-cobalt input:focus,
 .labs-chrome .ins-cobalt textarea:focus,
 .labs-chrome .ins-cobalt select:focus {
   border-color: #22d3ee !important;
-  background: rgba(255,255,255,0.13) !important;
+  background: #ffffff !important;
   outline: none !important;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    0 0 0 2px rgba(34,211,238,0.25) !important;
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 1px 3px rgba(0,0,0,0.22),
+    0 6px 14px rgba(0,0,0,0.18),
+    0 0 0 2px rgba(34,211,238,0.35) !important;
 }
 
 /* Generic text inside the inspector defaults to white-translucent
@@ -268,21 +279,26 @@
      49 references to var(--sap-text-muted) and var(--sap-text-faint)
      across 15 properties panels — overriding the variables here
      catches them all in one place rather than touching every
-     inline style. */
+     inline style.
+     20 May 2026 v3: --sap-bg-elevated and --sap-bg-input flipped
+     to solid white (#ffffff) so internal cards/swatch grids/
+     button rows render as white cards on cobalt for visual
+     congruence with the BlockPalette tiles. */
   --sap-text-muted: rgba(255,255,255,0.7);
   --sap-text-faint: rgba(255,255,255,0.5);
   --sap-text-primary: #ffffff;
   --sap-border: rgba(255,255,255,0.15);
   --sap-border-faint: rgba(255,255,255,0.08);
-  --sap-bg-elevated: rgba(255,255,255,0.06);
-  --sap-bg-input: rgba(255,255,255,0.08);
+  --sap-bg-elevated: #ffffff;
+  --sap-bg-input: #ffffff;
 }
 
-/* Dropdown native chrome — make the arrow visible on cobalt. */
+/* Dropdown native chrome — make the arrow dark since the select
+   is now a white card (was white arrow on translucent cobalt). */
 .labs-chrome .ins-cobalt select {
   -webkit-appearance: none !important;
   appearance: none !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: right 8px center !important;
   padding-right: 26px !important;
