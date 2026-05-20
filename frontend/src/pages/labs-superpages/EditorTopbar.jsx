@@ -30,7 +30,17 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       height: 72,
       background: '#1e3a8a',
       borderBottom: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex', alignItems: 'center', padding: '0 22px', gap: 8, flexShrink: 0, zIndex: 20,
+      display: 'flex', alignItems: 'center', padding: '0 22px', gap: 8,
+      flexShrink: 0, zIndex: 20,
+      // 20 May 2026 v4 (Steve flag — topbar disappearing on narrow
+      // windows). min-width:0 lets the bar itself shrink with the
+      // viewport; overflow-x:auto lets buttons scroll horizontally
+      // INSIDE the bar when there are more buttons than width.
+      // Without this, the row's intrinsic min-content width would
+      // try to push the bar wider than its parent and disappear.
+      minWidth: 0,
+      overflowX: 'auto',
+      overflowY: 'hidden',
     }}>
       <style>{`
         /* Neutralise the global 'button lifts 1 px on hover' rule inside the
@@ -41,6 +51,17 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           transform: none !important;
           filter: none !important;
         }
+        /* Hide scrollbar on the topbar (20 May 2026). The bar has
+           overflow-x:auto so buttons scroll horizontally when the
+           viewport is narrower than their intrinsic total width —
+           but a visible scrollbar under the buttons would look
+           broken. Hidden across browsers; scroll still works via
+           trackpad swipe / shift+wheel. */
+        .sp-editor-subbar {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .sp-editor-subbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
         /* SuperPages brand logo + wordmark — cobalt-bar version (20 May 2026).
            Wordmark is white on cobalt, 'Pages' accent stays cyan. Same 4-tile
            SVG as before. */

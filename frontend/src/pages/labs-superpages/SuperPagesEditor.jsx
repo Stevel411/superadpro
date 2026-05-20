@@ -666,7 +666,21 @@ export default function LabsSuperPagesEditor() {
       hideTopbar={true}
       bgStyle={{ padding: 0, background: '#1e3a8a', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
-      <div className="labs-chrome" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: "'Manrope', 'Inter', sans-serif" }}>
+      <div className="labs-chrome" style={{
+        display: 'flex', flexDirection: 'column',
+        flex: 1, minHeight: 0,
+        // 20 May 2026 v4 (Steve flag — 'if i move the page the entire
+        // top bar just disappears out of view'). Root cause: when the
+        // inner three-column row (Inspector + Canvas + Palette) has
+        // an intrinsic min-content width greater than the viewport,
+        // CSS flexbox lets it push siblings horizontally — including
+        // the topbar above it — out of view. Lock this wrapper to
+        // viewport width with overflow-x:hidden and min-width:0 so
+        // nothing can escape horizontally regardless of what's below.
+        minWidth: 0,
+        overflowX: 'hidden',
+        fontFamily: "'Manrope', 'Inter', sans-serif",
+      }}>
       <EditorTopbar
         title={pageSettings.title}
         slug={pageSettings.slug}

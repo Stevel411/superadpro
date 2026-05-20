@@ -144,8 +144,11 @@ function buttonStyle(variant, mode) {
     // when the showcase API resolves, which shifts every neighbour
     // button in the cobalt topbar. justifyContent centres the
     // contents so the icon+text don't jitter as the text changes.
+    // 20 May 2026 v2: trimmed from 190→160 (secondary) and 220→185
+    // (primary). 190 was too aggressive and contributed to the topbar
+    // overflowing on narrower windows.
     justifyContent: 'center',
-    minWidth: variant === 'primary' ? 220 : 190,
+    minWidth: variant === 'primary' ? 185 : 160,
     whiteSpace: 'nowrap',
     transition: 'transform .15s, box-shadow .15s, opacity .15s',
     border: 'none',
