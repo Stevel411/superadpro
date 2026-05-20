@@ -17,7 +17,7 @@ import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
   DB-backed mode it's also hidden via SuperPagesEditor (this bar
   takes over the role).
 */
-export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onShowWiring, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen, onToggleGrid, gridOn, currentListName, isSandbox }) {
+export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onShowWiring, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen, onToggleGrid, gridOn, currentListName, isSandbox, canvasScale = 1 }) {
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
@@ -102,6 +102,25 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       )}
 
       <div style={{flex:1}}/>
+
+      {/* Zoom indicator — shown only when canvas is auto-scaled below
+          100%. Tells the user 'this is a zoom-to-fit display; the
+          published page still renders at full width on visitor
+          screens'. Hidden at 100% to avoid chrome bloat when the
+          workspace has room. */}
+      {canvasScale < 0.995 && (
+        <div
+          title="Canvas auto-scaled to fit the workspace. Published page renders at full width."
+          style={{
+            display:'inline-flex', alignItems:'center', gap:5,
+            padding:'5px 10px', borderRadius:6,
+            background:'rgba(34,211,238,0.14)', border:'1px solid rgba(34,211,238,0.4)',
+            color:'#22d3ee', fontSize:12, fontWeight:700,
+            fontFamily:'JetBrains Mono, ui-monospace, monospace',
+          }}>
+          {Math.round(canvasScale * 100)}%
+        </div>
+      )}
 
       {/* Device view toggles — grouped pill */}
       <div style={{display:'inline-flex', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:8, padding:3, gap:0}}>

@@ -28,7 +28,7 @@ const TIPTAP_TYPES = ['heading', 'text', 'label', 'badge'];
 // type, we can delete the old modal system entirely.
 const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement', 'form', 'image', 'video', 'audio', 'review', 'testimonial', 'faq', 'stat', 'badge', 'progress', 'icontext', 'separator', 'logostrip', 'box', 'divider', 'spacer', 'countdown', 'socialicons', 'embed'];
 
-export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
+export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid, onScaleChange }) {
   var { t } = useTranslation();
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
@@ -68,6 +68,57 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   const elBoxes = els.map(el => ({ el, box: effectiveBox(el, deviceView) }));
   const maxElY = elBoxes.length > 0 ? Math.max(...elBoxes.map(({ box }) => box.y + box.h)) : 0;
   const canvasHeight = Math.max(deviceView === 'mobile' ? 700 : 1200, maxElY + 500);
+
+  // ── Scale-to-fit ──
+  // 20 May 2026: Steve flag — wants canvas to react when he resizes
+  // the editor window. The canvas itself stays at canvasW pixels
+  // internally (the published page renders at that width on visitor
+  // screens — never breaks). What changes is the EDITOR-time display:
+  // when the canvas-area becomes too narrow to fit canvasW + 2*padding,
+  // we apply transform: scale(N) on the canvas wrapper so the whole
+  // canvas remains visible at a smaller display size.
+  //
+  // N = 1 when there's room. Drops to whatever ratio fits (clamped at
+  // 0.4 minimum so we don't shrink to a postage stamp on tiny windows).
+  // ResizeObserver watches the canvas-area for any width change —
+  // covers browser resize, panel toggles, sidebar opens/closes, etc.
+  const canvasAreaRef = useRef(null);
+  const [canvasScale, setCanvasScale] = useState(1);
+  // Ref mirror so non-React handlers (drag/resize/marquee, which
+  // bind their own move listeners directly) can read the current
+  // scale without closing over a stale value. Updated in the same
+  // useEffect that sets the state.
+  const canvasScaleRef = useRef(1);
+  const CANVAS_PADDING = 40; // matches canvas-area padding below
+  const SCALE_MIN = 0.4;
+
+  useEffect(() => {
+    const node = canvasAreaRef.current;
+    if (!node) return;
+    const recompute = () => {
+      const areaW = node.clientWidth;
+      const available = areaW - (CANVAS_PADDING * 2);
+      let next;
+      if (available >= canvasW) {
+        next = 1;
+      } else {
+        next = Math.max(SCALE_MIN, available / canvasW);
+      }
+      setCanvasScale(next);
+      canvasScaleRef.current = next;
+    };
+    recompute();
+    const ro = new ResizeObserver(recompute);
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, [canvasW]);
+
+  // Bubble scale changes up to the editor so the topbar can show
+  // the current zoom percentage. Throttled implicitly by React's
+  // state batching — typically fires only on actual scale changes.
+  useEffect(() => {
+    if (typeof onScaleChange === 'function') onScaleChange(canvasScale);
+  }, [canvasScale, onScaleChange]);
 
   // ── Inline editing ──
   const startInlineEdit = useCallback((id) => {
@@ -399,8 +450,12 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const onMove = (ev) => {
       const d = dragRef.current;
       if (!d) return;
-      const dx = ev.clientX - d.startX;
-      const dy = ev.clientY - d.startY;
+      // Convert screen-pixel deltas to canvas-pixel deltas. At scale
+      // 0.7 the user's hand moves a screen pixel but the element
+      // should move 1/0.7 canvas pixels to stay under the cursor.
+      const s = canvasScaleRef.current || 1;
+      const dx = (ev.clientX - d.startX) / s;
+      const dy = (ev.clientY - d.startY) / s;
 
       // For the primary, snap to guides; the group follows the primary's
       // snapped delta so alignments stay coherent.
@@ -463,8 +518,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const onMove = (ev) => {
       const r = resizeRef.current;
       if (!r) return;
-      const dx = ev.clientX - r.startX;
-      const dy = ev.clientY - r.startY;
+      // Screen-pixel → canvas-pixel conversion. Without this, a 100px
+      // mouse drag at scale 0.7 would resize the element 100px when
+      // the user expected 100/0.7 ≈ 143px (so the edge stays under
+      // the cursor on screen).
+      const s = canvasScaleRef.current || 1;
+      const dx = (ev.clientX - r.startX) / s;
+      const dy = (ev.clientY - r.startY) / s;
       let newX = r.origX, newY = r.origY, newW = r.origW, newH = r.origH;
 
       // Right edge
@@ -508,8 +568,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const type = e.dataTransfer.getData('text/plain');
     if (!type) return;
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // getBoundingClientRect returns the VISUAL (scaled) rect when the
+    // canvas is inside a transform: scale wrapper. Divide by the
+    // current scale to convert screen-pixel offset into the canvas's
+    // internal coordinate space.
+    const s = canvasScaleRef.current || 1;
+    const x = (e.clientX - rect.left) / s;
+    const y = (e.clientY - rect.top) / s;
     // addElement is called from parent via the drop handler
     if (window._spAddElement) window._spAddElement(type, x, y);
   }, []);
@@ -530,18 +595,22 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     // Don't deselect yet — wait to see if this is a click (deselect) or
     // a drag (marquee select). The mousemove handler decides.
     const rect = canvasRef.current.getBoundingClientRect();
-    const startX = e.clientX - rect.left;
-    const startY = e.clientY - rect.top;
+    const s = canvasScaleRef.current || 1;
+    const startX = (e.clientX - rect.left) / s;
+    const startY = (e.clientY - rect.top) / s;
     let didDrag = false;
     marqueeRef.current = { startX, startY, x1: startX, y1: startY, x2: startX, y2: startY };
 
     const onMove = (ev) => {
       const m = marqueeRef.current;
       if (!m) return;
-      const cx = ev.clientX - rect.left;
-      const cy = ev.clientY - rect.top;
+      const s = canvasScaleRef.current || 1;
+      const cx = (ev.clientX - rect.left) / s;
+      const cy = (ev.clientY - rect.top) / s;
       // Threshold: at least 4px drag distance to enter marquee mode,
-      // so a plain click still feels like a click.
+      // so a plain click still feels like a click. Threshold is in
+      // canvas-coordinate space (so a small flick feels consistent
+      // regardless of current zoom).
       if (!didDrag && Math.abs(cx - m.startX) < 4 && Math.abs(cy - m.startY) < 4) return;
       didDrag = true;
       m.x1 = Math.min(m.startX, cx);
@@ -781,7 +850,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   };
 
   return (
-    <div className="sp-canvas-area" style={{
+    <div ref={canvasAreaRef} className="sp-canvas-area" style={{
       flex: 1,
       minWidth: 0, // critical — allow flex parent to shrink below children's intrinsic size so overflow:auto can take effect
       // 20 May 2026 v2: Steve flag — more breathing room around canvas.
@@ -799,13 +868,29 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // scroll when the viewport is too narrow to fit the full 1100px width.
     }}>
       <div style={{
-        // This inner wrapper is the actual scroll content. Width must be at
-        // least canvas-width + padding so the parent's overflow-auto kicks in.
-        // The canvas centres inside it via auto-margins.
-        minWidth: CANVAS_WIDTH,
+        // ── Scale-to-fit wrapper ──
+        // We apply transform: scale on this wrapper so the canvas
+        // visually shrinks when the area is too narrow. transform-origin
+        // 'top center' keeps the canvas centred + anchored at the top
+        // as it scales. We also explicitly set width/height to the
+        // SCALED dimensions so the parent's layout computation gets
+        // the visual footprint right — without this the scaled canvas
+        // would still reserve its full unscaled footprint and create
+        // ghost scroll space.
+        width: canvasW * canvasScale,
+        height: canvasHeight * canvasScale,
         margin: '0 auto',
-        display: 'flex',
-        justifyContent: 'center',
+        position: 'relative',
+      }}>
+      <div style={{
+        // Inner box that actually gets the scale transform. Set to the
+        // unscaled dimensions; the transform handles the visual shrink.
+        // transform-origin 'top left' so x/y of nested elements still
+        // align with the parent's coordinate space at any scale.
+        width: canvasW,
+        height: canvasHeight,
+        transform: `scale(${canvasScale})`,
+        transformOrigin: 'top left',
       }}>
       <div
         ref={canvasRef}
@@ -1025,6 +1110,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             />
           );
         })()}
+      </div>
       </div>
       </div>
 

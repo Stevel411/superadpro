@@ -63,6 +63,10 @@ export default function LabsSuperPagesEditor() {
   const [editingElement, setEditingElement] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [deviceView, setDeviceView] = useState('desktop');
+  // Mirror of Canvas's internal scale, lifted so the topbar can show
+  // the current zoom percentage. Canvas calls onScaleChange whenever
+  // the auto-fit recompute fires.
+  const [canvasScale, setCanvasScale] = useState(1);
   const [pageStatus, setPageStatus] = useState('draft');
   // ── Narrow-viewport guard ──
   // Temporarily lowered to 600 for the diagnostic phase (20 May 2026):
@@ -690,6 +694,7 @@ export default function LabsSuperPagesEditor() {
         previewMode={previewMode}
         deviceView={deviceView}
         onSetDevice={setDeviceView}
+        canvasScale={canvasScale}
       />
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0, position: 'relative' }}>
         {/* Floating layer panel — opens from the topbar button.
@@ -907,6 +912,7 @@ export default function LabsSuperPagesEditor() {
               moveElementZ={moveElementZ}
               copySelected={copySelected}
               paste={paste}
+              onScaleChange={setCanvasScale}
             />
           </>
         )}
