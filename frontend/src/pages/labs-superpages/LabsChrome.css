@@ -293,6 +293,50 @@
   --sap-bg-input: #ffffff;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   White-card content recovery (20 May 2026 v4)
+
+   Steve flagged labels/descriptions disappearing inside the white
+   FIELDS rows and similar cards. Root cause: the .ins-cobalt scope
+   above sets --sap-text-muted to white-translucent (correct for
+   text on cobalt), but child components reuse the same token to
+   colour text INSIDE white cards (background:
+   var(--sap-bg-elevated) which is now white). Result: white text
+   on white card.
+
+   Fix: target any element whose inline style sets the white-card
+   background and revert the text custom-property values to their
+   light-theme defaults for that subtree. This is more robust than
+   adding a className to every callsite because it catches every
+   existing and future white-card without code changes.
+
+   Selectors cover the three patterns the components use:
+   1. \`background: var(--sap-bg-elevated, #f8fafc)\` — most common
+   2. \`background: var(--sap-bg-input, #ffffff)\` — input rows
+   3. \`background: #ffffff\` literal — rare but exists
+
+   We match via attribute selectors on the inline style string.
+   It's fragile to format changes but consistent across the file
+   today and easy to update if patterns evolve.
+   ───────────────────────────────────────────────────────────── */
+.labs-chrome .ins-cobalt [style*="--sap-bg-elevated"],
+.labs-chrome .ins-cobalt [style*="--sap-bg-input"],
+.labs-chrome .ins-cobalt [style*="background: #fff"],
+.labs-chrome .ins-cobalt [style*="background:#fff"],
+.labs-chrome .ins-cobalt [style*="background: #FFF"],
+.labs-chrome .ins-cobalt [style*="background:#FFF"],
+.labs-chrome .ins-cobalt [style*="background: white"] {
+  /* Revert tokens to their original light-theme values inside
+     white cards. Children inherit these and so render dark text
+     on the white card surface — readable again. */
+  --sap-text-muted: #64748b;
+  --sap-text-faint: #94a3b8;
+  --sap-text-primary: #0f172a;
+  --sap-border: #e2e8f0;
+  --sap-border-faint: #f1f5f9;
+  color: #0f172a;
+}
+
 /* Dropdown native chrome — make the arrow dark since the select
    is now a white card (was white arrow on translucent cobalt). */
 .labs-chrome .ins-cobalt select {
