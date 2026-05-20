@@ -32,7 +32,7 @@ export default function QuickProps({ el, updateElement, updateElementStyle, mark
   //     Inspector panel on the left handles typography/colour/alignment
   //     properly, so the floating QuickProps just gets in the way
   //     (Phase 2A, 20 May 2026)
-  const SKIP_TYPES = ['spacer', 'divider', 'button', 'form', 'announcement', 'heading', 'text', 'label', 'image', 'video', 'audio'];
+  const SKIP_TYPES = ['spacer', 'divider', 'button', 'form', 'announcement', 'heading', 'text', 'label', 'image', 'video', 'audio', 'review', 'testimonial', 'faq', 'stat', 'badge', 'progress'];
   if (SKIP_TYPES.includes(el.type)) return null;
 
   const fgRef = useRef(null);

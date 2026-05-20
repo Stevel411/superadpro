@@ -537,6 +537,574 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
   );
 }
 
+// ═══════════════════════════════════════════════════════════════
+// Phase 2D — Card-like containers + Progress + Badge
+// ═══════════════════════════════════════════════════════════════
+//
+// Six element types added in Phase 2D (20 May 2026):
+//   - review        ← content inline-edited via contenteditable;
+//                     Inspector handles container styling only
+//   - testimonial   ← same as review
+//   - faq           ← same as review
+//   - stat          ← same as review + text alignment
+//   - badge         ← typography + container (via TextTypeProperties)
+//   - progress      ← structured config: label + percent + colours
+//
+// Approach: card-likes share enough (background, padding, radius,
+// accent stripe) that a single ContainerSection helper handles them.
+// CardLikeProperties routes through that helper with type-specific
+// extras (stat gets text alignment, review/testimonial get the
+// accent stripe by default since their defaults already have one).
+//
+// Progress is its own component because its model is purely
+// structural fields (no styling on the element itself — colours and
+// label are passed through to the rendered bar via _percent etc).
+//
+// Badge falls under TextTypeProperties extended with a Container
+// subsection — Badge IS a Label with a pill background, structurally
+// — and is added to TIPTAP_TYPES so it inline-edits like Label.
+
+// ── ContainerSection — reusable card-styling controls ──────────
+//
+// Drop-in subcomponent. Handles three core styling properties common
+// to card-like elements: background, corner radius, padding. Optional
+// accent-stripe (left border) for review/testimonial.
+//
+// All controls write through updateElementStyle on every change. No
+// Apply button. Local state mirrors el.s for snappy input feel and
+// resyncs when el.id changes.
+function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStripe = false, lastSection = false }) {
+  // ── Local state mirrors el.s ─────────────────────────────────
+  // Background can be 'transparent', a hex, a linear-gradient(),
+  // or a CSS variable. For the colour picker we extract the first
+  // hex if any; otherwise leave the picker neutral and rely on the
+  // raw text input for gradients.
+  const [background, setBackground] = useState(el.s?.background || '#1e293b');
+  const [radius, setRadius] = useState(parseInt((el.s?.borderRadius || '12px'), 10) || 12);
+  // Padding can be '24px' (uniform) or '24px 18px' (vertical/horizontal).
+  // We treat it as uniform here for simplicity — members who need
+  // asymmetric padding can use the raw CSS edit feature later.
+  const [padding, setPadding] = useState(parseInt((el.s?.padding || '24px'), 10) || 24);
+
+  // Accent stripe — only meaningful for review/testimonial which use
+  // it as a left-bar visual divider. Parse from `borderLeft` which
+  // is typically '4px solid #0ea5e9'.
+  const stripeRaw = el.s?.borderLeft || '';
+  const stripeMatch = stripeRaw.match(/^(\d+)px\s+solid\s+(.+)$/);
+  const [stripeWidth, setStripeWidth] = useState(stripeMatch ? parseInt(stripeMatch[1], 10) : 0);
+  const [stripeColor, setStripeColor] = useState(stripeMatch ? stripeMatch[2] : '#0ea5e9');
+
+  // Resync on selection change
+  useEffect(() => {
+    setBackground(el.s?.background || '#1e293b');
+    setRadius(parseInt((el.s?.borderRadius || '12px'), 10) || 12);
+    setPadding(parseInt((el.s?.padding || '24px'), 10) || 24);
+    const m = (el.s?.borderLeft || '').match(/^(\d+)px\s+solid\s+(.+)$/);
+    setStripeWidth(m ? parseInt(m[1], 10) : 0);
+    setStripeColor(m ? m[2] : '#0ea5e9');
+  }, [el.id]);
+
+  // Commit helpers
+  const commitBackground = (v) => {
+    setBackground(v);
+    updateElementStyle(el.id, { background: v });
+    markDirty();
+  };
+  const commitRadius = (n) => {
+    setRadius(n);
+    updateElementStyle(el.id, { borderRadius: `${n}px` });
+    markDirty();
+  };
+  const commitPadding = (n) => {
+    setPadding(n);
+    updateElementStyle(el.id, { padding: `${n}px` });
+    markDirty();
+  };
+  // Stripe: width 0 means no stripe — commit borderLeft as empty
+  // string so the style serialiser drops it entirely. Width > 0
+  // emits the standard '4px solid #COLOR' shape.
+  const commitStripe = (w, c) => {
+    setStripeWidth(w);
+    setStripeColor(c);
+    const value = w > 0 ? `${w}px solid ${c}` : '';
+    updateElementStyle(el.id, { borderLeft: value });
+    markDirty();
+  };
+
+  // ── Render ───────────────────────────────────────────────────
+  // Each row is a label + control. Background gets both a colour
+  // picker (for hex) and a text input (for gradients / CSS vars).
+  // Radius and padding are sliders with current-value readout.
+  return (
+    <div style={lastSection ? sectionStyleLast : sectionStyle}>
+      <div style={labelStyle}>Container</div>
+
+      {/* Background — colour picker + raw text */}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginBottom: 4 }}>
+          Background
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {/* The colour picker only works for hex values. For
+              gradients / variables it shows the current swatch
+              as a fallback colour but pinning it to the gradient
+              start. */}
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(background) ? background : '#1e293b'}
+            onChange={e => commitBackground(e.target.value)}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer',
+              background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={background}
+            onChange={e => commitBackground(e.target.value)}
+            placeholder="#1e293b or linear-gradient(…)"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      {/* Corner radius slider */}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>
+          <span>Corners</span>
+          <span style={{ fontFamily: 'monospace' }}>{radius}px</span>
+        </div>
+        <input
+          type="range" min={0} max={48} step={1}
+          value={radius}
+          onChange={e => commitRadius(parseInt(e.target.value, 10))}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      {/* Padding slider */}
+      <div style={{ marginBottom: includeAccentStripe ? 10 : 0 }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>
+          <span>Padding</span>
+          <span style={{ fontFamily: 'monospace' }}>{padding}px</span>
+        </div>
+        <input
+          type="range" min={0} max={64} step={2}
+          value={padding}
+          onChange={e => commitPadding(parseInt(e.target.value, 10))}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      {/* Accent stripe — only for review/testimonial where the
+          design language calls for a coloured left bar */}
+      {includeAccentStripe && (
+        <div>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between',
+            fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+            marginBottom: 4,
+          }}>
+            <span>Accent stripe</span>
+            <span style={{ fontFamily: 'monospace' }}>{stripeWidth}px</span>
+          </div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <input
+              type="color"
+              value={(/^#[0-9a-f]{6}$/i).test(stripeColor) ? stripeColor : '#0ea5e9'}
+              onChange={e => commitStripe(stripeWidth || 4, e.target.value)}
+              style={{
+                width: 32, height: 28, padding: 0,
+                border: '1px solid var(--sap-border, #e2e8f0)',
+                borderRadius: 5, cursor: 'pointer',
+                background: 'transparent',
+              }}
+            />
+            <input
+              type="range" min={0} max={12} step={1}
+              value={stripeWidth}
+              onChange={e => commitStripe(parseInt(e.target.value, 10), stripeColor)}
+              style={{ flex: 1 }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── CardLikeProperties — Review / Testimonial / FAQ / Stat ─────
+//
+// All four types share the same model: HTML content in el.txt
+// edited inline via contenteditable (NOT TipTap), and styled via
+// container properties. The Inspector handles ONLY the container
+// — content edits happen on the canvas. We make this explicit with
+// a small note at the top so members know where to click.
+//
+// Stat additionally gets a text-alignment row because its default
+// is centred but members sometimes want left/right for sidebar use.
+function CardLikeProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  const [textAlign, setTextAlign] = useState(el.s?.textAlign || 'center');
+  useEffect(() => {
+    setTextAlign(el.s?.textAlign || 'center');
+  }, [el.id]);
+  const commitAlign = (v) => {
+    setTextAlign(v);
+    updateElementStyle(el.id, { textAlign: v });
+    markDirty();
+  };
+
+  // Accent stripe makes sense for review/testimonial (their defaults
+  // ship with one — review uses cyan, testimonial uses amber). FAQ
+  // and Stat don't, so we hide that control for them.
+  const showStripe = el.type === 'review' || el.type === 'testimonial';
+
+  return (
+    <>
+      {/* Inline-edit hint — most users won't immediately know that
+          double-clicking the element on the canvas activates the
+          inline editor. Surface that here so the inspector doesn't
+          feel like it's missing the content controls. */}
+      <div style={{
+        ...sectionStyle,
+        background: 'var(--sap-bg-elevated, #f8fafc)',
+        border: '1px dashed var(--sap-border, #e2e8f0)',
+        borderBottom: 'none',
+        padding: '10px 12px',
+        borderRadius: 6,
+        marginBottom: 12,
+      }}>
+        <div style={{
+          fontSize: 10, fontWeight: 800, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>
+          Content
+        </div>
+        <div style={{
+          fontSize: 11, color: 'var(--sap-text-secondary, #475569)',
+          lineHeight: 1.5,
+        }}>
+          Double-click the element on the canvas to edit text inline.
+        </div>
+      </div>
+
+      {/* Stat gets a text-alignment selector — useful for putting
+          stats in a sidebar or grid where left-alignment looks better. */}
+      {el.type === 'stat' && (
+        <div style={sectionStyle}>
+          <div style={labelStyle}>Text alignment</div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {[
+              { v: 'left', l: 'Left' },
+              { v: 'center', l: 'Center' },
+              { v: 'right', l: 'Right' },
+            ].map(opt => (
+              <button
+                key={opt.v}
+                onClick={() => commitAlign(opt.v)}
+                style={{
+                  flex: 1, padding: '6px 8px',
+                  background: textAlign === opt.v ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-bg-elevated, #f8fafc)',
+                  color: textAlign === opt.v ? '#fff' : 'var(--sap-text-primary, #0f172a)',
+                  border: '1px solid ' + (textAlign === opt.v ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                  borderRadius: 5,
+                  fontSize: 11, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}>
+                {opt.l}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Container styling — background, radius, padding, optional stripe */}
+      <ContainerSection
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        includeAccentStripe={showStripe}
+        lastSection={true}
+      />
+    </>
+  );
+}
+
+// ── ProgressProperties — Progress bar config ───────────────────
+//
+// Progress is a structured element: three fields drive everything.
+//   _label    — text shown above the bar (e.g. "Progress")
+//   _percent  — 0-100 fill percentage
+//   _color    — bar fill colour
+//
+// We also expose track colour (the empty bar background) as
+// _trackColor — added Phase 2D to support light-theme pages where
+// the historical hardcoded rgba(255,255,255,0.08) was invisible.
+// Default preserves old behaviour for pre-2D progress elements.
+function ProgressProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  const [label, setLabel] = useState(el._label || 'Progress');
+  const [percent, setPercent] = useState(parseInt(el._percent, 10) || 75);
+  const [color, setColor] = useState(el._color || '#0ea5e9');
+  const [trackColor, setTrackColor] = useState(el._trackColor || 'rgba(255,255,255,0.08)');
+
+  useEffect(() => {
+    setLabel(el._label || 'Progress');
+    setPercent(parseInt(el._percent, 10) || 75);
+    setColor(el._color || '#0ea5e9');
+    setTrackColor(el._trackColor || 'rgba(255,255,255,0.08)');
+  }, [el.id]);
+
+  const commitField = (key, value) => {
+    updateElement(el.id, { [key]: value });
+    markDirty();
+  };
+
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Label</div>
+        <input
+          type="text"
+          value={label}
+          onChange={e => { setLabel(e.target.value); commitField('_label', e.target.value); }}
+          placeholder="Progress"
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+          marginBottom: 4,
+        }}>
+          <span style={labelStyle}>Percent</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{percent}%</span>
+        </div>
+        <input
+          type="range" min={0} max={100} step={1}
+          value={percent}
+          onChange={e => {
+            const v = parseInt(e.target.value, 10);
+            setPercent(v); commitField('_percent', v);
+          }}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Bar colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(color) ? color : '#0ea5e9'}
+            onChange={e => { setColor(e.target.value); commitField('_color', e.target.value); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer',
+              background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={color}
+            onChange={e => { setColor(e.target.value); commitField('_color', e.target.value); }}
+            placeholder="#0ea5e9"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={labelStyle}>Track colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(trackColor) ? trackColor : '#e2e8f0'}
+            onChange={e => { setTrackColor(e.target.value); commitField('_trackColor', e.target.value); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer',
+              background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={trackColor}
+            onChange={e => { setTrackColor(e.target.value); commitField('_trackColor', e.target.value); }}
+            placeholder="rgba(255,255,255,0.08)"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+        <div style={{
+          marginTop: 6,
+          fontSize: 10, color: 'var(--sap-text-muted, #94a3b8)',
+          lineHeight: 1.4,
+        }}>
+          Light pages: try a darker track like #e2e8f0
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── BadgeProperties — Badge text + typography + container ──────
+//
+// Badge is structurally a Label with a pill background. Members
+// historically had no way to inline-edit it (Badge wasn't in
+// EDITABLE_TYPES) so they had to use the legacy modal. Phase 2D
+// fixes both: adds Badge to TIPTAP_TYPES so it inline-edits like
+// Label, AND gives it its own Inspector panel with typography +
+// container controls.
+//
+// The text input here is a fallback for cases where members
+// haven't discovered the inline edit. Edits via the input commit
+// straight to el.txt; edits via inline contenteditable do the
+// same. Both end up in the same place.
+function BadgeProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  const [txt, setTxt] = useState(el.txt || '⭐ PREMIUM');
+  const [fontFamily, setFontFamily] = useState(el.s?.fontFamily || 'DM Sans,sans-serif');
+  const [fontWeight, setFontWeight] = useState(el.s?.fontWeight || '700');
+  const fontSizeRaw = el.s?.fontSize || '12px';
+  const [fontSizeNum, setFontSizeNum] = useState(parseInt(String(fontSizeRaw).replace(/px$/, ''), 10) || 12);
+  const [color, setColor] = useState(el.s?.color || '#fbbf24');
+
+  useEffect(() => {
+    setTxt(el.txt || '⭐ PREMIUM');
+    setFontFamily(el.s?.fontFamily || 'DM Sans,sans-serif');
+    setFontWeight(el.s?.fontWeight || '700');
+    const fs = el.s?.fontSize || '12px';
+    setFontSizeNum(parseInt(String(fs).replace(/px$/, ''), 10) || 12);
+    setColor(el.s?.color || '#fbbf24');
+  }, [el.id]);
+
+  const commitStyle = (key, value) => {
+    updateElementStyle(el.id, { [key]: value });
+    markDirty();
+  };
+  const commitText = (v) => {
+    setTxt(v);
+    updateElement(el.id, { txt: v });
+    markDirty();
+  };
+
+  return (
+    <>
+      {/* Content — text input. Inline contenteditable also works. */}
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Text</div>
+        <input
+          type="text"
+          value={txt}
+          onChange={e => commitText(e.target.value)}
+          placeholder="⭐ PREMIUM"
+          style={inputStyle}
+        />
+        <div style={{
+          marginTop: 6,
+          fontSize: 10, color: 'var(--sap-text-muted, #94a3b8)',
+          lineHeight: 1.4,
+        }}>
+          Or double-click the badge on the canvas to edit inline.
+        </div>
+      </div>
+
+      {/* Typography */}
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Font</div>
+        <select
+          value={fontFamily}
+          onChange={e => { setFontFamily(e.target.value); commitStyle('fontFamily', e.target.value); }}
+          style={{ ...inputStyle, cursor: 'pointer' }}>
+          {FONTS.map(f => (
+            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+              {f.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ flex: 1 }}>
+            <div style={labelStyle}>Size</div>
+            <input
+              type="number" min={8} max={48} step={1}
+              value={fontSizeNum}
+              onChange={e => {
+                const v = parseInt(e.target.value, 10) || 12;
+                setFontSizeNum(v); commitStyle('fontSize', `${v}px`);
+              }}
+              style={inputStyle}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={labelStyle}>Weight</div>
+            <select
+              value={fontWeight}
+              onChange={e => { setFontWeight(e.target.value); commitStyle('fontWeight', e.target.value); }}
+              style={{ ...inputStyle, cursor: 'pointer' }}>
+              <option value="400">Regular</option>
+              <option value="500">Medium</option>
+              <option value="600">Semi-bold</option>
+              <option value="700">Bold</option>
+              <option value="800">Extra-bold</option>
+              <option value="900">Black</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Text colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(color) ? color : '#fbbf24'}
+            onChange={e => { setColor(e.target.value); commitStyle('color', e.target.value); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer',
+              background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={color}
+            onChange={e => { setColor(e.target.value); commitStyle('color', e.target.value); }}
+            placeholder="#fbbf24"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      {/* Container styling — badges are pill-shaped containers
+          so members may want to change the bg + radius regularly */}
+      <ContainerSection
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        includeAccentStripe={false}
+        lastSection={true}
+      />
+    </>
+  );
+}
+
 // ── Banner-specific property section ───────────────────────────
 //
 // Announcement banner — close cousin of Button (same canvas render
@@ -2096,6 +2664,12 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <TextTypeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : ['image', 'video', 'audio'].includes(el.type) ? (
         <MediaProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : ['review', 'testimonial', 'faq', 'stat'].includes(el.type) ? (
+        <CardLikeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : el.type === 'progress' ? (
+        <ProgressProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : el.type === 'badge' ? (
+        <BadgeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : (
         <UnsupportedTypeNote type={el.type} />
       )}

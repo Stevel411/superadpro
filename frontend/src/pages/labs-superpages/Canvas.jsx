@@ -11,7 +11,7 @@ import { apiPost } from '../../utils/api';
 // el.txt, and have no complex nested structure. Complex types (review,
 // testimonial, faq, icontext, separator, logostrip) stay on the old flow
 // for now; we'll migrate them once these three are solid on production.
-const TIPTAP_TYPES = ['heading', 'text', 'label'];
+const TIPTAP_TYPES = ['heading', 'text', 'label', 'badge'];
 
 // Element types that have been ported to the new left-rail Inspector panel
 // (ElementInspectorPanel.jsx). For these, the floating canvas toolbar's
@@ -26,7 +26,7 @@ const TIPTAP_TYPES = ['heading', 'text', 'label'];
 //
 // Phase 2C+ will continue porting types. Once this list contains every
 // type, we can delete the old modal system entirely.
-const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement', 'form', 'image', 'video', 'audio'];
+const INSPECTOR_TYPES = ['button', 'heading', 'text', 'label', 'announcement', 'form', 'image', 'video', 'audio', 'review', 'testimonial', 'faq', 'stat', 'badge', 'progress'];
 
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, updateElementStyle, markDirty, onEditElement, deviceView, pageId, onShowTemplates, selIds, toggleSelectAdditive, selectMany, expandToGroup, duplicateElement, deleteElement, moveElementZ, copySelected, paste, showGrid }) {
   var { t } = useTranslation();
@@ -40,7 +40,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   const [contextMenu, setContextMenu] = useState(null); // { x, y, elId } or null
   const editableRef = useRef(null);
 
-  const EDITABLE_TYPES = ['heading', 'text', 'label', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip'];
+  const EDITABLE_TYPES = ['heading', 'text', 'label', 'badge', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip'];
 
   // Dismiss the context menu on outside click / Escape. Capture phase
   // so we catch the click before it hits other handlers.
@@ -708,12 +708,15 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     }
     if (el.type === 'progress') {
       const pct = el._percent || 75, lbl = el._label || 'Progress', clr = el._color || 'var(--sap-accent)';
+      // _trackColor added Phase 2D — was hardcoded; now customisable
+      // for light-theme pages. Pre-2D default preserved.
+      const trackClr = el._trackColor || 'rgba(255,255,255,0.08)';
       return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-border)' }}>{lbl}</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: clr }}>{pct}%</span>
         </div>
-        <div style={{ width: '100%', height: 10, background: 'rgba(255,255,255,0.08)', borderRadius: 5, overflow: 'hidden' }}>
+        <div style={{ width: '100%', height: 10, background: trackClr, borderRadius: 5, overflow: 'hidden' }}>
           <div style={{ width: `${pct}%`, height: '100%', background: clr, borderRadius: 5 }} />
         </div>
       </div>;
