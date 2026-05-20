@@ -29,7 +29,50 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           transform: none !important;
           filter: none !important;
         }
+        /* SuperPages brand logo + wordmark — matches the established mark
+           from templates/pro-funnel-editor.html (lines 16-18, 96). Same
+           4-tile SVG, same Sora 800 wordmark, same cobalt accent on 'Pages'.
+           Adapted from dark-mode (white text) to light-mode (slate-900 text)
+           for the white sub-bar background. */
+        .sp-brand {
+          display: flex; align-items: center; gap: 10px;
+          padding: 6px 10px 6px 4px;
+          text-decoration: none;
+          border-radius: 6px;
+          transition: background 120ms ease;
+          cursor: pointer;
+        }
+        .sp-brand:hover { background: rgba(14,165,233,0.06); }
+        .sp-brand-wm {
+          font-family: Sora, system-ui, sans-serif;
+          font-weight: 800; font-size: 15px;
+          color: #0f172a;
+          letter-spacing: -0.3px;
+          line-height: 1;
+        }
+        .sp-brand-wm span { color: #0ea5e9; }
       `}</style>
+
+      {/* SuperPages brand — clickable, returns to My Pages.
+          The same destination as the Back button but with a clear brand
+          anchor at the left edge so the tool feels rooted in SuperAdPro
+          rather than floating without identity. */}
+      <a
+        href="#"
+        className="sp-brand"
+        onClick={e => { e.preventDefault(); onBack && onBack(); }}
+        title={t('superPagesEditor.backToMyPages', { defaultValue: 'Back to My Pages' })}>
+        <svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true" style={{flexShrink:0}}>
+          <rect x="6" y="6" width="16" height="16" rx="4" fill="#0ea5e9" opacity="0.9"/>
+          <rect x="26" y="6" width="16" height="16" rx="4" fill="#6366f1" opacity="0.7"/>
+          <rect x="6" y="26" width="16" height="16" rx="4" fill="#6366f1" opacity="0.5"/>
+          <rect x="26" y="26" width="16" height="16" rx="4" fill="#0ea5e9" opacity="0.3"/>
+        </svg>
+        <span className="sp-brand-wm">Super<span>Pages</span></span>
+      </a>
+
+      <div style={{width:1, height:24, background:'#e2e8f0'}}/>
+
       {/* Back to My Pages */}
       <button onClick={onBack} style={{...btn, background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0'}}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}
@@ -72,24 +115,25 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       <div style={{width:1, height:24, background:'#e2e8f0'}}/>
 
-      <div style={{width:1, height:24, background:'#e2e8f0'}}/>
-
-      {/* Templates — gradient-accented button so members notice it.
-          Click opens the LabsTemplatesGallery modal. */}
+      {/* Templates — cobalt/cyan accent so members notice it.
+          Click opens the LabsTemplatesGallery modal. (Previously
+          purple+cyan gradient which conflicted with the brand
+          palette. Cleaned up 20 May 2026 along with the SuperPages
+          logo addition.) */}
       <button onClick={onShowTemplates} style={{
         ...btn,
-        background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
-        color: '#7c3aed',
-        border: '1px solid rgba(168,85,247,0.3)',
+        background: 'linear-gradient(135deg, rgba(14,165,233,0.10), rgba(6,182,212,0.10))',
+        color: '#0284c7',
+        border: '1px solid rgba(14,165,233,0.3)',
         fontWeight: 800,
       }}
         onMouseEnter={e => {
-          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(14,165,233,0.18), rgba(168,85,247,0.18))';
-          e.currentTarget.style.borderColor = 'rgba(168,85,247,0.5)';
+          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(14,165,233,0.18), rgba(6,182,212,0.18))';
+          e.currentTarget.style.borderColor = 'rgba(14,165,233,0.5)';
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))';
-          e.currentTarget.style.borderColor = 'rgba(168,85,247,0.3)';
+          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(14,165,233,0.10), rgba(6,182,212,0.10))';
+          e.currentTarget.style.borderColor = 'rgba(14,165,233,0.3)';
         }}
         title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
         <LayoutTemplate size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.templates', { defaultValue: 'Templates' })}</span>
