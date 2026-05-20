@@ -42,6 +42,11 @@ function buildNav(t, isAdmin) {
     // My Grid) sit immediately after the Grid entry as a flat block.
     { type: 'group', label: t('nav.income', { defaultValue: 'Income' }), shortLabel: t('navShort.income', { defaultValue: 'Income' }), key: 'income', icon: DollarSign, items: [
       { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet', basic: true },
+      // My Team — direct referrals + downline view + activation leads
+      // (warm inactive members with earned balance). Open to everyone
+      // (no tierLocked / no basic flag) so even inactive members see
+      // their downline and the activation-leads callout. 20 May 2026.
+      { label: t('nav.myTeam', { defaultValue: 'My Team' }), shortLabel: t('navShort.myTeam', { defaultValue: 'Team' }), icon: Users, path: '/my-team' },
       { label: t('nav.profitGrid'), shortLabel: t('navShort.profitGrid', { defaultValue: 'Grid' }), icon: Target, path: '/campaign-tiers', basic: true },
       { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch', basic: true, tierLocked: true },
       { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign', basic: true, tierLocked: true },

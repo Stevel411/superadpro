@@ -4048,6 +4048,29 @@ def command_centre(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
+# My Team — member-facing downline view (20 May 2026).
+# Restores the archived MyNetwork.jsx.bak page as a modernised /my-team
+# route showing direct referrals + earnings breakdown + commission
+# history. Auth/data gates live on /api/network — this is just the
+# React SPA shell handler so direct URL access works.
+@app.get("/my-team")
+def my_team_page(request: Request):
+    """Serve React SPA for the member My Team / Downline page."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+# Admin Network Tree — full deep tree view across all users (20 May 2026).
+# Reuses the existing /admin/api/network-tree endpoint which returns
+# every user node + sponsor edge so the React side can render the
+# whole graph. Admin gate is on the data endpoint, not here.
+@app.get("/admin/network-tree")
+def admin_network_tree_page(request: Request):
+    """Serve React SPA for the admin Network Tree page."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
 # ── Missing React page routes ──
 @app.get("/network")
 @app.get("/api/dashboard")
@@ -11445,6 +11468,32 @@ def admin_api_user_detail(
             "requested": w.requested_at.isoformat() if w.requested_at else None,
             "processed": w.processed_at.isoformat() if w.processed_at else None,
         } for w in withdrawals],
+        # ── Direct downline of this user ──
+        # Added 20 May 2026 so the admin dashboard user-detail modal can
+        # show "who has this member referred?" without an extra round-
+        # trip. Direct referrals only here; deep tree lives at the
+        # separate /admin/network-tree page (uses /admin/api/network-tree
+        # which already returns the whole graph).
+        #
+        # Each entry includes the same fields the member-facing /my-team
+        # page sees (so the admin has a consistent picture), plus admin-
+        # only details (email, kyc_status). Limit 100 to keep the modal
+        # payload tight — power users with bigger downlines drill via
+        # /admin/network-tree.
+        "downline": [{
+            "id": d.id,
+            "username": d.username,
+            "first_name": d.first_name,
+            "email": d.email,
+            "is_active": d.is_active,
+            "membership_tier": d.membership_tier or "free",
+            "balance": float(d.balance or 0),
+            "total_earned": float(d.total_earned or 0),
+            "personal_referrals": d.personal_referrals or 0,
+            "activated_at": d.activated_at.isoformat() if d.activated_at else None,
+            "created_at": d.created_at.isoformat() if d.created_at else None,
+            "kyc_status": getattr(d, 'kyc_status', None),
+        } for d in db.query(User).filter(User.sponsor_id == u.id).order_by(User.created_at.desc()).limit(100).all()],
     }
 
 @app.post("/admin/api/user/{user_id}/adjust-balance")
@@ -28704,6 +28753,27 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
             "id": r.id, "username": r.username, "first_name": r.first_name,
             "is_active": r.is_active, "membership_tier": r.membership_tier or "free",
             "total_earned": float(r.total_earned or 0),
+            # ── Downline-page additions (20 May 2026) ──
+            # Members had no /my-team page until 20 May 2026 (Network feature
+            # restored from archived MyNetwork.jsx.bak). To give them a useful
+            # at-a-glance view of each direct referral, expose:
+            #   balance           — referral's current wallet balance (so the
+            #                       sponsor can see who's accruing earnings
+            #                       while still inactive — these are warm
+            #                       activation leads)
+            #   activated_at      — when (or whether) they activated. Shown
+            #                       as "Active since X" / "Never activated"
+            #   personal_referrals — their own downline size (gives the
+            #                       sponsor a sense of which directs are
+            #                       building teams of their own)
+            #
+            # NB: we deliberately do NOT expose email, wallet address, or
+            # exact KYC state — those are owner-only details. Username +
+            # status + earned counters are what a sponsor legitimately
+            # needs to see and what they'd see anyway in the legacy
+            # /admin views.
+            "balance": float(r.balance or 0),
+            "activated_at": r.activated_at.isoformat() if r.activated_at else None,
             "personal_referrals": r.personal_referrals or 0,
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in referrals],

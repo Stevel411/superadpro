@@ -401,6 +401,10 @@ function UsersTab() {
       u._commissions = d.recent_commissions || [];
       u._payments = d.payments || [];
       u._withdrawals = d.withdrawals || [];
+      // _downline added 20 May 2026 — direct referrals of this user with
+      // their status, balance, total earned, KYC state. Powers the new
+      // Downline section in the user-detail modal.
+      u._downline = d.downline || [];
       setDetail(u);
       setSelected(id);
     });
@@ -641,6 +645,89 @@ function UsersTab() {
               })()}
             </div>
           </div>
+
+          {/* Downline panel — added 20 May 2026 alongside the commission-
+              integrity investigation. Lets admin see at a glance who this
+              user has referred, their status, balance, and earned totals.
+              For deep-tree exploration (multi-level), see /admin/network-tree
+              which renders the whole graph. */}
+          {detail._downline && detail._downline.length > 0 && (
+            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:16}}>
+              <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>
+                  Downline ({detail._downline.length} {detail._downline.length === 1 ? 'direct' : 'directs'})
+                </div>
+                <a href={'/admin/network-tree?root_id=' + detail.id}
+                  style={{fontSize:12,color:'#7dd3fc',textDecoration:'none',fontWeight:700}}>
+                  View full tree →
+                </a>
+              </div>
+              <div style={{maxHeight:320,overflowY:'auto'}}>
+                <table style={{width:'100%',borderCollapse:'collapse'}}>
+                  <thead>
+                    <tr style={{background:'#f8fafc'}}>
+                      <th style={{textAlign:'left',padding:'8px 12px',fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1.1,borderBottom:'1px solid #e8ecf2'}}>Member</th>
+                      <th style={{textAlign:'left',padding:'8px 12px',fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1.1,borderBottom:'1px solid #e8ecf2'}}>Status</th>
+                      <th style={{textAlign:'right',padding:'8px 12px',fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1.1,borderBottom:'1px solid #e8ecf2'}}>Balance</th>
+                      <th style={{textAlign:'right',padding:'8px 12px',fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1.1,borderBottom:'1px solid #e8ecf2'}}>Earned</th>
+                      <th style={{textAlign:'center',padding:'8px 12px',fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1.1,borderBottom:'1px solid #e8ecf2'}}>Team</th>
+                      <th style={{textAlign:'left',padding:'8px 12px',fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1.1,borderBottom:'1px solid #e8ecf2'}}>Joined</th>
+                      <th style={{textAlign:'left',padding:'8px 12px',fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1.1,borderBottom:'1px solid #e8ecf2'}}>KYC</th>
+                      <th style={{padding:'8px 12px',borderBottom:'1px solid #e8ecf2'}}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detail._downline.map(function(r) {
+                      var isActivationLead = !r.is_active && (r.balance || 0) > 0;
+                      return (
+                        <tr key={r.id} style={{background: isActivationLead ? 'rgba(251,191,36,.06)' : 'transparent'}}>
+                          <td style={{padding:'10px 12px',borderBottom:'1px solid #f5f6f8',fontSize:12}}>
+                            <div style={{fontWeight:700,color:'#0f172a'}}>@{r.username}</div>
+                            <div style={{fontSize:11,color:'#7a8899'}}>{r.email || '—'}</div>
+                          </td>
+                          <td style={{padding:'10px 12px',borderBottom:'1px solid #f5f6f8',fontSize:12}}>
+                            <span style={{
+                              fontSize:11,fontWeight:700,padding:'2px 6px',borderRadius:4,
+                              background: r.is_active ? 'rgba(22,163,74,.1)' : 'rgba(148,163,184,.15)',
+                              color: r.is_active ? '#15803d' : '#475569',
+                            }}>
+                              {r.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                            {isActivationLead && (
+                              <div style={{fontSize:9,color:'#b45309',marginTop:3,fontWeight:700,letterSpacing:.4}}>
+                                ACTIVATION LEAD
+                              </div>
+                            )}
+                          </td>
+                          <td style={{padding:'10px 12px',borderBottom:'1px solid #f5f6f8',fontSize:13,fontFamily:'monospace',textAlign:'right',fontWeight:700,color:(r.balance||0)>0?'#15803d':'#94a3b8'}}>
+                            ${(r.balance || 0).toFixed(2)}
+                          </td>
+                          <td style={{padding:'10px 12px',borderBottom:'1px solid #f5f6f8',fontSize:13,fontFamily:'monospace',textAlign:'right',color:'#475569'}}>
+                            ${(r.total_earned || 0).toFixed(2)}
+                          </td>
+                          <td style={{padding:'10px 12px',borderBottom:'1px solid #f5f6f8',fontSize:12,textAlign:'center',fontWeight:700,color:'#0ea5e9'}}>
+                            {r.personal_referrals || 0}
+                          </td>
+                          <td style={{padding:'10px 12px',borderBottom:'1px solid #f5f6f8',fontSize:11,color:'#64748b'}}>
+                            {r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}
+                          </td>
+                          <td style={{padding:'10px 12px',borderBottom:'1px solid #f5f6f8',fontSize:11,color:'#64748b',textTransform:'capitalize'}}>
+                            {r.kyc_status || 'none'}
+                          </td>
+                          <td style={{padding:'10px 12px',borderBottom:'1px solid #f5f6f8'}}>
+                            <button onClick={function() { openUser(r.id); }}
+                              style={{padding:'4px 10px',borderRadius:5,border:'1px solid #e2e8f0',background:'#f8fafc',cursor:'pointer',fontSize:11,fontWeight:700,color:'#0ea5e9',fontFamily:'inherit'}}>
+                              Open →
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>

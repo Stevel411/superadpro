@@ -18,6 +18,7 @@ import Account from './pages/Account';
 // Saves ~1MB+ from initial bundle. ──
 const CommandCentre = React.lazy(() => import('./pages/CommandCentre'));
 const BucketList = React.lazy(() => import('./pages/BucketList'));
+const MyTeam = React.lazy(() => import('./pages/MyTeam'));
 const OnboardingWizard = React.lazy(() => import('./pages/OnboardingWizard'));
 const AnalyticsPage = React.lazy(() => import('./pages/Analytics'));
 const CreateCampaign = React.lazy(() => import('./pages/CreateCampaign'));
@@ -62,6 +63,7 @@ const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const PassupVisualiser = React.lazy(() => import('./pages/PassupVisualiser'));
 const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminNetworkTree = React.lazy(() => import('./pages/AdminNetworkTree'));
 const AdminRotatorState = React.lazy(() => import('./pages/admin/AdminRotatorState'));
 const AdminEmailBroadcast = React.lazy(() => import('./pages/AdminEmailBroadcast'));
 const AdminStories = React.lazy(() => import('./pages/AdminStories'));
@@ -317,6 +319,7 @@ function AppRoutes() {
       <Route path="/command-centre/grid-team" element={<ProtectedRoute><BucketList bucketKey="grid-team" /></ProtectedRoute>} />
       <Route path="/command-centre/nexus-team" element={<ProtectedRoute><BucketList bucketKey="nexus-team" /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><RequireTier tier="basic"><Wallet /></RequireTier></ProtectedRoute>} />
+      <Route path="/my-team" element={<ProtectedRoute><MyTeam /></ProtectedRoute>} />
       <Route path="/upgrade-from-balance" element={<ProtectedRoute><UpgradeFromBalance /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
@@ -393,6 +396,7 @@ function AppRoutes() {
       <Route path="/team-messenger" element={<ProtectedRoute><RequireTier tier="basic"><TeamMessenger /></RequireTier></ProtectedRoute>} />
       <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/network-tree" element={<ProtectedRoute><AdminNetworkTree /></ProtectedRoute>} />
       <Route path="/admin/rotator" element={<ProtectedRoute><Lazy><AdminRotatorState /></Lazy></ProtectedRoute>} />
       <Route path="/admin/stories" element={<ProtectedRoute><AdminStories /></ProtectedRoute>} />
       <Route path="/admin/showcase" element={<ProtectedRoute><AdminShowcase /></ProtectedRoute>} />
