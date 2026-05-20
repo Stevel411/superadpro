@@ -261,6 +261,21 @@
    keep important colours (active states, swatches, etc.). */
 .labs-chrome .ins-cobalt {
   color: rgba(255,255,255,0.85);
+  /* Override the CSS custom properties used for muted text so all
+     the descriptive sub-text on the cobalt background (field
+     descriptions, section labels, helper text, GDPR explainer
+     etc) becomes readable. The components in this file scatter
+     49 references to var(--sap-text-muted) and var(--sap-text-faint)
+     across 15 properties panels — overriding the variables here
+     catches them all in one place rather than touching every
+     inline style. */
+  --sap-text-muted: rgba(255,255,255,0.7);
+  --sap-text-faint: rgba(255,255,255,0.5);
+  --sap-text-primary: #ffffff;
+  --sap-border: rgba(255,255,255,0.15);
+  --sap-border-faint: rgba(255,255,255,0.08);
+  --sap-bg-elevated: rgba(255,255,255,0.06);
+  --sap-bg-input: rgba(255,255,255,0.08);
 }
 
 /* Dropdown native chrome — make the arrow visible on cobalt. */
