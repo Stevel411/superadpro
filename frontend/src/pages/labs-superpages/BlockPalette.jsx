@@ -310,11 +310,25 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
           // display label (translated) so non-English users find blocks too.
           // Categories with zero matches are hidden entirely. If nothing
           // matches, render a friendly empty state.
+          //
+          // 20 May 2026: when NOT searching, the six Quick Block types
+          // (heading/text/form/video/image/button) are filtered out
+          // of their normal categories so they don't duplicate the
+          // pinned Quick Blocks row above. When the user IS searching,
+          // we leave them in — search results are about findability,
+          // not navigation, and a user typing 'image' should see
+          // every Image-related tile regardless of section.
           const q = search.trim().toLowerCase();
+          const QUICK_BLOCK_TYPES_SUPPRESS = ['heading', 'text', 'form', 'video', 'image', 'button'];
           const filteredCats = PALETTE.map(cat => ({
             ...cat,
             items: cat.items.filter(item => {
-              if (!q) return true;
+              if (!q) {
+                // No search → hide the six pinned types from their
+                // normal sections to avoid duplication with Quick Blocks.
+                return !QUICK_BLOCK_TYPES_SUPPRESS.includes(item.type);
+              }
+              // Search mode → match by label or type string, no suppression
               return blockLabel(t, item).toLowerCase().includes(q)
                   || item.type.toLowerCase().includes(q);
             }),
@@ -334,19 +348,27 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             );
           }
 
-          // Quick row — favourites + recents, deduped, capped at 6.
-          // Only shown when not actively searching (search collapses the
-          // palette to just matched blocks).
+          // Quick Blocks — fixed top-six, always visible, identical
+          // ordering for every user. Steve's call 20 May 2026:
+          // 'We need to have the most used elements at the top.
+          // Heading - Text - Opt-in / Video - Image - Button. Those
+          // are the 6 most used elements when building a page.'
+          //
+          // Replaces the previous favourites+recents dynamic ordering
+          // which produced empty slots, duplicates with category
+          // sections below, and surprise reordering. Predictable
+          // wins over personalisable for the core six.
+          //
+          // These six are ALSO suppressed from their normal categories
+          // (see filteredCats below) so there's no duplication in
+          // the panel — Heading appears in Quick Blocks, not in Text;
+          // Image appears in Quick Blocks, not in Media; etc.
+          const QUICK_BLOCK_TYPES = ['heading', 'text', 'form', 'video', 'image', 'button'];
           let quickItems = [];
           if (!q) {
-            const seen = new Set();
-            const push = (type) => {
-              const item = ALL_ITEMS_BY_TYPE[type];
-              if (item && !seen.has(type)) { seen.add(type); quickItems.push(item); }
-            };
-            favourites.forEach(push);
-            recents.forEach(push);
-            quickItems = quickItems.slice(0, 6);
+            quickItems = QUICK_BLOCK_TYPES
+              .map(type => ALL_ITEMS_BY_TYPE[type])
+              .filter(Boolean);
           }
 
           const quickRow = quickItems.length > 0 ? (
@@ -358,7 +380,6 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 {quickItems.map((item, ii) => {
                   const Icon = BLOCK_ICONS[item.type] || Square;
                   const blockType = BLOCK_TYPE[item.type] || 'solid';
-                  const isFav = favourites.includes(item.type);
                   return (
                     <div key={`q_${ii}`}
                       onClick={() => addAndRemember(item.type)}
@@ -367,20 +388,8 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                       className="pal-item"
                     >
                       <span className={`tile-type-chip ${blockType}`} />
-                      <button
-                        className="pal-fav"
-                        onClick={(e) => handleToggleFav(item.type, e)}
-                        aria-label={isFav ? 'Remove favourite' : 'Add favourite'}
-                        style={{
-                          position: 'absolute', top: 3, left: 3,
-                          width: 16, height: 16, padding: 0,
-                          background: 'none', border: 'none',
-                          cursor: 'pointer',
-                          color: isFav ? '#fbbf24' : 'rgba(15,23,42,0.18)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 12, lineHeight: 1,
-                        }}
-                      >{isFav ? '★' : '☆'}</button>
+                      {/* Favourite stars removed 20 May 2026 — Quick Blocks
+                          is now a fixed set, no user-customisation needed. */}
                       <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
                       <span className="pal-label">{blockLabel(t, item)}</span>
                     </div>
@@ -401,7 +410,6 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 {cat.items.map((item, ii) => {
                   const Icon = BLOCK_ICONS[item.type] || Square;
                   const blockType = BLOCK_TYPE[item.type] || 'solid';
-                  const isFav = favourites.includes(item.type);
                   return (
                     <div key={ii}
                       onClick={() => addAndRemember(item.type)}
@@ -410,20 +418,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                       className="pal-item"
                     >
                       <span className={`tile-type-chip ${blockType}`} />
-                      <button
-                        className="pal-fav"
-                        onClick={(e) => handleToggleFav(item.type, e)}
-                        aria-label={isFav ? 'Remove favourite' : 'Add favourite'}
-                        style={{
-                          position: 'absolute', top: 3, left: 3,
-                          width: 16, height: 16, padding: 0,
-                          background: 'none', border: 'none',
-                          cursor: 'pointer',
-                          color: isFav ? '#fbbf24' : 'rgba(15,23,42,0.18)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 12, lineHeight: 1,
-                        }}
-                      >{isFav ? '★' : '☆'}</button>
+                      {/* Favourite stars removed 20 May 2026 — see Quick Blocks block above. */}
                       <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
                       <span className="pal-label">{blockLabel(t, item)}</span>
                     </div>
