@@ -348,6 +348,12 @@ export default function SuperPagesEditor() {
       title={pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' })}
       subtitle={pageSettings.slug ? '/' + pageSettings.slug : undefined}
       fullHeight
+      // 20 May 2026: AppLayout sidebar + topbar hidden because the
+      // EditorTopbar below is now full cobalt and takes over as the
+      // single brand top bar. Back button + page nav from inside the
+      // editor returns the user to /pro/funnels.
+      hideSidebar={true}
+      hideTopbar={true}
       bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: 'DM Sans,sans-serif' }}>
