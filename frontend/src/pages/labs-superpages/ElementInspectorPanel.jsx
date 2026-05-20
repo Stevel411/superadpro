@@ -537,6 +537,307 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
   );
 }
 
+// ── Banner-specific property section ───────────────────────────
+//
+// Announcement banner — close cousin of Button (same canvas render
+// path, same export path, same Tiptap-less text content), but with
+// two banner-specific behaviours:
+//   - dismissible: shows an [x] in the corner of the live banner;
+//     clicking it hides the banner via localStorage so it doesn't
+//     pester repeat visitors
+//   - sticky: pins the banner to the top of the viewport on scroll,
+//     useful for promo/announcement scenarios
+//
+// Both default to false so existing banners don't change behaviour.
+//
+// Banner default width is 1100px (full canvas width) at h=44px, so
+// it doesn't need size/typography defaults that fit a button shape.
+// Default font is DM Sans 14px 700; we keep those as starting values.
+//
+// Phase 2B port, 20 May 2026.
+function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // Local state mirrors el props for snappy feel
+  const [txt, setTxt] = useState(el.txt || '🔥 LIMITED TIME OFFER — Join Now and Save 50%!');
+  const [url, setUrl] = useState(el.url || '');
+  const [bgColor, setBgColor] = useState(el.s?.background || 'linear-gradient(135deg,#ef4444,#f59e0b)');
+  const [txtColor, setTxtColor] = useState(el.s?.color || '#fff');
+  const [fontFamily, setFontFamily] = useState(el.s?.fontFamily || 'DM Sans,sans-serif');
+  const [fontWeight, setFontWeight] = useState(el.s?.fontWeight || '700');
+  const fontSizeRaw = el.s?.fontSize || '14px';
+  const [fontSizeNum, setFontSizeNum] = useState(parseInt(String(fontSizeRaw).replace(/px$/, ''), 10) || 14);
+  const [dismissible, setDismissible] = useState(!!el.dismissible);
+  const [sticky, setSticky] = useState(!!el.sticky);
+
+  // Resync when selection changes
+  useEffect(() => {
+    setTxt(el.txt || '🔥 LIMITED TIME OFFER — Join Now and Save 50%!');
+    setUrl(el.url || '');
+    setBgColor(el.s?.background || 'linear-gradient(135deg,#ef4444,#f59e0b)');
+    setTxtColor(el.s?.color || '#fff');
+    setFontFamily(el.s?.fontFamily || 'DM Sans,sans-serif');
+    setFontWeight(el.s?.fontWeight || '700');
+    const fs = el.s?.fontSize || '14px';
+    setFontSizeNum(parseInt(String(fs).replace(/px$/, ''), 10) || 14);
+    setDismissible(!!el.dismissible);
+    setSticky(!!el.sticky);
+  }, [el.id]);
+
+  // ── Live-edit helpers ────────────────────────────────────────
+  const commitTxt = (v) => {
+    setTxt(v);
+    updateElement(el.id, { txt: v });
+    markDirty();
+  };
+  const commitUrl = (v) => {
+    setUrl(v);
+    updateElement(el.id, { url: v });
+    markDirty();
+  };
+  // Style commits via updateElementStyle to avoid the stale-closure
+  // merge bug Steve caught on Phase 1 (commit d3950ed).
+  const commitStyle = (key, value) => {
+    updateElementStyle(el.id, { [key]: value });
+    markDirty();
+  };
+  const commitBg = (v) => { setBgColor(v); commitStyle('background', v); };
+  const commitFg = (v) => { setTxtColor(v); commitStyle('color', v); };
+  const commitFontFamily = (v) => { setFontFamily(v); commitStyle('fontFamily', v); };
+  const commitFontWeight = (v) => { setFontWeight(v); commitStyle('fontWeight', v); };
+  const commitFontSize = (numPx) => {
+    setFontSizeNum(numPx);
+    commitStyle('fontSize', numPx + 'px');
+  };
+  // Banner-specific top-level props — these aren't style, they're
+  // behavioural flags that the exporter reads when generating the
+  // published-page markup.
+  const commitDismissible = (v) => {
+    setDismissible(v);
+    updateElement(el.id, { dismissible: v });
+    markDirty();
+  };
+  const commitSticky = (v) => {
+    setSticky(v);
+    updateElement(el.id, { sticky: v });
+    markDirty();
+  };
+
+  // Banner colour presets — leans toward eye-catching attention
+  // colours (red, amber, magenta gradients) since banners are usually
+  // promo/alert UI rather than primary CTAs.
+  const COLOUR_PRESETS = [
+    { bg: 'linear-gradient(135deg,#ef4444,#f59e0b)', label: 'Red→Amber (default)' },
+    { bg: 'linear-gradient(135deg,#0ea5e9,#6366f1)', label: 'Cyan→Indigo' },
+    { bg: 'linear-gradient(135deg,#10b981,#0ea5e9)', label: 'Green→Cyan' },
+    { bg: 'linear-gradient(135deg,#8b5cf6,#ec4899)', label: 'Purple→Pink' },
+    { bg: 'var(--sap-red-bright, #ef4444)', label: 'Solid Red' },
+    { bg: 'var(--sap-amber, #f59e0b)', label: 'Solid Amber' },
+    { bg: 'var(--sap-indigo, #6366f1)', label: 'Solid Indigo' },
+    { bg: '#0f172a', label: 'Solid Slate' },
+  ];
+
+  const TEXT_COLOURS = ['#ffffff', '#000000', '#fbbf24', '#0ea5e9'];
+
+  return (
+    <>
+      {/* Content */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Banner Text</label>
+        <input
+          type="text"
+          value={txt}
+          onChange={e => commitTxt(e.target.value)}
+          placeholder="🔥 Special offer text"
+          style={{ ...inputStyle, marginBottom: 6 }}
+        />
+        <input
+          type="text"
+          value={url}
+          onChange={e => commitUrl(e.target.value)}
+          placeholder="https://… (optional — banner becomes clickable)"
+          style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, color: url ? 'var(--sap-accent, #0284c7)' : 'var(--sap-text-muted, #64748b)' }}
+        />
+      </div>
+
+      {/* Behaviour — the two banner-specific toggles */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Behaviour</label>
+        <ToggleRow
+          label="Dismissible"
+          hint="Show an × button. Once dismissed, won't appear again for the visitor."
+          value={dismissible}
+          onChange={commitDismissible}
+        />
+        <ToggleRow
+          label="Sticky to top"
+          hint="Pin the banner to the top of the page as the visitor scrolls."
+          value={sticky}
+          onChange={commitSticky}
+        />
+      </div>
+
+      {/* Typography */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Typography</label>
+        <select
+          value={fontFamily}
+          onChange={e => commitFontFamily(e.target.value)}
+          style={{ ...inputStyle, marginBottom: 8, fontFamily }}
+        >
+          {FONTS.map(f => (
+            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+          ))}
+        </select>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <span style={{
+            fontSize: 9, fontWeight: 800,
+            color: 'var(--sap-text-muted, #64748b)',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            minWidth: 26,
+          }}>Size</span>
+          <input
+            type="range"
+            min="10" max="48" step="1"
+            value={fontSizeNum}
+            onChange={e => commitFontSize(parseInt(e.target.value, 10))}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+          />
+          <span style={{
+            fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+            color: 'var(--sap-text-primary, #0f172a)',
+            minWidth: 38, textAlign: 'right',
+            background: 'var(--sap-bg-elevated, #f1f5f9)',
+            padding: '3px 6px', borderRadius: 4,
+          }}>{fontSizeNum}px</span>
+        </div>
+
+        <select
+          value={fontWeight}
+          onChange={e => commitFontWeight(e.target.value)}
+          style={inputStyle}
+        >
+          <option value="400">Regular</option>
+          <option value="500">Medium</option>
+          <option value="600">Semibold</option>
+          <option value="700">Bold</option>
+          <option value="800">Extra Bold</option>
+          <option value="900">Black</option>
+        </select>
+      </div>
+
+      {/* Background */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Background</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5 }}>
+          {COLOUR_PRESETS.map((p, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => commitBg(p.bg)}
+              title={p.label}
+              aria-label={p.label}
+              style={{
+                aspectRatio: '1',
+                borderRadius: 5,
+                background: p.bg,
+                cursor: 'pointer',
+                border: bgColor === p.bg ? '2px solid var(--sap-text-primary, #0f172a)' : '1px solid var(--sap-border, #e2e8f0)',
+                padding: 0,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Text colour */}
+      <div style={sectionStyleLast}>
+        <label style={labelStyle}>Text colour</label>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {TEXT_COLOURS.map(c => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => commitFg(c)}
+              aria-label={`Text colour ${c}`}
+              style={{
+                width: 24, height: 24,
+                borderRadius: 5,
+                background: c,
+                cursor: 'pointer',
+                border: txtColor === c ? '2px solid var(--sap-accent, #0ea5e9)' : '1px solid var(--sap-border, #e2e8f0)',
+                padding: 0,
+              }}
+            />
+          ))}
+          <label style={{
+            width: 24, height: 24, borderRadius: 5,
+            background: txtColor,
+            border: '1px dashed var(--sap-border, #e2e8f0)',
+            cursor: 'pointer',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            position: 'relative', overflow: 'hidden',
+          }} title="Custom colour">
+            <input type="color" value={txtColor.startsWith('#') ? txtColor : '#ffffff'}
+              onChange={e => commitFg(e.target.value)}
+              style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', padding: 0, cursor: 'pointer' }}
+            />
+          </label>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Toggle row helper ──────────────────────────────────────────
+//
+// Reusable on/off control with a label and an explanatory hint.
+// Phase 2B introduces toggles for banner dismissible/sticky; this
+// abstracts the pattern for future use (form-field "required", form
+// "GDPR opt-in", etc.).
+function ToggleRow({ label, hint, value, onChange }) {
+  return (
+    <label style={{
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 10,
+      padding: '8px 10px',
+      borderRadius: 6,
+      background: 'var(--sap-bg-elevated, #f8fafc)',
+      border: '1px solid var(--sap-border-faint, #e2e8f0)',
+      cursor: 'pointer',
+      marginBottom: 6,
+    }}>
+      {/* The actual checkbox — visually compact, accent-coloured */}
+      <input
+        type="checkbox"
+        checked={value}
+        onChange={e => onChange(e.target.checked)}
+        style={{
+          marginTop: 2,
+          width: 16,
+          height: 16,
+          accentColor: 'var(--sap-accent, #0ea5e9)',
+          cursor: 'pointer',
+          flexShrink: 0,
+        }}
+      />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          fontSize: 12,
+          fontWeight: 700,
+          color: 'var(--sap-text-primary, #0f172a)',
+          marginBottom: 2,
+        }}>{label}</div>
+        {hint && <div style={{
+          fontSize: 10,
+          color: 'var(--sap-text-muted, #64748b)',
+          lineHeight: 1.4,
+        }}>{hint}</div>}
+      </div>
+    </label>
+  );
+}
+
 // ── Placeholder for unsupported types ──────────────────────────
 //
 // Until Phase 2 ports the other 25 element types, we show a friendly
@@ -641,10 +942,13 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
 
       {/* Type-specific properties.
           Phase 1: Button (commit d893935)
-          Phase 2A: Heading, Text, Label — same TextTypeProperties since they share a Tiptap inline-edit model (commit 20 May 2026)
-          Remaining 22 types fall back to the placeholder note pointing at the legacy modal. */}
+          Phase 2A: Heading, Text, Label — same TextTypeProperties since they share a Tiptap inline-edit model (commit fabffc8)
+          Phase 2B: Announcement Banner — own component with dismissible + sticky toggles (20 May 2026)
+          Remaining 21 types fall back to the placeholder note pointing at the legacy modal. */}
       {el.type === 'button' ? (
         <ButtonProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : el.type === 'announcement' ? (
+        <BannerProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : ['heading', 'text', 'label'].includes(el.type) ? (
         <TextTypeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : (

@@ -97,9 +97,26 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       const safeUrl = blocked ? '#' : raw;
       const isExternal = /^https?:\/\//i.test(safeUrl);
       const extraAttrs = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
-      h += `<a ${elAttrs} href="${safeUrl}"${extraAttrs} style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt || ''}</a>`;
+      // Phase 2B (banner only): sticky banners pin to top of viewport
+      // via position:fixed override. Inline-style override is appended
+      // AFTER `st` so it wins specificity for the sticky case.
+      const stickyOverride = (el.type === 'announcement' && el.sticky)
+        ? ';position:fixed;top:0;left:0;right:0;width:100%;z-index:9999'
+        : '';
+      // Phase 2B (banner only): dismissible adds a data attribute the
+      // page-level script (emitted at the foot of the body) looks for,
+      // plus an inline × control. The dismiss state persists per-visitor
+      // via localStorage keyed on the page slug + element id.
+      const dismissibleData = (el.type === 'announcement' && el.dismissible) ? ' data-sap-dismissible="1"' : '';
+      h += `<a ${elAttrs}${dismissibleData} href="${safeUrl}"${extraAttrs} style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center${stickyOverride}">${el.txt || ''}${(el.type === 'announcement' && el.dismissible) ? '<span class="sap-banner-close" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;line-height:1;opacity:0.7;padding:4px 8px" onclick="event.preventDefault();event.stopPropagation();this.closest(\'a,div\').style.display=\'none\';try{localStorage.setItem(\'sap-bn-\'+this.closest(\'[id]\').id,\'1\');}catch(e){}">×</span>' : ''}</a>`;
     } else if ((el.type === 'button' || el.type === 'announcement') && !el.url) {
-      h += `<div ${elAttrs} style="${st};display:flex;align-items:center;justify-content:center">${el.txt || ''}</div>`;
+      // Same banner sticky + dismissible handling for unlinked banners.
+      // Banner without a URL is rare but valid (e.g. plain info ribbon).
+      const stickyOverride = (el.type === 'announcement' && el.sticky)
+        ? ';position:fixed;top:0;left:0;right:0;width:100%;z-index:9999'
+        : '';
+      const dismissibleData = (el.type === 'announcement' && el.dismissible) ? ' data-sap-dismissible="1"' : '';
+      h += `<div ${elAttrs}${dismissibleData} style="${st};display:flex;align-items:center;justify-content:center;position:${(el.type === 'announcement' && el.sticky) ? 'fixed' : 'absolute'}${stickyOverride}">${el.txt || ''}${(el.type === 'announcement' && el.dismissible) ? '<span class="sap-banner-close" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;line-height:1;opacity:0.7;padding:4px 8px" onclick="event.stopPropagation();this.closest(\'[id]\').style.display=\'none\';try{localStorage.setItem(\'sap-bn-\'+this.closest(\'[id]\').id,\'1\');}catch(e){}">×</span>' : ''}</div>`;
     } else if (el.type === 'audio' && el._audioUrl) {
       h += `<audio ${elAttrs} src="${el._audioUrl}" style="${st};border-radius:12px" controls></audio>`;
     } else if (el.type === 'embed' && el._embedCode) {
@@ -155,6 +172,18 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }
   });
+
+  // ── Dismissed-banner restoration script (Phase 2B, 20 May 2026) ──
+  // For banners marked dismissible, the inline × button stores
+  // "sap-bn-<elid>=1" in localStorage when clicked. This script runs
+  // on page load and re-applies that hidden state so dismissed banners
+  // don't reappear to repeat visitors.
+  //
+  // Plain DOM, no dependencies — works in the published HTML where
+  // there's no React. Try/catch around localStorage in case the browser
+  // is in private mode or storage is full (otherwise the rest of the
+  // page wouldn't execute either).
+  h += `<script>(function(){try{var els=document.querySelectorAll('[data-sap-dismissible="1"]');for(var i=0;i<els.length;i++){var el=els[i];if(el.id&&localStorage.getItem('sap-bn-'+el.id)==='1'){el.style.display='none';}}}catch(e){}})();</script>`;
 
   h += '</div></div>';
 
