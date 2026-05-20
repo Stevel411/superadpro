@@ -638,8 +638,14 @@ export default function LabsSuperPagesEditor() {
       title={(isSandbox ? '🧪 SANDBOX · ' : '🧪 LABS · ') + (pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' }))}
       subtitle={isSandbox ? 'Sandbox · localStorage only · Doesn\'t touch live site' : (pageSettings.slug ? '/' + pageSettings.slug + ' · Editing in Labs sandbox' : 'Editing in Labs sandbox')}
       fullHeight
-      hideSidebar={isSandbox}
-      hideTopbar={isSandbox}
+      // 20 May 2026: AppLayout chrome hidden in BOTH sandbox and DB-backed
+      // mode. The EditorTopbar (now full cobalt) takes over as the single
+      // top bar. Steve's call: 'there is no requirement for an additional
+      // top bar' — one cobalt bar, full viewport for canvas + panels.
+      // Sidebar nav is reachable via the SuperPages logo (returns to
+      // /pro/funnels) and via the Back button next to it.
+      hideSidebar={true}
+      hideTopbar={true}
       bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       <div className="labs-chrome" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: "'Manrope', 'Inter', sans-serif" }}>
