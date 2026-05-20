@@ -199,14 +199,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       </button>
 
       {/* Campaign wiring — change the lead-capture list / sequence
-          mid-edit. Added 20 May 2026 after Steve flagged that the
-          original "pick list before you start editing" modal was a
-          one-way door — if you changed your mind, you had to leave the
-          editor. Now any page (sandbox or DB-backed) exposes this
-          button so the wiring is changeable without losing context.
-          Sandbox pages persist the picked list/sequence into the
-          sandbox payload — applied at graduation time in
-          exportToProductionPayload. */}
+          mid-edit. Button label is ALWAYS "Campaign" — the wired list
+          name shows on hover via the tooltip and is reflected by the
+          cyan-tinted active state. Steve's call 20 May 2026: 'the
+          Campaign tab is not displaying as Campaign' — the previous
+          version showed the list name as the button text which broke
+          the navigation pattern. */}
       {onShowWiring && (
         <button onClick={onShowWiring} style={{
           ...ghost,
@@ -219,11 +217,9 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
             e.currentTarget.style.borderColor = currentListName ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)';
             e.currentTarget.style.color = currentListName ? '#22d3ee' : 'rgba(255,255,255,0.85)';
           }}
-          title={currentListName ? `Leads go to: ${currentListName}` : 'Choose where leads from this page are sent'}>
+          title={currentListName ? `Campaign · leads go to: ${currentListName}` : 'Campaign · choose where leads from this page are sent'}>
           <Link2 size={13}/>
-          <span style={{marginLeft:3, maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-            {currentListName ? currentListName : 'Campaign'}
-          </span>
+          <span style={{marginLeft:3}}>Campaign</span>
         </button>
       )}
       <button onClick={onShowHelp} style={{...ghost, color: '#22d3ee'}}

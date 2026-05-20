@@ -399,7 +399,65 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             </div>
           ) : null;
 
-          const fullCats = filteredCats.map((cat, ci) => (
+          // Category section rendering. Steve flag 20 May 2026: 'the
+          // Rightside panel must have an even balanced list of blocks
+          // that go left to right filling the panel down to the bottom.
+          // any excess space or void should be at the bottom of the
+          // page not at the top'.
+          //
+          // After Quick Blocks suppression, several categories end up
+          // with only 1-2 items, which produces a sparse 3-column grid
+          // with empty cells in the middle of the panel. Reorganise:
+          //   - Categories with >= 3 items render normally (full or
+          //     near-full grid rows, label visible)
+          //   - Categories with < 3 items get their items collected
+          //     into a single 'MORE BLOCKS' section so the items fill
+          //     left-to-right with no empty cells
+          //
+          // Search mode keeps the original category labels — search
+          // results favour discoverability over visual balance.
+          let regularCats = filteredCats;
+          let mergedItems = [];
+          if (!q) {
+            regularCats = [];
+            filteredCats.forEach(cat => {
+              if (cat.items.length >= 3) {
+                regularCats.push(cat);
+              } else {
+                mergedItems = mergedItems.concat(cat.items);
+              }
+            });
+          }
+          // Render order: Quick Blocks first, then the merged 'More
+          // blocks' overflow row (covers the orphan items in a clean
+          // left-to-right grid), then the full labelled categories.
+          const moreRow = mergedItems.length > 0 ? (
+            <div key="__more" style={{marginBottom: 8}}>
+              <div className="palette-section-label" style={{padding:'12px 4px 8px'}}>
+                {t('superPagesEditor.catMore', { defaultValue: 'More blocks' })}
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:9}}>
+                {mergedItems.map((item, ii) => {
+                  const Icon = BLOCK_ICONS[item.type] || Square;
+                  const blockType = BLOCK_TYPE[item.type] || 'solid';
+                  return (
+                    <div key={`m_${ii}`}
+                      onClick={() => addAndRemember(item.type)}
+                      draggable
+                      onDragStart={e => e.dataTransfer.setData('text/plain', item.type)}
+                      className="pal-item"
+                    >
+                      <span className={`tile-type-chip ${blockType}`} />
+                      <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
+                      <span className="pal-label">{blockLabel(t, item)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null;
+
+          const fullCats = regularCats.map((cat, ci) => (
             <div key={cat.label} style={{marginBottom: 8}}>
               {/* Section head — typography-only treatment. */}
               <div className="palette-section-label" style={{padding:'12px 4px 8px',...(ci===0?{paddingTop:4}:{})}}>
@@ -428,7 +486,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             </div>
           ));
 
-          return <>{quickRow}{fullCats}</>;
+          return <>{quickRow}{moreRow}{fullCats}</>;
         })()}
       </div>
 
