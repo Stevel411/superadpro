@@ -573,7 +573,7 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
 // All controls write through updateElementStyle on every change. No
 // Apply button. Local state mirrors el.s for snappy input feel and
 // resyncs when el.id changes.
-function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStripe = false, lastSection = false }) {
+function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStripe = false, includeBorder = false, lastSection = false }) {
   // ── Local state mirrors el.s ─────────────────────────────────
   // Background can be 'transparent', a hex, a linear-gradient(),
   // or a CSS variable. For the colour picker we extract the first
@@ -594,6 +594,18 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
   const [stripeWidth, setStripeWidth] = useState(stripeMatch ? parseInt(stripeMatch[1], 10) : 0);
   const [stripeColor, setStripeColor] = useState(stripeMatch ? stripeMatch[2] : '#0ea5e9');
 
+  // Border — opted-in via includeBorder prop. Same parse pattern as
+  // BoxProperties. Added 20 May 2026 (Steve flag): the Form element
+  // has a 1px cobalt outline baked into its default; when members
+  // make the form background transparent the outline remained
+  // visible because nothing exposed border editing. Now FormProperties
+  // (and any future caller) can pass includeBorder=true and get
+  // the same border control BoxProperties has.
+  const borderRaw = el.s?.border || '';
+  const borderMatch = borderRaw.match(/^(\d+)px\s+solid\s+(.+)$/);
+  const [borderWidth, setBorderWidth] = useState(borderMatch ? parseInt(borderMatch[1], 10) : 0);
+  const [borderColor, setBorderColor] = useState(borderMatch ? borderMatch[2] : 'rgba(14,165,233,0.15)');
+
   // Resync on selection change
   useEffect(() => {
     setBackground(el.s?.background || '#1e293b');
@@ -602,6 +614,9 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
     const m = (el.s?.borderLeft || '').match(/^(\d+)px\s+solid\s+(.+)$/);
     setStripeWidth(m ? parseInt(m[1], 10) : 0);
     setStripeColor(m ? m[2] : '#0ea5e9');
+    const bm = (el.s?.border || '').match(/^(\d+)px\s+solid\s+(.+)$/);
+    setBorderWidth(bm ? parseInt(bm[1], 10) : 0);
+    setBorderColor(bm ? bm[2] : 'rgba(14,165,233,0.15)');
   }, [el.id]);
 
   // ── Background colour + opacity helpers ─────────────────────────
@@ -706,6 +721,16 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
     setStripeColor(c);
     const value = w > 0 ? `${w}px solid ${c}` : '';
     updateElementStyle(el.id, { borderLeft: value });
+    markDirty();
+  };
+
+  // Border: same shape as stripe. Width 0 → empty string so the
+  // border is entirely removed (no 0px solid stub left behind).
+  const commitBorder = (w, c) => {
+    setBorderWidth(w);
+    setBorderColor(c);
+    const value = w > 0 ? `${w}px solid ${c}` : '';
+    updateElementStyle(el.id, { border: value });
     markDirty();
   };
 
@@ -849,6 +874,42 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
               type="range" min={0} max={12} step={1}
               value={stripeWidth}
               onChange={e => commitStripe(parseInt(e.target.value, 10), stripeColor)}
+              style={{ flex: 1 }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Border — opted-in via includeBorder. Drag the width slider
+          to 0 to remove the border entirely (useful when the user
+          has set the background opacity low and doesn't want the
+          outline showing through transparency). */}
+      {includeBorder && (
+        <div style={{ marginTop: 10 }}>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between',
+            fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+            marginBottom: 4,
+          }}>
+            <span>Border</span>
+            <span style={{ fontFamily: 'monospace' }}>{borderWidth}px</span>
+          </div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <input
+              type="color"
+              value={(/^#[0-9a-f]{6}$/i).test(borderColor) ? borderColor : '#e2e8f0'}
+              onChange={e => commitBorder(borderWidth || 1, e.target.value)}
+              style={{
+                width: 32, height: 28, padding: 0,
+                border: '1px solid var(--sap-border, #e2e8f0)',
+                borderRadius: 5, cursor: 'pointer',
+                background: 'transparent',
+              }}
+            />
+            <input
+              type="range" min={0} max={6} step={1}
+              value={borderWidth}
+              onChange={e => commitBorder(parseInt(e.target.value, 10), borderColor)}
               style={{ flex: 1 }}
             />
           </div>
@@ -3144,20 +3205,21 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
 
   return (
     <>
-      {/* Form container — background, padding, radius. Added
-          20 May 2026 (Steve flag): the form's outer wrapper had
-          a hardcoded grey-translucent default
+      {/* Form container — background, padding, radius, border.
+          Added 20 May 2026 (Steve flag): the form's outer wrapper
+          had a hardcoded grey-translucent default
           (rgba(15,23,41,0.4) — see elementDefaults.js form entry)
-          and no UI control to change it, so the form sat as a
-          murky grey panel on every page. ContainerSection edits
-          el.s.background / el.s.borderRadius / el.s.padding via
-          updateElementStyle — same component used by Box,
-          Review, Testimonial, etc. so the UX is consistent. */}
+          with a 1px cobalt border, and no UI control to change
+          either. ContainerSection now exposes background+opacity
+          and (with includeBorder=true) the 1px outline too, so
+          members can make the form fully transparent without the
+          ghost outline showing through. */}
       <ContainerSection
         el={el}
         updateElementStyle={updateElementStyle}
         markDirty={markDirty}
         includeAccentStripe={false}
+        includeBorder={true}
         lastSection={false}
       />
 

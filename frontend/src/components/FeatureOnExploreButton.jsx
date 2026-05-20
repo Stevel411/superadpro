@@ -138,6 +138,15 @@ function buttonStyle(variant, mode) {
     fontSize: variant === 'primary' ? 14 : 13,
     fontWeight: 700, fontFamily:'inherit',
     borderRadius: 10, cursor: 'pointer',
+    // 20 May 2026 (Steve flag): stable width across all four states
+    // (Loading… / Feature on /explore / Featured on /explore / Pending
+    // review). Without this the button's text-driven width changes
+    // when the showcase API resolves, which shifts every neighbour
+    // button in the cobalt topbar. justifyContent centres the
+    // contents so the icon+text don't jitter as the text changes.
+    justifyContent: 'center',
+    minWidth: variant === 'primary' ? 220 : 190,
+    whiteSpace: 'nowrap',
     transition: 'transform .15s, box-shadow .15s, opacity .15s',
     border: 'none',
   };
