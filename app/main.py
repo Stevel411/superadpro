@@ -3156,6 +3156,49 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     from .database import GRID_COMPLETION_BONUS
     bonus_max = float(GRID_COMPLETION_BONUS.get(tier, 0))
 
+    # Per-grid commission breakdown (added 21 May 2026 for the redesigned
+    # visualiser). Live ledger reads — sum Commission rows where grid_id
+    # matches the current grid and to_user_id is this user. Additive only:
+    # the old GridVisualiser.jsx ignores these fields; the new component
+    # uses them to render the Commissions Earned card.
+    from sqlalchemy import func as _func
+    direct_earned = 0.0
+    unilevel_earned = 0.0
+    direct_fills = 0
+    unilevel_fills = 0
+
+    if grid_record:
+        direct_row = db.query(
+            _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+            _func.count(Commission.id),
+        ).filter(
+            Commission.grid_id == grid_record.id,
+            Commission.to_user_id == user.id,
+            Commission.commission_type == "direct_sponsor",
+        ).first()
+        if direct_row:
+            direct_earned = float(direct_row[0] or 0)
+            direct_fills = int(direct_row[1] or 0)
+
+        unilevel_row = db.query(
+            _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+            _func.count(Commission.id),
+        ).filter(
+            Commission.grid_id == grid_record.id,
+            Commission.to_user_id == user.id,
+            Commission.commission_type == "uni_level",
+        ).first()
+        if unilevel_row:
+            unilevel_earned = float(unilevel_row[0] or 0)
+            unilevel_fills = int(unilevel_row[1] or 0)
+
+    total_earned = direct_earned + unilevel_earned
+
+    # Direct sponsor count — members where sponsor_id is this user. Used
+    # by the new visualiser's "Directs" stat tile. Same value the old
+    # page was computing client-side from /api/me.
+    direct_count = db.query(User).filter(User.sponsor_id == user.id).count()
+
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
@@ -3167,6 +3210,15 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         "total_downline": total_downline,
         "bonus_accrued": bonus_accrued,
         "bonus_max": bonus_max,
+        # Commission breakdown for the redesigned visualiser
+        "direct_earned": round(direct_earned, 2),
+        "unilevel_earned": round(unilevel_earned, 2),
+        "total_earned": round(total_earned, 2),
+        "direct_fills": direct_fills,
+        "unilevel_fills": unilevel_fills,
+        "direct_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.40, 2),
+        "unilevel_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.0625, 2),
+        "direct_count": direct_count,
     })
 
 # ────────────────────────────────────────────────────────────────────
