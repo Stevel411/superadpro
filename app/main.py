@@ -3169,6 +3169,150 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         "bonus_max": bonus_max,
     })
 
+# ────────────────────────────────────────────────────────────────────
+# Labs Grid Visualiser — redesign sandbox (21 May 2026).
+# Same React SPA entry, separate URL so we can iterate on the
+# layout / commission breakdown without affecting live members on
+# /grid-visualiser. Promote to the live URL once the design is locked.
+# ────────────────────────────────────────────────────────────────────
+@app.get("/labs-grid-visualiser")
+def labs_grid_visualiser(request: Request):
+    """Serve React SPA — labs version of the Grid Visualiser."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/api/labs-grid-visualiser")
+def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db), tier: int = 1):
+    """Extended Grid Visualiser data — adds per-grid commission breakdown
+    (direct_earned, unilevel_earned) on top of the standard response so the
+    redesigned page can render the Commissions Earned card.
+
+    direct_earned and unilevel_earned are read live from the Commission
+    ledger filtered by grid_id and earner (to_user_id). No denormalised
+    counters — matches the platform's live-ledger-reads pattern.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    grid_record = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.package_tier == tier,
+        Grid.is_complete == False
+    ).first()
+
+    grid_seats = []
+    if grid_record:
+        positions = db.query(GridPosition).filter(
+            GridPosition.grid_id == grid_record.id
+        ).order_by(GridPosition.grid_level.asc(), GridPosition.position_num.asc()).all()
+
+        for i, gp in enumerate(positions[:64]):
+            member = db.query(User).filter(User.id == gp.member_id).first()
+            if not member:
+                continue
+            grid_seats.append({
+                "position": i + 1,
+                "username": member.username,
+                "depth": gp.grid_level,
+                "id": member.id,
+                "member_id": "SAP-" + str(member.id).zfill(5),
+                "is_direct": (member.sponsor_id == user.id),
+            })
+
+    # Live earnings from this specific grid — sum Commission rows where
+    # grid_id matches and this user is the earner (to_user_id).
+    from sqlalchemy import func
+    direct_earned = 0.0
+    unilevel_earned = 0.0
+    direct_fills = 0
+    unilevel_fills = 0
+
+    if grid_record:
+        direct_row = db.query(
+            func.coalesce(func.sum(Commission.amount_usdt), 0),
+            func.count(Commission.id),
+        ).filter(
+            Commission.grid_id == grid_record.id,
+            Commission.to_user_id == user.id,
+            Commission.commission_type == "direct_sponsor",
+        ).first()
+        if direct_row:
+            direct_earned = float(direct_row[0] or 0)
+            direct_fills = int(direct_row[1] or 0)
+
+        unilevel_row = db.query(
+            func.coalesce(func.sum(Commission.amount_usdt), 0),
+            func.count(Commission.id),
+        ).filter(
+            Commission.grid_id == grid_record.id,
+            Commission.to_user_id == user.id,
+            Commission.commission_type == "uni_level",
+        ).first()
+        if unilevel_row:
+            unilevel_earned = float(unilevel_row[0] or 0)
+            unilevel_fills = int(unilevel_row[1] or 0)
+
+    total_earned = direct_earned + unilevel_earned
+
+    # Total downline (everyone in the sponsor chain who has a Grid at this tier)
+    total_downline = 0
+    queue = [user.id]
+    visited_dl = {user.id}
+    while queue:
+        cid = queue.pop(0)
+        children = db.query(User).filter(User.sponsor_id == cid).all()
+        for child in children:
+            if child.id in visited_dl:
+                continue
+            visited_dl.add(child.id)
+            has_grid = db.query(Grid).filter(
+                Grid.owner_id == child.id,
+                Grid.package_tier == tier,
+            ).first()
+            if has_grid:
+                total_downline += 1
+            queue.append(child.id)
+
+    # Direct referral count at this tier (members where sponsor_id == user.id
+    # AND they have a grid at this tier — matches how Directs is conceptually
+    # framed: people I personally recruited who bought in at this tier).
+    direct_count = db.query(User).filter(User.sponsor_id == user.id).count()
+
+    completed = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.package_tier == tier,
+        Grid.is_complete == True
+    ).count()
+
+    bonus_accrued = float(grid_record.bonus_pool_accrued or 0) if grid_record else 0
+    from .database import GRID_COMPLETION_BONUS
+    bonus_max = float(GRID_COMPLETION_BONUS.get(tier, 0))
+
+    return JSONResponse({
+        "seats": grid_seats,
+        "filled": len(grid_seats),
+        "total": 64,
+        "tier": tier,
+        "price": GRID_PACKAGES.get(tier, 0),
+        "advance": grid_record.advance_number if grid_record else completed + 1,
+        "completed_advances": completed,
+        "total_downline": total_downline,
+        "direct_count": direct_count,
+        "bonus_accrued": bonus_accrued,
+        "bonus_max": bonus_max,
+        # New for the redesigned page
+        "direct_earned": round(direct_earned, 2),
+        "unilevel_earned": round(unilevel_earned, 2),
+        "total_earned": round(total_earned, 2),
+        "direct_fills": direct_fills,
+        "unilevel_fills": unilevel_fills,
+        "direct_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.40, 2),
+        "unilevel_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.0625, 2),
+    })
+
+
 @app.get("/passup-visualiser")
 def passup_visualiser(request: Request):
     """Serve React SPA."""

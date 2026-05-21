@@ -97,6 +97,7 @@ const SuperDeckEditor = React.lazy(() => import('./pages/superdeck/SuperDeckEdit
 const VideoCreator = React.lazy(() => import('./pages/VideoCreator'));
 const CreditMatrix = React.lazy(() => import('./pages/CreditMatrix'));
 const GridVisualiser = React.lazy(() => import('./pages/GridVisualiser'));
+const LabsGridVisualiser = React.lazy(() => import('./pages/LabsGridVisualiser'));
 const GridCalculator = React.lazy(() => import('./pages/GridCalculator'));
 const GridStreamPage = React.lazy(() => import('./pages/public/GridStreamPage'));
 const MembershipStreamPage = React.lazy(() => import('./pages/public/MembershipStreamPage'));
@@ -411,6 +412,7 @@ function AppRoutes() {
       <Route path="/video-creator" element={<ProtectedRoute><RequireTier tier="basic"><VideoCreator /></RequireTier></ProtectedRoute>} />
       <Route path="/credit-nexus" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><GridVisualiser /></RequireTier></ProtectedRoute>} />
+      <Route path="/labs-grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><LabsGridVisualiser /></RequireTier></ProtectedRoute>} />
       <Route path="/grid-calculator" element={<ProtectedRoute><RequireTier tier="basic"><GridCalculator /></RequireTier></ProtectedRoute>} />
       <Route path="/nexus-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrixVisualiser /></RequireTier></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
