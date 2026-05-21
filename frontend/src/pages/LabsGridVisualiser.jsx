@@ -27,10 +27,12 @@ var css = `
   .lgv-tier-tab{padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:#475569;background:#fff}
   .lgv-tier-tab:hover:not(.active){background:#f8fafc}
   .lgv-tier-tab.active{color:#fff;border-color:transparent}
-  .lgv-tile{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .15s}
+  .lgv-tile{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:transform .15s;overflow:hidden;padding:4px 3px;box-sizing:border-box}
   .lgv-tile:hover{transform:scale(1.06)}
-  .lgv-tile.empty{background:#f8fafc;border:1.5px dashed #cbd5e1}
-  .lgv-tile .avatar{width:60%;height:60%;border-radius:50%;background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.25)}
+  .lgv-tile.empty{background:#f8fafc;border:1.5px dashed #cbd5e1;padding:0}
+  .lgv-tile .avatar{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:800;color:#fff;font-size:11px;text-shadow:0 1px 2px rgba(0,0,0,0.25);margin-bottom:3px;flex-shrink:0}
+  .lgv-tile .uname{font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.25);line-height:1.1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+  .lgv-tile .uid{font-family:'DM Sans',sans-serif;font-size:7px;font-weight:600;color:rgba(255,255,255,0.75);line-height:1.1;margin-top:1px;letter-spacing:0.2px}
 `;
 
 export default function LabsGridVisualiser() {
@@ -124,7 +126,9 @@ export default function LabsGridVisualiser() {
                     var grad = seat.is_direct ? DIRECT_GRAD : SPILLOVER_GRAD;
                     return (
                       <div key={i} className="lgv-tile" style={{ background:grad, position:'relative' }} title={seat.username + ' · ' + (seat.is_direct ? 'Direct' : 'Spillover') + ' · ' + seat.member_id + (isCompletionSeat ? ' · Completion seat' : '')}>
-                        <div className="avatar" style={{ fontSize:'14px' }}>{seat.username.charAt(0).toUpperCase()}</div>
+                        <div className="avatar">{seat.username.charAt(0).toUpperCase()}</div>
+                        <div className="uname">{seat.username}</div>
+                        <div className="uid">{seat.member_id}</div>
                         {isCompletionSeat ? (
                           <div style={{ position:'absolute', top:-4, right:-4, width:18, height:18, borderRadius:'50%', background:'#fbbf24', border:'2px solid #fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:900, color:'#78350f', boxShadow:'0 2px 4px rgba(0,0,0,0.15)' }}>★</div>
                         ) : null}
