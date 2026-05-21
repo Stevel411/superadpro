@@ -436,8 +436,10 @@ def scan_referral_graph_health(db: Session) -> dict:
         "Cross-checks credit_pack_purchases against credit_matrices. "
         "Every completed purchase should result in either an active "
         "matrix for the same pack tier or a completed prior advance. "
-        "Every active matrix should be backed by a completed purchase "
-        "record (catches matrices created without payment)."
+        "Empty matrices (positions_filled=0) without a backing "
+        "purchase are flagged as never-used rows — matrices with any "
+        "downline spillover positions are working as designed and "
+        "are not flagged regardless of owner purchase status."
     ),
 )
 def scan_pack_ownership_consistency(db: Session) -> dict:
@@ -493,7 +495,31 @@ def scan_pack_ownership_consistency(db: Session) -> dict:
 
         # ── b) Active matrix but no completed purchase ────────────
         # Admin grants are legitimate — flag only non-admin cases.
-        if active_matrices and not completed_purchases:
+        #
+        # 21 May 2026 (Steve flag): refined definition. Previous
+        # version flagged ANY active matrix without a purchase as
+        # "matrix_without_purchase", but the spec explicitly allows
+        # matrices to be auto-created via downline spillover — a
+        # founding member sponsored directly by SuperAdPro can have
+        # a Starter matrix purely because one of their downline
+        # bought a Starter pack. That walks up `place_in_matrix`,
+        # auto-creates a Starter matrix for each upline, and works
+        # exactly as the 3×3 design intends. Flagging those as
+        # "orphan" produces a permanent noise floor that grows with
+        # every legitimate spillover purchase.
+        #
+        # Real failure mode this check should still catch: a matrix
+        # row exists in the DB with NO positions filled (not even
+        # the owner's root) AND no purchase. That's genuinely never-
+        # used empty state — an accidental row that could be cleaned
+        # up without breaking commission flow.
+        #
+        # New rule: only flag matrices where positions_filled == 0
+        # and owner has no purchase. Matrices with any spillover
+        # positions are working as designed regardless of whether
+        # the owner personally bought the pack.
+        empty_matrices = [m for m in active_matrices if (m.positions_filled or 0) == 0]
+        if empty_matrices and not completed_purchases:
             if user and user.is_admin:
                 # Admin self-test or seed — informational, not an issue
                 pass
@@ -504,14 +530,15 @@ def scan_pack_ownership_consistency(db: Session) -> dict:
                     subject=subject,
                     details={
                         "user_id": user_id, "pack_key": pack_key,
-                        "active_matrix_count": len(active_matrices),
-                        "matrix_ids": [m.id for m in active_matrices],
+                        "empty_matrix_count": len(empty_matrices),
+                        "matrix_ids": [m.id for m in empty_matrices],
                     },
                     suggested_action=(
-                        "Member has an active matrix but no completed purchase. "
-                        "Possible payment-confirmation bug — matrix was created "
-                        "but the purchase record didn't land. Check IPN handler / "
-                        "wallet payment confirmation logs."
+                        "Empty matrix (positions_filled=0) exists without a "
+                        "completed purchase by the owner. Genuine never-used "
+                        "row — safe to clean up. If purchase was attempted "
+                        "and failed, check IPN handler / wallet payment "
+                        "confirmation logs for that user."
                     ),
                 ))
 
