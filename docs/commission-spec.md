@@ -72,6 +72,8 @@ If you encounter any of these in code, copy, templates, or AI prompts, flag for 
 
 ## 2. Campaign Grid (Stream 02) ✅
 
+**Last updated:** 21 May 2026 — Steve reallocated the 5% platform share to double the completion bonus from 5% to 10%. **100% of every Grid commission now flows to affiliates. Zero dedicated company share.** Marketing line: *"100% of Profit Grid commissions go to affiliates. We don't take a cent."*
+
 ### Tier ladder ✅
 
 8 tiers (per `app/database.py` `CREDIT_PACKS` constant — same ladder as Nexus):
@@ -83,22 +85,29 @@ $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 |---|---|---|
 | Direct (to sponsor) | 40% | Once per entry |
 | Uni-level (up the chain) | 6.25% × 8 levels = 50% total | One payout per level up to 8 |
-| Platform | 5% | Company retention |
-| Bonus pool | 5% | Accumulates toward completion bonus |
+| Bonus pool | 10% | Accumulates toward completion bonus (was 5% pre-21-May-2026) |
+| Platform | 0% | Reallocated to bonus pool 21 May 2026 |
 
-**Income stream framing:** Campaign Tiers contribute 95% to affiliates, 5% to the company. The 5% is platform-admin only, NOT a primary revenue line.
+**Total: 100% to affiliates.**
+
+**Income stream framing:** Campaign Tiers now contribute 100% to affiliates. The company makes its money on Membership ($10 flat per activation), not Grid.
 
 ### Completion bonuses ✅
 
-Hardcoded in code: $64 / $160 / $320 / $640 / $1,280 / $1,920 / $2,560 / $3,200 (by tier position 1→8).
+Per-tier total accrued at full grid (64 seats × tier_price × 10%):
+$128 / $320 / $640 / $1,280 / $2,560 / $3,840 / $5,120 / $6,400 (by tier position 1→8).
+
+Previous values (pre-21-May-2026, at 5%): $64 / $160 / $320 / $640 / $1,280 / $1,920 / $2,560 / $3,200.
 
 ### Tier qualification rule ✅
 
-Found in `app/grid.py::_user_is_qualified` — must have an **active (or in-grace) campaign at the same tier or above** to earn commissions. Unqualified sponsor → 40% direct goes to company, does NOT walk up. Uni-level: each level checked independently.
+Found in `app/grid.py::_user_is_qualified` — must have an **active (or in-grace) campaign at the same tier or above** to earn commissions. Unqualified sponsor → 40% direct absorbed by platform as recipient of last resort. Uni-level: each level checked independently.
+
+**Customer-facing note on "100% to affiliates" claim:** the dedicated platform-fee line is now $0. When chains are short or uplines are unqualified, those slots are absorbed by the platform as the qualifying recipient of last resort — this is qualification-gate behaviour, not a separate revenue line. Honest answer if asked: *"All Grid commissions are paid out to qualifying affiliates. The rate to qualifying members is unchanged."*
 
 ### Earning potential ❌
 
-**The deck must NOT show fabricated ranges like "$560 — $28,000+".** Any earnings figures must be recalculated from the real tier ladder + completion bonus schedule and confirmed with Steve before publishing.
+**The deck must NOT show fabricated ranges like "$560 — $28,000+".** Any earnings figures must be recalculated from the real tier ladder + new completion bonus schedule and confirmed with Steve before publishing.
 
 ---
 

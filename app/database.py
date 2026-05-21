@@ -97,12 +97,29 @@ GRID_LEVELS   = 8      # levels deep
 GRID_TOTAL    = 64     # 64 positions filled by referrals across 8 levels
 
 # ── Commission split (Stream 2 — Profit Engine Grid) ─────────
-# Per entry: 40% direct sponsor + 50% uni-level + 5% platform + 5% bonus pool
+# 21 May 2026 — Steve's commercial decision: reallocate the 5%
+# platform share to double the completion bonus from 5% to 10%.
+# New split: 40% Direct / 50% Uni-Level / 10% Completion Bonus /
+# 0% Platform. 100% of every Grid commission flows back to
+# affiliates. Marketing rationale: "100% to affiliates" is a
+# differentiator that drives Membership activations (where the
+# company actually makes its money at $10 flat per activation).
+#
+# Forward-only — no retroactive recalculation of historical
+# completion bonuses. Applies to all Grid activations from this
+# deploy onwards.
+#
+# Previous split (until 20 May 2026):
+#   DIRECT_PCT     = 0.40   (unchanged)
+#   UNILEVEL_PCT   = 0.50   (unchanged)
+#   PER_LEVEL_PCT  = 0.0625 (unchanged)
+#   PLATFORM_PCT   = 0.05   → now 0.00
+#   BONUS_POOL_PCT = 0.05   → now 0.10
 DIRECT_PCT    = 0.40   # 40% → to the person who personally referred the entrant
 UNILEVEL_PCT  = 0.50   # 50% → split across 8 uni-level positions (6.25% each)
 PER_LEVEL_PCT = 0.0625 # 6.25% → each of 8 levels in the upline chain
-PLATFORM_PCT  = 0.05   # 5%  → SuperAdPro platform fee
-BONUS_POOL_PCT = 0.05  # 5%  → Grid completion bonus pool
+PLATFORM_PCT  = 0.00   # 0%  → reallocated to bonus pool (21 May 2026)
+BONUS_POOL_PCT = 0.10  # 10% → Grid completion bonus pool (was 5%, +5% from platform)
 
 
 # Legacy aliases
@@ -134,18 +151,21 @@ GRID_TIER_NAMES = {
     8: "Champion",
 }
 
-# ── Grid Completion Bonus (paid from 5% bonus pool) ─────────
-# Total pool per grid = 64 seats × price × 5% = price × 3.2
+# ── Grid Completion Bonus (paid from 10% bonus pool) ─────────
+# Total pool per grid = 64 seats × price × 10% = price × 6.4
 # Bonus pays out ONLY if grid owner has an active (unexpired) campaign at that tier
+# 21 May 2026: doubled from 5% to 10% (Steve's reallocation — the
+# 5% platform share moved here so 100% of Grid revenue goes back
+# to affiliates). Previous values were half these amounts.
 GRID_COMPLETION_BONUS = {
-    1: 64.0,      # 64 × $20 × 0.05 = $64
-    2: 160.0,     # 64 × $50 × 0.05 = $160
-    3: 320.0,     # 64 × $100 × 0.05 = $320
-    4: 640.0,     # 64 × $200 × 0.05 = $640
-    5: 1280.0,    # 64 × $400 × 0.05 = $1,280
-    6: 1920.0,    # 64 × $600 × 0.05 = $1,920
-    7: 2560.0,    # 64 × $800 × 0.05 = $2,560
-    8: 3200.0,    # 64 × $1000 × 0.05 = $3,200
+    1: 128.0,     # 64 × $20 × 0.10 = $128  (was $64)
+    2: 320.0,     # 64 × $50 × 0.10 = $320  (was $160)
+    3: 640.0,     # 64 × $100 × 0.10 = $640  (was $320)
+    4: 1280.0,    # 64 × $200 × 0.10 = $1,280  (was $640)
+    5: 2560.0,    # 64 × $400 × 0.10 = $2,560  (was $1,280)
+    6: 3840.0,    # 64 × $600 × 0.10 = $3,840  (was $1,920)
+    7: 5120.0,    # 64 × $800 × 0.10 = $5,120  (was $2,560)
+    8: 6400.0,    # 64 × $1000 × 0.10 = $6,400  (was $3,200)
 }
 
 # ── Campaign View Targets per Tier ───────────────────────────

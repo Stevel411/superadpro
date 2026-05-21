@@ -350,8 +350,15 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
 
 def _record_platform_fee(db: Session, price: float, package_tier: int, buyer_id: int = None):
     amount = round(float(price) * PLATFORM_PCT, 2)
+    # 21 May 2026: PLATFORM_PCT is now 0.00 (reallocated to completion
+    # bonus). Skip the row entirely instead of writing $0 commissions
+    # that would clutter the audit tables and trip the commission
+    # anomalies scanner. Function kept callable so all existing
+    # callsites continue to work; just no-op when amount is 0.
+    if amount <= 0:
+        return
     _record_commission(db, buyer_id, None, amount, "platform",
-                       f"Platform 5% fee on ${price}",
+                       f"Platform fee on ${price}",
                        package_tier)
 
 
