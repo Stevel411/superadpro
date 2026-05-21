@@ -438,10 +438,22 @@ export default function LabsSuperPagesEditor() {
       return;
     }
     const stamp = Date.now().toString(36);
-    const freshEls = tpl.els.map((el, i) => ({
-      ...el,
-      id: 'tpl_' + stamp + '_' + i,
-    }));
+    // Normalise countdown target dates as we go. Templates frequently
+    // ship with an empty _targetDate (the template author can't know
+    // when a member will pick the template up — a hard-coded date
+    // would already be in the past by then). We default to 7 days
+    // from now so the countdown renders cleanly out of the box;
+    // member updates the real date via the Inspector. Audit C-C-7
+    // (21 May 2026). Matches the dynamic default in useEditorState
+    // for elements dropped via the palette.
+    const sevenDaysOut = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const freshEls = tpl.els.map((el, i) => {
+      const next = { ...el, id: 'tpl_' + stamp + '_' + i };
+      if (next.type === 'countdown' && !next._targetDate) {
+        next._targetDate = sevenDaysOut;
+      }
+      return next;
+    });
     setEls(freshEls);
     setCanvasBg(tpl.canvasBg || '#ffffff');
     setCanvasBgImage(tpl.canvasBgImage || '');
