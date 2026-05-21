@@ -4,6 +4,7 @@ import { CANVAS_WIDTH, SNAP_THRESHOLD, SOCIAL_SVGS, DEVICE_WIDTHS, effectiveBox,
 import InlineToolbar from './InlineToolbar';
 import QuickProps from './QuickProps';
 import TiptapText from './TiptapText';
+import sanitizeEmbed from './sanitizeEmbed';
 import { apiPost } from '../../utils/api';
 
 // Element types that use the Tiptap-powered inline editor. Starting with
@@ -873,7 +874,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     }
     if (el.type === 'embed') {
       if (el._embedCode) {
-        return <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: 8, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: el._embedCode }} />;
+        // Sanitise before render — strips scripts, event handlers, dangerous
+        // URL schemes, and non-allowlisted iframe sources. Audit C-L-6.
+        return <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: 8, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: sanitizeEmbed(el._embedCode) }} />;
       }
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#475569', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickCodeFull')}</div>;
     }

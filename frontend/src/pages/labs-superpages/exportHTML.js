@@ -1,4 +1,5 @@
 import { SOCIAL_SVGS } from './elementDefaults';
+import sanitizeEmbed from './sanitizeEmbed';
 
 export default function exportHTML(els, canvasBg, canvasBgImage) {
   let bgStyle = `background:${canvasBg};`;
@@ -205,7 +206,10 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
     } else if (el.type === 'audio' && el._audioUrl) {
       h += `<audio ${elAttrs} src="${el._audioUrl}" style="${st};border-radius:12px" controls></audio>`;
     } else if (el.type === 'embed' && el._embedCode) {
-      h += `<div ${elAttrs} style="${st};overflow:hidden">${el._embedCode}</div>`;
+      // Sanitise before serialising into the published HTML. This is
+      // the actual attack surface — anyone visiting a member's page
+      // would otherwise execute whatever HTML/JS they pasted. Audit C-L-6.
+      h += `<div ${elAttrs} style="${st};overflow:hidden">${sanitizeEmbed(el._embedCode)}</div>`;
     } else if (el.type === 'countdown') {
       const td = el._targetDate || '';
       const cdId = 'cd_' + el.id;
