@@ -6,7 +6,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File, BackgroundTasks, Body
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -3416,13 +3416,296 @@ def admin_grid_earnings_verification(request: Request, user: User = Depends(get_
     })
 
 
-# ────────────────────────────────────────────────────────────────────
-# Labs Grid Visualiser — redesign sandbox (21 May 2026).
-# Same React SPA entry, separate URL so we can iterate on the
-# layout / commission breakdown without affecting live members on
-# /grid-visualiser. Promote to the live URL once the design is locked.
-# ────────────────────────────────────────────────────────────────────
-@app.get("/labs-grid-visualiser")
+# ════════════════════════════════════════════════════════════════════
+# Custom Domains for SuperPages (21 May 2026)
+#
+# Per-user CNAME model. Members CNAME pages.theirbrand.com at our
+# Railway host, we verify the CNAME, then serve their published pages
+# from pages.theirbrand.com/<page-slug> instead of (or in addition to)
+# superadpro.com/p/<username>/<page-slug>.
+#
+# v1 ships free. Member handles TLS via their own Cloudflare. We do
+# not run Let's Encrypt automation server-side.
+#
+# Endpoints:
+#   GET    /api/custom-domains             — list current user's domains
+#   POST   /api/custom-domains             — claim a new domain
+#   POST   /api/custom-domains/{id}/verify — manual re-verify ("Check now")
+#   DELETE /api/custom-domains/{id}        — release a domain
+#   GET    /cron/verify-custom-domains     — hourly verification scan
+# ════════════════════════════════════════════════════════════════════
+from .database import CustomDomain
+from . import custom_domains as _customdomain_helper
+
+
+@app.get("/api/custom-domains")
+def api_custom_domains_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """List the current user's custom domains. Visible to all
+    authenticated users so free-tier members see the feature
+    exists; the create endpoint is the actual paid-tier gate."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    rows = db.query(CustomDomain).filter(
+        CustomDomain.user_id == user.id,
+    ).order_by(CustomDomain.created_at.desc()).all()
+    return JSONResponse({
+        "domains": [
+            {
+                "id": r.id,
+                "domain": r.domain,
+                "verification_status": r.verification_status,
+                "last_error": r.last_error,
+                "last_checked_at": r.last_checked_at.isoformat() if r.last_checked_at else None,
+                "verified_at": r.verified_at.isoformat() if r.verified_at else None,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+            }
+            for r in rows
+        ],
+        "cname_target": _customdomain_helper.CNAME_TARGET,
+        "max_domains_per_user": 3,  # soft cap to prevent abuse
+        "can_claim": bool(user.is_active),  # tells UI whether to show "Add domain" vs "Upgrade to claim"
+    })
+
+
+@app.post("/api/custom-domains")
+def api_custom_domains_create(payload: dict = Body(...), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Claim a new custom domain. Validates format + uniqueness,
+    creates the row in 'pending' state, immediately attempts one
+    verification (so common-case 'I CNAMEd already' members see
+    instant green). Returns the new row.
+
+    Gating: paid members only (user.is_active = True). Free-tier
+    members get a clean "upgrade to claim" message rather than a
+    confusing access-denied — the feature exists for serious
+    affiliates building their brand."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({
+            "error": "Custom domains are available for active members. Activate your membership to claim a domain.",
+            "upgrade_required": True,
+        }, status_code=403)
+
+    raw = (payload.get("domain") or "").strip()
+    domain = _customdomain_helper.normalize_domain(raw)
+
+    if not domain:
+        return JSONResponse({"error": "Domain is required"}, status_code=400)
+    if not _customdomain_helper.is_valid_domain_format(domain):
+        return JSONResponse({"error": f"'{domain}' isn't a valid domain. Use the form: pages.yourbrand.com"}, status_code=400)
+    if _customdomain_helper.is_blocked_domain(domain):
+        return JSONResponse({"error": f"'{domain}' cannot be used as a custom domain."}, status_code=400)
+
+    # Uniqueness — across all users, no two members can claim the same host
+    existing = db.query(CustomDomain).filter(CustomDomain.domain == domain).first()
+    if existing:
+        if existing.user_id == user.id:
+            return JSONResponse({"error": "You already claimed this domain."}, status_code=400)
+        return JSONResponse({"error": "This domain is already claimed by another member."}, status_code=400)
+
+    # Per-user soft cap
+    user_count = db.query(CustomDomain).filter(CustomDomain.user_id == user.id).count()
+    if user_count >= 3:
+        return JSONResponse({"error": "Maximum 3 custom domains per account."}, status_code=400)
+
+    row = CustomDomain(
+        user_id=user.id,
+        domain=domain,
+        verification_status="pending",
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+
+    # Immediate verification attempt — handles the "I already set it up
+    # before claiming it on the platform" case so the member sees green
+    # the moment they click Save instead of waiting for the hourly cron
+    _customdomain_helper.verify_one(row, db)
+    db.commit()
+    db.refresh(row)
+
+    return JSONResponse({
+        "id": row.id,
+        "domain": row.domain,
+        "verification_status": row.verification_status,
+        "last_error": row.last_error,
+        "verified_at": row.verified_at.isoformat() if row.verified_at else None,
+    })
+
+
+@app.post("/api/custom-domains/{domain_id}/verify")
+def api_custom_domains_verify(domain_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Manual 'Check now' button — re-runs the CNAME verification
+    immediately for one specific domain. Used by the labs UI after
+    a member has just set up their DNS and wants instant feedback."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    row = db.query(CustomDomain).filter(
+        CustomDomain.id == domain_id,
+        CustomDomain.user_id == user.id,
+    ).first()
+    if not row:
+        return JSONResponse({"error": "Domain not found"}, status_code=404)
+
+    _customdomain_helper.verify_one(row, db)
+    db.commit()
+    db.refresh(row)
+
+    return JSONResponse({
+        "id": row.id,
+        "domain": row.domain,
+        "verification_status": row.verification_status,
+        "last_error": row.last_error,
+        "last_checked_at": row.last_checked_at.isoformat() if row.last_checked_at else None,
+        "verified_at": row.verified_at.isoformat() if row.verified_at else None,
+    })
+
+
+@app.delete("/api/custom-domains/{domain_id}")
+def api_custom_domains_delete(domain_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Release a custom domain. Member-initiated. Doesn't affect their
+    pages — they remain accessible at superadpro.com/p/<username>/<slug>
+    as always."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    row = db.query(CustomDomain).filter(
+        CustomDomain.id == domain_id,
+        CustomDomain.user_id == user.id,
+    ).first()
+    if not row:
+        return JSONResponse({"error": "Domain not found"}, status_code=404)
+
+    db.delete(row)
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.get("/cron/verify-custom-domains")
+def cron_verify_custom_domains(request: Request):
+    """Hourly cron — re-verifies all pending custom domains so members
+    who set up DNS after claiming get marked verified automatically.
+    Protected by CRON_SECRET (same pattern as the other crons)."""
+    secret = request.query_params.get("secret")
+    if not secret or secret != os.getenv("CRON_SECRET", ""):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+
+    summary = _customdomain_helper.verify_all_pending()
+    return JSONResponse(summary)
+
+
+# ════════════════════════════════════════════════════════════════════
+# Host-based routing for custom domains.
+#
+# When a request arrives with a Host header that isn't one of our
+# platform hosts (superadpro.com / *.railway.app), look up the
+# CustomDomain row, find the user, and resolve the URL path to one
+# of their FunnelPages. If the path is /, serve their first published
+# page; otherwise serve the page matching slug "<username>/<path>".
+#
+# Implementation: a single catch-all route that fires before the
+# generic 404 handler. We register it late so it never shadows real
+# routes — only catches what would otherwise 404 on our normal host
+# AND happens to arrive with a non-platform Host header.
+# ════════════════════════════════════════════════════════════════════
+PLATFORM_HOSTS = {
+    "superadpro.com",
+    "www.superadpro.com",
+    "app.superadpro.com",
+    "api.superadpro.com",
+    "localhost",
+    "127.0.0.1",
+}
+
+
+def _is_platform_host(host: str) -> bool:
+    """True if the request Host header is one of our own hosts (so we
+    fall through to normal routing)."""
+    if not host:
+        return True
+    h = host.split(":", 1)[0].lower().strip()
+    if h in PLATFORM_HOSTS:
+        return True
+    if h.endswith(".railway.app") or h.endswith(".up.railway.app"):
+        return True
+    return False
+
+
+@app.middleware("http")
+async def custom_domain_router(request: Request, call_next):
+    """If the request arrives with a custom-domain Host header, rewrite
+    the URL path to /p/<username>/<page-slug> so the existing
+    render_funnel_page handler serves the right page. Falls through
+    to normal routing for platform hosts and for unverified domains."""
+    host = request.headers.get("host", "")
+    if _is_platform_host(host):
+        return await call_next(request)
+
+    host_clean = host.split(":", 1)[0].lower().strip()
+
+    # Look up the CustomDomain — read-only, fast index lookup
+    db = SessionLocal()
+    try:
+        row = db.query(CustomDomain).filter(
+            CustomDomain.domain == host_clean,
+            CustomDomain.verification_status == "verified",
+        ).first()
+        if not row:
+            db.close()
+            return await call_next(request)
+
+        owner = db.query(User).filter(User.id == row.user_id).first()
+        if not owner:
+            db.close()
+            return await call_next(request)
+
+        # Resolve path → page
+        path = request.url.path.lstrip("/")
+        if not path:
+            # Root request on the custom domain: serve owner's first
+            # published page (the "home" of their custom-domain site).
+            first_page = db.query(FunnelPage).filter(
+                FunnelPage.user_id == owner.id,
+                FunnelPage.status == "published",
+            ).order_by(FunnelPage.id.asc()).first()
+            if not first_page:
+                db.close()
+                return HTMLResponse(
+                    "<h1>No published pages yet</h1>"
+                    "<p>This site is set up but the owner hasn't published a page yet.</p>",
+                    status_code=404,
+                )
+            db.close()
+            # Internal rewrite: forward to /p/<username>/<slug-tail>
+            slug_tail = first_page.slug.split("/", 1)[1] if "/" in first_page.slug else first_page.slug
+            request.scope["path"] = f"/p/{owner.username}/{slug_tail}"
+            request.scope["raw_path"] = request.scope["path"].encode()
+            return await call_next(request)
+
+        # Specific path on the custom domain: serve owner's page with
+        # matching slug tail. Slug format is "username/page-name", so
+        # we prepend the owner's username before lookup.
+        db.close()
+        request.scope["path"] = f"/p/{owner.username}/{path}"
+        request.scope["raw_path"] = request.scope["path"].encode()
+        return await call_next(request)
+    except Exception as e:
+        try:
+            db.close()
+        except Exception:
+            pass
+        # Don't break the request on an unexpected error in the router —
+        # fall through to normal routing and log
+        import traceback
+        try:
+            print(f"⚠️ custom_domain_router error for host={host_clean}: {e}\n{traceback.format_exc()}")
+        except Exception:
+            pass
+        return await call_next(request)
+
+
+
 def labs_grid_visualiser(request: Request):
     """Serve React SPA — labs version of the Grid Visualiser."""
     if _react_index.exists():

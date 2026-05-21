@@ -4345,3 +4345,52 @@ class ExplainerVideoView(Base):
 
     video          = relationship("ExplainerVideo", foreign_keys=[video_id])
     user           = relationship("User", foreign_keys=[user_id])
+
+
+# ────────────────────────────────────────────────────────────────────
+# Custom Domain mapping for SuperPages (21 May 2026)
+#
+# Per-user CNAME model: member points e.g. pages.theirbrand.com to our
+# Railway URL via a CNAME record, then ALL their published pages are
+# accessible at pages.theirbrand.com/<page-slug>. One DNS setup, then
+# unlimited pages.
+#
+# v1 ships free — no billing column yet. When we monetize, add
+# subscription/billing fields here (the model already has user_id which
+# is the natural billing target).
+#
+# HTTPS is the member's responsibility (Cloudflare/their DNS provider) —
+# Level-2 architecture: we don't run Let's Encrypt automation server-side.
+# Members who want HTTPS proxy through Cloudflare Free, which terminates
+# TLS at the edge and forwards plain HTTP back to our Railway service.
+# This is fine because Railway's external endpoint is HTTPS and the
+# member's Cloudflare-to-Railway leg is over the public internet under
+# Cloudflare's own TLS to our origin.
+#
+# Verification: cron does a DNS CNAME lookup hourly on pending rows.
+# Verified when the CNAME resolves to our configured Railway host.
+# ────────────────────────────────────────────────────────────────────
+class CustomDomain(Base):
+    __tablename__ = "custom_domains"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # The hostname the member is bringing — e.g. "pages.theirbrand.com".
+    # Lowercased and stripped of protocol/trailing slash at write time.
+    # Unique across the platform: no two members can claim the same host.
+    domain          = Column(String, nullable=False, unique=True, index=True)
+    # pending — DNS not yet verified (CNAME doesn't resolve or doesn't
+    #           point at us)
+    # verified — CNAME points at our Railway host; live routing is active
+    # failed   — verification cron has retried N times and given up;
+    #            member can re-trigger by editing/saving
+    verification_status = Column(String, default="pending", index=True)
+    # Last error message from the verification cron, e.g.
+    # "CNAME points to wrong host: foo.example.com (expected
+    # superadpro.up.railway.app)". Shown to member in the labs UI so
+    # they know what to fix without calling support.
+    last_error      = Column(Text, nullable=True)
+    last_checked_at = Column(DateTime, nullable=True)
+    verified_at     = Column(DateTime, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user            = relationship("User", foreign_keys=[user_id])

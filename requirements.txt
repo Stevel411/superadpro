@@ -77,3 +77,7 @@ python-pptx
 # Pin to a known-stable version; tronpy upgrades occasionally break the
 # transaction builder API.
 tronpy>=0.4.0
+# DNS resolution — used by app/custom_domains.py to verify member CNAME
+# records point to our Railway host. Added 21 May 2026 for the Custom
+# Domain feature on SuperPages.
+dnspython>=2.6.0
