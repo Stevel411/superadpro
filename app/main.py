@@ -3167,14 +3167,26 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     direct_fills = 0
     unilevel_fills = 0
 
-    if grid_record:
+    # Per-tier commission breakdown.
+    #
+    # NOTE on filter choice (21 May 2026): the Commission.grid_id column
+    # exists on the model but _record_commission in grid.py never
+    # populates it — so every existing Commission row has grid_id=NULL
+    # and a strict grid_id filter matches zero rows. We filter by
+    # package_tier instead, which means these values represent total
+    # earnings AT THIS TIER (across all grid advances ever), not per
+    # individual grid. The card subtitle has been updated to "At this
+    # tier" to match. Strict per-grid attribution is a future
+    # enhancement that needs a Commission.grid_id backfill + writer
+    # change — tracked as follow-up.
+    if grid_record or completed > 0:
         direct_row = db.query(
             _func.coalesce(_func.sum(Commission.amount_usdt), 0),
             _func.count(Commission.id),
         ).filter(
-            Commission.grid_id == grid_record.id,
             Commission.to_user_id == user.id,
             Commission.commission_type == "direct_sponsor",
+            Commission.package_tier == tier,
         ).first()
         if direct_row:
             direct_earned = float(direct_row[0] or 0)
@@ -3184,9 +3196,9 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             _func.coalesce(_func.sum(Commission.amount_usdt), 0),
             _func.count(Commission.id),
         ).filter(
-            Commission.grid_id == grid_record.id,
             Commission.to_user_id == user.id,
             Commission.commission_type == "uni_level",
+            Commission.package_tier == tier,
         ).first()
         if unilevel_row:
             unilevel_earned = float(unilevel_row[0] or 0)
@@ -3281,14 +3293,16 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
     direct_fills = 0
     unilevel_fills = 0
 
-    if grid_record:
+    # See note in /api/grid-visualiser above: filter by package_tier,
+    # not grid_id, because Commission.grid_id is null on all existing rows.
+    if grid_record or completed > 0:
         direct_row = db.query(
             func.coalesce(func.sum(Commission.amount_usdt), 0),
             func.count(Commission.id),
         ).filter(
-            Commission.grid_id == grid_record.id,
             Commission.to_user_id == user.id,
             Commission.commission_type == "direct_sponsor",
+            Commission.package_tier == tier,
         ).first()
         if direct_row:
             direct_earned = float(direct_row[0] or 0)
@@ -3298,9 +3312,9 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
             func.coalesce(func.sum(Commission.amount_usdt), 0),
             func.count(Commission.id),
         ).filter(
-            Commission.grid_id == grid_record.id,
             Commission.to_user_id == user.id,
             Commission.commission_type == "uni_level",
+            Commission.package_tier == tier,
         ).first()
         if unilevel_row:
             unilevel_earned = float(unilevel_row[0] or 0)

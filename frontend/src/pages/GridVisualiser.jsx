@@ -164,7 +164,7 @@ export default function GridVisualiser() {
                   <div style={{ fontSize:22 }}>💰</div>
                   <div>
                     <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>Commissions earned</div>
-                    <div style={{ fontSize:10, color:'#64748b', fontWeight:600 }}>From this grid · paid to wallet</div>
+                    <div style={{ fontSize:10, color:'#64748b', fontWeight:600 }}>At this tier · paid to wallet</div>
                   </div>
                 </div>
 
