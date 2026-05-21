@@ -205,8 +205,14 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         : '';
       const dismissibleData = (el.type === 'announcement' && el.dismissible) ? ' data-sap-dismissible="1"' : '';
       h += `<div ${elAttrs}${dismissibleData} style="${st};display:flex;align-items:center;justify-content:center;position:${(el.type === 'announcement' && el.sticky) ? 'fixed' : 'absolute'}${stickyOverride}${fullBleedOverride}">${el.txt || ''}${(el.type === 'announcement' && el.dismissible) ? '<span class="sap-banner-close" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;line-height:1;opacity:0.7;padding:4px 8px" onclick="event.stopPropagation();this.closest(\'[id]\').style.display=\'none\';try{localStorage.setItem(\'sap-bn-\'+this.closest(\'[id]\').id,\'1\');}catch(e){}">×</span>' : ''}</div>`;
-    } else if (el.type === 'audio' && el._audioUrl) {
-      h += `<audio ${elAttrs} src="${el._audioUrl}" style="${st};border-radius:12px" controls></audio>`;
+    } else if (el.type === 'audio' && (el.txt || el._audioUrl)) {
+      // Audio URL: canonical key is `txt` (matches image + video).
+      // _audioUrl is the legacy key kept readable for any older saved
+      // pages — see audit C-M-5 (21 May 2026). New audio elements write
+      // to `txt` via elementDefaults; this fallback handles read-only
+      // legacy data until pages get re-saved.
+      const audioSrc = el.txt || el._audioUrl;
+      h += `<audio ${elAttrs} src="${audioSrc}" style="${st};border-radius:12px" controls></audio>`;
     } else if (el.type === 'embed' && el._embedCode) {
       // Sanitise before serialising into the published HTML. This is
       // the actual attack surface — anyone visiting a member's page

@@ -864,9 +864,11 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       </div>;
     }
     if (el.type === 'audio') {
-      if (el._audioUrl) {
+      // Canonical key is `txt`; legacy data may use `_audioUrl`. Audit C-M-5.
+      const audioSrc = el.txt || el._audioUrl;
+      if (audioSrc) {
         return <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <audio src={el._audioUrl} style={{ width: '100%', height: '100%', pointerEvents: 'none' }} controls />
+          <audio src={audioSrc} style={{ width: '100%', height: '100%', pointerEvents: 'none' }} controls />
           <div style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'grab' }} />
         </div>;
       }

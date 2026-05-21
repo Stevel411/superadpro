@@ -1517,7 +1517,10 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
   var { t } = useTranslation();
 
   var { t } = useTranslation();
-  const [url, setUrl] = useState(el._audioUrl || '');
+  // Audit C-M-5 (21 May 2026): audio URL now lives on `txt` like image
+  // and video. Read both for backward compat with elements saved before
+  // the normalisation. Write only to txt.
+  const [url, setUrl] = useState(el.txt || el._audioUrl || '');
   const [uploading, setUploading] = useState(false);
   const upload = async (e) => {
     const f = e.target.files?.[0]; if (!f) return;
@@ -1555,7 +1558,7 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
     <input type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp3" onChange={upload} disabled={uploading} style={{marginBottom:12, fontSize:12}} />
     {uploading && <div style={{fontSize:13,color:'var(--sap-accent)',marginBottom:8}}>{t('superPagesEditor.uploading')}</div>}
     {url && <div style={{fontSize:13,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Audio: {url}</div>}
-    <BtnRow onApply={() => { updateElement(elId, { _audioUrl: url }); markDirty(); onClose(); }} onClose={onClose} />
+    <BtnRow onApply={() => { updateElement(elId, { txt: url }); markDirty(); onClose(); }} onClose={onClose} />
   </>;
 }
 

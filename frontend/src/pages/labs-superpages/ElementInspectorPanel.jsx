@@ -2358,7 +2358,8 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
 //          el._isMP4 = flag (set when uploaded), else auto-detected by extension
 //          For MP4: el._videoAutoplay / _videoLoop / _videoMuted / _videoControls (new)
 //          For iframe: no extra controls — YT/Vimeo params auto-applied at export
-//   audio: el._audioUrl = src URL (note: NOT el.txt — historical quirk)
+//   audio: el.txt = src URL (was el._audioUrl pre-21-May-2026; either
+//          key is read for backward compatibility)
 //          el.s.borderRadius = corner roundness
 //
 // Source detection for video:
@@ -2367,13 +2368,14 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
 //   - Empty URL → both panels offered, fields disabled until source picked
 function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
   // ── Source URL state ─────────────────────────────────────────
-  // For image + video the source lives on el.txt. For audio it lives
-  // on el._audioUrl (legacy quirk, retained for backward compatibility
-  // with already-published audio elements). We unify here so the rest
-  // of the component reads one variable, then write back to the
-  // correct field on commit.
-  const srcKey = el.type === 'audio' ? '_audioUrl' : 'txt';
-  const initialSrc = el.type === 'audio' ? (el._audioUrl || '') : (el.txt || '');
+  // All three media types (image, video, audio) store source URL in
+  // el.txt. Older audio elements may have stored URL in el._audioUrl
+  // before the 21 May 2026 normalisation (audit C-M-5); we read from
+  // either but always write to el.txt going forward. _audioUrl is
+  // no longer written; existing data passes through unchanged until
+  // the member re-saves, at which point it converges to the new shape.
+  const srcKey = 'txt';
+  const initialSrc = el.type === 'audio' ? (el.txt || el._audioUrl || '') : (el.txt || '');
   const [src, setSrc] = useState(initialSrc);
 
   // Image-specific state
@@ -2432,7 +2434,7 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
   // components — when the user clicks a different element of the same
   // type, refresh local state from the new el.
   useEffect(() => {
-    setSrc(el.type === 'audio' ? (el._audioUrl || '') : (el.txt || ''));
+    setSrc(el.type === 'audio' ? (el.txt || el._audioUrl || '') : (el.txt || ''));
     setImageAlt(el._imageAlt || '');
     setImageFit(el._imageFit || 'cover');
     setImageRadius(parseInt((el.s?.borderRadius || '12px'), 10) || 12);

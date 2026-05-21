@@ -10,7 +10,7 @@ export const ELEMENT_TYPES = {
   // ── Media ──
   image: { w: 500, h: 300, txt: '', s: { borderRadius: '12px' } },
   video: { w: 900, h: 500, txt: '', s: {} },
-  audio: { w: 500, h: 60, txt: '', s: {}, _audioUrl: '' },
+  audio: { w: 500, h: 60, txt: '', s: {} },
 
   // ── Actions ──
   button: { w: 500, h: 56, txt: 'Join Now', s: { background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontFamily: 'Sora,sans-serif', fontWeight: '700', fontSize: '18px', textAlign: 'center', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' } },

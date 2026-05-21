@@ -208,7 +208,6 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
         ...(defaults._targetDate !== undefined ? { _targetDate: defaults._targetDate } : {}),
         ...(defaults._percent !== undefined ? { _percent: defaults._percent, _label: defaults._label, _color: defaults._color } : {}),
         ...(defaults._links ? { _links: { ...defaults._links } } : {}),
-        ...(defaults._audioUrl !== undefined ? { _audioUrl: defaults._audioUrl } : {}),
         ...(defaults._embedCode !== undefined ? { _embedCode: defaults._embedCode } : {}),
       };
       const next = [...prev, newEl];
