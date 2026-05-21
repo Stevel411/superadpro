@@ -1652,6 +1652,231 @@ function IconTextProperties({ el, updateElement, updateElementStyle, markDirty }
   );
 }
 
+// ── LogostripProperties — array of logo entries (text or image) ───
+//
+// Phase 3 inspector refactor (audit C-X-4 + C-L-2, 21 May 2026).
+// Logostrip used to be a flat HTML blob with hardcoded text labels.
+// Now structured:
+//   _logoHeader — optional caption ("As seen in:")
+//   _logos      — array of { text: string, img: string }
+//
+// Each entry can be either a text label (default) or an image (when
+// img is set). Members can mix the two — useful when some partner
+// logos are available as files and others aren't yet.
+//
+// Inspector lets members add/remove rows, upload an image per row,
+// and edit the alt text. Uses the same /api/funnels/upload-image
+// endpoint as the Image element — picks up the auto-WebP-optimise
+// from audit C-M-1 for free.
+function LogostripProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  const fromLegacy = () => {
+    if (!el.txt) return { header: '', items: [] };
+    // Pre-Phase-3 logostrip: first span is the header ("As seen in:"),
+    // remaining spans are brand labels. Extract them all.
+    const matches = String(el.txt).match(/<span[^>]*>([^<]+)<\/span>/g) || [];
+    const texts = matches.map(m => {
+      const inner = m.match(/>([^<]+)</);
+      return inner ? inner[1].trim() : '';
+    }).filter(Boolean);
+    return {
+      header: texts[0] || '',
+      items: texts.slice(1).map(t => ({ text: t, img: '' })),
+    };
+  };
+  const legacy = fromLegacy();
+  const [header, setHeader] = useState(el._logoHeader !== undefined ? el._logoHeader : legacy.header);
+  const [items, setItems] = useState(Array.isArray(el._logos) ? el._logos.map(l => ({ ...l })) : legacy.items);
+  const [uploadingIdx, setUploadingIdx] = useState(null);
+
+  useEffect(() => {
+    const lg = fromLegacy();
+    setHeader(el._logoHeader !== undefined ? el._logoHeader : lg.header);
+    setItems(Array.isArray(el._logos) ? el._logos.map(l => ({ ...l })) : lg.items);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [el.id]);
+
+  // Single commit helper — writes both header and items so they stay
+  // in sync, clears txt so render path picks the structured branch.
+  const commit = (nextHeader, nextItems) => {
+    updateElement(el.id, { _logoHeader: nextHeader, _logos: nextItems, txt: '' });
+    markDirty();
+  };
+
+  const updateHeader = (v) => {
+    setHeader(v);
+    commit(v, items);
+  };
+
+  const updateItem = (i, patch) => {
+    const next = items.map((item, idx) => idx === i ? { ...item, ...patch } : item);
+    setItems(next);
+    commit(header, next);
+  };
+
+  const addLogo = () => {
+    if (items.length >= 8) return; // cap at 8 to avoid the strip overflowing
+    const next = [...items, { text: 'New brand', img: '' }];
+    setItems(next);
+    commit(header, next);
+  };
+
+  const removeLogo = (i) => {
+    const next = items.filter((_, idx) => idx !== i);
+    setItems(next);
+    commit(header, next);
+  };
+
+  const moveLogo = (i, dir) => {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j], next[i]];
+    setItems(next);
+    commit(header, next);
+  };
+
+  const uploadImage = async (idx, file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please choose an image file.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert(`Logo too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max 5MB.`);
+      return;
+    }
+    setUploadingIdx(idx);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const r = await fetch('/api/funnels/upload-image', { method: 'POST', body: fd, credentials: 'include' });
+      if (!r.ok) {
+        alert(`Upload failed (${r.status}).`);
+        return;
+      }
+      const d = await r.json();
+      if (d.url) {
+        updateItem(idx, { img: d.url });
+      } else {
+        alert('Upload failed: ' + (d.error || 'server returned no URL'));
+      }
+    } catch (err) {
+      alert('Upload error: ' + (err.message || 'network failure'));
+    } finally {
+      setUploadingIdx(null);
+    }
+  };
+
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Header label</div>
+        <input
+          type="text"
+          value={header}
+          onChange={(e) => updateHeader(e.target.value)}
+          placeholder="As seen in:"
+          style={inputStyle}
+        />
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Optional — leave blank to hide
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={labelStyle}>Logos ({items.length})</span>
+          <button
+            onClick={addLogo}
+            disabled={items.length >= 8}
+            style={{
+              padding: '4px 10px',
+              fontSize: 11,
+              fontWeight: 700,
+              background: items.length >= 8 ? '#e2e8f0' : 'var(--sap-accent, #0ea5e9)',
+              color: items.length >= 8 ? '#94a3b8' : '#fff',
+              border: 'none',
+              borderRadius: 5,
+              cursor: items.length >= 8 ? 'not-allowed' : 'pointer',
+              fontFamily: 'inherit',
+            }}>
+            + Add
+          </button>
+        </div>
+
+        {items.length === 0 && (
+          <div style={{
+            padding: 16, textAlign: 'center',
+            fontSize: 12, color: 'var(--sap-text-muted, #64748b)',
+            border: '1px dashed var(--sap-border, #e2e8f0)', borderRadius: 6,
+          }}>
+            No logos yet. Click + Add to start.
+          </div>
+        )}
+
+        {items.map((item, idx) => (
+          <div key={idx} style={{
+            padding: 10, marginBottom: 8,
+            background: 'var(--sap-bg-elevated, #f8fafc)',
+            border: '1px solid var(--sap-border, #e2e8f0)',
+            borderRadius: 6,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted, #64748b)' }}>#{idx + 1}</span>
+              <div style={{ flex: 1 }} />
+              <button onClick={() => moveLogo(idx, -1)} disabled={idx === 0}
+                style={{ padding: '2px 6px', fontSize: 11, cursor: idx === 0 ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid var(--sap-border, #e2e8f0)', borderRadius: 3, opacity: idx === 0 ? 0.3 : 1 }}
+                title="Move up">↑</button>
+              <button onClick={() => moveLogo(idx, 1)} disabled={idx === items.length - 1}
+                style={{ padding: '2px 6px', fontSize: 11, cursor: idx === items.length - 1 ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid var(--sap-border, #e2e8f0)', borderRadius: 3, opacity: idx === items.length - 1 ? 0.3 : 1 }}
+                title="Move down">↓</button>
+              <button onClick={() => removeLogo(idx)}
+                style={{ padding: '2px 6px', fontSize: 11, cursor: 'pointer', background: 'transparent', border: '1px solid var(--sap-border, #e2e8f0)', borderRadius: 3, color: '#dc2626' }}
+                title="Remove">×</button>
+            </div>
+
+            <input
+              type="text"
+              value={item.text || ''}
+              onChange={(e) => updateItem(idx, { text: e.target.value })}
+              placeholder="Brand name / alt text"
+              style={{ ...inputStyle, marginBottom: 6 }}
+            />
+
+            {item.img ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <img src={item.img} alt={item.text || 'Logo'} style={{ height: 24, maxWidth: 80, objectFit: 'contain', background: '#fff', borderRadius: 3, padding: 2 }} />
+                <button onClick={() => updateItem(idx, { img: '' })}
+                  style={{ fontSize: 11, padding: '4px 8px', background: 'transparent', border: '1px solid var(--sap-border, #e2e8f0)', borderRadius: 4, cursor: 'pointer' }}>
+                  Remove image
+                </button>
+              </div>
+            ) : (
+              <label style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '6px 10px', fontSize: 11, cursor: 'pointer',
+                background: '#fff', border: '1px dashed var(--sap-border, #e2e8f0)',
+                borderRadius: 4, fontWeight: 600,
+                color: uploadingIdx === idx ? 'var(--sap-text-muted, #64748b)' : 'var(--sap-accent, #0ea5e9)',
+              }}>
+                {uploadingIdx === idx ? 'Uploading…' : '📎 Upload logo image'}
+                <input type="file" accept="image/*" style={{ display: 'none' }}
+                  disabled={uploadingIdx === idx}
+                  onChange={(e) => { uploadImage(idx, e.target.files?.[0]); e.target.value = ''; }} />
+              </label>
+            )}
+          </div>
+        ))}
+
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 6, lineHeight: 1.5 }}>
+          Logos appear grayscaled and partially transparent — the standard "as seen in" treatment.
+          Up to 8 entries. Mix text labels and images freely.
+        </div>
+      </div>
+    </>
+  );
+}
+
 function BadgeProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [txt, setTxt] = useState(el.txt || '⭐ PREMIUM');
   const [fontFamily, setFontFamily] = useState(el.s?.fontFamily || 'DM Sans,sans-serif');
@@ -4125,7 +4350,10 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         // _icon + _iconHeading + _iconDescription fields. Audit C-X-4.
         <IconTextProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'logostrip' ? (
-        <HtmlTextProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+        // Phase 3 inspector refactor: logostrip has structured
+        // _logoHeader + _logos[] fields with per-row image upload.
+        // Audit C-X-4 + C-L-2.
+        <LogostripProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'box' ? (
         <BoxProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'divider' ? (

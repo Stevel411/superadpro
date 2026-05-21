@@ -30,7 +30,12 @@ export const ELEMENT_TYPES = {
   socialicons: { w: 300, h: 40, txt: '', s: {}, _links: { youtube: '', instagram: '', tiktok: '', facebook: '', x: '', linkedin: '' } },
   icontext: { w: 700, h: 70, txt: '', s: {}, _icon: '🚀', _iconHeading: 'Feature Heading', _iconDescription: 'Describe the benefit or feature here. Keep it clear and compelling.' },
   separator: { w: 700, h: 30, txt: '', s: {}, _separatorSymbol: '★ ★ ★', _separatorColor: 'rgba(255,255,255,0.1)' },
-  logostrip: { w: 800, h: 50, txt: '<div style="display:flex;align-items:center;justify-content:center;gap:32px"><span style="font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px">As seen in:</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 1</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 2</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 3</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 4</span></div>', s: {} },
+  logostrip: { w: 800, h: 50, txt: '', s: {}, _logoHeader: 'As seen in:', _logos: [
+    { text: 'Brand 1', img: '' },
+    { text: 'Brand 2', img: '' },
+    { text: 'Brand 3', img: '' },
+    { text: 'Brand 4', img: '' },
+  ] },
   spacer: { w: 100, h: 40, txt: '', s: { background: 'transparent' } },
   box: { w: 400, h: 200, txt: '', s: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px' } },
   divider: { w: 700, h: 2, txt: '', s: { background: '#334155', borderRadius: '1px' } },

@@ -917,6 +917,20 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         </div>
       </div>;
     }
+    if (el.type === 'logostrip' && Array.isArray(el._logos)) {
+      // Structured logostrip (Phase 3 inspector refactor, audit C-X-4).
+      const header = el._logoHeader || '';
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
+        {header && <span style={{ fontSize: 11, color: '#475569', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>{header}</span>}
+        {el._logos.map((l, idx) => {
+          if (l && l.img && /^(https?:\/\/|\/)/i.test(String(l.img))) {
+            return <img key={idx} src={l.img} alt={l.text || 'Logo'} style={{ height: 24, maxWidth: 120, width: 'auto', objectFit: 'contain', opacity: 0.6, filter: 'grayscale(1)', pointerEvents: 'none' }} />;
+          }
+          const t = (l && l.text) || '';
+          return t ? <span key={idx} style={{ fontSize: 14, color: '#64748b', fontWeight: 600, opacity: 0.6 }}>{t}</span> : null;
+        })}
+      </div>;
+    }
     if (el.type === 'audio') {
       // Canonical key is `txt`; legacy data may use `_audioUrl`. Audit C-M-5.
       const audioSrc = el.txt || el._audioUrl;

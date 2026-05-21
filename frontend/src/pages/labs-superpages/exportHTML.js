@@ -355,6 +355,33 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       const ih = esc(el._iconHeading);
       const idd = esc(el._iconDescription);
       h += `<div ${elAttrs} style="${st};display:flex;gap:16px;align-items:flex-start"><div style="font-size:28px;flex-shrink:0;width:40px;text-align:center">${ic}</div><div style="flex:1;min-width:0"><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:4px">${ih}</div><div style="font-size:13px;color:#94a3b8;line-height:1.6">${idd}</div></div></div>`;
+    } else if (el.type === 'logostrip' && Array.isArray(el._logos)) {
+      // Structured logostrip (Phase 3 inspector refactor, audit C-X-4
+      // and C-L-2). Header label + array of {text, img} entries.
+      // For each logo: if img is set, render an <img>; otherwise
+      // render the text. Members can mix-and-match — some logos as
+      // text, some as image — to handle "still designing my partner's
+      // logo" cases gracefully.
+      const header = esc(el._logoHeader);
+      const headerHtml = header
+        ? `<span style="font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px">${header}</span>`
+        : '';
+      const logosHtml = el._logos.map(l => {
+        if (l && l.img) {
+          // Allow only http(s):// or relative URLs as logo image sources.
+          // Reject javascript:/data: URIs to keep this consistent with
+          // the embed sanitiser policy (audit C-L-6).
+          const safe = /^(https?:\/\/|\/)/i.test(String(l.img || ''));
+          if (safe) {
+            const alt = esc(l.text || 'Logo');
+            return `<img src="${esc(l.img)}" alt="${alt}" loading="lazy" style="height:24px;max-width:120px;width:auto;object-fit:contain;opacity:.6;filter:grayscale(1)" />`;
+          }
+        }
+        // Fallback: text label
+        const t = esc(l && l.text);
+        return t ? `<span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">${t}</span>` : '';
+      }).filter(Boolean).join('');
+      h += `<div ${elAttrs} style="${st};display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap">${headerHtml}${logosHtml}</div>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }
