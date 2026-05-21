@@ -904,6 +904,19 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         <div style={{ flex: 1, height: 1, background: lineCol }} />
       </div>;
     }
+    if (el.type === 'icontext' && (el._icon !== undefined || el._iconHeading !== undefined)) {
+      // Structured icontext (Phase 3 inspector refactor, audit C-X-4).
+      const ic = el._icon ?? '';
+      const ih = el._iconHeading ?? '';
+      const idd = el._iconDescription ?? '';
+      return <div style={{ width: '100%', height: '100%', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+        <div style={{ fontSize: 28, flexShrink: 0, width: 40, textAlign: 'center' }}>{ic}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 4 }}>{ih}</div>
+          <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>{idd}</div>
+        </div>
+      </div>;
+    }
     if (el.type === 'audio') {
       // Canonical key is `txt`; legacy data may use `_audioUrl`. Audit C-M-5.
       const audioSrc = el.txt || el._audioUrl;

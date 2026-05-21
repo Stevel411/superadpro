@@ -1,6 +1,21 @@
 import { SOCIAL_SVGS } from './elementDefaults';
 import sanitizeEmbed from './sanitizeEmbed';
 
+// HTML-escape user-supplied text values that go into structured-content
+// element renders (Phase 3 Inspector refactor, audit C-X-4). These
+// fields are typed as plain strings by the member via Inspector form
+// inputs, but get embedded into the published HTML so a stray '<' or
+// '&' could corrupt the output. We escape on the render side rather
+// than on input so the underlying data stays clean.
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 export default function exportHTML(els, canvasBg, canvasBgImage) {
   let bgStyle = `background:${canvasBg};`;
   if (canvasBgImage) bgStyle += `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;`;
@@ -321,17 +336,25 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // renders the HTML from these fields. Legacy stats with content
       // in el.txt fall through to the default branch below and continue
       // to render correctly until re-edited.
-      const sv = String(el._statValue ?? '').replace(/[<>]/g, ''); // strip stray brackets, no HTML allowed in value
-      const sl = String(el._statLabel ?? '').replace(/[<>]/g, '');
+      const sv = esc(el._statValue);
+      const sl = esc(el._statLabel);
       const sc = el._statColor || '#0ea5e9';
       h += `<div ${elAttrs} style="${st};display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Sora,sans-serif;font-size:36px;font-weight:900;color:${sc};line-height:1.1">${sv}</div><div style="font-size:12px;color:#64748b;margin-top:4px">${sl}</div></div>`;
     } else if (el.type === 'separator' && (el._separatorSymbol !== undefined)) {
       // Structured separator (Phase 3 inspector refactor, audit C-X-4).
       // The centred symbol and the line colour are first-class fields
       // now; the surrounding lines are pure decoration generated here.
-      const sym = String(el._separatorSymbol ?? '').replace(/[<>]/g, '');
+      const sym = esc(el._separatorSymbol);
       const lineCol = el._separatorColor || 'rgba(255,255,255,0.1)';
       h += `<div ${elAttrs} style="${st};display:flex;align-items:center;gap:16px"><div style="flex:1;height:1px;background:${lineCol}"></div><span style="font-size:12px;color:#64748b;font-weight:600;white-space:nowrap">${sym}</span><div style="flex:1;height:1px;background:${lineCol}"></div></div>`;
+    } else if (el.type === 'icontext' && (el._icon !== undefined || el._iconHeading !== undefined)) {
+      // Structured icontext (Phase 3 inspector refactor, audit C-X-4).
+      // Icon (typically an emoji), heading, and description are three
+      // first-class fields; published HTML is generated from them.
+      const ic = esc(el._icon);
+      const ih = esc(el._iconHeading);
+      const idd = esc(el._iconDescription);
+      h += `<div ${elAttrs} style="${st};display:flex;gap:16px;align-items:flex-start"><div style="font-size:28px;flex-shrink:0;width:40px;text-align:center">${ic}</div><div style="flex:1;min-width:0"><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:4px">${ih}</div><div style="font-size:13px;color:#94a3b8;line-height:1.6">${idd}</div></div></div>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }

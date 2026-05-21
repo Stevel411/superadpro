@@ -28,7 +28,7 @@ export const ELEMENT_TYPES = {
   // ── Layout ──
   countdown: { w: 600, h: 80, txt: '', s: {}, _targetDate: '' },
   socialicons: { w: 300, h: 40, txt: '', s: {}, _links: { youtube: '', instagram: '', tiktok: '', facebook: '', x: '', linkedin: '' } },
-  icontext: { w: 700, h: 70, txt: '<div style="display:flex;gap:16px;align-items:flex-start"><div style="font-size:28px;flex-shrink:0;width:40px;text-align:center">🚀</div><div><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:4px">Feature Heading</div><div style="font-size:13px;color:#94a3b8;line-height:1.6">Describe the benefit or feature here. Keep it clear and compelling.</div></div></div>', s: {} },
+  icontext: { w: 700, h: 70, txt: '', s: {}, _icon: '🚀', _iconHeading: 'Feature Heading', _iconDescription: 'Describe the benefit or feature here. Keep it clear and compelling.' },
   separator: { w: 700, h: 30, txt: '', s: {}, _separatorSymbol: '★ ★ ★', _separatorColor: 'rgba(255,255,255,0.1)' },
   logostrip: { w: 800, h: 50, txt: '<div style="display:flex;align-items:center;justify-content:center;gap:32px"><span style="font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px">As seen in:</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 1</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 2</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 3</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 4</span></div>', s: {} },
   spacer: { w: 100, h: 40, txt: '', s: { background: 'transparent' } },
