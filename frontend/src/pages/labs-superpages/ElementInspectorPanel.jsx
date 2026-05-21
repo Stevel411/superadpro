@@ -1956,6 +1956,131 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
   );
 }
 
+// ── ReviewProperties — structured rating + quote + author ───────
+//
+// Phase 3 inspector refactor (audit C-X-4 + C-C-1, 21 May 2026).
+// The headline UX win of the whole refactor: members no longer
+// type ★ characters by hand. Click to set 1-5 stars.
+//
+// Three structured fields:
+//   _rating — integer 1..5
+//   _quote  — the testimonial text (multi-line)
+//   _author — name + optional title ("Sarah K, Founder")
+//
+// Handles both 'review' and 'testimonial' element types. Their
+// visual differences (accent colour, padding) come from the
+// container styles in el.s which are unchanged.
+function ReviewProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // Legacy extraction. Pre-Phase-3 reviews stored:
+  //   <div>...<span>★★★★★</span></div>
+  //   <div>"quote text"</div>
+  //   <div>— author</div>
+  // Extract: count stars for rating, second chunk is quote (strip
+  // surrounding quotes), third chunk is author (strip leading em-dash).
+  const fromLegacy = () => {
+    if (!el.txt) return { rating: 5, quote: '', author: '' };
+    const starMatch = String(el.txt).match(/(★+)/);
+    const rating = starMatch ? Math.min(5, starMatch[1].length) : 5;
+    const chunks = (String(el.txt).match(/>([^<]+)</g) || [])
+      .map(m => m.slice(1, -1).trim())
+      .filter(Boolean);
+    // First chunk is the star string, second is quote, third is author
+    const rawQuote = chunks[1] || '';
+    const rawAuthor = chunks[2] || '';
+    return {
+      rating,
+      quote: rawQuote.replace(/^["\u201C]|["\u201D]$/g, '').trim(),
+      author: rawAuthor.replace(/^[—\u2014]\s*/, '').trim(),
+    };
+  };
+  const legacy = fromLegacy();
+  const [rating, setRating] = useState(el._rating !== undefined ? el._rating : legacy.rating);
+  const [quote, setQuote] = useState(el._quote !== undefined ? el._quote : legacy.quote);
+  const [author, setAuthor] = useState(el._author !== undefined ? el._author : legacy.author);
+
+  useEffect(() => {
+    const lg = fromLegacy();
+    setRating(el._rating !== undefined ? el._rating : lg.rating);
+    setQuote(el._quote !== undefined ? el._quote : lg.quote);
+    setAuthor(el._author !== undefined ? el._author : lg.author);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [el.id]);
+
+  const commit = (patch) => {
+    updateElement(el.id, { ...patch, txt: '' });
+    markDirty();
+  };
+
+  // Star picker — click any star to set rating to that value.
+  // Hover-to-preview omitted to keep the interaction simple and
+  // unambiguous on touch devices.
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Rating</div>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          {[1, 2, 3, 4, 5].map(n => (
+            <button
+              key={n}
+              onClick={() => { setRating(n); commit({ _rating: n }); }}
+              aria-label={`${n} star${n === 1 ? '' : 's'}`}
+              style={{
+                padding: '4px 8px',
+                fontSize: 22,
+                lineHeight: 1,
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: n <= rating ? '#fbbf24' : '#cbd5e1',
+                transition: 'color .15s',
+              }}>
+              {n <= rating ? '★' : '☆'}
+            </button>
+          ))}
+          <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--sap-text-muted, #64748b)', fontFamily: 'monospace' }}>
+            {rating}/5
+          </span>
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Quote</div>
+        <textarea
+          value={quote}
+          onChange={(e) => { setQuote(e.target.value); commit({ _quote: e.target.value }); }}
+          placeholder="This platform is amazing!"
+          rows={4}
+          style={{
+            ...inputStyle,
+            minHeight: 80,
+            resize: 'vertical',
+            fontFamily: 'inherit',
+            lineHeight: 1.5,
+            fontStyle: 'italic',
+          }}
+        />
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Don't include quote marks — we add them automatically
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={labelStyle}>Author</div>
+        <input
+          type="text"
+          value={author}
+          onChange={(e) => { setAuthor(e.target.value); commit({ _author: e.target.value }); }}
+          placeholder="Sarah K, Founder"
+          style={inputStyle}
+        />
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Name and optional title — em-dash added automatically
+        </div>
+      </div>
+    </>
+  );
+}
+
 function BadgeProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [txt, setTxt] = useState(el.txt || '⭐ PREMIUM');
   const [fontFamily, setFontFamily] = useState(el.s?.fontFamily || 'DM Sans,sans-serif');
@@ -4419,7 +4544,10 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         // _faqQuestion + _faqAnswer fields. Audit C-X-4.
         <FaqProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : ['review', 'testimonial'].includes(el.type) ? (
-        <CardLikeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+        // Phase 3 inspector refactor: review and testimonial share
+        // the same ReviewProperties panel — structured rating, quote,
+        // author fields. Audit C-X-4 + C-C-1.
+        <ReviewProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'progress' ? (
         <ProgressProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'badge' ? (

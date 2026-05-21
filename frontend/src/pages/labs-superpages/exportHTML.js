@@ -391,6 +391,18 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       const q = esc(el._faqQuestion);
       const a = esc(el._faqAnswer);
       h += `<div ${elAttrs} style="${st}"><div class="sp-faq-item"><div class="sp-faq-q" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;user-select:none"><span style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff">${q}</span><span class="sp-faq-toggle" style="color:#64748b;font-size:22px;line-height:1;transition:transform .2s">+</span></div><div class="sp-faq-a" style="padding:12px 18px;font-size:14px;color:#94a3b8;line-height:1.7;margin-top:4px">${a}</div></div></div>`;
+    } else if ((el.type === 'review' || el.type === 'testimonial') && (el._rating !== undefined || el._quote !== undefined || el._author !== undefined)) {
+      // Structured review/testimonial (Phase 3 inspector refactor,
+      // audit C-X-4 + C-C-1). Three fields: rating (1-5), quote, author.
+      // Star characters are generated from the rating number — members
+      // never have to type ★ by hand.
+      // Both review and testimonial share the render; they differ only
+      // in their default container styles which are already in el.s.
+      const r = Math.max(1, Math.min(5, parseInt(el._rating, 10) || 5));
+      const stars = '★'.repeat(r) + '☆'.repeat(5 - r);
+      const q = esc(el._quote);
+      const a = esc(el._author);
+      h += `<div ${elAttrs} style="${st}"><div style="margin-bottom:8px"><span style="color:#fbbf24;letter-spacing:2px">${stars}</span></div><div style="font-size:15px;color:#e2e8f0;line-height:1.7;font-style:italic">${q ? '&ldquo;' + q + '&rdquo;' : ''}</div>${a ? `<div style="font-size:13px;color:#64748b;font-weight:600;margin-top:8px">&mdash; ${a}</div>` : ''}</div>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }

@@ -947,6 +947,21 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         <div style={{ padding: '12px 18px', fontSize: 14, color: '#94a3b8', lineHeight: 1.7, marginTop: 4 }}>{a}</div>
       </div>;
     }
+    if ((el.type === 'review' || el.type === 'testimonial') && (el._rating !== undefined || el._quote !== undefined || el._author !== undefined)) {
+      // Structured review/testimonial (Phase 3 inspector refactor,
+      // audit C-X-4 + C-C-1). Stars generated from numeric rating.
+      const r = Math.max(1, Math.min(5, parseInt(el._rating, 10) || 5));
+      const stars = '★'.repeat(r) + '☆'.repeat(5 - r);
+      const q = el._quote ?? '';
+      const a = el._author ?? '';
+      return <div style={{ width: '100%', height: '100%' }}>
+        <div style={{ marginBottom: 8 }}>
+          <span style={{ color: '#fbbf24', letterSpacing: 2 }}>{stars}</span>
+        </div>
+        {q && <div style={{ fontSize: 15, color: '#e2e8f0', lineHeight: 1.7, fontStyle: 'italic' }}>{'\u201c' + q + '\u201d'}</div>}
+        {a && <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600, marginTop: 8 }}>{'\u2014 ' + a}</div>}
+      </div>;
+    }
     if (el.type === 'audio') {
       // Canonical key is `txt`; legacy data may use `_audioUrl`. Audit C-M-5.
       const audioSrc = el.txt || el._audioUrl;

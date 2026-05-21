@@ -221,6 +221,7 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
         ...(defaults._icon !== undefined ? { _icon: defaults._icon, _iconHeading: defaults._iconHeading, _iconDescription: defaults._iconDescription } : {}),
         ...(defaults._logos !== undefined ? { _logoHeader: defaults._logoHeader, _logos: defaults._logos.map(l => ({ ...l })) } : {}),
         ...(defaults._faqQuestion !== undefined ? { _faqQuestion: defaults._faqQuestion, _faqAnswer: defaults._faqAnswer } : {}),
+        ...(defaults._rating !== undefined ? { _rating: defaults._rating, _quote: defaults._quote, _author: defaults._author } : {}),
         ...(defaults._links ? { _links: { ...defaults._links } } : {}),
         ...(defaults._embedCode !== undefined ? { _embedCode: defaults._embedCode } : {}),
       };
