@@ -3233,6 +3233,187 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         "direct_count": direct_count,
     })
 
+
+# ────────────────────────────────────────────────────────────────────
+# Grid Earnings Verification — admin-only diagnostic endpoint (21 May 2026)
+#
+# Reconciles what the Grid Visualiser page shows against the raw
+# Commission ledger, broken down by tier. Built to let Steve sanity-
+# check the numbers before using the page in marketing material.
+#
+# Returns three things:
+#   1. Per-tier breakdown matching what the Visualiser shows (same
+#      filter logic — direct_sponsor + uni_level commissions, filtered
+#      by to_user_id and package_tier)
+#   2. Grand totals across all 8 Grid tiers
+#   3. Wallet reconciliation: current balance + lifetime withdrawn,
+#      with the Grid-stream total as a percentage of the combined
+#      total (so you can sanity-check that Grid is a reasonable
+#      slice of overall earnings)
+#
+# Admin-only (returns 403 to non-admins) — this is a diagnostic, not
+# a member-facing feature.
+# ────────────────────────────────────────────────────────────────────
+@app.get("/admin/grid-earnings-verification")
+def admin_grid_earnings_verification(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from sqlalchemy import func as _func
+    from .database import GRID_COMPLETION_BONUS
+
+    breakdown = []
+    grand_direct = 0.0
+    grand_unilevel = 0.0
+    grand_bonus = 0.0
+    grand_direct_fills = 0
+    grand_unilevel_fills = 0
+
+    for tier in range(1, 9):
+        # Direct-sponsor commissions at this tier
+        d_row = db.query(
+            _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+            _func.count(Commission.id),
+        ).filter(
+            Commission.to_user_id == user.id,
+            Commission.commission_type == "direct_sponsor",
+            Commission.package_tier == tier,
+        ).first()
+        d_amount = float(d_row[0] or 0) if d_row else 0
+        d_count  = int(d_row[1] or 0) if d_row else 0
+
+        # Uni-level commissions at this tier
+        u_row = db.query(
+            _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+            _func.count(Commission.id),
+        ).filter(
+            Commission.to_user_id == user.id,
+            Commission.commission_type == "uni_level",
+            Commission.package_tier == tier,
+        ).first()
+        u_amount = float(u_row[0] or 0) if u_row else 0
+        u_count  = int(u_row[1] or 0) if u_row else 0
+
+        # Grid completion bonuses earned at this tier (separate type)
+        b_row = db.query(
+            _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+            _func.count(Commission.id),
+        ).filter(
+            Commission.to_user_id == user.id,
+            Commission.commission_type == "grid_completion_bonus",
+            Commission.package_tier == tier,
+        ).first()
+        b_amount = float(b_row[0] or 0) if b_row else 0
+        b_count  = int(b_row[1] or 0) if b_row else 0
+
+        # Active grid status at this tier (for context)
+        active_grid = db.query(Grid).filter(
+            Grid.owner_id == user.id,
+            Grid.package_tier == tier,
+            Grid.is_complete == False,
+        ).first()
+        completed_at_tier = db.query(Grid).filter(
+            Grid.owner_id == user.id,
+            Grid.package_tier == tier,
+            Grid.is_complete == True,
+        ).count()
+        positions_in_active = 0
+        if active_grid:
+            positions_in_active = db.query(GridPosition).filter(
+                GridPosition.grid_id == active_grid.id,
+            ).count()
+
+        tier_total = round(d_amount + u_amount + b_amount, 2)
+
+        breakdown.append({
+            "tier": tier,
+            "price": GRID_PACKAGES.get(tier, 0),
+            "direct_referral": {
+                "earned": round(d_amount, 2),
+                "fills": d_count,
+                "per_fill_expected": round(GRID_PACKAGES.get(tier, 0) * 0.40, 2),
+            },
+            "uni_level": {
+                "earned": round(u_amount, 2),
+                "fills": u_count,
+                "per_fill_expected": round(GRID_PACKAGES.get(tier, 0) * 0.0625, 2),
+            },
+            "completion_bonus": {
+                "earned": round(b_amount, 2),
+                "advances_completed": b_count,
+                "per_advance_expected": float(GRID_COMPLETION_BONUS.get(tier, 0)),
+            },
+            "tier_total": tier_total,
+            "active_grid": {
+                "exists": bool(active_grid),
+                "positions_filled": positions_in_active,
+                "advance_number": active_grid.advance_number if active_grid else None,
+                "bonus_accrued": float(active_grid.bonus_pool_accrued or 0) if active_grid else 0,
+            },
+            "completed_advances_at_tier": completed_at_tier,
+        })
+
+        grand_direct += d_amount
+        grand_unilevel += u_amount
+        grand_bonus += b_amount
+        grand_direct_fills += d_count
+        grand_unilevel_fills += u_count
+
+    grid_lifetime_total = round(grand_direct + grand_unilevel + grand_bonus, 2)
+
+    # Wallet reconciliation
+    current_balance = float(user.balance_usd or 0)
+
+    # Total successfully withdrawn (status='paid' rows in withdrawals)
+    withdrawn_row = db.query(
+        _func.coalesce(_func.sum(Withdrawal.amount_usdt), 0),
+    ).filter(
+        Withdrawal.user_id == user.id,
+        Withdrawal.status == "paid",
+    ).first()
+    total_withdrawn = float(withdrawn_row[0] or 0) if withdrawn_row else 0
+
+    # Total of ALL commissions ever (all types — Grid + Nexus + course
+    # + membership) for cross-check
+    all_comm_row = db.query(
+        _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+        _func.count(Commission.id),
+    ).filter(
+        Commission.to_user_id == user.id,
+    ).first()
+    all_commissions = float(all_comm_row[0] or 0) if all_comm_row else 0
+    all_commissions_count = int(all_comm_row[1] or 0) if all_comm_row else 0
+
+    grid_percent_of_total = round(grid_lifetime_total / all_commissions * 100, 1) if all_commissions > 0 else 0
+
+    return JSONResponse({
+        "user": {
+            "id": user.id,
+            "username": user.username,
+        },
+        "grand_totals": {
+            "grid_lifetime_total": grid_lifetime_total,
+            "direct_referral_total": round(grand_direct, 2),
+            "direct_referral_fills": grand_direct_fills,
+            "uni_level_total": round(grand_unilevel, 2),
+            "uni_level_fills": grand_unilevel_fills,
+            "completion_bonus_total": round(grand_bonus, 2),
+        },
+        "per_tier_breakdown": breakdown,
+        "wallet_reconciliation": {
+            "current_balance_usd": current_balance,
+            "lifetime_withdrawn_usd": round(total_withdrawn, 2),
+            "lifetime_received_all_streams": round(all_commissions, 2),
+            "lifetime_commissions_count": all_commissions_count,
+            "grid_stream_percent_of_lifetime": grid_percent_of_total,
+            "note": "lifetime_received_all_streams includes Grid + Nexus matrix + course + membership commissions. Balance + withdrawn = lifetime received minus any failed/refunded payments minus any non-withdrawal balance deductions (e.g. membership-from-balance activations).",
+        },
+        "verification_note": "These are the numbers the /grid-visualiser page sums and displays per tier. If a tier's tier_total here doesn't match what the page shows when that tier tab is selected, there's a query bug. The grid_id filter that originally returned $0 was removed on 21 May 2026 (commit 00f80e5) — now filtered by package_tier + to_user_id + commission_type.",
+    })
+
+
 # ────────────────────────────────────────────────────────────────────
 # Labs Grid Visualiser — redesign sandbox (21 May 2026).
 # Same React SPA entry, separate URL so we can iterate on the
