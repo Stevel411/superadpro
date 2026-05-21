@@ -20,9 +20,10 @@ import CampaignSetupModal from '../../components/CampaignSetupModal';
 
 export default function LabsSuperPagesEditor() {
   var { t } = useTranslation();
-  // Two URL shapes:
-  //   /labs/pagebuilder/edit/{pageId}              → DB-backed (legacy)
-  //   /labs/pagebuilder/sandbox/edit/{sandboxId}   → localStorage-backed
+  // Three URL shapes share this component:
+  //   /pro/funnel/{pageId}/edit                    → LIVE editor for paying members
+  //   /labs/pagebuilder/edit/{pageId}              → LABS DB-backed (admin-only)
+  //   /labs/pagebuilder/sandbox/edit/{sandboxId}   → LABS localStorage-backed (admin-only)
   // useParams gives us whichever param was matched; sandboxId presence
   // is the signal to use sandbox mode.
   const { pageId, sandboxId } = useParams();
@@ -31,12 +32,28 @@ export default function LabsSuperPagesEditor() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
-  // Admin gate — anyone else bounces to dashboard. Same belt-and-braces
-  // pattern as the Labs landing page; we never reveal /labs/* to non-admins.
+  // Route mode — drives title branding and the access gate below.
+  // Computed once at mount from the live URL (pathname doesn't change
+  // mid-edit since the editor doesn't navigate during an edit session).
+  const isLabsRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/labs/');
+
+  // Access gate — promoted to dual-purpose 21 May 2026.
+  //   On /labs/* routes:  admin only (preserves existing sandbox safety)
+  //   On /pro/funnel/*:   any active member with Pro tier (RequireTier
+  //                       handles this server-side via the route wrapper;
+  //                       this client-side check is belt-and-braces and
+  //                       only blocks the obvious case of an unauth'd
+  //                       user hitting the URL directly)
   useEffect(() => {
     if (authLoading) return;
-    if (!user || !user.is_admin) navigate('/dashboard');
-  }, [user, authLoading, navigate]);
+    if (!user) { navigate('/dashboard'); return; }
+    if (isLabsRoute && !user.is_admin) { navigate('/dashboard'); return; }
+  }, [user, authLoading, navigate, isLabsRoute]);
+
+  // Title shown in AppLayout — labs URLs keep the 🧪 LABS prefix so it's
+  // visually obvious we're in the sandbox; live URL shows the clean name
+  // members see in any other Pro feature. Same component, two contexts.
+  const appLayoutTitle = isLabsRoute ? "🧪 LABS · SuperPages" : "SuperPages Editor";
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState('');
@@ -616,7 +633,7 @@ export default function LabsSuperPagesEditor() {
 
   if (loading) {
     return (
-      <AppLayout title="🧪 LABS · SuperPages" subtitle={t('superPagesEditor.loading', { defaultValue: 'Loading editor…' })}>
+      <AppLayout title={appLayoutTitle} subtitle={t('superPagesEditor.loading', { defaultValue: 'Loading editor…' })}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: '#475569' }}>
           {t('superPagesEditor.loading', { defaultValue: 'Loading editor…' })}
         </div>
@@ -629,7 +646,7 @@ export default function LabsSuperPagesEditor() {
   // we show a clear message and let people return on a desktop.
   if (isNarrow) {
     return (
-      <AppLayout title="🧪 LABS · SuperPages">
+      <AppLayout title={appLayoutTitle}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', padding: 24, boxSizing: 'border-box' }}>
           <div style={{ maxWidth: 420, textAlign: 'center', color: '#475569', fontFamily: 'DM Sans,sans-serif' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🖥️</div>
@@ -653,8 +670,18 @@ export default function LabsSuperPagesEditor() {
 
   return (
     <AppLayout
-      title={(isSandbox ? '🧪 SANDBOX · ' : '🧪 LABS · ') + (pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' }))}
-      subtitle={isSandbox ? 'Sandbox · localStorage only · Doesn\'t touch live site' : (pageSettings.slug ? '/' + pageSettings.slug + ' · Editing in Labs sandbox' : 'Editing in Labs sandbox')}
+      title={
+        isLabsRoute
+          ? (isSandbox ? '🧪 SANDBOX · ' : '🧪 LABS · ') + (pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' }))
+          : (pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' }))
+      }
+      subtitle={
+        isLabsRoute
+          ? (isSandbox
+              ? 'Sandbox · localStorage only · Doesn\'t touch live site'
+              : (pageSettings.slug ? '/' + pageSettings.slug + ' · Editing in Labs sandbox' : 'Editing in Labs sandbox'))
+          : (pageSettings.slug ? 'superadpro.com/p/' + pageSettings.slug : 'Draft page')
+      }
       fullHeight
       // 20 May 2026: AppLayout chrome hidden in BOTH sandbox and DB-backed
       // mode. The EditorTopbar (now full cobalt) takes over as the single

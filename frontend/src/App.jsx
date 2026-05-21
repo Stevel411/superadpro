@@ -408,7 +408,7 @@ function AppRoutes() {
       <Route path="/pro/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/pro/funnels/new" element={<ProtectedRoute><RequireTier tier="pro"><FunnelsNew /></RequireTier></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
-      <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><SuperPagesEditor /></RequireTier></ProtectedRoute>} />
+      <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><LabsSuperPagesEditor /></RequireTier></ProtectedRoute>} />
       <Route path="/superdeck" element={<ProtectedRoute><RequireTier tier="basic"><SuperDeckList /></RequireTier></ProtectedRoute>} />
       <Route path="/superdeck/edit/:deckId" element={<ProtectedRoute><RequireTier tier="basic"><SuperDeckEditor /></RequireTier></ProtectedRoute>} />
       <Route path="/video-creator" element={<ProtectedRoute><RequireTier tier="basic"><VideoCreator /></RequireTier></ProtectedRoute>} />
