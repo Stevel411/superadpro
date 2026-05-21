@@ -112,11 +112,29 @@ export default function LabsGridVisualiser() {
                 {Array.from({length:64}, function(_,i) {
                   var pos = i + 1;
                   var seat = seats.find(function(s){ return s.position === pos; });
+                  // Position 64 gets the completion-bonus star treatment —
+                  // it's the seat that triggers the bonus payout when
+                  // filled, so we mark it visually so the user has a
+                  // specific target to aim for. Empty: big amber star
+                  // (matches the completion bonus card colour). Filled:
+                  // avatar stays + small star badge in top-right corner
+                  // to signal "this is the seat that just paid the bonus".
+                  var isCompletionSeat = pos === 64;
                   if (seat) {
                     var grad = seat.is_direct ? DIRECT_GRAD : SPILLOVER_GRAD;
                     return (
-                      <div key={i} className="lgv-tile" style={{ background:grad }} title={seat.username + ' · ' + (seat.is_direct ? 'Direct' : 'Spillover') + ' · ' + seat.member_id}>
+                      <div key={i} className="lgv-tile" style={{ background:grad, position:'relative' }} title={seat.username + ' · ' + (seat.is_direct ? 'Direct' : 'Spillover') + ' · ' + seat.member_id + (isCompletionSeat ? ' · Completion seat' : '')}>
                         <div className="avatar" style={{ fontSize:'14px' }}>{seat.username.charAt(0).toUpperCase()}</div>
+                        {isCompletionSeat ? (
+                          <div style={{ position:'absolute', top:-4, right:-4, width:18, height:18, borderRadius:'50%', background:'#fbbf24', border:'2px solid #fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:900, color:'#78350f', boxShadow:'0 2px 4px rgba(0,0,0,0.15)' }}>★</div>
+                        ) : null}
+                      </div>
+                    );
+                  }
+                  if (isCompletionSeat) {
+                    return (
+                      <div key={i} className="lgv-tile" style={{ background:'linear-gradient(135deg,#fef3c7,#fde68a)', border:'2px dashed #f59e0b', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }} title="Position 64 — fill this to unlock the completion bonus">
+                        <div style={{ fontSize:'22px', color:'#b45309', lineHeight:1, textShadow:'0 1px 2px rgba(180,83,9,0.15)' }}>★</div>
                       </div>
                     );
                   }
