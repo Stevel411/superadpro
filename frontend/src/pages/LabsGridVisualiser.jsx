@@ -82,10 +82,13 @@ export default function LabsGridVisualiser() {
           })}
         </div>
 
-        {/* Main two-column layout — 3fr (grid) / 2fr (right column). */}
-        {/* align-items:start ensures each column renders at its natural */}
-        {/* intrinsic height — no stretching means no void inside cards.   */}
-        <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:16, alignItems:'start' }}>
+        {/* Main two-column layout — 3fr (grid) / 2fr (right column).
+            align-items: stretch makes both columns share the taller column's
+            height. The grid card naturally renders tall at 1100px width
+            (proper square tiles); the right column gets stretched to match.
+            The four 2×2 stat tiles at the bottom absorb the extra space
+            via flex: 1 so the column fills evenly without any void. */}
+        <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:16, alignItems:'stretch' }}>
 
           {/* Grid card */}
           <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden' }}>
@@ -127,8 +130,11 @@ export default function LabsGridVisualiser() {
             </div>
           </div>
 
-          {/* Right column — income breakdown + bonus + 2x2 stats */}
-          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+          {/* Right column — income breakdown + bonus + 2x2 stats.
+              height:100% claims the full stretched height from the parent
+              grid. The 2x2 stat grid below uses flex:1 to absorb any
+              leftover vertical space after the two cards above. */}
+          <div style={{ display:'flex', flexDirection:'column', gap:14, height:'100%' }}>
 
             {/* Commissions earned card */}
             <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden' }}>
@@ -204,22 +210,26 @@ export default function LabsGridVisualiser() {
               </div>
             </div>
 
-            {/* 2×2 stats grid */}
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px' }}>
-                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5, marginBottom:12 }}>📊 Positions</div>
+            {/* 2×2 stats grid — flex:1 absorbs the leftover vertical
+                space after the income card and bonus card. Each stat
+                tile uses flex column + space-between so the label
+                anchors to the top and the number to the bottom when
+                the tiles stretch. */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, flex:1 }}>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5 }}>📊 Positions</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#2563eb', lineHeight:1 }}>{filled}<span style={{ color:'#94a3b8', fontSize:14, fontWeight:600 }}>/64</span></div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px' }}>
-                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5, marginBottom:12 }}>⭐ Tier</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5 }}>⭐ Tier</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#f59e0b', lineHeight:1 }}>T{tier.t}</div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px' }}>
-                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5, marginBottom:12 }}>🎯 Advances</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5 }}>🎯 Advances</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#8b5cf6', lineHeight:1 }}>{completedAdvances}</div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px' }}>
-                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5, marginBottom:12 }}>👥 Directs</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5 }}>👥 Directs</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#06b6d4', lineHeight:1 }}>{directCount}</div>
               </div>
             </div>
