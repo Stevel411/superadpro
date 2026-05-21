@@ -931,6 +931,22 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         })}
       </div>;
     }
+    if (el.type === 'faq' && (el._faqQuestion !== undefined || el._faqAnswer !== undefined)) {
+      // Structured FAQ (Phase 3 inspector refactor, audit C-X-4).
+      // Editor preview always shows both Q and A expanded — the
+      // collapse-by-default behaviour from audit C-C-3 only applies
+      // to the PUBLISHED page (CSS in exported <style> block). In
+      // the editor, members need to see the answer to edit it.
+      const q = el._faqQuestion ?? '';
+      const a = el._faqAnswer ?? '';
+      return <div style={{ width: '100%', height: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'rgba(255,255,255,0.04)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)' }}>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: '#fff' }}>{q}</span>
+          <span style={{ color: '#64748b', fontSize: 22, lineHeight: 1 }}>+</span>
+        </div>
+        <div style={{ padding: '12px 18px', fontSize: 14, color: '#94a3b8', lineHeight: 1.7, marginTop: 4 }}>{a}</div>
+      </div>;
+    }
     if (el.type === 'audio') {
       // Canonical key is `txt`; legacy data may use `_audioUrl`. Audit C-M-5.
       const audioSrc = el.txt || el._audioUrl;

@@ -382,6 +382,15 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         return t ? `<span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">${t}</span>` : '';
       }).filter(Boolean).join('');
       h += `<div ${elAttrs} style="${st};display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap">${headerHtml}${logosHtml}</div>`;
+    } else if (el.type === 'faq' && (el._faqQuestion !== undefined || el._faqAnswer !== undefined)) {
+      // Structured FAQ (Phase 3 inspector refactor, audit C-X-4).
+      // Question and answer are separate fields; HTML is generated
+      // with the same class hooks (.sp-faq-item, .sp-faq-q, .sp-faq-a,
+      // .sp-faq-toggle) so the click-to-expand JS from audit C-C-3
+      // continues to work without modification.
+      const q = esc(el._faqQuestion);
+      const a = esc(el._faqAnswer);
+      h += `<div ${elAttrs} style="${st}"><div class="sp-faq-item"><div class="sp-faq-q" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;user-select:none"><span style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff">${q}</span><span class="sp-faq-toggle" style="color:#64748b;font-size:22px;line-height:1;transition:transform .2s">+</span></div><div class="sp-faq-a" style="padding:12px 18px;font-size:14px;color:#94a3b8;line-height:1.7;margin-top:4px">${a}</div></div></div>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }

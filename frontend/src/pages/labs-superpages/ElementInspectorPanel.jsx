@@ -1877,6 +1877,85 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
   );
 }
 
+// ── FaqProperties — structured question + answer ────────────────
+//
+// Phase 3 inspector refactor (audit C-X-4, 21 May 2026). FAQ used
+// to route through CardLikeProperties which gave members container
+// style controls but no first-class way to edit the actual Q and A
+// (they had to inline-edit or open the HTML editor).
+//
+// Now two structured fields:
+//   _faqQuestion — the bold heading row
+//   _faqAnswer   — the supporting body text (multi-line)
+//
+// Class hooks (.sp-faq-item / .sp-faq-q / .sp-faq-a / .sp-faq-toggle)
+// are still emitted in the published HTML so the click-to-expand JS
+// shipped earlier (audit C-C-3) continues to work unchanged.
+function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // Best-effort legacy extraction: first <span> is the question
+  // (inside .sp-faq-q), the .sp-faq-a div content is the answer.
+  const fromLegacy = () => {
+    if (!el.txt) return { q: '', a: '' };
+    const qm = String(el.txt).match(/class="sp-faq-q"[^>]*>[\s\S]*?<span[^>]*>([^<]+)<\/span>/);
+    const am = String(el.txt).match(/class="sp-faq-a"[^>]*>([^<]+)</);
+    return {
+      q: qm ? qm[1].trim() : '',
+      a: am ? am[1].trim() : '',
+    };
+  };
+  const legacy = fromLegacy();
+  const [question, setQuestion] = useState(el._faqQuestion !== undefined ? el._faqQuestion : legacy.q);
+  const [answer, setAnswer] = useState(el._faqAnswer !== undefined ? el._faqAnswer : legacy.a);
+
+  useEffect(() => {
+    const lg = fromLegacy();
+    setQuestion(el._faqQuestion !== undefined ? el._faqQuestion : lg.q);
+    setAnswer(el._faqAnswer !== undefined ? el._faqAnswer : lg.a);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [el.id]);
+
+  const commit = (patch) => {
+    updateElement(el.id, { ...patch, txt: '' });
+    markDirty();
+  };
+
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Question</div>
+        <input
+          type="text"
+          value={question}
+          onChange={(e) => { setQuestion(e.target.value); commit({ _faqQuestion: e.target.value }); }}
+          placeholder="How does this work?"
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={labelStyle}>Answer</div>
+        <textarea
+          value={answer}
+          onChange={(e) => { setAnswer(e.target.value); commit({ _faqAnswer: e.target.value }); }}
+          placeholder="The clear, concise answer that helps your visitor."
+          rows={5}
+          style={{
+            ...inputStyle,
+            minHeight: 100,
+            resize: 'vertical',
+            fontFamily: 'inherit',
+            lineHeight: 1.5,
+          }}
+        />
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          On the published page this will be hidden until a visitor clicks the question.
+          In the editor we always show it so you can edit it.
+        </div>
+      </div>
+    </>
+  );
+}
+
 function BadgeProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [txt, setTxt] = useState(el.txt || '⭐ PREMIUM');
   const [fontFamily, setFontFamily] = useState(el.s?.fontFamily || 'DM Sans,sans-serif');
@@ -4335,7 +4414,11 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         // panel with structured _statValue / _statLabel / _statColor
         // fields. See StatProperties for the full reasoning. Audit C-X-4.
         <StatProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
-      ) : ['review', 'testimonial', 'faq'].includes(el.type) ? (
+      ) : el.type === 'faq' ? (
+        // Phase 3 inspector refactor: FAQ has structured
+        // _faqQuestion + _faqAnswer fields. Audit C-X-4.
+        <FaqProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : ['review', 'testimonial'].includes(el.type) ? (
         <CardLikeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'progress' ? (
         <ProgressProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
