@@ -314,6 +314,17 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // silently dropped (no error to the bot, which discourages retry).
       const honeypot = '<input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />';
       h += `<form ${elAttrs} style="${st}" onsubmit="return true"${redir}${successMsg}>${honeypot}${formHtml}</form>`;
+    } else if (el.type === 'stat' && (el._statValue !== undefined || el._statLabel !== undefined)) {
+      // Structured stat (Phase 3 of inspector refactor, audit C-X-4
+      // 21 May 2026). Value, label, and accent colour live on the
+      // element directly instead of being baked into el.txt. exportHTML
+      // renders the HTML from these fields. Legacy stats with content
+      // in el.txt fall through to the default branch below and continue
+      // to render correctly until re-edited.
+      const sv = String(el._statValue ?? '').replace(/[<>]/g, ''); // strip stray brackets, no HTML allowed in value
+      const sl = String(el._statLabel ?? '').replace(/[<>]/g, '');
+      const sc = el._statColor || '#0ea5e9';
+      h += `<div ${elAttrs} style="${st};display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Sora,sans-serif;font-size:36px;font-weight:900;color:${sc};line-height:1.1">${sv}</div><div style="font-size:12px;color:#64748b;margin-top:4px">${sl}</div></div>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }

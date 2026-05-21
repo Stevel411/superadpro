@@ -216,6 +216,7 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
             ? { _targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() }
             : (defaults._targetDate !== undefined ? { _targetDate: defaults._targetDate } : {})),
         ...(defaults._percent !== undefined ? { _percent: defaults._percent, _label: defaults._label, _color: defaults._color } : {}),
+        ...(defaults._statValue !== undefined ? { _statValue: defaults._statValue, _statLabel: defaults._statLabel, _statColor: defaults._statColor } : {}),
         ...(defaults._links ? { _links: { ...defaults._links } } : {}),
         ...(defaults._embedCode !== undefined ? { _embedCode: defaults._embedCode } : {}),
       };

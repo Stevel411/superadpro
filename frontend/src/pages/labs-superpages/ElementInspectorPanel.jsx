@@ -1322,6 +1322,113 @@ function ProgressProperties({ el, updateElement, updateElementStyle, markDirty }
 // haven't discovered the inline edit. Edits via the input commit
 // straight to el.txt; edits via inline contenteditable do the
 // same. Both end up in the same place.
+// ── StatProperties — structured value/label/colour fields ───────
+//
+// Phase 3 inspector refactor (audit C-X-4, 21 May 2026). Stat used
+// to route through CardLikeProperties which only let members edit
+// the wrapping container colours + text via inline-double-click.
+// To change the actual number ("95%" → "127k") a member had to
+// either inline-edit (slow, fiddly with the rich-text editor) or
+// open the HTML editor (intimidating).
+//
+// Now stat has three first-class structured fields:
+//   _statValue  — the big number/text (e.g. "95%", "127k", "$2.1M")
+//   _statLabel  — the small descriptor (e.g. "Paid out", "Active users")
+//   _statColor  — accent colour for the big number
+//
+// Both Inspector and exportHTML read these directly. Legacy stats
+// with content in el.txt fall back to the old render path until
+// re-edited.
+function StatProperties({ el, updateElement, updateElementStyle, markDirty }) {
+  // Initial read — prefer structured fields, but if a legacy stat
+  // has only el.txt content we try a best-effort extraction so the
+  // member sees something sensible in the form fields rather than
+  // empty inputs. Heuristic: pull two text chunks from any inner
+  // <div>...</div> spans; first is value, second is label.
+  const fromLegacy = () => {
+    if (!el.txt) return { v: '', l: '' };
+    const matches = String(el.txt).match(/>([^<]+)</g) || [];
+    const clean = matches.map(m => m.slice(1, -1).trim()).filter(Boolean);
+    return { v: clean[0] || '', l: clean[1] || '' };
+  };
+  const legacy = fromLegacy();
+  const [statValue, setStatValue] = useState(el._statValue !== undefined ? el._statValue : legacy.v);
+  const [statLabel, setStatLabel] = useState(el._statLabel !== undefined ? el._statLabel : legacy.l);
+  const [statColor, setStatColor] = useState(el._statColor || '#0ea5e9');
+
+  useEffect(() => {
+    const lg = fromLegacy();
+    setStatValue(el._statValue !== undefined ? el._statValue : lg.v);
+    setStatLabel(el._statLabel !== undefined ? el._statLabel : lg.l);
+    setStatColor(el._statColor || '#0ea5e9');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [el.id]);
+
+  // Commit pattern: update structured field, clear el.txt so the
+  // render path takes the structured branch. We don't leave both
+  // populated — that would let legacy and structured diverge.
+  const commit = (patch) => {
+    // Always write txt to empty string when committing structured
+    // fields, so the render branch unambiguously picks the new path.
+    updateElement(el.id, { ...patch, txt: '' });
+    markDirty();
+  };
+
+  return (
+    <>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Number / value</div>
+        <input
+          type="text"
+          value={statValue}
+          onChange={(e) => { setStatValue(e.target.value); commit({ _statValue: e.target.value }); }}
+          placeholder="95%"
+          style={inputStyle}
+        />
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          The big headline — e.g. "95%", "127k", "$2.1M"
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Label</div>
+        <input
+          type="text"
+          value={statLabel}
+          onChange={(e) => { setStatLabel(e.target.value); commit({ _statLabel: e.target.value }); }}
+          placeholder="Paid out"
+          style={inputStyle}
+        />
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Short descriptor below the number
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={labelStyle}>Number colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(statColor) ? statColor : '#0ea5e9'}
+            onChange={(e) => { setStatColor(e.target.value); commit({ _statColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={statColor}
+            onChange={(e) => { setStatColor(e.target.value); commit({ _statColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
 function BadgeProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [txt, setTxt] = useState(el.txt || '⭐ PREMIUM');
   const [fontFamily, setFontFamily] = useState(el.s?.fontFamily || 'DM Sans,sans-serif');
@@ -3775,7 +3882,12 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <TextTypeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : ['image', 'video', 'audio'].includes(el.type) ? (
         <MediaProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
-      ) : ['review', 'testimonial', 'faq', 'stat'].includes(el.type) ? (
+      ) : el.type === 'stat' ? (
+        // Phase 3 inspector refactor: stat now has its own dedicated
+        // panel with structured _statValue / _statLabel / _statColor
+        // fields. See StatProperties for the full reasoning. Audit C-X-4.
+        <StatProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
+      ) : ['review', 'testimonial', 'faq'].includes(el.type) ? (
         <CardLikeProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />
       ) : el.type === 'progress' ? (
         <ProgressProperties el={el} updateElement={updateElement} updateElementStyle={updateElementStyle} markDirty={markDirty} />

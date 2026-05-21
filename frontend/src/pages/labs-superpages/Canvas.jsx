@@ -881,6 +881,19 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         ))}
       </div>;
     }
+    if (el.type === 'stat' && (el._statValue !== undefined || el._statLabel !== undefined)) {
+      // Structured stat (Phase 3 inspector refactor, audit C-X-4
+      // 21 May 2026). Value/label/colour live on the element; we
+      // render directly without HTML strings. Legacy stats with el.txt
+      // content fall through to the default Tiptap/HTML render below.
+      const sv = el._statValue ?? '';
+      const sl = el._statLabel ?? '';
+      const sc = el._statColor || '#0ea5e9';
+      return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 36, fontWeight: 900, color: sc, lineHeight: 1.1 }}>{sv}</div>
+        <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{sl}</div>
+      </div>;
+    }
     if (el.type === 'audio') {
       // Canonical key is `txt`; legacy data may use `_audioUrl`. Audit C-M-5.
       const audioSrc = el.txt || el._audioUrl;
