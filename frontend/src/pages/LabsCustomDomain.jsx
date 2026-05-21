@@ -23,6 +23,7 @@ import { apiGet, apiPost, apiDelete } from '../utils/api';
 import {
   Globe, CheckCircle2, AlertTriangle, Clock, Loader2, Trash2,
   Copy, RefreshCw, ArrowLeft, Info, ExternalLink, Lock,
+  HelpCircle, ChevronDown,
 } from 'lucide-react';
 
 const STATUS_META = {
@@ -279,6 +280,100 @@ export default function LabsCustomDomain() {
             );
           })}
         </div>
+
+        {/* Help & troubleshooting — collapsible to keep the page tidy */}
+        <details style={{ ...cardStyle, marginTop: 16, cursor: 'pointer' }}>
+          <summary style={{ listStyle: 'none', display: 'flex', alignItems: 'center', gap: 10, fontFamily: "'Sora', sans-serif", fontSize: 14, fontWeight: 700, color: '#0f172a', outline: 'none' }}>
+            <HelpCircle size={18} color="#0ea5e9" />
+            Help &amp; troubleshooting
+            <ChevronDown size={16} color="#94a3b8" style={{ marginLeft: 'auto' }} />
+          </summary>
+
+          <div style={{ paddingTop: 16, fontSize: 13.5, color: '#334155', lineHeight: 1.65 }}>
+
+            {/* Common errors */}
+            <h3 style={helpH3}>Common errors</h3>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>"CNAME points to X but should point to Y"</div>
+              <div>The CNAME record is set but pointing to the wrong target. In your DNS provider, edit your CNAME and make sure the target is exactly:</div>
+              <code style={{ ...codeInline, display: 'inline-block', marginTop: 6, padding: '4px 10px' }}>{cnameTarget || 'superadpro-production.up.railway.app'}</code>
+              <div style={{ marginTop: 6 }}>No <code style={codeInline}>https://</code>, no trailing slash, no extra spaces. Save, wait a minute, click <strong>Check now</strong>.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>"No DNS records found for [your domain]"</div>
+              <ul style={helpList}>
+                <li>You haven't added the CNAME record yet — go to your DNS provider and add it.</li>
+                <li>You added it but DNS hasn't propagated — wait 2-5 minutes and click <strong>Check now</strong>.</li>
+                <li>You added it at the wrong provider — make sure the DNS you're editing is for the domain you're claiming.</li>
+              </ul>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>"[Your domain] has an A record but no CNAME"</div>
+              <div>You created an <strong>A record</strong> instead of a <strong>CNAME</strong> record. A records point at fixed IP addresses, which can change. Delete the A record and replace it with a CNAME pointing at our host above.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Status stuck on "Pending" for 30+ minutes</div>
+              <div>DNS propagation usually takes 2-10 minutes but can occasionally take longer. Click <strong>Check now</strong> to re-verify on demand. If still pending after an hour, double-check your CNAME record matches the example exactly.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Visitors see a "not secure" warning</div>
+              <div>You probably set up your CNAME without enabling proxy mode. In Cloudflare, edit your CNAME and click the cloud icon until it's <strong>orange (Proxied)</strong>, not grey (DNS only). The orange cloud is what gives you free HTTPS.</div>
+            </div>
+
+            {/* FAQ */}
+            <h3 style={helpH3}>Frequently asked</h3>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Can I use more than one custom domain?</div>
+              <div>Yes — up to 3 per account. Each one serves all your published pages.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Will my existing <code style={codeInline}>superadpro.com/p/...</code> URLs still work?</div>
+              <div>Yes. Your custom domain is in <em>addition</em> to the platform URL, not a replacement. Any old links you've shared continue to work — no broken links.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Can two members claim the same domain?</div>
+              <div>No. Once claimed, no one else can claim that exact domain. If you release it, it becomes available again.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Can I use my root domain (e.g. <code style={codeInline}>yourbrand.com</code>) instead of a subdomain?</div>
+              <div>Technically yes, but we recommend a subdomain like <code style={codeInline}>pages.yourbrand.com</code>. Root domains don't support CNAME records cleanly (they need ALIAS or ANAME records, which not all providers offer). A subdomain is much smoother.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Does this affect my email or main website?</div>
+              <div>No. The CNAME only affects the subdomain you chose (e.g. <code style={codeInline}>pages.yourbrand.com</code>). Email at <code style={codeInline}>yourname@yourbrand.com</code> and your main site at <code style={codeInline}>yourbrand.com</code> are untouched.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Do my custom domain visits show in analytics?</div>
+              <div>Yes — SuperPages analytics counts every visit regardless of which URL it came from. Custom domain traffic appears in the same dashboard.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>How do I change my domain later?</div>
+              <div>Click the trash icon next to your domain above to release it, then claim a new one. Your pages stay accessible at <code style={codeInline}>superadpro.com/p/...</code> the whole time — no downtime.</div>
+            </div>
+
+            <div style={helpBlock}>
+              <div style={helpQ}>Is there a cost?</div>
+              <div>The Custom Domain feature is free for active members. You only pay your own domain registrar (~$10/year). Cloudflare's free plan is enough for HTTPS — no paid plan needed.</div>
+            </div>
+
+            <div style={{ marginTop: 18, padding: '12px 14px', background: '#f8fafc', borderRadius: 8, fontSize: 12, color: '#64748b' }}>
+              Still stuck? Take a screenshot of your CNAME record in your DNS provider and a screenshot of this page showing the error, then contact support.
+            </div>
+
+          </div>
+        </details>
       </div>
 
       <style>{`
@@ -352,4 +447,21 @@ const backLinkStyle = {
   display: 'inline-flex', alignItems: 'center', gap: 4,
   fontSize: 12, color: '#64748b', textDecoration: 'none',
   fontWeight: 600, marginBottom: 16,
+};
+const helpH3 = {
+  margin: '4px 0 10px',
+  fontSize: 11, fontWeight: 700,
+  letterSpacing: '0.08em', textTransform: 'uppercase',
+  color: '#64748b',
+};
+const helpBlock = {
+  padding: '12px 0',
+  borderTop: '1px solid #f1f5f9',
+};
+const helpQ = {
+  fontWeight: 700, color: '#0f172a',
+  marginBottom: 4,
+};
+const helpList = {
+  margin: '6px 0 0', paddingLeft: 18, lineHeight: 1.7,
 };

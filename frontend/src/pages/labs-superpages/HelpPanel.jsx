@@ -12,6 +12,7 @@ const SECTION_KEYS = [
   { key: 'layoutElements',     color: 'var(--sap-pink)' },
   { key: 'settingsPublishing', color: 'var(--sap-green)' },
   { key: 'aiAssistant',        color: 'var(--sap-indigo)' },
+  { key: 'customDomain',       color: 'var(--sap-accent)' },  // Account-level — links out to /labs/pagebuilder/custom-domain
 ];
 
 export default function HelpPanel({ visible, onClose }) {
@@ -109,16 +110,40 @@ export default function HelpPanel({ visible, onClose }) {
                     ({section.items.length})
                   </span>
                 </div>
-                {isOpen && section.items.map((item, ii) => (
-                  <div key={ii} style={{ padding: '14px 24px 14px 46px', borderBottom: '1px solid #f5f6f8' }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 6, lineHeight: 1.35 }}>
-                      {item.title}
+                {isOpen && section.items.map((item, ii) => {
+                  const row = (
+                    <>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 6, lineHeight: 1.35 }}>
+                        {item.title}
+                      </div>
+                      <div style={{ fontSize: 14, color: 'var(--sap-text-secondary)', lineHeight: 1.65 }}>
+                        {item.desc}
+                      </div>
+                      {item.link && (
+                        <div style={{ fontSize: 13, color: section.color, fontWeight: 700, marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          {item.linkLabel || 'Open'} →
+                        </div>
+                      )}
+                    </>
+                  );
+                  // If item has a link, wrap the row in an anchor so the whole
+                  // tile is clickable and members get straight to the page
+                  // (e.g. account-level help like "Custom Domain" that lives
+                  // outside the editor).
+                  if (item.link) {
+                    return (
+                      <a key={ii} href={item.link}
+                         style={{ display: 'block', padding: '14px 24px 14px 46px', borderBottom: '1px solid #f5f6f8', textDecoration: 'none', color: 'inherit' }}>
+                        {row}
+                      </a>
+                    );
+                  }
+                  return (
+                    <div key={ii} style={{ padding: '14px 24px 14px 46px', borderBottom: '1px solid #f5f6f8' }}>
+                      {row}
                     </div>
-                    <div style={{ fontSize: 14, color: 'var(--sap-text-secondary)', lineHeight: 1.65 }}>
-                      {item.desc}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             );
           })}
