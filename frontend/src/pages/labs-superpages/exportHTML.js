@@ -142,9 +142,11 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // quoting; we deliberately don't HTML-encode here because the
       // browser handles attribute quoting and double-encoding would
       // turn an "&" in alt text into "&amp;amp;".
+      // loading="lazy" added 21 May 2026 (audit C-M-2) — improves
+      // perceived load time on long pages with multiple images.
       const altText = (el._imageAlt || '').replace(/"/g, '&quot;');
       const fit = el._imageFit || 'cover';
-      h += `<img ${elAttrs} src="${el.txt}" alt="${altText}" style="${st};object-fit:${fit}">`;
+      h += `<img ${elAttrs} src="${el.txt}" alt="${altText}" loading="lazy" style="${st};object-fit:${fit}">`;
     } else if (el.type === 'image' && !el.txt?.trim()) {
       // Skip empty image placeholders
     } else if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) {

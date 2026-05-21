@@ -16782,10 +16782,17 @@ async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends
     if ext not in {"jpg", "jpeg", "png", "gif", "webp", "svg"}:
         ext = "jpg"
 
+    # Auto-optimise: resize >1920px wide, convert to WebP (25-35% smaller),
+    # strip EXIF metadata. Best-effort — pass-through on any failure so
+    # uploads never break. SVG/GIF skipped (vector / animated). Audit C-M-1.
+    from app.image_optimise import optimise_image
+    contents, ext, content_type_after = optimise_image(contents, ext)
+    file_content_type = content_type_after
+
     # Try R2 first, fall back to local storage
     from app.r2_storage import r2_available, upload_image
     if r2_available():
-        url = upload_image(contents, "funnel-images", ext, file.content_type)
+        url = upload_image(contents, "funnel-images", ext, file_content_type)
     else:
         upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
         os.makedirs(upload_dir, exist_ok=True)

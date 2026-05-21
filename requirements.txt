@@ -81,3 +81,8 @@ tronpy>=0.4.0
 # records point to our Railway host. Added 21 May 2026 for the Custom
 # Domain feature on SuperPages.
 dnspython>=2.6.0
+# Image processing — used by app/main.py funnel_upload_image to resize and
+# convert uploads to WebP. Transitively present via python-pptx but pinned
+# explicitly here so a future pptx upgrade can't accidentally drop it.
+# Added 21 May 2026 alongside the auto-optimise feature.
+Pillow>=10.0.0
