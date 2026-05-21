@@ -325,6 +325,13 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       const sl = String(el._statLabel ?? '').replace(/[<>]/g, '');
       const sc = el._statColor || '#0ea5e9';
       h += `<div ${elAttrs} style="${st};display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Sora,sans-serif;font-size:36px;font-weight:900;color:${sc};line-height:1.1">${sv}</div><div style="font-size:12px;color:#64748b;margin-top:4px">${sl}</div></div>`;
+    } else if (el.type === 'separator' && (el._separatorSymbol !== undefined)) {
+      // Structured separator (Phase 3 inspector refactor, audit C-X-4).
+      // The centred symbol and the line colour are first-class fields
+      // now; the surrounding lines are pure decoration generated here.
+      const sym = String(el._separatorSymbol ?? '').replace(/[<>]/g, '');
+      const lineCol = el._separatorColor || 'rgba(255,255,255,0.1)';
+      h += `<div ${elAttrs} style="${st};display:flex;align-items:center;gap:16px"><div style="flex:1;height:1px;background:${lineCol}"></div><span style="font-size:12px;color:#64748b;font-weight:600;white-space:nowrap">${sym}</span><div style="flex:1;height:1px;background:${lineCol}"></div></div>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }

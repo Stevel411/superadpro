@@ -894,6 +894,16 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{sl}</div>
       </div>;
     }
+    if (el.type === 'separator' && (el._separatorSymbol !== undefined)) {
+      // Structured separator (Phase 3 inspector refactor, audit C-X-4).
+      const sym = el._separatorSymbol ?? '';
+      const lineCol = el._separatorColor || 'rgba(255,255,255,0.1)';
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ flex: 1, height: 1, background: lineCol }} />
+        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>{sym}</span>
+        <div style={{ flex: 1, height: 1, background: lineCol }} />
+      </div>;
+    }
     if (el.type === 'audio') {
       // Canonical key is `txt`; legacy data may use `_audioUrl`. Audit C-M-5.
       const audioSrc = el.txt || el._audioUrl;
