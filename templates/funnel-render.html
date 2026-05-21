@@ -93,10 +93,24 @@ h2{font-size:clamp(22px,5vw,36px) !important}
 document.querySelectorAll('#gjsContent form').forEach(form => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    // Honeypot spam protection (audit C-A-5, 21 May 2026). Real users
+    // never see or fill the hidden "website" field. Bots that crawl
+    // forms and auto-fill every field WILL fill it. If filled, we
+    // silently pretend submission succeeded — no error, no retry signal
+    // to the bot, no DB row created. Discourages re-attempts vs
+    // returning an error code which signals "this endpoint is alive,
+    // try again differently".
+    const honeypot = form.querySelector('input[name="website"]');
+    if (honeypot && honeypot.value) {
+      const btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = '✓ Success!'; }
+      return;
+    }
     const fd = new FormData(form);
     const data = {page_id: {{ page.id }}};
     for (const [k,v] of fd.entries()) {
       const key = k.toLowerCase();
+      if (key === 'website') continue; // skip honeypot from real submissions
       if (key.includes('email') || key === 'email') data.email = v;
       else if (key.includes('name') || key === 'name') data.name = v;
       else if (key.includes('phone') || key === 'phone') data.phone = v;

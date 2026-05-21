@@ -205,7 +205,16 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
         id: uid(), type,
         x, y, w: defaults.w, h: defaults.h,
         txt: defaults.txt, s: { ...defaults.s },
-        ...(defaults._targetDate !== undefined ? { _targetDate: defaults._targetDate } : {}),
+        // Countdown: default _targetDate to 7 days from element creation
+        // (audit C-C-7, 21 May 2026). Dropping a countdown with a blank
+        // target shows broken-looking 00:00:00 placeholders and the
+        // member has to guess what to put in. 7 days makes the element
+        // look alive immediately; members can then pick the real target
+        // via the Inspector. Computed at create-time, not module-load
+        // time, so the value reflects "now" when the element is dropped.
+        ...(type === 'countdown'
+            ? { _targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() }
+            : (defaults._targetDate !== undefined ? { _targetDate: defaults._targetDate } : {})),
         ...(defaults._percent !== undefined ? { _percent: defaults._percent, _label: defaults._label, _color: defaults._color } : {}),
         ...(defaults._links ? { _links: { ...defaults._links } } : {}),
         ...(defaults._embedCode !== undefined ? { _embedCode: defaults._embedCode } : {}),

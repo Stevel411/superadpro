@@ -96,7 +96,13 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         // ~600KB lighter — the YouTube embed isn't loaded at all
         // unless engaged.
         if (ytId && el._ytFacade) {
+          // Facade thumbnail: try maxresdefault.jpg first, fall back to
+          // hqdefault.jpg on error. maxres 404s for ~5% of videos
+          // (those uploaded before YouTube generated max-res thumbs).
+          // Audit C-M-4 (21 May 2026). Using an <img> tag rather than
+          // CSS background lets us catch the load error in onerror.
           const thumb = `https://i.ytimg.com/vi/${ytId}/maxresdefault.jpg`;
+          const fallbackThumb = `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
           // Build the modest-branding query the facade will apply on
           // click. Reuses the same toggles as the standard embed.
           const ytParams = [];
@@ -106,7 +112,8 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
           ytParams.push('showinfo=0');
           ytParams.push('autoplay=1'); // facade always autoplays on click
           const facadeSrc = `https://www.youtube.com/embed/${ytId}?${ytParams.join('&')}`;
-          h += `<div ${elAttrs} data-sp-facade="${facadeSrc}" style="${st};background-image:url(${thumb});background-size:cover;background-position:center;border-radius:12px;position:relative;cursor:pointer;overflow:hidden">
+          h += `<div ${elAttrs} data-sp-facade="${facadeSrc}" style="${st};border-radius:12px;position:relative;cursor:pointer;overflow:hidden">
+  <img src="${thumb}" onerror="this.onerror=null;this.src='${fallbackThumb}'" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(0,0,0,0.18),rgba(0,0,0,0.32))">
     <div style="width:78px;height:78px;border-radius:50%;background:rgba(255,255,255,0.95);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(0,0,0,0.35),0 2px 6px rgba(0,0,0,0.25)">
       <div style="width:0;height:0;border-left:24px solid #0a1438;border-top:15px solid transparent;border-bottom:15px solid transparent;margin-left:6px"></div>
@@ -283,7 +290,17 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       const successMsg = (el._formSuccessMsg && !el._formRedirect)
         ? ` data-success-message="${String(el._formSuccessMsg).replace(/"/g, '&quot;')}"`
         : '';
-      h += `<form ${elAttrs} style="${st}" onsubmit="return true"${redir}${successMsg}>${formHtml}</form>`;
+      // Honeypot spam protection (audit C-A-5, 21 May 2026). Hidden
+      // input that real users never see or interact with. Position
+      // absolute + left:-9999px hides it visually without using
+      // display:none (some bots skip display:none fields). aria-hidden
+      // + tabindex=-1 keep screen readers and keyboard users from
+      // hitting it accidentally. autocomplete=off so password managers
+      // don't autofill it for an unlucky user. The funnel-render JS
+      // checks the value on submit — if non-empty, the submission is
+      // silently dropped (no error to the bot, which discourages retry).
+      const honeypot = '<input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />';
+      h += `<form ${elAttrs} style="${st}" onsubmit="return true"${redir}${successMsg}>${honeypot}${formHtml}</form>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }
