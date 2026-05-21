@@ -824,7 +824,25 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     if (el.type === 'image' && !el.txt) {
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#475569', fontSize: 13 }}>{t('superPagesEditor.clickImageToUpload')}</div>;
     }
-    if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) return null;
+    if (el.type === 'divider') {
+      // Divider style (audit C-L-5, 21 May 2026): solid uses the wrapper
+      // background colour as a filled bar (legacy behaviour, preserved
+      // for back-compat). Dashed/dotted use a border-top line to get
+      // the dashed effect since a "dashed background" doesn't exist
+      // in CSS. The line uses the same colour as el.s.background.
+      const lineStyle = el._dividerStyle || 'solid';
+      const lineColor = el.s?.background || '#334155';
+      if (lineStyle === 'dashed' || lineStyle === 'dotted') {
+        return <div style={{
+          width: '100%', height: '100%',
+          borderTop: `${Math.max(2, el.h)}px ${lineStyle} ${lineColor}`,
+        }} />;
+      }
+      // solid — render as a filled bar via the wrapper (returns null
+      // here so the outer .sp-el div's background-color takes over).
+      return null;
+    }
+    if (['spacer', 'box'].includes(el.type) && !el.txt) return null;
     if (el.type === 'button' || el.type === 'announcement') {
       return <div className="cel-editable" style={{ ...Object.fromEntries(textStyles.filter(k => el.s?.[k]).map(k => [k, el.s[k]])), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} dangerouslySetInnerHTML={{__html: el.txt || 'Button'}} />;
     }

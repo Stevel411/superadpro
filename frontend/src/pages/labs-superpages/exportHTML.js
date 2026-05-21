@@ -156,7 +156,20 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       h += `<img ${elAttrs} src="${el.txt}" alt="${altText}" loading="lazy" style="${st};object-fit:${fit}">`;
     } else if (el.type === 'image' && !el.txt?.trim()) {
       // Skip empty image placeholders
-    } else if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) {
+    } else if (el.type === 'divider' && !el.txt) {
+      // Style-aware divider (audit C-L-5, 21 May 2026): solid uses
+      // background-color on the wrapper (legacy behaviour preserved
+      // for any existing dividers); dashed/dotted swap to a border-top
+      // since "dashed background" isn't a CSS thing.
+      const dStyle = el._dividerStyle || 'solid';
+      if (dStyle === 'dashed' || dStyle === 'dotted') {
+        const lineColor = el.s?.background || '#334155';
+        const lineThickness = Math.max(2, el.h || 2);
+        h += `<div ${elAttrs} style="${st};background:transparent!important;border-top:${lineThickness}px ${dStyle} ${lineColor}"></div>`;
+      } else {
+        h += `<div ${elAttrs} style="${st}"></div>`;
+      }
+    } else if (['spacer', 'box'].includes(el.type) && !el.txt) {
       h += `<div ${elAttrs} style="${st}"></div>`;
     } else if ((el.type === 'button' || el.type === 'announcement') && el.url) {
       // URL sanitisation (audit B-7, 20 May 2026):

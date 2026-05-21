@@ -1716,10 +1716,16 @@ function BoxProperties({ el, updateElement, updateElementStyle, markDirty }) {
 function DividerProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [color, setColor] = useState(el.s?.background || '#334155');
   const [thickness, setThickness] = useState(el.h || 2);
+  // Line style — defaults to 'solid' (current behaviour for any existing
+  // divider). Stored as _dividerStyle on the element; export reads it
+  // to switch from background-color (solid) to border-top (dashed/dotted).
+  // Audit C-L-5 (21 May 2026).
+  const [lineStyle, setLineStyle] = useState(el._dividerStyle || 'solid');
 
   useEffect(() => {
     setColor(el.s?.background || '#334155');
     setThickness(el.h || 2);
+    setLineStyle(el._dividerStyle || 'solid');
   }, [el.id]);
 
   const commitColor = (v) => {
@@ -1735,6 +1741,24 @@ function DividerProperties({ el, updateElement, updateElementStyle, markDirty })
     updateElement(el.id, { h: n });
     markDirty();
   };
+  const commitLineStyle = (v) => {
+    setLineStyle(v);
+    updateElement(el.id, { _dividerStyle: v });
+    markDirty();
+  };
+
+  const styleBtnStyle = (active) => ({
+    flex: 1,
+    padding: '6px 10px',
+    fontSize: 12,
+    fontFamily: "'Sora', sans-serif",
+    fontWeight: 600,
+    border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+    background: active ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))' : '#fff',
+    color: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-text-primary, #0f172a)',
+    borderRadius: 5,
+    cursor: 'pointer',
+  });
 
   return (
     <>
@@ -1757,6 +1781,14 @@ function DividerProperties({ el, updateElement, updateElementStyle, markDirty })
             onChange={e => commitColor(e.target.value)}
             style={{ ...inputStyle, flex: 1 }}
           />
+        </div>
+      </div>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Style</div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button onClick={() => commitLineStyle('solid')} style={styleBtnStyle(lineStyle === 'solid')}>Solid</button>
+          <button onClick={() => commitLineStyle('dashed')} style={styleBtnStyle(lineStyle === 'dashed')}>Dashed</button>
+          <button onClick={() => commitLineStyle('dotted')} style={styleBtnStyle(lineStyle === 'dotted')}>Dotted</button>
         </div>
       </div>
       <div style={sectionStyleLast}>
