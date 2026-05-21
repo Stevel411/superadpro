@@ -3364,7 +3364,8 @@ def admin_grid_earnings_verification(request: Request, user: User = Depends(get_
     grid_lifetime_total = round(grand_direct + grand_unilevel + grand_bonus, 2)
 
     # Wallet reconciliation
-    current_balance = float(user.balance_usd or 0)
+    current_balance = float(user.balance or 0)
+    current_campaign_balance = float(user.campaign_balance or 0)
 
     # Total successfully withdrawn (status='paid' rows in withdrawals)
     withdrawn_row = db.query(
@@ -3404,11 +3405,12 @@ def admin_grid_earnings_verification(request: Request, user: User = Depends(get_
         "per_tier_breakdown": breakdown,
         "wallet_reconciliation": {
             "current_balance_usd": current_balance,
+            "current_campaign_balance_usd": current_campaign_balance,
             "lifetime_withdrawn_usd": round(total_withdrawn, 2),
             "lifetime_received_all_streams": round(all_commissions, 2),
             "lifetime_commissions_count": all_commissions_count,
             "grid_stream_percent_of_lifetime": grid_percent_of_total,
-            "note": "lifetime_received_all_streams includes Grid + Nexus matrix + course + membership commissions. Balance + withdrawn = lifetime received minus any failed/refunded payments minus any non-withdrawal balance deductions (e.g. membership-from-balance activations).",
+            "note": "current_balance_usd is the affiliate wallet (always withdrawable). current_campaign_balance_usd is the campaign wallet (requires active tier + watch quota to spend on ads). lifetime_received_all_streams includes Grid + Nexus matrix + course + membership commissions. balance + campaign_balance + withdrawn = lifetime received minus any failed/refunded payments minus any non-withdrawal deductions (e.g. membership-from-balance activations, campaign deposits).",
         },
         "verification_note": "These are the numbers the /grid-visualiser page sums and displays per tier. If a tier's tier_total here doesn't match what the page shows when that tier tab is selected, there's a query bug. The grid_id filter that originally returned $0 was removed on 21 May 2026 (commit 00f80e5) — now filtered by package_tier + to_user_id + commission_type.",
     })
