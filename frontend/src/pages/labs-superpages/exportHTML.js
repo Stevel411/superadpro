@@ -303,6 +303,17 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   // Plain DOM, no dependencies — matches the dismissible-banner pattern.
   h += `<script>(function(){try{var els=document.querySelectorAll('[data-sp-facade]');for(var i=0;i<els.length;i++){(function(el){el.addEventListener('click',function(){var src=el.getAttribute('data-sp-facade');if(!src)return;var ifr=document.createElement('iframe');ifr.src=src;ifr.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');ifr.setAttribute('allowfullscreen','');ifr.style.cssText='width:100%;height:100%;border:none;border-radius:12px;position:absolute;inset:0';el.innerHTML='';el.style.cursor='default';el.appendChild(ifr);});})(els[i]);}}catch(e){}})();</script>`;
 
+  // ── FAQ click-to-expand (21 May 2026, audit C-C-3) ──
+  // Default FAQ markup carries an .sp-faq-q row and an .sp-faq-a answer
+  // block. We start answers collapsed (height 0, overflow hidden), wire
+  // a click on the question row to toggle, and swap the +/− indicator.
+  // Same plain-DOM, no-deps pattern as the facade and banner scripts.
+  // Lives in a single conditional script + style block so the cost is
+  // ~400 bytes on pages with no FAQ — acceptable always-on tax for the
+  // simplicity of not having to detect FAQ presence at build time.
+  h += `<style>.sp-faq-a{max-height:0;overflow:hidden;opacity:0;transition:max-height .35s ease,opacity .25s ease,margin-top .25s ease;margin-top:0!important}.sp-faq-item.sp-faq-open .sp-faq-a{max-height:600px;opacity:1;margin-top:4px!important}.sp-faq-item.sp-faq-open .sp-faq-toggle{transform:rotate(45deg)}</style>`;
+  h += `<script>(function(){try{var rows=document.querySelectorAll('.sp-faq .sp-faq-q,.sp-faq-q');for(var i=0;i<rows.length;i++){(function(r){r.addEventListener('click',function(){var item=r.closest('.sp-faq-item')||r.parentNode;if(!item)return;item.classList.toggle('sp-faq-open');});})(rows[i]);}}catch(e){}})();</script>`;
+
   h += '</div></div>';
 
   // ── Responsive CSS ──
