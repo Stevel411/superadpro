@@ -44,11 +44,24 @@ export const CENTRE_TYPES = [
 ];
 
 // Block palette categories — shown in the right panel
+//
+// Consolidation pass (21 May 2026, audit C-T-3 / C-C-2 / C-L-4):
+//   - `label` removed from the palette in favour of `badge` — they were
+//     visually and functionally identical; member confusion risk
+//   - `testimonial` removed from the palette in favour of `review` — same
+//     issue; both are "what someone said + their name", differed only
+//     in accent colour which can be set via Inspector
+//   - `box` renamed to "Background" in the UI to set the right
+//     expectation (it's a decorative backdrop, not a container that
+//     accepts child elements)
+// Underlying element types (label, testimonial, box) are preserved in
+// elementDefaults and exportHTML so existing pages with these elements
+// continue to render correctly. Only the *palette entry* is gone, so
+// members can't drop new ones — they have to use the canonical choice.
 export const PALETTE = [
   { label: 'Text', items: [
     { type: 'heading', name: 'Heading', color: '#0ea5e9' },
     { type: 'text', name: 'Text', color: '#0ea5e9' },
-    { type: 'label', name: 'Label', color: '#0ea5e9' },
   ]},
   { label: 'Media', items: [
     { type: 'image', name: 'Image', color: '#8b5cf6' },
@@ -63,7 +76,6 @@ export const PALETTE = [
   { label: 'Content', items: [
     { type: 'review', name: 'Review', color: '#f59e0b' },
     { type: 'badge', name: 'Badge', color: '#f59e0b' },
-    { type: 'testimonial', name: 'Testimonial', color: '#f59e0b' },
     { type: 'faq', name: 'FAQ', color: '#f59e0b' },
     { type: 'stat', name: 'Stat', color: '#f59e0b' },
     { type: 'progress', name: 'Progress', color: '#f59e0b' },
@@ -75,7 +87,7 @@ export const PALETTE = [
     { type: 'separator', name: 'Separator', color: '#ec4899' },
     { type: 'logostrip', name: 'Logos', color: '#ec4899' },
     { type: 'spacer', name: 'Spacer', color: '#ec4899' },
-    { type: 'box', name: 'Box', color: '#ec4899' },
+    { type: 'box', name: 'Background', color: '#ec4899' },
     { type: 'divider', name: 'Divider', color: '#ec4899' },
     { type: 'embed', name: 'Embed', color: '#ec4899' },
   ]},
