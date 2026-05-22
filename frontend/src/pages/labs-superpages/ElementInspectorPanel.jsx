@@ -5156,32 +5156,129 @@ function UnsupportedTypeNote({ type }) {
 //
 // Header is constant across all states: shows element type + the
 // quick actions (duplicate / lock / delete).
-export default function ElementInspectorPanel({ el, updateElement, updateElementStyle, markDirty, onDuplicate, onDelete, onToggleLock }) {
-  // No-selection state
+export default function ElementInspectorPanel({ el, updateElement, updateElementStyle, markDirty, pageSettings, setPageSettings, onOpenFullSettings, onDuplicate, onDelete, onToggleLock }) {
+  // No-selection state — show page-level settings instead of an
+  // empty hint card. Steve's call 22 May 2026: 'the biggest visual
+  // problem on the page' was 900px of empty cobalt when nothing
+  // was selected. Filling it with page settings (title, slug, SEO,
+  // plus quick-action buttons to the full-settings modal) gives
+  // members something useful and on-brand to do while not editing.
   if (!el) {
+    const ps = pageSettings || { title: '', metaDescription: '', slug: '', ogImage: '' };
+    const update = (patch) => {
+      if (setPageSettings) setPageSettings(p => ({ ...p, ...patch }));
+      if (markDirty) markDirty();
+    };
+    // Derive the current slug fragment that the member can edit
+    // (the part after /p/username/). Matches the same logic the
+    // full-settings modal uses, kept consistent so editing here
+    // updates the same field.
+    const slugFragment = ps.customSlug !== undefined
+      ? ps.customSlug
+      : (ps.slug ? ps.slug.split('/').pop() : '');
+
+    const sectionLabelStyle = {
+      fontSize: 10, fontWeight: 800,
+      color: 'rgba(255,255,255,0.55)',
+      letterSpacing: '0.08em',
+      textTransform: 'uppercase',
+      marginBottom: 6, marginTop: 14,
+    };
+    const psInputStyle = {
+      width: '100%',
+      padding: '7px 10px',
+      border: '1px solid #0a1438',
+      borderRadius: 6,
+      fontSize: 12,
+      color: '#0f172a',
+      background: '#ffffff',
+      outline: 'none',
+      boxSizing: 'border-box',
+      fontFamily: 'inherit',
+    };
+    const quickBtnStyle = {
+      width: '100%',
+      display: 'flex', alignItems: 'center', gap: 8,
+      padding: '8px 10px',
+      background: 'rgba(255,255,255,0.05)',
+      border: '1px solid rgba(255,255,255,0.12)',
+      borderRadius: 6,
+      color: '#fff',
+      fontSize: 12, fontWeight: 600,
+      textAlign: 'left',
+      cursor: 'pointer',
+      fontFamily: 'inherit',
+      marginBottom: 6,
+    };
+
     return (
       <div className="ins-cobalt" style={{
-        padding: '20px 16px',
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.65)',
-        lineHeight: 1.6,
+        padding: '14px 16px',
+        height: '100%',
+        overflowY: 'auto',
+        fontFamily: 'inherit',
       }}>
-        <div style={{
-          fontSize: 10, fontWeight: 800,
-          color: 'rgba(255,255,255,0.5)',
-          letterSpacing: '0.12em', textTransform: 'uppercase',
-          marginBottom: 8,
-        }}>Editing</div>
-        <div style={{
-          padding: 16,
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px dashed rgba(255,255,255,0.18)',
-          borderRadius: 8,
-          textAlign: 'center',
-          color: 'rgba(255,255,255,0.7)',
-        }}>
-          <div style={{ fontSize: 24, marginBottom: 6, opacity: 0.4 }}>✎</div>
-          <div>Select an element on the canvas to edit its properties here.</div>
+        {/* Header */}
+        <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{
+            fontSize: 10, fontWeight: 800,
+            color: 'rgba(255,255,255,0.55)',
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+            marginBottom: 4,
+          }}>Page settings</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+            No element selected. Click any block on the canvas to edit it, or adjust page-wide settings below.
+          </div>
+        </div>
+
+        {/* Page title */}
+        <div style={sectionLabelStyle}>Page title</div>
+        <input
+          value={ps.title || ''}
+          onChange={e => update({ title: e.target.value })}
+          placeholder="My landing page"
+          style={psInputStyle}
+        />
+
+        {/* URL slug */}
+        <div style={sectionLabelStyle}>URL slug</div>
+        <input
+          value={slugFragment}
+          onChange={e => update({ customSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/--+/g, '-') })}
+          placeholder="my-page"
+          style={{ ...psInputStyle, fontFamily: 'monospace' }}
+        />
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.4 }}>
+          /p/your-username/{slugFragment || 'my-page'}
+        </div>
+
+        {/* SEO description */}
+        <div style={sectionLabelStyle}>SEO description</div>
+        <textarea
+          value={ps.metaDescription || ''}
+          onChange={e => update({ metaDescription: e.target.value })}
+          placeholder="Short description for search engines and social previews"
+          rows={3}
+          style={{ ...psInputStyle, resize: 'vertical', minHeight: 56, fontFamily: 'inherit', lineHeight: 1.5 }}
+        />
+
+        {/* Quick actions to the full-settings modal */}
+        <div style={sectionLabelStyle}>Advanced</div>
+        <button onClick={() => onOpenFullSettings && onOpenFullSettings()} style={quickBtnStyle}>
+          <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>↗</span>
+          <span>Custom domain</span>
+        </button>
+        <button onClick={() => onOpenFullSettings && onOpenFullSettings()} style={quickBtnStyle}>
+          <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>{'</>'}</span>
+          <span>Custom scripts</span>
+        </button>
+        <button onClick={() => onOpenFullSettings && onOpenFullSettings()} style={quickBtnStyle}>
+          <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>⚙</span>
+          <span>All page settings</span>
+        </button>
+
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 12, lineHeight: 1.5 }}>
+          Changes save when you click Save in the top bar.
         </div>
       </div>
     );

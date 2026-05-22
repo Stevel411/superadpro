@@ -399,45 +399,55 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             </div>
           ) : null;
 
-          // Category section rendering. Steve flag 20 May 2026: 'the
-          // Rightside panel must have an even balanced list of blocks
-          // that go left to right filling the panel down to the bottom.
-          // any excess space or void should be at the bottom of the
-          // page not at the top'.
+          // Render order: Quick Blocks (top 6 pinned), then a single
+          // flat 'More blocks' grid containing every other element type
+          // in rows of 3. Last row naturally has 1, 2, or 3 items
+          // depending on what's left.
           //
-          // After Quick Blocks suppression, several categories end up
-          // with only 1-2 items, which produces a sparse 3-column grid
-          // with empty cells in the middle of the panel. Reorganise:
-          //   - Categories with >= 3 items render normally (full or
-          //     near-full grid rows, label visible)
-          //   - Categories with < 3 items get their items collected
-          //     into a single 'MORE BLOCKS' section so the items fill
-          //     left-to-right with no empty cells
+          // Steve's call 22 May 2026: 'I just want from the top of the
+          // panel the 6 most commonly used Elements. Then below that
+          // add the other elements in rows of 3. Any odd elements left
+          // over will just form the next row down with either 1 or 2
+          // elements depending on how many are left over.' Dropped the
+          // per-category sections (Content, Layout, etc.) — they were
+          // adding visual chrome without aiding discovery now that
+          // search is in the panel header.
           //
-          // Search mode keeps the original category labels — search
-          // results favour discoverability over visual balance.
-          let regularCats = filteredCats;
-          let mergedItems = [];
+          // Search mode behaves identically — search results render
+          // in the same flat grid (no category labels) since
+          // categorisation isn't useful when the result set is
+          // already filtered.
+          let allOtherItems = [];
           if (!q) {
-            regularCats = [];
-            filteredCats.forEach(cat => {
-              if (cat.items.length >= 3) {
-                regularCats.push(cat);
-              } else {
-                mergedItems = mergedItems.concat(cat.items);
+            // No search → collect everything that wasn't pinned
+            // into Quick Blocks, in PALETTE order. The category
+            // ordering inside PALETTE drives the visual ordering
+            // here (Content first, then Layout, etc.) even though
+            // the labels are no longer shown.
+            PALETTE.forEach(cat => cat.items.forEach(item => {
+              if (!QUICK_BLOCK_TYPES_SUPPRESS.includes(item.type)) {
+                allOtherItems.push(item);
               }
-            });
+            }));
+          } else {
+            // Search → flatten filtered category results back into
+            // one grid. Quick Blocks types are NOT suppressed during
+            // search (see filteredCats logic above) so they appear
+            // here naturally if they match the query.
+            filteredCats.forEach(cat => cat.items.forEach(item => {
+              allOtherItems.push(item);
+            }));
           }
-          // Render order: Quick Blocks first, then the merged 'More
-          // blocks' overflow row (covers the orphan items in a clean
-          // left-to-right grid), then the full labelled categories.
-          const moreRow = mergedItems.length > 0 ? (
+
+          const moreRow = allOtherItems.length > 0 ? (
             <div key="__more" style={{marginBottom: 8}}>
-              <div className="palette-section-label" style={{padding:'12px 4px 8px'}}>
-                {t('superPagesEditor.catMore', { defaultValue: 'More blocks' })}
-              </div>
+              {!q && (
+                <div className="palette-section-label" style={{padding:'12px 4px 8px'}}>
+                  {t('superPagesEditor.catMore', { defaultValue: 'More blocks' })}
+                </div>
+              )}
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:9}}>
-                {mergedItems.map((item, ii) => {
+                {allOtherItems.map((item, ii) => {
                   const Icon = BLOCK_ICONS[item.type] || Square;
                   const blockType = BLOCK_TYPE[item.type] || 'solid';
                   return (
@@ -457,69 +467,46 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             </div>
           ) : null;
 
-          const fullCats = regularCats.map((cat, ci) => (
-            <div key={cat.label} style={{marginBottom: 8}}>
-              {/* Section head — typography-only treatment. */}
-              <div className="palette-section-label" style={{padding:'12px 4px 8px',...(ci===0?{paddingTop:4}:{})}}>
-                {t('superPagesEditor.cat'+cat.label, { defaultValue: cat.label })}
-              </div>
-
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:9}}>
-                {cat.items.map((item, ii) => {
-                  const Icon = BLOCK_ICONS[item.type] || Square;
-                  const blockType = BLOCK_TYPE[item.type] || 'solid';
-                  return (
-                    <div key={ii}
-                      onClick={() => addAndRemember(item.type)}
-                      draggable
-                      onDragStart={e => e.dataTransfer.setData('text/plain', item.type)}
-                      className="pal-item"
-                    >
-                      <span className={`tile-type-chip ${blockType}`} />
-                      {/* Favourite stars removed 20 May 2026 — see Quick Blocks block above. */}
-                      <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
-                      <span className="pal-label">{blockLabel(t, item)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ));
-
-          return <>{quickRow}{moreRow}{fullCats}</>;
+          return <>{quickRow}{moreRow}</>;
         })()}
       </div>
 
-      {/* AI Chat — light theme */}
-      <div style={{borderTop:'1px solid #e8ecf2',flexShrink:0,background:'#ffffff',display:'flex',flexDirection:'column'}}>
-        <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'10px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <span style={{fontSize:13,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'#0284c7'}}>{t('superPagesEditor.aiAssistant')}</span>
-          <span style={{fontSize:12,color:'#7a8899',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
-        </div>
-        {chatOpen && (
-          <div style={{display:'flex',flexDirection:'column',maxHeight:220,overflow:'hidden'}}>
-            <div ref={chatRef} style={{flex:1,overflowY:'auto',padding:'8px 12px',display:'flex',flexDirection:'column',gap:5,background:'#f8fafc',minHeight:0}}>
-              {chatHistory.map((m,i) => (
-                <div key={i} style={{
-                  maxWidth:'88%',padding:'7px 11px',borderRadius:10,fontSize:13,lineHeight:1.5,wordWrap:'break-word',
-                  ...(m.role==='user'
-                    ? {background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',alignSelf:'flex-end',borderBottomRightRadius:2,boxShadow:'0 2px 6px rgba(14,165,233,0.25)'}
-                    : {background:'#ffffff',color:'#334155',alignSelf:'flex-start',border:'1px solid #e2e8f0',borderBottomLeftRadius:2}),
-                }}>{m.text}</div>
-              ))}
-            </div>
-            <div style={{display:'flex',gap:5,padding:'8px 12px',borderTop:'1px solid #e8ecf2',flexShrink:0,background:'#ffffff'}}>
-              <textarea value={chatMsg} onChange={e => setChatMsg(e.target.value)}
-                onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()} }}
-                rows={1} placeholder={t("superPagesEditor.askAiPlaceholder")}
-                style={{flex:1,padding:'8px 11px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#0f172a',resize:'none',background:'#ffffff',outline:'none'}}/>
-              <button onClick={sendChat} disabled={chatSending}
-                style={{width:34,height:34,border:'none',borderRadius:8,background:'linear-gradient(135deg,#0ea5e9,#6366f1)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1,boxShadow:'0 2px 6px rgba(14,165,233,0.3)'}}>
-                <Send size={14}/>
-              </button>
-            </div>
+      {/* AI Chat — light theme card.
+          22 May 2026: wrapped in a cobalt-padded container so the
+          card sits clear of the panel's bottom edge, matching the
+          frosted-tile aesthetic above. Card itself stays white-themed
+          internally for AI-chat legibility. */}
+      <div style={{padding:'10px 12px 14px',flexShrink:0,background:'#1e3a8a'}}>
+        <div style={{borderRadius:12,background:'#ffffff',display:'flex',flexDirection:'column',overflow:'hidden',border:'1px solid #0a1438',boxShadow:'inset 0 1px 0 rgba(255,255,255,1), 0 3px 8px rgba(0,0,0,0.22), 0 10px 24px rgba(10,20,56,0.32)'}}>
+          <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'10px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <span style={{fontSize:13,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'#0284c7'}}>{t('superPagesEditor.aiAssistant')}</span>
+            <span style={{fontSize:12,color:'#7a8899',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
           </div>
-        )}
+          {chatOpen && (
+            <div style={{display:'flex',flexDirection:'column',maxHeight:220,overflow:'hidden'}}>
+              <div ref={chatRef} style={{flex:1,overflowY:'auto',padding:'8px 12px',display:'flex',flexDirection:'column',gap:5,background:'#f8fafc',minHeight:0,borderTop:'1px solid #e8ecf2'}}>
+                {chatHistory.map((m,i) => (
+                  <div key={i} style={{
+                    maxWidth:'88%',padding:'7px 11px',borderRadius:10,fontSize:13,lineHeight:1.5,wordWrap:'break-word',
+                    ...(m.role==='user'
+                      ? {background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',alignSelf:'flex-end',borderBottomRightRadius:2,boxShadow:'0 2px 6px rgba(14,165,233,0.25)'}
+                      : {background:'#ffffff',color:'#334155',alignSelf:'flex-start',border:'1px solid #e2e8f0',borderBottomLeftRadius:2}),
+                  }}>{m.text}</div>
+                ))}
+              </div>
+              <div style={{display:'flex',gap:5,padding:'8px 12px',borderTop:'1px solid #e8ecf2',flexShrink:0,background:'#ffffff'}}>
+                <textarea value={chatMsg} onChange={e => setChatMsg(e.target.value)}
+                  onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()} }}
+                  rows={1} placeholder={t("superPagesEditor.askAiPlaceholder")}
+                  style={{flex:1,padding:'8px 11px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#0f172a',resize:'none',background:'#ffffff',outline:'none'}}/>
+                <button onClick={sendChat} disabled={chatSending}
+                  style={{width:34,height:34,border:'none',borderRadius:8,background:'linear-gradient(135deg,#0ea5e9,#6366f1)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1,boxShadow:'0 2px 6px rgba(14,165,233,0.3)'}}>
+                  <Send size={14}/>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* All tile styling — rest, hover, active, three-layer lift shadow,

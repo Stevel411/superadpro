@@ -926,6 +926,9 @@ export default function LabsSuperPagesEditor() {
                 updateElement={updateElement}
                 updateElementStyle={updateElementStyle}
                 markDirty={markDirty}
+                pageSettings={pageSettings}
+                setPageSettings={setPageSettings}
+                onOpenFullSettings={() => setShowSettings(true)}
                 onDuplicate={() => selId && duplicateElement(selId)}
                 onDelete={() => selId && deleteElement(selId)}
                 onToggleLock={() => {
