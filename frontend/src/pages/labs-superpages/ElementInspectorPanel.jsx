@@ -178,16 +178,13 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
 
       {/* Typography */}
       <div style={sectionStyle}>
-        <label style={labelStyle}>Typography</label>
-        <select
-          value={fontFamily}
-          onChange={e => commitFontFamily(e.target.value)}
-          style={{ ...inputStyle, marginBottom: 8, fontFamily }}
-        >
-          {FONTS.map(f => (
-            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
-          ))}
-        </select>
+        <FontPicker
+          label="Font family"
+          value={fontFamily.replace(/,\s*(sans-serif|serif|monospace|cursive)\s*$/i, '').replace(/^["']|["']$/g, '')}
+          onChange={(name) => commitFontFamily(name)}
+        />
+
+        <div style={{ height: 8 }} />
 
         {/* Size slider with px readout */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -375,16 +372,12 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
 
       {/* Typography */}
       <div style={sectionStyle}>
-        <label style={labelStyle}>Typography</label>
-        <select
-          value={fontFamily}
-          onChange={e => commitFontFamily(e.target.value)}
-          style={{ ...inputStyle, marginBottom: 8, fontFamily }}
-        >
-          {FONTS.map(f => (
-            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
-          ))}
-        </select>
+        <FontPicker
+          label="Font family"
+          value={fontFamily.replace(/,\s*(sans-serif|serif|monospace|cursive)\s*$/i, '').replace(/^["']|["']$/g, '')}
+          onChange={(name) => commitFontFamily(name)}
+        />
+        <div style={{ height: 8 }} />
 
         {/* Size slider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -2626,17 +2619,11 @@ function BadgeProperties({ el, updateElement, updateElementStyle, markDirty }) {
 
       {/* Typography */}
       <div style={sectionStyle}>
-        <div style={labelStyle}>Font</div>
-        <select
-          value={fontFamily}
-          onChange={e => { setFontFamily(e.target.value); commitStyle('fontFamily', e.target.value); }}
-          style={{ ...inputStyle, cursor: 'pointer' }}>
-          {FONTS.map(f => (
-            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-              {f.label}
-            </option>
-          ))}
-        </select>
+        <FontPicker
+          label="Font"
+          value={fontFamily.replace(/,\s*(sans-serif|serif|monospace|cursive)\s*$/i, '').replace(/^["']|["']$/g, '')}
+          onChange={(name) => { setFontFamily(name); commitStyle('fontFamily', name); }}
+        />
       </div>
 
       <div style={sectionStyle}>
@@ -3331,15 +3318,11 @@ function CountdownProperties({ el, updateElement, markDirty }) {
       </div>
 
       <div style={sectionStyle}>
-        <div style={labelStyle}>Font family</div>
-        <select
-          value={fontFamily}
-          onChange={e => { setFontFamily(e.target.value); commitField({ _cdFontFamily: e.target.value }); }}
-          style={{ ...inputStyle, cursor: 'pointer' }}>
-          {FONT_OPTIONS.map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+        <FontPicker
+          label="Font family"
+          value={fontFamily.replace(/,\s*(sans-serif|serif|monospace|cursive)\s*$/i, '').replace(/^["']|["']$/g, '')}
+          onChange={(name) => { setFontFamily(name); commitField({ _cdFontFamily: name }); }}
+        />
       </div>
 
       <div style={sectionStyleLast}>
@@ -3725,16 +3708,12 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
 
       {/* Typography */}
       <div style={sectionStyle}>
-        <label style={labelStyle}>Typography</label>
-        <select
-          value={fontFamily}
-          onChange={e => commitFontFamily(e.target.value)}
-          style={{ ...inputStyle, marginBottom: 8, fontFamily }}
-        >
-          {FONTS.map(f => (
-            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
-          ))}
-        </select>
+        <FontPicker
+          label="Font family"
+          value={fontFamily.replace(/,\s*(sans-serif|serif|monospace|cursive)\s*$/i, '').replace(/^["']|["']$/g, '')}
+          onChange={(name) => commitFontFamily(name)}
+        />
+        <div style={{ height: 8 }} />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <span style={{
@@ -5158,7 +5137,7 @@ function UnsupportedTypeNote({ type }) {
 //
 // Header is constant across all states: shows element type + the
 // quick actions (duplicate / lock / delete).
-export default function ElementInspectorPanel({ el, updateElement, updateElementStyle, markDirty, pageSettings, setPageSettings, pageStatus, setPageStatus, onDuplicate, onDelete, onToggleLock }) {
+export default function ElementInspectorPanel({ el, updateElement, updateElementStyle, markDirty, pageSettings, setPageSettings, pageStatus, setPageStatus, onPageHeadingFontChange, onPageBodyFontChange, onDuplicate, onDelete, onToggleLock }) {
   // No-selection state — show the full set of page-level settings.
   // Steve's call 22 May 2026: 'we have added those same setting
   // features in the new left side panel' → so consolidate the
@@ -5350,13 +5329,24 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           <FontPicker
             label="Heading font"
             value={(ps.typography && ps.typography.heading) || ''}
-            onChange={(name) => update({ typography: { ...(ps.typography || {}), heading: name } })}
+            onChange={(name) => {
+              update({ typography: { ...(ps.typography || {}), heading: name } });
+              // Notify parent so it can clear hardcoded fontFamily on
+              // existing heading elements that were still on the
+              // previous default (or previous typography choice).
+              // Without this the picker silently does nothing on
+              // existing headings.
+              if (onPageHeadingFontChange) onPageHeadingFontChange(name);
+            }}
           />
           <div style={{ height: 10 }} />
           <FontPicker
             label="Body font"
             value={(ps.typography && ps.typography.body) || ''}
-            onChange={(name) => update({ typography: { ...(ps.typography || {}), body: name } })}
+            onChange={(name) => {
+              update({ typography: { ...(ps.typography || {}), body: name } });
+              if (onPageBodyFontChange) onPageBodyFontChange(name);
+            }}
           />
 
           {/* Base size slider */}

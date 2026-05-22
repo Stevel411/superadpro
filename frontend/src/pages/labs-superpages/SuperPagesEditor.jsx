@@ -222,6 +222,32 @@ export default function LabsSuperPagesEditor() {
     root.style.setProperty('--page-heading-scale', headingScale);
   }, [pageSettings.typography]);
 
+  // ── Load per-element custom fonts (22 May 2026) ──
+  // The page-level typography useEffect above loads heading + body
+  // fonts. But per-element font picks (a heading explicitly set to
+  // "Playfair Display", a text block set to "Lora") also need to
+  // request their Google Fonts stylesheets. The FontPicker loads
+  // a font when the member selects it, but on page LOAD the picker
+  // hasn't rendered yet — fonts saved into el.s.fontFamily haven't
+  // been requested. So we walk els on change and load anything that
+  // looks like a Google Font name (anything that isn't a system
+  // stack like "sans-serif" or "Arial,sans-serif").
+  useEffect(() => {
+    if (!els || !els.length) return;
+    const SYSTEM_FALLBACKS = new Set(['sans-serif', 'serif', 'monospace', 'cursive', 'system-ui', 'inherit', 'initial', 'unset']);
+    els.forEach(el => {
+      const ff = el.s && el.s.fontFamily;
+      if (!ff) return;
+      // Strip the fallback suffix and quotes — e.g. "Playfair Display",serif → Playfair Display
+      const cleaned = ff.replace(/,\s*(sans-serif|serif|monospace|cursive)\s*$/i, '').replace(/^["']|["']$/g, '').trim();
+      if (!cleaned || SYSTEM_FALLBACKS.has(cleaned.toLowerCase())) return;
+      // Common pre-loaded fonts in the funnel-render template need
+      // not be re-requested; loadGoogleFont is idempotent so it's
+      // cheap to call anyway.
+      loadGoogleFont(cleaned);
+    });
+  }, [els]);
+
   // ── Load page data ──
   useEffect(() => {
     if (!effectiveId) { setLoading(false); return; }
@@ -992,6 +1018,44 @@ export default function LabsSuperPagesEditor() {
                 setPageSettings={setPageSettings}
                 pageStatus={pageStatus}
                 setPageStatus={setPageStatus}
+                onPageHeadingFontChange={(newName) => {
+                  // 22 May 2026 — bug fix: when the member picks a new
+                  // heading font via the page-level Typography picker,
+                  // existing on-canvas headings that still carry the OLD
+                  // default fontFamily ("Sora,sans-serif" or whichever
+                  // previous typography choice was active) get cleared
+                  // so the new page-level CSS variable takes effect.
+                  // Without this, the picker silently does nothing on
+                  // existing headings.
+                  const prevHeading = (pageSettings.typography && pageSettings.typography.heading) || '';
+                  const oldStack = prevHeading ? `${prevHeading},sans-serif` : 'Sora,sans-serif';
+                  const oldStackAlt = prevHeading ? `"${prevHeading}",sans-serif` : '"Sora",sans-serif';
+                  setEls(currentEls => currentEls.map(e => {
+                    if (e.type !== 'heading') return e;
+                    if (!e.s || !e.s.fontFamily) return e;
+                    if (e.s.fontFamily === oldStack || e.s.fontFamily === oldStackAlt || e.s.fontFamily === 'Sora,sans-serif') {
+                      const { fontFamily, ...rest } = e.s;
+                      return { ...e, s: rest };
+                    }
+                    return e;
+                  }));
+                }}
+                onPageBodyFontChange={(newName) => {
+                  // Same logic for body fonts on Text elements. Old default
+                  // was "Outfit,sans-serif".
+                  const prevBody = (pageSettings.typography && pageSettings.typography.body) || '';
+                  const oldStack = prevBody ? `${prevBody},sans-serif` : 'Outfit,sans-serif';
+                  const oldStackAlt = prevBody ? `"${prevBody}",sans-serif` : '"Outfit",sans-serif';
+                  setEls(currentEls => currentEls.map(e => {
+                    if (e.type !== 'text') return e;
+                    if (!e.s || !e.s.fontFamily) return e;
+                    if (e.s.fontFamily === oldStack || e.s.fontFamily === oldStackAlt || e.s.fontFamily === 'Outfit,sans-serif') {
+                      const { fontFamily, ...rest } = e.s;
+                      return { ...e, s: rest };
+                    }
+                    return e;
+                  }));
+                }}
                 onDuplicate={() => selId && duplicateElement(selId)}
                 onDelete={() => selId && deleteElement(selId)}
                 onToggleLock={() => {
