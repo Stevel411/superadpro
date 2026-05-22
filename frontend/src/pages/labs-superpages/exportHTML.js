@@ -16,8 +16,10 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
-export default function exportHTML(els, canvasBg, canvasBgImage, typography) {
+export default function exportHTML(els, canvasBg, canvasBgImage, typography, scripts) {
   // typography: { heading, body, baseSize, headingScale } from pageSettings.
+  // scripts: { ga4, metaPixel, gtm, tiktokPixel, clarity, customHead,
+  //            customBody, advancedEnabled } from pageSettings.
   // Built 22 May 2026. Drives:
   //   1. A <style> block at the top that emits CSS variables + a Google
   //      Fonts @import for the chosen heading + body fonts. Existing
@@ -26,7 +28,12 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography) {
   //   2. Heading elements without explicit fontFamily inherit the
   //      heading font via the var.
   //   3. Body text inherits via the sp-page wrapper's font-family.
+  //   4. Analytics & tracking snippets (GA4 / Meta / GTM / TikTok /
+  //      Clarity) injected near the top of the document so they fire
+  //      early. Advanced raw scripts (head + body) appended at the
+  //      configured positions when advancedEnabled.
   const typo = typography || {};
+  const sc = scripts || {};
   let fontImports = '';
   let fontVars = '';
   if (typo.heading || typo.body) {
@@ -45,6 +52,41 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography) {
     .sp-page { --page-font-heading: ${headingStack}; --page-font-body: ${bodyStack}; --page-heading-scale: ${headingScale}; --page-font-base-size: ${typo.baseSize || 16}px; font-family: var(--page-font-body); font-size: var(--page-font-base-size); }
     .sp-page [data-el-type="heading"]:not([data-has-font="1"]) { font-family: var(--page-font-heading); font-size: calc(var(--page-h-base, 36px) * var(--page-heading-scale)); }
   </style>`;
+
+  // ─── Analytics & tracking snippets ───
+  // Each provider's official install snippet, generated from the
+  // member-supplied ID. These go in <head> so they fire before page
+  // render — critical for accurate pageview tracking.
+  let trackingHead = '';
+  const ga4Id = (sc.ga4 || '').trim();
+  if (ga4Id) {
+    trackingHead += `\n<script async src="https://www.googletagmanager.com/gtag/js?id=${ga4Id}"></script>\n<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${ga4Id}');</script>`;
+  }
+  const metaPixelId = (sc.metaPixel || '').trim();
+  if (metaPixelId) {
+    trackingHead += `\n<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${metaPixelId}');fbq('track','PageView');</script>\n<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1"/></noscript>`;
+  }
+  const gtmId = (sc.gtm || '').trim();
+  let gtmBodyNoscript = '';
+  if (gtmId) {
+    trackingHead += `\n<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');</script>`;
+    gtmBodyNoscript = `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>`;
+  }
+  const tiktokId = (sc.tiktokPixel || '').trim();
+  if (tiktokId) {
+    trackingHead += `\n<script>!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src=i+"?sdkid="+e+"&lib=ttq";e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};ttq.load('${tiktokId}');ttq.page();}(window,document,'ttq');</script>`;
+  }
+  const clarityId = (sc.clarity || '').trim();
+  if (clarityId) {
+    trackingHead += `\n<script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${clarityId}");</script>`;
+  }
+  // Advanced raw custom scripts (only when explicitly enabled by member)
+  let customHead = '';
+  let customBody = '';
+  if (sc.advancedEnabled) {
+    if (sc.customHead) customHead = '\n' + sc.customHead;
+    if (sc.customBody) customBody = '\n' + sc.customBody;
+  }
 
   let bgStyle = `background:${canvasBg};`;
   if (canvasBgImage) bgStyle += `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;`;
@@ -72,7 +114,12 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography) {
   });
   const maxY = els.length > 0 ? Math.max(...els.map(e => e.y + e.h)) + 80 : 900;
 
-  let h = fontImports + fontVars + `<div style="${bgStyle}position:relative;min-height:100vh;width:100%;overflow-x:hidden;font-family:'Outfit',sans-serif">`;
+  let h = fontImports + fontVars + trackingHead + customHead + `<div style="${bgStyle}position:relative;min-height:100vh;width:100%;overflow-x:hidden;font-family:'Outfit',sans-serif">`;
+  // GTM noscript fallback recommended placement is right after <body>.
+  // Our export doesn't emit a body tag (template wraps it), so we put
+  // it as the first child of the page wrapper. That's the closest we
+  // can get to GTM's "immediately after body" rule.
+  if (gtmBodyNoscript) h += gtmBodyNoscript;
   h += `<div class="sp-page" style="position:relative;width:1100px;max-width:100%;margin:0 auto;min-height:${Math.max(900, maxY)}px">`;
 
   sorted.forEach(el => {
@@ -648,6 +695,11 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography) {
   .sp-el{transform-origin:top left;scale:calc(100vw / 1100)}
 }
 </style>`;
+
+  // Custom body script — runs at the end of the page, after all
+  // elements + responsive CSS are emitted. Industry-standard
+  // position for chat widgets, lazy-loaded scripts, etc.
+  if (customBody) h += customBody;
 
   return h;
 }

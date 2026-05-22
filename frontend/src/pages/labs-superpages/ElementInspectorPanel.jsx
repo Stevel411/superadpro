@@ -35,6 +35,7 @@
 import { useEffect, useState } from 'react';
 import { FONTS } from './elementDefaults';
 import FontPicker from './FontPicker';
+import ScriptsPanel from './ScriptsPanel';
 
 // ── Shared styles for the panel ────────────────────────────────
 const labelStyle = {
@@ -5418,18 +5419,26 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           </div>
         </div>
 
-        {/* Coming-soon advanced features — Custom domain, Custom scripts.
-            Typography moved out of this group (now real, above). These
-            two will become real working sections in a follow-up pass. */}
+        {/* Analytics & tracking scripts — page-level pixel/analytics
+            management. Page owners paste their provider ID once and
+            the published page injects the right snippet in <head>.
+            Built 22 May 2026.
+            Storage: pageSettings.scripts = { ga4, metaPixel, gtm,
+            tiktokPixel, clarity, customHead, customBody,
+            advancedEnabled }. Backend reads this from the same
+            gjs_css JSON blob the rest of pageSettings lives in. */}
+        <div style={sectionLabelStyle}>Analytics & tracking</div>
+        <ScriptsPanel
+          scripts={ps.scripts || {}}
+          onChange={(next) => update({ scripts: next })}
+        />
+
+        {/* Coming-soon advanced features — Custom domain only (Custom
+            scripts moved out of this group above). */}
         <div style={sectionLabelStyle}>Advanced</div>
         <div style={comingSoonBtnStyle} title="Coming soon">
           <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>↗</span>
           <span>Custom domain</span>
-          {comingSoonNote}
-        </div>
-        <div style={comingSoonBtnStyle} title="Coming soon">
-          <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>{'</>'}</span>
-          <span>Custom scripts</span>
           {comingSoonNote}
         </div>
 

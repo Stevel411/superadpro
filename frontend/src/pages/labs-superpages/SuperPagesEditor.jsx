@@ -241,6 +241,11 @@ export default function LabsSuperPagesEditor() {
         metaDescription: sb.metaDescription || '',
         ogImage: sb.ogImage || '',
         slug: '',
+        // 22 May 2026: load typography + scripts from sandbox state.
+        // saveSandboxPage writes these via the same shape (see save
+        // flow further down).
+        typography: sb.typography || undefined,
+        scripts: sb.scripts || undefined,
       });
       setPageStatus('draft'); // sandboxes are always draft
       setEls(sb.els || []);
@@ -288,6 +293,16 @@ export default function LabsSuperPagesEditor() {
             setEls(parsed.els);
             if (parsed.canvasBg) setCanvasBg(parsed.canvasBg);
             if (parsed.canvasBgImage) setCanvasBgImage(parsed.canvasBgImage);
+            // 22 May 2026: restore pageSettings if persisted. Merge
+            // with whatever the DB-row fields gave us (title/meta/og)
+            // so the existing per-column data still wins for things
+            // not nested in pageSettings (e.g. slug, which lives on
+            // the row directly). The merge order means columns are
+            // the source of truth for row-level fields; pageSettings
+            // adds typography, scripts, and customSlug edits.
+            if (parsed.pageSettings && typeof parsed.pageSettings === 'object') {
+              setPageSettings(prev => ({ ...prev, ...parsed.pageSettings }));
+            }
           }
         }
       } catch (e) { console.error('Failed to parse canvas data:', e); }
@@ -353,6 +368,10 @@ export default function LabsSuperPagesEditor() {
           name: pageSettings.title || 'Untitled sandbox',
           metaDescription: pageSettings.metaDescription || '',
           ogImage: pageSettings.ogImage || '',
+          // 22 May 2026: persist typography + scripts in sandbox state
+          // so the choices survive sandbox reloads.
+          typography: pageSettings.typography,
+          scripts: pageSettings.scripts,
           els,
           canvasBg,
           canvasBgImage,
@@ -367,7 +386,7 @@ export default function LabsSuperPagesEditor() {
       }
 
       // DB-backed save (legacy /edit/{pageId} route)
-      const html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography);
+      const html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography, pageSettings.scripts);
       const payload = {
         id: parseInt(pageId),
         title: pageSettings.title || 'Untitled',
@@ -376,7 +395,13 @@ export default function LabsSuperPagesEditor() {
         image_url: pageSettings.ogImage || '',
         custom_slug: pageSettings.customSlug || '',
         gjs_html: html,
-        gjs_css: JSON.stringify({ els, canvasBg, canvasBgImage }),
+        // 22 May 2026: include pageSettings (typography, scripts,
+        // etc.) inside the gjs_css JSON blob so member-level page
+        // settings persist across reloads. Was previously dropping
+        // typography on every save — latent bug, fixed here.
+        // Backend treats gjs_css as an opaque blob, so no schema
+        // change needed.
+        gjs_css: JSON.stringify({ els, canvasBg, canvasBgImage, pageSettings }),
         status: pageStatus,
         updated_at: updatedAtRef.current,
       };
@@ -433,7 +458,7 @@ export default function LabsSuperPagesEditor() {
         canvasBg,
         canvasBgImage,
       });
-      payload.gjs_html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography);
+      payload.gjs_html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography, pageSettings.scripts);
       // Force-publish on first export so the live URL works immediately.
       payload.status = 'published';
       const res = await apiPost('/api/funnels/save', payload);
@@ -657,7 +682,7 @@ export default function LabsSuperPagesEditor() {
     }
     setSaving(true);
     try {
-      const html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography);
+      const html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography, pageSettings.scripts);
       const payload = {
         id: parseInt(pageId),
         title: pageSettings.title || 'Untitled',
@@ -913,7 +938,7 @@ export default function LabsSuperPagesEditor() {
                 const previewH = deviceView !== 'desktop' ? stackHeight : Math.max(900, maxY);
                 return (
                   <iframe
-                    srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Manrope','DM Sans',sans-serif;background:${canvasBg || '#ffffff'};${canvasBgImage ? `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;` : ''}min-height:100vh}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography)}</body></html>`}
+                    srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Manrope','DM Sans',sans-serif;background:${canvasBg || '#ffffff'};${canvasBgImage ? `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;` : ''}min-height:100vh}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography, pageSettings.scripts)}</body></html>`}
                     style={{width:'100%',height:previewH+'px',border:'none',background:canvasBg||'#ffffff',display:'block'}}
                     title={t('superPagesEditor.preview')}
                   />
