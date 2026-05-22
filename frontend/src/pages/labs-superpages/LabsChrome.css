@@ -287,6 +287,11 @@
   --sap-text-muted: rgba(255,255,255,0.7);
   --sap-text-faint: rgba(255,255,255,0.5);
   --sap-text-primary: #ffffff;
+  /* 22 May 2026: --sap-text-secondary was missing from the cobalt scope.
+     Several panels (Embed Tips, Behaviour notes, "On the published page..."
+     hint blocks) used var(--sap-text-secondary, #475569). On cobalt that
+     unresolved variable shows as dark slate — unreadable. Now scoped. */
+  --sap-text-secondary: rgba(255,255,255,0.75);
   --sap-border: rgba(255,255,255,0.15);
   --sap-border-faint: rgba(255,255,255,0.08);
   --sap-bg-elevated: #ffffff;
@@ -332,6 +337,7 @@
   --sap-text-muted: #64748b;
   --sap-text-faint: #94a3b8;
   --sap-text-primary: #0f172a;
+  --sap-text-secondary: #475569;
   --sap-border: #e2e8f0;
   --sap-border-faint: #f1f5f9;
   color: #0f172a;

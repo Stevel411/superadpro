@@ -300,11 +300,13 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // get the same fully-opaque rendering they had before.
       const iconOpacity = el._iconOpacity !== undefined ? el._iconOpacity : 1.0;
       const opacityCss = iconOpacity < 1 ? `;opacity:${iconOpacity}` : '';
+      // _iconSize (22 May 2026 follow-up) — was hardcoded 22px.
+      const iconSize = el._iconSize || 22;
       h += `<div ${elAttrs} style="${st};display:flex;gap:14px;justify-content:center;align-items:center">${Object.entries(SOCIAL_SVGS).map(([k, d]) => {
         const url = links[k] || '#';
         const tag = url && url !== '#' && url !== '' ? 'a' : 'span';
         const href = tag === 'a' ? ` href="${url}" target="_blank"` : '';
-        return `<${tag}${href} style="display:inline-flex${opacityCss}"><svg viewBox="0 0 24 24" width="22" height="22" fill="${iconFill}"><path d="${d}"/></svg></${tag}>`;
+        return `<${tag}${href} style="display:inline-flex${opacityCss}"><svg viewBox="0 0 24 24" width="${iconSize}" height="${iconSize}" fill="${iconFill}"><path d="${d}"/></svg></${tag}>`;
       }).join('')}</div>`;
     } else if (el.type === 'form') {
       // Build the form body in two passes to support both the new

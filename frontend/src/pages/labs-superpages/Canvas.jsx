@@ -904,9 +904,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // page finally agree. Members who want the old faded look can
       // dial opacity down via the inspector.
       const iconOpacity = el._iconOpacity !== undefined ? el._iconOpacity : 1.0;
+      // _iconSize (22 May 2026 follow-up) — was hardcoded 22px. SVGs
+      // didn't scale with the element wrapper, so members resizing
+      // the box still got tiny icons. Now slider-controlled.
+      const iconSize = el._iconSize || 22;
       return <div style={{ display: 'flex', gap: 14, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
         {Object.keys(SOCIAL_SVGS).map(k => (
-          <svg key={k} viewBox="0 0 24 24" width={22} height={22} fill={iconFill} style={{ opacity: iconOpacity }}><path d={SOCIAL_SVGS[k]} /></svg>
+          <svg key={k} viewBox="0 0 24 24" width={iconSize} height={iconSize} fill={iconFill} style={{ opacity: iconOpacity }}><path d={SOCIAL_SVGS[k]} /></svg>
         ))}
       </div>;
     }
@@ -1008,12 +1012,19 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         : cardStyle === 'minimal'
           ? { background: 'transparent', border: 'none' }
           : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' };
-      return <div style={{ width: '100%', height: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: 12, ...cardBg }}>
+      // 22 May 2026 follow-up — wrapper background neutralised to
+      // 'transparent' so the FAQ's natural content sits at the top
+      // and any excess wrapper height shows the page bg, not an
+      // unintended white fill. (The Light card style was previously
+      // painting white across the whole wrapper because the q-row
+      // background was inheriting up.) Content uses 'flex-start' to
+      // ensure no centering with leftover whitespace below.
+      return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', background: 'transparent' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: 12, flexShrink: 0, ...cardBg }}>
           <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: qCol }}>{q}</span>
           <span style={{ color: '#64748b', fontSize: 22, lineHeight: 1 }}>+</span>
         </div>
-        <div style={{ padding: '12px 18px', fontSize: 14, color: aCol, lineHeight: 1.7, marginTop: 4 }}>{a}</div>
+        <div style={{ padding: '12px 18px', fontSize: 14, color: aCol, lineHeight: 1.7, marginTop: 4, flexShrink: 0 }}>{a}</div>
       </div>;
     }
     if ((el.type === 'review' || el.type === 'testimonial') && (el._rating !== undefined || el._quote !== undefined || el._author !== undefined)) {
@@ -1435,10 +1446,10 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       })()}
 
       <style>{`
-        .cel:hover { outline: 1px dashed rgba(14,165,233,0.35); outline-offset: 1px; }
-        .cel.selected { outline: 2px solid #0ea5e9; outline-offset: 1px; }
-        .cel.multi-selected { outline: 2px dashed #a855f7; outline-offset: 1px; }
-        .cel.editing { outline: 2px solid #6366f1; outline-offset: 1px; cursor: text !important; }
+        .cel:hover { outline: 1px dashed rgba(14,165,233,0.35); outline-offset: 3px; }
+        .cel.selected { outline: 2px solid #0ea5e9; outline-offset: 4px; }
+        .cel.multi-selected { outline: 2px dashed #a855f7; outline-offset: 4px; }
+        .cel.editing { outline: 2px solid #6366f1; outline-offset: 4px; cursor: text !important; }
         .cel.editing * { cursor: text !important; user-select: auto !important; }
         .cel > *:not(.cel-bar):not(.cel-resize) { pointer-events: none; }
         .cel.editing > * { pointer-events: auto !important; }

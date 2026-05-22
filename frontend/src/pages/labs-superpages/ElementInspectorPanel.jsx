@@ -2004,9 +2004,9 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
                   fontSize: 12,
                   fontFamily: "'Sora', sans-serif",
                   fontWeight: 600,
-                  border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
-                  background: active ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))' : '#fff',
-                  color: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-text-primary, #0f172a)',
+                  border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
+                  background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
+                  color: active ? '#22d3ee' : '#e2e8f0',
                   borderRadius: 5,
                   cursor: 'pointer',
                   textTransform: 'capitalize',
@@ -2256,16 +2256,48 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
             return (
               <button
                 key={opt.k}
-                onClick={() => { setCardStyle(opt.k); commit({ _faqCardStyle: opt.k }); }}
+                onClick={() => {
+                  // Smart-default switch (22 May 2026 follow-up): if Q/A colours
+                  // are still on the OLD style's default, also update them to
+                  // the NEW style's contrast-safe default. If member has
+                  // customised them, respect their choice and only change card.
+                  // Defaults per style:
+                  //   dark    → Q #fff,     A #94a3b8 (light text for cobalt card)
+                  //   light   → Q #0f172a,  A #475569 (dark text for white card)
+                  //   minimal → keep whatever was there (no card, contrast comes from page bg)
+                  const DEFAULTS = {
+                    dark:    { q: '#fff',    a: '#94a3b8' },
+                    light:   { q: '#0f172a', a: '#475569' },
+                    minimal: null,
+                  };
+                  const oldDef = DEFAULTS[cardStyle];
+                  const newDef = DEFAULTS[opt.k];
+                  const patch = { _faqCardStyle: opt.k };
+                  if (newDef) {
+                    // Compare case-insensitively + handle short hex (#fff vs #ffffff)
+                    const norm = (c) => String(c || '').toLowerCase()
+                      .replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/, '#$1$1$2$2$3$3');
+                    if (!oldDef || norm(qColor) === norm(oldDef.q)) {
+                      setQColor(newDef.q);
+                      patch._faqQColor = newDef.q;
+                    }
+                    if (!oldDef || norm(aColor) === norm(oldDef.a)) {
+                      setAColor(newDef.a);
+                      patch._faqAColor = newDef.a;
+                    }
+                  }
+                  setCardStyle(opt.k);
+                  commit(patch);
+                }}
                 style={{
                   flex: 1,
                   padding: '6px 10px',
                   fontSize: 12,
                   fontFamily: "'Sora', sans-serif",
                   fontWeight: 600,
-                  border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
-                  background: active ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))' : '#fff',
-                  color: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-text-primary, #0f172a)',
+                  border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
+                  background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
+                  color: active ? '#22d3ee' : '#e2e8f0',
                   borderRadius: 5,
                   cursor: 'pointer',
                 }}>
@@ -2276,6 +2308,7 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
         </div>
         <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
           Dark for cobalt pages, Light for white pages, Minimal for no card at all.
+          Switching the style auto-updates colours unless you've customised them.
         </div>
       </div>
 
@@ -2972,9 +3005,9 @@ function DividerProperties({ el, updateElement, updateElementStyle, markDirty })
     fontSize: 12,
     fontFamily: "'Sora', sans-serif",
     fontWeight: 600,
-    border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
-    background: active ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))' : '#fff',
-    color: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-text-primary, #0f172a)',
+    border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
+    background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
+    color: active ? '#22d3ee' : '#e2e8f0',
     borderRadius: 5,
     cursor: 'pointer',
   });
@@ -3201,9 +3234,9 @@ function CountdownProperties({ el, updateElement, markDirty }) {
                   fontSize: 12,
                   fontFamily: "'Sora', sans-serif",
                   fontWeight: 600,
-                  border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
-                  background: active ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))' : '#fff',
-                  color: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-text-primary, #0f172a)',
+                  border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
+                  background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
+                  color: active ? '#22d3ee' : '#e2e8f0',
                   borderRadius: 5,
                   cursor: 'pointer',
                 }}>
@@ -3358,11 +3391,15 @@ function SocialsProperties({ el, updateElement, updateElementStyle, markDirty })
   const [iconColor, setIconColor] = useState(el._iconColor || '#94a3b8');
   // _iconOpacity (22 May 2026) — was hardcoded 0.7 in canvas only.
   const [iconOpacity, setIconOpacity] = useState(el._iconOpacity !== undefined ? el._iconOpacity : 1.0);
+  // _iconSize (22 May 2026 follow-up) — was hardcoded 22px so resizing
+  // the element box did nothing visible. Now a slider.
+  const [iconSize, setIconSize] = useState(el._iconSize || 22);
 
   useEffect(() => {
     setLinks(normalise(el._links));
     setIconColor(el._iconColor || '#94a3b8');
     setIconOpacity(el._iconOpacity !== undefined ? el._iconOpacity : 1.0);
+    setIconSize(el._iconSize || 22);
   }, [el.id]);
 
   const commitLink = (key, value) => {
@@ -3381,6 +3418,12 @@ function SocialsProperties({ el, updateElement, updateElementStyle, markDirty })
   const commitOpacity = (v) => {
     setIconOpacity(v);
     updateElement(el.id, { _iconOpacity: v });
+    markDirty();
+  };
+
+  const commitSize = (v) => {
+    setIconSize(v);
+    updateElement(el.id, { _iconSize: v });
     markDirty();
   };
 
@@ -3438,6 +3481,19 @@ function SocialsProperties({ el, updateElement, updateElementStyle, markDirty })
         }}>
           Light pages: try #475569 or your brand colour
         </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Icon size</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{iconSize}px</span>
+        </div>
+        <input
+          type="range" min={16} max={48} step={1}
+          value={iconSize}
+          onChange={e => commitSize(parseInt(e.target.value, 10))}
+          style={{ width: '100%' }}
+        />
       </div>
 
       <div style={sectionStyleLast}>
