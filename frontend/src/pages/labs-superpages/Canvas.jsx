@@ -515,6 +515,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     // Read origs from the effective box for the current device.
     const b = effectiveBox(el, deviceView);
     resizeRef.current = { id, handle, startX: e.clientX, startY: e.clientY, origX: b.x, origY: b.y, origW: b.w, origH: b.h };
+    // Divider exception (22 May 2026): match the wrapper minHeight
+    // override so the resize handle can actually deliver a 1px line.
+    const minH = el.type === 'divider' ? 1 : 20;
 
     const onMove = (ev) => {
       const r = resizeRef.current;
@@ -533,9 +536,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // Left edge — moves x and shrinks width
       if (handle.includes('l')) { newW = Math.max(40, r.origW - dx); newX = r.origX + (r.origW - newW); }
       // Bottom edge
-      if (handle.includes('b')) newH = Math.max(20, r.origH + dy);
+      if (handle.includes('b')) newH = Math.max(minH, r.origH + dy);
       // Top edge — moves y and shrinks height
-      if (handle.includes('t')) { newH = Math.max(20, r.origH - dy); newY = r.origY + (r.origH - newH); }
+      if (handle.includes('t')) { newH = Math.max(minH, r.origH - dy); newY = r.origY + (r.origH - newH); }
 
       // Direct DOM update for smooth resize
       const dom = document.getElementById(r.id);
@@ -833,9 +836,12 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       const lineStyle = el._dividerStyle || 'solid';
       const lineColor = el.s?.background || '#334155';
       if (lineStyle === 'dashed' || lineStyle === 'dotted') {
+        // Use el.h directly — was Math.max(2, el.h), which prevented
+        // 1px dashed/dotted lines just like the solid bar bug. Slider
+        // min=1 in the inspector so we're not at risk of 0px.
         return <div style={{
           width: '100%', height: '100%',
-          borderTop: `${Math.max(2, el.h)}px ${lineStyle} ${lineColor}`,
+          borderTop: `${el.h || 1}px ${lineStyle} ${lineColor}`,
         }} />;
       }
       // solid — render as a filled bar via the wrapper (returns null
@@ -847,11 +853,24 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       return <div className="cel-editable" style={{ ...Object.fromEntries(textStyles.filter(k => el.s?.[k]).map(k => [k, el.s[k]])), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} dangerouslySetInnerHTML={{__html: el.txt || 'Button'}} />;
     }
     if (el.type === 'countdown') {
+      // 22 May 2026 — countdown gets a full set of styling controls.
+      // Old hardcoded values assumed dark page: digits #fff on a light
+      // translucent card, labels #64748b — on white pages both were
+      // effectively invisible. Defaults preserved for pre-change pages.
+      const digCol = el._cdDigitColor || '#fff';
+      const digSize = el._cdDigitSize || 28;
+      const lblCol = el._cdLabelColor || '#64748b';
+      const lblSize = el._cdLabelSize || 13;
+      const cdStyle = el._cdCardStyle || 'card'; // 'card' | 'minimal'
+      const fontFam = el._cdFontFamily || 'Sora,sans-serif';
+      const cardCss = cdStyle === 'minimal'
+        ? { background: 'transparent', border: 'none', padding: '0 4px' }
+        : { background: 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '8px 14px', border: '1px solid rgba(255,255,255,0.08)' };
       return <div style={{ display: 'flex', gap: 12, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
         {['Days', 'Hrs', 'Min', 'Sec'].map(l => (
           <div key={l} style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', background: 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '8px 14px', minWidth: 50, border: '1px solid rgba(255,255,255,0.08)' }}>00</div>
-            <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 4, textTransform: 'uppercase', letterSpacing: '.5px' }}>{l}</div>
+            <div style={{ fontFamily: fontFam, fontSize: digSize, fontWeight: 900, color: digCol, minWidth: 50, ...cardCss }}>00</div>
+            <div style={{ fontSize: lblSize, color: lblCol, marginTop: 4, textTransform: 'uppercase', letterSpacing: '.5px' }}>{l}</div>
           </div>
         ))}
       </div>;
@@ -861,9 +880,12 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // _trackColor added Phase 2D — was hardcoded; now customisable
       // for light-theme pages. Pre-2D default preserved.
       const trackClr = el._trackColor || 'rgba(255,255,255,0.08)';
+      // _labelColor (22 May 2026) — old hardcoded var(--sap-border) was
+      // a light-on-dark default. Members on white pages couldn't read it.
+      const lblCol = el._labelColor || 'var(--sap-border)';
       return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-border)' }}>{lbl}</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: lblCol }}>{lbl}</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: clr }}>{pct}%</span>
         </div>
         <div style={{ width: '100%', height: 10, background: trackClr, borderRadius: 5, overflow: 'hidden' }}>
@@ -875,9 +897,16 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // _iconColor (Phase 2E, 20 May 2026) — was hardcoded so members
       // couldn't change it. Default preserves old look for pre-2E pages.
       const iconFill = el._iconColor || 'var(--sap-text-faint)';
+      // _iconOpacity (22 May 2026) — was hardcoded 0.7 inline which made
+      // every social row look washed-out, particularly against white
+      // member pages. Now defaults to 1.0 to MATCH the published-page
+      // behaviour (export never applied opacity), so editor and live
+      // page finally agree. Members who want the old faded look can
+      // dial opacity down via the inspector.
+      const iconOpacity = el._iconOpacity !== undefined ? el._iconOpacity : 1.0;
       return <div style={{ display: 'flex', gap: 14, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
         {Object.keys(SOCIAL_SVGS).map(k => (
-          <svg key={k} viewBox="0 0 24 24" width={22} height={22} fill={iconFill} style={{ opacity: 0.7 }}><path d={SOCIAL_SVGS[k]} /></svg>
+          <svg key={k} viewBox="0 0 24 24" width={22} height={22} fill={iconFill} style={{ opacity: iconOpacity }}><path d={SOCIAL_SVGS[k]} /></svg>
         ))}
       </div>;
     }
@@ -886,48 +915,77 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // 21 May 2026). Value/label/colour live on the element; we
       // render directly without HTML strings. Legacy stats with el.txt
       // content fall through to the default Tiptap/HTML render below.
+      // 22 May 2026 — added _statSize, _statLabelColor, _statLabelSize
+      // to give members control over the previously-hardcoded styles.
+      // Defaults match the original hardcoded values for back-compat.
       const sv = el._statValue ?? '';
       const sl = el._statLabel ?? '';
       const sc = el._statColor || '#0ea5e9';
+      const ss = el._statSize || 36;
+      const slc = el._statLabelColor || '#64748b';
+      const sls = el._statLabelSize || 12;
       return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 36, fontWeight: 900, color: sc, lineHeight: 1.1 }}>{sv}</div>
-        <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{sl}</div>
+        <div style={{ fontFamily: 'Sora,sans-serif', fontSize: ss, fontWeight: 900, color: sc, lineHeight: 1.1 }}>{sv}</div>
+        <div style={{ fontSize: sls, color: slc, marginTop: 4 }}>{sl}</div>
       </div>;
     }
     if (el.type === 'separator' && (el._separatorSymbol !== undefined)) {
       // Structured separator (Phase 3 inspector refactor, audit C-X-4).
+      // 22 May 2026 — _separatorSize and _separatorSymbolColor added.
+      // The 12px hardcoded symbol couldn't be enlarged; star-decorator
+      // use cases like ★ ★ ★ need to render at 24-32px to look like
+      // real decoration vs accidental punctuation.
       const sym = el._separatorSymbol ?? '';
       const lineCol = el._separatorColor || 'rgba(255,255,255,0.1)';
+      const symSize = el._separatorSize || 12;
+      const symCol = el._separatorSymbolColor || '#64748b';
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', gap: 16 }}>
         <div style={{ flex: 1, height: 1, background: lineCol }} />
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>{sym}</span>
+        <span style={{ fontSize: symSize, color: symCol, fontWeight: 600, whiteSpace: 'nowrap', lineHeight: 1 }}>{sym}</span>
         <div style={{ flex: 1, height: 1, background: lineCol }} />
       </div>;
     }
     if (el.type === 'icontext' && (el._icon !== undefined || el._iconHeading !== undefined)) {
       // Structured icontext (Phase 3 inspector refactor, audit C-X-4).
+      // 22 May 2026 — added _iconSize, _iconHeadingColor, _iconDescColor.
+      // Old defaults assumed dark page bg (#fff heading, #94a3b8 desc)
+      // which made the entire element invisible on white member pages.
+      // Members can now pick colours that work for their page bg.
       const ic = el._icon ?? '';
       const ih = el._iconHeading ?? '';
       const idd = el._iconDescription ?? '';
+      const iconSize = el._iconSize || 28;
+      const hCol = el._iconHeadingColor || '#fff';
+      const dCol = el._iconDescColor || '#94a3b8';
       return <div style={{ width: '100%', height: '100%', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-        <div style={{ fontSize: 28, flexShrink: 0, width: 40, textAlign: 'center' }}>{ic}</div>
+        <div style={{ fontSize: iconSize, flexShrink: 0, width: Math.max(40, iconSize + 12), textAlign: 'center', lineHeight: 1 }}>{ic}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 4 }}>{ih}</div>
-          <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>{idd}</div>
+          <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: hCol, marginBottom: 4 }}>{ih}</div>
+          <div style={{ fontSize: 13, color: dCol, lineHeight: 1.6 }}>{idd}</div>
         </div>
       </div>;
     }
     if (el.type === 'logostrip' && Array.isArray(el._logos)) {
       // Structured logostrip (Phase 3 inspector refactor, audit C-X-4).
+      // 22 May 2026 — _logoStyle ('mono' | 'colour') and _logoTextColor
+      // added. The default 'mono' (greyscale, 0.6 opacity) matches the
+      // pre-change look; 'colour' renders full-saturation images, which
+      // is what members want when showing partner logos prominently.
       const header = el._logoHeader || '';
+      const headerCol = el._logoHeaderColor || '#475569';
+      const textCol = el._logoTextColor || '#64748b';
+      const style = el._logoStyle || 'mono';
+      const imgFilter = style === 'colour'
+        ? { opacity: 1, filter: 'none' }
+        : { opacity: 0.6, filter: 'grayscale(1)' };
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
-        {header && <span style={{ fontSize: 11, color: '#475569', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>{header}</span>}
+        {header && <span style={{ fontSize: 11, color: headerCol, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>{header}</span>}
         {el._logos.map((l, idx) => {
           if (l && l.img && /^(https?:\/\/|\/)/i.test(String(l.img))) {
-            return <img key={idx} src={l.img} alt={l.text || 'Logo'} style={{ height: 24, maxWidth: 120, width: 'auto', objectFit: 'contain', opacity: 0.6, filter: 'grayscale(1)', pointerEvents: 'none' }} />;
+            return <img key={idx} src={l.img} alt={l.text || 'Logo'} style={{ height: 24, maxWidth: 120, width: 'auto', objectFit: 'contain', ...imgFilter, pointerEvents: 'none' }} />;
           }
           const t = (l && l.text) || '';
-          return t ? <span key={idx} style={{ fontSize: 14, color: '#64748b', fontWeight: 600, opacity: 0.6 }}>{t}</span> : null;
+          return t ? <span key={idx} style={{ fontSize: 14, color: textCol, fontWeight: 600, opacity: style === 'colour' ? 1 : 0.6 }}>{t}</span> : null;
         })}
       </div>;
     }
@@ -937,29 +995,49 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // collapse-by-default behaviour from audit C-C-3 only applies
       // to the PUBLISHED page (CSS in exported <style> block). In
       // the editor, members need to see the answer to edit it.
+      // 22 May 2026 — _faqQColor, _faqAColor, _faqCardStyle added.
+      // Pre-change defaults assumed dark page; on white pages BOTH
+      // question and answer rendered in white-ish tones (invisible).
       const q = el._faqQuestion ?? '';
       const a = el._faqAnswer ?? '';
+      const qCol = el._faqQColor || '#fff';
+      const aCol = el._faqAColor || '#94a3b8';
+      const cardStyle = el._faqCardStyle || 'dark'; // 'dark' | 'light' | 'minimal'
+      const cardBg = cardStyle === 'light'
+        ? { background: '#f8fafc', border: '1px solid #e2e8f0' }
+        : cardStyle === 'minimal'
+          ? { background: 'transparent', border: 'none' }
+          : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' };
       return <div style={{ width: '100%', height: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'rgba(255,255,255,0.04)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)' }}>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: '#fff' }}>{q}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: 12, ...cardBg }}>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: qCol }}>{q}</span>
           <span style={{ color: '#64748b', fontSize: 22, lineHeight: 1 }}>+</span>
         </div>
-        <div style={{ padding: '12px 18px', fontSize: 14, color: '#94a3b8', lineHeight: 1.7, marginTop: 4 }}>{a}</div>
+        <div style={{ padding: '12px 18px', fontSize: 14, color: aCol, lineHeight: 1.7, marginTop: 4 }}>{a}</div>
       </div>;
     }
     if ((el.type === 'review' || el.type === 'testimonial') && (el._rating !== undefined || el._quote !== undefined || el._author !== undefined)) {
       // Structured review/testimonial (Phase 3 inspector refactor,
       // audit C-X-4 + C-C-1). Stars generated from numeric rating.
+      // 22 May 2026 — _starColor, _starSize, _quoteColor, _authorColor.
+      // Default star colour stays amber #fbbf24 (universal review-star
+      // convention — Steve approved 22 May 2026), but members can pick
+      // any colour. Quote/author defaults assumed dark page; on white
+      // bg the quote was light grey #e2e8f0 (invisible).
       const r = Math.max(1, Math.min(5, parseInt(el._rating, 10) || 5));
       const stars = '★'.repeat(r) + '☆'.repeat(5 - r);
       const q = el._quote ?? '';
       const a = el._author ?? '';
+      const starCol = el._starColor || '#fbbf24';
+      const starSize = el._starSize || 16;
+      const qCol = el._quoteColor || '#e2e8f0';
+      const aCol = el._authorColor || '#64748b';
       return <div style={{ width: '100%', height: '100%' }}>
         <div style={{ marginBottom: 8 }}>
-          <span style={{ color: '#fbbf24', letterSpacing: 2 }}>{stars}</span>
+          <span style={{ color: starCol, letterSpacing: 2, fontSize: starSize, lineHeight: 1 }}>{stars}</span>
         </div>
-        {q && <div style={{ fontSize: 15, color: '#e2e8f0', lineHeight: 1.7, fontStyle: 'italic' }}>{'\u201c' + q + '\u201d'}</div>}
-        {a && <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600, marginTop: 8 }}>{'\u2014 ' + a}</div>}
+        {q && <div style={{ fontSize: 15, color: qCol, lineHeight: 1.7, fontStyle: 'italic' }}>{'\u201c' + q + '\u201d'}</div>}
+        {a && <div style={{ fontSize: 13, color: aCol, fontWeight: 600, marginTop: 8 }}>{'\u2014 ' + a}</div>}
       </div>;
     }
     if (el.type === 'audio') {
@@ -1000,9 +1078,17 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const cursor = isEditing ? 'text' : el.locked ? 'not-allowed' : 'grab';
     // Resolve per-device position via effectiveBox cascade
     const box = effectiveBox(el, deviceView);
+    // Divider exception (22 May 2026): the universal 20px minHeight
+    // floor was preventing 1px hairline dividers — slider could be
+    // set to 1 but the wrapper enforced 20px, so the solid-bar render
+    // (which fills the wrapper background) always showed as a 20px
+    // fat slab. Dividers now allow a 1px floor to actually deliver
+    // the thickness slider's promise. Every other element keeps 20px
+    // so resize handles remain practical to grab.
+    const wrapperMinH = el.type === 'divider' ? 1 : 20;
     const style = {
       position: 'absolute', left: box.x, top: box.y, width: box.w, height: box.h,
-      cursor, userSelect: isEditing ? 'auto' : 'none', minWidth: 40, minHeight: 20,
+      cursor, userSelect: isEditing ? 'auto' : 'none', minWidth: 40, minHeight: wrapperMinH,
     };
     layoutStyles.forEach(k => { if (el.s?.[k]) style[k] = el.s[k]; });
     if (box.hidden) style.opacity = 0.25;

@@ -254,16 +254,36 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // would otherwise execute whatever HTML/JS they pasted. Audit C-L-6.
       h += `<div ${elAttrs} style="${st};overflow:hidden">${sanitizeEmbed(el._embedCode)}</div>`;
     } else if (el.type === 'countdown') {
+      // 22 May 2026 — countdown styling controls (digit/label colour
+      // + size, card style, font). Defaults preserve pre-change look
+      // for unedited countdowns so already-published pages stay the same.
+      // Label-size default: pre-change export was 10px while canvas was
+      // 13px — they disagreed. We default to 10px on export to preserve
+      // existing published pages; canvas defaults to 13 to match what
+      // the editor was always showing. Members touching the inspector
+      // pick an explicit value and both sides align.
       const td = el._targetDate || '';
       const cdId = 'cd_' + el.id;
-      h += `<div ${elAttrs} style="${st}"><div id="${cdId}" data-target="${td}" style="display:flex;gap:12px;justify-content:center;align-items:center;width:100%;height:100%">${['Days', 'Hrs', 'Min', 'Sec'].map((l, i) => `<div style="text-align:center"><div class="cdv" style="font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#fff;background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px;min-width:50px;border:1px solid rgba(255,255,255,0.08)">00</div><div style="font-size:10px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${l}</div></div>`).join('')}</div></div>`;
+      const digCol = el._cdDigitColor || '#fff';
+      const digSize = el._cdDigitSize || 28;
+      const lblCol = el._cdLabelColor || '#64748b';
+      const lblSize = el._cdLabelSize !== undefined ? el._cdLabelSize : 10;
+      const cdStyle = el._cdCardStyle || 'card';
+      const fontFam = (el._cdFontFamily || 'Sora,sans-serif').replace(/"/g, '');
+      const cardCss = cdStyle === 'minimal'
+        ? 'background:transparent;border:none;padding:0 4px'
+        : 'background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px;border:1px solid rgba(255,255,255,0.08)';
+      h += `<div ${elAttrs} style="${st}"><div id="${cdId}" data-target="${td}" style="display:flex;gap:12px;justify-content:center;align-items:center;width:100%;height:100%">${['Days', 'Hrs', 'Min', 'Sec'].map((l) => `<div style="text-align:center"><div class="cdv" style="font-family:${fontFam};font-size:${digSize}px;font-weight:900;color:${digCol};min-width:50px;${cardCss}">00</div><div style="font-size:${lblSize}px;color:${lblCol};margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${l}</div></div>`).join('')}</div></div>`;
     } else if (el.type === 'progress') {
       // _trackColor (Phase 2D, 20 May 2026) — was hardcoded
       // rgba(255,255,255,0.08) which was invisible on light pages.
       // Default preserved for pre-2D progress elements.
+      // _labelColor (22 May 2026) — completes the light-theme story.
+      // Old hardcoded #e2e8f0 was a light slate, invisible on white.
       const pct = el._percent || 75, lbl = el._label || 'Progress', clr = el._color || '#0ea5e9';
       const trackClr = el._trackColor || 'rgba(255,255,255,0.08)';
-      h += `<div ${elAttrs} style="${st}"><div style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:600;color:#e2e8f0">${lbl}</span><span style="font-size:13px;font-weight:700;color:${clr}">${pct}%</span></div><div style="width:100%;height:10px;background:${trackClr};border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${clr};border-radius:5px"></div></div></div></div>`;
+      const lblCol = el._labelColor || '#e2e8f0';
+      h += `<div ${elAttrs} style="${st}"><div style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:600;color:${lblCol}">${lbl}</span><span style="font-size:13px;font-weight:700;color:${clr}">${pct}%</span></div><div style="width:100%;height:10px;background:${trackClr};border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${clr};border-radius:5px"></div></div></div></div>`;
     } else if (el.type === 'socialicons') {
       // _iconColor (Phase 2E, 20 May 2026) — was hardcoded #94a3b8
       // which was invisible against the dark default page bg only
@@ -272,11 +292,19 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // for pre-2E socialicons.
       const links = el._links || {};
       const iconFill = el._iconColor || '#94a3b8';
+      // _iconOpacity (22 May 2026) — exposed as a member control because
+      // the editor was previously baking 0.7 inline (washed-out look on
+      // white pages) while export had no opacity (crisp on published).
+      // Default here is 1.0 to PRESERVE existing published behaviour
+      // for pre-change socialicons — members who didn't set the field
+      // get the same fully-opaque rendering they had before.
+      const iconOpacity = el._iconOpacity !== undefined ? el._iconOpacity : 1.0;
+      const opacityCss = iconOpacity < 1 ? `;opacity:${iconOpacity}` : '';
       h += `<div ${elAttrs} style="${st};display:flex;gap:14px;justify-content:center;align-items:center">${Object.entries(SOCIAL_SVGS).map(([k, d]) => {
         const url = links[k] || '#';
         const tag = url && url !== '#' && url !== '' ? 'a' : 'span';
         const href = tag === 'a' ? ` href="${url}" target="_blank"` : '';
-        return `<${tag}${href} style="display:inline-flex"><svg viewBox="0 0 24 24" width="22" height="22" fill="${iconFill}"><path d="${d}"/></svg></${tag}>`;
+        return `<${tag}${href} style="display:inline-flex${opacityCss}"><svg viewBox="0 0 24 24" width="22" height="22" fill="${iconFill}"><path d="${d}"/></svg></${tag}>`;
       }).join('')}</div>`;
     } else if (el.type === 'form') {
       // Build the form body in two passes to support both the new
@@ -336,25 +364,37 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // renders the HTML from these fields. Legacy stats with content
       // in el.txt fall through to the default branch below and continue
       // to render correctly until re-edited.
+      // 22 May 2026 — _statSize, _statLabelColor, _statLabelSize added.
       const sv = esc(el._statValue);
       const sl = esc(el._statLabel);
       const sc = el._statColor || '#0ea5e9';
-      h += `<div ${elAttrs} style="${st};display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Sora,sans-serif;font-size:36px;font-weight:900;color:${sc};line-height:1.1">${sv}</div><div style="font-size:12px;color:#64748b;margin-top:4px">${sl}</div></div>`;
+      const ss = el._statSize || 36;
+      const slc = el._statLabelColor || '#64748b';
+      const sls = el._statLabelSize || 12;
+      h += `<div ${elAttrs} style="${st};display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Sora,sans-serif;font-size:${ss}px;font-weight:900;color:${sc};line-height:1.1">${sv}</div><div style="font-size:${sls}px;color:${slc};margin-top:4px">${sl}</div></div>`;
     } else if (el.type === 'separator' && (el._separatorSymbol !== undefined)) {
       // Structured separator (Phase 3 inspector refactor, audit C-X-4).
       // The centred symbol and the line colour are first-class fields
       // now; the surrounding lines are pure decoration generated here.
+      // 22 May 2026 — _separatorSize and _separatorSymbolColor exposed.
       const sym = esc(el._separatorSymbol);
       const lineCol = el._separatorColor || 'rgba(255,255,255,0.1)';
-      h += `<div ${elAttrs} style="${st};display:flex;align-items:center;gap:16px"><div style="flex:1;height:1px;background:${lineCol}"></div><span style="font-size:12px;color:#64748b;font-weight:600;white-space:nowrap">${sym}</span><div style="flex:1;height:1px;background:${lineCol}"></div></div>`;
+      const symSize = el._separatorSize || 12;
+      const symCol = el._separatorSymbolColor || '#64748b';
+      h += `<div ${elAttrs} style="${st};display:flex;align-items:center;gap:16px"><div style="flex:1;height:1px;background:${lineCol}"></div><span style="font-size:${symSize}px;color:${symCol};font-weight:600;white-space:nowrap;line-height:1">${sym}</span><div style="flex:1;height:1px;background:${lineCol}"></div></div>`;
     } else if (el.type === 'icontext' && (el._icon !== undefined || el._iconHeading !== undefined)) {
       // Structured icontext (Phase 3 inspector refactor, audit C-X-4).
       // Icon (typically an emoji), heading, and description are three
       // first-class fields; published HTML is generated from them.
+      // 22 May 2026 — _iconSize, _iconHeadingColor, _iconDescColor.
       const ic = esc(el._icon);
       const ih = esc(el._iconHeading);
       const idd = esc(el._iconDescription);
-      h += `<div ${elAttrs} style="${st};display:flex;gap:16px;align-items:flex-start"><div style="font-size:28px;flex-shrink:0;width:40px;text-align:center">${ic}</div><div style="flex:1;min-width:0"><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:4px">${ih}</div><div style="font-size:13px;color:#94a3b8;line-height:1.6">${idd}</div></div></div>`;
+      const iconSize = el._iconSize || 28;
+      const hCol = el._iconHeadingColor || '#fff';
+      const dCol = el._iconDescColor || '#94a3b8';
+      const iconBoxW = Math.max(40, iconSize + 12);
+      h += `<div ${elAttrs} style="${st};display:flex;gap:16px;align-items:flex-start"><div style="font-size:${iconSize}px;flex-shrink:0;width:${iconBoxW}px;text-align:center;line-height:1">${ic}</div><div style="flex:1;min-width:0"><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:${hCol};margin-bottom:4px">${ih}</div><div style="font-size:13px;color:${dCol};line-height:1.6">${idd}</div></div></div>`;
     } else if (el.type === 'logostrip' && Array.isArray(el._logos)) {
       // Structured logostrip (Phase 3 inspector refactor, audit C-X-4
       // and C-L-2). Header label + array of {text, img} entries.
@@ -362,9 +402,19 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // render the text. Members can mix-and-match — some logos as
       // text, some as image — to handle "still designing my partner's
       // logo" cases gracefully.
+      // 22 May 2026 — _logoStyle ('mono' | 'colour'), _logoHeaderColor,
+      // _logoTextColor. Default 'mono' keeps the pre-change greyscale
+      // + 0.6 opacity look.
       const header = esc(el._logoHeader);
+      const headerCol = el._logoHeaderColor || '#475569';
+      const textCol = el._logoTextColor || '#64748b';
+      const lstyle = el._logoStyle || 'mono';
+      const imgCss = lstyle === 'colour'
+        ? 'opacity:1;filter:none'
+        : 'opacity:.6;filter:grayscale(1)';
+      const textOpacity = lstyle === 'colour' ? 1 : 0.6;
       const headerHtml = header
-        ? `<span style="font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px">${header}</span>`
+        ? `<span style="font-size:11px;color:${headerCol};font-weight:700;text-transform:uppercase;letter-spacing:1px">${header}</span>`
         : '';
       const logosHtml = el._logos.map(l => {
         if (l && l.img) {
@@ -374,12 +424,12 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
           const safe = /^(https?:\/\/|\/)/i.test(String(l.img || ''));
           if (safe) {
             const alt = esc(l.text || 'Logo');
-            return `<img src="${esc(l.img)}" alt="${alt}" loading="lazy" style="height:24px;max-width:120px;width:auto;object-fit:contain;opacity:.6;filter:grayscale(1)" />`;
+            return `<img src="${esc(l.img)}" alt="${alt}" loading="lazy" style="height:24px;max-width:120px;width:auto;object-fit:contain;${imgCss}" />`;
           }
         }
         // Fallback: text label
         const t = esc(l && l.text);
-        return t ? `<span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">${t}</span>` : '';
+        return t ? `<span style="font-size:14px;color:${textCol};font-weight:600;opacity:${textOpacity}">${t}</span>` : '';
       }).filter(Boolean).join('');
       h += `<div ${elAttrs} style="${st};display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap">${headerHtml}${logosHtml}</div>`;
     } else if (el.type === 'faq' && (el._faqQuestion !== undefined || el._faqAnswer !== undefined)) {
@@ -388,9 +438,18 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // with the same class hooks (.sp-faq-item, .sp-faq-q, .sp-faq-a,
       // .sp-faq-toggle) so the click-to-expand JS from audit C-C-3
       // continues to work without modification.
+      // 22 May 2026 — _faqQColor, _faqAColor, _faqCardStyle added.
       const q = esc(el._faqQuestion);
       const a = esc(el._faqAnswer);
-      h += `<div ${elAttrs} style="${st}"><div class="sp-faq-item"><div class="sp-faq-q" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;user-select:none"><span style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff">${q}</span><span class="sp-faq-toggle" style="color:#64748b;font-size:22px;line-height:1;transition:transform .2s">+</span></div><div class="sp-faq-a" style="padding:12px 18px;font-size:14px;color:#94a3b8;line-height:1.7;margin-top:4px">${a}</div></div></div>`;
+      const qCol = el._faqQColor || '#fff';
+      const aCol = el._faqAColor || '#94a3b8';
+      const cardStyle = el._faqCardStyle || 'dark';
+      const cardCss = cardStyle === 'light'
+        ? 'background:#f8fafc;border:1px solid #e2e8f0'
+        : cardStyle === 'minimal'
+          ? 'background:transparent;border:none'
+          : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)';
+      h += `<div ${elAttrs} style="${st}"><div class="sp-faq-item"><div class="sp-faq-q" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;${cardCss};border-radius:12px;cursor:pointer;user-select:none"><span style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:${qCol}">${q}</span><span class="sp-faq-toggle" style="color:#64748b;font-size:22px;line-height:1;transition:transform .2s">+</span></div><div class="sp-faq-a" style="padding:12px 18px;font-size:14px;color:${aCol};line-height:1.7;margin-top:4px">${a}</div></div></div>`;
     } else if ((el.type === 'review' || el.type === 'testimonial') && (el._rating !== undefined || el._quote !== undefined || el._author !== undefined)) {
       // Structured review/testimonial (Phase 3 inspector refactor,
       // audit C-X-4 + C-C-1). Three fields: rating (1-5), quote, author.
@@ -398,11 +457,16 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // never have to type ★ by hand.
       // Both review and testimonial share the render; they differ only
       // in their default container styles which are already in el.s.
+      // 22 May 2026 — _starColor, _starSize, _quoteColor, _authorColor.
       const r = Math.max(1, Math.min(5, parseInt(el._rating, 10) || 5));
       const stars = '★'.repeat(r) + '☆'.repeat(5 - r);
       const q = esc(el._quote);
       const a = esc(el._author);
-      h += `<div ${elAttrs} style="${st}"><div style="margin-bottom:8px"><span style="color:#fbbf24;letter-spacing:2px">${stars}</span></div><div style="font-size:15px;color:#e2e8f0;line-height:1.7;font-style:italic">${q ? '&ldquo;' + q + '&rdquo;' : ''}</div>${a ? `<div style="font-size:13px;color:#64748b;font-weight:600;margin-top:8px">&mdash; ${a}</div>` : ''}</div>`;
+      const starCol = el._starColor || '#fbbf24';
+      const starSize = el._starSize || 16;
+      const qCol = el._quoteColor || '#e2e8f0';
+      const aCol = el._authorColor || '#64748b';
+      h += `<div ${elAttrs} style="${st}"><div style="margin-bottom:8px"><span style="color:${starCol};letter-spacing:2px;font-size:${starSize}px;line-height:1">${stars}</span></div><div style="font-size:15px;color:${qCol};line-height:1.7;font-style:italic">${q ? '&ldquo;' + q + '&rdquo;' : ''}</div>${a ? `<div style="font-size:13px;color:${aCol};font-weight:600;margin-top:8px">&mdash; ${a}</div>` : ''}</div>`;
     } else {
       h += `<div ${elAttrs} style="${st}">${el.txt || ''}</div>`;
     }

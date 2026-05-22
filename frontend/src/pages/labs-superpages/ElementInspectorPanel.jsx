@@ -1205,12 +1205,15 @@ function ProgressProperties({ el, updateElement, updateElementStyle, markDirty }
   const [percent, setPercent] = useState(parseInt(el._percent, 10) || 75);
   const [color, setColor] = useState(el._color || '#0ea5e9');
   const [trackColor, setTrackColor] = useState(el._trackColor || 'rgba(255,255,255,0.08)');
+  // _labelColor (22 May 2026) — was hardcoded light-on-dark.
+  const [labelColor, setLabelColor] = useState(el._labelColor || '#e2e8f0');
 
   useEffect(() => {
     setLabel(el._label || 'Progress');
     setPercent(parseInt(el._percent, 10) || 75);
     setColor(el._color || '#0ea5e9');
     setTrackColor(el._trackColor || 'rgba(255,255,255,0.08)');
+    setLabelColor(el._labelColor || '#e2e8f0');
   }, [el.id]);
 
   const commitField = (key, value) => {
@@ -1249,6 +1252,37 @@ function ProgressProperties({ el, updateElement, updateElementStyle, markDirty }
           }}
           style={{ width: '100%' }}
         />
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Label colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(labelColor) ? labelColor : '#e2e8f0'}
+            onChange={e => { setLabelColor(e.target.value); commitField('_labelColor', e.target.value); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer',
+              background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={labelColor}
+            onChange={e => { setLabelColor(e.target.value); commitField('_labelColor', e.target.value); }}
+            placeholder="#e2e8f0"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+        <div style={{
+          marginTop: 6,
+          fontSize: 10, color: 'var(--sap-text-muted, #94a3b8)',
+          lineHeight: 1.4,
+        }}>
+          On white pages, try a dark slate like #334155
+        </div>
       </div>
 
       <div style={sectionStyle}>
@@ -1355,12 +1389,18 @@ function StatProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [statValue, setStatValue] = useState(el._statValue !== undefined ? el._statValue : legacy.v);
   const [statLabel, setStatLabel] = useState(el._statLabel !== undefined ? el._statLabel : legacy.l);
   const [statColor, setStatColor] = useState(el._statColor || '#0ea5e9');
+  const [statSize, setStatSize] = useState(el._statSize || 36);
+  const [statLabelColor, setStatLabelColor] = useState(el._statLabelColor || '#64748b');
+  const [statLabelSize, setStatLabelSize] = useState(el._statLabelSize || 12);
 
   useEffect(() => {
     const lg = fromLegacy();
     setStatValue(el._statValue !== undefined ? el._statValue : lg.v);
     setStatLabel(el._statLabel !== undefined ? el._statLabel : lg.l);
     setStatColor(el._statColor || '#0ea5e9');
+    setStatSize(el._statSize || 36);
+    setStatLabelColor(el._statLabelColor || '#64748b');
+    setStatLabelSize(el._statLabelSize || 12);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [el.id]);
 
@@ -1404,7 +1444,7 @@ function StatProperties({ el, updateElement, updateElementStyle, markDirty }) {
         </div>
       </div>
 
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
         <div style={labelStyle}>Number colour</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <input
@@ -1424,6 +1464,54 @@ function StatProperties({ el, updateElement, updateElementStyle, markDirty }) {
             style={{ ...inputStyle, flex: 1 }}
           />
         </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Number size</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{statSize}px</span>
+        </div>
+        <input
+          type="range" min={16} max={96} step={1}
+          value={statSize}
+          onChange={(e) => { const n = parseInt(e.target.value, 10); setStatSize(n); commit({ _statSize: n }); }}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Label colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(statLabelColor) ? statLabelColor : '#64748b'}
+            onChange={(e) => { setStatLabelColor(e.target.value); commit({ _statLabelColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={statLabelColor}
+            onChange={(e) => { setStatLabelColor(e.target.value); commit({ _statLabelColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Label size</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{statLabelSize}px</span>
+        </div>
+        <input
+          type="range" min={9} max={24} step={1}
+          value={statLabelSize}
+          onChange={(e) => { const n = parseInt(e.target.value, 10); setStatLabelSize(n); commit({ _statLabelSize: n }); }}
+          style={{ width: '100%' }}
+        />
       </div>
     </>
   );
@@ -1452,10 +1540,14 @@ function SeparatorProperties({ el, updateElement, updateElementStyle, markDirty 
   };
   const [symbol, setSymbol] = useState(el._separatorSymbol !== undefined ? el._separatorSymbol : fromLegacy());
   const [color, setColor] = useState(el._separatorColor || 'rgba(255,255,255,0.1)');
+  const [symbolSize, setSymbolSize] = useState(el._separatorSize || 12);
+  const [symbolColor, setSymbolColor] = useState(el._separatorSymbolColor || '#64748b');
 
   useEffect(() => {
     setSymbol(el._separatorSymbol !== undefined ? el._separatorSymbol : fromLegacy());
     setColor(el._separatorColor || 'rgba(255,255,255,0.1)');
+    setSymbolSize(el._separatorSize || 12);
+    setSymbolColor(el._separatorSymbolColor || '#64748b');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [el.id]);
 
@@ -1502,6 +1594,44 @@ function SeparatorProperties({ el, updateElement, updateElementStyle, markDirty 
               {p}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Symbol size</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{symbolSize}px</span>
+        </div>
+        <input
+          type="range" min={10} max={64} step={1}
+          value={symbolSize}
+          onChange={(e) => { const n = parseInt(e.target.value, 10); setSymbolSize(n); commit({ _separatorSize: n }); }}
+          style={{ width: '100%' }}
+        />
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Try ~24px for decorative star rows like ★ ★ ★
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Symbol colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(symbolColor) ? symbolColor : '#64748b'}
+            onChange={(e) => { setSymbolColor(e.target.value); commit({ _separatorSymbolColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={symbolColor}
+            onChange={(e) => { setSymbolColor(e.target.value); commit({ _separatorSymbolColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
         </div>
       </div>
 
@@ -1564,12 +1694,18 @@ function IconTextProperties({ el, updateElement, updateElementStyle, markDirty }
   const [icon, setIcon] = useState(el._icon !== undefined ? el._icon : legacy.i);
   const [heading, setHeading] = useState(el._iconHeading !== undefined ? el._iconHeading : legacy.h);
   const [description, setDescription] = useState(el._iconDescription !== undefined ? el._iconDescription : legacy.d);
+  const [iconSize, setIconSize] = useState(el._iconSize || 28);
+  const [hColor, setHColor] = useState(el._iconHeadingColor || '#fff');
+  const [dColor, setDColor] = useState(el._iconDescColor || '#94a3b8');
 
   useEffect(() => {
     const lg = fromLegacy();
     setIcon(el._icon !== undefined ? el._icon : lg.i);
     setHeading(el._iconHeading !== undefined ? el._iconHeading : lg.h);
     setDescription(el._iconDescription !== undefined ? el._iconDescription : lg.d);
+    setIconSize(el._iconSize || 28);
+    setHColor(el._iconHeadingColor || '#fff');
+    setDColor(el._iconDescColor || '#94a3b8');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [el.id]);
 
@@ -1622,6 +1758,19 @@ function IconTextProperties({ el, updateElement, updateElementStyle, markDirty }
       </div>
 
       <div style={sectionStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Icon size</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{iconSize}px</span>
+        </div>
+        <input
+          type="range" min={14} max={72} step={1}
+          value={iconSize}
+          onChange={(e) => { const n = parseInt(e.target.value, 10); setIconSize(n); commit({ _iconSize: n }); }}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      <div style={sectionStyle}>
         <div style={labelStyle}>Heading</div>
         <input
           type="text"
@@ -1632,7 +1781,29 @@ function IconTextProperties({ el, updateElement, updateElementStyle, markDirty }
         />
       </div>
 
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Heading colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(hColor) ? hColor : '#ffffff'}
+            onChange={(e) => { setHColor(e.target.value); commit({ _iconHeadingColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={hColor}
+            onChange={(e) => { setHColor(e.target.value); commit({ _iconHeadingColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
         <div style={labelStyle}>Description</div>
         <textarea
           value={description}
@@ -1647,6 +1818,28 @@ function IconTextProperties({ el, updateElement, updateElementStyle, markDirty }
             lineHeight: 1.5,
           }}
         />
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={labelStyle}>Description colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(dColor) ? dColor : '#94a3b8'}
+            onChange={(e) => { setDColor(e.target.value); commit({ _iconDescColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={dColor}
+            onChange={(e) => { setDColor(e.target.value); commit({ _iconDescColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
       </div>
     </>
   );
@@ -1687,11 +1880,19 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
   const [header, setHeader] = useState(el._logoHeader !== undefined ? el._logoHeader : legacy.header);
   const [items, setItems] = useState(Array.isArray(el._logos) ? el._logos.map(l => ({ ...l })) : legacy.items);
   const [uploadingIdx, setUploadingIdx] = useState(null);
+  // 22 May 2026 — style controls. Mono is the universal "as seen in"
+  // treatment (greyscale + 0.6 opacity); colour shows logos in full.
+  const [logoStyle, setLogoStyle] = useState(el._logoStyle || 'mono');
+  const [headerColor, setHeaderColor] = useState(el._logoHeaderColor || '#475569');
+  const [textColor, setTextColor] = useState(el._logoTextColor || '#64748b');
 
   useEffect(() => {
     const lg = fromLegacy();
     setHeader(el._logoHeader !== undefined ? el._logoHeader : lg.header);
     setItems(Array.isArray(el._logos) ? el._logos.map(l => ({ ...l })) : lg.items);
+    setLogoStyle(el._logoStyle || 'mono');
+    setHeaderColor(el._logoHeaderColor || '#475569');
+    setTextColor(el._logoTextColor || '#64748b');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [el.id]);
 
@@ -1699,6 +1900,11 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
   // in sync, clears txt so render path picks the structured branch.
   const commit = (nextHeader, nextItems) => {
     updateElement(el.id, { _logoHeader: nextHeader, _logos: nextItems, txt: '' });
+    markDirty();
+  };
+  // Style fields don't need the items/header bundle — they're independent.
+  const commitStyle = (patch) => {
+    updateElement(el.id, patch);
     markDirty();
   };
 
@@ -1780,6 +1986,86 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
         />
         <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
           Optional — leave blank to hide
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Logo style</div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {['mono', 'colour'].map(opt => {
+            const active = logoStyle === opt;
+            return (
+              <button
+                key={opt}
+                onClick={() => { setLogoStyle(opt); commitStyle({ _logoStyle: opt }); }}
+                style={{
+                  flex: 1,
+                  padding: '6px 10px',
+                  fontSize: 12,
+                  fontFamily: "'Sora', sans-serif",
+                  fontWeight: 600,
+                  border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                  background: active ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))' : '#fff',
+                  color: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-text-primary, #0f172a)',
+                  borderRadius: 5,
+                  cursor: 'pointer',
+                  textTransform: 'capitalize',
+                }}>
+                {opt === 'mono' ? 'Mono (faded)' : 'Full colour'}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Mono is the standard "as seen in" treatment (greyscale + faded).
+          Full colour shows partner logos prominently.
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Header text colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(headerColor) ? headerColor : '#475569'}
+            onChange={(e) => { setHeaderColor(e.target.value); commitStyle({ _logoHeaderColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={headerColor}
+            onChange={(e) => { setHeaderColor(e.target.value); commitStyle({ _logoHeaderColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Text-logo colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(textColor) ? textColor : '#64748b'}
+            onChange={(e) => { setTextColor(e.target.value); commitStyle({ _logoTextColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={textColor}
+            onChange={(e) => { setTextColor(e.target.value); commitStyle({ _logoTextColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Colour for logos shown as text labels (not images)
         </div>
       </div>
 
@@ -1869,7 +2155,6 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
         ))}
 
         <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 6, lineHeight: 1.5 }}>
-          Logos appear grayscaled and partially transparent — the standard "as seen in" treatment.
           Up to 8 entries. Mix text labels and images freely.
         </div>
       </div>
@@ -1906,11 +2191,17 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const legacy = fromLegacy();
   const [question, setQuestion] = useState(el._faqQuestion !== undefined ? el._faqQuestion : legacy.q);
   const [answer, setAnswer] = useState(el._faqAnswer !== undefined ? el._faqAnswer : legacy.a);
+  const [qColor, setQColor] = useState(el._faqQColor || '#fff');
+  const [aColor, setAColor] = useState(el._faqAColor || '#94a3b8');
+  const [cardStyle, setCardStyle] = useState(el._faqCardStyle || 'dark');
 
   useEffect(() => {
     const lg = fromLegacy();
     setQuestion(el._faqQuestion !== undefined ? el._faqQuestion : lg.q);
     setAnswer(el._faqAnswer !== undefined ? el._faqAnswer : lg.a);
+    setQColor(el._faqQColor || '#fff');
+    setAColor(el._faqAColor || '#94a3b8');
+    setCardStyle(el._faqCardStyle || 'dark');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [el.id]);
 
@@ -1932,7 +2223,7 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
         />
       </div>
 
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
         <div style={labelStyle}>Answer</div>
         <textarea
           value={answer}
@@ -1950,6 +2241,85 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
         <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
           On the published page this will be hidden until a visitor clicks the question.
           In the editor we always show it so you can edit it.
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Card style</div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {[
+            { k: 'dark', label: 'Dark' },
+            { k: 'light', label: 'Light' },
+            { k: 'minimal', label: 'Minimal' },
+          ].map(opt => {
+            const active = cardStyle === opt.k;
+            return (
+              <button
+                key={opt.k}
+                onClick={() => { setCardStyle(opt.k); commit({ _faqCardStyle: opt.k }); }}
+                style={{
+                  flex: 1,
+                  padding: '6px 10px',
+                  fontSize: 12,
+                  fontFamily: "'Sora', sans-serif",
+                  fontWeight: 600,
+                  border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                  background: active ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))' : '#fff',
+                  color: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-text-primary, #0f172a)',
+                  borderRadius: 5,
+                  cursor: 'pointer',
+                }}>
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Dark for cobalt pages, Light for white pages, Minimal for no card at all.
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Question colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(qColor) ? qColor : '#ffffff'}
+            onChange={(e) => { setQColor(e.target.value); commit({ _faqQColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={qColor}
+            onChange={(e) => { setQColor(e.target.value); commit({ _faqQColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={labelStyle}>Answer colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(aColor) ? aColor : '#94a3b8'}
+            onChange={(e) => { setAColor(e.target.value); commit({ _faqAColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={aColor}
+            onChange={(e) => { setAColor(e.target.value); commit({ _faqAColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
         </div>
       </div>
     </>
@@ -1997,12 +2367,20 @@ function ReviewProperties({ el, updateElement, updateElementStyle, markDirty }) 
   const [rating, setRating] = useState(el._rating !== undefined ? el._rating : legacy.rating);
   const [quote, setQuote] = useState(el._quote !== undefined ? el._quote : legacy.quote);
   const [author, setAuthor] = useState(el._author !== undefined ? el._author : legacy.author);
+  const [starColor, setStarColor] = useState(el._starColor || '#fbbf24');
+  const [starSize, setStarSize] = useState(el._starSize || 16);
+  const [quoteColor, setQuoteColor] = useState(el._quoteColor || '#e2e8f0');
+  const [authorColor, setAuthorColor] = useState(el._authorColor || '#64748b');
 
   useEffect(() => {
     const lg = fromLegacy();
     setRating(el._rating !== undefined ? el._rating : lg.rating);
     setQuote(el._quote !== undefined ? el._quote : lg.quote);
     setAuthor(el._author !== undefined ? el._author : lg.author);
+    setStarColor(el._starColor || '#fbbf24');
+    setStarSize(el._starSize || 16);
+    setQuoteColor(el._quoteColor || '#e2e8f0');
+    setAuthorColor(el._authorColor || '#64748b');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [el.id]);
 
@@ -2031,7 +2409,7 @@ function ReviewProperties({ el, updateElement, updateElementStyle, markDirty }) 
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                color: n <= rating ? '#fbbf24' : '#cbd5e1',
+                color: n <= rating ? starColor : '#cbd5e1',
                 transition: 'color .15s',
               }}>
               {n <= rating ? '★' : '☆'}
@@ -2041,6 +2419,44 @@ function ReviewProperties({ el, updateElement, updateElementStyle, markDirty }) 
             {rating}/5
           </span>
         </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Star colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(starColor) ? starColor : '#fbbf24'}
+            onChange={(e) => { setStarColor(e.target.value); commit({ _starColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={starColor}
+            onChange={(e) => { setStarColor(e.target.value); commit({ _starColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Default amber #fbbf24 is the universal review-star convention
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Star size</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{starSize}px</span>
+        </div>
+        <input
+          type="range" min={12} max={36} step={1}
+          value={starSize}
+          onChange={(e) => { const n = parseInt(e.target.value, 10); setStarSize(n); commit({ _starSize: n }); }}
+          style={{ width: '100%' }}
+        />
       </div>
 
       <div style={sectionStyle}>
@@ -2064,7 +2480,29 @@ function ReviewProperties({ el, updateElement, updateElementStyle, markDirty }) 
         </div>
       </div>
 
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Quote colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(quoteColor) ? quoteColor : '#e2e8f0'}
+            onChange={(e) => { setQuoteColor(e.target.value); commit({ _quoteColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={quoteColor}
+            onChange={(e) => { setQuoteColor(e.target.value); commit({ _quoteColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
         <div style={labelStyle}>Author</div>
         <input
           type="text"
@@ -2075,6 +2513,28 @@ function ReviewProperties({ el, updateElement, updateElementStyle, markDirty }) 
         />
         <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
           Name and optional title — em-dash added automatically
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={labelStyle}>Author colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(authorColor) ? authorColor : '#64748b'}
+            onChange={(e) => { setAuthorColor(e.target.value); commit({ _authorColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={authorColor}
+            onChange={(e) => { setAuthorColor(e.target.value); commit({ _authorColor: e.target.value }); }}
+            style={{ ...inputStyle, flex: 1 }}
+          />
         </div>
       </div>
     </>
@@ -2637,10 +3097,37 @@ function SpacerProperties({ el, updateElement, markDirty }) {
 // of how the countdown behaves at zero.
 function CountdownProperties({ el, updateElement, markDirty }) {
   const [date, setDate] = useState(el._targetDate || '');
-  useEffect(() => { setDate(el._targetDate || ''); }, [el.id]);
-  const commit = (v) => {
+  // 22 May 2026 — styling controls. Pre-change every countdown shipped
+  // with hardcoded styles meant for dark pages; on white member pages
+  // both the digits (#fff) and labels (#64748b) were invisible.
+  const [digitColor, setDigitColor] = useState(el._cdDigitColor || '#fff');
+  const [digitSize, setDigitSize] = useState(el._cdDigitSize || 28);
+  const [labelColor, setLabelColor] = useState(el._cdLabelColor || '#64748b');
+  // Canvas always rendered 13px labels; export shipped 10px. Default
+  // here matches the canvas's pre-change look since that's what the
+  // editor was always showing. Existing published pages preserved by
+  // the export-side `!== undefined ? : 10` default.
+  const [labelSize, setLabelSize] = useState(el._cdLabelSize !== undefined ? el._cdLabelSize : 13);
+  const [cardStyle, setCardStyle] = useState(el._cdCardStyle || 'card');
+  const [fontFamily, setFontFamily] = useState(el._cdFontFamily || 'Sora,sans-serif');
+
+  useEffect(() => {
+    setDate(el._targetDate || '');
+    setDigitColor(el._cdDigitColor || '#fff');
+    setDigitSize(el._cdDigitSize || 28);
+    setLabelColor(el._cdLabelColor || '#64748b');
+    setLabelSize(el._cdLabelSize !== undefined ? el._cdLabelSize : 13);
+    setCardStyle(el._cdCardStyle || 'card');
+    setFontFamily(el._cdFontFamily || 'Sora,sans-serif');
+  }, [el.id]);
+
+  const commitDate = (v) => {
     setDate(v);
     updateElement(el.id, { _targetDate: v });
+    markDirty();
+  };
+  const commitField = (patch) => {
+    updateElement(el.id, patch);
     markDirty();
   };
 
@@ -2662,6 +3149,16 @@ function CountdownProperties({ el, updateElement, markDirty }) {
     }
   })();
 
+  // Common font family options — limited to the ones already loaded
+  // by the funnel page template so members don't pick something that
+  // silently falls back to system serif.
+  const FONT_OPTIONS = [
+    { value: 'Sora,sans-serif', label: 'Sora (default)' },
+    { value: 'Inter,sans-serif', label: 'Inter' },
+    { value: 'Georgia,serif', label: 'Georgia' },
+    { value: 'monospace', label: 'Monospace' },
+  ];
+
   return (
     <>
       <div style={sectionStyle}>
@@ -2669,7 +3166,7 @@ function CountdownProperties({ el, updateElement, markDirty }) {
         <input
           type="datetime-local"
           value={date}
-          onChange={e => commit(e.target.value)}
+          onChange={e => commitDate(e.target.value)}
           style={{ ...inputStyle, cursor: 'pointer' }}
         />
         {friendly && (
@@ -2684,6 +3181,130 @@ function CountdownProperties({ el, updateElement, markDirty }) {
             {friendly.txt}
           </div>
         )}
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Card style</div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {[
+            { k: 'card', label: 'Card' },
+            { k: 'minimal', label: 'Minimal' },
+          ].map(opt => {
+            const active = cardStyle === opt.k;
+            return (
+              <button
+                key={opt.k}
+                onClick={() => { setCardStyle(opt.k); commitField({ _cdCardStyle: opt.k }); }}
+                style={{
+                  flex: 1,
+                  padding: '6px 10px',
+                  fontSize: 12,
+                  fontFamily: "'Sora', sans-serif",
+                  fontWeight: 600,
+                  border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                  background: active ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))' : '#fff',
+                  color: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-text-primary, #0f172a)',
+                  borderRadius: 5,
+                  cursor: 'pointer',
+                }}>
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Card adds a subtle background tile around each digit. Minimal strips it.
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Digit colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(digitColor) ? digitColor : '#ffffff'}
+            onChange={e => { setDigitColor(e.target.value); commitField({ _cdDigitColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={digitColor}
+            onChange={e => { setDigitColor(e.target.value); commitField({ _cdDigitColor: e.target.value }); }}
+            placeholder="#ffffff"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          On white pages, try a dark slate like #0f172a
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Digit size</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{digitSize}px</span>
+        </div>
+        <input
+          type="range" min={18} max={72} step={1}
+          value={digitSize}
+          onChange={e => { const n = parseInt(e.target.value, 10); setDigitSize(n); commitField({ _cdDigitSize: n }); }}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Label colour</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="color"
+            value={(/^#[0-9a-f]{6}$/i).test(labelColor) ? labelColor : '#64748b'}
+            onChange={e => { setLabelColor(e.target.value); commitField({ _cdLabelColor: e.target.value }); }}
+            style={{
+              width: 32, height: 28, padding: 0,
+              border: '1px solid var(--sap-border, #e2e8f0)',
+              borderRadius: 5, cursor: 'pointer', background: 'transparent',
+            }}
+          />
+          <input
+            type="text"
+            value={labelColor}
+            onChange={e => { setLabelColor(e.target.value); commitField({ _cdLabelColor: e.target.value }); }}
+            placeholder="#64748b"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--sap-text-muted, #64748b)', marginTop: 4, lineHeight: 1.4 }}>
+          Colour of "DAYS", "HRS", "MIN", "SEC" labels below the digits
+        </div>
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Label size</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{labelSize}px</span>
+        </div>
+        <input
+          type="range" min={9} max={20} step={1}
+          value={labelSize}
+          onChange={e => { const n = parseInt(e.target.value, 10); setLabelSize(n); commitField({ _cdLabelSize: n }); }}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      <div style={sectionStyle}>
+        <div style={labelStyle}>Font family</div>
+        <select
+          value={fontFamily}
+          onChange={e => { setFontFamily(e.target.value); commitField({ _cdFontFamily: e.target.value }); }}
+          style={{ ...inputStyle, cursor: 'pointer' }}>
+          {FONT_OPTIONS.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
       </div>
 
       <div style={sectionStyleLast}>
@@ -2735,10 +3356,13 @@ function SocialsProperties({ el, updateElement, updateElementStyle, markDirty })
 
   const [links, setLinks] = useState(normalise(el._links));
   const [iconColor, setIconColor] = useState(el._iconColor || '#94a3b8');
+  // _iconOpacity (22 May 2026) — was hardcoded 0.7 in canvas only.
+  const [iconOpacity, setIconOpacity] = useState(el._iconOpacity !== undefined ? el._iconOpacity : 1.0);
 
   useEffect(() => {
     setLinks(normalise(el._links));
     setIconColor(el._iconColor || '#94a3b8');
+    setIconOpacity(el._iconOpacity !== undefined ? el._iconOpacity : 1.0);
   }, [el.id]);
 
   const commitLink = (key, value) => {
@@ -2751,6 +3375,12 @@ function SocialsProperties({ el, updateElement, updateElementStyle, markDirty })
   const commitIconColor = (v) => {
     setIconColor(v);
     updateElement(el.id, { _iconColor: v });
+    markDirty();
+  };
+
+  const commitOpacity = (v) => {
+    setIconOpacity(v);
+    updateElement(el.id, { _iconOpacity: v });
     markDirty();
   };
 
@@ -2781,7 +3411,7 @@ function SocialsProperties({ el, updateElement, updateElementStyle, markDirty })
         ))}
       </div>
 
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
         <div style={labelStyle}>Icon colour</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <input
@@ -2807,6 +3437,26 @@ function SocialsProperties({ el, updateElement, updateElementStyle, markDirty })
           lineHeight: 1.4,
         }}>
           Light pages: try #475569 or your brand colour
+        </div>
+      </div>
+
+      <div style={sectionStyleLast}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+          <span style={labelStyle}>Icon opacity</span>
+          <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--sap-text-muted, #64748b)' }}>{Math.round(iconOpacity * 100)}%</span>
+        </div>
+        <input
+          type="range" min={0.3} max={1} step={0.05}
+          value={iconOpacity}
+          onChange={e => commitOpacity(parseFloat(e.target.value))}
+          style={{ width: '100%' }}
+        />
+        <div style={{
+          marginTop: 6,
+          fontSize: 10, color: 'var(--sap-text-muted, #94a3b8)',
+          lineHeight: 1.4,
+        }}>
+          100% = full strength brand colour. Lower values for subtle/faded looks.
         </div>
       </div>
     </>
