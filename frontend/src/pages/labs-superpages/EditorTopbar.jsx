@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers, Grid3x3, Link2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Eye, Save, Undo2, Redo2, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers, Grid3x3, Link2, MoreHorizontal } from 'lucide-react';
 import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
 /*
@@ -16,10 +17,46 @@ import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
   editor. AppLayout's cobalt topbar is still hidden in sandbox; in
   DB-backed mode it's also hidden via SuperPagesEditor (this bar
   takes over the role).
+
+  22 May 2026 — Steve flag: topbar buttons disappear off the right
+  edge when window is narrowed. Added a responsive overflow menu:
+  at viewport widths below the threshold, secondary buttons
+  (Templates, Layers, Grid, Campaign, Help, Clear) collapse into a
+  '⋯' menu. Primary actions (Save, Publish, Preview, Undo/Redo,
+  Device toggles, Back) stay always visible.
+
+  Same date — Settings button removed entirely. All page-level
+  settings (title, slug, SEO, OG image, draft/published status)
+  now live in the left inspector when nothing is selected.
 */
-export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onShowWiring, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen, onToggleGrid, gridOn, currentListName, isSandbox, canvasScale = 1 }) {
+export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowWiring, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp, onShowTemplates, onToggleLayers, layersOpen, onToggleGrid, gridOn, currentListName, isSandbox, canvasScale = 1 }) {
   var { t } = useTranslation();
   const isPublished = status === 'published';
+  // Overflow menu open state — controls the '⋯' dropdown.
+  const [overflowOpen, setOverflowOpen] = useState(false);
+  // Track whether we should be in compact (overflow) mode.
+  // Threshold picked so buttons fit comfortably on a 13" laptop
+  // (1280px wide) but collapse before they scroll off-screen.
+  const [compact, setCompact] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1280);
+  const overflowRef = useRef(null);
+
+  useEffect(() => {
+    const onResize = () => setCompact(window.innerWidth < 1280);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Close the overflow menu when clicking outside it.
+  useEffect(() => {
+    if (!overflowOpen) return;
+    const onDocClick = (e) => {
+      if (overflowRef.current && !overflowRef.current.contains(e.target)) {
+        setOverflowOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [overflowOpen]);
   return (
     <div className="sp-editor-subbar sp-editor-topbar" style={{
       // 20 May 2026 v3: Steve flag — match platform standard topbar.
@@ -165,95 +202,165 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       <div style={{width:1, height:24, background:'rgba(255,255,255,0.15)'}}/>
 
-      {/* Templates — cyan accent on cobalt. Now reads as a clear
-          highlight without fighting the brand palette. */}
-      <button onClick={onShowTemplates} style={{
-        ...btn,
-        background: 'linear-gradient(135deg, rgba(34,211,238,0.18), rgba(14,165,233,0.18))',
-        color: '#22d3ee',
-        border: '1px solid rgba(34,211,238,0.45)',
-        fontWeight: 800,
-      }}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34,211,238,0.28), rgba(14,165,233,0.28))';
-          e.currentTarget.style.borderColor = 'rgba(34,211,238,0.7)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34,211,238,0.18), rgba(14,165,233,0.18))';
-          e.currentTarget.style.borderColor = 'rgba(34,211,238,0.45)';
-        }}
-        title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
-        <LayoutTemplate size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.templates', { defaultValue: 'Templates' })}</span>
-      </button>
-
-      {/* Layers — toggle the floating layer panel */}
-      <button onClick={onToggleLayers} style={{
-        ...ghost,
-        background: layersOpen ? 'rgba(34,211,238,0.16)' : 'rgba(255,255,255,0.06)',
-        borderColor: layersOpen ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)',
-        color: layersOpen ? '#22d3ee' : 'rgba(255,255,255,0.85)',
-      }}
-        onMouseEnter={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; } }}
-        onMouseLeave={e => { if (!layersOpen) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
-        title={t('superPagesEditor.layersLabel', { defaultValue: 'Layers' })}>
-        <Layers size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.layers', { defaultValue: 'Layers' })}</span>
-      </button>
-
-      {/* Grid — toggle the 8px snap grid overlay.
-          Kept on cyan accent (not the original purple) to stay brand-aligned. */}
-      <button onClick={onToggleGrid} style={{
-        ...ghost,
-        background: gridOn ? 'rgba(34,211,238,0.16)' : 'rgba(255,255,255,0.06)',
-        borderColor: gridOn ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)',
-        color: gridOn ? '#22d3ee' : 'rgba(255,255,255,0.85)',
-      }}
-        onMouseEnter={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; } }}
-        onMouseLeave={e => { if (!gridOn) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
-        title="Toggle 8px grid + snap (⌘')">
-        <Grid3x3 size={13}/>
-      </button>
-
-      <button onClick={onShowSettings} style={ghost}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
-        <Settings size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.settings')}</span>
-      </button>
-
-      {/* Campaign wiring — change the lead-capture list / sequence
-          mid-edit. Button label is ALWAYS "Campaign" — the wired list
-          name shows on hover via the tooltip and is reflected by the
-          cyan-tinted active state. Steve's call 20 May 2026: 'the
-          Campaign tab is not displaying as Campaign' — the previous
-          version showed the list name as the button text which broke
-          the navigation pattern. */}
-      {onShowWiring && (
-        <button onClick={onShowWiring} style={{
-          ...ghost,
-          background: currentListName ? 'rgba(34,211,238,0.14)' : 'rgba(255,255,255,0.06)',
-          borderColor: currentListName ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)',
-          color: currentListName ? '#22d3ee' : 'rgba(255,255,255,0.85)',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; }}
-          onMouseLeave={e => {
-            e.currentTarget.style.borderColor = currentListName ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)';
-            e.currentTarget.style.color = currentListName ? '#22d3ee' : 'rgba(255,255,255,0.85)';
+      {/* Secondary actions block — Templates / Layers / Grid /
+          Campaign / Help / Clear.
+          22 May 2026: at viewport widths below 1280px these collapse
+          into a '⋯' overflow menu so the primary action buttons
+          (Preview / Publish / Save) never scroll off-screen on narrow
+          windows. The Settings button was removed entirely on the
+          same date — all page-level settings now live in the left
+          inspector when nothing is selected. */}
+      {!compact && (
+        <>
+          {/* Templates — cyan accent on cobalt. Now reads as a clear
+              highlight without fighting the brand palette. */}
+          <button onClick={onShowTemplates} style={{
+            ...btn,
+            background: 'linear-gradient(135deg, rgba(34,211,238,0.18), rgba(14,165,233,0.18))',
+            color: '#22d3ee',
+            border: '1px solid rgba(34,211,238,0.45)',
+            fontWeight: 800,
           }}
-          title={currentListName ? `Campaign · leads go to: ${currentListName}` : 'Campaign · choose where leads from this page are sent'}>
-          <Link2 size={13}/>
-          <span style={{marginLeft:3}}>Campaign</span>
-        </button>
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34,211,238,0.28), rgba(14,165,233,0.28))';
+              e.currentTarget.style.borderColor = 'rgba(34,211,238,0.7)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34,211,238,0.18), rgba(14,165,233,0.18))';
+              e.currentTarget.style.borderColor = 'rgba(34,211,238,0.45)';
+            }}
+            title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
+            <LayoutTemplate size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.templates', { defaultValue: 'Templates' })}</span>
+          </button>
+
+          {/* Layers — toggle the floating layer panel */}
+          <button onClick={onToggleLayers} style={{
+            ...ghost,
+            background: layersOpen ? 'rgba(34,211,238,0.16)' : 'rgba(255,255,255,0.06)',
+            borderColor: layersOpen ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)',
+            color: layersOpen ? '#22d3ee' : 'rgba(255,255,255,0.85)',
+          }}
+            onMouseEnter={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; } }}
+            onMouseLeave={e => { if (!layersOpen) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
+            title={t('superPagesEditor.layersLabel', { defaultValue: 'Layers' })}>
+            <Layers size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.layers', { defaultValue: 'Layers' })}</span>
+          </button>
+
+          {/* Grid — toggle the 8px snap grid overlay.
+              Kept on cyan accent (not the original purple) to stay brand-aligned. */}
+          <button onClick={onToggleGrid} style={{
+            ...ghost,
+            background: gridOn ? 'rgba(34,211,238,0.16)' : 'rgba(255,255,255,0.06)',
+            borderColor: gridOn ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)',
+            color: gridOn ? '#22d3ee' : 'rgba(255,255,255,0.85)',
+          }}
+            onMouseEnter={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; } }}
+            onMouseLeave={e => { if (!gridOn) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
+            title="Toggle 8px grid + snap (⌘')">
+            <Grid3x3 size={13}/>
+          </button>
+
+          {/* Campaign wiring — change the lead-capture list / sequence
+              mid-edit. Button label is ALWAYS "Campaign" — the wired list
+              name shows on hover via the tooltip and is reflected by the
+              cyan-tinted active state. Steve's call 20 May 2026: 'the
+              Campaign tab is not displaying as Campaign' — the previous
+              version showed the list name as the button text which broke
+              the navigation pattern. */}
+          {onShowWiring && (
+            <button onClick={onShowWiring} style={{
+              ...ghost,
+              background: currentListName ? 'rgba(34,211,238,0.14)' : 'rgba(255,255,255,0.06)',
+              borderColor: currentListName ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)',
+              color: currentListName ? '#22d3ee' : 'rgba(255,255,255,0.85)',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = currentListName ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)';
+                e.currentTarget.style.color = currentListName ? '#22d3ee' : 'rgba(255,255,255,0.85)';
+              }}
+              title={currentListName ? `Campaign · leads go to: ${currentListName}` : 'Campaign · choose where leads from this page are sent'}>
+              <Link2 size={13}/>
+              <span style={{marginLeft:3}}>Campaign</span>
+            </button>
+          )}
+          <button onClick={onShowHelp} style={{...ghost, color: '#22d3ee'}}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.background = 'rgba(34,211,238,0.14)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
+            <HelpCircle size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.helpLabel', { defaultValue: 'Help' })}</span>
+          </button>
+          <button onClick={onClear} style={{...ghost, color: '#fca5a5'}}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.18)'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fca5a5'; }}
+            title={t('superPagesEditor.clearCanvasLabel', { defaultValue: 'Clear canvas' })}>
+            <Trash2 size={13}/>
+          </button>
+        </>
       )}
-      <button onClick={onShowHelp} style={{...ghost, color: '#22d3ee'}}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.background = 'rgba(34,211,238,0.14)'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
-        <HelpCircle size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.helpLabel', { defaultValue: 'Help' })}</span>
-      </button>
-      <button onClick={onClear} style={{...ghost, color: '#fca5a5'}}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.18)'; e.currentTarget.style.color = '#fff'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fca5a5'; }}
-        title={t('superPagesEditor.clearCanvasLabel', { defaultValue: 'Clear canvas' })}>
-        <Trash2 size={13}/>
-      </button>
+
+      {compact && (
+        <div ref={overflowRef} style={{position:'relative', display:'inline-block'}}>
+          <button
+            onClick={() => setOverflowOpen(v => !v)}
+            style={{
+              ...ghost,
+              background: overflowOpen ? 'rgba(34,211,238,0.16)' : 'rgba(255,255,255,0.06)',
+              borderColor: overflowOpen ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)',
+              color: overflowOpen ? '#22d3ee' : 'rgba(255,255,255,0.85)',
+            }}
+            title="More tools"
+            aria-label="More tools">
+            <MoreHorizontal size={14}/>
+          </button>
+          {overflowOpen && (
+            <div style={{
+              position: 'absolute',
+              top: 'calc(100% + 6px)',
+              right: 0,
+              minWidth: 180,
+              background: '#0a1438',
+              border: '1px solid rgba(34,211,238,0.3)',
+              borderRadius: 8,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3)',
+              padding: 4,
+              zIndex: 30,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+            }}>
+              {[
+                {key:'templates', label:t('superPagesEditor.templates', { defaultValue:'Templates' }), Icon:LayoutTemplate, click:onShowTemplates, accent:'#22d3ee'},
+                {key:'layers', label:t('superPagesEditor.layers', { defaultValue:'Layers' }), Icon:Layers, click:onToggleLayers, active:layersOpen},
+                {key:'grid', label:'Grid', Icon:Grid3x3, click:onToggleGrid, active:gridOn},
+                ...(onShowWiring ? [{key:'campaign', label:'Campaign', Icon:Link2, click:onShowWiring, active:!!currentListName}] : []),
+                {key:'help', label:t('superPagesEditor.helpLabel', { defaultValue:'Help' }), Icon:HelpCircle, click:onShowHelp, accent:'#22d3ee'},
+                {key:'clear', label:t('superPagesEditor.clearCanvasLabel', { defaultValue:'Clear canvas' }), Icon:Trash2, click:onClear, danger:true},
+              ].map(item => (
+                <button
+                  key={item.key}
+                  onClick={() => { setOverflowOpen(false); item.click && item.click(); }}
+                  style={{
+                    display:'flex', alignItems:'center', gap:8,
+                    padding:'8px 10px',
+                    background: item.active ? 'rgba(34,211,238,0.12)' : 'transparent',
+                    border:'1px solid ' + (item.active ? 'rgba(34,211,238,0.3)' : 'transparent'),
+                    borderRadius:6,
+                    color: item.danger ? '#fca5a5' : (item.active ? '#22d3ee' : (item.accent || 'rgba(255,255,255,0.85)')),
+                    fontSize:13, fontWeight:600,
+                    fontFamily:'DM Sans,sans-serif',
+                    cursor:'pointer',
+                    textAlign:'left',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = item.danger ? 'rgba(239,68,68,0.18)' : 'rgba(34,211,238,0.08)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = item.active ? 'rgba(34,211,238,0.12)' : 'transparent'; }}>
+                  <item.Icon size={14}/>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div style={{width:1, height:24, background:'rgba(255,255,255,0.15)'}}/>
 

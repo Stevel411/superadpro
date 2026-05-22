@@ -5156,26 +5156,30 @@ function UnsupportedTypeNote({ type }) {
 //
 // Header is constant across all states: shows element type + the
 // quick actions (duplicate / lock / delete).
-export default function ElementInspectorPanel({ el, updateElement, updateElementStyle, markDirty, pageSettings, setPageSettings, onOpenFullSettings, onDuplicate, onDelete, onToggleLock }) {
-  // No-selection state — show page-level settings instead of an
-  // empty hint card. Steve's call 22 May 2026: 'the biggest visual
-  // problem on the page' was 900px of empty cobalt when nothing
-  // was selected. Filling it with page settings (title, slug, SEO,
-  // plus quick-action buttons to the full-settings modal) gives
-  // members something useful and on-brand to do while not editing.
+export default function ElementInspectorPanel({ el, updateElement, updateElementStyle, markDirty, pageSettings, setPageSettings, pageStatus, setPageStatus, onDuplicate, onDelete, onToggleLock }) {
+  // No-selection state — show the full set of page-level settings.
+  // Steve's call 22 May 2026: 'we have added those same setting
+  // features in the new left side panel' → so consolidate the
+  // Settings modal here and remove the modal entirely. The inspector
+  // is now the definitive page-settings surface; the topbar Settings
+  // button is gone.
   if (!el) {
     const ps = pageSettings || { title: '', metaDescription: '', slug: '', ogImage: '' };
     const update = (patch) => {
       if (setPageSettings) setPageSettings(p => ({ ...p, ...patch }));
       if (markDirty) markDirty();
     };
+    const updateStatus = (next) => {
+      if (setPageStatus) setPageStatus(next);
+      if (markDirty) markDirty();
+    };
     // Derive the current slug fragment that the member can edit
     // (the part after /p/username/). Matches the same logic the
-    // full-settings modal uses, kept consistent so editing here
-    // updates the same field.
+    // old Settings modal used, so saved pages are unchanged.
     const slugFragment = ps.customSlug !== undefined
       ? ps.customSlug
       : (ps.slug ? ps.slug.split('/').pop() : '');
+    const isPublished = pageStatus === 'published';
 
     const sectionLabelStyle = {
       fontSize: 10, fontWeight: 800,
@@ -5196,20 +5200,34 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
       boxSizing: 'border-box',
       fontFamily: 'inherit',
     };
-    const quickBtnStyle = {
+    const comingSoonBtnStyle = {
       width: '100%',
       display: 'flex', alignItems: 'center', gap: 8,
       padding: '8px 10px',
       background: 'rgba(255,255,255,0.05)',
       border: '1px solid rgba(255,255,255,0.12)',
       borderRadius: 6,
-      color: '#fff',
+      color: 'rgba(255,255,255,0.7)',
       fontSize: 12, fontWeight: 600,
       textAlign: 'left',
-      cursor: 'pointer',
+      cursor: 'not-allowed',
       fontFamily: 'inherit',
       marginBottom: 6,
+      opacity: 0.65,
     };
+    const comingSoonNote = (
+      <span style={{
+        marginLeft: 'auto',
+        fontSize: 9, fontWeight: 700,
+        color: '#22d3ee',
+        background: 'rgba(34,211,238,0.12)',
+        border: '1px solid rgba(34,211,238,0.3)',
+        borderRadius: 4,
+        padding: '1px 6px',
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
+      }}>Soon</span>
+    );
 
     return (
       <div className="ins-cobalt" style={{
@@ -5229,6 +5247,44 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
             No element selected. Click any block on the canvas to edit it, or adjust page-wide settings below.
           </div>
+        </div>
+
+        {/* Status — draft / published */}
+        <div style={sectionLabelStyle}>Status</div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button
+            onClick={() => updateStatus('draft')}
+            style={{
+              flex: 1,
+              padding: '8px 10px',
+              borderRadius: 6,
+              fontSize: 11, fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              border: '1px solid ' + (!isPublished ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
+              background: !isPublished ? 'rgba(14,165,233,0.16)' : 'rgba(255,255,255,0.04)',
+              color: !isPublished ? '#22d3ee' : '#e2e8f0',
+            }}>
+            Draft
+          </button>
+          <button
+            onClick={() => updateStatus('published')}
+            style={{
+              flex: 1,
+              padding: '8px 10px',
+              borderRadius: 6,
+              fontSize: 11, fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              border: '1px solid ' + (isPublished ? '#10b981' : 'rgba(255,255,255,0.15)'),
+              background: isPublished ? 'rgba(16,185,129,0.16)' : 'rgba(255,255,255,0.04)',
+              color: isPublished ? '#34d399' : '#e2e8f0',
+            }}>
+            Published
+          </button>
+        </div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', marginTop: 6, lineHeight: 1.4 }}>
+          {isPublished ? 'Live and visible to visitors.' : 'Only you can see this page until you publish.'}
         </div>
 
         {/* Page title */}
@@ -5262,20 +5318,39 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           style={{ ...psInputStyle, resize: 'vertical', minHeight: 56, fontFamily: 'inherit', lineHeight: 1.5 }}
         />
 
-        {/* Quick actions to the full-settings modal */}
+        {/* OG image — social share preview */}
+        <div style={sectionLabelStyle}>Social share image</div>
+        <input
+          value={ps.ogImage || ''}
+          onChange={e => update({ ogImage: e.target.value })}
+          placeholder="https://..."
+          style={psInputStyle}
+        />
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.4 }}>
+          Shown when your page is shared on Facebook, LinkedIn, etc.
+        </div>
+
+        {/* Coming-soon advanced features — Custom domain, Custom scripts,
+            Typography. Surfaces the planned features so members know
+            they're coming, without misdirecting to a modal that doesn't
+            have them. These will become real working sections in a
+            follow-up pass. */}
         <div style={sectionLabelStyle}>Advanced</div>
-        <button onClick={() => onOpenFullSettings && onOpenFullSettings()} style={quickBtnStyle}>
+        <div style={comingSoonBtnStyle} title="Coming soon">
           <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>↗</span>
           <span>Custom domain</span>
-        </button>
-        <button onClick={() => onOpenFullSettings && onOpenFullSettings()} style={quickBtnStyle}>
+          {comingSoonNote}
+        </div>
+        <div style={comingSoonBtnStyle} title="Coming soon">
           <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>{'</>'}</span>
           <span>Custom scripts</span>
-        </button>
-        <button onClick={() => onOpenFullSettings && onOpenFullSettings()} style={quickBtnStyle}>
-          <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>⚙</span>
-          <span>All page settings</span>
-        </button>
+          {comingSoonNote}
+        </div>
+        <div style={comingSoonBtnStyle} title="Coming soon">
+          <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>Aa</span>
+          <span>Typography</span>
+          {comingSoonNote}
+        </div>
 
         <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 12, lineHeight: 1.5 }}>
           Changes save when you click Save in the top bar.

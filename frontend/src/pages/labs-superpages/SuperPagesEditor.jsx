@@ -72,7 +72,6 @@ export default function LabsSuperPagesEditor() {
     capture_sequence_num_emails: null,
   });
   const [showWiring, setShowWiring] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showLayers, setShowLayers] = useState(false);
@@ -729,7 +728,6 @@ export default function LabsSuperPagesEditor() {
         status={pageStatus}
         onSave={save}
         onClear={handleClear}
-        onShowSettings={() => setShowSettings(true)}
         onShowWiring={() => setShowWiring(true)}
         currentListName={wiring.default_list_name}
         isSandbox={isSandbox}
@@ -928,7 +926,8 @@ export default function LabsSuperPagesEditor() {
                 markDirty={markDirty}
                 pageSettings={pageSettings}
                 setPageSettings={setPageSettings}
-                onOpenFullSettings={() => setShowSettings(true)}
+                pageStatus={pageStatus}
+                setPageStatus={setPageStatus}
                 onDuplicate={() => selId && duplicateElement(selId)}
                 onDelete={() => selId && deleteElement(selId)}
                 onToggleLock={() => {
@@ -985,209 +984,6 @@ export default function LabsSuperPagesEditor() {
         )}
       </div>
 
-      {/* Settings Modal */}
-      {showSettings && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          background: 'rgba(10, 18, 40, 0.6)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          zIndex: 200,
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          padding: '60px 24px 24px',
-          overflowY: 'auto',
-        }}
-          onClick={() => setShowSettings(false)}>
-          <div onClick={e => e.stopPropagation()}
-            style={{
-              background: '#fff',
-              background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-              borderRadius: 18,
-              width: '100%',
-              maxWidth: 560,
-              padding: '28px 32px 30px',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.25), 0 8px 24px rgba(14,165,233,0.12)',
-              fontFamily: 'Manrope, sans-serif',
-            }}>
-            {/* Eyebrow + heading */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '4px 10px', borderRadius: 99,
-                background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
-                border: '1px solid rgba(14,165,233,0.25)',
-                fontFamily: 'Sora, sans-serif',
-                fontSize: 10, fontWeight: 900,
-                color: '#0284c7',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                marginBottom: 10,
-              }}>⚙ Page settings</div>
-              <h3 style={{
-                margin: 0,
-                fontFamily: 'Sora, sans-serif',
-                fontWeight: 900,
-                fontSize: 22,
-                letterSpacing: '-0.02em',
-                color: '#0f172a',
-              }}>{pageSettings.title || 'Untitled Page'}</h3>
-              <p style={{
-                margin: '4px 0 0',
-                fontSize: 13,
-                color: '#64748b',
-                fontWeight: 500,
-              }}>Configure title, slug, and SEO metadata</p>
-            </div>
-
-            {/* Section: Content */}
-            <div style={{
-              fontFamily: 'Sora, sans-serif',
-              fontSize: 10, fontWeight: 900,
-              color: '#94a3b8',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              marginBottom: 10,
-            }}>Content</div>
-
-            <label style={lblStyle}>{t('superPagesEditor.pageTitle')}</label>
-            <input value={pageSettings.title} onChange={e => setPageSettings(p => ({ ...p, title: e.target.value }))}
-              style={inpStyle} />
-
-            <label style={lblStyle}>{t('superPagesEditor.metaDescription')}</label>
-            <textarea value={pageSettings.metaDescription} onChange={e => setPageSettings(p => ({ ...p, metaDescription: e.target.value }))}
-              rows={3}
-              style={{ ...inpStyle, resize: 'vertical' }} />
-
-            <label style={lblStyle}>{t('superPagesEditor.ogImage')}</label>
-            <input value={pageSettings.ogImage} onChange={e => setPageSettings(p => ({ ...p, ogImage: e.target.value }))}
-              placeholder="https://..."
-              style={inpStyle} />
-
-            {/* Section: URL */}
-            <div style={{
-              fontFamily: 'Sora, sans-serif',
-              fontSize: 10, fontWeight: 900,
-              color: '#94a3b8',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              marginTop: 8, marginBottom: 10,
-            }}>URL</div>
-
-            <label style={lblStyle}>{t('superPagesEditor.pageUrlSlug')}</label>
-            <div style={{ display: 'flex', alignItems: 'stretch', marginBottom: 6 }}>
-              <span style={{
-                padding: '11px 12px',
-                background: 'rgba(14,165,233,0.06)',
-                border: '1px solid rgba(15,23,42,0.08)',
-                borderRight: 'none',
-                borderRadius: '9px 0 0 9px',
-                fontSize: 12,
-                color: '#64748b',
-                whiteSpace: 'nowrap',
-                fontFamily: 'monospace',
-              }}>/p/{pageSettings.slug ? pageSettings.slug.split('/')[0] : 'username'}/</span>
-              <input value={pageSettings.customSlug || (pageSettings.slug ? pageSettings.slug.split('/').pop() : '')}
-                onChange={e => setPageSettings(p => ({ ...p, customSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/--+/g, '-') }))}
-                placeholder={t("superPagesEditor.slugPlaceholder")}
-                style={{
-                  flex: 1, padding: '10px 14px',
-                  border: '1px solid rgba(15,23,42,0.08)',
-                  borderRadius: '0 9px 9px 0',
-                  fontSize: 13, outline: 'none',
-                  fontFamily: 'monospace', fontWeight: 600,
-                  color: '#0f172a',
-                  boxSizing: 'border-box',
-                }} />
-            </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 14, fontWeight: 500 }}>{t("superPagesEditor.slugNote")}</div>
-
-            {pageSettings.slug && (
-              <div style={{
-                padding: '10px 14px',
-                background: 'rgba(16,185,129,0.08)',
-                border: '1px solid rgba(16,185,129,0.25)',
-                borderRadius: 9,
-                fontSize: 12,
-                color: '#047857',
-                marginBottom: 18,
-                wordBreak: 'break-all',
-                fontWeight: 600,
-              }}>
-                <span style={{ fontWeight: 900, marginRight: 6 }}>✓ Live:</span>
-                {window.location.origin}/p/{pageSettings.slug}
-              </div>
-            )}
-
-            {/* Section: Status */}
-            <div style={{
-              fontFamily: 'Sora, sans-serif',
-              fontSize: 10, fontWeight: 900,
-              color: '#94a3b8',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              marginBottom: 10,
-            }}>Status</div>
-
-            <div style={{ display: 'flex', gap: 8, marginBottom: 22 }}>
-              <button onClick={() => setPageStatus('draft')} style={{
-                flex: 1, padding: '11px',
-                borderRadius: 9,
-                fontSize: 12, fontWeight: 800,
-                cursor: 'pointer',
-                border: pageStatus === 'draft' ? '1px solid #0ea5e9' : '1px solid rgba(15,23,42,0.1)',
-                background: pageStatus === 'draft' ? 'rgba(14,165,233,0.08)' : '#fff',
-                color: pageStatus === 'draft' ? '#0284c7' : '#94a3b8',
-                fontFamily: 'Manrope, sans-serif',
-              }}>📝 {t('superPagesEditor.draft')}</button>
-              <button onClick={() => setPageStatus('published')} style={{
-                flex: 1, padding: '11px',
-                borderRadius: 9,
-                fontSize: 12, fontWeight: 800,
-                cursor: 'pointer',
-                border: pageStatus === 'published' ? '1px solid #10b981' : '1px solid rgba(15,23,42,0.1)',
-                background: pageStatus === 'published' ? 'rgba(16,185,129,0.08)' : '#fff',
-                color: pageStatus === 'published' ? '#047857' : '#94a3b8',
-                fontFamily: 'Manrope, sans-serif',
-              }}>🌐 {t('superPagesEditor.published')}</button>
-            </div>
-
-            {/* Footer actions */}
-            <div style={{
-              display: 'flex', gap: 10, justifyContent: 'flex-end',
-              paddingTop: 16,
-              borderTop: '1px solid rgba(15,23,42,0.06)',
-            }}>
-              <button onClick={() => setShowSettings(false)}
-                style={{
-                  padding: '10px 18px',
-                  borderRadius: 9,
-                  background: '#f1f5f9',
-                  border: '1px solid #e2e8f0',
-                  color: '#475569',
-                  fontFamily: 'Manrope, sans-serif',
-                  fontWeight: 800,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                }}>Cancel</button>
-              <button onClick={() => { markDirty(); setShowSettings(false); save(); }}
-                style={{
-                  padding: '10px 22px',
-                  background: 'linear-gradient(135deg, #0ea5e9, #a855f7)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 9,
-                  fontFamily: 'Manrope, sans-serif',
-                  fontWeight: 900,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(14,165,233,0.3)',
-                }}>Save settings</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Inline Element Editor Modal */}
       {editingElement && (
