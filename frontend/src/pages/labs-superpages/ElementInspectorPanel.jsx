@@ -34,6 +34,7 @@
 
 import { useEffect, useState } from 'react';
 import { FONTS } from './elementDefaults';
+import FontPicker from './FontPicker';
 
 // ── Shared styles for the panel ────────────────────────────────
 const labelStyle = {
@@ -5330,11 +5331,96 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           Shown when your page is shared on Facebook, LinkedIn, etc.
         </div>
 
-        {/* Coming-soon advanced features — Custom domain, Custom scripts,
-            Typography. Surfaces the planned features so members know
-            they're coming, without misdirecting to a modal that doesn't
-            have them. These will become real working sections in a
-            follow-up pass. */}
+        {/* Typography — page-wide font choices. Stored on
+            pageSettings.typography. The published-page export reads
+            this and emits a <link rel=stylesheet> to Google Fonts
+            plus CSS variables (--page-font-heading, --page-font-body,
+            --page-font-base-size). Element types pick these up via
+            their stylesheet defaults unless they have an explicit
+            override (per-element font controls still win).
+            Built 22 May 2026. */}
+        <div style={sectionLabelStyle}>Typography</div>
+        <div style={{
+          padding: 10,
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 8,
+          background: 'rgba(255,255,255,0.04)',
+        }}>
+          <FontPicker
+            label="Heading font"
+            value={(ps.typography && ps.typography.heading) || ''}
+            onChange={(name) => update({ typography: { ...(ps.typography || {}), heading: name } })}
+          />
+          <div style={{ height: 10 }} />
+          <FontPicker
+            label="Body font"
+            value={(ps.typography && ps.typography.body) || ''}
+            onChange={(name) => update({ typography: { ...(ps.typography || {}), body: name } })}
+          />
+
+          {/* Base size slider */}
+          <div style={{
+            fontSize: 10, fontWeight: 800,
+            color: 'rgba(255,255,255,0.55)',
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+            marginTop: 14, marginBottom: 6,
+            display: 'flex', justifyContent: 'space-between',
+          }}>
+            <span>Body size</span>
+            <span style={{ color: 'rgba(255,255,255,0.85)', fontFamily: 'monospace' }}>
+              {((ps.typography && ps.typography.baseSize) || 16)}px
+            </span>
+          </div>
+          <input
+            type="range"
+            min={14} max={20} step={1}
+            value={(ps.typography && ps.typography.baseSize) || 16}
+            onChange={e => update({ typography: { ...(ps.typography || {}), baseSize: parseInt(e.target.value, 10) } })}
+            style={{ width: '100%' }}
+          />
+
+          {/* Heading scale */}
+          <div style={{
+            fontSize: 10, fontWeight: 800,
+            color: 'rgba(255,255,255,0.55)',
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+            marginTop: 14, marginBottom: 6,
+          }}>Heading scale</div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {[
+              { k: 'compact', label: 'Compact' },
+              { k: 'normal', label: 'Normal' },
+              { k: 'large', label: 'Large' },
+            ].map(opt => {
+              const active = ((ps.typography && ps.typography.headingScale) || 'normal') === opt.k;
+              return (
+                <button
+                  key={opt.k}
+                  onClick={() => update({ typography: { ...(ps.typography || {}), headingScale: opt.k } })}
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    fontSize: 11, fontWeight: 700,
+                    border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
+                    background: active ? 'rgba(14,165,233,0.16)' : 'rgba(255,255,255,0.04)',
+                    color: active ? '#22d3ee' : '#e2e8f0',
+                    borderRadius: 5,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}>
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.4 }}>
+            Bumps all heading sizes proportionally.
+          </div>
+        </div>
+
+        {/* Coming-soon advanced features — Custom domain, Custom scripts.
+            Typography moved out of this group (now real, above). These
+            two will become real working sections in a follow-up pass. */}
         <div style={sectionLabelStyle}>Advanced</div>
         <div style={comingSoonBtnStyle} title="Coming soon">
           <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>↗</span>
@@ -5344,11 +5430,6 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <div style={comingSoonBtnStyle} title="Coming soon">
           <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>{'</>'}</span>
           <span>Custom scripts</span>
-          {comingSoonNote}
-        </div>
-        <div style={comingSoonBtnStyle} title="Coming soon">
-          <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>Aa</span>
-          <span>Typography</span>
           {comingSoonNote}
         </div>
 

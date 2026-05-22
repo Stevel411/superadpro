@@ -17,6 +17,7 @@ import { loadSandboxPage, saveSandboxPage, exportToProductionPayload } from './s
 import { FONTS, FONT_SIZES } from './elementDefaults';
 import ElementInspectorPanel from './ElementInspectorPanel';
 import CampaignSetupModal from '../../components/CampaignSetupModal';
+import { loadGoogleFont } from './FontPicker';
 
 export default function LabsSuperPagesEditor() {
   var { t } = useTranslation();
@@ -183,6 +184,44 @@ export default function LabsSuperPagesEditor() {
     return () => { delete window._spAddElement; delete window._spDeleteElement; delete window._spDuplicateElement; };
   }, [addElementWithAutoEdit, deleteElement, duplicateElement]);
 
+  // ── Apply page-level typography to the editor canvas ──
+  // pageSettings.typography drives heading font, body font, base size,
+  // and heading scale. We do two things here:
+  //   1. Load each chosen Google Font via <link rel=stylesheet>
+  //      (idempotent — loadGoogleFont is a no-op if already loaded)
+  //   2. Emit CSS variables on the .labs-chrome editor root so any
+  //      element using var(--page-font-heading) / var(--page-font-body)
+  //      picks them up. Existing elements with explicit per-element
+  //      font choices still win — these are page-level defaults.
+  //
+  // Published-page export does the same thing at render time (see
+  // exportHTML.js) so editor and published page stay in sync.
+  // Built 22 May 2026.
+  useEffect(() => {
+    const typo = pageSettings.typography || {};
+    if (typo.heading) loadGoogleFont(typo.heading);
+    if (typo.body) loadGoogleFont(typo.body);
+
+    const root = document.querySelector('.labs-chrome');
+    if (!root) return;
+
+    // Resolve fallback stacks. The Google Fonts metadata is in the
+    // FontPicker JSON, so we don't categorise here — instead we
+    // assume sensible defaults. The published page does the proper
+    // fallback via export.
+    root.style.setProperty('--page-font-heading',
+      typo.heading ? `"${typo.heading}", "Sora", sans-serif` : '');
+    root.style.setProperty('--page-font-body',
+      typo.body ? `"${typo.body}", "DM Sans", sans-serif` : '');
+    root.style.setProperty('--page-font-base-size',
+      (typo.baseSize || 16) + 'px');
+
+    // Heading scale multiplies all heading sizes proportionally.
+    const scaleMap = { compact: 0.9, normal: 1, large: 1.15 };
+    const headingScale = scaleMap[typo.headingScale] || 1;
+    root.style.setProperty('--page-heading-scale', headingScale);
+  }, [pageSettings.typography]);
+
   // ── Load page data ──
   useEffect(() => {
     if (!effectiveId) { setLoading(false); return; }
@@ -328,7 +367,7 @@ export default function LabsSuperPagesEditor() {
       }
 
       // DB-backed save (legacy /edit/{pageId} route)
-      const html = exportHTML(els, canvasBg, canvasBgImage);
+      const html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography);
       const payload = {
         id: parseInt(pageId),
         title: pageSettings.title || 'Untitled',
@@ -394,7 +433,7 @@ export default function LabsSuperPagesEditor() {
         canvasBg,
         canvasBgImage,
       });
-      payload.gjs_html = exportHTML(els, canvasBg, canvasBgImage);
+      payload.gjs_html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography);
       // Force-publish on first export so the live URL works immediately.
       payload.status = 'published';
       const res = await apiPost('/api/funnels/save', payload);
@@ -618,7 +657,7 @@ export default function LabsSuperPagesEditor() {
     }
     setSaving(true);
     try {
-      const html = exportHTML(els, canvasBg, canvasBgImage);
+      const html = exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography);
       const payload = {
         id: parseInt(pageId),
         title: pageSettings.title || 'Untitled',
@@ -874,7 +913,7 @@ export default function LabsSuperPagesEditor() {
                 const previewH = deviceView !== 'desktop' ? stackHeight : Math.max(900, maxY);
                 return (
                   <iframe
-                    srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Manrope','DM Sans',sans-serif;background:${canvasBg || '#ffffff'};${canvasBgImage ? `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;` : ''}min-height:100vh}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
+                    srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Manrope','DM Sans',sans-serif;background:${canvasBg || '#ffffff'};${canvasBgImage ? `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;` : ''}min-height:100vh}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage, pageSettings.typography)}</body></html>`}
                     style={{width:'100%',height:previewH+'px',border:'none',background:canvasBg||'#ffffff',display:'block'}}
                     title={t('superPagesEditor.preview')}
                   />

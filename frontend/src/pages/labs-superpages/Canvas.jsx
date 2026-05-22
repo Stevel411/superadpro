@@ -654,6 +654,26 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const textStyles = ['fontFamily', 'fontSize', 'fontWeight', 'color', 'textAlign', 'lineHeight', 'letterSpacing', 'textTransform', 'fontStyle'];
     let innerStyle = 'width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word;';
     textStyles.forEach(k => { if (el.s?.[k]) innerStyle += k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + el.s[k] + ';'; });
+
+    // 22 May 2026: Typography page-level inheritance.
+    // Heading elements without explicit fontFamily inherit the page's
+    // heading font and heading scale multiplier. Existing pages with
+    // baked-in fontFamily on the heading element keep their value
+    // (the textStyles loop above already serialised it).
+    if (el.type === 'heading' && !el.s?.fontFamily) {
+      innerStyle += 'font-family:var(--page-font-heading, "Sora", sans-serif);';
+    }
+    // Heading scale (compact/normal/large) multiplies the fontSize
+    // for headings only — applied via calc() so the slider value is
+    // preserved as the base.
+    if (el.type === 'heading') {
+      const fs = el.s?.fontSize || '36px';
+      const fsNum = parseFloat(fs);
+      if (!isNaN(fsNum)) {
+        innerStyle += `font-size:calc(${fsNum}px * var(--page-heading-scale, 1));`;
+      }
+    }
+
     // Badge/label blocks need flex centering
     if ((el.type === 'badge' || el.type === 'label') || (el.s?.display === 'flex')) {
       innerStyle += 'display:flex;align-items:center;justify-content:center;';
@@ -1168,6 +1188,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           borderRadius: 10,
           boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 32px rgba(15,23,42,0.06), 0 20px 60px rgba(15,23,42,0.04)',
           border: '1px solid #e2e8f0',
+          // 22 May 2026: typography default. Picks up the CSS variables
+          // set on .labs-chrome (see SuperPagesEditor.jsx typography
+          // useEffect). Any element with explicit el.s.fontFamily wins;
+          // only elements that inherit (Heading and Text without explicit
+          // fontFamily) get the page-level font.
+          fontFamily: 'var(--page-font-body, "DM Sans", sans-serif)',
+          fontSize: 'var(--page-font-base-size, 16px)',
           ...bgStyle,
         }}
       >

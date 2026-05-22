@@ -3,8 +3,13 @@
 
 export const ELEMENT_TYPES = {
   // ── Text ──
-  heading: { w: 600, h: 55, txt: 'Your Heading Here', s: { fontFamily: 'Sora,sans-serif', fontWeight: '900', fontSize: '36px', color: '#0f172a', textAlign: 'center' } },
-  text: { w: 600, h: 50, txt: 'Your text content goes here. Click to edit.', s: { fontFamily: 'Outfit,sans-serif', fontSize: '15px', color: '#475569', textAlign: 'left', lineHeight: '1.8' } },
+  // 22 May 2026: removed hardcoded fontFamily from heading/text so page-level
+  // typography (pageSettings.typography.heading / .body) takes effect by
+  // default. Existing pages with explicit el.s.fontFamily keep their value;
+  // new headings/text elements inherit the page typography until a member
+  // explicitly overrides.
+  heading: { w: 600, h: 55, txt: 'Your Heading Here', s: { fontWeight: '900', fontSize: '36px', color: '#0f172a', textAlign: 'center' } },
+  text: { w: 600, h: 50, txt: 'Your text content goes here. Click to edit.', s: { fontSize: '15px', color: '#475569', textAlign: 'left', lineHeight: '1.8' } },
   label: { w: 200, h: 30, txt: '⭐ PREMIUM', s: { fontFamily: 'DM Sans,sans-serif', fontWeight: '700', fontSize: '12px', color: '#fbbf24', textAlign: 'center', background: 'rgba(251,191,36,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(251,191,36,0.2)' } },
 
   // ── Media ──

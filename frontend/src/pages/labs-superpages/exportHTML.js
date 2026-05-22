@@ -16,7 +16,36 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
-export default function exportHTML(els, canvasBg, canvasBgImage) {
+export default function exportHTML(els, canvasBg, canvasBgImage, typography) {
+  // typography: { heading, body, baseSize, headingScale } from pageSettings.
+  // Built 22 May 2026. Drives:
+  //   1. A <style> block at the top that emits CSS variables + a Google
+  //      Fonts @import for the chosen heading + body fonts. Existing
+  //      published pages without typography get nothing here — render
+  //      unchanged.
+  //   2. Heading elements without explicit fontFamily inherit the
+  //      heading font via the var.
+  //   3. Body text inherits via the sp-page wrapper's font-family.
+  const typo = typography || {};
+  let fontImports = '';
+  let fontVars = '';
+  if (typo.heading || typo.body) {
+    const families = [];
+    if (typo.heading) families.push(typo.heading.replace(/\s+/g, '+') + ':wght@400;700;900');
+    if (typo.body && typo.body !== typo.heading) families.push(typo.body.replace(/\s+/g, '+') + ':wght@400;500;700');
+    if (families.length) {
+      fontImports = `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=${families.join('&family=')}&display=swap" rel="stylesheet">`;
+    }
+  }
+  const scaleMap = { compact: 0.9, normal: 1, large: 1.15 };
+  const headingScale = scaleMap[typo.headingScale] || 1;
+  const headingStack = typo.heading ? `"${typo.heading}", "Sora", sans-serif` : `"Sora", sans-serif`;
+  const bodyStack = typo.body ? `"${typo.body}", "DM Sans", sans-serif` : `"Outfit", "DM Sans", sans-serif`;
+  fontVars = `<style>
+    .sp-page { --page-font-heading: ${headingStack}; --page-font-body: ${bodyStack}; --page-heading-scale: ${headingScale}; --page-font-base-size: ${typo.baseSize || 16}px; font-family: var(--page-font-body); font-size: var(--page-font-base-size); }
+    .sp-page [data-el-type="heading"]:not([data-has-font="1"]) { font-family: var(--page-font-heading); font-size: calc(var(--page-h-base, 36px) * var(--page-heading-scale)); }
+  </style>`;
+
   let bgStyle = `background:${canvasBg};`;
   if (canvasBgImage) bgStyle += `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;`;
 
@@ -43,7 +72,7 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   });
   const maxY = els.length > 0 ? Math.max(...els.map(e => e.y + e.h)) + 80 : 900;
 
-  let h = `<div style="${bgStyle}position:relative;min-height:100vh;width:100%;overflow-x:hidden;font-family:'Outfit',sans-serif">`;
+  let h = fontImports + fontVars + `<div style="${bgStyle}position:relative;min-height:100vh;width:100%;overflow-x:hidden;font-family:'Outfit',sans-serif">`;
   h += `<div class="sp-page" style="position:relative;width:1100px;max-width:100%;margin:0 auto;min-height:${Math.max(900, maxY)}px">`;
 
   sorted.forEach(el => {
@@ -72,7 +101,12 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
     // Element id used as a CSS hook for per-device override rules at the
     // bottom of this file. Element ids in the editor look like
     // `e1m2n3...` (uid()), safe for CSS selectors.
-    const elAttrs = `class="${elClass}" id="${el.id}"`;
+    // data-el-type / data-has-font added 22 May 2026 for the typography
+    // system: published-page CSS rules target [data-el-type="heading"]
+    // to apply var(--page-font-heading) only on heading elements that
+    // don't have an explicit fontFamily of their own (data-has-font="0").
+    const hasExplicitFont = !!(el.s?.fontFamily);
+    const elAttrs = `class="${elClass}" id="${el.id}" data-el-type="${el.type}" data-has-font="${hasExplicitFont ? '1' : '0'}"`;
 
     if (el.type === 'video' && el.txt) {
       const isMP4 = el._isMP4 || /\.(mp4|webm|ogg)/.test(el.txt) || el.txt.includes('funnel-videos');
