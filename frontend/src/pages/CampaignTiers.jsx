@@ -51,6 +51,27 @@ export default function CampaignTiers() {
   };
   var [loading, setLoading] = useState(true);
   var [selected, setSelected] = useState(null);
+  // 23 May 2026: shows a brief success banner when redirected from
+  // Stripe Checkout after a successful tier purchase. The URL will
+  // look like /campaign-tiers?activated=tier_1 — read tier from the
+  // query string and show "Tier X activated!" toast.
+  var [activatedTier, setActivatedTier] = useState(null);
+
+  useEffect(function() {
+    var params = new URLSearchParams(window.location.search);
+    var activated = params.get('activated') || '';
+    var m = activated.match(/^tier_(\d+)$/);
+    if (m) {
+      setActivatedTier(parseInt(m[1]));
+      // Clean the URL so the banner doesn't reappear on refresh
+      try {
+        var clean = window.location.pathname;
+        window.history.replaceState({}, '', clean);
+      } catch (e) { /* ignore */ }
+      // Auto-dismiss after 8 seconds
+      setTimeout(function() { setActivatedTier(null); }, 8000);
+    }
+  }, []);
 
   useEffect(function() {
     apiGet('/api/campaign-tiers').then(function(d) {
@@ -95,6 +116,24 @@ export default function CampaignTiers() {
 
   return (
     <AppLayout title={t("campaignTiers.title")} subtitle={t("campaignTiers.subtitle")}>
+
+      {/* 23 May 2026: Stripe activation success banner */}
+      {activatedTier && (
+        <div style={{
+          maxWidth: 1100, margin: '0 auto 16px auto', padding: '14px 20px',
+          background: 'linear-gradient(135deg, #064e3b, #047857, #10b981)',
+          color: '#fff', borderRadius: 12, fontWeight: 700, fontSize: 15,
+          display: 'flex', alignItems: 'center', gap: 12,
+          boxShadow: '0 6px 20px rgba(16,185,129,0.25)',
+        }}>
+          <Check size={20} />
+          <span>Tier {activatedTier} activated successfully — campaign is live and your grid placement has been recorded.</span>
+          <button onClick={function() { setActivatedTier(null); }}
+            style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', cursor: 'pointer', width: 24, height: 24, borderRadius: 6, fontSize: 14 }}>
+            ×
+          </button>
+        </div>
+      )}
 
       <style>{[
         '@keyframes spin{to{transform:rotate(360deg)}}',

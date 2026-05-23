@@ -98,6 +98,21 @@ export function CreditMatrixContent() {
 
   useEffect(function() { loadAll(); }, []);
 
+  // 23 May 2026: read ?activated=<pack_key> from URL and show success banner.
+  // Set by Stripe Checkout success_path after a successful Nexus pack purchase.
+  useEffect(function() {
+    var params = new URLSearchParams(window.location.search);
+    var activated = (params.get('activated') || '').toLowerCase();
+    if (activated && ['starter','builder','pro','advanced','elite','premium','executive','ultimate'].indexOf(activated) >= 0) {
+      var label = activated.charAt(0).toUpperCase() + activated.slice(1);
+      setMessage({ type: 'success', text: label + ' pack activated — credits awarded and your matrix has been updated.' });
+      // Clean URL so banner doesn't reappear on refresh
+      try {
+        window.history.replaceState({}, '', window.location.pathname);
+      } catch (e) { /* ignore */ }
+    }
+  }, []);
+
   // Refetch matrix-specific data when the selected pack changes
   useEffect(function() {
     if (selectedPackKey === null) return;   // initial load handled above

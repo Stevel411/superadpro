@@ -10365,7 +10365,7 @@ async def stripe_checkout_campaign_tier(
             db_session=db,
             product_kind="campaign_tier",
             amount_cents=amount_cents,
-            success_path="/payment-success",
+            success_path=f"/campaign-tiers?activated=tier_{tier_id}",
             cancel_path=f"/activate-tier/{tier_id}",
             extra_metadata={"campaign_tier_id": str(tier_id)},
         )
@@ -10412,7 +10412,7 @@ async def stripe_checkout_nexus_pack(
             db_session=db,
             product_kind="nexus_pack",
             amount_cents=amount_cents,
-            success_path="/payment-success",
+            success_path=f"/credit-nexus?activated={pack_key}",
             cancel_path="/credit-nexus",
             extra_metadata={"nexus_pack_key": pack_key},
         )
