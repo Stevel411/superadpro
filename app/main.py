@@ -25,11 +25,13 @@ from .database import (
 )
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 # Coinbase Commerce removed 20 May 2026 — platform uses NOWPayments + WalletConnect/BSC only
-# Stripe disabled — platform uses NOWPayments + direct crypto only
-# from . import stripe_service
-# from .stripe_service import BOOST_PACKS as STRIPE_BOOST_PACKS, STRIPE_PUBLISHABLE_KEY
-STRIPE_BOOST_PACKS = {}
-STRIPE_PUBLISHABLE_KEY = ""
+# Stripe re-introduced 23 May 2026 alongside the crypto rail. See app/stripe_service.py
+# for the SDK wrapper. Members can now sign up by card OR by USDT on BSC.
+# payment_method on User tracks which rail; renewals route by that value.
+from . import stripe_service
+from .database import StripeCharge
+STRIPE_BOOST_PACKS = {}  # legacy compat — kept until any consumer is rewritten
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_user, cache_invalidate_leaderboard, cache_stats
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
@@ -10212,6 +10214,504 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
             db.close()
         except Exception:
             pass
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stripe payment rail
+# ─────────────────────────────────────────────────────────────────────────────
+# Re-introduced 23 May 2026 alongside the existing crypto rail. Members
+# can now sign up by card OR by USDT on BSC. Two payment_method values
+# on User: "crypto" (existing flow) and "stripe" (this flow).
+#
+# Stripe handles renewals natively — we don't run a cron for Stripe
+# subscriptions. We listen to webhooks and update local state when
+# Stripe tells us something happened.
+#
+# Refund policy (Steve, 23 May 2026): partial-refund-only. We refund
+# the company's share of each payment (after commissions). Commissions
+# are already paid out to wallets / on-chain and can't be reclaimed.
+# 7-day window from payment, then no refunds. Stripe Checkout surfaces
+# a link to /refund-policy at the moment of payment so the terms are
+# explicit before card details are entered.
+#
+# Founder cap (Steve, 23 May 2026): the 100-Founder cap is shared
+# across crypto + Stripe. _activate_membership() already enforces this
+# via the FOUNDING_LOCK_KEY advisory lock — no special handling needed
+# here as long as we pass tier='founding' when the member chose the
+# Founder price.
+# ─────────────────────────────────────────────────────────────────────────────
+
+from app import stripe_service as _stripe
+
+@app.get("/api/stripe/status")
+async def stripe_status(user: User = Depends(get_current_user)):
+    """Diagnostic endpoint — returns whether Stripe is configured + this user's
+    Stripe state. Used by frontend to decide whether to show the 'Pay by card'
+    option on signup. Returns 200 always; .configured tells the truth."""
+    return {
+        "configured": _stripe.is_configured(),
+        "has_subscription": bool(user.stripe_subscription_id),
+        "stripe_customer_id": user.stripe_customer_id,
+        "payment_method": user.payment_method or "crypto",
+        "refund_eligible_until": user.stripe_refund_eligible_until.isoformat() + "Z" if user.stripe_refund_eligible_until else None,
+    }
+
+
+@app.post("/api/stripe/checkout/membership")
+async def stripe_checkout_membership(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create a Stripe Checkout session for membership signup.
+
+    Body (JSON):
+      tier: 'partner' or 'founding' (default 'partner')
+            If 'founding' is requested but the 100-spot cap is full, this
+            endpoint falls back to 'partner' silently. The actual founder
+            assignment happens in _activate_membership() on webhook receipt
+            so the cap is enforced consistently across crypto + Stripe.
+
+    Returns:
+      { checkout_url, session_id }
+    """
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+
+    body = await request.json()
+    tier = (body.get("tier") or "partner").lower()
+    if tier in ("founder", "founding"):
+        # Check the founder cap before sending the member to Stripe with a
+        # $15 price — if the cap is full, send them to the $20 Partner
+        # checkout instead and surface the change in metadata so the
+        # frontend can show a friendly notice.
+        current_founders = db.execute(text(
+            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+        )).fetchone()
+        if current_founders and current_founders.cnt >= 100:
+            tier = "partner"
+
+    price_id = _stripe.get_price_id_for_tier(tier)
+    if not price_id:
+        return JSONResponse({"error": "no_price_for_tier", "tier": tier}, status_code=400)
+
+    try:
+        result = _stripe.create_checkout_session(
+            user=user,
+            db_session=db,
+            product_kind="founder_signup" if tier in ("founder", "founding") else "membership_signup",
+            price_id=price_id,
+            success_path="/welcome",
+            cancel_path="/join",
+            extra_metadata={"tier_requested": tier},
+        )
+        return result
+    except Exception as e:
+        logger.exception(f"stripe_checkout_membership failed for user {user.id}")
+        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
+
+
+@app.post("/api/stripe/portal")
+async def stripe_portal(
+    user: User = Depends(get_current_user),
+):
+    """Return a Stripe Customer Portal URL for the member to manage their
+    subscription (update card, view invoices, cancel). Stripe-hosted; we
+    build nothing."""
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    if not user.stripe_customer_id:
+        return JSONResponse({"error": "no_stripe_customer"}, status_code=400)
+    try:
+        return _stripe.create_portal_session(user)
+    except Exception as e:
+        logger.exception(f"stripe_portal failed for user {user.id}")
+        return JSONResponse({"error": "portal_create_failed", "detail": str(e)}, status_code=500)
+
+
+@app.post("/api/stripe/webhook")
+async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
+    """Stripe webhook receiver.
+
+    Verifies the signature, then dispatches to the right handler based on
+    event type. Returns 200 on success, 400 on invalid signature (causes
+    Stripe to retry).
+
+    Events handled (subscribe these in Stripe Dashboard → Developers → Webhooks):
+      - checkout.session.completed   → activate membership / mark one-time paid
+      - invoice.paid                 → log renewal payment, extend membership
+      - invoice.payment_failed       → log + send notification (Stripe retries)
+      - customer.subscription.deleted → mark membership as ended
+      - charge.dispute.created       → CHARGEBACK — suspend member immediately
+      - charge.refunded              → log refund (kept for audit)
+    """
+    payload = await request.body()
+    signature = request.headers.get("stripe-signature", "")
+
+    try:
+        event = _stripe.verify_and_parse_webhook(payload, signature)
+    except Exception as e:
+        logger.warning(f"Stripe webhook signature verification failed: {e}")
+        return JSONResponse({"error": "invalid_signature"}, status_code=400)
+
+    event_type = event.get("type", "")
+    obj = event.get("data", {}).get("object", {})
+    logger.info(f"Stripe webhook received: {event_type} (id={event.get('id')})")
+
+    try:
+        if event_type == "checkout.session.completed":
+            _stripe_handle_checkout_completed(db, obj, event)
+        elif event_type == "invoice.paid":
+            _stripe_handle_invoice_paid(db, obj, event)
+        elif event_type == "invoice.payment_failed":
+            _stripe_handle_invoice_failed(db, obj, event)
+        elif event_type == "customer.subscription.deleted":
+            _stripe_handle_subscription_deleted(db, obj, event)
+        elif event_type == "charge.dispute.created":
+            _stripe_handle_dispute_created(db, obj, event)
+        elif event_type == "charge.refunded":
+            _stripe_handle_charge_refunded(db, obj, event)
+        else:
+            # We received an event we don't handle — that's fine, just log.
+            logger.info(f"Stripe webhook: unhandled event type {event_type}")
+        return {"received": True}
+    except Exception as e:
+        logger.exception(f"Stripe webhook handler crashed for {event_type}")
+        # Return 200 anyway so Stripe doesn't retry — the failure is on our
+        # side and a retry won't fix it. Worth a Sentry alert when we have
+        # error tracking (point 5 on the roadmap).
+        return {"received": True, "handler_error": str(e)}
+
+
+def _stripe_handle_checkout_completed(db, session, event):
+    """The member has just finished paying at Stripe Checkout.
+    For subscription mode: activate the membership.
+    For payment mode: mark the one-time product as paid (custom domain, etc.)."""
+    metadata = session.get("metadata", {}) or {}
+    user_id = int(metadata.get("superadpro_user_id", 0))
+    if not user_id:
+        logger.warning(f"Stripe checkout.session.completed without user_id: {session.get('id')}")
+        return
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        logger.warning(f"Stripe checkout for unknown user {user_id}")
+        return
+
+    product_kind = metadata.get("product_kind", "membership_signup")
+    mode = session.get("mode", "")
+    amount_cents = int(session.get("amount_total") or 0)
+    company_share, refundable = _stripe.calculate_refundable(product_kind, amount_cents)
+
+    # Persist charge row for audit
+    charge = StripeCharge(
+        user_id=user.id,
+        stripe_session_id=session.get("id"),
+        stripe_payment_intent_id=session.get("payment_intent"),
+        stripe_subscription_id=session.get("subscription"),
+        kind="charge",
+        product=product_kind,
+        amount_cents=amount_cents,
+        currency=session.get("currency", "usd"),
+        company_share_cents=company_share,
+        refundable_cents=refundable,
+        description=f"Checkout completed: {product_kind}",
+        raw_event_json=json.dumps(event)[:50000],  # truncate to keep row size sane
+    )
+    db.add(charge)
+    db.flush()
+
+    # Refund window opens for 7 days from this payment
+    user.stripe_refund_eligible_until = _stripe.refund_window_expiry()
+    user.payment_method = "stripe"
+
+    if mode == "subscription":
+        # Membership signup or upgrade
+        user.stripe_subscription_id = session.get("subscription")
+        tier_requested = metadata.get("tier_requested", "partner")
+        tier_for_activation = "founding" if tier_requested in ("founder", "founding") else "partner"
+        try:
+            _activate_membership(
+                db=db,
+                user=user,
+                tier=tier_for_activation,
+                source="stripe",
+                subscription_id=session.get("subscription"),
+                is_upgrade=False,
+                billing="monthly",
+            )
+            logger.info(f"Stripe membership activated for user {user.id} tier={tier_for_activation}")
+        except Exception as e:
+            logger.exception(f"_activate_membership failed during Stripe webhook for user {user.id}")
+    elif mode == "payment":
+        # One-time payment (custom domain etc.)
+        logger.info(f"Stripe one-time payment received: user={user.id} product={product_kind} amount={amount_cents}")
+        # Per-product handling routes back to the existing product code paths.
+        # Currently no one-time products go through Stripe — custom domain
+        # ships in a follow-up commit on this rail.
+
+    db.commit()
+
+
+def _stripe_handle_invoice_paid(db, invoice, event):
+    """A subscription invoice was paid — this is a renewal.
+    Log it as a charge row and extend the refund window."""
+    customer_id = invoice.get("customer")
+    if not customer_id:
+        return
+    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    if not user:
+        logger.warning(f"Stripe invoice.paid for unknown customer {customer_id}")
+        return
+
+    amount_cents = int(invoice.get("amount_paid") or 0)
+    if amount_cents <= 0:
+        # $0 invoice (trial / coupon) — nothing to log
+        return
+
+    subscription_id = invoice.get("subscription")
+    # Decide product_kind from price metadata or tier locked on user
+    if user.is_founding_member:
+        product_kind = "founder_renewal"
+    else:
+        product_kind = "membership_renewal"
+    company_share, refundable = _stripe.calculate_refundable(product_kind, amount_cents)
+
+    charge = StripeCharge(
+        user_id=user.id,
+        stripe_payment_intent_id=invoice.get("payment_intent"),
+        stripe_subscription_id=subscription_id,
+        kind="charge",
+        product=product_kind,
+        amount_cents=amount_cents,
+        currency=invoice.get("currency", "usd"),
+        company_share_cents=company_share,
+        refundable_cents=refundable,
+        description=f"Renewal invoice paid",
+        raw_event_json=json.dumps(event)[:50000],
+    )
+    db.add(charge)
+
+    # Extend membership_expires_at — Stripe is the source of truth; read
+    # from the invoice's period_end.
+    period_end = invoice.get("period_end")
+    if period_end:
+        user.membership_expires_at = datetime.utcfromtimestamp(period_end)
+    user.stripe_refund_eligible_until = _stripe.refund_window_expiry()
+
+    db.commit()
+    logger.info(f"Stripe renewal logged for user {user.id} amount=${amount_cents/100}")
+
+
+def _stripe_handle_invoice_failed(db, invoice, event):
+    """A subscription invoice failed to charge. Stripe will retry (default
+    3 attempts over 7 days). We log it; on the final failure (handled by
+    subscription_deleted) we mark the membership ended."""
+    customer_id = invoice.get("customer")
+    if not customer_id:
+        return
+    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    if not user:
+        return
+    logger.warning(f"Stripe payment failed for user {user.id} — Stripe will retry")
+    # TODO: send notification email so member can update their card before
+    # the grace period expires. Hook into the existing email infrastructure
+    # in a follow-up.
+
+
+def _stripe_handle_subscription_deleted(db, subscription, event):
+    """The subscription is ended — either member cancelled, or Stripe gave
+    up after retry exhaustion. Mark membership lapsed."""
+    customer_id = subscription.get("customer")
+    if not customer_id:
+        return
+    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    if not user:
+        return
+    user.stripe_subscription_id = None
+    # Don't clear payment_method — they may re-subscribe via Stripe later.
+    # membership_expires_at stays at its current value; the existing
+    # 'has_active_membership' check (membership_expires_at > now) naturally
+    # lapses them when that time arrives.
+    db.commit()
+    logger.info(f"Stripe subscription ended for user {user.id}")
+
+
+def _stripe_handle_dispute_created(db, dispute, event):
+    """A chargeback has been initiated. Per Steve's policy (23 May 2026):
+    immediate account suspension. Member loses access to the platform until
+    we manually re-enable. The chargeback itself goes through Stripe's
+    standard process — we don't fight it here, but we DO lock the account
+    so the disputed member can't keep using the service while the dispute
+    is in flight."""
+    charge_id = dispute.get("charge")
+    amount_cents = int(dispute.get("amount", 0))
+
+    # Find the user via the charge
+    user = None
+    if charge_id:
+        existing_charge = db.query(StripeCharge).filter(StripeCharge.stripe_charge_id == charge_id).first()
+        if existing_charge:
+            user = db.query(User).filter(User.id == existing_charge.user_id).first()
+    if not user:
+        # Fall back to looking up via customer if charge isn't in our DB yet
+        cust_id = dispute.get("customer") or (event.get("data", {}).get("object", {}).get("customer"))
+        if cust_id:
+            user = db.query(User).filter(User.stripe_customer_id == cust_id).first()
+    if not user:
+        logger.error(f"Chargeback received but user not found: dispute={dispute.get('id')}")
+        return
+
+    # Log the chargeback
+    charge = StripeCharge(
+        user_id=user.id,
+        stripe_charge_id=charge_id,
+        kind="chargeback",
+        product="chargeback",
+        amount_cents=-amount_cents,
+        currency=dispute.get("currency", "usd"),
+        description=f"Chargeback initiated: {dispute.get('reason', 'unknown')}",
+        raw_event_json=json.dumps(event)[:50000],
+    )
+    db.add(charge)
+
+    # Suspend the account. We use membership_expires_at=now() so existing
+    # 'has_active_membership' checks immediately return False. If they
+    # also have a Stripe subscription, cancel it so future renewals stop.
+    user.membership_expires_at = datetime.utcnow()
+    if user.stripe_subscription_id:
+        try:
+            _stripe.cancel_subscription_immediately(user.stripe_subscription_id)
+        except Exception:
+            logger.exception(f"Failed to cancel Stripe sub during chargeback for user {user.id}")
+        user.stripe_subscription_id = None
+
+    db.commit()
+    logger.critical(f"CHARGEBACK: user {user.id} ({user.username}) account suspended. amount=${amount_cents/100} reason={dispute.get('reason')}")
+
+
+def _stripe_handle_charge_refunded(db, charge, event):
+    """A refund was processed (either by us via the refund endpoint, or
+    manually in Stripe Dashboard). Log it for audit."""
+    user = None
+    charge_id = charge.get("id")
+    if charge_id:
+        existing = db.query(StripeCharge).filter(StripeCharge.stripe_charge_id == charge_id).first()
+        if existing:
+            user = db.query(User).filter(User.id == existing.user_id).first()
+    if not user:
+        cust_id = charge.get("customer")
+        if cust_id:
+            user = db.query(User).filter(User.stripe_customer_id == cust_id).first()
+    if not user:
+        return
+
+    amount_refunded = int(charge.get("amount_refunded", 0))
+    refund_row = StripeCharge(
+        user_id=user.id,
+        stripe_charge_id=charge_id,
+        kind="refund",
+        product="refund",
+        amount_cents=-amount_refunded,
+        currency=charge.get("currency", "usd"),
+        description=f"Refund processed",
+        raw_event_json=json.dumps(event)[:50000],
+    )
+    db.add(refund_row)
+    db.commit()
+
+
+@app.post("/api/stripe/refund-request")
+async def stripe_refund_request(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Member-initiated refund request.
+
+    Validates against the 7-day window + the partial-refund cap (only the
+    company's share is refundable; commissions already paid out cannot be
+    reclaimed).
+
+    Body (JSON):
+      reason: free-text reason (stored, sent to support if needed)
+      charge_id: optional specific stripe_charge_id to refund. Defaults
+                 to the most recent charge.
+
+    Returns:
+      { ok, refund_amount_cents, refund_id } on success
+      { ok: false, error: <reason> } on failure
+    """
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    if not user.stripe_refund_eligible_until or user.stripe_refund_eligible_until < datetime.utcnow():
+        return JSONResponse({"ok": False, "error": "refund_window_expired"}, status_code=400)
+
+    body = await request.json()
+    reason = body.get("reason", "requested_by_customer")
+    target_charge_id = body.get("charge_id")
+
+    # Find the charge to refund
+    q = db.query(StripeCharge).filter(
+        StripeCharge.user_id == user.id,
+        StripeCharge.kind == "charge",
+        StripeCharge.refundable_cents > 0,
+    ).order_by(StripeCharge.created_at.desc())
+    if target_charge_id:
+        q = q.filter(StripeCharge.stripe_charge_id == target_charge_id)
+    charge_row = q.first()
+    if not charge_row:
+        return JSONResponse({"ok": False, "error": "no_refundable_charge"}, status_code=400)
+
+    # Compute remaining refundable amount (subtract previous refunds for this charge)
+    previous_refunds = db.query(StripeCharge).filter(
+        StripeCharge.user_id == user.id,
+        StripeCharge.stripe_charge_id == charge_row.stripe_charge_id,
+        StripeCharge.kind == "refund",
+    ).all()
+    already_refunded = sum(-r.amount_cents for r in previous_refunds)  # refunds stored negative
+    remaining = max(0, charge_row.refundable_cents - already_refunded)
+    if remaining <= 0:
+        return JSONResponse({"ok": False, "error": "already_fully_refunded"}, status_code=400)
+
+    # Process the refund via Stripe
+    target_charge_id_for_stripe = charge_row.stripe_charge_id or charge_row.stripe_payment_intent_id
+    if not target_charge_id_for_stripe:
+        return JSONResponse({"ok": False, "error": "no_charge_id_on_record"}, status_code=400)
+    try:
+        result = _stripe.refund_charge(
+            charge_id=charge_row.stripe_charge_id,
+            amount_cents=remaining,
+            reason="requested_by_customer",
+        )
+        # The refund webhook will fire and log the StripeCharge row.
+        # We don't double-log here.
+        logger.info(f"Refund issued: user={user.id} amount=${remaining/100} reason='{reason}'")
+        return {
+            "ok": True,
+            "refund_amount_cents": remaining,
+            "refund_id": result.get("refund_id"),
+            "note": "Refund processed. Card statement will reflect within 5-10 business days.",
+        }
+    except Exception as e:
+        logger.exception(f"Refund failed for user {user.id}")
+        return JSONResponse({"ok": False, "error": "refund_failed", "detail": str(e)}, status_code=500)
+
+
+@app.get("/refund-policy", response_class=HTMLResponse)
+async def refund_policy_page(request: Request):
+    """Public refund policy page — linked from Stripe Checkout."""
+    return templates.TemplateResponse("refund-policy.html", {"request": request})
+
+
+@app.get("/terms", response_class=HTMLResponse)
+async def terms_page(request: Request):
+    """Public Terms of Service page."""
+    return templates.TemplateResponse("terms-of-service.html", {"request": request})
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# end Stripe payment rail
+# ─────────────────────────────────────────────────────────────────────────────
 
 
 @app.get("/admin/walletconnect-health")

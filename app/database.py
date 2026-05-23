@@ -292,7 +292,19 @@ class User(Base):
     emails_sent_today       = Column(Integer, default=0)                    # daily counter (resets daily)
     emails_sent_today_date  = Column(String, nullable=True)                 # date string for reset check
     # Stripe
+    # 23 May 2026: full Stripe re-integration alongside crypto rail.
+    # stripe_subscription_id existed since the old (now-dead) Stripe code;
+    # stripe_customer_id, payment_method, and stripe_refund_eligible_until
+    # added in the re-integration. payment_method drives renewal routing
+    # (crypto → existing process_auto_renewals + USDT polling; stripe →
+    # Stripe handles renewals natively, we just watch webhooks).
+    # stripe_refund_eligible_until is set on every successful Stripe payment
+    # to (now + 7 days). The /api/stripe/refund endpoint compares to this
+    # before processing.
+    stripe_customer_id      = Column(String, nullable=True, index=True)     # Stripe Customer object ID (cus_...)
     stripe_subscription_id  = Column(String, nullable=True)                 # active Stripe subscription ID
+    payment_method          = Column(String, default="crypto")              # "crypto" or "stripe" — drives renewal routing
+    stripe_refund_eligible_until = Column(DateTime, nullable=True)          # last_payment_at + 7 days; refunds only honoured within this window
     membership_expires_at   = Column(DateTime, nullable=True)               # next renewal date
     membership_billing      = Column(String, default="monthly")             # "monthly" or "annual"
     activated_at            = Column(DateTime, nullable=True)               # first payment / activation timestamp; preserved on subsequent renewals
@@ -314,6 +326,42 @@ class User(Base):
     # have this set to 15.00 at migration; standard partners leave it NULL so
     # they pay the prevailing $20/mo rate.
     membership_price_locked = Column(Numeric(10, 2), nullable=True)
+
+class StripeCharge(Base):
+    """One row per Stripe charge / refund / chargeback for full audit trail.
+
+    Added 23 May 2026 alongside the full Stripe re-integration. Stripe is the
+    source of truth for the actual money movement; this table is our local
+    mirror so we can answer 'did user X pay Y on date Z?' without hitting the
+    Stripe API every time, support our refund decision logic without making
+    network calls, and survive Stripe API outages.
+
+    One row written per webhook event:
+      - checkout.session.completed → kind='charge', amount_cents=full_amount
+      - charge.refunded            → kind='refund', amount_cents=refunded_amount (negative)
+      - charge.dispute.created     → kind='chargeback', amount_cents=disputed_amount (negative)
+      - charge.dispute.closed_won  → kind='chargeback_won' (rare, recovers the funds)
+      - charge.dispute.closed_lost → kind='chargeback_lost'
+
+    Membership renewals (subscription invoices) come through as separate
+    charge rows with product='membership_renewal' and the same stripe_subscription_id.
+    """
+    __tablename__ = "stripe_charges"
+    id                      = Column(Integer, primary_key=True, index=True)
+    user_id                 = Column(Integer, ForeignKey("users.id"), index=True)
+    stripe_charge_id        = Column(String, nullable=True, index=True)     # ch_... — the Charge object ID; null for some webhook events
+    stripe_payment_intent_id = Column(String, nullable=True, index=True)    # pi_... — PaymentIntent ID, more stable reference
+    stripe_subscription_id  = Column(String, nullable=True, index=True)     # sub_... — for renewal-related charges
+    stripe_session_id       = Column(String, nullable=True, index=True)     # cs_... — Checkout session that triggered this charge
+    kind                    = Column(String, index=True)                    # charge|refund|chargeback|chargeback_won|chargeback_lost
+    product                 = Column(String, index=True)                    # membership_signup|membership_renewal|custom_domain|campaign_tier|nexus_pack|course|creative_credits
+    amount_cents            = Column(Integer)                               # signed; refunds + chargebacks are negative
+    currency                = Column(String, default="usd")
+    company_share_cents     = Column(Integer, default=0)                    # what the company kept after commissions (used for partial-refund cap)
+    refundable_cents        = Column(Integer, default=0)                    # what we'd refund if asked (= company_share for membership; product-dependent otherwise)
+    description             = Column(String, nullable=True)                 # human-readable summary
+    raw_event_json          = Column(Text, nullable=True)                   # full webhook payload for forensics
+    created_at              = Column(DateTime, default=datetime.utcnow, index=True)
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -2838,6 +2886,41 @@ try:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at TIMESTAMP"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_billing VARCHAR DEFAULT 'monthly'"))
+        # 23 May 2026: full Stripe re-integration. stripe_customer_id and
+        # payment_method are new — payment_method drives renewal routing
+        # (crypto path runs in process_auto_renewals; stripe path is
+        # handled by Stripe webhook events). stripe_refund_eligible_until
+        # is set on every successful Stripe payment to (now + 7 days).
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS payment_method VARCHAR DEFAULT 'crypto'"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_refund_eligible_until TIMESTAMP"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_users_stripe_customer_id ON users(stripe_customer_id)"))
+        # Charge / refund / chargeback audit table
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS stripe_charges (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            stripe_charge_id VARCHAR,
+            stripe_payment_intent_id VARCHAR,
+            stripe_subscription_id VARCHAR,
+            stripe_session_id VARCHAR,
+            kind VARCHAR,
+            product VARCHAR,
+            amount_cents INTEGER,
+            currency VARCHAR DEFAULT 'usd',
+            company_share_cents INTEGER DEFAULT 0,
+            refundable_cents INTEGER DEFAULT 0,
+            description VARCHAR,
+            raw_event_json TEXT,
+            created_at TIMESTAMP DEFAULT NOW()
+        )"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_stripe_charges_user ON stripe_charges(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_stripe_charges_charge_id ON stripe_charges(stripe_charge_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_stripe_charges_pi ON stripe_charges(stripe_payment_intent_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_stripe_charges_subscription ON stripe_charges(stripe_subscription_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_stripe_charges_session ON stripe_charges(stripe_session_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_stripe_charges_kind ON stripe_charges(kind)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_stripe_charges_product ON stripe_charges(product)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_stripe_charges_created ON stripe_charges(created_at)"))
 
         # ── SuperMarket digital products ──
         conn.execute(text("""CREATE TABLE IF NOT EXISTS digital_products (
