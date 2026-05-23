@@ -10248,8 +10248,13 @@ async def stripe_status(user: User = Depends(get_current_user)):
     """Diagnostic endpoint — returns whether Stripe is configured + this user's
     Stripe state. Used by frontend to decide whether to show the 'Pay by card'
     option on signup. Returns 200 always; .configured tells the truth."""
+    if not user:
+        # Unauthenticated probe — just report whether the integration is
+        # configured server-side. Useful for monitoring / health checks.
+        return {"configured": _stripe.is_configured(), "authenticated": False}
     return {
         "configured": _stripe.is_configured(),
+        "authenticated": True,
         "has_subscription": bool(user.stripe_subscription_id),
         "stripe_customer_id": user.stripe_customer_id,
         "payment_method": user.payment_method or "crypto",
