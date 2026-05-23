@@ -2824,6 +2824,10 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "is_founding_member": bool(getattr(user, "is_founding_member", False)),
         "founding_spot_number": getattr(user, "founding_spot_number", None),
         "membership_price_locked": (float(user.membership_price_locked) if getattr(user, "membership_price_locked", None) is not None else None),
+        # 23 May 2026: payment_method exposed so the Account page can show
+        # the "Manage Subscription" card (Stripe Customer Portal link) for
+        # card-paying members. Defaults to 'crypto' for all legacy members.
+        "payment_method": getattr(user, "payment_method", None) or "crypto",
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_earned": _earn["total_earned"],
         "total_withdrawn": compute_total_withdrawn(db, user.id),
@@ -10306,8 +10310,8 @@ async def stripe_checkout_membership(
             db_session=db,
             product_kind="founder_signup" if tier in ("founder", "founding") else "membership_signup",
             price_id=price_id,
-            success_path="/welcome",
-            cancel_path="/join",
+            success_path="/payment-success",
+            cancel_path="/partner-payment",
             extra_metadata={"tier_requested": tier},
         )
         return result
@@ -10792,7 +10796,7 @@ async def admin_stripe_test_checkout(
             db_session=db,
             product_kind="founder_signup" if tier in ("founder", "founding") else "membership_signup",
             price_id=price_id,
-            success_path="/welcome",
+            success_path="/payment-success",
             cancel_path="/dashboard",
             extra_metadata={"tier_requested": tier, "test_run": "true"},
         )

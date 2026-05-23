@@ -205,6 +205,30 @@ export default function Account() {
           })()}/><Row k={t("account.country")} v={user.country||'—'}/><Row k={t("account.sponsor")} v={user.sponsor_username?'@'+user.sponsor_username:t('account.direct')}/><Row k={t("account.joined")} v={user.created_at?new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'} last/>
         </Card>
 
+        {/* Manage Subscription — only for Stripe-paying members.
+            23 May 2026: Stripe re-integration. Members who paid by
+            card can manage their subscription via Stripe's hosted
+            Customer Portal (update card, view invoices, cancel).
+            Members on the crypto rail don't see this card because
+            crypto renewals work differently (no recurring billing
+            with Stripe portal to manage). */}
+        {user.payment_method === 'stripe' && (
+          <Card title={t('account.manageSubscription', { defaultValue: 'Manage Subscription' })}>
+            <div style={{ marginBottom: 12, fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>
+              {t('account.manageSubscriptionDesc', { defaultValue: 'Update your card, view past invoices, or cancel your subscription via our secure Stripe portal.' })}
+            </div>
+            <button
+              onClick={function() {
+                apiPost('/api/stripe/portal', {})
+                  .then(function(r) { if (r.url) { window.location.href = r.url; } })
+                  .catch(function() { /* silently fail */ });
+              }}
+              style={Object.assign({}, btnS, { background: 'var(--sap-accent)' })}>
+              {t('account.openStripePortal', { defaultValue: 'Manage via Stripe →' })}
+            </button>
+          </Card>
+        )}
+
         <Card title={t("account.editProfile")}>
           <div style={{marginBottom:12}}><label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.firstName")}</label><input value={firstName} onChange={function(e){setFirstName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
           <div style={{marginBottom:12}}><label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.lastName")}</label><input value={lastName} onChange={function(e){setLastName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>

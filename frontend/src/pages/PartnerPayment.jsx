@@ -50,9 +50,13 @@ export default function PartnerPayment() {
   var [status, setStatus] = useState(null);
   // User selections
   var [cadence, setCadence] = useState('monthly');     // 'monthly' | 'annual'
-  var [rail, setRail] = useState('');                  // 'balance' | 'crypto' | 'wallet'
+  var [rail, setRail] = useState('');                  // 'balance' | 'crypto' | 'wallet' | 'card'
   var [loading, setLoading] = useState(false);
   var [error, setError] = useState('');
+  // Stripe availability — set true when STRIPE_SECRET_KEY/PRICE_IDs are
+  // configured server-side. Drives whether to render the 'Pay by card'
+  // rail option. 23 May 2026.
+  var [stripeReady, setStripeReady] = useState(false);
 
   // Purchase consent gate — required by the backend before any money-in
   // endpoint will accept the request. PARTNER PAYMENT WAS MISSING THIS
@@ -79,6 +83,15 @@ export default function PartnerPayment() {
     load();
     var iv = setInterval(load, 60000);
     return function() { cancelled = true; clearInterval(iv); };
+  }, []);
+
+  // One-shot Stripe availability check — drives whether the card rail
+  // option appears in the payment method picker. Falls back to no card
+  // option on failure so the existing crypto rails remain usable.
+  useEffect(function() {
+    apiGet('/api/stripe/status')
+      .then(function(r) { if (r && r.configured === true) setStripeReady(true); })
+      .catch(function() { /* leave card hidden */ });
   }, []);
 
   // Derived state
@@ -115,6 +128,25 @@ export default function PartnerPayment() {
     if (!ok) return;
 
     setLoading(true);
+
+    if (rail === 'card') {
+      // Stripe Checkout — redirect to Stripe-hosted page. Tier choice
+      // follows the same founder-vs-partner logic the crypto rails use:
+      // if a founding spot is still open, send tier='founding' for the
+      // $15 lifetime-lock price; otherwise tier='partner' at $20.
+      // Backend re-checks the 100-cap server-side under the founder lock
+      // so two members hitting Stripe Checkout simultaneously at spot
+      // #100 won't both get the price.
+      var tierForStripe = foundingOpen ? 'founding' : 'partner';
+      apiPost('/api/stripe/checkout/membership', { tier: tierForStripe })
+        .then(function(d) {
+          setLoading(false);
+          if (d.checkout_url) { window.location.href = d.checkout_url; }
+          else { setError(d.error || t('partner.errorCardCheckout', { defaultValue: "We couldn't start card checkout. Please try again or use another method." })); }
+        })
+        .catch(function(e) { setLoading(false); setError(e.message || t('partner.errorCardFailed', { defaultValue: 'Card checkout failed. Please try again.' })); });
+      return;
+    }
 
     if (rail === 'crypto') {
       var productKey = cadence === 'annual' ? 'membership_partner_annual' : 'membership_partner';
@@ -343,6 +375,24 @@ export default function PartnerPayment() {
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>
             {t('partner.paymentEyebrow', { defaultValue: 'How would you like to pay?' })}
           </div>
+
+          {/* Card via Stripe — only shown when backend says Stripe is
+              configured. 23 May 2026: positioned first because card
+              payment is the most familiar option for new prospects who
+              were previously blocked by crypto-only checkout. */}
+          {stripeReady && (
+            <button type="button" className={'pp-rail-opt' + (rail === 'card' ? ' active' : '')} onClick={function() { setRail('card'); }}>
+              <CreditCard style={{ width: 22, height: 22, color: '#0ea5e9', flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>
+                  {t('partner.railCard', { defaultValue: 'Pay with card' })}
+                </div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>
+                  {t('partner.railCardDesc', { defaultValue: 'Debit or credit card via Stripe — fast, secure, familiar' })}
+                </div>
+              </div>
+            </button>
+          )}
 
           {/* Wallet balance — only shown if monthly (backend balance flow is monthly-only) */}
           {cadence === 'monthly' && (
