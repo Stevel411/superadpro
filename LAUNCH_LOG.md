@@ -98,6 +98,43 @@ This validates that the grid commission system works on production with a real m
 - **Social Image Studio** — internally-built tool for network-marketer-style social images. Hybrid architecture decided: AI generates personalised photoreal backgrounds (Grok Imagine API), browser overlays editable text + branding. Blocked by Grok Imagine's 60-70% likeness-consistency rate which isn't production-ready. Two paths: ship template-based infrastructure now and bolt on AI-personalisation later, OR wait for image models to improve. Claude's recommendation: ship infrastructure now. Steve rejected first round of design mockups for not matching network-marketer aesthetic (wants loud/saturated, not tasteful/restrained).
 - **Course Academy as 4th income stream** — 100% commissions + pass-up. Spec is locked, just needs implementation.
 
+### Roadmap from open-source ecosystem session (23 May 2026)
+
+Sequenced after a research session reviewing GitHub for tools that genuinely move the needle on conversion, activation, retention, and member earnings. Cost target: £0 or minimal. All items vetted for licence (MIT/Apache only — no AGPL).
+
+**Already shipped this session:**
+- **Repomix presets** (`dd246ac0b`) — 7 LLM context bundles in `.repomix/`. Run `npm run pack:<preset>`. Diagnostic finding: `app/main.py` is 38,538 lines / 414K tokens, flagged as architectural debt worth a refactor pass.
+
+**Required next-session work (highest ROI first):**
+
+1. **Public income calculator on `/earn`** — repurpose `GridCalculator.jsx` + `PassupVisualiser.jsx` for unauthenticated visitors. Inputs: estimated followers, expected referrals per week. Output: live projected monthly earnings using real commission spec, with signup CTA next to the personalised number. This is the single largest signup-conversion lever identified. ~1 day. £0.
+
+2. **`@imgly/background-removal` in Creative Studio** — browser-based AI background removal, MIT, runs client-side via WebAssembly. ~40MB model cached after first use, no server costs. Slot into Creative Studio upload flow so members can drop transparent selfies into BPG posters. ~½ day. £0.
+
+3. **Satori OG image generator for LinkHub/SuperPages** — `@vercel/og` / `satori` (MIT) generates dynamic social-share preview cards from JSX. Every member's shared link becomes a branded billboard on Facebook/X/LinkedIn. Cache PNGs in R2. ~1 day. £0.
+
+4. **QR-Code-Styling polish** — upgrade existing `QRGenerator.jsx` with logo embedding, gradients, custom corners via `qr-code-styling` (MIT). Members can print branded QR codes on cards/flyers linking to LinkHub. ~2-3hr. £0.
+
+**Required infra (separate session):**
+
+5. **GlitchTip error tracking** — Sentry SDK compatible, MIT. Hosted free tier (1,000 events/month) first; migrate to self-hosted on Railway (~£5-8/mo) when volume grows. Wire `sentry-sdk[fastapi]` + `@sentry/react`. ~30 min. Stops blind production failures.
+
+6. **Driver.js onboarding tour** — MIT, ~5KB, layered on top of existing `OnboardingWizard.jsx`. 5-step spotlight tour for new members (Command Centre → Campaigns → Grid → Wallet → BPG). localStorage flag to never re-show. ~½ day. £0. Activation lift on existing signups.
+
+7. **PostHog cloud free tier** — MIT, 1M events/month free. Track signup → first qualified referral → first commission → upgrade funnel. Stop guessing where members drop off. Skip self-hosting (Kafka + ClickHouse cluster is wrong shape). ~½ day. £0.
+
+**Member tools to bolster ecosystem (lower priority, scope after above):**
+
+8. **Disposable email blocker** — public github.com/disposable/disposable list, fetch + cache, integrate into signup + lead-capture endpoints. Keeps MyLeads clean and Brevo deliverability high. ~½ day. £0.
+9. **PhotoSwipe gallery block for SuperPages** — MIT, pinch-zoom lightbox. New block type in SuperPages editor. ~½ day. £0.
+10. **Excalidraw embed** — MIT, whiteboarding in Course Academy lessons and Team Messenger threads. ~½ day. £0.
+11. **MeiliSearch on Course + Help** — MIT, typo-tolerant instant search. Reduces support load. ~½ day. ~£5/mo Railway.
+12. **Cal.com integration** — open-source Calendly killer. Per-member booking pages embeddable in LinkHub. Self-host on Railway (~£15/mo) recouped within 30 paying users. ~2-3 days. **Very high differentiation** — members can cancel their Calendly subscriptions.
+
+**Sequencing principle:** items 1-4 are pure-frontend, no infra changes, can ship in any order. Items 5-7 add observability and should land before scaling marketing. Items 8-12 are feature additions, scope as separate decisions when above is shipped.
+
+**Token expiry reminder:** the platform GitHub token expires mid-September 2026. Renew at https://github.com/settings/tokens before then.
+
 ---
 
 
