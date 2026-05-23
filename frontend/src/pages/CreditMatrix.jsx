@@ -44,6 +44,9 @@ export function CreditMatrixContent() {
   var [loading, setLoading] = useState(true);
   var [purchasing, setPurchasing] = useState(null);
   var [message, setMessage] = useState(null);
+  // 23 May 2026: Stripe availability — drives whether the 'Card' button
+  // shows on each pack. Reads /api/stripe/status on mount.
+  var [stripeReady, setStripeReady] = useState(false);
 
   // Pack selector — when a user owns >1 active matrix, they need a way
   // to switch between them. selectedPackKey null = default (highest tier).
@@ -147,6 +150,34 @@ export function CreditMatrixContent() {
         setMessage({ type: 'error', text: e.message || 'Purchase failed' });
       });
   }
+
+  // 23 May 2026: card-based purchase via Stripe Checkout — one-time payment.
+  async function buyPackWithCard(packKey) {
+    var consented = await ensureConsent();
+    if (!consented) return;
+    setPurchasing(packKey);
+    setMessage(null);
+    apiPost('/api/stripe/checkout/nexus-pack', { pack_key: packKey })
+      .then(function(r) {
+        setPurchasing(null);
+        if (r.checkout_url) {
+          window.location.href = r.checkout_url;
+        } else {
+          setMessage({ type: 'error', text: r.error || 'Card checkout unavailable. Please try crypto.' });
+        }
+      })
+      .catch(function(e) {
+        setPurchasing(null);
+        setMessage({ type: 'error', text: e.message || 'Card checkout failed' });
+      });
+  }
+
+  // 23 May 2026: Stripe availability check.
+  useEffect(function() {
+    apiGet('/api/stripe/status')
+      .then(function(d) { if (d && d.configured === true) setStripeReady(true); })
+      .catch(function() { /* leave card button hidden */ });
+  }, []);
 
   if (loading) {
     return (
@@ -289,6 +320,18 @@ export function CreditMatrixContent() {
                     <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 26, fontWeight: 800, color: '#fff', margin: '6px 0', position: 'relative' }}>${pack.price}</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 4, position: 'relative' }}>{pack.credits.toLocaleString()} {t('creditMatrix.credits')}</div>
                     <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 12, position: 'relative' }}>${pack.cost_per_credit}/{t('creditMatrix.perCredit')}</div>
+                    {/* 23 May 2026: Card via Stripe — positioned first as
+                        most familiar option. Only renders when Stripe is
+                        configured server-side. */}
+                    {stripeReady && (
+                      <button onClick={function() { if (!isbuying) buyPackWithCard(pack.key); }}
+                        disabled={isbuying}
+                        style={{ width: '100%', padding: '10px 0', borderRadius: 10, border: '1px solid rgba(255,255,255,0.4)', fontFamily: 'inherit',
+                          background: isbuying ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.25)', color: '#fff', fontSize: 13, fontWeight: 800,
+                          cursor: isbuying ? 'default' : 'pointer', backdropFilter: 'blur(4px)', transition: 'background 0.2s', marginBottom: 8 }}>
+                        {isbuying ? t('creditMatrix.processing') : '💳 Card'}
+                      </button>
+                    )}
                     <button onClick={function() { if (!isbuying) buyPack(pack.key); }}
                       disabled={isbuying}
                       style={{ width: '100%', padding: '10px 0', borderRadius: 10, border: '1px solid rgba(255,255,255,0.25)', fontFamily: 'inherit',

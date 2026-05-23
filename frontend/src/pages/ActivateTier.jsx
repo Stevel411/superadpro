@@ -30,6 +30,10 @@ export default function ActivateTier() {
   const { user } = useAuth();
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState('');
+  // 23 May 2026: Stripe availability — drives whether the 'Pay with card'
+  // button shows on this tier purchase screen. Reads /api/stripe/status
+  // on mount.
+  const [stripeReady, setStripeReady] = useState(false);
   // inFlight: { views_delivered, views_target } if user has an active
   // campaign at this tier whose views haven't been fully delivered yet.
   // null = no in-flight campaign, can purchase. Loaded on mount.
@@ -68,7 +72,44 @@ export default function ActivateTier() {
     return function() { cancelled = true; };
   }, [n]);
 
+  // 23 May 2026: check Stripe availability for the 'Pay with card' button.
+  useEffect(function() {
+    fetch('/api/stripe/status', { credentials: 'include' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) { if (d && d.configured === true) setStripeReady(true); })
+      .catch(function() { /* leave card button hidden on failure */ });
+  }, []);
+
   if (!t) return <AppLayout title={t('campaignTiers.campaignTierTitle')}><div style={{textAlign:'center',padding:80,color:'var(--sap-text-muted)'}}>{t('campaignTiers.invalidTier')}</div></AppLayout>;
+
+  const handleStripeCard = async () => {
+    if (paying) return;
+    // Same consent gate as the crypto rail — tier activation triggers
+    // immediate commission payouts.
+    const consented = await ensureConsent();
+    if (!consented) return;
+
+    setPaying(true);
+    setError('');
+    try {
+      const res = await fetch('/api/stripe/checkout/campaign-tier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ tier_id: n }),
+      });
+      const data = await res.json();
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        setError(data.error || 'Card checkout unavailable. Please try crypto.');
+        setPaying(false);
+      }
+    } catch (e) {
+      setError('Connection error. Please try again.');
+      setPaying(false);
+    }
+  };
 
   const handleNowPayments = async () => {
     if (paying) return;
@@ -214,6 +255,47 @@ export default function ActivateTier() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+            {/* 23 May 2026: Pay with card — Stripe Checkout. Positioned
+                first because it's the most familiar option for prospects.
+                Hidden when Stripe isn't configured. */}
+            {stripeReady && (
+              <button onClick={handleStripeCard} disabled={paying} style={{
+                display:'flex',alignItems:'center',justifyContent:'center',gap:12,
+                width:'100%', padding:'22px 20px', borderRadius:14,
+                fontSize:18, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
+                fontFamily:'inherit',
+                background: paying
+                  ? 'linear-gradient(135deg,#7dd3fc,#38bdf8,#0ea5e9)'
+                  : 'linear-gradient(135deg,#38bdf8,#0ea5e9,#0284c7)',
+                color:'#fff',
+                boxShadow: paying ? '0 4px 0 #075985,0 6px 20px rgba(14,165,233,.2)' : '0 4px 0 #075985,0 6px 24px rgba(14,165,233,.4)',
+                letterSpacing:0.3, transition:'all 0.2s',
+                opacity: paying ? 0.85 : 1,
+              }}>
+                {paying ? (
+                  <>
+                    <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(255,255,255,.5)', borderTopColor:'#fff', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
+                    <span>Redirecting to secure checkout…</span>
+                  </>
+                ) : (
+                  <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                    <span style={{fontSize:22}}>💳</span>
+                    <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.2 }}>
+                      <span>{`Pay $${tier.price.toLocaleString()}`}</span>
+                      <span style={{ fontSize:11, fontWeight:600, opacity:0.85, letterSpacing:0.5, textTransform:'uppercase', marginTop:2 }}>with debit or credit card</span>
+                    </div>
+                  </div>
+                )}
+              </button>
+            )}
+
+            {stripeReady && (
+              <div style={{ position:'relative', margin:'8px 0', textAlign:'center' }}>
+                <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
+                <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or pay with crypto</span>
+              </div>
+            )}
+
             {/* Self-custody BSC PayLink — only renders once wallet is connected.
                 Connect button is in the page header (topbarActions). */}
             <Suspense fallback={null}>
@@ -270,8 +352,8 @@ export default function ActivateTier() {
           </div>
         )}
 
-        <div style={{padding:'10px 14px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
-          <strong>{t('common.allSalesFinal')}</strong> Campaign tier purchases are non-refundable. Commissions are paid instantly upon purchase and cannot be reversed.
+        <div style={{padding:'10px 14px',background:'var(--sap-amber-bg, #fef3c7)',border:'1px solid #fde68a',borderRadius:10,marginBottom:24,fontSize:12,color:'#92400e',lineHeight:1.5,textAlign:'center'}}>
+          <strong>Refunds:</strong> Commissions are paid instantly to other members on purchase. Card payments can be partially refunded within 7 days (the 5% company portion only). Crypto payments are final. See <a href="/refund-policy" target="_blank" style={{color:'#92400e',textDecoration:'underline'}}>refund policy</a> for details.
         </div>
 
         <div style={{textAlign:'center',marginBottom:16}}>

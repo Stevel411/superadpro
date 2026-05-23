@@ -30,6 +30,7 @@ from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTrac
 # payment_method on User tracks which rail; renewals route by that value.
 from . import stripe_service
 from .database import StripeCharge
+from .database import CREDIT_PACKS  # 23 May 2026: needed at module level for Stripe Nexus checkout route
 STRIPE_BOOST_PACKS = {}  # legacy compat — kept until any consumer is rewritten
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
@@ -10320,6 +10321,103 @@ async def stripe_checkout_membership(
         return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
 
 
+@app.post("/api/stripe/checkout/campaign-tier")
+async def stripe_checkout_campaign_tier(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create a one-time Stripe Checkout session for a Campaign Tier purchase.
+
+    Body (JSON):
+      tier_id: 1-8 (Starter $20 through Champion $1000)
+
+    Membership-gated: members must be active partners to buy campaign
+    tiers (matches the existing crypto rail rule). One-time payment mode
+    on the Stripe side — not a subscription.
+
+    Returns:
+      { checkout_url, session_id }
+    """
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    # Campaign tiers are gated to active partners (membership active).
+    # Mirrors the crypto rail check in /api/nowpayments/create-invoice
+    # and the various other entry points.
+    if not user.is_active:
+        return JSONResponse({"error": "membership_required", "detail": "Campaign Tiers are available to active members only."}, status_code=403)
+
+    body = await request.json()
+    try:
+        tier_id = int(body.get("tier_id") or 0)
+    except (TypeError, ValueError):
+        tier_id = 0
+    price_usd = GRID_PACKAGES.get(tier_id)
+    if not price_usd:
+        return JSONResponse({"error": "invalid_tier", "detail": f"tier_id must be 1-8, got {tier_id}"}, status_code=400)
+
+    amount_cents = int(round(float(price_usd) * 100))
+    try:
+        result = _stripe.create_checkout_session(
+            user=user,
+            db_session=db,
+            product_kind="campaign_tier",
+            amount_cents=amount_cents,
+            success_path="/payment-success",
+            cancel_path=f"/activate-tier/{tier_id}",
+            extra_metadata={"campaign_tier_id": str(tier_id)},
+        )
+        return result
+    except Exception as e:
+        logger.exception(f"stripe_checkout_campaign_tier failed for user {user.id} tier {tier_id}")
+        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
+
+
+@app.post("/api/stripe/checkout/nexus-pack")
+async def stripe_checkout_nexus_pack(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create a one-time Stripe Checkout session for a Credit Nexus pack.
+
+    Body (JSON):
+      pack_key: 'starter' | 'builder' | 'pro' | 'advanced' | 'elite' | 'premium' | 'executive' | 'ultimate'
+
+    Membership-gated: only active members can purchase Nexus packs
+    (matches the crypto rail rule).
+
+    Returns:
+      { checkout_url, session_id }
+    """
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    if not user.is_active:
+        return JSONResponse({"error": "membership_required", "detail": "Credit Nexus packs are available to active members only."}, status_code=403)
+
+    body = await request.json()
+    pack_key = (body.get("pack_key") or "").lower().strip()
+    pack = CREDIT_PACKS.get(pack_key)
+    if not pack:
+        return JSONResponse({"error": "invalid_pack", "detail": f"Unknown pack '{pack_key}'. Valid: {list(CREDIT_PACKS.keys())}"}, status_code=400)
+
+    amount_cents = int(round(float(pack["price"]) * 100))
+    try:
+        result = _stripe.create_checkout_session(
+            user=user,
+            db_session=db,
+            product_kind="nexus_pack",
+            amount_cents=amount_cents,
+            success_path="/payment-success",
+            cancel_path="/credit-nexus",
+            extra_metadata={"nexus_pack_key": pack_key},
+        )
+        return result
+    except Exception as e:
+        logger.exception(f"stripe_checkout_nexus_pack failed for user {user.id} pack {pack_key}")
+        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
+
+
 @app.post("/api/stripe/portal")
 async def stripe_portal(
     user: User = Depends(get_current_user),
@@ -10468,11 +10566,54 @@ def _stripe_handle_checkout_completed(db, session, event):
         except Exception as e:
             logger.exception(f"_activate_membership failed during Stripe webhook for user {user.id}")
     elif mode == "payment":
-        # One-time payment (custom domain etc.)
+        # One-time payment (Campaign Tier, Credit Nexus pack, custom domain).
+        # Dispatch based on product_kind from session metadata.
         logger.info(f"Stripe one-time payment received: user={user.id} product={product_kind} amount={amount_cents}")
-        # Per-product handling routes back to the existing product code paths.
-        # Currently no one-time products go through Stripe — custom domain
-        # ships in a follow-up commit on this rail.
+
+        if product_kind == "campaign_tier":
+            # Activate the purchased campaign tier — reuses the exact same
+            # logic the crypto rail uses (process_tier_purchase handles
+            # grid placement, sponsor commission, completion bonus pool,
+            # rotator enrolment if applicable, fast-start hero hide).
+            try:
+                tier_id_str = metadata.get("campaign_tier_id", "0")
+                tier_id = int(tier_id_str)
+                from .grid import process_tier_purchase
+                result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=tier_id)
+                if result.get("success"):
+                    # Hide fast-start hero on grid activation (mirrors crypto rail logic)
+                    try:
+                        if user.fast_start_hidden_at is None:
+                            user.fast_start_hidden_at = datetime.utcnow()
+                            db.add(user)
+                    except Exception:
+                        pass
+                    logger.info(f"Stripe campaign tier activated: user={user.id} tier={tier_id}")
+                else:
+                    logger.error(f"Stripe campaign tier activation failed: user={user.id} tier={tier_id} err={result.get('error')}")
+            except Exception as e:
+                logger.exception(f"campaign_tier activation crashed for user {user.id}")
+
+        elif product_kind == "nexus_pack":
+            # Purchase the Credit Nexus pack — reuses purchase_credit_pack
+            # which handles matrix placement, all 3 commission types (direct,
+            # spillover, completion bonus), and credit awards.
+            try:
+                pack_key = metadata.get("nexus_pack_key", "")
+                from .credit_matrix import purchase_credit_pack
+                result = purchase_credit_pack(
+                    db, user, pack_key,
+                    payment_ref=f"stripe_{session.get('id')}",
+                    payment_method="stripe",
+                )
+                if result.get("success"):
+                    logger.info(f"Stripe Nexus pack purchased: user={user.id} pack={pack_key} credits={result.get('credits_awarded')}")
+                else:
+                    logger.error(f"Stripe Nexus pack failed: user={user.id} pack={pack_key} err={result.get('error')}")
+            except Exception as e:
+                logger.exception(f"nexus_pack activation crashed for user {user.id}")
+
+        # Other one-time products (custom_domain etc.) ship later — log only.
 
     db.commit()
 
