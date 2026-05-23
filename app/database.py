@@ -932,6 +932,65 @@ class SignupFunnelEvent(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
 
+class MarketingAsset(Base):
+    """Admin-curated marketing landing pages members can share with their
+    referral link automatically baked in (added 23 May 2026).
+
+    Served at /m/<slug>/<username> — short URL pattern so it fits any social
+    platform's character budget. When a visitor hits that URL the handler:
+      1. Looks up asset by slug (404 if missing or unpublished)
+      2. Looks up the member by username (404 if missing)
+      3. Substitutes placeholders in html_template:
+         - {{ACTIVATION_URL}} → /register?ref=<username>
+         - {{REFERRAL_URL}}   → https://www.superadpro.com/ref/<username>
+         - {{USERNAME}}       → <username>
+         - {{FIRST_NAME}}     → member's first_name (or username if blank)
+      4. Sets the standard 'ref' cookie to <username> (30-day, samesite=lax)
+         so the existing /api/register handler attributes the sponsor
+         identically to /ref/<username> and /join/<username>
+      5. Logs a MarketingAssetVisit row for asset-level analytics
+
+    html_template is the full HTML page (already produced collaboratively
+    via the chat workflow). Storing the whole template per asset means we
+    can iterate on a page without code deploys.
+    """
+    __tablename__ = "marketing_assets"
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    slug            = Column(String(32), nullable=False, unique=True, index=True)
+    title           = Column(String(200), nullable=False)
+    description     = Column(Text, nullable=True)
+    asset_type      = Column(String(20), default="page", nullable=False)  # 'page' | 'video' | 'image'
+    html_template   = Column(Text, nullable=True)
+    hero_image_path = Column(String(500), nullable=True)
+    thumbnail_path  = Column(String(500), nullable=True)
+    video_url       = Column(String(500), nullable=True)
+    is_published    = Column(Boolean, default=False, nullable=False, index=True)
+    published_at    = Column(DateTime, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+class MarketingAssetVisit(Base):
+    """One row per visit to /m/<slug>/<username>. Enables both per-asset
+    analytics (which asset converts best?) and per-member analytics
+    (which member's shares get the most traction?).
+
+    signup_attributed_user_id is populated by the registration handler
+    when a new signup arrives with a 'ref' cookie matching this visit's
+    member_username AND the visit happened within the cookie's 30-day
+    window. Joined on (member_username, IP hash, created_at) — best-effort
+    attribution, not strict.
+    """
+    __tablename__ = "marketing_asset_visits"
+    id                         = Column(Integer, primary_key=True, autoincrement=True)
+    asset_id                   = Column(Integer, ForeignKey("marketing_assets.id"), nullable=False, index=True)
+    member_username            = Column(String(50), nullable=False, index=True)
+    visitor_ip_hash            = Column(String(64), nullable=True)
+    user_agent                 = Column(String(500), nullable=True)
+    signup_attributed_user_id  = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    created_at                 = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+
 class WatchdogLog(Base):
     """AI Watchdog activity log — every check, fix, and escalation."""
     __tablename__ = "watchdog_logs"
@@ -2208,6 +2267,39 @@ def run_migrations():
         ")",
         "CREATE INDEX IF NOT EXISTS idx_signup_funnel_user_event ON signup_funnel_events(user_id, event)",
         "CREATE INDEX IF NOT EXISTS idx_signup_funnel_created ON signup_funnel_events(created_at)",
+        # ── Marketing assets — admin-curated landing pages (23 May 2026) ──
+        # Members share /m/<slug>/<username> URLs with their ref baked in.
+        # See MarketingAsset docstring for the full mechanic.
+        "CREATE TABLE IF NOT EXISTS marketing_assets ("
+        "  id SERIAL PRIMARY KEY,"
+        "  slug VARCHAR(32) NOT NULL UNIQUE,"
+        "  title VARCHAR(200) NOT NULL,"
+        "  description TEXT,"
+        "  asset_type VARCHAR(20) NOT NULL DEFAULT 'page',"
+        "  html_template TEXT,"
+        "  hero_image_path VARCHAR(500),"
+        "  thumbnail_path VARCHAR(500),"
+        "  video_url VARCHAR(500),"
+        "  is_published BOOLEAN NOT NULL DEFAULT FALSE,"
+        "  published_at TIMESTAMP,"
+        "  created_at TIMESTAMP NOT NULL DEFAULT NOW(),"
+        "  updated_at TIMESTAMP NOT NULL DEFAULT NOW()"
+        ")",
+        "CREATE INDEX IF NOT EXISTS idx_marketing_assets_slug ON marketing_assets(slug)",
+        "CREATE INDEX IF NOT EXISTS idx_marketing_assets_published ON marketing_assets(is_published)",
+        "CREATE TABLE IF NOT EXISTS marketing_asset_visits ("
+        "  id SERIAL PRIMARY KEY,"
+        "  asset_id INTEGER NOT NULL REFERENCES marketing_assets(id),"
+        "  member_username VARCHAR(50) NOT NULL,"
+        "  visitor_ip_hash VARCHAR(64),"
+        "  user_agent VARCHAR(500),"
+        "  signup_attributed_user_id INTEGER REFERENCES users(id),"
+        "  created_at TIMESTAMP NOT NULL DEFAULT NOW()"
+        ")",
+        "CREATE INDEX IF NOT EXISTS idx_marketing_visits_asset ON marketing_asset_visits(asset_id)",
+        "CREATE INDEX IF NOT EXISTS idx_marketing_visits_member ON marketing_asset_visits(member_username)",
+        "CREATE INDEX IF NOT EXISTS idx_marketing_visits_signup ON marketing_asset_visits(signup_attributed_user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_marketing_visits_created ON marketing_asset_visits(created_at)",
     ]
     results = []
     with engine.connect() as conn:
@@ -3889,6 +3981,55 @@ try:
         print("✅ admin_repair_log table ready")
 except Exception as e:
     print(f"⚠️ admin_repair_log migration note: {e}")
+
+
+# ── Marketing assets — seed PIF landing page (23 May 2026) ──
+# Loads the HTML template from app/marketing_assets/pif.html and upserts
+# the canonical PIF row into the marketing_assets table.
+#
+# Idempotent — the upsert (insert-or-update on conflict) means every boot
+# refreshes the template from disk, so authoring iterations land on
+# deploy without any admin endpoint round-trip. To author a new asset,
+# add a new file in app/marketing_assets/ and a new seed block here.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    import os as _os
+    _pif_html_path = _os.path.join(_os.path.dirname(__file__), 'marketing_assets', 'pif.html')
+    if _os.path.exists(_pif_html_path):
+        with open(_pif_html_path, 'r', encoding='utf-8') as _f:
+            _pif_html = _f.read()
+        with engine.connect() as conn:
+            conn.execute(text("SET lock_timeout = '5s'"))
+            conn.execute(text("SET statement_timeout = '30s'"))
+            conn.execute(text("""
+                INSERT INTO marketing_assets (
+                    slug, title, description, asset_type, html_template,
+                    hero_image_path, is_published, published_at, created_at, updated_at
+                ) VALUES (
+                    :slug, :title, :description, :asset_type, :html_template,
+                    :hero_image_path, TRUE, NOW(), NOW(), NOW()
+                )
+                ON CONFLICT (slug) DO UPDATE SET
+                    title = EXCLUDED.title,
+                    description = EXCLUDED.description,
+                    html_template = EXCLUDED.html_template,
+                    hero_image_path = EXCLUDED.hero_image_path,
+                    is_published = EXCLUDED.is_published,
+                    updated_at = NOW()
+            """), {
+                "slug": "pif",
+                "title": "Pay It Forward — Give someone a free month",
+                "description": "Gift a SuperAdPro membership to someone who needs it. When they activate, you become their sponsor. Beautifully designed landing page with the chain-reaction story, gift card preview, and clear math.",
+                "asset_type": "page",
+                "html_template": _pif_html,
+                "hero_image_path": "/static/images/marketing/pif-bg.jpg",
+            })
+            conn.commit()
+            print(f"✅ marketing asset 'pif' seeded ({len(_pif_html)} chars HTML)")
+    else:
+        print(f"⚠️ PIF template not found at {_pif_html_path} — skipping seed")
+except Exception as e:
+    print(f"⚠️ PIF marketing asset seed failed: {e}")
 
 
 # ─────────────────────────────────────────────

@@ -43,6 +43,7 @@ from .database import ShareCode
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .database import MemberStory, MemberShowcase
 from .database import AdminBroadcast
+from .database import MarketingAsset, MarketingAssetVisit
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -4138,6 +4139,91 @@ def superlink_page(username: str, request: Request, db: Session = Depends(get_db
         response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
     response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
                         httponly=False, samesite="lax")
+    return response
+
+# ═══════════════════════════════════════════════════════════════
+#  MARKETING ASSETS — short-URL personalised landing pages (23 May 2026)
+# ═══════════════════════════════════════════════════════════════
+#
+# Pattern: /m/<slug>/<username>
+#   - slug identifies the asset (e.g. 'pif' for the Pay It Forward page)
+#   - username identifies the sharing member (becomes sponsor on signup)
+#
+# Authored collaboratively in Claude chat sessions, stored in the
+# marketing_assets table (one row per asset). The HTML template contains
+# {{ACTIVATION_URL}} {{REFERRAL_URL}} {{USERNAME}} {{FIRST_NAME}}
+# placeholders which are substituted per request.
+#
+# Sponsor attribution: identical mechanism to /ref/<username> and
+# /join/<username> — sets the 'ref' cookie, which the existing
+# /api/register handler reads and assigns as sponsor_id.
+@app.get("/m/{slug}/{username}")
+def marketing_asset_page(slug: str, username: str, request: Request, db: Session = Depends(get_db)):
+    """Serve a personalised marketing landing page.
+
+    Returns 404 if the asset doesn't exist, isn't published, or the
+    username doesn't match a real user.
+    """
+    from fastapi.responses import Response
+    import hashlib
+
+    # Asset lookup — case-insensitive on slug since URLs are case-tolerant
+    asset = db.query(MarketingAsset).filter(
+        MarketingAsset.slug == slug.lower(),
+        MarketingAsset.is_published == True
+    ).first()
+    if not asset or not asset.html_template:
+        return Response(content="Marketing page not found.", status_code=404)
+
+    # Sponsor lookup — username is the member sharing this page
+    sponsor = db.query(User).filter(User.username == username).first()
+    if not sponsor:
+        return Response(content="Sponsor not found.", status_code=404)
+
+    # Build the per-visit substitution map. ACTIVATION_URL goes to the
+    # standard registration page with ref pre-filled; REFERRAL_URL is the
+    # raw /ref/<username> for cases where the template wants the literal
+    # canonical referral link (e.g. in a "share my link" snippet).
+    first_name = (sponsor.first_name or sponsor.username or "").strip() or sponsor.username
+    substitutions = {
+        "{{ACTIVATION_URL}}": f"/register?ref={sponsor.username}",
+        "{{REFERRAL_URL}}":   f"https://www.superadpro.com/ref/{sponsor.username}",
+        "{{USERNAME}}":       sponsor.username,
+        "{{FIRST_NAME}}":     first_name,
+    }
+    html = asset.html_template
+    for k, v in substitutions.items():
+        html = html.replace(k, v)
+
+    response = HTMLResponse(html)
+    # Set the standard 'ref' cookie — same name, same expiry, same flags
+    # as /ref/<username> and /join/<username>. The /api/register handler
+    # already reads this cookie and assigns sponsor_id.
+    response.set_cookie(key="ref", value=sponsor.username, max_age=60*60*24*30,
+                        httponly=False, samesite="lax")
+
+    # Log the visit for analytics — wrapped in try so any logging failure
+    # never breaks serving the page. IP is hashed (not stored raw) for
+    # privacy + dedup signal.
+    try:
+        client_ip = (request.client.host if request.client else "") or ""
+        ip_hash = hashlib.sha256(f"sap-ip:{client_ip}".encode()).hexdigest()[:64] if client_ip else None
+        user_agent = (request.headers.get("user-agent") or "")[:500]
+        visit = MarketingAssetVisit(
+            asset_id=asset.id,
+            member_username=sponsor.username,
+            visitor_ip_hash=ip_hash,
+            user_agent=user_agent,
+        )
+        db.add(visit)
+        db.commit()
+    except Exception as _e:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        # Non-blocking: serve the page even if visit logging failed.
+
     return response
 
 # ═══════════════════════════════════════════════════════════════
