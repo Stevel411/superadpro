@@ -10714,6 +10714,14 @@ async def terms_page(request: Request):
     return templates.TemplateResponse("terms-of-service.html", {"request": request})
 
 
+@app.get("/admin/stripe-test", response_class=HTMLResponse)
+async def admin_stripe_test_page(request: Request, user: User = Depends(get_current_user)):
+    """Admin-only test harness page for Stripe backend verification.
+    Added 23 May 2026 — remove after frontend signup flow is shipped."""
+    _require_admin(user)
+    return templates.TemplateResponse("admin-stripe-test.html", {"request": request})
+
+
 @app.post("/api/admin/stripe/test-checkout")
 async def admin_stripe_test_checkout(
     request: Request,

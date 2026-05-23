@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Test — Admin</title>
+    <style>
+        body { background: #0a1438; color: #e8f0fe; font-family: system-ui, sans-serif; min-height: 100vh; margin: 0; padding: 40px 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 8px; color: #fff; }
+        .lede { color: rgba(232,240,254,0.65); margin-bottom: 32px; line-height: 1.5; }
+        .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(34,211,238,0.2); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .card h2 { font-size: 18px; margin-bottom: 12px; color: #22d3ee; }
+        button { background: #0ea5e9; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-right: 8px; transition: background 0.2s; }
+        button:hover { background: #0284c7; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button.secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        button.secondary:hover { background: rgba(255,255,255,0.18); }
+        pre { background: rgba(0,0,0,0.4); border: 1px solid rgba(34,211,238,0.15); border-radius: 6px; padding: 14px; color: #22d3ee; font-size: 12px; overflow-x: auto; line-height: 1.5; margin-top: 12px; white-space: pre-wrap; word-break: break-all; }
+        .status { padding: 10px 14px; border-radius: 6px; margin-top: 12px; font-size: 14px; }
+        .status.ok { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+        .status.err { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+        .testcard { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.25); border-radius: 6px; padding: 12px 14px; margin-top: 8px; font-size: 13px; }
+        .testcard code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px; color: #fbbf24; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stripe Backend Test</h1>
+        <p class="lede">Admin-only end-to-end test of the Stripe payment integration. Picks a tier, creates a real Checkout session, opens it in a new tab. Complete payment with the test card to verify the webhook fires and your account activates correctly.</p>
+
+        <div class="card">
+            <h2>1. Verify Stripe is configured</h2>
+            <button onclick="checkStatus()">Check status</button>
+            <div id="status-result"></div>
+        </div>
+
+        <div class="card">
+            <h2>2. Create test Checkout session</h2>
+            <p style="color:rgba(232,240,254,0.6); font-size:14px; margin-bottom:12px;">Pick a tier and we'll create a Stripe Checkout session for your own account.</p>
+            <button onclick="createCheckout('partner')">Test Partner ($20/mo)</button>
+            <button onclick="createCheckout('founding')">Test Founder ($15/mo)</button>
+            <div id="checkout-result"></div>
+            <div class="testcard">
+                <strong>Test card to use on Stripe Checkout:</strong><br>
+                Card: <code>4242 4242 4242 4242</code> · Expiry: any future date · CVC: any 3 digits · Postcode: any
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. After paying</h2>
+            <p style="color:rgba(232,240,254,0.6); font-size:14px;">Once Stripe redirects you back, come back here and check the status above. You should see <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:3px;color:#22d3ee">payment_method: stripe</code> and <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:3px;color:#22d3ee">has_subscription: true</code>. If so, the backend is working end-to-end.</p>
+        </div>
+    </div>
+
+    <script>
+        async function checkStatus() {
+            const el = document.getElementById('status-result');
+            el.innerHTML = '<div class="status">Checking...</div>';
+            try {
+                const r = await fetch('/api/stripe/status');
+                const d = await r.json();
+                const cls = d.configured ? 'ok' : 'err';
+                el.innerHTML = '<div class="status ' + cls + '">' + (d.configured ? '✓ Stripe configured' : '✗ Not configured') + '</div><pre>' + JSON.stringify(d, null, 2) + '</pre>';
+            } catch (e) {
+                el.innerHTML = '<div class="status err">Request failed: ' + e.message + '</div>';
+            }
+        }
+
+        async function createCheckout(tier) {
+            const el = document.getElementById('checkout-result');
+            el.innerHTML = '<div class="status">Creating Checkout session...</div>';
+            try {
+                const r = await fetch('/api/admin/stripe/test-checkout', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({tier: tier}),
+                });
+                const d = await r.json();
+                if (d.checkout_url) {
+                    el.innerHTML = '<div class="status ok">✓ Session created. Opening Stripe Checkout in new tab...</div><pre>' + JSON.stringify(d, null, 2) + '</pre>';
+                    window.open(d.checkout_url, '_blank');
+                } else {
+                    el.innerHTML = '<div class="status err">Failed to create session</div><pre>' + JSON.stringify(d, null, 2) + '</pre>';
+                }
+            } catch (e) {
+                el.innerHTML = '<div class="status err">Request failed: ' + e.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>
