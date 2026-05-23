@@ -10420,7 +10420,7 @@ def _stripe_handle_checkout_completed(db, session, event):
         company_share_cents=company_share,
         refundable_cents=refundable,
         description=f"Checkout completed: {product_kind}",
-        raw_event_json=json.dumps(event)[:50000],  # truncate to keep row size sane
+        raw_event_json=str(event)[:50000],  # truncate to keep row size sane
     )
     db.add(charge)
     db.flush()
@@ -10492,7 +10492,7 @@ def _stripe_handle_invoice_paid(db, invoice, event):
         company_share_cents=company_share,
         refundable_cents=refundable,
         description=f"Renewal invoice paid",
-        raw_event_json=json.dumps(event)[:50000],
+        raw_event_json=str(event)[:50000],
     )
     db.add(charge)
 
@@ -10575,7 +10575,7 @@ def _stripe_handle_dispute_created(db, dispute, event):
         amount_cents=-amount_cents,
         currency=dispute.get("currency", "usd"),
         description=f"Chargeback initiated: {dispute.get('reason', 'unknown')}",
-        raw_event_json=json.dumps(event)[:50000],
+        raw_event_json=str(event)[:50000],
     )
     db.add(charge)
 
@@ -10619,7 +10619,7 @@ def _stripe_handle_charge_refunded(db, charge, event):
         amount_cents=-amount_refunded,
         currency=charge.get("currency", "usd"),
         description=f"Refund processed",
-        raw_event_json=json.dumps(event)[:50000],
+        raw_event_json=str(event)[:50000],
     )
     db.add(refund_row)
     db.commit()
