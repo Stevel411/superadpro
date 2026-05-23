@@ -192,6 +192,19 @@ export default function Dashboard() {
     return function() { clearTimeout(timeout); };
   }, []);
 
+  // ── Signup-funnel tracking (24 May 2026) ──
+  // Fire-and-forget: log that this Free user landed on Dashboard so we can
+  // measure the dashboard_view → upgrade_view → activation funnel. Server
+  // is idempotent per (user, event, UTC date) so refreshes don't inflate
+  // the count. Only fires for Free users; active members are no-op
+  // server-side. Guarded by user.is_active so we don't even spend the
+  // round-trip for paid members.
+  useEffect(function() {
+    if (!user || user.is_active) return;
+    apiPost('/api/funnel/track', { event: 'dashboard_view_inactive' }).catch(function() {});
+  }, [user?.id, user?.is_active]);
+
+
   if (loading) {
     return <AppLayout title={t("dashboard.title")}><div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}>
       <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: 'var(--sap-accent)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
@@ -290,6 +303,34 @@ export default function Dashboard() {
           we mount unconditionally and let it decide whether to draw. */}
       <FoundingPartnerBanner user={user} />
 
+      {/* ── Free member activation banner ──
+          Moved up here on 24 May 2026 — was previously below the data cards
+          and missed by Free users (82% of registered users never paying as
+          of 23 May). Tools-first copy aligns with the brand positioning rule:
+          we sell the toolkit, not the income claim. The "Get my referral
+          link" secondary CTA stays so members who want to refer can. */}
+      {!d.is_active && (
+        <div style={{
+          background: 'linear-gradient(135deg,#f0fdf4,#ecfeff)', border: '1px solid #bbf7d0',
+          borderRadius: 8, padding: '20px 24px', marginBottom: 20,
+          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+        }}>
+          <div style={{ flex: 1, minWidth: 240 }}>
+            <div style={{...TYPE.cardTitleBold, color: '#132044', marginBottom: 6}}>🎯 {t('dashboard.activationTitle')}</div>
+            <p style={{...TYPE.bodyLarge, margin: 0}}>
+              {t('dashboard.activationDesc1')} <strong>{t('dashboard.activationDesc2')}</strong>. {t('dashboard.activationDesc3')} <strong style={{ color: '#0891b2' }}>{t('dashboard.activationPaidFor')}</strong>.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end', flexShrink: 0 }}>
+            <a href="/upgrade" style={{
+              fontSize: 14, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
+              padding: '11px 22px', borderRadius: 9, textDecoration: 'none', boxShadow: '0 4px 14px rgba(14,165,233,0.3)',
+            }}>{t('dashboard.activateNow')}</a>
+            <Link to="/affiliate" style={{ fontSize: 13, fontWeight: 600, color: '#0891b2', textDecoration: 'none' }}>{t('dashboard.getMyReferralLink')}</Link>
+          </div>
+        </div>
+      )}
+
       {/* ── Fast Start hero (added 17 May 2026) ──
           Drives Grid Tier 1 activation. Component handles its own
           state (loads /api/fast-start/state, conditionally renders
@@ -302,8 +343,12 @@ export default function Dashboard() {
           60-second rotation between Credit Nexus, Brand Poster Generator, Pay
           It Forward. The Dashboard top is treated as a storefront for the
           platform per Steve's product direction 12 May 2026.
-          V1: hardcoded slides. V2 (Week 2): admin-managed slide CMS. */}
-      <DashboardHeroCarousel />
+          V1: hardcoded slides. V2 (Week 2): admin-managed slide CMS.
+          24 May 2026: gated on is_active. Free users were seeing 5 product
+          slides for things they couldn't access yet, contributing to the
+          decision-paralysis on Dashboard. Carousel now reserved for paid
+          members — Free users see the single Upgrade CTA instead. */}
+      {user?.is_active && <DashboardHeroCarousel />}
 
       {/* Onboarding banner — replaces the old full-page wizard redirect.
           Shown when user.onboarding_completed is false. Two paths out:
@@ -591,28 +636,9 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Free member activation banner */}
-      {!d.is_active && (
-        <div style={{
-          background: 'linear-gradient(135deg,#f0fdf4,#ecfeff)', border: '1px solid #bbf7d0',
-          borderRadius: 8, padding: '20px 24px', marginBottom: 20,
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
-        }}>
-          <div style={{ flex: 1, minWidth: 240 }}>
-            <div style={{...TYPE.cardTitleBold, color: '#132044', marginBottom: 6}}>🎯 {t('dashboard.activationTitle')}</div>
-            <p style={{...TYPE.bodyLarge, margin: 0}}>
-              {t('dashboard.activationDesc1')} <strong>{t('dashboard.activationDesc2')}</strong>. {t('dashboard.activationDesc3')} <strong style={{ color: '#0891b2' }}>{t('dashboard.activationPaidFor')}</strong>.
-            </p>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end', flexShrink: 0 }}>
-            <a href="/upgrade" style={{
-              fontSize: 14, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
-              padding: '11px 22px', borderRadius: 9, textDecoration: 'none', boxShadow: '0 4px 14px rgba(14,165,233,0.3)',
-            }}>{t('dashboard.activateNow')}</a>
-            <Link to="/affiliate" style={{ fontSize: 13, fontWeight: 600, color: '#0891b2', textDecoration: 'none' }}>{t('dashboard.getMyReferralLink')}</Link>
-          </div>
-        </div>
-      )}
+      {/* Free member activation banner moved up next to FoundingPartnerBanner
+          on 24 May 2026 — was previously buried below the data cards and
+          getting missed by Free users. */}
 
       {/* Active member but no Campaign Tier yet — nudge to buy first tier so
           they can unlock Watch-to-Earn + Create Campaign + commission earning.

@@ -8967,6 +8967,153 @@ async def api_founding_members_status(db: Session = Depends(get_db)):
     }
 
 
+# ── Signup funnel instrumentation (added 24 May 2026) ──────────────────
+# Tracks Free user drop-off between registration and paid activation.
+# As of 23 May 2026: 67 signups in last 7 days, only 12 activated (18%).
+# Without funnel events we can't tell whether the leak is at /dashboard
+# (they never come back), at /upgrade (they look but don't click pay),
+# or at the payment step itself. These two endpoints give us a denominator
+# at each step so the leakage point becomes diagnosable next week.
+
+@app.post("/api/funnel/track")
+async def api_funnel_track(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Record a signup-funnel event for the current Free user.
+
+    Body: {"event": "dashboard_view_inactive" | "upgrade_view_inactive"}
+
+    Idempotent per (user_id, event, UTC date) — multiple page views in the
+    same day record once. This keeps the denominator honest: 67 unique
+    signups, not 670 page-refresh inflated views.
+
+    No-ops silently for:
+      - unauthenticated requests (just returns ok — no point making the
+        client error-handle a fire-and-forget tracker)
+      - active members (we only care about the pre-activation funnel)
+      - unknown event names (whitelisted below to prevent log spam from
+        future client changes or probing)
+    """
+    if not user or user.is_active:
+        # Not an error from the client's perspective — they fire and forget.
+        return {"ok": True, "recorded": False}
+
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    event = (body.get("event") or "").strip()
+
+    ALLOWED_EVENTS = {"dashboard_view_inactive", "upgrade_view_inactive"}
+    if event not in ALLOWED_EVENTS:
+        return {"ok": True, "recorded": False}
+
+    from .database import SignupFunnelEvent
+
+    # Idempotency: skip if (user, event) already fired today UTC.
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    existing = db.query(SignupFunnelEvent.id).filter(
+        SignupFunnelEvent.user_id == user.id,
+        SignupFunnelEvent.event == event,
+        SignupFunnelEvent.created_at >= today_start,
+    ).first()
+    if existing:
+        return {"ok": True, "recorded": False}
+
+    try:
+        db.add(SignupFunnelEvent(user_id=user.id, event=event))
+        db.commit()
+        return {"ok": True, "recorded": True}
+    except Exception as e:
+        logger.warning(f"funnel/track insert failed for user {user.id} event {event}: {e}")
+        db.rollback()
+        return {"ok": True, "recorded": False}
+
+
+@app.get("/admin/api/signup-funnel-stats")
+async def admin_api_signup_funnel_stats(
+    days: int = 7,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Admin-only: signup funnel report over the last N days (default 7).
+
+    Returns the count of users at each funnel step:
+      - registered:        count of users created in window
+      - dashboard_viewed:  count who fired dashboard_view_inactive
+      - upgrade_viewed:    count who fired upgrade_view_inactive
+      - activated:         count whose is_active = True
+
+    Rates are computed pairwise so we can see where the largest drop is.
+    Use this to decide which step deserves attention next.
+    """
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from .database import SignupFunnelEvent
+    since = datetime.utcnow() - timedelta(days=max(1, min(days, 90)))
+
+    # Cohort of users registered in the window
+    cohort_user_ids = [
+        row[0] for row in db.query(User.id).filter(User.created_at >= since).all()
+    ]
+    registered = len(cohort_user_ids)
+
+    if registered == 0:
+        return {
+            "window_days": days,
+            "since": since.isoformat(),
+            "registered": 0,
+            "dashboard_viewed": 0,
+            "upgrade_viewed": 0,
+            "activated": 0,
+            "rates": {},
+            "note": "No registrations in window — increase ?days= to widen.",
+        }
+
+    # Distinct users in the cohort who fired each event
+    dashboard_viewed = db.query(SignupFunnelEvent.user_id).filter(
+        SignupFunnelEvent.user_id.in_(cohort_user_ids),
+        SignupFunnelEvent.event == "dashboard_view_inactive",
+    ).distinct().count()
+
+    upgrade_viewed = db.query(SignupFunnelEvent.user_id).filter(
+        SignupFunnelEvent.user_id.in_(cohort_user_ids),
+        SignupFunnelEvent.event == "upgrade_view_inactive",
+    ).distinct().count()
+
+    # Activated = is_active=True from the same cohort. Counted by current
+    # state, not by event, because the cohort may have activated after
+    # registering — that still counts as a conversion.
+    activated = db.query(User.id).filter(
+        User.id.in_(cohort_user_ids),
+        User.is_active == True,  # noqa: E712
+    ).count()
+
+    def pct(num, den):
+        if den == 0:
+            return 0.0
+        return round(100.0 * num / den, 1)
+
+    return {
+        "window_days": days,
+        "since": since.isoformat(),
+        "registered": registered,
+        "dashboard_viewed": dashboard_viewed,
+        "upgrade_viewed": upgrade_viewed,
+        "activated": activated,
+        "rates": {
+            "dashboard_view_rate": pct(dashboard_viewed, registered),
+            "upgrade_view_rate": pct(upgrade_viewed, registered),
+            "activation_rate": pct(activated, registered),
+            "dashboard_to_upgrade": pct(upgrade_viewed, dashboard_viewed) if dashboard_viewed else 0.0,
+            "upgrade_to_activation": pct(activated, upgrade_viewed) if upgrade_viewed else 0.0,
+        },
+    }
+
+
 # ── Auto-renew preference (added 9 May 2026 with new checkout flow) ─────
 @app.get("/api/auto-renew-preference")
 async def api_get_auto_renew_preference(db: Session = Depends(get_db),

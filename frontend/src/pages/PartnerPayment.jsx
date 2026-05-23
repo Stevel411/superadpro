@@ -94,6 +94,19 @@ export default function PartnerPayment() {
       .catch(function() { /* leave card hidden */ });
   }, []);
 
+  // ── Signup-funnel tracking (24 May 2026) ──
+  // Fire-and-forget: log that this Free user landed on /upgrade. Pairs
+  // with dashboard_view_inactive on Dashboard to give us a step-by-step
+  // funnel diagnosis (registered → dashboard_viewed → upgrade_viewed →
+  // activated). Server idempotent per (user, event, UTC date); no-op for
+  // active members. Guarded client-side so we skip the round-trip when
+  // it would be wasted.
+  useEffect(function() {
+    if (!user || user.is_active) return;
+    apiPost('/api/funnel/track', { event: 'upgrade_view_inactive' }).catch(function() {});
+  }, [user?.id, user?.is_active]);
+
+
   // Derived state
   var isActive = !!user?.is_active;
   var tier = (user?.membership_tier || 'free').toLowerCase();

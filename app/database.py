@@ -907,6 +907,31 @@ class FunnelEvent(Base):
     created_at  = Column(DateTime, default=datetime.utcnow)
 
 
+class SignupFunnelEvent(Base):
+    """Signup → activation funnel instrumentation (added 24 May 2026).
+
+    Tracks where Free users drop off between registration and paid activation.
+    Distinct from FunnelEvent (which tracks member-built FunnelPages); this
+    table is for platform-level conversion analytics.
+
+    Events fired (so far):
+      - 'dashboard_view_inactive': Free user landed on /dashboard
+      - 'upgrade_view_inactive':   Free user landed on /upgrade
+
+    Idempotent per (user_id, event, UTC date) — fired at most once per day so
+    repeated dashboard refreshes don't inflate the denominator. The endpoint
+    handler enforces this with an existence check before insert.
+
+    Stops firing once user.is_active=True — we only care about the
+    pre-activation funnel here.
+    """
+    __tablename__ = "signup_funnel_events"
+    id         = Column(Integer, primary_key=True, autoincrement=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    event      = Column(String(50), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+
 class WatchdogLog(Base):
     """AI Watchdog activity log — every check, fix, and escalation."""
     __tablename__ = "watchdog_logs"
@@ -2171,6 +2196,18 @@ def run_migrations():
         "  funnel_source VARCHAR(64) DEFAULT 'start'"
         ")",
         "CREATE INDEX IF NOT EXISTS idx_rotator_assignments_signup ON rotator_assignments(signup_user_id)",
+        # ── Signup funnel instrumentation (24 May 2026) ──
+        # Tracks Free user drop-off between registration and paid activation.
+        # See SignupFunnelEvent docstring. Endpoint /api/funnel/track is the
+        # write side; reporting query is /admin/api/signup-funnel-stats.
+        "CREATE TABLE IF NOT EXISTS signup_funnel_events ("
+        "  id SERIAL PRIMARY KEY,"
+        "  user_id INTEGER NOT NULL REFERENCES users(id),"
+        "  event VARCHAR(50) NOT NULL,"
+        "  created_at TIMESTAMP NOT NULL DEFAULT NOW()"
+        ")",
+        "CREATE INDEX IF NOT EXISTS idx_signup_funnel_user_event ON signup_funnel_events(user_id, event)",
+        "CREATE INDEX IF NOT EXISTS idx_signup_funnel_created ON signup_funnel_events(created_at)",
     ]
     results = []
     with engine.connect() as conn:
