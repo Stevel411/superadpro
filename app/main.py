@@ -10354,10 +10354,26 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     signature = request.headers.get("stripe-signature", "")
 
     try:
-        event = _stripe.verify_and_parse_webhook(payload, signature)
+        event_obj = _stripe.verify_and_parse_webhook(payload, signature)
     except Exception as e:
         logger.warning(f"Stripe webhook signature verification failed: {e}")
         return JSONResponse({"error": "invalid_signature"}, status_code=400)
+
+    # 23 May 2026: convert Stripe SDK object to plain dict so all downstream
+    # handlers work with native Python types. Stripe StripeObject supports
+    # .get() dict-style but nested objects can be StripeObject too which
+    # subtly breaks some assumptions. .to_dict_recursive() returns a fully
+    # native dict tree.
+    try:
+        if hasattr(event_obj, "to_dict_recursive"):
+            event = event_obj.to_dict_recursive()
+        elif hasattr(event_obj, "to_dict"):
+            event = event_obj.to_dict()
+        else:
+            event = dict(event_obj)
+    except Exception as e:
+        logger.exception("Failed to convert Stripe event to dict")
+        return JSONResponse({"received": True, "convert_error": str(e)}, status_code=200)
 
     event_type = event.get("type", "")
     obj = event.get("data", {}).get("object", {})
@@ -10385,7 +10401,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         # Return 200 anyway so Stripe doesn't retry — the failure is on our
         # side and a retry won't fix it. Worth a Sentry alert when we have
         # error tracking (point 5 on the roadmap).
-        return {"received": True, "handler_error": str(e)}
+        return {"received": True, "handler_error": str(e), "handler_error_type": type(e).__name__}
 
 
 def _stripe_handle_checkout_completed(db, session, event):
