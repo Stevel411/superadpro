@@ -10893,65 +10893,6 @@ async def terms_page(request: Request):
     return templates.TemplateResponse("terms-of-service.html", {"request": request})
 
 
-@app.get("/admin/stripe-test", response_class=HTMLResponse)
-async def admin_stripe_test_page(request: Request, user: User = Depends(get_current_user)):
-    """Admin-only test harness page for Stripe backend verification.
-    Added 23 May 2026 — remove after frontend signup flow is shipped."""
-    _require_admin(user)
-    return templates.TemplateResponse("admin-stripe-test.html", {"request": request})
-
-
-@app.post("/api/admin/stripe/test-checkout")
-async def admin_stripe_test_checkout(
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """TEMPORARY admin-only endpoint to test the Stripe checkout flow end-to-end.
-
-    Added 23 May 2026 to verify backend Stripe integration before frontend
-    is built. Remove after frontend signup flow is shipped.
-
-    Body (JSON):
-      tier: 'partner' or 'founding' (default 'partner')
-
-    Returns {checkout_url, session_id} — admin opens URL, completes payment
-    with Stripe test card 4242 4242 4242 4242, then we verify webhook + DB.
-    """
-    _require_admin(user)
-    if not _stripe.is_configured():
-        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
-
-    body = await request.json()
-    tier = (body.get("tier") or "partner").lower()
-    if tier in ("founder", "founding"):
-        current_founders = db.execute(text(
-            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
-        )).fetchone()
-        if current_founders and current_founders.cnt >= 100:
-            tier = "partner"
-
-    price_id = _stripe.get_price_id_for_tier(tier)
-    if not price_id:
-        return JSONResponse({"error": "no_price_for_tier", "tier": tier, "hint": "Check STRIPE_FOUNDER_PRICE_ID / STRIPE_PARTNER_PRICE_ID env vars"}, status_code=400)
-
-    try:
-        result = _stripe.create_checkout_session(
-            user=user,
-            db_session=db,
-            product_kind="founder_signup" if tier in ("founder", "founding") else "membership_signup",
-            price_id=price_id,
-            success_path="/payment-success",
-            cancel_path="/dashboard",
-            extra_metadata={"tier_requested": tier, "test_run": "true"},
-        )
-        result["instructions"] = "Open checkout_url in browser, complete payment with test card 4242 4242 4242 4242 (any future expiry, any CVC, any postcode)."
-        return result
-    except Exception as e:
-        logger.exception(f"admin test checkout failed for user {user.id}")
-        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # end Stripe payment rail
 # ─────────────────────────────────────────────────────────────────────────────

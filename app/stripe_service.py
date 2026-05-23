@@ -97,9 +97,9 @@ REFUND_SHARES = {
     "founder_renewal":     0.33,
     "campaign_tier":       0.05,   # 5% admin only
     "nexus_pack":          0.15,   # 15% company / 85% affiliates
-    "course":              0.00,   # 100% to affiliates — NO refund possible
     "custom_domain":       1.00,   # one-time fee, no commission split — fully refundable
-    "creative_credits":    1.00,   # unused credits fully refundable (consumed credits → 0 separately)
+    # 23 May 2026: 'course' and 'creative_credits' removed — those products
+    # are no longer applicable on the platform per Steve's call.
 }
 
 def calculate_refundable(product_kind: str, amount_cents: int) -> Tuple[int, int]:
