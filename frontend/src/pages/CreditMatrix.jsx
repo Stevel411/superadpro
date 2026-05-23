@@ -208,11 +208,6 @@ export function CreditMatrixContent() {
           <AppLayout
             title={t("creditMatrix.title")}
             subtitle={t("creditMatrix.subtitle")}
-            topbarActions={
-              <Suspense fallback={null}>
-                <WalletConnectGate variant="compact" />
-              </Suspense>
-            }
           >
             <div style={{ textAlign: 'center', padding: '80px 0' }}>
               <Loader2 size={32} color="var(--sap-purple)" style={{ animation: 'spin 1s linear infinite' }} />
@@ -239,11 +234,6 @@ export function CreditMatrixContent() {
     <AppLayout
       title={t("creditMatrix.title")}
       subtitle={t("creditMatrix.subtitle")}
-      topbarActions={
-        <Suspense fallback={null}>
-          <WalletConnectGate variant="compact" />
-        </Suspense>
-      }
     >
     <>
 
@@ -311,11 +301,28 @@ export function CreditMatrixContent() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
         <div>
-          {/* Credit Packs — connect button now lives in the top header
-              via topbarActions. PayLinks read connection state from the
-              page-level WalletConnectProvider context. */}
+          {/* Credit Packs — single Connect button above the pack grid
+              when disconnected; once wallet is connected, each pack
+              card's WalletPayLink lights up. 24 May 2026: moved out of
+              topbar (members couldn't find it) into a banner above the
+              grid. One Gate for all four packs avoids the 4-button
+              clutter the WalletConnect refactor was designed to prevent. */}
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.buyPacks')}</div>
+
+            <Suspense fallback={null}>
+              <WalletConnectGate
+                hideWhenConnected
+                label="Connect Wallet to enable direct BSC payment"
+                style={{
+                  width: '100%', padding: '12px 16px', borderRadius: 10,
+                  border: 'none', fontSize: 14, fontWeight: 800, color: '#fff',
+                  background: 'linear-gradient(135deg,#ea580c,#f97316)',
+                  boxShadow: '0 4px 14px rgba(249,115,22,.35)',
+                  fontFamily: 'Sora, sans-serif', marginBottom: 12,
+                }}
+              />
+            </Suspense>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {packs.map(function(pack) {

@@ -153,11 +153,6 @@ export default function ActivateTier() {
     <AppLayout
       title={`Activate ${tier.name}`}
       subtitle={t('campaignTiers.reviewTier')}
-      topbarActions={
-        <Suspense fallback={null}>
-          <WalletConnectGate variant="compact" />
-        </Suspense>
-      }
     >
       <div style={{maxWidth:700,margin:'0 auto'}}>
 
@@ -296,9 +291,28 @@ export default function ActivateTier() {
               </div>
             )}
 
-            {/* Self-custody BSC PayLink — only renders once wallet is connected.
-                Connect button is in the page header (topbarActions). */}
+            {/* Self-custody BSC pay rail.
+                Two components, mutually exclusive:
+                  - WalletConnectGate (hideWhenConnected): orange Connect
+                    button when disconnected, returns null when connected.
+                  - WalletPayLink: null when disconnected, Pay button
+                    when connected.
+                Pattern matches PartnerPayment / PayItForward / GridActivate
+                so the wallet rail is self-contained in every payment page
+                (topbar Connect button removed 24 May 2026 — members were
+                missing it). */}
             <Suspense fallback={null}>
+              <WalletConnectGate
+                hideWhenConnected
+                label={`Connect Wallet — $${tier.price.toLocaleString()}`}
+                style={{
+                  width: '100%', padding: '12px 16px', borderRadius: 10,
+                  border: 'none', fontSize: 14, fontWeight: 800, color: '#fff',
+                  background: 'linear-gradient(135deg,#ea580c,#f97316)',
+                  boxShadow: '0 4px 14px rgba(249,115,22,.35)',
+                  fontFamily: 'Sora, sans-serif',
+                }}
+              />
               <WalletPayLink
                 productType="grid"
                 productKey={'grid_' + n}

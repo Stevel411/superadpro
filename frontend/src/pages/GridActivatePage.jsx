@@ -468,13 +468,6 @@ export default function GridActivatePage() {
             position in the Grid — and your sponsor pool starts here.
           </p>
 
-          {/* WC connect button — only renders when not connected */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-            <Suspense fallback={null}>
-              <WalletConnectGate variant="compact" />
-            </Suspense>
-          </div>
-
           {/* Mini-grid illustrative card */}
           <div className="gact-card">
             <div className="gact-card-header">
@@ -534,8 +527,24 @@ export default function GridActivatePage() {
               Pay once. Your grid goes live the moment your transaction confirms.
             </p>
 
-            {/* Primary — WalletConnect self-custody */}
+            {/* Primary — WalletConnect self-custody.
+                Gate (orange Connect) shows when disconnected; PayLink
+                (green Pay) shows when connected. hideWhenConnected swaps
+                them in the same slot. 24 May 2026: moved Connect from
+                above the sample grid down here adjacent to Pay so the
+                wallet rail is self-contained in the CTA section. */}
             <Suspense fallback={<div style={{ height: 56 }} />}>
+              <WalletConnectGate
+                hideWhenConnected
+                label="Connect Wallet — $20"
+                style={{
+                  width: '100%', padding: '14px 18px', borderRadius: 12,
+                  border: 'none', fontSize: 15, fontWeight: 800, color: '#fff',
+                  background: 'linear-gradient(135deg,#ea580c,#f97316)',
+                  boxShadow: '0 4px 14px rgba(249,115,22,.35)',
+                  fontFamily: 'Sora, sans-serif',
+                }}
+              />
               <WalletPayLink
                 productType="grid"
                 productKey="grid_1"

@@ -137,11 +137,6 @@ export default function PayItForward() {
     <AppLayout
       title={t("payItForward.title")}
       subtitle={t("payItForward.subtitle")}
-      topbarActions={
-        <Suspense fallback={null}>
-          <WalletConnectGate variant="compact" />
-        </Suspense>
-      }
     >
 
       <style>{'@keyframes spin{to{transform:rotate(360deg)}} .pif-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)!important}'}</style>
