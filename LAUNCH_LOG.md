@@ -6,7 +6,64 @@
 
 ---
 
-## Status as of 2026-05-12 (day 3 of launch) — BIG DAY
+## Status as of 2026-05-23 — STRIPE LIVE
+
+**Card payments are live in production.** Real customers can now pay by card for Membership signups, Campaign Tier purchases, and Credit Nexus packs. Crypto rails (USDT on BSC + NOWPayments) remain unchanged. `User.payment_method` ('crypto' or 'stripe') routes renewals.
+
+Verified end-to-end with a real $15 Founder Membership payment from test1 → $10 sponsor commission settled into test30's wallet → admin shows test1 as active Founder. 3D Secure (Nationwide app) triggered correctly on UK cards.
+
+### Shipped on 23 May 2026
+
+- **`42722ba` Build break fix** — reverted repomix tooling commit that broke nixpacks Python detection. Kept LAUNCH_LOG strategic roadmap commits `c0dc8f0` and `8e11270` from concurrent mobile Claude session.
+- **`52c38e0` Stripe backend re-integration** — schema (User extensions + StripeCharge audit table), `app/stripe_service.py` module, 6 webhook handlers, partial-refund math per product, chargeback handler, public Refund Policy + Terms of Service pages. Backend was verified working end-to-end via temporary admin test harness before frontend integration.
+- **`8103751` `/api/stripe/status` unauth guard.**
+- **`625cda5` `994c7a0` `f363970`** — three webhook bugs found and fixed during initial test: JSON-serialisation of Stripe SDK Event objects, dict-access on Stripe StripeObject (via `.to_dict_recursive()`), API version 2026-04-22.dahlia invoice schema changes (subscription moved to `parent.subscription_details.subscription`).
+- **`25d07ac` `b7d20c4`** — frontend Pay with card rail on PartnerPayment.jsx + Manage Subscription card on Account.jsx (Stripe Customer Portal link).
+- **`01a532d` `905bf65`** — Campaign Tier + Credit Nexus card payments. Backend endpoints + frontend buttons. Webhook handler dispatches to `process_tier_purchase` and `purchase_credit_pack` — same activation logic the crypto rail uses, so commission math is guaranteed identical.
+- **`4120750`** — auth guards on new endpoints.
+- **`5de19df` `259409f`** — each product redirects to its own destination page with activation banner (Membership→`/payment-success`, Campaign Tier→`/campaign-tiers?activated=tier_X`, Nexus→`/credit-nexus?activated=<pack>`).
+- **`2df0eb0`** — cleanup: removed admin test harness, removed `course` and `creative_credits` from `REFUND_SHARES` (out of scope).
+- **`195873f`** — Founder spot claim now sets `membership_tier='founding'` along with `is_founding_member=True`. Without this, admin showed PARTNER for fresh Founder signups (bug surfaced during live test1 payment).
+- **Stripe Live cutover** — Live mode active, live keys + products + webhook configured, dead webhooks from old integration deleted, end-to-end verified.
+
+### Locked policy (Steve, 23 May 2026)
+
+- Currency USD on both rails ($15 Founder, $20 Partner)
+- Founder 100-spot cap SHARED across crypto + Stripe (enforced under `FOUNDING_LOCK_KEY=7423957` Postgres advisory lock)
+- Founder $15/month lock-in applies to card members too
+- Refund policy: 7-day window, company portion only (50% Partner, 33% Founder, 5% Campaign Tier, 15% Nexus). Crypto payments final.
+- Chargeback handler: immediate account suspension + subscription cancel + commission forfeiture flag
+- Stripe Checkout (hosted) not Elements (embedded)
+
+### Currently watching (updated 23 May 2026)
+
+- **Webhook delivery success rate** — Stripe Dashboard → Event destinations. Should stay 100%. Below 95% needs immediate investigation.
+- **First real customer signups via card** — spot-check the first few. Verify activation + sponsor commission + badges.
+- **First chargeback** — handler is built but never tested in anger.
+- **3D Secure abandonment rate** — UK cards trigger SCA (Nationwide / Barclays / etc.). Stripe Dashboard → Payments → Failed shows drop-offs. Worth tracking.
+
+### Open items (priority order)
+
+1. **Wallet Connect button placement** — currently in topbar on payment pages, far from the wallet payment option. Should be IN the payments modal. Affects `PartnerPayment.jsx`, `ActivateTier.jsx`, `CreditMatrix.jsx`. ~30 min fix, do first next session.
+2. **Pay It Forward gifting** — Tier 1 highest-revenue mechanism per the roadmap. Gift-a-starter at $20.
+3. **Public income calculator on `/earn`** — highest signup-conversion lever per the roadmap.
+4. **Funnel Manager** — LeadsLeap parity, team-duplication accelerator.
+5. **Custom Domain via Stripe** — $20 one-time, Railway customDomainCreate API. Deferred from earlier in the session.
+6. **i18n translation pass** — 19 locales, 123 flat-pricing keys in `en.json` (commit `863ae66`). Plus 6 training-content locales against 18-lesson corpus (commit `c0d2643`).
+7. **5-stage smoke test from `b17d541`** — still deferred.
+8. **C-C-1 hover/count-up animations** for Stat + Review on published pages.
+9. **BPG positioning decision.**
+
+### Architectural notes for future-Claude
+
+- `is_founding_member` and `membership_tier='founding'` are duplicated state for the same concept. The 23 May bug was caused by the spot-claim block setting one but not the other. Worth consolidating to a single source of truth in a future session.
+- The startup tier normalisation block in `app/database.py:3300-3322` auto-corrects this inconsistent state on boot — that's what fixed test1 after the `195873f` deploy.
+- Stripe webhook handler converts Stripe SDK Event objects to plain dicts at entry via `.to_dict_recursive()`. Don't undo this — Stripe StripeObject nested values subtly break `.get()` calls downstream.
+- API version 2026-04-22.dahlia restructured invoice fields. `subscription` is now at `invoice.parent.subscription_details.subscription`. Reads both old and new paths in `_stripe_handle_invoice_paid` for forward/backward compat.
+
+---
+
+
 
 **Brand Poster Generator shipped.** This is the day BPG went from idea to production end-to-end. Members can now generate branded marketing posters in 60 seconds with their referral link automatically baked in. Members grew from 29 → 66+ in one day (+127%). 11 production changes shipped across the day.
 
