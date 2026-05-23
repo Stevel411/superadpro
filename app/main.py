@@ -10341,6 +10341,8 @@ async def stripe_checkout_campaign_tier(
     """
     if not _stripe.is_configured():
         return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    if not user:
+        return JSONResponse({"error": "auth_required"}, status_code=401)
     # Campaign tiers are gated to active partners (membership active).
     # Mirrors the crypto rail check in /api/nowpayments/create-invoice
     # and the various other entry points.
@@ -10392,6 +10394,8 @@ async def stripe_checkout_nexus_pack(
     """
     if not _stripe.is_configured():
         return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    if not user:
+        return JSONResponse({"error": "auth_required"}, status_code=401)
     if not user.is_active:
         return JSONResponse({"error": "membership_required", "detail": "Credit Nexus packs are available to active members only."}, status_code=403)
 
