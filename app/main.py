@@ -8572,6 +8572,13 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                 user.is_founding_member = True
                 user.founding_spot_number = next_spot
                 user.membership_price_locked = Decimal("15.00")
+                # 23 May 2026 (evening): also set membership_tier='founding'
+                # so admin UI + any other code reading membership_tier sees
+                # this user as a Founder. Without this, is_founding_member
+                # would be True but tier would fall through to 'partner' at
+                # line ~8649 below, leaving inconsistent state (FOUNDER
+                # badge on dashboard, but PARTNER badge on admin).
+                user.membership_tier = "founding"
                 # Flush so the locked_price read below sees the new value.
                 db.flush()
                 # Auto-enrol the new Founder into the rotator queue so they
