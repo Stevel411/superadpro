@@ -100,38 +100,82 @@ This validates that the grid commission system works on production with a real m
 
 ### Roadmap from open-source ecosystem session (23 May 2026)
 
-Sequenced after a research session reviewing GitHub for tools that genuinely move the needle on conversion, activation, retention, and member earnings. Cost target: £0 or minimal. All items vetted for licence (MIT/Apache only — no AGPL).
+Sequenced after research sessions reviewing GitHub for tools that move the needle on conversion, activation, retention, and member earnings, plus a LeadsLeap competitive analysis identifying real parity gaps. Cost target: £0 or minimal. All items vetted for licence (MIT/Apache only — no AGPL).
 
 **Already shipped this session:**
 - **Repomix presets** (`dd246ac0b`) — 7 LLM context bundles in `.repomix/`. Run `npm run pack:<preset>`. Diagnostic finding: `app/main.py` is 38,538 lines / 414K tokens, flagged as architectural debt worth a refactor pass.
 
-**Required next-session work (highest ROI first):**
+#### Tier 1 — Required next-session work (highest ROI first)
 
-1. **Public income calculator on `/earn`** — repurpose `GridCalculator.jsx` + `PassupVisualiser.jsx` for unauthenticated visitors. Inputs: estimated followers, expected referrals per week. Output: live projected monthly earnings using real commission spec, with signup CTA next to the personalised number. This is the single largest signup-conversion lever identified. ~1 day. £0.
+**1. Public income calculator on `/earn`** — repurpose `GridCalculator.jsx` + `PassupVisualiser.jsx` for unauthenticated visitors. Inputs: estimated followers, expected referrals per week. Output: live projected monthly earnings using real commission spec, with signup CTA next to the personalised number. This is the single largest signup-conversion lever identified. ~1 day. £0.
 
-2. **`@imgly/background-removal` in Creative Studio** — browser-based AI background removal, MIT, runs client-side via WebAssembly. ~40MB model cached after first use, no server costs. Slot into Creative Studio upload flow so members can drop transparent selfies into BPG posters. ~½ day. £0.
+**2. Pay It Forward gifting mechanism** — the missing revenue/viral engine. You already have the PIF poster template, pink branding, and `PayItForward.jsx` page; what's missing is the actual code-generation + redemption flow. Member buys "Gift a Starter Membership" for $20 (direct revenue NOW), system generates unique code via `voucher-code-generator-js` (MIT, Voucherify) like `SAPGIFT-X7K2-9PQR-A4N8`, shareable gift card PNG generated via satori (overlaps with #5), recipient hits `/redeem/<code>` and claims free membership, original gifter becomes sponsor of redeemed account → future commissions flow back. Three wins at once: direct revenue, lowered acquisition friction, hardwired sponsor attribution. **Flagged as highest-priority revenue mechanism** alongside #1. ~2 days. £0.
 
-3. **Satori OG image generator for LinkHub/SuperPages** — `@vercel/og` / `satori` (MIT) generates dynamic social-share preview cards from JSX. Every member's shared link becomes a branded billboard on Facebook/X/LinkedIn. Cache PNGs in R2. ~1 day. £0.
+#### Tier 2 — Share Code system completion + LeadsLeap parity gaps
 
-4. **QR-Code-Styling polish** — upgrade existing `QRGenerator.jsx` with logo embedding, gradients, custom corners via `qr-code-styling` (MIT). Members can print branded QR codes on cards/flyers linking to LinkHub. ~2-3hr. £0.
+**Already shipped (19 May 2026):**
+- Share Code commit 1 (`6054280`) — schema + generate endpoint + Share button for FunnelPages
+- Share Code commit 2 (`daf0e85`) — import endpoint + ref-link rewriter + UI
 
-**Required infra (separate session):**
+**Outstanding work to close the LeadsLeap competitive gap:**
 
-5. **GlitchTip error tracking** — Sentry SDK compatible, MIT. Hosted free tier (1,000 events/month) first; migrate to self-hosted on Railway (~£5-8/mo) when volume grows. Wire `sentry-sdk[fastapi]` + `@sentry/react`. ~30 min. Stops blind production failures.
+**3. Share Code marketplace (commit 3)** — the lightest outstanding commit: single admin-flip endpoint + browse page reading the existing `share_codes` table. Was deferred 19 May when Steve switched to mobile and GrapesJS editor was unreachable to verify imports. ~½ day. £0.
 
-6. **Driver.js onboarding tour** — MIT, ~5KB, layered on top of existing `OnboardingWizard.jsx`. 5-step spotlight tour for new members (Command Centre → Campaigns → Grid → Wallet → BPG). localStorage flag to never re-show. ~½ day. £0. Activation lift on existing signups.
+**4. Share Code for email sequences** — extend the existing Share Code system to MyLeads autoresponder sequences. Members can share entire email series with their downline, replacers swap in the downline's affiliate link. This is what made LeadsLeap's SendSteed sticky — team leaders share proven sequences and downlines duplicate in one click. Highest team-duplication accelerator after page sharing. ~1-2 days. £0.
 
-7. **PostHog cloud free tier** — MIT, 1M events/month free. Track signup → first qualified referral → first commission → upgrade funnel. Stop guessing where members drop off. Skip self-hosting (Kafka + ClickHouse cluster is wrong shape). ~½ day. £0.
+**5. Funnel Manager** — group existing SuperPages + email sequence + popup into a named "funnel" that exports as a single share code. LeadsLeap's Funnel Manager is what lets a team leader say "import my whole funnel with one code" — landing page + thank-you + 15-email sequence — and the downline gets the entire system in one click. Builds on the share-code infrastructure that already exists. ~1-2 days. £0.
 
-**Member tools to bolster ecosystem (lower priority, scope after above):**
+**6. LabsPageBuilder hero copy fix** — line 149 still says "ship a share-code system" as pending. Share Code for FunnelPages is shipped. One-line update. ~5 min.
 
-8. **Disposable email blocker** — public github.com/disposable/disposable list, fetch + cache, integrate into signup + lead-capture endpoints. Keeps MyLeads clean and Brevo deliverability high. ~½ day. £0.
-9. **PhotoSwipe gallery block for SuperPages** — MIT, pinch-zoom lightbox. New block type in SuperPages editor. ~½ day. £0.
-10. **Excalidraw embed** — MIT, whiteboarding in Course Academy lessons and Team Messenger threads. ~½ day. £0.
-11. **MeiliSearch on Course + Help** — MIT, typo-tolerant instant search. Reduces support load. ~½ day. ~£5/mo Railway.
-12. **Cal.com integration** — open-source Calendly killer. Per-member booking pages embeddable in LinkHub. Self-host on Railway (~£15/mo) recouped within 30 paying users. ~2-3 days. **Very high differentiation** — members can cancel their Calendly subscriptions.
+**7. PopupXpert equivalent** — popup builder with Share Code support. You don't have a popup builder; LeadsLeap members get 10 popups on free tier. Lead-capture popups on SuperPages and LinkHub would lift conversion meaningfully. ~2 days. £0.
 
-**Sequencing principle:** items 1-4 are pure-frontend, no infra changes, can ship in any order. Items 5-7 add observability and should land before scaling marketing. Items 8-12 are feature additions, scope as separate decisions when above is shipped.
+**8. Daily Active Bonus** — small daily reward (5p–25p) for hitting a Watch-to-Earn campaign threshold (e.g. 10 campaigns viewed). LeadsLeap pays $1/day for clicking 10 ads — pure engagement infrastructure that creates daily-return habit. Modifies existing campaign view logic. ~1 day.
+
+**9. PDF Link Rebrander** — Pro feature. Member uploads PDF, system rewrites embedded links to route through their referral link. Small build, high perceived value, matches LeadsLeap Pro feature. ~1 day. £0.
+
+#### Tier 3 — Ecosystem polish (visual + viral)
+
+**10. `@imgly/background-removal` in Creative Studio** — browser-based AI background removal, MIT, runs client-side via WebAssembly. ~40MB model cached after first use, no server costs. Slot into Creative Studio upload flow so members can drop transparent selfies into BPG posters. ~½ day. £0.
+
+**11. Satori OG image generator for LinkHub/SuperPages/PIF gift cards** — `@vercel/og` / `satori` (MIT) generates dynamic social-share preview cards from JSX. Every member's shared link becomes a branded billboard on Facebook/X/LinkedIn. Also the rendering engine for #2 gift card PNGs. Cache PNGs in R2. ~1 day. £0.
+
+**12. QR-Code-Styling polish** — upgrade existing `QRGenerator.jsx` with logo embedding, gradients, custom corners via `qr-code-styling` (MIT). Also used on PIF gift cards (#2) for one-scan redemption. Members can print branded QR codes on cards/flyers linking to LinkHub. ~2-3hr. £0.
+
+**13. canvas-confetti + react-confetti-explosion on success events** — MIT. Burst on commission earned, tier unlocked, first referral, first $100 withdrawn, gift redeemed. Emotional reinforcement → members share more → free upgrade trigger. ~1 hour. £0.
+
+**14. simplyCountdown.js for real deadlines** — MIT, vanilla JS. Tied to real backend mechanics: end of monthly leaderboard, PIF gift expiry, Grid completion bonus deadline, tier-pricing lock-in. Server-side computed remaining time (browser clock not trusted). ~½ day. £0.
+
+**15. Real-time activity ticker on public pages** — extend the live commission feed (already running on `/explore`) to `/`, `/earn`, `/tools`. Honest social proof using real data — "Sarah J. earned $47 from a Grid spillover • 23 seconds ago". ~½ day. £0.
+
+**16. react-hot-toast on signup conversion** — MIT, tiny. When unauth visitor on `/earn` hits "Sign up to earn $X", slide-in toast with inline email field instead of full redirect. Reduces friction at conversion moment. ~1 hour. £0.
+
+#### Tier 4 — Required infrastructure (separate session)
+
+**17. GlitchTip error tracking** — Sentry SDK compatible, MIT. Hosted free tier (1,000 events/month) first; migrate to self-hosted on Railway (~£5-8/mo) when volume grows. Wire `sentry-sdk[fastapi]` + `@sentry/react`. ~30 min. Stops blind production failures.
+
+**18. Driver.js onboarding tour** — MIT, ~5KB, layered on top of existing `OnboardingWizard.jsx`. 5-step spotlight tour for new members (Command Centre → Campaigns → Grid → Wallet → BPG). localStorage flag to never re-show. ~½ day. £0. Activation lift on existing signups.
+
+**19. PostHog cloud free tier** — MIT, 1M events/month free. Track signup → first qualified referral → first commission → upgrade funnel. Stop guessing where members drop off. Skip self-hosting (Kafka + ClickHouse cluster is wrong shape). ~½ day. £0.
+
+#### Tier 5 — Member tools to bolster ecosystem (lower priority)
+
+**20. Disposable email blocker** — public github.com/disposable/disposable list, fetch + cache, integrate into signup + lead-capture endpoints. Keeps MyLeads clean and Brevo deliverability high. ~½ day. £0.
+
+**21. PhotoSwipe gallery block for SuperPages** — MIT, pinch-zoom lightbox. New block type in SuperPages editor. ~½ day. £0.
+
+**22. Excalidraw embed** — MIT, whiteboarding in Course Academy lessons and Team Messenger threads. ~½ day. £0.
+
+**23. MeiliSearch on Course + Help** — MIT, typo-tolerant instant search. Reduces support load. ~½ day. ~£5/mo Railway.
+
+**24. Cal.com integration** — open-source Calendly killer. Per-member booking pages embeddable in LinkHub. Self-host on Railway (~£15/mo) recouped within 30 paying users. ~2-3 days. **Very high differentiation** — members can cancel their Calendly subscriptions.
+
+#### Sequencing principle
+
+Tier 1 (income calculator + PIF gifting) are the two highest-revenue items and should ship first. Tier 2 closes the LeadsLeap competitive parity gap and builds on the share-code infrastructure that's already 2/3 shipped. Tier 3 is pure-frontend polish that compounds with Tiers 1–2. Tier 4 is observability before scaling marketing. Tier 5 is feature additions scoped as separate decisions.
+
+#### LeadsLeap competitive context
+
+LeadsLeap ($27/mo, 17 years old, ~all-in-one marketing toolkit) is the main competitor for the team-leader / network-marketer demographic. Their stickiness comes from: Share Code system (already replicating), free tier that's genuinely usable, daily active bonus loop, 17-year trust signal, founder visibility. **SuperAdPro's differentiation is structural** — AI-native (Creative Studio + BPG), real commission engine (Grid spillover + Credit Nexus matrix + Course pass-ups vs LeadsLeap's flat 25/50%), crypto payments, modern UX. Don't market as "LeadsLeap killer" — frame as "LeadsLeap is where you learn the tools; SuperAdPro is where the tools work for you while you sleep, and pay you in four income streams." Don't copy traffic exchange / credit-based ad-viewing — 2008 architecture, bot-like behaviour, low quality. Watch-to-Earn campaigns are the modern version.
 
 **Token expiry reminder:** the platform GitHub token expires mid-September 2026. Renew at https://github.com/settings/tokens before then.
 
