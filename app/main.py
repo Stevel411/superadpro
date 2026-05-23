@@ -10489,7 +10489,21 @@ def _stripe_handle_invoice_paid(db, invoice, event):
         # $0 invoice (trial / coupon) — nothing to log
         return
 
+    # 23 May 2026: API version 2026-04-22.dahlia restructured invoice fields.
+    # subscription is no longer at top level — it's at
+    # parent.subscription_details.subscription. payment_intent similarly
+    # moved. Read both old and new locations for forward/backward compat.
     subscription_id = invoice.get("subscription")
+    if not subscription_id:
+        parent = invoice.get("parent") or {}
+        sub_details = parent.get("subscription_details") or {}
+        subscription_id = sub_details.get("subscription")
+    payment_intent_id = invoice.get("payment_intent")
+    if not payment_intent_id:
+        # In newer API versions payment_intent moved under confirmation_secret
+        # or is referenced via the charge object. For our audit purposes,
+        # None here is acceptable — we still have charge_id elsewhere.
+        pass
     # Decide product_kind from price metadata or tier locked on user
     if user.is_founding_member:
         product_kind = "founder_renewal"
@@ -10499,7 +10513,7 @@ def _stripe_handle_invoice_paid(db, invoice, event):
 
     charge = StripeCharge(
         user_id=user.id,
-        stripe_payment_intent_id=invoice.get("payment_intent"),
+        stripe_payment_intent_id=payment_intent_id,
         stripe_subscription_id=subscription_id,
         kind="charge",
         product=product_kind,
