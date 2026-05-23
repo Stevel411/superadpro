@@ -1,0 +1,32 @@
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "output": {
+    "filePath": "repomix-payments.xml",
+    "style": "xml",
+    "headerText": "PAYMENTS BUNDLE — WalletConnect/BSC payment rail, withdrawals, crypto. BSC treasury: 0xb2Ccdf9050A8d05A346F6879eC4fa633f9b2554D. NOWPayments RETIRED. Polygon wallet dormant. 15-min expiry, 30s cron, ±50¢ unique amounts.",
+    "fileSummary": true,
+    "directoryStructure": true,
+    "topFilesLength": 15
+  },
+  "include": [
+    "app/crypto_payments.py",
+    "app/payment.py",
+    "app/nowpayments_service.py",
+    "app/crud.py",
+    "app/models.py",
+    "frontend/src/pages/Upgrade*.jsx",
+    "frontend/src/pages/ActivateTier.jsx",
+    "frontend/src/pages/CreditMatrix.jsx",
+    "frontend/src/pages/Withdraw*.jsx",
+    "frontend/src/components/WalletConnect*.jsx",
+    "frontend/src/components/Reown*.jsx"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": ["**/*.backup", "**/*.bak"]
+  },
+  "security": {
+    "enableSecurityCheck": true
+  }
+}

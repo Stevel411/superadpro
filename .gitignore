@@ -2,3 +2,8 @@ __pycache__/
 *.pyc
 .env
 frontend/node_modules/
+
+# Repomix
+/node_modules/
+repomix-*.xml
+repomix-*.md

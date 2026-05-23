@@ -1,0 +1,28 @@
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "output": {
+    "filePath": "repomix-funnels.xml",
+    "style": "xml",
+    "headerText": "FUNNELS + SUPERPAGES + LINKHUB BUNDLE — funnel builder, SuperPages editor (8 files), LinkHub link-in-bio, custom domains. R2 storage for avatars/banners.",
+    "fileSummary": true,
+    "directoryStructure": true,
+    "topFilesLength": 20
+  },
+  "include": [
+    "app/funnel_templates.py",
+    "app/custom_domains.py",
+    "frontend/src/pages/Funnels*.jsx",
+    "frontend/src/pages/superpages/**",
+    "frontend/src/pages/LinkHub*.jsx",
+    "frontend/src/pages/SuperLink.jsx",
+    "frontend/src/pages/LinkTools*.jsx",
+    "frontend/src/pages/LabsCustomDomain.jsx",
+    "frontend/src/pages/LabsPageBuilder.jsx"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": ["**/*.backup", "**/*.bak", "**/*.legacy.*"]
+  },
+  "security": {"enableSecurityCheck": true}
+}

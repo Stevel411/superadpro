@@ -1,0 +1,34 @@
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "output": {
+    "filePath": "repomix-creative.xml",
+    "style": "xml",
+    "headerText": "CREATIVE STUDIO BUNDLE — AI media generation. Providers: EvoLink + fal.ai + Grok Imagine. Brand Poster Generator (BPG) is the upsell anchor for Credit Nexus. NEVER call it SuperScene — always Creative Studio.",
+    "fileSummary": true,
+    "directoryStructure": true,
+    "topFilesLength": 15
+  },
+  "include": [
+    "app/fal_provider.py",
+    "app/grok_imagine.py",
+    "app/grok_imagine_service.py",
+    "app/grok_service.py",
+    "app/gemini_service.py",
+    "app/image_optimise.py",
+    "app/moderation.py",
+    "app/poster_gating.py",
+    "frontend/src/pages/CreativeStudio*.jsx",
+    "frontend/src/pages/BrandPoster*.jsx",
+    "frontend/src/pages/AIContentToolsPage.jsx",
+    "frontend/src/pages/AiTool.jsx",
+    "frontend/src/pages/CreditNexus*.jsx"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": ["**/*.backup", "**/*.bak"]
+  },
+  "security": {
+    "enableSecurityCheck": true
+  }
+}

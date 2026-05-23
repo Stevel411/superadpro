@@ -1,0 +1,27 @@
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "output": {
+    "filePath": "repomix-admin.xml",
+    "style": "xml",
+    "headerText": "ADMIN + HEALTH BUNDLE — admin dashboard, health scanners (4 tiers), MCP monitoring server. mcp_readonly Postgres role, Streamable HTTP protocol 2025-03-26.",
+    "fileSummary": true,
+    "directoryStructure": true,
+    "topFilesLength": 20
+  },
+  "include": [
+    "app/health_scanners*.py",
+    "app/health_repair.py",
+    "app/db_backup.py",
+    "app/moderation.py",
+    "mcp/**",
+    "mcp_admin/**",
+    "frontend/src/pages/admin/**",
+    "frontend/src/pages/Admin*.jsx"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": ["**/*.backup", "**/*.bak", "**/__pycache__/**"]
+  },
+  "security": {"enableSecurityCheck": true}
+}
