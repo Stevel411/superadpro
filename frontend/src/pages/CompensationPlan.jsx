@@ -294,7 +294,7 @@ function GridContent() {
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
       <CommBox val="40%" label={t('compPlan.directSponsor')} sub={t('compPlan.yourReferralBuysTier')} gradient="linear-gradient(135deg,#15803d,#22c55e)" color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
       <CommBox val="6.25%" label={t('compPlan.eightLevelsDeep')} sub={t('compPlan.earnEntireNetwork')} gradient="linear-gradient(135deg,#1e40af,#3b82f6)" color="var(--sap-indigo)" bg="rgba(99,102,241,.06)" border="rgba(99,102,241,.15)"/>
-      <CommBox val="5%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
     </div>
 
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>{t('compPlan.eightCampaignTiers')}</div>
@@ -456,8 +456,10 @@ function GridTierCards() {
         var direct40 = (price * 0.40).toFixed(2);
         var uniLevel = (price * 0.0625).toFixed(2);
         var uniTotal = (price * 0.0625 * 8).toFixed(2);
-        var bonus5 = (price * 0.05 * 64).toFixed(2);
-        var totalGrid = (price * 0.40 + price * 0.0625 * 8 * 64 + price * 0.05 * 64).toFixed(2);
+        // 21 May 2026: PLATFORM_PCT reallocated to bonus pool — bonus is
+        // now 10% per seat × 64 seats. See docs/commission-spec.md §2.
+        var bonusPool = (price * 0.10 * 64).toFixed(2);
+        var totalGrid = (price * 0.40 + price * 0.0625 * 8 * 64 + price * 0.10 * 64).toFixed(2);
 
         return <div key={i}>
           <div onClick={function(){ setSelected(isActive ? null : i); }}
@@ -489,8 +491,8 @@ function GridTierCards() {
                 <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>× 8 levels</div>
               </div>
               <div style={{ background:'rgba(245,158,11,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Bonus 5%</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-amber-dark)', marginTop:4 }}>${bonus5}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Bonus 10%</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-amber-dark)', marginTop:4 }}>${bonusPool}</div>
                 <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>64 positions</div>
               </div>
             </div>

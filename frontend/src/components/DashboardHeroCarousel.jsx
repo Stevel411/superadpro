@@ -63,9 +63,9 @@ var SLIDES = [
   {
     key: 'grid',
     title: 'Profit Grid',
-    eyebrow: 'EARN 95% COMMISSIONS',
+    eyebrow: '100% TO AFFILIATES',
     headline: 'Activate a campaign tier. Build your 8×8 grid.',
-    body: 'Each Profit Grid pays out as your network fills the positions below you. Tiers from $20 to $1,000 — completed cycles can pay up to $92,576. Most affiliate-friendly grid in the industry: 95% to members, 5% admin.',
+    body: 'Each Profit Grid pays out as your network fills the positions below you. Tiers from $20 to $1,000. 100% of every Profit Grid commission goes to affiliates — we don\'t take a cent.',
     cta: 'See campaign tiers',
     href: '/campaign-tiers',
     accent: '#10b981',

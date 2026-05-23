@@ -1,11 +1,13 @@
 # ═══════════════════════════════════════════════════════════════
 # SuperAdPro — 8×8 Recurring Profit Engine Grid (Spillover Model)
 #
-# Commission Architecture (Stream 2):
+# Commission Architecture (Stream 2) — updated 21 May 2026:
 #   40% → Direct Sponsor   (person who personally referred the entrant)
 #   50% → Uni-Level Pool   (6.25% × 8 levels in the entrant's upline chain)
-#    5% → Platform Fee     (SuperAdPro)
-#    5% → Grid Completion Bonus Pool (accrues per seat, pays on grid completion)
+#    0% → Platform Fee     (reallocated to bonus pool 21 May 2026)
+#   10% → Grid Completion Bonus Pool (accrues per seat, pays on grid completion)
+#
+# Total: 100% to affiliates. Canonical source: docs/commission-spec.md §2.
 #
 # Qualification Rule:
 #   To earn commissions at a tier, the recipient must have an active
