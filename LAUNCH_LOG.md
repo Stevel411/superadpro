@@ -6,6 +6,61 @@
 
 ---
 
+## Status as of 2026-05-24 — MARKETING MATERIALS FOUNDATION
+
+**Marketing-asset infrastructure live in production. Four marketing pages designed; three staged, one live.** Steve directed a deliberate pause on launching the wider My Marketing surface until all foundation pieces (4 pages + 3 videos + social proof + thumbnails + menu architecture) are ready as a coordinated launch.
+
+### Shipped on 24 May 2026
+
+- **`7695aab` Marketing assets foundation** — `marketing_assets` + `marketing_asset_visits` tables, `/m/<slug>/<username>` route serving HTML with placeholder substitution ({{ACTIVATION_URL}}, {{REFERRAL_URL}}, {{USERNAME}}, {{FIRST_NAME}}), standard `ref` cookie attribution, boot-seed pattern that reads `app/marketing_assets/<slug>.html` files and upserts on every deploy. PIF asset seeded.
+- **`805aab1` Case-insensitive username lookup** — Steve hit lowercase `/m/pif/superadpro` → "Sponsor not found". Fixed with `func.lower(User.username) == username.lower()`. Substitutions use canonical-case sponsor.username.
+- **`0bca183` Brand lockup on PIF page** — Steve caught that the PIF page had no SuperAdPro branding visible to a WhatsApp-share visitor. Added the canonical 32×32 rounded-square mark + "SuperAd**Pro**" wordmark top-left, matching the pattern at `frontend/src/pages/public/HomePage.jsx:69-76`. Mark links to https://www.superadpro.com — NOT to ref attribution.
+- **`620141` Marketing project planning doc** — `docs/my-marketing-plan.md` captures locked decisions, outstanding workstreams, dashboard card swap spec.
+
+### Designed and approved this session (NOT yet committed to production)
+
+Sitting as preview files in `/mnt/user-data/outputs/`, awaiting the coordinated launch:
+
+- **SAP sales page** (`sap-sales-preview.html`) — dark cobalt deep-space palette, balanced tools/income/freedom narrative, Grok-generated laptop-glow background, 9 feature cards including new Autoresponder + SuperSeller, 3 income streams (Course Academy removed per Steve), brave qualification disclosure.
+- **Tools page** (`tools-sales-preview.html`) — lighter cobalt palette, 6-tool showcase (Creative Studio / LinkHub / SuperPages / Lead Finder / Brand Posters / Autoresponder), "Cancel Canva / Cancel Linktree" stack chips, optional comp plan mention linking to SAP, Grok-generated marketing-icons background.
+- **Earn page** (`earn-sales-preview.html`) — cream + restrained emerald + champagne palette (Wise/Robinhood-coded, NOT MLM-coded), video advertising marketplace framing as headline, locked "100% to affiliates" claim panel, 8-tier ladder with completion bonus accruals, brave qualification disclosure (daily watch quota scales with tier 1→8, 5-day grace, $10 minimum withdrawal + $1 admin fee, all locked from code). Grok background pending Steve generation.
+- **3 video scripts** (`video-scripts.md`) — Overall platform (~2:30) + Income opportunity (~2:30) + Tools (~2:30). First-person founder voice. Grounded in actual platform mechanics. Production notes per video + cross-cutting audio/visual guidance.
+- **12-file brand logo SVG kit** (`brand-logo/`) — 3 variants (mark/wordmark/lockup) × 4 colourways (full colour/white/black/solid cobalt) + contact sheet. Vector, transparent background, ~15KB total. Convert text-to-paths in Figma/Illustrator before final production use.
+
+### Factual errors caught by Steve this session
+
+Three corrections, same root cause: Claude wrote from assumption rather than verifying against code. All fixed across all affected files (4 marketing pages + 3 video scripts):
+
+1. **Daily video quota** — was written as "one per day for everyone." TRUTH: `DAILY_VIDEO_QUOTA = {1:1, 2:2, ..., 8:8}` at `app/main.py:12326`. Tier N requires N videos per day, 30-second minimum each.
+2. **Minimum withdrawal** — was written as "no minimum threshold." TRUTH: $10 minimum per `app/main.py:1199`. The $1 admin fee was correct.
+3. **Free user experience** — was written as "see the tools working" / "use the tools." TRUTH: Free users are gated out of all tool routes by `RequireTier` at `frontend/src/App.jsx:299`. Free users see only the dashboard + an upgrade prompt. Rewrite is "see what activation unlocks."
+
+**Working rule for future sessions:** Before claiming any user-facing platform behaviour (minimums, quotas, what Free users see, percentages, fees), grep the code first. The spec doc covers commission rules but not experience flows. Code is the canonical source.
+
+### Watch list — separate small commits needed
+
+1. **`docs/commission-spec.md` line 183** — summary table row for Campaign Tiers still shows 95/5 split, contradicting line 75's "100% / we don't take a cent." Update to match the locked truth.
+2. **`app/main.py:20013`** — AI context prompt references legacy Basic/Pro dual-tier model (purged 20 May 2026). Mentions "$20 Basic / $35 Pro." Rewrite to flat $20/mo Partner + Founding context.
+3. **`app/main.py:23438`** — Same legacy reference in another AI prompt.
+4. **PIF page CTAs** still point directly to `/register?ref=<username>`. Will rewire to flow through `/m/sap/<username>` (the new sales page) as part of the foundation-launch commit when SAP commits.
+
+### Outstanding work to v1 launch of My Marketing
+
+Per `docs/my-marketing-plan.md`, ~5 sessions ~10-12 hours:
+
+- Steve generates Earn page Grok background (prompt in scripts doc — *"considered prosperity, NOT cash green, NOT gold coins"*)
+- Steve records 3 explainer videos (2 already filmed, 1 to record)
+- Steve contacts members for social proof — quotes + screenshot permission
+- Capture miniature preview thumbnails of all 4 pages (for My Marketing hub cards)
+- Build `/my-marketing` member hub page
+- Build dashboard card swap (`affiliateShare` → `myMarketing`, spec in planning doc)
+- Sidebar restructure: new top-level "Marketing" heading, sub-items My Marketing Hub / Affiliate Link / Marketing Decks (rename of existing slide-deck page) / Brand Posters (moves from Tools)
+- Wire all 3 videos to their respective marketing pages
+- Drop real social proof content into proof blocks
+- Single coordinated launch: SAP/Tools/Earn commit, dashboard card swap, sidebar restructure, PIF rewire, platform PDF refresh
+
+---
+
 ## Status as of 2026-05-23 — STRIPE LIVE
 
 **Card payments are live in production.** Real customers can now pay by card for Membership signups, Campaign Tier purchases, and Credit Nexus packs. Crypto rails (USDT on BSC + NOWPayments) remain unchanged. `User.payment_method` ('crypto' or 'stripe') routes renewals.
