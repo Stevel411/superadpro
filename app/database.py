@@ -1,7 +1,7 @@
 import os
 from decimal import Decimal
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, Column, Integer, BigInteger, String, ForeignKey, Float, Boolean, DateTime, Text, text, Numeric
+from sqlalchemy import create_engine, Column, Integer, BigInteger, String, ForeignKey, Float, Boolean, DateTime, Text, text, Numeric, UniqueConstraint
 
 # Precision type for all financial columns — 18 digits, 6 decimal places
 # Prevents floating-point drift across millions of transactions
@@ -1716,6 +1716,59 @@ class OnchainOrphanTransfer(Base):
     resolved_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
 
+class BscScanFailedChunk(Base):
+    """Block ranges where eth_getLogs failed during the WalletConnect scan.
+
+    Added 24 May 2026 after Matt (user 374) lost activation when the chunk
+    containing his tx (block 100151692) silently returned empty results
+    from a public BSC RPC — the call succeeded on the wire but the
+    provider's index didn't have the transfer, so the scanner advanced
+    its cursor past Matt's block without ever seeing his payment.
+
+    This table backs THREE behaviours that didn't exist before:
+
+    1. Cross-run persistence of failures. Previously a failed chunk in
+       one cron run lived only in that run's stats dict and was lost
+       once the function returned. Now each failed chunk is upserted
+       here, and every cron run prepends ALL pending entries to its
+       scan plan — guaranteeing repeated retry across cron lifetimes.
+
+    2. Attempt counting + escalation. attempt_count increments on every
+       failure. After ESCALATE_AT_ATTEMPTS attempts (default 10, ~5 min
+       of cron retries) an email alert fires to ops. After
+       GIVE_UP_AT_ATTEMPTS (default 100, ~50 min) the chunk is marked
+       resolved='abandoned' so it stops eating scan budget.
+
+    3. Diagnostics surface. Admin can see "this block range has failed
+       N times" and decide whether a paid RPC is needed or if it's
+       just a transient outage.
+
+    Idempotency: (from_block, to_block) is unique; INSERT...ON CONFLICT
+    increments attempt_count and updates last_error.
+
+    Resolution states:
+      'pending'   — still failing, will be retried
+      'resolved'  — eventually succeeded on retry, all transfers in
+                    range now in scan history
+      'abandoned' — exceeded GIVE_UP_AT_ATTEMPTS, manual review needed
+    """
+    __tablename__ = "bsc_scan_failed_chunks"
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    from_block      = Column(BigInteger, nullable=False)
+    to_block        = Column(BigInteger, nullable=False)
+    attempt_count   = Column(Integer, default=1, nullable=False)
+    last_error      = Column(Text, nullable=True)
+    status          = Column(String(20), default="pending", nullable=False, index=True)  # pending / resolved / abandoned
+    first_seen_at   = Column(DateTime, default=datetime.utcnow, nullable=False)
+    last_attempt_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    resolved_at     = Column(DateTime, nullable=True)
+    alerted_at      = Column(DateTime, nullable=True)  # set when escalation email fires, prevents alert spam
+
+    __table_args__ = (
+        UniqueConstraint("from_block", "to_block", name="uq_bsc_scan_failed_chunk_range"),
+    )
+
+
 class AppConfig(Base):
     """Generic key/value store for small app-wide state that needs to
     persist across deploys but doesn't warrant a dedicated table.
@@ -2223,6 +2276,28 @@ def run_migrations():
         "CREATE INDEX IF NOT EXISTS idx_orphan_tx_hash ON onchain_orphan_transfers(tx_hash)",
         "CREATE INDEX IF NOT EXISTS idx_orphan_from_addr ON onchain_orphan_transfers(from_address)",
         "CREATE INDEX IF NOT EXISTS idx_orphan_resolved ON onchain_orphan_transfers(resolved)",
+
+        # ── BSC scan failed chunks (added 24 May 2026) ──
+        # Block ranges where eth_getLogs failed during the WalletConnect
+        # scan. Persisted so failed chunks are retried across cron lifetimes,
+        # attempt-counted for escalation, and surfaced for admin diagnostics.
+        # Added after Matt (user 374) lost activation when his block silently
+        # returned empty results from a flaky public RPC.
+        "CREATE TABLE IF NOT EXISTS bsc_scan_failed_chunks ("
+        "  id SERIAL PRIMARY KEY,"
+        "  from_block BIGINT NOT NULL,"
+        "  to_block BIGINT NOT NULL,"
+        "  attempt_count INTEGER NOT NULL DEFAULT 1,"
+        "  last_error TEXT,"
+        "  status VARCHAR(20) NOT NULL DEFAULT 'pending',"
+        "  first_seen_at TIMESTAMP NOT NULL DEFAULT NOW(),"
+        "  last_attempt_at TIMESTAMP NOT NULL DEFAULT NOW(),"
+        "  resolved_at TIMESTAMP,"
+        "  alerted_at TIMESTAMP,"
+        "  CONSTRAINT uq_bsc_scan_failed_chunk_range UNIQUE (from_block, to_block)"
+        ")",
+        "CREATE INDEX IF NOT EXISTS idx_bsc_failed_chunks_status ON bsc_scan_failed_chunks(status)",
+        "CREATE INDEX IF NOT EXISTS idx_bsc_failed_chunks_range ON bsc_scan_failed_chunks(from_block, to_block)",
 
         # ── App-wide key/value store (added 7 May 2026) ──
         # Persists small scalar state across deploys. First use:

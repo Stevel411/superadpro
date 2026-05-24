@@ -9983,6 +9983,57 @@ async def onchain_order_status(order_id: int,
     }
 
 
+def _send_bsc_scan_failure_alert(from_block, to_block, attempt_count, first_seen_at, last_error):
+    """Fire an email alert when a BSC scan chunk has failed ESCALATE_AT_ATTEMPTS
+    times in a row. Sent once per chunk (alerted_at gate in caller prevents
+    repeat alerts). Recipient: stevelawsonmarketing@gmail.com (ops alert
+    inbox, same as the daily-briefing cron).
+
+    Failure mode: keep the alert best-effort. If email infrastructure is
+    down we MUST NOT fail the scan loop. Caller wraps in try/except.
+
+    Added 24 May 2026 alongside the failed-chunk persistence work — the
+    Matt incident showed we had no visibility when chunks silently failed
+    repeatedly; an email is the cheapest way to get human eyes on it.
+    """
+    from .email_utils import send_email
+    elapsed_min = "?"
+    try:
+        elapsed_min = int((datetime.utcnow() - first_seen_at).total_seconds() / 60)
+    except Exception:
+        pass
+    subject = f"⚠️  BSC scan chunk stuck — blocks {from_block}–{to_block} ({attempt_count} attempts)"
+    html_body = f"""
+    <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+      <h2 style="color:#dc2626;margin:0 0 16px;">BSC scanner chunk failing repeatedly</h2>
+      <p style="font-size:14px;line-height:1.6;color:#334155;">
+        A WalletConnect scan chunk has failed across all redundant RPC providers
+        for <strong>{attempt_count} consecutive attempts</strong> (first seen
+        ~{elapsed_min} minutes ago). If a member's payment landed in this block
+        range, their activation is currently stuck.
+      </p>
+      <div style="background:#f1f5f9;border-radius:10px;padding:16px;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:13px;">
+        <div><strong>Range:</strong> {from_block} → {to_block}</div>
+        <div><strong>Attempts:</strong> {attempt_count} (escalation at {ESCALATE_AT_ATTEMPTS}, abandon at {GIVE_UP_AT_ATTEMPTS})</div>
+        <div><strong>First seen:</strong> {first_seen_at}</div>
+        <div style="margin-top:8px;color:#64748b;word-break:break-all;"><strong>Last error:</strong> {(last_error or '')[:400]}</div>
+      </div>
+      <p style="font-size:13px;color:#475569;line-height:1.6;">
+        <strong>Next steps:</strong> if this persists, check BSC RPC health for
+        the configured providers. Failed chunks can be inspected at
+        <code>SELECT * FROM bsc_scan_failed_chunks WHERE status='pending' ORDER BY attempt_count DESC</code>.
+        If a stuck payment is reported, recover it via
+        <code>/admin/api/manual-confirm-walletconnect-order?order_id=X&amp;tx_hash=0x...</code>.
+      </p>
+    </div>
+    """
+    send_email(
+        to_email="stevelawsonmarketing@gmail.com",
+        subject=subject,
+        html_body=html_body,
+    )
+
+
 @app.post("/cron/scan-bsc-payments")
 async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)):
     """Watcher cron — runs every 30s.
@@ -10010,9 +10061,17 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
         expire_stale_orders,
         match_incoming_transfer,
         scan_treasury_transfers_with_cursor,
+        get_treasury_transfers_in_range_redundant,
         estimate_scan_floor_block,
         set_scan_cursor,
         is_likely_rounded_amount,
+        get_pending_failed_chunks,
+        record_failed_chunk,
+        mark_chunk_resolved,
+        mark_chunk_abandoned,
+        mark_chunk_alerted,
+        ESCALATE_AT_ATTEMPTS,
+        GIVE_UP_AT_ATTEMPTS,
         _get_web3_bsc,
     )
     import json as _json
@@ -10028,8 +10087,14 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
         "activated": 0,
         "orphans_added": 0,
         "errors": [],
-        "failed_chunks": [],   # list of [from, to] block-range tuples for chunks that errored
-        "safe_cursor": 0,      # highest block the cursor was actually advanced to
+        "failed_chunks": [],          # NEW failures this run: [[from, to, err], ...]
+        "retry_chunks_seen": 0,       # Persisted failed chunks attempted this run
+        "retry_chunks_resolved": 0,   # Of those, how many succeeded this run
+        "retry_chunks_abandoned": 0,  # Of those, how many exceeded GIVE_UP and were abandoned
+        "alerts_fired": 0,            # How many alerts fired this run
+        "reconcile_orders_checked": 0,    # Stuck-order reconciler stats
+        "reconcile_transfers_found": 0,
+        "safe_cursor": 0,             # highest block the cursor was actually advanced to
     }
 
     # 1. Expire stale pending orders FIRST so a late-arriving payment
@@ -10056,27 +10121,134 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
             status_code=503,
         )
 
-    # 3. Paginated scan with chunk-failure tracking
-    #    Returns the safe cursor — highest block that's part of an unbroken
-    #    chain of successful chunks from the floor. If any chunk fails, the
-    #    cursor will NOT advance past it on this run, guaranteeing retry.
+    # 2a. Retry previously-failed chunks FIRST (added 24 May 2026).
+    #     The cursor-stall mechanism already retries chunks from the
+    #     CURRENT run, but failures persisted in bsc_scan_failed_chunks
+    #     might be from any prior run — including ones where the cursor
+    #     advanced because OTHER chunks succeeded after the failed one.
+    #     This pass guarantees those orphaned failed ranges are retried
+    #     across cron lifetimes.
+    retry_transfers: list = []
+    try:
+        pending_chunks = get_pending_failed_chunks(db, limit=200)
+        stats["retry_chunks_seen"] = len(pending_chunks)
+        for (fb, tb) in pending_chunks:
+            chunk_txs, providers_ok, last_err = get_treasury_transfers_in_range_redundant(fb, tb)
+            if providers_ok > 0:
+                # Success this attempt — mark resolved and merge transfers
+                # into the main processing list. Transfers will go through
+                # the same match/orphan logic below as fresh scan results.
+                retry_transfers.extend(chunk_txs)
+                if mark_chunk_resolved(db, fb, tb):
+                    stats["retry_chunks_resolved"] += 1
+                    logger.info(
+                        f"cron_scan_bsc_payments: failed chunk {fb}-{tb} RESOLVED "
+                        f"({len(chunk_txs)} transfers recovered)"
+                    )
+            else:
+                # Still failing — increment attempt count and decide escalation
+                err_msg = str(last_err) if last_err else "all providers errored"
+                outcome = record_failed_chunk(db, fb, tb, err_msg)
+                if outcome["should_abandon"]:
+                    mark_chunk_abandoned(db, fb, tb)
+                    stats["retry_chunks_abandoned"] += 1
+                    logger.error(
+                        f"cron_scan_bsc_payments: chunk {fb}-{tb} ABANDONED after "
+                        f"{outcome['attempt_count']} failed attempts — "
+                        f"manual reconciliation needed"
+                    )
+                elif outcome["should_alert"]:
+                    mark_chunk_alerted(db, fb, tb)
+                    stats["alerts_fired"] += 1
+                    logger.warning(
+                        f"cron_scan_bsc_payments: chunk {fb}-{tb} ESCALATION — "
+                        f"{outcome['attempt_count']} consecutive failures, "
+                        f"first seen {outcome['first_seen_at']}"
+                    )
+                    # Best-effort email alert. Failures here MUST NOT break
+                    # the scan — wrap in try/except and log.
+                    try:
+                        _send_bsc_scan_failure_alert(
+                            fb, tb, outcome["attempt_count"],
+                            outcome["first_seen_at"], err_msg,
+                        )
+                    except Exception as alert_err:
+                        logger.error(f"BSC alert email failed for chunk {fb}-{tb}: {alert_err}")
+        db.commit()
+    except Exception as e:
+        logger.error(f"cron_scan_bsc_payments: retry pass failed: {e}")
+        stats["errors"].append(f"retry_pass: {e}")
+        db.rollback()
+
+    # 3. Paginated scan with chunk-failure tracking — the MAIN scan from
+    #    cursor forward. Returns the safe cursor (highest block that's
+    #    part of an unbroken chain of successful chunks from the floor).
+    #    Now uses SCAN_REDUNDANCY=3 parallel providers per chunk so a
+    #    single-provider index miss doesn't lose transfers (24 May 2026 fix).
     try:
         transfers, safe_cursor, failed_chunks = scan_treasury_transfers_with_cursor(scan_floor)
-        stats["transfers_seen"] = len(transfers)
+        stats["transfers_seen"] = len(transfers) + len(retry_transfers)
         stats["safe_cursor"] = safe_cursor
-        stats["failed_chunks"] = [[f, t] for f, t in failed_chunks]
+        stats["failed_chunks"] = [[f, t, err[:200]] for f, t, err in failed_chunks]
+        # Persist new failures for cross-run retry (the durability fix).
+        for fb, tb, err_msg in failed_chunks:
+            try:
+                outcome = record_failed_chunk(db, fb, tb, err_msg)
+                if outcome["should_abandon"]:
+                    mark_chunk_abandoned(db, fb, tb)
+                elif outcome["should_alert"]:
+                    mark_chunk_alerted(db, fb, tb)
+                    stats["alerts_fired"] += 1
+                    try:
+                        _send_bsc_scan_failure_alert(
+                            fb, tb, outcome["attempt_count"],
+                            outcome["first_seen_at"], err_msg,
+                        )
+                    except Exception as alert_err:
+                        logger.error(f"BSC alert email failed for new chunk {fb}-{tb}: {alert_err}")
+            except Exception as e:
+                logger.error(f"cron_scan_bsc_payments: record_failed_chunk failed for {fb}-{tb}: {e}")
         if failed_chunks:
+            db.commit()
             logger.warning(
                 f"cron_scan_bsc_payments: {len(failed_chunks)} chunk(s) failed; "
                 f"cursor will hold at block {safe_cursor} so they retry next run. "
-                f"failed_ranges={failed_chunks[:5]}{'...' if len(failed_chunks) > 5 else ''}"
+                f"failed_ranges={[(f,t) for f,t,_ in failed_chunks[:5]]}{'...' if len(failed_chunks) > 5 else ''}"
             )
+        # Merge retry transfers into the main list for downstream match/orphan.
+        # Order doesn't matter — match is by tx_hash exact equality and
+        # orphan persist is idempotent on tx_hash.
+        transfers = list(transfers) + retry_transfers
     except Exception as e:
         logger.error(f"cron_scan_bsc_payments: scan failed: {e}")
         stats["errors"].append(f"scan: {e}")
-        transfers = []
+        transfers = list(retry_transfers)  # at least process retry hits
         safe_cursor = -1
         failed_chunks = []
+
+    # 3a. Stuck-order reconciliation pass (added 24 May 2026).
+    #     Last line of defence: for pending orders aged >2 min that the
+    #     main scan did NOT pick up (all providers happened to return
+    #     empty for the relevant chunk — rare but possible), independently
+    #     scan a recent block window and try to match by amount equality.
+    #     Any matches merge into `transfers` and flow through the normal
+    #     match → activate path below.
+    try:
+        from .walletconnect_payments import reconcile_stuck_orders
+        recon = reconcile_stuck_orders(db, latest_block)
+        stats["reconcile_orders_checked"] = recon["orders_checked"]
+        stats["reconcile_transfers_found"] = recon["transfers_found"]
+        if recon["transfers"]:
+            transfers = list(transfers) + recon["transfers"]
+            stats["transfers_seen"] += len(recon["transfers"])
+            logger.warning(
+                f"cron_scan_bsc_payments: reconciler RECOVERED "
+                f"{len(recon['transfers'])} transfer(s) the main scan missed "
+                f"({recon['orders_checked']} pending orders checked)"
+            )
+    except Exception as e:
+        logger.error(f"cron_scan_bsc_payments: reconcile pass failed: {e}")
+        stats["errors"].append(f"reconcile: {e}")
 
     # 4. Match each transfer; persist orphans for the rest
     for tx in transfers:
@@ -10267,9 +10439,18 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
         expire_stale_orders,
         match_incoming_transfer,
         scan_treasury_transfers_with_cursor,
+        get_treasury_transfers_in_range_redundant,
+        reconcile_stuck_orders,
         estimate_scan_floor_block,
         set_scan_cursor,
         get_scan_cursor,
+        get_pending_failed_chunks,
+        record_failed_chunk,
+        mark_chunk_resolved,
+        mark_chunk_abandoned,
+        mark_chunk_alerted,
+        ESCALATE_AT_ATTEMPTS,
+        GIVE_UP_AT_ATTEMPTS,
         is_likely_rounded_amount,
     )
     from app.withdrawals import call_bsc_rpc_with_failover
@@ -10303,6 +10484,12 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
             "orphans_added": 0,
             "errors": [],
             "failed_chunks": [],
+            "retry_chunks_seen": 0,
+            "retry_chunks_resolved": 0,
+            "retry_chunks_abandoned": 0,
+            "alerts_fired": 0,
+            "reconcile_orders_checked": 0,
+            "reconcile_transfers_found": 0,
             "safe_cursor": 0,
         }
 
@@ -10324,23 +10511,95 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
             logger.error(f"inproc_bsc_scan: floor calc failed: {e}")
             return {"error": f"BSC RPC unavailable: {e}", "stats": stats}
 
-        # 3. Paginated scan with safe_cursor tracking
+        # 2a. Retry previously-failed chunks (24 May 2026 — cross-run retry).
+        retry_transfers: list = []
+        try:
+            pending_chunks = get_pending_failed_chunks(db, limit=200)
+            stats["retry_chunks_seen"] = len(pending_chunks)
+            for (fb, tb) in pending_chunks:
+                chunk_txs, providers_ok, last_err = get_treasury_transfers_in_range_redundant(fb, tb)
+                if providers_ok > 0:
+                    retry_transfers.extend(chunk_txs)
+                    if mark_chunk_resolved(db, fb, tb):
+                        stats["retry_chunks_resolved"] += 1
+                        logger.info(
+                            f"inproc_bsc_scan: failed chunk {fb}-{tb} RESOLVED "
+                            f"({len(chunk_txs)} transfers recovered)"
+                        )
+                else:
+                    err_msg = str(last_err) if last_err else "all providers errored"
+                    outcome = record_failed_chunk(db, fb, tb, err_msg)
+                    if outcome["should_abandon"]:
+                        mark_chunk_abandoned(db, fb, tb)
+                        stats["retry_chunks_abandoned"] += 1
+                    elif outcome["should_alert"]:
+                        mark_chunk_alerted(db, fb, tb)
+                        stats["alerts_fired"] += 1
+                        try:
+                            _send_bsc_scan_failure_alert(
+                                fb, tb, outcome["attempt_count"],
+                                outcome["first_seen_at"], err_msg,
+                            )
+                        except Exception as alert_err:
+                            logger.error(f"inproc alert email failed for chunk {fb}-{tb}: {alert_err}")
+            db.commit()
+        except Exception as e:
+            logger.error(f"inproc_bsc_scan: retry pass failed: {e}")
+            stats["errors"].append(f"retry_pass: {e}")
+            db.rollback()
+
+        # 3. Paginated scan with safe_cursor tracking — now redundant per-chunk
         try:
             transfers, safe_cursor, failed_chunks = scan_treasury_transfers_with_cursor(scan_floor)
-            stats["transfers_seen"] = len(transfers)
+            stats["transfers_seen"] = len(transfers) + len(retry_transfers)
             stats["safe_cursor"] = safe_cursor
-            stats["failed_chunks"] = [[f, t] for f, t in failed_chunks]
+            stats["failed_chunks"] = [[f, t, err[:200]] for f, t, err in failed_chunks]
+            for fb, tb, err_msg in failed_chunks:
+                try:
+                    outcome = record_failed_chunk(db, fb, tb, err_msg)
+                    if outcome["should_abandon"]:
+                        mark_chunk_abandoned(db, fb, tb)
+                    elif outcome["should_alert"]:
+                        mark_chunk_alerted(db, fb, tb)
+                        stats["alerts_fired"] += 1
+                        try:
+                            _send_bsc_scan_failure_alert(
+                                fb, tb, outcome["attempt_count"],
+                                outcome["first_seen_at"], err_msg,
+                            )
+                        except Exception as alert_err:
+                            logger.error(f"inproc alert email failed for new chunk {fb}-{tb}: {alert_err}")
+                except Exception as e:
+                    logger.error(f"inproc_bsc_scan: record_failed_chunk failed for {fb}-{tb}: {e}")
             if failed_chunks:
+                db.commit()
                 logger.warning(
                     f"inproc_bsc_scan: {len(failed_chunks)} chunk(s) failed; "
                     f"cursor will hold at block {safe_cursor}"
                 )
+            transfers = list(transfers) + retry_transfers
         except Exception as e:
             logger.error(f"inproc_bsc_scan: scan failed: {e}")
             stats["errors"].append(f"scan: {e}")
-            transfers = []
+            transfers = list(retry_transfers)
             safe_cursor = -1
             failed_chunks = []
+
+        # 3a. Stuck-order reconciliation pass (24 May 2026)
+        try:
+            recon = reconcile_stuck_orders(db, latest_block)
+            stats["reconcile_orders_checked"] = recon["orders_checked"]
+            stats["reconcile_transfers_found"] = recon["transfers_found"]
+            if recon["transfers"]:
+                transfers = list(transfers) + recon["transfers"]
+                stats["transfers_seen"] += len(recon["transfers"])
+                logger.warning(
+                    f"inproc_bsc_scan: reconciler RECOVERED "
+                    f"{len(recon['transfers'])} transfer(s) the main scan missed"
+                )
+        except Exception as e:
+            logger.error(f"inproc_bsc_scan: reconcile pass failed: {e}")
+            stats["errors"].append(f"reconcile: {e}")
 
         # 4. Match each transfer; orphan-file the rest. Reuse the
         #    canonical NOWPayments activator on match for parity with
@@ -14179,6 +14438,7 @@ async def admin_trigger_bsc_scan(
         expire_stale_orders,
         match_incoming_transfer,
         scan_treasury_transfers_with_cursor,
+        get_treasury_transfers_in_range_redundant,
         estimate_scan_floor_block,
         set_scan_cursor,
         is_likely_rounded_amount,
@@ -14230,31 +14490,38 @@ async def admin_trigger_bsc_scan(
             # Manual override — bypass scan_treasury_transfers' built-in
             # MAX_SCAN_BLOCKS_PER_RUN=1000 cap which would silently clamp
             # the floor forward and miss our target block. Call
-            # get_treasury_transfers_in_range directly in chunks.
-            from .walletconnect_payments import get_treasury_transfers_in_range, GETLOGS_WINDOW_BLOCKS
+            # get_treasury_transfers_in_range_redundant directly in chunks
+            # — uses parallel providers per chunk to defend against the
+            # silent-empty-result failure mode (24 May 2026 fix).
+            from .walletconnect_payments import GETLOGS_WINDOW_BLOCKS, SCAN_REDUNDANCY
             stats["forced_from_block"] = from_block
+            stats["scan_redundancy"] = SCAN_REDUNDANCY
             transfers = []
+            failed_chunks_forced: list[tuple[int, int, str]] = []
             cursor = from_block
             chunks_run = 0
             MAX_CHUNKS = 500  # safety cap on this admin invocation: 500 × 10 = 5,000 blocks
             while cursor <= stats["latest_block"] and chunks_run < MAX_CHUNKS:
                 chunk_to = min(cursor + GETLOGS_WINDOW_BLOCKS - 1, stats["latest_block"])
-                try:
-                    chunk = get_treasury_transfers_in_range(cursor, chunk_to)
-                    transfers.extend(chunk)
-                except Exception as e:
-                    logger.warning(f"admin_trigger_bsc_scan chunk {cursor}-{chunk_to} failed: {e}")
-                    stats["errors"].append(f"chunk {cursor}-{chunk_to}: {e}")
+                chunk_txs, providers_ok, last_err = get_treasury_transfers_in_range_redundant(cursor, chunk_to)
+                if providers_ok > 0:
+                    transfers.extend(chunk_txs)
+                else:
+                    err_msg = str(last_err) if last_err else "all providers errored"
+                    logger.warning(f"admin_trigger_bsc_scan chunk {cursor}-{chunk_to} failed on all providers: {err_msg}")
+                    stats["errors"].append(f"chunk {cursor}-{chunk_to}: {err_msg}")
+                    failed_chunks_forced.append((cursor, chunk_to, err_msg))
                 cursor = chunk_to + 1
                 chunks_run += 1
             stats["chunks_run"] = chunks_run
+            stats["failed_chunks"] = [[f, t, err[:200]] for f, t, err in failed_chunks_forced]
             # Forced runs don't update the persisted cursor — they're an
             # operator override, not a normal scan. The cron's own runs
             # advance the cursor.
             safe_cursor_for_persist = None
         else:
             transfers, safe_cursor_for_persist, failed_chunks = scan_treasury_transfers_with_cursor(scan_floor)
-            stats["failed_chunks"] = [[f, t] for f, t in failed_chunks]
+            stats["failed_chunks"] = [[f, t, err[:200]] for f, t, err in failed_chunks]
             stats["safe_cursor"] = safe_cursor_for_persist
             if failed_chunks:
                 logger.warning(

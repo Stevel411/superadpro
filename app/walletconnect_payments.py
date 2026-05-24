@@ -52,7 +52,9 @@ from app.withdrawals import (
     USDT_DECIMALS_BSC,
     BSC_CHAIN_ID,
     BSC_RPC_URL,
+    BSC_RPC_FALLBACKS,
     _get_web3_bsc,
+    _build_web3_for_url,
     call_bsc_rpc_with_failover,
 )
 
@@ -330,27 +332,33 @@ def scan_treasury_transfers(scan_floor_block: int) -> list:
     return transfers
 
 
-def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, int, list[tuple[int, int]]]:
+def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, int, list[tuple[int, int, str]]]:
     """Paginated scan of all treasury USDT Transfer events from
     `scan_floor_block` up to the latest block, in GETLOGS_WINDOW_BLOCKS
     chunks. Caps total range at MAX_SCAN_BLOCKS_PER_RUN.
 
     Returns: (transfers, safe_cursor, failed_chunks)
-      transfers     — all successfully-fetched Transfer events
+      transfers     — all successfully-fetched Transfer events. Each chunk
+                      is queried against SCAN_REDUNDANCY providers in
+                      parallel (default 3); transfers are unioned by
+                      tx_hash so a single provider's index miss doesn't
+                      lose a transfer (24 May 2026 fix — Matt incident).
       safe_cursor   — highest block we can safely advance the cursor to.
                       This is the last block of the LAST CONSECUTIVE
-                      successful chunk from the floor. If chunk N+1
-                      fails, safe_cursor stops at the end of chunk N
-                      regardless of how many chunks after N+1 succeeded.
-                      Reason: cursor MUST NOT skip over a failed chunk,
-                      or transfers in that range are silently lost
-                      forever (this is the bug that lost Christel's
-                      $14.54 at block 98459311 on 15 May 2026 — Alchemy
-                      free-tier rate-limited the chunk containing her
-                      tx, cron logged the error and advanced the cursor
-                      past it anyway, transfer never re-scanned).
-      failed_chunks — list of (from, to) tuples for chunks that errored,
-                      useful for logging and admin diagnostics.
+                      successful chunk from the floor. A chunk is
+                      "successful" if AT LEAST ONE of the redundant
+                      providers returned without error. If chunk N+1
+                      fails on all providers, safe_cursor stops at the
+                      end of chunk N regardless of how many chunks after
+                      N+1 succeeded. Reason: cursor MUST NOT skip over a
+                      failed chunk, or transfers in that range are
+                      silently lost forever (this is the bug that lost
+                      Christel's $14.54 at block 98459311 on 15 May 2026).
+      failed_chunks — list of (from_block, to_block, error_msg) tuples
+                      for chunks where ALL redundant providers errored.
+                      Caller persists these to bsc_scan_failed_chunks
+                      so they retry across cron lifetimes, not just within
+                      one run.
 
     Caller (cron_scan_bsc_payments) persists safe_cursor as the new
     wc_scan_cursor — guaranteeing the next run re-scans any failed range.
@@ -358,6 +366,7 @@ def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, in
     Bug-history-relevant constants:
       GETLOGS_WINDOW_BLOCKS = 10   (Alchemy free-tier eth_getLogs cap)
       MAX_SCAN_BLOCKS_PER_RUN = 1000 (catch-up cap after extended outages)
+      SCAN_REDUNDANCY        = 3   (parallel providers per chunk, 24 May)
     """
     try:
         # Use failover wrapper — if Alchemy rate-limits the block_number
@@ -378,7 +387,7 @@ def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, in
         return [], floor - 1, []
 
     all_transfers: list = []
-    failed_chunks: list[tuple[int, int]] = []
+    failed_chunks: list[tuple[int, int, str]] = []  # (from, to, error_msg)
     # safe_cursor tracks the LAST CONSECUTIVE successful chunk's upper bound.
     # Initialised to floor-1 so a fully-failed first chunk leaves the cursor
     # exactly where it was (no advance), guaranteeing retry next run.
@@ -388,8 +397,14 @@ def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, in
     cursor = floor
     while cursor <= latest:
         chunk_to = min(cursor + GETLOGS_WINDOW_BLOCKS - 1, latest)
-        try:
-            chunk_transfers = get_treasury_transfers_in_range(cursor, chunk_to)
+        # Use the redundant-provider scanner (24 May 2026) instead of the
+        # single-provider failover. Critical difference: if ANY of N
+        # providers has the transfer indexed, we see it — defends against
+        # silent empty-result misses that lost Matt (user 374) on 24 May.
+        chunk_transfers, providers_ok, last_err = get_treasury_transfers_in_range_redundant(
+            cursor, chunk_to
+        )
+        if providers_ok > 0:
             all_transfers.extend(chunk_transfers)
             # Only advance safe_cursor through CONSECUTIVE successes.
             # After the first failure, later successes are still kept in
@@ -398,9 +413,14 @@ def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, in
             # is re-scanned next run.
             if not first_failure_seen:
                 safe_cursor = chunk_to
-        except Exception as e:
-            logger.error(f"scan_treasury_transfers chunk {cursor}-{chunk_to} failed: {e}")
-            failed_chunks.append((cursor, chunk_to))
+        else:
+            # All N providers failed for this chunk. Record for retry.
+            err_msg = str(last_err) if last_err else "all providers returned empty/errored"
+            logger.error(
+                f"scan_treasury_transfers chunk {cursor}-{chunk_to} failed on all "
+                f"{SCAN_REDUNDANCY} providers: {err_msg}"
+            )
+            failed_chunks.append((cursor, chunk_to, err_msg))
             first_failure_seen = True
             # Keep going with next chunk — partial results better than none.
             # safe_cursor frozen at the pre-failure boundary; next cron
@@ -486,6 +506,253 @@ def estimate_scan_floor_block(db, latest_block: int) -> int:
     # Cap how far back we'll go in a single run.
     earliest_allowed = max(latest_block - MAX_SCAN_BLOCKS_PER_RUN, 0)
     return max(proposed_floor, earliest_allowed)
+
+
+# ── Redundant-provider scanning (added 24 May 2026) ────────────────────
+#
+# Problem: a single eth_getLogs call against ONE BSC RPC can return an
+# empty result successfully — the call exits without error, but the
+# provider's log index didn't have the transfer indexed yet (lag) or
+# was missing it entirely (provider bug). The scanner then advances
+# its cursor past the block, never re-checks, and the transfer is lost.
+#
+# This is what happened to Matt (user 374) on 24 May 2026: block 100151692
+# contained his $14.91 USDT transfer to the treasury, but the chunk
+# containing it returned `[]` from whatever RPC the scanner happened to
+# hit, even though `eth_getTransactionReceipt(matt_tx_hash)` worked fine
+# on every provider when we tested after the fact. Single-provider trust
+# is broken for log queries.
+#
+# Solution: query N providers concurrently and union the results. If any
+# single provider has the transfer indexed, we see it. The cost is a
+# small fan-out per chunk (3x) which is well within free-tier budgets
+# since we're issuing 100 chunks per run at most.
+
+# Number of providers to query in parallel per chunk. 3 chosen as a
+# balance between coverage (any 1 of 3 catching is robust) and budget
+# (3x more requests). Tune via env BSC_SCAN_REDUNDANCY if needed.
+SCAN_REDUNDANCY = max(1, int(os.environ.get("BSC_SCAN_REDUNDANCY", "3")))
+
+
+def _get_treasury_transfers_single_provider(url: str, from_block: int, to_block: int):
+    """Single-provider eth_getLogs call. Used by the redundant fan-out.
+
+    Returns the normalised list of transfer dicts, or raises on any error.
+    Does NOT use failover — caller does that explicitly across providers.
+    """
+    from web3 import Web3
+    treasury_padded = "0x" + TREASURY_ADDRESS_BSC[2:].lower().zfill(64)
+    w3 = _build_web3_for_url(url)
+    logs = w3.eth.get_logs({
+        "fromBlock": from_block,
+        "toBlock": to_block,
+        "address": Web3.to_checksum_address(USDT_CONTRACT_BSC),
+        "topics": [TRANSFER_EVENT_TOPIC, None, treasury_padded],
+    })
+    results = []
+    for log in logs:
+        try:
+            topics = log.get("topics", [])
+            if len(topics) < 3:
+                continue
+            from_topic = topics[1].hex() if hasattr(topics[1], "hex") else str(topics[1])
+            from_addr = "0x" + from_topic[-40:].lower()
+            data = log.get("data", "0x0")
+            data_hex = data.hex() if hasattr(data, "hex") else str(data)
+            raw_amount = int(data_hex, 16)
+            tx_hash = log.get("transactionHash")
+            tx_hash_str = tx_hash.hex() if hasattr(tx_hash, "hex") else str(tx_hash)
+            if not tx_hash_str.startswith("0x"):
+                tx_hash_str = "0x" + tx_hash_str
+            results.append({
+                "tx_hash":      tx_hash_str,
+                "from_address": from_addr,
+                "to_address":   TREASURY_ADDRESS_BSC,
+                "amount_usdt":  raw_to_usdt_bsc(raw_amount),
+                "block_number": log.get("blockNumber"),
+            })
+        except Exception as e:
+            logger.warning(f"Skipping malformed log from {url}: {e}")
+            continue
+    return results
+
+
+def get_treasury_transfers_in_range_redundant(from_block: int, to_block: int):
+    """Query SCAN_REDUNDANCY providers concurrently for treasury transfers
+    in [from_block, to_block]. Union the results by tx_hash.
+
+    Returns (transfers, providers_succeeded, last_error). transfers is
+    deduped by tx_hash. providers_succeeded counts how many of the N
+    providers returned a non-error result (>=1 required for chunk success).
+    last_error captures the most recent exception when ALL providers fail
+    — used by callers to record into bsc_scan_failed_chunks.
+
+    Why parallel: a single sequential failover takes up to N * timeout
+    seconds in the worst case (all providers slow/down). Parallel fan-out
+    bounds wall time at max(per-provider-timeout) ≈ 15s.
+
+    Why union by tx_hash: if 2 of 3 providers return the same tx, dedup.
+    If 1 of 3 has a transfer the others miss (the silent-index-miss case
+    this exists to defend against), we still see it.
+    """
+    import concurrent.futures as cf
+
+    # Build candidate URL list: primary first, then fallbacks in order
+    # (most-reliable first per BSC_RPC_FALLBACKS ordering). Slice to
+    # SCAN_REDUNDANCY to bound fan-out.
+    candidates = [BSC_RPC_URL] + [u for u in BSC_RPC_FALLBACKS if u != BSC_RPC_URL]
+    candidates = candidates[:SCAN_REDUNDANCY]
+
+    if not candidates:
+        # Defensive: no fallbacks configured at all, single-shot
+        try:
+            transfers = _get_treasury_transfers_single_provider(BSC_RPC_URL, from_block, to_block)
+            return transfers, 1, None
+        except Exception as e:
+            return [], 0, e
+
+    last_error = None
+    succeeded = 0
+    seen: dict[str, dict] = {}
+
+    with cf.ThreadPoolExecutor(max_workers=len(candidates)) as pool:
+        future_to_url = {
+            pool.submit(_get_treasury_transfers_single_provider, url, from_block, to_block): url
+            for url in candidates
+        }
+        for fut in cf.as_completed(future_to_url, timeout=30):
+            url = future_to_url[fut]
+            try:
+                transfers = fut.result()
+                succeeded += 1
+                for tx in transfers:
+                    tx_hash = tx.get("tx_hash")
+                    if tx_hash and tx_hash not in seen:
+                        seen[tx_hash] = tx
+            except Exception as e:
+                last_error = e
+                logger.debug(f"Redundant scan: {url} failed for {from_block}-{to_block}: {e}")
+
+    return list(seen.values()), succeeded, last_error
+
+
+# ── Failed-chunk persistence (added 24 May 2026) ───────────────────────
+#
+# When a chunk fails (ALL redundant providers errored), persist it so
+# subsequent cron runs retry it across runs — not just the current run.
+# Without this, an outage spanning a single chunk's lifetime would lose
+# the block range permanently once the cursor advanced past.
+
+# Escalation threshold — after this many consecutive failures, fire an
+# email alert. ~5 min of 30s-interval retries.
+ESCALATE_AT_ATTEMPTS = 10
+
+# Give-up threshold — after this many failures, stop retrying and mark
+# the chunk 'abandoned'. ~50 min of retries. At this point human
+# intervention is needed (paid RPC, or known long outage).
+GIVE_UP_AT_ATTEMPTS = 100
+
+
+def record_failed_chunk(db, from_block: int, to_block: int, error_msg: str) -> dict:
+    """Upsert a failed-chunk record. On insert: attempt_count=1. On
+    conflict: increment attempt_count and update last_error.
+
+    Returns a dict summarising the upsert outcome:
+      { 'attempt_count': int, 'status': str, 'should_alert': bool,
+        'should_abandon': bool, 'first_seen_at': datetime }
+    """
+    # Use ON CONFLICT to handle the race between concurrent cron replicas.
+    truncated_err = (error_msg or "")[:2000]  # bound text length
+    now = datetime.utcnow()
+
+    row = db.execute(text("""
+        INSERT INTO bsc_scan_failed_chunks
+            (from_block, to_block, attempt_count, last_error,
+             status, first_seen_at, last_attempt_at)
+        VALUES
+            (:fb, :tb, 1, :err, 'pending', :now, :now)
+        ON CONFLICT (from_block, to_block)
+        DO UPDATE SET
+            attempt_count = bsc_scan_failed_chunks.attempt_count + 1,
+            last_error = EXCLUDED.last_error,
+            last_attempt_at = EXCLUDED.last_attempt_at
+        RETURNING attempt_count, status, first_seen_at, alerted_at
+    """), {
+        "fb": from_block, "tb": to_block,
+        "err": truncated_err, "now": now,
+    }).fetchone()
+
+    if not row:
+        return {"attempt_count": 0, "status": "unknown",
+                "should_alert": False, "should_abandon": False,
+                "first_seen_at": now}
+
+    attempt_count = row.attempt_count
+    status = row.status
+    first_seen_at = row.first_seen_at
+    alerted_at = row.alerted_at
+
+    # Escalation decisions. should_alert is True only if we just CROSSED
+    # the threshold this run AND haven't already alerted — prevents
+    # alert spam on every subsequent failure.
+    should_alert = (
+        attempt_count >= ESCALATE_AT_ATTEMPTS
+        and attempt_count < GIVE_UP_AT_ATTEMPTS
+        and alerted_at is None
+    )
+    should_abandon = attempt_count >= GIVE_UP_AT_ATTEMPTS and status != "abandoned"
+
+    return {
+        "attempt_count": attempt_count,
+        "status": status,
+        "should_alert": should_alert,
+        "should_abandon": should_abandon,
+        "first_seen_at": first_seen_at,
+    }
+
+
+def mark_chunk_resolved(db, from_block: int, to_block: int) -> int:
+    """Mark a failed chunk as resolved (succeeded on retry). Returns
+    number of rows updated (0 or 1). Idempotent."""
+    result = db.execute(text("""
+        UPDATE bsc_scan_failed_chunks
+        SET status = 'resolved', resolved_at = :now
+        WHERE from_block = :fb AND to_block = :tb AND status = 'pending'
+    """), {"fb": from_block, "tb": to_block, "now": datetime.utcnow()})
+    return result.rowcount
+
+
+def mark_chunk_abandoned(db, from_block: int, to_block: int) -> int:
+    """Mark a failed chunk as abandoned. Returns rows updated."""
+    result = db.execute(text("""
+        UPDATE bsc_scan_failed_chunks
+        SET status = 'abandoned', resolved_at = :now
+        WHERE from_block = :fb AND to_block = :tb AND status = 'pending'
+    """), {"fb": from_block, "tb": to_block, "now": datetime.utcnow()})
+    return result.rowcount
+
+
+def mark_chunk_alerted(db, from_block: int, to_block: int) -> int:
+    """Mark that we've fired an alert for this chunk. Idempotent."""
+    result = db.execute(text("""
+        UPDATE bsc_scan_failed_chunks
+        SET alerted_at = :now
+        WHERE from_block = :fb AND to_block = :tb AND alerted_at IS NULL
+    """), {"fb": from_block, "tb": to_block, "now": datetime.utcnow()})
+    return result.rowcount
+
+
+def get_pending_failed_chunks(db, limit: int = 200) -> list[tuple[int, int]]:
+    """Return up to `limit` pending failed chunks for retry. Ordered
+    oldest-first so long-stuck ranges get priority. Capped to keep cron
+    run-time bounded."""
+    rows = db.execute(text("""
+        SELECT from_block, to_block FROM bsc_scan_failed_chunks
+        WHERE status = 'pending'
+        ORDER BY first_seen_at ASC
+        LIMIT :lim
+    """), {"lim": limit}).fetchall()
+    return [(r.from_block, r.to_block) for r in rows]
 
 
 # ── Order matching ────────────────────────────────────────────────────
@@ -758,3 +1025,126 @@ def is_likely_rounded_amount(amount) -> bool:
     except Exception:
         return False
     return any(amt == base.quantize(Decimal("0.01")) for base in PRODUCT_PRICES.values())
+
+
+# ── Stuck-order reconciliation (added 24 May 2026) ─────────────────────
+#
+# Defensive backstop for pending orders that should have been matched by
+# the main scan but weren't — typically because every redundant provider
+# returned an empty result for the relevant chunk (the rare residual
+# failure mode after we added redundant scanning).
+#
+# For each pending order older than RECONCILE_MIN_AGE_SECONDS, the
+# reconciler scans a tight recent-block window with the redundant scanner
+# and tries to match.
+
+# Don't reconcile orders younger than 2 min — give the main scan time
+# to catch them in its normal flow first.
+RECONCILE_MIN_AGE_SECONDS = 120
+
+# Look-back window for each pending order's reconciliation scan.
+# Bounded so a single cron run doesn't fan out unboundedly if many
+# pending orders accumulate. ~10 min of chain time covers typical
+# wallet-confirmation latency comfortably.
+RECONCILE_BLOCK_WINDOW = 200
+
+# Maximum number of pending orders to reconcile per cron run. Bounds
+# wall-clock time per run; remaining orders get picked up on subsequent
+# cron ticks (30s interval).
+RECONCILE_MAX_ORDERS_PER_RUN = 5
+
+
+def reconcile_stuck_orders(db, latest_block: int) -> dict:
+    """Scan recent blocks specifically for pending orders that the main
+    scan didn't pick up. Returns a stats dict for logging.
+
+    For each candidate order:
+      1. Compute a scan range: [latest - RECONCILE_BLOCK_WINDOW, latest]
+      2. Run a redundant scan against that range
+      3. Filter results by unique_amount == order.unique_amount
+      4. If found, hand off to match_incoming_transfer (same code path
+         as the main loop) — guarantees one source of truth for matching
+
+    Returns: {
+        'orders_checked': int,    # how many pending orders we evaluated
+        'transfers_found': int,   # how many matching transfers we returned
+        'transfers': list,        # the transfers to be processed by caller
+    }
+
+    Why caller-processes: keeping match + Payment row + activate in one
+    place (the cron handler) avoids the same transfer being processed
+    twice if the main scan ALSO sees it. The cron handler's existing
+    idempotency (tx_hash uniqueness in match_incoming_transfer + orphan
+    table) handles dedup naturally.
+    """
+    from app.database import WalletConnectPaymentOrder
+
+    stats = {"orders_checked": 0, "transfers_found": 0, "transfers": []}
+
+    cutoff = datetime.utcnow() - timedelta(seconds=RECONCILE_MIN_AGE_SECONDS)
+    candidates = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.status == "pending",
+        WalletConnectPaymentOrder.created_at < cutoff,
+        WalletConnectPaymentOrder.expires_at > datetime.utcnow(),
+    ).order_by(WalletConnectPaymentOrder.created_at.asc()).limit(RECONCILE_MAX_ORDERS_PER_RUN).all()
+
+    stats["orders_checked"] = len(candidates)
+    if not candidates:
+        return stats
+
+    # We share ONE scan window across all candidates this run — they're
+    # all "recent enough to still be pending", so they live in roughly
+    # the same window of chain time. No point fanning out one scan per
+    # order.
+    from_block = max(latest_block - RECONCILE_BLOCK_WINDOW, 0)
+    to_block = latest_block
+
+    # Redundant-scan the window in GETLOGS_WINDOW_BLOCKS chunks (Alchemy
+    # free-tier 10-block cap). Each chunk uses parallel providers, so
+    # transfers any single provider's index is missing get caught by the
+    # other providers.
+    all_transfers: list = []
+    cursor = from_block
+    while cursor <= to_block:
+        chunk_to = min(cursor + GETLOGS_WINDOW_BLOCKS - 1, to_block)
+        chunk_txs, providers_ok, _err = get_treasury_transfers_in_range_redundant(cursor, chunk_to)
+        if providers_ok > 0:
+            all_transfers.extend(chunk_txs)
+        cursor = chunk_to + 1
+
+    if not all_transfers:
+        return stats
+
+    # Index by unique_amount for fast matching. Decimal comparison at 6dp
+    # (matches what match_incoming_transfer does).
+    amount_index: dict = {}
+    for tx in all_transfers:
+        try:
+            amt = Decimal(str(tx.get("amount_usdt"))).quantize(Decimal("0.000001"))
+            amount_index.setdefault(amt, []).append(tx)
+        except Exception:
+            continue
+
+    for order in candidates:
+        try:
+            expected = Decimal(str(order.unique_amount)).quantize(Decimal("0.000001"))
+            matches = amount_index.get(expected, [])
+            if matches:
+                # Hand off the first match. If multiple transfers happen
+                # to share the unique amount in this window (vanishingly
+                # rare because of the partial unique index on pending
+                # orders), the OLDEST is picked — same semantics as
+                # match_incoming_transfer's order_by(created_at).
+                tx = matches[0]
+                logger.warning(
+                    f"reconcile_stuck_orders: RECOVERED order {order.id} "
+                    f"user={order.user_id} amount=${expected} "
+                    f"tx={tx.get('tx_hash','?')[:12]}... — main scan missed it "
+                    f"(age {(datetime.utcnow() - order.created_at).total_seconds():.0f}s)"
+                )
+                stats["transfers"].append(tx)
+                stats["transfers_found"] += 1
+        except Exception as e:
+            logger.error(f"reconcile_stuck_orders: per-order check failed for order {order.id}: {e}")
+
+    return stats
