@@ -13904,6 +13904,241 @@ def admin_api_list_orphans(
     }
 
 
+@app.post("/admin/api/manual-confirm-walletconnect-order")
+@app.get("/admin/api/manual-confirm-walletconnect-order")
+async def admin_manual_confirm_walletconnect_order(
+    request: Request,
+    order_id: int = 0,
+    tx_hash: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Manually confirm a single WalletConnect payment order against an
+    on-chain BSC USDT transfer, bypassing the eth_getLogs scanner.
+
+    Use case: scanner failed to pick up a confirmed transfer because the
+    chunk(s) containing the tx returned RPC errors during scan (the
+    Alchemy/llamarpc/dataseed endpoints all rate-limited or 503'd for
+    that block window). The transfer is real on-chain but never reached
+    match_incoming_transfer, and never landed in OnchainOrphanTransfer
+    either, because the chunk literally never returned a result.
+
+    This endpoint uses eth_getTransactionReceipt (single-tx lookup, not
+    paginated getLogs) which is a completely different RPC code path
+    and tolerates the conditions that break the bulk scanner.
+
+    Added 24 May 2026 after Matt (user 374) sent 14.91 USDT to treasury
+    at block 100151692, scanner saw 0 transfers for that range due to
+    RPC failures on every chunk in 100080840–100085000 window, his
+    order stayed pending despite an on-chain success.
+
+    Auth: admin session. Args: order_id (WalletConnectPaymentOrder.id),
+    tx_hash (full 0x... tx hash).
+
+    Validation against the receipt:
+      - Receipt status == 0x1 (success)
+      - Receipt.to == USDT contract (BEP-20)
+      - Log topic[0] == ERC20 Transfer signature
+      - Log topic[2] (to) == treasury address
+      - Log data amount (wei / 10^18) == order.unique_amount EXACTLY
+      - Order is still 'pending'
+
+    On valid: confirm order, write Payment row, run
+    _nowpayments_activate_product (same handoff as the cron). Returns
+    a JSON activation summary.
+    """
+    _require_admin(user)
+
+    from .database import WalletConnectPaymentOrder
+    from .walletconnect_payments import _get_web3_bsc
+    from .withdrawals import TREASURY_ADDRESS_BSC, USDT_CONTRACT_BSC
+    from decimal import Decimal
+    import json as _json
+    import uuid
+
+    # ── Param validation ─────────────────────────────────────────────
+    if not order_id:
+        return JSONResponse({"error": "order_id required"}, status_code=400)
+    if not tx_hash or not tx_hash.startswith("0x") or len(tx_hash) != 66:
+        return JSONResponse({"error": "tx_hash must be a 0x-prefixed 66-char BSC tx hash"}, status_code=400)
+
+    # ── Order lookup ─────────────────────────────────────────────────
+    order = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.id == order_id
+    ).first()
+    if not order:
+        return JSONResponse({"error": f"order {order_id} not found"}, status_code=404)
+    if order.status != "pending":
+        return JSONResponse(
+            {"error": f"order {order_id} is {order.status}, not pending",
+             "tx_hash": order.tx_hash, "confirmed_at": str(order.confirmed_at) if order.confirmed_at else None},
+            status_code=409,
+        )
+
+    # Idempotency: a different order should not already own this tx_hash.
+    already = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.tx_hash == tx_hash
+    ).first()
+    if already and already.id != order.id:
+        return JSONResponse(
+            {"error": f"tx_hash already attached to order {already.id} (status={already.status})"},
+            status_code=409,
+        )
+
+    # ── On-chain receipt fetch ───────────────────────────────────────
+    try:
+        w3 = _get_web3_bsc()
+        receipt = w3.eth.get_transaction_receipt(tx_hash)
+    except Exception as e:
+        logger.error(f"manual_confirm: receipt fetch failed for {tx_hash}: {e}")
+        return JSONResponse({"error": f"receipt_fetch_failed: {e}"}, status_code=502)
+
+    if not receipt:
+        return JSONResponse({"error": "receipt not found — tx may not exist or not yet mined"}, status_code=404)
+
+    # status == 1 means tx succeeded on-chain
+    if receipt.get("status") != 1:
+        return JSONResponse({"error": f"tx_failed_on_chain: status={receipt.get('status')}"}, status_code=400)
+
+    # receipt.to should be the USDT contract (an ERC20 transfer is a call
+    # TO the token contract, not to the recipient directly)
+    receipt_to = (receipt.get("to") or "").lower()
+    if receipt_to != USDT_CONTRACT_BSC.lower():
+        return JSONResponse(
+            {"error": f"tx not to USDT contract — got {receipt_to}, expected {USDT_CONTRACT_BSC.lower()}"},
+            status_code=400,
+        )
+
+    # ── Decode the Transfer log ──────────────────────────────────────
+    # ERC20 Transfer event signature
+    TRANSFER_SIG = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+    matched_log = None
+    for log in receipt.get("logs", []):
+        topics = log.get("topics", [])
+        if not topics:
+            continue
+        # Topics arrive as HexBytes from web3.py — normalise to lowercase 0x-hex
+        topic0 = topics[0].hex() if hasattr(topics[0], "hex") else str(topics[0]).lower()
+        if not topic0.startswith("0x"):
+            topic0 = "0x" + topic0
+        if topic0.lower() != TRANSFER_SIG:
+            continue
+        if len(topics) < 3:
+            continue
+        # topic[2] = recipient (padded to 32 bytes)
+        to_topic = topics[2].hex() if hasattr(topics[2], "hex") else str(topics[2]).lower()
+        if not to_topic.startswith("0x"):
+            to_topic = "0x" + to_topic
+        # Extract last 20 bytes (40 hex chars) as address
+        recipient_addr = "0x" + to_topic[-40:].lower()
+        if recipient_addr != TREASURY_ADDRESS_BSC.lower():
+            continue
+        matched_log = log
+        # topic[1] = sender
+        from_topic = topics[1].hex() if hasattr(topics[1], "hex") else str(topics[1]).lower()
+        if not from_topic.startswith("0x"):
+            from_topic = "0x" + from_topic
+        sender_addr = "0x" + from_topic[-40:].lower()
+        # Data field is the amount (uint256, hex)
+        data = log.get("data", "0x0")
+        if hasattr(data, "hex"):
+            data = data.hex()
+            if not data.startswith("0x"):
+                data = "0x" + data
+        amount_wei = int(data, 16)
+        amount_usdt = Decimal(amount_wei) / Decimal(10**18)
+        break
+
+    if not matched_log:
+        return JSONResponse(
+            {"error": f"no USDT Transfer to treasury {TREASURY_ADDRESS_BSC.lower()} in tx logs"},
+            status_code=400,
+        )
+
+    # ── Amount equality check ────────────────────────────────────────
+    # match_incoming_transfer requires exact Decimal equality. Match the
+    # same precision the matcher uses (Numeric(18,6)).
+    expected = Decimal(str(order.unique_amount)).quantize(Decimal("0.000001"))
+    got = amount_usdt.quantize(Decimal("0.000001"))
+    if got != expected:
+        return JSONResponse(
+            {"error": f"amount_mismatch: tx sent {got} USDT, order expects {expected} USDT"},
+            status_code=400,
+        )
+
+    # ── All checks passed — confirm + activate ───────────────────────
+    try:
+        order.status = "confirmed"
+        order.tx_hash = tx_hash
+        order.from_address = sender_addr
+        order.block_number = receipt.get("blockNumber")
+        order.confirmed_at = datetime.utcnow()
+        db.flush()
+
+        buyer = db.query(User).filter(User.id == order.user_id).first()
+        if not buyer:
+            db.rollback()
+            return JSONResponse({"error": f"buyer (user {order.user_id}) not found"}, status_code=500)
+
+        # Mirror the cron's payment-row + activation pattern exactly.
+        tx_ref = f"wc_{order.tx_hash}"
+        existing_payment = db.query(Payment).filter(Payment.tx_hash == tx_ref).first()
+        if not existing_payment:
+            payment = Payment(
+                from_user_id=buyer.id,
+                to_user_id=None,
+                amount_usdt=order.unique_amount,
+                payment_type=f"walletconnect_{order.product_type}",
+                tx_hash=tx_ref,
+                status="confirmed",
+            )
+            db.add(payment)
+            db.flush()
+
+        meta = _json.loads(order.product_meta) if order.product_meta else {}
+        if not hasattr(order, "price_usd") or order.price_usd is None:
+            try:
+                order.price_usd = order.base_amount
+            except Exception:
+                object.__setattr__(order, "price_usd", order.base_amount)
+
+        _nowpayments_activate_product(db, buyer, order, meta)
+        db.commit()
+
+        # Re-read buyer for the response (activation may have set founding fields)
+        db.refresh(buyer)
+
+        logger.warning(
+            f"MANUAL_CONFIRM: admin={user.username} ACTIVATED order {order.id} "
+            f"user={buyer.id} ({buyer.username}) "
+            f"{order.product_type}/{order.product_key} amount=${order.unique_amount} "
+            f"tx={tx_hash} from={sender_addr}"
+        )
+
+        return JSONResponse({
+            "success": True,
+            "order_id": order.id,
+            "user_id": buyer.id,
+            "username": buyer.username,
+            "is_active": bool(getattr(buyer, "is_active", False)),
+            "membership_tier": getattr(buyer, "membership_tier", None),
+            "is_founding_member": bool(getattr(buyer, "is_founding_member", False)),
+            "founding_spot_number": getattr(buyer, "founding_spot_number", None),
+            "membership_price_locked": (
+                str(buyer.membership_price_locked) if getattr(buyer, "membership_price_locked", None) is not None else None
+            ),
+            "amount_usdt": str(order.unique_amount),
+            "tx_hash": tx_hash,
+            "from_address": sender_addr,
+            "block_number": receipt.get("blockNumber"),
+            "triggered_by": user.username,
+        })
+    except Exception as e:
+        logger.error(f"manual_confirm: activation failed for order {order.id}: {e}", exc_info=True)
+        db.rollback()
+        return JSONResponse({"error": f"activation_failed: {e}"}, status_code=500)
+
+
 @app.post("/admin/api/trigger-bsc-scan")
 @app.get("/admin/api/trigger-bsc-scan")
 async def admin_trigger_bsc_scan(
