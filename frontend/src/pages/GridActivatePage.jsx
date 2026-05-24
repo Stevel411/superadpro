@@ -344,7 +344,50 @@ export default function GridActivatePage() {
   const [positionData, setPositionData] = useState(null);
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState('');
+  // 24 May 2026: Stripe availability — drives whether the 'Pay with card'
+  // button shows on this grid activation screen. Reads /api/stripe/status
+  // once on mount. Matches the pattern in ActivateTier.jsx.
+  const [stripeReady, setStripeReady] = useState(false);
   const { ensureConsent, consentModal } = useConsentGate();
+
+  // 24 May 2026: check Stripe availability for the 'Pay with card' button.
+  // Single fire-and-forget on mount; if it fails, the button stays hidden.
+  useEffect(function() {
+    fetch('/api/stripe/status', { credentials: 'include' })
+      .then(function(r) { return r.json(); })
+      .then(function(d) { if (d && d.configured === true) setStripeReady(true); })
+      .catch(function() { /* leave card button hidden on failure */ });
+  }, []);
+
+  // Stripe Checkout path — same flow as ActivateTier.handleStripeCard,
+  // hardcoded to tier_id=1 because this page is the Grid Tier 1 page.
+  // Stripe webhook completes the order server-side and lands the user on
+  // /campaign-tiers?activated=tier_1 (per the success_path in main.py).
+  async function handleStripeCard() {
+    if (paying) return;
+    const consented = await ensureConsent();
+    if (!consented) return;
+    setPaying(true);
+    setError('');
+    try {
+      const res = await fetch('/api/stripe/checkout/campaign-tier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ tier_id: 1 }),
+      });
+      const data = await res.json();
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        setError(data.detail || data.error || 'Card checkout unavailable. Please try crypto.');
+        setPaying(false);
+      }
+    } catch (e) {
+      setError('Connection error. Please try again.');
+      setPaying(false);
+    }
+  }
 
   // NOWPayments fallback path — same code as ActivateTier.handleNowPayments
   // but hardcoded to grid_1. Both checkout systems hit the same backend
@@ -526,6 +569,59 @@ export default function GridActivatePage() {
             <p className="gact-cta-sub">
               Pay once. Your grid goes live the moment your transaction confirms.
             </p>
+
+            {/* 24 May 2026: Pay with card — Stripe Checkout. Positioned first
+                because it's the most familiar option for prospects (matches the
+                ActivateTier.jsx ordering). Hidden when Stripe isn't configured.
+                tier_id=1 since this is the Grid Tier 1 / Starter page. */}
+            {stripeReady && (
+              <button onClick={handleStripeCard} disabled={paying} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+                width: '100%', padding: '18px 18px', borderRadius: 12,
+                fontSize: 16, fontWeight: 800, border: 'none',
+                cursor: paying ? 'wait' : 'pointer',
+                fontFamily: 'Sora, sans-serif',
+                background: paying
+                  ? 'linear-gradient(135deg,#7dd3fc,#38bdf8,#0ea5e9)'
+                  : 'linear-gradient(135deg,#38bdf8,#0ea5e9,#0284c7)',
+                color: '#fff',
+                boxShadow: paying ? '0 4px 0 #075985,0 6px 20px rgba(14,165,233,.2)' : '0 4px 0 #075985,0 6px 24px rgba(14,165,233,.4)',
+                letterSpacing: 0.3, transition: 'all 0.2s',
+                opacity: paying ? 0.85 : 1,
+              }}>
+                {paying ? (
+                  <>
+                    <span style={{ display:'inline-block', width:16, height:16, border:'2.5px solid rgba(255,255,255,.5)', borderTopColor:'#fff', borderRadius:'50%', animation:'gact-spin 0.8s linear infinite' }}/>
+                    <span>Redirecting to secure checkout…</span>
+                  </>
+                ) : (
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <span style={{fontSize:20}}>💳</span>
+                    <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.2 }}>
+                      <span>Pay $20</span>
+                      <span style={{ fontSize:11, fontWeight:600, opacity:0.85, letterSpacing:0.5, textTransform:'uppercase', marginTop:2 }}>with debit or credit card</span>
+                    </div>
+                  </div>
+                )}
+              </button>
+            )}
+
+            {stripeReady && (
+              <div style={{ position:'relative', margin:'14px 0', textAlign:'center' }}>
+                <div style={{ height:1, background:'rgba(255,255,255,.12)', position:'absolute', left:0, right:0, top:'50%' }}/>
+                <span style={{
+                  position:'relative',
+                  background:'rgba(255,255,255,.04)',
+                  padding:'0 12px',
+                  fontSize:10,
+                  color:'rgba(255,255,255,.55)',
+                  textTransform:'uppercase',
+                  letterSpacing:1,
+                  fontWeight:600,
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}>or pay with crypto</span>
+              </div>
+            )}
 
             {/* Primary — WalletConnect self-custody.
                 Gate (orange Connect) shows when disconnected; PayLink
