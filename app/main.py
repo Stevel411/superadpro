@@ -4175,8 +4175,15 @@ def marketing_asset_page(slug: str, username: str, request: Request, db: Session
     if not asset or not asset.html_template:
         return Response(content="Marketing page not found.", status_code=404)
 
-    # Sponsor lookup — username is the member sharing this page
-    sponsor = db.query(User).filter(User.username == username).first()
+    # Sponsor lookup — username is the member sharing this page.
+    # Case-insensitive: URLs in the wild get typed/copied in inconsistent
+    # case (mobile autocaps, copy-paste lowercasing, etc). User.username
+    # is case-preserved in DB but matched here with func.lower() so
+    # /m/pif/SuperAdPro and /m/pif/superadpro both resolve correctly.
+    from sqlalchemy import func as _sqlfunc
+    sponsor = db.query(User).filter(
+        _sqlfunc.lower(User.username) == username.lower()
+    ).first()
     if not sponsor:
         return Response(content="Sponsor not found.", status_code=404)
 
