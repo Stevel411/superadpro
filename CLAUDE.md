@@ -1,6 +1,97 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
-## 🎯 Most Recent Session (19 May 2026 late) — Page Builder Phase 1 + 2A + Railway outage
+## 🎯 Most Recent Session (24 May 2026) — Matt recovery + BSC scanner Layers 4-6 + Stripe gap fix
+
+Sunday session, ~5 hours. Started with a stuck-payment customer recovery (Matt, user 374), turned into a deep dive on the BSC scanner's residual failure mode that the May 17 reliability work didn't cover. Shipped three commits, all live, all verified end-to-end on production.
+
+### Customer support case closed — @matt (user 374) Founder #42
+
+- Matt registered 11:53 UTC under sponsor @tbillion (Founder #5), created a WalletConnect order at 11:55:30 (`unique_amount = $14.91`, founding price), sent 14.91 USDT from wallet `0xa71cb9...` to treasury at 11:55:53 UTC (block 100151692). Tx success on-chain.
+- Scanner missed it. No match, no orphan record. Order sat pending.
+- Diagnosis: `eth_getLogs` for the chunk containing his block returned an empty result successfully from whichever public RPC the scanner happened to hit. The Layer 1 self-healing cursor (May 17 fix) only protects against chunks that RAISE errors. Chunks that succeed-with-empty-result advance the cursor past the block, transfer permanently lost.
+- Recovery: shipped new admin endpoint, hit it, Matt activated as Founder #42 (spot allocation is `current_count + 1` at activation time, independent of `product_key` — verified the founding-claim logic in `_activate_membership`). Sponsor @tbillion received the $10 flat commission. Membership expires 24 June 2026.
+
+### Three commits shipped this session
+
+**`e7e9fbd11` — Manual-confirm endpoint (the recovery tool)**
+
+New `POST/GET /admin/api/manual-confirm-walletconnect-order?order_id=X&tx_hash=0x...`. Admin-session-gated.
+
+- Pulls tx receipt via `eth_getTransactionReceipt` (single-tx lookup, NOT `eth_getLogs`). Critical: different RPC code path that doesn't suffer the bulk-scanner failure mode — receipt fetches were 100% reliable on the same providers that were silently failing on getLogs for Matt's chunk.
+- Validates: receipt status==1, recipient is USDT contract, log topic[0] is ERC20 Transfer signature, log topic[2] is treasury address, log data amount == `order.unique_amount` exactly at 6dp, order is `pending`, tx_hash not already attached to another order.
+- On valid: confirms order, writes Payment row idempotently (tx_ref = `wc_<txhash>`), calls `_nowpayments_activate_product` (same handoff as cron). Founder spot claim happens inside `_activate_membership` via `pg_advisory_xact_lock(7423957)`. Returns JSON activation summary.
+
+**Recovery procedure for future "user paid, scanner missed it" cases:** hit the URL above with the order_id (from `lookup_user <username>.recent_walletconnect_orders[].id`) and tx_hash. ~5 seconds. Replaces the `/admin/api/trigger-bsc-scan?from_block=X` recovery in `CLAUDE.md` line 70 for the silent-empty-result class of misses — that older procedure only works when the scanner's getLogs is currently healthy.
+
+**`9c99cf92c` — Stripe "Pay with card" button on /grid/activate**
+
+Customer reported "I don't see the new card payment button on Campaign Tiers". Investigation: button shipped in commit `01a532d48` for `/activate/:tierId` (ActivateTier.jsx), but NOT for `/grid/activate` (GridActivatePage.jsx) — same product, different page, half-shipped feature.
+
+Added `stripeReady` state + `/api/stripe/status` fetch on mount + `handleStripeCard` handler posting `tier_id: 1` to `/api/stripe/checkout/campaign-tier`. Button positioned above WalletConnect block with "or pay with crypto" divider, gated on `stripeReady` so both vanish cleanly when Stripe isn't configured. Backend unchanged — endpoint already handled tier_id=1.
+
+Verified the deployed bundle contains the Stripe code via `grep "api/stripe/status" static/app/assets/GridActivatePage-*.js`.
+
+**`9c843b7cd` — BSC scanner Layers 4-6 (silent-empty-result + cross-run retry + reconciler)**
+
+The big one. Three-layer fix for the failure mode that lost Matt — the residual gap left after the May 17 work. Detailed below.
+
+### BSC scanner Layers 4-6 — what's now in place
+
+The May 17 fix (Layers 1-3: self-healing cursor + multi-RPC failover + in-process scheduler) was correct architecture for chunks that RAISE errors. It does not protect against chunks that succeed-with-empty-result. This commit adds three more layers that close that gap.
+
+**Layer 4 — Redundant-provider scanning per chunk.** Each chunk's `eth_getLogs` call fans out to `SCAN_REDUNDANCY=3` providers in parallel via `concurrent.futures.ThreadPoolExecutor`, unions results by tx_hash. If ANY single provider has the transfer indexed, we see it. New `get_treasury_transfers_in_range_redundant()` in `app/walletconnect_payments.py`. Bounded wall-time at max(per-provider-timeout) ≈ 15s rather than N × timeout. Configurable via `BSC_SCAN_REDUNDANCY` env var. A chunk is now successful when ≥1 provider returns; only when ALL fail is it marked failed.
+
+**Layer 5 — Cross-run failed-chunk persistence.** New `bsc_scan_failed_chunks` table — UNIQUE(from_block, to_block), upsert increments `attempt_count`. Helper functions `record_failed_chunk` / `mark_chunk_resolved` / `mark_chunk_abandoned` / `mark_chunk_alerted` / `get_pending_failed_chunks`. Cron retries all pending failed chunks at step 2a, BEFORE the main scan each tick. Resolved chunks merge their transfers into the normal match flow. Persistently-failing chunks attempt-count up to:
+- `ESCALATE_AT_ATTEMPTS = 10` (~5 min of 30s ticks) → fires ONE email alert to `stevelawsonmarketing@gmail.com` via `_send_bsc_scan_failure_alert()`. `alerted_at` gate prevents alert spam.
+- `GIVE_UP_AT_ATTEMPTS = 100` (~50 min) → status='abandoned', stops eating scan budget. Inspect via `SELECT * FROM bsc_scan_failed_chunks WHERE status='abandoned'`.
+
+**Layer 6 — Stuck-order reconciliation pass.** New `reconcile_stuck_orders()` runs as step 3a in cron after the main scan. For each pending WalletConnectPaymentOrder older than `RECONCILE_MIN_AGE_SECONDS=120s` and not yet expired (max 5 per run, ordered oldest-first), independently scans the last `RECONCILE_BLOCK_WINDOW=200` blocks (~10 min of chain time) with the redundant scanner and matches by amount equality. Last line of defence: if all 3 providers happen to return empty for the relevant chunk AND the main scan misses, the reconciler catches it on the next cron tick once the order is >2 min old. Matches feed back through `match_incoming_transfer` so the idempotency-by-tx_hash guarantee is preserved.
+
+**All three callers updated consistently:** `/cron/scan-bsc-payments` (HTTP cron), `_run_inproc_bsc_scan` (in-process daemon, the production driver), `/admin/api/trigger-bsc-scan` (admin manual override). No caller left with the old 2-tuple `failed_chunks` shape.
+
+**New stats keys in cron JSON response:** `retry_chunks_seen`, `retry_chunks_resolved`, `retry_chunks_abandoned`, `alerts_fired`, `reconcile_orders_checked`, `reconcile_transfers_found`. `failed_chunks` shape is now `[[from, to, error_msg], ...]` (3-tuple).
+
+**Verified live on production:** triggered `/cron/scan-bsc-payments` post-deploy. Returned `reconcile_orders_checked: 1` (one pending order checked, none recovered — it's a stale order from earlier), all new fields populated, no errors. End-to-end pipeline executes cleanly.
+
+### Recovery procedure decision tree (use this in future)
+
+If a user reports paying but no activation:
+
+1. **First:** `lookup_payment_by_txid <tx_hash>` — tells you if scanner saw it.
+2. **If `found_in: []`:** check tx on-chain via `eth_getTransactionByHash` to confirm it actually exists, recipient is treasury, amount matches a pending order.
+3. **If on-chain is real but scanner missed:** new `/admin/api/manual-confirm-walletconnect-order?order_id=X&tx_hash=0x...`. Activates immediately.
+4. **If you need to scan a missing block range:** `/admin/api/trigger-bsc-scan?from_block=X` — now also uses the redundant scanner.
+5. **Email alert fires automatically** after 10 consecutive failed attempts on the same chunk — you'll know before customers ping you.
+
+### Alchemy upgrade decision (24 May 2026)
+
+Steve received an Alchemy email suggesting upgrade to Pay-As-You-Go. Decision: **activate PAYG with $15-25/month usage cap**. Rationale:
+- SuperAdPro's current BSC scanner load is ~22-35M CUs/month (back-of-envelope), right at the edge of the 30M free tier.
+- PAYG has no monthly minimum — $0.45/M CUs above the free 30M, $0 if you stay under.
+- Usage cap (set in Alchemy Billing Settings) means no surprise bills.
+- The redundant scan code already routes 2/3 of getLogs traffic to public BSC RPCs; Alchemy is just one of the 3 providers. So PAYG load on Alchemy is bounded.
+- If cap is hit, public RPCs continue to serve — no outage, just no Alchemy-specific reliability boost on excess traffic.
+
+**No code change needed** — `BSC_RPC_URL` in Railway env already points to Alchemy. PAYG just unlocks the free-tier throttle.
+
+### Behavioural note (factual-error pattern)
+
+Mid-session, raised a "Founder/Partner product_key mismatch bug" looking at Matt's order. **Retracted on closer reading of `_activate_membership` and `_nowpayments_activate_product`.** Every membership purchase uses `product_key = membership_partner` by design — there is no `membership_founder` key in the system. Founder distinction is owned by the user record (`is_founding_member` + `membership_price_locked` + `founding_spot_number`), claimed atomically inside `_activate_membership` when `activation_type == "fresh"` AND spots remain. Pricing differs at quote time (`base_amount` set to $15 if spots remain). product_key stays the same in both cases.
+
+**Rule reinforced (from 23 May session lessons):** for any claim about platform mechanics, read the canonical source before speaking. Sounds-right is not verification.
+
+### Key commits (chronological)
+
+`e7e9fbd11` manual-confirm endpoint · `9c99cf92c` Stripe button on /grid/activate · `9c843b7cd` BSC scanner Layers 4-6
+
+### Outstanding from this session (queued for next)
+
+- **Stripe coverage audit** — check every purchase page (PartnerPayment, ActivateTier, GridActivatePage, Credit Nexus, Creative Studio, Brand Posters, PIF, anywhere else) has the card button. Matt's case wasn't the only ship-half-done — Stripe was missing on /grid/activate too. Need a systematic sweep.
+- **Marketing materials project** — picks back up from this morning's handover. PIF live, SAP/Tools/Earn pages staged in /mnt/user-data/outputs/. Three watch-list items still pending: `commission-spec.md` line 183 (95/5 → 100/0), `app/main.py:20013` legacy Basic/Pro AI prompt, `app/main.py:23438` same. Steve generating Earn page background + recording remaining video before launch.
+
+---
+
+## 🎯 Previous Session (19 May 2026 late) — Page Builder Phase 1 + 2A + Railway outage
 
 Long, productive day session. Continued from morning's flat-pricing purge work into the Labs Page Builder commercial-grade audit. Shipped the new left-rail Inspector panel architecture and ported 4 of 26 element types to it. Session ended when Railway had a major outage (Google Cloud suspended Railway's account). Used the outage as a forcing function to decide on infra strategy.
 
