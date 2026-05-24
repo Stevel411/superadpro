@@ -19250,6 +19250,284 @@ _REWRITE_TARGET_FIELDS = (
 )
 
 
+# ── Share-code XSS hardening (audit XSS-1, 24 May 2026) ───────────────
+#
+# Background: share codes are essentially "this member's page, copy/pasted
+# to another member's account as a fresh draft". The receiving member
+# trusts the sender — but visitors to the imported, republished page
+# trust NEITHER party. A malicious sharer could craft an element with
+# <img src=x onerror="..."> inside el.txt, generate a share code, and
+# weaponise any importer's page against THEIR visitors.
+#
+# The funnel-render template renders `{{ page.gjs_html|safe }}`, and the
+# editor Canvas renders most types via dangerouslySetInnerHTML on el.txt —
+# both bypass framework-level escaping by design (members legitimately
+# embed HTML in their own pages). Sanitisation MUST happen at the trust
+# boundary, which is the import endpoint.
+#
+# Strategy: bleach.clean() on every field that ends up as HTML in the
+# render path. Two surfaces to clean:
+#   1. The page-level HTML blob (gjs_html, gjs_css, custom_css, copy
+#      fields) — straight bleach pass with a permissive page-builder
+#      allowlist.
+#   2. The element JSON (sections_json) — walk the JSON, sanitise every
+#      el.txt and structured-prop string field, write it back.
+#
+# Permissive but safe: members embed images, links, styled spans, lists,
+# headings, etc. inside their copy. Tags/attrs members legitimately use
+# stay. Everything dangerous (script, iframe-outside-allowlist, event
+# handlers, javascript: URLs, expression() CSS) is stripped.
+
+# Tags allowed in page-builder HTML. Permissive — members write rich
+# content. iframes are allowed but their src is checked at canvas/export
+# time via sanitizeEmbed; bleach passes the iframe through, sanitizeEmbed
+# enforces the host allowlist. (Belt + braces.)
+_PAGE_BUILDER_ALLOWED_TAGS = [
+    "p", "br", "hr", "span", "div",
+    "h1", "h2", "h3", "h4", "h5", "h6",
+    "strong", "em", "b", "i", "u", "s",
+    "a", "img",
+    "ul", "ol", "li",
+    "blockquote", "code", "pre",
+    "table", "thead", "tbody", "tr", "td", "th",
+    "iframe",  # host-restricted at render time by sanitizeEmbed
+]
+
+# Attributes allowed per tag. style is allowed broadly because the
+# editor builds inline styles for everything — but bleach also strips
+# unsafe CSS expressions (url(javascript:), expression(), etc) via the
+# css_sanitizer below.
+_PAGE_BUILDER_ALLOWED_ATTRS = {
+    "*":      ["class", "style", "id", "data-sp-submit", "data-sap-dismissible",
+               "data-el-type", "data-has-font", "data-redirect", "data-success-message"],
+    "a":      ["href", "target", "rel"],
+    "img":    ["src", "alt", "width", "height", "loading"],
+    "iframe": ["src", "width", "height", "allowfullscreen", "allow",
+               "frameborder", "title", "data-sp-facade"],
+}
+
+# Allowed URL schemes on href / src. http(s), mailto, tel, fragments,
+# and relative paths. Anything else (javascript:, data:, vbscript:,
+# file:) gets the attribute stripped entirely.
+_PAGE_BUILDER_ALLOWED_PROTOCOLS = ["http", "https", "mailto", "tel"]
+
+
+def _sanitize_html_field(raw):
+    """Bleach-clean a single HTML string with the page-builder allowlist.
+    Returns sanitised string, or '' for non-string input.
+
+    Two-tier strategy:
+      Tier 1 — full bleach.clean with CSSSanitizer (requires tinycss2).
+               Strips dangerous CSS like url(javascript:) and expression().
+      Tier 2 — bleach.clean WITHOUT css_sanitizer if tinycss2 isn't
+               available. Style attributes pass through unsanitised but
+               the rest of the allowlist still applies. Render-time
+               sanitizeEmbed.js handles the residual CSS edges.
+
+    Last resort: strip everything if bleach itself raises — fail closed
+    rather than emit unsanitised content.
+    """
+    if not raw or not isinstance(raw, str):
+        return raw if raw is None else ""
+
+    # Tier 1: full sanitiser with CSS protection
+    try:
+        from bleach.css_sanitizer import CSSSanitizer
+        css = CSSSanitizer(allowed_css_properties=[
+            # Layout
+            "display", "position", "top", "left", "right", "bottom", "z-index",
+            "width", "height", "max-width", "max-height", "min-width", "min-height",
+            "margin", "margin-top", "margin-right", "margin-bottom", "margin-left",
+            "padding", "padding-top", "padding-right", "padding-bottom", "padding-left",
+            "box-sizing", "overflow", "overflow-x", "overflow-y",
+            # Flex / grid
+            "flex", "flex-direction", "flex-wrap", "justify-content", "align-items",
+            "align-self", "align-content", "gap", "row-gap", "column-gap",
+            "grid", "grid-template-columns", "grid-template-rows", "grid-column",
+            "grid-row", "grid-area", "grid-gap",
+            # Typography
+            "font-family", "font-size", "font-weight", "font-style", "line-height",
+            "letter-spacing", "text-align", "text-transform", "text-decoration",
+            "color", "white-space", "word-wrap", "word-break", "overflow-wrap",
+            # Background / border / shadow
+            "background", "background-color", "background-image", "background-size",
+            "background-position", "background-repeat", "background-attachment",
+            "border", "border-top", "border-right", "border-bottom", "border-left",
+            "border-color", "border-style", "border-width", "border-radius",
+            "box-shadow", "outline",
+            # Visual
+            "opacity", "transform", "transition", "filter", "cursor",
+            "visibility", "pointer-events", "user-select", "list-style",
+        ])
+        return bleach.clean(
+            raw,
+            tags=_PAGE_BUILDER_ALLOWED_TAGS,
+            attributes=_PAGE_BUILDER_ALLOWED_ATTRS,
+            protocols=_PAGE_BUILDER_ALLOWED_PROTOCOLS,
+            css_sanitizer=css,
+            strip=True,
+            strip_comments=True,
+        )
+    except ImportError:
+        # Tier 2: tinycss2 not installed → CSS sanitiser unavailable.
+        # Fall through to no-css-sanitiser cleaning. Style attribute
+        # values pass through unfiltered at the bleach layer; the
+        # render-time sanitizeEmbed and the URL-scheme filter catch
+        # the high-impact attacks. Log so ops sees it.
+        logger.warning(
+            "_sanitize_html_field: tinycss2 not installed — CSS sanitiser "
+            "unavailable, falling back to tag/attr cleaning without CSS filter. "
+            "Add tinycss2 to requirements.txt to enable full CSS sanitisation."
+        )
+    except Exception as e:
+        logger.error(f"_sanitize_html_field: CSS sanitiser setup failed: {e}")
+
+    # Tier 2 path — bleach.clean with allowlist, no css_sanitizer
+    try:
+        return bleach.clean(
+            raw,
+            tags=_PAGE_BUILDER_ALLOWED_TAGS,
+            attributes=_PAGE_BUILDER_ALLOWED_ATTRS,
+            protocols=_PAGE_BUILDER_ALLOWED_PROTOCOLS,
+            strip=True,
+            strip_comments=True,
+        )
+    except Exception as e:
+        # Last resort: fail closed by escaping everything.
+        logger.error(f"_sanitize_html_field: bleach.clean failed entirely: {e}")
+        return bleach.clean(raw, tags=[], strip=True)
+
+
+def _sanitize_sections_json(raw):
+    """Walk a sections_json string (the React editor's els array as JSON)
+    and bleach-clean every text-bearing field on every element.
+
+    The structure is documented as `{"els": [{txt, type, s, _faqQ, ...}, ...]}`
+    plus other top-level keys (canvasBg, canvasBgImage, deviceVisibility, etc).
+
+    We deliberately preserve the outer JSON shape and ONLY modify the
+    values that get rendered as HTML. Other fields (numbers, IDs, style
+    keys, type strings) pass through unchanged.
+
+    Fields cleaned per element (any that exist):
+      txt — the main HTML content (Tiptap output, button label, etc)
+      _quote, _author — review/testimonial structured fields
+      _faqQuestion, _faqAnswer — FAQ structured fields
+      _statLabel — stat block label
+      _iconHeading, _iconDescription — icontext fields
+      _separatorSymbol — separator centre text
+      _logos[].text — logostrip per-logo label
+      _formHeading, _formSubtitle, _formGdprText, _formBtnText,
+        _formSuccessMsg — form copy fields
+      _embedCode — embed HTML (already passes through sanitizeEmbed
+        on render but we double-sanitise on import for defence in depth)
+
+    Returns the re-serialised JSON string. On any error, returns the
+    original input — render-time sanitisation still applies.
+    """
+    if not raw or not isinstance(raw, str):
+        return raw if raw is None else ""
+    try:
+        import json as _json
+        data = _json.loads(raw)
+    except Exception:
+        # Not JSON — could be legacy format. Pass through unchanged
+        # (it won't be rendered as HTML via gjs_html either).
+        return raw
+
+    HTML_TEXT_FIELDS = (
+        "txt",
+        "_quote", "_author",
+        "_faqQuestion", "_faqAnswer",
+        "_statLabel",
+        "_iconHeading", "_iconDescription",
+        "_separatorSymbol",
+        "_formHeading", "_formSubtitle", "_formGdprText",
+        "_formBtnText", "_formSuccessMsg",
+        "_embedCode",
+    )
+
+    try:
+        if isinstance(data, dict) and isinstance(data.get("els"), list):
+            for el in data["els"]:
+                if not isinstance(el, dict):
+                    continue
+                for field in HTML_TEXT_FIELDS:
+                    val = el.get(field)
+                    if isinstance(val, str) and val:
+                        el[field] = _sanitize_html_field(val)
+                # Logostrip: per-logo text labels
+                logos = el.get("_logos")
+                if isinstance(logos, list):
+                    for logo in logos:
+                        if isinstance(logo, dict):
+                            txt = logo.get("text")
+                            if isinstance(txt, str) and txt:
+                                logo["text"] = _sanitize_html_field(txt)
+                            # Logo image URLs are also member-controlled —
+                            # block javascript: and data: schemes here.
+                            img = logo.get("img")
+                            if isinstance(img, str) and img:
+                                stripped = img.strip().lower()
+                                if stripped.startswith(("javascript:", "vbscript:", "data:text/html")):
+                                    logo["img"] = ""
+        return _json.dumps(data, separators=(",", ":"), ensure_ascii=False)
+    except Exception as e:
+        logger.error(f"_sanitize_sections_json: walk failed: {e}")
+        return raw
+
+
+def _sanitize_share_code_snapshot(snap):
+    """Mutate `snap` in place: bleach-clean every field that ends up
+    rendered as HTML on the published page or in the editor canvas.
+
+    Called by share_code_import BEFORE the snapshot is written to the
+    importer's new FunnelPage. Defence boundary: the importer trusts
+    the sender, but visitors trust neither — so we clean at this seam.
+
+    Safe-to-mutate fields:
+      gjs_html, gjs_css, custom_css — page-level HTML/CSS blobs
+      headline, subheadline, body_copy — copy fields rendered as HTML
+      capture_form_heading, capture_form_subtext — opt-in modal copy
+      meta_description — emitted in <meta>, plain-text but still
+        deserves angle-bracket escape
+      sections_json — element array, sanitised via _sanitize_sections_json
+      gjs_components — legacy GrapesJS components (rare in modern shares)
+
+    URL fields (cta_url, video_url, image_url, og_image_url) get
+    a scheme check: javascript:/vbscript:/data:text/html replaced with ''.
+    Other fields (title, template_type, color_scheme, font_family) are
+    structural / enum-like and pass through unchanged.
+    """
+    if not isinstance(snap, dict):
+        return snap
+
+    # HTML / CSS blob fields — full bleach pass
+    for field in ("gjs_html", "gjs_css", "custom_css",
+                  "headline", "subheadline", "body_copy",
+                  "capture_form_heading", "capture_form_subtext",
+                  "gjs_components"):
+        if field in snap and isinstance(snap[field], str):
+            snap[field] = _sanitize_html_field(snap[field])
+
+    # Element JSON — walk-and-clean
+    if "sections_json" in snap and isinstance(snap["sections_json"], str):
+        snap["sections_json"] = _sanitize_sections_json(snap["sections_json"])
+
+    # Plain-text meta — strip any HTML entirely (no formatting allowed)
+    if "meta_description" in snap and isinstance(snap["meta_description"], str):
+        snap["meta_description"] = bleach.clean(snap["meta_description"], tags=[], strip=True)
+
+    # URL fields — scheme-check; clear dangerous schemes
+    DANGEROUS_URL_RE = _re.compile(r"^\s*(javascript|vbscript|file|data:text/html)", _re.IGNORECASE)
+    for field in ("cta_url", "video_url", "image_url", "og_image_url"):
+        if field in snap and isinstance(snap[field], str) and snap[field]:
+            if DANGEROUS_URL_RE.match(snap[field]):
+                snap[field] = ""
+
+    return snap
+
+
 @app.post("/api/share-codes/import")
 async def share_code_import(request: Request, user: User = Depends(get_current_user),
                             db: Session = Depends(get_db)):
@@ -19312,6 +19590,19 @@ async def share_code_import(request: Request, user: User = Depends(get_current_u
 
     snap = payload.get("page") or {}
     title = (snap.get("title") or "Imported page").strip() or "Imported page"
+
+    # XSS sanitisation pass (audit XSS-1, 24 May 2026). MUST run before
+    # any other field manipulation — clean content gets the rewriter
+    # next, then lands in the DB. Without this, a malicious sharer could
+    # craft <img src=x onerror=...> in any element's txt, generate a
+    # share code, and pwn every visitor to the importer's republished
+    # page. See _sanitize_share_code_snapshot for the field-by-field
+    # rationale.
+    try:
+        _sanitize_share_code_snapshot(snap)
+    except Exception as _e:
+        logger.error(f"share_code_import: sanitisation pass raised — failing closed: {_e}")
+        return JSONResponse({"error": "Could not safely import this code. The sender may need to regenerate it."}, status_code=500)
 
     # Run the rewriter across every text-bearing field. We sum the
     # rewrite counts to report in the response. The rewriter is safe

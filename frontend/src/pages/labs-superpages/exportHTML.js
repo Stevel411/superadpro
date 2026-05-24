@@ -136,14 +136,6 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
       .filter(([k, v]) => v !== null && v !== undefined && v !== '')
       .map(([k, v]) => k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + v)
       .join(';');
-    // Diagnostic — runs once per render. Logged to browser console so Steve
-    // can grab the output during preview testing. Remove once we've found
-    // and fixed the preview-vs-canvas discrepancy.
-    if (typeof console !== 'undefined' && (el.type === 'button' || el.type === 'announcement')) {
-      try {
-        console.log('[exportHTML]', el.type, el.id, { txt: el.txt, url: el.url, s: el.s, generated_style: st });
-      } catch (e) {}
-    }
     const elClass = `sp-el sp-${el.type}`;
     // Element id used as a CSS hook for per-device override rules at the
     // bottom of this file. Element ids in the editor look like
