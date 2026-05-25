@@ -1153,7 +1153,12 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       ), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'text', outline: 'none', wordWrap: 'break-word' }} dangerouslySetInnerHTML={{__html: el.txt || '★ BADGE'}} />;
     }
     // Default: contenteditable text
-    return <div className="cel-editable" dangerouslySetInnerHTML={{ __html: el.txt || '' }} style={Object.fromEntries(
+    // 25 May 2026: data-type attribute lets the scoped CSS (.sp-canvas
+    // .cel-editable[data-type="heading"] * { font-family: inherit })
+    // force all descendants of a heading to inherit the wrapper's font.
+    // Defeats Tiptap-baked inline fonts inside el.txt that would
+    // otherwise block page-level Heading Font from propagating.
+    return <div className="cel-editable" data-type={el.type} dangerouslySetInnerHTML={{ __html: el.txt || '' }} style={Object.fromEntries(
       innerStyle.split(';').filter(Boolean).map(s => { const [k, ...v] = s.split(':'); return [k.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase()), v.join(':').trim()]; })
     )} />;
   };
@@ -1378,6 +1383,33 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         .sp-canvas-scaled-inner {
           transform-origin: top left;
           position: relative;
+        }
+
+        /* 25 May 2026: Heading typography inheritance fix.
+           Tiptap's FontFamily extension may bake <span style='font-family: X'>
+           into the heading's saved HTML (el.txt) during inline editing. When
+           that inline span exists, it overrides the wrapper's
+           font-family: var(--page-font-heading) declaration, blocking
+           page-level Heading Font changes from propagating.
+
+           Fix: force all descendants of a heading element's .cel-editable
+           wrapper to inherit font-family from their parent. The wrapper
+           uses var(--page-font-heading) so the inherited value tracks the
+           page-level setting live. Members who explicitly chose a per-element
+           font via the Inspector still win because that pick sets the WRAPPER's
+           font-family directly (the textStyles loop in renderInner serialises
+           el.s.fontFamily), and the descendants then inherit THAT value.
+
+           Scoped via the renderInner-set wrapper having type 'heading' is
+           tricky in pure CSS. Workaround: use the .cel parent's id selector
+           through a data-attribute is unwieldy. Simplest and correct: any
+           .cel-editable whose .cel parent has [data-el-type='heading'] (set
+           by renderInner) — but renderInner sets it on the inner div, not on
+           the .cel outer. The cleanest scope is by type via React: we add a
+           data attribute on the wrapper itself when rendering headings, then
+           target that. The CSS is targeted enough not to leak. */
+        .sp-canvas .cel-editable[data-type="heading"] * {
+          font-family: inherit !important;
         }
       `}</style>
       <div

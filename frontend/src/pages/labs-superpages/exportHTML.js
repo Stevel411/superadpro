@@ -79,6 +79,12 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
        actually drive text size. Headings keep their own size system
        (the calc(... * --page-heading-scale) rule above). */
     .sp-page [data-el-type="text"]:not([data-has-font="1"]) { font-size: var(--page-font-base-size); }
+    /* 25 May 2026: Tiptap may bake <span style="font-family: X"> into
+       saved heading HTML during inline editing. Force all heading
+       descendants to inherit so the wrapper's var(--page-font-heading)
+       propagates correctly. Same logic on member's explicit Inspector
+       picks (which set the wrapper's font directly). */
+    .sp-page [data-el-type="heading"] * { font-family: inherit; }
   </style>`;
 
   // ─── Analytics & tracking snippets ───
