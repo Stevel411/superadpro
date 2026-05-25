@@ -3644,6 +3644,79 @@ def cron_verify_custom_domains(request: Request):
 
 
 # ════════════════════════════════════════════════════════════════════
+# Stripe reconciliation diagnostic (25 May 2026)
+#
+# Emergency tool — finds StripeCharge rows from today whose user is
+# still inactive. Catches "paid but not activated" disasters.
+# Protected by CRON_SECRET.
+# ════════════════════════════════════════════════════════════════════
+@app.get("/cron/stripe-reconciliation")
+def cron_stripe_reconciliation(request: Request, db: Session = Depends(get_db)):
+    """Cross-reference today's StripeCharge rows against User.is_active.
+    Surfaces members charged but not activated.
+
+    Returns:
+      - charges_today: list of all charges from today with user state
+      - inactive_paying: users with at least one charge but is_active=False
+      - active_but_not_founder: users active but should be founders
+    """
+    secret = request.query_params.get("secret")
+    if not secret or secret != os.getenv("CRON_SECRET", ""):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+
+    from datetime import datetime, timedelta
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+
+    rows = db.query(StripeCharge).filter(
+        StripeCharge.created_at >= cutoff,
+        StripeCharge.kind == "charge",
+    ).order_by(StripeCharge.created_at.desc()).all()
+
+    charges_today = []
+    inactive_paying_ids = set()
+    for c in rows:
+        user = db.query(User).filter(User.id == c.user_id).first()
+        if not user:
+            charges_today.append({
+                "charge_id": c.id, "user_id": c.user_id, "user_found": False,
+                "amount_cents": c.amount_cents, "product": c.product,
+                "session_id": c.stripe_session_id,
+                "subscription_id": c.stripe_subscription_id,
+                "created_at": c.created_at.isoformat(),
+            })
+            continue
+        entry = {
+            "charge_id": c.id,
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": bool(user.is_active),
+            "membership_tier": user.membership_tier,
+            "is_founding_member": bool(user.is_founding_member),
+            "founding_spot_number": user.founding_spot_number,
+            "activated_at": user.activated_at.isoformat() if user.activated_at else None,
+            "amount_cents": c.amount_cents,
+            "product": c.product,
+            "session_id": c.stripe_session_id,
+            "subscription_id": c.stripe_subscription_id,
+            "payment_intent_id": c.stripe_payment_intent_id,
+            "created_at": c.created_at.isoformat(),
+            "raw_event_excerpt": (c.raw_event_json or "")[:500],
+        }
+        charges_today.append(entry)
+        if not user.is_active:
+            inactive_paying_ids.add(user.id)
+
+    return JSONResponse({
+        "now_utc":          datetime.utcnow().isoformat(),
+        "window":           "last 24h",
+        "total_charges":    len(charges_today),
+        "inactive_paying":  list(inactive_paying_ids),
+        "charges":          charges_today,
+    })
+
+
+# ════════════════════════════════════════════════════════════════════
 # Host-based routing for custom domains.
 #
 # When a request arrives with a Host header that isn't one of our
