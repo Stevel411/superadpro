@@ -30230,9 +30230,61 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
     if user.is_active:
         return JSONResponse({"error": "Your membership is already active. This gift is for new or inactive members."}, status_code=400)
 
+    # ── Founding partner spot allocation (25 May 2026) ─────────────────────
+    # PIF gift recipients are paying members by transitivity — the gifter
+    # paid for them, the company netted $10, the recipient activated. Under
+    # the "first 100 paying members are Founders" policy they're eligible
+    # for a Founder spot just like a Stripe or crypto signup.
+    #
+    # Prior to this fix the gift-claim handler activated recipients
+    # directly as 'partner' with no spot check, no atomic claim, no
+    # $15 price lock. Result: at least one recipient (cryptobase26 #54,
+    # 21 May 2026) landed as Partner despite policy eligibility and had
+    # to be manually promoted on 25 May.
+    #
+    # Mirrors the same pattern used in _activate_membership (line ~9267)
+    # and the balance-activation path (line ~8195): pg_advisory_xact_lock
+    # serialises concurrent claims, count check, claim if spots remain,
+    # fall through to standard partner otherwise.
+    founding_spot_claimed = None
+    if not getattr(user, "is_founding_member", False):
+        try:
+            FOUNDING_TOTAL = 100
+            FOUNDING_LOCK_KEY = 7423957  # must match _activate_membership
+            db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
+                       {"k": FOUNDING_LOCK_KEY})
+            current_count_row = db.execute(text(
+                "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+            )).fetchone()
+            current_count = current_count_row.cnt if current_count_row else 0
+            if current_count < FOUNDING_TOTAL:
+                founding_spot_claimed = current_count + 1
+                logger.info(
+                    f"PIF gift claim: founding spot #{founding_spot_claimed} "
+                    f"reserved for user {user.id} ({user.username}) — "
+                    f"{FOUNDING_TOTAL - founding_spot_claimed} spots remaining"
+                )
+        except Exception as e:
+            # If the founding claim fails for any reason, fall through to
+            # standard partner activation. Better to give them a free month
+            # at $20 lock than to fail the gift claim entirely.
+            logger.error(
+                f"PIF gift claim: founding spot check failed for user "
+                f"{user.id}: {e} — proceeding with standard partner activation"
+            )
+
     # Activate the membership
     user.is_active = True
-    user.membership_tier = "partner"
+    if founding_spot_claimed is not None:
+        user.is_founding_member = True
+        user.founding_spot_number = founding_spot_claimed
+        user.membership_price_locked = decimal.Decimal("15.00")
+        user.membership_tier = "founding"
+        # Auto-enrol the new Founder into the rotator queue so they start
+        # receiving distributed /start signups immediately. Idempotent.
+        _enrol_user_to_rotator(db, user.id)
+    else:
+        user.membership_tier = "partner"
     # Set activated_at — this is what the dashboard's new-member toast
     # polling (/api/dashboard/new-members) filters on. Without this, gift
     # recipients silently activate but the gifter never sees the cha-ching
@@ -30240,6 +30292,14 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
     # test6 claim — test3 saw their wallet jump to $20 but no toast fired.)
     if not user.activated_at:
         user.activated_at = datetime.utcnow()
+    # Gift = one month free membership. Set expiry so the renewal cron
+    # knows when to charge them (or lapse them) at the end of the gift
+    # window. Previously NULL because this handler skipped expiry-setting
+    # entirely, leaving gift recipients with no defined renewal date.
+    # (Carryover bug from earlier sessions: "membership_expires_at NULL
+    # for some early Founders".)
+    if not user.membership_expires_at:
+        user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
 
     # Skip onboarding for gift recipients — they're already qualified
     # members via the gift, and the onboarding wizard would otherwise
