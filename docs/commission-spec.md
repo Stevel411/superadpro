@@ -2,7 +2,7 @@
 
 **Status:** Locked ground truth — AI assistants must read this before making any claims about commission rates, tier prices, or payout mechanics. Do not fabricate numbers. If a rule is not documented here or contradicts here, ask Steve.
 
-**Last confirmed:** 20 May 2026 (Steve directed the Basic/Pro purge; this document rewritten to reflect locked flat-pricing model.)
+**Last confirmed:** 25 May 2026 (Steve confirmed Grid tier names against live site: Starter, Builder, Pro, Advanced, Premium, Elite, Master, Champion. Tier-names table added to Stream 02.)
 
 **Legend:**
 - ✅ Confirmed by Steve in-session
@@ -76,8 +76,20 @@ If you encounter any of these in code, copy, templates, or AI prompts, flag for 
 
 ### Tier ladder ✅
 
-8 tiers (per `app/database.py` `CREDIT_PACKS` constant — same ladder as Nexus):
-$20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
+8 tiers (per `app/database.py` `GRID_PACKAGES` + `GRID_TIER_NAMES` — same price ladder as Nexus, distinct from Nexus by tier names):
+
+| Tier | Name | Price |
+|---|---|---|
+| 1 | Starter | $20 |
+| 2 | Builder | $50 |
+| 3 | Pro | $100 |
+| 4 | Advanced | $200 |
+| 5 | Premium | $400 |
+| 6 | Elite | $600 |
+| 7 | Master | $800 |
+| 8 | Champion | $1,000 |
+
+Tier names are live in production UI (visualiser, /grid/activate page, member dashboards). Confirmed against `app/database.py::GRID_TIER_NAMES` 25 May 2026.
 
 ### Per-entry payout at Tier N ✅
 

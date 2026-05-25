@@ -983,10 +983,10 @@ Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the u
 | 2 | Builder | $50 |
 | 3 | Pro | $100 |
 | 4 | Advanced | $200 |
-| 5 | Elite | $400 |
-| 6 | Premium | $600 |
-| 7 | Executive | $800 |
-| 8 | Ultimate | $1,000 |
+| 5 | Premium | $400 |
+| 6 | Elite | $600 |
+| 7 | Master | $800 |
+| 8 | Champion | $1,000 |
 
 **Commission split per purchase (paid immediately when someone buys a tier):**
 - **40% → Direct sponsor** — the person who personally referred the buyer. ONE person gets this.
