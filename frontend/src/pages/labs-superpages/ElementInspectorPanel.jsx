@@ -70,6 +70,295 @@ const sectionStyleLast = {
   marginBottom: 0,
 };
 
+// ── ShadowControl — reusable depth/shadow primitive ────────────
+//
+// Added 26 May 2026 (Steve flag — feature gap caught mid-audit
+// after the 25 May session). Members expect Webflow / Leadpages
+// level depth controls on cards, buttons, images, banners. Was
+// missing entirely from the Inspector; this component fills the
+// gap across 7 element types (Button, Banner, Box, Image,
+// Review, Testimonial, FAQ + Form bonus via ContainerSection).
+//
+// Data model:
+//   el.s.boxShadow         → the actual CSS string written to the
+//                            element (Canvas + exportHTML both read
+//                            this verbatim, no transform needed)
+//   el.s._shadowPreset     → internal flag tracking the selected
+//                            preset ID, so re-opening the panel
+//                            shows the right preset highlighted.
+//                            Underscore-prefixed so exportHTML's
+//                            filter strips it from published HTML.
+//   el.s._shadowCustom     → { x, y, blur, color, alpha } when
+//                            the member is in Custom mode. Same
+//                            underscore-strip rule.
+//
+// Backwards compat: existing elements with no shadow set render
+// as "None" (the empty default). Existing elements with a
+// pre-existing boxShadow string but no _shadowPreset flag try
+// to match a known preset by string; if no match, fall through
+// to Custom mode with parsed values.
+//
+// Why presets first, custom second: SuperAdPro members are
+// affiliate marketers, not designers. They want "soft drop
+// shadow" or "subtle lift" — they don't want to tweak X/Y/Blur
+// from zero. Presets cover 95% of intent. Custom is the escape
+// hatch for the 5%.
+
+const SHADOW_PRESETS = [
+  { id: 'none',   label: 'None',   value: 'none' },
+  { id: 'soft',   label: 'Soft',   value: '0 4px 12px rgba(15,23,42,0.08)' },
+  { id: 'medium', label: 'Medium', value: '0 8px 24px rgba(15,23,42,0.12)' },
+  { id: 'strong', label: 'Strong', value: '0 16px 40px rgba(15,23,42,0.18)' },
+  { id: 'glow',   label: 'Glow',   value: '0 0 24px rgba(14,165,233,0.35)' },
+];
+
+// Match a CSS shadow string against the known presets. Returns
+// the preset ID, or 'custom' if no match. We normalise whitespace
+// to allow for variants like 'rgba(15, 23, 42, 0.12)' (extra
+// spaces) which still semantically match.
+function matchPreset(shadowStr) {
+  if (!shadowStr || shadowStr === 'none') return 'none';
+  const normalised = String(shadowStr).replace(/\s+/g, '').toLowerCase();
+  for (const p of SHADOW_PRESETS) {
+    if (p.value.replace(/\s+/g, '').toLowerCase() === normalised) return p.id;
+  }
+  return 'custom';
+}
+
+// Build a custom shadow CSS string from x/y/blur/colour/alpha.
+// Used in Custom mode. Spread is intentionally omitted from the
+// UI — spread is a designer-y control rarely useful for marketing
+// elements and adds complexity. Three sliders (X/Y/Blur) + colour
+// + opacity is enough.
+function buildCustomShadow({ x, y, blur, color, alpha }) {
+  const a = Math.max(0, Math.min(1, alpha));
+  const hex = (color || '#0f172a').replace('#', '');
+  const r = parseInt(hex.slice(0, 2), 16) || 15;
+  const g = parseInt(hex.slice(2, 4), 16) || 23;
+  const b = parseInt(hex.slice(4, 6), 16) || 42;
+  return `${x|0}px ${y|0}px ${blur|0}px rgba(${r},${g},${b},${Math.round(a * 100) / 100})`;
+}
+
+// Parse an existing shadow CSS string back into x/y/blur/colour/alpha.
+// Best-effort — handles the simple single-layer form we emit. If the
+// string is multi-layer or otherwise non-trivial (e.g. someone wrote
+// it by hand), we fall back to sensible defaults so the sliders show
+// something usable rather than NaN.
+function parseShadow(shadowStr) {
+  const defaults = { x: 0, y: 8, blur: 24, color: '#0f172a', alpha: 0.12 };
+  if (!shadowStr || shadowStr === 'none') return defaults;
+  const m = String(shadowStr).match(/(-?\d+)px\s+(-?\d+)px\s+(\d+)px\s+rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/i);
+  if (!m) return defaults;
+  const x = parseInt(m[1], 10);
+  const y = parseInt(m[2], 10);
+  const blur = parseInt(m[3], 10);
+  const r = parseInt(m[4], 10).toString(16).padStart(2, '0');
+  const g = parseInt(m[5], 10).toString(16).padStart(2, '0');
+  const b = parseInt(m[6], 10).toString(16).padStart(2, '0');
+  const alpha = m[7] !== undefined ? parseFloat(m[7]) : 1;
+  return { x, y, blur, color: `#${r}${g}${b}`, alpha };
+}
+
+// ShadowControl — drop-in component for adding a depth control
+// to any element's property panel. Renders preset chips +
+// optional Custom mode. Caller controls the wrapper styling via
+// the `wrapperStyle` prop (so it can be a full section in
+// standalone use, or a sub-row when nested inside ContainerSection).
+function ShadowControl({ el, updateElementStyle, markDirty, wrapperStyle = sectionStyle }) {
+  const currentShadow = el.s?.boxShadow || '';
+  const storedPreset = el.s?._shadowPreset;
+  // Resolve active preset: stored flag wins, else infer from string
+  const initialPreset = storedPreset || matchPreset(currentShadow);
+  const [activePreset, setActivePreset] = useState(initialPreset);
+
+  // Custom-mode state. Seed from stored _shadowCustom if present,
+  // else from parsing the current boxShadow value.
+  const seedCustom = el.s?._shadowCustom || parseShadow(currentShadow);
+  const [customX, setCustomX] = useState(seedCustom.x);
+  const [customY, setCustomY] = useState(seedCustom.y);
+  const [customBlur, setCustomBlur] = useState(seedCustom.blur);
+  const [customColor, setCustomColor] = useState(seedCustom.color);
+  const [customAlpha, setCustomAlpha] = useState(seedCustom.alpha);
+
+  // Resync local state when the selected element changes (panel
+  // stays mounted, just rebinds to a different el).
+  useEffect(() => {
+    const cs = el.s?.boxShadow || '';
+    const sp = el.s?._shadowPreset || matchPreset(cs);
+    setActivePreset(sp);
+    const seed = el.s?._shadowCustom || parseShadow(cs);
+    setCustomX(seed.x);
+    setCustomY(seed.y);
+    setCustomBlur(seed.blur);
+    setCustomColor(seed.color);
+    setCustomAlpha(seed.alpha);
+  }, [el.id]);
+
+  const commitPreset = (presetId) => {
+    setActivePreset(presetId);
+    if (presetId === 'custom') {
+      // Switching INTO custom — apply current slider state
+      const value = buildCustomShadow({
+        x: customX, y: customY, blur: customBlur,
+        color: customColor, alpha: customAlpha,
+      });
+      updateElementStyle(el.id, {
+        boxShadow: value,
+        _shadowPreset: 'custom',
+        _shadowCustom: { x: customX, y: customY, blur: customBlur, color: customColor, alpha: customAlpha },
+      });
+    } else {
+      const preset = SHADOW_PRESETS.find(p => p.id === presetId);
+      const value = preset ? preset.value : 'none';
+      updateElementStyle(el.id, {
+        boxShadow: value === 'none' ? '' : value,
+        _shadowPreset: presetId,
+      });
+    }
+    markDirty();
+  };
+
+  const commitCustom = (next) => {
+    const merged = {
+      x: next.x !== undefined ? next.x : customX,
+      y: next.y !== undefined ? next.y : customY,
+      blur: next.blur !== undefined ? next.blur : customBlur,
+      color: next.color !== undefined ? next.color : customColor,
+      alpha: next.alpha !== undefined ? next.alpha : customAlpha,
+    };
+    if (next.x !== undefined) setCustomX(next.x);
+    if (next.y !== undefined) setCustomY(next.y);
+    if (next.blur !== undefined) setCustomBlur(next.blur);
+    if (next.color !== undefined) setCustomColor(next.color);
+    if (next.alpha !== undefined) setCustomAlpha(next.alpha);
+    const value = buildCustomShadow(merged);
+    updateElementStyle(el.id, {
+      boxShadow: value,
+      _shadowPreset: 'custom',
+      _shadowCustom: merged,
+    });
+    markDirty();
+  };
+
+  // Hex check for the colour picker — falls back to slate if not
+  // a clean 6-char hex.
+  const safeColor = /^#[0-9a-f]{6}$/i.test(customColor) ? customColor : '#0f172a';
+
+  return (
+    <div style={wrapperStyle}>
+      <label style={labelStyle}>Shadow</label>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 4,
+        marginBottom: activePreset === 'custom' ? 10 : 0,
+      }}>
+        {SHADOW_PRESETS.map(p => {
+          const active = activePreset === p.id;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => commitPreset(p.id)}
+              title={p.label}
+              style={{
+                padding: '7px 4px',
+                background: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-bg-elevated, #f8fafc)',
+                color: active ? '#fff' : 'var(--sap-text-primary, #0f172a)',
+                border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                borderRadius: 5,
+                fontSize: 11, fontWeight: 700,
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              {p.label}
+            </button>
+          );
+        })}
+        {/* Custom toggle — takes the 6th cell of the 3x2 grid */}
+        <button
+          type="button"
+          onClick={() => commitPreset('custom')}
+          title="Custom shadow"
+          style={{
+            padding: '7px 4px',
+            background: activePreset === 'custom' ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-bg-elevated, #f8fafc)',
+            color: activePreset === 'custom' ? '#fff' : 'var(--sap-text-primary, #0f172a)',
+            border: '1px solid ' + (activePreset === 'custom' ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+            borderRadius: 5,
+            fontSize: 11, fontWeight: 700,
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}
+        >
+          Custom
+        </button>
+      </div>
+
+      {activePreset === 'custom' && (
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: 8,
+          padding: 10, borderRadius: 6,
+          background: 'var(--sap-bg-elevated, #f8fafc)',
+          border: '1px solid var(--sap-border, #e2e8f0)',
+        }}>
+          {/* X / Y / Blur sliders */}
+          {[
+            { key: 'x',    label: 'Offset X', val: customX,    min: -40, max: 40, set: (v) => commitCustom({ x: v }) },
+            { key: 'y',    label: 'Offset Y', val: customY,    min: -40, max: 40, set: (v) => commitCustom({ y: v }) },
+            { key: 'blur', label: 'Blur',     val: customBlur, min: 0,   max: 80, set: (v) => commitCustom({ blur: v }) },
+          ].map(s => (
+            <div key={s.key}>
+              <div style={{
+                display: 'flex', justifyContent: 'space-between',
+                fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+                marginBottom: 2,
+              }}>
+                <span>{s.label}</span>
+                <span style={{ fontFamily: 'monospace' }}>{s.val}px</span>
+              </div>
+              <input
+                type="range" min={s.min} max={s.max} step={1}
+                value={s.val}
+                onChange={e => s.set(parseInt(e.target.value, 10))}
+                style={{ width: '100%' }}
+              />
+            </div>
+          ))}
+          {/* Colour + opacity */}
+          <div>
+            <div style={{
+              display: 'flex', justifyContent: 'space-between',
+              fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+              marginBottom: 2,
+            }}>
+              <span>Colour & opacity</span>
+              <span style={{ fontFamily: 'monospace' }}>{Math.round(customAlpha * 100)}%</span>
+            </div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <input
+                type="color"
+                value={safeColor}
+                onChange={e => commitCustom({ color: e.target.value })}
+                style={{
+                  width: 32, height: 28, padding: 0,
+                  border: '1px solid var(--sap-border, #e2e8f0)',
+                  borderRadius: 5, cursor: 'pointer', background: 'transparent',
+                }}
+              />
+              <input
+                type="range" min={0} max={100} step={1}
+                value={Math.round(customAlpha * 100)}
+                onChange={e => commitCustom({ alpha: parseInt(e.target.value, 10) / 100 })}
+                style={{ flex: 1 }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Button-specific property section ───────────────────────────
 //
 // All controls write through updateElement/updateElementStyle on
@@ -256,7 +545,7 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
       </div>
 
       {/* Text colour */}
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
         <label style={labelStyle}>Text colour</label>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           {TEXT_COLOURS.map(c => (
@@ -291,6 +580,14 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
           </label>
         </div>
       </div>
+
+      {/* Shadow / depth */}
+      <ShadowControl
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        wrapperStyle={sectionStyleLast}
+      />
     </>
   );
 }
@@ -930,6 +1227,21 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
           </div>
         </div>
       )}
+
+      {/* Shadow / depth — added 26 May 2026 (feature gap). Lives
+          inside ContainerSection so every container-shaped element
+          (Box, FAQ, Review, Testimonial, Form) inherits it without
+          per-panel wiring. wrapperStyle override means we render
+          as a sub-row inside this section rather than as a
+          standalone bordered section. */}
+      <div style={{ marginTop: 14 }}>
+        <ShadowControl
+          el={el}
+          updateElementStyle={updateElementStyle}
+          markDirty={markDirty}
+          wrapperStyle={{ marginBottom: 0 }}
+        />
+      </div>
     </div>
   );
 }
@@ -2349,7 +2661,7 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
         </div>
       </div>
 
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
         <div style={labelStyle}>Answer colour</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <input
@@ -2370,6 +2682,14 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
           />
         </div>
       </div>
+
+      {/* Shadow / depth */}
+      <ShadowControl
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        wrapperStyle={sectionStyleLast}
+      />
     </>
   );
 }
@@ -2564,7 +2884,7 @@ function ReviewProperties({ el, updateElement, updateElementStyle, markDirty }) 
         </div>
       </div>
 
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
         <div style={labelStyle}>Author colour</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <input
@@ -2585,6 +2905,14 @@ function ReviewProperties({ el, updateElement, updateElementStyle, markDirty }) 
           />
         </div>
       </div>
+
+      {/* Shadow / depth */}
+      <ShadowControl
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        wrapperStyle={sectionStyleLast}
+      />
     </>
   );
 }
@@ -3804,7 +4132,7 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
       </div>
 
       {/* Text colour */}
-      <div style={sectionStyleLast}>
+      <div style={sectionStyle}>
         <label style={labelStyle}>Text colour</label>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           {TEXT_COLOURS.map(c => (
@@ -3838,6 +4166,14 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
           </label>
         </div>
       </div>
+
+      {/* Shadow / depth */}
+      <ShadowControl
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        wrapperStyle={sectionStyleLast}
+      />
     </>
   );
 }
@@ -4245,7 +4581,7 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
             </div>
           </div>
 
-          <div style={sectionStyleLast}>
+          <div style={sectionStyle}>
             <div style={labelStyle}>Corners</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <input
@@ -4267,6 +4603,17 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
               }}>{imageRadius}px</span>
             </div>
           </div>
+
+          {/* Shadow / depth — added 26 May 2026. Image-only;
+              video/audio not in scope (the brief was Image
+              specifically, and shadow on a video player frame
+              would interact weirdly with native player chrome). */}
+          <ShadowControl
+            el={el}
+            updateElementStyle={updateElementStyle}
+            markDirty={markDirty}
+            wrapperStyle={sectionStyleLast}
+          />
         </>
       )}
 
