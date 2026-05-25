@@ -160,6 +160,16 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
     // Hidden elements (set via layer panel) are excluded from rendering
     // on both the editor preview iframe and the published page.
     if (el.hidden) return;
+    // 25 May 2026: strip fontFamily / fontSize from inline style when
+    // they're not explicit per-element picks. Per Steve's directive,
+    // page-level Heading Font / Body Font / Body Size ALWAYS win unless
+    // the member used the Inspector FontPicker (_fontExplicit) or size
+    // slider (_sizeExplicit). With this strip, the .sp-page CSS rules
+    // below cleanly apply var(--page-font-heading) / var(--page-font-body)
+    // / var(--page-font-base-size) to every non-opted-out element.
+    const stripStyleKeys = new Set();
+    if (!el.s?._fontExplicit) stripStyleKeys.add('fontFamily');
+    if (!el.s?._sizeExplicit && el.type === 'text') stripStyleKeys.add('fontSize');
     const allStyles = { position: 'absolute', left: el.x + 'px', top: el.y + 'px', width: el.w + 'px', height: el.h + 'px', boxSizing: 'border-box', ...(el.s || {}) };
     // Filter out null/undefined values which would serialise as "undefined" /
     // "null" strings and break the style attribute parsing. Defensive guard
@@ -167,26 +177,22 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
     // text in preview' bug — if a commit ever produces a null style value
     // this guarantees it doesn't corrupt the output.
     const st = Object.entries(allStyles)
-      .filter(([k, v]) => v !== null && v !== undefined && v !== '')
+      .filter(([k, v]) => v !== null && v !== undefined && v !== '' && !stripStyleKeys.has(k) && !k.startsWith('_'))
       .map(([k, v]) => k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + v)
       .join(';');
     const elClass = `sp-el sp-${el.type}`;
-    // Element id used as a CSS hook for per-device override rules at the
-    // bottom of this file. Element ids in the editor look like
-    // `e1m2n3...` (uid()), safe for CSS selectors.
-    // data-el-type / data-has-font added 22 May 2026 for the typography
-    // system: published-page CSS rules target [data-el-type="..."]
-    // to apply var(--page-font-heading) / var(--page-font-body) only on
-    // elements that don't have an explicit fontFamily of their own
-    // (data-has-font="0").
+    // 25 May 2026 v2 (Steve's directive: page-level ALWAYS wins):
+    // hasExplicitFont strictly requires the _fontExplicit flag set by the
+    // Inspector. A baked fontFamily on el.s.fontFamily WITHOUT the flag is
+    // treated as a default that page-level can override. This matches the
+    // canvas behaviour: page Heading Font overrides any element that
+    // didn't explicitly opt out via the Inspector FontPicker.
     //
-    // 25 May 2026: _fontExplicit flag is the canonical source of "did
-    // the member deliberately pick a font for this element". Set by the
-    // Inspector's FontPicker. We treat missing-flag-but-fontFamily-set
-    // as legacy explicit too, since the migration only strips known
-    // historical defaults — anything else still on el.s.fontFamily is
-    // a deliberate choice that predates the flag system.
-    const hasExplicitFont = !!(el.s?._fontExplicit || el.s?.fontFamily);
+    // Per-element legacy fontFamily that doesn't match a known historical
+    // default was stripped by the editor's migrateTypographyDefaults pass
+    // — anything remaining without _fontExplicit was a default the member
+    // never deliberately set. Page-level wins.
+    const hasExplicitFont = !!(el.s?._fontExplicit);
     const elAttrs = `class="${elClass}" id="${el.id}" data-el-type="${el.type}" data-has-font="${hasExplicitFont ? '1' : '0'}"`;
 
     if (el.type === 'video' && el.txt) {

@@ -695,23 +695,23 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   const renderInner = (el) => {
     const textStyles = ['fontFamily', 'fontSize', 'fontWeight', 'color', 'textAlign', 'lineHeight', 'letterSpacing', 'textTransform', 'fontStyle'];
     let innerStyle = 'width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word;';
-    textStyles.forEach(k => { if (el.s?.[k]) innerStyle += k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + el.s[k] + ';'; });
+    // 25 May 2026: strip non-explicit fontFamily and fontSize so page-level
+    // typography settings can apply via CSS variables. Per Steve's directive,
+    // page-level ALWAYS wins unless the member explicitly chose via Inspector
+    // FontPicker (_fontExplicit) or size slider (_sizeExplicit, text only).
+    textStyles.forEach(k => {
+      if (!el.s?.[k]) return;
+      if (k === 'fontFamily' && !el.s._fontExplicit) return;
+      if (k === 'fontSize' && el.type === 'text' && !el.s._sizeExplicit) return;
+      innerStyle += k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + el.s[k] + ';';
+    });
 
-    // ── Page-level typography inheritance (22-25 May 2026) ──
-    // Elements without an explicit el.s.fontFamily inherit the page-level
-    // font via CSS variables on .labs-chrome / .sp-canvas. The textStyles
-    // loop above only emits font-family when el.s.fontFamily is set, so
-    // an absent value here means CSS inheritance kicks in.
-    //
-    // Heading is special: it has its own --page-font-heading variable
-    // (the others use --page-font-body via .sp-canvas inheritance), so
-    // we set it explicitly here when no explicit per-element pick.
-    //
-    // _fontExplicit flag (set by Inspector FontPicker) marks deliberate
-    // member choices. The migration on page load strips historical
-    // baked defaults from elements without this flag, so by the time
-    // we get here, el.s.fontFamily means "member explicitly chose this".
-    if (el.type === 'heading' && !el.s?.fontFamily) {
+    // ── Page-level Heading Font (22-25 May 2026) ──
+    // For headings without _fontExplicit, set font-family to the page var.
+    // The textStyles loop above already SKIPPED fontFamily for non-explicit
+    // elements, so we add it here for headings only (text/button/banner
+    // inherit body font from .sp-canvas via CSS — no per-element rule needed).
+    if (el.type === 'heading' && !el.s?._fontExplicit) {
       innerStyle += 'font-family:var(--page-font-heading, "Sora", sans-serif);';
     }
     // Heading scale (compact/normal/large) multiplies the fontSize
@@ -926,7 +926,20 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     }
     if (['spacer', 'box'].includes(el.type) && !el.txt) return null;
     if (el.type === 'button' || el.type === 'announcement') {
-      return <div className="cel-editable" style={{ ...Object.fromEntries(textStyles.filter(k => el.s?.[k]).map(k => [k, el.s[k]])), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} dangerouslySetInnerHTML={{__html: el.txt || 'Button'}} />;
+      // Filter textStyles per the explicit-flag rules: skip non-_fontExplicit
+      // fontFamily so page-level Body Font wins. No size filter here —
+      // buttons/banners have their own intentional visual sizes which
+      // aren't affected by page-level Body Size (that's text-only).
+      return <div className="cel-editable" style={{
+        ...Object.fromEntries(
+          textStyles
+            .filter(k => el.s?.[k])
+            .filter(k => !(k === 'fontFamily' && !el.s._fontExplicit))
+            .map(k => [k, el.s[k]])
+        ),
+        width: '100%', height: '100%', display: 'flex',
+        alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+      }} dangerouslySetInnerHTML={{__html: el.txt || 'Button'}} />;
     }
     if (el.type === 'countdown') {
       // 22 May 2026 — countdown gets a full set of styling controls.
@@ -1149,7 +1162,10 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     // Badge/label: render as centred pill
     if (el.type === 'badge' || el.type === 'label') {
       return <div className="cel-editable" style={{ ...Object.fromEntries(
-        ['fontFamily','fontSize','fontWeight','color','textAlign','lineHeight','letterSpacing','textTransform','fontStyle'].filter(k => el.s?.[k]).map(k => [k, el.s[k]])
+        ['fontFamily','fontSize','fontWeight','color','textAlign','lineHeight','letterSpacing','textTransform','fontStyle']
+          .filter(k => el.s?.[k])
+          .filter(k => !(k === 'fontFamily' && !el.s._fontExplicit))
+          .map(k => [k, el.s[k]])
       ), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'text', outline: 'none', wordWrap: 'break-word' }} dangerouslySetInnerHTML={{__html: el.txt || '★ BADGE'}} />;
     }
     // Default: contenteditable text

@@ -168,11 +168,15 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
     const ro = new ResizeObserver(check);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [compactSecondary, compactPrimary, compactTertiary, isPublished, dirty, canvasScale, currentListName, overflowOpen]);
+  }, [compactSecondary, compactPrimary, compactTertiary, isPublished, canvasScale, currentListName, overflowOpen]);
   // ^ deps: anything that materially changes the bar's content width
   //   needs to be in here so the check fires after that re-render
-  //   (e.g. publishing the page adds the Open button, dirty state
-  //   adds the unsaved indicator, etc).
+  //   (e.g. publishing the page adds the Open button).
+  //   25 May 2026: `dirty` REMOVED from deps. The unsaved indicator is
+  //   now always mounted (with visibility toggle) so its presence
+  //   doesn't change the bar's intrinsic width. Removing the dep stops
+  //   the overflow check from re-firing on every save flow transition,
+  //   which previously caused a visible 'topbar moves' on Save click.
 
   // Close the overflow menu when clicking outside it.
   useEffect(() => {
@@ -293,16 +297,23 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         <span>{t('superPagesEditor.backShort', { defaultValue: 'Back' })}</span>
       </button>
 
-      {dirty && (
-        <div style={{
-          display:'flex', alignItems:'center', gap:6,
-          fontSize:13, color:'#fbbf24', fontWeight:700,
-          flexShrink: 0,
-        }} title={t('superPagesEditor.unsavedChanges', { defaultValue: 'Unsaved changes' })}>
-          <span style={{width:7, height:7, borderRadius:'50%', background:'#fbbf24', display:'inline-block'}}/>
-          <span>{t('superPagesEditor.unsavedShort', { defaultValue: 'Unsaved' })}</span>
-        </div>
-      )}
+      {/* Unsaved indicator. 25 May 2026: kept always-mounted with
+          visibility toggle so the topbar's intrinsic width is stable
+          across save flows. Previously the indicator was conditionally
+          rendered, so clicking Save (which flips dirty→false) shrank
+          the topbar's measured scrollWidth, triggered the overflow
+          detection to un-fold a tier, and the topbar appeared to
+          'move' as Templates popped back in. With static width, the
+          save transition is visually stable. */}
+      <div style={{
+        display:'flex', alignItems:'center', gap:6,
+        fontSize:13, color:'#fbbf24', fontWeight:700,
+        flexShrink: 0,
+        visibility: dirty ? 'visible' : 'hidden',
+      }} title={t('superPagesEditor.unsavedChanges', { defaultValue: 'Unsaved changes' })}>
+        <span style={{width:7, height:7, borderRadius:'50%', background:'#fbbf24', display:'inline-block'}}/>
+        <span>{t('superPagesEditor.unsavedShort', { defaultValue: 'Unsaved' })}</span>
+      </div>
 
       {/* Flexible spacer pushes left cluster to the left, centre cluster
           to the middle, right cluster to the right. */}
@@ -516,6 +527,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         boxShadow: saving ? 'none' : '0 1px 3px rgba(0,0,0,0.2)',
         cursor: saving ? 'not-allowed' : 'pointer',
         fontWeight: 800,
+        // 25 May 2026: pinned min-width so the label change 'Save' → 'Saving…'
+        // doesn't shrink/grow the button mid-save. Steve flag: 'when I click
+        // Save the topbar moves'. With the Unsaved indicator also pinned via
+        // visibility, the topbar is now visually stable across the entire
+        // save flow.
+        minWidth: 92,
       }}>
         <Save size={14}/>
         <span>{saving ? t('superPagesEditor.savingLabel', { defaultValue: 'Saving…' }) : t('superPagesEditor.saveLabel', { defaultValue: 'Save' })}</span>
