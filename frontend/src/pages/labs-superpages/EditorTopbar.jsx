@@ -97,7 +97,18 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   // intrinsic content exceeds its available width. If so, fold the
   // next tier and re-render; the new render will re-check. Settles
   // within at most 3 re-renders (one per tier).
+  //
+  // Edge case (25 May 2026 — Steve flag): when the ⋯ menu is OPEN, do
+  // NOT re-evaluate the collapse state. Reason: opening the menu can
+  // trigger sub-pixel layout shifts (button hover/active state, the
+  // dropdown's mount animation) which the ResizeObserver picks up and
+  // re-measures. If the measurement crosses the overflow threshold by
+  // even 1px, a tier folds (or unfolds), the topbar re-renders mid-
+  // dropdown-display, and items appear/disappear visibly. Freezing
+  // the collapse state while the dropdown is open keeps the topbar
+  // visually stable.
   useEffect(() => {
+    if (overflowOpen) return;
     const el = topbarRef.current;
     if (!el) return;
 
@@ -157,7 +168,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
     const ro = new ResizeObserver(check);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [compactSecondary, compactPrimary, compactTertiary, isPublished, dirty, canvasScale, currentListName]);
+  }, [compactSecondary, compactPrimary, compactTertiary, isPublished, dirty, canvasScale, currentListName, overflowOpen]);
   // ^ deps: anything that materially changes the bar's content width
   //   needs to be in here so the check fires after that re-render
   //   (e.g. publishing the page adds the Open button, dirty state
