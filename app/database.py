@@ -4007,25 +4007,55 @@ except Exception as e:
     print(f"⚠️ Daily briefings note: {e}")
 
 
-# ── Custom Domain v2: Railway API integration columns (25 May 2026) ──
-# v1 (21 May) created the custom_domains table with DNS-only verification.
-# v2 adds three columns so we can register the domain with Railway's API
-# (which then auto-issues Let's Encrypt certs) and track TLS state:
+# ── Custom Domains: table creation + v2 columns (21 May + 25 May 2026) ──
+# v1 (21 May) defined the SQLAlchemy CustomDomain model but the production
+# CREATE TABLE step was missed — the model existed in code but no physical
+# table was created in Postgres. The /api/custom-domains endpoint hit this
+# and returned 500. Discovered 25 May during the Custom Domain v2 deploy
+# verification.
+#
+# This block now does both jobs:
+#   1. CREATE TABLE IF NOT EXISTS — base v1 schema (idempotent)
+#   2. ALTER TABLE ADD COLUMN IF NOT EXISTS — v2 Railway integration columns
+#
+# Both halves are idempotent so re-running across redeploys is safe.
+#
+# v2 columns:
 #   railway_domain_id   — UUID returned by customDomainCreate mutation
 #   tls_status          — Railway's certificateStatus (ISSUED, ISSUING, etc.)
 #   dns_records_json    — JSON-encoded list of DNS records to display in UI
-# All nullable so legacy v1 rows survive — they'll auto-migrate on next
-# member action (edit/save) via the v2 create flow.
 try:
     with engine.connect() as conn:
+        # v1 base table — was meant to exist since 21 May, never actually
+        # created on prod. SQLAlchemy's create_all does not run here for
+        # historical reasons; explicit DDL keeps the migration narrative
+        # readable and matches the pattern of other tables in this file.
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS custom_domains (
+                id                   SERIAL PRIMARY KEY,
+                user_id              INTEGER NOT NULL REFERENCES users(id),
+                domain               VARCHAR NOT NULL UNIQUE,
+                verification_status  VARCHAR DEFAULT 'pending',
+                last_error           TEXT,
+                last_checked_at      TIMESTAMP,
+                verified_at          TIMESTAMP,
+                created_at           TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_custom_domains_user_id ON custom_domains(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_custom_domains_domain ON custom_domains(domain)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_custom_domains_status ON custom_domains(verification_status)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_custom_domains_created ON custom_domains(created_at)"))
+
+        # v2 columns (25 May 2026) — additive, nullable, safe on retry
         conn.execute(text("ALTER TABLE custom_domains ADD COLUMN IF NOT EXISTS railway_domain_id VARCHAR"))
         conn.execute(text("ALTER TABLE custom_domains ADD COLUMN IF NOT EXISTS tls_status VARCHAR"))
         conn.execute(text("ALTER TABLE custom_domains ADD COLUMN IF NOT EXISTS dns_records_json TEXT"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_custom_domains_railway_id ON custom_domains(railway_domain_id)"))
         conn.commit()
-        print("✅ Custom Domain v2 columns added (railway_domain_id, tls_status, dns_records_json)")
+        print("✅ Custom Domains table ensured (v1 base + v2 Railway columns)")
 except Exception as e:
-    print(f"⚠️ Custom Domain v2 migration note: {e}")
+    print(f"⚠️ Custom Domains migration note: {e}")
 
 
 # ── membership_tier 'basic'→'free' migration for inactive users (10 May 2026) ──
