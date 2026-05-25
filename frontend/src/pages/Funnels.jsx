@@ -878,7 +878,7 @@ export default function Funnels() {
 
           <h2 style={{margin:'0 0 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.yourPages')}</h2>
 
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
+          <div className="sp-pages-grid">
             {pages.map(p => {
               // Engagement fields from /api/funnels — undefined if the
               // page was just created or never had traffic. Fall back to
@@ -1053,6 +1053,17 @@ export default function Funnels() {
         .sp-template-grid{display:grid;grid-template-columns:repeat(3,1fr)}
         @media(max-width:960px){.sp-template-grid{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:600px){.sp-template-grid{grid-template-columns:1fr}}
+        /* My Pages grid — capped at 3 per row so each card has room
+           for the 6 action buttons (Edit + View + Feature + Copy +
+           Share + Trash) without cramping. 25 May 2026 (Steve flag):
+           previously repeat(auto-fill,minmax(280px,1fr)) which gave
+           4+ columns on wide screens and squashed View into icon-only.
+           Breakpoints sit slightly above the template grid because
+           page cards have more vertical content (stats + actions +
+           wiring footer) and benefit from extra width per column. */
+        .sp-pages-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+        @media(max-width:1100px){.sp-pages-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:700px){.sp-pages-grid{grid-template-columns:1fr}}
         .tpl-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.06),0 2px 8px rgba(15,23,42,.03)!important;border-color:#cbd5e1!important}
         .page-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(10,20,56,.08),0 2px 4px rgba(10,20,56,.06)!important;border-color:#dbe1eb!important}
         .tpl-card:active{transform:scale(.99)!important}
