@@ -41,7 +41,9 @@ var MAX = {
  *   artifactId:    integer (optional — if omitted, auto-discovers the user's
  *                  single artifact of this type, e.g. their LinkHub profile)
  *   artifactTitle: optional string, pre-fills display_title for convenience
- *   variant:       "primary" | "secondary" (default secondary — fits into editor toolbars)
+ *   variant:       "primary" | "secondary" | "icon"  (default secondary — fits into editor toolbars)
+ *                  "icon" renders a 32×32 square pill matching utility-icon
+ *                  groupings (e.g. on the Funnels card actions row).
  */
 export default function FeatureOnExploreButton(props) {
   var { t } = useTranslation();
@@ -81,9 +83,9 @@ export default function FeatureOnExploreButton(props) {
 
   if (!state.loaded) {
     return (
-      <button disabled style={buttonStyle(props.variant, 'neutral')}>
-        <Sparkles size={15}/>
-        <span>{t('featureExplore.loading', { defaultValue: 'Loading…' })}</span>
+      <button disabled style={buttonStyle(props.variant, 'neutral')} title={props.variant === 'icon' ? t('featureExplore.loading', { defaultValue: 'Loading…' }) : undefined}>
+        <Sparkles size={props.variant === 'icon' ? 14 : 15}/>
+        {props.variant !== 'icon' && <span>{t('featureExplore.loading', { defaultValue: 'Loading…' })}</span>}
       </button>
     );
   }
@@ -96,27 +98,27 @@ export default function FeatureOnExploreButton(props) {
 
   if (state.submitted && state.submitted.approved) {
     return (
-      <button disabled style={buttonStyle(props.variant, 'live')}>
-        <Check size={15}/>
-        <span>{t('featureExplore.live', { defaultValue: 'Featured on /explore' })}</span>
+      <button disabled style={buttonStyle(props.variant, 'live')} title={props.variant === 'icon' ? t('featureExplore.live', { defaultValue: 'Featured on /explore' }) : undefined}>
+        <Check size={props.variant === 'icon' ? 14 : 15}/>
+        {props.variant !== 'icon' && <span>{t('featureExplore.live', { defaultValue: 'Featured on /explore' })}</span>}
       </button>
     );
   }
 
   if (state.submitted && !state.submitted.approved) {
     return (
-      <button disabled style={buttonStyle(props.variant, 'pending')}>
-        <Clock size={15}/>
-        <span>{t('featureExplore.pending', { defaultValue: 'Pending review' })}</span>
+      <button disabled style={buttonStyle(props.variant, 'pending')} title={props.variant === 'icon' ? t('featureExplore.pending', { defaultValue: 'Pending review' }) : undefined}>
+        <Clock size={props.variant === 'icon' ? 14 : 15}/>
+        {props.variant !== 'icon' && <span>{t('featureExplore.pending', { defaultValue: 'Pending review' })}</span>}
       </button>
     );
   }
 
   return (
     <>
-      <button onClick={function() { setModalOpen(true); }} style={buttonStyle(props.variant, 'default')}>
-        <Sparkles size={15}/>
-        <span>{t('featureExplore.cta', { defaultValue: 'Feature on /explore' })}</span>
+      <button onClick={function() { setModalOpen(true); }} style={buttonStyle(props.variant, 'default')} title={props.variant === 'icon' ? t('featureExplore.cta', { defaultValue: 'Feature on /explore' }) : undefined}>
+        <Sparkles size={props.variant === 'icon' ? 14 : 15}/>
+        {props.variant !== 'icon' && <span>{t('featureExplore.cta', { defaultValue: 'Feature on /explore' })}</span>}
       </button>
       {modalOpen && (
         <ShowcaseModal
@@ -132,6 +134,26 @@ export default function FeatureOnExploreButton(props) {
 }
 
 function buttonStyle(variant, mode) {
+  // 25 May 2026: added 'icon' variant — 32×32 square pill matching the
+  // utility icons (Duplicate, Share, Delete) on the Funnels card.
+  // Used when this button sits alongside other icon-only utilities;
+  // the longer 'secondary' variant looks oversized in that context.
+  if (variant === 'icon') {
+    var iconBase = {
+      width: 32, height: 32, padding: 0,
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      borderRadius: 6, cursor: 'pointer',
+      transition: 'all 120ms ease',
+      border: '1px solid #bae6fd',
+      background: '#f0f9ff',
+    };
+    if (mode === 'default') return Object.assign({}, iconBase, { color: '#0284c7' });
+    if (mode === 'pending') return Object.assign({}, iconBase, { color: '#b45309', background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.3)', cursor: 'default' });
+    if (mode === 'live')    return Object.assign({}, iconBase, { color: '#15803d', background: 'rgba(34,197,94,.12)', border: '1px solid rgba(34,197,94,.3)', cursor: 'default' });
+    if (mode === 'neutral') return Object.assign({}, iconBase, { color: '#94a3b8', background: '#f8fafc', cursor: 'default' });
+    return iconBase;
+  }
+
   var base = {
     display:'inline-flex', alignItems:'center', gap:8,
     padding: variant === 'primary' ? '11px 20px' : '9px 16px',

@@ -5,6 +5,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
 import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, Flame, UserPlus, Send, DollarSign, ArrowRight, Share2, X, Check } from 'lucide-react';
 import CampaignSetupModal from '../components/CampaignSetupModal';
+import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
 
 // ─── Browser-framed template preview components ─────────────────────────
 // Each is a miniature mock-up of what the template looks like, rendered as
@@ -980,8 +981,24 @@ export default function Funnels() {
                           delete) cluster together on the right, visually separate
                           from the primary actions. Fixed width per icon so they
                           line up consistently across all cards regardless of
-                          primary-action width. */}
-                      <div style={{display:'flex',gap:4,flexShrink:0}}>
+                          primary-action width.
+
+                          25 May 2026: 'Feature on /explore' moved here from the
+                          editor topbar (Steve flag — editor topbar was overcrowded).
+                          Only shows for published pages, since unpublished pages
+                          can't be featured. Placed first in the secondary group
+                          because of the four utility actions it's the most
+                          discoverable/positive — duplicate/share/delete are
+                          maintenance, featuring is a growth action. */}
+                      <div style={{display:'flex',gap:4,flexShrink:0,alignItems:'center'}}>
+                        {p.status === 'published' && (
+                          <FeatureOnExploreButton
+                            artifactType="landing-page"
+                            artifactId={parseInt(p.id, 10)}
+                            artifactTitle={p.title || ''}
+                            variant="icon"
+                          />
+                        )}
                         <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={13} color="var(--sap-text-muted)"/></button>
                         <button onClick={() => openShareModal(p)} title="Generate share code" style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #bae6fd',background:'#f0f9ff',cursor:'pointer'}}><Share2 size={13} color="#0284c7"/></button>
                         <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={13} color="var(--sap-red)"/></button>
