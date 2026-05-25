@@ -8,8 +8,12 @@ export const ELEMENT_TYPES = {
   // default. Existing pages with explicit el.s.fontFamily keep their value;
   // new headings/text elements inherit the page typography until a member
   // explicitly overrides.
+  // 25 May 2026: also removed fontSize default from text so it inherits
+  // page-level body size (.sp-canvas sets font-size: var(--page-font-base-size)).
+  // Members can still override per-element via the Inspector. Existing pages
+  // with baked fontSize keep it.
   heading: { w: 600, h: 55, txt: 'Your Heading Here', s: { fontWeight: '900', fontSize: '36px', color: '#0f172a', textAlign: 'center' } },
-  text: { w: 600, h: 50, txt: 'Your text content goes here. Click to edit.', s: { fontSize: '15px', color: '#475569', textAlign: 'left', lineHeight: '1.8' } },
+  text: { w: 600, h: 50, txt: 'Your text content goes here. Click to edit.', s: { color: '#475569', textAlign: 'left', lineHeight: '1.8' } },
   label: { w: 200, h: 30, txt: '⭐ PREMIUM', s: { fontFamily: 'DM Sans,sans-serif', fontWeight: '700', fontSize: '12px', color: '#fbbf24', textAlign: 'center', background: 'rgba(251,191,36,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(251,191,36,0.2)' } },
 
   // ── Media ──

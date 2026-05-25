@@ -548,22 +548,22 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   6. TYPOGRAPHY OVERRIDES
+   6. TYPOGRAPHY DEFAULT
    ───────────────────────────────────────────────────────────── */
-.labs-chrome,
-.labs-chrome p,
-.labs-chrome div,
-.labs-chrome span {
-  font-family: 'Manrope', 'Inter', sans-serif;
-}
+/* 25 May 2026: previously forced Manrope/Sora onto every <p>, <div>,
+   <span>, <h1-h4> inside .labs-chrome. That blocked page-level
+   typography from taking effect in the canvas — when a member chose
+   Playfair Display as their heading font, .labs-chrome p/div/span
+   would override it on every descendant.
 
-.labs-chrome h1,
-.labs-chrome h2,
-.labs-chrome h3,
-.labs-chrome h4 {
-  font-family: 'Sora', sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+   Now: set the chrome's default font on .labs-chrome itself only.
+   This makes the sidebar, inspector, palette, and topbar inherit
+   Manrope by default (their existing components either inherit from
+   here or set their own font explicitly). The canvas (.sp-canvas)
+   sets its own font-family: var(--page-font-body), which then
+   correctly cascades to page elements via DOM inheritance. */
+.labs-chrome {
+  font-family: 'Manrope', 'Inter', sans-serif;
 }
 
 /* Subtle saved indicator + brand mini-pills can be placed inline using
