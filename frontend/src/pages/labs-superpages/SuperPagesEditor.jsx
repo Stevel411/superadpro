@@ -197,29 +197,25 @@ export default function LabsSuperPagesEditor() {
   // Published-page export does the same thing at render time (see
   // exportHTML.js) so editor and published page stay in sync.
   // Built 22 May 2026.
+  // ── Load Google Fonts for page-level typography ──
+  // pageSettings.typography.heading and .body name a Google Font. Each
+  // chosen font's stylesheet needs to be present in <head> for the
+  // browser to render text in that font — loadGoogleFont is idempotent
+  // (no-op if already loaded).
+  //
+  // 25 May 2026: the CSS variables themselves (--page-font-heading etc)
+  // are now set as React-controlled inline style on .labs-chrome below
+  // (search for the labs-chrome wrapper). This useEffect ONLY handles
+  // the side-effect of injecting the Google Font <link>. The imperative
+  // setProperty calls used to live here but caused a quirk where some
+  // browsers wouldn't re-paint existing rendered text when the var
+  // changed without React triggering a re-render. Moving to inline
+  // style prop fixes that — React updates the DOM attribute every time,
+  // browser re-resolves the var, all descendants paint correctly.
   useEffect(() => {
     const typo = pageSettings.typography || {};
     if (typo.heading) loadGoogleFont(typo.heading);
     if (typo.body) loadGoogleFont(typo.body);
-
-    const root = document.querySelector('.labs-chrome');
-    if (!root) return;
-
-    // Resolve fallback stacks. The Google Fonts metadata is in the
-    // FontPicker JSON, so we don't categorise here — instead we
-    // assume sensible defaults. The published page does the proper
-    // fallback via export.
-    root.style.setProperty('--page-font-heading',
-      typo.heading ? `"${typo.heading}", "Sora", sans-serif` : '');
-    root.style.setProperty('--page-font-body',
-      typo.body ? `"${typo.body}", "DM Sans", sans-serif` : '');
-    root.style.setProperty('--page-font-base-size',
-      (typo.baseSize || 16) + 'px');
-
-    // Heading scale multiplies all heading sizes proportionally.
-    const scaleMap = { compact: 0.9, normal: 1, large: 1.15 };
-    const headingScale = scaleMap[typo.headingScale] || 1;
-    root.style.setProperty('--page-heading-scale', headingScale);
   }, [pageSettings.typography]);
 
   // ── Load per-element custom fonts (22 May 2026) ──
@@ -794,21 +790,52 @@ export default function LabsSuperPagesEditor() {
       hideTopbar={true}
       bgStyle={{ padding: 0, background: '#1e3a8a', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
-      <div className="labs-chrome" style={{
-        display: 'flex', flexDirection: 'column',
-        flex: 1, minHeight: 0,
-        // 20 May 2026 v4 (Steve flag — 'if i move the page the entire
-        // top bar just disappears out of view'). Root cause: when the
-        // inner three-column row (Inspector + Canvas + Palette) has
-        // an intrinsic min-content width greater than the viewport,
-        // CSS flexbox lets it push siblings horizontally — including
-        // the topbar above it — out of view. Lock this wrapper to
-        // viewport width with overflow-x:hidden and min-width:0 so
-        // nothing can escape horizontally regardless of what's below.
-        minWidth: 0,
-        overflowX: 'hidden',
-        fontFamily: "'Manrope', 'Inter', sans-serif",
-      }}>
+      {/* 25 May 2026: CSS variables for page-level typography are now
+          set as React-controlled inline style props rather than via
+          imperative document.querySelector + setProperty inside a
+          useEffect. The previous approach updated the DOM directly but
+          some browsers don't reliably re-paint CSS variables on
+          existing rendered nodes unless React triggers a re-render.
+          Setting them via the style prop forces React to update the
+          DOM attribute on every typography change, which the browser
+          then resolves to the new var values immediately for all
+          descendants — no element re-selection needed.
+
+          The useEffect at top of file still runs to load the Google
+          Font stylesheets, but no longer touches setProperty. */}
+      <div className="labs-chrome" style={(() => {
+        const typo = pageSettings.typography || {};
+        const scaleMap = { compact: 0.9, normal: 1, large: 1.15 };
+        return {
+          display: 'flex', flexDirection: 'column',
+          flex: 1, minHeight: 0,
+          // 20 May 2026 v4 (Steve flag — 'if i move the page the entire
+          // top bar just disappears out of view'). Root cause: when the
+          // inner three-column row (Inspector + Canvas + Palette) has
+          // an intrinsic min-content width greater than the viewport,
+          // CSS flexbox lets it push siblings horizontally — including
+          // the topbar above it — out of view. Lock this wrapper to
+          // viewport width with overflow-x:hidden and min-width:0 so
+          // nothing can escape horizontally regardless of what's below.
+          minWidth: 0,
+          overflowX: 'hidden',
+          fontFamily: "'Manrope', 'Inter', sans-serif",
+          // ── Page-level typography CSS variables ──
+          // These cascade to all descendants and are consumed by:
+          //   .sp-canvas (font-family + font-size base)
+          //   heading elements (var(--page-font-heading))
+          //   stat values, FAQ questions, icontext headings (same var)
+          //   exportHTML.js published page rules
+          // When the member changes Heading Font / Body Font / Body Size /
+          // Heading Scale in PAGE SETTINGS, this object recomputes and
+          // React updates the inline style, browser re-resolves vars on
+          // every descendant — no selection or re-render trick required.
+          '--page-font-heading': typo.heading ? `"${typo.heading}", "Sora", sans-serif` : '"Sora", sans-serif',
+          '--page-font-body': typo.body ? `"${typo.body}", "DM Sans", sans-serif` : '"DM Sans", sans-serif',
+          '--page-font-base-size': (typo.baseSize || 16) + 'px',
+          '--page-heading-scale': scaleMap[typo.headingScale] || 1,
+        };
+      })()}>
       <EditorTopbar
         title={pageSettings.title}
         slug={pageSettings.slug}
