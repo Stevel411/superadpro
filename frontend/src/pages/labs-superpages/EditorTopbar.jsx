@@ -58,20 +58,31 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   const isPublished = status === 'published';
   const [overflowOpen, setOverflowOpen] = useState(false);
 
-  // 25 May 2026: switched from viewport-width thresholds to measuring
-  // the topbar's OWN available width via ResizeObserver. The previous
-  // viewport thresholds (1180/980) didn't account for the inspector
-  // panel (~280px) and block palette (~250px) eating into available
-  // width — Steve saw Open clipped at the right edge even on a wide
-  // browser window because the topbar's actual container was much
-  // narrower than the window.
+  // 25 May 2026 v3: switched from pre-computed breakpoints to actual
+  // overflow detection. Two prior attempts failed:
   //
-  // Three collapse tiers, measured on the bar element itself:
-  //   tier 1 (<960px on the BAR): help/clear/grid/campaign fold in
-  //   tier 2 (<780px on the BAR): undo/redo also fold in
-  //   tier 3 (<640px on the BAR): templates also folds in (rare —
-  //                                only for very narrow viewports
-  //                                with both side panels open)
+  //   v1 (window-width thresholds 1180/980): didn't account for side
+  //       panels stealing width.
+  //   v2 (ResizeObserver on bar with 960/780/640 thresholds): I
+  //       miscounted button widths. The bar content is ~1410px wide
+  //       at its full state; my breakpoints didn't trigger until
+  //       <960px so on Steve's normal-width viewport the content
+  //       overflowed and got clipped on the right.
+  //
+  // The lesson: pre-computed breakpoints are brittle when I can't
+  // perfectly predict every button's rendered width. Instead, MEASURE
+  // overflow directly via scrollWidth > clientWidth, then progressively
+  // fold tiers until overflow goes away. Self-correcting — no width
+  // magic numbers to maintain.
+  //
+  // Tier order (most-collapsible first, since I always want the
+  // least-essential controls to fold first):
+  //   tier 1: Grid + Campaign + Help + Clear → overflow menu
+  //   tier 2: Undo + Redo → overflow menu (uncommon — these matter
+  //           for editing flow, only fold if truly needed)
+  //   tier 3: Templates → overflow menu (rare — narrow viewport
+  //           with panels open AND a published page showing
+  //           Open button)
   //
   // Always-visible essentials at every tier: Brand, Back, Dirty
   // indicator, Device toggle, Layers, ⋯ menu (when populated),
@@ -82,20 +93,75 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   const [compactTertiary, setCompactTertiary]   = useState(false);
   const overflowRef = useRef(null);
 
+  // Overflow-detecting collapse. After every render, check if the bar's
+  // intrinsic content exceeds its available width. If so, fold the
+  // next tier and re-render; the new render will re-check. Settles
+  // within at most 3 re-renders (one per tier).
   useEffect(() => {
     const el = topbarRef.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const measure = () => {
-      const w = el.clientWidth;
-      setCompactSecondary(w < 960);
-      setCompactPrimary(w < 780);
-      setCompactTertiary(w < 640);
+    if (!el) return;
+
+    const check = () => {
+      // scrollWidth = how wide the content WANTS to be
+      // clientWidth = how wide the bar IS
+      // If content > bar, we're overflowing — fold the next tier.
+      const overflows = el.scrollWidth > el.clientWidth + 2;  // 2px tolerance for sub-pixel rounding
+      if (overflows) {
+        if (!compactSecondary) {
+          setCompactSecondary(true);
+          return;
+        }
+        if (!compactPrimary) {
+          setCompactPrimary(true);
+          return;
+        }
+        if (!compactTertiary) {
+          setCompactTertiary(true);
+          return;
+        }
+        // All tiers collapsed and STILL overflowing — nothing more we
+        // can do. The bar will visually clip its remaining essentials
+        // (Open is the only one we'd rather sacrifice; tier 4 could
+        // fold it but it's the most useful when published). Accept
+        // the clip rather than hide a critical control.
+        return;
+      }
+
+      // Not overflowing — try to un-collapse tiers, BUT only if the
+      // resulting state would still fit. We can't naively un-collapse
+      // because that's how oscillation bugs are born (un-collapse →
+      // overflow → re-collapse → un-collapse → ...). Instead, only
+      // un-collapse a tier if there's HEADROOM equal to that tier's
+      // typical width:
+      //   tier 1 (Grid+Campaign+Help+Clear): ~280px
+      //   tier 2 (Undo+Redo):                  ~80px
+      //   tier 3 (Templates):                 ~115px
+      const headroom = el.clientWidth - el.scrollWidth;
+      if (compactTertiary && headroom > 130) {
+        setCompactTertiary(false);
+        return;
+      }
+      if (compactPrimary && headroom > 95) {
+        setCompactPrimary(false);
+        return;
+      }
+      if (compactSecondary && headroom > 300) {
+        setCompactSecondary(false);
+        return;
+      }
     };
-    measure();
-    const ro = new ResizeObserver(measure);
+
+    // Initial check, plus observe future size changes.
+    check();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(check);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [compactSecondary, compactPrimary, compactTertiary, isPublished, dirty, canvasScale, currentListName]);
+  // ^ deps: anything that materially changes the bar's content width
+  //   needs to be in here so the check fires after that re-render
+  //   (e.g. publishing the page adds the Open button, dirty state
+  //   adds the unsaved indicator, etc).
 
   // Close the overflow menu when clicking outside it.
   useEffect(() => {
