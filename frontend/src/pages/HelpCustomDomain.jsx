@@ -11,7 +11,7 @@
  * Content: 6 numbered steps, the Cloudflare orange-cloud warning, the
  * three most common "stuck" fixes, and a primary CTA to /labs/pagebuilder/custom-domain.
  */
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import {
   Globe, ArrowRight, ArrowLeft, CheckCircle2, AlertTriangle,
@@ -19,8 +19,6 @@ import {
 } from 'lucide-react';
 
 export default function HelpCustomDomain() {
-  const navigate = useNavigate();
-
   // Re-usable styles tied to the design token system
   const cardStyle = {
     background: '#fff',
@@ -43,18 +41,19 @@ export default function HelpCustomDomain() {
 
   return (
     <AppLayout>
-      {/* Back link */}
+      {/* Back link to Funnels (SuperPages). Explicit destination rather
+          than browser-history back, so it works correctly when the page
+          was opened from a support reply, a new tab, or a bookmark. */}
       <div style={{ marginBottom: 18 }}>
-        <button
-          onClick={() => navigate(-1)}
+        <Link
+          to="/funnels"
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'none', border: 'none', cursor: 'pointer',
             color: '#475569', fontSize: 13, fontWeight: 600,
-            fontFamily: 'inherit', padding: 0,
+            textDecoration: 'none',
           }}>
-          <ArrowLeft size={14} /> Back
-        </button>
+          <ArrowLeft size={14} /> Back to SuperPages
+        </Link>
       </div>
 
       {/* Header */}
