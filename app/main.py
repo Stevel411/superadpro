@@ -3717,6 +3717,132 @@ def cron_stripe_reconciliation(request: Request, db: Session = Depends(get_db)):
 
 
 # ════════════════════════════════════════════════════════════════════
+# Manual Stripe activation recovery (25 May 2026)
+#
+# Emergency endpoint to activate a user who paid Stripe but didn't get
+# activated (because checkout.session.completed never reached our
+# webhook). Idempotent — re-running on an already-active user is a
+# no-op except for any catch-up bookkeeping.
+#
+# Protected by CRON_SECRET. POST so it's not accidentally hit via GET.
+# ════════════════════════════════════════════════════════════════════
+@app.post("/cron/stripe-recover-user")
+def cron_stripe_recover_user(request: Request, payload: dict = Body(...), db: Session = Depends(get_db)):
+    """Activate a user who paid Stripe but is stuck on free tier.
+
+    Body:
+      secret:           CRON_SECRET (string)
+      user_id:          int — the SuperAdPro user ID
+      tier:             "founding" | "partner" (string, optional, default "founding")
+      stripe_session_id:  cs_live_... (string, optional, for audit)
+      stripe_subscription_id:  sub_... (string, optional, for audit)
+      stripe_payment_intent_id: pi_... (string, optional, for audit)
+      amount_cents:     int (optional, default 1500 for founder, 2000 for partner)
+
+    Logic:
+      - Reject if secret wrong
+      - Look up user; reject if not found OR already active
+      - Call _activate_membership with source='stripe-manual-recovery'
+      - Write a StripeCharge audit row so the reconciliation tool sees the recovery
+    """
+    secret = (payload or {}).get("secret", "")
+    if not secret or secret != os.getenv("CRON_SECRET", ""):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+
+    try:
+        user_id = int(payload.get("user_id", 0))
+    except Exception:
+        return JSONResponse({"error": "user_id is required and must be int"}, status_code=400)
+    if user_id <= 0:
+        return JSONResponse({"error": "user_id is required"}, status_code=400)
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+
+    if user.is_active:
+        return JSONResponse({
+            "ok": True,
+            "noop": True,
+            "reason": "user already active",
+            "user_id": user.id,
+            "username": user.username,
+            "is_active": True,
+            "membership_tier": user.membership_tier,
+            "is_founding_member": bool(user.is_founding_member),
+            "founding_spot_number": user.founding_spot_number,
+        })
+
+    tier_input = (payload.get("tier") or "founding").lower()
+    tier_for_activation = "founding" if tier_input in ("founder", "founding") else "partner"
+
+    # Default amounts: founder $15, partner $20
+    default_amount = 1500 if tier_for_activation == "founding" else 2000
+    try:
+        amount_cents = int(payload.get("amount_cents", default_amount))
+    except Exception:
+        amount_cents = default_amount
+
+    session_id    = payload.get("stripe_session_id") or None
+    sub_id        = payload.get("stripe_subscription_id") or None
+    pi_id         = payload.get("stripe_payment_intent_id") or None
+
+    try:
+        _activate_membership(
+            db=db,
+            user=user,
+            tier=tier_for_activation,
+            source="stripe-manual-recovery",
+            subscription_id=sub_id,
+            is_upgrade=False,
+            billing="monthly",
+        )
+    except Exception as e:
+        logger.exception(f"stripe-recover-user: _activate_membership failed for user {user_id}")
+        return JSONResponse({"error": "activation_failed", "detail": str(e)}, status_code=500)
+
+    # Audit charge row — mirrors what checkout.session.completed would have written
+    product_kind = "founder_signup" if tier_for_activation == "founding" else "membership_signup"
+    try:
+        company_share, refundable = _stripe.calculate_refundable(product_kind, amount_cents)
+    except Exception:
+        company_share, refundable = 0, amount_cents
+
+    charge = StripeCharge(
+        user_id=user.id,
+        stripe_session_id=session_id,
+        stripe_subscription_id=sub_id,
+        stripe_payment_intent_id=pi_id,
+        kind="charge",
+        product=product_kind,
+        amount_cents=amount_cents,
+        currency="usd",
+        company_share_cents=company_share,
+        refundable_cents=refundable,
+        description=f"Manual recovery via /cron/stripe-recover-user (missed checkout.session.completed)",
+        raw_event_json=None,
+    )
+    db.add(charge)
+    user.stripe_refund_eligible_until = _stripe.refund_window_expiry()
+    user.payment_method = "stripe"
+    db.commit()
+    db.refresh(user)
+
+    return JSONResponse({
+        "ok": True,
+        "recovered": True,
+        "user_id": user.id,
+        "username": user.username,
+        "is_active": user.is_active,
+        "membership_tier": user.membership_tier,
+        "is_founding_member": bool(user.is_founding_member),
+        "founding_spot_number": user.founding_spot_number,
+        "activated_at": user.activated_at.isoformat() if user.activated_at else None,
+        "charge_id": charge.id,
+    })
+
+
+# ════════════════════════════════════════════════════════════════════
 # Host-based routing for custom domains.
 #
 # When a request arrives with a Host header that isn't one of our
@@ -11242,8 +11368,25 @@ def _stripe_handle_checkout_completed(db, session, event):
 
 
 def _stripe_handle_invoice_paid(db, invoice, event):
-    """A subscription invoice was paid — this is a renewal.
-    Log it as a charge row and extend the refund window."""
+    """A subscription invoice was paid.
+
+    Two cases this handler covers:
+      (a) Renewal — user is already active, we just log the charge and
+          extend the membership window.
+      (b) Self-healing activation — user is NOT active but the invoice
+          has billing_reason='subscription_create' and metadata pointing
+          at one of our users. This means checkout.session.completed
+          fired into the void (a legacy/disabled webhook endpoint, a
+          duplicate registration, or Stripe simply not firing it) and
+          this is the first time our backend sees the payment.
+          Activate them from here instead of losing the activation.
+
+    Discovered 25 May 2026 — case (b) was caught because jerrygoff paid
+    $15 Founder subscription, invoice.paid arrived with 200 OK to our
+    webhook, but checkout.session.completed never reached us, leaving
+    them charged-but-inactive. Self-healing here means a future
+    occurrence (regardless of root cause) doesn't strand a paying member.
+    """
     customer_id = invoice.get("customer")
     if not customer_id:
         return
@@ -11268,15 +11411,77 @@ def _stripe_handle_invoice_paid(db, invoice, event):
         subscription_id = sub_details.get("subscription")
     payment_intent_id = invoice.get("payment_intent")
     if not payment_intent_id:
-        # In newer API versions payment_intent moved under confirmation_secret
-        # or is referenced via the charge object. For our audit purposes,
-        # None here is acceptable — we still have charge_id elsewhere.
+        # Newer API versions don't expose payment_intent here. Acceptable —
+        # we still capture the subscription_id for audit chain.
         pass
-    # Decide product_kind from price metadata or tier locked on user
+
+    # ── Self-healing activation branch ────────────────────────────────
+    # Detect "this is the user's first invoice and they're not yet active"
+    # via billing_reason='subscription_create' on the invoice. Metadata
+    # on the invoice (and on parent.subscription_details.metadata)
+    # carries the tier_requested and superadpro_user_id we set at
+    # checkout creation, so we have everything needed to call
+    # _activate_membership directly.
+    billing_reason = invoice.get("billing_reason", "")
+    is_subscription_create = (billing_reason == "subscription_create")
+    is_user_inactive = (not bool(user.is_active))
+
+    if is_subscription_create and is_user_inactive:
+        # Pull tier from metadata. Two locations to check (Stripe wraps it
+        # both on the invoice and on the subscription parent).
+        metadata = {}
+        try:
+            parent = invoice.get("parent") or {}
+            sub_details = parent.get("subscription_details") or {}
+            metadata = sub_details.get("metadata") or {}
+        except Exception:
+            metadata = {}
+        # Fallback: also check line item metadata
+        if not metadata:
+            try:
+                lines = (invoice.get("lines") or {}).get("data") or []
+                if lines:
+                    metadata = lines[0].get("metadata") or {}
+            except Exception:
+                pass
+
+        tier_requested = metadata.get("tier_requested", "partner")
+        tier_for_activation = "founding" if tier_requested in ("founder", "founding") else "partner"
+        try:
+            _activate_membership(
+                db=db,
+                user=user,
+                tier=tier_for_activation,
+                source="stripe-invoice-recovery",  # so we can audit later
+                subscription_id=subscription_id,
+                is_upgrade=False,
+                billing="monthly",
+            )
+            logger.warning(
+                f"Self-healed Stripe activation via invoice.paid for user {user.id} "
+                f"({user.username}) — checkout.session.completed didn't arrive. "
+                f"Activated as tier={tier_for_activation} via subscription {subscription_id}"
+            )
+            # Re-read user.is_founding_member after activation so the product_kind
+            # tag below reflects the new state, not the old free-tier state.
+            db.flush()
+        except Exception:
+            logger.exception(
+                f"Self-healing _activate_membership failed for user {user.id} "
+                f"on invoice.paid — manual intervention needed"
+            )
+        # We may also need to mark refund window + payment_method
+        user.stripe_refund_eligible_until = _stripe.refund_window_expiry()
+        user.payment_method = "stripe"
+
+    # ── Charge row (renewal or first invoice) ─────────────────────────
+    # Decide product_kind from price metadata or tier locked on user.
+    # Re-check is_founding_member because the self-healing branch above
+    # may have just set it.
     if user.is_founding_member:
-        product_kind = "founder_renewal"
+        product_kind = "founder_renewal" if not (is_subscription_create and is_user_inactive) else "founder_signup"
     else:
-        product_kind = "membership_renewal"
+        product_kind = "membership_renewal" if not (is_subscription_create and is_user_inactive) else "membership_signup"
     company_share, refundable = _stripe.calculate_refundable(product_kind, amount_cents)
 
     charge = StripeCharge(
@@ -11289,7 +11494,7 @@ def _stripe_handle_invoice_paid(db, invoice, event):
         currency=invoice.get("currency", "usd"),
         company_share_cents=company_share,
         refundable_cents=refundable,
-        description=f"Renewal invoice paid",
+        description=f"Invoice paid ({billing_reason or 'unknown'})",
         raw_event_json=str(event)[:50000],
     )
     db.add(charge)
@@ -11302,7 +11507,7 @@ def _stripe_handle_invoice_paid(db, invoice, event):
     user.stripe_refund_eligible_until = _stripe.refund_window_expiry()
 
     db.commit()
-    logger.info(f"Stripe renewal logged for user {user.id} amount=${amount_cents/100}")
+    logger.info(f"Stripe invoice processed for user {user.id} amount=${amount_cents/100} reason={billing_reason}")
 
 
 def _stripe_handle_invoice_failed(db, invoice, event):
