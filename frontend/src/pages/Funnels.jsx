@@ -544,6 +544,26 @@ export default function Funnels() {
           </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+          <a
+            href="/help/custom-domain"
+            style={{
+              background: '#fff',
+              color: 'var(--sap-text-primary)',
+              border: '1.5px solid #cbd5e1',
+              padding: '9px 14px',
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'Sora,sans-serif',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+            title="6-step guide to connect your own domain (e.g. pages.yourbrand.com)">
+            <ExternalLink size={14}/> Custom domain setup
+          </a>
           <button
             onClick={() => setImportModal({ value: '', loading: false, error: null, success: null })}
             style={{

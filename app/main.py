@@ -6459,6 +6459,15 @@ def labs_pagebuilder_custom_domain_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/help/custom-domain")
+def help_custom_domain_page(request: Request):
+    """Standalone 6-step setup guide for Custom Domains. Linked from the
+    Funnels (SuperPages) page and from the Custom Domain page itself, so
+    members can read the walkthrough before they start. Also deep-linkable
+    for support replies. Shipped 25 May 2026."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/team-messenger")
 def team_messenger_page(request: Request):
     if _react_index.exists():

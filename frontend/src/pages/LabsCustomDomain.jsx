@@ -171,6 +171,33 @@ export default function LabsCustomDomain() {
           </div>
         )}
 
+        {/* New-user help link — direct people to the standalone walkthrough.
+            Helpful for first-timers who land cold; verified members will
+            naturally ignore it. Always visible (no role gating) since the
+            help page itself has no gating either. Added 25 May 2026. */}
+        <Link
+          to="/help/custom-domain"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '12px 16px', marginBottom: 16,
+            background: 'linear-gradient(135deg,#eff6ff,#dbeafe)',
+            border: '1px solid #bfdbfe', borderRadius: 10,
+            color: '#1e3a8a', textDecoration: 'none',
+            fontSize: 13.5, lineHeight: 1.5,
+          }}>
+          <HelpCircle size={18} style={{ flexShrink: 0, color: '#0ea5e9' }} />
+          <span style={{ flex: 1 }}>
+            <strong>New here?</strong> Read the 6-step setup guide before you start —
+            walks you through the whole process and the most common DNS providers.
+          </span>
+          <span style={{
+            fontSize: 12, fontWeight: 700,
+            color: '#0284c7', whiteSpace: 'nowrap',
+          }}>
+            Open guide →
+          </span>
+        </Link>
+
         {/* Setup instructions */}
         <div style={{ ...cardStyle, marginBottom: 16 }}>
           <h2 style={sectionTitle}>How it works</h2>
