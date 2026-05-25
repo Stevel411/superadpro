@@ -57,20 +57,44 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   var { t } = useTranslation();
   const isPublished = status === 'published';
   const [overflowOpen, setOverflowOpen] = useState(false);
-  // Two-stage responsive collapse — see history note above.
-  // tier 1 (<1180px): help/clear/campaign collapse
-  // tier 2 (<980px):  undo/redo also collapse
-  const [compactSecondary, setCompactSecondary] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1180);
-  const [compactPrimary, setCompactPrimary]     = useState(() => typeof window !== 'undefined' && window.innerWidth < 980);
+
+  // 25 May 2026: switched from viewport-width thresholds to measuring
+  // the topbar's OWN available width via ResizeObserver. The previous
+  // viewport thresholds (1180/980) didn't account for the inspector
+  // panel (~280px) and block palette (~250px) eating into available
+  // width — Steve saw Open clipped at the right edge even on a wide
+  // browser window because the topbar's actual container was much
+  // narrower than the window.
+  //
+  // Three collapse tiers, measured on the bar element itself:
+  //   tier 1 (<960px on the BAR): help/clear/grid/campaign fold in
+  //   tier 2 (<780px on the BAR): undo/redo also fold in
+  //   tier 3 (<640px on the BAR): templates also folds in (rare —
+  //                                only for very narrow viewports
+  //                                with both side panels open)
+  //
+  // Always-visible essentials at every tier: Brand, Back, Dirty
+  // indicator, Device toggle, Layers, ⋯ menu (when populated),
+  // Preview, Publish status, Save, Open.
+  const topbarRef = useRef(null);
+  const [compactSecondary, setCompactSecondary] = useState(false);
+  const [compactPrimary, setCompactPrimary]     = useState(false);
+  const [compactTertiary, setCompactTertiary]   = useState(false);
   const overflowRef = useRef(null);
 
   useEffect(() => {
-    const onResize = () => {
-      setCompactSecondary(window.innerWidth < 1180);
-      setCompactPrimary(window.innerWidth < 980);
+    const el = topbarRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const measure = () => {
+      const w = el.clientWidth;
+      setCompactSecondary(w < 960);
+      setCompactPrimary(w < 780);
+      setCompactTertiary(w < 640);
     };
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
   // Close the overflow menu when clicking outside it.
@@ -86,9 +110,15 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   }, [overflowOpen]);
 
   // Compose the overflow menu items dynamically based on which tier
-  // of responsive collapse we're in. Primary-tier folds in undo/redo
-  // BEFORE the secondary items so the menu order stays consistent.
+  // of responsive collapse we're in. Order is fixed (templates first,
+  // then undo/redo, then secondary tools) regardless of which tiers
+  // are active — keeps muscle memory predictable.
   const overflowItems = [];
+  if (compactTertiary) {
+    overflowItems.push(
+      {key:'templates', label:t('superPagesEditor.templates', { defaultValue:'Templates' }), Icon:LayoutTemplate, click:onShowTemplates, accent:'#22d3ee'},
+    );
+  }
   if (compactPrimary) {
     overflowItems.push(
       {key:'undo', label:t('superPagesEditor.undoLabel', { defaultValue:'Undo' }), Icon:Undo2, click:onUndo},
@@ -105,7 +135,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   }
 
   return (
-    <div className="sp-editor-subbar sp-editor-topbar" style={{
+    <div ref={topbarRef} className="sp-editor-subbar sp-editor-topbar" style={{
       // Single full-platform-standard topbar height. 64px — slightly
       // tighter than the previous 72 to give the canvas a touch more
       // vertical room without sacrificing comfort.
@@ -114,18 +144,18 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       borderBottom: '1px solid rgba(255,255,255,0.08)',
       display: 'flex', alignItems: 'center', padding: '0 18px', gap: 10,
       flexShrink: 0,
-      // Sticky positioning: floats above canvas pan. The canvas
-      // scroller is a sibling, so the topbar position-sticks within
-      // the editor root rather than the document. z-index 50 sits
-      // above layer panels and modal backdrops.
+      // Sticky positioning: floats above canvas pan.
       position: 'sticky',
       top: 0,
       zIndex: 50,
-      // NO overflow-x:auto. The bar must never scroll horizontally —
-      // every control either fits or collapses to the overflow menu.
-      // flex-wrap:nowrap is the default but stated for clarity.
+      // NO overflow-x:auto. The bar must never scroll horizontally.
+      // Content fits via collapse, never via clipping.
       flexWrap: 'nowrap',
       minWidth: 0,
+      // Defence in depth: if anything still escapes the layout (e.g.
+      // a tooltip or absolute child), hide it rather than letting it
+      // visually push content off-screen.
+      overflowX: 'hidden',
     }}>
       <style>{`
         .sp-editor-subbar button:hover,
@@ -151,7 +181,6 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           line-height: 1;
         }
         .sp-brand-wm span { color: #22d3ee; }
-        /* Cluster divider — thin vertical line between role clusters. */
         .sp-cluster-divider {
           width: 1px; height: 22px;
           background: rgba(255,255,255,0.12);
@@ -255,19 +284,21 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           + Grid, Campaign, Help, Clear (collapse to overflow at <1180px)
           + Preview, Publish-status, Save, Open (always visible)
           ───────────────────────────────────────────────────────────── */}
-      <button onClick={onShowTemplates} style={pillM_accent}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(34,211,238,0.26)';
-          e.currentTarget.style.borderColor = '#22d3ee';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = 'rgba(34,211,238,0.16)';
-          e.currentTarget.style.borderColor = 'rgba(34,211,238,0.45)';
-        }}
-        title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
-        <LayoutTemplate size={14}/>
-        <span>{t('superPagesEditor.templates', { defaultValue: 'Templates' })}</span>
-      </button>
+      {!compactTertiary && (
+        <button onClick={onShowTemplates} style={pillM_accent}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(34,211,238,0.26)';
+            e.currentTarget.style.borderColor = '#22d3ee';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'rgba(34,211,238,0.16)';
+            e.currentTarget.style.borderColor = 'rgba(34,211,238,0.45)';
+          }}
+          title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
+          <LayoutTemplate size={14}/>
+          <span>{t('superPagesEditor.templates', { defaultValue: 'Templates' })}</span>
+        </button>
+      )}
 
       <button onClick={onToggleLayers} style={layersOpen ? pillM_active : pillM}
         onMouseEnter={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; } }}
