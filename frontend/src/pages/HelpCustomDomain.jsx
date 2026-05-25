@@ -9,7 +9,7 @@
  * cyan accents. Sora display + DM Sans body via inherited tokens.
  *
  * Content: 6 numbered steps, the Cloudflare orange-cloud warning, the
- * three most common "stuck" fixes, and a primary CTA to /labs/pagebuilder/custom-domain.
+ * three most common "stuck" fixes, and a primary CTA to /custom-domain.
  */
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -221,7 +221,7 @@ export default function HelpCustomDomain() {
           {/* Step 2 */}
           <StepBlock num={2} title="Claim it on SuperAdPro first">
             <p style={{ margin: 0 }}>
-              On the <Link to="/labs/pagebuilder/custom-domain" style={linkStyle}>Custom Domain page</Link>,
+              On the <Link to="/custom-domain" style={linkStyle}>Custom Domain page</Link>,
               type your full subdomain (e.g. <code style={codeInline}>pages.yourbrand.com</code>) into the box
               and click <strong>Claim</strong>. The page will then show you the <strong>2 DNS records</strong> you
               need to add at your domain provider.
@@ -276,7 +276,7 @@ export default function HelpCustomDomain() {
           {/* Step 6 */}
           <StepBlock num={6} title="Come back and click Check now">
             <p style={{ margin: 0 }}>
-              Head back to the <Link to="/labs/pagebuilder/custom-domain" style={linkStyle}>Custom Domain page</Link> and
+              Head back to the <Link to="/custom-domain" style={linkStyle}>Custom Domain page</Link> and
               click <strong>Check now</strong> next to your domain. You'll see the status pass through these stages:
             </p>
             <StatusTimelineDiagram />
@@ -295,7 +295,7 @@ export default function HelpCustomDomain() {
         display: 'flex', justifyContent: 'center',
       }}>
         <Link
-          to="/labs/pagebuilder/custom-domain"
+          to="/custom-domain"
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 10,
             padding: '14px 28px', borderRadius: 12,

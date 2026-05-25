@@ -3045,21 +3045,21 @@
             {
               "title": "Use your own domain",
               "desc": "Serve your published pages from a domain you own (e.g. pages.yourbrand.com) instead of superadpro.com/p/yourname/.... One DNS setup, unlimited pages. Free for active members.",
-              "link": "/labs/pagebuilder/custom-domain",
+              "link": "/custom-domain",
               "linkLabel": "Open Custom Domain settings"
             },
             {
               "title": "How it works",
-              "desc": "You add a CNAME record at your DNS provider pointing your subdomain at our Railway host. We verify it, and from then on your published pages are accessible at your URL. Original superadpro.com URLs keep working too — no broken links."
+              "desc": "You add two DNS records at your provider — one CNAME and one TXT — and we automatically issue a Let's Encrypt SSL certificate via Railway. No Cloudflare required. Your published pages become accessible at your URL within ~15 minutes. Original superadpro.com URLs keep working too — no broken links."
             },
             {
               "title": "What you need",
-              "desc": "A domain you own (~$10/year from any registrar), a free Cloudflare account for HTTPS, and an active SuperAdPro membership. About 10 minutes for first-time setup, including DNS propagation."
+              "desc": "A domain you own (~$10/year from any registrar) and an active SuperAdPro membership. About 10 minutes for first-time setup, including DNS propagation. HTTPS is automatic — we handle the SSL certificate for you."
             },
             {
               "title": "Common pitfalls",
-              "desc": "Use a CNAME, not an A record. Use a subdomain like pages.yourbrand.com, not the root domain. Enable Cloudflare proxy (orange cloud) for free HTTPS — without it visitors will see a not-secure warning. Full troubleshooting is on the Custom Domain page itself.",
-              "link": "/labs/pagebuilder/custom-domain",
+              "desc": "Use a CNAME, not an A record. Use a subdomain like pages.yourbrand.com, not the root domain. If you use Cloudflare, set the CNAME proxy status to grey cloud (DNS only) — NOT orange (Proxied), which breaks HTTPS. Full troubleshooting is on the Custom Domain page itself.",
+              "link": "/custom-domain",
               "linkLabel": "See troubleshooting"
             }
           ]

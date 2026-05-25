@@ -402,7 +402,7 @@ export default function LabsPageBuilder() {
 
         {/* Quick links */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 40 }}>
-          <Link to="/labs/pagebuilder/custom-domain" style={linkStyle}>
+          <Link to="/custom-domain" style={linkStyle}>
             Custom domain <ArrowRight size={14} />
           </Link>
           <Link to="/pro/funnels" style={linkStyle}>

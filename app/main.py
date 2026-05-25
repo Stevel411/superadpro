@@ -6450,15 +6450,24 @@ def labs_pagebuilder_editor_page(page_id: int, request: Request):
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
-@app.get("/labs/pagebuilder/custom-domain")
-def labs_pagebuilder_custom_domain_page(request: Request):
+@app.get("/custom-domain")
+def custom_domain_page(request: Request):
     """Custom Domain settings panel — per-user CNAME mapping so members
-    can serve their SuperPages from their own domain. Shipped 21 May 2026
-    as part of the v1 Custom Domain feature. Paid-tier gating happens
-    server-side on POST /api/custom-domains."""
+    can serve their SuperPages from their own domain. Promoted from
+    /labs/pagebuilder/custom-domain on 25 May 2026 — the feature is
+    production-grade, not sandbox/labs. Old labs path 301-redirects here.
+    Paid-tier gating happens server-side on POST /api/custom-domains."""
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/labs/pagebuilder/custom-domain")
+def labs_pagebuilder_custom_domain_legacy_redirect(request: Request):
+    """Legacy path — Custom Domain was promoted out of /labs to
+    top-level /custom-domain on 25 May 2026. 301-redirect preserves
+    any bookmarks, support-reply links, and training-doc references
+    that point at the old URL. Don't remove this handler — there's
+    no guarantee every reference has been updated."""
+    return RedirectResponse(url="/custom-domain", status_code=301)
 @app.get("/help/custom-domain")
 def help_custom_domain_page(request: Request):
     """Standalone 6-step setup guide for Custom Domains. Linked from the
