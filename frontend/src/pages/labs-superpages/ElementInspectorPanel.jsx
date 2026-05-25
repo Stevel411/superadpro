@@ -106,10 +106,10 @@ const sectionStyleLast = {
 
 const SHADOW_PRESETS = [
   { id: 'none',   label: 'None',   value: 'none' },
-  { id: 'soft',   label: 'Soft',   value: '0 4px 12px rgba(15,23,42,0.08)' },
-  { id: 'medium', label: 'Medium', value: '0 8px 24px rgba(15,23,42,0.12)' },
-  { id: 'strong', label: 'Strong', value: '0 16px 40px rgba(15,23,42,0.18)' },
-  { id: 'glow',   label: 'Glow',   value: '0 0 24px rgba(14,165,233,0.35)' },
+  { id: 'soft',   label: 'Soft',   value: '0 6px 16px rgba(15,23,42,0.15)' },
+  { id: 'medium', label: 'Medium', value: '0 12px 28px rgba(15,23,42,0.22)' },
+  { id: 'strong', label: 'Strong', value: '0 24px 48px rgba(15,23,42,0.35), 0 8px 16px rgba(15,23,42,0.20)' },
+  { id: 'glow',   label: 'Glow',   value: '0 0 32px rgba(14,165,233,0.55), 0 0 12px rgba(14,165,233,0.35)' },
 ];
 
 // Match a CSS shadow string against the known presets. Returns
@@ -206,6 +206,11 @@ function ShadowControl({ el, updateElementStyle, markDirty, wrapperStyle = secti
         boxShadow: value,
         _shadowPreset: 'custom',
         _shadowCustom: { x: customX, y: customY, blur: customBlur, color: customColor, alpha: customAlpha },
+        // Picking a Shadow value directly invalidates any prior
+        // Button/Banner style preset — clear the flag so the Style
+        // row's active highlight doesn't mislead members. (Added
+        // 26 May 2026 with the Style preset feature.)
+        _buttonStyle: '',
       });
     } else {
       const preset = SHADOW_PRESETS.find(p => p.id === presetId);
@@ -213,6 +218,7 @@ function ShadowControl({ el, updateElementStyle, markDirty, wrapperStyle = secti
       updateElementStyle(el.id, {
         boxShadow: value === 'none' ? '' : value,
         _shadowPreset: presetId,
+        _buttonStyle: '',  // same invalidation as Custom branch
       });
     }
     markDirty();
@@ -359,6 +365,273 @@ function ShadowControl({ el, updateElementStyle, markDirty, wrapperStyle = secti
   );
 }
 
+// ── Button & Banner style presets ───────────────────────────────
+//
+// Added 26 May 2026 (Steve flag — the plain Soft/Medium/Strong
+// shadow scale didn't deliver the 3D, depth, conversion-grade
+// look that affiliate marketing pages need). This is a curated
+// row of full-button-style combos: each preset bundles
+// boxShadow + transform + border + borderRadius into one
+// one-click vibe.
+//
+// Members combine these freely with the existing colour preset
+// row — pick "3D Press" style + "Green" colour and they layer
+// cleanly. The colour preset writes el.s.background; the style
+// preset writes the other style keys. They don't fight.
+//
+// Stored flag: el.s._buttonStyle = preset id. Underscore-prefixed
+// so exportHTML's filter strips it from published HTML. The
+// boxShadow/border/etc CSS keys it writes ARE exported normally.
+//
+// "transform" is intentionally part of the preset payload (not a
+// hover-only effect) — Steve wants the style chosen IN THE EDITOR
+// to be what ships. Adding hover variants would be a separate
+// Phase 4 motion-design pass.
+//
+// Each preset's `style` object is merged INTO el.s on apply via
+// updateElementStyle. Keys not present in the preset are NOT
+// touched — that's how the colour preset row keeps working: when
+// a member picks "Hard Pop", we don't blow away their gradient
+// background, only the shadow/border/transform/radius keys.
+//
+// Banner-applicability: some presets (pill, glass) don't read
+// well on a full-width banner. The `banner: false` flag hides
+// those from the BannerProperties picker. Default is banner: true.
+
+const BUTTON_STYLE_PRESETS = [
+  {
+    id: 'flat',
+    label: 'Flat',
+    hint: 'No shadow — pure flat surface',
+    style: { boxShadow: '', border: '', transform: '' },
+    banner: true,
+  },
+  {
+    id: 'drop',
+    label: 'Drop',
+    hint: 'Subtle drop shadow — modern SaaS',
+    style: {
+      boxShadow: '0 8px 20px rgba(15,23,42,0.20), 0 2px 4px rgba(15,23,42,0.10)',
+      border: '', transform: '',
+    },
+    banner: true,
+  },
+  {
+    id: 'press3d',
+    label: '3D Press',
+    hint: 'Pressed-into-surface look — solid offset below',
+    // Tinted offset (darker shade of element) reads as depth, not just shadow.
+    // Combined with translateY(-2px) to give it visual "lift" off the page.
+    style: {
+      boxShadow: '0 6px 0 rgba(0,0,0,0.30), 0 10px 20px rgba(15,23,42,0.18)',
+      border: '', transform: 'translateY(-2px)',
+    },
+    banner: true,
+  },
+  {
+    id: 'hardpop',
+    label: 'Hard Pop',
+    hint: 'Brutalist hard offset — bold + graphic',
+    style: {
+      boxShadow: '5px 5px 0 #0f172a',
+      border: '', transform: '',
+    },
+    banner: true,
+  },
+  {
+    id: 'softlift',
+    label: 'Soft Lift',
+    hint: 'Floating glassy shadow — premium feel',
+    style: {
+      boxShadow: '0 20px 40px rgba(14,165,233,0.25), 0 8px 16px rgba(168,85,247,0.18), 0 2px 4px rgba(15,23,42,0.08)',
+      border: '', transform: '',
+    },
+    banner: true,
+  },
+  {
+    id: 'neon',
+    label: 'Neon Glow',
+    hint: 'Cyan halo — on-brand glow',
+    style: {
+      boxShadow: '0 0 36px rgba(14,165,233,0.65), 0 0 12px rgba(14,165,233,0.45)',
+      border: '', transform: '',
+    },
+    banner: true,
+  },
+  {
+    id: 'inset',
+    label: 'Inset',
+    hint: 'Pressed-down look — feels recessed',
+    style: {
+      boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.30), inset 0 1px 2px rgba(0,0,0,0.20)',
+      border: '', transform: '',
+    },
+    banner: true,
+  },
+  {
+    id: 'layered',
+    label: 'Layered',
+    hint: 'Maximum depth — hard offset + soft halo',
+    style: {
+      boxShadow: '6px 6px 0 rgba(0,0,0,0.20), 0 16px 32px rgba(15,23,42,0.25)',
+      border: '', transform: '',
+    },
+    banner: true,
+  },
+  {
+    id: 'outline',
+    label: 'Outline',
+    hint: 'Bordered — letterpress feel',
+    style: {
+      boxShadow: '0 4px 0 rgba(0,0,0,0.25)',
+      border: '2px solid #0f172a', transform: '',
+    },
+    banner: true,
+  },
+  {
+    id: 'pill',
+    label: 'Pill',
+    hint: 'Fully rounded with soft shadow',
+    style: {
+      boxShadow: '0 10px 24px rgba(15,23,42,0.22)',
+      border: '', transform: '',
+      borderRadius: '999px',
+    },
+    banner: false,  // pill on a full-width banner just looks like rounded banner — not useful
+  },
+  {
+    id: 'glass',
+    label: 'Glass',
+    hint: 'Frosted glass — light surfaces',
+    style: {
+      boxShadow: '0 8px 32px rgba(15,23,42,0.15)',
+      border: '1px solid rgba(255,255,255,0.25)', transform: '',
+      backdropFilter: 'blur(12px)',
+    },
+    banner: true,
+  },
+  {
+    id: 'brutalist',
+    label: 'Brutalist',
+    hint: 'Thick black border + hard offset',
+    style: {
+      boxShadow: '6px 6px 0 #0f172a',
+      border: '2px solid #0f172a', transform: '',
+    },
+    banner: true,
+  },
+];
+
+// Render a tiny preview tile representing one style preset. Used
+// by ButtonStylePicker — each button in the grid IS a mini button
+// rendered with the preset's actual style values, so members see
+// what they're picking before they click. Best UX: the preview IS
+// the product.
+function StylePresetTile({ preset, active, onClick }) {
+  // Build the preview's inline style by merging preset.style with a
+  // baseline (so the tile renders something visible). We strip
+  // backdropFilter from the preview because it needs something
+  // behind it to blur — tile background is solid.
+  const previewBg = preset.id === 'glass'
+    ? 'linear-gradient(135deg,rgba(14,165,233,0.55),rgba(168,85,247,0.55))'
+    : 'linear-gradient(135deg,#0ea5e9,#6366f1)';
+  const { backdropFilter, ...safeStyle } = preset.style;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={preset.hint}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+        padding: '10px 4px 6px',
+        background: active ? 'rgba(14,165,233,0.10)' : 'var(--sap-bg-elevated, #f8fafc)',
+        border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+        borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
+        // Extra vertical breathing room so chunky shadows (Hard Pop,
+        // Layered, Brutalist) don't get clipped by the tile edges.
+        minHeight: 60,
+      }}
+    >
+      {/* The mini button — actually styled with the preset */}
+      <div style={{
+        width: 38, height: 18,
+        background: previewBg,
+        borderRadius: safeStyle.borderRadius || 4,
+        ...safeStyle,
+        // Force colour-on-white visibility for the outline+brutalist
+        // styles which depend on background showing through; the
+        // preview uses a gradient bg so they read fine.
+        color: '#fff',
+        fontSize: 7, fontWeight: 800,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        ★
+      </div>
+      <span style={{
+        fontSize: 9, fontWeight: 700,
+        color: active ? 'var(--sap-accent, #0284c7)' : 'var(--sap-text-primary, #0f172a)',
+        whiteSpace: 'nowrap',
+      }}>{preset.label}</span>
+    </button>
+  );
+}
+
+// ButtonStylePicker — preset row that ships above the colour
+// picker in ButtonProperties / BannerProperties. The `forBanner`
+// prop filters out the few presets (pill) that don't work on
+// banners.
+function ButtonStylePicker({ el, updateElementStyle, markDirty, forBanner = false }) {
+  const activeId = el.s?._buttonStyle || null;
+  const presets = BUTTON_STYLE_PRESETS.filter(p => (forBanner ? p.banner : true));
+
+  const applyPreset = (preset) => {
+    // Merge preset.style into el.s — keys present overwrite, others
+    // (notably `background`, which comes from the colour preset
+    // row) are untouched.
+    // 26 May 2026: also clear any prior _shadowPreset / _shadowCustom
+    // flags from the standalone Shadow section. The Style preset
+    // sets boxShadow directly; leaving the Shadow section's stale
+    // saved state would mislead members opening that section
+    // afterwards (sliders would show pre-preset values, not what
+    // the preset wrote). Empty strings let the export filter drop
+    // them cleanly.
+    const patch = {
+      ...preset.style,
+      _buttonStyle: preset.id,
+      _shadowPreset: '',
+      _shadowCustom: '',
+    };
+    updateElementStyle(el.id, patch);
+    markDirty();
+  };
+
+  return (
+    <div style={sectionStyle}>
+      <label style={labelStyle}>Style preset</label>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 6,
+      }}>
+        {presets.map(p => (
+          <StylePresetTile
+            key={p.id}
+            preset={p}
+            active={activeId === p.id}
+            onClick={() => applyPreset(p)}
+          />
+        ))}
+      </div>
+      <div style={{
+        fontSize: 11, color: 'var(--sap-text-muted, #64748b)',
+        marginTop: 6, lineHeight: 1.4,
+      }}>
+        Pick a vibe, then choose a colour below. Fine-tune in Shadow.
+      </div>
+    </div>
+  );
+}
+
 // ── Button-specific property section ───────────────────────────
 //
 // All controls write through updateElement/updateElementStyle on
@@ -453,6 +726,16 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
 
   return (
     <>
+      {/* Style preset — chunky 3D vibes picker. Combines freely with
+          the colour row below; sets shadow/border/transform/radius
+          and leaves background alone. */}
+      <ButtonStylePicker
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        forBanner={false}
+      />
+
       {/* Content */}
       <div style={sectionStyle}>
         <label style={labelStyle}>Content</label>
@@ -4025,6 +4308,16 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
 
   return (
     <>
+      {/* Style preset — banners use the same picker as buttons,
+          with pill (which doesn't make sense on a full-width strip)
+          filtered out. */}
+      <ButtonStylePicker
+        el={el}
+        updateElementStyle={updateElementStyle}
+        markDirty={markDirty}
+        forBanner={true}
+      />
+
       {/* Content */}
       <div style={sectionStyle}>
         <label style={labelStyle}>Banner Text</label>

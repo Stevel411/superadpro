@@ -1195,7 +1195,12 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
   // ── Element outer styles ──
   const getOuterStyle = (el) => {
-    const layoutStyles = ['background', 'borderRadius', 'border', 'padding', 'boxShadow', 'borderLeft', 'borderTop', 'borderRight', 'borderBottom', 'opacity'];
+    // 26 May 2026: added `transform` and `backdropFilter` to support
+    // the Button/Banner style presets (3D Press uses translateY for
+    // the lifted look; Glass uses backdrop-filter for frosted feel).
+    // Without these, the canvas would show flat presets while export
+    // shipped the full effect — preview mismatch.
+    const layoutStyles = ['background', 'borderRadius', 'border', 'padding', 'boxShadow', 'borderLeft', 'borderTop', 'borderRight', 'borderBottom', 'opacity', 'transform', 'backdropFilter'];
     const isEditing = editingId === el.id;
     const cursor = isEditing ? 'text' : el.locked ? 'not-allowed' : 'grab';
     // Resolve per-device position via effectiveBox cascade
