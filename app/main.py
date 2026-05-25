@@ -3725,7 +3725,110 @@ def cron_stripe_reconciliation(request: Request, db: Session = Depends(get_db)):
 # no-op except for any catch-up bookkeeping.
 #
 # Protected by CRON_SECRET. POST so it's not accidentally hit via GET.
+#
+# Companion GET endpoint /admin/stripe-recover-user/{user_id} provides
+# the same recovery flow guarded by is_admin instead of a secret — for
+# when the on-call admin can't easily make a POST with custom headers.
 # ════════════════════════════════════════════════════════════════════
+@app.get("/admin/stripe-recover-user/{user_id}")
+def admin_stripe_recover_user(
+    user_id: int,
+    request: Request,
+    tier: str = "founding",
+    stripe_subscription_id: str = "",
+    stripe_payment_intent_id: str = "",
+    amount_cents: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin-auth variant of /cron/stripe-recover-user.
+
+    Visit this URL while logged in as admin:
+      /admin/stripe-recover-user/393?tier=founding&stripe_subscription_id=sub_xxx&stripe_payment_intent_id=pi_xxx&amount_cents=1500
+
+    Same logic as the cron POST variant — activates the user, writes a
+    StripeCharge audit row, returns JSON with the activation state.
+    Idempotent (already-active user returns ok=true, noop=true).
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+
+    if target.is_active:
+        return JSONResponse({
+            "ok": True,
+            "noop": True,
+            "reason": "user already active",
+            "user_id": target.id,
+            "username": target.username,
+            "is_active": True,
+            "membership_tier": target.membership_tier,
+            "is_founding_member": bool(target.is_founding_member),
+            "founding_spot_number": target.founding_spot_number,
+        })
+
+    tier_normalized = (tier or "founding").lower()
+    tier_for_activation = "founding" if tier_normalized in ("founder", "founding") else "partner"
+    default_amount = 1500 if tier_for_activation == "founding" else 2000
+    amount = int(amount_cents) if amount_cents else default_amount
+
+    try:
+        _activate_membership(
+            db=db,
+            user=target,
+            tier=tier_for_activation,
+            source="stripe-admin-recovery",
+            subscription_id=stripe_subscription_id or None,
+            is_upgrade=False,
+            billing="monthly",
+        )
+    except Exception as e:
+        logger.exception(f"admin-stripe-recover: _activate_membership failed for user {user_id}")
+        return JSONResponse({"error": "activation_failed", "detail": str(e)}, status_code=500)
+
+    product_kind = "founder_signup" if tier_for_activation == "founding" else "membership_signup"
+    try:
+        company_share, refundable = _stripe.calculate_refundable(product_kind, amount)
+    except Exception:
+        company_share, refundable = 0, amount
+
+    charge = StripeCharge(
+        user_id=target.id,
+        stripe_subscription_id=stripe_subscription_id or None,
+        stripe_payment_intent_id=stripe_payment_intent_id or None,
+        kind="charge",
+        product=product_kind,
+        amount_cents=amount,
+        currency="usd",
+        company_share_cents=company_share,
+        refundable_cents=refundable,
+        description=f"Manual admin recovery (missed checkout.session.completed) by admin user {user.id}",
+        raw_event_json=None,
+    )
+    db.add(charge)
+    target.stripe_refund_eligible_until = _stripe.refund_window_expiry()
+    target.payment_method = "stripe"
+    db.commit()
+    db.refresh(target)
+
+    return JSONResponse({
+        "ok": True,
+        "recovered": True,
+        "user_id": target.id,
+        "username": target.username,
+        "is_active": target.is_active,
+        "membership_tier": target.membership_tier,
+        "is_founding_member": bool(target.is_founding_member),
+        "founding_spot_number": target.founding_spot_number,
+        "activated_at": target.activated_at.isoformat() if target.activated_at else None,
+        "charge_id": charge.id,
+        "recovered_by_admin": user.username,
+    })
+
+
 @app.post("/cron/stripe-recover-user")
 def cron_stripe_recover_user(request: Request, payload: dict = Body(...), db: Session = Depends(get_db)):
     """Activate a user who paid Stripe but is stuck on free tier.
