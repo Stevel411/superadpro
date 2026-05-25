@@ -47,7 +47,6 @@ var MAX = {
  */
 export default function FeatureOnExploreButton(props) {
   var { t } = useTranslation();
-  var METRIC_PRESETS = getMetricPresets(t);
   var artifactType = props.artifactType;
 
   var _state = useState({ loaded: false, submitted: null, resolvedId: null }); var state = _state[0]; var setState = _state[1];
@@ -202,6 +201,14 @@ function buttonStyle(variant, mode) {
 
 function ShowcaseModal(props) {
   var { t } = useTranslation();
+  // 26 May 2026 fix: METRIC_PRESETS was previously declared in
+  // FeatureOnExploreButton's scope but referenced here (lines 218
+  // and 317 below). Different function = different scope, so the
+  // modal blew up with "METRIC_PRESETS is not defined" the moment
+  // a member clicked the ✨ Feature button. Now declared here
+  // where it's actually used; the outer component's unused copy
+  // was removed at the same time.
+  var METRIC_PRESETS = getMetricPresets(t);
   var _title = useState(props.artifactTitle || ''); var title = _title[0]; var setTitle = _title[1];
   var _niche = useState(''); var niche = _niche[0]; var setNiche = _niche[1];
   var _metricPreset = useState('clicks'); var metricPreset = _metricPreset[0]; var setMetricPreset = _metricPreset[1];
