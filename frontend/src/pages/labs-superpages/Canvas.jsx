@@ -60,15 +60,57 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     };
   }, [contextMenu]);
 
-  // ── Canvas height ──
-  // Canvas width matches the current device breakpoint. Element
-  // positions are resolved through effectiveBox(el, deviceView) so
-  // tablet/mobile views show their per-device overrides, with
-  // cascading fallback to the base desktop values.
+  // ── Canvas dimensions and responsive-render mode ──
+  //
+  // 25 May 2026: WYSIWYG editor preview — the canvas now renders
+  // tablet/mobile views identically to the published page. Three modes:
+  //
+  //   absolute (desktop, OR tablet/mobile with per-device overrides):
+  //       elements positioned via absolute x/y as before. Drag works
+  //       normally and writes to the appropriate device's overrides.
+  //
+  //   scaled (tablet, no per-element overrides):
+  //       elements stay at their desktop absolute positions, but the
+  //       whole canvas inner is wrapped in a CSS scale transform of
+  //       (canvasW / CANVAS_WIDTH) so the desktop layout shrinks
+  //       proportionally — mirrors the export rule
+  //       `scale: calc(100vw / 1100)` at 769-1023px.
+  //
+  //   stack (mobile, no per-element overrides):
+  //       elements rendered as position:relative in vertical flow,
+  //       full-width with per-type max-widths and centring — mirrors
+  //       the export's @media(max-width:768px) fallback exactly.
+  //
+  // Detection matches the export logic in exportHTML.js so the editor
+  // canvas and the live page are in lockstep.
+  const hasMobileOverrides = els.some(el => el.mobile && !el.hidden);
+  const hasTabletOverrides = els.some(el => el.tablet && !el.hidden);
+  let renderMode = 'absolute';
+  if (deviceView === 'mobile' && !hasMobileOverrides) renderMode = 'stack';
+  else if (deviceView === 'tablet' && !hasTabletOverrides) renderMode = 'scaled';
+
   const canvasW = DEVICE_WIDTHS[deviceView] || CANVAS_WIDTH;
   const elBoxes = els.map(el => ({ el, box: effectiveBox(el, deviceView) }));
   const maxElY = elBoxes.length > 0 ? Math.max(...elBoxes.map(({ box }) => box.y + box.h)) : 0;
-  const canvasHeight = Math.max(deviceView === 'mobile' ? 700 : 1200, maxElY + 500);
+
+  // Canvas height depends on the render mode:
+  //   absolute: tall enough to fit the highest absolute-positioned element
+  //   scaled:   the desktop height proportionally shrunk
+  //   stack:    intrinsic — let flow-layout decide. Set a minimum so the
+  //             empty state still has room to render and the surface looks
+  //             page-shaped, not letterbox.
+  let canvasHeight;
+  if (renderMode === 'scaled') {
+    const desktopMaxY = els.length > 0 ? Math.max(...els.map(e => (e.y || 0) + (e.h || 0))) : 0;
+    const desktopH = Math.max(1200, desktopMaxY + 200);
+    canvasHeight = Math.ceil(desktopH * (canvasW / CANVAS_WIDTH));
+  } else if (renderMode === 'stack') {
+    // Rough estimate based on element count — actual height resolves
+    // via natural flow. Just need a sensible canvas-area scroll boundary.
+    canvasHeight = Math.max(700, els.length * 120 + 200);
+  } else {
+    canvasHeight = Math.max(deviceView === 'mobile' ? 700 : 1200, maxElY + 500);
+  }
 
   // ── Scale-to-fit ──
   // 20 May 2026: Steve flag — wants canvas to react when he resizes
@@ -1170,19 +1212,176 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         // unscaled dimensions; the transform handles the visual shrink.
         // transform-origin 'top left' so x/y of nested elements still
         // align with the parent's coordinate space at any scale.
-        width: canvasW,
-        height: canvasHeight,
-        transform: `scale(${canvasScale})`,
+        //
+        // In scaled mode (tablet preview, no per-element overrides),
+        // we compose an EXTRA scale of canvasW/CANVAS_WIDTH into the
+        // transform. The .sp-canvas surface is sized at CANVAS_WIDTH
+        // (so elements lay out at their desktop x/y/w/h), but visually
+        // it shrinks to canvasW. Mirrors the export's
+        // `scale: calc(100vw / 1100)` rule at the 769-1023px @media.
+        width: renderMode === 'scaled' ? CANVAS_WIDTH : canvasW,
+        height: renderMode === 'scaled' ? canvasHeight / (canvasW / CANVAS_WIDTH) : canvasHeight,
+        transform: renderMode === 'scaled'
+          ? `scale(${canvasScale * (canvasW / CANVAS_WIDTH)})`
+          : `scale(${canvasScale})`,
         transformOrigin: 'top left',
       }}>
+      {/* WYSIWYG responsive preview CSS (25 May 2026).
+          Injected scoped to .sp-canvas so it doesn't leak elsewhere.
+          Rules MIRROR the export's responsive @media block from
+          exportHTML.js — keeping editor canvas and live page in
+          lockstep. Two modes:
+
+          .sp-canvas[data-render-mode="stack"]:
+              Mobile fallback (no per-element overrides). Stack vertically,
+              full-width with per-type max-widths, font-clamp scaling.
+              Each rule below maps 1:1 to the corresponding rule in
+              exportHTML's @media(max-width:768px) block.
+
+          .sp-canvas[data-render-mode="scaled"]:
+              Tablet fallback (no per-element overrides). Wraps all the
+              absolute-positioned elements in a CSS scale transform via
+              the .sp-canvas-scaled-inner child div. Mirrors the export's
+              `scale: calc(100vw / 1100)` rule at 769-1023px. */}
+      <style>{`
+        .sp-canvas[data-render-mode="stack"] {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          padding: 20px 16px !important;
+          gap: 12px;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel {
+          position: relative !important;
+          left: auto !important;
+          top: auto !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          height: auto !important;
+          min-height: 40px !important;
+          margin: 0 !important;
+        }
+        /* Type-specific max-widths mirror the export's fallback rules. */
+        .sp-canvas[data-render-mode="stack"] .cel[id] .sp-heading,
+        .sp-canvas[data-render-mode="stack"] .cel .sp-heading * {
+          font-size: clamp(22px, 5vw, 36px) !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel .sp-text,
+        .sp-canvas[data-render-mode="stack"] .cel .sp-text * {
+          font-size: 14px !important;
+        }
+        /* Button + Banner: full width capped at 400px, fixed 50px tall */
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-button),
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-announcement) {
+          max-width: 400px !important;
+          height: 50px !important;
+          min-height: 50px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-form) {
+          max-width: 450px !important;
+          min-height: 200px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-video),
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-video iframe),
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-video video) {
+          min-height: 200px !important;
+          aspect-ratio: 16/9 !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-image) {
+          width: auto !important;
+          max-width: 100% !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-image) img {
+          width: 100% !important;
+          height: auto !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-stat) {
+          max-width: 45% !important;
+          display: inline-flex !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-countdown) {
+          max-width: 400px !important;
+          min-height: 70px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-review),
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-testimonial) {
+          min-height: 80px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-icontext) {
+          min-height: 60px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-divider) {
+          max-width: 90% !important;
+          height: 2px !important;
+          min-height: 2px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-spacer) {
+          height: 20px !important;
+          min-height: 20px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-box) {
+          min-height: 100px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-label),
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-badge) {
+          max-width: 280px !important;
+          min-height: 28px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-socialicons) {
+          min-height: 30px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-progress) {
+          max-width: 400px !important;
+          min-height: 40px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-embed) {
+          min-height: 150px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-audio) {
+          min-height: 50px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-logostrip) {
+          min-height: 30px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-separator) {
+          max-width: 90% !important;
+          min-height: 20px !important;
+        }
+        .sp-canvas[data-render-mode="stack"] .cel:has(.sp-faq) {
+          min-height: 80px !important;
+        }
+        /* In stack mode: hide alignment guides, grid overlay, marquee,
+           cursor-grab on elements. These are absolute-positioning aids
+           that don't apply in flow layout. */
+        .sp-canvas[data-render-mode="stack"] .cel {
+          cursor: default !important;
+        }
+        /* Scaled mode: tablet preview with no per-element overrides.
+           Elements rendered inside .sp-canvas-scaled-inner with a CSS
+           scale transform of canvasW/CANVAS_WIDTH. transform-origin
+           top-left so x=0,y=0 maps to the canvas's top-left corner.
+           Mirrors the export scale rule at the 769-1023px @media query. */
+        .sp-canvas-scaled-inner {
+          transform-origin: top left;
+          position: relative;
+        }
+      `}</style>
       <div
         ref={canvasRef}
         className="sp-canvas"
+        data-render-mode={renderMode}
         onMouseDown={handleCanvasClick}
         onDragOver={e => e.preventDefault()}
         onDrop={handleDrop}
         style={{
-          width: canvasW, minHeight: canvasHeight, position: 'relative',
+          // In scaled mode, the canvas surface uses the full desktop width
+          // CANVAS_WIDTH (1100px). The outer scale wrapper above shrinks
+          // it visually to canvasW (768 for tablet) via an extra CSS scale.
+          // Elements stay at their desktop x/y/w/h positions and render
+          // proportionally — mirrors the export's scale-down rule.
+          width: renderMode === 'scaled' ? CANVAS_WIDTH : canvasW,
+          minHeight: renderMode === 'scaled' ? canvasHeight / (canvasW / CANVAS_WIDTH) : canvasHeight,
+          position: 'relative',
           flexShrink: 0,
           transition: 'width 0.3s ease',
           borderRadius: 10,
