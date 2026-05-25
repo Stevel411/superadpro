@@ -6,7 +6,71 @@
 
 ---
 
-## Status as of 2026-05-24 — MARKETING MATERIALS FOUNDATION
+## Status as of 2026-05-25 — PAGE BUILDER COMMERCIAL-GRADE PASS
+
+**Long Sunday-into-Monday session, ~7 hours, 15 commits shipped.** Two major arcs: editor topbar reliability (4 iterations to a working overflow-detection design) and a full page builder typography rebuild that established the project's commercial-grade build doctrine.
+
+### New project doctrine (now in CLAUDE.md top section)
+
+Steve called this out mid-session and it's now permanent: **commercial-grade only. No trade-offs. No "for new content only" carve-outs. No quick-fix patches.** When a bug is found, the response is world-class engineering — root-cause analysis, full end-to-end fix, every affected surface considered.
+
+Mental model: would Webflow / Leadpages / ConvertKit ship this? If no, neither do we.
+
+Engineering instincts borrowed from other products must be tested against "what would a SuperAdPro member — an affiliate marketer, not a designer — actually expect."
+
+### Shipped on 25 May 2026
+
+**Topbar reliability arc (6 commits):**
+
+- **`aa51c85d4` Open button distortion fix** — unicode ↗ replaced with lucide `ExternalLink` icon, `whiteSpace:nowrap`, `lineHeight:1`. Was wrapping on some font-stack/line-height combinations.
+- **`19044b308` Topbar 3-cluster redesign** — uniform 36px pill height, pill style primitives (`pillM`, `pillM_accent`, `pillM_active`, `pillS`, `pillS_active`, `pillS_danger`, `pillS_accent`), three semantic clusters (LEFT: brand/back/dirty, CENTRE: zoom/device/undo-redo, RIGHT: tools/preview/publish/save/open). Feature on /explore button moved out of topbar to Funnels listing cards (new `icon` variant on `FeatureOnExploreButton.jsx`).
+- **`d3f4c9f83` ResizeObserver v2** — switched from window-width thresholds to measuring bar's own clientWidth. Thresholds 960/780/640. FAILED on Steve's normal-width viewport because content needed ~1410px and his bar had ~1440px-ish — thresholds didn't trigger collapse even though content was clipping.
+- **`89a47d57e` Overflow detection v3 (WORKING)** — replaced pre-computed breakpoints with actual `scrollWidth > clientWidth` measurement. Folds tier-by-tier until fit; un-folds with headroom check. Self-correcting, no width-guessing. Lesson: when a layout problem can be measured empirically, measure it.
+- **`004d9878e` Dropdown freeze** — early-return in the overflow effect when `overflowOpen` is true. Fixes "topbar moves weirdly when clicking 3-dots" — was caused by sub-pixel layout shifts during dropdown mount triggering re-evaluation.
+- **`cd952b775` Save-flow stability** — unsaved indicator always-mounted with `visibility: hidden` toggle (was conditional mount), Save button has min-width 92px to absorb "Save" → "Saving…" label change, removed `dirty` from overflow effect deps. Fixes "topbar moves weirdly when I click Save."
+
+**WYSIWYG mobile + tablet preview (1 commit):**
+
+- **`e122bf0b5` Real device rendering on canvas** — three render modes detected matching exportHTML.js exactly:
+  - `absolute` (desktop OR any device with per-element overrides): elements positioned via absolute x/y
+  - `scaled` (tablet, no overrides): canvas surface at CANVAS_WIDTH (1100), extra CSS scale transform of canvasW/1100 composed into outer scale wrapper
+  - `stack` (mobile, no overrides): elements rendered as `position: relative` in vertical flow, full width with per-type max-widths via `:has()` selectors, font-clamp scaling
+  - Scoped CSS injected into `.sp-canvas` via `<style>` block gated by `data-render-mode` attribute
+  - Mirrors exportHTML.js responsive @media rules 1:1, single source of truth for responsive behaviour
+  - Live walkthrough: Steve confirmed all three device modes work correctly
+
+**Page builder typography (6 commits — full commercial-grade rebuild):**
+
+- **`2ce764129` First-pass cascade fix** — removed `LabsChrome.css` `.labs-chrome p, .labs-chrome div, .labs-chrome span { font-family: Manrope }` blanket override that was force-cascading Manrope onto all canvas content. Stripped baked `fontSize: '15px'` from text element default.
+- **`0a7922844` Full rebuild** — `_fontExplicit` and `_sizeExplicit` flag system set by Inspector. `migrateTypographyDefaults()` walks every element on page load, strips historical baked defaults (Sora/DM Sans) from elements without `_fontExplicit`. Page-level Body Font now applies via .sp-page CSS rules to text/button/announcement/badge/label/form/review/testimonial/stat/icontext/faq/progress/logostrip/separator (all non-explicit). Hardcoded Sora in stat value, icontext heading, FAQ question render strings replaced with `var(--page-font-heading)`. Six files touched end-to-end.
+- **`7b9ad869d` Live updates** — CSS variables for typography moved from imperative `document.querySelector('.labs-chrome').style.setProperty` (inside useEffect) to React-controlled inline style on the `.labs-chrome` wrapper. Browsers were not reliably re-painting CSS variables on existing rendered nodes without React triggering a re-render. Fixed "requires re-selection to apply" symptom.
+- **`0b358d4d9`, `cd952b775`, `caa299a6f` Tiptap-baked-span resolution** — Heading Font specifically wasn't applying. Three-step diagnosis:
+  1. Confirmed via DevTools: `--page-font-heading: "Playfair Display"` correctly set on `.labs-chrome` but heading rendered in Manrope
+  2. Root cause: Tiptap's FontFamily extension was baking `<span style="font-family: X">` into the heading's saved `el.txt` HTML during inline editing. The descendant span won via CSS specificity over the wrapper's `var(--page-font-heading)` declaration.
+  3. Final fix: `migrateTypographyDefaults()` extended to strip `font-family` declarations from inline style attributes inside `el.txt` content (heading/text/label only) when `!_fontExplicit`. Plus Canvas renderInner now passes the heading font-family via direct React style merge (bypassing the inline-style string-parse roundtrip).
+
+Steve confirmed working: delete a heading and place a new one → page-level Heading Font applies immediately. Existing heading (pre-fix corruption) cleaned automatically on next page load.
+
+### Engineering lesson logged
+
+When a fix works on new content but not existing content, the FIRST diagnostic should be "delete the existing element and re-add it." If new works and old doesn't, it's a data-state issue, not a code issue — and the next step is a migration. I spent two hours guessing at code paths before suggesting that test; Steve had to suggest it himself. Recorded so the next session defaults to that test first.
+
+### What's still open
+
+**Audit walkthrough — one item remaining:**
+- Manual share-code round-trip test (XSS-1 sanitiser sanity check — paste a share code, verify legit content survives unchanged). ~5 min.
+
+**Page builder feature gap (Steve flagged mid-audit):**
+- Shadow/depth controls on Button + Banner + Box + Image + Review/Testimonial + FAQ. ~45-60 min. Extend existing Inspector shadow primitives across 8-10 element types.
+
+**Polish:**
+- COLOR-1: form input bg `#132044` → `#0f172a` at `ElementInspectorPanel.jsx:4566`. 1 min.
+
+**Marketing project still paused** (from 24 May handover). Foundation pieces still awaiting coordinated launch — see status block below.
+
+**i18n translation pass** still pending (19 frontend locales + 6 training content locales).
+
+---
 
 **Marketing-asset infrastructure live in production. Four marketing pages designed; three staged, one live.** Steve directed a deliberate pause on launching the wider My Marketing surface until all foundation pieces (4 pages + 3 videos + social proof + thumbnails + menu architecture) are ready as a coordinated launch.
 
