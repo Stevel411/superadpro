@@ -303,6 +303,31 @@ export function migrateTypographyDefaults(els) {
       changed = true;
     }
 
+    // 25 May 2026: Tiptap's FontFamily extension bakes inline
+    // <span style="font-family: X"> into el.txt content during inline
+    // editing. Even if the wrapper's font-family is set to the page var,
+    // these descendant spans win via CSS specificity, blocking page-level
+    // Heading Font from propagating.
+    //
+    // For elements without _fontExplicit, strip any inline font-family
+    // declarations from the el.txt HTML. The wrapper's font-family will
+    // then cascade through unobstructed.
+    //
+    // Conservative: only strips font-family from inline style attributes;
+    // leaves all other inline styles, classes, and tags intact. Member's
+    // explicit picks (with _fontExplicit) are left alone.
+    let txt = el.txt;
+    if (typeof txt === 'string' && txt && !s._fontExplicit && (el.type === 'heading' || el.type === 'text' || el.type === 'label')) {
+      // Match: style="...font-family: X..." or style='...font-family: X...'
+      // Strip just the font-family declaration; preserve other declarations.
+      const cleaned = txt.replace(/(\sstyle\s*=\s*["'][^"']*?)font-family\s*:\s*[^;"']+;?\s*([^"']*["'])/gi,
+        (m, before, after) => before + after);
+      if (cleaned !== txt) {
+        el = { ...el, txt: cleaned };
+        changed = true;
+      }
+    }
+
     return changed ? { ...el, s } : el;
   });
 }

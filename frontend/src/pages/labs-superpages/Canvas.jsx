@@ -1174,9 +1174,23 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     // force all descendants of a heading to inherit the wrapper's font.
     // Defeats Tiptap-baked inline fonts inside el.txt that would
     // otherwise block page-level Heading Font from propagating.
-    return <div className="cel-editable" data-type={el.type} dangerouslySetInnerHTML={{ __html: el.txt || '' }} style={Object.fromEntries(
+    //
+    // 25 May 2026 v2: parsed inline style object PLUS direct React-merged
+    // style for the page-level heading font/scale. The innerStyle string
+    // parse round-trip was suspected of mangling the var() value with
+    // nested commas/quotes — by passing the var via a separate style
+    // object merged after, we guarantee React serialises it intact.
+    const parsedInnerStyle = Object.fromEntries(
       innerStyle.split(';').filter(Boolean).map(s => { const [k, ...v] = s.split(':'); return [k.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase()), v.join(':').trim()]; })
-    )} />;
+    );
+    // Heading-only: merge page-level font/scale directly (not via the
+    // parsed string) so React passes the var literal through unchanged.
+    const headingFontMerge = (el.type === 'heading' && !el.s?._fontExplicit) ? {
+      fontFamily: 'var(--page-font-heading, "Sora", sans-serif)',
+    } : {};
+    return <div className="cel-editable" data-type={el.type}
+      dangerouslySetInnerHTML={{ __html: el.txt || '' }}
+      style={{ ...parsedInnerStyle, ...headingFontMerge }} />;
   };
 
   // ── Element outer styles ──
