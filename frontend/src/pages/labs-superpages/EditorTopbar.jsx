@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
-import { Eye, Save, Undo2, Redo2, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers, Grid3x3, Link2, MoreHorizontal } from 'lucide-react';
+import { Eye, Save, Undo2, Redo2, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle, LayoutTemplate, Layers, Grid3x3, Link2, MoreHorizontal, ExternalLink } from 'lucide-react';
 import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
 /*
@@ -399,11 +399,36 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         <Save size={13}/> {saving ? t('superPagesEditor.savingLabel', { defaultValue: 'Saving…' }) : t('superPagesEditor.saveLabel', { defaultValue: 'Save' })}
       </button>
 
-      {/* Live link — only when published */}
+      {/* Live link — only when published. Styled to match the other
+          topbar pills (same height, same border-radius, same padding)
+          rather than as a CTA — it's a utility action, not a primary
+          conversion. Cyan accent makes it findable; nowrap + SVG icon
+          (not unicode ↗) keeps it on one line regardless of font
+          fallbacks. Reported by Steve 25 May 2026 as "distorted" —
+          previously used unicode arrow which wrapped to a second line
+          on some font-stack/line-height combinations. */}
       {isPublished && slug && (
         <a href={`/p/${slug}`} target="_blank" rel="noopener noreferrer"
-          style={{...btn, background: '#22d3ee', color: '#0a1438', border: '1px solid #06b6d4', textDecoration: 'none', boxShadow: '0 2px 6px rgba(34,211,238,0.35)', fontWeight: 800}}>
-          {t('superPagesEditor.openLink', { defaultValue: 'Open ↗' })}
+          style={{
+            ...btn,
+            background: 'rgba(34,211,238,0.16)',
+            color: '#22d3ee',
+            border: '1px solid rgba(34,211,238,0.4)',
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+            lineHeight: 1,
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(34,211,238,0.28)';
+            e.currentTarget.style.borderColor = '#22d3ee';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'rgba(34,211,238,0.16)';
+            e.currentTarget.style.borderColor = 'rgba(34,211,238,0.4)';
+          }}
+          title={t('superPagesEditor.openLinkTitle', { defaultValue: 'Open the live page in a new tab' })}>
+          <ExternalLink size={13}/>
+          <span>{t('superPagesEditor.openLink', { defaultValue: 'Open' })}</span>
         </a>
       )}
 
