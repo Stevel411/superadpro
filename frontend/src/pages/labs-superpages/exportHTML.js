@@ -51,6 +51,34 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
   fontVars = `<style>
     .sp-page { --page-font-heading: ${headingStack}; --page-font-body: ${bodyStack}; --page-heading-scale: ${headingScale}; --page-font-base-size: ${typo.baseSize || 16}px; font-family: var(--page-font-body); font-size: var(--page-font-base-size); }
     .sp-page [data-el-type="heading"]:not([data-has-font="1"]) { font-family: var(--page-font-heading); font-size: calc(var(--page-h-base, 36px) * var(--page-heading-scale)); }
+    /* 25 May 2026: page-level Body Font applies to every text-bearing
+       element type that hasn't been explicitly customised. Without these
+       rules, baked-in inline font-family on button/banner/badge/label
+       would block inheritance from .sp-page. The :not([data-has-font="1"])
+       guard means member's explicit Inspector picks still win. */
+    .sp-page [data-el-type="text"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="button"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="announcement"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="badge"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="label"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="form"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="review"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="testimonial"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="stat"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="icontext"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="faq"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="progress"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="logostrip"]:not([data-has-font="1"]),
+    .sp-page [data-el-type="separator"]:not([data-has-font="1"]) { font-family: var(--page-font-body); }
+    /* Body Size: text elements without explicit per-element size inherit
+       the page-level base size. .sp-page already sets the base on the
+       wrapper, but text elements with their own font-size: in inline
+       style would override it. By scoping this rule to data-has-font="0"
+       — which doubles as "this element has no explicit text styling" in
+       practice for elements that survived migration — we let the slider
+       actually drive text size. Headings keep their own size system
+       (the calc(... * --page-heading-scale) rule above). */
+    .sp-page [data-el-type="text"]:not([data-has-font="1"]) { font-size: var(--page-font-base-size); }
   </style>`;
 
   // ─── Analytics & tracking snippets ───
@@ -141,10 +169,18 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
     // bottom of this file. Element ids in the editor look like
     // `e1m2n3...` (uid()), safe for CSS selectors.
     // data-el-type / data-has-font added 22 May 2026 for the typography
-    // system: published-page CSS rules target [data-el-type="heading"]
-    // to apply var(--page-font-heading) only on heading elements that
-    // don't have an explicit fontFamily of their own (data-has-font="0").
-    const hasExplicitFont = !!(el.s?.fontFamily);
+    // system: published-page CSS rules target [data-el-type="..."]
+    // to apply var(--page-font-heading) / var(--page-font-body) only on
+    // elements that don't have an explicit fontFamily of their own
+    // (data-has-font="0").
+    //
+    // 25 May 2026: _fontExplicit flag is the canonical source of "did
+    // the member deliberately pick a font for this element". Set by the
+    // Inspector's FontPicker. We treat missing-flag-but-fontFamily-set
+    // as legacy explicit too, since the migration only strips known
+    // historical defaults — anything else still on el.s.fontFamily is
+    // a deliberate choice that predates the flag system.
+    const hasExplicitFont = !!(el.s?._fontExplicit || el.s?.fontFamily);
     const elAttrs = `class="${elClass}" id="${el.id}" data-el-type="${el.type}" data-has-font="${hasExplicitFont ? '1' : '0'}"`;
 
     if (el.type === 'video' && el.txt) {
@@ -446,7 +482,7 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
       const ss = el._statSize || 36;
       const slc = el._statLabelColor || '#64748b';
       const sls = el._statLabelSize || 12;
-      h += `<div ${elAttrs} style="${st};display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Sora,sans-serif;font-size:${ss}px;font-weight:900;color:${sc};line-height:1.1">${sv}</div><div style="font-size:${sls}px;color:${slc};margin-top:4px">${sl}</div></div>`;
+      h += `<div ${elAttrs} style="${st};display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:var(--page-font-heading,Sora,sans-serif);font-size:${ss}px;font-weight:900;color:${sc};line-height:1.1">${sv}</div><div style="font-size:${sls}px;color:${slc};margin-top:4px">${sl}</div></div>`;
     } else if (el.type === 'separator' && (el._separatorSymbol !== undefined)) {
       // Structured separator (Phase 3 inspector refactor, audit C-X-4).
       // The centred symbol and the line colour are first-class fields
@@ -469,7 +505,7 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
       const hCol = el._iconHeadingColor || '#fff';
       const dCol = el._iconDescColor || '#94a3b8';
       const iconBoxW = Math.max(40, iconSize + 12);
-      h += `<div ${elAttrs} style="${st};display:flex;gap:16px;align-items:flex-start"><div style="font-size:${iconSize}px;flex-shrink:0;width:${iconBoxW}px;text-align:center;line-height:1">${ic}</div><div style="flex:1;min-width:0"><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:${hCol};margin-bottom:4px">${ih}</div><div style="font-size:13px;color:${dCol};line-height:1.6">${idd}</div></div></div>`;
+      h += `<div ${elAttrs} style="${st};display:flex;gap:16px;align-items:flex-start"><div style="font-size:${iconSize}px;flex-shrink:0;width:${iconBoxW}px;text-align:center;line-height:1">${ic}</div><div style="flex:1;min-width:0"><div style="font-family:var(--page-font-heading,Sora,sans-serif);font-weight:700;font-size:15px;color:${hCol};margin-bottom:4px">${ih}</div><div style="font-size:13px;color:${dCol};line-height:1.6">${idd}</div></div></div>`;
     } else if (el.type === 'logostrip' && Array.isArray(el._logos)) {
       // Structured logostrip (Phase 3 inspector refactor, audit C-X-4
       // and C-L-2). Header label + array of {text, img} entries.
@@ -524,7 +560,7 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
         : cardStyle === 'minimal'
           ? 'background:transparent;border:none'
           : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)';
-      h += `<div ${elAttrs} style="${st}"><div class="sp-faq-item"><div class="sp-faq-q" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;${cardCss};border-radius:12px;cursor:pointer;user-select:none"><span style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:${qCol}">${q}</span><span class="sp-faq-toggle" style="color:#64748b;font-size:22px;line-height:1;transition:transform .2s">+</span></div><div class="sp-faq-a" style="padding:12px 18px;font-size:14px;color:${aCol};line-height:1.7;margin-top:4px">${a}</div></div></div>`;
+      h += `<div ${elAttrs} style="${st}"><div class="sp-faq-item"><div class="sp-faq-q" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;${cardCss};border-radius:12px;cursor:pointer;user-select:none"><span style="font-family:var(--page-font-heading,Sora,sans-serif);font-weight:700;font-size:15px;color:${qCol}">${q}</span><span class="sp-faq-toggle" style="color:#64748b;font-size:22px;line-height:1;transition:transform .2s">+</span></div><div class="sp-faq-a" style="padding:12px 18px;font-size:14px;color:${aCol};line-height:1.7;margin-top:4px">${a}</div></div></div>`;
     } else if ((el.type === 'review' || el.type === 'testimonial') && (el._rating !== undefined || el._quote !== undefined || el._author !== undefined)) {
       // Structured review/testimonial (Phase 3 inspector refactor,
       // audit C-X-4 + C-C-1). Three fields: rating (1-5), quote, author.

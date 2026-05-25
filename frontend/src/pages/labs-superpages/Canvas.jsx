@@ -697,11 +697,20 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     let innerStyle = 'width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word;';
     textStyles.forEach(k => { if (el.s?.[k]) innerStyle += k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + el.s[k] + ';'; });
 
-    // 22 May 2026: Typography page-level inheritance.
-    // Heading elements without explicit fontFamily inherit the page's
-    // heading font and heading scale multiplier. Existing pages with
-    // baked-in fontFamily on the heading element keep their value
-    // (the textStyles loop above already serialised it).
+    // ── Page-level typography inheritance (22-25 May 2026) ──
+    // Elements without an explicit el.s.fontFamily inherit the page-level
+    // font via CSS variables on .labs-chrome / .sp-canvas. The textStyles
+    // loop above only emits font-family when el.s.fontFamily is set, so
+    // an absent value here means CSS inheritance kicks in.
+    //
+    // Heading is special: it has its own --page-font-heading variable
+    // (the others use --page-font-body via .sp-canvas inheritance), so
+    // we set it explicitly here when no explicit per-element pick.
+    //
+    // _fontExplicit flag (set by Inspector FontPicker) marks deliberate
+    // member choices. The migration on page load strips historical
+    // baked defaults from elements without this flag, so by the time
+    // we get here, el.s.fontFamily means "member explicitly chose this".
     if (el.type === 'heading' && !el.s?.fontFamily) {
       innerStyle += 'font-family:var(--page-font-heading, "Sora", sans-serif);';
     }
@@ -715,6 +724,11 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         innerStyle += `font-size:calc(${fsNum}px * var(--page-heading-scale, 1));`;
       }
     }
+    // Text elements without explicit fontSize inherit page-level body size.
+    // .sp-canvas sets font-size: var(--page-font-base-size) which cascades
+    // to text elements that don't set their own. The textStyles loop above
+    // already skips fontSize when el.s.fontSize is absent, so inheritance
+    // works automatically for migrated elements.
 
     // Badge/label blocks need flex centering
     if ((el.type === 'badge' || el.type === 'label') || (el.s?.display === 'flex')) {
@@ -991,7 +1005,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       const slc = el._statLabelColor || '#64748b';
       const sls = el._statLabelSize || 12;
       return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontFamily: 'Sora,sans-serif', fontSize: ss, fontWeight: 900, color: sc, lineHeight: 1.1 }}>{sv}</div>
+        <div style={{ fontFamily: 'var(--page-font-heading, "Sora", sans-serif)', fontSize: ss, fontWeight: 900, color: sc, lineHeight: 1.1 }}>{sv}</div>
         <div style={{ fontSize: sls, color: slc, marginTop: 4 }}>{sl}</div>
       </div>;
     }
@@ -1026,7 +1040,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       return <div style={{ width: '100%', height: '100%', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
         <div style={{ fontSize: iconSize, flexShrink: 0, width: Math.max(40, iconSize + 12), textAlign: 'center', lineHeight: 1 }}>{ic}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: hCol, marginBottom: 4 }}>{ih}</div>
+          <div style={{ fontFamily: 'var(--page-font-heading, "Sora", sans-serif)', fontWeight: 700, fontSize: 15, color: hCol, marginBottom: 4 }}>{ih}</div>
           <div style={{ fontSize: 13, color: dCol, lineHeight: 1.6 }}>{idd}</div>
         </div>
       </div>;
@@ -1083,7 +1097,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // ensure no centering with leftover whitespace below.
       return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', background: 'transparent' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderRadius: 12, flexShrink: 0, ...cardBg }}>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 15, color: qCol }}>{q}</span>
+          <span style={{ fontFamily: 'var(--page-font-heading, "Sora", sans-serif)', fontWeight: 700, fontSize: 15, color: qCol }}>{q}</span>
           <span style={{ color: '#64748b', fontSize: 22, lineHeight: 1 }}>+</span>
         </div>
         <div style={{ padding: '12px 18px', fontSize: 14, color: aCol, lineHeight: 1.7, marginTop: 4, flexShrink: 0 }}>{a}</div>

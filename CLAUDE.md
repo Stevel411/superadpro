@@ -1,5 +1,21 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
+## 🏗️ Build Spec — Commercial-Grade Only
+
+**25 May 2026, Steve called this out and it's now project doctrine:**
+
+SuperAdPro is sold to members who pay hard-earned money. Build quality must match. **Trade-offs, "for new content only" carve-outs, and quick-fix patches are NOT acceptable.** When a bug or issue is found, the response is world-class engineering — root-cause analysis, full end-to-end fix, every affected surface considered.
+
+Default mental model: "Would Webflow / Leadpages / ConvertKit ship this?" If no, neither do we.
+
+**Examples of patches to NEVER propose:**
+- "Body Size only affects new content" → no, migrate existing elements too
+- "Member can do it per-element instead" → no, fix the page-level control properly
+- "We'll defer this to a later session" (when the user is in mid-test) → no, fix it now if it's blocking
+- "Acceptable to have asterisks on page settings" → no, settings work or they're not shipped
+
+Steve will call out any patch-shaped suggestion. Engineering instincts borrowed from other products (e.g. Webflow's "component overrides survive theme changes") must be tested against "what would a SuperAdPro member — an affiliate marketer, not a designer — actually expect."
+
 ## 🎯 Most Recent Session (24 May 2026) — Matt recovery + BSC scanner Layers 4-6 + Stripe gap fix
 
 Sunday session, ~5 hours. Started with a stuck-payment customer recovery (Matt, user 374), turned into a deep dive on the BSC scanner's residual failure mode that the May 17 reliability work didn't cover. Shipped three commits, all live, all verified end-to-end on production.

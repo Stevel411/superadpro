@@ -14,7 +14,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import { useAuth } from '../../hooks/useAuth';
 import './LabsChrome.css';
 import { loadSandboxPage, saveSandboxPage, exportToProductionPayload } from './sandboxStore';
-import { FONTS, FONT_SIZES } from './elementDefaults';
+import { FONTS, FONT_SIZES, migrateTypographyDefaults } from './elementDefaults';
 import ElementInspectorPanel from './ElementInspectorPanel';
 import CampaignSetupModal from '../../components/CampaignSetupModal';
 import { loadGoogleFont } from './FontPicker';
@@ -274,7 +274,7 @@ export default function LabsSuperPagesEditor() {
         scripts: sb.scripts || undefined,
       });
       setPageStatus('draft'); // sandboxes are always draft
-      setEls(sb.els || []);
+      setEls(migrateTypographyDefaults(sb.els || []));
       setCanvasBg(sb.canvasBg || '#ffffff');
       setCanvasBgImage(sb.canvasBgImage || '');
       // Sandbox wiring — empty by default, populated if the user has
@@ -314,9 +314,9 @@ export default function LabsSuperPagesEditor() {
         const raw = data.gjs_css || '';
         if (raw && raw.trim()) {
           const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) { setEls(parsed); }
+          if (Array.isArray(parsed)) { setEls(migrateTypographyDefaults(parsed)); }
           else if (parsed.els) {
-            setEls(parsed.els);
+            setEls(migrateTypographyDefaults(parsed.els));
             if (parsed.canvasBg) setCanvasBg(parsed.canvasBg);
             if (parsed.canvasBgImage) setCanvasBgImage(parsed.canvasBgImage);
             // 22 May 2026: restore pageSettings if persisted. Merge

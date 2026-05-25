@@ -129,7 +129,14 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
   };
   const commitBg = (v) => { setBgColor(v); commitStyle('background', v); };
   const commitFg = (v) => { setTxtColor(v); commitStyle('color', v); };
-  const commitFontFamily = (v) => { setFontFamily(v); commitStyle('fontFamily', v); };
+  // 25 May 2026: deliberate font picks flag _fontExplicit so the
+  // renderer treats them as overrides. Page-level Heading/Body Font
+  // changes pass over flagged elements.
+  const commitFontFamily = (v) => {
+    setFontFamily(v);
+    updateElementStyle(el.id, { fontFamily: v, _fontExplicit: true });
+    markDirty();
+  };
   const commitFontWeight = (v) => { setFontWeight(v); commitStyle('fontWeight', v); };
   const commitFontSize = (numPx) => {
     setFontSizeNum(numPx);
@@ -330,9 +337,22 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
     updateElementStyle(el.id, { [key]: value });
     markDirty();
   };
-  const commitFontFamily = (v) => { setFontFamily(v); commitStyle('fontFamily', v); };
+  const commitFontFamily = (v) => {
+    setFontFamily(v);
+    // 25 May 2026: deliberate font picks flag _fontExplicit; page-level
+    // typography passes over flagged elements.
+    updateElementStyle(el.id, { fontFamily: v, _fontExplicit: true });
+    markDirty();
+  };
   const commitFontWeight = (v) => { setFontWeight(v); commitStyle('fontWeight', v); };
-  const commitFontSize = (numPx) => { setFontSizeNum(numPx); commitStyle('fontSize', numPx + 'px'); };
+  const commitFontSize = (numPx) => {
+    setFontSizeNum(numPx);
+    // For text-type elements, an explicit Inspector-chosen size blocks
+    // page-level Body Size overrides. Heading sizes always block (they're
+    // their own size domain) so the flag's only consulted for text/label.
+    updateElementStyle(el.id, { fontSize: numPx + 'px', _sizeExplicit: true });
+    markDirty();
+  };
   const commitColor = (v) => { setTextColor(v); commitStyle('color', v); };
   const commitAlign = (v) => { setTextAlign(v); commitStyle('textAlign', v); };
   const commitLineHeight = (n) => {
@@ -3632,7 +3652,14 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
   };
   const commitBg = (v) => { setBgColor(v); commitStyle('background', v); };
   const commitFg = (v) => { setTxtColor(v); commitStyle('color', v); };
-  const commitFontFamily = (v) => { setFontFamily(v); commitStyle('fontFamily', v); };
+  // 25 May 2026: deliberate font picks flag _fontExplicit so the
+  // renderer treats them as overrides. Page-level Body Font changes
+  // pass over flagged elements.
+  const commitFontFamily = (v) => {
+    setFontFamily(v);
+    updateElementStyle(el.id, { fontFamily: v, _fontExplicit: true });
+    markDirty();
+  };
   const commitFontWeight = (v) => { setFontWeight(v); commitStyle('fontWeight', v); };
   const commitFontSize = (numPx) => {
     setFontSizeNum(numPx);

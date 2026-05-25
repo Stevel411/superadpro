@@ -5,16 +5,16 @@ export const ELEMENT_TYPES = {
   // ── Text ──
   // 22 May 2026: removed hardcoded fontFamily from heading/text so page-level
   // typography (pageSettings.typography.heading / .body) takes effect by
-  // default. Existing pages with explicit el.s.fontFamily keep their value;
-  // new headings/text elements inherit the page typography until a member
-  // explicitly overrides.
-  // 25 May 2026: also removed fontSize default from text so it inherits
-  // page-level body size (.sp-canvas sets font-size: var(--page-font-base-size)).
-  // Members can still override per-element via the Inspector. Existing pages
-  // with baked fontSize keep it.
+  // default.
+  // 25 May 2026: extended to button, banner (announcement), badge, label —
+  // these previously baked Sora/DM Sans which blocked page-level body font
+  // inheritance. Also removed fontSize from text default so page-level body
+  // size cascades through. Elements signal an explicit member-chosen font
+  // via el.s._fontExplicit = true (set by the Inspector's FontPicker, see
+  // commitFontFamily) — without that flag, page-level typography wins.
   heading: { w: 600, h: 55, txt: 'Your Heading Here', s: { fontWeight: '900', fontSize: '36px', color: '#0f172a', textAlign: 'center' } },
   text: { w: 600, h: 50, txt: 'Your text content goes here. Click to edit.', s: { color: '#475569', textAlign: 'left', lineHeight: '1.8' } },
-  label: { w: 200, h: 30, txt: '⭐ PREMIUM', s: { fontFamily: 'DM Sans,sans-serif', fontWeight: '700', fontSize: '12px', color: '#fbbf24', textAlign: 'center', background: 'rgba(251,191,36,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(251,191,36,0.2)' } },
+  label: { w: 200, h: 30, txt: '⭐ PREMIUM', s: { fontWeight: '700', fontSize: '12px', color: '#fbbf24', textAlign: 'center', background: 'rgba(251,191,36,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(251,191,36,0.2)' } },
 
   // ── Media ──
   image: { w: 500, h: 300, txt: '', s: { borderRadius: '12px' } },
@@ -22,13 +22,13 @@ export const ELEMENT_TYPES = {
   audio: { w: 500, h: 60, txt: '', s: {} },
 
   // ── Actions ──
-  button: { w: 500, h: 56, txt: 'Join Now', s: { background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontFamily: 'Sora,sans-serif', fontWeight: '700', fontSize: '18px', textAlign: 'center', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
-  form: { w: 600, h: 280, txt: '<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">Get Free Access</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">Enter your details below</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box">Get Access →</div></div>', s: { background: 'rgba(15,23,41,0.4)', borderRadius: '18px', padding: '20px' } },
-  announcement: { w: 1100, h: 44, txt: '🔥 LIMITED TIME OFFER — Join Now and Save 50%!', dismissible: false, sticky: false, s: { background: 'linear-gradient(135deg,#ef4444,#f59e0b)', color: '#fff', fontFamily: 'DM Sans,sans-serif', fontWeight: '700', 'fontSize': '14px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+  button: { w: 500, h: 56, txt: 'Join Now', s: { background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontWeight: '700', fontSize: '18px', textAlign: 'center', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+  form: { w: 600, h: 280, txt: '<div style="text-align:center;padding:4px"><div style="font-family:var(--page-font-heading,Sora,sans-serif);font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">Get Free Access</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">Enter your details below</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box">Get Access →</div></div>', s: { background: 'rgba(15,23,41,0.4)', borderRadius: '18px', padding: '20px' } },
+  announcement: { w: 1100, h: 44, txt: '🔥 LIMITED TIME OFFER — Join Now and Save 50%!', dismissible: false, sticky: false, s: { background: 'linear-gradient(135deg,#ef4444,#f59e0b)', color: '#fff', fontWeight: '700', 'fontSize': '14px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
 
   // ── Content ──
   review: { w: 700, h: 100, txt: '', s: { background: '#1e293b', borderRadius: '16px', borderLeft: '4px solid #0ea5e9', padding: '24px' }, _rating: 5, _quote: 'This platform is amazing!', _author: 'Happy Customer' },
-  badge: { w: 200, h: 30, txt: '⭐ PREMIUM', s: { fontFamily: 'DM Sans,sans-serif', fontWeight: '700', fontSize: '12px', color: '#fbbf24', textAlign: 'center', background: 'rgba(251,191,36,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(251,191,36,0.2)' } },
+  badge: { w: 200, h: 30, txt: '⭐ PREMIUM', s: { fontWeight: '700', fontSize: '12px', color: '#fbbf24', textAlign: 'center', background: 'rgba(251,191,36,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(251,191,36,0.2)' } },
   testimonial: { w: 700, h: 140, txt: '<div style="margin-bottom:8px"><span style="color:#fbbf24">★★★★★</span></div><div style="font-size:15px;color:#e2e8f0;line-height:1.7;font-style:italic;margin-bottom:10px">"This completely changed how I approach my business. The tools are incredible and the community is so supportive."</div><div style="font-size:13px;color:#64748b;font-weight:600">— Jane D., Online Coach</div>', s: { background: '#1e293b', borderRadius: '16px', borderLeft: '4px solid #fbbf24', padding: '24px' } },
   faq: { w: 700, h: 80, txt: '', s: {}, _faqQuestion: 'How does this work?', _faqAnswer: 'Click the edit button to customise the question and answer text for this FAQ item.' },
   stat: { w: 200, h: 80, txt: '', s: { textAlign: 'center' }, _statValue: '95%', _statLabel: 'Paid Out', _statColor: '#0ea5e9' },
@@ -245,5 +245,65 @@ export function applyDeviceUpdate(el, device, updates) {
     ...el,
     [device]: { ...existing, ...updates },
   };
+}
+
+// ── Typography migration (25 May 2026) ─────────────────────────────
+// Historical baked-in fontFamily/fontSize defaults blocked page-level
+// typography from cascading. The 25 May 2026 fix removed these from
+// element defaults — but existing pages have already-saved elements
+// carrying the historical defaults in el.s.
+//
+// migrateTypographyDefaults walks every element on load. For each
+// element, if el.s.fontFamily matches a known historical default AND
+// the element doesn't have _fontExplicit (meaning the member never
+// touched the font picker), strip the baked fontFamily. The element
+// then inherits page-level typography correctly.
+//
+// Same logic for el.s.fontSize on text elements — historical default
+// was '15px'. Stripped when no _sizeExplicit flag.
+//
+// _fontExplicit / _sizeExplicit are set by the Inspector when the
+// member uses the FontPicker / size slider. Anything without the
+// flag is treated as a default carried over from element creation
+// and is eligible for migration.
+//
+// Conservative: only strips EXACT matches to historical defaults.
+// Anything else (e.g. a member who chose Sora via Tiptap before the
+// flag system existed) keeps the value to be safe — at worst a
+// migration miss, never a destructive overwrite.
+const HISTORICAL_FONT_DEFAULTS = {
+  button: 'Sora,sans-serif',
+  announcement: 'DM Sans,sans-serif',
+  badge: 'DM Sans,sans-serif',
+  label: 'DM Sans,sans-serif',
+};
+const HISTORICAL_TEXT_SIZE = '15px';
+
+export function migrateTypographyDefaults(els) {
+  if (!Array.isArray(els)) return els;
+  return els.map(el => {
+    if (!el || !el.s) return el;
+    let s = el.s;
+    let changed = false;
+
+    // Strip baked fontFamily if it matches the historical default
+    // AND wasn't explicitly set by the member.
+    const historicalFF = HISTORICAL_FONT_DEFAULTS[el.type];
+    if (historicalFF && s.fontFamily === historicalFF && !s._fontExplicit) {
+      const { fontFamily, ...rest } = s;
+      s = rest;
+      changed = true;
+    }
+
+    // Strip baked fontSize on text elements if it matches the
+    // historical 15px default and wasn't explicitly set.
+    if (el.type === 'text' && s.fontSize === HISTORICAL_TEXT_SIZE && !s._sizeExplicit) {
+      const { fontSize, ...rest } = s;
+      s = rest;
+      changed = true;
+    }
+
+    return changed ? { ...el, s } : el;
+  });
 }
 
