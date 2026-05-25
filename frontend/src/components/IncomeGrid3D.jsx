@@ -4,8 +4,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-var GRID = 8;
-var TOTAL = 64;
+var GRID = 6;
+var TOTAL = 36;
 var TIERS = [
   {price:20,color:'#10b981',name:'Starter'},
   {price:50,color:'#0ea5e9',name:'Builder'},
@@ -248,7 +248,7 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
   var tier = TIERS[tierIdx] || TIERS[0];
   var direct = Math.round(tier.price * 0.4 * Math.min(filled, 10));
   var uni = Math.round(tier.price * 0.0625 * filled);
-  var bonus = filled >= TOTAL ? Math.round(tier.price * 0.05 * TOTAL) : 0;
+  var bonus = filled >= TOTAL ? Math.round(tier.price * 0.10 * TOTAL) : 0;
   var total = direct + uni + bonus;
 
   return (
@@ -259,7 +259,7 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
 
       <div style={{position:'absolute',top:16,left:20,right:20,display:'flex',justifyContent:'space-between',alignItems:'flex-start',pointerEvents:'none'}}>
         <div>
-          <div style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:900,color:'#fff'}}>8×8 Income Grid <span style={{color:tier.color}}>— ${tier.price} {tier.name}</span></div>
+          <div style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:900,color:'#fff'}}>Profit Grid <span style={{color:tier.color}}>— ${tier.price} {tier.name}</span></div>
           <div style={{fontSize:11,color:'rgba(255,255,255,.35)'}}>{filled}/{TOTAL} members joined · Drag to rotate</div>
         </div>
         <button onClick={start} style={{padding:'6px 14px',borderRadius:6,background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)',color:'#38bdf8',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',pointerEvents:'auto'}}>{t('common.replay')}</button>

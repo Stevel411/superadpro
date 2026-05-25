@@ -2,7 +2,7 @@
 
 **Status:** Locked ground truth — AI assistants must read this before making any claims about commission rates, tier prices, or payout mechanics. Do not fabricate numbers. If a rule is not documented here or contradicts here, ask Steve.
 
-**Last confirmed:** 25 May 2026 (Steve confirmed Grid tier names against live site: Starter, Builder, Pro, Advanced, Premium, Elite, Master, Champion. Tier-names table added to Stream 02.)
+**Last confirmed:** 25 May 2026 (Steve cut Profit Grid from 8×8/64 seats to 6×6/36 seats with bonus at position 36. Visual redesign: gold direct + cyan spillover + purple completion seat.)
 
 **Legend:**
 - ✅ Confirmed by Steve in-session
@@ -72,7 +72,9 @@ If you encounter any of these in code, copy, templates, or AI prompts, flag for 
 
 ## 2. Campaign Grid (Stream 02) ✅
 
-**Last updated:** 21 May 2026 — Steve reallocated the 5% platform share to double the completion bonus from 5% to 10%. **100% of every Grid commission now flows to affiliates. Zero dedicated company share.** Marketing line: *"100% of Profit Grid commissions go to affiliates. We don't take a cent."*
+**Last updated:** 25 May 2026 — Steve cut the grid from 8×8 (64 seats) to 6×6 (36 seats). Bonus pool stays at 10%. Total lifetime $/year unchanged because uni-level still pays at every level (relationship-based, decoupled from grid shape) — but cycles now complete ~1.78× more often, delivering bonuses in tighter loops. Visual redesign: gold direct tiles, cyan spillover tiles, purple completion seat at position 36.
+
+**Previous update (21 May 2026):** Steve reallocated the 5% platform share to double the completion bonus from 5% to 10%. **100% of every Grid commission flows to affiliates. Zero dedicated company share.** Marketing line: *"100% of Profit Grid commissions go to affiliates. We don't take a cent."*
 
 ### Tier ladder ✅
 
@@ -91,35 +93,81 @@ If you encounter any of these in code, copy, templates, or AI prompts, flag for 
 
 Tier names are live in production UI (visualiser, /grid/activate page, member dashboards). Confirmed against `app/database.py::GRID_TIER_NAMES` 25 May 2026.
 
+### Grid shape ✅
+
+- **6 wide × 6 deep = 36 positions** per grid (was 8×8 = 64 pre-25-May-2026).
+- Position 36 is the **completion-bonus seat** — filling it triggers the 10% bonus payout and opens a new grid for the owner.
+- Uni-level depth **stays at 8 levels** — the grid is now a visualisation of a slice of uni-level activity, not the full chain. When the active grid completes at seat 36, the next two levels of uni-level activity populate the newly-opened grid.
+
+**Why the change:** completion cadence is the dopamine event in any matrix plan. Faster cycles = more "I just earned a bonus" moments per member per year, which drives retention. Lifetime $/year is unchanged — same money, tighter loops.
+
 ### Per-entry payout at Tier N ✅
 
 | Component | Rate | Notes |
 |---|---|---|
 | Direct (to sponsor) | 40% | Once per entry |
-| Uni-level (up the chain) | 6.25% × 8 levels = 50% total | One payout per level up to 8 |
-| Bonus pool | 10% | Accumulates toward completion bonus (was 5% pre-21-May-2026) |
+| Uni-level (up the chain) | 6.25% × 8 levels = 50% total | One payout per level up to 8 — **unchanged**, still pays full chain regardless of grid shape |
+| Bonus pool | 10% | Accumulates toward completion bonus, pays at seat 36 |
 | Platform | 0% | Reallocated to bonus pool 21 May 2026 |
 
 **Total: 100% to affiliates.**
 
-**Income stream framing:** Campaign Tiers now contribute 100% to affiliates. The company makes its money on Membership ($10 flat per activation), not Grid.
+**Income stream framing:** Campaign Tiers contribute 100% to affiliates. The company makes its money on Membership ($10 flat per activation), not Grid.
 
 ### Completion bonuses ✅
 
-Per-tier total accrued at full grid (64 seats × tier_price × 10%):
-$128 / $320 / $640 / $1,280 / $2,560 / $3,840 / $5,120 / $6,400 (by tier position 1→8).
+Per-tier total accrued at full grid (36 seats × tier_price × 10%):
 
-Previous values (pre-21-May-2026, at 5%): $64 / $160 / $320 / $640 / $1,280 / $1,920 / $2,560 / $3,200.
+| Tier | Price | Bonus per grid cycle |
+|---|---|---|
+| 1 Starter | $20 | **$72** |
+| 2 Builder | $50 | **$180** |
+| 3 Pro | $100 | **$360** |
+| 4 Advanced | $200 | **$720** |
+| 5 Premium | $400 | **$1,440** |
+| 6 Elite | $600 | **$2,160** |
+| 7 Master | $800 | **$2,880** |
+| 8 Champion | $1,000 | **$3,600** |
+
+Previous values (pre-25-May-2026, 64-grid at 10%): $128 / $320 / $640 / $1,280 / $2,560 / $3,840 / $5,120 / $6,400. Earlier still (pre-21-May-2026, 64-grid at 5%): $64 / $160 / $320 / $640 / $1,280 / $1,920 / $2,560 / $3,200.
+
+### Per-cycle economics ✅
+
+Total earned by the grid owner per completed cycle (uni-level + completion bonus, excludes the 40% direct on their personal referrals):
+
+| Tier | Uni-level (6.25% × 36) | Completion Bonus | **Total per Grid** |
+|---|---|---|---|
+| 1 Starter | $45 | $72 | **$117** |
+| 2 Builder | $112.50 | $180 | **$292.50** |
+| 3 Pro | $225 | $360 | **$585** |
+| 4 Advanced | $450 | $720 | **$1,170** |
+| 5 Premium | $900 | $1,440 | **$2,340** |
+| 6 Elite | $1,350 | $2,160 | **$3,510** |
+| 7 Master | $1,800 | $2,880 | **$4,680** |
+| 8 Champion | $2,250 | $3,600 | **$5,850** |
+
+Per-cycle is 43.75% smaller than the old 64-grid, but cycles fire ~1.78× more often. Total bonus pool generated per dollar of tier sales is unchanged — payouts simply land in tighter loops.
 
 ### Tier qualification rule ✅
 
 Found in `app/grid.py::_user_is_qualified` — must have an **active (or in-grace) campaign at the same tier or above** to earn commissions. Unqualified sponsor → 40% direct absorbed by platform as recipient of last resort. Uni-level: each level checked independently.
 
-**Customer-facing note on "100% to affiliates" claim:** the dedicated platform-fee line is now $0. When chains are short or uplines are unqualified, those slots are absorbed by the platform as the qualifying recipient of last resort — this is qualification-gate behaviour, not a separate revenue line. Honest answer if asked: *"All Grid commissions are paid out to qualifying affiliates. The rate to qualifying members is unchanged."*
+**Customer-facing note on "100% to affiliates" claim:** the dedicated platform-fee line is $0. When chains are short or uplines are unqualified, those slots are absorbed by the platform as the qualifying recipient of last resort — this is qualification-gate behaviour, not a separate revenue line. Honest answer if asked: *"All Grid commissions are paid out to qualifying affiliates. The rate to qualifying members is unchanged."*
+
+### Migration record (25 May 2026)
+
+On deploy day, all in-flight grids (regardless of `positions_filled`) re-targeted to `GRID_TOTAL = 36`. Steve verified personally that he and all known active campaigners were below 36 fills at deploy time, so the migration produced zero surprise auto-completions. Forward from this deploy, every grid created or in-flight follows the 36-seat model. Historical completion bonuses paid before this date stay at their original $128–$6,400 values; no retroactive recalculation.
+
+### Visual identity ✅
+
+- **Gold gradient** (#b45309 → #fbbf24 → #fde047) = direct referral tile
+- **Cyan gradient** (#0891b2 → #06b6d4 → #22d3ee) = spillover tile
+- **Royal purple gradient** (#4c1d95 → #7c3aed → #c4b5fd) with pulsing animation = completion seat (position 36) and bonus card accent
+- **Cobalt header gradient** (`#172554 → #1e3a8a`) = standard platform card header, matches the rest of the member surface
 
 ### Earning potential ❌
 
-**The deck must NOT show fabricated ranges like "$560 — $28,000+".** Any earnings figures must be recalculated from the real tier ladder + new completion bonus schedule and confirmed with Steve before publishing.
+**The deck must NOT show fabricated ranges like "$560 — $28,000+".** Any earnings figures must be recalculated from the real tier ladder + new completion bonus schedule (above) and confirmed with Steve before publishing.
 
 ---
 

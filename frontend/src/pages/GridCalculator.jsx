@@ -16,6 +16,10 @@ var TIERS = [
 var GOLD_GRAD = 'linear-gradient(135deg,#78350f,#b45309,#fbbf24)';
 var GREEN_GRAD = 'linear-gradient(135deg,#064e3b,#047857,#10b981)';
 
+// 25 May 2026 — grid reshaped from 8×8/64 to 6×6/36; bonus stays at 10%.
+var TOTAL_SEATS = 36;
+var BONUS_PCT = 0.10;
+
 var consonants = 'BCDFGHJKLMNPRSTV';
 var vowels = 'AEIOU';
 function makeName() {
@@ -43,12 +47,12 @@ export default function GridCalculator() {
   var price = tier.price;
   var directRate = 0.40;
   var uniRate = 0.0625;
-  var bonusTotal = price * 0.05 * 64;
-  var spillCount = 64 - personalCount;
+  var bonusTotal = price * BONUS_PCT * TOTAL_SEATS;
+  var spillCount = TOTAL_SEATS - personalCount;
 
   var startSim = useCallback(function() {
     if (running) return;
-    if (filledRef.current >= 64) {
+    if (filledRef.current >= TOTAL_SEATS) {
       filledRef.current = 0;
       earningsRef.current = { direct: 0, uni: 0, bonus: 0 };
       feedRef.current = [];
@@ -62,7 +66,7 @@ export default function GridCalculator() {
 
     if (seatsRef.current.length === 0) {
       var seatList = [];
-      for (var i = 0; i < 64; i++) {
+      for (var i = 0; i < TOTAL_SEATS; i++) {
         seatList.push({ name: makeName(), isPersonal: i < personalCount });
       }
       seatsRef.current = seatList;
@@ -73,7 +77,7 @@ export default function GridCalculator() {
 
     function tick() {
       var idx = filledRef.current;
-      if (idx >= 64) {
+      if (idx >= TOTAL_SEATS) {
         var e = Object.assign({}, earningsRef.current);
         e.bonus = bonusTotal;
         earningsRef.current = e;
@@ -123,11 +127,11 @@ export default function GridCalculator() {
   }
 
   var total = earnings.direct + earnings.uni + earnings.bonus;
-  var pct = Math.round(filled / 64 * 100);
-  var complete = filled >= 64;
+  var pct = Math.round(filled / TOTAL_SEATS * 100);
+  var complete = filled >= TOTAL_SEATS;
 
   return (
-    <AppLayout title={t('gridCalc.pageTitle')} subtitle="See how your 8×8 income grid fills and earns">
+    <AppLayout title={t('gridCalc.pageTitle')} subtitle="See how your 6×6 profit grid fills and earns">
       <style>{`
         @keyframes popIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
         @keyframes glowGold{0%,100%{box-shadow:0 0 10px rgba(251,191,36,.3)}50%{box-shadow:0 0 22px rgba(251,191,36,.6)}}
@@ -165,10 +169,10 @@ export default function GridCalculator() {
             <div style={{ width:14, height:14, borderRadius:4, background:GOLD_GRAD, flexShrink:0 }}/>
             <span style={{ fontSize:12, fontWeight:700, color:'#78350f', whiteSpace:'nowrap' }}>Personal: {personalCount}</span>
           </div>
-          <input type="range" className="gc-slider" min={1} max={64} value={personalCount} disabled={running}
+          <input type="range" className="gc-slider" min={1} max={TOTAL_SEATS} value={personalCount} disabled={running}
             onChange={function(e) { setPersonalCount(parseInt(e.target.value)); resetSim(); }}
             style={{ flex:1, height:6, borderRadius:3, appearance:'none', WebkitAppearance:'none',
-              background:'linear-gradient(90deg, #fbbf24 ' + (personalCount/64*100) + '%, #10b981 ' + (personalCount/64*100) + '%)',
+              background:'linear-gradient(90deg, #fbbf24 ' + (personalCount/TOTAL_SEATS*100) + '%, #10b981 ' + (personalCount/TOTAL_SEATS*100) + '%)',
               opacity: running ? 0.5 : 1 }}/>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <div style={{ width:14, height:14, borderRadius:4, background:GREEN_GRAD, flexShrink:0 }}/>
@@ -203,7 +207,7 @@ export default function GridCalculator() {
               <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', padding:'20px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div>
                   <div style={{ fontFamily:"'Sora',sans-serif", fontSize:18, fontWeight:800, color:'#fff' }}>T{tier.t} {tier.name} — ${price}</div>
-                  <div style={{ fontSize:12, color:'rgba(255,255,255,.5)', marginTop:2 }}>8×8 Income Grid · 64 positions</div>
+                  <div style={{ fontSize:12, color:'rgba(255,255,255,.5)', marginTop:2 }}>6×6 Profit Grid · 36 positions</div>
                 </div>
                 <div style={{ display:'flex', gap:14 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:5 }}>
@@ -223,7 +227,7 @@ export default function GridCalculator() {
 
               <div style={{ padding:16 }}>
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:5 }}>
-                  {Array.from({ length:64 }).map(function(_, idx) {
+                  {Array.from({ length:TOTAL_SEATS }).map(function(_, idx) {
                     var isFilled = idx < filled;
                     var isLatest = idx === latestIdx && (running || (complete && idx === 63));
                     var seat = seats[idx];
@@ -244,7 +248,7 @@ export default function GridCalculator() {
 
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:1, background:'#f1f5f9' }}>
                 {[
-                  { label:'Filled', val:filled+'/64', color:'#0f172a' },
+                  { label:'Filled', val:filled+'/'+TOTAL_SEATS, color:'#0f172a' },
                   { label:'Personal', val:Math.min(filled,personalCount)+'/'+personalCount, color:'#b45309' },
                   { label:t('gridCalc.spilloverLabel'), val:Math.max(0,filled-personalCount)+'/'+spillCount, color:'#047857' },
                   { label:'Progress', val:pct+'%', color: complete ? '#4ade80' : '#0ea5e9' },
@@ -300,12 +304,12 @@ export default function GridCalculator() {
               <div style={{ background:'#fff', borderRadius:12, padding:16, border:'1px solid #e2e8f0', textAlign:'center' }}>
                 <div style={{ fontSize:13, fontWeight:700, color:'#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>Bonus (5%)</div>
                 <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color: complete ? '#6366f1' : '#cbd5e1', marginTop:4 }}>{complete ? '$'+earnings.bonus.toFixed(0) : '🔒'}</div>
-                <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>{complete ? 'Unlocked!' : 'Fills at 64/64'}</div>
+                <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>{complete ? 'Unlocked!' : 'Fills at '+TOTAL_SEATS+'/'+TOTAL_SEATS}</div>
               </div>
               <div style={{ background:'#fff', borderRadius:12, padding:16, border:'1px solid #e2e8f0', textAlign:'center' }}>
                 <div style={{ fontSize:13, fontWeight:700, color:'#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>{t('gridCalc.positions')}</div>
-                <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color:'#0f172a', marginTop:4 }}>{filled}/64</div>
-                <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>{64-filled} remaining</div>
+                <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color:'#0f172a', marginTop:4 }}>{filled}/{TOTAL_SEATS}</div>
+                <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>{TOTAL_SEATS-filled} remaining</div>
               </div>
             </div>
 

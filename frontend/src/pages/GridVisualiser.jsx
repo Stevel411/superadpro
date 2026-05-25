@@ -2,36 +2,73 @@ import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 
-// Tier ladder — mirrors the existing GridVisualiser. Updated 21 May 2026
-// to reflect the comp plan reallocation (10% bonus, 0% platform). Bonus
-// values doubled. Kept here client-side for the active-tab gradient.
+/*
+ * Profit Grid Visualiser — 6×6 / 36-seat model (25 May 2026).
+ *
+ * Steve cut the grid from 8×8/64 to 6×6/36. Uni-level commission depth
+ * stays at 8 (unchanged) — the grid is now a visualisation of a slice
+ * of uni-level activity. Completion bonus pays at position 36 (10% of
+ * 36 × tier_price). Same total $/year delivered in tighter cycles.
+ *
+ * Visual treatment:
+ *   - Direct referrals  → gold gradient tiles
+ *   - Spillover         → cyan gradient tiles
+ *   - Completion seat   → royal purple, pulsing, position 36
+ *   - Headers           → platform-canonical cobalt (#172554 → #1e3a8a)
+ *
+ * Spec: docs/commission-spec.md §2. Final mockup approved 25 May 2026.
+ */
+
 var TIERS = [
-  { t:1, name:'Starter',   price:20,   bonus:128,  grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
-  { t:2, name:'Builder',   price:50,   bonus:320,  grad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)' },
-  { t:3, name:'Pro',       price:100,  bonus:640,  grad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)' },
-  { t:4, name:'Advanced',  price:200,  bonus:1280, grad:'linear-gradient(135deg,#831843,#be185d,#ec4899)' },
-  { t:5, name:'Premium',   price:400,  bonus:2560, grad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)' },
-  { t:6, name:'Elite',     price:600,  bonus:3840, grad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)' },
-  { t:7, name:'Master',    price:800,  bonus:5120, grad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)' },
-  { t:8, name:'Champion',  price:1000, bonus:6400, grad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)' },
+  { t:1, name:'Starter',   price:20,   bonus:72   },
+  { t:2, name:'Builder',   price:50,   bonus:180  },
+  { t:3, name:'Pro',       price:100,  bonus:360  },
+  { t:4, name:'Advanced',  price:200,  bonus:720  },
+  { t:5, name:'Premium',   price:400,  bonus:1440 },
+  { t:6, name:'Elite',     price:600,  bonus:2160 },
+  { t:7, name:'Master',    price:800,  bonus:2880 },
+  { t:8, name:'Champion',  price:1000, bonus:3600 },
 ];
 
-// Tile gradients. Direct = amber/gold (recognisable as "your direct
-// referral"), spillover = green (recognisable as "auto-placed"). Empty
-// uses a dashed border on a near-white background so empty seats
-// visually recede.
-var DIRECT_GRAD = 'linear-gradient(135deg,#b45309,#fbbf24)';
-var SPILLOVER_GRAD = 'linear-gradient(135deg,#047857,#10b981)';
+var TOTAL_SEATS = 36;
+
+var DIRECT_GRAD = 'linear-gradient(135deg,#b45309 0%,#d97706 30%,#fbbf24 65%,#fde047 100%)';
+var SPILLOVER_GRAD = 'linear-gradient(135deg,#0891b2 0%,#06b6d4 50%,#22d3ee 100%)';
+var BONUS_GRAD = 'linear-gradient(135deg,#4c1d95 0%,#7c3aed 50%,#c4b5fd 100%)';
+var COBALT_HEADER = 'linear-gradient(135deg,#172554 0%,#1e3a8a 100%)';
+var CYAN_PROGRESS = 'linear-gradient(90deg,#0891b2,#06b6d4,#22d3ee)';
+var TIER_ACTIVE_GRAD = 'linear-gradient(135deg,#1e3a8a,#0891b2)';
 
 var css = `
-  .lgv-tier-tab{padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:#475569;background:#fff}
-  .lgv-tier-tab:hover:not(.active){background:#f8fafc}
-  .lgv-tier-tab.active{color:#fff;border-color:transparent}
-  .lgv-tile{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:transform .15s;overflow:hidden;padding:4px 3px;box-sizing:border-box}
-  .lgv-tile:hover{transform:scale(1.06)}
-  .lgv-tile.empty{background:#f8fafc;border:1.5px dashed #cbd5e1;padding:0}
-  .lgv-tile .avatar{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:800;color:#fff;font-size:12px;text-shadow:0 1px 2px rgba(0,0,0,0.25);margin-bottom:4px;flex-shrink:0}
-  .lgv-tile .uname{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.25);line-height:1.1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;padding:0 2px}
+  @keyframes lgv-shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+  @keyframes lgv-pulse {
+    0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,0.5),0 4px 20px rgba(124,58,237,0.3)}
+    50%{box-shadow:0 0 0 9px rgba(124,58,237,0),0 8px 30px rgba(124,58,237,0.45)}
+  }
+  .lgv-tier-tab{padding:9px 16px;border-radius:8px;border:1px solid #cbd5e1;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:#475569;background:#fff;letter-spacing:0.2px}
+  .lgv-tier-tab:hover:not(.active){background:#f8fafc;border-color:#94a3b8}
+  .lgv-tier-tab.active{color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(8,145,178,0.25)}
+  .lgv-tile{aspect-ratio:1;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:8px 6px;color:#fff;overflow:hidden;transition:transform .18s ease, box-shadow .18s ease;cursor:default}
+  .lgv-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,rgba(255,255,255,0.22),transparent);pointer-events:none}
+  .lgv-tile:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 10px 24px rgba(10,20,56,0.16)}
+  .lgv-tile.direct{box-shadow:0 4px 14px rgba(217,119,6,0.25)}
+  .lgv-tile.direct .lgv-avatar{color:#7c2d12;text-shadow:none;background:rgba(255,255,255,0.32);border-color:rgba(255,255,255,0.55)}
+  .lgv-tile.direct .lgv-uname{color:#7c2d12;text-shadow:0 1px 1px rgba(255,255,255,0.3)}
+  .lgv-tile.direct .lgv-pos{color:rgba(124,45,18,0.55)}
+  .lgv-tile.spillover{box-shadow:0 4px 14px rgba(8,145,178,0.22)}
+  .lgv-tile.empty{background:#fafbff;border:2px dashed #cbd5e1;color:#94a3b8;box-shadow:inset 0 1px 3px rgba(10,20,56,0.03)}
+  .lgv-tile.empty::before{display:none}
+  .lgv-tile.empty:hover{border-color:#22d3ee;background:#f0fdff;transform:none;box-shadow:0 0 0 3px rgba(34,211,238,0.12)}
+  .lgv-tile.completion-empty{border:3px dashed #ddd6fe;color:#f5f3ff;animation:lgv-pulse 2.5s ease-in-out infinite}
+  .lgv-tile.completion-empty::before{display:none}
+  .lgv-tile.completion-filled{box-shadow:0 6px 24px rgba(124,58,237,0.35)}
+  .lgv-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.45);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff;margin-bottom:5px;text-shadow:0 1px 2px rgba(0,0,0,0.2);position:relative;z-index:1;flex-shrink:0}
+  .lgv-uname{font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;line-height:1.1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,0.25);position:relative;z-index:1;padding:0 3px}
+  .lgv-pos{position:absolute;top:6px;left:8px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:rgba(255,255,255,0.55);z-index:1;letter-spacing:0.3px}
+  .lgv-tile.empty .lgv-pos{color:#94a3b8;font-size:13px;position:static;font-weight:700}
+  .lgv-direct-badge{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:#7c3aed;border:2px solid #fff;z-index:2;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;box-shadow:0 2px 6px rgba(124,58,237,0.4)}
+  .lgv-progress-fill{position:relative;overflow:hidden}
+  .lgv-progress-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.45),transparent);animation:lgv-shimmer 2.4s infinite}
 `;
 
 export default function GridVisualiser() {
@@ -48,8 +85,7 @@ export default function GridVisualiser() {
 
   var tier = TIERS[activeTier - 1];
   var filled = data ? data.filled : 0;
-  var total = 64;
-  var pct = Math.round(filled / total * 100);
+  var pct = Math.round(filled / TOTAL_SEATS * 100);
   var seats = data ? data.seats : [];
   var bonusAccrued = data ? data.bonus_accrued : 0;
   var bonusMax = data ? data.bonus_max : tier.bonus;
@@ -63,19 +99,20 @@ export default function GridVisualiser() {
   var unilevelPerFill = data ? data.unilevel_per_fill : tier.price * 0.0625;
   var directCount = data ? data.direct_count : 0;
   var completedAdvances = data ? data.completed_advances : 0;
+  var seatsToUnlock = Math.max(0, TOTAL_SEATS - filled);
 
   return (
-    <AppLayout title="Income Grid" subtitle="Your 8×8 spillover grid">
+    <AppLayout title="Profit Grid" subtitle="Your 6×6 spillover grid — bonus at seat 36">
       <style>{css}</style>
-      <div style={{ maxWidth:1100, margin:'0 auto' }}>
+      <div style={{ maxWidth:1180, margin:'0 auto' }}>
 
         {/* Tier tabs */}
-        <div style={{ display:'flex', gap:6, marginBottom:16, flexWrap:'nowrap', overflowX:'auto', paddingBottom:2 }}>
+        <div style={{ display:'flex', gap:8, marginBottom:18, flexWrap:'wrap' }}>
           {TIERS.map(function(t) {
             var isActive = activeTier === t.t;
             return (
               <button key={t.t} className={'lgv-tier-tab' + (isActive ? ' active' : '')}
-                style={isActive ? { background:t.grad } : {}}
+                style={isActive ? { background:TIER_ACTIVE_GRAD } : {}}
                 onClick={function(){ setActiveTier(t.t); }}>
                 T{t.t} {t.name} — ${t.price}
               </button>
@@ -84,65 +121,67 @@ export default function GridVisualiser() {
         </div>
 
         {/* Main two-column layout — 3fr (grid) / 2fr (right column).
-            align-items: stretch makes both columns share the taller column's
-            height. The grid card naturally renders tall at 1100px width
-            (proper square tiles); the right column gets stretched to match.
-            The four 2×2 stat tiles at the bottom absorb the extra space
-            via flex: 1 so the column fills evenly without any void. */}
+            align-items: stretch ensures the right column stretches to
+            match the taller grid card. The 2×2 stat grid below uses
+            flex:1 to absorb leftover vertical space. */}
         <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:16, alignItems:'stretch' }}>
 
           {/* Grid card */}
-          <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden' }}>
-            <div style={{ background:'linear-gradient(135deg,#0a1438,#1e3a8a)', padding:'14px 20px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:700, color:'#fff' }}>T{tier.t} {tier.name} — ${tier.price}</div>
-              <div style={{ fontSize:12, color:'rgba(255,255,255,0.7)', fontWeight:600 }}>{filled} of {total} ({pct}%)</div>
+          <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, overflow:'hidden', boxShadow:'0 4px 20px rgba(10,20,56,0.04)' }}>
+            <div style={{ background:COBALT_HEADER, padding:'16px 22px', display:'flex', justifyContent:'space-between', alignItems:'center', position:'relative', overflow:'hidden' }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, color:'#fff', letterSpacing:'-0.3px', position:'relative', zIndex:1 }}>T{tier.t} {tier.name} — ${tier.price}</div>
+              <div style={{ fontSize:12.5, color:'rgba(255,255,255,0.85)', fontWeight:600, fontFamily:'JetBrains Mono,monospace', position:'relative', zIndex:1 }}>{filled} of {TOTAL_SEATS} · {pct}%</div>
+              <div style={{ position:'absolute', top:'-50%', right:'-10%', width:280, height:'200%', background:'radial-gradient(circle,rgba(56,189,248,0.15),transparent 65%)', pointerEvents:'none' }}/>
             </div>
-            <div style={{ padding:'16px 18px' }}>
-              {/* Progress bar */}
-              <div style={{ height:6, background:'#f1f5f9', borderRadius:3, marginBottom:14, overflow:'hidden' }}>
-                <div style={{ height:'100%', width:pct+'%', background:'linear-gradient(90deg,#047857,#10b981)', borderRadius:3, transition:'width .5s' }}/>
+            <div style={{ padding:'18px 22px' }}>
+              {/* Progress row with countdown */}
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, fontSize:11.5 }}>
+                <div style={{ color:'#64748b', fontWeight:600 }}>Progress to bonus</div>
+                <div style={{ color:'#0891b2', fontWeight:700, fontFamily:'JetBrains Mono,monospace' }}>{seatsToUnlock} seats to ♛</div>
+              </div>
+              <div style={{ height:8, background:'#f1f5f9', borderRadius:4, overflow:'hidden', marginBottom:18 }}>
+                <div className="lgv-progress-fill" style={{ height:'100%', width:pct+'%', background:CYAN_PROGRESS, borderRadius:4, transition:'width .6s ease' }}/>
               </div>
               {/* Legend */}
-              <div style={{ display:'flex', gap:18, justifyContent:'center', marginBottom:14, fontSize:11, color:'#64748b', fontWeight:600, flexWrap:'wrap' }}>
-                <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:12, height:12, borderRadius:3, background:DIRECT_GRAD }}/> Direct referral</span>
-                <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:12, height:12, borderRadius:3, background:SPILLOVER_GRAD }}/> Spillover</span>
-                <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:12, height:12, borderRadius:3, background:'#f8fafc', border:'1.5px dashed #94a3b8' }}/> Empty</span>
+              <div style={{ display:'flex', gap:18, justifyContent:'center', marginBottom:18, fontSize:11.5, color:'#64748b', fontWeight:600, flexWrap:'wrap' }}>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:14, height:14, borderRadius:4, background:DIRECT_GRAD }}/> Direct referral</span>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:14, height:14, borderRadius:4, background:SPILLOVER_GRAD }}/> Spillover</span>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:14, height:14, borderRadius:4, background:BONUS_GRAD }}/> Bonus seat</span>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:14, height:14, borderRadius:4, background:'#fafbff', border:'2px dashed #cbd5e1' }}/> Empty</span>
               </div>
-              {/* 8×8 tile grid */}
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:6, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
-                {Array.from({length:64}, function(_,i) {
+              {/* 6×6 tile grid */}
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
+                {Array.from({length:TOTAL_SEATS}, function(_,i) {
                   var pos = i + 1;
                   var seat = seats.find(function(s){ return s.position === pos; });
-                  // Position 64 gets the completion-bonus star treatment —
-                  // it's the seat that triggers the bonus payout when
-                  // filled, so we mark it visually so the user has a
-                  // specific target to aim for. Empty: big amber star
-                  // (matches the completion bonus card colour). Filled:
-                  // avatar stays + small star badge in top-right corner
-                  // to signal "this is the seat that just paid the bonus".
-                  var isCompletionSeat = pos === 64;
+                  var isCompletionSeat = pos === TOTAL_SEATS;
                   if (seat) {
-                    var grad = seat.is_direct ? DIRECT_GRAD : SPILLOVER_GRAD;
+                    var isDirect = seat.is_direct;
+                    var bg = isCompletionSeat ? BONUS_GRAD : (isDirect ? DIRECT_GRAD : SPILLOVER_GRAD);
+                    var tileClass = 'lgv-tile ' + (isCompletionSeat ? 'completion-filled' : (isDirect ? 'direct' : 'spillover'));
                     return (
-                      <div key={i} className="lgv-tile" style={{ background:grad, position:'relative' }} title={seat.username + ' · ' + (seat.is_direct ? 'Direct' : 'Spillover') + ' · ' + seat.member_id + (isCompletionSeat ? ' · Completion seat' : '')}>
-                        <div className="avatar">{seat.username.charAt(0).toUpperCase()}</div>
-                        <div className="uname">{seat.username}</div>
-                        {isCompletionSeat ? (
-                          <div style={{ position:'absolute', top:-4, right:-4, width:18, height:18, borderRadius:'50%', background:'#fbbf24', border:'2px solid #fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:900, color:'#78350f', boxShadow:'0 2px 4px rgba(0,0,0,0.15)' }}>★</div>
-                        ) : null}
+                      <div key={i} className={tileClass} style={{ background:bg }}
+                           title={seat.username + ' · ' + (isDirect ? 'Direct' : 'Spillover') + ' · ' + seat.member_id + (isCompletionSeat ? ' · Completion seat' : '')}>
+                        <div className="lgv-pos">{pos}</div>
+                        {isDirect && !isCompletionSeat ? <div className="lgv-direct-badge">★</div> : null}
+                        <div className="lgv-avatar">{seat.username.charAt(0).toUpperCase()}</div>
+                        <div className="lgv-uname">{seat.username}</div>
                       </div>
                     );
                   }
                   if (isCompletionSeat) {
                     return (
-                      <div key={i} className="lgv-tile" style={{ background:'linear-gradient(135deg,#fef3c7,#fde68a)', border:'2px dashed #f59e0b', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }} title="Position 64 — fill this to unlock the completion bonus">
-                        <div style={{ fontSize:'22px', color:'#b45309', lineHeight:1, textShadow:'0 1px 2px rgba(180,83,9,0.15)' }}>★</div>
+                      <div key={i} className="lgv-tile completion-empty" style={{ background:BONUS_GRAD }}
+                           title={'Position ' + TOTAL_SEATS + ' — fill this to unlock the completion bonus'}>
+                        <div className="lgv-pos" style={{ color:'rgba(255,255,255,0.7)', fontWeight:800 }}>{pos}</div>
+                        <div style={{ fontSize:30, lineHeight:1, color:'#fff', textShadow:'0 2px 6px rgba(76,29,149,0.4)', marginBottom:4 }}>♛</div>
+                        <div style={{ fontFamily:'Sora,sans-serif', fontSize:9, fontWeight:800, color:'#fff', textTransform:'uppercase', letterSpacing:'1px', textAlign:'center', lineHeight:1.2, textShadow:'0 1px 2px rgba(76,29,149,0.3)' }}>Bonus<br/>seat</div>
                       </div>
                     );
                   }
                   return (
                     <div key={i} className="lgv-tile empty">
-                      <div style={{ color:'#94a3b8', fontWeight:700, fontSize:12 }}>{pos}</div>
+                      <div className="lgv-pos">{pos}</div>
                     </div>
                   );
                 })}
@@ -150,107 +189,101 @@ export default function GridVisualiser() {
             </div>
           </div>
 
-          {/* Right column — income breakdown + bonus + 2x2 stats.
-              height:100% claims the full stretched height from the parent
-              grid. The 2x2 stat grid below uses flex:1 to absorb any
-              leftover vertical space after the two cards above. */}
+          {/* Right column — commissions earned + bonus + 2×2 stats */}
           <div style={{ display:'flex', flexDirection:'column', gap:14, height:'100%' }}>
 
             {/* Commissions earned card */}
             <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden' }}>
-              <div style={{ height:4, background:'linear-gradient(90deg,#16a34a,#4ade80,#86efac)' }}/>
-              <div style={{ padding:'16px 18px' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
-                  <div style={{ fontSize:22 }}>💰</div>
+              <div style={{ padding:'11px 16px', background:COBALT_HEADER, fontFamily:'Sora,sans-serif', fontSize:12, fontWeight:700, color:'#fff', letterSpacing:'0.5px', textTransform:'uppercase', display:'flex', alignItems:'center', gap:8 }}>
+                <span style={{ fontSize:14, color:'#38bdf8' }}>◆</span>Commissions earned
+              </div>
+              <div style={{ padding:'14px 16px' }}>
+                {/* Direct row */}
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>Commissions earned</div>
-                    <div style={{ fontSize:10, color:'#64748b', fontWeight:600 }}>At this tier · paid to wallet</div>
+                    <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Direct referrals</div>
+                    <div style={{ color:'#94a3b8', fontSize:10, fontWeight:500, marginTop:2 }}>{directFills} × ${directPerFill.toFixed(2)} (40%)</div>
+                  </div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, letterSpacing:'-0.3px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
+                    ${directEarned.toFixed(2)}
                   </div>
                 </div>
-
-                {/* Direct referral row */}
-                <div style={{ background:'#f8fafc', borderRadius:10, padding:'12px 14px', marginBottom:8 }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                      <span style={{ width:10, height:10, borderRadius:3, background:DIRECT_GRAD }}/>
-                      <span style={{ fontSize:11, fontWeight:700, color:'#475569' }}>Direct referral</span>
-                    </div>
-                    <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600 }}>40% per fill</div>
-                  </div>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:'#b45309', lineHeight:1 }}>${directEarned.toFixed(2)}</div>
-                    <div style={{ fontSize:10, color:'#64748b', fontWeight:600 }}>{directFills} {directFills === 1 ? 'direct' : 'directs'} × ${directPerFill.toFixed(2)}</div>
-                  </div>
-                </div>
-
                 {/* Uni-level row */}
-                <div style={{ background:'#f8fafc', borderRadius:10, padding:'12px 14px' }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                      <span style={{ width:10, height:10, borderRadius:3, background:SPILLOVER_GRAD }}/>
-                      <span style={{ fontSize:11, fontWeight:700, color:'#475569' }}>Uni-level spillover</span>
-                    </div>
-                    <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600 }}>6.25% per fill</div>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid #f1f5f9' }}>
+                  <div>
+                    <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Uni-level fills</div>
+                    <div style={{ color:'#94a3b8', fontSize:10, fontWeight:500, marginTop:2 }}>{unilevelFills} × ${unilevelPerFill.toFixed(2)} (6.25%)</div>
                   </div>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:'#047857', lineHeight:1 }}>${unilevelEarned.toFixed(2)}</div>
-                    <div style={{ fontSize:10, color:'#64748b', fontWeight:600 }}>{unilevelFills} {unilevelFills === 1 ? 'spillover' : 'spillovers'} × ${unilevelPerFill.toFixed(2)}</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0891b2', letterSpacing:'-0.3px' }}>
+                    ${unilevelEarned.toFixed(2)}
                   </div>
                 </div>
-
                 {/* Total */}
-                <div style={{ borderTop:'1px solid #f1f5f9', marginTop:12, paddingTop:12, display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
-                  <span style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:0.4 }}>Total earned</span>
-                  <span style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:900, color:'#16a34a' }}>${totalEarned.toFixed(2)}</span>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0' }}>
+                  <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Total earned this grid</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0a1438', letterSpacing:'-0.3px' }}>
+                    ${totalEarned.toFixed(2)}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Completion bonus card */}
-            <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden' }}>
-              <div style={{ height:4, background:'linear-gradient(90deg,#f59e0b,#fbbf24,#fde68a)' }}/>
-              <div style={{ padding:'14px 18px' }}>
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <div style={{ fontSize:20 }}>🏆</div>
-                    <div>
-                      <div style={{ fontFamily:'Sora,sans-serif', fontSize:12, fontWeight:800, color:'#0f172a' }}>Completion bonus</div>
-                      <div style={{ fontSize:9, color:'#64748b', fontWeight:600 }}>at 64/64 · pending</div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign:'right' }}>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:'#f59e0b', lineHeight:1 }}>${bonusAccrued.toFixed(2)}</div>
-                    <div style={{ fontSize:9, color:'#64748b', fontWeight:600 }}>of ${bonusMax.toFixed(0)}</div>
+            {/* Completion bonus card — white with purple accents */}
+            <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden', position:'relative', borderLeft:'4px solid #7c3aed' }}>
+              <div style={{ position:'absolute', top:'-30%', right:'-20%', width:240, height:'200%', background:'radial-gradient(circle,rgba(196,181,253,0.18),transparent 65%)', pointerEvents:'none' }}/>
+              <div style={{ padding:'16px 18px', position:'relative' }}>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:10.5, fontWeight:800, color:'#7c3aed', textTransform:'uppercase', letterSpacing:'1.2px', marginBottom:8, display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ fontSize:14, color:'#7c3aed' }}>♛</span>Completion bonus
+                </div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, background:BONUS_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', letterSpacing:'-1px', lineHeight:1, marginBottom:4 }}>
+                  ${bonusMax.toFixed(2)}
+                </div>
+                <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600, marginBottom:10 }}>
+                  10% × {TOTAL_SEATS} seats × ${tier.price} tier
+                </div>
+                <div style={{ display:'inline-block', background:'linear-gradient(135deg,#7c3aed 0%,#a78bfa 100%)', color:'#fff', fontSize:10.5, fontWeight:800, padding:'5px 12px', borderRadius:99, marginTop:4, fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.4px', boxShadow:'0 3px 10px rgba(124,58,237,0.3)' }}>
+                  {seatsToUnlock} seats to unlock
+                </div>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:12, paddingTop:12, borderTop:'1px solid #f1f5f9' }}>
+                  <div style={{ fontSize:11, color:'#64748b', fontWeight:600 }}>Accrued</div>
+                  <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:11.5, color:'#7c3aed', fontWeight:800, background:'#f5f3ff', padding:'3px 9px', borderRadius:6, border:'1px solid #e9d5ff', letterSpacing:'0.5px' }}>
+                    ${bonusAccrued.toFixed(2)} / ${bonusMax.toFixed(0)} ({bonusPct}%)
                   </div>
                 </div>
-                <div style={{ height:5, background:'#fef3c7', borderRadius:3, overflow:'hidden', marginTop:10 }}>
-                  <div style={{ height:'100%', width:bonusPct+'%', background:'linear-gradient(90deg,#f59e0b,#fbbf24)', borderRadius:3, transition:'width .5s' }}/>
-                </div>
-                <div style={{ fontSize:9, color:'#92400e', fontWeight:700, marginTop:6, textAlign:'center' }}>🔒 {64 - filled} positions to unlock</div>
               </div>
             </div>
 
-            {/* 2×2 stats grid — flex:1 absorbs the leftover vertical
-                space after the income card and bonus card. Each stat
-                tile uses flex column + space-between so the label
-                anchors to the top and the number to the bottom when
-                the tiles stretch. */}
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, flex:1 }}>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
-                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5 }}>📊 Positions</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#2563eb', lineHeight:1 }}>{filled}<span style={{ color:'#94a3b8', fontSize:14, fontWeight:600 }}>/64</span></div>
+            {/* 2×2 stats grid */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, flex:1 }}>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:11, color:'#0891b2', fontWeight:700, marginBottom:4, letterSpacing:'0.5px', textTransform:'uppercase' }}>Positions</div>
+                <div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>
+                    {filled}<span style={{ fontSize:13, color:'#94a3b8', fontWeight:600 }}>/{TOTAL_SEATS}</span>
+                  </div>
+                  <div style={{ fontSize:10.5, color:'#64748b', fontWeight:600, marginTop:4 }}>{pct}% to bonus</div>
+                </div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
-                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5 }}>⭐ Tier</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#f59e0b', lineHeight:1 }}>T{tier.t}</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:11, color:'#0891b2', fontWeight:700, marginBottom:4, letterSpacing:'0.5px', textTransform:'uppercase' }}>Tier</div>
+                <div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>T{tier.t}</div>
+                  <div style={{ fontSize:10.5, color:'#64748b', fontWeight:600, marginTop:4 }}>{tier.name} — ${tier.price}</div>
+                </div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
-                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5 }}>🎯 Advances</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#8b5cf6', lineHeight:1 }}>{completedAdvances}</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:11, color:'#0891b2', fontWeight:700, marginBottom:4, letterSpacing:'0.5px', textTransform:'uppercase' }}>Advances</div>
+                <div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>{completedAdvances}</div>
+                  <div style={{ fontSize:10.5, color:'#64748b', fontWeight:600, marginTop:4 }}>Bonuses paid prior</div>
+                </div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
-                <div style={{ fontSize:11, color:'#64748b', fontWeight:700, textTransform:'uppercase', letterSpacing:0.5 }}>👥 Directs</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#06b6d4', lineHeight:1 }}>{directCount}</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:11, color:'#0891b2', fontWeight:700, marginBottom:4, letterSpacing:'0.5px', textTransform:'uppercase' }}>Directs</div>
+                <div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>{directCount}</div>
+                  <div style={{ fontSize:10.5, color:'#64748b', fontWeight:600, marginTop:4 }}>Personal referrals</div>
+                </div>
               </div>
             </div>
 

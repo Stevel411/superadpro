@@ -77,6 +77,25 @@ export default function Dashboard() {
     return function() { clearInterval(interval); };
   }, []);
 
+  // ── Profit Grid migration banner (25 May 2026 → 1 June 2026) ────────
+  // One-week notice after the 6×6/36-seat migration. Shows at the top of
+  // the dashboard for any user who hasn't dismissed it. Auto-hides after
+  // 1 June 2026 regardless — no need to clean this banner up later, it
+  // self-expires. Same localStorage pattern as gift-welcome below.
+  const [gridMigration, setGridMigration] = useState(function() {
+    try {
+      // Auto-expire after 1 June 2026 23:59 UTC
+      if (Date.now() > Date.UTC(2026, 5, 1, 23, 59)) return false;
+      // Honour user dismissal
+      if (localStorage.getItem('grid-migration-25may-dismissed') === '1') return false;
+      return true;
+    } catch (e) { return true; }
+  });
+  function dismissGridMigration() {
+    setGridMigration(false);
+    try { localStorage.setItem('grid-migration-25may-dismissed', '1'); } catch (e) {}
+  }
+
   // ── Gift voucher welcome banner ──────────────────────────────────────
   // Shows a celebratory top banner ONLY on first dashboard load after a
   // successful gift voucher claim. The seamless claim flow redirects to
@@ -509,6 +528,87 @@ export default function Dashboard() {
           through to /pay-it-forward (which also dismisses it). No auto-
           timer — the welcome moment deserves the user's full attention,
           not a 2-second flash. */}
+
+      {/* ── Profit Grid 6×6/36 migration banner (auto-expires 1 June 2026) ── */}
+      {gridMigration && (
+        <div style={{
+          background: 'linear-gradient(135deg, #172554 0%, #1e3a8a 50%, #0891b2 100%)',
+          borderRadius: 14,
+          padding: '20px 24px',
+          marginBottom: 16,
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 6px 24px rgba(8,145,178,0.22)',
+        }}>
+          {/* Cyan radial glow accent — matches the visualiser header treatment */}
+          <div style={{ position: 'absolute', top: '-40%', right: '-10%', width: 280, height: '200%', background: 'radial-gradient(circle, rgba(34,211,238,0.18), transparent 65%)', pointerEvents: 'none' }} />
+
+          {/* Dismiss × */}
+          <button
+            onClick={dismissGridMigration}
+            aria-label="Dismiss grid update banner"
+            style={{
+              position: 'absolute',
+              top: 12, right: 12,
+              width: 28, height: 28,
+              borderRadius: 8,
+              border: 'none',
+              background: 'rgba(255,255,255,0.12)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: 16,
+              fontWeight: 700,
+              fontFamily: 'inherit',
+              zIndex: 2,
+            }}
+            onMouseOver={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,0.22)'; }}
+            onMouseOut={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
+          >×</button>
+
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
+            {/* Crown badge — matches the bonus seat colour family */}
+            <div style={{
+              width: 52, height: 52, borderRadius: 12,
+              background: 'linear-gradient(135deg, #7c3aed, #c4b5fd)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+              fontSize: 26, color: '#fff',
+              boxShadow: '0 4px 14px rgba(124,58,237,0.4)',
+            }}>♛</div>
+
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <div style={{
+                fontFamily: 'Sora, sans-serif',
+                fontSize: 18, fontWeight: 800,
+                color: '#fff', marginBottom: 6,
+                letterSpacing: '-0.2px',
+              }}>
+                Profit Grid update — faster cycles
+              </div>
+              <div style={{
+                fontSize: 13.5,
+                color: 'rgba(255,255,255,0.88)',
+                lineHeight: 1.55,
+                marginBottom: 4,
+              }}>
+                From today, grids complete at <strong style={{ color: '#22d3ee', fontWeight: 800 }}>36 seats</strong> instead of 64. Same commission rates, same 8-level uni-level depth, same total earning potential — just delivered in shorter cycles so you reach your completion bonus sooner.
+              </div>
+              <div style={{
+                fontSize: 12.5,
+                color: 'rgba(255,255,255,0.65)',
+                lineHeight: 1.5,
+                fontStyle: 'italic',
+              }}>
+                Visit the Profit Grid page to see the redesigned visualiser.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {giftWelcome && (
         <div style={{
           background: 'linear-gradient(135deg, #be185d 0%, #ec4899 45%, #f59e0b 100%)',

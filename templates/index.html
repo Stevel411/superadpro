@@ -804,7 +804,7 @@
     const grid = document.getElementById('demoGrid');
     if(!grid) return;
     const cells = [];
-    for(let i=0;i<64;i++){
+    for(let i=0;i<36;i++){
         const c=document.createElement('div');
         c.style.cssText='width:100%;padding-bottom:100%;border-radius:3px;background:rgba(255,255,255,0.06);transition:background 0.3s';
         grid.appendChild(c);
@@ -813,25 +813,27 @@
     cells[0].style.background='#38bdf8';
     let filled=1, earnings=0;
     const pkgPrice=100, ownerPct=0.40;
-    const totalPayout=pkgPrice*63*0.50/8 + pkgPrice*15*0.40; // approx: uni-level on all 63 + direct on ~15
+    // 25 May 2026: 36-seat grid, 10% bonus pool. Indicative payout:
+    // uni-level on all 35 other seats + ~8 direct referrals.
+    const totalPayout=pkgPrice*35*0.0625 + pkgPrice*8*0.40 + pkgPrice*36*0.10;
     function fillNext(){
-        if(filled>=64){
+        if(filled>=36){
             setTimeout(()=>{
                 cells.forEach((c,i)=>{ c.style.background=i===0?'#38bdf8':'rgba(255,255,255,0.06)'; });
                 filled=1; earnings=0;
-                document.getElementById('demoProgress').textContent='Entries filled: 1 / 64';
+                document.getElementById('demoProgress').textContent='Entries filled: 1 / 36';
                 document.getElementById('demoEarnings').textContent='+$0.00';
                 document.getElementById('demoBar').style.width='0%';
                 setTimeout(fillNext,1000);
             },2000);
             return;
         }
-        cells[filled].style.background=`rgba(0,212,255,${0.2+filled/80})`;
+        cells[filled].style.background=`rgba(0,212,255,${0.2+filled/50})`;
         filled++;
-        earnings=((filled/64)*totalPayout);
-        document.getElementById('demoProgress').textContent=`Entries filled: ${filled} / 64`;
+        earnings=((filled/36)*totalPayout);
+        document.getElementById('demoProgress').textContent=`Entries filled: ${filled} / 36`;
         document.getElementById('demoEarnings').textContent=`+$${earnings.toFixed(2)}`;
-        document.getElementById('demoBar').style.width=`${(filled/64)*100}%`;
+        document.getElementById('demoBar').style.width=`${(filled/36)*100}%`;
         setTimeout(fillNext, 180);
     }
     setTimeout(fillNext, 1000);

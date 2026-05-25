@@ -456,10 +456,13 @@ function GridTierCards() {
         var direct40 = (price * 0.40).toFixed(2);
         var uniLevel = (price * 0.0625).toFixed(2);
         var uniTotal = (price * 0.0625 * 8).toFixed(2);
-        // 21 May 2026: PLATFORM_PCT reallocated to bonus pool — bonus is
-        // now 10% per seat × 64 seats. See docs/commission-spec.md §2.
-        var bonusPool = (price * 0.10 * 64).toFixed(2);
-        var totalGrid = (price * 0.40 + price * 0.0625 * 8 * 64 + price * 0.10 * 64).toFixed(2);
+        // 25 May 2026: 6×6 grid = 36 seats. Bonus is 10% × 36 = price × 3.6.
+        // Per-cycle owner economics (uni-level + bonus, excludes direct):
+        //   uni-level from owner's seats = 6.25% × 36 fills
+        //   bonus = 10% × 36 × price
+        // See docs/commission-spec.md §2.
+        var bonusPool = (price * 0.10 * 36).toFixed(2);
+        var perCycleOwner = (price * 0.0625 * 36 + price * 0.10 * 36).toFixed(2);
 
         return <div key={i}>
           <div onClick={function(){ setSelected(isActive ? null : i); }}
@@ -493,7 +496,7 @@ function GridTierCards() {
               <div style={{ background:'rgba(245,158,11,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
                 <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Bonus 10%</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-amber-dark)', marginTop:4 }}>${bonusPool}</div>
-                <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>64 positions</div>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>36 positions</div>
               </div>
             </div>
           </div>}

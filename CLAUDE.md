@@ -692,7 +692,7 @@ Earlier versions of this file and various session memories carried fabricated or
 ### Quick summary (full detail in spec file)
 
 - **Stream 01 Membership (cobalt blue):** 50% commission, capped at sponsor's own tier for both monthly AND annual. Excess retained by company (do not mention in customer-facing copy). Code: `app/main.py::_activate_membership`.
-- **Stream 02 Grid (green):** 8×8 grid, 40% direct + 6.25% × 8 levels + 5% completion bonus. Requires active campaign at tier or above to earn. Code: `app/grid.py`.
+- **Stream 02 Grid (gold/cyan/purple):** 6×6 grid (36 seats), 40% direct + 6.25% × 8 levels uni-level + 10% completion bonus at seat 36. Requires active campaign at tier or above to earn. Code: `app/grid.py`.
 - **Stream 03 Nexus (purple):** 3×3 matrix per pack (39 positions). **15% direct / 10% spillover** (relationship-based, NOT level-based) + 10% completion bonus. No tier ownership required. 8 independent matrices possible per member. Code: `app/credit_matrix.py`.
 - **Stream 04 Courses (amber/orange):** Tier-ownership required. Odd/even 1+Up pass-up structure. Details partially unconfirmed — check spec and ask Steve before publishing. Code: `app/course_engine.py`.
 
@@ -973,8 +973,10 @@ Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the u
 - **Depth:** 1 level only — your direct referrals. NOT multi-level.
 - **Source:** `app/payment.py`, `app/main.py` `_activate_membership()`
 
-### Stream 2: 8×8 Income Grid (Campaign Tiers)
-**Structure:** 8 levels × 8 positions per level = 64 positions per grid. NOT a pyramid — every level has exactly 8 slots.
+### Stream 2: 6×6 Profit Grid (Campaign Tiers)
+**Structure:** 6 levels × 6 positions per level = 36 positions per visualised grid. The grid is a visualisation of uni-level activity; uni-level commission depth is still 8 (decoupled from grid shape).
+
+**Changed 25 May 2026:** Grid cut from 8×8/64 to 6×6/36. Bonus pool stays at 10%. Lifetime $/year unchanged — same total dollars delivered in tighter cycles (~1.78× more completions/year). Migration was global on deploy; all in-flight grids re-targeted to 36 (Steve verified all live grids were below 36 fills at deploy time).
 
 **Tier prices:**
 | Tier | Name | Price |
@@ -990,24 +992,32 @@ Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the u
 
 **Commission split per purchase (paid immediately when someone buys a tier):**
 - **40% → Direct sponsor** — the person who personally referred the buyer. ONE person gets this.
-- **50% → Uni-level pool** — 6.25% × 8 levels up the buyer's SPONSOR CHAIN (not the grid). Each of the 8 people in the chain above the buyer gets 6.25%. If the chain is shorter than 8, remaining levels are absorbed by the platform as recipient of last resort.
-- **10% → Grid completion bonus pool** — accrues per seat fill, paid to grid owner when grid reaches 64/64
+- **50% → Uni-level pool** — 6.25% × 8 levels up the buyer's SPONSOR CHAIN (UNILEVEL_DEPTH=8, decoupled from grid visual). If the chain is shorter than 8, remaining levels are absorbed by the platform as recipient of last resort.
+- **10% → Grid completion bonus pool** — accrues per seat fill, paid to grid owner when grid reaches 36/36
 - **0% → Platform** — reallocated to bonus pool 21 May 2026. **100% of every Grid commission now goes to affiliates.**
 
-**CRITICAL: The real earning power is the GRID, not a single purchase.**
-The grid has 64 positions (8 levels × 8 wide). Every position that fills in YOUR grid earns you 6.25% of the tier price via the uni-level chain. So the grid owner earns 6.25% × 64 = **400% of the tier price** in uni-level commissions from a full grid, PLUS the 10% completion bonus pool (64 × price × 10% = 640% of tier price), PLUS 40% direct on anyone they personally referred.
+**CRITICAL: Uni-level commissions and grid visualisation are decoupled.**
+The grid shows 36 seats (6×6). Uni-level still pays 6.25% × 8 levels on every tier purchase up the sponsor chain — the 8-level commission depth is unchanged. The grid is a visualisation of a slice of that activity; when seat 36 fills (completing the visualised grid), the next two levels of uni-level activity "fill" the newly-opened second grid for that owner. From the grid owner's perspective each of the 36 seats in their grid pays them 6.25% × tier_price via uni-level, plus the 10% bonus when seat 36 fills.
 
 **What a completed grid earns the grid owner (uni-level + bonus only, excludes direct referral commissions):**
-| Tier | Price | Uni-level (6.25% × 64) | Completion Bonus (10%) | Total per Grid |
+| Tier | Price | Uni-level (6.25% × 36) | Completion Bonus (10% × 36) | Total per Grid |
 |------|-------|----------------------|-----------------|---------------|
-| 1 | $20 | $80 | $128 | **$208** |
-| 2 | $50 | $200 | $320 | **$520** |
-| 3 | $100 | $400 | $640 | **$1,040** |
-| 4 | $200 | $800 | $1,280 | **$2,080** |
-| 5 | $400 | $1,600 | $2,560 | **$4,160** |
-| 6 | $600 | $2,400 | $3,840 | **$6,240** |
-| 7 | $800 | $3,200 | $5,120 | **$8,320** |
-| 8 | $1,000 | $4,000 | $6,400 | **$10,400** |
+| 1 Starter | $20 | $45 | $72 | **$117** |
+| 2 Builder | $50 | $112.50 | $180 | **$292.50** |
+| 3 Pro | $100 | $225 | $360 | **$585** |
+| 4 Advanced | $200 | $450 | $720 | **$1,170** |
+| 5 Premium | $400 | $900 | $1,440 | **$2,340** |
+| 6 Elite | $600 | $1,350 | $2,160 | **$3,510** |
+| 7 Master | $800 | $1,800 | $2,880 | **$4,680** |
+| 8 Champion | $1,000 | $2,250 | $3,600 | **$5,850** |
+
+Per-cycle is 43.75% smaller than the previous 64-grid, but cycles fire ~1.78× more often. Total $/year potential is unchanged.
+
+**Visual identity (locked 25 May 2026):**
+- Gold gradient (#b45309 → #fbbf24 → #fde047) = direct referral tile
+- Cyan gradient (#0891b2 → #06b6d4 → #22d3ee) = spillover tile
+- Royal purple gradient (#4c1d95 → #7c3aed → #c4b5fd) pulsing = completion seat (position 36) and bonus card accent
+- Cobalt header (`linear-gradient(135deg,#172554,#1e3a8a)`) = standard platform card header
 
 Grids auto-renew after completion — a new grid opens immediately and the cycle repeats.
 
@@ -1015,9 +1025,9 @@ Grids auto-renew after completion — a new grid opens immediately and the cycle
 
 **Qualification rule:** To earn commissions at a tier, you must have an active (or in-grace) video campaign at that SAME tier or higher. 14-day grace period after campaign views are fully delivered. If unqualified, commission is absorbed by the platform (does NOT walk up).
 
-**Grid auto-renewal:** When a grid completes (64/64), a new grid opens automatically. If the owner didn't have an active campaign at completion, the bonus rolls over into the next grid's pool.
+**Grid auto-renewal:** When a grid completes (36/36), a new grid opens automatically. If the owner didn't have an active campaign at completion, the bonus rolls over into the next grid's pool.
 
-**Source:** `app/grid.py`, `app/database.py` lines 100-149
+**Source:** `app/grid.py`, `app/database.py` lines 95-170
 
 ### Stream 3: Course Marketplace (Infinite Pass-Up)
 - **Course tiers:** $100 (Starter), $300 (Advanced), $500 (Elite)
@@ -1151,8 +1161,8 @@ Steve receives a morning email every day summarising platform health, generated 
 1. Cover — 4 Income Streams intro
 2. Membership · Opportunity (50%/UNL/2x, income card shows 3 Basic = $30/mo OR 3 Pro = $52.50/mo — never a single fabricated number)
 3. Membership · Annual vs Monthly (comparison: $175/mo vs $1,750 upfront)
-4. Campaign Grid · Opportunity (40%/6.25%/5%, 8×8 visual)
-5. Grid · Math (tier ladder + stacked total $103,976)
+4. Campaign Grid · Opportunity (40%/6.25%/10%, 6×6 visual)
+5. Grid · Math (tier ladder + per-cycle totals — $117 to $5,850)
 6. Credit Nexus · Opportunity (15%/10%/10%, 3×3 matrix, 8 pack tiers)
 7. Nexus · Repurchase engine (4-step cycle, $200 pack example = $1,590)
 8. Course Academy · Opportunity (100%, 4 pass-ups, uses "Example" tier names because back office will hold real course names)

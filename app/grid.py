@@ -1,11 +1,18 @@
 # ═══════════════════════════════════════════════════════════════
-# SuperAdPro — 8×8 Recurring Profit Engine Grid (Spillover Model)
+# SuperAdPro — 6×6 Profit Grid (Spillover Model)
 #
-# Commission Architecture (Stream 2) — updated 21 May 2026:
+# Commission Architecture (Stream 2) — updated 25 May 2026:
 #   40% → Direct Sponsor   (person who personally referred the entrant)
 #   50% → Uni-Level Pool   (6.25% × 8 levels in the entrant's upline chain)
 #    0% → Platform Fee     (reallocated to bonus pool 21 May 2026)
-#   10% → Grid Completion Bonus Pool (accrues per seat, pays on grid completion)
+#   10% → Grid Completion Bonus Pool (accrues per seat, pays at seat 36)
+#
+# Grid shape (25 May 2026): 6 wide × 6 deep = 36 positions.
+# Completion bonus pays when seat 36 fills. UNILEVEL_DEPTH stays at 8
+# (decoupled from GRID_LEVELS) — the grid is now a visualisation of a
+# slice of uni-level activity, not the full chain. Total $/year is
+# unchanged from the previous 8×8/64 model; cycles just complete ~1.78×
+# more often.
 #
 # Total: 100% to affiliates. Canonical source: docs/commission-spec.md §2.
 #
@@ -30,7 +37,7 @@ from decimal import Decimal
 from .database import (
     User, Grid, GridPosition, Commission, VideoCampaign,
     CourseCommission, CreditMatrixCommission,
-    GRID_WIDTH, GRID_LEVELS, GRID_TOTAL,
+    GRID_WIDTH, GRID_LEVELS, GRID_TOTAL, UNILEVEL_DEPTH,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT, BONUS_POOL_PCT,
     GRID_PACKAGES, GRID_COMPLETION_BONUS, CAMPAIGN_GRACE_DAYS
 )
@@ -317,14 +324,18 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
 
 def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: int):
     """6.25% to each of 8 sponsor chain levels above the buyer.
-    Each level checked individually — if unqualified at this tier, company absorbs."""
+    Each level checked individually — if unqualified at this tier, company absorbs.
+
+    25 May 2026: uses UNILEVEL_DEPTH (=8), decoupled from GRID_LEVELS (=6).
+    Grid visualises 6 levels; commissions still walk 8 levels of sponsor chain.
+    """
     per_level = round(float(price) * PER_LEVEL_PCT, 2)
     current_id = buyer.id
 
-    for lvl in range(1, GRID_LEVELS + 1):
+    for lvl in range(1, UNILEVEL_DEPTH + 1):
         current_user = db.query(User).filter(User.id == current_id).first()
         if not current_user or not current_user.sponsor_id:
-            for remaining in range(lvl, GRID_LEVELS + 1):
+            for remaining in range(lvl, UNILEVEL_DEPTH + 1):
                 _record_commission(db, buyer.id, None, per_level, "uni_level",
                                    f"Uni-level {remaining} — chain ended, company absorb",
                                    package_tier)
@@ -429,12 +440,12 @@ def _complete_grid(db: Session, grid: Grid):
             # Bonus paid out — celebratory notification with amount
             notif_title = f"🎉 Grid Tier {grid.package_tier} complete!"
             notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
-                         f"all 64 seats. ${bonus_amount:.2f} completion bonus added to your Campaign Wallet. "
+                         f"all {GRID_TOTAL} seats. ${bonus_amount:.2f} completion bonus added to your Campaign Wallet. "
                          f"Advance {grid.advance_number + 1} is now open and ready for new spillover.")
         elif owner and grid.bonus_rolled_over:
             # Bonus rolled over because not qualified
             notif_title = f"🔄 Grid Tier {grid.package_tier} complete — bonus rolled over"
-            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all 64 seats. "
+            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all {GRID_TOTAL} seats. "
                          f"Because qualification wasn't active, the ${bonus_amount:.2f} bonus rolled into "
                          f"advance {grid.advance_number + 1}. Get qualified to claim it on the next completion.")
         else:

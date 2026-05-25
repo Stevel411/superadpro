@@ -16,7 +16,7 @@ export default function GridStreamPage() {
   var [cycles, setCycles] = useState(4);
   var [heroMaxValue, setHeroMaxValue] = useState(0);
   var [gridCells, setGridCells] = useState(function() {
-    return Array.from({length: 64}, function() { return ''; });
+    return Array.from({length: 36}, function() { return ''; });
   });
   var [caption, setCaption] = useState('');
   var [captionShown, setCaptionShown] = useState(false);
@@ -68,7 +68,7 @@ export default function GridStreamPage() {
   var resetGrid = useCallback(function() {
     animationTimeoutsRef.current.forEach(function(id) { clearTimeout(id); });
     animationTimeoutsRef.current = [];
-    setGridCells(Array.from({length: 64}, function() { return ''; }));
+    setGridCells(Array.from({length: 36}, function() { return ''; }));
     setTipsShown({tip1: false, tip2: false, tip3: false});
     setCaptionAnimated(t('gridStream.caption.start'));
   }, [setCaptionAnimated, t]);
@@ -78,7 +78,7 @@ export default function GridStreamPage() {
     animationTimeoutsRef.current.forEach(function(id) { clearTimeout(id); });
     animationTimeoutsRef.current = [];
 
-    setGridCells(Array.from({length: 64}, function() { return ''; }));
+    setGridCells(Array.from({length: 36}, function() { return ''; }));
     setTipsShown({tip1: false, tip2: false, tip3: false});
     setStatsRevealed(false);
 
@@ -252,7 +252,7 @@ export default function GridStreamPage() {
         <p className="hero-sub">{t('gridStream.hero.sub')}</p>
         <div className="hero-stats">
           <div className="hero-stat">
-            <span className="hero-stat-num">64</span>
+            <span className="hero-stat-num">36</span>
             <div className="hero-stat-label">{t('gridStream.hero.stat1Label')}</div>
           </div>
           <div className="hero-stat">
@@ -357,7 +357,7 @@ export default function GridStreamPage() {
 
         <div className="grid-stats">
           <div className={'grid-stat' + (statsRevealed ? ' in' : '')}>
-            <span className="grid-stat-num">64</span>
+            <span className="grid-stat-num">36</span>
             <div className="grid-stat-label">{t('gridStream.gridStat.seats')}</div>
           </div>
           <div className={'grid-stat' + (statsRevealed ? ' in' : '')}>
@@ -466,12 +466,12 @@ export default function GridStreamPage() {
                   <span className="v">{refs}</span>
                 </label>
                 <input
-                  type="range" min="0" max="64" value={refs}
+                  type="range" min="0" max="36" value={refs}
                   className="calc-slider"
                   onChange={function(e) { setRefs(parseInt(e.target.value)); }}
                 />
                 <div className="calc-slider-marks">
-                  <span>0</span><span>16</span><span>32</span><span>48</span><span>64</span>
+                  <span>0</span><span>9</span><span>18</span><span>27</span><span>36</span>
                 </div>
               </div>
               <div className="calc-row">
@@ -570,7 +570,7 @@ function MechanicCard(props) {
     <div className="mechanic-step" data-step={props.stepData}>
       <div className="mechanic-illus">
         <div className="mini-grid">
-          {Array.from({length: 64}).map(function(_, i) {
+          {Array.from({length: 36}).map(function(_, i) {
             var cls = 'mini-cell';
             if (props.cells.you && props.cells.you.indexOf(i) >= 0) cls += ' you';
             if (props.cells.row1 && props.cells.row1.indexOf(i) >= 0) cls += ' row1';

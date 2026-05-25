@@ -598,7 +598,7 @@ function PassUpSection() {
 
 
 // ══════════════════════════════════════════════════════════════
-// GRID VISUALISER — 8×8 seat fill with live stats
+// GRID VISUALISER — 6×6 seat fill with live stats
 // ══════════════════════════════════════════════════════════════
 
 function GridVisSection() {
@@ -634,17 +634,17 @@ function GridVisSection() {
 
   function initSim() {
     if (timerRef.current) clearInterval(timerRef.current);
-    cellsRef.current = Array.from({length:64}).map(function() { return {filled:false,depth:0,isDirect:false,name:''}; });
+    cellsRef.current = Array.from({length:36}).map(function() { return {filled:false,depth:0,isDirect:false,name:''}; });
     filledRef.current = 0;
     // Randomise which seats are direct referrals
     var positions = [];
-    for (var i = 0; i < 64; i++) positions.push(i);
+    for (var i = 0; i < 36; i++) positions.push(i);
     for (var j = positions.length - 1; j > 0; j--) {
       var k = Math.floor(Math.random() * (j + 1));
       var tmp = positions[j]; positions[j] = positions[k]; positions[k] = tmp;
     }
     var ds = new Set();
-    for (var d = 0; d < Math.min(numDirects, 64); d++) ds.add(positions[d]);
+    for (var d = 0; d < Math.min(numDirects, 36); d++) ds.add(positions[d]);
     directSeatsRef.current = ds;
     statsRef.current = {direct:0,network:0,earned:0,bonus:0,directAmt:0};
     logRef.current = [];
@@ -658,7 +658,7 @@ function GridVisSection() {
 
   function processStep() {
     var idx = filledRef.current;
-    if (idx >= 64) {
+    if (idx >= 36) {
       setComplete(true);
       setRunning(false);
       if (timerRef.current) clearInterval(timerRef.current);
@@ -698,7 +698,7 @@ function GridVisSection() {
       setRunning(false);
       if (timerRef.current) clearInterval(timerRef.current);
     } else {
-      if (filledRef.current >= 64) { initSim(); setTimeout(startPlay, 100); return; }
+      if (filledRef.current >= 36) { initSim(); setTimeout(startPlay, 100); return; }
       startPlay();
     }
   }
@@ -714,7 +714,7 @@ function GridVisSection() {
   var st = statsRef.current;
   var logs = logRef.current;
   var totalEarned = st.earned + st.bonus + st.directAmt;
-  var pct = Math.round((filled / 64) * 100);
+  var pct = Math.round((filled / 36) * 100);
 
   return (
     <div>
@@ -770,7 +770,7 @@ function GridVisSection() {
               <button onClick={togglePlay}
                 style={{display:'flex',alignItems:'center',gap:4,padding:'7px 16px',borderRadius:8,border:'none',cursor:'pointer',
                   background:running?'#334155':'var(--sap-accent)',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit'}}>
-                {running ? <><Pause size={13}/> {t('common.pause')}</> : <><Play size={13}/> {filled>=64?'Replay':'Simulate'}</>}
+                {running ? <><Pause size={13}/> {t('common.pause')}</> : <><Play size={13}/> {filled>=36?'Replay':'Simulate'}</>}
               </button>
               <button onClick={initSim}
                 style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1px solid #e8ecf2',cursor:'pointer',
@@ -786,7 +786,7 @@ function GridVisSection() {
               <div style={{flex:1,height:8,background:'var(--sap-bg-page)',borderRadius:4,overflow:'hidden'}}>
                 <div style={{height:'100%',borderRadius:4,background:'linear-gradient(90deg,'+tier.color+',#22c55e)',width:pct+'%',transition:'width .3s'}}/>
               </div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:tier.color,minWidth:50,textAlign:'right'}}>{filled} / 64</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:tier.color,minWidth:50,textAlign:'right'}}>{filled} / 36</div>
             </div>
 
             {/* 8×8 Grid — large cells with person icons */}
@@ -944,13 +944,13 @@ function GridVisSection() {
           {complete && (
             <div style={{textAlign:'center',padding:16,background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',borderRadius:12,border:'1px solid rgba(74,222,128,.15)'}}>
               <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:6}}>{t('visualiser.gridComplete')}</div>
-              <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>64 seats filled. Total earned: <strong style={{color:'var(--sap-accent)'}}>${Math.round(totalEarned).toLocaleString()}</strong></div>
+              <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>36 seats filled. Total earned: <strong style={{color:'var(--sap-accent)'}}>${Math.round(totalEarned).toLocaleString()}</strong></div>
               <div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:4}}>{t('visualiser.gridAdvancesBody')}</div>
             </div>
           )}
 
           <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:13,color:'#92400e',lineHeight:1.5}}>
-            <strong>{t('visualiser.note')}</strong> Adjust the DIRECTS control to set how many of the 64 seats are your personal referrals. Direct referrals earn you 40% sponsor commission on top of the 6.25% uni-level. Income is not guaranteed.
+            <strong>{t('visualiser.note')}</strong> Adjust the DIRECTS control to set how many of the 36 seats are your personal referrals. Direct referrals earn you 40% sponsor commission on top of the 6.25% uni-level. Income is not guaranteed.
           </div>
         </div>
       </div>

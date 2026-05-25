@@ -374,7 +374,7 @@ export default function CampaignTiers() {
                 <div style={{ marginBottom:20 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
                     <span style={{ fontSize:12, fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.gridProgress')}</span>
-                    <span style={{ fontSize:12, color:'var(--sap-text-muted)' }}>{modalTier.grid.filled}/64 members · Grid #{modalTier.grid.advance}</span>
+                    <span style={{ fontSize:12, color:'var(--sap-text-muted)' }}>{modalTier.grid.filled}/36 members · Grid #{modalTier.grid.advance}</span>
                   </div>
                   <div style={{ height:6, background:'var(--sap-bg-page)', borderRadius:4 }}>
                     <div style={{ height:'100%', width:modalTier.grid.pct+'%', background:modalAccent.grad, borderRadius:4, transition:'width .5s' }}/>

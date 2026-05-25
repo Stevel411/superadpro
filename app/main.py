@@ -1172,10 +1172,10 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
     ).order_by(Grid.package_tier.desc()).first()
     if active_grid:
         filled = active_grid.positions_filled or 0
-        total = 64
+        from .database import GRID_COMPLETION_BONUS, GRID_TIER_NAMES, GRID_TOTAL
+        total = GRID_TOTAL
         remaining = total - filled
         pct = min(100, int(filled / total * 100))
-        from .database import GRID_COMPLETION_BONUS, GRID_TIER_NAMES
         bonus = GRID_COMPLETION_BONUS.get(active_grid.package_tier, 0)
         tier_name = GRID_TIER_NAMES.get(active_grid.package_tier, f"Tier {active_grid.package_tier}")
         goals.append({
@@ -3119,7 +3119,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             GridPosition.grid_id == grid_record.id
         ).order_by(GridPosition.grid_level.asc(), GridPosition.position_num.asc()).all()
 
-        for i, gp in enumerate(positions[:64]):
+        for i, gp in enumerate(positions[:GRID_TOTAL]):
             member = db.query(User).filter(User.id == gp.member_id).first()
             if not member:
                 continue
@@ -3222,7 +3222,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
-        "total": 64,
+        "total": GRID_TOTAL,
         "tier": tier,
         "price": GRID_PACKAGES.get(tier, 0),
         "advance": grid_record.advance_number if grid_record else completed + 1,
@@ -3746,7 +3746,7 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
             GridPosition.grid_id == grid_record.id
         ).order_by(GridPosition.grid_level.asc(), GridPosition.position_num.asc()).all()
 
-        for i, gp in enumerate(positions[:64]):
+        for i, gp in enumerate(positions[:GRID_TOTAL]):
             member = db.query(User).filter(User.id == gp.member_id).first()
             if not member:
                 continue
@@ -3833,7 +3833,7 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
-        "total": 64,
+        "total": GRID_TOTAL,
         "tier": tier,
         "price": GRID_PACKAGES.get(tier, 0),
         "advance": grid_record.advance_number if grid_record else completed + 1,
@@ -4307,7 +4307,7 @@ def fomo_stats_api(db: Session = Depends(get_db)):
             "name": f"{(u.first_name or u.username or 'Member')[:1]}. {(u.last_name or '')[:1]}." if u.first_name else f"Member {u.id}",
             "type": "joined",
             "tier": "$100",
-            "pos": random.randint(1, 64),
+            "pos": random.randint(1, GRID_TOTAL),
             "time": time_str
         })
 
@@ -5298,7 +5298,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         "tier": g.package_tier,
         "price": float(g.package_price),
         "filled": g.positions_filled,
-        "total": 64,
+        "total": GRID_TOTAL,
         "advance": g.advance_number,
         "bonus_pool": float(g.bonus_pool_accrued or 0),
     } for g in active_grids]
@@ -8256,9 +8256,9 @@ async def _generate_copilot_briefing(ctx: dict) -> dict:
     grid_info = ""
     if ctx.get("closest_grid"):
         g = ctx["closest_grid"]
-        BONUSES = {1:64,2:160,3:640,4:1280,5:3200,6:4800,7:6400,8:10000}
-        bonus = BONUSES.get(g.get("tier",1), 64)
-        grid_info = f"Their closest active grid is Campaign {g.get('tier')} at {g.get('pct')}% full ({g.get('filled')}/64 positions, ${bonus} completion bonus waiting)."
+        from .database import GRID_COMPLETION_BONUS as _GCB, GRID_TOTAL as _GT
+        bonus = _GCB.get(g.get("tier",1), 0)
+        grid_info = f"Their closest active grid is Campaign {g.get('tier')} at {g.get('pct')}% full ({g.get('filled')}/{_GT} positions, ${bonus} completion bonus waiting)."
 
     prompt = f"""You are the SuperAdPro AI Co-Pilot — a sharp, encouraging personal business advisor for {ctx['name']}.
 
@@ -17260,7 +17260,7 @@ def admin_api_health(
 
     # Check for grids that should have advanced (filled >= 64 but not complete)
     stuck_grids = db.query(Grid).filter(
-        Grid.positions_filled >= 64,
+        Grid.positions_filled >= GRID_TOTAL,
         Grid.is_complete == False
     ).all()
     if stuck_grids:
@@ -17321,7 +17321,7 @@ def admin_api_fix(
 
     elif issue_type == "stuck_grids":
         stuck = db.query(Grid).filter(
-            Grid.positions_filled >= 64, Grid.is_complete == False
+            Grid.positions_filled >= GRID_TOTAL, Grid.is_complete == False
         ).all()
         for g in stuck:
             _complete_grid(db, g)
@@ -20490,7 +20490,7 @@ ABOUT SUPERADPRO (the platform):
 - SuperAdPro is a video advertising platform with a built-in affiliate income opportunity
 - Membership costs $20/month in USDT (crypto) on Base Chain
 - Members get: AI Campaign Studio, Funnel Builder with AI chatbot, Niche Finder, Swipe File, Campaign Analytics
-- Members earn by: watching daily videos (Watch & Earn), referring others (40% direct commission), and the 8x8 Profit Engine Grid (uni-level commissions)
+- Members earn by: watching daily videos (Watch & Earn), referring others (40% direct commission), and the 6×6 Profit Grid (uni-level commissions)
 - There are 8 campaign tiers from $20 to $1,000 for advertisers who want engaged video views
 - All payments are in USDT on Base Chain (crypto) — fast, transparent, no chargebacks
 - The platform is real with genuine marketing tools, not just a compensation plan
@@ -20527,7 +20527,7 @@ YOUR PERSONALITY & RULES:
         elif any(w in msg_lower for w in ["scam", "legit", "real", "trust", "ponzi"]):
             reply = f"I totally understand the caution — there's a lot of rubbish out there. SuperAdPro is a real platform with genuine marketing tools (AI campaign studio, funnel builder, analytics). The income comes from real video advertising, not just recruitment. The $20 membership gives you tools worth way more than that on their own."
         elif any(w in msg_lower for w in ["earn", "money", "income", "commission"]):
-            reply = f"There are multiple ways to earn: direct referral commissions (40%), uni-level commissions through the 8x8 grid system, and you can use the marketing tools to promote any affiliate offer you like. Results vary based on effort and team building — I won't make any unrealistic promises."
+            reply = f"There are multiple ways to earn: direct referral commissions (40%), uni-level commissions through the 6×6 grid system, and you can use the marketing tools to promote any affiliate offer you like. Results vary based on effort and team building — I won't make any unrealistic promises."
         elif any(w in msg_lower for w in ["join", "sign up", "start", "register", "link"]):
             reply = f"Great to hear you're interested! You can sign up through {owner_name}'s referral link. Membership is $20/month in USDT on Base Chain. You'll get instant access to all the AI tools and can start building straight away. 🚀"
         elif any(w in msg_lower for w in ["hello", "hi", "hey", "sup"]):
@@ -22845,7 +22845,7 @@ IMPORTANT:
                     "How I earn income watching videos for $20/month",
                     "5 membership sites that actually pay you to be a member",
                     "My honest SuperAdPro income report — month 1",
-                    "How the 8x8 grid system works and why it's genius"
+                    "How the 6×6 grid system works and why it's genius"
                 ],
                 "starter_hook": "What if I told you there's a $20/month membership where you literally get paid to watch videos? I've been a member for 30 days and here's exactly what happened..."
             },
@@ -23138,7 +23138,7 @@ async def generate_swipes(request: Request, user: User = Depends(get_current_use
 
     prompt = f"""Generate exactly 4 unique {cat_desc} for promoting SuperAdPro in the "{niche}" niche.
 
-SuperAdPro is a video advertising platform with 3 income streams, 95% payouts, an 8×8 Income Grid, and AI marketing tools. Members earn by watching video ads and referring others.
+SuperAdPro is a video advertising platform with 3 income streams, 95% payouts, an 6×6 Profit Grid, and AI marketing tools. Members earn by watching video ads and referring others.
 
 For each swipe, output this exact JSON format (no markdown, no code fences, just raw JSON array):
 [
@@ -24239,7 +24239,7 @@ You explain the SuperAdPro compensation plan clearly and enthusiastically. You h
 ## INCOME STREAM 2: CAMPAIGN TIERS (Watch To Earn + Grid)
 - Members can activate Campaign Tiers to promote their video content and earn grid commissions
 - There are 8 tiers from $20 to $1,000/month
-- When you activate a tier, you're placed into your sponsor's 8x8 grid
+- When you activate a tier, you're placed into your sponsor's 6×6 grid
 - Grid commissions pay 40% direct + 6.875% across 8 uni-levels
 - To qualify for commissions, members watch campaign videos daily (Watch To Earn)
 - Watching delivers real views to campaign holders while qualifying you for your grid commissions
@@ -24467,7 +24467,7 @@ def admin_test_grid_fill(
     
     Usage: /admin/test-grid-fill?secret=superadpro-owner-2026&owner_username=master&tier=1&seats=5
     
-    Use seats=64 to test full grid completion + auto-spawn.
+    Use seats=GRID_TOTAL to test full grid completion + auto-spawn.
     """
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
@@ -24480,8 +24480,8 @@ def admin_test_grid_fill(
     if not price:
         return JSONResponse({"error": f"Invalid tier: {tier}"}, status_code=400)
 
-    # Cap at 64 positions
-    seats = min(seats, 64)
+    # Cap at GRID_TOTAL positions
+    seats = min(seats, GRID_TOTAL)
 
     results = []
     for i in range(seats):
@@ -25984,7 +25984,7 @@ async def api_proseller_generate(request: Request, db: Session = Depends(get_db)
     # Build the prompt
     system_prompt = """You are ProSeller, an AI sales coach for SuperAdPro affiliates. SuperAdPro is a video advertising platform where:
 - Members watch real video ads and earn daily
-- 4 income streams: Membership ($20/mo, 50% to sponsor), 8×8 Income Grid (8 tiers $20-$1000, 40% direct + 50% uni-level across 8 levels), and Courses
+- 4 income streams: Membership ($20/mo, 50% to sponsor), 6×6 Profit Grid (8 tiers $20-$1000, 40% direct + 50% uni-level across 8 levels), and Courses
 - 95% of every dollar is paid out to the network
 - Real advertising utility — advertisers pay for genuine video views from real people
 - AI-powered marketing tools built into the dashboard
@@ -30642,7 +30642,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     for g in active_grids:
         grid_by_tier[g.package_tier] = {
             "filled": g.positions_filled or 0,
-            "pct": round((g.positions_filled or 0) / 64 * 100),
+            "pct": round((g.positions_filled or 0) / GRID_TOTAL * 100),
             "advance": g.advance_number or 1,
         }
 
@@ -32910,7 +32910,7 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
             "FOUR INCOME STREAMS (only describe these — do not invent others)\n"
             "1. Membership commissions: sponsor earns 50% of referral's membership fee, "
             "   capped at sponsor's own tier (Basic sponsor = max $10/mo or $100/yr).\n"
-            "2. 8×8 Income Grid (Campaign Tiers $20 to $1,000): 40% direct + 50% across "
+            "2. 6×6 Profit Grid (Campaign Tiers $20 to $1,000): 40% direct + 50% across "
             "   8 uni-level. Requires owning the tier to earn at that tier.\n"
             "3. Credit Nexus (3×3 matrix, packs $20 to $1,000): 15% direct, 10% spillover, "
             "   10% completion bonus. No tier ownership required.\n"
@@ -33145,7 +33145,7 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
         if remaining <= 10 and remaining > 0:
             feed.append({
                 "type": "grid_progress", "emoji": "📊",
-                "text": f"Your {tier_name} grid is {remaining} members from completion! ({filled}/64)",
+                "text": f"Your {tier_name} grid is {remaining} members from completion! ({filled}/{GRID_TOTAL})",
                 "time": now.isoformat()
             })
         elif remaining == 0:
@@ -33203,7 +33203,7 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
 
             grids = db.query(Grid).filter(Grid.owner_id == u.id, Grid.is_active == True).all()
             grid_filled = sum(g.positions_filled or 0 for g in grids)
-            grid_total = sum(64 for _ in grids) if grids else 0
+            grid_total = sum(GRID_TOTAL for _ in grids) if grids else 0
 
             total_balance = float(u.balance or 0)
             campaign_balance = float(u.campaign_balance or 0)
@@ -37972,7 +37972,7 @@ REFERRAL LINK: Every member gets a unique link (superadpro.com/ref/username). Sh
 
 COMPENSATION PLAN — 5 INCOME STREAMS:
 1. Membership Commissions: 50% recurring on every referral. Refer someone to Basic ($20/mo), earn $10/mo. Refer to Pro ($35/mo), earn $17.50/mo. Paid every month they stay active.
-2. 8x8 Income Grid: When you or your referrals activate a Campaign Tier, it creates an 8x8 grid (64 positions). You earn 40% direct commission, 6.25% from 8 levels of uni-level commissions, plus a completion bonus when all 64 seats fill. 8 tiers from $20 (T1) to $1,000 (T8).
+2. 6×6 Profit Grid: When you or your referrals activate a Campaign Tier, it creates a 6×6 grid (36 positions). You earn 40% direct commission, 6.25% from 8 levels of uni-level commissions, plus a completion bonus when all 36 seats fill. 8 tiers from $20 (T1) to $1,000 (T8).
 3. SuperScene Sponsor Earnings: You earn $0.025 for every credit your referrals use in SuperScene. Passive income from their creative activity.
 4. Course Academy: Earn commissions when your referrals purchase courses.
 5. Pay It Forward: Gift a $20 membership to someone — you become their sponsor and earn on their activity. Creates a viral growth chain.
@@ -37986,7 +37986,7 @@ LINKHUB: A personal link-in-bio page similar to Linktree. Add your photo, bio, s
 
 SOCIAL SHARE: AI-powered tool that generates platform-specific posts for Facebook, X, Instagram, LinkedIn, TikTok, and more. Choose a platform, pick a tone (Professional, Casual, Hype, Story, Educational), and the AI writes a ready-to-post message with your referral link.
 
-CAMPAIGN TIERS: 8 tiers from T1 ($20) to T8 ($1,000). Each tier activates an 8x8 grid. Higher tiers mean bigger commissions. Grid commissions go to your Campaign Wallet. You need to maintain your Watch to Earn quota to withdraw from Campaign Wallet.
+CAMPAIGN TIERS: 8 tiers from T1 ($20) to T8 ($1,000). Each tier activates a 6×6 grid. Higher tiers mean bigger commissions. Grid commissions go to your Campaign Wallet. You need to maintain your Watch to Earn quota to withdraw from Campaign Wallet.
 
 WATCH TO EARN: Members watch short campaign videos daily (30-60 seconds each) to stay qualified for Campaign Wallet withdrawals. Think of it as a daily check-in that keeps your earning status active.
 
