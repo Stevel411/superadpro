@@ -32,6 +32,22 @@ const STATUS_META = {
   failed:   { label: 'Failed',   color: '#b91c1c', bg: '#fee2e2', Icon: AlertTriangle },
 };
 
+// Human-readable labels for Railway certificateStatus values. The raw
+// strings (CERTIFICATE_STATUS_TYPE_*) are useful for logs but a bit
+// clinical for members — translate them to plain English.
+function formatTlsStatus(raw) {
+  if (!raw) return 'Unknown';
+  const map = {
+    CERTIFICATE_STATUS_TYPE_PENDING:             'Pending DNS',
+    CERTIFICATE_STATUS_TYPE_VALIDATING_OWNERSHIP:'Validating ownership',
+    CERTIFICATE_STATUS_TYPE_ISSUING:             'Issuing certificate',
+    CERTIFICATE_STATUS_TYPE_ISSUED:              'Live with HTTPS',
+    CERTIFICATE_STATUS_TYPE_RENEWING:            'Renewing certificate',
+    CERTIFICATE_STATUS_TYPE_ERRORED:             'Error',
+  };
+  return map[raw] || raw.replace('CERTIFICATE_STATUS_TYPE_', '').replace(/_/g, ' ').toLowerCase();
+}
+
 export default function LabsCustomDomain() {
   const [domains, setDomains] = useState([]);
   const [cnameTarget, setCnameTarget] = useState('');
@@ -157,38 +173,22 @@ export default function LabsCustomDomain() {
 
         {/* Setup instructions */}
         <div style={{ ...cardStyle, marginBottom: 16 }}>
-          <h2 style={sectionTitle}>Setup steps</h2>
+          <h2 style={sectionTitle}>How it works</h2>
           <ol style={{ margin: 0, paddingLeft: 20, color: '#334155', fontSize: 14, lineHeight: 1.7 }}>
             <li>
-              At your DNS provider (Cloudflare, Namecheap, etc), add a <strong>CNAME</strong> record:
-              <div style={dnsBoxStyle}>
-                <div style={{ display: 'grid', gridTemplateColumns: '90px 1fr', gap: 8, fontSize: 13 }}>
-                  <div style={dnsLabel}>Type</div>
-                  <div style={dnsValue}>CNAME</div>
-                  <div style={dnsLabel}>Name</div>
-                  <div style={dnsValue}><span style={{ color: '#0ea5e9' }}>pages</span> <span style={{ color: '#94a3b8', fontSize: 12 }}>(or whatever subdomain you prefer)</span></div>
-                  <div style={dnsLabel}>Target</div>
-                  <div style={{ ...dnsValue, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <code style={{ ...codeInline, padding: '2px 8px', fontSize: 13 }}>{cnameTarget || 'superadpro-production.up.railway.app'}</code>
-                    <button onClick={copyTarget} style={copyBtnStyle} title="Copy">
-                      <Copy size={13} /> {copied ? 'Copied!' : 'Copy'}
-                    </button>
-                  </div>
-                  <div style={dnsLabel}>Proxy</div>
-                  <div style={dnsValue}>Enable Cloudflare proxy (orange cloud) for free HTTPS</div>
-                </div>
-              </div>
+              <strong>Claim your domain below.</strong> Type the hostname you want to use
+              (e.g. <code style={codeInline}>pages.yourbrand.com</code>) and click Add.
             </li>
-            <li>Wait 2-10 minutes for DNS to propagate.</li>
-            <li>Enter your domain below (e.g. <code style={codeInline}>pages.yourbrand.com</code>) and click <strong>Claim</strong>. We'll verify it and switch the routing on.</li>
-            <li>Your pages are now live at <code style={codeInline}>https://pages.yourbrand.com/your-page-slug</code></li>
+            <li>
+              <strong>We'll show you 2 DNS records to add.</strong> One CNAME (routes traffic
+              to us), one TXT (proves you own the domain). Add both at your domain provider.
+            </li>
+            <li>
+              <strong>Your domain goes live with HTTPS automatically.</strong> No Cloudflare needed.
+              We handle the TLS certificate via Let's Encrypt — usually under 10 minutes after DNS
+              propagates. Click <strong>Check now</strong> on your domain to see live progress.
+            </li>
           </ol>
-          <div style={{ marginTop: 14, padding: '10px 12px', background: '#f1f5f9', borderRadius: 8, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <Info size={16} color="#64748b" style={{ flexShrink: 0, marginTop: 1 }} />
-            <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>
-              HTTPS is handled by Cloudflare's free SSL when you enable proxy mode on your CNAME (orange cloud). Without it, the domain still works over HTTP but browsers will warn visitors.
-            </div>
-          </div>
         </div>
 
         {/* Claim form */}
@@ -262,6 +262,36 @@ export default function LabsCustomDomain() {
                   ) : (
                     <div style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.5 }}>
                       {d.last_error || 'DNS propagation can take a few minutes. We re-check automatically.'}
+                    </div>
+                  )}
+
+                  {/* v2 (25 May 2026): per-domain DNS records from Railway.
+                      Only shown when we have records (i.e. Railway-registered
+                      domains, which is everything new). Also shows TLS status
+                      progression so the member can see exactly where in the
+                      issuing flow they are. */}
+                  {d.dns_records && d.dns_records.length > 0 && d.verification_status !== 'verified' && (
+                    <div style={{ marginTop: 10, padding: 12, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Add these records at your domain provider
+                      </div>
+                      {d.dns_records.map((rec, idx) => (
+                        <div key={idx} style={{ display: 'grid', gridTemplateColumns: '70px 110px 1fr auto', gap: 8, padding: '6px 0', borderTop: idx > 0 ? '1px dashed #e2e8f0' : 'none', fontSize: 12, alignItems: 'center' }}>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{rec.recordType}</div>
+                          <code style={{ fontFamily: "'JetBrains Mono', monospace", color: '#0f172a', background: '#fff', padding: '2px 6px', borderRadius: 4, border: '1px solid #e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rec.hostlabel || '@'}</code>
+                          <code style={{ fontFamily: "'JetBrains Mono', monospace", color: '#0f172a', background: '#fff', padding: '2px 6px', borderRadius: 4, border: '1px solid #e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={rec.requiredValue}>{rec.requiredValue}</code>
+                          <button onClick={() => { navigator.clipboard.writeText(rec.requiredValue); }} style={{ ...copyBtnStyle, fontSize: 11, padding: '3px 8px' }} title="Copy">
+                            <Copy size={11} />
+                          </button>
+                        </div>
+                      ))}
+                      {d.tls_status && (
+                        <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed #e2e8f0', fontSize: 11, color: '#64748b' }}>
+                          TLS status: <strong style={{ color: '#0f172a' }}>{formatTlsStatus(d.tls_status)}</strong>
+                          {d.tls_status === 'CERTIFICATE_STATUS_TYPE_ISSUING' && ' · Cert being issued, usually under 5 min'}
+                          {d.tls_status === 'CERTIFICATE_STATUS_TYPE_VALIDATING_OWNERSHIP' && ' · Verifying DNS records, usually under 5 min'}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

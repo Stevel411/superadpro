@@ -3450,29 +3450,58 @@ from . import custom_domains as _customdomain_helper
 def api_custom_domains_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """List the current user's custom domains. Visible to all
     authenticated users so free-tier members see the feature
-    exists; the create endpoint is the actual paid-tier gate."""
+    exists; the create endpoint is the actual paid-tier gate.
+
+    v2 (25 May 2026): Response now includes per-domain dns_records
+    + tls_status so the UI can show the exact CNAME + TXT records
+    Railway expects, plus the certificate progression."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     rows = db.query(CustomDomain).filter(
         CustomDomain.user_id == user.id,
     ).order_by(CustomDomain.created_at.desc()).all()
     return JSONResponse({
-        "domains": [
-            {
-                "id": r.id,
-                "domain": r.domain,
-                "verification_status": r.verification_status,
-                "last_error": r.last_error,
-                "last_checked_at": r.last_checked_at.isoformat() if r.last_checked_at else None,
-                "verified_at": r.verified_at.isoformat() if r.verified_at else None,
-                "created_at": r.created_at.isoformat() if r.created_at else None,
-            }
-            for r in rows
-        ],
-        "cname_target": _customdomain_helper.CNAME_TARGET,
-        "max_domains_per_user": 3,  # soft cap to prevent abuse
-        "can_claim": bool(user.is_active),  # tells UI whether to show "Add domain" vs "Upgrade to claim"
+        "domains":              [_customdomain_to_dict(r) for r in rows],
+        "cname_target":         _customdomain_helper.CNAME_TARGET,  # v1 fallback only
+        "max_domains_per_user": 3,
+        "can_claim":            bool(user.is_active),
+        "api_mode":             "v2-railway-api" if _customdomain_railway_configured() else "v1-dns-fallback",
     })
+
+
+def _customdomain_railway_configured() -> bool:
+    """Cheap config check for UI to know whether Railway integration is live."""
+    try:
+        from . import railway_api as _r
+        return _r.is_configured()
+    except Exception:
+        return False
+
+
+def _customdomain_to_dict(row: CustomDomain) -> dict:
+    """Serialise a CustomDomain row including v2 (Railway) fields.
+    dns_records_json is decoded back to a list so the React UI doesn't
+    have to JSON.parse it client-side."""
+    dns_records = []
+    if row.dns_records_json:
+        try:
+            import json as _json
+            dns_records = _json.loads(row.dns_records_json) or []
+        except Exception:
+            dns_records = []
+    return {
+        "id":                  row.id,
+        "domain":              row.domain,
+        "verification_status": row.verification_status,
+        "last_error":          row.last_error,
+        "last_checked_at":     row.last_checked_at.isoformat() if row.last_checked_at else None,
+        "verified_at":         row.verified_at.isoformat() if row.verified_at else None,
+        "created_at":          row.created_at.isoformat() if row.created_at else None,
+        # v2 fields — Railway API integration
+        "tls_status":          row.tls_status,
+        "dns_records":         dns_records,
+        "railway_registered":  bool(row.railway_domain_id),
+    }
 
 
 @app.post("/api/custom-domains")
@@ -3527,25 +3556,22 @@ def api_custom_domains_create(payload: dict = Body(...), user: User = Depends(ge
 
     # Immediate verification attempt — handles the "I already set it up
     # before claiming it on the platform" case so the member sees green
-    # the moment they click Save instead of waiting for the hourly cron
+    # the moment they click Save instead of waiting for the hourly cron.
+    # In v2 this is also the moment we register the domain with Railway,
+    # which kicks off Let's Encrypt issuance.
     _customdomain_helper.verify_one(row, db)
     db.commit()
     db.refresh(row)
 
-    return JSONResponse({
-        "id": row.id,
-        "domain": row.domain,
-        "verification_status": row.verification_status,
-        "last_error": row.last_error,
-        "verified_at": row.verified_at.isoformat() if row.verified_at else None,
-    })
+    return JSONResponse(_customdomain_to_dict(row))
 
 
 @app.post("/api/custom-domains/{domain_id}/verify")
 def api_custom_domains_verify(domain_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Manual 'Check now' button — re-runs the CNAME verification
-    immediately for one specific domain. Used by the labs UI after
-    a member has just set up their DNS and wants instant feedback."""
+    """Manual 'Check now' button — re-runs verification immediately for
+    one specific domain. In v2 this polls Railway's API to check the
+    current cert/DNS status; the member sees instant feedback after
+    configuring DNS at their registrar."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
@@ -3560,21 +3586,20 @@ def api_custom_domains_verify(domain_id: int, user: User = Depends(get_current_u
     db.commit()
     db.refresh(row)
 
-    return JSONResponse({
-        "id": row.id,
-        "domain": row.domain,
-        "verification_status": row.verification_status,
-        "last_error": row.last_error,
-        "last_checked_at": row.last_checked_at.isoformat() if row.last_checked_at else None,
-        "verified_at": row.verified_at.isoformat() if row.verified_at else None,
-    })
+    return JSONResponse(_customdomain_to_dict(row))
 
 
 @app.delete("/api/custom-domains/{domain_id}")
 def api_custom_domains_delete(domain_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Release a custom domain. Member-initiated. Doesn't affect their
     pages — they remain accessible at superadpro.com/p/<username>/<slug>
-    as always."""
+    as always.
+
+    v2: Also deletes the domain from Railway via GraphQL so we don't
+    accumulate orphaned domain registrations (and so members can re-add
+    the same domain later if they change their mind). Railway-side delete
+    is best-effort — if it fails (e.g. API outage), we still delete our
+    DB row and log the orphan for an admin to clean up later."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
@@ -3584,6 +3609,21 @@ def api_custom_domains_delete(domain_id: int, user: User = Depends(get_current_u
     ).first()
     if not row:
         return JSONResponse({"error": "Domain not found"}, status_code=404)
+
+    # Best-effort Railway cleanup
+    if row.railway_domain_id:
+        try:
+            from . import railway_api as _rapi
+            ok, err = _rapi.delete_custom_domain(row.railway_domain_id)
+            if not ok:
+                import logging
+                logging.getLogger(__name__).warning(
+                    f"Railway delete failed for domain {row.domain} (railway_id={row.railway_domain_id}): {err}. "
+                    f"Continuing with local delete — manual cleanup may be needed."
+                )
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Railway delete exception: {e}")
 
     db.delete(row)
     db.commit()

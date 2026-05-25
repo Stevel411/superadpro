@@ -4007,6 +4007,27 @@ except Exception as e:
     print(f"⚠️ Daily briefings note: {e}")
 
 
+# ── Custom Domain v2: Railway API integration columns (25 May 2026) ──
+# v1 (21 May) created the custom_domains table with DNS-only verification.
+# v2 adds three columns so we can register the domain with Railway's API
+# (which then auto-issues Let's Encrypt certs) and track TLS state:
+#   railway_domain_id   — UUID returned by customDomainCreate mutation
+#   tls_status          — Railway's certificateStatus (ISSUED, ISSUING, etc.)
+#   dns_records_json    — JSON-encoded list of DNS records to display in UI
+# All nullable so legacy v1 rows survive — they'll auto-migrate on next
+# member action (edit/save) via the v2 create flow.
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE custom_domains ADD COLUMN IF NOT EXISTS railway_domain_id VARCHAR"))
+        conn.execute(text("ALTER TABLE custom_domains ADD COLUMN IF NOT EXISTS tls_status VARCHAR"))
+        conn.execute(text("ALTER TABLE custom_domains ADD COLUMN IF NOT EXISTS dns_records_json TEXT"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_custom_domains_railway_id ON custom_domains(railway_domain_id)"))
+        conn.commit()
+        print("✅ Custom Domain v2 columns added (railway_domain_id, tls_status, dns_records_json)")
+except Exception as e:
+    print(f"⚠️ Custom Domain v2 migration note: {e}")
+
+
 # ── membership_tier 'basic'→'free' migration for inactive users (10 May 2026) ──
 # Background: until launch day, the User model defaulted membership_tier to
 # 'basic' which made every newly-registered free user look paid in any code
@@ -4739,7 +4760,9 @@ class CustomDomain(Base):
     domain          = Column(String, nullable=False, unique=True, index=True)
     # pending — DNS not yet verified (CNAME doesn't resolve or doesn't
     #           point at us)
-    # verified — CNAME points at our Railway host; live routing is active
+    # verified — CNAME points at our Railway host AND Railway has issued
+    #            a Let's Encrypt cert for it; live routing is active and
+    #            HTTPS works
     # failed   — verification cron has retried N times and given up;
     #            member can re-trigger by editing/saving
     verification_status = Column(String, default="pending", index=True)
@@ -4751,5 +4774,23 @@ class CustomDomain(Base):
     last_checked_at = Column(DateTime, nullable=True)
     verified_at     = Column(DateTime, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow, index=True)
+
+    # ── Railway API integration (Custom Domain v2, 25 May 2026) ──────
+    # When a domain is registered with Railway via the GraphQL API,
+    # Railway returns a UUID we keep here so we can later poll status
+    # and delete-on-removal. Populated by the v2 create flow.
+    # Nullable so legacy v1 rows (DNS-only verification) can coexist.
+    railway_domain_id = Column(String, nullable=True, index=True)
+    # Latest Railway certificateStatus value. Drives the member-facing
+    # status display (Pending DNS / Validating ownership / Issuing cert /
+    # Live with HTTPS / Error). Updated by the verification cron.
+    tls_status      = Column(String, nullable=True)
+    # JSON-encoded list of DNS records Railway told us to surface to
+    # the member (CNAME routing record + TXT ownership record). Shape:
+    # [{"recordType":"CNAME","hostlabel":"pages",
+    #   "requiredValue":"abc.up.railway.app","status":"PROPAGATING"},...]
+    # Stored verbatim so the UI can always show the latest values
+    # without re-querying Railway on every page load.
+    dns_records_json = Column(Text, nullable=True)
 
     user            = relationship("User", foreign_keys=[user_id])
