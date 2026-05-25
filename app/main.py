@@ -3906,6 +3906,95 @@ def admin_founder_audit(user: User = Depends(get_current_user), db: Session = De
     })
 
 
+@app.get("/admin/rotator-audit")
+def admin_rotator_audit(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Inspect the rotator_queue and verify every active Founder is enrolled.
+
+    Returns three lists:
+      - queue: full rotator queue sorted by queue_position (the order the
+        /start funnel will serve new signups in)
+      - founders_missing_from_queue: active Founders who are NOT in the
+        queue (something went wrong with their enrolment)
+      - non_founders_in_queue: queue members who aren't Founders (rare;
+        usually only legacy data)
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
+
+    # Full queue with user details
+    queue_rows = db.execute(text("""
+        SELECT rq.user_id, rq.queue_position, rq.joined_at,
+               u.username, u.is_active, u.is_founding_member,
+               u.founding_spot_number, u.rotator_opted_in
+          FROM rotator_queue rq
+          LEFT JOIN users u ON u.id = rq.user_id
+         ORDER BY rq.queue_position ASC
+    """)).fetchall()
+
+    queue = [
+        {
+            "user_id":              r[0],
+            "queue_position":       r[1],
+            "joined_at":            r[2].isoformat() if r[2] else None,
+            "username":             r[3],
+            "is_active":            bool(r[4]) if r[4] is not None else None,
+            "is_founding_member":   bool(r[5]) if r[5] is not None else None,
+            "founding_spot_number": r[6],
+            "rotator_opted_in":     bool(r[7]) if r[7] is not None else None,
+        }
+        for r in queue_rows
+    ]
+
+    # Active Founders not in queue
+    missing_rows = db.execute(text("""
+        SELECT u.id, u.username, u.founding_spot_number,
+               u.is_active, u.rotator_opted_in
+          FROM users u
+          LEFT JOIN rotator_queue rq ON rq.user_id = u.id
+         WHERE u.is_active = TRUE
+           AND u.is_founding_member = TRUE
+           AND COALESCE(u.is_admin, FALSE) = FALSE
+           AND rq.user_id IS NULL
+         ORDER BY u.founding_spot_number NULLS LAST, u.id
+    """)).fetchall()
+
+    missing = [
+        {
+            "user_id":              r[0],
+            "username":             r[1],
+            "founding_spot_number": r[2],
+            "is_active":            bool(r[3]) if r[3] is not None else None,
+            "rotator_opted_in":     bool(r[4]) if r[4] is not None else None,
+        }
+        for r in missing_rows
+    ]
+
+    # Non-Founders sitting in queue (shouldn't normally happen)
+    extra_rows = db.execute(text("""
+        SELECT rq.user_id, u.username, u.is_founding_member, u.is_active
+          FROM rotator_queue rq
+          LEFT JOIN users u ON u.id = rq.user_id
+         WHERE COALESCE(u.is_founding_member, FALSE) = FALSE
+    """)).fetchall()
+
+    extras = [
+        {
+            "user_id":            r[0],
+            "username":           r[1],
+            "is_founding_member": bool(r[2]) if r[2] is not None else None,
+            "is_active":          bool(r[3]) if r[3] is not None else None,
+        }
+        for r in extra_rows
+    ]
+
+    return JSONResponse({
+        "queue_size":                   len(queue),
+        "queue":                        queue,
+        "founders_missing_from_queue":  missing,
+        "non_founders_in_queue":        extras,
+    })
+
+
 @app.get("/admin/promote-partner-to-founder/{user_id}")
 def admin_promote_partner_to_founder(
     user_id: int,
