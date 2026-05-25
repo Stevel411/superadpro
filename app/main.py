@@ -3829,6 +3829,205 @@ def admin_stripe_recover_user(
     })
 
 
+# ════════════════════════════════════════════════════════════════════
+# Founder audit + promotion tools (25 May 2026)
+#
+# Policy: the first 100 paying members are supposed to be Founders.
+# Some early signups paid via crypto and were activated as Partners
+# because they purchased a Campaign Tier rather than the Founder
+# Membership product specifically — they fell through the Founder
+# spot allocation gate. These admin tools surface those cases so the
+# policy can be honoured retroactively.
+# ════════════════════════════════════════════════════════════════════
+
+@app.get("/admin/founder-audit")
+def admin_founder_audit(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Lists every active Partner who looks like they should have been
+    a Founder but wasn't given a spot. Inclusion criteria:
+      - is_active = True
+      - is_founding_member = False
+      - signed up while Founder spots were still available
+        (i.e. their created_at is before the 100th Founder's
+         activated_at, OR all 100 spots are still not claimed)
+
+    Returns a sorted list (oldest signup first) so the admin can
+    decide who to promote in chronological order, preserving the
+    "first 100 paying members" policy.
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
+
+    # Find the boundary: either all 100 Founder spots are claimed, in which
+    # case the 100th Founder's activated_at is the cutoff; or fewer than
+    # 100 are claimed, in which case every Partner ever could potentially
+    # be promoted.
+    founder_count = db.query(User).filter(User.is_founding_member == True).count()
+    spots_remaining = max(0, 100 - founder_count)
+
+    if founder_count >= 100:
+        # Find the 100th Founder's activated_at — Partners who signed up
+        # before that timestamp are policy-eligible
+        last_founder = db.query(User).filter(
+            User.is_founding_member == True,
+            User.founding_spot_number == 100,
+        ).first()
+        cutoff = last_founder.activated_at if last_founder and last_founder.activated_at else None
+    else:
+        # Spots still open — every active Partner is potentially eligible
+        cutoff = None
+
+    q = db.query(User).filter(
+        User.is_active == True,
+        User.is_founding_member == False,
+        # 'partner' or anything that isn't 'founding' is the candidate set
+        User.membership_tier != "founding",
+    )
+    if cutoff is not None:
+        q = q.filter(User.created_at < cutoff)
+    candidates = q.order_by(User.created_at.asc()).all()
+
+    return JSONResponse({
+        "founder_count":   founder_count,
+        "spots_remaining": spots_remaining,
+        "cutoff_used":     cutoff.isoformat() if cutoff else None,
+        "candidate_count": len(candidates),
+        "candidates": [
+            {
+                "user_id":         c.id,
+                "username":        c.username,
+                "email":           c.email,
+                "membership_tier": c.membership_tier,
+                "created_at":      c.created_at.isoformat() if c.created_at else None,
+                "activated_at":    c.activated_at.isoformat() if c.activated_at else None,
+                "sponsor_id":      c.sponsor_id,
+            }
+            for c in candidates
+        ],
+    })
+
+
+@app.get("/admin/promote-partner-to-founder/{user_id}")
+def admin_promote_partner_to_founder(
+    user_id: int,
+    reason: str = "policy: first-100 signup was meant to be Founder",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Promote an active Partner to Founder.
+
+    Atomic spot claim using the same pg_advisory_xact_lock the regular
+    Founder signup flow uses (lock key 7423957) so concurrent admin
+    actions can't double-claim a spot.
+
+    Sets:
+      is_founding_member  = True
+      founding_spot_number = next available
+      membership_price_locked = 15.00
+      membership_tier     = "founding"
+    Also enrols them in the rotator (idempotent) and writes a
+    Notification + log entry for audit.
+
+    Refuses if:
+      - User not found
+      - User isn't currently active
+      - User is already a Founder
+      - All 100 Founder spots are claimed
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+    if not target.is_active:
+        return JSONResponse({
+            "error": "user_not_active",
+            "detail": "Only active Partners can be promoted to Founder",
+        }, status_code=400)
+    if target.is_founding_member:
+        return JSONResponse({
+            "ok": True,
+            "noop": True,
+            "reason": "user is already a Founder",
+            "user_id": target.id,
+            "username": target.username,
+            "founding_spot_number": target.founding_spot_number,
+        })
+
+    from decimal import Decimal
+    FOUNDING_TOTAL = 100
+    FOUNDING_LOCK_KEY = 7423957
+
+    # Atomic spot claim — same key as the regular Founder signup gate
+    db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": FOUNDING_LOCK_KEY})
+
+    current = db.execute(text(
+        "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+    )).fetchone()
+    current_count = current.cnt if current else 0
+    if current_count >= FOUNDING_TOTAL:
+        return JSONResponse({
+            "error": "no_spots_remaining",
+            "detail": f"All {FOUNDING_TOTAL} Founder spots are claimed",
+            "current_count": current_count,
+        }, status_code=400)
+
+    next_spot = current_count + 1
+
+    # Apply Founder status
+    target.is_founding_member       = True
+    target.founding_spot_number     = next_spot
+    target.membership_price_locked  = Decimal("15.00")
+    target.membership_tier          = "founding"
+    db.flush()
+
+    # Idempotent rotator enrolment so they start receiving distributed signups
+    try:
+        _enrol_user_to_rotator(db, target.id)
+    except Exception:
+        logger.exception(f"promote-to-founder: rotator enrol failed for user {target.id} — non-fatal")
+
+    # Audit notification on the target's account
+    try:
+        from .database import Notification
+        db.add(Notification(
+            user_id=target.id,
+            type="account",
+            icon="👑",
+            title=f"You're now Founder #{next_spot}",
+            message=(
+                f"Welcome to the Founder cohort. Your monthly membership is now locked "
+                f"at $15/month for life. This was applied because you were one of the "
+                f"first 100 members to join SuperAdPro."
+            ),
+            link="/dashboard",
+        ))
+    except Exception:
+        logger.exception("promote-to-founder: notification write failed — non-fatal")
+
+    db.commit()
+    db.refresh(target)
+
+    logger.warning(
+        f"PROMOTION: user {target.id} ({target.username}) promoted to "
+        f"Founder #{next_spot} by admin {user.id} ({user.username}). Reason: {reason}"
+    )
+
+    return JSONResponse({
+        "ok": True,
+        "promoted": True,
+        "user_id":  target.id,
+        "username": target.username,
+        "is_founding_member":     target.is_founding_member,
+        "founding_spot_number":   target.founding_spot_number,
+        "membership_price_locked": str(target.membership_price_locked),
+        "membership_tier":        target.membership_tier,
+        "promoted_by_admin":      user.username,
+        "reason":                 reason,
+        "spots_remaining_after":  FOUNDING_TOTAL - next_spot,
+    })
+
+
 @app.post("/cron/stripe-recover-user")
 def cron_stripe_recover_user(request: Request, payload: dict = Body(...), db: Session = Depends(get_db)):
     """Activate a user who paid Stripe but is stuck on free tier.
