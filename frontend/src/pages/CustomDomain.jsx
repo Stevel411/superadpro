@@ -130,9 +130,11 @@ export default function CustomDomain() {
     <AppLayout title="Custom Domain" subtitle="Bring your own domain to your SuperPages">
       <div style={{ maxWidth: 880, margin: '0 auto', padding: '0 16px' }}>
 
-        {/* Back link */}
-        <Link to="/labs/pagebuilder" style={backLinkStyle}>
-          <ArrowLeft size={14} /> Back to Page Builder
+        {/* Back link — production-grade Custom Domain now lives under
+            /custom-domain (not /labs), so back goes to SuperPages at
+            /funnels rather than the page-builder labs sandbox. */}
+        <Link to="/funnels" style={backLinkStyle}>
+          <ArrowLeft size={14} /> Back to SuperPages
         </Link>
 
         {/* Header card */}
