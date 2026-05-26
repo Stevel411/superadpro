@@ -6,7 +6,63 @@
 
 ---
 
-## Status as of 2026-05-26 — GRACE PERIOD ESCROW + COMMERCIAL-GRADE INTEGRITY PASS
+## Status as of 2026-05-26 (evening) — VIDEO SALES PAGE + STRIPE WEBHOOK RECOVERY
+
+**Long Tuesday-into-Wednesday session, ~21 hours of continuous work, 6 commits shipped tonight on top of the morning's grace-period work.** Three arcs: Video Sales Page production launch, Annemiek's stuck Stripe payment recovery, funnel-builder audit and broken-AI-button take-down.
+
+### Shipped tonight (26 May 2026 evening)
+
+**Video Sales Page — personalised sales page for every member (2 commits):**
+
+- **`7141c1423` Video Sales Page — /ref/{username}/video + dashboard banner.** New React page (~900 lines, `frontend/src/pages/ReferralVideo.jsx`) at `/ref/:username/video`. Light cobalt/cyan brand (not dark public-page aesthetic). 22-min platform overview video from R2 (`superadpro-media/funnel-videos/SuperAdPro Overview1.mp4`). Custom video player — native HTML5 controls would overlay Steve's webcam in bottom-right of recording. 6×6 Profit Grid section with bespoke SVG (YOU node + gold L1 directs + cyan L2-L5 spillover + pulsing-gold seat #36 for completion bonus). Floating "+40% direct" and "+6.25% × 8 levels" tag badges. 5 toolkit value cards (blue/pink/green/amber/lavender). $20 vs $172/mo comparison. Clean centred Join CTA (no pricing-card box per Steve). All commission numbers verified against `app/grid.py`. Backend route `@app.get("/ref/{username}/video")` in `app/main.py` defined BEFORE generic `/ref/{username}` redirect — FastAPI route-segment matching needs more-specific path first. Dashboard banner inserted between welcome card and EXPLORE doors with NEW pill, "Your Video Sales Page is live" headline, URL + Copy + Preview buttons.
+- **`9eb7442d5` Wire real R2 URL for hero background.** Steve uploaded the cyan growth-chart background to R2 (`marketing-bg/R9K1t.jpg`). Swapped placeholder URL for the real one. Verified HTTP 200, 113 KB JPEG.
+
+**Bug fix from the video-page deploy (1 commit):**
+
+- **`e41aefdf3` Fix orphan JSX comment leaking text onto dashboard.** My banner-insertion commit (7141c1423) chopped the opening of an existing JSX comment block. The body of the comment ("7 May 2026: dashboard simplified to action-only...") rendered as raw text above EXPLORE on the live dashboard. Steve caught it immediately on first refresh. Removed orphan comment body. Owned mistake: I shipped without previewing the live page first — exactly the "test before declaring done" failure mode.
+
+**AI funnel builder take-down (1 commit):**
+
+- **`af3971bf0` Disable broken AI page builder on /pro/funnels/new.** Member reported "Not Found" alert dialog when clicking Generate in the AI funnel wizard. Audit revealed `/api/funnels/ai-generate` was never built on the backend — only the frontend modal existed. Has been broken for every member who clicked the button since `/pro/funnels/new` shipped 18 May (10+ days). Replaced the active button with non-clickable "Coming soon" pill. Hero banner kept (Sparkles icon, Grok 4.1 label) so the AI direction is still signposted but honest about being roadmapped. Dead modal code left in place as scaffolding for the proper rebuild. The 8 niche template tiles + Blank Canvas continue to work — those routes are live.
+
+### Customer recovery — Annemiek (user 354)
+
+Paid Stripe $15 for Founder membership at 26 May 08:49 UTC. Sat inactive 9 hours because `checkout.session.completed` webhook never processed. Steve hit `/admin/stripe-recover-user/354?tier=founding&stripe_subscription_id=sub_1TbFjvBxEFGz0qoHDqAU8FpE&stripe_payment_intent_id=pi_3TbFj0BxEFGz0qoH11i4caZY&amount_cents=1500` while logged in as admin. Result: Founder spot #72/100, $15 price locked, sponsor `@blijdrage` paid $10 commission, full StripeCharge audit row written. Commission audit reports `overall_status: healthy` with zero flags.
+
+### Data-integrity issues flagged (NOT yet investigated)
+
+These all surfaced from `member_composition` tool output during tonight's investigation. Real issues, not blocking, need fresh-session investigation:
+
+1. **16 of 70 "active" members have `membership_expires_at` in the past.** Renewal cron is not flipping them to inactive. Some show `expires_at` BEFORE `activated_at` by seconds (e.g. user 220 benzade: activated 10:34:49, expires 10:34:02). Race condition or stale lapsed-activation cleanup gap.
+2. **2 active members have `membership_expires_at: null`** — `cryptobase26` (user 351, spot #54), `verokins` (user 325, spot #55). Will never expire under any cron logic.
+3. **Stripe webhook silent-failure root cause unknown.** Annemiek's `checkout.session.completed` never processed. Three possibilities: not delivered by Stripe, signature verification failed, handler crashed AND alert email also failed. Needs Stripe Dashboard webhook delivery logs + Railway logs around 26 May 08:49 UTC.
+4. **Dashboard "Active Members" count is misleading** — shows 70 but real active (excluding expired) is ~54.
+
+### Funnel system cleanup — major deferred work
+
+Steve's requirement: "one solid commercial-grade page builder system with a nice set of ready-made templates."
+
+Current state has THREE template sources (`frontend/src/data/funnelTemplates.js`, `NICHE_TEMPLATES` in `app/main.py:19553`, `app/funnel_templates.py`) and one orphan launch-wizard endpoint (`/api/launch-wizard/generate-funnel` at line 6253) that writes to the same `FunnelPage` table but returns `edit_url: /funnels/visual/{id}` — a 404 frontend route. Also has fabricated fallback stats ("10,000+ Active Members" / "$2.5M+ Paid Out" / "4.9/5 Rating") that ship if Grok fails — never acceptable.
+
+**Full cleanup plan in handover doc `/mnt/user-data/outputs/handover-2026-05-26.md`.** Estimated 2 fresh sessions, ~3-4 hours total: session 1 audit and consolidate, session 2 build `/api/funnels/ai-generate` properly with no fabricated fallbacks.
+
+### What got better tonight
+
+- Every active member now has a polished personalised sales page to share with their network — `/ref/{username}/video`
+- One paying customer (Annemiek) unstuck after 9 hours
+- One quietly-broken member-facing feature taken offline before more members hit the 404
+- LAUNCH_LOG updated with tonight's commits + data-integrity issues flagged for tomorrow
+
+### What needs to happen before next session
+
+Steve to gather (when fresh, not tonight):
+- Stripe Dashboard webhook delivery logs for 26 May 08:49 UTC
+- Railway logs for "stripe" / "webhook" around that timestamp
+- Decision on whether to proactively expire the 16 lapsed-but-active members or let the renewal-cron fix backfill them
+
+---
+
+
 
 **Long Monday-night-into-Tuesday-morning session, ~13 hours, 16 commits shipped.** Three major arcs: grid bonus pool fix + marketing badge, grace-period commission escrow system (the showpiece), and a same-session Stripe webhook double-pay caught-and-fixed via the daily-briefing audit.
 
