@@ -169,32 +169,38 @@ export default function FunnelsNew() {
             fontSize: 18,
             fontWeight: 700,
             letterSpacing: '-0.01em',
-          }}>Build me a page</h2>
+          }}>AI page builder — coming soon</h2>
           <div style={{fontSize:13,color:'#cbd5e1',lineHeight:1.5}}>
-            Tell our AI your niche and audience — get a fully-written
-            landing page in under a minute.
+            We're building a Grok-powered page generator that writes
+            the headline, copy and CTA from your niche brief. For now,
+            start from one of the templates below.
           </div>
         </div>
-        <button
-          onClick={() => setShowAiWizard(true)}
-          disabled={creating}
+        <div
           style={{
-            padding: '12px 20px',
+            padding: '11px 18px',
             borderRadius: 10,
-            border: 'none',
-            background: '#22d3ee',
-            color: '#0a1438',
-            fontSize: 13,
+            border: '1px solid rgba(34,211,238,0.35)',
+            background: 'rgba(34,211,238,0.08)',
+            color: '#67e8f9',
+            fontSize: 12,
             fontWeight: 700,
-            cursor: 'pointer',
-            fontFamily: 'Sora,sans-serif',
+            fontFamily: 'JetBrains Mono, monospace',
+            letterSpacing: '0.4px',
+            textTransform: 'uppercase',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
             whiteSpace: 'nowrap',
+            cursor: 'default',
           }}>
-          Generate with AI <ArrowRight size={14}/>
-        </button>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: '#22d3ee',
+            boxShadow: '0 0 8px rgba(34,211,238,0.7)',
+          }}/>
+          Coming soon
+        </div>
       </div>
 
       {/* Section header */}
