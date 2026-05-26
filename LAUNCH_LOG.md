@@ -6,6 +6,64 @@
 
 ---
 
+## Status as of 2026-05-26 — GRACE PERIOD ESCROW + COMMERCIAL-GRADE INTEGRITY PASS
+
+**Long Monday-night-into-Tuesday-morning session, ~13 hours, 16 commits shipped.** Three major arcs: grid bonus pool fix + marketing badge, grace-period commission escrow system (the showpiece), and a same-session Stripe webhook double-pay caught-and-fixed via the daily-briefing audit.
+
+### Shipped on 26 May 2026
+
+**Grid bonus + marketing badge (2 commits):**
+
+- **`91eff563` Grid bonus pool: pay full policy target.** Tier 1 grid paid $54 instead of $72 (bonus rate bumped 5%→10% mid-cycle). New rule: `_complete_grid` pays `max(actual_accrued, policy_target)`. Migration `migrate_grid_bonus_pools_one_shot()` runs 5 passes: bump active pools, top-up underpaid completed grids ($18 paid to Steve), backfill `grid_bonus_paid` badges, refresh icons + metadata, refresh notification icons (Pass 5 added later in `fd835bda`).
+- **`32585672` Sequential tier purchase lock + purple ♛ badge.** Tier purchases must now follow 1→2→3→... order, enforced at 3 entry points (`process_tier_purchase`, NOWPayments, BSC). Plus new `Achievement.metadata_json` column so the grid bonus badge can display the actual $ amount + "Tier N Bonus" chip. Marketing showpiece, purple-gradient `.badge-card.earned.grid-bonus` styling.
+
+**Grace-period commission escrow system (1 large commit):**
+
+- **`5d7e2fd6` 3-day escrow + 4 notification channels.** When a downline upgrades to a tier their upline doesn't own, the 40% direct + 6.25% uni-level commissions are escrowed for 3 days instead of company-absorbed. If upline upgrades in time, commissions release. If not, expires to company.
+  - New `PendingCommission` model + table with composite indexes
+  - `_pay_direct_sponsor` and `_pay_unilevel_chain` escrow on unqualified upline
+  - `_release_pending_for_user()` runs inside `process_tier_purchase` after success
+  - 4 channels: in-app bell, instant email, dashboard amber countdown card (`PendingCommissionsCard.jsx`), T-24h reminder email
+  - New `/cron/grace-period-cycle` (GET+POST, CRON_SECRET) handles expiry + reminders hourly — scheduled in cron-job.org
+  - New `/api/pending-commissions` feeds dashboard
+
+**Stripe webhook double-pay arc (4 commits, caught + fixed same session):**
+
+- **`1844844b` Admin daily-briefing tooling.** `/admin/daily-briefing-status` + `/admin/trigger-daily-briefing` so we don't need to paste CRON_SECRET for diagnostics.
+- **`4b73914` Admin double-pay scanner.** `/admin/double-pay-scan` classifies briefing audit findings as real duplicates vs legitimate sequences (e.g. signup commission + later upgrade commission for same pair).
+- **`620ea97a` Root-cause fix.** When `earnwithdarius` signed up at 07:16:35 UTC, BOTH `_stripe_handle_checkout_completed` AND the `_stripe_handle_invoice_paid` self-healing branch (added 25 May for jerrygoff case) fired, both called `_activate_membership`, sponsor (`starthere`) got paid $10 TWICE (commissions 601 + 603, 500ms apart). Fix: primary guard in checkout handler (skip if user already active) + belt-and-braces guard inside `_activate_membership` itself (chokepoint backstop for any future caller).
+- **`678c3810` Reverse-commission field-map fix.** My first reverse-commission endpoint debited wrong wallet fields for membership commissions (debited `campaign_balance` + `upline_earnings` instead of `balance`). Made it commission-type-aware. starthere wallet corrected via one-shot `/admin/fix-starthere-wallet`.
+
+**Achievement toast on dashboard (4 commits):**
+
+- **`9ba3fdbe` Slide-out toast when badges unlock.** Steve flagged the grid bonus badge wasn't visible — only on `/achievements` which has no nav link. Dashboard now polls `/api/achievements/unseen` on mount + every 60s. Purple-gradient toast renders top-right. Grid Bonus gets special variant with large $ amount + Tier chip.
+- **`5ca31037` Debug-friendly replay endpoint.** `/admin/replay-my-badge-toast` flips ALL achievement notifs unread + returns full state inspection. Built mid-debug when title-LIKE matching wasn't reliable.
+- **`fd835bda` Don't auto-mark-seen on appearance.** Toast was disappearing on refresh because mark-seen fired the instant the toast appeared. Now only marks seen on explicit dismiss (✕ click) or View Badges click. Plus Pass 5 migration refreshes notification icons 💎→♛ on boot.
+- **`4755d352` View Badges link fix.** Was bouncing to dashboard because `/achievements` is a Jinja template, not a React route. onClick handler now uses `window.location.href` to force full-page navigation.
+
+**Custom Domain promoted out of labs (6 commits earlier in session):**
+
+- `d2339c3` PIF gift claim Founder spot allocation fix
+- `1954fd4` `/help/custom-domain` step-by-step guide + Funnels link
+- `8ec0771` Help page back link
+- `6102c59` Help page diagrams + FAQ
+- `d0706fb` Promoted `/labs/pagebuilder/custom-domain` → `/custom-domain` with 301 redirect
+- `659c5c3` CustomDomain back link → `/funnels`
+
+### Operational decisions confirmed this session
+
+- **Both crypto rails are LIVE:** WalletConnect/BSC AND NOWPayments. CLAUDE.md saying NOWPayments is "retired" is wrong. Both paths must be considered when diagnosing payment issues.
+- **Orphan wallet `0xa96be65…`** with ~$165 across 9 transactions is bot/scammer dust validation, not a real customer. Leave parked.
+- **SuperPages V2 already shipped yesterday** — do not redo. Lesson for future sessions: ask "is this live yet?" before redesigning anything.
+
+### Active watch items
+
+- `daily-briefing-cron` and `stuck-lapsed-alert-cron` Railway worker containers report "deployment crashed" but the underlying endpoints are healthy and jobs DO complete (briefing #17 saved + emailed). Curl exit codes are non-zero for unknown reasons. Cosmetic alert, not a real failure. Worth investigating Railway logs at some point.
+- `/achievements` is a Jinja server-render, not a React route. Long-term: build a proper React achievements page + sidebar nav link.
+- No nav link to `/achievements` from anywhere — members can't easily find their badges. Toast partly addresses for newly-earned badges but a sidebar entry would let members revisit past badges.
+
+---
+
 ## Status as of 2026-05-25 — PAGE BUILDER COMMERCIAL-GRADE PASS
 
 **Long Sunday-into-Monday session, ~7 hours, 15 commits shipped.** Two major arcs: editor topbar reliability (4 iterations to a working overflow-detection design) and a full page builder typography rebuild that established the project's commercial-grade build doctrine.
