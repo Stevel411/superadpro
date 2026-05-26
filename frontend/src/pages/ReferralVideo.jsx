@@ -35,11 +35,8 @@ import { useEffect, useRef, useState } from 'react';
 
 // ── R2 asset URLs ────────────────────────────────────────────────────
 const VIDEO_URL = 'https://pub-c65d78296e574524bdcda856c402c7a1.r2.dev/funnel-videos/SuperAdPro%20Overview1.mp4';
-// Hero background — placeholder URL until Steve uploads to R2.
-// Replace HERO_BG_URL with the real R2 URL when ready. The base64-inline
-// approach used in the mockup is fine for a static preview but is wrong
-// in production: bloats the JS bundle by ~150KB on every page load.
-const HERO_BG_URL = 'https://pub-c65d78296e574524bdcda856c402c7a1.r2.dev/marketing-bg/growth-hero-bg.jpg';
+// Hero background — uploaded to R2 26 May 2026.
+const HERO_BG_URL = 'https://pub-c65d78296e574524bdcda856c402c7a1.r2.dev/marketing-bg/R9K1t.jpg';
 
 export default function ReferralVideo() {
   const { username } = useParams();
