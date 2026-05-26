@@ -803,6 +803,45 @@ def create_payment_intent(db, user_id: int, product_type: str, product_key: str,
         )
         return {"error": "course_not_ready"}
 
+    # ── Grid (Campaign Tier) gates ────────────────────────────────────────
+    # The /api/onchain/create-intent endpoint historically had no
+    # membership-active gate and no sequential tier check — both were
+    # only enforced at NOWPayments / process_tier_purchase time.
+    # That meant a brand-new free user could create a BSC grid intent
+    # for any tier in any order. Closed both gates here 26 May 2026.
+    if product_type == "grid":
+        try:
+            tier_num = int(product_key.split("_")[1])
+        except (ValueError, IndexError):
+            logger.warning(f"create_payment_intent: bad grid product_key={product_key}")
+            return {"error": "unknown_product"}
+
+        from app.database import User as _User, Grid as _Grid
+        buyer = db.query(_User).filter(_User.id == user_id).first()
+        if not buyer:
+            return {"error": "unknown_product"}
+        # Gate 1: active membership required
+        if not buyer.is_active:
+            logger.info(
+                f"create_payment_intent: refused grid intent for user {user_id} — "
+                f"inactive membership"
+            )
+            return {"error": "membership_required"}
+        # Gate 2: sequential tier (Tier N requires owning Tier N-1)
+        if tier_num > 1:
+            prerequisite = tier_num - 1
+            owns_prereq = db.query(_Grid).filter(
+                _Grid.owner_id == user_id,
+                _Grid.package_tier == prerequisite,
+            ).first()
+            if not owns_prereq:
+                logger.info(
+                    f"create_payment_intent: refused tier {tier_num} intent for "
+                    f"user {user_id} — prerequisite tier {prerequisite} not owned"
+                )
+                return {"error": "tier_sequence_violation",
+                        "required_tier": prerequisite}
+
     base_price = PRODUCT_PRICES.get(product_key)
     if base_price is None:
         logger.warning(

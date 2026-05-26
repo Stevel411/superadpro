@@ -10574,6 +10574,22 @@ async def onchain_create_intent(request: Request,
                  "code": "collision"},
                 status_code=503,
             )
+        if err == "membership_required":
+            return JSONResponse(
+                {"error": "Active membership required to purchase Campaign Tiers",
+                 "code": "membership_required"},
+                status_code=403,
+            )
+        if err == "tier_sequence_violation":
+            req = result.get("required_tier", "the prior tier")
+            return JSONResponse(
+                {"error": (f"You must purchase Tier {req} before this one. "
+                           f"Campaign Tiers are purchased in order — buy Tier "
+                           f"{req} first."),
+                 "code": "tier_sequence_violation",
+                 "required_tier": req},
+                status_code=400,
+            )
         return JSONResponse(
             {"error": "Could not create payment intent"},
             status_code=500,
@@ -12491,6 +12507,30 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
                     "views_target": target,
                     "progress_pct": round((delivered / target * 100) if target else 0, 1),
                 }, status_code=409)
+
+            # ── Sequential tier purchase gate ──
+            # Refuse Tier N if member doesn't own Tier N-1 yet. Same
+            # rule enforced server-side at activation time in
+            # process_tier_purchase — this just catches the violation
+            # earlier so we don't take their crypto and then refuse to
+            # activate. See grid.py for full rationale.
+            if tier_num > 1:
+                prerequisite = tier_num - 1
+                from .database import Grid
+                owns_prereq = db.query(Grid).filter(
+                    Grid.owner_id == user.id,
+                    Grid.package_tier == prerequisite,
+                ).first()
+                if not owns_prereq:
+                    return JSONResponse({
+                        "error": (
+                            f"Tier {tier_num} requires Tier {prerequisite} first. "
+                            f"Campaign Tiers must be purchased in order — buy Tier "
+                            f"{prerequisite} before Tier {tier_num}."
+                        ),
+                        "code": "tier_sequence_violation",
+                        "required_tier": prerequisite,
+                    }, status_code=400)
         except (ValueError, IndexError):
             return JSONResponse({"error": f"Invalid grid product key: {product_key}"}, status_code=400)
 
@@ -31656,6 +31696,11 @@ def api_achievements_data(request: Request, user: User = Depends(get_current_use
     earned_keys = {a.badge_id for a in user_achievements}
     earned = []
     available = []
+    # Build a lookup of earned badges with their metadata so the API can
+    # include per-instance data (e.g. grid_bonus_paid carries the bonus
+    # amount earned). Added 26 May 2026.
+    earned_meta = {a.badge_id: a for a in user_achievements}
+
     for key, badge in BADGES.items():
         # BADGES dict uses "desc" key (see app/database.py BADGES) — the
         # API previously called badge.get("description") which always
@@ -31666,6 +31711,15 @@ def api_achievements_data(request: Request, user: User = Depends(get_current_use
                  "description": badge.get("desc", ""),
                  "icon": badge.get("icon", "🏅")}
         if key in earned_keys:
+            ach = earned_meta.get(key)
+            if ach and ach.metadata_json:
+                try:
+                    import json as _json_ach
+                    entry["metadata"] = _json_ach.loads(ach.metadata_json)
+                except Exception:
+                    pass
+            if ach and ach.earned_at:
+                entry["earned_at"] = ach.earned_at.isoformat()
             earned.append(entry)
         else:
             entry["progress"] = 0

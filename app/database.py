@@ -1134,6 +1134,12 @@ class Achievement(Base):
     title       = Column(String, nullable=False)
     icon        = Column(String, default="🏆")
     earned_at   = Column(DateTime, default=datetime.utcnow)
+    # Per-instance data carried with this specific award. JSON string.
+    # Example for grid_bonus_paid: '{"amount": 72.0, "tier": 1}' so the
+    # badge can display the exact bonus the member earned, not just the
+    # generic title. Added 26 May 2026. Optional, defaults to NULL on
+    # historical rows.
+    metadata_json = Column(Text, nullable=True)
 
     user = relationship("User", backref="achievements")
 
@@ -1157,7 +1163,7 @@ BADGES = {
     "grid_tier_3":      {"icon": "📊", "title": "Grid Climber",       "desc": "Reached Campaign Tier 3"},
     "grid_tier_5":      {"icon": "🎯", "title": "Grid Commander",     "desc": "Reached Campaign Tier 5"},
     "grid_tier_8":      {"icon": "🌟", "title": "Grid Legend",        "desc": "Completed all 8 campaign tiers"},
-    "grid_bonus_paid":  {"icon": "💎", "title": "Grid Bonus Earned",  "desc": "Filled a 36-seat campaign grid — completion bonus paid into your wallet"},
+    "grid_bonus_paid":  {"icon": "♛", "title": "Grid Bonus Earned",  "desc": "Filled a 36-seat campaign grid — completion bonus paid into your wallet"},
 }
 
 
@@ -2911,6 +2917,9 @@ try:
         conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_rolled_over BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_earnings NUMERIC(18,6) DEFAULT 0.0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS campaign_balance NUMERIC(18,6) DEFAULT 0.0"))
+        # Achievement metadata for badges that carry per-instance data
+        # (e.g. grid_bonus_paid stores the bonus amount + tier). 26 May 2026.
+        conn.execute(text("ALTER TABLE achievements ADD COLUMN IF NOT EXISTS metadata_json TEXT"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS campaign_tier INTEGER DEFAULT 1"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP"))
@@ -4344,24 +4353,92 @@ def migrate_grid_bonus_pools_one_shot():
 
             badge_awarded = 0
             for row in badge_backfill:
+                # Compute the bonus amount + tier this member would have
+                # earned from their most recent (or highest) completed grid.
+                # Stored in metadata_json so the achievements page displays
+                # "$X · Tier Y" rather than a generic title.
+                meta_row = conn.execute(text("""
+                    SELECT g.package_tier, COALESCE(g.bonus_pool_accrued, 0) AS amt
+                    FROM grids g
+                    WHERE g.owner_id = :uid
+                      AND g.is_complete = TRUE
+                      AND g.bonus_paid = TRUE
+                    ORDER BY g.bonus_pool_accrued DESC NULLS LAST
+                    LIMIT 1
+                """), {"uid": int(row.owner_id)}).fetchone()
+                if meta_row:
+                    import json as _json2
+                    meta_payload = _json2.dumps({
+                        "amount": round(float(meta_row.amt), 2),
+                        "tier": int(meta_row.package_tier),
+                    })
+                else:
+                    meta_payload = None
+
                 conn.execute(text("""
-                    INSERT INTO achievements (user_id, badge_id, title, icon, earned_at)
+                    INSERT INTO achievements (user_id, badge_id, title, icon, earned_at, metadata_json)
                     VALUES (:uid, 'grid_bonus_paid',
-                            'Grid Bonus Earned', '💎', NOW())
-                """), {"uid": int(row.owner_id)})
+                            'Grid Bonus Earned', :icon, NOW(), :meta)
+                """), {"uid": int(row.owner_id), "icon": "♛", "meta": meta_payload})
                 # Companion notification
                 conn.execute(text("""
                     INSERT INTO notifications
                         (user_id, type, icon, title, message, link, is_read, created_at)
                     VALUES
-                        (:uid, 'achievement', '💎',
+                        (:uid, 'achievement', :icon,
                          'Badge earned: Grid Bonus Earned!',
-                         'Filled a 36-seat campaign grid — completion bonus paid into your wallet',
+                         :msg,
                          '/achievements', FALSE, NOW())
-                """), {"uid": int(row.owner_id)})
+                """), {
+                    "uid": int(row.owner_id),
+                    "icon": "♛",
+                    "msg": (f'You earned a ${round(float(meta_row.amt), 2)} grid completion bonus '
+                            f'from Tier {int(meta_row.package_tier)}!') if meta_row
+                           else 'Filled a 36-seat campaign grid — completion bonus paid into your wallet',
+                })
                 badge_awarded += 1
             conn.commit()
             print(f"📊 Grid bonus pool migration — badge backfill: awarded {badge_awarded} grid_bonus_paid badges")
+
+            # ── Pass 4: refresh icon and metadata on EXISTING badges ──
+            # Badges awarded in the first 24h (yesterday's deploy)
+            # used the old 💎 icon and had no metadata_json. Bring them
+            # into line with the new purple ♛ + metadata payload so the
+            # badge displays the bonus amount + tier. Idempotent —
+            # only updates rows that still match the old shape.
+            stale = conn.execute(text("""
+                SELECT a.id, a.user_id
+                FROM achievements a
+                WHERE a.badge_id = 'grid_bonus_paid'
+                  AND (a.icon <> :new_icon OR a.metadata_json IS NULL)
+            """), {"new_icon": "♛"}).fetchall()
+
+            refreshed = 0
+            for arow in stale:
+                meta_row = conn.execute(text("""
+                    SELECT g.package_tier, COALESCE(g.bonus_pool_accrued, 0) AS amt
+                    FROM grids g
+                    WHERE g.owner_id = :uid
+                      AND g.is_complete = TRUE
+                      AND g.bonus_paid = TRUE
+                    ORDER BY g.bonus_pool_accrued DESC NULLS LAST
+                    LIMIT 1
+                """), {"uid": int(arow.user_id)}).fetchone()
+                if not meta_row:
+                    continue
+                import json as _json3
+                meta_payload = _json3.dumps({
+                    "amount": round(float(meta_row.amt), 2),
+                    "tier":   int(meta_row.package_tier),
+                })
+                conn.execute(text("""
+                    UPDATE achievements
+                       SET icon = :icon, metadata_json = :meta
+                     WHERE id = :id
+                """), {"icon": "♛", "meta": meta_payload, "id": int(arow.id)})
+                refreshed += 1
+            conn.commit()
+            print(f"📊 Grid bonus pool migration — refreshed icon/metadata on {refreshed} existing badges")
 
     except Exception as e:
         print(f"⚠️ grid bonus pool migration skipped: {e}")

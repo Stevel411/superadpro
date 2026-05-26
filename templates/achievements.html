@@ -52,6 +52,41 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#132044;min-heigh
 .badge-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
 .badge-card.earned{border-color:rgba(14,165,233,0.2);background:linear-gradient(180deg,#f0f9ff,#fff)}
 .badge-card.locked{opacity:0.45}
+
+/* Grid bonus badge — purple to match the Grid completion bonus theme.
+   Marketing-grade visual: deep purple gradient panel, bonus amount in
+   large mono type, "Tier N" chip below. Stands out from the rest of
+   the badge wall as a high-status award. Added 26 May 2026. */
+.badge-card.earned.grid-bonus{
+  background:linear-gradient(135deg,#4c1d95 0%,#7c3aed 50%,#a78bfa 100%);
+  border-color:#7c3aed;
+  color:#fff;
+  box-shadow:0 8px 28px rgba(124,58,237,0.35);
+  padding:24px 20px 22px;
+}
+.badge-card.earned.grid-bonus:hover{
+  box-shadow:0 12px 36px rgba(124,58,237,0.45);
+}
+.badge-card.earned.grid-bonus .badge-icon{
+  font-size:42px;color:#fff;text-shadow:0 2px 12px rgba(255,255,255,0.4);
+}
+.badge-card.earned.grid-bonus .badge-name{color:#fff;font-size:13px;letter-spacing:0.3px}
+.badge-card.earned.grid-bonus .grid-bonus-amount{
+  font-family:Sora,sans-serif;font-size:30px;font-weight:900;color:#fff;
+  margin:6px 0 2px;letter-spacing:-0.5px;line-height:1;
+  text-shadow:0 2px 8px rgba(255,255,255,0.25);
+}
+.badge-card.earned.grid-bonus .grid-bonus-tier{
+  display:inline-block;background:rgba(255,255,255,0.18);color:#fff;
+  font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;
+  padding:3px 10px;border-radius:99px;margin-top:4px;
+  letter-spacing:0.6px;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,0.22);
+}
+.badge-card.earned.grid-bonus .badge-date{color:rgba(255,255,255,0.75);font-weight:600;margin-top:10px}
+.badge-card.earned.grid-bonus .earned-check{
+  background:rgba(255,255,255,0.95);color:#7c3aed;
+}
 .badge-icon{font-size:36px;margin-bottom:8px}
 .badge-card.locked .badge-icon{filter:grayscale(1)}
 .badge-name{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#132044;margin-bottom:4px}
@@ -94,6 +129,20 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#132044;min-heigh
     <div class="badges-title">🎖 Earned</div>
     <div class="badges-grid">
       {% for a in earned %}
+      {% set meta = (a.metadata_json|from_json) if a.metadata_json else None %}
+      {# Grid bonus badge gets a marketing-grade purple treatment with
+         the actual bonus amount + tier displayed. Other badges use the
+         standard layout. #}
+      {% if a.badge_id == 'grid_bonus_paid' and meta and meta.amount %}
+      <div class="badge-card earned grid-bonus">
+        <div class="earned-check">✓</div>
+        <div class="badge-icon">{{ a.icon }}</div>
+        <div class="grid-bonus-amount">${{ '%.0f'|format(meta.amount|float) }}</div>
+        <div class="grid-bonus-tier">Tier {{ meta.tier }} Bonus</div>
+        <div class="badge-name" style="margin-top:10px">{{ a.title }}</div>
+        <div class="badge-date">Earned {{ a.earned_at.strftime('%d %b %Y') }}</div>
+      </div>
+      {% else %}
       <div class="badge-card earned">
         <div class="earned-check">✓</div>
         <div class="badge-icon">{{ a.icon }}</div>
@@ -101,6 +150,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#132044;min-heigh
         <div class="badge-desc">{{ all_badges[a.badge_id].desc if a.badge_id in all_badges else '' }}</div>
         <div class="badge-date">Earned {{ a.earned_at.strftime('%d %b %Y') }}</div>
       </div>
+      {% endif %}
       {% endfor %}
     </div>
     {% endif %}

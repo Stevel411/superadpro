@@ -160,6 +160,46 @@ def process_tier_purchase(
                 "in_flight_campaign_id": in_flight.id,
             }
 
+    # ── Sequential tier purchase gate (added 26 May 2026) ─────────────────
+    # Steve's rule: members must own all lower tiers before buying a
+    # higher one. So Tier N requires that the member has previously
+    # owned Tier N-1 (any historical Grid record at that tier counts,
+    # active or complete). Tier 1 has no prerequisite.
+    #
+    # Why: keeps the upline chain coherent — every downline upgrade
+    # creates an at-risk grace event for upline who must catch up.
+    # If anyone could skip from Tier 1 → Tier 5, the grace-period
+    # economics break, and members who never bought Tiers 2–4 still
+    # somehow earn at those tiers.
+    #
+    # Existing Grids that pre-date this rule are grandfathered:
+    # the check only inspects whether the prerequisite tier has EVER
+    # been owned, not whether the entire ladder is contiguous. That
+    # means a historical skip (Tier 1 + Tier 3, no Tier 2) blocks
+    # Tier 4 purchase — the member must buy Tier 2 first to fill the
+    # gap. Acceptable, because Steve confirmed no historical skips
+    # exist at this stage of platform life.
+    #
+    # bypass_repurchase_guard bypasses this too — manual recovery is
+    # always allowed to skip checks (the admin knows what they're doing).
+    if not bypass_repurchase_guard and package_tier > 1:
+        prerequisite_tier = package_tier - 1
+        owns_prerequisite = db.query(Grid).filter(
+            Grid.owner_id     == buyer_id,
+            Grid.package_tier == prerequisite_tier,
+        ).first()
+        if not owns_prerequisite:
+            return {
+                "success": False,
+                "error": (
+                    f"Tier {package_tier} requires Tier {prerequisite_tier} first. "
+                    f"Campaign Tiers must be purchased in order — buy Tier "
+                    f"{prerequisite_tier} before Tier {package_tier}."
+                ),
+                "code": "tier_sequence_violation",
+                "required_tier": prerequisite_tier,
+            }
+
     # Pay commissions based on the buyer's sponsor chain
     _pay_direct_sponsor(db, buyer, price, package_tier)
     _pay_unilevel_chain(db, buyer, price, package_tier)
@@ -517,19 +557,42 @@ def _complete_grid(db: Session, grid: Grid):
         # for an existing row before inserting. The badge is intentionally
         # awarded only when bonus_paid (not on rollover) — the badge means
         # "you received the bonus", not "you completed a grid".
+        #
+        # metadata_json captures the actual bonus amount and tier so the
+        # badge can display "$72 · Tier 1" rather than the generic title.
+        # Updated on each subsequent completion to reflect the LATEST and
+        # HIGHEST grid bonus the member has earned (so the badge stays
+        # impressive as members progress up the tier ladder).
         if owner and grid.bonus_paid:
+            import json as _json
             from .database import Achievement, BADGES
             already_has = db.query(Achievement).filter(
                 Achievement.user_id == grid.owner_id,
                 Achievement.badge_id == "grid_bonus_paid",
             ).first()
-            if not already_has and "grid_bonus_paid" in BADGES:
+            new_meta = _json.dumps({
+                "amount": round(float(bonus_amount), 2),
+                "tier": grid.package_tier,
+            })
+            if already_has:
+                # Already has the badge — bump metadata to the highest
+                # bonus to date if this one's larger. Keeps the badge
+                # marketing-grade ("earned $720 from a Tier 4 grid"
+                # outclasses an old "$72 Tier 1" record).
+                try:
+                    prev = _json.loads(already_has.metadata_json or "{}")
+                    if float(bonus_amount) > float(prev.get("amount", 0)):
+                        already_has.metadata_json = new_meta
+                except Exception:
+                    already_has.metadata_json = new_meta
+            elif "grid_bonus_paid" in BADGES:
                 b = BADGES["grid_bonus_paid"]
                 db.add(Achievement(
                     user_id=grid.owner_id,
                     badge_id="grid_bonus_paid",
                     title=b["title"],
                     icon=b["icon"],
+                    metadata_json=new_meta,
                 ))
                 # Companion notification so the badge unlock surfaces in
                 # the notification feed too, not just on the achievements
@@ -539,7 +602,7 @@ def _complete_grid(db: Session, grid: Grid):
                     type="achievement",
                     icon=b["icon"],
                     title=f'Badge earned: {b["title"]}!',
-                    message=b["desc"],
+                    message=f'You earned a ${bonus_amount:.2f} grid completion bonus from Tier {grid.package_tier}!',
                     link="/achievements",
                 ))
     except Exception as e:
