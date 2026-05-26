@@ -23780,6 +23780,229 @@ async def admin_fix_starthere_wallet(
     }
 
 
+@app.get("/admin/stripe-user-debug")
+async def admin_stripe_user_debug(
+    request: Request,
+    user_id: int = 0,
+    username: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only diagnostic for 'Stripe customer says they paid but
+    their account isn't active.' Shows the user's full Stripe state:
+    customer_id, subscription_id, all StripeCharge rows, all Payment
+    rows. Lets us see whether Stripe webhooks ever reached us, and if
+    so what happened.
+
+    Either user_id or username can be passed.
+
+    Added 26 May 2026 for the Sylvia Douna case (similar to jerrygoff
+    on 25 May): Stripe charged the customer but neither
+    checkout.session.completed nor invoice.paid arrived/processed, so
+    the user is stuck inactive with no Payment row.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import StripeCharge as _StripeCharge, Payment as _Payment
+    if user_id:
+        target = db.query(User).filter(User.id == user_id).first()
+    elif username:
+        target = db.query(User).filter(User.username == username).first()
+    else:
+        return JSONResponse({"error": "Pass user_id or username"}, status_code=400)
+    if not target:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    # Pull all StripeCharge rows for this user
+    charges = db.query(_StripeCharge).filter(
+        _StripeCharge.user_id == target.id
+    ).order_by(_StripeCharge.created_at.desc()).all()
+    charge_rows = [{
+        "id": c.id,
+        "kind": c.kind,
+        "product": c.product,
+        "amount_cents": c.amount_cents,
+        "currency": c.currency,
+        "stripe_charge_id": c.stripe_charge_id,
+        "stripe_payment_intent_id": c.stripe_payment_intent_id,
+        "stripe_subscription_id": c.stripe_subscription_id,
+        "stripe_session_id": c.stripe_session_id,
+        "description": c.description,
+        "created_at": c.created_at.isoformat() + "Z" if c.created_at else None,
+    } for c in charges]
+
+    # Pull all Payment rows for this user
+    payments = db.query(_Payment).filter(
+        _Payment.user_id == target.id
+    ).order_by(_Payment.created_at.desc()).limit(20).all()
+    payment_rows = [{
+        "id": p.id,
+        "payment_type": p.payment_type,
+        "amount_usdt": float(p.amount_usdt or 0),
+        "tx_hash": p.tx_hash,
+        "status": p.status,
+        "created_at": p.created_at.isoformat() + "Z" if p.created_at else None,
+    } for p in payments]
+
+    # Diagnostic summary
+    diagnosis = []
+    if not target.stripe_customer_id:
+        diagnosis.append("NO STRIPE CUSTOMER ID — user never reached Stripe checkout, "
+                         "or customer was created but the webhook didn't write it back. "
+                         "Lookup in Stripe Dashboard by email may show a customer record.")
+    if target.stripe_customer_id and not charge_rows:
+        diagnosis.append("HAS STRIPE CUSTOMER ID BUT NO CHARGE ROWS — "
+                         "checkout.session.completed never reached our webhook. "
+                         "This is the jerrygoff/sylvia failure mode. The "
+                         "self-healing invoice.paid branch (25 May, 4fbc88c) "
+                         "would normally cover this, but only if invoice.paid "
+                         "itself arrived. If neither arrived, manual recovery "
+                         "via /admin/stripe-recover-user is needed.")
+    if charge_rows and not target.is_active:
+        diagnosis.append("HAS CHARGE ROWS BUT NOT ACTIVE — webhook arrived "
+                         "and wrote the charge but _activate_membership failed "
+                         "or wasn't called. Check Railway logs for the user_id "
+                         "at the charge's created_at timestamp.")
+    if target.is_active and charge_rows:
+        diagnosis.append("ACTIVE WITH CHARGE ROWS — looks healthy. If user "
+                         "reports otherwise, check they're looking at the "
+                         "correct account.")
+
+    return {
+        "user": {
+            "id": target.id,
+            "username": target.username,
+            "email": target.email,
+            "is_active": bool(target.is_active),
+            "membership_tier": target.membership_tier,
+            "is_founding_member": bool(getattr(target, "is_founding_member", False)),
+            "stripe_customer_id": target.stripe_customer_id,
+            "stripe_subscription_id": getattr(target, "stripe_subscription_id", None),
+            "activated_at": target.activated_at.isoformat() + "Z" if target.activated_at else None,
+            "created_at": target.created_at.isoformat() + "Z" if target.created_at else None,
+        },
+        "stripe_charges_count": len(charge_rows),
+        "stripe_charges": charge_rows,
+        "payments_count": len(payment_rows),
+        "payments": payment_rows,
+        "diagnosis": diagnosis,
+    }
+
+
+@app.get("/admin/stripe-recover-user")
+async def admin_stripe_recover_user(
+    request: Request,
+    user_id: int = 0,
+    username: str = "",
+    tier: str = "partner",
+    subscription_id: str = "",
+    confirm: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Manual Stripe activation recovery for users whose webhooks never
+    arrived. Reuses the same _activate_membership chokepoint the
+    webhook would, so commission payment + Founder spot allocation +
+    welcome email all flow identically.
+
+    Safety: requires ?confirm=1 to actually activate. Without it,
+    returns the would-be activation params for review.
+
+    Parameters:
+      user_id OR username  — who to activate
+      tier                  — 'founding' or 'partner' (default partner)
+      subscription_id       — Stripe sub_... ID for renewal cron tracking
+      confirm               — must be 1 to actually run
+
+    Added 26 May 2026 for the Sylvia Douna case. Steve will verify the
+    Stripe charge exists in the Stripe Dashboard before calling this.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    if user_id:
+        target = db.query(User).filter(User.id == user_id).first()
+    elif username:
+        target = db.query(User).filter(User.username == username).first()
+    else:
+        return JSONResponse({"error": "Pass user_id or username"}, status_code=400)
+    if not target:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+    if target.is_active:
+        return JSONResponse(
+            {"error": f"User {target.username} is already active. Recovery "
+                      f"not needed. If you want to re-activate intentionally, "
+                      f"call _activate_membership with is_upgrade=True via a "
+                      f"different code path."},
+            status_code=400,
+        )
+    tier_for_activation = "founding" if tier in ("founder", "founding") else "partner"
+    if not confirm:
+        return {
+            "preview": True,
+            "would_activate": {
+                "user_id": target.id,
+                "username": target.username,
+                "email": target.email,
+                "tier": tier_for_activation,
+                "source": "stripe-manual-recovery",
+                "subscription_id": subscription_id or None,
+                "billing": "monthly",
+                "is_upgrade": False,
+            },
+            "instruction": (
+                "VERIFY in Stripe Dashboard that this user has a successful "
+                "charge before confirming. Then re-call this URL with "
+                "&confirm=1 to actually activate."
+            ),
+        }
+    # Confirmed — fire the activation
+    try:
+        _activate_membership(
+            db=db,
+            user=target,
+            tier=tier_for_activation,
+            source="stripe-manual-recovery",
+            subscription_id=subscription_id or None,
+            is_upgrade=False,
+            billing="monthly",
+        )
+        db.commit()
+        # Re-read post-activation state
+        db.refresh(target)
+        logger.warning(
+            f"Manual Stripe recovery activated user {target.id} ({target.username}) "
+            f"as tier={tier_for_activation}, source=stripe-manual-recovery, "
+            f"subscription={subscription_id or 'none'}, admin={user.username}"
+        )
+        return {
+            "ok": True,
+            "activated": True,
+            "user_id": target.id,
+            "username": target.username,
+            "new_state": {
+                "is_active": bool(target.is_active),
+                "membership_tier": target.membership_tier,
+                "is_founding_member": bool(getattr(target, "is_founding_member", False)),
+                "founding_spot_number": getattr(target, "founding_spot_number", None),
+                "activated_at": target.activated_at.isoformat() + "Z" if target.activated_at else None,
+            },
+            "note": (
+                "Sponsor commission paid + Founder spot allocated (if available) + "
+                "welcome email sent via the same _activate_membership chokepoint "
+                "the webhook would have hit. User can now log in normally."
+            ),
+        }
+    except Exception as e:
+        import traceback
+        logger.exception(f"Manual Stripe recovery FAILED for user {target.id}")
+        return JSONResponse(
+            {"error": f"Activation failed: {str(e)}", "trace": traceback.format_exc()[:2000]},
+            status_code=500,
+        )
+
+
 @app.get("/cron/stuck-lapsed-alert")
 async def cron_stuck_lapsed_alert(
     request: Request,
