@@ -4266,6 +4266,84 @@ try:
 except Exception as e:
     print(f"⚠️ PIF marketing asset seed failed: {e}")
 
+# ─────────────────────────────────────────────────────────────────────────
+# ONE-SHOT BACKFILL — Stripe webhook expires_at corruption (26 May 2026)
+# ─────────────────────────────────────────────────────────────────────────
+# Discovered 26 May 2026 via member_composition audit. 16 active members
+# had membership_expires_at in the past despite being is_active=TRUE.
+# Root cause: _stripe_handle_invoice_paid was reading invoice.period_end
+# (the lookback usage period for revenue recognition) instead of
+# invoice.lines.data[0].period.end (the service period being paid for).
+# On a fresh subscription's first invoice these are NOT equivalent —
+# period_end equals the subscription create timestamp, so expires_at was
+# being written seconds before activated_at on every Stripe-rail signup.
+#
+# Webhook fix shipped in same commit as this migration. This block heals
+# the historical corruption.
+#
+# Heuristic: any active monthly user whose expires_at < activated_at + 1d
+# is corrupted (no legitimate path produces that state). Backfill to
+# activated_at + 31 days for monthly, + 365 days for annual.
+#
+# Also heals the two NULL-expires_at edge cases (cryptobase26, verokins —
+# historical activations that never set the field). Same backfill rule.
+#
+# Skips the SuperAdPro admin (user id 1 has activated_at = 2099-11-30
+# sentinel and a far-future expiry, neither touched).
+#
+# Idempotent: WHERE clause excludes already-correct rows. Safe to leave
+# in the boot block forever; once healed it matches zero rows.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        # Monthly: expires_at < activated_at + 1 day OR expires_at IS NULL
+        _monthly_result = conn.execute(text("""
+            UPDATE users
+            SET membership_expires_at = activated_at + INTERVAL '31 days'
+            WHERE is_active = TRUE
+              AND activated_at IS NOT NULL
+              AND activated_at < '2099-01-01'
+              AND COALESCE(membership_billing, 'monthly') = 'monthly'
+              AND (
+                  membership_expires_at IS NULL
+                  OR membership_expires_at < activated_at + INTERVAL '1 day'
+              )
+            RETURNING id, username, activated_at, membership_expires_at
+        """))
+        _monthly_rows = list(_monthly_result)
+        # Annual: same logic with 365-day window. Currently expected to be
+        # zero rows (no annual subscribers yet) but covers the case if a
+        # future annual signup hits the same bug before the webhook fix
+        # propagates.
+        _annual_result = conn.execute(text("""
+            UPDATE users
+            SET membership_expires_at = activated_at + INTERVAL '365 days'
+            WHERE is_active = TRUE
+              AND activated_at IS NOT NULL
+              AND activated_at < '2099-01-01'
+              AND membership_billing = 'annual'
+              AND (
+                  membership_expires_at IS NULL
+                  OR membership_expires_at < activated_at + INTERVAL '1 day'
+              )
+            RETURNING id, username
+        """))
+        _annual_rows = list(_annual_result)
+        conn.commit()
+        if _monthly_rows or _annual_rows:
+            print(
+                f"✅ Stripe expires_at backfill: healed "
+                f"{len(_monthly_rows)} monthly + {len(_annual_rows)} annual rows"
+            )
+            for _r in _monthly_rows[:20]:
+                print(f"   • user {_r.id} ({_r.username}) → {_r.membership_expires_at}")
+            if len(_monthly_rows) > 20:
+                print(f"   • … and {len(_monthly_rows) - 20} more")
+        else:
+            print("✅ Stripe expires_at backfill: no corrupted rows (already healed)")
+except Exception as e:
+    print(f"⚠️ Stripe expires_at backfill failed: {e}")
+
 
 def migrate_grid_bonus_pools_one_shot():
     """ONE-SHOT data migration (added 26 May 2026).

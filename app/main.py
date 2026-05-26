@@ -12244,11 +12244,83 @@ def _stripe_handle_invoice_paid(db, invoice, event):
     )
     db.add(charge)
 
-    # Extend membership_expires_at — Stripe is the source of truth; read
-    # from the invoice's period_end.
-    period_end = invoice.get("period_end")
-    if period_end:
-        user.membership_expires_at = datetime.utcfromtimestamp(period_end)
+    # ── Extend membership_expires_at — Stripe is the source of truth ───
+    # 26 May 2026 root-cause fix.
+    #
+    # PRIOR BUG: read invoice.period_end. Per Stripe docs, that field is
+    # "End of the usage period during which invoice items were added to
+    # this invoice" — i.e. the lookback period for revenue recognition.
+    # On a fresh subscription's first invoice (billing_reason=
+    # subscription_create) there is NO prior usage period, so
+    # invoice.period_end equals the subscription create timestamp. On
+    # renewals it equals the end of the period JUST ELAPSED. Either way
+    # it is NOT the date the new paid period ends. Writing it to
+    # membership_expires_at made every Stripe-rail signup land with an
+    # expiry seconds before or equal to activated_at — corrupting 15 of
+    # the 16 expired-but-active rows surfaced by member_composition on
+    # 26 May.
+    #
+    # FIX: read line_item.period.end on the subscription line item. This
+    # is the END of the service period the invoice paid for — i.e. when
+    # the new paid window terminates. For a fresh monthly sub this is
+    # subscription_create + 1 month; for a renewal it is the just-paid
+    # period's end. Both correct.
+    #
+    # Fallback chain: line item period → invoice.period_end + interval
+    # (last resort, assumes monthly) → leave existing value (don't write
+    # a value worse than nothing).
+    _expires_source = None
+    _expires_value = None
+    try:
+        _lines = (invoice.get("lines") or {}).get("data") or []
+        # The subscription line item carries the service-period dates.
+        # On a sub_create invoice there is one line item; on prorated
+        # upgrades there can be multiple. Take the LAST line item whose
+        # period.end is the furthest in the future — that's the one
+        # representing the new paid window.
+        _candidate_ends = []
+        for _li in _lines:
+            _period = _li.get("period") or {}
+            _end = _period.get("end")
+            if _end:
+                _candidate_ends.append(int(_end))
+        if _candidate_ends:
+            _expires_value = datetime.utcfromtimestamp(max(_candidate_ends))
+            _expires_source = "line_item.period.end"
+    except Exception as e:
+        logger.warning(f"Stripe invoice line-item period read failed for user {user.id}: {e}")
+
+    if _expires_value is None:
+        # Defensive fallback: invoice.period_end + monthly interval.
+        # On a sub_create invoice period_end == subscription start, so
+        # +31 days gives the right answer. On a renewal period_end ==
+        # end of just-elapsed period, so +31 days gives the next period
+        # end. Only used if line items are unavailable.
+        _legacy_pe = invoice.get("period_end")
+        if _legacy_pe:
+            _expires_value = datetime.utcfromtimestamp(int(_legacy_pe)) + timedelta(days=31)
+            _expires_source = "invoice.period_end+31d (fallback)"
+
+    if _expires_value is not None:
+        # Invariant guard: refuse to write an expiry earlier than the
+        # activation timestamp. Catches any future class of webhook-
+        # field-misread bug at the moment it would corrupt state.
+        _activated = user.activated_at or datetime.utcnow()
+        if _expires_value < _activated:
+            logger.error(
+                f"Stripe invoice expiry guard tripped for user {user.id} "
+                f"({user.username}): would have written expires_at="
+                f"{_expires_value.isoformat()} which is BEFORE activated_at="
+                f"{_activated.isoformat()}. Source={_expires_source}. "
+                f"Skipping write — review the invoice payload."
+            )
+        else:
+            user.membership_expires_at = _expires_value
+            logger.info(
+                f"Stripe invoice extended membership for user {user.id} "
+                f"to {_expires_value.isoformat()} (source={_expires_source})"
+            )
+
     user.stripe_refund_eligible_until = _stripe.refund_window_expiry()
 
     db.commit()
