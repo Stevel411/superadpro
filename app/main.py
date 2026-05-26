@@ -23432,6 +23432,94 @@ async def admin_trigger_daily_briefing(
     return result
 
 
+@app.get("/admin/double-pay-scan")
+async def admin_double_pay_scan(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Detailed inspection of any (to_user_id, from_user_id) pair that
+    has more than one explicit-type sponsor commission. Mirrors the
+    detection the daily briefing uses, but returns the actual rows
+    rather than a count — so we can tell whether each finding is a
+    real double-pay (same event paid twice) or a legitimate sequence
+    (signup commission + later upgrade commission, both expected).
+
+    Added 26 May 2026 to investigate the briefing's audit_double_pays=1
+    finding when the existing admin endpoint reported 0 suspects.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import Commission
+    # Pull all suspect (to, from) pairs first
+    suspect_pairs = db.execute(text("""
+        SELECT to_user_id, from_user_id, COUNT(*) as cnt,
+               SUM(amount_usdt) as total_amt
+        FROM commissions
+        WHERE commission_type IN (
+            'membership_sponsor',
+            'gift_membership_sponsor',
+            'membership_upgrade_sponsor'
+        )
+        AND status = 'paid'
+        GROUP BY to_user_id, from_user_id
+        HAVING COUNT(*) > 1
+        ORDER BY COUNT(*) DESC, SUM(amount_usdt) DESC
+    """)).fetchall()
+
+    findings = []
+    for pair in suspect_pairs:
+        # Fetch each commission for this pair so we can classify
+        rows = db.query(Commission).filter(
+            Commission.to_user_id == pair.to_user_id,
+            Commission.from_user_id == pair.from_user_id,
+            Commission.commission_type.in_([
+                "membership_sponsor",
+                "gift_membership_sponsor",
+                "membership_upgrade_sponsor",
+            ]),
+            Commission.status == "paid",
+        ).order_by(Commission.created_at).all()
+
+        # Get the recipient + payer usernames for human-readable output
+        recipient = db.query(User).filter(User.id == pair.to_user_id).first()
+        payer = db.query(User).filter(User.id == pair.from_user_id).first()
+
+        # Classify: if types are heterogeneous (e.g. one signup + one upgrade)
+        # it's likely a legitimate sequence. If types are identical it's a
+        # real duplicate.
+        types_present = {r.commission_type for r in rows}
+        is_real_duplicate = (len(types_present) == 1) and (len(rows) > 1)
+
+        findings.append({
+            "to_user_id": pair.to_user_id,
+            "to_username": recipient.username if recipient else None,
+            "from_user_id": pair.from_user_id,
+            "from_username": payer.username if payer else None,
+            "commission_count": int(pair.cnt),
+            "total_paid": float(pair.total_amt or 0),
+            "types_present": sorted(types_present),
+            "verdict": ("LIKELY_DUPLICATE" if is_real_duplicate
+                        else "LIKELY_LEGITIMATE_SEQUENCE"),
+            "commissions": [{
+                "id": r.id,
+                "type": r.commission_type,
+                "amount": float(r.amount_usdt or 0),
+                "package_tier": r.package_tier,
+                "created_at": r.created_at.isoformat() + "Z" if r.created_at else None,
+                "notes": r.notes,
+            } for r in rows],
+        })
+
+    return {
+        "suspect_pair_count": len(suspect_pairs),
+        "real_duplicate_count": sum(1 for f in findings if f["verdict"] == "LIKELY_DUPLICATE"),
+        "legitimate_sequence_count": sum(1 for f in findings if f["verdict"] == "LIKELY_LEGITIMATE_SEQUENCE"),
+        "findings": findings,
+    }
+
+
 @app.get("/cron/stuck-lapsed-alert")
 async def cron_stuck_lapsed_alert(
     request: Request,
