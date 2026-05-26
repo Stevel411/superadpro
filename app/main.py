@@ -23353,6 +23353,85 @@ async def cron_daily_briefing(
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
 
+@app.get("/admin/daily-briefing-status")
+async def admin_daily_briefing_status(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin-auth check: did today's (and recent) daily briefings run?
+
+    Surfaces the actual rows in `daily_briefings` so we can tell at a
+    glance whether the cron is firing properly, whether the AI generation
+    is working, and whether emails are being dispatched. Useful when the
+    Railway cron-worker container is reporting 'deployment crashed' and
+    we need to disambiguate 'cron didn't fire' from 'cron fired and the
+    work succeeded but the container exited non-zero'.
+
+    Added 26 May 2026 after the Railway cron-worker crash investigation.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import DailyBriefing
+    recent = db.query(DailyBriefing).order_by(
+        DailyBriefing.briefing_date.desc()
+    ).limit(7).all()
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+    rows = []
+    for b in recent:
+        rows.append({
+            "id": b.id,
+            "briefing_date": b.briefing_date,
+            "is_today": b.briefing_date == today_str,
+            "email_sent_to": b.email_sent_to,
+            "email_sent_at": b.email_sent_at.isoformat() + "Z" if b.email_sent_at else None,
+            "generation_ms": b.generation_ms,
+            "created_at": b.created_at.isoformat() + "Z" if b.created_at else None,
+            "summary_preview": (b.summary_text or "")[:160],
+        })
+    today_ran = any(r["is_today"] for r in rows)
+    return {
+        "today_utc": today_str,
+        "today_ran": today_ran,
+        "today_emailed": next((r["email_sent_to"] for r in rows if r["is_today"]), None),
+        "recent": rows,
+    }
+
+
+@app.get("/admin/trigger-daily-briefing")
+async def admin_trigger_daily_briefing(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin-auth wrapper around /cron/daily-briefing. Lets the admin
+    fire the briefing without needing to paste CRON_SECRET. Idempotent
+    via the same daily_briefings UNIQUE constraint as the cron path —
+    if today's briefing already ran, returns the existing row.
+
+    Added 26 May 2026 for the cron-worker investigation.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    # Reuse the cron endpoint body. The auth gate inside expects
+    # ?secret=, so we pull it from env and call internally — keeping
+    # the cron's idempotency + email + DB write logic in one place.
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret:
+        return JSONResponse(
+            {"error": "CRON_SECRET not configured in environment"},
+            status_code=500,
+        )
+    # Re-enter cron_daily_briefing with the correct secret. It returns
+    # a dict (success) or JSONResponse (auth/error path).
+    result = await cron_daily_briefing(
+        request=request, secret=cron_secret, dryrun=0, db=db,
+    )
+    return result
+
+
 @app.get("/cron/stuck-lapsed-alert")
 async def cron_stuck_lapsed_alert(
     request: Request,
