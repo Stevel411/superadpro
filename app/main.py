@@ -23581,19 +23581,23 @@ async def admin_reverse_commission(
     db: Session = Depends(get_db),
 ):
     """One-off admin endpoint to reverse a specific commission row.
-    Used to clean up the starthere double-pay (commission 603) caught
-    by the daily-briefing audit on 26 May 2026.
 
-    Action:
-      1. Mark the commission row status='reversed' with notes appended.
-      2. Subtract amount_usdt from recipient.campaign_balance,
-         total_earned, and upline_earnings (membership commissions
-         credit upline_earnings, not grid_earnings or level_earnings).
-      3. Returns the before/after state for audit.
+    Critical: the wallet field debited depends on commission_type, because
+    different commission types credit different fields at payment time.
+    This must match the credit pattern in _activate_membership (for
+    membership_sponsor) and _pay_direct_sponsor / _pay_unilevel_chain in
+    grid.py (for grid commissions).
 
-    Admin-only. Idempotent: if the row is already status='reversed',
-    returns the existing state without re-debiting (so a re-run by
-    accident doesn't over-correct).
+    Field map (verified 26 May 2026 from current code):
+      membership_sponsor / gift_membership_sponsor /
+      membership_upgrade_sponsor → balance + total_earned
+      direct_sponsor (grid)      → campaign_balance + total_earned + grid_earnings
+      uni_level (grid)           → campaign_balance + total_earned + level_earnings
+      grid_completion_bonus      → campaign_balance + total_earned + bonus_earnings
+      grid_completion_bonus_topup→ campaign_balance + total_earned + bonus_earnings
+
+    Idempotent: re-running on an already-reversed row returns the existing
+    state without re-debiting.
     """
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
@@ -23620,35 +23624,157 @@ async def admin_reverse_commission(
     recipient = db.query(User).filter(User.id == com.to_user_id).first()
     if not recipient:
         return JSONResponse({"error": f"Recipient user {com.to_user_id} not found"}, status_code=404)
+
     from decimal import Decimal as _Decimal
     amt = _Decimal(str(com.amount_usdt or 0))
-    before = {
-        "campaign_balance": float(recipient.campaign_balance or 0),
-        "total_earned":     float(recipient.total_earned or 0),
-        "upline_earnings":  float(getattr(recipient, "upline_earnings", 0) or 0),
-    }
-    recipient.campaign_balance = _Decimal(str(recipient.campaign_balance or 0)) - amt
-    recipient.total_earned     = _Decimal(str(recipient.total_earned or 0))     - amt
-    if hasattr(recipient, "upline_earnings"):
-        recipient.upline_earnings = _Decimal(str(recipient.upline_earnings or 0)) - amt
+    ctype = com.commission_type or ""
+
+    # Snapshot full wallet state for audit
+    def _snap():
+        return {
+            "balance":          float(getattr(recipient, "balance", 0) or 0),
+            "campaign_balance": float(getattr(recipient, "campaign_balance", 0) or 0),
+            "total_earned":     float(getattr(recipient, "total_earned", 0) or 0),
+            "grid_earnings":    float(getattr(recipient, "grid_earnings", 0) or 0),
+            "level_earnings":   float(getattr(recipient, "level_earnings", 0) or 0),
+            "bonus_earnings":   float(getattr(recipient, "bonus_earnings", 0) or 0),
+            "upline_earnings":  float(getattr(recipient, "upline_earnings", 0) or 0),
+        }
+    before = _snap()
+
+    # Route the debit to the correct fields per commission_type
+    fields_debited = []
+    if ctype in ("membership_sponsor", "gift_membership_sponsor", "membership_upgrade_sponsor"):
+        # Membership commissions credit balance + total_earned only
+        recipient.balance      = _Decimal(str(recipient.balance or 0))      - amt
+        recipient.total_earned = _Decimal(str(recipient.total_earned or 0)) - amt
+        fields_debited = ["balance", "total_earned"]
+    elif ctype == "direct_sponsor":
+        recipient.campaign_balance = _Decimal(str(recipient.campaign_balance or 0)) - amt
+        recipient.total_earned     = _Decimal(str(recipient.total_earned or 0))     - amt
+        recipient.grid_earnings    = _Decimal(str(getattr(recipient, "grid_earnings", 0) or 0)) - amt
+        fields_debited = ["campaign_balance", "total_earned", "grid_earnings"]
+    elif ctype == "uni_level":
+        recipient.campaign_balance = _Decimal(str(recipient.campaign_balance or 0)) - amt
+        recipient.total_earned     = _Decimal(str(recipient.total_earned or 0))     - amt
+        recipient.level_earnings   = _Decimal(str(getattr(recipient, "level_earnings", 0) or 0)) - amt
+        fields_debited = ["campaign_balance", "total_earned", "level_earnings"]
+    elif ctype in ("grid_completion_bonus", "grid_completion_bonus_topup"):
+        recipient.campaign_balance = _Decimal(str(recipient.campaign_balance or 0)) - amt
+        recipient.total_earned     = _Decimal(str(recipient.total_earned or 0))     - amt
+        recipient.bonus_earnings   = _Decimal(str(getattr(recipient, "bonus_earnings", 0) or 0)) - amt
+        fields_debited = ["campaign_balance", "total_earned", "bonus_earnings"]
+    else:
+        return JSONResponse(
+            {"error": f"Unknown commission_type '{ctype}' — cannot determine "
+                      f"which wallet fields to debit. Reversal aborted; "
+                      f"commission row still status='paid'. Add the type to "
+                      f"the reverse-commission field map if this is legitimate."},
+            status_code=400,
+        )
+
     com.status = "reversed"
-    appended = (f"\n\n[REVERSED 26 May 2026 by admin {user.username}: duplicate of "
-                f"another membership_sponsor commission for same (recipient, payer) "
-                f"pair within same activation event. ${float(amt):.2f} debited from "
-                f"recipient's campaign wallet.]")
+    appended = (f"\n\n[REVERSED 26 May 2026 by admin {user.username}: ${float(amt):.2f} "
+                f"debited from recipient ({recipient.username}) wallet fields: "
+                f"{', '.join(fields_debited)}]")
     com.notes = (com.notes or "") + appended
     db.commit()
-    after = {
-        "campaign_balance": float(recipient.campaign_balance or 0),
-        "total_earned":     float(recipient.total_earned or 0),
-        "upline_earnings":  float(getattr(recipient, "upline_earnings", 0) or 0),
-    }
+    after = _snap()
     return {
         "ok": True,
         "commission_id": commission_id,
         "recipient_id": com.to_user_id,
         "recipient_username": recipient.username,
+        "commission_type": ctype,
         "amount_reversed": float(amt),
+        "fields_debited": fields_debited,
+        "wallet_before": before,
+        "wallet_after": after,
+    }
+
+
+@app.get("/admin/fix-starthere-wallet")
+async def admin_fix_starthere_wallet(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot correction for the starthere wallet (user 349).
+
+    Earlier today the /admin/reverse-commission endpoint debited the
+    WRONG fields when reversing commission 603 (membership_sponsor):
+      - Debited campaign_balance (wrong — membership commissions credit
+        balance, not campaign_balance)
+      - Debited upline_earnings (wrong — membership_sponsor commissions
+        don't credit upline_earnings, so this pushed it to -10)
+      - Did NOT debit balance (the actual overpayment field)
+      - Did correctly debit total_earned (this is the same for both
+        membership and grid commissions, so leave it alone)
+
+    Corrections this endpoint applies to user 349 (starthere):
+      campaign_balance: +10  (refund our incorrect debit)
+      upline_earnings:  +10  (back to 0 from -10)
+      balance:         -10  (actually debit the overpayment)
+      total_earned:     unchanged (correctly already -10 from current)
+
+    Idempotent: if balance hasn't been touched yet (i.e. the broken
+    reversal hasn't been corrected), runs the fix and returns
+    'corrected'. If it has been run already, returns 'already_corrected'
+    without re-applying.
+
+    Pure one-shot for this specific bug. Will be removed after Steve
+    confirms wallet looks right.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from decimal import Decimal as _Decimal
+    target = db.query(User).filter(User.id == 349).first()
+    if not target:
+        return JSONResponse({"error": "User 349 (starthere) not found"}, status_code=404)
+
+    upline = float(getattr(target, "upline_earnings", 0) or 0)
+    if upline >= 0:
+        # Already corrected (no negative upline_earnings = fix already ran)
+        return {
+            "ok": True,
+            "already_corrected": True,
+            "user_id": 349,
+            "username": target.username,
+            "current": {
+                "balance":          float(getattr(target, "balance", 0) or 0),
+                "campaign_balance": float(getattr(target, "campaign_balance", 0) or 0),
+                "upline_earnings":  upline,
+                "total_earned":     float(getattr(target, "total_earned", 0) or 0),
+            },
+        }
+
+    before = {
+        "balance":          float(getattr(target, "balance", 0) or 0),
+        "campaign_balance": float(getattr(target, "campaign_balance", 0) or 0),
+        "upline_earnings":  upline,
+        "total_earned":     float(getattr(target, "total_earned", 0) or 0),
+    }
+    target.campaign_balance = _Decimal(str(target.campaign_balance or 0)) + _Decimal("10.00")
+    target.upline_earnings  = _Decimal(str(target.upline_earnings or 0))  + _Decimal("10.00")
+    target.balance          = _Decimal(str(target.balance or 0))          - _Decimal("10.00")
+    db.commit()
+    after = {
+        "balance":          float(target.balance or 0),
+        "campaign_balance": float(target.campaign_balance or 0),
+        "upline_earnings":  float(target.upline_earnings or 0),
+        "total_earned":     float(target.total_earned or 0),
+    }
+    return {
+        "ok": True,
+        "corrected": True,
+        "user_id": 349,
+        "username": target.username,
+        "actions": [
+            "campaign_balance += $10 (refunded incorrect debit)",
+            "upline_earnings += $10 (corrected back to 0 from -10)",
+            "balance -= $10 (actually debited the overpayment)",
+        ],
         "wallet_before": before,
         "wallet_after": after,
     }
