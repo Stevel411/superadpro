@@ -1348,11 +1348,17 @@ export default function Dashboard() {
                 </div>
                 {toast.link && (
                   <a href={toast.link}
-                     onClick={function() {
+                     onClick={function(e) {
+                       e.preventDefault();
                        // Mark as seen so refocusing the dashboard
-                       // doesn't re-toast the same badge
+                       // doesn't re-toast the same badge.
                        apiPost('/api/achievements/mark-seen',
                          { notification_ids: [toast.notification_id] }).catch(function() {});
+                       // Force full-page navigation rather than React Router.
+                       // /achievements is a server-rendered Jinja template,
+                       // not a React route — letting React Router handle it
+                       // would 404 and bounce back to /dashboard.
+                       window.location.href = toast.link;
                      }}
                      style={{
                     display: 'inline-block', marginTop: 10,
