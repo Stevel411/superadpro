@@ -9248,6 +9248,38 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     from decimal import Decimal
     import uuid
 
+    # ── Idempotency guard (belt-and-braces, 26 May 2026) ───────────────────
+    # Both Stripe webhook events (checkout.session.completed + invoice.paid)
+    # can fire on a single fresh signup. invoice.paid was made self-healing
+    # 25 May 2026 to recover the jerrygoff-class bug where checkout missed,
+    # but the consequence was that the NORMAL case now risks double-firing
+    # both handlers and double-paying the sponsor commission.
+    #
+    # The caller-side guard in _stripe_handle_checkout_completed is the
+    # primary defence. This is the chokepoint backstop: if a fresh-activation
+    # is attempted on a user who's already active and not being upgraded,
+    # bail before touching anything money-affecting. Renewals + tier upgrades
+    # (cadence switches, Basic→Pro, etc.) still flow through normally — they
+    # have user.is_active=True by design AND set is_upgrade=True.
+    #
+    # Bug caught 26 May via daily-briefing audit: starthere paid TWICE for
+    # earnwithdarius signup ($10 each, commissions 601 'stripe-invoice-
+    # recovery' + 603 'stripe', 500ms apart). starthere kept the duplicate
+    # $10; company short $10.
+    if (user.is_active
+            and not is_upgrade
+            and source in ("stripe", "stripe-invoice-recovery",
+                           "crypto", "nowpayments", "balance", "gift")
+            and (user.membership_tier or "") in (tier, "founding")):
+        import logging as _logging
+        _logging.getLogger(__name__).warning(
+            f"_activate_membership called for already-active user {user.id} "
+            f"({user.username}) tier={tier} source={source} — likely duplicate "
+            f"event (e.g. Stripe checkout + invoice.paid both firing). Skipping "
+            f"to prevent double sponsor commission."
+        )
+        return
+
     # ── Flat partner pricing (15 May 2026) ─────────────────────────────────
     # Single source of truth: $20/mo standard, $15/mo for founding partners
     # (signalled by user.membership_price_locked being set at migration time).
@@ -11726,6 +11758,27 @@ def _stripe_handle_checkout_completed(db, session, event):
         user.stripe_subscription_id = session.get("subscription")
         tier_requested = metadata.get("tier_requested", "partner")
         tier_for_activation = "founding" if tier_requested in ("founder", "founding") else "partner"
+
+        # ── Double-fire guard (26 May 2026) ────────────────────────────
+        # Both webhook events can fire for a single signup (Stripe sends
+        # them both as normal flow). If invoice.paid arrived FIRST and the
+        # self-healing branch in _stripe_handle_invoice_paid already
+        # activated the user, this checkout-completed handler must not
+        # re-activate or it pays the sponsor commission a second time.
+        # Bug caught 26 May via daily-briefing audit:
+        #   starthere paid TWICE for earnwithdarius signup ($10 each,
+        #   commissions 601 'stripe-invoice-recovery' + 603 'stripe',
+        #   500ms apart). starthere kept the duplicate $10; company short $10.
+        if user.is_active:
+            logger.info(
+                f"Stripe checkout.session.completed for already-active user "
+                f"{user.id} ({user.username}) — invoice.paid self-healing "
+                f"path likely arrived first. Skipping duplicate activation; "
+                f"charge row recorded above for audit."
+            )
+            db.commit()
+            return
+
         try:
             _activate_membership(
                 db=db,
@@ -23517,6 +23570,87 @@ async def admin_double_pay_scan(
         "real_duplicate_count": sum(1 for f in findings if f["verdict"] == "LIKELY_DUPLICATE"),
         "legitimate_sequence_count": sum(1 for f in findings if f["verdict"] == "LIKELY_LEGITIMATE_SEQUENCE"),
         "findings": findings,
+    }
+
+
+@app.get("/admin/reverse-commission")
+async def admin_reverse_commission(
+    request: Request,
+    commission_id: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-off admin endpoint to reverse a specific commission row.
+    Used to clean up the starthere double-pay (commission 603) caught
+    by the daily-briefing audit on 26 May 2026.
+
+    Action:
+      1. Mark the commission row status='reversed' with notes appended.
+      2. Subtract amount_usdt from recipient.campaign_balance,
+         total_earned, and upline_earnings (membership commissions
+         credit upline_earnings, not grid_earnings or level_earnings).
+      3. Returns the before/after state for audit.
+
+    Admin-only. Idempotent: if the row is already status='reversed',
+    returns the existing state without re-debiting (so a re-run by
+    accident doesn't over-correct).
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    if not commission_id:
+        return JSONResponse({"error": "commission_id required"}, status_code=400)
+    from .database import Commission as _Commission
+    com = db.query(_Commission).filter(_Commission.id == commission_id).first()
+    if not com:
+        return JSONResponse({"error": f"Commission {commission_id} not found"}, status_code=404)
+    if com.status == "reversed":
+        return {
+            "ok": True,
+            "already_reversed": True,
+            "commission_id": commission_id,
+            "notes": com.notes,
+        }
+    if com.status != "paid":
+        return JSONResponse(
+            {"error": f"Commission {commission_id} has status='{com.status}', "
+                      f"only 'paid' rows are reversible via this endpoint"},
+            status_code=400,
+        )
+    recipient = db.query(User).filter(User.id == com.to_user_id).first()
+    if not recipient:
+        return JSONResponse({"error": f"Recipient user {com.to_user_id} not found"}, status_code=404)
+    from decimal import Decimal as _Decimal
+    amt = _Decimal(str(com.amount_usdt or 0))
+    before = {
+        "campaign_balance": float(recipient.campaign_balance or 0),
+        "total_earned":     float(recipient.total_earned or 0),
+        "upline_earnings":  float(getattr(recipient, "upline_earnings", 0) or 0),
+    }
+    recipient.campaign_balance = _Decimal(str(recipient.campaign_balance or 0)) - amt
+    recipient.total_earned     = _Decimal(str(recipient.total_earned or 0))     - amt
+    if hasattr(recipient, "upline_earnings"):
+        recipient.upline_earnings = _Decimal(str(recipient.upline_earnings or 0)) - amt
+    com.status = "reversed"
+    appended = (f"\n\n[REVERSED 26 May 2026 by admin {user.username}: duplicate of "
+                f"another membership_sponsor commission for same (recipient, payer) "
+                f"pair within same activation event. ${float(amt):.2f} debited from "
+                f"recipient's campaign wallet.]")
+    com.notes = (com.notes or "") + appended
+    db.commit()
+    after = {
+        "campaign_balance": float(recipient.campaign_balance or 0),
+        "total_earned":     float(recipient.total_earned or 0),
+        "upline_earnings":  float(getattr(recipient, "upline_earnings", 0) or 0),
+    }
+    return {
+        "ok": True,
+        "commission_id": commission_id,
+        "recipient_id": com.to_user_id,
+        "recipient_username": recipient.username,
+        "amount_reversed": float(amt),
+        "wallet_before": before,
+        "wallet_after": after,
     }
 
 
