@@ -11741,10 +11741,73 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             logger.info(f"Stripe webhook: unhandled event type {event_type}")
         return {"received": True}
     except Exception as e:
+        # Webhook handler crashed. Return 200 to Stripe so they don't
+        # retry (the failure is on our side and a retry won't fix it),
+        # but ALERT the founder so a paying member doesn't sit stuck
+        # waiting for us to notice. Bug caught 26 May 2026: Sylvia +
+        # Mary both stuck for hours because the handler crashed (founder
+        # spot collision), webhook returned 200, no human knew until
+        # they messaged in.
+        import traceback as _traceback
+        tb = _traceback.format_exc()
         logger.exception(f"Stripe webhook handler crashed for {event_type}")
-        # Return 200 anyway so Stripe doesn't retry — the failure is on our
-        # side and a retry won't fix it. Worth a Sentry alert when we have
-        # error tracking (point 5 on the roadmap).
+        # Best-effort alert email to the founder. Wrapped in its own
+        # try/except so an email failure can't compound the original
+        # crash. Includes the event type, event id, and a truncated
+        # traceback so we can diagnose without needing Railway logs.
+        try:
+            from .email_utils import send_email, SITE_URL as _SITE_URL
+            alert_to = os.environ.get("ADMIN_ALERT_EMAIL", "stevelawsonmarketing@gmail.com")
+            event_id = event.get("id", "unknown")
+            obj_data = event.get("data", {}).get("object", {}) or {}
+            customer_email = (obj_data.get("customer_email")
+                              or obj_data.get("receipt_email") or "unknown")
+            metadata = obj_data.get("metadata") or {}
+            sap_user_id = metadata.get("superadpro_user_id", "unknown")
+            html = (
+                f'<div style="font-family:Sora,sans-serif;max-width:600px;'
+                f'margin:0 auto;padding:24px;background:#fff">'
+                f'<h2 style="color:#dc2626;margin:0 0 12px">'
+                f'⚠️ Stripe webhook crashed</h2>'
+                f'<p style="color:#475569;font-size:14px;line-height:1.6">'
+                f'A Stripe webhook reached the platform but the handler '
+                f'failed. The customer may be charged but not activated. '
+                f'Investigate immediately.</p>'
+                f'<table style="width:100%;border-collapse:collapse;'
+                f'background:#f8fafc;border-radius:10px;padding:16px;'
+                f'margin:16px 0">'
+                f'<tr><td style="padding:6px 12px;color:#64748b;font-size:13px">Event type</td>'
+                f'<td style="padding:6px 12px;color:#0f172a;font-weight:600;font-family:monospace">{event_type}</td></tr>'
+                f'<tr><td style="padding:6px 12px;color:#64748b;font-size:13px">Event ID</td>'
+                f'<td style="padding:6px 12px;color:#0f172a;font-family:monospace;font-size:12px">{event_id}</td></tr>'
+                f'<tr><td style="padding:6px 12px;color:#64748b;font-size:13px">Customer email</td>'
+                f'<td style="padding:6px 12px;color:#0f172a">{customer_email}</td></tr>'
+                f'<tr><td style="padding:6px 12px;color:#64748b;font-size:13px">SuperAdPro user_id</td>'
+                f'<td style="padding:6px 12px;color:#0f172a">{sap_user_id}</td></tr>'
+                f'<tr><td style="padding:6px 12px;color:#64748b;font-size:13px;vertical-align:top">Error</td>'
+                f'<td style="padding:6px 12px;color:#dc2626;font-family:monospace;font-size:12px;word-break:break-word">{str(e)[:1000]}</td></tr>'
+                f'</table>'
+                f'<p style="color:#475569;font-size:13px;margin:16px 0 8px">Next steps:</p>'
+                f'<ol style="color:#475569;font-size:13px;line-height:1.7">'
+                f'<li>Run <code>/admin/stripe-user-debug?user_id={sap_user_id}</code></li>'
+                f'<li>Verify in Stripe Dashboard the charge succeeded</li>'
+                f'<li>Run <code>/admin/stripe-recover-user/{sap_user_id}?tier=founding&amount_cents=1500</code> (or tier=partner&amount_cents=2000)</li>'
+                f'</ol>'
+                f'<details style="margin-top:16px"><summary style="cursor:pointer;color:#64748b;font-size:12px">Full traceback</summary>'
+                f'<pre style="font-size:10px;background:#0f172a;color:#cbd5e1;padding:12px;border-radius:8px;overflow-x:auto">{tb[:3000]}</pre>'
+                f'</details>'
+                f'</div>'
+            )
+            send_email(
+                alert_to,
+                f"⚠️ SuperAdPro Stripe webhook crashed: {event_type}",
+                html,
+                f"Stripe webhook crashed. Event: {event_type} (id: {event_id}). "
+                f"Customer: {customer_email}, user_id: {sap_user_id}. "
+                f"Error: {str(e)[:500]}",
+            )
+        except Exception as alert_err:
+            logger.exception(f"Failed to send Stripe webhook crash alert: {alert_err}")
         return {"received": True, "handler_error": str(e), "handler_error_type": type(e).__name__}
 
 
@@ -23813,6 +23876,70 @@ async def admin_fix_starthere_wallet(
         ],
         "wallet_before": before,
         "wallet_after": after,
+    }
+
+
+@app.get("/admin/stripe-stuck-users-sweep")
+async def admin_stripe_stuck_users_sweep(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Find every user who has a stripe_customer_id set but is_active=False.
+    These are users who at minimum reached Stripe checkout — and possibly
+    paid — but never got activated on our side. Likely victims of webhook
+    handler crashes (e.g. the founder spot collision bug fixed 26 May
+    2026 in commit 44d69699).
+
+    Read-only — does not auto-recover. Shows enough info for Steve to
+    triage and decide whether each needs /admin/stripe-recover-user.
+
+    Added 26 May 2026 after Sylvia + Mary both turned out to be victims
+    of the same handler crash. There may be others.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import StripeCharge as _StripeCharge
+    stuck = db.query(User).filter(
+        User.stripe_customer_id.isnot(None),
+        User.is_active == False,
+    ).order_by(User.created_at.desc()).all()
+    out = []
+    for u in stuck:
+        charges = db.query(_StripeCharge).filter(
+            _StripeCharge.user_id == u.id
+        ).order_by(_StripeCharge.created_at.desc()).all()
+        out.append({
+            "user_id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "created_at": u.created_at.isoformat() + "Z" if u.created_at else None,
+            "stripe_customer_id": u.stripe_customer_id,
+            "stripe_subscription_id": getattr(u, "stripe_subscription_id", None),
+            "membership_tier": u.membership_tier,
+            "stripe_charges_count": len(charges),
+            "stripe_charges_total_cents": sum(c.amount_cents or 0 for c in charges),
+            "verdict": (
+                "HAS CHARGES — likely paid but stuck. Verify in Stripe Dashboard, "
+                "then run /admin/stripe-recover-user."
+                if charges else
+                "NO CHARGES — reached checkout but may not have paid. Verify in "
+                "Stripe Dashboard by customer ID before recovering."
+            ),
+            "recovery_url": (
+                f"/admin/stripe-recover-user/{u.id}?tier=founding&amount_cents=1500"
+            ),
+        })
+    return {
+        "stuck_count": len(out),
+        "stuck_users": out,
+        "note": (
+            "These users have stripe_customer_id set but is_active=False. "
+            "At minimum they reached Stripe checkout. Cross-reference with "
+            "Stripe Dashboard before recovering — some may have abandoned "
+            "checkout without paying."
+        ),
     }
 
 
