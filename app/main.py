@@ -32323,50 +32323,63 @@ async def admin_replay_my_badge_toast(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Re-mark the admin's most-recent achievement notification for the
-    given badge as unread, so the dashboard toast fires on next load.
+    """Re-mark ALL of the admin's achievement notifications as unread,
+    so the dashboard toast fires on next load. Also returns full debug
+    info so we can see exactly what the unseen endpoint will return.
 
-    Use case: Steve testing whether the badge-unlock toast works for the
-    grid_bonus_paid badge he was awarded yesterday — by the time he asked
-    'where will I see it', the bell-icon notification panel had likely
-    already marked it as read, so the toast endpoint returned nothing.
-    This lets him replay the toast.
+    Idempotent (just flips is_read flags).
 
-    Defaults to badge_id=grid_bonus_paid. Admin-only.
+    Updated 26 May 2026 — earlier version used a fragile title-LIKE match
+    that didn't reliably flip the flag for Steve's grid_bonus_paid notif.
+    New approach: flip ALL achievement notifications for the user (3 are
+    capped on the unseen feed anyway), then show what unseen would return.
     """
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
     from .database import Notification as _Notification, Achievement as _Achievement
-    ach = db.query(_Achievement).filter(
-        _Achievement.user_id == user.id,
-        _Achievement.badge_id == badge_id,
-    ).first()
-    if not ach:
-        return JSONResponse(
-            {"error": f"No achievement '{badge_id}' found for this user"},
-            status_code=404,
-        )
-    # Find the matching notification (by title) and mark unread
-    notif = db.query(_Notification).filter(
+
+    # Step 1: Inspect current state — what achievement notifications exist?
+    all_ach_notifs = db.query(_Notification).filter(
         _Notification.user_id == user.id,
         _Notification.type == "achievement",
-        _Notification.title.like(f"%{ach.title}%"),
-    ).order_by(_Notification.created_at.desc()).first()
-    if not notif:
-        return JSONResponse(
-            {"error": f"No notification found for badge '{badge_id}'"},
-            status_code=404,
-        )
-    notif.is_read = False
+    ).order_by(_Notification.created_at.desc()).all()
+
+    notif_summary = [{
+        "id": n.id,
+        "title": n.title,
+        "is_read_before": bool(n.is_read),
+        "created_at": n.created_at.isoformat() + "Z" if n.created_at else None,
+    } for n in all_ach_notifs]
+
+    # Step 2: Flip ALL of them to unread (bulletproof — no title matching)
+    flipped = db.query(_Notification).filter(
+        _Notification.user_id == user.id,
+        _Notification.type == "achievement",
+        _Notification.is_read == True,
+    ).update({_Notification.is_read: False}, synchronize_session=False)
     db.commit()
+
+    # Step 3: Confirm what /api/achievements/unseen would now return
+    unseen_now = db.query(_Notification).filter(
+        _Notification.user_id == user.id,
+        _Notification.type == "achievement",
+        _Notification.is_read == False,
+    ).order_by(_Notification.created_at.desc()).limit(3).all()
+
     return {
         "ok": True,
-        "notification_id": notif.id,
-        "badge_id": badge_id,
-        "title": notif.title,
-        "message": notif.message,
-        "instruction": "Refresh your dashboard to see the toast slide out from the top-right.",
+        "user_id": user.id,
+        "achievement_notifications_found": len(all_ach_notifs),
+        "before_flip": notif_summary,
+        "flipped_to_unread": int(flipped or 0),
+        "now_unseen_count": len(unseen_now),
+        "now_unseen_ids": [n.id for n in unseen_now],
+        "instruction": (
+            "Hit /api/achievements/unseen first to confirm rows are now returned, "
+            "then refresh your dashboard (Ctrl+Shift+R for hard refresh) and the "
+            "purple toast should slide out from top-right."
+        ),
     }
 
 
