@@ -12935,39 +12935,73 @@ async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db
             logger.info(f"NOWPayments IPN: order {order_id_str} already fulfilled (status={prev_status})")
             return {"status": "already_processed"}
 
-        # ── Wrong-asset guard ──
+        # ── Wrong-asset guard (rewritten 26 May 2026 after Robert case) ──
         # NOWPayments still fires the IPN with status="confirmed" when a
-        # buyer sends the wrong cryptocurrency (e.g. TRX instead of USDT
-        # on the TRX chain), even though their dashboard flags the row as
-        # "Wrong Asset Confirmed". Without this guard the buyer would be
-        # credited with the full product (Basic membership, grid tier,
-        # etc.) despite paying maybe $4 of TRX for a $20 invoice.
+        # buyer sends the wrong cryptocurrency, but the right protection
+        # is VALUE delivered vs VALUE invoiced, NOT currency string
+        # equality.
         #
-        # The IPN payload includes:
-        #   pay_currency          — what the invoice was created for
-        #   actually_paid_at_fiat — the fiat value of what arrived
-        #   outcome_currency      — the asset NOWPayments converted into
+        # Why the change: the old guard rejected ANY mismatch between
+        # pay_currency and outcome_currency strings. That correctly
+        # caught "sent TRX for a USDT invoice" (different value, scam-
+        # adjacent) but WRONGLY rejected legitimate cross-chain USDT
+        # conversions like "sent USDT-ERC20 to a USDT-BSC invoice"
+        # (same value, NOWPayments handled the bridge, treasury received
+        # full amount). Robert Brooks (user 416, 26 May 2026) sent
+        # USDTETH against a USDTBSC invoice for $15.00; NOWPayments
+        # delivered 15.005681 USDT to our BSC treasury; old guard
+        # rejected him; he sat stuck until he messaged in.
         #
-        # We compare pay_currency to outcome_currency. They should match
-        # in the same-coin passthrough setup. If they don't, the buyer
-        # sent the wrong asset; refuse to fulfil and ask them to contact
-        # support.
-        expected_currency = (data.get("pay_currency") or "").lower()
-        actual_currency = (data.get("outcome_currency") or "").lower()
-        if expected_currency and actual_currency and expected_currency != actual_currency:
-            logger.warning(
-                f"NOWPayments IPN: WRONG ASSET on order {order_id_str} — "
-                f"expected {expected_currency}, received {actual_currency}. "
-                f"Refusing to fulfil. Manual review required."
-            )
-            order.status = "wrong_asset"
-            db.commit()
-            return {
-                "status": "rejected",
-                "reason": "wrong_asset",
-                "expected": expected_currency,
-                "received": actual_currency,
-            }
+        # New guard: compare value delivered (in USD-equivalent USDT)
+        # against the invoice price_usd. If delivered ≥ 95% of invoice,
+        # fulfil. If less, reject as underpayment (the actual scam
+        # vector this guard was designed to catch — someone sending $4
+        # of TRX for a $20 USDT invoice would deliver ~$4 of value).
+        #
+        # 5% tolerance accounts for: NOWPayments' 0.5% conversion fee,
+        # network fees deducted from the conversion, normal USDT-vs-USD
+        # pricing rounding, and BSC vs ETH gas variability. Anything
+        # below 95% is a genuine underpayment we should refuse.
+        invoice_usd = float(order.price_usd or 0)
+        delivered_usdt = float(data.get("actually_paid") or 0)
+        # NOWPayments delivers USDT-pegged amounts; treat 1 USDT ≈ $1
+        # for the value check. Acceptable simplification — USDT
+        # depegs are rare and small (< 0.5% historically).
+        delivered_usd_equivalent = delivered_usdt
+        # Underpayment threshold: deliver at least 95% of invoiced value
+        UNDERPAYMENT_THRESHOLD = 0.95
+        if invoice_usd > 0 and delivered_usd_equivalent > 0:
+            ratio = delivered_usd_equivalent / invoice_usd
+            if ratio < UNDERPAYMENT_THRESHOLD:
+                logger.warning(
+                    f"NOWPayments IPN: UNDERPAYMENT on order {order_id_str} — "
+                    f"invoiced ${invoice_usd}, delivered ${delivered_usd_equivalent:.4f} "
+                    f"USDT (ratio={ratio:.3f} < {UNDERPAYMENT_THRESHOLD}). "
+                    f"pay_currency={data.get('pay_currency')}, "
+                    f"outcome_currency={data.get('outcome_currency')}. "
+                    f"Refusing to fulfil. Manual review required."
+                )
+                order.status = "wrong_asset"
+                db.commit()
+                return {
+                    "status": "rejected",
+                    "reason": "underpayment",
+                    "invoice_usd": invoice_usd,
+                    "delivered_usd_equivalent": delivered_usd_equivalent,
+                    "ratio": round(ratio, 3),
+                }
+            else:
+                # Log the cross-chain conversion for forensics — useful when
+                # diagnosing "I sent X but it shows as Y in my account."
+                expected_currency = (data.get("pay_currency") or "").lower()
+                actual_currency = (data.get("outcome_currency") or "").lower()
+                if expected_currency and actual_currency and expected_currency != actual_currency:
+                    logger.info(
+                        f"NOWPayments IPN: cross-chain conversion on order "
+                        f"{order_id_str} — pay={expected_currency}, "
+                        f"delivered={actual_currency}, value=${delivered_usd_equivalent:.4f} "
+                        f"(ratio={ratio:.3f}). Fulfilling — value check passed."
+                    )
 
         # Atomic activation block. If any step raises, rollback so we don't
         # leave inconsistent state (e.g. order marked finished but Payment
@@ -23877,6 +23911,235 @@ async def admin_fix_starthere_wallet(
         "wallet_before": before,
         "wallet_after": after,
     }
+
+
+@app.get("/admin/nowpayments-wrong-asset-sweep")
+async def admin_nowpayments_wrong_asset_sweep(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Find every NOWPayments order marked 'wrong_asset' that would have
+    passed the new value-based guard (delivered ≥ 95% of invoice). These
+    are users wrongly rejected by the old currency-string-equality guard
+    (e.g. legitimate cross-chain USDT conversions like USDTETH→USDTBSC).
+
+    Returns each affected user with the invoice amount, actually-paid
+    amount, the user state, and a one-click recovery URL.
+
+    Caught 26 May 2026 after Robert Brooks (user 416) reported his
+    $15.005681 USDT cross-chain payment was rejected.
+
+    Read-only. Recovery is a separate endpoint requiring confirmation.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import NowPaymentsOrder as _NPOrder
+    UNDERPAYMENT_THRESHOLD = 0.95
+    stuck = db.query(_NPOrder).filter(
+        _NPOrder.status == "wrong_asset"
+    ).order_by(_NPOrder.created_at.desc()).all()
+    out = []
+    for o in stuck:
+        invoice_usd = float(o.price_usd or 0)
+        delivered = float(o.actually_paid or 0)
+        ratio = (delivered / invoice_usd) if invoice_usd > 0 else 0
+        would_pass = ratio >= UNDERPAYMENT_THRESHOLD
+        owner = db.query(User).filter(User.id == o.user_id).first() if hasattr(o, "user_id") else None
+        out.append({
+            "order_id": o.id,
+            "internal_order_id": o.internal_order_id,
+            "np_payment_id": o.np_payment_id,
+            "user_id": o.user_id,
+            "username": owner.username if owner else None,
+            "email": owner.email if owner else None,
+            "is_active_now": bool(owner.is_active) if owner else None,
+            "product_type": o.product_type,
+            "product_key": o.product_key,
+            "price_usd": invoice_usd,
+            "actually_paid_usdt": delivered,
+            "pay_currency": getattr(o, "pay_currency", None),
+            "outcome_currency": getattr(o, "outcome_currency", None),
+            "value_ratio": round(ratio, 3),
+            "would_pass_new_guard": would_pass,
+            "verdict": (
+                "RECOVERABLE — payment delivered full value, was wrongly rejected. "
+                "Use /admin/nowpayments-wrong-asset-recover?order_id=N&confirm=1"
+                if would_pass else
+                "GENUINE UNDERPAYMENT — delivered less than 95% of invoice. "
+                "Leave as-is (or refund via NOWPayments dashboard)."
+            ),
+            "created_at": o.created_at.isoformat() + "Z" if o.created_at else None,
+        })
+    recoverable = sum(1 for r in out if r["would_pass_new_guard"] and not r["is_active_now"])
+    return {
+        "total_wrong_asset_orders": len(out),
+        "recoverable_count": recoverable,
+        "orders": out,
+        "note": (
+            "Orders marked 'wrong_asset' that would have passed the new "
+            "value-based guard (delivered ≥ 95% of invoice). These users "
+            "paid in full but were rejected due to the old currency-string-"
+            "equality guard. Recover each via "
+            "/admin/nowpayments-wrong-asset-recover?order_id=N&confirm=1"
+        ),
+    }
+
+
+@app.get("/admin/nowpayments-wrong-asset-recover")
+async def admin_nowpayments_wrong_asset_recover(
+    request: Request,
+    order_id: int = 0,
+    confirm: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Recover a NOWPayments order wrongly rejected as 'wrong_asset' by
+    the old guard. Re-validates value delivered (must be ≥ 95% of
+    invoice) before activating. Routes to the correct activation engine
+    based on order.product (membership / campaign tier / nexus pack).
+
+    Safety:
+      - Refuses if order is not status='wrong_asset' (no double-activation)
+      - Refuses if owner is already active for the same product
+      - Re-validates the value ratio (so this can't be used to bypass
+        the underpayment guard for genuine scams)
+      - Requires ?confirm=1; preview-only without it
+
+    Added 26 May 2026 alongside the new value-based guard.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    if not order_id:
+        return JSONResponse({"error": "order_id required"}, status_code=400)
+    from .database import NowPaymentsOrder as _NPOrder
+    order = db.query(_NPOrder).filter(_NPOrder.id == order_id).first()
+    if not order:
+        return JSONResponse({"error": f"Order {order_id} not found"}, status_code=404)
+    if order.status != "wrong_asset":
+        return JSONResponse(
+            {"error": f"Order {order_id} has status='{order.status}', not 'wrong_asset'. "
+                      f"This endpoint only recovers wrong-asset rejections."},
+            status_code=400,
+        )
+
+    # Re-validate value (defence in depth — can't bypass underpayment guard)
+    UNDERPAYMENT_THRESHOLD = 0.95
+    invoice_usd = float(order.price_usd or 0)
+    delivered = float(order.actually_paid or 0)
+    ratio = (delivered / invoice_usd) if invoice_usd > 0 else 0
+    if ratio < UNDERPAYMENT_THRESHOLD:
+        return JSONResponse(
+            {"error": f"Order delivered ${delivered:.4f} against ${invoice_usd} invoice "
+                      f"(ratio={ratio:.3f} < {UNDERPAYMENT_THRESHOLD}). This is a genuine "
+                      f"underpayment, not a wrongly-rejected cross-chain conversion. "
+                      f"Not recovering — refund via NOWPayments dashboard if appropriate."},
+            status_code=400,
+        )
+
+    target = db.query(User).filter(User.id == order.user_id).first()
+    if not target:
+        return JSONResponse({"error": f"Order owner user {order.user_id} not found"}, status_code=404)
+    if target.is_active and order.product_type == "membership":
+        return JSONResponse(
+            {"error": f"User {target.username} is already active. Order may have "
+                      f"been recovered via another path. Mark order finished manually."},
+            status_code=400,
+        )
+
+    if not confirm:
+        return {
+            "preview": True,
+            "order_id": order_id,
+            "user_id": target.id,
+            "username": target.username,
+            "email": target.email,
+            "product_type": order.product_type,
+            "product_key": order.product_key,
+            "invoice_usd": invoice_usd,
+            "delivered_usdt": delivered,
+            "value_ratio": round(ratio, 3),
+            "value_check": "PASS (>= 95%)",
+            "instruction": "Re-call with &confirm=1 to fulfil the order.",
+        }
+
+    # Confirmed — activate. Route by product_type. Currently the wrong_asset
+    # guard only existed in the membership branch, but recovery should be
+    # robust to other products getting the same treatment in future.
+    try:
+        if order.product_type == "membership":
+            # product_key encodes the variant: membership_partner / membership_founder
+            tier_for_activation = (
+                "founding" if order.product_key and "founder" in order.product_key.lower()
+                else "partner"
+            )
+            _activate_membership(
+                db=db,
+                user=target,
+                tier=tier_for_activation,
+                source="nowpayments-wrong-asset-recovery",
+                subscription_id=None,
+                is_upgrade=False,
+                billing="monthly",
+            )
+        else:
+            # Other products (grid, email_boost, superscene) — flag for
+            # manual handling since this recovery wasn't designed for them
+            return JSONResponse(
+                {"error": f"Product type '{order.product_type}' recovery not "
+                          f"implemented in this endpoint. Handle manually via the "
+                          f"relevant activation engine "
+                          f"(grid.process_tier_purchase / credit_matrix.purchase_credit_pack)."},
+                status_code=501,
+            )
+        # Mark order as recovered + write a Payment row for audit
+        order.status = "finished"
+        from .database import Payment as _Payment
+        db.add(_Payment(
+            from_user_id=target.id,
+            amount_usdt=delivered,
+            payment_type=f"nowpayments_recovery_{order.product_type}",
+            tx_hash=f"np_recovery_{order.np_payment_id}",
+            status="confirmed",
+        ))
+        db.commit()
+        db.refresh(target)
+        logger.warning(
+            f"Wrong-asset recovery activated user {target.id} ({target.username}) "
+            f"from NOWPayments order {order_id} (np_payment={order.np_payment_id}), "
+            f"product_type={order.product_type}, product_key={order.product_key}, "
+            f"delivered=${delivered:.4f} of ${invoice_usd}, "
+            f"admin={user.username}"
+        )
+        return {
+            "ok": True,
+            "recovered": True,
+            "order_id": order_id,
+            "user_id": target.id,
+            "username": target.username,
+            "product_type": order.product_type,
+            "product_key": order.product_key,
+            "delivered_usdt": delivered,
+            "new_state": {
+                "is_active": bool(target.is_active),
+                "membership_tier": target.membership_tier,
+                "is_founding_member": bool(getattr(target, "is_founding_member", False)),
+                "founding_spot_number": getattr(target, "founding_spot_number", None),
+            },
+        }
+    except Exception as e:
+        import traceback
+        logger.exception(f"Wrong-asset recovery FAILED for order {order_id}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse(
+            {"error": f"Activation failed: {str(e)}", "trace": traceback.format_exc()[:2000]},
+            status_code=500,
+        )
 
 
 @app.get("/admin/stripe-stuck-users-sweep")
