@@ -73,6 +73,40 @@ def _next_advance_number(db: Session, owner_id: int, package_tier: int) -> int:
     return completed + 1
 
 
+def _policy_bonus_target(package_tier: int) -> float:
+    """Returns the policy-target completion bonus for a tier under the
+    current 10%/36-seat rules: tier_price × GRID_TOTAL × BONUS_POOL_PCT.
+
+    Used by _accrue_to_pool to cap accrual at the target (so pools never
+    exceed the displayed $72/$180/etc.), and by _complete_grid to back-fill
+    legacy grids whose pools accrued under historical rates (pre-21-May
+    5% rate, or pre-25-May 64-seat geometry) so members still receive the
+    full advertised bonus. The pool is what gets PAID, but the target is
+    what gets PROMISED, and the promise wins.
+    """
+    return float(GRID_PACKAGES.get(package_tier, 0)) * float(GRID_TOTAL) * float(BONUS_POOL_PCT)
+
+
+def _accrue_to_pool(grid: Grid, raw_accrual: float) -> Decimal:
+    """Adds `raw_accrual` (10% of seat price) to `grid.bonus_pool_accrued`,
+    capped at the policy target for this tier. Returns the resulting pool
+    value as a Decimal so callers can debug if needed.
+
+    Why cap: in-flight grids whose pools were back-filled to the policy
+    target by the 26 May retroactive migration would otherwise continue
+    accruing on top of the target as new seats fill, over-paying the
+    completion bonus relative to the advertised $72/$180/etc.
+
+    Pre-cap behaviour preserved for grids still below target — they keep
+    accruing normally.
+    """
+    target = Decimal(str(_policy_bonus_target(grid.package_tier)))
+    current = Decimal(str(grid.bonus_pool_accrued or 0))
+    proposed = current + Decimal(str(raw_accrual))
+    grid.bonus_pool_accrued = min(proposed, target)
+    return grid.bonus_pool_accrued
+
+
 def process_tier_purchase(
     db:           Session,
     buyer_id:     int,
@@ -197,9 +231,12 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                 grid.positions_filled += 1
                 grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
-                # Accrue 5% bonus pool on this grid
+                # Accrue 10% bonus pool on this grid, capped at policy target.
+                # The cap matters because retroactive top-ups (26 May 2026) may
+                # have already set this grid's pool to the full target — further
+                # accrual must not push past the advertised $72/$180/etc.
                 bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
-                grid.bonus_pool_accrued = Decimal(str(grid.bonus_pool_accrued or 0)) + Decimal(str(bonus_amount))
+                _accrue_to_pool(grid, bonus_amount)
 
                 # NOTE: legacy code used to do `owner.total_team += 1` here.
                 # Removed 1 May 2026: total_team is no longer a denormalised
@@ -272,9 +309,9 @@ def place_member_in_grid(
     grid.positions_filled += 1
     grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
-    # Accrue 5% bonus pool
+    # Accrue 10% bonus pool, capped at policy target (see _accrue_to_pool).
     bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
-    grid.bonus_pool_accrued = Decimal(str(grid.bonus_pool_accrued or 0)) + Decimal(str(bonus_amount))
+    _accrue_to_pool(grid, bonus_amount)
 
     # NOTE: legacy code used to do `owner.total_team += 1` here.
     # Removed 1 May 2026 — see compute_descendant_counts() in app/main.py.
@@ -399,7 +436,18 @@ def _complete_grid(db: Session, grid: Grid):
     grid.completed_at = datetime.utcnow()
 
     owner = db.query(User).filter(User.id == grid.owner_id).first()
-    bonus_amount = float(grid.bonus_pool_accrued or 0)
+
+    # Pay the HIGHER of actual-accrued vs policy-target. Grids that accrued
+    # under historical rates (pre-21-May 5%, pre-25-May 64-seat) might fall
+    # short of the advertised $72/$180/etc. — top them up so the displayed
+    # bonus is what gets paid. Forward grids cap at the target via
+    # _accrue_to_pool, so actual_accrued == target for those.
+    actual_accrued = float(grid.bonus_pool_accrued or 0)
+    policy_target = _policy_bonus_target(grid.package_tier)
+    bonus_amount = max(actual_accrued, policy_target)
+    # Persist the topped-up value so the grid record matches what was paid.
+    if bonus_amount > actual_accrued:
+        grid.bonus_pool_accrued = Decimal(str(bonus_amount))
 
     if has_active_campaign and owner and bonus_amount > 0:
         # Pay the completion bonus
@@ -462,6 +510,38 @@ def _complete_grid(db: Session, grid: Grid):
                 message=notif_msg,
                 link="/grid-visualiser",
             ))
+
+        # ── Award the grid_bonus_paid achievement ─────────────────────
+        # First time a member's grid completes AND pays out the bonus,
+        # they get the "Grid Bonus Earned" badge. Idempotent: re-checks
+        # for an existing row before inserting. The badge is intentionally
+        # awarded only when bonus_paid (not on rollover) — the badge means
+        # "you received the bonus", not "you completed a grid".
+        if owner and grid.bonus_paid:
+            from .database import Achievement, BADGES
+            already_has = db.query(Achievement).filter(
+                Achievement.user_id == grid.owner_id,
+                Achievement.badge_id == "grid_bonus_paid",
+            ).first()
+            if not already_has and "grid_bonus_paid" in BADGES:
+                b = BADGES["grid_bonus_paid"]
+                db.add(Achievement(
+                    user_id=grid.owner_id,
+                    badge_id="grid_bonus_paid",
+                    title=b["title"],
+                    icon=b["icon"],
+                ))
+                # Companion notification so the badge unlock surfaces in
+                # the notification feed too, not just on the achievements
+                # page. Same best-effort pattern as the completion notif.
+                db.add(Notification(
+                    user_id=grid.owner_id,
+                    type="achievement",
+                    icon=b["icon"],
+                    title=f'Badge earned: {b["title"]}!',
+                    message=b["desc"],
+                    link="/achievements",
+                ))
     except Exception as e:
         # Notifications are best-effort. Do NOT rollback — the bonus payment
         # and grid completion must persist regardless.

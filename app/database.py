@@ -1157,6 +1157,7 @@ BADGES = {
     "grid_tier_3":      {"icon": "📊", "title": "Grid Climber",       "desc": "Reached Campaign Tier 3"},
     "grid_tier_5":      {"icon": "🎯", "title": "Grid Commander",     "desc": "Reached Campaign Tier 5"},
     "grid_tier_8":      {"icon": "🌟", "title": "Grid Legend",        "desc": "Completed all 8 campaign tiers"},
+    "grid_bonus_paid":  {"icon": "💎", "title": "Grid Bonus Earned",  "desc": "Filled a 36-seat campaign grid — completion bonus paid into your wallet"},
 }
 
 
@@ -4179,6 +4180,198 @@ try:
         print(f"⚠️ PIF template not found at {_pif_html_path} — skipping seed")
 except Exception as e:
     print(f"⚠️ PIF marketing asset seed failed: {e}")
+
+
+def migrate_grid_bonus_pools_one_shot():
+    """ONE-SHOT data migration (added 26 May 2026).
+
+    Top up every grid's bonus_pool_accrued to the current policy target
+    if it's currently below. Closes the underpayment gap exposed when
+    SuperAdPro's first completed Tier 1 grid paid out at $54 instead of
+    the displayed $72 — pool had accrued under historical 5% rate
+    (pre-21-May-2026) and old 64-seat geometry (pre-25-May-2026).
+
+    Two passes:
+
+    1. ACTIVE grids — bump bonus_pool_accrued up to the policy target
+       so the bonus card on the Grid page reads correctly today. Future
+       seat fills cap at the target via _accrue_to_pool, so this does
+       not double-credit.
+
+    2. COMPLETED grids that paid LESS than the policy target — issue a
+       'grid_completion_bonus_topup' commission for the difference,
+       credit the owner's campaign_balance, and bump bonus_pool_accrued
+       on the grid record to match. Paying-members-only: skip the
+       company account (id=1) and any inactive users.
+
+    Idempotent via:
+      - Active pass: only touches grids where pool < target.
+      - Completed pass: checks for an existing _topup commission for
+        the same (grid_id, advance_number) before paying again.
+
+    Safe to re-run; will no-op once all pools match policy.
+    """
+    try:
+        if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+
+        # Hardcoded targets — must match GRID_COMPLETION_BONUS dict above.
+        # Re-derived here so this migration doesn't crash if constants drift.
+        # Tier price × 36 seats × 10% = target.
+        TARGETS = {1: 72.0, 2: 180.0, 3: 360.0, 4: 720.0,
+                   5: 1440.0, 6: 2160.0, 7: 2880.0, 8: 3600.0}
+
+        with engine.connect() as conn:
+            conn.execute(text("SET lock_timeout = '10s'"))
+            conn.execute(text("SET statement_timeout = '60s'"))
+
+            # ── Pass 1: active grids ──────────────────────────────────
+            active_grids = conn.execute(text("""
+                SELECT id, owner_id, package_tier,
+                       COALESCE(bonus_pool_accrued, 0) AS pool
+                FROM grids
+                WHERE is_complete = FALSE
+            """)).fetchall()
+
+            active_topped = 0
+            for g in active_grids:
+                target = TARGETS.get(int(g.package_tier))
+                if target is None:
+                    continue
+                if float(g.pool) >= target:
+                    continue  # already at or above target — no-op
+                conn.execute(text("""
+                    UPDATE grids
+                       SET bonus_pool_accrued = :target
+                     WHERE id = :gid
+                """), {"target": target, "gid": int(g.id)})
+                active_topped += 1
+            conn.commit()
+            print(f"📊 Grid bonus pool migration — active pass: topped up {active_topped} grids")
+
+            # ── Pass 2: completed grids underpaid ─────────────────────
+            # Pull completed grids with a pool below target, owned by a
+            # paying member (not the company), where we haven't already
+            # issued a topup commission for this grid.
+            underpaid = conn.execute(text("""
+                SELECT g.id AS grid_id,
+                       g.owner_id,
+                       g.package_tier,
+                       g.advance_number,
+                       COALESCE(g.bonus_pool_accrued, 0) AS pool_paid
+                FROM grids g
+                JOIN users u ON u.id = g.owner_id
+                WHERE g.is_complete = TRUE
+                  AND g.bonus_paid = TRUE
+                  AND u.is_active  = TRUE
+                  AND u.id <> 0
+                  AND NOT EXISTS (
+                      SELECT 1 FROM commissions c
+                      WHERE c.commission_type = 'grid_completion_bonus_topup'
+                        AND c.notes LIKE '%grid ' || g.id || ' advance ' || g.advance_number || '%'
+                  )
+            """)).fetchall()
+
+            completed_topped = 0
+            total_topup = 0.0
+            for row in underpaid:
+                target = TARGETS.get(int(row.package_tier))
+                if target is None:
+                    continue
+                shortfall = round(target - float(row.pool_paid), 2)
+                if shortfall <= 0.01:
+                    continue  # within rounding tolerance — skip
+
+                # Credit campaign_balance, log the topup commission,
+                # bump pool record to the topped-up value.
+                conn.execute(text("""
+                    UPDATE users
+                       SET campaign_balance = COALESCE(campaign_balance, 0) + :amt,
+                           total_earned     = COALESCE(total_earned, 0)     + :amt,
+                           bonus_earnings   = COALESCE(bonus_earnings, 0)   + :amt
+                     WHERE id = :uid
+                """), {"amt": shortfall, "uid": int(row.owner_id)})
+
+                conn.execute(text("""
+                    UPDATE grids
+                       SET bonus_pool_accrued = :target
+                     WHERE id = :gid
+                """), {"target": target, "gid": int(row.grid_id)})
+
+                conn.execute(text("""
+                    INSERT INTO commissions
+                        (from_user_id, to_user_id, amount_usdt, commission_type,
+                         notes, package_tier, status, created_at)
+                    VALUES
+                        (:uid, :uid, :amt, 'grid_completion_bonus_topup',
+                         :notes, :tier, 'paid', NOW())
+                """), {
+                    "uid":   int(row.owner_id),
+                    "amt":   shortfall,
+                    "notes": (f"Retroactive top-up: grid {row.grid_id} advance "
+                              f"{row.advance_number} paid ${row.pool_paid} but "
+                              f"policy target is ${target} (10%/36 seats). "
+                              f"Difference credited to bring all members to current "
+                              f"completion bonus rate."),
+                    "tier":  int(row.package_tier),
+                })
+
+                completed_topped += 1
+                total_topup += shortfall
+
+            conn.commit()
+            print(f"📊 Grid bonus pool migration — completed pass: topped up {completed_topped} grids "
+                  f"totalling ${round(total_topup, 2)} in retroactive payments")
+
+            # ── Pass 3: backfill grid_bonus_paid badge ────────────────
+            # Anyone who already completed a grid and got the bonus paid
+            # but never received the new 'grid_bonus_paid' badge gets it
+            # awarded now. Badge was added 26 May 2026 alongside this
+            # migration — without this pass, the first member to complete
+            # a grid (SuperAdPro) wouldn't get the badge.
+            badge_backfill = conn.execute(text("""
+                SELECT DISTINCT g.owner_id
+                FROM grids g
+                JOIN users u ON u.id = g.owner_id
+                WHERE g.is_complete = TRUE
+                  AND g.bonus_paid  = TRUE
+                  AND u.is_active   = TRUE
+                  AND NOT EXISTS (
+                      SELECT 1 FROM achievements a
+                      WHERE a.user_id  = g.owner_id
+                        AND a.badge_id = 'grid_bonus_paid'
+                  )
+            """)).fetchall()
+
+            badge_awarded = 0
+            for row in badge_backfill:
+                conn.execute(text("""
+                    INSERT INTO achievements (user_id, badge_id, title, icon, earned_at)
+                    VALUES (:uid, 'grid_bonus_paid',
+                            'Grid Bonus Earned', '💎', NOW())
+                """), {"uid": int(row.owner_id)})
+                # Companion notification
+                conn.execute(text("""
+                    INSERT INTO notifications
+                        (user_id, type, icon, title, message, link, is_read, created_at)
+                    VALUES
+                        (:uid, 'achievement', '💎',
+                         'Badge earned: Grid Bonus Earned!',
+                         'Filled a 36-seat campaign grid — completion bonus paid into your wallet',
+                         '/achievements', FALSE, NOW())
+                """), {"uid": int(row.owner_id)})
+                badge_awarded += 1
+            conn.commit()
+            print(f"📊 Grid bonus pool migration — badge backfill: awarded {badge_awarded} grid_bonus_paid badges")
+
+    except Exception as e:
+        print(f"⚠️ grid bonus pool migration skipped: {e}")
+
+
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    migrate_grid_bonus_pools_one_shot()
+except Exception as e:
+    print(f"⚠️ migrate_grid_bonus_pools_one_shot skipped: {e}")
 
 
 # ─────────────────────────────────────────────

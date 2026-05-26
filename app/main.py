@@ -22350,6 +22350,16 @@ def check_achievements(db: Session, user: User):
         "founding_member": bool(getattr(user, 'is_founding_member', False)),
         "first_funnel": db.query(FunnelPage).filter(FunnelPage.user_id == user.id).first() is not None,
         "first_linkhub": db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first() is not None,
+        # Grid completion bonus paid — awarded the first time a member's
+        # 36-seat grid completes AND the bonus actually pays out (not just
+        # rolls over due to lack of qualification). Single badge per member,
+        # not per tier — keeps the badge meaningful rather than spammy.
+        # Added 26 May 2026 alongside the bonus-pool top-up migration.
+        "grid_bonus_paid": db.query(Grid).filter(
+            Grid.owner_id == user.id,
+            Grid.is_complete == True,
+            Grid.bonus_paid == True,
+        ).first() is not None,
     }
 
     for badge_id, earned_it in checks.items():
@@ -31647,7 +31657,13 @@ def api_achievements_data(request: Request, user: User = Depends(get_current_use
     earned = []
     available = []
     for key, badge in BADGES.items():
-        entry = {"key": key, "title": badge.get("title", key), "description": badge.get("description", ""),
+        # BADGES dict uses "desc" key (see app/database.py BADGES) — the
+        # API previously called badge.get("description") which always
+        # returned the default. Fixed 26 May 2026 alongside the new
+        # grid_bonus_paid badge so every existing badge actually shows
+        # its description on the achievements page.
+        entry = {"key": key, "title": badge.get("title", key),
+                 "description": badge.get("desc", ""),
                  "icon": badge.get("icon", "🏅")}
         if key in earned_keys:
             earned.append(entry)
