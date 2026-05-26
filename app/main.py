@@ -9333,15 +9333,36 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
             # Lock key 7423957 is arbitrary but must match across all
             # activation rails (currently only this one — the balance
             # rail at line ~5418 used to use the same key before revert).
+            #
+            # 26 May 2026 (Sylvia Douna case) — allocation switched from
+            # COUNT+1 to MAX(spot)+1. COUNT+1 assumed sequential allocation
+            # with no gaps, which breaks the moment any historical founder
+            # was demoted (is_founding_member=False but founding_spot_number
+            # left non-null), or any test/cleanup created gaps. Symptom:
+            # 62 active founders but MAX(spot)=63 from an old demoted user,
+            # so COUNT+1=63 collides with the existing #63 → IntegrityError
+            # → session rollback → activation totally fails. MAX-based
+            # allocation always picks the next unused spot above the high
+            # water mark, immune to gaps.
             FOUNDING_LOCK_KEY = 7423957
             db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
                        {"k": FOUNDING_LOCK_KEY})
+            # Use COUNT to check whether we're still under FOUNDING_TOTAL
+            # (the cap), but use MAX to determine which spot number is
+            # actually safe to assign next. The two diverge when spots
+            # have been freed (count drops) but spot numbers were never
+            # recycled (max stays high).
             current_count_row = db.execute(text(
                 "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
             )).fetchone()
             current_count = current_count_row.cnt if current_count_row else 0
-            if current_count < FOUNDING_TOTAL:
-                next_spot = current_count + 1
+            max_spot_row = db.execute(text(
+                "SELECT COALESCE(MAX(founding_spot_number), 0) AS max_spot "
+                "FROM users WHERE founding_spot_number IS NOT NULL"
+            )).fetchone()
+            max_spot_taken = max_spot_row.max_spot if max_spot_row else 0
+            if current_count < FOUNDING_TOTAL and max_spot_taken < FOUNDING_TOTAL:
+                next_spot = max_spot_taken + 1
                 user.is_founding_member = True
                 user.founding_spot_number = next_spot
                 user.membership_price_locked = Decimal("15.00")
@@ -9361,15 +9382,30 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                 _enrol_user_to_rotator(db, user.id)
                 logger.info(
                     f"Founding spot #{next_spot} claimed by user {user.id} "
-                    f"({user.username}) — {FOUNDING_TOTAL - next_spot} spots remaining"
+                    f"({user.username}) — count={current_count}, "
+                    f"max_taken={max_spot_taken}, "
+                    f"{FOUNDING_TOTAL - next_spot} spots remaining"
                 )
         except Exception as e:
-            # If the founding claim fails for any reason, fall through to
-            # standard partner pricing rather than block the activation.
+            # If the founding claim fails for any reason, ROLLBACK the
+            # poisoned session before falling through to standard partner
+            # pricing — otherwise every subsequent db operation in this
+            # activation fails with "transaction has been rolled back due
+            # to a previous exception during flush".
             # Better to charge $20 than to fail the signup entirely.
+            try:
+                db.rollback()
+            except Exception:
+                pass
+            # Re-read user from the rolled-back session so subsequent
+            # _activate_membership work sees a clean object state.
+            try:
+                db.refresh(user)
+            except Exception:
+                pass
             logger.error(
                 f"Founding spot claim failed for user {user.id}: {e} — "
-                f"proceeding with standard partner pricing"
+                f"session rolled back, proceeding with standard partner pricing"
             )
 
     locked_price = getattr(user, "membership_price_locked", None)
@@ -23777,6 +23813,68 @@ async def admin_fix_starthere_wallet(
         ],
         "wallet_before": before,
         "wallet_after": after,
+    }
+
+
+@app.get("/admin/founder-spots-audit")
+async def admin_founder_spots_audit(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Inspect the current state of founder spot allocation.
+
+    Returns: total active founders, max spot number taken, gaps in the
+    spot sequence, and any users with founding_spot_number set but
+    is_founding_member=False (orphaned spot numbers — the cause of the
+    Sylvia Douna activation failure on 26 May 2026).
+
+    Added 26 May 2026 after the COUNT+1 vs MAX+1 allocation bug surfaced.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    active_count = db.execute(text(
+        "SELECT COUNT(*) AS c FROM users WHERE is_founding_member = TRUE"
+    )).scalar() or 0
+
+    max_spot = db.execute(text(
+        "SELECT COALESCE(MAX(founding_spot_number), 0) AS m "
+        "FROM users WHERE founding_spot_number IS NOT NULL"
+    )).scalar() or 0
+
+    # All users with a spot number assigned, ordered
+    all_spots = db.execute(text(
+        "SELECT id, username, founding_spot_number, is_founding_member, "
+        "       is_active, membership_tier, created_at "
+        "FROM users WHERE founding_spot_number IS NOT NULL "
+        "ORDER BY founding_spot_number"
+    )).fetchall()
+
+    spot_numbers = [r.founding_spot_number for r in all_spots]
+    # Gaps: which numbers between 1 and max_spot are NOT in spot_numbers
+    gaps = [n for n in range(1, int(max_spot) + 1) if n not in spot_numbers]
+    # Orphans: spot number set but is_founding_member is False
+    orphans = [{
+        "user_id": r.id,
+        "username": r.username,
+        "founding_spot_number": r.founding_spot_number,
+        "is_active": bool(r.is_active),
+        "membership_tier": r.membership_tier,
+        "created_at": r.created_at.isoformat() + "Z" if r.created_at else None,
+    } for r in all_spots if not r.is_founding_member]
+
+    return {
+        "active_founder_count": int(active_count),
+        "max_spot_taken": int(max_spot),
+        "next_spot_to_assign": int(max_spot) + 1 if int(max_spot) < 100 else None,
+        "spots_remaining": max(0, 100 - int(max_spot)),
+        "discrepancy": int(max_spot) - int(active_count),
+        "gaps_in_sequence": gaps,
+        "orphans_count": len(orphans),
+        "orphans": orphans,
+        "all_spots_count": len(all_spots),
     }
 
 
