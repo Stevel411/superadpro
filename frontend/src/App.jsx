@@ -85,6 +85,7 @@ const PlatformTour = React.lazy(() => import('./pages/PlatformTour'));
 const TeamMessenger = React.lazy(() => import('./pages/TeamMessenger'));
 const QRGenerator = React.lazy(() => import('./pages/QRGenerator'));
 const SuperLinkPage = React.lazy(() => import('./pages/SuperLink'));
+const ReferralVideo = React.lazy(() => import('./pages/ReferralVideo'));
 
 // Brand Poster Generator (May 2026)
 const BrandPostersGallery = React.lazy(() => import('./pages/brand-posters/BrandPostersGallery'));
@@ -484,6 +485,7 @@ function AppRoutes() {
       <Route path="/tools/meme-generator" element={<ProtectedRoute><Lazy><MemeGeneratorInternal /></Lazy></ProtectedRoute>} />
       <Route path="/tools/banner-creator" element={<ProtectedRoute><Lazy><BannerCreatorInternal /></Lazy></ProtectedRoute>}/>
       <Route path="/join/:username" element={<SuperLinkPage />} />
+      <Route path="/ref/:username/video" element={<ReferralVideo />} />
 
       {/* Phase 4 member pages */}
       <Route path="/courses/learn/:courseId" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />

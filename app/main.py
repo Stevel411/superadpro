@@ -4744,6 +4744,39 @@ def for_advertisers(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/register", status_code=302)
 
+# ── Referral video sales page ─────────────────────────────────
+# Shipped 26 May 2026. Personalised /ref/{username}/video page that
+# serves the React shell. Must be defined BEFORE the generic
+# /ref/{username} redirect below, otherwise FastAPI tries to match
+# the parameter pattern of the latter on /ref/foo/video which would
+# 404. Order matters for path-segment-count routes in FastAPI.
+@app.get("/ref/{username}/video")
+def referral_video_page(username: str, request: Request, db: Session = Depends(get_db)):
+    """Serve the React video sales page at /ref/{username}/video.
+
+    Drops the sponsor cookie so the visitor is tagged even if they
+    bookmark this URL without clicking the CTA. Same cookie name +
+    settings as /ref/{username} and /join/{username} so the existing
+    /api/register handler picks it up unchanged.
+    """
+    # Verify the sponsor actually exists — surface 404 cleanly for
+    # mistyped/expired usernames rather than serving a broken page.
+    sponsor = db.query(User).filter(User.username == username).first()
+    if not sponsor:
+        return RedirectResponse(url="/", status_code=302)
+
+    if _react_index.exists():
+        response = HTMLResponse(_get_react_index_html() or "")
+    else:
+        response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
+
+    response.set_cookie(
+        key="ref", value=username,
+        max_age=60*60*24*30,
+        httponly=False, samesite="lax",
+    )
+    return response
+
 # ── Referral link ─────────────────────────────────────────────
 @app.get("/ref/{username}")
 def referral_link(username: str, request: Request):

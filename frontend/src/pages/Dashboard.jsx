@@ -1039,7 +1039,147 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Earnings strip & Network strip moved to Command Centre ──
+      {/* ── NEW (26 May 2026): Video Sales Page banner ──
+          Surfaces the new /ref/{username}/video page that ships
+          tonight. Sits between the welcome card and EXPLORE doors so
+          it's above-the-fold on first dashboard load. Temporary
+          placement — moves into the My Marketing hub when that lands
+          in a future session.
+
+          Two CTAs: "Copy link" gives them the shareable URL in 1 click,
+          "Preview" opens the page in a new tab so they can see what
+          they're sharing before they share it. */}
+      {user?.username && (
+        <div className="vsp-banner" style={{
+          background: 'linear-gradient(135deg, #0e1a3e 0%, #1e3a8a 55%, #0e7490 100%)',
+          borderRadius: 16,
+          padding: '20px 24px',
+          marginBottom: 28,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 20,
+          flexWrap: 'wrap',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 8px 24px -8px rgba(34,211,238,0.35), 0 0 0 1px rgba(34,211,238,0.2)',
+        }}>
+          {/* Subtle inner gloss + cyan accent line */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: 1,
+            background: 'linear-gradient(90deg, transparent, rgba(34,211,238,0.7), transparent)',
+          }}/>
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: '40%',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.06), transparent)',
+            pointerEvents: 'none',
+          }}/>
+
+          {/* NEW pill — left side */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '5px 10px',
+            borderRadius: 999,
+            background: 'rgba(34,211,238,0.18)',
+            border: '1px solid rgba(34,211,238,0.4)',
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 10, fontWeight: 800,
+            color: '#67e8f9',
+            letterSpacing: 0.5,
+            textTransform: 'uppercase',
+            flexShrink: 0,
+            position: 'relative',
+          }}>
+            <span style={{
+              width: 5, height: 5, borderRadius: '50%',
+              background: '#22d3ee',
+              boxShadow: '0 0 8px rgba(34,211,238,0.8)',
+            }}/>
+            NEW
+          </div>
+
+          {/* Copy block */}
+          <div style={{ flex: 1, minWidth: 240, position: 'relative' }}>
+            <div style={{
+              fontFamily: 'Sora, sans-serif',
+              fontSize: 17, fontWeight: 800,
+              color: '#fff',
+              letterSpacing: '-0.01em',
+              marginBottom: 4,
+            }}>
+              {t('dashboard.videoSalesBanner.title', { defaultValue: 'Your Video Sales Page is live' })}
+            </div>
+            <div style={{
+              fontSize: 13,
+              color: 'rgba(255,255,255,0.72)',
+              lineHeight: 1.5,
+            }}>
+              {t('dashboard.videoSalesBanner.body', { defaultValue: 'A polished landing page with our 22-minute platform overview and your affiliate link baked in. Share it anywhere — every signup is tagged to you.' })}
+            </div>
+          </div>
+
+          {/* URL + CTAs */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            flexShrink: 0,
+            flexWrap: 'wrap',
+            position: 'relative',
+          }}>
+            <code style={{
+              padding: '8px 12px',
+              borderRadius: 8,
+              background: 'rgba(0,0,0,0.25)',
+              border: '1px solid rgba(34,211,238,0.2)',
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: 12, fontWeight: 600,
+              color: '#a5f3fc',
+              maxWidth: 320,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>superadpro.com/ref/{user.username}/video</code>
+            <button
+              onClick={() => copyRefLink(`https://www.superadpro.com/ref/${user.username}/video`)}
+              style={{
+                padding: '9px 14px',
+                borderRadius: 8,
+                border: 'none',
+                background: 'linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%)',
+                color: '#fff',
+                fontFamily: 'Sora, sans-serif',
+                fontSize: 12, fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                boxShadow: '0 4px 12px rgba(34,211,238,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+              }}>
+              📋 {refCopied ? t('dashboard.copied') : t('dashboard.copy')}
+            </button>
+            <a
+              href={`/ref/${user.username}/video`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: '9px 14px',
+                borderRadius: 8,
+                background: 'transparent',
+                color: '#fff',
+                fontFamily: 'Sora, sans-serif',
+                fontSize: 12, fontWeight: 800,
+                textDecoration: 'none',
+                border: '1px solid rgba(255,255,255,0.25)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'background .15s, border-color .15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'; }}>
+              👁 {t('dashboard.videoSalesBanner.preview', { defaultValue: 'Preview' })}
+            </a>
+          </div>
+        </div>
+      )}
           7 May 2026: dashboard simplified to action-only (EXPLORE +
           QUICK ACTIONS, 8 cards total, no analytics strips). The
           earnings-by-stream and network metrics now live in a
