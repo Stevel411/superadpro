@@ -3,89 +3,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
-import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, Flame, UserPlus, Send, DollarSign, ArrowRight, Share2, X, Check } from 'lucide-react';
+import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, ArrowRight, Send, Share2, X, Check } from 'lucide-react';
 import CampaignSetupModal from '../components/CampaignSetupModal';
 import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
 
-// ─── Browser-framed template preview components ─────────────────────────
-// Each is a miniature mock-up of what the template looks like, rendered as
-// inline HTML+SVG (no image assets). Wrapped in a light Chrome-style frame
-// (traffic lights + URL bar) for that "this is a real web page" feel.
-
-function BrowserFrame({ url, children, bg = 'linear-gradient(180deg,#f0f9ff,#fff)' }) {
-  return (
-    <div style={{background:'#fff',borderRadius:8,overflow:'hidden',border:'1px solid #e2e8f0',boxShadow:'0 1px 4px rgba(15,23,42,.05)'}}>
-      <div style={{padding:'6px 10px',borderBottom:'1px solid #e2e8f0',display:'flex',alignItems:'center',gap:7,background:'#f8fafc'}}>
-        <div style={{display:'flex',gap:4}}>
-          <div style={{width:7,height:7,borderRadius:'50%',background:'#ef4444'}}/>
-          <div style={{width:7,height:7,borderRadius:'50%',background:'#f59e0b'}}/>
-          <div style={{width:7,height:7,borderRadius:'50%',background:'#10b981'}}/>
-        </div>
-        <div style={{flex:1,background:'#fff',borderRadius:3,padding:'2px 8px',fontSize:13,color:'#7a8899',border:'0.5px solid #e2e8f0',textAlign:'center',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{url}</div>
-      </div>
-      <div style={{background:bg,padding:'14px 14px 16px',minHeight:150}}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-// ─── ROI strip components ─────────────────────────────────────────
-// Hero-scale stat tiles for the "Last 30 days" headline card — one per
-// stage of the funnel (visitors → leads → conversions → earned). Big
-// dark-navy numbers on white background for max contrast and impact.
-// 'dim' fades the value (slate-300) for placeholders waiting on data;
-// 'accent' renders the value in cobalt-cyan for the 'earned' metric.
-function RoiStat({ value, label, dim = false, accent = false, first = false }) {
-  let valueColor = '#0a1438';      // dark navy — primary number colour
-  if (dim) valueColor = '#cbd5e1'; // slate-300 — "data coming soon"
-  else if (accent) valueColor = '#0ea5e9';
-  return (
-    <div style={{
-      padding: '0 28px',
-      textAlign: 'center',
-      borderLeft: first ? 'none' : '1px solid #f1f5f9',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minWidth: 130,
-    }}>
-      <div style={{
-        fontFamily: "'Sora', sans-serif",
-        fontSize: 36,
-        fontWeight: 800,
-        color: valueColor,
-        lineHeight: 1,
-        letterSpacing: '-0.025em',
-      }}>
-        {value}
-      </div>
-      <div style={{
-        fontSize: 10,
-        fontWeight: 700,
-        letterSpacing: 1.2,
-        textTransform: 'uppercase',
-        color: '#94a3b8',
-        marginTop: 8,
-        fontFamily: "'JetBrains Mono', monospace",
-      }}>
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function RoiArrow() {
-  return (
-    <div style={{
-      color: '#cbd5e1',
-      fontSize: 14,
-      fontWeight: 700,
-      padding: '0 2px',
-    }}>→</div>
-  );
-}
 
 // ─── CardStat ─ compact stat tile used inside the My Pages cards ──
 // One per metric. Icon optional. accentColor lights up the value when
@@ -127,146 +48,9 @@ function CardStat({ icon: Icon, value, label, dim = false, accentColor = null })
   );
 }
 
-// ─── timeAgo ─ compact relative-time formatter for the activity feed ─
-// Renders ISO timestamps as "12m ago", "3h ago", "2d ago" etc. Falls
-// back to "—" for null/undefined so cards never show "NaN ago".
-function timeAgo(iso) {
-  if (!iso) return '—';
-  const then = new Date(iso).getTime();
-  if (!then || isNaN(then)) return '—';
-  const secs = Math.max(0, Math.floor((Date.now() - then) / 1000));
-  if (secs < 60) return 'just now';
-  const mins = Math.floor(secs / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  const wks = Math.floor(days / 7);
-  if (wks < 5) return `${wks}w ago`;
-  const mths = Math.floor(days / 30);
-  return `${mths}mo ago`;
-}
-
-// ─── ActivityCard ─ one of the four cards in the Recent Activity feed ──
-// Header: icon in accent colour + title + count pill. Body: 0-3 rows
-// (passed as children). Footer: optional CTA link. Empty state hides
-// the body and shows a muted single-line message instead.
-function ActivityCard({ icon: Icon, accentColor, title, count, empty, emptyText, ctaText, ctaUrl, showCta, children }) {
-  return (
-    <div style={{
-      background:'#fff',
-      border:'1px solid #e8ecf2',
-      borderRadius:10,
-      padding:'12px 14px',
-      display:'flex',
-      flexDirection:'column',
-      minHeight:140,
-    }}>
-      <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
-        <div style={{
-          width:26,
-          height:26,
-          borderRadius:7,
-          background:`${accentColor}15`,
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'center',
-          flexShrink:0,
-        }}>
-          {Icon && <Icon size={14} color={accentColor} strokeWidth={2.2}/>}
-        </div>
-        <span style={{
-          fontFamily:'Sora,sans-serif',
-          fontSize:13,
-          fontWeight:700,
-          color:'var(--sap-text-primary)',
-          flex:1,
-          letterSpacing:'-0.005em',
-        }}>{title}</span>
-        {count > 0 && (
-          <span style={{
-            background:`${accentColor}15`,
-            color:accentColor,
-            fontSize:11,
-            fontWeight:800,
-            padding:'2px 8px',
-            borderRadius:999,
-            fontFamily:'Sora,sans-serif',
-          }}>{count}</span>
-        )}
-      </div>
-      <div style={{flex:1,display:'flex',flexDirection:'column',gap:6}}>
-        {empty ? (
-          <div style={{
-            fontSize:12,
-            color:'var(--sap-text-muted)',
-            padding:'8px 0',
-            fontStyle:'italic',
-          }}>{emptyText}</div>
-        ) : children}
-      </div>
-      {showCta && ctaUrl && (
-        <a href={ctaUrl} style={{
-          marginTop:10,
-          fontSize:12,
-          fontWeight:700,
-          color:accentColor,
-          textDecoration:'none',
-          fontFamily:'Sora,sans-serif',
-        }}>{ctaText}</a>
-      )}
-    </div>
-  );
-}
-
-// ─── ActivityRow ─ one line inside an ActivityCard ──
-// Primary text (name or $amount), secondary text (page or sequence),
-// right-aligned meta (timeAgo or count). All three truncate to keep
-// the row to one line even with long emails or page titles.
-function ActivityRow({ primary, primaryAccent, secondary, meta }) {
-  return (
-    <div style={{
-      display:'flex',
-      alignItems:'baseline',
-      gap:6,
-      fontSize:12,
-      minWidth:0,
-    }}>
-      <span style={{
-        fontWeight:700,
-        color:primaryAccent || 'var(--sap-text-primary)',
-        whiteSpace:'nowrap',
-        overflow:'hidden',
-        textOverflow:'ellipsis',
-        maxWidth:'40%',
-      }}>{primary}</span>
-      <span style={{
-        color:'var(--sap-text-muted)',
-        flex:1,
-        whiteSpace:'nowrap',
-        overflow:'hidden',
-        textOverflow:'ellipsis',
-        fontSize:11,
-      }}>{secondary}</span>
-      <span style={{
-        color:'var(--sap-text-muted)',
-        fontSize:10,
-        fontFamily:"'JetBrains Mono', monospace",
-        whiteSpace:'nowrap',
-        flexShrink:0,
-      }}>{meta}</span>
-    </div>
-  );
-}
-
 export default function Funnels() {
   const { t } = useTranslation();
   const [pages, setPages] = useState([]);
-  // 30-day rollup for the ROI strip — populated alongside `pages` from
-  // /api/funnels. Stays null until the first load resolves so the strip
-  // can render a skeleton until real numbers arrive.
-  const [rollup30d, setRollup30d] = useState(null);
   // Surface API errors to the user rather than swallowing them in a
   // silent catch. Renders a red banner at the top of the page when
   // /api/funnels fails. 18 May 2026.
@@ -275,21 +59,14 @@ export default function Funnels() {
   const [creating, setCreating] = useState(false);
   const [creatingKey, setCreatingKey] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  // Phase 2 (18 May 2026): templates + AI wizard moved to
-  // /pro/funnels/new. showAiWizard, showMoreTemplates, aiForm,
-  // aiGenerating state removed — they belong on the create page.
-  // Commit C — Activity feed payload from /api/funnels/activity.
-  // Stays null until first load resolves so the section can render
-  // a skeleton row until real data lands. Loaded in parallel with the
-  // main /api/funnels call but stored separately so a failure on one
-  // doesn't blank the other.
-  const [activity, setActivity] = useState(null);
-  const [activityError, setActivityError] = useState(null);
+  // 26 May 2026 — page redesigned as a pure page-gateway. Analytics
+  // (ROI strip, activity feed, next-action banner) all removed.
+  // Members have dedicated analytics surfaces elsewhere; this page
+  // exists to store and access pages, not to be yet another dashboard.
   const navigate = useNavigate();
 
   const load = () => apiGet('/api/funnels').then(d => {
     setPages(d.funnels || d.pages || []);
-    setRollup30d(d.rollup_30d || null);
     setLoading(false);
   }).catch((err) => {
     // Surface API failure rather than swallowing it — silent catch was
@@ -301,17 +78,6 @@ export default function Funnels() {
     console.error('Funnels API load failed:', err);
     setLoadError(err.message || 'Failed to load your pages. Please try again.');
     setLoading(false);
-  });
-
-  // Activity feed loads in parallel with the main pages call. Errors
-  // surface to a per-section banner rather than blocking the page —
-  // someone on a slow connection should still see their pages even if
-  // the activity endpoint stalls.
-  const loadActivity = () => apiGet('/api/funnels/activity').then(d => {
-    setActivity(d || null);
-  }).catch((err) => {
-    console.error('Activity API load failed:', err);
-    setActivityError(err.message || 'Failed to load activity feed.');
   });
 
   // Phase 1.5 — editing campaign wiring on an EXISTING page. Holds
@@ -332,7 +98,7 @@ export default function Funnels() {
   // input form so users get clear feedback before navigating away.
   const [importModal, setImportModal] = useState(null);
 
-  useEffect(() => { load(); loadActivity(); }, []);
+  useEffect(() => { load(); }, []);
 
   // Phase 1.5 — user confirmed edit-wiring modal. Updates an existing
   // page's binding via POST /api/funnels/{id}/wiring. On success we
@@ -495,37 +261,6 @@ export default function Funnels() {
           Banner at top anchors the dark colour at the page header
           rather than breaking the visual flow mid-page. */}
 
-      {/* Next-action banner — promoted from the activity section to
-          the top of the page. Always renders once activity loads;
-          shows a contextual prompt or "steady state" fallback. While
-          loading, a skeleton placeholder of the same height holds the
-          slot so the page doesn't jump. */}
-      {activity?.next_action ? (
-        <a
-          href={activity.next_action.cta_url}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            padding: '14px 18px',
-            borderRadius: 12,
-            background: 'linear-gradient(135deg,#0a1438 0%,#1e3a8a 100%)',
-            color: '#fff',
-            textDecoration: 'none',
-            marginBottom: 20,
-            boxShadow: '0 4px 12px rgba(10,20,56,.15)',
-          }}>
-          <span style={{fontSize:22,lineHeight:1}}>{activity.next_action.emoji}</span>
-          <span style={{flex:1,fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700,letterSpacing:'-0.01em'}}>
-            {activity.next_action.label}
-          </span>
-          <span style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#22d3ee',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap'}}>
-            {activity.next_action.cta_label}
-          </span>
-        </a>
-      ) : (
-        <div style={{height:52,background:'linear-gradient(135deg,#0a1438 0%,#1e3a8a 100%)',borderRadius:12,marginBottom:20,opacity:0.6}}/>
-      )}
 
       {/* Header — title + subtitle + New page button */}
       <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
@@ -606,85 +341,6 @@ export default function Funnels() {
       </div>
 
 
-      {/* ── ROI strip ─ Last 30 days at a glance ──
-          Mid-scale stat card balancing readability with proportion.
-          Header is one centred line: cyan timeframe pill + Sora
-          subtitle showing the page count. Stats cluster centred
-          below. Conversions + earnings show '—' (in slate-300)
-          until Commit B lands the lead-attribution layer. */}
-      {pages.length > 0 && rollup30d && (
-        <div style={{
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: 14,
-          padding: '18px 24px',
-          marginBottom: 24,
-          maxWidth: 760,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          boxShadow: '0 4px 12px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04)',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 14,
-            marginBottom: 14,
-            flexWrap: 'wrap',
-          }}>
-            <span style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 1.5,
-              textTransform: 'uppercase',
-              color: '#0ea5e9',
-              fontFamily: "'JetBrains Mono', monospace",
-              padding: '4px 10px',
-              borderRadius: 999,
-              background: 'rgba(14,165,233,.10)',
-              border: '1px solid rgba(14,165,233,.20)',
-              whiteSpace: 'nowrap',
-            }}>
-              Last 30 days
-            </span>
-            <span style={{
-              fontSize: 18,
-              fontWeight: 700,
-              color: '#0a1438',
-              fontFamily: "'Sora', sans-serif",
-              letterSpacing: '-0.01em',
-            }}>
-              Performance across {pages.length} {pages.length === 1 ? 'page' : 'pages'}
-            </span>
-          </div>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'stretch',
-            flexWrap: 'wrap',
-            gap: 0,
-          }} className="roi-stats-grid">
-            <RoiStat value={rollup30d.visitors} label="visitors" first />
-            <RoiStat value={rollup30d.leads} label="leads" />
-            <RoiStat
-              value={rollup30d.conversions === null ? '—' : rollup30d.conversions}
-              label="conversions"
-              dim={rollup30d.conversions === null}
-            />
-            <RoiStat
-              value={rollup30d.earnings === null ? '—' : `$${rollup30d.earnings}`}
-              label="earned"
-              dim={rollup30d.earnings === null}
-              accent
-            />
-          </div>
-          <style>{`
-            @media (max-width: 720px) {
-              .roi-stats-grid { gap: 16px 0 !important; }
-            }
-          `}</style>
-        </div>
-      )}
 
       {/* Templates moved to /pro/funnels/new — see "+ New page" button above */}
 
@@ -741,153 +397,6 @@ export default function Funnels() {
       )}
 
 
-      {/* ── Activity Feed ─ Commit C ──────────────────────────────
-          Now sits ABOVE the My Pages grid (Steve, 18 May 2026) —
-          puts the populated 4-card row at eye level instead of
-          hiding under sparse page tiles. Always renders (even for
-          users with zero pages) so the contextual next-action pill
-          can prompt them. Four data cards in a responsive grid:
-
-            🔥 Hot leads   👋 New 24h   📧 Seq. complete   💰 Recent comm.
-
-          Data comes from /api/funnels/activity (Commit C backend). */}
-      <div style={{marginTop:32}}>
-        <h2 style={{margin:'0 0 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>Recent activity</h2>
-
-        {/* Activity-load error banner — separate from the main load
-            error so a failure here doesn't blank the rest of the page. */}
-        {activityError && (
-          <div style={{
-            background: '#fff7ed',
-            border: '1px solid #fed7aa',
-            color: '#9a3412',
-            borderRadius: 10,
-            padding: '10px 14px',
-            marginBottom: 12,
-            fontSize: 12,
-            fontWeight: 600,
-          }}>
-            Activity feed unavailable: {activityError}
-          </div>
-        )}
-
-        {/* Next-action pill promoted to top of page (above header) —
-            see Phase 2 dashboard refactor. */}
-
-        {/* Skeleton row while activity loads (preserves layout
-            height so the page doesn't jump). */}
-        {!activity && !activityError && (
-          <div style={{
-            display:'grid',
-            gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))',
-            gap:12,
-          }}>
-            {[0,1,2,3].map(i => (
-              <div key={i} style={{
-                background:'#f8fafc',
-                border:'1px solid #e2e8f0',
-                borderRadius:10,
-                height:140,
-              }}/>
-            ))}
-          </div>
-        )}
-
-        {/* Four data cards. Render after activity payload arrives. */}
-        {activity && (
-          <div style={{
-            display:'grid',
-            gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))',
-            gap:12,
-            alignItems:'stretch',
-          }}>
-            {/* 🔥 HOT LEADS */}
-            <ActivityCard
-              icon={Flame}
-              accentColor="#dc2626"
-              title="Hot leads"
-              count={activity.hot_leads.length}
-              empty={activity.hot_leads.length === 0}
-              emptyText="No hot leads right now"
-              ctaText="Call them →"
-              ctaUrl="/pro/leads"
-              showCta={activity.hot_leads.length > 0}>
-              {activity.hot_leads.slice(0,3).map(l => (
-                <ActivityRow
-                  key={l.id}
-                  primary={l.name}
-                  secondary={l.source_funnel_title}
-                  meta={timeAgo(l.last_engagement_at)}
-                />
-              ))}
-            </ActivityCard>
-
-            {/* 👋 NEW 24H */}
-            <ActivityCard
-              icon={UserPlus}
-              accentColor="#10b981"
-              title="New leads · 24h"
-              count={activity.new_24h_count}
-              empty={activity.new_24h_count === 0}
-              emptyText="No new leads in 24h"
-              ctaText="View all →"
-              ctaUrl="/pro/leads"
-              showCta={activity.new_24h_count > 0}>
-              {activity.new_24h.slice(0,3).map(l => (
-                <ActivityRow
-                  key={l.id}
-                  primary={l.name}
-                  secondary={l.source_funnel_title}
-                  meta={timeAgo(l.created_at)}
-                />
-              ))}
-            </ActivityCard>
-
-            {/* 📧 SEQUENCE COMPLETE */}
-            <ActivityCard
-              icon={Send}
-              accentColor="#8b5cf6"
-              title="Sequence done"
-              count={activity.sequence_complete_count}
-              empty={activity.sequence_complete_count === 0}
-              emptyText="No sequence-complete leads"
-              ctaText="Send broadcast →"
-              ctaUrl="/pro/leads?tab=broadcast"
-              showCta={activity.sequence_complete_count > 0}>
-              {activity.sequence_complete.slice(0,3).map(l => (
-                <ActivityRow
-                  key={l.id}
-                  primary={l.name}
-                  secondary={l.sequence_title}
-                  meta={`${l.emails_sent} emails`}
-                />
-              ))}
-            </ActivityCard>
-
-            {/* 💰 RECENT COMMISSIONS */}
-            <ActivityCard
-              icon={DollarSign}
-              accentColor="#0ea5e9"
-              title="Recent earnings"
-              count={activity.recent_commissions.length}
-              empty={activity.recent_commissions.length === 0}
-              emptyText="No commissions yet"
-              ctaText="See all →"
-              ctaUrl="/pro/analytics"
-              showCta={activity.recent_commissions.length > 0}>
-              {activity.recent_commissions.slice(0,3).map((c, i) => (
-                <ActivityRow
-                  key={i}
-                  primary={`$${c.amount_usdt.toFixed(2)}`}
-                  primaryAccent="#0ea5e9"
-                  secondary={`${c.type_label} · @${c.from_username}`}
-                  meta={timeAgo(c.paid_at)}
-                />
-              ))}
-            </ActivityCard>
-          </div>
-        )}
-      </div>
 
       {/* Your Pages section (preserved from original) */}
       {pages.length > 0 && (
@@ -918,7 +427,7 @@ export default function Funnels() {
                 style={{
                   background: '#fff',
                   border: '1px solid #eef1f5',
-                  borderRadius: 10,
+                  borderRadius: 14,
                   overflow: 'hidden',
                   // Two-layer cobalt-tinted shadow lifts the card
                   // off the page background without screaming for
@@ -926,16 +435,63 @@ export default function Funnels() {
                   // style block at the bottom of this file) deepens
                   // the shadow and adds a 1px upward translate so
                   // the card feels live without becoming distracting.
-                  boxShadow: '0 1px 3px rgba(10,20,56,.04), 0 1px 2px rgba(10,20,56,.06)',
+                  boxShadow: '0 2px 4px rgba(10,20,56,.05), 0 1px 2px rgba(10,20,56,.06)',
                   transition: 'transform .15s, box-shadow .15s, border-color .15s',
                 }}>
-                <div style={{padding:'12px 14px'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
-                    <div style={{width:6,height:6,borderRadius:'50%',background:p.status==='published'?'#10b981':'#cbd5e1'}}/>
-                    <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.title||t('superPages.untitled')}</div>
-                    {p.is_ai_generated && <span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4}}>AI</span>}
+                {/* ── Coloured gradient header — cobalt → cyan ──
+                    26 May 2026: page cards got an always-on cobalt-to-cyan
+                    gradient band so this page reads like a gateway-to-pages
+                    rather than an analytics summary. Same gradient on every
+                    card on purpose (option 1 from the design decision) —
+                    consistent, on-brand, no implied meaning from colour
+                    differences. AI badge floats to the right of the title. */}
+                <div style={{
+                  background: 'linear-gradient(135deg,#0a1438 0%,#1e3a8a 45%,#06b6d4 100%)',
+                  padding: '18px 18px 16px',
+                  color: '#fff',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}>
+                  {/* Subtle inner gloss highlight (top 42%) — same trick as
+                      the GridVisualiser tile pattern for that polished look. */}
+                  <div style={{
+                    position:'absolute', top:0, left:0, right:0, height:'42%',
+                    background:'linear-gradient(180deg,rgba(255,255,255,0.16),transparent)',
+                    pointerEvents:'none',
+                  }}/>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,position:'relative'}}>
+                    <div style={{width:8,height:8,borderRadius:'50%',background:p.status==='published'?'#22d3ee':'rgba(255,255,255,.45)',boxShadow:p.status==='published'?'0 0 0 3px rgba(34,211,238,.18)':'none'}}/>
+                    <div style={{
+                      fontFamily:'Sora,sans-serif',
+                      fontSize:17,
+                      fontWeight:800,
+                      color:'#fff',
+                      flex:1,
+                      overflow:'hidden',
+                      textOverflow:'ellipsis',
+                      whiteSpace:'nowrap',
+                      letterSpacing:'-0.01em',
+                    }}>{p.title||t('superPages.untitled')}</div>
+                    {p.is_ai_generated && <span style={{
+                      fontSize:10,
+                      fontWeight:800,
+                      color:'#0a1438',
+                      background:'rgba(255,255,255,.92)',
+                      padding:'3px 8px',
+                      borderRadius:5,
+                      letterSpacing:'.4px',
+                      flexShrink:0,
+                    }}>AI</span>}
                   </div>
-                  {p.slug && <div style={{fontSize:13,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
+                  {p.slug && <div style={{
+                    fontSize:12,
+                    color:'rgba(255,255,255,.72)',
+                    overflow:'hidden',
+                    textOverflow:'ellipsis',
+                    whiteSpace:'nowrap',
+                    fontFamily:'JetBrains Mono,monospace',
+                    position:'relative',
+                  }}>/{p.slug}</div>}
                 </div>
 
                 {/* ── Engagement panel (replaces the legacy views+leads row) ──
@@ -993,9 +549,9 @@ export default function Funnels() {
                           so cards without View had a wide Edit and cards with
                           View had a narrow Edit — inconsistent across the gallery.
                           (20 May 2026 — Steve called out the inconsistency.) */}
-                      <div style={{display:'flex',gap:6,flex:1,minWidth:0}}>
-                        <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn2')}</a>
-                        {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn2')}</a>)}
+                      <div style={{display:'flex',gap:8,flex:1,minWidth:0}}>
+                        <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'10px 14px',borderRadius:8,fontSize:14,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={14}/> {t('superPages.editBtn2')}</a>
+                        {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'10px 14px',borderRadius:8,fontSize:14,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={14}/> {t('superPages.viewBtn2')}</a>)}
                       </div>
                       {/* Secondary actions group — utility icons (duplicate, share,
                           delete) cluster together on the right, visually separate
@@ -1009,8 +565,11 @@ export default function Funnels() {
                           can't be featured. Placed first in the secondary group
                           because of the four utility actions it's the most
                           discoverable/positive — duplicate/share/delete are
-                          maintenance, featuring is a growth action. */}
-                      <div style={{display:'flex',gap:4,flexShrink:0,alignItems:'center'}}>
+                          maintenance, featuring is a growth action.
+
+                          26 May 2026: icon buttons sized up from 32px to 38px
+                          to match the larger primary buttons (Steve, F redesign). */}
+                      <div style={{display:'flex',gap:6,flexShrink:0,alignItems:'center'}}>
                         {p.status === 'published' && (
                           <FeatureOnExploreButton
                             artifactType="landing-page"
@@ -1019,9 +578,9 @@ export default function Funnels() {
                             variant="icon"
                           />
                         )}
-                        <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={13} color="var(--sap-text-muted)"/></button>
-                        <button onClick={() => openShareModal(p)} title="Generate share code" style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #bae6fd',background:'#f0f9ff',cursor:'pointer'}}><Share2 size={13} color="#0284c7"/></button>
-                        <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={13} color="var(--sap-red)"/></button>
+                        <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={16} color="var(--sap-text-muted)"/></button>
+                        <button onClick={() => openShareModal(p)} title="Generate share code" style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #bae6fd',background:'#f0f9ff',cursor:'pointer'}}><Share2 size={16} color="#0284c7"/></button>
+                        <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={16} color="var(--sap-red)"/></button>
                       </div>
                     </>
                   )}

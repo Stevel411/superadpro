@@ -90,7 +90,6 @@ function buildTabs(t) {
       path: '/tools/builder',
       match: [
         '/tools/builder',
-        '/pro/funnels',
         '/linkhub',
         '/link-tools',
         '/pro/leads',
@@ -325,10 +324,12 @@ export function isToolsFamilyRoute(pathname) {
     // Builder tools (deep pages)
     '/linkhub',
     '/link-tools',
-    '/pro/funnels',
     '/pro/leads',
     '/lead-finder',
     '/proseller',
+    // Note: /pro/funnels deliberately excluded — it's a focused page-
+    // gateway, not a tools-family page. The persistent tabs strip
+    // adds noise without value on this surface.
     // Legacy quick-tool routes — kept until the /free/* paths are
     // confirmed retired or redirected.
     '/free/banner-creator',

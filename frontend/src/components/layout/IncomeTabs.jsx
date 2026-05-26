@@ -307,6 +307,9 @@ export function isIncomeFamilyRoute(pathname) {
     '/video-library',
     '/campaign-analytics',
   ];
+  // Note: /pro/funnels and /grid-calculator deliberately excluded — those
+  // pages are focused tools/dashboards and the income-family strip would
+  // add noise without value.
   for (var i = 0; i < INCOME_PATHS.length; i++) {
     var p = INCOME_PATHS[i];
     if (pathname === p || pathname.indexOf(p + '/') === 0) return true;
