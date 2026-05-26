@@ -197,6 +197,49 @@ export default function Dashboard() {
     return function() { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
+  // ── Achievement toasts (26 May 2026) ─────────────────────────────────
+  // On dashboard load + every 60s, check for unseen achievement notifs.
+  // Each one slides out as a purple gradient toast for the badge.
+  // Marked as seen server-side via /api/achievements/mark-seen so they
+  // don't re-toast across sessions or refreshes.
+  useEffect(function() {
+    function checkAchievements() {
+      apiGet('/api/achievements/unseen')
+        .then(function(r) {
+          if (r && Array.isArray(r.unseen) && r.unseen.length > 0) {
+            var idsToMark = [];
+            r.unseen.forEach(function(a) {
+              setToasts(function(prev) {
+                // Dedupe — don't re-add a toast we're already showing
+                if (prev.find(function(t) { return t.notification_id === a.notification_id; })) return prev;
+                return prev.concat([{
+                  key: 'ach-' + a.notification_id,
+                  is_achievement: true,
+                  notification_id: a.notification_id,
+                  title: a.title,
+                  message: a.message,
+                  icon: a.icon,
+                  link: a.link,
+                  badge_id: a.badge_id,
+                  metadata: a.metadata,
+                }]);
+              });
+              idsToMark.push(a.notification_id);
+            });
+            // Mark as seen so they don't re-toast on next poll/refresh
+            if (idsToMark.length > 0) {
+              apiPost('/api/achievements/mark-seen',
+                { notification_ids: idsToMark }).catch(function() {});
+            }
+            playChaChing();
+          }
+        }).catch(function() {});
+    }
+    checkAchievements(); // fire on mount
+    var achInterval = setInterval(checkAchievements, 60000);
+    return function() { clearInterval(achInterval); };
+  }, []);
+
   function dismissToast(key) {
     setToasts(function(prev) { return prev.filter(function(t) { return t.key !== key; }); });
   }
@@ -1239,10 +1282,74 @@ export default function Dashboard() {
         @keyframes toastSlideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
       `}</style>
 
-      {/* New member toast notifications */}
+      {/* Toast notifications: new members + achievement unlocks */}
       {toasts.length > 0 && <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420, transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)', willChange: 'transform' }}>
         {toasts.map(function(toast) {
-          // ── Tier-aware toast styling (Sprint 2c follow-up, 15 May 2026) ──
+          // ── Achievement toast (26 May 2026) ─────────────────────────
+          // Purple gradient matching the grid bonus badge theme. Shows
+          // the icon, badge name, and (for grid_bonus_paid) the actual
+          // $ amount earned + tier — same visual story as the badge wall.
+          if (toast.is_achievement) {
+            var isGridBonus = toast.badge_id === 'grid_bonus_paid' && toast.metadata && toast.metadata.amount;
+            var achBg = isGridBonus
+              ? 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%)'
+              : 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #6366f1 100%)';
+            var achGlow = isGridBonus ? 'rgba(124,58,237,.35)' : 'rgba(99,102,241,.25)';
+            return <div key={toast.key} style={{
+              background: achBg, borderRadius: 14, padding: '18px 20px',
+              boxShadow: '0 12px 40px rgba(0,0,0,.5), 0 2px 16px ' + achGlow,
+              border: '1px solid rgba(255,255,255,.22)',
+              animation: 'toastSlideIn .4s ease-out',
+              display: 'flex', alignItems: 'flex-start', gap: 14,
+              minWidth: 'min(380px, calc(100vw - 48px))',
+              color: '#fff',
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 12,
+                background: 'rgba(255,255,255,.18)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, border: '1px solid rgba(255,255,255,.22)',
+                fontSize: 28,
+                textShadow: '0 2px 8px rgba(255,255,255,.3)',
+              }}>{toast.icon || '🏆'}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,.75)', textTransform: 'uppercase', letterSpacing: '1.2px', marginBottom: 4 }}>
+                  Badge Unlocked
+                </div>
+                {isGridBonus ? (
+                  <>
+                    <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 900, color: '#fff', lineHeight: 1.1, letterSpacing: '-0.5px', textShadow: '0 2px 8px rgba(255,255,255,.2)' }}>
+                      ${Number(toast.metadata.amount).toFixed(0)}
+                    </div>
+                    <div style={{ display: 'inline-block', background: 'rgba(255,255,255,.18)', border: '1px solid rgba(255,255,255,.22)', color: '#fff', fontFamily: 'JetBrains Mono,ui-monospace,monospace', fontSize: 10.5, fontWeight: 700, padding: '3px 10px', borderRadius: 99, marginTop: 6, letterSpacing: '0.6px', textTransform: 'uppercase' }}>
+                      Tier {toast.metadata.tier} Bonus
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>
+                    {(toast.title || '').replace('Badge earned:', '').replace('!', '').trim()}
+                  </div>
+                )}
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.82)', marginTop: 8, lineHeight: 1.5 }}>
+                  {toast.message}
+                </div>
+                {toast.link && (
+                  <a href={toast.link} style={{
+                    display: 'inline-block', marginTop: 10,
+                    background: 'rgba(255,255,255,.18)',
+                    color: '#fff', textDecoration: 'none',
+                    fontFamily: 'Sora,sans-serif', fontSize: 12, fontWeight: 700,
+                    padding: '6px 14px', borderRadius: 8,
+                    border: '1px solid rgba(255,255,255,.22)',
+                  }}>View badges →</a>
+                )}
+              </div>
+              <button onClick={function() { dismissToast(toast.key); }}
+                style={{ background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.18)', borderRadius: 8, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,.85)', fontSize: 13, flexShrink: 0 }}>✕</button>
+            </div>;
+          }
+
+          // ── Tier-aware new-member toast styling (Sprint 2c follow-up, 15 May 2026) ──
           // Under the flat-pricing model toasts have two visual variants:
           //   - Founding (gold): toast.tier === 'founding' OR toast.is_founding_member
           //   - Partner (silver): everyone else (includes legacy 'basic'/'pro'

@@ -32316,6 +32316,160 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
         import traceback
         traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=500)
+@app.get("/admin/replay-my-badge-toast")
+async def admin_replay_my_badge_toast(
+    request: Request,
+    badge_id: str = "grid_bonus_paid",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Re-mark the admin's most-recent achievement notification for the
+    given badge as unread, so the dashboard toast fires on next load.
+
+    Use case: Steve testing whether the badge-unlock toast works for the
+    grid_bonus_paid badge he was awarded yesterday — by the time he asked
+    'where will I see it', the bell-icon notification panel had likely
+    already marked it as read, so the toast endpoint returned nothing.
+    This lets him replay the toast.
+
+    Defaults to badge_id=grid_bonus_paid. Admin-only.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import Notification as _Notification, Achievement as _Achievement
+    ach = db.query(_Achievement).filter(
+        _Achievement.user_id == user.id,
+        _Achievement.badge_id == badge_id,
+    ).first()
+    if not ach:
+        return JSONResponse(
+            {"error": f"No achievement '{badge_id}' found for this user"},
+            status_code=404,
+        )
+    # Find the matching notification (by title) and mark unread
+    notif = db.query(_Notification).filter(
+        _Notification.user_id == user.id,
+        _Notification.type == "achievement",
+        _Notification.title.like(f"%{ach.title}%"),
+    ).order_by(_Notification.created_at.desc()).first()
+    if not notif:
+        return JSONResponse(
+            {"error": f"No notification found for badge '{badge_id}'"},
+            status_code=404,
+        )
+    notif.is_read = False
+    db.commit()
+    return {
+        "ok": True,
+        "notification_id": notif.id,
+        "badge_id": badge_id,
+        "title": notif.title,
+        "message": notif.message,
+        "instruction": "Refresh your dashboard to see the toast slide out from the top-right.",
+    }
+
+
+@app.get("/api/achievements/unseen")
+def api_achievements_unseen(request: Request, user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """Returns achievement notifications that haven't been shown to the
+    member as a toast yet. Dashboard polls this on load + every 60s; if
+    any rows come back, it renders a slide-out toast for each one and
+    then calls /api/achievements/mark-seen to flag them as shown.
+
+    Why this is separate from /api/notifications: dashboard toasts are
+    a different surface from the bell-icon notification list. A member
+    might dismiss the toast (which marks as seen) but still want to find
+    the notification later in their bell. We use Notification.is_read as
+    the toast-seen flag — once toasted, is_read=True, and the bell will
+    show it as already-read. Acceptable trade-off for now; if we want
+    finer-grained control later we can add a separate toast_seen field.
+
+    Added 26 May 2026 per Steve's request to surface the new grid bonus
+    badge as a dashboard toast rather than relying on members navigating
+    to /achievements to discover it.
+    """
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import Notification as _Notification, Achievement as _Achievement
+    # Only achievement-type notifications, unread, most recent first.
+    # Cap at 3 — if a member has more than 3 unseen achievements queued,
+    # toasting them all would be overwhelming. Show the most recent 3
+    # and let the rest accumulate quietly in the bell.
+    rows = db.query(_Notification).filter(
+        _Notification.user_id == user.id,
+        _Notification.type == "achievement",
+        _Notification.is_read == False,
+    ).order_by(_Notification.created_at.desc()).limit(3).all()
+    if not rows:
+        return {"unseen": []}
+
+    # Enrich with the actual Achievement metadata (so grid_bonus_paid
+    # toasts can render the $72 amount + tier).
+    out = []
+    for n in rows:
+        # Match the notification to its Achievement row by title (loose
+        # but reliable — the badge title is unique and the notification
+        # title is "Badge earned: <title>!"). For grid_bonus_paid pull
+        # the metadata_json so the toast shows the amount + tier.
+        ach = db.query(_Achievement).filter(
+            _Achievement.user_id == user.id,
+            _Achievement.title.in_([
+                n.title.replace("Badge earned: ", "").rstrip("!"),
+                n.title,
+            ]),
+        ).order_by(_Achievement.earned_at.desc()).first()
+        meta = None
+        badge_id = None
+        if ach:
+            badge_id = ach.badge_id
+            if ach.metadata_json:
+                try:
+                    import json as _json_a
+                    meta = _json_a.loads(ach.metadata_json)
+                except Exception:
+                    pass
+        out.append({
+            "notification_id": n.id,
+            "title": n.title,
+            "message": n.message,
+            "icon": n.icon,
+            "link": n.link,
+            "created_at": n.created_at.isoformat() + "Z" if n.created_at else None,
+            "badge_id": badge_id,
+            "metadata": meta,
+        })
+    return {"unseen": out}
+
+
+@app.post("/api/achievements/mark-seen")
+async def api_achievements_mark_seen(request: Request, user: User = Depends(get_current_user),
+                                      db: Session = Depends(get_db)):
+    """Mark one or more achievement notifications as seen so they don't
+    re-toast on next dashboard load. Body: {"notification_ids": [1, 2]}.
+    """
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    ids = body.get("notification_ids", []) if isinstance(body, dict) else []
+    if not ids:
+        return {"marked": 0}
+    from .database import Notification as _Notification
+    updated = db.query(_Notification).filter(
+        _Notification.user_id == user.id,
+        _Notification.id.in_(ids),
+        _Notification.type == "achievement",
+    ).update({_Notification.is_read: True}, synchronize_session=False)
+    db.commit()
+    return {"marked": int(updated or 0)}
+
+
 @app.get("/api/achievements")
 def api_achievements_data(request: Request, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
