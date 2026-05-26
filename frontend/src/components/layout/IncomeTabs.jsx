@@ -298,7 +298,6 @@ export function isIncomeFamilyRoute(pathname) {
     '/campaign-tiers',
     '/credit-nexus',
     '/courses',
-    '/grid-calculator',
     '/grid-visualiser',
     '/nexus-visualiser',
     '/income-chains',
