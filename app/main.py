@@ -23913,6 +23913,158 @@ async def admin_fix_starthere_wallet(
     }
 
 
+@app.get("/admin/nowpayments-orphan-matcher")
+async def admin_nowpayments_orphan_matcher(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Match orphan BSC USDT transfers from the NOWPayments payout
+    address against NOWPayments orders that are stuck waiting.
+
+    Background (26 May 2026): when a user pays NOWPayments via an
+    alternative network (e.g. USDT-ERC20 for a USDT-BSC invoice),
+    NOWPayments converts and forwards the funds to our BSC treasury
+    via their payout wallet 0xa96be652...709becd09. Our BSC scanner
+    correctly notices the inbound transfer but doesn't match it to
+    any WalletConnect order (because the order is in NOWPayments,
+    not WalletConnect) — so it gets filed as an OnchainOrphanTransfer.
+
+    Meanwhile the NOWPayments order is in 'wrong_asset' or 'waiting'
+    state because our IPN handler rejected it (now fixed by the
+    value-based guard in commit dad99cc5).
+
+    This endpoint joins the two by amount proximity (±5% to absorb
+    NOWPayments' conversion fee) and time window (NOWPayments order
+    created within the same calendar day as the orphan transfer).
+
+    Read-only. Recovery for each match is via
+    /admin/nowpayments-wrong-asset-recover?order_id=N&confirm=1
+    using the existing value-based recovery endpoint.
+
+    Added 26 May 2026 after Robert Brooks case revealed this whole
+    class of payments had been silently stuck.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import OnchainOrphanTransfer as _Orphan, NowPaymentsOrder as _NPOrder
+    NP_PAYOUT_ADDRESS = "0xa96be652a08d9905f15b7fbe2255708709becd09"
+    AMOUNT_TOLERANCE = 0.06  # 6% — covers NOWPayments fee + slippage
+
+    # Pull all unresolved orphan transfers from the NOWPayments payout address
+    orphans = db.query(_Orphan).filter(
+        _Orphan.from_address == NP_PAYOUT_ADDRESS,
+        _Orphan.resolved == False,
+    ).order_by(_Orphan.seen_at.desc()).all()
+
+    # Pull all stuck NOWPayments orders (wrong_asset or waiting > 1h old)
+    from datetime import datetime as _dt, timedelta as _td
+    cutoff_old = _dt.utcnow() - _td(hours=1)
+    stuck_orders = db.query(_NPOrder).filter(
+        _NPOrder.status.in_(["wrong_asset", "waiting", "confirming"]),
+        _NPOrder.created_at < cutoff_old,
+    ).order_by(_NPOrder.created_at.desc()).all()
+
+    matches = []
+    unmatched_orphans = []
+    matched_orphan_ids = set()
+    matched_order_ids = set()
+
+    # For each orphan, try to find the best matching order
+    for orph in orphans:
+        orph_amount = float(orph.amount_usdt or 0)
+        # Dust filter — sub-cent transfers are noise, not real payments
+        if orph_amount < 1.0:
+            continue
+        best_match = None
+        best_ratio_diff = 1.0
+        for o in stuck_orders:
+            if o.id in matched_order_ids:
+                continue
+            inv = float(o.price_usd or 0)
+            if inv <= 0:
+                continue
+            # Orphan should be within tolerance of invoice (after NP fee)
+            ratio = orph_amount / inv
+            ratio_diff = abs(1.0 - ratio)
+            if ratio_diff > AMOUNT_TOLERANCE:
+                continue
+            # Time check: order created within 48h before the orphan arrival
+            # (NOWPayments cross-chain conversions can take time)
+            if not o.created_at or not orph.seen_at:
+                continue
+            time_delta = (orph.seen_at - o.created_at).total_seconds()
+            if time_delta < 0 or time_delta > 172800:  # 48h
+                continue
+            # Better match = closer amount ratio
+            if ratio_diff < best_ratio_diff:
+                best_match = o
+                best_ratio_diff = ratio_diff
+        if best_match:
+            target = db.query(User).filter(User.id == best_match.user_id).first()
+            matches.append({
+                "orphan_id": orph.id,
+                "orphan_tx_hash": orph.tx_hash,
+                "orphan_amount_usdt": orph_amount,
+                "orphan_seen_at": orph.seen_at.isoformat() + "Z" if orph.seen_at else None,
+                "order_id": best_match.id,
+                "order_internal_id": best_match.internal_order_id,
+                "order_np_payment_id": best_match.np_payment_id,
+                "order_status": best_match.status,
+                "invoice_usd": float(best_match.price_usd or 0),
+                "value_ratio": round(orph_amount / float(best_match.price_usd or 1), 3),
+                "user_id": best_match.user_id,
+                "username": target.username if target else None,
+                "email": target.email if target else None,
+                "is_active_now": bool(target.is_active) if target else None,
+                "product_type": best_match.product_type,
+                "product_key": best_match.product_key,
+                "order_created_at": best_match.created_at.isoformat() + "Z" if best_match.created_at else None,
+                "hours_in_transit": round((orph.seen_at - best_match.created_at).total_seconds() / 3600, 1),
+                "recovery_url": f"/admin/nowpayments-wrong-asset-recover?order_id={best_match.id}&confirm=1",
+            })
+            matched_orphan_ids.add(orph.id)
+            matched_order_ids.add(best_match.id)
+        else:
+            unmatched_orphans.append({
+                "orphan_id": orph.id,
+                "tx_hash": orph.tx_hash,
+                "amount_usdt": orph_amount,
+                "seen_at": orph.seen_at.isoformat() + "Z" if orph.seen_at else None,
+                "note": "No NOWPayments order found within amount tolerance + 48h window",
+            })
+
+    # Stuck orders with no matching orphan (e.g. customer hasn't paid yet,
+    # or payment came in via a different address)
+    unmatched_orders = [{
+        "order_id": o.id,
+        "internal_order_id": o.internal_order_id,
+        "user_id": o.user_id,
+        "status": o.status,
+        "invoice_usd": float(o.price_usd or 0),
+        "created_at": o.created_at.isoformat() + "Z" if o.created_at else None,
+        "hours_stuck": round((_dt.utcnow() - o.created_at).total_seconds() / 3600, 1) if o.created_at else None,
+    } for o in stuck_orders if o.id not in matched_order_ids]
+
+    return {
+        "np_payout_address": NP_PAYOUT_ADDRESS,
+        "amount_tolerance_pct": AMOUNT_TOLERANCE * 100,
+        "matches_found": len(matches),
+        "matches": matches,
+        "unmatched_orphans_from_np_count": len(unmatched_orphans),
+        "unmatched_orphans_from_np": unmatched_orphans,
+        "stuck_orders_with_no_matching_payment_count": len(unmatched_orders),
+        "stuck_orders_with_no_matching_payment": unmatched_orders[:20],  # cap for readability
+        "note": (
+            "Each match is a customer who paid via NOWPayments cross-chain "
+            "conversion that landed in your treasury but didn't credit their "
+            "account. Recover each via the recovery_url. After recovery, the "
+            "orphan should also be marked resolved (separate step — TODO)."
+        ),
+    }
+
+
 @app.get("/admin/nowpayments-wrong-asset-sweep")
 async def admin_nowpayments_wrong_asset_sweep(
     request: Request,
