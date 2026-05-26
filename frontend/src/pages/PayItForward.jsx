@@ -83,6 +83,32 @@ export default function PayItForward() {
     });
   }
 
+  // Stripe rail — fourth payment option for PIF (alongside wallet, NOWPayments,
+  // and direct WalletConnect/BSC). Hits /api/stripe/checkout/pif-voucher which
+  // returns a checkout_url to redirect to. Webhook creates the GiftVoucher row
+  // on successful payment. Same gating + 10-voucher rate limit as the other rails.
+  function createStripeVoucher() {
+    if (creating) return;
+    setCreating(true);
+    setError('');
+    setSuccess('');
+    apiPost('/api/stripe/checkout/pif-voucher', {
+      recipient_name: recipientName,
+      personal_message: message,
+    }).then(function(r) {
+      if (r.checkout_url) {
+        window.location.href = r.checkout_url;
+        return;
+      }
+      // Backend returns {error, detail} on failures (rate limit, not active, etc).
+      setError(r.detail || r.error || t('payItForward.createFailed'));
+      setCreating(false);
+    }).catch(function(e) {
+      setError(e.message || t('payItForward.createFailed'));
+      setCreating(false);
+    });
+  }
+
   function copyLink(link) {
     navigator.clipboard.writeText(link);
     setCopied(link);
@@ -351,7 +377,26 @@ export default function PayItForward() {
               {creating ? t('payItForward.creating') : 'NOWPayments — $20'}
             </button>
 
-            {/* 3. WalletConnect / direct-from-wallet on BSC — orange.
+            {/* 3. Stripe — card / bank, purple (third rail added 26 May 2026).
+                Closes parity with membership + nexus pack flows which already
+                had Stripe alongside crypto. Endpoint /api/stripe/checkout/pif-voucher
+                returns checkout_url. Webhook creates GiftVoucher row on success. */}
+            <button onClick={createStripeVoucher} disabled={creating}
+              style={{
+                width:'100%', maxWidth:380, padding:'13px 24px', borderRadius:11, border:'none',
+                cursor: creating ? 'not-allowed' : 'pointer',
+                fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff', letterSpacing:'.2px',
+                background:'linear-gradient(135deg,#5b21b6,#7c3aed)',
+                boxShadow:'0 4px 14px rgba(124,58,237,.35)',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                transition:'transform .15s,box-shadow .25s',
+              }}
+              onMouseOver={function(e){e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 6px 20px rgba(124,58,237,.45)';}}
+              onMouseOut={function(e){e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 4px 14px rgba(124,58,237,.35)';}}>
+              {creating ? t('payItForward.creating') : 'Card / Bank — $20'}
+            </button>
+
+            {/* 4. WalletConnect / direct-from-wallet on BSC — orange.
                 Two components in the same slot, mutually exclusive:
                   - WalletConnectGate (hideWhenConnected): renders the
                     orange "Connect Wallet to Pay Direct (BSC) — $20"

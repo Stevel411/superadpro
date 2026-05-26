@@ -11660,6 +11660,83 @@ async def stripe_checkout_nexus_pack(
         return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
 
 
+@app.post("/api/stripe/checkout/pif-voucher")
+async def stripe_checkout_pif_voucher(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create a one-time Stripe Checkout session for a Pay It Forward
+    gift voucher ($20 flat).
+
+    Body (JSON):
+      recipient_name:   optional, max 100 chars, surfaces on the
+                        recipient's claim page
+      personal_message: optional, max 500 chars, ditto
+
+    Membership-gated: only active members can buy gift vouchers
+    (matches crypto + wallet rails — see /api/pay-it-forward/create).
+    Also enforces the 10-active-voucher rate limit.
+
+    Returns:
+      { checkout_url, session_id }
+
+    Webhook then creates the GiftVoucher row in 'available' state via
+    the pif_voucher case in _stripe_handle_checkout_completed. The
+    voucher gets a payment_ref of stripe_{session_id} so it's
+    traceable back to the original charge.
+
+    Added 26 May 2026 — third and final payment rail for PIF, closing
+    parity with membership + nexus pack flows which already had Stripe
+    available alongside crypto.
+    """
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    if not user:
+        return JSONResponse({"error": "auth_required"}, status_code=401)
+    if not user.is_active and not user.is_admin:
+        return JSONResponse(
+            {"error": "membership_required",
+             "detail": "You must be an active member to gift a membership."},
+            status_code=403,
+        )
+
+    # Same 10-active-voucher rate limit as the wallet/crypto rails
+    from .database import GiftVoucher
+    active_count = db.query(GiftVoucher).filter(
+        GiftVoucher.gifter_user_id == user.id,
+        GiftVoucher.status == "available",
+    ).count()
+    if active_count >= 10:
+        return JSONResponse(
+            {"error": "limit_reached",
+             "detail": "Maximum 10 unclaimed vouchers at a time. Wait for some to be claimed."},
+            status_code=429,
+        )
+
+    body = await request.json()
+    recipient_name = (body.get("recipient_name") or "").strip()[:100]
+    personal_message = (body.get("personal_message") or "").strip()[:500]
+
+    try:
+        result = _stripe.create_checkout_session(
+            user=user,
+            db_session=db,
+            product_kind="pif_voucher",
+            amount_cents=2000,  # $20 flat
+            success_path="/pay-it-forward?paid=1&via=stripe",
+            cancel_path="/pay-it-forward",
+            extra_metadata={
+                "pif_recipient_name": recipient_name,
+                "pif_personal_message": personal_message,
+            },
+        )
+        return result
+    except Exception as e:
+        logger.exception(f"stripe_checkout_pif_voucher failed for user {user.id}")
+        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
+
+
 @app.post("/api/stripe/portal")
 async def stripe_portal(
     user: User = Depends(get_current_user),
@@ -11938,6 +12015,64 @@ def _stripe_handle_checkout_completed(db, session, event):
                     logger.error(f"Stripe Nexus pack failed: user={user.id} pack={pack_key} err={result.get('error')}")
             except Exception as e:
                 logger.exception(f"nexus_pack activation crashed for user {user.id}")
+
+        elif product_kind == "pif_voucher":
+            # Pay It Forward gift voucher — creates a GiftVoucher row in
+            # 'available' state. Mirrors the NOWPayments / WalletConnect
+            # PIF activation logic (see app/main.py search for
+            # "Pay It Forward voucher" — same chain-depth + parent
+            # lookup pattern, same code-generation retry loop). The
+            # only difference is the payment_ref, which here is
+            # stripe_{session_id} so audit trail traces back to the
+            # exact Stripe charge.
+            try:
+                from .database import GiftVoucher
+                # Find the buyer's claimed voucher (if any) to compute
+                # chain depth — matches the wallet + crypto rails
+                received = db.query(GiftVoucher).filter(
+                    GiftVoucher.claimed_by_user_id == user.id
+                ).first()
+                parent_id = received.id if received else None
+                chain_depth = (received.pif_chain_depth + 1) if received else 1
+
+                # Generate unique code (same algorithm + 10-try retry)
+                code = None
+                for _ in range(10):
+                    candidate = _generate_voucher_code()
+                    existing = db.query(GiftVoucher).filter(
+                        GiftVoucher.voucher_code == candidate
+                    ).first()
+                    if not existing:
+                        code = candidate
+                        break
+                if not code:
+                    logger.error(
+                        f"PIF Stripe activation: could not generate unique "
+                        f"voucher code for user {user.id} session {session.get('id')}"
+                    )
+                    return
+
+                voucher = GiftVoucher(
+                    gifter_user_id=user.id,
+                    voucher_code=code,
+                    gift_type="membership",
+                    gift_value=20,
+                    recipient_name=(metadata.get("pif_recipient_name") or "")[:100] or None,
+                    personal_message=(metadata.get("pif_personal_message") or "")[:500] or None,
+                    is_free_voucher=False,
+                    payment_method="stripe",
+                    payment_ref=f"stripe_{session.get('id')}",
+                    status="available",
+                    pif_chain_depth=chain_depth,
+                    parent_voucher_id=parent_id,
+                )
+                db.add(voucher)
+                logger.info(
+                    f"Stripe PIF voucher created: user={user.id} code={code} "
+                    f"chain_depth={chain_depth}"
+                )
+            except Exception as e:
+                logger.exception(f"pif_voucher activation crashed for user {user.id}")
 
         # Other one-time products (custom_domain etc.) ship later — log only.
 
