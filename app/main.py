@@ -23913,6 +23913,117 @@ async def admin_fix_starthere_wallet(
     }
 
 
+@app.get("/admin/nowpayments-mark-abandoned")
+async def admin_nowpayments_mark_abandoned(
+    request: Request,
+    order_id: int = 0,
+    confirm: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Mark a stuck NOWPayments order as 'abandoned' so it stops
+    appearing in stuck-order monitors. Use this when the user is
+    already active via another rail (Stripe, WalletConnect, balance
+    upgrade, gift) and the NOWPayments order was a parallel attempt
+    that never completed.
+
+    Refuses if the user is NOT currently active for the order's
+    product type — defensive guard against marking real stuck
+    customers as abandoned. If a user is inactive AND has a waiting
+    order, that's a stuck customer needing /admin/nowpayments-wrong-
+    asset-recover, not abandonment.
+
+    Requires ?confirm=1 to actually update. Returns preview otherwise.
+
+    Added 26 May 2026 to clean up matcher noise from prior-session
+    resolutions (e.g. jerrygoff sorted via Stripe self-healing on
+    25 May has a stuck NOWPayments order from the same day).
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    if not order_id:
+        return JSONResponse({"error": "order_id required"}, status_code=400)
+    from .database import NowPaymentsOrder as _NPOrder
+    order = db.query(_NPOrder).filter(_NPOrder.id == order_id).first()
+    if not order:
+        return JSONResponse({"error": f"Order {order_id} not found"}, status_code=404)
+    if order.status not in ("waiting", "wrong_asset", "confirming", "pending"):
+        return JSONResponse(
+            {"error": f"Order {order_id} has status='{order.status}', not a "
+                      f"stuck state. Refusing to abandon a terminal-state order."},
+            status_code=400,
+        )
+    target = db.query(User).filter(User.id == order.user_id).first()
+    if not target:
+        return JSONResponse({"error": f"Order owner user {order.user_id} not found"}, status_code=404)
+
+    # Defensive check: only allow abandoning if the user already has
+    # the product. This is the whole reason this endpoint exists —
+    # to clear noise from users who are sorted, not to mass-clear real
+    # stuck customers.
+    user_has_product = False
+    reason = ""
+    if order.product_type == "membership":
+        user_has_product = bool(target.is_active)
+        reason = f"User is_active={target.is_active}, tier={target.membership_tier}"
+    elif order.product_type == "grid":
+        # Check if they have ANY grid (any tier) — relaxed check, because
+        # the typical "stuck grid order" abandonment case is a Tier 1
+        # user who later bought via another rail OR who'll buy soon.
+        # Strict check would block legitimate cleanup of expired attempts.
+        from .database import Grid as _Grid
+        grid_count = db.query(_Grid).filter(_Grid.owner_id == target.id).count()
+        user_has_product = grid_count > 0
+        reason = f"User has {grid_count} grid(s)"
+    elif order.product_type in ("nexus", "credit_matrix"):
+        # Check if they have any credit matrix purchase. Less strict —
+        # abandonment is fine if they're an active member (Free → can't
+        # buy nexus, so if they're active they made it past gating).
+        user_has_product = bool(target.is_active)
+        reason = f"User is_active={target.is_active}"
+    else:
+        user_has_product = bool(target.is_active)
+        reason = f"Unknown product_type={order.product_type}; using is_active as proxy"
+
+    if not user_has_product:
+        return JSONResponse(
+            {"error": f"REFUSED: User {target.username} does not appear to have the "
+                      f"product this order was for. Marking abandoned could miss a "
+                      f"real stuck customer. {reason}. If you're sure, investigate "
+                      f"manually before abandoning."},
+            status_code=400,
+        )
+
+    if not confirm:
+        return {
+            "preview": True,
+            "order_id": order_id,
+            "user_id": target.id,
+            "username": target.username,
+            "product_type": order.product_type,
+            "current_status": order.status,
+            "would_set_status": "abandoned",
+            "user_state_check": reason,
+            "instruction": "Re-call with &confirm=1 to mark abandoned.",
+        }
+
+    order.status = "abandoned"
+    db.commit()
+    logger.info(
+        f"NOWPayments order {order_id} marked abandoned by admin {user.username} — "
+        f"user {target.username} already has product ({reason})"
+    )
+    return {
+        "ok": True,
+        "order_id": order_id,
+        "user_id": target.id,
+        "username": target.username,
+        "new_status": "abandoned",
+        "user_state_check": reason,
+    }
+
+
 @app.get("/admin/nowpayments-orphan-matcher")
 async def admin_nowpayments_orphan_matcher(
     request: Request,
@@ -24236,14 +24347,55 @@ async def admin_nowpayments_wrong_asset_recover(
                 is_upgrade=False,
                 billing="monthly",
             )
+        elif order.product_type == "grid":
+            # Grid / Campaign Tier — extract tier number from product_key
+            # (e.g. "grid_1" → tier 1). Same path the crypto rail uses.
+            # process_tier_purchase handles: 40% direct sponsor, 6.25% × 8
+            # uni-level, completion bonus pool, spillover fill into all
+            # upline grids at this tier, sequential lock check.
+            #
+            # Caveat: process_tier_purchase will REJECT if the buyer
+            # doesn't own the prerequisite tier (sequential lock rule
+            # added 26 May 2026). For most stuck recoveries this is fine
+            # because the customer is buying Tier 1 first, but Tier 2+
+            # recoveries via this path would need their lower tiers
+            # already owned. Surface the rejection clearly.
+            from .grid import process_tier_purchase
+            try:
+                package_tier = int((order.product_key or "").split("_")[1])
+            except (ValueError, IndexError):
+                return JSONResponse(
+                    {"error": f"Could not parse tier number from product_key "
+                              f"'{order.product_key}'. Expected format 'grid_N'."},
+                    status_code=400,
+                )
+            result = process_tier_purchase(db=db, buyer_id=target.id, package_tier=package_tier)
+            if not result.get("success"):
+                return JSONResponse(
+                    {"error": f"Grid activation failed: {result.get('error', 'unknown')}. "
+                              f"Order remains status='wrong_asset' for re-try.",
+                     "result": result},
+                    status_code=500,
+                )
+        elif order.product_type in ("nexus", "credit_matrix"):
+            # Credit Nexus pack
+            from .credit_matrix import purchase_credit_pack
+            pack_key = order.product_key or ""
+            result = purchase_credit_pack(
+                db, target, pack_key,
+                payment_ref=f"np_recovery_{order.np_payment_id}",
+                payment_method="nowpayments",
+            )
+            if not result.get("success"):
+                return JSONResponse(
+                    {"error": f"Nexus pack activation failed: {result.get('error', 'unknown')}",
+                     "result": result},
+                    status_code=500,
+                )
         else:
-            # Other products (grid, email_boost, superscene) — flag for
-            # manual handling since this recovery wasn't designed for them
             return JSONResponse(
                 {"error": f"Product type '{order.product_type}' recovery not "
-                          f"implemented in this endpoint. Handle manually via the "
-                          f"relevant activation engine "
-                          f"(grid.process_tier_purchase / credit_matrix.purchase_credit_pack)."},
+                          f"implemented. Supported: membership, grid, nexus."},
                 status_code=501,
             )
         # Mark order as recovered + write a Payment row for audit
