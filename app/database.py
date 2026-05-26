@@ -4344,6 +4344,36 @@ try:
 except Exception as e:
     print(f"⚠️ Stripe expires_at backfill failed: {e}")
 
+# ─────────────────────────────────────────────────────────────────────
+# Diagnostic — count legacy launch-wizard funnel pages (26 May 2026)
+# ─────────────────────────────────────────────────────────────────────
+# The /api/launch-wizard/generate-funnel endpoint was removed in the
+# funnel-cleanup commit. It wrote rows with template_type='sections' and
+# a JSON body_copy field — a schema the React editor cannot edit but the
+# public /p/{slug} renderer still handles via section-templates.js.
+#
+# Any existing rows of this kind continue to render publicly but cannot
+# be edited. This block logs the count + a sample so we know how many
+# members may have orphaned pages. It does NOT modify anything.
+#
+# Read-only. Safe in boot block. One-line log on every boot.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        _lw_count = conn.execute(text("""
+            SELECT COUNT(*) AS cnt
+            FROM funnel_pages
+            WHERE template_type = 'sections'
+        """)).scalar() or 0
+        _lw_published = conn.execute(text("""
+            SELECT COUNT(*) AS cnt
+            FROM funnel_pages
+            WHERE template_type = 'sections' AND status = 'published'
+        """)).scalar() or 0
+        print(f"ℹ️  Legacy launch-wizard pages: {_lw_count} total, {_lw_published} published")
+except Exception as e:
+    print(f"⚠️ Launch-wizard diagnostic failed: {e}")
+
 
 def migrate_grid_bonus_pools_one_shot():
     """ONE-SHOT data migration (added 26 May 2026).
