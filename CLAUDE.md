@@ -1,5 +1,11 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
+> **⚠️ READ FIRST: `docs/PLATFORM_STATE.md`**
+>
+> That file is the snapshot of CURRENT TRUTH about each part of the platform. It is updated every session and is more recent than anything in this file. If `PLATFORM_STATE.md` contradicts `CLAUDE.md` or `LAUNCH_LOG.md`, **`PLATFORM_STATE.md` wins**.
+>
+> Use this file (`CLAUDE.md`) for operating doctrine and historical session notes. Use `LAUNCH_LOG.md` for "what happened recently." Use `PLATFORM_STATE.md` for "what is true right now."
+
 ## 🏗️ Build Spec — Commercial-Grade Only
 
 **25 May 2026, Steve called this out and it's now project doctrine:**
