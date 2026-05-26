@@ -11,6 +11,7 @@ import CoPilot from './CoPilot';
 import DashboardHeroCarousel from '../components/DashboardHeroCarousel';
 import FoundingPartnerBanner from '../components/FoundingPartnerBanner';
 import FastStartHero from '../components/FastStartHero';
+import PendingCommissionsCard from '../components/PendingCommissionsCard';
 
 // ── Dashboard data cache — survives navigation, clears on full page reload ──
 var _dashCache = { data: null, ts: 0 };
@@ -321,6 +322,13 @@ export default function Dashboard() {
           for the session. Component handles all its own conditional rendering;
           we mount unconditionally and let it decide whether to draw. */}
       <FoundingPartnerBanner user={user} />
+
+      {/* ── Pending commissions (grace-period escrow) ──
+          Shows when a downline has upgraded to a tier the member can't
+          earn at yet. Self-hides when there's nothing pending. Live
+          countdown timers tick every second; data refreshes every 60s.
+          Added 26 May 2026. */}
+      <PendingCommissionsCard />
 
       {/* ── Free member activation banner ──
           Moved up here on 24 May 2026 — was previously below the data cards

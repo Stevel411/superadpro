@@ -431,6 +431,54 @@ class Commission(Base):
     created_at      = Column(DateTime, default=datetime.utcnow, index=True)
     paid_at         = Column(DateTime, nullable=True)
 
+
+class PendingCommission(Base):
+    """Grace-period escrow for commissions an upline would have earned
+    if they'd been qualified at the downline's purchase tier.
+
+    Added 26 May 2026 per Steve's product spec: when Joe (Tier 1) sees
+    Fred (Joe's downline) upgrade to Tier 2, Joe's would-have-been-paid
+    direct + uni-level commissions are held in escrow for 3 days. If Joe
+    upgrades to Tier 2 within that window, the pending commissions are
+    released to his campaign_balance. Otherwise they expire and go to
+    the company.
+
+    Why a separate table from Commission: Commission rows are immutable
+    audit records. Pending rows are transient state with a status
+    transition, expiry timestamp, and trigger event. Conflating them
+    would bloat the commission ledger and complicate the audit tools
+    that already exist (commission_audit, commission_anomalies).
+    """
+    __tablename__ = "pending_commissions"
+    id              = Column(Integer, primary_key=True, index=True)
+    recipient_id    = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    # The downline whose upgrade triggered this escrow. Useful for the
+    # "Fred upgraded — you have 3 days to catch up" notification copy.
+    trigger_id      = Column(Integer, ForeignKey("users.id"), nullable=False)
+    grid_id         = Column(Integer, ForeignKey("grids.id"), nullable=True)
+    advance_number  = Column(Integer, nullable=True)
+    amount_usdt     = Column(Money, nullable=False)
+    # 'direct_sponsor' or 'uni_level' — matches Commission.commission_type
+    # so existing analytics can union the two tables if needed.
+    commission_type = Column(String, nullable=False)
+    # The tier the downline upgraded TO — what the recipient needs to
+    # match or exceed to claim this commission.
+    package_tier    = Column(Integer, nullable=False)
+    # The tier the recipient would need to own to qualify for release.
+    # Currently always equals package_tier (Steve's rule: match the tier),
+    # but stored explicitly so policy changes don't require a migration.
+    required_tier   = Column(Integer, nullable=False)
+    status          = Column(String, default="pending", index=True, nullable=False)  # pending|released|expired
+    created_at      = Column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+    expires_at      = Column(DateTime, nullable=False, index=True)
+    released_at     = Column(DateTime, nullable=True)
+    # T-24h reminder dispatch tracker so the cron doesn't double-send.
+    reminder_sent_at = Column(DateTime, nullable=True)
+    notes           = Column(Text, nullable=True)
+
+    recipient = relationship("User", foreign_keys=[recipient_id])
+    trigger   = relationship("User", foreign_keys=[trigger_id])
+
 class Course(Base):
     """Three-tier course catalogue."""
     __tablename__ = "courses"
@@ -2920,6 +2968,34 @@ try:
         # Achievement metadata for badges that carry per-instance data
         # (e.g. grid_bonus_paid stores the bonus amount + tier). 26 May 2026.
         conn.execute(text("ALTER TABLE achievements ADD COLUMN IF NOT EXISTS metadata_json TEXT"))
+
+        # ── Grace-period escrow (26 May 2026) ──
+        # Holds unqualified-upline commissions for 3 days while the
+        # member has a chance to upgrade and claim them. Per Steve's spec:
+        # "If Fred upgrades to Tier 2 and Joe is still on Tier 1, Joe's
+        # would-be 40% + 6.25% are held; Joe has 3 days to upgrade or
+        # the funds go to the company."
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS pending_commissions (
+                id               SERIAL PRIMARY KEY,
+                recipient_id     INTEGER NOT NULL REFERENCES users(id),
+                trigger_id       INTEGER NOT NULL REFERENCES users(id),
+                grid_id          INTEGER REFERENCES grids(id),
+                advance_number   INTEGER,
+                amount_usdt      NUMERIC(18,6) NOT NULL,
+                commission_type  VARCHAR NOT NULL,
+                package_tier     INTEGER NOT NULL,
+                required_tier    INTEGER NOT NULL,
+                status           VARCHAR DEFAULT 'pending' NOT NULL,
+                created_at       TIMESTAMP DEFAULT NOW() NOT NULL,
+                expires_at       TIMESTAMP NOT NULL,
+                released_at      TIMESTAMP,
+                reminder_sent_at TIMESTAMP,
+                notes            TEXT
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_pending_commissions_recipient_status ON pending_commissions(recipient_id, status)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_pending_commissions_expires_at ON pending_commissions(expires_at) WHERE status = 'pending'"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS campaign_tier INTEGER DEFAULT 1"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP"))

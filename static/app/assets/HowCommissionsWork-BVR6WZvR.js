@@ -1,0 +1,1 @@
+import{ak as t,r as e}from"./vendor-DWD-Km08.js";import"./vendor-charts-sutgcRna.js";function n(){var a=t();return e.useEffect(function(){a("/compensation-plan",{replace:!0})},[]),null}export{n as default};

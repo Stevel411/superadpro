@@ -22685,7 +22685,210 @@ def cron_cleanup_abandoned_orders_get(request: Request, secret: str = "", db: Se
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-# ── Re-engagement notification (Layer 3) ─────────────────────────
+# ═══════════════════════════════════════════════════════════════
+#  HOURLY CRON — GRACE PERIOD ESCROW LIFECYCLE
+#  Two jobs running on the same hourly cron schedule:
+#    1. Expire grace-period commissions past their 3-day window
+#       → mark status='expired', pay the company
+#    2. Send T-24h reminder emails to recipients with a pending
+#       slot expiring within the next 24 hours
+#  Both protected by CRON_SECRET. Idempotent.
+# ═══════════════════════════════════════════════════════════════
+
+def _process_grace_period_cycle(db: Session) -> dict:
+    """Core grace-period housekeeping job. Returns counts for logging."""
+    from .database import PendingCommission, Commission as _Commission
+    from .email_utils import _shell, _card, _btn, send_email, SITE_URL
+
+    now = datetime.utcnow()
+    expired_count = 0
+    total_expired_amount = 0.0
+
+    # ── Expire past-grace pending rows ──
+    expired = db.query(PendingCommission).filter(
+        PendingCommission.status == "pending",
+        PendingCommission.expires_at <= now,
+    ).all()
+    for pc in expired:
+        amt = float(pc.amount_usdt or 0)
+        pc.status = "expired"
+        # Pay the company — write a Commission row to keep audit complete.
+        db.add(_Commission(
+            from_user_id    = pc.trigger_id,
+            to_user_id      = None,  # company
+            amount_usdt     = pc.amount_usdt,
+            commission_type = pc.commission_type,
+            package_tier    = pc.package_tier,
+            status          = "paid",
+            notes           = (f"Grace-period expiry: pending #{pc.id} (recipient {pc.recipient_id}) "
+                               f"did not upgrade to tier {pc.required_tier} within 3 days"),
+            created_at      = now,
+            paid_at         = now,
+        ))
+        expired_count += 1
+        total_expired_amount += amt
+
+    # ── Send T-24h reminder emails ──
+    reminder_window_start = now + timedelta(hours=23)
+    reminder_window_end   = now + timedelta(hours=25)
+    reminder_targets = db.query(PendingCommission).filter(
+        PendingCommission.status == "pending",
+        PendingCommission.reminder_sent_at.is_(None),
+        PendingCommission.expires_at >= reminder_window_start,
+        PendingCommission.expires_at <= reminder_window_end,
+    ).all()
+
+    # Group reminders by recipient so each gets ONE email summarising all
+    # their about-to-expire pending slots, not one per row.
+    by_recipient = {}
+    for pc in reminder_targets:
+        by_recipient.setdefault(pc.recipient_id, []).append(pc)
+
+    reminder_emails_sent = 0
+    for recipient_id, rows in by_recipient.items():
+        recipient = db.query(User).filter(User.id == recipient_id).first()
+        if not recipient or not recipient.email:
+            for pc in rows:
+                pc.reminder_sent_at = now  # mark so we don't keep retrying
+            continue
+        total = sum(float(r.amount_usdt or 0) for r in rows)
+        # Highest required tier among the about-to-expire rows
+        required_tier = max(r.required_tier for r in rows)
+        earliest_expiry = min(r.expires_at for r in rows)
+        deadline_str = earliest_expiry.strftime("%d %b %Y, %H:%M UTC")
+        first_name = recipient.first_name or recipient.username or "there"
+
+        hero = (
+            f'<div style="font-size:48px;margin-bottom:14px">&#9203;</div>'
+            f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#92400e;line-height:1.2">'
+            f'24 hours left, <span style="color:#0ea5e9">{first_name}</span></p>'
+            f'<p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">'
+            f'<strong>${total:.2f}</strong> in pending commissions expires within 24 hours '
+            f'unless you upgrade to Tier {required_tier}.'
+            f'</p>'
+        )
+        amount_card = (
+            f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">'
+            f'<tr><td style="background:linear-gradient(135deg,#fef3c7,#fde68a);'
+            f'border:1px solid #f59e0b;border-radius:14px;padding:28px;text-align:center">'
+            f'<p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#92400e;'
+            f'text-transform:uppercase;letter-spacing:1px">Expires soon</p>'
+            f'<p style="margin:0 0 8px;font-size:36px;font-weight:900;color:#78350f;'
+            f'font-family:\'Sora\',sans-serif">${total:.2f}</p>'
+            f'<p style="margin:0;font-size:13px;color:#92400e;font-weight:600">'
+            f'Deadline: {deadline_str}'
+            f'</p></td></tr></table>'
+        )
+        body = amount_card + _btn(
+            f"{SITE_URL}/campaign-tiers",
+            f"Upgrade to Tier {required_tier} &rarr;",
+        )
+        subject = f"24h left — ${total:.2f} in pending commissions"
+        text = (f"Hi {first_name}, you have 24 hours left to upgrade to Tier {required_tier} "
+                f"and claim ${total:.2f} in pending commissions. Deadline: {deadline_str}. "
+                f"Upgrade: {SITE_URL}/campaign-tiers")
+        try:
+            send_email(recipient.email, subject,
+                       _shell("Grace Reminder",
+                              "linear-gradient(135deg,#fffbeb,#fef3c7)",
+                              hero, body),
+                       text)
+            reminder_emails_sent += 1
+        except Exception as e:
+            logger.warning(f"Grace-period reminder email failed for {recipient_id}: {e}")
+        for pc in rows:
+            pc.reminder_sent_at = now
+
+    db.commit()
+    return {
+        "expired_count":         expired_count,
+        "total_expired_amount":  round(total_expired_amount, 2),
+        "reminder_emails_sent":  reminder_emails_sent,
+    }
+
+
+@app.post("/cron/grace-period-cycle")
+def cron_grace_period_cycle(request: Request, db: Session = Depends(get_db)):
+    """Hourly housekeeping for grace-period escrow. POST + Authorization
+    header. Idempotent."""
+    from fastapi.responses import JSONResponse
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    auth_header = request.headers.get("Authorization", "")
+    provided = auth_header.replace("Bearer ", "").strip()
+    if not cron_secret or provided != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    started = datetime.utcnow()
+    try:
+        counts = _process_grace_period_cycle(db)
+        duration_ms = int((datetime.utcnow() - started).total_seconds() * 1000)
+        logger.info(f"[CRON] grace-period-cycle complete: {counts} duration={duration_ms}ms")
+        return {"success": True, "duration_ms": duration_ms, **counts}
+    except Exception as e:
+        logger.error(f"[CRON] grace-period-cycle FAILED: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@app.get("/cron/grace-period-cycle")
+def cron_grace_period_cycle_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
+    """GET variant for cron-job.org and manual triggers."""
+    from fastapi.responses import JSONResponse
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    started = datetime.utcnow()
+    try:
+        counts = _process_grace_period_cycle(db)
+        duration_ms = int((datetime.utcnow() - started).total_seconds() * 1000)
+        logger.info(f"[CRON] grace-period-cycle (GET) complete: {counts} duration={duration_ms}ms")
+        return {"success": True, "duration_ms": duration_ms, **counts}
+    except Exception as e:
+        logger.error(f"[CRON] grace-period-cycle (GET) FAILED: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+# ─────────────────────────────────────────────
+# API: Pending commissions (dashboard countdown card)
+# ─────────────────────────────────────────────
+
+@app.get("/api/pending-commissions")
+def api_pending_commissions(user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """List the current member's pending commissions for the dashboard
+    countdown card. Includes the trigger member's display name (so the
+    card can say "Fred upgraded — 2d 14h left") and the expiry time."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import PendingCommission
+    now = datetime.utcnow()
+    rows = db.query(PendingCommission).filter(
+        PendingCommission.recipient_id == user.id,
+        PendingCommission.status == "pending",
+        PendingCommission.expires_at > now,
+    ).order_by(PendingCommission.expires_at.asc()).all()
+    out = []
+    for pc in rows:
+        trigger = db.query(User).filter(User.id == pc.trigger_id).first()
+        trigger_name = (trigger.first_name if trigger and trigger.first_name
+                        else trigger.username if trigger else f"user {pc.trigger_id}")
+        out.append({
+            "id": pc.id,
+            "amount": float(pc.amount_usdt or 0),
+            "commission_type": pc.commission_type,
+            "package_tier": pc.package_tier,
+            "required_tier": pc.required_tier,
+            "trigger_id": pc.trigger_id,
+            "trigger_name": trigger_name,
+            "expires_at": pc.expires_at.isoformat() + "Z",
+            "seconds_remaining": max(0, int((pc.expires_at - now).total_seconds())),
+            "created_at": pc.created_at.isoformat() + "Z",
+        })
+    return {"pending": out, "total_amount": round(sum(r["amount"] for r in out), 2)}
+
+
+# ─────────────────────────────────────────────
+# Re-engagement notification (Layer 3)
+# ─────────────────────────────────────────────
 # Sends a single notification to lapsed members nudging them to come
 # back. Translation key handled client-side so each user sees the
 # message in their preferred language.

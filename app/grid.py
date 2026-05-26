@@ -211,13 +211,42 @@ def process_tier_purchase(
     # Spillover: fill one seat in every upline grid at this tier
     grids_filled = _spillover_fill(db, buyer_id, package_tier)
 
+    # ── Grace-period escrow side-effects ───────────────────────────────
+    # 1. Release any pending commissions the buyer themselves now
+    #    qualifies for (i.e. they upgraded to or past the required tier).
+    # 2. Send "your downline upgraded" notifications + emails to anyone
+    #    whose commission slot just got escrowed by this purchase.
+    released = _release_pending_for_user(db, buyer_id, package_tier)
+    _notify_grace_escrow_events(db, buyer, package_tier, price)
+
     db.commit()
+
+    # Best-effort email side-effects AFTER commit so a mailer failure
+    # doesn't roll back the actual commission writes.
+    try:
+        _send_grace_escrow_emails(db, buyer, package_tier, price)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(
+            f"Grace-escrow email side-effects failed for buyer {buyer_id} "
+            f"tier {package_tier}: {e}"
+        )
+    if released:
+        try:
+            _send_release_email(db, buyer, released)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(
+                f"Release-confirmation email failed for buyer {buyer_id}: {e}"
+            )
+
     return {
         "success": True,
         "buyer_id": buyer_id,
         "package_tier": package_tier,
         "price": price,
         "grids_filled": grids_filled,
+        "released_pending": released,
     }
 
 
@@ -372,11 +401,294 @@ def place_member_in_grid(
     }
 
 
+# ── Grace-period escrow constants & helpers ──────────────────────────────
+# Per Steve's product spec (26 May 2026): when an unqualified upline
+# would have earned a commission from a downline's tier upgrade, hold
+# the funds in escrow for 3 days. If the upline upgrades in time, the
+# escrowed commissions are released to them; otherwise they expire and
+# pay to the company.
+GRACE_PERIOD_DAYS = 3
+
+
+def _escrow_pending_commission(db: Session, recipient_id: int, trigger_id: int,
+                                amount: float, commission_type: str,
+                                package_tier: int, notes: str = None) -> None:
+    """Write a PendingCommission row instead of paying the company.
+
+    Notification side-effects (in-app bell + email) are emitted at the
+    end of process_tier_purchase once all escrow rows for this purchase
+    are written, so members get one combined notification per upgrade
+    event rather than one per commission slot.
+    """
+    from .database import PendingCommission
+    expires_at = datetime.utcnow() + timedelta(days=GRACE_PERIOD_DAYS)
+    pc = PendingCommission(
+        recipient_id    = recipient_id,
+        trigger_id      = trigger_id,
+        amount_usdt     = Decimal(str(round(amount, 2))),
+        commission_type = commission_type,
+        package_tier    = package_tier,
+        required_tier   = package_tier,  # match-the-tier rule (Steve, 26 May 2026)
+        status          = "pending",
+        expires_at      = expires_at,
+        notes           = notes,
+    )
+    db.add(pc)
+
+
+def _release_pending_for_user(db: Session, user_id: int, just_acquired_tier: int) -> list:
+    """When `user_id` just acquired `just_acquired_tier`, release any
+    of their pending commissions where required_tier <= just_acquired_tier
+    AND the grace period hasn't expired yet. Pay the amounts to their
+    campaign_balance, write 'paid' Commission rows for audit, and mark
+    the pending rows as 'released'.
+
+    Returns a list of dicts describing what was released — used by the
+    caller to build the release-confirmation notification + email.
+    """
+    from .database import PendingCommission, User as _User, Notification as _Notification
+    pending = db.query(PendingCommission).filter(
+        PendingCommission.recipient_id == user_id,
+        PendingCommission.status == "pending",
+        PendingCommission.required_tier <= just_acquired_tier,
+        PendingCommission.expires_at > datetime.utcnow(),
+    ).all()
+    if not pending:
+        return []
+
+    user = db.query(_User).filter(_User.id == user_id).first()
+    released_summary = []
+    total_released = Decimal("0")
+
+    for pc in pending:
+        amt = Decimal(str(pc.amount_usdt or 0))
+        # Credit the wallet
+        user.campaign_balance = Decimal(str(user.campaign_balance or 0)) + amt
+        user.total_earned     = Decimal(str(user.total_earned or 0))     + amt
+        if pc.commission_type == "direct_sponsor":
+            user.grid_earnings = Decimal(str(user.grid_earnings or 0)) + amt
+        elif pc.commission_type == "uni_level":
+            user.level_earnings = Decimal(str(user.level_earnings or 0)) + amt
+        # Audit log
+        _record_commission(
+            db, pc.trigger_id, user_id, float(amt), pc.commission_type,
+            f"Grace-period release: pending #{pc.id} (trigger user {pc.trigger_id}, "
+            f"tier {pc.package_tier}) claimed by tier {just_acquired_tier} upgrade",
+            pc.package_tier,
+        )
+        # Mark as released
+        pc.status = "released"
+        pc.released_at = datetime.utcnow()
+        total_released += amt
+        released_summary.append({
+            "pending_id": pc.id,
+            "amount": float(amt),
+            "commission_type": pc.commission_type,
+            "trigger_id": pc.trigger_id,
+            "tier": pc.package_tier,
+        })
+
+    # In-app notification for the release
+    if released_summary:
+        n_count = len(released_summary)
+        db.add(_Notification(
+            user_id = user_id,
+            type    = "commission",
+            icon    = "🔓",
+            title   = f"${float(total_released):.2f} released from grace period",
+            message = (f"You just upgraded to Tier {just_acquired_tier} — "
+                       f"{n_count} pending commission{'s' if n_count != 1 else ''} "
+                       f"released to your Campaign Wallet."),
+            link    = "/wallet",
+        ))
+
+    return released_summary
+
+
+def _notify_grace_escrow_events(db: Session, buyer: User, package_tier: int, price: float) -> None:
+    """For every pending commission just created by this buyer's
+    upgrade (i.e. created in the last few seconds), drop an in-app
+    notification on the recipient's bell with a 'you have 3 days' CTA.
+
+    Same-transaction with process_tier_purchase; emails are sent
+    AFTER commit (see _send_grace_escrow_emails).
+    """
+    from .database import PendingCommission, Notification as _Notification
+    cutoff = datetime.utcnow() - timedelta(seconds=10)
+    fresh = db.query(PendingCommission).filter(
+        PendingCommission.trigger_id == buyer.id,
+        PendingCommission.package_tier == package_tier,
+        PendingCommission.status == "pending",
+        PendingCommission.created_at >= cutoff,
+    ).all()
+    if not fresh:
+        return
+
+    # Group by recipient so each member gets ONE notification combining
+    # all their escrowed slots for this event (not one per uni-level rung)
+    by_recipient = {}
+    for pc in fresh:
+        by_recipient.setdefault(pc.recipient_id, []).append(pc)
+
+    buyer_name = (buyer.first_name or buyer.username or f"user {buyer.id}")
+    for recipient_id, rows in by_recipient.items():
+        total = sum(float(r.amount_usdt or 0) for r in rows)
+        # Use the earliest expiry as the deadline shown to the member
+        earliest_expiry = min((r.expires_at for r in rows), default=datetime.utcnow())
+        deadline_str = earliest_expiry.strftime("%d %b %H:%M UTC")
+        db.add(_Notification(
+            user_id = recipient_id,
+            type    = "commission",
+            icon    = "⏳",
+            title   = f"${total:.2f} held — your downline upgraded to Tier {package_tier}",
+            message = (f"{buyer_name} just upgraded to Tier {package_tier}. You have until "
+                       f"{deadline_str} to upgrade and claim ${total:.2f} in commissions, "
+                       f"or it goes to the company."),
+            link    = "/grid-visualiser",
+        ))
+
+
+def _send_grace_escrow_emails(db: Session, buyer: User, package_tier: int, price: float) -> None:
+    """Best-effort: email each recipient of a freshly-escrowed pending
+    commission slot from this purchase, telling them they have 3 days
+    to upgrade and claim. Called AFTER db.commit() so mailer failures
+    don't roll back commissions.
+    """
+    from .database import PendingCommission
+    from .email_utils import _shell, _card, _btn, _check, send_email, SITE_URL
+    cutoff = datetime.utcnow() - timedelta(seconds=30)
+    fresh = db.query(PendingCommission).filter(
+        PendingCommission.trigger_id == buyer.id,
+        PendingCommission.package_tier == package_tier,
+        PendingCommission.status == "pending",
+        PendingCommission.created_at >= cutoff,
+    ).all()
+    if not fresh:
+        return
+
+    by_recipient = {}
+    for pc in fresh:
+        by_recipient.setdefault(pc.recipient_id, []).append(pc)
+
+    buyer_name = (buyer.first_name or buyer.username or f"user {buyer.id}")
+    for recipient_id, rows in by_recipient.items():
+        recipient = db.query(User).filter(User.id == recipient_id).first()
+        if not recipient or not recipient.email:
+            continue
+        total = sum(float(r.amount_usdt or 0) for r in rows)
+        earliest_expiry = min((r.expires_at for r in rows), default=datetime.utcnow())
+        deadline_str = earliest_expiry.strftime("%d %b %Y, %H:%M UTC")
+        first_name = recipient.first_name or recipient.username or "there"
+
+        hero = (
+            f'<div style="font-size:48px;margin-bottom:14px">&#9203;</div>'
+            f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">'
+            f'Your downline upgraded, <span style="color:#0ea5e9">{first_name}</span></p>'
+            f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
+            f'<strong>{buyer_name}</strong> just bought Campaign Tier {package_tier} '
+            f'(${int(price)}). You have <strong>3 days</strong> to upgrade and claim '
+            f'<strong>${total:.2f}</strong> in commissions.'
+            f'</p>'
+        )
+
+        commission_card = (
+            f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">'
+            f'<tr><td style="background:linear-gradient(135deg,#fef3c7,#fde68a);'
+            f'border:1px solid #f59e0b;border-radius:14px;padding:28px;text-align:center">'
+            f'<p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#92400e;'
+            f'text-transform:uppercase;letter-spacing:1px">Held in escrow</p>'
+            f'<p style="margin:0 0 8px;font-size:36px;font-weight:900;color:#78350f;'
+            f'font-family:\'Sora\',sans-serif">${total:.2f}</p>'
+            f'<p style="margin:0;font-size:13px;color:#92400e;font-weight:600">'
+            f'Deadline: {deadline_str}'
+            f'</p></td></tr></table>'
+        )
+
+        body = commission_card + _card(
+            '<p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:1.5px;'
+            'text-transform:uppercase;color:#0284c7">What to do</p>' +
+            _check(
+                f'Buy Campaign Tier {package_tier} within 3 days',
+                'The ${:.2f} pending commission releases to your wallet automatically'.format(total),
+                'You also start earning at this tier going forward',
+            ),
+            bg='#f0f9ff', border='#bae6fd',
+        ) + _btn(f"{SITE_URL}/campaign-tiers", f"Upgrade to Tier {package_tier} &rarr;")
+
+        subject = f"Your downline upgraded — ${total:.2f} held for 3 days"
+        text = (f"Hi {first_name}, {buyer_name} just upgraded to Campaign Tier {package_tier}. "
+                f"${total:.2f} is held in escrow for you for 3 days. Upgrade by {deadline_str} "
+                f"to claim it: {SITE_URL}/campaign-tiers")
+        try:
+            send_email(recipient.email, subject,
+                       _shell("Grace Period", "linear-gradient(135deg,#fffbeb,#fef3c7)", hero, body),
+                       text)
+        except Exception:
+            import logging
+            logging.getLogger(__name__).warning(
+                f"Grace-escrow email send failed for recipient {recipient_id}"
+            )
+
+
+def _send_release_email(db: Session, buyer: User, released: list) -> None:
+    """Confirmation email when a member upgrades in time and unlocks
+    their pending commissions. Sent AFTER commit.
+    """
+    if not released:
+        return
+    from .email_utils import _shell, _card, _btn, send_email, SITE_URL
+    recipient = buyer  # the buyer IS the recipient — they upgraded and unlocked their own pending rows
+    if not recipient.email:
+        return
+    total = sum(r.get("amount", 0) for r in released)
+    n_count = len(released)
+    first_name = recipient.first_name or recipient.username or "there"
+
+    hero = (
+        f'<div style="font-size:48px;margin-bottom:14px">&#128275;</div>'
+        f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#15803d;line-height:1.2">'
+        f'Unlocked, <span style="color:#0ea5e9">{first_name}!</span></p>'
+        f'<p style="margin:0;font-size:15px;color:#166534;line-height:1.7">'
+        f'You upgraded in time. <strong>${total:.2f}</strong> in pending commissions '
+        f'just released to your Campaign Wallet.'
+        f'</p>'
+    )
+    amount_card = (
+        f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">'
+        f'<tr><td style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;'
+        f'border-radius:14px;padding:28px;text-align:center">'
+        f'<p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#15803d;'
+        f'text-transform:uppercase;letter-spacing:1px">Released to wallet</p>'
+        f'<p style="margin:0 0 6px;font-size:36px;font-weight:900;color:#14532d;'
+        f'font-family:\'Sora\',sans-serif">${total:.2f}</p>'
+        f'<p style="margin:0;font-size:13px;color:#15803d;font-weight:600">'
+        f"{n_count} commission{'s' if n_count != 1 else ''} unlocked"
+        f'</p></td></tr></table>'
+    )
+    body = amount_card + _btn(f"{SITE_URL}/wallet", "View my wallet &rarr;", "#22c55e")
+    subject = f"Unlocked: ${total:.2f} released to your wallet"
+    text = (f"Hi {first_name}, you upgraded in time! ${total:.2f} in pending commissions "
+            f"just released. View your wallet: {SITE_URL}/wallet")
+    try:
+        send_email(recipient.email, subject,
+                   _shell("Unlocked", "linear-gradient(135deg,#f0fdf4,#dcfce7)", hero, body),
+                   text)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).warning(
+            f"Release-confirmation email failed for user {recipient.id}"
+        )
+
+
 def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: int):
-    """40% to the buyer's personal sponsor."""
+    """40% to the buyer's personal sponsor — or escrowed for 3 days if
+    the sponsor isn't qualified at this tier (grace period to upgrade).
+    """
     amount = round(float(price) * DIRECT_PCT, 2)
 
     if not buyer.sponsor_id:
+        # No sponsor at all — money goes to company directly, no escrow.
+        # There's nobody who could "catch up" to claim it.
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
                            f"No sponsor — 40% company absorb on ${price}",
                            package_tier)
@@ -392,19 +704,35 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
         _record_commission(db, buyer.id, sponsor.id, amount, "direct_sponsor",
                            f"Direct sponsor 40% — buyer {buyer.id} on ${price} package",
                            package_tier)
+    elif sponsor:
+        # Sponsor unqualified — escrow for 3 days, sponsor can claim by
+        # upgrading to this tier within the grace window.
+        _escrow_pending_commission(
+            db,
+            recipient_id    = sponsor.id,
+            trigger_id      = buyer.id,
+            amount          = amount,
+            commission_type = "direct_sponsor",
+            package_tier    = package_tier,
+            notes           = (f"40% direct on ${price} from buyer {buyer.id} — "
+                               f"escrowed pending upgrade to tier {package_tier}"),
+        )
     else:
-        # Sponsor unqualified — 40% goes to company, does NOT walk up
+        # Sponsor record missing (shouldn't happen, but defensive). No
+        # escrow possible — company absorbs.
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
-                           f"Sponsor unqualified at tier {package_tier} — 40% company absorb",
+                           f"Sponsor {buyer.sponsor_id} not found — 40% company absorb",
                            package_tier)
 
 
 def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: int):
     """6.25% to each of 8 sponsor chain levels above the buyer.
-    Each level checked individually — if unqualified at this tier, company absorbs.
+    Each level checked individually — if unqualified at this tier,
+    the slot is escrowed for 3 days (grace period to upgrade).
 
     25 May 2026: uses UNILEVEL_DEPTH (=8), decoupled from GRID_LEVELS (=6).
     Grid visualises 6 levels; commissions still walk 8 levels of sponsor chain.
+    26 May 2026: unqualified slots escrow instead of company-absorb.
     """
     per_level = round(float(price) * PER_LEVEL_PCT, 2)
     current_id = buyer.id
@@ -412,6 +740,8 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
     for lvl in range(1, UNILEVEL_DEPTH + 1):
         current_user = db.query(User).filter(User.id == current_id).first()
         if not current_user or not current_user.sponsor_id:
+            # Chain ended (top of tree) — remaining levels go to company.
+            # No escrow because there's nobody to claim.
             for remaining in range(lvl, UNILEVEL_DEPTH + 1):
                 _record_commission(db, buyer.id, None, per_level, "uni_level",
                                    f"Uni-level {remaining} — chain ended, company absorb",
@@ -429,10 +759,23 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
             _record_commission(db, buyer.id, upline_id, per_level, "uni_level",
                                f"Uni-level {lvl} — 6.25% of ${price}",
                                package_tier)
+        elif upline:
+            # Unqualified at this tier — escrow for 3 days. Upline can
+            # claim by upgrading to package_tier within the grace window.
+            _escrow_pending_commission(
+                db,
+                recipient_id    = upline.id,
+                trigger_id      = buyer.id,
+                amount          = per_level,
+                commission_type = "uni_level",
+                package_tier    = package_tier,
+                notes           = (f"Uni-level {lvl} (6.25% of ${price}) — "
+                                   f"escrowed pending upgrade to tier {package_tier}"),
+            )
         else:
-            # Unqualified at this tier — company absorbs
+            # Upline record missing (defensive). No escrow possible.
             _record_commission(db, buyer.id, None, per_level, "uni_level",
-                               f"Uni-level {lvl} — unqualified at tier {package_tier}, company absorb",
+                               f"Uni-level {lvl} — upline {upline_id} not found, company absorb",
                                package_tier)
 
         current_id = upline_id
