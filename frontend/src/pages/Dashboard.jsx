@@ -200,18 +200,26 @@ export default function Dashboard() {
   // ── Achievement toasts (26 May 2026) ─────────────────────────────────
   // On dashboard load + every 60s, check for unseen achievement notifs.
   // Each one slides out as a purple gradient toast for the badge.
-  // Marked as seen server-side via /api/achievements/mark-seen so they
-  // don't re-toast across sessions or refreshes.
+  //
+  // NOT marked as seen on appearance — only when the user explicitly
+  // dismisses (clicks ✕) or clicks the View Badges link. This means a
+  // toast that the user navigates away from will reappear on their
+  // next dashboard visit, maximising the chance they actually engage
+  // with the badge (esp. the grid bonus marketing showpiece).
+  //
+  // Dedupe is keyed on notification_id — if the 60s poll returns rows
+  // already on screen, they're skipped not re-added.
   useEffect(function() {
     function checkAchievements() {
       apiGet('/api/achievements/unseen')
         .then(function(r) {
           if (r && Array.isArray(r.unseen) && r.unseen.length > 0) {
-            var idsToMark = [];
+            var anyAdded = false;
             r.unseen.forEach(function(a) {
               setToasts(function(prev) {
                 // Dedupe — don't re-add a toast we're already showing
                 if (prev.find(function(t) { return t.notification_id === a.notification_id; })) return prev;
+                anyAdded = true;
                 return prev.concat([{
                   key: 'ach-' + a.notification_id,
                   is_achievement: true,
@@ -224,14 +232,8 @@ export default function Dashboard() {
                   metadata: a.metadata,
                 }]);
               });
-              idsToMark.push(a.notification_id);
             });
-            // Mark as seen so they don't re-toast on next poll/refresh
-            if (idsToMark.length > 0) {
-              apiPost('/api/achievements/mark-seen',
-                { notification_ids: idsToMark }).catch(function() {});
-            }
-            playChaChing();
+            if (anyAdded) playChaChing();
           }
         }).catch(function() {});
     }
@@ -241,7 +243,18 @@ export default function Dashboard() {
   }, []);
 
   function dismissToast(key) {
-    setToasts(function(prev) { return prev.filter(function(t) { return t.key !== key; }); });
+    // If this is an achievement toast, mark the notification as seen
+    // server-side so it doesn't re-appear on next dashboard visit.
+    // Non-achievement toasts (new-member) have no server-side seen
+    // tracking — they're transient and only dedupe within session.
+    setToasts(function(prev) {
+      var match = prev.find(function(t) { return t.key === key; });
+      if (match && match.is_achievement && match.notification_id) {
+        apiPost('/api/achievements/mark-seen',
+          { notification_ids: [match.notification_id] }).catch(function() {});
+      }
+      return prev.filter(function(t) { return t.key !== key; });
+    });
   }
 
   useEffect(() => {
@@ -1334,7 +1347,14 @@ export default function Dashboard() {
                   {toast.message}
                 </div>
                 {toast.link && (
-                  <a href={toast.link} style={{
+                  <a href={toast.link}
+                     onClick={function() {
+                       // Mark as seen so refocusing the dashboard
+                       // doesn't re-toast the same badge
+                       apiPost('/api/achievements/mark-seen',
+                         { notification_ids: [toast.notification_id] }).catch(function() {});
+                     }}
+                     style={{
                     display: 'inline-block', marginTop: 10,
                     background: 'rgba(255,255,255,.18)',
                     color: '#fff', textDecoration: 'none',

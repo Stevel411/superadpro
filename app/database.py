@@ -4516,6 +4516,22 @@ def migrate_grid_bonus_pools_one_shot():
             conn.commit()
             print(f"📊 Grid bonus pool migration — refreshed icon/metadata on {refreshed} existing badges")
 
+            # ── Pass 5: refresh icon on the COMPANION notification rows ──
+            # Pass 4 updated achievements.icon to ♛ but the matching
+            # notification row (created at award time) still has the old
+            # 💎 icon. The dashboard toast reads from the notification,
+            # not the achievement, so without this pass the toast would
+            # display a diamond instead of the new crown. Idempotent.
+            notif_refresh = conn.execute(text("""
+                UPDATE notifications
+                   SET icon = :new_icon
+                 WHERE type = 'achievement'
+                   AND icon <> :new_icon
+                   AND title LIKE '%Grid Bonus Earned%'
+            """), {"new_icon": "♛"})
+            conn.commit()
+            print(f"📊 Grid bonus pool migration — refreshed icon on {notif_refresh.rowcount} notification rows")
+
     except Exception as e:
         print(f"⚠️ grid bonus pool migration skipped: {e}")
 
