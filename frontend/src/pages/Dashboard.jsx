@@ -1180,12 +1180,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-          7 May 2026: dashboard simplified to action-only (EXPLORE +
-          QUICK ACTIONS, 8 cards total, no analytics strips). The
-          earnings-by-stream and network metrics now live in a
-          Performance Snapshot section at the top of /command-centre
-          where they belong — Dashboard answers "what do you want to
-          do?", Command Centre answers "how am I performing?". */}
 
       {/* ── Explore the platform · 4 doors (1×4 row) ──
           Dashboard is the member's entry point. These 4 doors are the
