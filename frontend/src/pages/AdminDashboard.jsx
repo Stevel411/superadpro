@@ -908,35 +908,149 @@ function ModerationTab() {
 // ══════════════════════════════════════════════════════════
 
 function FinancesTab() {
-  var [data, setData] = useState(null);
-  useEffect(function() { apiGet('/admin/api/finances').then(setData).catch(function(){}); }, []);
-  if (!data) return <Spin/>;
+  // Two data sources stitched together. The headline overview comes from
+  // /admin/api/finance-summary (the canonical compute, also serves the
+  // standalone /admin/finances page) — it has the full lifetime/month/24h
+  // breakdown, MRR, liabilities, and concerns.
+  // The legacy /admin/api/finances feed gives us the Recent Payments list
+  // which is a different shape and not yet rolled into compute_financial_overview.
+  var [overview, setOverview] = useState(null);
+  var [legacy, setLegacy] = useState(null);
+  var [err, setErr] = useState(null);
+  var [loading, setLoading] = useState(true);
+
+  function load() {
+    setLoading(true);
+    Promise.all([
+      apiGet('/admin/api/finance-summary').catch(function(e) { setErr(String(e)); return null; }),
+      apiGet('/admin/api/finances').catch(function() { return null; }),
+    ]).then(function(results) {
+      setOverview(results[0]);
+      setLegacy(results[1]);
+      setLoading(false);
+    });
+  }
+  useEffect(function() { load(); }, []);
+
+  if (loading && !overview) return <Spin/>;
+
+  function m(v) {
+    var n = Number(v || 0);
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  if (err && !overview) {
+    return (
+      <div style={{background:'#fff',border:'1px solid var(--sap-red)',borderRadius:14,padding:20,color:'var(--sap-red)'}}>
+        <div style={{fontWeight:800,marginBottom:8}}>Finance overview failed to load</div>
+        <div style={{fontSize:13,fontFamily:'JetBrains Mono,monospace'}}>{err}</div>
+        <button onClick={load} style={{marginTop:12,padding:'8px 14px',border:'none',borderRadius:6,background:'var(--sap-cobalt-deep)',color:'#fff',cursor:'pointer',fontWeight:700,fontSize:12}}>Retry</button>
+      </div>
+    );
+  }
+
+  var at = overview && overview.all_time;
+  var tm = overview && overview.this_month;
+  var h24 = overview && overview.last_24h;
+  var mrr = overview && overview.mrr;
+  var liab = overview && overview.liabilities;
+  var con = overview && overview.concerns;
+  var hasConcerns = con && (con.unmatched_orphan_transfers.count > 0 ||
+                             con.stuck_withdrawals_over_24h.count > 0 ||
+                             con.old_pending_commissions_over_7d.count > 0);
 
   return (
     <div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:20}}>
-        {[
-          {label:'Total Revenue',value:'$'+(data.total_revenue||0).toLocaleString(),color:'var(--sap-green)'},
-          {label:'Commissions Paid',value:'$'+(data.total_commissions_paid||0).toLocaleString(),color:'var(--sap-amber)'},
-          {label:'Pending Payouts',value:'$'+(data.pending_payouts||0).toLocaleString(),color:'var(--sap-red)'},
-          {label:'Platform Earnings',value:'$'+(data.platform_revenue||0).toLocaleString(),color:'var(--sap-purple)'},
-        ].map(function(s,i) {
-          return (
-            <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20,textAlign:'center'}}>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:s.color}}>{s.value}</div>
-              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-faint)',marginTop:4}}>{s.label}</div>
-            </div>
-          );
-        })}
+      {/* ── Headline strip ───────────────────────────────────── */}
+      <div style={{background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-cobalt-mid,#1e3a8a))',color:'#fff',padding:'20px 24px',borderRadius:14,marginBottom:20,boxShadow:'0 4px 16px rgba(10,20,56,.15)'}}>
+        <div style={{fontSize:12,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',opacity:.7,marginBottom:6}}>Headline</div>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:16,lineHeight:1.5}}>{overview && overview.headline}</div>
       </div>
 
-      {data.recent_payments && data.recent_payments.length > 0 && (
+      {/* ── MRR + active members ─────────────────────────────── */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:14,marginBottom:20}}>
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>Company MRR</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'var(--sap-green)'}}>{m(mrr && mrr.mrr_company_share_usd)}<span style={{fontSize:16,color:'var(--sap-text-faint)',fontWeight:600}}> /mo</span></div>
+          <div style={{fontSize:12,color:'var(--sap-text-faint)',marginTop:4}}>Gross subscriber spend: {m(mrr && mrr.mrr_gross_usd)}/mo</div>
+        </div>
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>Active members</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'var(--sap-cobalt-deep)'}}>{(mrr && (mrr.active_founders + mrr.active_partners + mrr.active_pro)) || 0}</div>
+          <div style={{fontSize:12,color:'var(--sap-text-faint)',marginTop:4}}>
+            {mrr && mrr.active_founders} Founders · {mrr && mrr.active_partners} Partners · {mrr && mrr.active_pro} Pro
+          </div>
+        </div>
+      </div>
+
+      {/* ── Company-retained — three windows ─────────────────── */}
+      <div style={{marginBottom:8,display:'flex',alignItems:'baseline',gap:10}}>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Company-retained revenue</div>
+        <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>net to platform after commissions</div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14,marginBottom:20}}>
+        <RetainedCard label="All time" data={at && at.company_retained} m={m} accent="var(--sap-purple)"/>
+        <RetainedCard label="This month (UTC)" data={tm && tm.company_retained} m={m} accent="var(--sap-cobalt-deep)"/>
+        <RetainedCard label="Last 24 hours" data={h24 && h24.company_retained} m={m} accent="var(--sap-green)"/>
+      </div>
+
+      {/* ── Gross inflows by rail — three windows ───────────── */}
+      <div style={{marginBottom:8,display:'flex',alignItems:'baseline',gap:10}}>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Gross inflows by rail</div>
+        <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>money in, by payment processor</div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14,marginBottom:20}}>
+        <InflowsCard label="All time" data={at && at.inflows} m={m} accent="var(--sap-purple)"/>
+        <InflowsCard label="This month" data={tm && tm.inflows} m={m} accent="var(--sap-cobalt-deep)"/>
+        <InflowsCard label="Last 24 hours" data={h24 && h24.inflows} m={m} accent="var(--sap-green)"/>
+      </div>
+
+      {/* ── Liabilities + payouts ────────────────────────────── */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14,marginBottom:20}}>
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-amber)',marginBottom:6}}>Owed to members</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-cobalt-deep)',marginBottom:10}}>{m(liab && liab.total_usd)}</div>
+          <RowK label="Affiliate balance" value={m(liab && liab.member_balance_owed_usd)}/>
+          <RowK label="Campaign balance" value={m(liab && liab.campaign_balance_owed_usd)}/>
+          <RowK label="Pending commissions" value={m(liab && liab.pending_commissions_usd)}/>
+        </div>
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>Member payouts (all time)</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-cobalt-deep)',marginBottom:10}}>{m(at && at.outflows.member_commissions_paid_usd)}</div>
+          <RowK label="Commissions credited" value={m(at && at.outflows.member_commissions_paid_usd)}/>
+          <RowK label="Withdrawals processed" value={m(at && at.outflows.withdrawals_processed_usd)}/>
+          <RowK label="Withdrawal count" value={String(at && at.outflows.withdrawals_count)}/>
+        </div>
+      </div>
+
+      {/* ── Concerns ──────────────────────────────────────────── */}
+      <div style={{background:hasConcerns?'#fff8e1':'#ecfdf5',border:'1px solid '+(hasConcerns?'#fbe89c':'#a7f3d0'),borderRadius:14,padding:20,marginBottom:20}}>
+        <div style={{display:'flex',alignItems:'baseline',gap:10,marginBottom:10}}>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Concerns</div>
+          <div style={{fontSize:11,fontWeight:700,padding:'2px 8px',borderRadius:99,background:hasConcerns?'var(--sap-amber)':'var(--sap-green)',color:'#fff'}}>{hasConcerns?'attention':'clean'}</div>
+        </div>
+        <RowK label="Unmatched orphan transfers" value={(con&&con.unmatched_orphan_transfers.count)+' · '+m(con&&con.unmatched_orphan_transfers.total_usd)}/>
+        <RowK label="Stuck withdrawals (over 24h)" value={(con&&con.stuck_withdrawals_over_24h.count)+' · '+m(con&&con.stuck_withdrawals_over_24h.total_usd)}/>
+        <RowK label="Old pending commissions (over 7d)" value={(con&&con.old_pending_commissions_over_7d.count)+' · '+m(con&&con.old_pending_commissions_over_7d.total_usd)}/>
+      </div>
+
+      {/* ── Refresh + standalone link ────────────────────────── */}
+      <div style={{display:'flex',gap:10,marginBottom:24,alignItems:'center'}}>
+        <button onClick={load} disabled={loading} style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 14px',border:'1px solid var(--sap-cobalt-deep)',borderRadius:8,background:'#fff',color:'var(--sap-cobalt-deep)',cursor:'pointer',fontWeight:700,fontSize:12}}>
+          <RefreshCw size={12}/> Refresh
+        </button>
+        <a href="/admin/finances" target="_blank" rel="noreferrer" style={{fontSize:12,color:'var(--sap-cobalt-deep)',textDecoration:'none',fontWeight:700}}>Open standalone page ↗</a>
+        <div style={{marginLeft:'auto',fontSize:11,color:'var(--sap-text-faint)'}}>Generated {overview && new Date(overview.generated_at).toLocaleTimeString()}</div>
+      </div>
+
+      {/* ── Legacy Recent Payments list (kept for at-a-glance activity) ── */}
+      {legacy && legacy.recent_payments && legacy.recent_payments.length > 0 && (
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
           <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px'}}>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Recent Payments</div>
           </div>
           <div style={{maxHeight:400,overflowY:'auto'}}>
-            {data.recent_payments.map(function(p,i) {
+            {legacy.recent_payments.map(function(p, i) {
               return (
                 <div key={i} style={{padding:'10px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div>
@@ -950,6 +1064,51 @@ function FinancesTab() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Card helper — company-retained breakdown for one time window
+function RetainedCard(props) {
+  var d = props.data || {};
+  var m = props.m;
+  return (
+    <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20,display:'flex',flexDirection:'column'}}>
+      <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>{props.label}</div>
+      <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:props.accent,marginBottom:12}}>{m(d.total_usd)}</div>
+      <RowK label="Membership share"          value={m(d.membership_company_usd)}/>
+      <RowK label="Stripe company keep"       value={m(d.stripe_company_share_usd)}/>
+      <RowK label="Grid platform 5%"          value={m(d.grid_platform_usd)}/>
+      <RowK label="Creative Studio markup"    value={m(d.creative_studio_markup_usd)}/>
+      <RowK label="Nexus 15%"                 value={m(d.nexus_company_share_usd)}/>
+      <RowK label="Withdrawal fees ($1 ea)"   value={m(d.withdrawal_fees_usd)}/>
+    </div>
+  );
+}
+
+// Card helper — inflows by rail for one time window
+function InflowsCard(props) {
+  var d = props.data || {};
+  var m = props.m;
+  return (
+    <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20,display:'flex',flexDirection:'column'}}>
+      <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>{props.label}</div>
+      <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:props.accent,marginBottom:12}}>{m(d.total_usd)}</div>
+      <RowK label="WalletConnect (BSC)"   value={m(d.walletconnect_usd)}/>
+      <RowK label="NOWPayments"           value={m(d.nowpayments_usd)}/>
+      <RowK label="Stripe (net)"          value={m(d.stripe_net_usd)}/>
+      <RowK label="Creative Studio"       value={m(d.creative_studio_gross_usd)}/>
+      <RowK label="Nexus credit packs"    value={m(d.nexus_credit_packs_usd)}/>
+    </div>
+  );
+}
+
+// Row helper — label / monospace value pair
+function RowK(props) {
+  return (
+    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8',fontSize:13}}>
+      <span style={{color:'var(--sap-text-faint)'}}>{props.label}</span>
+      <span style={{fontFamily:'JetBrains Mono,monospace',fontWeight:500,color:'var(--sap-cobalt-deep)'}}>{props.value}</span>
     </div>
   );
 }
