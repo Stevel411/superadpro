@@ -1010,9 +1010,9 @@ function FinancesTab() {
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-amber)',marginBottom:6}}>Owed to members</div>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-cobalt-deep)',marginBottom:10}}>{m(liab && liab.total_usd)}</div>
-          <RowK label="Affiliate balance" value={m(liab && liab.member_balance_owed_usd)}/>
-          <RowK label="Campaign balance" value={m(liab && liab.campaign_balance_owed_usd)}/>
-          <RowK label="Pending commissions" value={m(liab && liab.pending_commissions_usd)}/>
+          <RowK label="Withdrawable now (affiliate)" value={m(liab && liab.member_balance_owed_usd)}/>
+          <RowK label="Withdrawable w/ active tier + quota (campaign)" value={m(liab && liab.campaign_balance_owed_usd)}/>
+          <RowK label="Escrow — pending commissions" value={m(liab && liab.pending_commissions_usd)}/>
         </div>
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>Member payouts (all time)</div>

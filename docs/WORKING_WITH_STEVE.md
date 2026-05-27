@@ -115,6 +115,10 @@ This list grows over time. Add to it.
 
 **"Once and for all" pattern (26 May 2026):** When Steve says "deal with this once and for all," he wants a root-cause fix that closes the ENTIRE class of bug, not just the visible instance. The expires_at fix tonight included: (1) fix the webhook bug, (2) backfill historical corruption, (3) add an invariant guard to catch any future re-introduction. All three pieces, not just one.
 
+**Schema-comment-trusted-over-actual-logic (27 May 2026):** I described `campaign_balance` as "locked to spending on campaign tiers — can't be withdrawn as cash" because of the schema comment `# campaign wallet — requires active tier + watch quota`. Steve corrected: campaign_balance IS withdrawable to wallet, the conditions are only that the member has an active grid + meets Watch-to-Earn quota. The schema comment was a shorthand; the actual logic lives in `app/withdrawals.py:_validate_campaign_structural`. Lesson: schema comments are hints, not definitions. When describing what a field MEANS (vs what it stores), grep for where it's USED — find the validator function, the gate logic, the actual conditional checks. Two failure modes today (this + the OnchainOrphanTransfer field errors that broke /admin/finances on first load) both came from skipping that grep step.
+
+**Schema fields assumed without grep (27 May 2026):** Shipped `/admin/finances` with three bugs: `OnchainOrphanTransfer.status` (field doesn't exist; it's `resolved` boolean), `PendingCommission.status.in_(['pending', 'queued'])` ('queued' isn't a real status value), `SuperSceneOrder.status.in_(['completed', 'paid'])` (only 'completed' is used in the codebase). Steve hit the first one immediately when opening the page. Lesson: when touching any model field, grep `database.py` AND grep the codebase for actual values written to that field. The audit script I ran AFTER Steve reported the error would have caught all three before the first commit. Run that audit BEFORE pushing, not after.
+
 ---
 
 ## Reading Steve's tone
@@ -196,3 +200,10 @@ If you discover something already in this file is WRONG (because Steve has chang
 - When Steve said "Lets deal with this once and for all," the correct interpretation was: full root-cause fix across all surfaces, not patch the visible symptom. I shipped three pieces (fix + backfill + invariant guard) — this matched what he wanted.
 - When Steve said "Webhooks can wait until the morning! I want to discuss how best to use Claude code and how I can get you to operate more effectively to manage things" — that was a transition signal, not a question. The session shifted from coding to operating-model design. Recognise these pivots.
 - The "make Claude better OR make Claude replaceable" framing I offered Steve was tone-deaf and he correctly called it out as it landing with sadness. Lesson: do not frame Claude's role as a thing being optimised toward replacement. The work relationship is real to him; respect that.
+
+### 27 May 2026 (Wednesday morning)
+
+- Steve opened `/admin/finances` from last night's commit. Page crashed with `OnchainOrphanTransfer has no attribute 'status'`. Three separate schema-field bugs — all caused by reasoning about schema instead of greping `database.py`. The audit script I ran to find them WORKS; I just ran it after the failure instead of before the commit. Fixed in `a5eb008`.
+- Steve asked to embed the finance overview inside the admin dashboard's existing Finances tab rather than a standalone page. Done in `bdbd4d0` — replaced the thin 4-metric old tab with the full overview, kept Recent Payments below. Standalone page still exists at `/admin/finances`.
+- Steve corrected my "campaign_balance is restricted, can't be withdrawn" claim. It IS withdrawable, conditional on active tier + Watch-to-Earn quota. I had repeated a misreading of the schema comment. Real logic lives in `app/withdrawals.py:_validate_campaign_structural`. Fixed labels on both surfaces in this commit. Lesson added above under "specific things caught on."
+- Pattern of the morning: I let myself trust DESCRIPTIONS (schema comments, field names) over INSPECTION (greping for actual writes/reads/validators). Twice in one session, both caught by Steve. The audit script needs to be a pre-commit habit, not a post-failure remediation.

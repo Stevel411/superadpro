@@ -4232,9 +4232,9 @@ def admin_finances_page(request: Request, user: User = Depends(get_current_user)
     <div class="card">
       <div class="card-label">Total owed to members</div>
       <div class="big-num">{m(liab['total_usd'])}</div>
-      <div class="row"><span class="row-label">Affiliate balance</span><span class="row-val">{m(liab['member_balance_owed_usd'])}</span></div>
-      <div class="row"><span class="row-label">Campaign balance</span><span class="row-val">{m(liab['campaign_balance_owed_usd'])}</span></div>
-      <div class="row"><span class="row-label">Pending commissions</span><span class="row-val">{m(liab['pending_commissions_usd'])}</span></div>
+      <div class="row"><span class="row-label">Withdrawable now (affiliate)</span><span class="row-val">{m(liab['member_balance_owed_usd'])}</span></div>
+      <div class="row"><span class="row-label">Withdrawable w/ active tier + quota (campaign)</span><span class="row-val">{m(liab['campaign_balance_owed_usd'])}</span></div>
+      <div class="row"><span class="row-label">Escrow — pending commissions</span><span class="row-val">{m(liab['pending_commissions_usd'])}</span></div>
     </div>
     <div class="card">
       <div class="card-label">Member payouts (all time)</div>
