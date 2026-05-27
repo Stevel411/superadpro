@@ -238,6 +238,7 @@ After the cleanup commit `b064405`, this is the WHOLE system:
 1. **AI funnel generator design** — does AI generate full layout, or fill copy into a chosen template? Input fields? Output guardrails? Post-generation flow?
 2. **My Marketing hub launch timing** — Steve needs to contact members for testimonial quote permission before launch.
 3. **Dashboard "Active Members" count semantics** — should it include or exclude the (now zero) expired-but-flagged-active members?
+4. **🆕 Creative Studio v2 — the asymmetric bet (added 27 May 2026 evening).** Draft brief lives at `docs/creative-studio-v2-brief.md`. Steve's instinct (confirmed via competitor-strategy exercise): build a category-leading creative tool that's affiliate-aware, funnel-integrated, and brand-memory-locked — the one move a smart competitor can't out-execute in 12 months. Brief has good bones, needs answers to 8 foundational questions before becoming real scope (positioning, success metric, build vs partner vs raise, relationship to existing Creative Studio, etc.). Decision point: post-Founder-cap-close, run a dedicated scoping session — not a building session. 5 member conversations between now and Saturday will sharpen the direction.
 
 ---
 
