@@ -12333,6 +12333,15 @@ def _stripe_handle_checkout_completed(db, session, event):
         logger.warning(f"Stripe checkout for unknown user {user_id}")
         return
 
+    # ── Per-user activation lock (added 27 May 2026, late evening) ──────
+    # See full explanation in _stripe_handle_invoice_paid. Both handlers
+    # must acquire the same per-user advisory lock to serialise concurrent
+    # webhook deliveries that hit different Railway replicas. The is_active
+    # check below is correct logic but not atomic without this lock.
+    db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
+               {"k": 6101000000 + user.id})
+    db.refresh(user)
+
     product_kind = metadata.get("product_kind", "membership_signup")
     mode = session.get("mode", "")
     amount_cents = int(session.get("amount_total") or 0)
@@ -12545,6 +12554,29 @@ def _stripe_handle_invoice_paid(db, invoice, event):
     if not user:
         logger.warning(f"Stripe invoice.paid for unknown customer {customer_id}")
         return
+
+    # ── Per-user activation lock (added 27 May 2026, late evening) ──────
+    # Concurrent webhook races: when checkout.session.completed and
+    # invoice.paid arrive within ~350ms of each other (real case caught
+    # for user dprose55420 -> ourfreedom sponsor commission), they hit
+    # different Railway replicas. Both read user.is_active=False at the
+    # same instant, both run the self-healing activation, both pay the
+    # sponsor commission. Result: duplicate $10 commission paid out.
+    #
+    # The is_user_inactive check below is correct logic but not atomic
+    # against concurrent transactions. pg_advisory_xact_lock with a
+    # per-user key serialises both webhook paths — one waits, the other
+    # commits and releases on transaction end, the waiter then reads the
+    # post-commit state (user IS active, skips self-healing).
+    #
+    # Lock key derivation: 6101000000 + user.id keeps it in a dedicated
+    # namespace from other locks (Founder lock is 7423957, rotator lock
+    # is 8742193, BSC scanner is 1885347291). 6.1 billion fits in int64.
+    db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
+               {"k": 6101000000 + user.id})
+    # After acquiring the lock, RE-READ the user to get the post-commit
+    # state from any peer transaction that activated us moments ago.
+    db.refresh(user)
 
     amount_cents = int(invoice.get("amount_paid") or 0)
     if amount_cents <= 0:
@@ -32987,6 +33019,160 @@ def admin_user_commissions(
             "by_status": {k: round(v, 2) for k, v in by_status.items() if v != 0.0},
         },
         "commissions": commissions,
+    })
+
+
+@app.get("/admin/api/audit-double-pays")
+def admin_audit_double_pays(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Find duplicate membership_sponsor commissions paid because of the
+    Stripe webhook race (checkout.session.completed + invoice.paid both
+    firing on different replicas within ~350ms, both passing the
+    is_active check before either commits).
+
+    Detection rule: same (from_user_id, to_user_id, commission_type)
+    with 2+ rows that have BOTH a 'stripe' AND a 'stripe-invoice-recovery'
+    source in their notes, within a small time window. The duplicate
+    is the LATER row.
+
+    Returns the list of duplicate Commission IDs to be reversed. Does
+    NOT mutate anything — read-only audit. Call /admin/api/reverse-commission/{id}
+    to actually reverse one.
+
+    Built 27 May 2026 late evening after Floyd / @ourfreedom's $30
+    balance was traced to a duplicate sponsor commission on Dan
+    (@dprose55420)'s signup. Race-condition root cause documented in
+    the corresponding webhook-handler advisory lock fix in this commit.
+    """
+    _require_admin(user)
+    from .database import Commission
+
+    # Find all membership_sponsor rows for a single signup (same
+    # from_user_id → to_user_id) where BOTH a 'stripe' source and a
+    # 'stripe-invoice-recovery' source exist.
+    candidates = (
+        db.query(Commission)
+        .filter(Commission.commission_type == "membership_sponsor")
+        .filter(Commission.status == "paid")
+        .order_by(Commission.from_user_id, Commission.to_user_id, Commission.created_at)
+        .all()
+    )
+
+    # Group by (from_user_id, to_user_id) and look for stripe + stripe-invoice-recovery pairs
+    from collections import defaultdict
+    groups = defaultdict(list)
+    for c in candidates:
+        groups[(c.from_user_id, c.to_user_id)].append(c)
+
+    duplicates = []
+    for (from_id, to_id), commissions in groups.items():
+        if len(commissions) < 2:
+            continue
+        has_stripe = any("(stripe)" in (c.notes or "") for c in commissions)
+        has_recovery = any("(stripe-invoice-recovery)" in (c.notes or "") for c in commissions)
+        if has_stripe and has_recovery:
+            # The duplicate is the LATER row. Sort by created_at; the
+            # first one is the "real" commission, the rest are duplicates.
+            sorted_c = sorted(commissions, key=lambda c: c.created_at or datetime.utcnow())
+            real = sorted_c[0]
+            for dup in sorted_c[1:]:
+                from_u = db.query(User).filter(User.id == from_id).first()
+                to_u = db.query(User).filter(User.id == to_id).first()
+                duplicates.append({
+                    "duplicate_commission_id": dup.id,
+                    "real_commission_id": real.id,
+                    "from_user_id": from_id,
+                    "from_username": from_u.username if from_u else None,
+                    "to_user_id": to_id,
+                    "to_username": to_u.username if to_u else None,
+                    "amount_usd": float(dup.amount_usdt) if dup.amount_usdt else 0.0,
+                    "real_notes": real.notes,
+                    "duplicate_notes": dup.notes,
+                    "ms_between": int(((dup.created_at - real.created_at).total_seconds() * 1000)) if (dup.created_at and real.created_at) else None,
+                })
+
+    return JSONResponse({
+        "duplicate_count": len(duplicates),
+        "total_amount_to_reverse_usd": round(sum(d["amount_usd"] for d in duplicates), 2),
+        "duplicates": duplicates,
+        "next_step": "Call POST /admin/api/reverse-commission/{duplicate_commission_id} for each one to reverse it",
+    })
+
+
+@app.post("/admin/api/reverse-commission/{commission_id}")
+def admin_reverse_commission(
+    commission_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Reverse a single Commission row: deduct from recipient's balance,
+    mark the commission status as 'reversed', preserve the row for
+    audit. Idempotent — calling twice on the same ID does nothing the
+    second time.
+
+    Built 27 May 2026 to clean up duplicate sponsor commissions from
+    the Stripe webhook race. See /admin/api/audit-double-pays for how
+    to identify candidates.
+
+    Returns details of what was reversed.
+    """
+    _require_admin(user)
+    from .database import Commission
+
+    commission = db.query(Commission).filter(Commission.id == commission_id).first()
+    if not commission:
+        return JSONResponse({"error": f"Commission {commission_id} not found"}, status_code=404)
+
+    if commission.status == "reversed":
+        return JSONResponse({
+            "already_reversed": True,
+            "commission_id": commission_id,
+            "notes": commission.notes,
+        })
+
+    amount = float(commission.amount_usdt) if commission.amount_usdt is not None else 0.0
+    recipient = db.query(User).filter(User.id == commission.to_user_id).first()
+    if not recipient:
+        return JSONResponse({"error": f"Recipient user {commission.to_user_id} not found"}, status_code=404)
+
+    # Deduct from recipient balance
+    old_balance = float(recipient.balance or 0)
+    new_balance = max(0.0, old_balance - amount)  # don't go negative
+    recipient.balance = new_balance
+
+    # Mark commission as reversed (preserve for audit)
+    commission.status = "reversed"
+    original_notes = commission.notes or ""
+    commission.notes = (
+        f"{original_notes}\n\n"
+        f"[REVERSED on {datetime.utcnow().isoformat()}Z by admin "
+        f"({user.username}) — duplicate caused by Stripe webhook race "
+        f"(see commits 7c57426..). Deducted ${amount:.2f} from recipient "
+        f"balance: ${old_balance:.2f} → ${new_balance:.2f}.]"
+    )
+
+    try:
+        cache_invalidate_user(recipient.id)
+    except Exception:
+        pass
+
+    db.commit()
+    logger.warning(
+        f"Commission {commission_id} REVERSED by admin {user.username}: "
+        f"${amount} deducted from {recipient.username} (was ${old_balance}, "
+        f"now ${new_balance})"
+    )
+
+    return JSONResponse({
+        "success": True,
+        "commission_id": commission_id,
+        "recipient_username": recipient.username,
+        "amount_reversed_usd": amount,
+        "balance_before": old_balance,
+        "balance_after": new_balance,
+        "notes": commission.notes,
     })
 
 
