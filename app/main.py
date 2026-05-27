@@ -43322,6 +43322,97 @@ def _build_broadcast_footer(unsubscribe_url: str) -> str:
     )
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Broadcast body normalisation (added 27 May 2026)
+# ─────────────────────────────────────────────────────────────────────
+# The /admin/api/broadcast/send endpoint takes a body_html field. The
+# field accepts HTML, but admins routinely paste plain text with
+# paragraph breaks. HTML collapses whitespace, so newlines disappear and
+# the email renders as a wall of text — exactly what Steve hit on
+# 27 May.
+#
+# Fix: detect whether input is already-HTML (contains block tags) or
+# plain text. If plain, convert:
+#   - Double newlines  → paragraph break (</p><p>)
+#   - Single newlines  → soft break (<br>)
+#   - Bare URLs        → clickable <a> links
+#
+# Wrap the whole thing in a single <div> with sensible typography so
+# the email is readable on every client without needing the admin to
+# remember to style anything.
+
+import re as _re_broadcast
+
+# Block-level HTML tags whose presence signals "this is already HTML".
+# If ANY of these appear in the body, we leave it alone and trust the
+# admin knows what they're doing.
+_HTML_BLOCK_RE = _re_broadcast.compile(
+    r'<\s*(p|div|br|h[1-6]|ul|ol|li|table|tr|td|blockquote|pre|hr|img|section|article)\b',
+    _re_broadcast.IGNORECASE,
+)
+_URL_RE = _re_broadcast.compile(
+    r'(?<!["\'>])(https?://[^\s<>"\']+)',
+)
+
+
+def _normalise_broadcast_body(body: str) -> str:
+    """Convert plain-text body to safe HTML, or pass through if already
+    HTML. Safe to call on any input — won't double-encode existing HTML.
+
+    Returns a string that's always renderable HTML wrapped in a
+    typographic <div>. Caller can append the footer and ship it.
+    """
+    if not body or not body.strip():
+        return ""
+
+    # Detect already-HTML. If the admin wrote <p>, <br>, <div>, etc.,
+    # we trust them and only wrap with the typography div.
+    is_html = bool(_HTML_BLOCK_RE.search(body))
+
+    if is_html:
+        inner = body
+    else:
+        # Plain-text path. Convert in order:
+        #   1. Escape any stray HTML special chars (< > &) so we don't
+        #      accidentally render markup the admin didn't intend.
+        #      We then re-introduce our own controlled tags below.
+        escaped = (body
+                   .replace("&", "&amp;")
+                   .replace("<", "&lt;")
+                   .replace(">", "&gt;"))
+
+        #   2. Linkify bare URLs. Done BEFORE paragraph processing so
+        #      the URL regex doesn't have to deal with our injected tags.
+        escaped = _URL_RE.sub(
+            r'<a href="\1" style="color:#0ea5e9;text-decoration:underline;">\1</a>',
+            escaped,
+        )
+
+        #   3. Split on blank lines into paragraphs. Each paragraph
+        #      gets its own <p>. Within a paragraph, single newlines
+        #      become <br> (preserves intentional line breaks like
+        #      addresses or signatures).
+        paragraphs = [p.strip() for p in _re_broadcast.split(r'\n\s*\n', escaped) if p.strip()]
+        rendered_paragraphs = []
+        for p in paragraphs:
+            with_breaks = p.replace('\n', '<br>')
+            rendered_paragraphs.append(
+                f'<p style="margin:0 0 16px 0;line-height:1.6;">{with_breaks}</p>'
+            )
+        inner = ''.join(rendered_paragraphs)
+
+    # Wrap with a single container that sets readable defaults. Email
+    # clients honour inline styles much more reliably than <style> blocks,
+    # so we keep everything inline.
+    return (
+        f'<div style="font-family:Helvetica Neue,Arial,sans-serif;'
+        f'font-size:15px;color:#1f2937;line-height:1.6;'
+        f'max-width:600px;margin:0 auto;padding:24px;background:#ffffff;">'
+        f'{inner}'
+        f'</div>'
+    )
+
+
 def _resolve_broadcast_recipients(db, audience_filter: dict):
     """Resolve the recipient list from an audience filter dict.
     
@@ -43430,6 +43521,14 @@ async def admin_api_broadcast_send(
         return JSONResponse({"error": "Body is required"}, status_code=400)
     if len(body_html.encode("utf-8")) > BROADCAST_MAX_BODY_BYTES:
         return JSONResponse({"error": "Body too large (max 200KB)"}, status_code=413)
+
+    # Normalise body: if admin pasted plain text, convert to HTML with
+    # proper paragraph breaks. If admin wrote HTML, pass through unchanged.
+    # See _normalise_broadcast_body for the detection rule (looks for
+    # block-level tags). Done ONCE up front before personalisation so the
+    # per-recipient loop just does {{first_name}} substitution on the
+    # already-rendered HTML.
+    body_html = _normalise_broadcast_body(body_html)
 
     # Resolve audience
     if test_only:

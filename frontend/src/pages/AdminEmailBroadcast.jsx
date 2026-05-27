@@ -320,16 +320,16 @@ function ComposeTab() {
           style={input()}
         />
 
-        <Label style={{ marginTop: 20 }}>Body (HTML allowed)</Label>
+        <Label style={{ marginTop: 20 }}>Body</Label>
         <textarea
           value={body}
           onChange={function(e) { setBody(e.target.value); }}
-          placeholder={"Write your message here. Use {{first_name}} or {{username}} for personalisation.\n\nHTML tags work: <strong>bold</strong>, <em>italic</em>, <a href=\"...\">links</a>, <br>"}
+          placeholder={"Write naturally — paragraph breaks render correctly.\n\nUse {{first_name}} or {{username}} for personalisation.\n\nHTML also works if you want it: <strong>bold</strong>, <em>italic</em>, <a href=\"...\">links</a>."}
           rows={14}
           style={Object.assign({}, input(), { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 13, resize: 'vertical' })}
         />
         <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 6 }}>
-          Footer (unsubscribe link) is added automatically. Compliance-safe.
+          Plain text is auto-formatted into paragraphs. URLs become clickable links. Footer (unsubscribe link) is added automatically. Compliance-safe.
         </p>
 
         {showPreview && (
