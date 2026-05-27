@@ -14,6 +14,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import text, func
+from sqlalchemy.exc import IntegrityError
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -9590,10 +9591,20 @@ def _classify_membership_activation(user, target_tier: str, target_billing: str)
     return "fresh"
 
 
-def _activate_membership(db, user, tier, source="crypto", subscription_id=None, is_upgrade=False, billing="monthly"):
+def _activate_membership(db, user, tier, source="crypto", subscription_id=None, is_upgrade=False, billing="monthly", source_event_id=None):
     """
     Shared membership activation — used by BOTH Stripe and Crypto.
     Handles: activation, payment record, sponsor commission, renewal record, welcome email.
+
+    source_event_id (added 27 May 2026 late evening): an upstream event
+    identifier used as an idempotency key on the commission row that
+    gets written for the sponsor. For Stripe: the Stripe event.id
+    (e.g. 'evt_1Q...'). For NOWPayments: the np_payment_id. For wallet
+    rail: the WalletConnect order_id. Database partial unique index
+    enforces (from_user, to_user, commission_type, source_event_id)
+    uniqueness — same event can never produce two commission rows
+    even if application logic races. None = legacy/no-idempotency path
+    (older callsites still work without modification).
 
     AS OF 9 MAY 2026 (engine-level upgrade detection):
 
@@ -9922,6 +9933,14 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
             db.query(User).filter(User.id == sponsor.id).update({
                 User.personal_referrals: _sqlfunc.coalesce(User.personal_referrals, 0) + 1,
             }, synchronize_session=False)
+            # Commission with idempotency key (27 May 2026 late evening):
+            # source_event_id is enforced unique via partial index on
+            # (from_user_id, to_user_id, commission_type, source_event_id).
+            # If the same upstream event somehow drives two activation
+            # paths (race across replicas, retry storm, manual rerun),
+            # the second INSERT raises IntegrityError and is caught
+            # below — counter increment above is also rolled back because
+            # we're inside the activation transaction.
             comm = Commission(
                 to_user_id=sponsor.id, from_user_id=user.id,
                 amount_usdt=sponsor_share, commission_type="membership_sponsor",
@@ -9929,8 +9948,28 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                 notes=f"Partner membership commission from {user.username} ({source})",
                 status="paid",
                 paid_at=datetime.utcnow(),
+                source_event_id=source_event_id,  # idempotency key
             )
             db.add(comm)
+            try:
+                db.flush()
+            except IntegrityError as ie:
+                # The unique partial index caught a duplicate. This is
+                # the layer-2 safety net working. Log loudly, roll back
+                # this savepoint, and skip the rest of the sponsor-side
+                # work — the canonical row from the first activation is
+                # already in place.
+                db.rollback()
+                logger.warning(
+                    f"DUPLICATE COMMISSION BLOCKED by source_event_id "
+                    f"({source_event_id}): from_user={user.id} "
+                    f"to_user={sponsor.id} type=membership_sponsor. "
+                    f"This is the idempotency guarantee working — "
+                    f"another path activated this user first."
+                )
+                # Return early — user IS already active from the prior
+                # activation; we don't need to do anything else.
+                return {"message": f"{tier.title()} membership already active (idempotent re-fire ignored)."}
 
             # If sponsor is a free member whose balance just crossed the
             # membership threshold, send them a one-time offer notification
@@ -12404,14 +12443,23 @@ def _stripe_handle_checkout_completed(db, session, event):
             return
 
         try:
+            # Idempotency key: use the Stripe subscription_id (which is
+            # the SAME for both checkout.session.completed and invoice.paid
+            # events covering this signup) rather than event.id (which
+            # differs per webhook). Both webhook handlers compute the same
+            # source_event_id, so the partial unique index blocks the
+            # second one even if they hit different replicas.
+            sub_id = session.get("subscription")
+            idem_key = f"stripe_sub:{sub_id}" if sub_id else None
             _activate_membership(
                 db=db,
                 user=user,
                 tier=tier_for_activation,
                 source="stripe",
-                subscription_id=session.get("subscription"),
+                subscription_id=sub_id,
                 is_upgrade=False,
                 billing=billing_for_activation,
+                source_event_id=idem_key,
             )
             logger.info(f"Stripe membership activated for user {user.id} tier={tier_for_activation} billing={billing_for_activation}")
         except Exception as e:
@@ -12639,6 +12687,10 @@ def _stripe_handle_invoice_paid(db, invoice, event):
             billing_from_metadata = "monthly"
         billing_for_activation = "annual" if billing_from_metadata in ("annual", "yearly", "year") else "monthly"
         try:
+            # Idempotency key: same scheme as checkout-completed —
+            # subscription_id is the shared identifier between both
+            # webhook events for this signup.
+            idem_key = f"stripe_sub:{subscription_id}" if subscription_id else None
             _activate_membership(
                 db=db,
                 user=user,
@@ -12647,6 +12699,7 @@ def _stripe_handle_invoice_paid(db, invoice, event):
                 subscription_id=subscription_id,
                 is_upgrade=False,
                 billing=billing_for_activation,
+                source_event_id=idem_key,
             )
             logger.warning(
                 f"Self-healed Stripe activation via invoice.paid for user {user.id} "

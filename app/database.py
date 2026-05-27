@@ -425,11 +425,21 @@ class Commission(Base):
     amount_usdt     = Column(Money)
     commission_type = Column(String, index=True)   # 'direct_sponsor','uni_level','platform','membership'
     package_tier    = Column(Integer)
-    status          = Column(String, default="pending", index=True)  # pending/paid/failed
+    status          = Column(String, default="pending", index=True)  # pending/paid/failed/reversed
     tx_hash         = Column(String, nullable=True)
     notes           = Column(Text, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow, index=True)
     paid_at         = Column(DateTime, nullable=True)
+    # Idempotency key (added 27 May 2026 late evening, post-double-pay incident).
+    # When set, a partial unique index on (from_user_id, to_user_id,
+    # commission_type, source_event_id) enforces that the same upstream
+    # event cannot produce two commissions. NULL = no idempotency key
+    # (legacy rows or commission types where idempotency isn't applicable).
+    # For Stripe membership_sponsor: populated with the Stripe event.id
+    # (e.g. 'evt_1Q...'). For NOWPayments: the np_payment_id. For wallet
+    # rail: the WalletConnect order_id. The partial index ensures
+    # NULL values don't conflict (multiple legacy rows allowed).
+    source_event_id = Column(String, nullable=True, index=True)
 
 
 class PendingCommission(Base):
@@ -2476,6 +2486,21 @@ def run_migrations():
         "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS reserved_until TIMESTAMP",
         "CREATE INDEX IF NOT EXISTS idx_gift_vouchers_reserved_for ON gift_vouchers(reserved_for_user_id)",
         "CREATE INDEX IF NOT EXISTS idx_gift_vouchers_reserved_until ON gift_vouchers(reserved_until) WHERE status = 'reserved'",
+        # ── Commission idempotency (added 27 May 2026 late evening) ──
+        # After the double-pay incident (8 duplicate commissions, $80
+        # over-paid, $50 unrecoverable), add an idempotency key field
+        # and a partial unique index. Even if application logic somehow
+        # allows two activation paths to fire for the same upstream
+        # event, the database refuses the second INSERT with an
+        # IntegrityError that's caught and ignored at the callsite.
+        #
+        # Partial index: WHERE source_event_id IS NOT NULL means legacy
+        # rows (and any commission type that doesn't have a natural
+        # upstream event ID) don't conflict with each other. Only NEW
+        # rows that DO carry an event ID are checked.
+        "ALTER TABLE commissions ADD COLUMN IF NOT EXISTS source_event_id VARCHAR",
+        "CREATE INDEX IF NOT EXISTS idx_commissions_source_event_id ON commissions(source_event_id)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS uniq_commission_event ON commissions(from_user_id, to_user_id, commission_type, source_event_id) WHERE source_event_id IS NOT NULL",
     ]
     results = []
     with engine.connect() as conn:
