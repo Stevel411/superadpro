@@ -4374,6 +4374,40 @@ try:
 except Exception as e:
     print(f"⚠️ Launch-wizard diagnostic failed: {e}")
 
+# ─────────────────────────────────────────────────────────────────────
+# Founder offer deadline seed (added 27 May 2026)
+# ─────────────────────────────────────────────────────────────────────
+# Steve set a deadline of Friday 29 May 2026 23:59 UTC for the Founder
+# offer. Stored as ISO timestamp in app_config so it can be updated
+# without code redeploy if Steve wants to extend or shorten.
+#
+# Idempotent: ONLY writes the row if the key doesn't exist. If Steve
+# later changes the deadline via admin tool / direct DB update, this
+# migration won't clobber it.
+#
+# Checked at every public Founder activation site
+# (_activate_membership, balance rail, gift-claim) via
+# _founder_offer_still_open(). Admin tools (admin/founder-promote and
+# admin Stripe-recovery) intentionally bypass this so admin can still
+# manually promote in edge cases.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        existing = conn.execute(text(
+            "SELECT value FROM app_config WHERE key = 'founder_offer_close_at'"
+        )).fetchone()
+        if existing is None:
+            conn.execute(text(
+                "INSERT INTO app_config (key, value, updated_at) "
+                "VALUES ('founder_offer_close_at', '2026-05-29T23:59:00', NOW())"
+            ))
+            conn.commit()
+            print("✅ Founder offer deadline seeded: 2026-05-29 23:59 UTC")
+        else:
+            print(f"ℹ️  Founder offer deadline already set: {existing.value}")
+except Exception as e:
+    print(f"⚠️ Founder offer deadline seed failed: {e}")
+
 
 def migrate_grid_bonus_pools_one_shot():
     """ONE-SHOT data migration (added 26 May 2026).

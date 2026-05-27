@@ -3906,6 +3906,72 @@ def admin_founder_audit(user: User = Depends(get_current_user), db: Session = De
     })
 
 
+@app.get("/admin/api/founder-offer-status")
+def admin_founder_offer_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Returns the current state of the Founder offer: count, deadline,
+    and computed 'is the offer open right now?' verdict. Used by admin
+    UI to show the live state. Mirrors the logic in _founder_offer_still_open
+    so what admin sees matches what the activation rails see."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import AppConfig
+    cfg = db.query(AppConfig).filter(AppConfig.key == "founder_offer_close_at").first()
+    deadline = cfg.value if cfg else None
+    count_row = db.execute(text(
+        "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+    )).fetchone()
+    count = count_row.cnt if count_row else 0
+    is_open = _founder_offer_still_open(db)
+    closed_by = None
+    if not is_open:
+        if count >= 100:
+            closed_by = "count_cap"
+        elif deadline:
+            try:
+                deadline_dt = datetime.fromisoformat(deadline.replace("Z", "+00:00").replace("+00:00", ""))
+                if datetime.utcnow() >= deadline_dt:
+                    closed_by = "deadline"
+            except Exception:
+                pass
+    return JSONResponse({
+        "is_open": is_open,
+        "current_founder_count": count,
+        "spots_remaining": max(0, 100 - count),
+        "deadline_utc": deadline,
+        "closed_by": closed_by,
+        "now_utc": datetime.utcnow().isoformat() + "Z",
+    })
+
+
+@app.post("/admin/api/founder-offer-deadline")
+async def admin_set_founder_deadline(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Update the Founder offer deadline. Pass {"deadline_utc": "2026-05-29T23:59:00"}
+    or {"deadline_utc": null} to remove the deadline entirely (count cap
+    only). Steve can use this to extend / shorten the offer without a
+    redeploy."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    body = await request.json()
+    deadline = body.get("deadline_utc")
+    # Validate the format if a value was given
+    if deadline:
+        try:
+            datetime.fromisoformat(deadline.replace("Z", "+00:00").replace("+00:00", ""))
+        except Exception:
+            return JSONResponse({"error": "invalid_format", "detail": "deadline_utc must be ISO-8601 (e.g. 2026-05-29T23:59:00)"}, status_code=400)
+    from .database import AppConfig
+    cfg = db.query(AppConfig).filter(AppConfig.key == "founder_offer_close_at").first()
+    if cfg:
+        cfg.value = deadline if deadline else None
+        cfg.updated_at = datetime.utcnow()
+    else:
+        cfg = AppConfig(key="founder_offer_close_at", value=deadline)
+        db.add(cfg)
+    db.commit()
+    logger.warning(f"Admin {user.username} set Founder offer deadline to: {deadline}")
+    return JSONResponse({"success": True, "deadline_utc": deadline})
+
+
 @app.get("/admin/api/finance-summary")
 def admin_finance_summary_api(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Canonical 'where do we stand financially?' endpoint.
@@ -8478,7 +8544,9 @@ def api_membership_activate_from_balance(
             "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
         )).fetchone()
         founding_count = founding_count_row.cnt if founding_count_row else 0
-        if founding_count < 100:
+        # Deadline check (added 27 May 2026) — see _founder_offer_still_open.
+        deadline_open = _founder_offer_still_open(db)
+        if founding_count < 100 and deadline_open:
             fee = decimal.Decimal("15.00")
             founding_spot_claimed = founding_count + 1
             logger.info(
@@ -9404,6 +9472,57 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 # (Legacy _stripe_process_supermarket helper removed — SuperMarket/DigitalProduct
 # feature has been retired. Tables remain in the database for historical integrity
 # but no new purchases can be created.)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Founder offer deadline (added 27 May 2026)
+# ─────────────────────────────────────────────────────────────────────
+# The Founder offer (first 100 paying members at $15/mo locked for life)
+# was originally a pure count-based cap. From 27 May 2026 Steve added a
+# time-based deadline alongside the count cap: the offer closes on
+# whichever comes first.
+#
+# Stored in app_config as a string ISO-8601 UTC timestamp under key
+# 'founder_offer_close_at'. NULL/missing key means no time cap (the
+# original count-only behaviour). Set via admin tool or directly in DB.
+#
+# Used by every Founder spot allocation site (5 sites in this module
+# plus 1 in the gift-claim flow) so the deadline is honoured uniformly
+# across all activation rails.
+#
+# Returns True if Founder spots are still claimable, False if the offer
+# has closed (count cap OR time cap). Uses the CURRENT db session so
+# any uncommitted writes (e.g. mid-transaction count updates) are seen.
+def _founder_offer_still_open(db) -> bool:
+    """Check both the count cap (100 spots) AND the deadline (if set).
+    Returns True only if BOTH limits are still in the open state.
+
+    Safe to call inside the pg_advisory_xact_lock-protected critical
+    section — does its own COUNT query that respects the lock.
+    """
+    from .database import AppConfig
+    from datetime import datetime as _dt
+
+    # Deadline check — fail-open if the key is missing or unparseable.
+    # We'd rather sell a Founder spot we shouldn't have than block one
+    # we should sell, in the case of a config-parsing edge case.
+    try:
+        cfg = db.query(AppConfig).filter(AppConfig.key == "founder_offer_close_at").first()
+        if cfg and cfg.value:
+            close_at = _dt.fromisoformat(cfg.value.replace("Z", "+00:00").replace("+00:00", ""))
+            if _dt.utcnow() >= close_at:
+                return False
+    except Exception as e:
+        logger.warning(f"founder_offer_close_at parse failed: {e} — treating as no deadline")
+
+    # Count cap check — still 100.
+    current_count_row = db.execute(text(
+        "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+    )).fetchone()
+    current_count = current_count_row.cnt if current_count_row else 0
+    return current_count < 100
+
+
 def _classify_membership_activation(user, target_tier: str, target_billing: str) -> str:
     """Determine what kind of activation this is from the user's CURRENT state.
 
@@ -9615,7 +9734,13 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                 "FROM users WHERE founding_spot_number IS NOT NULL"
             )).fetchone()
             max_spot_taken = max_spot_row.max_spot if max_spot_row else 0
-            if current_count < FOUNDING_TOTAL and max_spot_taken < FOUNDING_TOTAL:
+            # Deadline check (added 27 May 2026) — Founder offer closes on
+            # whichever comes first: 100 spots OR the timestamp in
+            # AppConfig['founder_offer_close_at']. See _founder_offer_still_open
+            # for parse rules. Called AFTER the advisory lock so we get a
+            # consistent point-in-time snapshot under the same critical section.
+            deadline_open = _founder_offer_still_open(db)
+            if current_count < FOUNDING_TOTAL and max_spot_taken < FOUNDING_TOTAL and deadline_open:
                 next_spot = max_spot_taken + 1
                 user.is_founding_member = True
                 user.founding_spot_number = next_spot
@@ -31938,7 +32063,9 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
                 "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
             )).fetchone()
             current_count = current_count_row.cnt if current_count_row else 0
-            if current_count < FOUNDING_TOTAL:
+            # Deadline check (added 27 May 2026) — see _founder_offer_still_open.
+            deadline_open = _founder_offer_still_open(db)
+            if current_count < FOUNDING_TOTAL and deadline_open:
                 founding_spot_claimed = current_count + 1
                 logger.info(
                     f"PIF gift claim: founding spot #{founding_spot_claimed} "
