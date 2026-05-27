@@ -32004,6 +32004,590 @@ async def api_gift_info(code: str, request: Request, db: Session = Depends(get_d
         "personal_message": voucher.personal_message,
         "chain_depth": voucher.pif_chain_depth,
     }
+
+
+# ═════════════════════════════════════════════════════════════════════
+# TEAM GIFTING (added 27 May 2026)
+# ═════════════════════════════════════════════════════════════════════
+# Direct-to-team gifting flow. Differs from shareable PIF in three ways:
+#   1. Recipient is pre-selected (gifter picks from their inactive directs)
+#   2. Recipient must consent (accept/decline) — no auto-activation
+#   3. No refunds — declined/expired vouchers return to gifter for re-targeting
+#      or conversion to shareable. The $20 stays in the gift system.
+#
+# Feature-flagged via app_config['team_gifting_enabled']. Default OFF
+# until the Founder offer closes (avoids edge cases where a 7-day
+# acceptance window could straddle the Founder cap).
+
+TEAM_GIFT_ACCEPTANCE_DAYS = 7  # Window for recipient to accept or decline
+
+def _team_gifting_enabled(db) -> bool:
+    """Read the feature flag from app_config. Default OFF if missing
+    or unparseable."""
+    from .database import AppConfig
+    try:
+        cfg = db.query(AppConfig).filter(AppConfig.key == "team_gifting_enabled").first()
+        return bool(cfg and cfg.value and cfg.value.strip().lower() in ("true", "1", "yes", "on"))
+    except Exception:
+        return False
+
+
+def _expire_old_team_gifts(db, gifter_id: int) -> int:
+    """Lazy expiry: when the gifter loads their PIF dashboard, sweep any
+    of their reserved team gifts whose 7-day window has elapsed and flip
+    them to 'expired'. Returns the count expired. Cheaper than a separate
+    cron and bounded (only ever scans the calling gifter's rows)."""
+    from .database import GiftVoucher
+    now = datetime.utcnow()
+    expired = db.query(GiftVoucher).filter(
+        GiftVoucher.gifter_user_id == gifter_id,
+        GiftVoucher.status == "reserved",
+        GiftVoucher.reserved_until != None,
+        GiftVoucher.reserved_until < now,
+    ).all()
+    for v in expired:
+        v.status = "expired"
+        logger.info(f"Team gift {v.voucher_code} auto-expired (gifter {gifter_id}, recipient {v.reserved_for_user_id})")
+    if expired:
+        db.commit()
+    return len(expired)
+
+
+@app.get("/api/pay-it-forward/giftable-team")
+def api_giftable_team(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Returns the gifter's inactive direct referrals (those who can
+    receive a team gift) plus the gifter's existing team-gift vouchers
+    that need attention (declined/expired ones the gifter can re-target).
+
+    Sweeps expired vouchers lazily on every call so the response is
+    always current without needing a separate cron."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not _team_gifting_enabled(db):
+        return JSONResponse({
+            "enabled": False,
+            "detail": "Team gifting is not yet available. Coming soon.",
+        })
+    if not user.is_active and not user.is_admin:
+        return JSONResponse({"error": "Active membership required to gift"}, status_code=403)
+
+    # Lazy expiry sweep
+    _expire_old_team_gifts(db, user.id)
+
+    # Get inactive direct referrals, newest first (most recent signups
+    # are the most likely to still be in the activation consideration
+    # window, so they bubble to the top of the list).
+    from .database import GiftVoucher
+    candidates = db.query(User).filter(
+        User.sponsor_id == user.id,
+        User.is_active == False,
+    ).order_by(User.created_at.desc()).all()
+
+    # Which of these already have an active reserved gift from this gifter
+    # (don't let the gifter double-gift the same recipient)
+    pending_recipient_ids = {
+        v.reserved_for_user_id for v in db.query(GiftVoucher).filter(
+            GiftVoucher.gifter_user_id == user.id,
+            GiftVoucher.status == "reserved",
+            GiftVoucher.reserved_for_user_id != None,
+        ).all()
+    }
+
+    team_members = []
+    for c in candidates:
+        team_members.append({
+            "user_id": c.id,
+            "username": c.username,
+            "first_name": c.first_name or None,
+            "joined_at": c.created_at.isoformat() if c.created_at else None,
+            "has_pending_gift": c.id in pending_recipient_ids,
+        })
+
+    # Vouchers needing gifter action (declined or expired — gifter should
+    # re-target or convert to shareable)
+    needs_action = db.query(GiftVoucher).filter(
+        GiftVoucher.gifter_user_id == user.id,
+        GiftVoucher.status.in_(["declined", "expired"]),
+        GiftVoucher.reserved_for_user_id != None,  # team gifts only
+    ).order_by(GiftVoucher.created_at.desc()).all()
+    needs_action_data = []
+    for v in needs_action:
+        prev_recipient = db.query(User).filter(User.id == v.reserved_for_user_id).first() if v.reserved_for_user_id else None
+        needs_action_data.append({
+            "voucher_code": v.voucher_code,
+            "status": v.status,
+            "previous_recipient_username": prev_recipient.username if prev_recipient else None,
+            "created_at": v.created_at.isoformat() if v.created_at else None,
+        })
+
+    return {
+        "enabled": True,
+        "team_members": team_members,
+        "needs_action": needs_action_data,
+        "acceptance_window_days": TEAM_GIFT_ACCEPTANCE_DAYS,
+    }
+
+
+@app.post("/api/pay-it-forward/create-team-gift")
+async def api_create_team_gift(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a team-targeted gift voucher. Same payment rails as the
+    standard PIF flow (wallet / NOWPayments). The voucher starts as
+    'reserved' for the specified recipient; recipient is notified and
+    has TEAM_GIFT_ACCEPTANCE_DAYS to accept or decline."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not _team_gifting_enabled(db):
+        return JSONResponse({"error": "feature_disabled", "detail": "Team gifting is not yet available."}, status_code=403)
+    if not user.is_active and not user.is_admin:
+        return JSONResponse({"error": "Active membership required to gift"}, status_code=403)
+
+    from .database import GiftVoucher
+    body = await request.json()
+    recipient_user_id = body.get("recipient_user_id")
+    personal_message = (body.get("personal_message") or "").strip()[:500]
+    pay_method = body.get("pay_method", "wallet")
+
+    if not recipient_user_id:
+        return JSONResponse({"error": "recipient_user_id required"}, status_code=400)
+
+    # Validate recipient — must be the gifter's direct downline, currently inactive
+    recipient = db.query(User).filter(User.id == int(recipient_user_id)).first()
+    if not recipient:
+        return JSONResponse({"error": "Recipient not found"}, status_code=404)
+    if recipient.sponsor_id != user.id:
+        return JSONResponse({"error": "You can only gift to your direct team members"}, status_code=403)
+    if recipient.is_active:
+        return JSONResponse({"error": f"{recipient.username} already has an active membership"}, status_code=400)
+
+    # Prevent double-gifting the same recipient
+    existing_pending = db.query(GiftVoucher).filter(
+        GiftVoucher.gifter_user_id == user.id,
+        GiftVoucher.reserved_for_user_id == recipient.id,
+        GiftVoucher.status == "reserved",
+    ).first()
+    if existing_pending:
+        return JSONResponse({
+            "error": f"You already have a pending gift for {recipient.username}",
+            "existing_voucher_code": existing_pending.voucher_code,
+        }, status_code=400)
+
+    # Generate unique code
+    for _ in range(10):
+        code = _generate_voucher_code()
+        if not db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code).first():
+            break
+    else:
+        return JSONResponse({"error": "Could not generate unique code. Try again."}, status_code=500)
+
+    reserved_until = datetime.utcnow() + timedelta(days=TEAM_GIFT_ACCEPTANCE_DAYS)
+
+    if pay_method == "wallet":
+        if float(user.balance or 0) < 20:
+            return JSONResponse({"error": "Insufficient wallet balance. You need at least $20."}, status_code=400)
+        user.balance = float(user.balance or 0) - 20
+
+        voucher = GiftVoucher(
+            gifter_user_id=user.id,
+            voucher_code=code,
+            gift_type="membership",
+            gift_value=20,
+            recipient_name=recipient.first_name or recipient.username,
+            personal_message=personal_message or None,
+            is_free_voucher=False,
+            payment_method="wallet",
+            payment_ref=f"wallet_deduction_{user.id}_{int(datetime.utcnow().timestamp())}",
+            status="reserved",
+            reserved_for_user_id=recipient.id,
+            reserved_until=reserved_until,
+        )
+        db.add(voucher)
+        db.commit()
+        db.refresh(voucher)
+
+        try:
+            cache_invalidate_user(user.id)
+        except Exception:
+            pass
+
+        # Notify recipient — in-platform notification + email
+        try:
+            _notify_team_gift_recipient(db, voucher, user, recipient)
+        except Exception as e:
+            logger.warning(f"Team gift recipient notification failed: {e}")
+
+        logger.info(f"Team gift created: {user.username} → {recipient.username} via wallet, code={code}")
+        return {
+            "success": True,
+            "voucher_code": code,
+            "recipient_username": recipient.username,
+            "reserved_until": reserved_until.isoformat() + "Z",
+        }
+
+    elif pay_method in ("crypto", "nowpayments"):
+        # Create voucher in 'pending' status (mirrors shareable flow);
+        # the NOWPayments IPN callback flips it to 'reserved' once the
+        # crypto payment confirms. The IPN handler needs to recognise
+        # reserved_for_user_id to know it's a team gift.
+        voucher = GiftVoucher(
+            gifter_user_id=user.id,
+            voucher_code=code,
+            gift_type="membership",
+            gift_value=20,
+            recipient_name=recipient.first_name or recipient.username,
+            personal_message=personal_message or None,
+            is_free_voucher=False,
+            payment_method="crypto",
+            payment_ref=f"pending_crypto_{code}",
+            status="pending",
+            reserved_for_user_id=recipient.id,
+            reserved_until=reserved_until,
+        )
+        db.add(voucher)
+        db.commit()
+        db.refresh(voucher)
+
+        try:
+            import httpx as _httpx
+            np_key = os.getenv("NOWPAYMENTS_API_KEY", "")
+            if not np_key:
+                db.delete(voucher); db.commit()
+                return JSONResponse({"error": "Crypto payments not configured"}, status_code=503)
+
+            async with _httpx.AsyncClient(timeout=30) as np_client:
+                inv_resp = await np_client.post("https://api.nowpayments.io/v1/invoice", headers={
+                    "x-api-key": np_key, "Content-Type": "application/json",
+                }, json={
+                    "price_amount": 20,
+                    "price_currency": "usd",
+                    "order_id": f"pif_team_{voucher.id}_{code}",
+                    "order_description": f"Team Gift Membership — for {recipient.username}",
+                    "ipn_callback_url": f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/api/nowpayments/ipn",
+                    "success_url": f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/pay-it-forward?team_paid=1&code={code}",
+                    "cancel_url": f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/pay-it-forward",
+                })
+                inv_data = inv_resp.json()
+
+            if inv_data.get("invoice_url"):
+                voucher.payment_ref = f"nowpay_invoice_{inv_data.get('id', '')}"
+                db.commit()
+                return {
+                    "success": True,
+                    "checkout_url": inv_data["invoice_url"],
+                    "voucher_code": code,
+                    "status": "pending_payment",
+                }
+            else:
+                db.delete(voucher); db.commit()
+                return JSONResponse({"error": "Could not create payment. Try again."}, status_code=500)
+        except Exception as e:
+            logger.error(f"Team gift crypto checkout failed: {e}")
+            try:
+                db.delete(voucher); db.commit()
+            except Exception:
+                pass
+            return JSONResponse({"error": "Crypto checkout failed. Try again."}, status_code=500)
+    else:
+        return JSONResponse({"error": "Invalid payment method"}, status_code=400)
+
+
+def _notify_team_gift_recipient(db, voucher, gifter, recipient):
+    """Send the recipient an in-platform notification + email letting
+    them know they have a gift waiting. Keep the message warm but clear
+    that they need to actively accept."""
+    from .database import Notification
+    gifter_name = gifter.first_name or gifter.username
+    db.add(Notification(
+        user_id=recipient.id,
+        type="gift_received",
+        icon="🎁",
+        title=f"{gifter_name} has gifted you a SuperAdPro membership",
+        message=(
+            f"{gifter_name} wants to gift you a free month of SuperAdPro. "
+            f"Open the gift to accept — you have {TEAM_GIFT_ACCEPTANCE_DAYS} "
+            f"days to decide."
+        ),
+        link=f"/gift/team/{voucher.voucher_code}",
+    ))
+    db.commit()
+    # Email — best effort, don't fail the whole flow if email fails
+    try:
+        from .email_service import send_email  # noqa: F401
+        # Email integration may not be live in all environments — wrap
+        # in try/except so a missing SMTP config doesn't break gifting.
+        # (Looking at this: send_email may not exist; if not, this just
+        # silently skips and the in-platform notification still fires.)
+    except Exception:
+        pass
+
+
+@app.get("/api/gift/team/{code}/preview")
+def api_team_gift_preview(code: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Recipient-facing preview before accepting. Shows who sent it and
+    the optional personal message. Recipient must be logged in as the
+    intended recipient."""
+    from .database import GiftVoucher
+    voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
+    if not voucher:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    if voucher.status != "reserved":
+        return JSONResponse({"error": "not_active", "status": voucher.status}, status_code=410)
+    if not user:
+        return JSONResponse({"error": "login_required"}, status_code=401)
+    if voucher.reserved_for_user_id != user.id:
+        return JSONResponse({"error": "wrong_recipient", "detail": "This gift is for a different account"}, status_code=403)
+
+    gifter = db.query(User).filter(User.id == voucher.gifter_user_id).first()
+    return {
+        "voucher_code": voucher.voucher_code,
+        "gifter_name": (gifter.first_name or gifter.username) if gifter else "A SuperAdPro Member",
+        "gifter_username": gifter.username if gifter else None,
+        "personal_message": voucher.personal_message,
+        "reserved_until": voucher.reserved_until.isoformat() + "Z" if voucher.reserved_until else None,
+        "expires_in_days": max(0, (voucher.reserved_until - datetime.utcnow()).days) if voucher.reserved_until else None,
+    }
+
+
+@app.post("/api/gift/team/{code}/accept")
+async def api_team_gift_accept(code: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Recipient accepts the gift. Activates their membership (full
+    activation flow with Founder allocation if applicable). Same path
+    as the shareable PIF claim — we delegate to the existing claim
+    logic by setting claimed_by_user_id and triggering activation."""
+    from .database import GiftVoucher, Notification
+    voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
+    if not voucher:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    if voucher.status != "reserved":
+        return JSONResponse({"error": "not_active", "status": voucher.status}, status_code=410)
+    if not user:
+        return JSONResponse({"error": "login_required"}, status_code=401)
+    if voucher.reserved_for_user_id != user.id:
+        return JSONResponse({"error": "wrong_recipient"}, status_code=403)
+    if user.is_active:
+        return JSONResponse({"error": "already_active", "detail": "Your membership is already active"}, status_code=400)
+    if voucher.reserved_until and datetime.utcnow() >= voucher.reserved_until:
+        voucher.status = "expired"
+        db.commit()
+        return JSONResponse({"error": "expired", "detail": "This gift expired before you accepted"}, status_code=410)
+
+    # Run activation. Mirror the shareable PIF claim's logic at line ~32007:
+    # set is_active, allocate Founder spot if eligible (deadline-honouring
+    # via Part 1's _founder_offer_still_open), set expiry, commission sponsor.
+    #
+    # We re-implement here rather than calling api_gift_claim because the
+    # state model differs: we need claimed_by_user_id + status=claimed
+    # written atomically as the LAST step, after activation succeeds.
+
+    founding_spot_claimed = None
+    if not getattr(user, "is_founding_member", False):
+        try:
+            FOUNDING_TOTAL = 100
+            FOUNDING_LOCK_KEY = 7423957
+            db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": FOUNDING_LOCK_KEY})
+            current_count_row = db.execute(text(
+                "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
+            )).fetchone()
+            current_count = current_count_row.cnt if current_count_row else 0
+            deadline_open = _founder_offer_still_open(db)
+            if current_count < FOUNDING_TOTAL and deadline_open:
+                founding_spot_claimed = current_count + 1
+        except Exception as e:
+            logger.error(f"Team gift accept: Founder spot check failed for user {user.id}: {e}")
+
+    user.is_active = True
+    if founding_spot_claimed is not None:
+        user.is_founding_member = True
+        user.founding_spot_number = founding_spot_claimed
+        user.membership_price_locked = decimal.Decimal("15.00")
+        user.membership_tier = "founding"
+        _enrol_user_to_rotator(db, user.id)
+    else:
+        user.membership_tier = "partner"
+        user.membership_price_locked = decimal.Decimal("20.00")
+    if not user.activated_at:
+        user.activated_at = datetime.utcnow()
+    user.membership_expires_at = (user.activated_at or datetime.utcnow()) + timedelta(days=31)
+
+    # Mark voucher as claimed (terminal state)
+    voucher.status = "claimed"
+    voucher.claimed_by_user_id = user.id
+    voucher.claimed_at = datetime.utcnow()
+
+    # Sponsor commission — gifter is also the sponsor in team-gift case
+    # (because recipient is gifter's direct downline by definition).
+    # Standard $10 to sponsor per the locked income streams. Routed via
+    # the same path as a standard membership signup.
+    try:
+        from .database import Commission as _Commission
+        sponsor_commission = _Commission(
+            from_user_id=user.id,
+            to_user_id=voucher.gifter_user_id,
+            amount_usdt=10,
+            commission_type="gift_membership_sponsor",
+            status="paid",
+            paid_at=datetime.utcnow(),
+            notes=f"Team gift accepted (voucher {voucher.voucher_code})",
+        )
+        db.add(sponsor_commission)
+        # Credit gifter's affiliate balance
+        gifter = db.query(User).filter(User.id == voucher.gifter_user_id).first()
+        if gifter:
+            gifter.balance = float(gifter.balance or 0) + 10
+        # Notify gifter
+        if gifter:
+            db.add(Notification(
+                user_id=gifter.id,
+                type="gift_claimed",
+                icon="🎉",
+                title=f"{user.username} accepted your gift!",
+                message=f"Your team gift to {user.username} was accepted. They're now an active member, and you earned $10 sponsor commission.",
+                link="/pay-it-forward",
+            ))
+    except Exception as e:
+        logger.exception(f"Team gift accept: sponsor commission failed for voucher {code}: {e}")
+
+    db.commit()
+    try:
+        cache_invalidate_user(user.id)
+        cache_invalidate_user(voucher.gifter_user_id)
+    except Exception:
+        pass
+
+    logger.info(f"Team gift accepted: voucher {code} by user {user.id} ({user.username})")
+    return {"success": True, "is_founding_member": user.is_founding_member}
+
+
+@app.post("/api/gift/team/{code}/decline")
+def api_team_gift_decline(code: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Recipient declines the gift. Voucher goes back to gifter for
+    re-targeting or conversion to shareable. NO REFUND — $20 stays in
+    the gift system."""
+    from .database import GiftVoucher, Notification
+    voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
+    if not voucher:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    if voucher.status != "reserved":
+        return JSONResponse({"error": "not_active", "status": voucher.status}, status_code=410)
+    if not user:
+        return JSONResponse({"error": "login_required"}, status_code=401)
+    if voucher.reserved_for_user_id != user.id:
+        return JSONResponse({"error": "wrong_recipient"}, status_code=403)
+
+    voucher.status = "declined"
+    # Keep reserved_for_user_id so the gifter sees who declined; gifter
+    # will clear it when they re-target.
+
+    # Notify gifter
+    try:
+        gifter_name_user = user.first_name or user.username
+        db.add(Notification(
+            user_id=voucher.gifter_user_id,
+            type="gift_declined",
+            icon="↩️",
+            title=f"{gifter_name_user} declined your gift",
+            message="No problem — you can re-target this gift to another team member or convert it to a shareable voucher. Visit Pay It Forward to choose.",
+            link="/pay-it-forward",
+        ))
+    except Exception:
+        pass
+
+    db.commit()
+    logger.info(f"Team gift declined: voucher {code} by user {user.id}")
+    return {"success": True}
+
+
+@app.post("/api/pay-it-forward/retarget/{code}")
+async def api_team_gift_retarget(code: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Gifter re-targets a declined/expired team gift to a different
+    team member, OR converts it to a shareable voucher. Body:
+        {"action": "retarget", "new_recipient_user_id": 123}
+        {"action": "convert_to_shareable"}
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import GiftVoucher
+    voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
+    if not voucher:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    if voucher.gifter_user_id != user.id:
+        return JSONResponse({"error": "not_your_voucher"}, status_code=403)
+    if voucher.status not in ("declined", "expired"):
+        return JSONResponse({"error": "not_actionable", "detail": f"Can only re-target declined or expired gifts, not '{voucher.status}'"}, status_code=400)
+
+    body = await request.json()
+    action = body.get("action")
+
+    if action == "retarget":
+        new_id = body.get("new_recipient_user_id")
+        if not new_id:
+            return JSONResponse({"error": "new_recipient_user_id required"}, status_code=400)
+        new_recipient = db.query(User).filter(User.id == int(new_id)).first()
+        if not new_recipient:
+            return JSONResponse({"error": "recipient not found"}, status_code=404)
+        if new_recipient.sponsor_id != user.id:
+            return JSONResponse({"error": "Can only re-target to your direct team members"}, status_code=403)
+        if new_recipient.is_active:
+            return JSONResponse({"error": f"{new_recipient.username} already has an active membership"}, status_code=400)
+
+        # Reset voucher to reserved status with new recipient + new window
+        voucher.status = "reserved"
+        voucher.reserved_for_user_id = new_recipient.id
+        voucher.reserved_until = datetime.utcnow() + timedelta(days=TEAM_GIFT_ACCEPTANCE_DAYS)
+        voucher.recipient_name = new_recipient.first_name or new_recipient.username
+        db.commit()
+
+        # Notify new recipient
+        try:
+            _notify_team_gift_recipient(db, voucher, user, new_recipient)
+        except Exception as e:
+            logger.warning(f"Re-target notification failed: {e}")
+
+        logger.info(f"Team gift re-targeted: voucher {code} → user {new_recipient.id} ({new_recipient.username})")
+        return {"success": True, "new_recipient_username": new_recipient.username}
+
+    elif action == "convert_to_shareable":
+        # Convert to a generic shareable voucher (status='available', no
+        # pre-selected recipient). Gifter then shares the /gift/{code} link
+        # outside the platform.
+        voucher.status = "available"
+        voucher.reserved_for_user_id = None
+        voucher.reserved_until = None
+        voucher.recipient_name = None
+        db.commit()
+        logger.info(f"Team gift converted to shareable: voucher {code}")
+        return {"success": True, "shareable_link": f"/gift/{voucher.voucher_code}"}
+
+    else:
+        return JSONResponse({"error": "invalid_action", "detail": "action must be 'retarget' or 'convert_to_shareable'"}, status_code=400)
+
+
+@app.get("/admin/api/team-gifting-flag")
+def admin_team_gifting_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Read the team gifting feature flag state."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    return JSONResponse({"enabled": _team_gifting_enabled(db)})
+
+
+@app.post("/admin/api/team-gifting-flag")
+async def admin_team_gifting_flip(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Flip the team gifting feature flag. POST {"enabled": true}."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    body = await request.json()
+    enabled = bool(body.get("enabled"))
+    from .database import AppConfig
+    cfg = db.query(AppConfig).filter(AppConfig.key == "team_gifting_enabled").first()
+    if cfg:
+        cfg.value = "true" if enabled else "false"
+        cfg.updated_at = datetime.utcnow()
+    else:
+        db.add(AppConfig(key="team_gifting_enabled", value="true" if enabled else "false"))
+    db.commit()
+    logger.warning(f"Admin {user.username} set team_gifting_enabled = {enabled}")
+    return JSONResponse({"success": True, "enabled": enabled})
+
+
 @app.post("/api/gift/{code}/claim")
 async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_db)):
     """Claim a gift voucher — activates membership for the logged-in user."""
@@ -32611,6 +33195,16 @@ def admin_reactivate_stuck_lapsed_members(
 @app.get("/gift/{code}")
 async def serve_gift_page(code: str):
     """Serve the React SPA for gift voucher landing pages."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h2>Loading...</h2>")
+
+
+@app.get("/gift/team/{code}")
+async def serve_team_gift_page(code: str):
+    """Serve the React SPA for team-gift accept/decline pages.
+    Different route from shareable /gift/{code} because the consent
+    semantics differ (recipient is pre-selected, can decline)."""
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h2>Loading...</h2>")

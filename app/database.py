@@ -1694,6 +1694,16 @@ class GiftVoucher(Base):
     # Timestamps
     created_at        = Column(DateTime, default=datetime.utcnow)
     expires_at        = Column(DateTime, nullable=True)  # null = never expires
+    # Team-gifting fields (27 May 2026)
+    # When set, this voucher is targeted at a specific user (from gifter's
+    # direct downline) rather than open for share-link claim. status starts
+    # at 'reserved', becomes 'claimed' on accept, 'declined' on decline, or
+    # 'expired' if reserved_until passes without action. On decline/expire
+    # the gifter can re-target (sets a new reserved_for_user_id + extends
+    # reserved_until) OR convert to shareable (clears reserved_for_user_id,
+    # sets status='available' — same as the original PIF flow).
+    reserved_for_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    reserved_until       = Column(DateTime, nullable=True)
 
 
 class CryptoPaymentOrder(Base):
@@ -2453,6 +2463,19 @@ def run_migrations():
         "CREATE INDEX IF NOT EXISTS idx_marketing_visits_member ON marketing_asset_visits(member_username)",
         "CREATE INDEX IF NOT EXISTS idx_marketing_visits_signup ON marketing_asset_visits(signup_attributed_user_id)",
         "CREATE INDEX IF NOT EXISTS idx_marketing_visits_created ON marketing_asset_visits(created_at)",
+        # ── Team gifting (added 27 May 2026) ──
+        # Extends gift_vouchers to support direct-to-team gifts where the
+        # gifter pre-selects a recipient from their direct downline. New
+        # statuses: 'reserved' (awaiting recipient consent), 'declined'
+        # (recipient said no), 'expired' (7-day window elapsed without
+        # response). reserved_for_user_id pre-fills the intended recipient;
+        # reserved_until is the deadline. When status='claimed', the
+        # claimed_by_user_id field is populated as usual (mirroring the
+        # existing shareable-voucher flow).
+        "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS reserved_for_user_id INTEGER REFERENCES users(id)",
+        "ALTER TABLE gift_vouchers ADD COLUMN IF NOT EXISTS reserved_until TIMESTAMP",
+        "CREATE INDEX IF NOT EXISTS idx_gift_vouchers_reserved_for ON gift_vouchers(reserved_for_user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_gift_vouchers_reserved_until ON gift_vouchers(reserved_until) WHERE status = 'reserved'",
     ]
     results = []
     with engine.connect() as conn:
@@ -4407,6 +4430,36 @@ try:
             print(f"ℹ️  Founder offer deadline already set: {existing.value}")
 except Exception as e:
     print(f"⚠️ Founder offer deadline seed failed: {e}")
+
+# ─────────────────────────────────────────────────────────────────────
+# Team gifting feature flag (added 27 May 2026)
+# ─────────────────────────────────────────────────────────────────────
+# Lets members gift a paid membership directly to a free direct
+# referral (instead of generating a shareable link to send out-of-band).
+#
+# Default OFF until the Founder offer closes (2026-05-29 23:59 UTC) —
+# avoids edge cases where a gift accepted mid-acceptance could land on
+# the wrong side of the Founder cap.
+#
+# Idempotent: ONLY writes the row if the key doesn't exist. Steve
+# enables via /admin/api/team-gifting-flag POST.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        existing = conn.execute(text(
+            "SELECT value FROM app_config WHERE key = 'team_gifting_enabled'"
+        )).fetchone()
+        if existing is None:
+            conn.execute(text(
+                "INSERT INTO app_config (key, value, updated_at) "
+                "VALUES ('team_gifting_enabled', 'false', NOW())"
+            ))
+            conn.commit()
+            print("✅ Team gifting flag seeded: false (OFF until Founder offer closes)")
+        else:
+            print(f"ℹ️  Team gifting flag already set: {existing.value}")
+except Exception as e:
+    print(f"⚠️ Team gifting flag seed failed: {e}")
 
 
 def migrate_grid_bonus_pools_one_shot():

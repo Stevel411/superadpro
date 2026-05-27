@@ -79,6 +79,7 @@ const GridActivatePage = React.lazy(() => import('./pages/GridActivatePage'));
 const PayItForward = React.lazy(() => import('./pages/PayItForward'));
 const ShareStory = React.lazy(() => import('./pages/ShareStory'));
 const GiftLanding = React.lazy(() => import('./pages/GiftLanding'));
+const TeamGiftAccept = React.lazy(() => import('./pages/TeamGiftAccept'));
 const TrainingCentre = React.lazy(() => import('./pages/TrainingCentre'));
 const CryptoGuide = React.lazy(() => import('./pages/CryptoGuide'));
 const PlatformTour = React.lazy(() => import('./pages/PlatformTour'));
@@ -343,6 +344,7 @@ function AppRoutes() {
       <Route path="/brand-posters/result/:generationId" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterResult /></RequireTier></ProtectedRoute>} />
       <Route path="/brand-posters/history" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterHistory /></RequireTier></ProtectedRoute>} />
       <Route path="/share-story" element={<ProtectedRoute><ShareStory /></ProtectedRoute>} />
+      <Route path="/gift/team/:code" element={<ProtectedRoute><TeamGiftAccept /></ProtectedRoute>} />
       <Route path="/gift/:code" element={<GiftLanding />} />
       <Route path="/watch" element={<ProtectedRoute><RequireTier tier="basic"><Watch /></RequireTier></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />

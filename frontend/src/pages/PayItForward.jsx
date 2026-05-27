@@ -47,7 +47,63 @@ export default function PayItForward() {
     }).catch(function() { setLoading(false); });
   }
 
-  useEffect(function() { loadData(); }, []);
+  // Team gifting state (added 27 May 2026)
+  var [teamData, setTeamData] = useState(null);
+  var [teamGifting, setTeamGifting] = useState(false);
+  var [teamSelected, setTeamSelected] = useState(null);
+  var [teamMessage, setTeamMessage] = useState('');
+  function loadTeamData() {
+    apiGet('/api/pay-it-forward/giftable-team').then(function(r) {
+      setTeamData(r);
+    }).catch(function() {});
+  }
+
+  useEffect(function() { loadData(); loadTeamData(); }, []);
+
+  function createTeamGift(method) {
+    if (teamGifting || !teamSelected) return;
+    setTeamGifting(true);
+    setError('');
+    setSuccess('');
+    apiPost('/api/pay-it-forward/create-team-gift', {
+      recipient_user_id: teamSelected.user_id,
+      personal_message: teamMessage,
+      pay_method: method || 'wallet',
+    }).then(function(r) {
+      if (r.checkout_url) { window.location.href = r.checkout_url; return; }
+      if (r.success) {
+        setSuccess('Gift sent to ' + r.recipient_username + '. They have 7 days to accept.');
+        setTeamSelected(null);
+        setTeamMessage('');
+        loadTeamData();
+        loadData();
+      } else {
+        setError(r.error || 'Could not create team gift');
+      }
+      setTeamGifting(false);
+    }).catch(function(e) {
+      setError(e.message || 'Could not create team gift');
+      setTeamGifting(false);
+    });
+  }
+
+  function retargetVoucher(code, newRecipientId) {
+    apiPost('/api/pay-it-forward/retarget/' + code, {
+      action: 'retarget', new_recipient_user_id: newRecipientId,
+    }).then(function(r) {
+      if (r.success) { setSuccess('Gift re-targeted to ' + r.new_recipient_username); loadTeamData(); }
+      else { setError(r.error || 'Re-target failed'); }
+    }).catch(function() { setError('Re-target failed'); });
+  }
+
+  function convertToShareable(code) {
+    apiPost('/api/pay-it-forward/retarget/' + code, {
+      action: 'convert_to_shareable',
+    }).then(function(r) {
+      if (r.success) { setSuccess('Converted to shareable link. Visit your Gift Vouchers below.'); loadTeamData(); loadData(); }
+      else { setError(r.error || 'Conversion failed'); }
+    }).catch(function() { setError('Conversion failed'); });
+  }
 
   function createVoucher(method) {
     if (creating) return;
@@ -299,6 +355,101 @@ export default function PayItForward() {
                 </button>
               </div>
             </>
+          )}
+        </div>
+      )}
+
+      {/* ── Team Gifting Card (added 27 May 2026) ──
+          Direct-to-team gifting: pick an inactive direct referral, send
+          them a $20 membership gift. Recipient gets a notification, has
+          7 days to accept/decline. Feature-flagged off until 29 May. */}
+      {teamData && teamData.enabled && (
+        <div style={{ background:'#fff', border:'2px solid var(--sap-cobalt-deep)', borderRadius:14, padding:'24px 24px 20px', marginBottom:24 }}>
+          <div style={{ display:'flex', alignItems:'baseline', gap:10, marginBottom:6 }}>
+            <Gift size={20} color="var(--sap-cobalt-deep)" />
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-cobalt-deep)' }}>Gift a team member directly</div>
+            <span style={{ fontSize:11, fontWeight:700, padding:'3px 8px', borderRadius:99, background:'var(--sap-cobalt-deep)', color:'#fff' }}>NEW</span>
+          </div>
+          <div style={{ fontSize:13, color:'var(--sap-text-faint)', marginBottom:18 }}>
+            Pick a free team member, send them a $20 membership gift. They get notified and have {teamData.acceptance_window_days || 7} days to accept.
+          </div>
+
+          {teamData.team_members && teamData.team_members.length === 0 && (
+            <div style={{ background:'#f8fafc', border:'1px dashed #e2e8f0', borderRadius:10, padding:16, fontSize:13, color:'var(--sap-text-faint)', textAlign:'center' }}>
+              No free team members to gift right now. Recruits who haven't activated yet will appear here.
+            </div>
+          )}
+
+          {teamData.team_members && teamData.team_members.length > 0 && !teamSelected && (
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:10 }}>
+              {teamData.team_members.map(function(m) {
+                return (
+                  <div key={m.user_id} style={{ border:'1px solid #e2e8f0', borderRadius:10, padding:14, display:'flex', flexDirection:'column', gap:6 }}>
+                    <div style={{ fontWeight:800, fontSize:14, color:'var(--sap-cobalt-deep)' }}>{m.first_name || m.username}</div>
+                    <div style={{ fontSize:12, color:'var(--sap-text-faint)' }}>@{m.username}</div>
+                    <div style={{ fontSize:11, color:'var(--sap-text-faint)' }}>Joined {m.joined_at ? new Date(m.joined_at).toLocaleDateString() : '—'}</div>
+                    {m.has_pending_gift ? (
+                      <button disabled style={{ marginTop:6, padding:'8px 12px', borderRadius:8, border:'1px solid #e2e8f0', background:'#f8fafc', color:'var(--sap-text-faint)', fontSize:12, fontWeight:700, cursor:'not-allowed' }}>
+                        Gift pending
+                      </button>
+                    ) : (
+                      <button onClick={function() { setTeamSelected(m); setError(''); setSuccess(''); }} style={{ marginTop:6, padding:'8px 12px', borderRadius:8, border:'none', background:'var(--sap-cobalt-deep)', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer' }}>
+                        Gift ($20)
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {teamSelected && (
+            <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:12, padding:18 }}>
+              <div style={{ fontSize:13, color:'var(--sap-text-faint)', marginBottom:6 }}>Gifting to</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-cobalt-deep)', marginBottom:14 }}>
+                {teamSelected.first_name || teamSelected.username} <span style={{ color:'var(--sap-text-faint)', fontWeight:600, fontSize:14 }}>(@{teamSelected.username})</span>
+              </div>
+              <textarea value={teamMessage} onChange={function(e) { setTeamMessage(e.target.value); }} maxLength={500} placeholder="Optional personal message — let them know why you're gifting this…"
+                style={{ width:'100%', minHeight:80, padding:12, borderRadius:8, border:'1px solid #e2e8f0', fontFamily:'inherit', fontSize:13, resize:'vertical', marginBottom:14, boxSizing:'border-box' }} />
+              <div style={{ display:'flex', flexWrap:'wrap', gap:10 }}>
+                <button onClick={function() { createTeamGift('wallet'); }} disabled={teamGifting} style={{ flex:1, padding:'12px 16px', border:'none', borderRadius:10, background:'var(--sap-green)', color:'#fff', fontWeight:800, fontSize:13, cursor:teamGifting?'wait':'pointer', minWidth:140 }}>
+                  Pay with wallet ($20)
+                </button>
+                <button onClick={function() { createTeamGift('crypto'); }} disabled={teamGifting} style={{ flex:1, padding:'12px 16px', border:'1px solid var(--sap-cobalt-deep)', borderRadius:10, background:'#fff', color:'var(--sap-cobalt-deep)', fontWeight:800, fontSize:13, cursor:teamGifting?'wait':'pointer', minWidth:140 }}>
+                  Pay with crypto
+                </button>
+                <button onClick={function() { setTeamSelected(null); setTeamMessage(''); }} style={{ padding:'12px 16px', border:'none', borderRadius:10, background:'transparent', color:'var(--sap-text-faint)', fontWeight:700, fontSize:13, cursor:'pointer' }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Re-target needed — vouchers that were declined or expired */}
+          {teamData.needs_action && teamData.needs_action.length > 0 && (
+            <div style={{ marginTop:18, padding:16, background:'#fff8e1', border:'1px solid #fbe89c', borderRadius:10 }}>
+              <div style={{ fontWeight:800, fontSize:13, color:'var(--sap-cobalt-deep)', marginBottom:10 }}>
+                Vouchers waiting for you to choose what's next
+              </div>
+              {teamData.needs_action.map(function(v) {
+                return (
+                  <div key={v.voucher_code} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(0,0,0,0.04)', gap:10, flexWrap:'wrap' }}>
+                    <div style={{ flex:1, minWidth:200 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-cobalt-deep)' }}>
+                        {v.previous_recipient_username || '—'} — {v.status === 'declined' ? 'declined' : 'expired'}
+                      </div>
+                      <div style={{ fontSize:11, color:'var(--sap-text-faint)' }}>Voucher {v.voucher_code}</div>
+                    </div>
+                    <button onClick={function() { convertToShareable(v.voucher_code); }} style={{ padding:'6px 10px', border:'1px solid var(--sap-cobalt-deep)', borderRadius:6, background:'#fff', color:'var(--sap-cobalt-deep)', fontSize:11, fontWeight:700, cursor:'pointer' }}>
+                      Convert to shareable link
+                    </button>
+                  </div>
+                );
+              })}
+              <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginTop:8 }}>
+                Or pick a different team member above and re-target the voucher to them.
+              </div>
+            </div>
           )}
         </div>
       )}
