@@ -188,6 +188,7 @@ Things Claude can't move on without your call:
 
 | Claim type | How to verify |
 |---|---|
+| **Financial state ("how much has the business earned?")** | Visit `/admin/finances` (browser, brand-styled HTML) or curl `/admin/api/finance-summary` (JSON). Both backed by `app/finance.py:compute_financial_overview`. Shows inflows by rail, company-retained breakdown, MRR, member liabilities, and concerns across all-time / this-month / last-24h windows. |
 | Commission rates / payouts | Read `docs/commission-spec.md`. If spec contradicts code, raise with Steve. |
 | Live DB state | Use SuperAdPro Monitoring MCP — `member_composition`, `lookup_user`, `commission_audit`, `platform_pulse`. Cached 60s. |
 | Specific user state | `lookup_user(identifier=...)` |

@@ -3906,6 +3906,372 @@ def admin_founder_audit(user: User = Depends(get_current_user), db: Session = De
     })
 
 
+@app.get("/admin/api/finance-summary")
+def admin_finance_summary_api(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Canonical 'where do we stand financially?' endpoint.
+
+    Returns the full breakdown across three time windows (all-time, this
+    month UTC, last 24h) plus snapshot data (MRR, member liabilities,
+    concerns). Backed by app/finance.compute_financial_overview — the
+    SAME function the /admin/finances HTML page uses, so the numbers
+    cannot drift.
+
+    Admin-only. Steve uses this directly via curl or via the HTML page.
+    Future Claudes can hit it programmatically to answer 'how much has
+    the business earned?' without re-deriving the math.
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
+    try:
+        from app.finance import compute_financial_overview
+        return JSONResponse(compute_financial_overview(db))
+    except Exception as e:
+        logger.exception("finance summary failed")
+        return JSONResponse({"error": "compute_failed", "detail": str(e)[:300]}, status_code=500)
+
+
+@app.get("/admin/finances", response_class=HTMLResponse)
+def admin_finances_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Human-readable finance dashboard for Steve.
+
+    Renders the SAME data as /admin/api/finance-summary in a layout
+    optimised for at-a-glance reading. Brand-aligned (cobalt + cyan,
+    Sora + DM Sans, white cards on light cobalt background).
+
+    Sections:
+      • Headline (single sentence — what every operator wants first)
+      • MRR forward view + active member counts
+      • Lifetime / this month / last 24h company-retained breakdown
+      • Inflows by rail (which payment processors actually moved money)
+      • Member liabilities (what we owe)
+      • Concerns (money in limbo)
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return HTMLResponse("<h1>Admin access required</h1>", status_code=403)
+
+    try:
+        from app.finance import compute_financial_overview
+        data = compute_financial_overview(db)
+    except Exception as e:
+        logger.exception("finance summary HTML failed")
+        return HTMLResponse(f"<h1>Finance compute failed</h1><pre>{str(e)[:1000]}</pre>", status_code=500)
+
+    # Format helpers for the template (kept inline so this file doesn't
+    # need a new template — single-purpose admin page).
+    def m(usd):
+        return f"${usd:,.2f}"
+
+    at = data["all_time"]
+    tm = data["this_month"]
+    h24 = data["last_24h"]
+    mrr = data["mrr"]
+    liab = data["liabilities"]
+    con = data["concerns"]
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Finance — SuperAdPro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {{
+    --cobalt-deep: #0a1438;
+    --cobalt-mid: #1e3a8a;
+    --cyan: #06b6d4;
+    --cyan-light: #22d3ee;
+    --cyan-bright: #0ea5e9;
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --ink: #0a1438;
+    --ink-mute: #4b5876;
+    --border: #e2e8f0;
+    --good: #10b981;
+    --warn: #f59e0b;
+    --bad: #ef4444;
+  }}
+  * {{ box-sizing: border-box; }}
+  body {{
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 24px 16px 80px;
+    line-height: 1.5;
+  }}
+  .wrap {{ max-width: 1100px; margin: 0 auto; }}
+  h1, h2, h3 {{
+    font-family: 'Sora', system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--cobalt-deep);
+    letter-spacing: -0.01em;
+  }}
+  h1 {{ font-size: 28px; margin: 0 0 4px; }}
+  h2 {{ font-size: 18px; margin: 0 0 12px; }}
+  .sub {{ color: var(--ink-mute); font-size: 14px; margin-bottom: 28px; }}
+  .headline {{
+    background: linear-gradient(135deg, var(--cobalt-deep), var(--cobalt-mid));
+    color: white;
+    padding: 24px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    box-shadow: 0 6px 24px rgba(10,20,56,0.15);
+  }}
+  .grid {{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }}
+  .card {{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }}
+  .card-label {{
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    color: var(--ink-mute);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }}
+  .big-num {{
+    font-family: 'Sora', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cobalt-deep);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }}
+  .big-num .smaller {{ font-size: 18px; color: var(--ink-mute); }}
+  .row {{
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }}
+  .row:last-child {{ border-bottom: none; }}
+  .row-label {{ color: var(--ink-mute); }}
+  .row-val {{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    color: var(--cobalt-deep);
+  }}
+  .section-header {{
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 32px 0 12px;
+  }}
+  .section-header h2 {{ margin: 0; }}
+  .pill {{
+    background: var(--cyan);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+  }}
+  .pill.warn {{ background: var(--warn); }}
+  .pill.bad {{ background: var(--bad); }}
+  .pill.good {{ background: var(--good); }}
+  .three-col {{ grid-template-columns: repeat(3, 1fr); }}
+  .concerns {{
+    background: #fff8e1;
+    border: 1px solid #fbe89c;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }}
+  .concerns.clean {{
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+  }}
+  details {{ margin-top: 12px; }}
+  summary {{
+    cursor: pointer;
+    color: var(--cyan-bright);
+    font-size: 13px;
+    font-weight: 500;
+  }}
+  pre {{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--cobalt-deep);
+    color: #cfe3ff;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-top: 12px;
+  }}
+  .footer {{
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 12px;
+    margin-top: 40px;
+  }}
+  .footer a {{ color: var(--cyan-bright); text-decoration: none; }}
+  @media (max-width: 640px) {{
+    .three-col {{ grid-template-columns: 1fr; }}
+  }}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Platform finances</h1>
+  <div class="sub">Generated {data['generated_at']} · refresh for latest</div>
+
+  <div class="headline">{data['headline']}</div>
+
+  <div class="section-header">
+    <h2>Monthly recurring revenue</h2>
+    <span class="pill good">forward view</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">Company MRR</div>
+      <div class="big-num">{m(mrr['mrr_company_share_usd'])}<span class="smaller">/mo</span></div>
+      <div class="row"><span class="row-label">Gross member spend</span><span class="row-val">{m(mrr['mrr_gross_usd'])}/mo</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Active members</div>
+      <div class="big-num">{mrr['active_founders'] + mrr['active_partners'] + mrr['active_pro']}</div>
+      <div class="row"><span class="row-label">Founders ($15)</span><span class="row-val">{mrr['active_founders']}</span></div>
+      <div class="row"><span class="row-label">Partners ($20)</span><span class="row-val">{mrr['active_partners']}</span></div>
+      <div class="row"><span class="row-label">Pro ($99)</span><span class="row-val">{mrr['active_pro']}</span></div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Company-retained revenue</h2>
+    <span class="pill">net to platform</span>
+  </div>
+  <div class="grid three-col">
+    <div class="card">
+      <div class="card-label">All time</div>
+      <div class="big-num">{m(at['company_retained']['total_usd'])}</div>
+      <div class="row"><span class="row-label">Membership share</span><span class="row-val">{m(at['company_retained']['membership_company_usd'])}</span></div>
+      <div class="row"><span class="row-label">Stripe company keep</span><span class="row-val">{m(at['company_retained']['stripe_company_share_usd'])}</span></div>
+      <div class="row"><span class="row-label">Grid platform 5%</span><span class="row-val">{m(at['company_retained']['grid_platform_usd'])}</span></div>
+      <div class="row"><span class="row-label">Creative Studio 50% markup</span><span class="row-val">{m(at['company_retained']['creative_studio_markup_usd'])}</span></div>
+      <div class="row"><span class="row-label">Nexus 15%</span><span class="row-val">{m(at['company_retained']['nexus_company_share_usd'])}</span></div>
+      <div class="row"><span class="row-label">Withdrawal fees ($1 ea)</span><span class="row-val">{m(at['company_retained']['withdrawal_fees_usd'])}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">This month (UTC)</div>
+      <div class="big-num">{m(tm['company_retained']['total_usd'])}</div>
+      <div class="row"><span class="row-label">Membership share</span><span class="row-val">{m(tm['company_retained']['membership_company_usd'])}</span></div>
+      <div class="row"><span class="row-label">Stripe company keep</span><span class="row-val">{m(tm['company_retained']['stripe_company_share_usd'])}</span></div>
+      <div class="row"><span class="row-label">Grid platform 5%</span><span class="row-val">{m(tm['company_retained']['grid_platform_usd'])}</span></div>
+      <div class="row"><span class="row-label">Creative Studio markup</span><span class="row-val">{m(tm['company_retained']['creative_studio_markup_usd'])}</span></div>
+      <div class="row"><span class="row-label">Nexus 15%</span><span class="row-val">{m(tm['company_retained']['nexus_company_share_usd'])}</span></div>
+      <div class="row"><span class="row-label">Withdrawal fees</span><span class="row-val">{m(tm['company_retained']['withdrawal_fees_usd'])}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Last 24 hours</div>
+      <div class="big-num">{m(h24['company_retained']['total_usd'])}</div>
+      <div class="row"><span class="row-label">Membership share</span><span class="row-val">{m(h24['company_retained']['membership_company_usd'])}</span></div>
+      <div class="row"><span class="row-label">Stripe company keep</span><span class="row-val">{m(h24['company_retained']['stripe_company_share_usd'])}</span></div>
+      <div class="row"><span class="row-label">Grid platform 5%</span><span class="row-val">{m(h24['company_retained']['grid_platform_usd'])}</span></div>
+      <div class="row"><span class="row-label">Creative Studio markup</span><span class="row-val">{m(h24['company_retained']['creative_studio_markup_usd'])}</span></div>
+      <div class="row"><span class="row-label">Nexus 15%</span><span class="row-val">{m(h24['company_retained']['nexus_company_share_usd'])}</span></div>
+      <div class="row"><span class="row-label">Withdrawal fees</span><span class="row-val">{m(h24['company_retained']['withdrawal_fees_usd'])}</span></div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Gross inflows by rail</h2>
+    <span class="pill">money in</span>
+  </div>
+  <div class="grid three-col">
+    <div class="card">
+      <div class="card-label">All time</div>
+      <div class="big-num">{m(at['inflows']['total_usd'])}</div>
+      <div class="row"><span class="row-label">WalletConnect (BSC)</span><span class="row-val">{m(at['inflows']['walletconnect_usd'])}</span></div>
+      <div class="row"><span class="row-label">NOWPayments</span><span class="row-val">{m(at['inflows']['nowpayments_usd'])}</span></div>
+      <div class="row"><span class="row-label">Stripe (net)</span><span class="row-val">{m(at['inflows']['stripe_net_usd'])}</span></div>
+      <div class="row"><span class="row-label">Creative Studio</span><span class="row-val">{m(at['inflows']['creative_studio_gross_usd'])}</span></div>
+      <div class="row"><span class="row-label">Nexus credit packs</span><span class="row-val">{m(at['inflows']['nexus_credit_packs_usd'])}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">This month</div>
+      <div class="big-num">{m(tm['inflows']['total_usd'])}</div>
+      <div class="row"><span class="row-label">WalletConnect</span><span class="row-val">{m(tm['inflows']['walletconnect_usd'])}</span></div>
+      <div class="row"><span class="row-label">NOWPayments</span><span class="row-val">{m(tm['inflows']['nowpayments_usd'])}</span></div>
+      <div class="row"><span class="row-label">Stripe</span><span class="row-val">{m(tm['inflows']['stripe_net_usd'])}</span></div>
+      <div class="row"><span class="row-label">Creative Studio</span><span class="row-val">{m(tm['inflows']['creative_studio_gross_usd'])}</span></div>
+      <div class="row"><span class="row-label">Nexus credit packs</span><span class="row-val">{m(tm['inflows']['nexus_credit_packs_usd'])}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Last 24h</div>
+      <div class="big-num">{m(h24['inflows']['total_usd'])}</div>
+      <div class="row"><span class="row-label">WalletConnect</span><span class="row-val">{m(h24['inflows']['walletconnect_usd'])}</span></div>
+      <div class="row"><span class="row-label">NOWPayments</span><span class="row-val">{m(h24['inflows']['nowpayments_usd'])}</span></div>
+      <div class="row"><span class="row-label">Stripe</span><span class="row-val">{m(h24['inflows']['stripe_net_usd'])}</span></div>
+      <div class="row"><span class="row-label">Creative Studio</span><span class="row-val">{m(h24['inflows']['creative_studio_gross_usd'])}</span></div>
+      <div class="row"><span class="row-label">Nexus credit packs</span><span class="row-val">{m(h24['inflows']['nexus_credit_packs_usd'])}</span></div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Member liabilities</h2>
+    <span class="pill warn">what we owe</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">Total owed to members</div>
+      <div class="big-num">{m(liab['total_usd'])}</div>
+      <div class="row"><span class="row-label">Affiliate balance</span><span class="row-val">{m(liab['member_balance_owed_usd'])}</span></div>
+      <div class="row"><span class="row-label">Campaign balance</span><span class="row-val">{m(liab['campaign_balance_owed_usd'])}</span></div>
+      <div class="row"><span class="row-label">Pending commissions</span><span class="row-val">{m(liab['pending_commissions_usd'])}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Member payouts (all time)</div>
+      <div class="big-num">{m(at['outflows']['member_commissions_paid_usd'])}</div>
+      <div class="row"><span class="row-label">Commissions credited</span><span class="row-val">{m(at['outflows']['member_commissions_paid_usd'])}</span></div>
+      <div class="row"><span class="row-label">Withdrawals processed</span><span class="row-val">{m(at['outflows']['withdrawals_processed_usd'])}</span></div>
+      <div class="row"><span class="row-label">Withdrawal count</span><span class="row-val">{at['outflows']['withdrawals_count']}</span></div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Concerns</h2>
+    <span class="pill {'good' if (con['unmatched_orphan_transfers']['count'] == 0 and con['stuck_withdrawals_over_24h']['count'] == 0 and con['old_pending_commissions_over_7d']['count'] == 0) else 'warn'}">
+      {'clean' if (con['unmatched_orphan_transfers']['count'] == 0 and con['stuck_withdrawals_over_24h']['count'] == 0 and con['old_pending_commissions_over_7d']['count'] == 0) else 'attention'}
+    </span>
+  </div>
+  <div class="concerns {'clean' if (con['unmatched_orphan_transfers']['count'] == 0 and con['stuck_withdrawals_over_24h']['count'] == 0 and con['old_pending_commissions_over_7d']['count'] == 0) else ''}">
+    <div class="row"><span class="row-label">Unmatched orphan transfers</span><span class="row-val">{con['unmatched_orphan_transfers']['count']} · {m(con['unmatched_orphan_transfers']['total_usd'])}</span></div>
+    <div class="row"><span class="row-label">Stuck withdrawals (over 24h)</span><span class="row-val">{con['stuck_withdrawals_over_24h']['count']} · {m(con['stuck_withdrawals_over_24h']['total_usd'])}</span></div>
+    <div class="row"><span class="row-label">Old pending commissions (over 7d)</span><span class="row-val">{con['old_pending_commissions_over_7d']['count']} · {m(con['old_pending_commissions_over_7d']['total_usd'])}</span></div>
+  </div>
+
+  <details>
+    <summary>Raw JSON (for Claude / scripts)</summary>
+    <pre>{__import__('json').dumps(data, indent=2)}</pre>
+  </details>
+
+  <div class="footer">
+    Source of truth: <code>app/finance.py:compute_financial_overview</code>.
+    Same data via <a href="/admin/api/finance-summary">/admin/api/finance-summary</a>.
+  </div>
+</div>
+</body>
+</html>"""
+    return HTMLResponse(html)
+
+
 @app.get("/admin/rotator-audit")
 def admin_rotator_audit(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Inspect the rotator_queue and verify every active Founder is enrolled.
