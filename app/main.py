@@ -14542,6 +14542,17 @@ def admin_run_backup(user: User = Depends(get_current_user)):
     from .db_backup import run_backup
     result = run_backup()
     return JSONResponse(result)
+
+
+@app.get("/admin/api/backup/run")
+def admin_run_backup_get(user: User = Depends(get_current_user)):
+    """Admin: trigger a backup via GET so you can hit it from a browser
+    URL bar directly. Same as POST /admin/api/backup. Convenience for
+    one-click diagnostics."""
+    _require_admin(user)
+    from .db_backup import run_backup
+    result = run_backup()
+    return JSONResponse(result)
 @app.get("/admin/api/backups")
 def admin_list_backups(user: User = Depends(get_current_user)):
     """Admin: list existing backups in R2."""
