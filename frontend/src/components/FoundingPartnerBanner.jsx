@@ -37,9 +37,11 @@ export default function FoundingPartnerBanner({ user }) {
   });
 
   // Poll founding status on mount and every 60s thereafter.
+  // Active members ALSO see the banner during the deadline window — they
+  // can't claim a spot themselves but can nudge their downline. Polling
+  // runs for everyone so the count + countdown stay current.
   useEffect(function() {
     if (dismissed) return;
-    if (user && user.is_active) return;  // Don't poll for active members
 
     let cancelled = false;
     function load() {
@@ -90,15 +92,18 @@ export default function FoundingPartnerBanner({ user }) {
     return function() { clearInterval(interval); };
   }, [status]);
 
-  // Skip render conditions
+  // Skip render conditions. Banner now shows to ALL logged-in users
+  // during the deadline window: free members get the "claim a spot" CTA,
+  // active members get the "share your link" CTA so they can push their
+  // downline to claim before Friday.
   if (!user) return null;
-  if (user.is_active) return null;
   if (dismissed) return null;
   if (!status) return null;          // Wait for the first API response
-  if (!status.is_open) return null;  // Spots filled — banner retires permanently
+  if (!status.is_open) return null;  // Spots filled OR deadline passed — banner retires
 
   const remaining = status.spots_remaining;
   const claimed = status.spots_claimed;
+  const isActive = user.is_active === true;
 
   function handleDismiss(e) {
     e.stopPropagation();
@@ -106,9 +111,22 @@ export default function FoundingPartnerBanner({ user }) {
     setDismissed(true);
   }
 
-  function handleClaim() {
-    navigate('/upgrade');
+  // Action differs per user state:
+  //   Free members → /upgrade (claim a spot)
+  //   Active members → /my-team (share their ref link, push their downline)
+  function handlePrimaryAction() {
+    if (isActive) {
+      navigate('/my-team');
+    } else {
+      navigate('/upgrade');
+    }
   }
+
+  const ctaLabel = isActive ? 'Push my team →' : 'Claim Your Seat →';
+  const eyebrow = isActive ? 'Final Call · Push your team before Friday' : 'Final Call · Founding Partner Circle';
+  const subline = isActive
+    ? 'Founder pricing closes Friday — share your referral link now to lock in $10 sponsor commissions on every Founder activation before the deadline.'
+    : 'Lock in $15/month for life — $5 off every month, forever. After the deadline the price is $20/month, no exceptions.';
 
   // Generate 15 sparkle positions (deterministic — same on every render)
   const sparkles = [];
@@ -175,7 +193,7 @@ export default function FoundingPartnerBanner({ user }) {
         fontFamily: 'Sora, sans-serif',
         cursor: 'pointer',
       }}
-      onClick={handleClaim}>
+      onClick={handlePrimaryAction}>
         {sparkles}
 
         {/* Dismiss × button */}
@@ -220,7 +238,7 @@ export default function FoundingPartnerBanner({ user }) {
               opacity: 0.8,
               marginBottom: 4,
             }}>
-              Final Call · Founding Partner Circle
+              {eyebrow}
             </div>
             <div style={{
               fontSize: 20,
@@ -245,13 +263,13 @@ export default function FoundingPartnerBanner({ user }) {
               opacity: 0.85,
               lineHeight: 1.4,
             }}>
-              Lock in <strong>$15/month for life</strong> — $5 off every month, forever. After the deadline the price is $20/month, no exceptions.
+              {subline}
             </div>
           </div>
 
           {/* CTA button */}
           <button
-            onClick={function(e) { e.stopPropagation(); handleClaim(); }}
+            onClick={function(e) { e.stopPropagation(); handlePrimaryAction(); }}
             style={{
               flexShrink: 0,
               padding: '14px 24px',
@@ -267,7 +285,7 @@ export default function FoundingPartnerBanner({ user }) {
               letterSpacing: '0.02em',
               whiteSpace: 'nowrap',
             }}>
-            Claim Your Seat →
+            {ctaLabel}
           </button>
         </div>
       </div>
