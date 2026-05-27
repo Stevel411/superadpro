@@ -13,7 +13,17 @@ MAX_BACKUPS = 3
 
 
 def run_backup() -> dict:
-    """Run pg_dump and upload to R2. Returns status dict."""
+    """Run pg_dump and upload to R2. Returns status dict.
+
+    Diagnostic note (27 May 2026): the original implementation used a
+    `pg_dump | gzip > file` shell pipeline. When pg_dump fails, gzip
+    still receives empty stdin and writes a ~20-byte 'empty gzip' file,
+    then exits 0. The pipeline's overall exit code reflected gzip's
+    success, hiding pg_dump's real error. This version uses set -o
+    pipefail so pg_dump failures propagate, captures pg_dump's stderr
+    to a temp file, and includes that stderr in the error response so
+    we can actually see WHY a backup failed.
+    """
     if not r2_available():
         return {"error": "R2 not configured"}
 
@@ -25,27 +35,63 @@ def run_backup() -> dict:
     filename = f"superadpro_{timestamp}.sql.gz"
     key = f"{BACKUP_PREFIX}{filename}"
 
+    tmp_path = None
+    stderr_path = None
     try:
-        # Run pg_dump and gzip in one pipeline
+        # Temp files for the gzipped dump and for pg_dump's stderr
         with tempfile.NamedTemporaryFile(suffix=".sql.gz", delete=False) as tmp:
             tmp_path = tmp.name
+        with tempfile.NamedTemporaryFile(suffix=".stderr", delete=False) as tmperr:
+            stderr_path = tmperr.name
 
         # pg_dump → gzip → file
+        #   set -o pipefail makes the pipeline's exit code reflect the
+        #     FIRST failure in the pipeline, not just the last command.
+        #     Without this, gzip's success masks pg_dump's failure.
+        #   pg_dump's stderr is redirected to a separate file so we can
+        #     include the real error message in the response.
+        #   bash explicit because some shells (dash, sh on Alpine) don't
+        #     support pipefail.
+        cmd = (
+            f'set -o pipefail; '
+            f'pg_dump "{db_url}" 2> "{stderr_path}" | gzip > "{tmp_path}"'
+        )
         result = subprocess.run(
-            f'pg_dump "{db_url}" | gzip > "{tmp_path}"',
+            cmd,
             shell=True,
+            executable="/bin/bash",
             capture_output=True,
             text=True,
             timeout=300,  # 5 min timeout
         )
 
-        if result.returncode != 0:
-            return {"error": f"pg_dump failed: {result.stderr[:200]}"}
+        # Read pg_dump's stderr (always present, even on success — it
+        # logs "pg_dump: ..." progress lines; only treat as error if
+        # the pipeline returncode was non-zero).
+        pg_stderr = ""
+        try:
+            with open(stderr_path, "r") as f:
+                pg_stderr = f.read()[:2000]  # cap to 2KB
+        except Exception:
+            pass
 
-        # Check file size
+        if result.returncode != 0:
+            # Now we have the REAL error from pg_dump
+            return {
+                "error": f"pg_dump failed (exit {result.returncode})",
+                "pg_dump_stderr": pg_stderr.strip(),
+                "shell_stderr": (result.stderr or "")[:500].strip(),
+            }
+
+        # Check file size (still a sanity check — if pipefail worked
+        # correctly this shouldn't trigger any more)
         file_size = os.path.getsize(tmp_path)
         if file_size < 100:
-            return {"error": "Backup file too small — likely empty database or auth error"}
+            return {
+                "error": "Backup file too small — pg_dump produced empty output",
+                "pg_dump_stderr": pg_stderr.strip(),
+                "file_size_bytes": file_size,
+            }
 
         # Upload to R2
         client = _get_client()
@@ -57,9 +103,6 @@ def run_backup() -> dict:
                 ContentType="application/gzip",
             )
 
-        # Clean up temp file
-        os.unlink(tmp_path)
-
         # Prune old backups — keep only MAX_BACKUPS
         _prune_old_backups(client)
 
@@ -68,17 +111,21 @@ def run_backup() -> dict:
             "success": True,
             "file": filename,
             "size_mb": size_mb,
+            "size_bytes": file_size,
             "timestamp": timestamp,
             "bucket": R2_BUCKET,
         }
 
     except Exception as e:
-        # Clean up temp file on error
-        try:
-            os.unlink(tmp_path)
-        except Exception:
-            pass
-        return {"error": str(e)}
+        return {"error": str(e), "exception_type": type(e).__name__}
+    finally:
+        # Always clean up temp files
+        for p in (tmp_path, stderr_path):
+            if p:
+                try:
+                    os.unlink(p)
+                except Exception:
+                    pass
 
 
 def _prune_old_backups(client):
