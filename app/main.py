@@ -33176,6 +33176,134 @@ def admin_reverse_commission(
     })
 
 
+@app.get("/admin/api/sweep-double-pays")
+def admin_sweep_double_pays(
+    confirm: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: audit + reverse all duplicate webhook-race commissions
+    in a single call. Browser-bar friendly (GET, no POST required).
+
+    SAFETY: requires ?confirm=yes in the URL. Without it, returns
+    the audit list as a dry-run preview (same as audit-double-pays)
+    but does NOT mutate anything. This protects against accidental
+    full-sweep clicks.
+
+    Workflow:
+      1. GET /admin/api/sweep-double-pays  (preview — no mutations)
+      2. Review the list
+      3. GET /admin/api/sweep-double-pays?confirm=yes  (actually run)
+
+    Built 27 May 2026 evening so Steve can clean up Floyd's case
+    (and any others) from a phone browser without console access.
+    """
+    _require_admin(user)
+    from .database import Commission
+    from collections import defaultdict
+
+    # Re-run the audit logic inline
+    candidates = (
+        db.query(Commission)
+        .filter(Commission.commission_type == "membership_sponsor")
+        .filter(Commission.status == "paid")
+        .order_by(Commission.from_user_id, Commission.to_user_id, Commission.created_at)
+        .all()
+    )
+    groups = defaultdict(list)
+    for c in candidates:
+        groups[(c.from_user_id, c.to_user_id)].append(c)
+
+    duplicates = []
+    for (from_id, to_id), commissions in groups.items():
+        if len(commissions) < 2:
+            continue
+        has_stripe = any("(stripe)" in (c.notes or "") for c in commissions)
+        has_recovery = any("(stripe-invoice-recovery)" in (c.notes or "") for c in commissions)
+        if has_stripe and has_recovery:
+            sorted_c = sorted(commissions, key=lambda c: c.created_at or datetime.utcnow())
+            for dup in sorted_c[1:]:
+                duplicates.append(dup)
+
+    dry_run = (confirm.lower() != "yes")
+
+    if dry_run:
+        # Preview only
+        from_users_cache = {}
+        to_users_cache = {}
+        preview = []
+        for dup in duplicates:
+            if dup.from_user_id not in from_users_cache:
+                from_users_cache[dup.from_user_id] = db.query(User).filter(User.id == dup.from_user_id).first()
+            if dup.to_user_id not in to_users_cache:
+                to_users_cache[dup.to_user_id] = db.query(User).filter(User.id == dup.to_user_id).first()
+            preview.append({
+                "duplicate_commission_id": dup.id,
+                "from_username": from_users_cache[dup.from_user_id].username if from_users_cache[dup.from_user_id] else None,
+                "to_username": to_users_cache[dup.to_user_id].username if to_users_cache[dup.to_user_id] else None,
+                "amount_usd": float(dup.amount_usdt) if dup.amount_usdt else 0.0,
+                "notes": dup.notes,
+                "created_at": dup.created_at.isoformat() if dup.created_at else None,
+            })
+        return JSONResponse({
+            "dry_run": True,
+            "would_reverse_count": len(duplicates),
+            "would_reverse_total_usd": round(sum(float(d.amount_usdt or 0) for d in duplicates), 2),
+            "duplicates": preview,
+            "to_actually_run": "Append ?confirm=yes to this URL",
+        })
+
+    # Actually run the reversals
+    reversed_list = []
+    failed = []
+    for dup in duplicates:
+        try:
+            amount = float(dup.amount_usdt) if dup.amount_usdt is not None else 0.0
+            recipient = db.query(User).filter(User.id == dup.to_user_id).first()
+            if not recipient:
+                failed.append({"commission_id": dup.id, "reason": "recipient_not_found"})
+                continue
+            old_balance = float(recipient.balance or 0)
+            new_balance = max(0.0, old_balance - amount)
+            recipient.balance = new_balance
+            dup.status = "reversed"
+            original_notes = dup.notes or ""
+            dup.notes = (
+                f"{original_notes}\n\n"
+                f"[REVERSED on {datetime.utcnow().isoformat()}Z via batch sweep by admin "
+                f"({user.username}) — duplicate caused by Stripe webhook race. "
+                f"Deducted ${amount:.2f} from {recipient.username}: "
+                f"${old_balance:.2f} → ${new_balance:.2f}.]"
+            )
+            try:
+                cache_invalidate_user(recipient.id)
+            except Exception:
+                pass
+            reversed_list.append({
+                "commission_id": dup.id,
+                "recipient_username": recipient.username,
+                "amount_reversed_usd": amount,
+                "balance_before": old_balance,
+                "balance_after": new_balance,
+            })
+            logger.warning(
+                f"Sweep: Commission {dup.id} REVERSED — ${amount} deducted from "
+                f"{recipient.username} (${old_balance} → ${new_balance})"
+            )
+        except Exception as e:
+            failed.append({"commission_id": dup.id, "reason": str(e)})
+
+    db.commit()
+    return JSONResponse({
+        "dry_run": False,
+        "reversed_count": len(reversed_list),
+        "failed_count": len(failed),
+        "total_reversed_usd": round(sum(r["amount_reversed_usd"] for r in reversed_list), 2),
+        "reversed": reversed_list,
+        "failed": failed,
+    })
+
+
 @app.get("/admin/api/membership-state/{username}")
 def admin_membership_state(
     username: str,
