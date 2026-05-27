@@ -368,12 +368,12 @@ def _mrr(db: Session) -> Dict[str, Any]:
     )
     founders_count = founders_q.scalar() or 0
 
-    # Partners: $20/mo
+    # Partners: $20/mo (active, not Founder, not Pro)
     partners_q = db.query(func.count(User.id)).filter(
         User.is_active == True,
         User.membership_expires_at > now,
         User.is_founding_member != True,
-        User.membership_tier.in_(["partner", "starter", None]),
+        or_(User.membership_tier == None, User.membership_tier != "pro"),
     )
     partners_count = partners_q.scalar() or 0
 
