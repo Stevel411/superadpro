@@ -130,9 +130,11 @@ def _inflows(db: Session, since: datetime = None) -> Dict[str, Any]:
     # ─── Creative Studio credit-pack purchases (real cash in) ──────
     # SuperSceneOrder.amount_usd is the cash amount the member paid for
     # the credit pack. The 50% markup is what the company actually keeps
-    # (the other 50% goes to provider API costs).
+    # (the other 50% goes to provider API costs). Verified status value:
+    # "completed" is the only success state (status defaults to "pending"
+    # at creation, set to "completed" at fulfilment).
     ss_q = db.query(func.sum(SuperSceneOrder.amount_usd)).filter(
-        SuperSceneOrder.status.in_(["completed", "paid"]),
+        SuperSceneOrder.status == "completed",
     )
     if since:
         ss_q = ss_q.filter(SuperSceneOrder.created_at >= since)
@@ -255,7 +257,7 @@ def _company_retained(db: Session, since: datetime = None) -> Dict[str, Any]:
 
     # Creative Studio markup — 50% of completed orders is company keep
     cs_q = db.query(func.sum(SuperSceneOrder.amount_usd)).filter(
-        SuperSceneOrder.status.in_(["completed", "paid"]),
+        SuperSceneOrder.status == "completed",
     )
     if since:
         cs_q = cs_q.filter(SuperSceneOrder.created_at >= since)
@@ -340,9 +342,10 @@ def _member_liabilities(db: Session) -> Dict[str, Any]:
         db.query(func.sum(User.campaign_balance)).scalar()
     )
 
-    # Pending commissions — not yet credited to balance
+    # Pending commissions — not yet credited to balance. Status values
+    # per schema: pending | released | expired. Only "pending" is open.
     pending_q = db.query(func.sum(PendingCommission.amount_usdt)).filter(
-        PendingCommission.status.in_(["pending", "queued"]),
+        PendingCommission.status == "pending",
     )
     pending_total = _sum_or_zero(pending_q.scalar())
 
@@ -410,12 +413,13 @@ def _concerns(db: Session) -> Dict[str, Any]:
     """Things that should be on the operator's radar — money sitting in
     limbo, mismatches, or known known issues."""
 
-    # Unmatched orphan transfers — confirmed on-chain but not matched
+    # Unmatched orphan transfers — confirmed on-chain but not yet
+    # reconciled. Schema uses a boolean `resolved` flag, not a status.
     orphan_q = db.query(
         func.count(OnchainOrphanTransfer.id),
         func.sum(OnchainOrphanTransfer.amount_usdt),
     ).filter(
-        OnchainOrphanTransfer.status.in_(["unmatched", "pending"]),
+        OnchainOrphanTransfer.resolved == False,
     )
     orphan_count, orphan_total = orphan_q.one()
     orphan_count = orphan_count or 0
@@ -433,12 +437,13 @@ def _concerns(db: Session) -> Dict[str, Any]:
     stuck_w_count = stuck_w_count or 0
     stuck_w_total = _sum_or_zero(stuck_w_total)
 
-    # Pending commissions over 7 days old — possibly stuck
+    # Pending commissions over 7 days old — possibly stuck. PendingCommission
+    # schema status values: pending | released | expired. Only "pending" is open.
     old_pending_q = db.query(
         func.count(PendingCommission.id),
         func.sum(PendingCommission.amount_usdt),
     ).filter(
-        PendingCommission.status.in_(["pending", "queued"]),
+        PendingCommission.status == "pending",
         PendingCommission.created_at < datetime.utcnow() - timedelta(days=7),
     )
     old_pending_count, old_pending_total = old_pending_q.one()
