@@ -32874,6 +32874,122 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
         "message": "Your membership has been activated! Welcome to SuperAdPro.",
         "gifter_name": db.query(User).filter(User.id == voucher.gifter_user_id).first().first_name or "A member",
     }
+
+
+@app.get("/admin/api/user-commissions/{username}")
+def admin_user_commissions(
+    username: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only itemised commission history for a single user (the recipient).
+
+    Returns every Commission row where to_user_id matches the target user,
+    with WHO paid (from_user details), what commission_type, amount, status,
+    timestamps. Plus a totals summary by type so admin can quickly answer
+    'why does this user have $X balance?' questions.
+
+    Built 27 May 2026 evening after Floyd / @ourfreedom asked Steve why
+    his balance was $30 with only 2 referrals. The aggregate monitoring
+    tools (commission_audit, commission_anomalies) confirm health but
+    don't itemise per-user — this endpoint fills that gap.
+
+    Returns:
+      {
+        "user": {id, username, balance, ...},
+        "totals": {
+          "by_type": {"membership_sponsor": {count, total}, ...},
+          "by_status": {"paid": total, "pending": total},
+          "grand_total": ...
+        },
+        "commissions": [
+          {id, from_user_id, from_username, amount, type, status,
+           created_at, paid_at, notes}, ...
+        ]
+      }
+
+    Sorted newest-first.
+    """
+    _require_admin(user)
+    from .database import Commission
+
+    target = db.query(User).filter(User.username == username.lower()).first()
+    if not target:
+        return JSONResponse({"error": f"User '{username}' not found"}, status_code=404)
+
+    rows = (
+        db.query(Commission)
+        .filter(Commission.to_user_id == target.id)
+        .order_by(Commission.created_at.desc())
+        .all()
+    )
+
+    # Build itemised list with from_user lookups (single query for all
+    # source users to avoid N+1)
+    from_user_ids = {r.from_user_id for r in rows if r.from_user_id}
+    from_users = {
+        u.id: u for u in db.query(User).filter(User.id.in_(from_user_ids)).all()
+    } if from_user_ids else {}
+
+    commissions = []
+    for r in rows:
+        src = from_users.get(r.from_user_id) if r.from_user_id else None
+        commissions.append({
+            "id": r.id,
+            "from_user_id": r.from_user_id,
+            "from_username": src.username if src else None,
+            "from_display": (src.first_name or src.username) if src else "—",
+            "amount_usd": float(r.amount_usdt) if r.amount_usdt is not None else 0.0,
+            "commission_type": r.commission_type,
+            "status": r.status,
+            "tx_hash": r.tx_hash,
+            "grid_id": r.grid_id,
+            "package_tier": r.package_tier,
+            "notes": r.notes,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "paid_at": r.paid_at.isoformat() if r.paid_at else None,
+        })
+
+    # Totals breakdown — by_type for "what's contributing what",
+    # by_status for "paid vs still pending"
+    by_type = {}
+    by_status = {"paid": 0.0, "pending": 0.0, "failed": 0.0, "other": 0.0}
+    grand_total_paid = 0.0
+    for r in rows:
+        amt = float(r.amount_usdt) if r.amount_usdt is not None else 0.0
+        t = r.commission_type or "unknown"
+        if t not in by_type:
+            by_type[t] = {"count": 0, "total_usd": 0.0}
+        by_type[t]["count"] += 1
+        by_type[t]["total_usd"] += amt
+        s = (r.status or "other").lower()
+        if s in by_status:
+            by_status[s] += amt
+        else:
+            by_status["other"] += amt
+        if s == "paid":
+            grand_total_paid += amt
+
+    return JSONResponse({
+        "user": {
+            "id": target.id,
+            "username": target.username,
+            "first_name": target.first_name,
+            "is_active": target.is_active,
+            "balance_usd": float(target.balance or 0),
+            "membership_tier": target.membership_tier,
+            "is_founding_member": getattr(target, "is_founding_member", False),
+        },
+        "totals": {
+            "row_count": len(rows),
+            "grand_total_paid_usd": round(grand_total_paid, 2),
+            "by_type": {k: {"count": v["count"], "total_usd": round(v["total_usd"], 2)} for k, v in by_type.items()},
+            "by_status": {k: round(v, 2) for k, v in by_status.items() if v != 0.0},
+        },
+        "commissions": commissions,
+    })
+
+
 @app.get("/admin/api/membership-state/{username}")
 def admin_membership_state(
     username: str,
