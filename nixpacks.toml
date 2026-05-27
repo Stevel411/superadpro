@@ -1,5 +1,12 @@
 [phases.setup]
-nixPkgs = ['...', 'ffmpeg']
+# postgresql_17 provides the pg_dump binary needed by the daily backup
+# scheduler (app/db_backup.py). The auto-detected '...' set only includes
+# postgresql_16.dev which provides development HEADERS for compiling
+# psycopg2 — NOT the runtime binaries. pg_dump 17 is backward-compatible
+# with older Postgres servers (Railway's managed Postgres may be 16 or 17),
+# so this works either way. Added 27 May 2026 after Steve discovered the
+# daily backups had been silently failing with 'command not found'.
+nixPkgs = ['...', 'ffmpeg', 'postgresql_17']
 
 [phases.build]
 cmds = ["python -m compileall -q app/"]
