@@ -10119,16 +10119,22 @@ async def api_founding_members_status(db: Session = Depends(get_db)):
       - spots_total: 100 (hard cap)
       - spots_claimed: count of users with is_founding_member=TRUE
       - spots_remaining: spots_total - spots_claimed
-      - is_open: True if spots remain
-      - current_price: what a new signup is currently quoted ($15 if open, $20 if closed)
+      - is_open: True if spots remain AND deadline not passed
+      - deadline_utc: ISO timestamp of deadline (null if no deadline set)
+      - closed_by: null while open; 'count_cap' or 'deadline' once closed
+      - current_price: what a new signup is currently quoted
 
     Used by:
       - Dashboard gold banner (Sprint 2) — polled every 60s
       - Public homepage CTA — quotes current price
       - Sprint 1 verification — sanity-check live count
     Cached at 60s in stats_cache to avoid hammering the DB.
+
+    27 May 2026 — extended to include deadline_utc and closed_by so the
+    dashboard banner can render a live countdown alongside the count.
     """
     from decimal import Decimal
+    from .database import AppConfig
     try:
         spots_claimed = db.execute(text(
             "SELECT COUNT(*) FROM users WHERE is_founding_member = TRUE"
@@ -10139,13 +10145,39 @@ async def api_founding_members_status(db: Session = Depends(get_db)):
 
     SPOTS_TOTAL = 100
     spots_remaining = max(0, SPOTS_TOTAL - spots_claimed)
-    is_open = spots_remaining > 0
+
+    # Read deadline from app_config (set 27 May 2026 — defaults to
+    # 2026-05-29T23:59:00 UTC). Helper _founder_offer_still_open does the
+    # canonical check; we re-derive the diagnostic fields here for the API
+    # response.
+    deadline_utc = None
+    closed_by = None
+    deadline_passed = False
+    try:
+        cfg = db.query(AppConfig).filter(AppConfig.key == "founder_offer_close_at").first()
+        if cfg and cfg.value:
+            deadline_utc = cfg.value
+            deadline_dt = datetime.fromisoformat(cfg.value.replace("Z", "+00:00").replace("+00:00", ""))
+            if datetime.utcnow() >= deadline_dt:
+                deadline_passed = True
+    except Exception:
+        pass
+
+    is_open = (spots_remaining > 0) and not deadline_passed
+    if not is_open:
+        if spots_remaining == 0:
+            closed_by = "count_cap"
+        elif deadline_passed:
+            closed_by = "deadline"
 
     return {
         "spots_total": SPOTS_TOTAL,
         "spots_claimed": spots_claimed,
         "spots_remaining": spots_remaining,
         "is_open": is_open,
+        "deadline_utc": deadline_utc,
+        "closed_by": closed_by,
+        "now_utc": datetime.utcnow().isoformat() + "Z",
         "current_price_monthly": "15.00" if is_open else "20.00",
         "current_price_annual": "150.00" if is_open else "200.00",
         "standard_price_monthly": "20.00",

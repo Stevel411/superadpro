@@ -59,6 +59,37 @@ export default function FoundingPartnerBanner({ user }) {
     };
   }, [dismissed, user]);
 
+  // Countdown timer — ticks every second locally so the deadline counts
+  // down smoothly without hammering the API. Reads status.deadline_utc
+  // and recomputes the remaining time string. Added 27 May 2026 when
+  // the offer became time-bounded as well as count-bounded.
+  const [countdown, setCountdown] = useState(null);
+  useEffect(function() {
+    if (!status || !status.deadline_utc) { setCountdown(null); return; }
+    function tick() {
+      try {
+        const deadline = new Date(status.deadline_utc.replace('Z', '') + 'Z');
+        const now = new Date();
+        const diff = deadline.getTime() - now.getTime();
+        if (diff <= 0) { setCountdown('Offer closed'); return; }
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        if (days > 0) {
+          setCountdown(days + 'd ' + hours + 'h ' + minutes + 'm');
+        } else if (hours > 0) {
+          setCountdown(hours + 'h ' + minutes + 'm ' + seconds + 's');
+        } else {
+          setCountdown(minutes + 'm ' + seconds + 's');
+        }
+      } catch (e) { setCountdown(null); }
+    }
+    tick();
+    const interval = setInterval(tick, 1000);
+    return function() { clearInterval(interval); };
+  }, [status]);
+
   // Skip render conditions
   if (!user) return null;
   if (user.is_active) return null;
@@ -189,7 +220,7 @@ export default function FoundingPartnerBanner({ user }) {
               opacity: 0.8,
               marginBottom: 4,
             }}>
-              Exclusive Invitation · Founding Partner Circle
+              Final Call · Founding Partner Circle
             </div>
             <div style={{
               fontSize: 20,
@@ -197,11 +228,16 @@ export default function FoundingPartnerBanner({ user }) {
               lineHeight: 1.2,
               marginBottom: 6,
             }}>
-              Only <span style={{
+              <span style={{
                 display: 'inline-block',
                 animation: 'foundingCountBreath 4s ease-in-out infinite',
                 fontWeight: 900,
-              }}>{remaining}</span> of 100 founding seats remaining
+              }}>{remaining}</span> of 100 seats left
+              {countdown && (
+                <span style={{ fontSize: 14, fontWeight: 700, opacity: 0.85, marginLeft: 10 }}>
+                  · closes in <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>{countdown}</span>
+                </span>
+              )}
             </div>
             <div style={{
               fontSize: 13,
@@ -209,7 +245,7 @@ export default function FoundingPartnerBanner({ user }) {
               opacity: 0.85,
               lineHeight: 1.4,
             }}>
-              Lock in <strong>$15/month for life</strong> — that's $5 off every month, forever. Standard partner price kicks in at seat 100.
+              Lock in <strong>$15/month for life</strong> — $5 off every month, forever. After the deadline the price is $20/month, no exceptions.
             </div>
           </div>
 
