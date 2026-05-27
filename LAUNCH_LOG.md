@@ -6,6 +6,112 @@
 
 ---
 
+---
+
+## Status as of 2026-05-27 (evening) — FOUNDER DEADLINE LIVE + TEAM GIFTING BUILT + INFRA STABILISED
+
+**Single-day push to set up the Founder offer closure on Friday 29 May 23:59 UTC.** Five commits across the afternoon and evening; multiple infrastructure issues caught and resolved mid-session; one customer-support incident handled. Email and Facebook announcement went out cleanly to drive activation against the deadline. Session length: ~10 hours.
+
+### Shipped today (27 May 2026)
+
+**Founder offer time-deadline (commit `6558518`):**
+- Founder offer now closes on whichever comes first: 100 spots OR `app_config['founder_offer_close_at']` timestamp. Initial deadline seeded at `2026-05-29T23:59:00` UTC.
+- Helper `_founder_offer_still_open(db)` in `app/main.py` is canonical. Fail-open on config parse errors (better to sell a spot we shouldn't than block one we should).
+- Wired into 3 public activation rails: `_activate_membership` (Stripe / NOWPayments / WalletConnect), balance-rail activation, PIF gift-claim flow.
+- Admin tools (`/admin/founder-promote-from-balance`, `/admin/stripe-recover-user`) intentionally NOT gated — admin can still promote case-by-case for edge cases.
+- New admin endpoints: `GET /admin/api/founder-offer-status` (read state) and `POST /admin/api/founder-offer-deadline` (update at runtime).
+- Idempotent app_config seed — won't clobber existing value if Steve changes the deadline via admin endpoint.
+
+**Team gifting full build, feature-flagged OFF (commit `a3b2a23`):**
+- Members can directly gift $20 memberships to inactive direct referrals; recipient gets in-platform notification + 7-day window to accept or decline.
+- No refunds — declined/expired vouchers return to gifter for re-targeting or conversion to shareable link.
+- Schema: `gift_vouchers` extended with `reserved_for_user_id` (FK users) + `reserved_until` (datetime). New statuses: reserved/declined/expired.
+- Backend endpoints: `/api/pay-it-forward/giftable-team` (list candidates), `/create-team-gift` (creates), `/api/gift/team/{code}/preview` (recipient sees gifter + msg), `/accept`, `/decline`, `/api/pay-it-forward/retarget/{code}` (gifter re-target or convert).
+- Lazy expiry — sweeps reserved vouchers past their 7-day window on every dashboard load instead of a separate cron.
+- Frontend: new `/gift/team/:code` route placed BEFORE `/gift/:code` in App.jsx (React Router order matters). New page `TeamGiftAccept.jsx`. New card on `PayItForward.jsx` that only renders when `teamData.enabled === true`.
+- Sponsor commission on accept: $10 via `gift_membership_sponsor` commission type. Founder allocation honours the deadline via the same `_founder_offer_still_open` helper.
+- Feature flag `app_config.team_gifting_enabled = 'false'` by default. Enable post-Founder-close via `POST /admin/api/team-gifting-flag {"enabled": true}`. Disabled now because the 7-day acceptance window could straddle the Founder cap.
+
+**Dashboard banner countdown (commit `c2acc6c`):**
+- `FoundingPartnerBanner.jsx` extended with live 1s-tick countdown alongside the existing 60s API poll.
+- Format adapts to time remaining: `2d 12h 30m` → `12h 30m 15s` → `30m 15s`.
+- `/api/founding-members/status` extended to return `deadline_utc`, `closed_by` (`null` | `'count_cap'` | `'deadline'`), `now_utc`. `is_open` now reflects both caps.
+- Banner copy updated: "Final Call · Founding Partner Circle", "{N} of 100 seats left · closes in {countdown}", final-call subline.
+
+**Banner shows to all users with role-aware CTA (commit `7c57426`):**
+- Steve's call: paying members should also see the deadline so they can push their downline. Removed the `if (user.is_active) return null` skip.
+- Free members see: eyebrow "Final Call · Founding Partner Circle", CTA "Claim Your Seat →" → `/upgrade`, subline about locking in $15/month for life.
+- Active members see: eyebrow "Final Call · Push your team before Friday", CTA "Push my team →" → `/my-team`, subline about $10 sponsor commissions on every Founder activation before deadline.
+- Auto-hides for everyone when `status.is_open === false` (count filled OR deadline passed).
+
+**Broadcast formatter fix (commit `3ccb6a1`):**
+- Steve hit a wall-of-text problem preparing the announcement email — pasted plain text rendered as one block because HTML collapses whitespace.
+- New helper `_normalise_broadcast_body(body)` in `app/main.py` detects already-HTML vs plain text via block-tag presence. Plain text path: escape HTML special chars, linkify bare URLs (cyan, underlined), split blank lines into `<p>` paragraphs, single newlines become `<br>`. HTML path: passes through unchanged. Both routes get wrapped in a typographic `<div>` with inline styles (Helvetica Neue, 15px, line-height 1.6, max-width 600px) for email-client compatibility.
+- Frontend: `AdminEmailBroadcast.jsx` Compose tab label changed from "Body (HTML allowed)" to "Body". Placeholder + hint line updated to explain plain text is auto-formatted.
+- 5 unit tests passing locally: plain Founder email → 8 paragraphs + linked URL + signature break preserved; already-HTML passes through; empty input handled; HTML special chars escaped in plain text; multiple URLs linkified.
+- Steve verified: "That worked beautifully."
+
+### Customer-support handled
+
+**Floyd / Ray Toppin (user 482, Founder #84):**
+- Signed up 12:00 UTC via referrer `joinus`. Created WalletConnect order at 12:11:20 UTC for $15.40. Paid $15.40 USDT from `0xF54Bc3E773dE149e757Eb6547f2D7aeF024fB093` to treasury at 12:11:32 UTC (BSC tx `0x0902154b050285f70d65c37baa32de290b5d54fd4b213072200c14d65145bd79`).
+- The BSC scanner was stalled (see infrastructure below) and didn't process his transaction. Floyd waited ~27 minutes then paid via Stripe at 12:38:53 UTC; activated as Founder #84.
+- Identity verification: when Steve asked "How do we know it was Floyd?", Claude initially inferred from amount + timing. Correct verification was Floyd's own tx hash from his wallet history — only the actual sender has that. Floyd produced it on email reply, confirmed identity.
+- Steve manually refunded $15.40 USDT to Floyd's BSC wallet (refund-via-crypto chosen to avoid affecting Stripe's processor relationship via refund rate metric).
+
+### Infrastructure issues caught and resolved this session
+
+**BSC scanner silently stalled for ~6.5 hours.** Last successful scan at 06:18 UTC; discovered ~12:40 UTC during Floyd's diagnosis. Cause: orphaned Postgres advisory lock held by a dead/hung connection. Scanner thread kept running but `pg_try_advisory_lock` always returned false, producing "skipped: lock_busy" heartbeats with no actual scanning. Resolved by Railway service restart at ~13:47 UTC. **Follow-up needed:** monitoring alarm so this never happens silently again.
+
+**Two Railway crons crashing on 401.** `daily-briefing-cron` (06:00 UTC) didn't fire; `stuck-lapsed-alert-cron` also crashing. Cause: `CRON_SECRET` rotated in the main API service but not propagated to the cron services (Railway env vars are per-service). Steve manually synced the secret across all three services. Crons will succeed on next scheduled run.
+
+**Broadcast formatter dropping paragraph breaks** — fixed in `3ccb6a1` (see above).
+
+**Creative Studio 502 from Evolink upstream** — identified as third-party issue, not platform bug. JSONDecodeError caught in current path but raw HTML exposed in error message. Logged as a follow-up; not fixed today (third-party 502s usually auto-recover and member can retry).
+
+### Outbound communication today
+
+- **Facebook community post** — "Plain heads-up" variant posted hours before the email.
+- **Email broadcast** — subject "Founder pricing closes Friday — 23 spots left". Sent to free members only via `/admin/api/broadcast/send`. Used the new formatter — Steve confirmed it rendered cleanly.
+- **Reply to Floyd** — "Plain & accountable" variant. Acknowledged duplicate, confirmed active status, promised crypto refund. Refund completed by Steve at session close.
+
+### Counts at session end
+
+- 77 of 100 Founder seats taken. 23 remaining.
+- Founder offer deadline: 2026-05-29T23:59:00 UTC (~58 hours from session end).
+- Total users: 315.
+- New today: 45 new users in last 24h, 17 membership purchases today.
+- 116 commissions paid today across all streams.
+
+### Lessons added to docs
+
+- **Schema-trust pattern (now hit twice in 24 hours)** — schema comments and field names are hints, not definitions. Grep for actual writes/reads/validators before describing what a field MEANS.
+- **BSC scanner stall failure mode** — orphaned advisory lock requires service restart; in-process thread can't recover on its own. Needs monitoring.
+- **Cron-secret-sync foot-gun** — Railway env vars are per-service; rotating in one doesn't propagate. Update all consumers in one pass.
+- **Identity-via-token-not-inference** — when money is moving, require a token only the real party can produce (e.g. tx hash from the sender's wallet history). Amount + timing isn't enough.
+- **Tone calibration on "I have no idea what you are talking about"** — that's a signal to stop, simplify, give actionable instruction. Not to defend the previous message.
+
+Full lesson detail in `docs/WORKING_WITH_STEVE.md` (appended this session).
+
+### Watch overnight / tomorrow
+
+- Founder count from announcement landing. Expected: small bump tonight, bigger surge Thursday afternoon, possible cap-fill before Friday's deadline.
+- Daily-briefing email tomorrow 06:00 UTC — first scheduled run after the secret sync. If it fires successfully, cron is verified.
+- BSC scanner — still no monitoring alarm. If it stalls again, no one will notice until a customer surfaces.
+
+### Open items not addressed today
+
+- Stripe webhook delivery reliability (3 members affected in 24h via the `invoice.paid` self-healing path).
+- Post-signup copy fix (cost Kelly her membership on 26 May).
+- AI funnel generator at `/api/funnels/ai-generate` (needs Steve pre-decisions).
+- My Marketing hub per `docs/my-marketing-plan.md`.
+- `docs/commission-spec.md` describes 8×8/64 grid — current is 6×6/36 per `app/grid.py`.
+- 28 orphan transfers (~$500 USDT) unmatched, manual reconciliation needed.
+- BSC scanner monitoring alarm.
+- Creative Studio video generator error handling on upstream 502.
+
+---
+
 ## Status as of 2026-05-26 (evening) — VIDEO SALES PAGE + STRIPE WEBHOOK RECOVERY
 
 **Long Tuesday-into-Wednesday session, ~21 hours of continuous work, 6 commits shipped tonight on top of the morning's grace-period work.** Three arcs: Video Sales Page production launch, Annemiek's stuck Stripe payment recovery, funnel-builder audit and broken-AI-button take-down.

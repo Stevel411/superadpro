@@ -4,7 +4,7 @@
 >
 > **For Steve:** Update at the END of every session. Replace, don't append. The narrative of what happened lives in `LAUNCH_LOG.md`. This file answers "what is true right now."
 
-**Last updated:** 2026-05-26 (late evening, after commits `c9c9164` + `b064405`)
+**Last updated:** 2026-05-27 (evening, after commits `6558518` + `a3b2a23` + `c2acc6c` + `7c57426` + `3ccb6a1`)
 
 ---
 
@@ -14,8 +14,8 @@
 |---|---|
 | Domain | `www.superadpro.com` (Cloudflare → Railway). Bare `superadpro.com` only forwards root — ref links must use `www`. |
 | Repo | `github.com/Stevel411/superadpro` (private, main branch auto-deploys) |
-| Backend | FastAPI / Python on Railway, ~42k lines `app/main.py`, 26 SQLAlchemy models in `app/database.py` |
-| Frontend | React/Vite SPA, ~42 pages, served by FastAPI from `static/app/` |
+| Backend | FastAPI / Python on Railway, ~43k lines `app/main.py`, 26 SQLAlchemy models in `app/database.py` |
+| Frontend | React/Vite SPA, ~43 pages (TeamGiftAccept added today), served by FastAPI from `static/app/` |
 | Templates | ~99 Jinja2 templates (legacy, gradually being migrated to React) |
 | Database | PostgreSQL on Railway |
 | Media | Cloudflare R2 (`superadpro-media` bucket) |
@@ -28,9 +28,9 @@
 
 | Rail | Status | Notes |
 |---|---|---|
-| **WalletConnect / BSC** | ✅ LIVE | Self-custody, BSC treasury `0xb2Ccdf9050A8d05A346F6879eC4fa633f9b2554D`. Reown project `b256ce910011e012fedc82dc8c11881b`. Alchemy free-tier RPC, 10-block `eth_getLogs` cap. |
+| **WalletConnect / BSC** | ✅ LIVE (with intermittent stall risk) | Self-custody, BSC treasury `0xb2Ccdf9050A8d05A346F6879eC4fa633f9b2554D`. Reown project `b256ce910011e012fedc82dc8c11881b`. Alchemy free-tier RPC, 10-block `eth_getLogs` cap. **Scanner went silently stalled for ~6.5 hours on 27 May (06:18 → 13:47 UTC)** — see Open Issues. |
 | **NOWPayments** | ✅ LIVE | Inbound crypto signups. CLAUDE.md says "retired" — that is WRONG. Don't trust that claim. |
-| **Stripe** | ⚠️ LIVE (with known issue) | Subscription mode for memberships ($15 Founder / $20 Partner / $99 Pro), payment mode for Campaign Tiers + PIF vouchers + custom domains. Webhook delivery reliability issue — see Open Issues. |
+| **Stripe** | ⚠️ LIVE (with known webhook reliability issue) | Subscription mode for memberships ($15 Founder / $20 Partner / $99 Pro), payment mode for Campaign Tiers + PIF vouchers + custom domains. Webhook delivery reliability issue — see Open Issues. |
 | **Polygon** | ❌ Retired | Old wallet `0x7174...` dormant. Don't use. |
 | **Stripe legacy field** | ❌ Dead | `User.stripe_subscription_id` is the NEW field (live); a different legacy `User.stripe_subscription_id` reference in old code is dead. |
 | **Airwallex** | ❌ Never wired | Mentioned in old docs, never went live. Ignore. |
@@ -50,15 +50,75 @@
 
 ---
 
-## Founder product (locked, 16 May 2026)
+## Founder product (locked, 16 May 2026; **deadline added 27 May 2026**)
 
 - **$15/month, locked for life.** Not a one-time payment.
 - **100 spots total.** Atomically claimed via `pg_advisory_xact_lock(7423957)` inside `_activate_membership`.
-- **Currently used: 72/100** (Annemiek took #72 on 26 May).
+- **Currently used: 77/100** (Founder spot #84 went to Floyd/Ray Toppin via Stripe today 12:38 UTC).
+- **🆕 DEADLINE: 2026-05-29 23:59 UTC.** Offer closes on **whichever comes first**: 100 spots claimed OR deadline passed.
+  - Stored as ISO timestamp in `app_config['founder_offer_close_at']`.
+  - Helper `_founder_offer_still_open(db)` in `app/main.py` is the canonical check.
+  - Wired into 3 public activation rails: `_activate_membership`, balance-rail, gift-claim.
+  - Admin tools (`/admin/founder-promote-from-balance`, Stripe recovery) intentionally bypass — admin can still promote case-by-case.
+  - Admin endpoints: `GET /admin/api/founder-offer-status` (read), `POST /admin/api/founder-offer-deadline` (update).
 - **Sponsor commission:** flat $10 on every Founder renewal forever. Company keeps $5.
 - A Founder's referrals are standard Partners at $20/month with standard $10/$10 split. Founders do NOT change commission economics for their downline.
 - Renewal cron (`payment.process_auto_renewals`) reads `membership_price_locked` — Founders charged $15, Partners $20.
 - Founder spot is retained after lapse (not reclaimed). If a Founder lapses then reactivates, they get their original spot back.
+
+---
+
+## Team gifting (added 27 May 2026 — FEATURE-FLAGGED OFF)
+
+Direct-to-team gifting flow. Members gift a $20 membership directly to an inactive direct referral; recipient gets a notification, has **7 days** to accept or decline.
+
+**State: BUILT BUT DISABLED.** Default `app_config['team_gifting_enabled'] = 'false'`.
+
+**To enable post-Founder-offer-close (Saturday 30 May or later):**
+```
+POST /admin/api/team-gifting-flag {"enabled": true}
+```
+
+**Why disabled:** the 7-day acceptance window could straddle the Founder cap. Disabled until the Founder offer closes to avoid edge cases.
+
+**Schema:** `gift_vouchers` extended with `reserved_for_user_id` (FK users) + `reserved_until` (datetime).
+**Status values added:** `reserved` (awaiting consent), `declined`, `expired`.
+
+**Backend endpoints (all in `app/main.py`):**
+- `GET /api/pay-it-forward/giftable-team` — lists inactive direct referrals + vouchers needing re-target. Lazy-expires reserved vouchers past their window.
+- `POST /api/pay-it-forward/create-team-gift` — body `{recipient_user_id, personal_message, pay_method: 'wallet'|'crypto'}`. Wallet immediate; crypto via NOWPayments invoice.
+- `GET /api/gift/team/{code}/preview` — recipient-facing preview, auth-required.
+- `POST /api/gift/team/{code}/accept` — recipient accepts. Full activation (including Founder allocation honouring `_founder_offer_still_open`). $10 sponsor commission paid via `gift_membership_sponsor` type.
+- `POST /api/gift/team/{code}/decline` — recipient declines. No refund. Voucher → status `declined`.
+- `POST /api/pay-it-forward/retarget/{code}` — gifter re-targets `{action: 'retarget', new_recipient_user_id}` OR converts `{action: 'convert_to_shareable'}`.
+
+**Frontend:**
+- New route `/gift/team/:code` (placed BEFORE `/gift/:code` in App.jsx — React Router order matters)
+- New page `frontend/src/pages/TeamGiftAccept.jsx` (recipient accept/decline UI)
+- Card added to `PayItForward.jsx` — only renders when `teamData.enabled === true`
+
+**Safety invariants:**
+- Recipient must be in gifter's direct downline (`sponsor_id` check)
+- Recipient must be inactive at create AND at acceptance
+- Cannot double-gift same recipient (returns 400 with existing voucher code)
+- Voucher acceptance is idempotent (status check before activation)
+
+---
+
+## Dashboard Founder banner (updated 27 May 2026)
+
+Component `frontend/src/components/FoundingPartnerBanner.jsx`. Rendered near the top of `Dashboard.jsx`. Polls `/api/founding-members/status` every 60s; countdown ticks locally every 1s.
+
+**Now shows to ALL logged-in users (was: free members only), with role-aware CTA:**
+
+| Audience | Eyebrow | CTA |
+|---|---|---|
+| Free members | "Final Call · Founding Partner Circle" | "Claim Your Seat →" → `/upgrade` |
+| Active members | "Final Call · Push your team before Friday" | "Push my team →" → `/my-team` |
+
+Auto-hides when `status.is_open === false` (count filled OR deadline passed). Per-session dismissable. Visual treatment is gold/amber — documented brand exception, predates the cobalt+cyan lock.
+
+**API extension:** `/api/founding-members/status` now returns `deadline_utc`, `closed_by` (`null` | `'count_cap'` | `'deadline'`), `now_utc`.
 
 ---
 
@@ -74,7 +134,7 @@
 
 ---
 
-## Funnel/SuperPages system (canonical state, 26 May 2026)
+## Funnel/SuperPages system (canonical state, 26 May 2026 — unchanged today)
 
 After the cleanup commit `b064405`, this is the WHOLE system:
 
@@ -93,7 +153,18 @@ After the cleanup commit `b064405`, this is the WHOLE system:
 - `frontend/src/data/funnelTemplates.js` — UI tile registry (8 + Blank Canvas)
 - `frontend/src/pages/FunnelsNew.jsx` — create page (contains dead AI modal scaffolding awaiting Session 2)
 
-**Removed in `b064405`** (don't re-add): `app/funnel_templates.py`, `app/main.py.backup`, `/launch-wizard` route, `/api/launch-wizard/*` endpoints (×4), `/api/pro/funnel/create-from-template`, `/api/pro/funnel/templates`, `/api/funnels/templates`, `NICHE_TEMPLATES`/`NICHE_STATS`/`NICHE_STEPS`/`NICHE_TESTIMONIALS` dicts (~350 lines of unreachable niche fallback).
+---
+
+## Admin tooling additions (this session)
+
+| Endpoint | What it does |
+|---|---|
+| `GET /admin/api/founder-offer-status` | Returns `{is_open, current_founder_count, spots_remaining, deadline_utc, closed_by, now_utc}`. Mirrors the helper's logic so what admin sees matches what activation rails see. |
+| `POST /admin/api/founder-offer-deadline` | Body `{deadline_utc: "ISO-8601" | null}`. Update deadline at runtime — extend, shorten, or remove (`null` = count-cap only). |
+| `GET /admin/api/team-gifting-flag` | Returns `{enabled: bool}`. |
+| `POST /admin/api/team-gifting-flag` | Body `{enabled: bool}`. Flip the team gifting feature flag. |
+
+`/admin/finances` dashboard + `/admin/api/finance-summary` from yesterday remain live.
 
 ---
 
@@ -113,7 +184,7 @@ After the cleanup commit `b064405`, this is the WHOLE system:
 
 ## Brand identity (locked, no drift)
 
-- **Palette:** cobalt blue (`#0a1438`, `#1e3a8a`), sky/cyan accent (`#06b6d4`, `#0ea5e9`, `#22d3ee`), white. **No amber/gold accents** — only exception is the Profit Grid section on the Video Sales Page (documented exception, not a precedent).
+- **Palette:** cobalt blue (`#0a1438`, `#1e3a8a`), sky/cyan accent (`#06b6d4`, `#0ea5e9`, `#22d3ee`), white. **No amber/gold accents** — only exceptions are (a) the Profit Grid section on the Video Sales Page, and (b) the FoundingPartnerBanner gold treatment (predates the brand lock). Neither is a precedent.
 - **Typography:** Sora (headings), DM Sans (body), JetBrains Mono (code/tags).
 - **Public pages:** dark deep-space aesthetic with cobalt gradients.
 - **Member pages:** white cards on light cobalt/grey background.
@@ -132,27 +203,23 @@ After the cleanup commit `b064405`, this is the WHOLE system:
 
 ## Open issues (ranked by impact)
 
-### Open
+### Active and time-sensitive
 
-1. **Stripe webhook delivery reliability.** TWO members (Annemiek, Kelly) in 24 hours have paid via Stripe but `checkout.session.completed` did NOT reach our handler — both were rescued by the `invoice.paid` self-healing branch (rows show `tx_hash` starting `stripe-invoice-recovery_`). Self-healing is a band-aid; we need root cause. **Needs:** Stripe Dashboard → Developers → Webhooks → endpoint → delivery attempts for 26 May 08:49 UTC (Annemiek) AND 26 May 06:29 UTC (Kelly); Railway logs same windows. Two webhook endpoints exist — verify Stripe is configured to call `/api/stripe/webhook` (line 11646 in `app/main.py` after `b064405`), NOT legacy `/api/webhook/stripe` (returns 410).
+1. **🆕 BSC scanner can silently stall for hours.** On 27 May the in-process scanner produced zero scans from 06:18 UTC to 13:47 UTC (~6.5 hours). Symptom: `[bsc-scan tick N] skipped: lock_busy (heartbeat)` repeating with no actual scans. Root cause: orphaned Postgres advisory lock held by a dead connection. Resolved by Railway service restart. **NEEDS:** monitoring alarm — if no `bsc-scan tick` log line containing "scanned=N" fires within 5 minutes, alert. Customer impact today: Floyd (user 482) paid twice because crypto didn't process, then paid via Stripe to meet the deadline; manually refunded $15.40 USDT.
 
-2. **Post-signup copy confusion.** Two members in 24 hours have misread the post-payment activation flow as "I have to pay more to access what I bought." Kelly cancelled inside 12 hours. The "Next step: activate a Campaign Tier" line at `app/main.py:_activate_membership` (~line 9696/9699) needs a copy pass — separate "what you just bought" from "optional next step" clearly. Not urgent but actively costing churn.
+2. **🆕 Stripe webhook delivery reliability (still open).** THREE members in 24 hours (Annemiek, Kelly, Floyd) — `checkout.session.completed` did NOT reach our handler. All were rescued by the `invoice.paid` self-healing branch (rows show `tx_hash` starting `stripe-invoice-recovery_`). Self-healing is a band-aid; we need root cause. **Needs:** Stripe Dashboard → Developers → Webhooks → endpoint → delivery attempts for 27 May 12:38 UTC (Floyd), 26 May 08:49 UTC (Annemiek), 26 May 06:29 UTC (Kelly); Railway logs same windows. Two webhook endpoints exist — verify Stripe is configured to call `/api/stripe/webhook`, NOT legacy `/api/webhook/stripe` (returns 410).
 
-3. **AI funnel generator not built.** `/pro/funnels/new` has a "Coming soon" pill where the Generate button used to be. Building the proper version is "Session 2" of the funnel cleanup work. Needs Steve pre-decisions:
-   - Does AI generate full layout, or fill copy into a chosen template? (Strong recommendation: fill copy.)
-   - Input fields: keep niche + audience + story + tone, ADD call-to-action goal?
-   - Output guardrails: no income claims, no fabricated stats, length limits, niche filter
-   - Post-generation flow: AI fills template → user lands on `/pro/funnel/{id}/edit` to polish
+3. **Post-signup copy confusion (still open).** The "Next step: activate a Campaign Tier" line at `app/main.py:_activate_membership` (~line 9696/9699) needs a copy pass — separate "what you just bought" from "optional next step" clearly. Cost Kelly her membership 26 May. Not urgent but actively churning members.
 
-4. **My Marketing hub** not yet built. Per `docs/my-marketing-plan.md` (24 May 2026). Mockups + designs in `/mnt/user-data/outputs/` from the planning session. ~1.5-2 sessions of work, ~3 hours total.
+### Tracked
 
-### Tracked but lower priority
-
-- **`docs/commission-spec.md` is out of date** — describes old 8×8/64 grid model. Current truth is in `app/grid.py` header comment (6×6/36, 25 May 2026 change). Spec doc needs update.
-- **28 unmatched orphan transfers** (~$500 USDT) — arrived at treasury, couldn't auto-match. Manual reconciliation needed.
+- **AI funnel generator not built.** `/pro/funnels/new` has a "Coming soon" pill. Pre-decisions needed from Steve (see Open Decisions).
+- **My Marketing hub** not yet built. Per `docs/my-marketing-plan.md`.
+- **`docs/commission-spec.md` is out of date** — describes old 8×8/64 grid. Current is 6×6/36 per `app/grid.py`.
+- **28 unmatched orphan transfers** (~$500 USDT) — manual reconciliation needed.
 - **GridStreamPage fabricated $103,976 hero counter** — needs live numbers or removal.
 - **`COMING_SOON_HTML` constant** at `app/main.py:177-270` (~100 lines dead HTML). Code hygiene.
-- **`cache_invalidate_user()` namespace coverage** — only clears `dash:` and `analytics:` prefixes, not `descendants:` / `withdrawn:` / `earnings:`. Several commission-credit sites bypass `create_notification()` (the only invalidation site) by writing `Notification(...)` directly.
+- **`cache_invalidate_user()` namespace coverage** — only clears `dash:` and `analytics:`, not `descendants:`/`withdrawn:`/`earnings:`.
 - **Historical `membership_company` backfill** — every membership activation since WalletConnect went live is missing its company-side commission row. No missing money; bookkeeping only.
 - **`/achievements` page is still Jinja** — should be migrated to React route.
 - **i18n translation pass** — 19 frontend locales need pricing-tier key updates (commit `863ae66`); 6 backend training locales need translation against 18-lesson corpus (commit `c0d2643`).
@@ -160,17 +227,17 @@ After the cleanup commit `b064405`, this is the WHOLE system:
 - **Share-code XSS test** — never executed.
 - **Stripe reconciliation cron** — never scheduled.
 - **`COLOR-1` polish** at `ElementInspectorPanel.jsx:4566`.
-- **R2 hero background filename** — `marketing-bg/R9K1t.jpg` should probably be renamed to something descriptive like `growth-hero-bg.jpg`.
+- **R2 hero background filename** — `marketing-bg/R9K1t.jpg` should probably be renamed to something descriptive.
+- **🆕 Creative Studio video generator** shows raw HTML on upstream 502s. JSONDecodeError path should catch and show user-friendly error + auto-retry once. Credits-refund behaviour on upstream failure also needs verification.
+- **🆕 Broadcast plain-text detection edge case:** the `_normalise_broadcast_body` helper detects HTML via block tags (p, div, br, h1-6, ul, ol, li, table, etc.). Inline tags like `<strong>` or `<em>` in plain-text input get escaped to literal text. Acceptable for now; document this so the next admin who writes `<strong>bold</strong>` in a plain-text email understands why it appears literally.
 
 ---
 
 ## Open product decisions (awaiting Steve)
 
-Things Claude can't move on without your call:
-
-1. **AI funnel generator design** (4 questions above under Open Issue #3).
+1. **AI funnel generator design** — does AI generate full layout, or fill copy into a chosen template? Input fields? Output guardrails? Post-generation flow?
 2. **My Marketing hub launch timing** — Steve needs to contact members for testimonial quote permission before launch.
-3. **Dashboard "Active Members" count semantics** — should it include or exclude the (now zero) expired-but-flagged-active members? With the integrity fix shipped, this is moot for now, but the semantic question is open.
+3. **Dashboard "Active Members" count semantics** — should it include or exclude the (now zero) expired-but-flagged-active members?
 
 ---
 
@@ -178,9 +245,10 @@ Things Claude can't move on without your call:
 
 | Service | Schedule | Status |
 |---|---|---|
-| `daily-briefing-cron` | `0 6 * * * UTC` | ✅ Live — image `curlimages/curl:latest`, calls `/cron/daily-briefing?secret=$CRON_SECRET`. Email to `stevelawsonmarketing@gmail.com`. Idempotent per UTC date. |
+| `daily-briefing-cron` | `0 6 * * * UTC` | ✅ Live — image `curlimages/curl:latest`, calls `/cron/daily-briefing?secret=$CRON_SECRET`. **CRON_SECRET sync fixed 27 May** (was mismatched with main service). Email to `stevelawsonmarketing@gmail.com`. Idempotent per UTC date. |
+| `stuck-lapsed-alert-cron` | (per Railway) | ✅ Live — same secret-sync issue as daily-briefing; **fixed 27 May**. |
 | `process_auto_renewals` | (in-process) | ✅ Live — wallet-balance renewals for monthly members. Stripe renewals handled by Stripe directly. |
-| BSC scanner | (in-process) | ✅ Live — Layers 1-6 reliability work shipped (24 May). Self-healing cursor + silent-empty-result detection + cross-run retry + reconciler. |
+| BSC scanner | (in-process, 30s interval) | ⚠️ Live but stall-prone — see Open Issue #1. Multi-replica safe via `pg_try_advisory_lock(1885347291)`, but orphaned-lock recovery is only via service restart. |
 
 ---
 
@@ -188,12 +256,14 @@ Things Claude can't move on without your call:
 
 | Claim type | How to verify |
 |---|---|
-| **Financial state ("how much has the business earned?")** | Visit `/admin/finances` (browser, brand-styled HTML) or curl `/admin/api/finance-summary` (JSON). Both backed by `app/finance.py:compute_financial_overview`. Shows inflows by rail, company-retained breakdown, MRR, member liabilities, and concerns across all-time / this-month / last-24h windows. |
-| Commission rates / payouts | Read `docs/commission-spec.md`. If spec contradicts code, raise with Steve. |
+| **Financial state ("how much has the business earned?")** | Visit `/admin/finances` (browser, brand-styled HTML) or curl `/admin/api/finance-summary` (JSON). Both backed by `app/finance.py:compute_financial_overview`. |
+| **Founder offer status** | `GET /admin/api/founder-offer-status` (admin auth) returns deadline + count + is_open. |
+| Commission rates / payouts | Read `docs/commission-spec.md` (currently out of date — see Tracked Issues). If spec contradicts code, code wins. |
 | Live DB state | Use SuperAdPro Monitoring MCP — `member_composition`, `lookup_user`, `commission_audit`, `platform_pulse`. Cached 60s. |
 | Specific user state | `lookup_user(identifier=...)` |
+| Specific tx hash trace | `lookup_payment_by_txid(tx_hash=...)` |
 | Commit history | `git log` in the cloned repo |
-| Schema | Read `app/database.py` directly |
+| Schema | Read `app/database.py` directly. **DO NOT** trust schema comments; grep for where fields are USED. |
 | Active route | `grep -n "@app\." app/main.py` |
 | Brand colours | `static/design-tokens.css` |
 
@@ -206,4 +276,4 @@ Be skeptical of:
 - **`CLAUDE.md`** claims NOWPayments is "retired" — WRONG. It's live.
 - **`docs/commission-spec.md`** describes 8×8/64 grid — WRONG. Current is 6×6/36.
 - **Old `LAUNCH_LOG.md` entries** may reference webhook endpoints, payment rails, or product details that have since changed. Most recent entry wins; cross-check against this file.
-- Past handover docs may include claims that turned out to be incorrect (e.g. the 26 May handover said `/funnels/visual` was a 404 — it's actually a 302 redirect to the React editor; the real issue was schema mismatch, not the URL).
+- Past handover docs may include claims that turned out to be incorrect (e.g. the 26 May handover said `/funnels/visual` was a 404 — it's actually a 302 redirect; the real issue was schema mismatch, not the URL).

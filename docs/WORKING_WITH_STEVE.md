@@ -207,3 +207,37 @@ If you discover something already in this file is WRONG (because Steve has chang
 - Steve asked to embed the finance overview inside the admin dashboard's existing Finances tab rather than a standalone page. Done in `bdbd4d0` — replaced the thin 4-metric old tab with the full overview, kept Recent Payments below. Standalone page still exists at `/admin/finances`.
 - Steve corrected my "campaign_balance is restricted, can't be withdrawn" claim. It IS withdrawable, conditional on active tier + Watch-to-Earn quota. I had repeated a misreading of the schema comment. Real logic lives in `app/withdrawals.py:_validate_campaign_structural`. Fixed labels on both surfaces in this commit. Lesson added above under "specific things caught on."
 - Pattern of the morning: I let myself trust DESCRIPTIONS (schema comments, field names) over INSPECTION (greping for actual writes/reads/validators). Twice in one session, both caught by Steve. The audit script needs to be a pre-commit habit, not a post-failure remediation.
+
+### 27 May 2026 (afternoon + evening — Founder deadline push)
+
+The longest single feature push of any session: Founder deadline mechanism, full team-gifting build, dashboard banner countdown, role-aware banner, broadcast formatter fix. 5 commits across one afternoon. Steve set Friday 29 May 23:59 UTC as the Founder offer hard close; everything in this block exists to make that date land cleanly.
+
+Things I did well:
+
+- **Schema audit ran BEFORE the team-gifting commit, not after.** Caught one bug pre-push (referenced `User.last_seen_at`, doesn't exist; pivoted to `created_at`). This is the pattern that should have prevented this morning's bugs.
+- **Asked permission BEFORE building admin-tool-respects-deadline.** It was a product question, not a technical one, and getting the answer right cost zero time. Steve's call: only the 3 public rails honour the deadline; admin tools intentionally bypass for edge-case manual promotion. Wouldn't have arrived at that from code alone.
+- **Recognised the role-aware banner shift when Steve reframed it.** First version was free-members-only ("claim a spot"). Steve said "everyone should see it so paying members can push their marketing" — that reframed the feature entirely. The right move was rebuilding the rendering branch and the CTA, not arguing the original spec. Built in one commit, no back-and-forth.
+- **Wrote 5 unit-test cases for `_normalise_broadcast_body` before pushing.** All passed. Steve confirmed the email landed beautifully on first send. This is the standard.
+
+Things I got wrong:
+
+- **Jumped to "the crypto payment is Floyd's" without verifying.** Steve caught it: "How do we know it was Floyd who paid in Crypto and wasn't another member?" I had reasoned from "Floyd has a pending $15.40 order; treasury received $15.40 — must be Floyd." That's a likely match but not proof. Correct response was Floyd's tx hash from his own wallet — only the actual sender has that. Lesson: when identity matters (money is moving), require a token only the real party can produce. Don't infer identity from amount + timing alone.
+- **Sent Steve down two diagnostic rabbit-holes on the cron 401 issue.** First I had him test the URL in his browser to verify the fix, which returned 401 because Railway env-var changes need a service restart. Steve was rightly frustrated: "I have no idea what you are talking about.. We literally just updated the variables." I'd been thorough at the cost of clarity. Lesson: when Steve has already done the fix correctly, **don't add verification steps that don't actually verify what he did.** The cron services would prove themselves on next scheduled run. The browser test was testing something else entirely.
+- **Said "looks for log lines containing bsc-scan" without explaining where to find them in Railway.** Steve replied "You are not being specific enough" with an accurate description of the multi-deploys-in-the-list UX. Lesson: when giving instructions for a UI Steve hasn't navigated before, name the exact tab, the exact click, the exact selector. Don't assume he knows the layout. "Deployments tab → topmost deploy → Deploy Logs sub-tab" is correct. "Open Railway logs and search for bsc-scan" is not.
+
+Patterns to keep:
+
+- **"Floyd-style duplicate payment" is a real class of issue.** When the crypto rail stalls and a member can't see their activation, some will pay twice via different rails. The right response is: confirm the duplicate via tx hash (not amount inference), refund whichever rail keeps the processor relationship healthy (Steve refunded crypto manually to avoid hitting Stripe's refund rate), and document the audit trail.
+- **The "third-party 502 is not a code bug" pattern.** Creative Studio threw an HTTP 502 today during the priority push. I correctly identified it as upstream (Evolink), correctly recommended not fixing now (improve error handling later), and Steve agreed. Don't let every alert pull focus from the critical path. Triage what's yours vs upstream and move on.
+- **"Once and for all" got the broadcast formatter right.** Steve hit the wall-of-text problem preparing the email. Instead of just emailing him an HTML version to paste, the actual fix was the backend normaliser + tests + frontend label update — so no future admin can shoot themselves in the foot. Three pieces: backend conversion, frontend copy, tests. Same pattern as the expires_at fix yesterday.
+
+Specific things added to project memory:
+
+- **Schema-trust pattern (now hit twice in 24 hours)** — schema comments are hints, field names are hints, the only definition is "where is this read/written/validated in code." Grep first, describe second.
+- **BSC scanner stall failure mode** — orphaned advisory lock, in-process thread can't recover without a service restart. Monitoring alarm needed.
+- **Cron-secret-sync foot-gun** — Railway env vars are per-service; rotating in the main API doesn't propagate. When rotating any secret consumed by multiple services, update all of them in one pass and verify on next scheduled run, not via manual browser testing.
+- **Tone calibration on "I have no idea what you are talking about":** that's not Steve being rude, it's Steve telling me my message lost him. The correction is to stop, simplify, give a less-precise but more-actionable instruction. Not to defend the previous message.
+
+Banner copy fix late in the day: when Steve said "I think everyone should see it so even paid members can push their marketing," I rebuilt instead of arguing. That's the right reflex. He has product sense; my job is to make his sense executable.
+
+Counts at session close: 77/100 Founder seats taken, 23 spots left, deadline live, team gifting ready to flip on Saturday, announcement email sent (rendered cleanly), Facebook post live, refund to Floyd completed.
