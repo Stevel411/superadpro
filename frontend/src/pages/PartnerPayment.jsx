@@ -150,8 +150,12 @@ export default function PartnerPayment() {
       // Backend re-checks the 100-cap server-side under the founder lock
       // so two members hitting Stripe Checkout simultaneously at spot
       // #100 won't both get the price.
+      //
+      // 27 May 2026: also pass billing cadence so annual ($150 Founder /
+      // $200 Partner) routes to the annual Stripe Price IDs instead of
+      // silently defaulting to monthly.
       var tierForStripe = foundingOpen ? 'founding' : 'partner';
-      apiPost('/api/stripe/checkout/membership', { tier: tierForStripe })
+      apiPost('/api/stripe/checkout/membership', { tier: tierForStripe, billing: cadence })
         .then(function(d) {
           setLoading(false);
           if (d.checkout_url) { window.location.href = d.checkout_url; }

@@ -11925,11 +11925,17 @@ async def stripe_checkout_membership(
     """Create a Stripe Checkout session for membership signup.
 
     Body (JSON):
-      tier: 'partner' or 'founding' (default 'partner')
-            If 'founding' is requested but the 100-spot cap is full, this
-            endpoint falls back to 'partner' silently. The actual founder
-            assignment happens in _activate_membership() on webhook receipt
-            so the cap is enforced consistently across crypto + Stripe.
+      tier:    'partner' or 'founding' (default 'partner')
+               If 'founding' is requested but the 100-spot cap is full,
+               this endpoint falls back to 'partner' silently. The actual
+               founder assignment happens in _activate_membership() on
+               webhook receipt so the cap is enforced consistently across
+               crypto + Stripe.
+      billing: 'monthly' or 'annual' (default 'monthly')  -- added 27 May 2026
+               Annual maps to $150/yr Founder or $200/yr Partner. Stripe
+               Price IDs come from STRIPE_FOUNDER_ANNUAL_PRICE_ID and
+               STRIPE_PARTNER_ANNUAL_PRICE_ID env vars; if either is
+               missing, returns 400 with "no_price_for_tier".
 
     Returns:
       { checkout_url, session_id }
@@ -11939,6 +11945,10 @@ async def stripe_checkout_membership(
 
     body = await request.json()
     tier = (body.get("tier") or "partner").lower()
+    billing = (body.get("billing") or "monthly").lower()
+    if billing not in ("monthly", "annual", "yearly", "year"):
+        billing = "monthly"
+
     if tier in ("founder", "founding"):
         # Check the founder cap before sending the member to Stripe with a
         # $15 price — if the cap is full, send them to the $20 Partner
@@ -11949,10 +11959,20 @@ async def stripe_checkout_membership(
         )).fetchone()
         if current_founders and current_founders.cnt >= 100:
             tier = "partner"
+        # ALSO check the deadline — if the Founder offer has closed by
+        # deadline (not just count), fall back to partner pricing the
+        # same way. Keeps the time cap consistent across crypto + Stripe.
+        elif not _founder_offer_still_open(db):
+            tier = "partner"
 
-    price_id = _stripe.get_price_id_for_tier(tier)
+    price_id = _stripe.get_price_id_for_tier(tier, billing=billing)
     if not price_id:
-        return JSONResponse({"error": "no_price_for_tier", "tier": tier}, status_code=400)
+        return JSONResponse({
+            "error": "no_price_for_tier",
+            "tier": tier,
+            "billing": billing,
+            "detail": f"No Stripe Price configured for {tier} ({billing}). Check STRIPE_*_PRICE_ID env vars.",
+        }, status_code=400)
 
     try:
         result = _stripe.create_checkout_session(
@@ -11962,7 +11982,7 @@ async def stripe_checkout_membership(
             price_id=price_id,
             success_path="/payment-success",
             cancel_path="/partner-payment",
-            extra_metadata={"tier_requested": tier},
+            extra_metadata={"tier_requested": tier, "billing": billing},
         )
         return result
     except Exception as e:
@@ -12345,6 +12365,14 @@ def _stripe_handle_checkout_completed(db, session, event):
         user.stripe_subscription_id = session.get("subscription")
         tier_requested = metadata.get("tier_requested", "partner")
         tier_for_activation = "founding" if tier_requested in ("founder", "founding") else "partner"
+        # 27 May 2026: read billing cadence from metadata too. We pass
+        # 'billing' in extra_metadata at checkout-creation; if absent
+        # default monthly. _activate_membership(billing="annual") sets
+        # 365-day expiry and 10× sponsor commission.
+        billing_from_metadata = (metadata.get("billing") or "monthly").lower()
+        if billing_from_metadata not in ("monthly", "annual", "yearly", "year"):
+            billing_from_metadata = "monthly"
+        billing_for_activation = "annual" if billing_from_metadata in ("annual", "yearly", "year") else "monthly"
 
         # ── Double-fire guard (26 May 2026) ────────────────────────────
         # Both webhook events can fire for a single signup (Stripe sends
@@ -12374,9 +12402,9 @@ def _stripe_handle_checkout_completed(db, session, event):
                 source="stripe",
                 subscription_id=session.get("subscription"),
                 is_upgrade=False,
-                billing="monthly",
+                billing=billing_for_activation,
             )
-            logger.info(f"Stripe membership activated for user {user.id} tier={tier_for_activation}")
+            logger.info(f"Stripe membership activated for user {user.id} tier={tier_for_activation} billing={billing_for_activation}")
         except Exception as e:
             logger.exception(f"_activate_membership failed during Stripe webhook for user {user.id}")
     elif mode == "payment":
@@ -12570,6 +12598,14 @@ def _stripe_handle_invoice_paid(db, invoice, event):
 
         tier_requested = metadata.get("tier_requested", "partner")
         tier_for_activation = "founding" if tier_requested in ("founder", "founding") else "partner"
+        # 27 May 2026: read billing cadence from metadata too. Without this
+        # an annual Stripe checkout that fell into the self-healing path
+        # would be activated as monthly — wrong expiry, wrong commission,
+        # member charged for a year but only credited for a month.
+        billing_from_metadata = (metadata.get("billing") or "monthly").lower()
+        if billing_from_metadata not in ("monthly", "annual", "yearly", "year"):
+            billing_from_metadata = "monthly"
+        billing_for_activation = "annual" if billing_from_metadata in ("annual", "yearly", "year") else "monthly"
         try:
             _activate_membership(
                 db=db,
@@ -12578,12 +12614,13 @@ def _stripe_handle_invoice_paid(db, invoice, event):
                 source="stripe-invoice-recovery",  # so we can audit later
                 subscription_id=subscription_id,
                 is_upgrade=False,
-                billing="monthly",
+                billing=billing_for_activation,
             )
             logger.warning(
                 f"Self-healed Stripe activation via invoice.paid for user {user.id} "
                 f"({user.username}) — checkout.session.completed didn't arrive. "
-                f"Activated as tier={tier_for_activation} via subscription {subscription_id}"
+                f"Activated as tier={tier_for_activation} billing={billing_for_activation} "
+                f"via subscription {subscription_id}"
             )
             # Re-read user.is_founding_member after activation so the product_kind
             # tag below reflects the new state, not the old free-tier state.

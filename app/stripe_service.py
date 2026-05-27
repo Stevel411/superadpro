@@ -62,6 +62,16 @@ def _founder_price_id() -> Optional[str]:
 def _partner_price_id() -> Optional[str]:
     return os.environ.get("STRIPE_PARTNER_PRICE_ID")
 
+# Annual prices (added 27 May 2026). Founder annual locks in $150/yr
+# for life (vs $200/yr standard Partner annual). Stripe will charge the
+# full year up front; the existing _stripe_handle_invoice_paid handler
+# reads period.end from the invoice so the 365-day expiry just falls out.
+def _founder_annual_price_id() -> Optional[str]:
+    return os.environ.get("STRIPE_FOUNDER_ANNUAL_PRICE_ID")
+
+def _partner_annual_price_id() -> Optional[str]:
+    return os.environ.get("STRIPE_PARTNER_ANNUAL_PRICE_ID")
+
 def _public_url() -> str:
     # Used for Checkout success/cancel URLs. Defaults to production domain
     # so links work in staging without explicit env var setup.
@@ -309,17 +319,29 @@ def create_portal_session(user, return_url: Optional[str] = None) -> Dict[str, s
 
 # ─── Helpers for the route layer ─────────────────────────────────────────────
 
-def get_price_id_for_tier(tier: str) -> Optional[str]:
+def get_price_id_for_tier(tier: str, billing: str = "monthly") -> Optional[str]:
     """
-    Map a tier name to the Stripe Price ID env var.
-      'founder'  → STRIPE_FOUNDER_PRICE_ID  ($15/month)
-      'partner'  → STRIPE_PARTNER_PRICE_ID  ($20/month)
+    Map a tier name + billing cadence to the Stripe Price ID env var.
+
+    Monthly (default):
+      'founder'  → STRIPE_FOUNDER_PRICE_ID         ($15/month)
+      'partner'  → STRIPE_PARTNER_PRICE_ID         ($20/month)
+
+    Annual (billing='annual' or 'yearly'):
+      'founder'  → STRIPE_FOUNDER_ANNUAL_PRICE_ID  ($150/year)
+      'partner'  → STRIPE_PARTNER_ANNUAL_PRICE_ID  ($200/year)
+
+    Returns None if either the tier is unknown OR the requested billing
+    cadence has no env var configured. Caller must handle None.
     """
     t = (tier or "").lower()
+    b = (billing or "monthly").lower()
+    is_annual = b in ("annual", "yearly", "year")
+
     if t in ("founder", "founding"):
-        return _founder_price_id()
+        return _founder_annual_price_id() if is_annual else _founder_price_id()
     if t in ("partner", "standard"):
-        return _partner_price_id()
+        return _partner_annual_price_id() if is_annual else _partner_price_id()
     return None
 
 def refund_window_expiry() -> datetime:
