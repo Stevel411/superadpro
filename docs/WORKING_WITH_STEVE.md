@@ -240,4 +240,28 @@ Specific things added to project memory:
 
 Banner copy fix late in the day: when Steve said "I think everyone should see it so even paid members can push their marketing," I rebuilt instead of arguing. That's the right reflex. He has product sense; my job is to make his sense executable.
 
-Counts at session close: 77/100 Founder seats taken, 23 spots left, deadline live, team gifting ready to flip on Saturday, announcement email sent (rendered cleanly), Facebook post live, refund to Floyd completed.
+Counts at session close: 85/100 Founder seats taken (up from 72 at session start), 15 spots left, deadline live, team gifting ready to flip on Saturday, annual billing live ($150/yr Founder, $200/yr Partner), announcement email sent (rendered cleanly), Facebook post live, refund to Floyd completed.
+
+### Late-evening additions (after first handover)
+
+The session ran longer than the first handover captured. Three more things shipped + one strategic exercise:
+
+- **Annual billing went live (commit 6952a62).** Wired Stripe annual through frontend + backend + webhook handlers. Steve created the two Stripe Prices in Dashboard, set env vars in Railway, I shipped the code. The first deploy failed because I'd ALSO included a nixpacks `postgresql_17` change (same commit batch) that broke Railway's build. Reverted just the nixpacks line (commit 692bec7), kept annual code. Verified end-to-end — Stripe Checkout correctly shows $150/year for Founder annual.
+
+- **Backup investigation reached root cause but not fix.** The "Backup file too small" warning Steve noticed in Railway logs traced to `pg_dump` not being installed in the container. Diagnostic fix shipped (4f28387, 085f6b3) — proper pipefail + stderr capture + GET trigger endpoint. Definitive error surfaced via Steve hitting `/admin/api/backup/run`: `command not found, exit 127`. Tried installing `postgresql_17` via nixpacks; Railway build failed three times. Reverted. **Backups are still broken — no working DB backup exists.** TOP PRIORITY post-deadline.
+
+- **Strategic exercise → Creative Studio v2 brief reveal.** Steve asked Claude to play "smartest, ruthless competitor" with a 12-month plan to destroy SuperAdPro. I produced a 6-defense breakdown. The ONE move I said as competitor I couldn't out-execute in 12 months was building a category-leading creative tool tied into the SuperAdPro ecosystem. Steve then revealed he'd been developing a brief for exactly that (Creative Studio v2 — credit-based pay-as-you-go video tool with brand memory via RAG). Saved to `docs/creative-studio-v2-brief.md` with explicit "do not build before scoping" markers and 8 open foundational questions.
+
+Lessons from the late-evening stretch:
+
+- **Don't combine unrelated changes in one commit.** I'd batched the annual-billing code with the nixpacks postgresql change. When nixpacks broke the build, it also blocked annual from shipping. If I'd shipped them as separate commits, the annual code would have landed clean and only the nixpacks change would have needed reverting. Single-purpose commits aren't bureaucracy; they're risk isolation.
+
+- **When Steve reveals he's already been thinking about something, the strategic exercise was confirmation, not invention.** That changes how to respond. Don't act like the idea was generated together — acknowledge the conviction is his, the exercise sharpened it. Then the right move is preservation (save the brief, park it, scope it later), not execution.
+
+- **The "asymmetric bet" framing landed because Steve already had it in his bones.** The reason it didn't feel like an outsider's strategy is because it wasn't. The hour-long exercise mattered because it validated Steve's instinct with an external lens. If I'd tried to lead him there without him having pre-thought it, it would have been advice, not partnership.
+
+- **A 12+ hour session can still produce a coherent strategic doc, but it's the wrong moment to commit to building it.** I correctly identified this and pushed for "save it, sleep, scope Saturday." That's not protecting Steve from himself — it's recognising that a Saturday-morning scoping session will be better than a 11pm scoping session. Decision-quality preservation.
+
+- **Identity-via-token-not-inference (already in this doc earlier) applied a second time tonight.** When Steve asked "how do we know it was Floyd?" my first answer used amount + timing inference. The correct answer was the tx hash from Floyd's own wallet — a token only he could produce. He produced it; identity confirmed; refund proceeded. Same pattern as morning: when stakes are real, infer is not the same as verify.
+
+The day ended at 12 commits, 85/100 Founders, annual live, deadline self-enforcing, team gifting ready, Creative Studio v2 brief saved. Significant infrastructure debt surfaced and partly resolved (scanner stable, crons fixed, broadcast formatter shipped, backup still broken). Strategic clarity gained.

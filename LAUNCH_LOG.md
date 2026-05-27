@@ -110,6 +110,24 @@ Full lesson detail in `docs/WORKING_WITH_STEVE.md` (appended this session).
 - BSC scanner monitoring alarm.
 - Creative Studio video generator error handling on upstream 502.
 
+### Late-evening continuation (after first handover commit 492c5a1)
+
+Session ran another 5+ hours after the midway handover. Five more arcs:
+
+**Annual billing went live (commits 6952a62 + 692bec7).** Steve created two new Stripe Prices ($150/yr Founder, $200/yr Partner), set env vars in Railway. I wired the code — backend resolver `get_price_id_for_tier(tier, billing)`, frontend passes `cadence` as `billing`, both webhook handlers read billing from metadata and pass through to `_activate_membership(billing="annual")`. Verified end-to-end: Stripe Checkout shows "$150.00 per year" + "Billed annually". Sponsor commission unchanged at $100 (10× monthly) per existing rule.
+
+  First deploy of 6952a62 failed because it was bundled with a nixpacks change (`postgresql_17`) that broke Railway's build. Reverted just the nixpacks line in 692bec7 — kept annual code. **Lesson logged in WORKING_WITH_STEVE: don't bundle unrelated changes in one commit. Single-purpose commits are risk isolation, not bureaucracy.**
+
+**Database backup investigation reached root cause but not fix (commits 4f28387 + 085f6b3 + e4ba662 + 692bec7).** The "Backup file too small" warning in Railway logs traced to `pg_dump` not being installed in the container. Diagnostic improvements shipped — proper `set -o pipefail`, capture pg_dump stderr to separate file, GET-variant trigger endpoint. Steve hit `/admin/api/backup/run` and got the definitive answer: `pg_dump: command not found (exit 127)`. **Backups have been failing for WEEKS, not days.** Tried adding `postgresql_17` to nixpacks; Railway build failed three times consecutively. Reverted. Code-side is ready; need correct package name (try `postgresql` plain, `postgresql_15`, or apt install via Dockerfile). **TOP PRIORITY post-deadline.** Updated to Open Issue #1 in PLATFORM_STATE.
+
+**Broadcast formatter shipped before annual (commit 3ccb6a1 — captured in midway handover but the verification happened in this stretch).** Steve sent the Founder deadline announcement email after the fix. Confirmed: "That worked beautifully."
+
+**Strategic exercise: ruthless competitor framing → Creative Studio v2 brief reveal (commit cba2cae).** Steve asked Claude to play smartest competitor and lay out a 12-month destroy-SuperAdPro plan. 6-defense breakdown produced; the ONE move identified as uncopyable in 12 months was a category-leading creative tool tied into SuperAdPro's ecosystem. Steve revealed he'd already been developing a brief along those lines (URL/PDF/doc/recording → polished AI-generated marketing videos, credit-based pay-as-you-go, brand memory via RAG). Brief saved to `docs/creative-studio-v2-brief.md` with 8 open foundational questions and explicit "do not build before scoping" markers. Listed as Open Product Decision #4 in PLATFORM_STATE. Decision point: post-Founder-cap-close, dedicated scoping session — not a build session.
+
+**Counts at session end (~18:15 UTC):** **85/100 Founder seats taken (up from 77 at first handover, 72 at session start).** 15 remaining. Annual billing live. Team gifting ready to flip Saturday. Backup still broken. Creative Studio v2 brief parked for Saturday's scoping.
+
+Final commit count: 12. Initially planned to ship 2 (deadline + team gifting); ended up shipping everything above plus the strategic clarity to make Creative Studio v2 the next 90 days.
+
 ---
 
 ## Status as of 2026-05-26 (evening) — VIDEO SALES PAGE + STRIPE WEBHOOK RECOVERY
