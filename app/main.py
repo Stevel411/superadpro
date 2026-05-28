@@ -7745,6 +7745,106 @@ def admin_api_backfill_campaign_binding(
     }
 
 
+@app.get("/admin/api/user-fulfillment")
+def admin_api_user_fulfillment(
+    request: Request,
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: PROVE exactly what a member did or didn't receive.
+
+    Read-only. Given a user_id, reports the definitive fulfillment state by
+    querying the source-of-truth tables directly — the answer to 'they were
+    charged, but did they get the product?'
+
+    Returns, for the user:
+      grid_positions:        every GridPosition row (Campaign Tier placements)
+      credit_pack_purchases: every CreditPackPurchase row (Nexus packs) with
+                             pack_key/price/payment_ref/status
+      superscene_credit_balance: raw SuperSceneCredit.balance (NOTE: may
+                             include a 500-credit launch/founder SEED that is
+                             NOT from any pack purchase — see boot migration
+                             in database.py ~line 4048. So a non-zero balance
+                             does NOT prove a pack was delivered; the
+                             credit_pack_purchases list is the real proof.)
+      recorded_payments:     Payment rows (what our ledger thinks it received)
+      grid_commissions_from: Commissions FROM this user (would exist if a Grid
+                             placement fired upline payouts — their absence is
+                             corroborating proof no Grid purchase completed)
+
+    Built 28 May 2026 after the Daniela/cashflow (user 350) case: two $20
+    Stripe charges (campaign_tier + nexus_pack) SUCCEEDED at Stripe but left
+    NO trace in our ledger — and no existing monitoring tool could read grid
+    or credit state to confirm what she did/didn't receive. This endpoint
+    closes that gap. Keep it long term.
+    """
+    _require_admin(user)
+    from .database import (
+        GridPosition, CreditPackPurchase, SuperSceneCredit, Payment, Commission, User as _User,
+    )
+
+    target = db.query(_User).filter(_User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"User {user_id} not found"}, status_code=404)
+
+    # ── Grid positions (Campaign Tier placements) ──
+    gpos = db.query(GridPosition).filter(GridPosition.member_id == user_id).all()
+    grid_positions = [{
+        "id": g.id, "grid_id": g.grid_id, "grid_level": g.grid_level,
+        "position_num": g.position_num, "is_overspill": bool(g.is_overspill),
+        "created_at": g.created_at.isoformat() if g.created_at else None,
+    } for g in gpos]
+
+    # ── Credit pack purchases (Nexus) ──
+    packs = db.query(CreditPackPurchase).filter(CreditPackPurchase.user_id == user_id).all()
+    credit_pack_purchases = [{
+        "id": p.id, "pack_key": p.pack_key, "pack_price": float(p.pack_price),
+        "credits_awarded": p.credits_awarded, "payment_method": p.payment_method,
+        "payment_ref": p.payment_ref, "status": p.status,
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+    } for p in packs]
+
+    # ── Creative Studio credit balance (may include free seed — see docstring) ──
+    ssc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user_id).first()
+    superscene_credit_balance = int(ssc.balance) if ssc else 0
+
+    # ── Recorded payments (our ledger) ──
+    pays = db.query(Payment).filter(Payment.from_user_id == user_id).order_by(Payment.created_at.desc()).all()
+    recorded_payments = [{
+        "id": p.id, "payment_type": getattr(p, "payment_type", None),
+        "amount": float(getattr(p, "amount_usdt", 0) or 0),
+        "status": p.status, "tx_hash": getattr(p, "tx_hash", None),
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+    } for p in pays]
+
+    # ── Commissions originating FROM this user (Grid/matrix payouts to upline) ──
+    coms = db.query(Commission).filter(Commission.from_user_id == user_id).all()
+    grid_commissions_from = [{
+        "id": c.id, "to_user_id": c.to_user_id, "type": c.commission_type,
+        "amount": float(c.amount_usdt or 0), "package_tier": c.package_tier,
+        "status": c.status,
+    } for c in coms]
+
+    return JSONResponse({
+        "user_id": user_id,
+        "username": target.username,
+        "email": target.email,
+        "summary": {
+            "has_grid_position": len(grid_positions) > 0,
+            "has_credit_pack_purchase": len(credit_pack_purchases) > 0,
+            "superscene_credit_balance": superscene_credit_balance,
+            "recorded_payment_count": len(recorded_payments),
+            "commissions_fired_from_user": len(grid_commissions_from),
+        },
+        "grid_positions": grid_positions,
+        "credit_pack_purchases": credit_pack_purchases,
+        "superscene_credit_balance": superscene_credit_balance,
+        "recorded_payments": recorded_payments,
+        "grid_commissions_from": grid_commissions_from,
+    })
+
+
 @app.get("/admin/api/rotator-state")
 def admin_api_rotator_state(
     request: Request,
