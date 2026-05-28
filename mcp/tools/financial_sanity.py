@@ -85,6 +85,41 @@ def financial_sanity(db, hours: int = 24):
     except Exception:
         pass
 
+    # Stripe inflows — card payments via Stripe Checkout / saved-card (Link).
+    # Lives in stripe_charges table (NOT the legacy payments table — Stripe has
+    # its own dedicated source-of-truth table since the rail was reinstated
+    # 23 May 2026). Filter kind='charge' to exclude refunds/chargebacks (which
+    # are stored as negative amount_cents rows). Group by product so we can
+    # break down membership_signup vs membership_renewal vs campaign_tier vs
+    # nexus_pack — same shape as walletconnect_by_product.
+    #
+    # Added 28 May 2026 — this monitor previously had a Stripe blind spot that
+    # fired a daily false "commissions_exceed_inflows" critical warning every
+    # day, because real Stripe revenue (~$240-320/day from memberships) was
+    # invisible. Closing the blind spot here makes the warning a real signal
+    # again instead of noise.
+    stripe_in = 0.0
+    stripe_count = 0
+    stripe_by_product: dict[str, dict] = {}
+    try:
+        stripe_rows = db.execute(text("""
+            SELECT product, COUNT(*) as cnt,
+                   COALESCE(SUM(amount_cents), 0) as total_cents
+            FROM stripe_charges
+            WHERE kind = 'charge'
+              AND created_at >= :t
+            GROUP BY product
+        """), {"t": since}).fetchall()
+        for r in stripe_rows:
+            usd = float(r.total_cents or 0) / 100.0
+            stripe_by_product[r.product or "unknown"] = {
+                "count": r.cnt, "total_usd": round(usd, 2),
+            }
+            stripe_count += r.cnt
+            stripe_in += usd
+    except Exception:
+        pass
+
     # Orphan transfers — money at the treasury that DID arrive but couldn't be
     # auto-matched to a pending order. Surfaced separately (not summed into the
     # main inflow total) because it represents unallocated funds awaiting manual
@@ -180,7 +215,7 @@ def financial_sanity(db, hours: int = 24):
     # Inflows should ~ commissions + platform retention + AI costs (not tracked here)
     # For a rough check: commissions paid shouldn't exceed inflows (that would mean
     # we're paying out money we didn't collect).
-    total_in = total_crypto_in + np_in + wc_in
+    total_in = total_crypto_in + np_in + wc_in + stripe_in
     total_platform_retained = (
         float(company_retained_grid)
         + float(company_retained_membership)
@@ -216,6 +251,9 @@ def financial_sanity(db, hours: int = 24):
             "walletconnect_count": wc_count,
             "walletconnect_total_usd": round(wc_in, 2),
             "walletconnect_by_product": wc_by_product,
+            "stripe_count": stripe_count,
+            "stripe_total_usd": round(stripe_in, 2),
+            "stripe_by_product": stripe_by_product,
             "orphan_transfers_unresolved_count": orphan_unresolved_count,
             "orphan_transfers_unresolved_usd": round(orphan_unresolved_usd, 2),
             "total_usd": round(total_in, 2),
