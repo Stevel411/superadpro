@@ -22324,47 +22324,31 @@ def api_p2p_history(
 #  MEMBERSHIP AUTO-RENEWAL ADMIN ENDPOINT
 # ═══════════════════════════════════════════════════════════════
 
-@app.post("/admin/api/responsor/{username}")
-def admin_responsor_free_member(
-    username: str,
-    request: Request,
-    new_sponsor: str = "",
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Re-point the sponsor of a FREE, UNACTIVATED member who landed under the
-    wrong sponsor (e.g. a stale referral cookie dropped them under the company
-    root). Added 28 May 2026.
+def _responsor_free_member(db, acting_admin, username: str, new_sponsor: str):
+    """Core logic for re-sponsoring a FREE, UNACTIVATED member. Returns
+    (payload_dict, http_status). The route wrappers below set the actual
+    HTTP status from the returned status — this keeps error statuses honest
+    (an earlier version returned 200 on rejections because the status was
+    buried in a nested JSONResponse inside a route that defaulted to 200).
 
-    SAFETY — this tool exists ONLY for free signups with no financial history.
-    It HARD-REFUSES (does not silently skip) any member who:
-      - is active, or has ever activated, or
-      - has any commission earned or generated, or
-      - holds any Grid or Nexus matrix position, or
-      - has any confirmed payment.
-    A member that passes every guard has, by definition, no commissions or
-    placements to reverse — so this is a pure genealogy edit with zero ledger
-    impact. It must NEVER be usable to rewrite a paying member's sponsor chain.
-
-    Also refuses: unknown target, same-as-current sponsor (no-op), self-sponsor,
-    and any move that would create a loop (target is downline of the member —
-    a free member has no downline, but we check anyway as belt-and-braces).
-
-    Admin-only. Logs old→new sponsor + admin id. Commits only on full success.
+    SAFETY — for free signups with no financial history ONLY. HARD-REFUSES
+    any member who is active, ever activated, non-free tier, has any
+    commission (earned or generated), any Grid/Nexus position, or any
+    confirmed payment. A member passing all guards has nothing to reverse,
+    so this is a pure genealogy edit with zero ledger impact. Can NEVER
+    rewrite a paying member's sponsor chain. Also refuses no-op, self-sponsor,
+    and loop-creating moves. Commits only on full success.
     """
-    from fastapi.responses import JSONResponse
-    from datetime import datetime as _dt
+    if not acting_admin or not acting_admin.is_admin:
+        return {"error": "Admin only"}, 403
 
-    if not user or not user.is_admin:
-        return JSONResponse({"error": "Admin only"}, status_code=403)
-
-    member = db.query(User).filter(User.username == username.lstrip("@")).first()
+    member = db.query(User).filter(User.username == (username or "").lstrip("@")).first()
     if not member:
-        return JSONResponse({"error": f"Member '{username}' not found"}, status_code=404)
+        return {"error": f"Member '{username}' not found"}, 404
 
     target = db.query(User).filter(User.username == (new_sponsor or "").lstrip("@")).first()
     if not target:
-        return JSONResponse({"error": f"Target sponsor '{new_sponsor}' not found"}, status_code=404)
+        return {"error": f"Target sponsor '{new_sponsor}' not found"}, 404
 
     # ── Hard guards: refuse anything with financial history ─────────────────
     blocks = []
@@ -22389,21 +22373,19 @@ def admin_responsor_free_member(
         blocks.append("member has a confirmed payment")
 
     if blocks:
-        return JSONResponse({
+        return {
             "error": "Refused — this tool is for free, unactivated members only.",
             "member": member.username,
             "reasons": blocks,
             "note": "Re-sponsoring a member with financial history would require "
                     "commission/placement reconciliation — out of scope for this tool.",
-        }, status_code=409)
+        }, 409
 
     # ── Sanity: no-op, self, loop ───────────────────────────────────────────
     if target.id == member.id:
-        return JSONResponse({"error": "A member cannot sponsor themselves."}, status_code=400)
+        return {"error": "A member cannot sponsor themselves."}, 400
     if member.sponsor_id == target.id:
-        return JSONResponse({
-            "error": f"{member.username} is already sponsored by {target.username} — no change.",
-        }, status_code=400)
+        return {"error": f"{member.username} is already sponsored by {target.username} — no change."}, 400
     # Loop check: walk the target's upline; if member appears, the move would
     # create a cycle. (Free member has no downline, so this is belt-and-braces.)
     seen = set()
@@ -22411,10 +22393,10 @@ def admin_responsor_free_member(
     while cursor and cursor.sponsor_id and cursor.sponsor_id not in seen:
         seen.add(cursor.sponsor_id)
         if cursor.sponsor_id == member.id:
-            return JSONResponse({
+            return {
                 "error": f"Refused — {target.username} is downline of {member.username}; "
                          f"move would create a sponsor loop.",
-            }, status_code=400)
+            }, 400
         cursor = db.query(User).filter(User.id == cursor.sponsor_id).first()
 
     old_sponsor_id = member.sponsor_id
@@ -22423,20 +22405,51 @@ def admin_responsor_free_member(
     db.commit()
 
     logger.info(
-        f"[RESPONSOR] admin {user.username} ({user.id}) moved free member "
-        f"{member.username} ({member.id}) from sponsor "
+        f"[RESPONSOR] admin {acting_admin.username} ({acting_admin.id}) moved free "
+        f"member {member.username} ({member.id}) from sponsor "
         f"{old_sponsor.username if old_sponsor else 'none'} ({old_sponsor_id}) "
         f"to {target.username} ({target.id})"
     )
 
-    return JSONResponse({
+    return {
         "success": True,
         "member": member.username,
         "old_sponsor": old_sponsor.username if old_sponsor else None,
         "new_sponsor": target.username,
         "note": "Genealogy-only change. No commissions or placements existed, "
                 "so nothing else was touched. Downline counts recompute live.",
-    })
+    }, 200
+
+
+@app.get("/admin/api/responsor/{username}")
+def admin_responsor_free_member_get(
+    username: str,
+    request: Request,
+    new_sponsor: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET version — phone-friendly. Re-point a free member's sponsor:
+      /admin/api/responsor/{username}?new_sponsor={target_username}
+    See _responsor_free_member for the full safety contract. Admin-only.
+    """
+    from fastapi.responses import JSONResponse
+    payload, status = _responsor_free_member(db, user, username, new_sponsor)
+    return JSONResponse(payload, status_code=status)
+
+
+@app.post("/admin/api/responsor/{username}")
+def admin_responsor_free_member_post(
+    username: str,
+    request: Request,
+    new_sponsor: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """POST version — same logic as the GET route."""
+    from fastapi.responses import JSONResponse
+    payload, status = _responsor_free_member(db, user, username, new_sponsor)
+    return JSONResponse(payload, status_code=status)
 
 
 @app.get("/admin/api/audit-purchase-duplicates")
