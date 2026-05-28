@@ -22463,6 +22463,101 @@ def admin_responsor_free_member_post(
     return JSONResponse(payload, status_code=status)
 
 
+@app.get("/admin/api/rotator-cleanup")
+def admin_rotator_cleanup(
+    request: Request,
+    confirm: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Audit (and optionally remove) accounts in the rotator that shouldn't be
+    catching live signups. Added 28 May 2026.
+
+    The picker only requires is_active + rotator_opted_in — NOT
+    is_founding_member. So when 'all active Founders' were auto-enrolled, any
+    active TEST account holding a Founder spot was swept in too, and any account
+    later demoted from Founder (e.g. test1 via the founder-swap) STAYS in the
+    rotator unless explicitly removed. Both cases mean real cold-traffic signups
+    get assigned to a dead/wrong sponsor.
+
+    Flags as 'should_remove':
+      - test accounts (email contains 'stevelawsonmarketing+test' or username
+        starts with 'test')
+      - admin accounts OTHER than the SuperAdPro house (house belongs there)
+      - accounts in the queue that are no longer founding members AND not the
+        house (e.g. demoted via founder-swap)
+
+    GET with no params = DRY-RUN (audit only, removes nothing).
+    GET with ?confirm=yes = removes flagged accounts (sets rotator_opted_in
+    FALSE and deletes their rotator_queue row). Real Founders + the house are
+    never touched. Admin-only.
+    """
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    rows = db.execute(_text(
+        "SELECT rq.user_id, u.username, u.email, u.is_admin, u.is_founding_member, "
+        "       u.is_active, u.rotator_opted_in, rq.queue_position "
+        "FROM rotator_queue rq JOIN users u ON u.id = rq.user_id "
+        "ORDER BY rq.queue_position ASC"
+    )).fetchall()
+
+    keep, flagged = [], []
+    for r in rows:
+        uid, uname, email, is_admin_, is_founding, is_active_, opted, pos = r
+        email_l = (email or "").lower()
+        uname_l = (uname or "").lower()
+        is_house = (uname == "SuperAdPro")
+        reasons = []
+        if not is_house:
+            if "stevelawsonmarketing+test" in email_l or uname_l.startswith("test"):
+                reasons.append("test account")
+            if is_admin_:
+                reasons.append("admin account (non-house)")
+            if not is_founding:
+                reasons.append("not a founding member (e.g. demoted)")
+        entry = {"user_id": uid, "username": uname, "is_founding_member": bool(is_founding),
+                 "is_admin": bool(is_admin_), "queue_position": pos}
+        if reasons:
+            entry["reasons"] = reasons
+            flagged.append(entry)
+        else:
+            keep.append(entry)
+
+    do_remove = (confirm == "yes")
+    removed = []
+    if do_remove and flagged:
+        for f in flagged:
+            db.execute(_text("UPDATE users SET rotator_opted_in = FALSE WHERE id = :uid"),
+                       {"uid": f["user_id"]})
+            db.execute(_text("DELETE FROM rotator_queue WHERE user_id = :uid"),
+                       {"uid": f["user_id"]})
+            removed.append(f["username"])
+        db.commit()
+        logger.info(f"[ROTATOR-CLEANUP] admin {user.username} removed {len(removed)} accounts: {removed}")
+
+    active_size = db.execute(_text(
+        "SELECT COUNT(*) FROM rotator_queue rq JOIN users u ON u.id = rq.user_id "
+        "WHERE u.is_active = TRUE AND u.rotator_opted_in = TRUE"
+    )).scalar() or 0
+
+    return JSONResponse({
+        "dry_run": not do_remove,
+        "flagged_for_removal": flagged,
+        "flagged_count": len(flagged),
+        "legitimate_members_kept": len(keep),
+        "removed": removed if do_remove else [],
+        "active_rotator_size_after": active_size,
+        "note": ("DRY-RUN — nothing removed. Re-run with ?confirm=yes to remove the "
+                 "flagged accounts." if not do_remove else
+                 f"Removed {len(removed)} account(s) from the rotator. Real Founders "
+                 f"and the house were not touched."),
+    })
+
+
 @app.get("/admin/api/enrol-house-rotator")
 def admin_enrol_house_rotator(
     request: Request,
