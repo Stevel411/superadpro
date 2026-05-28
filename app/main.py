@@ -22463,6 +22463,132 @@ def admin_responsor_free_member_post(
     return JSONResponse(payload, status_code=status)
 
 
+@app.get("/admin/api/swap-founder-spot")
+def admin_swap_founder_spot(
+    request: Request,
+    retire: str = "",
+    promote: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Swap a Founder spot: demote an inert (test) Founder and promote an
+    active Partner into the SAME spot number. Keeps the cap at a true 100 —
+    no 101st Founder is created. Added 28 May 2026.
+
+      /admin/api/swap-founder-spot?retire={test_username}&promote={partner_username}
+
+    SAFETY — this is a money-bound change on two accounts, so it HARD-REFUSES
+    unless both sides are safe:
+
+    RETIRE side (the account losing Founder status) must be inert:
+      - is currently a Founder (else nothing to free)
+      - $0 total_earned (never received commission)
+      - holds no Grid position and no Nexus matrix position
+      - has nobody sponsored under it (no downline that depends on its
+        qualification)
+    A small self-test membership payment is allowed (these are test accounts);
+    what matters is no earnings and no dependents.
+
+    PROMOTE side (the account gaining Founder status) must be:
+      - an active, paying Partner (not already a Founder, not free)
+
+    On success: retire account → is_founding_member False, spot cleared,
+    price unlocked; promote account → Founder at the freed spot number,
+    price locked $15, tier 'founding', enrolled in rotator. The promoted
+    member's existing payment is NOT touched (Steve's call — no $5 refund).
+    Admin-only, GET, logs both sides. Commits only on full success.
+    """
+    from fastapi.responses import JSONResponse
+    from decimal import Decimal as _D
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    retire_u = db.query(User).filter(User.username == (retire or "").lstrip("@")).first()
+    if not retire_u:
+        return JSONResponse({"error": f"Retire account '{retire}' not found"}, status_code=404)
+    promote_u = db.query(User).filter(User.username == (promote or "").lstrip("@")).first()
+    if not promote_u:
+        return JSONResponse({"error": f"Promote account '{promote}' not found"}, status_code=404)
+    if retire_u.id == promote_u.id:
+        return JSONResponse({"error": "Retire and promote accounts are the same."}, status_code=400)
+
+    # ── RETIRE-side guards ──────────────────────────────────────────────────
+    rblocks = []
+    if not retire_u.is_founding_member:
+        rblocks.append(f"{retire_u.username} is not a Founder — no spot to free")
+    if _D(str(retire_u.total_earned or 0)) > 0:
+        rblocks.append(f"{retire_u.username} has earned ${retire_u.total_earned} — not inert")
+    if db.query(Grid).filter(Grid.owner_id == retire_u.id).count():
+        rblocks.append(f"{retire_u.username} holds a Grid position")
+    if db.query(CreditMatrixPosition).filter(CreditMatrixPosition.user_id == retire_u.id).count():
+        rblocks.append(f"{retire_u.username} holds a Nexus matrix position")
+    downline = db.query(User).filter(User.sponsor_id == retire_u.id).count()
+    if downline:
+        rblocks.append(f"{retire_u.username} has {downline} member(s) sponsored under it")
+    if rblocks:
+        return JSONResponse({
+            "error": "Refused — retire account is not safely inert.",
+            "account": retire_u.username,
+            "reasons": rblocks,
+        }, status_code=409)
+
+    # ── PROMOTE-side guards ─────────────────────────────────────────────────
+    pblocks = []
+    if promote_u.is_founding_member:
+        pblocks.append(f"{promote_u.username} is already a Founder")
+    if not promote_u.is_active:
+        pblocks.append(f"{promote_u.username} is not active")
+    if (promote_u.membership_tier or "free") not in ("partner",):
+        pblocks.append(f"{promote_u.username} tier is '{promote_u.membership_tier}', expected partner")
+    if pblocks:
+        return JSONResponse({
+            "error": "Refused — promote account is not a clean active Partner.",
+            "account": promote_u.username,
+            "reasons": pblocks,
+        }, status_code=409)
+
+    freed_spot = retire_u.founding_spot_number
+
+    # ── Demote the test Founder ─────────────────────────────────────────────
+    retire_u.is_founding_member = False
+    retire_u.founding_spot_number = None
+    retire_u.membership_price_locked = None
+    retire_u.membership_tier = "partner"
+
+    # ── Promote the real member into the freed spot ─────────────────────────
+    promote_u.is_founding_member = True
+    promote_u.founding_spot_number = freed_spot
+    promote_u.membership_price_locked = _D("15.00")
+    promote_u.membership_tier = "founding"
+
+    try:
+        db.flush()
+        _enrol_user_to_rotator(db, promote_u.id)
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": f"Swap failed during flush/enrol: {e}"}, status_code=500)
+
+    db.commit()
+
+    logger.info(
+        f"[FOUNDER-SWAP] admin {user.username} ({user.id}): retired "
+        f"{retire_u.username} ({retire_u.id}) from Founder spot {freed_spot}; "
+        f"promoted {promote_u.username} ({promote_u.id}) into spot {freed_spot} "
+        f"@ $15 locked. Promoted member's payment untouched."
+    )
+
+    return JSONResponse({
+        "success": True,
+        "freed_spot": freed_spot,
+        "retired": {"username": retire_u.username, "now_tier": "partner", "founder": False},
+        "promoted": {"username": promote_u.username, "founding_spot_number": freed_spot,
+                     "price_locked": "15.00", "tier": "founding"},
+        "note": "Cap stays at 100. Promoted member's existing payment was not "
+                "touched (no $5 refund, per instruction). Member enrolled in rotator.",
+    })
+
+
 @app.get("/admin/api/apply-idempotency-indexes")
 def admin_apply_idempotency_indexes(
     request: Request,
