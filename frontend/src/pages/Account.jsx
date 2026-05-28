@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
-import { apiPost, apiGet } from '../utils/api';
+import { apiPost } from '../utils/api';
 
 var COUNTRIES = ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia and Herzegovina','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Honduras','Hong Kong','Hungary','India','Indonesia','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mali','Malta','Mexico','Moldova','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','Norway','Oman','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tanzania','Thailand','Tunisia','Turkey','UAE','Uganda','Ukraine','United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'];
 
@@ -11,17 +11,6 @@ export default function Account() {
   var { t } = useTranslation();
   var { user, refreshUser } = useAuth();
   var [toast, setToast] = useState(null);
-
-  var [purchases, setPurchases] = useState(null);  // {holdings, history} once loaded
-  var [purchasesLoading, setPurchasesLoading] = useState(true);
-  useEffect(function() {
-    var cancelled = false;
-    apiGet('/api/account/purchases')
-      .then(function(d) { if (!cancelled && d && d.holdings) setPurchases(d); })
-      .catch(function() { /* leave null — section degrades gracefully */ })
-      .finally(function() { if (!cancelled) setPurchasesLoading(false); });
-    return function() { cancelled = true; };
-  }, []);
 
   var [firstName, setFirstName] = useState(user?.first_name || '');
   var [lastName, setLastName] = useState(user?.last_name || '');
@@ -186,81 +175,21 @@ export default function Account() {
     <AppLayout title={t("account.title")} subtitle={t("account.subtitle")}>
       {toast && <div style={{borderRadius:10,padding:'10px 16px',marginBottom:14,fontSize:15,fontWeight:700,...(toast.type==='ok'?{background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}:{background:'var(--sap-red-bg)',color:'var(--sap-red)'})}}>{toast.msg}</div>}
 
-      {/* ── Your Purchases & Holdings (added 28 May 2026) ──
-          Reads /api/account/purchases (source-of-truth tables). Closes the
-          gap that caused the Daniela/cashflow billing confusion: members had
-          nowhere to see what they bought or what's active. */}
-      {purchases && (function() {
-        var h = purchases.holdings || {};
-        var m = h.membership || {};
-        var g = h.grid || {};
-        var hist = purchases.history || [];
-        var GREEN = 'var(--sap-green)', GREENBG = 'var(--sap-green-bg)';
-        var labelS = {fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,letterSpacing:'.06em',textTransform:'uppercase',color:'var(--sap-cobalt-mid)',margin:'0 0 14px'};
-        var hcard = {background:'var(--sap-bg-card)',border:'1px solid var(--sap-border)',borderRadius:16,padding:22,display:'flex',flexDirection:'column',boxShadow:'var(--sap-shadow-sm)',position:'relative',overflow:'hidden'};
-        var topbar = {content:'',position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,var(--sap-cobalt-mid),var(--sap-accent))'};
-        var hicon = {width:40,height:40,borderRadius:11,display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-cobalt-mid))',color:'#fff',fontSize:18,flexShrink:0};
-        var pill = {display:'inline-flex',alignItems:'center',gap:5,fontSize:11,fontWeight:700,fontFamily:'JetBrains Mono,monospace',padding:'3px 9px',borderRadius:99,marginTop:12,alignSelf:'flex-start',background:GREENBG,color:GREEN,border:'1px solid rgba(22,163,74,.25)'};
-        function HCard(props){return (
-          <div style={hcard}>
-            <div style={topbar}/>
-            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
-              <div style={hicon}>{props.icon}</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:14,color:'var(--sap-text-primary)'}}>{props.title}</div>
-            </div>
-            <div style={{fontFamily:'Sora,sans-serif',fontWeight:900,fontSize:26,color:'var(--sap-text-primary)',lineHeight:1.1,marginBottom:2}}>{props.value}</div>
-            <div style={{fontSize:13,color:'var(--sap-text-faint)',flex:1}}>{props.meta}</div>
-            <span style={pill}><span style={{width:6,height:6,borderRadius:'50%',background:GREEN,display:'inline-block'}}/>{props.status}</span>
+      {/* ── Link to Purchases & Holdings (dedicated page, 28 May 2026) ──
+          Moved off this page into its own route so Account stays focused on
+          settings. The data view lives at /account/purchases. */}
+      <Link to="/account/purchases" style={{textDecoration:'none',display:'block',marginBottom:18}}>
+        <div style={{background:'var(--sap-bg-card)',border:'1px solid var(--sap-border)',borderRadius:14,padding:'18px 20px',boxShadow:'var(--sap-shadow-sm)',display:'flex',alignItems:'center',gap:16,transition:'border-color .15s,transform .15s'}}
+          onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-accent)';e.currentTarget.style.transform='translateY(-1px)';}}
+          onMouseLeave={function(e){e.currentTarget.style.borderColor='var(--sap-border)';e.currentTarget.style.transform='none';}}>
+          <div style={{width:44,height:44,borderRadius:12,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-cobalt-mid))',color:'#fff',fontSize:20}}>🧾</div>
+          <div style={{flex:1}}>
+            <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:16,color:'var(--sap-text-primary)'}}>{t('account.purchasesTitle',{defaultValue:'Your Purchases & Holdings'})}</div>
+            <div style={{fontSize:13,color:'var(--sap-text-faint)',marginTop:2}}>{t('account.purchasesLinkSub',{defaultValue:'See everything you\'ve bought and what\'s active on your account.'})}</div>
           </div>
-        );}
-        return (
-          <div style={{marginBottom:28}}>
-            <h2 style={{fontFamily:'Sora,sans-serif',fontWeight:900,fontSize:22,letterSpacing:'-.5px',margin:'0 0 4px'}}>{t('account.purchasesTitle',{defaultValue:'Your Purchases & Holdings'})}</h2>
-            <div style={{color:'var(--sap-text-faint)',fontSize:15,marginBottom:22}}>{t('account.purchasesSub',{defaultValue:"Everything you've bought and what's active on your account."})}</div>
-
-            <div style={labelS}>{t('account.holdingsLabel',{defaultValue:'What you have right now'})}</div>
-            <div className="grid-3-col" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16,alignItems:'stretch',marginBottom:28}}>
-              <HCard icon="★" title={t('account.membership',{defaultValue:'Membership'})}
-                value={m.label||'—'}
-                meta={(m.price?('$'+m.price+'/month'):'')+(m.renews_at?(' · renews '+new Date(m.renews_at).toLocaleDateString()):'')}
-                status={m.active?t('account.activeStatus',{defaultValue:'Active'}):t('account.inactiveStatus',{defaultValue:'Inactive'})}/>
-              {g.has_position
-                ? <HCard icon="▦" title={t('account.profitGrid',{defaultValue:'Profit Grid'})}
-                    value={'Tier '+(g.tier||1)}
-                    meta={t('account.gridMeta',{defaultValue:'Active campaign position'})}
-                    status={t('account.activeStatus',{defaultValue:'Active'})}/>
-                : <HCard icon="▦" title={t('account.profitGrid',{defaultValue:'Profit Grid'})}
-                    value="—"
-                    meta={t('account.noGrid',{defaultValue:'No active campaign tier yet'})}
-                    status={t('account.notActive',{defaultValue:'None'})}/>}
-              <HCard icon="✦" title={t('account.creativeStudio',{defaultValue:'Creative Studio'})}
-                value={(h.credit_balance||0)+' '+t('account.credits',{defaultValue:'credits'})}
-                meta={t('account.creditsMeta',{defaultValue:'Ready to use'})}
-                status={t('account.available',{defaultValue:'Available'})}/>
-            </div>
-
-            <div style={labelS}>{t('account.historyLabel',{defaultValue:'Purchase history'})}</div>
-            <div style={{background:'var(--sap-bg-card)',border:'1px solid var(--sap-border)',borderRadius:16,overflow:'hidden',boxShadow:'var(--sap-shadow-sm)'}}>
-              {hist.length===0 && <div style={{padding:'22px',textAlign:'center',color:'var(--sap-text-faint)',fontSize:14}}>{t('account.noPurchases',{defaultValue:'No purchases yet.'})}</div>}
-              {hist.map(function(row,i){
-                return (
-                  <div key={i} style={{display:'grid',gridTemplateColumns:'90px 1fr auto',gap:18,alignItems:'center',padding:'18px 22px',borderBottom:i<hist.length-1?'1px solid var(--sap-border-light)':'none'}}>
-                    <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:12,fontWeight:600,color:'var(--sap-text-faint)'}}>{row.date?new Date(row.date).toLocaleDateString():'—'}</div>
-                    <div>
-                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:15,color:'var(--sap-text-primary)'}}>{row.product}</div>
-                      <div style={{fontSize:13,color:'var(--sap-text-secondary)',marginTop:3}}>{row.delivered}</div>
-                    </div>
-                    <div style={{textAlign:'right',display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}>
-                      <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:17,color:'var(--sap-text-primary)'}}>${row.amount.toFixed(2)}</div>
-                      <span style={{fontSize:11,fontWeight:700,fontFamily:'JetBrains Mono,monospace',padding:'3px 9px',borderRadius:99,background:GREENBG,color:GREEN,border:'1px solid rgba(22,163,74,.25)'}}>{row.status}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })()}
+          <div style={{fontSize:20,color:'var(--sap-accent)',fontWeight:700}}>&rarr;</div>
+        </div>
+      </Link>
 
       <div className="grid-3-col" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,alignItems:'stretch'}}>
 

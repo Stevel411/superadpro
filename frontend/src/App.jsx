@@ -12,6 +12,7 @@ import { Component, Suspense } from 'react';
 import Dashboard from './pages/Dashboard';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
+import AccountPurchases from './pages/AccountPurchases';
 
 // ── Lazy imports — every non-hot page splits into its own chunk.
 // Result: visitors only download code for pages they actually visit.
@@ -327,6 +328,7 @@ function AppRoutes() {
       <Route path="/my-team" element={<ProtectedRoute><MyTeam /></ProtectedRoute>} />
       <Route path="/upgrade-from-balance" element={<ProtectedRoute><UpgradeFromBalance /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+      <Route path="/account/purchases" element={<ProtectedRoute><AccountPurchases /></ProtectedRoute>} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><RequireTier tier="basic"><Courses /></RequireTier></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />

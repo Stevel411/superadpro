@@ -7177,6 +7177,14 @@ def account(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/account/purchases")
+def account_purchases_page(request: Request):
+    """Serve React SPA — Your Purchases & Holdings page (dedicated page,
+    linked from Account, added 28 May 2026)."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/account/faq")
 def account_faq(request: Request):
     """Serve React SPA — internal FAQ page rendered inside AppLayout."""
