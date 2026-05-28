@@ -233,6 +233,161 @@ def _cascade_auto_activation(
     db.add(notif)
 
 
+def pay_renewal_commission(db, member, *, period_key: str, rail: str):
+    """Shared renewal-commission engine — the ONE place a membership renewal
+    pays the sponsor and records the company share. Called by every rail that
+    renews a membership (Stripe invoice.paid, wallet process_auto_renewals).
+
+    Built 28 May 2026 to fix a rail-divergence bug: the Stripe invoice.paid
+    handler extended the membership expiry but never paid the sponsor, while
+    the wallet cron paid the sponsor but never recorded the company share to
+    the ledger. Two rails, two different partial behaviours — the exact
+    failure mode CLAUDE.md's engine-level-invariant rule warns against. This
+    function is the single source of truth so the rails can never diverge
+    again.
+
+    Economics (confirmed by Steve 28 May 2026, matches docs/commission-spec.md
+    flat-pricing model):
+      - Founder ($15/mo locked)  → sponsor $10, company $5    — forever, every renewal
+      - Partner ($20/mo)         → sponsor $10, company $10   — every renewal
+    Flat $10 sponsor share regardless of buyer price; company keeps the
+    remainder. Post-100-cap, all new members are $20 Partners on $10/$10.
+
+    Idempotency: source_event_id = period_key, which the CALLER builds as
+    'renewal:{user_id}:{YYYY-MM}'. The existing partial unique index
+    uniq_commission_event on (from_user_id, to_user_id, commission_type,
+    source_event_id) refuses a second row for the same member-month. Keying
+    on the billing PERIOD rather than the rail means a member renewed on both
+    rails in the same month (wallet cron + a stray Stripe invoice) still pays
+    the sponsor exactly once — rail-keyed idempotency would miss that. Stripe's
+    per-retry idempotency is covered too: same invoice → same member-month →
+    same key → refused.
+
+    Free-sponsor handling mirrors _activate_membership exactly (Steve's call,
+    'keep it consistent'): credit the balance and fire the one-time
+    membership-offer notification via _cascade_auto_activation. The sponsor
+    keeps the earnings; nothing is auto-consumed.
+
+    Transaction safety: the commission insert runs inside a nested savepoint
+    (db.begin_nested) so an idempotency collision rolls back ONLY this one
+    insert, not the caller's surrounding transaction. Critical for the wallet
+    cron, which processes many members in one transaction — one duplicate must
+    not poison the whole batch. Returns the sponsor_share actually paid (Decimal),
+    or Decimal('0') if the renewal was a duplicate (already paid this period).
+
+    Does NOT commit — the caller owns the transaction boundary.
+    """
+    from decimal import Decimal
+    from datetime import datetime
+    from sqlalchemy.exc import IntegrityError
+
+    now = datetime.utcnow()
+
+    # Fee honours the member's locked price (Founder $15) else standard $20.
+    locked = getattr(member, "membership_price_locked", None)
+    member_fee = Decimal(str(locked)) if locked is not None else Decimal(str(MEMBERSHIP_FEE))
+    sponsor_share = Decimal(str(MEMBERSHIP_SPONSOR_SHARE))  # flat $10
+    company_share = member_fee - sponsor_share
+
+    sponsor = None
+    if member.sponsor_id:
+        sponsor = db.query(User).filter(User.id == member.sponsor_id).first()
+
+    paid = Decimal("0")
+
+    # ── Sponsor commission (idempotent, savepoint-isolated) ────────────────
+    if sponsor:
+        try:
+            with db.begin_nested():
+                comm = Commission(
+                    to_user_id=sponsor.id,
+                    from_user_id=member.id,
+                    amount_usdt=sponsor_share,
+                    commission_type="membership_renewal",
+                    package_tier=0,
+                    status="paid",
+                    paid_at=now,
+                    source_event_id=period_key,
+                    notes=(
+                        f"Membership renewal commission from {member.username} "
+                        f"({rail}) — ${member_fee} paid "
+                        f"(${sponsor_share} sponsor / ${company_share} company)"
+                    ),
+                )
+                db.add(comm)
+                db.flush()  # forces the unique-index check inside the savepoint
+        except IntegrityError:
+            # Duplicate for this member-month — another rail (or a Stripe
+            # retry) already paid this renewal. The savepoint rolled back just
+            # this insert; the caller's transaction is intact. Pay nothing.
+            logger.warning(
+                f"DUPLICATE RENEWAL COMMISSION BLOCKED ({period_key}): "
+                f"member={member.id} ({member.username}) sponsor={sponsor.id} "
+                f"rail={rail}. Idempotency working — already paid this period."
+            )
+            return Decimal("0")
+
+        # Insert succeeded — credit the sponsor's running balances.
+        sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
+        sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
+        paid = sponsor_share
+
+        # Free sponsor: offer activation from balance (consistent w/ activation).
+        if not sponsor.is_active:
+            try:
+                _cascade_auto_activation(
+                    db=db, recipient=sponsor,
+                    tx_hash=f"renew_{member.id}", chain_depth=1,
+                    activated_users=[],
+                )
+            except Exception as exc:
+                logger.warning(f"Renewal free-sponsor offer check failed for {sponsor.id}: {exc}")
+
+        # Cha-ching email (best-effort, mirrors activation path).
+        try:
+            from .email_utils import send_commission_email
+            if sponsor.email:
+                send_commission_email(
+                    to_email=sponsor.email,
+                    first_name=sponsor.first_name or sponsor.username,
+                    commission_type="Membership Renewal",
+                    from_username=member.username,
+                )
+        except Exception as exc:
+            logger.warning(f"Renewal commission email failed for sponsor {sponsor.id}: {exc}")
+
+    # ── Company-share ledger row ───────────────────────────────────────────
+    # Mirrors _activate_membership: without this row the company's retained
+    # renewal revenue is invisible to financial_sanity / commission_audit.
+    # Keyed on the same period so it's idempotent too (company_company is a
+    # distinct commission_type, so it gets its own index slot per period).
+    if company_share > 0:
+        try:
+            with db.begin_nested():
+                db.add(Commission(
+                    from_user_id=member.id,
+                    to_user_id=None,
+                    amount_usdt=company_share,
+                    commission_type="membership_company",
+                    package_tier=0,
+                    status="platform",
+                    paid_at=now,
+                    source_event_id=period_key,
+                    notes=(
+                        f"Membership renewal company share (${company_share}) "
+                        f"from {member.username} ({rail}) — member_fee=${member_fee}"
+                    ),
+                ))
+                db.flush()
+        except IntegrityError:
+            logger.warning(
+                f"Duplicate renewal company-share blocked ({period_key}): "
+                f"member={member.id} rail={rail}."
+            )
+
+    return paid
+
+
 def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
     """
     Activate/renew membership after $20 USDT payment on Base Chain.
@@ -901,26 +1056,18 @@ def process_auto_renewals(db: Session) -> dict:
             if auto_renew_enabled and Decimal(str(user.balance or 0)) >= user_fee:
                 # Sufficient balance — auto-renew. Founder pays $15, Partner
                 # pays $20; sponsor always gets flat $10 on renewal.
-                sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
-
+                # The member-side deduction stays here (rail-specific: this is
+                # the wallet rail, so we debit the on-platform balance).
                 user.balance      = Decimal(str(user.balance or 0)) - user_fee
                 user.low_balance_warned = False
 
-                if sponsor:
-                    sponsor.balance      = Decimal(str(sponsor.balance or 0)) + sponsor_share
-                    sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
-
-                company_share = user_fee - sponsor_share
-                db.add(Commission(
-                    from_user_id    = user.id,
-                    to_user_id      = sponsor.id if sponsor else None,
-                    amount_usdt     = sponsor_share if sponsor else Decimal("0"),
-                    commission_type = "membership_renewal",
-                    package_tier    = 0,
-                    status          = "paid",
-                    paid_at         = now,
-                    notes           = f"Monthly renewal — ${user_fee} paid (${sponsor_share} sponsor / ${company_share} company)",
-                ))
+                # Sponsor commission + company-share row go through the shared
+                # engine (28 May 2026) so this rail and the Stripe rail can't
+                # diverge. period_key makes it idempotent per member-month
+                # across both rails. The engine handles free-sponsor offer +
+                # cha-ching email exactly like activation.
+                period_key = f"renewal:{user.id}:{now.strftime('%Y-%m')}"
+                pay_renewal_commission(db, user, period_key=period_key, rail="wallet")
 
                 renewal.last_renewed_at   = now
                 renewal.next_renewal_date = now + timedelta(days=30)

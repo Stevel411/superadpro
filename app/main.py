@@ -60,6 +60,7 @@ from .payment import (
     request_withdrawal, get_user_balance, MEMBERSHIP_FEE, COMPANY_WALLET,
     process_p2p_transfer, get_p2p_history, get_renewal_status,
     initialise_renewal_record, process_auto_renewals,
+    pay_renewal_commission,
     _find_overspill_placement, _cascade_auto_activation,
     MEMBERSHIP_SPONSOR_SHARE, MEMBERSHIP_COMPANY_SHARE,
     ANNUAL_PRICES, ANNUAL_SPONSOR_SHARE, ANNUAL_COMPANY_SHARE,
@@ -10134,47 +10135,14 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     except Exception as e:
         logger.warning(f"cache_invalidate_user failed in _activate_membership: {e}")
     return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
-def _stripe_renew_membership(db, user, tier, subscription_id):
-    """Process monthly renewal — flat partner pricing.
 
-    Fee honours user.membership_price_locked if set (founding partners
-    pay their locked $15), otherwise $20 standard.
-    Sponsor receives flat $10 commission regardless of buyer's price.
-    """
-    from datetime import datetime, timedelta
-    from decimal import Decimal
-    import uuid
 
-    locked_price = getattr(user, "membership_price_locked", None)
-    fee = Decimal(str(locked_price)) if locked_price is not None else Decimal("20.00")
-    sponsor_share = Decimal("10.00")
-
-    user.is_active = True
-    user.activated_at = user.activated_at or datetime.utcnow()
-    user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
-    tx_ref = f"stripe_renew_{uuid.uuid4().hex[:12]}"
-    payment = Payment(
-        from_user_id=user.id, to_user_id=None,
-        amount_usdt=fee, payment_type="membership_renewal",
-        tx_hash=tx_ref, status="confirmed",
-    )
-    db.add(payment)
-
-    # Pay sponsor flat $10 commission on renewal
-    if user.sponsor_id:
-        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
-        if sponsor:
-            sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
-            sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
-            db.add(Commission(
-                to_user_id=sponsor.id, from_user_id=user.id,
-                amount_usdt=sponsor_share, commission_type="membership_renewal",
-                package_tier=0,
-                notes=f"Partner renewal commission from {user.username}",
-                status="pending", paid_at=datetime.utcnow(),
-            ))
-
-    db.commit()
+# _stripe_renew_membership REMOVED 28 May 2026. It was dead code (zero callers)
+# and buggy: wrote the renewal commission as status='pending' (invisible to the
+# paid-only earnings/audit model) with no idempotency key. Stripe renewal
+# commissions now go through payment.pay_renewal_commission, called from the
+# invoice.paid handler's subscription_cycle branch — the same shared engine the
+# wallet renewal cron uses, with period-keyed idempotency.
 
 
 # ── Founding partners status (added 15 May 2026 with flat-pricing migration) ──
@@ -12850,6 +12818,45 @@ def _stripe_handle_invoice_paid(db, invoice, event):
             )
 
     user.stripe_refund_eligible_until = _stripe.refund_window_expiry()
+
+    # ── Recurring-renewal sponsor commission (28 May 2026 — bug fix) ───────
+    # PRIOR BUG: this handler extended membership_expires_at on a renewal but
+    # never paid the sponsor. Stripe card renewals therefore paid sponsors
+    # NOTHING, while the wallet rail (process_auto_renewals) paid correctly —
+    # a silent rail divergence. The dead _stripe_renew_membership function
+    # existed to do this but was never wired in (and wrote status='pending',
+    # invisible to the paid-only earnings model).
+    #
+    # FIX: route through the shared pay_renewal_commission engine — the same
+    # function the wallet cron now calls. Founder → sponsor $10 / company $5;
+    # Partner → sponsor $10 / company $10; per renewal, forever (Steve, spec).
+    #
+    # Gate: only a TRUE recurring cycle (billing_reason='subscription_cycle')
+    # on an already-active member. The first invoice (subscription_create) is
+    # the signup — _activate_membership already paid that sponsor commission,
+    # so we must NOT pay again here. Annual members are excluded: they paid
+    # the $100 annual sponsor commission up front and don't renew monthly.
+    #
+    # Idempotency: period_key 'renewal:{user_id}:{YYYY-MM}' — the same scheme
+    # the wallet rail uses, so a Stripe retry OR a cross-rail collision in the
+    # same month pays the sponsor exactly once (uniq_commission_event index).
+    is_recurring_renewal = (billing_reason == "subscription_cycle")
+    is_annual_member = (getattr(user, "membership_billing", "monthly") == "annual")
+    if is_recurring_renewal and user.is_active and not is_annual_member:
+        try:
+            period_key = f"renewal:{user.id}:{datetime.utcnow().strftime('%Y-%m')}"
+            paid = pay_renewal_commission(db, user, period_key=period_key, rail="stripe")
+            logger.info(
+                f"Stripe renewal commission processed for user {user.id} "
+                f"({user.username}) — sponsor paid=${paid}, period={period_key}"
+            )
+        except Exception:
+            # Never let a commission failure strand the renewal/expiry write.
+            # Log loudly — the integrity cron will surface an unpaid renewal.
+            logger.exception(
+                f"Stripe renewal commission FAILED for user {user.id} "
+                f"({user.username}) — expiry was still extended; needs manual review"
+            )
 
     db.commit()
     logger.info(f"Stripe invoice processed for user {user.id} amount=${amount_cents/100} reason={billing_reason}")
@@ -22316,6 +22323,81 @@ def api_p2p_history(
 # ═══════════════════════════════════════════════════════════════
 #  MEMBERSHIP AUTO-RENEWAL ADMIN ENDPOINT
 # ═══════════════════════════════════════════════════════════════
+
+@app.get("/admin/api/dry-run-renewal/{username}")
+def admin_dry_run_renewal(
+    username: str,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Dry-run the shared renewal-commission engine against one member, then
+    ROLL BACK. Added 28 May 2026 so the Stripe renewal fix can be verified
+    before the first real renewal fires (~late June). Shows exactly what
+    pay_renewal_commission WOULD write — sponsor commission, company-share
+    row, idempotency outcome — without committing anything.
+
+    Admin-only. GET so it's runnable from a phone. Never commits.
+    """
+    from fastapi.responses import JSONResponse
+    from decimal import Decimal
+    from datetime import datetime
+    from app.payment import pay_renewal_commission, MEMBERSHIP_SPONSOR_SHARE, MEMBERSHIP_FEE
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    member = db.query(User).filter(User.username == username.lstrip("@")).first()
+    if not member:
+        return JSONResponse({"error": f"User '{username}' not found"}, status_code=404)
+
+    locked = getattr(member, "membership_price_locked", None)
+    member_fee = Decimal(str(locked)) if locked is not None else Decimal(str(MEMBERSHIP_FEE))
+    sponsor = db.query(User).filter(User.id == member.sponsor_id).first() if member.sponsor_id else None
+
+    before = {
+        "member": member.username,
+        "member_fee": float(member_fee),
+        "is_founding": bool(getattr(member, "is_founding_member", False)),
+        "membership_billing": getattr(member, "membership_billing", "monthly"),
+        "sponsor": sponsor.username if sponsor else None,
+        "sponsor_active": bool(sponsor.is_active) if sponsor else None,
+        "sponsor_balance_before": float(sponsor.balance or 0) if sponsor else None,
+    }
+
+    # Run inside a savepoint, capture the result, then roll the whole thing back.
+    period_key = f"DRYRUN:{member.id}:{datetime.utcnow().strftime('%Y-%m-%dT%H%M%S')}"
+    paid = Decimal("0")
+    try:
+        sp = db.begin_nested()
+        paid = pay_renewal_commission(db, member, period_key=period_key, rail="dry-run")
+        sponsor_balance_after = float(sponsor.balance or 0) if sponsor else None
+        sp.rollback()
+    except Exception as e:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"error": f"Dry-run failed: {e}", "before": before}, status_code=500)
+
+    expected_company = member_fee - Decimal(str(MEMBERSHIP_SPONSOR_SHARE))
+    return JSONResponse({
+        "dry_run": True,
+        "committed": False,
+        "before": before,
+        "would_pay": {
+            "sponsor_commission": float(paid),
+            "company_share": float(expected_company),
+            "sponsor_balance_after": sponsor_balance_after,
+            "commission_type": "membership_renewal",
+            "status": "paid",
+        },
+        "note": (
+            "Nothing was committed. This is exactly what a real renewal would "
+            "write. Founder=$10 sponsor/$5 company, Partner=$10/$10."
+        ),
+    })
+
 
 @app.post("/admin/process-renewals")
 def admin_process_renewals(
