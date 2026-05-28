@@ -49,7 +49,7 @@
   --sap-text-primary:   #0f172a;   /* headings, primary text */
   --sap-text-secondary: #475569;   /* body text, descriptions */
   --sap-text-muted:     #475569;   /* labels, subtle text — was #64748b, darkened 23 Apr 2026 for WCAG AA on page bg */
-  --sap-text-faint:     #7a8899;   /* placeholders, disabled — was #94a3b8, darkened 23 Apr 2026 for WCAG AA Large */
+  --sap-text-faint:     #5b6b7d;   /* placeholders, disabled — was #7a8899 (still too light per Steve), darkened 28 May 2026 to ~5.3:1 contrast (WCAG AA normal) */
   --sap-text-ghost:     #cbd5e1;   /* timestamps, very subtle — structural accent only, never body text */
 
   /* ── Neutral Surfaces ─────────────────────────────────────── */

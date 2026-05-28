@@ -384,7 +384,7 @@ export default function PayItForward() {
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-cobalt-deep)' }}>Gift a team member directly</div>
             <span style={{ fontSize:11, fontWeight:700, padding:'3px 8px', borderRadius:99, background:'var(--sap-cobalt-deep)', color:'#fff' }}>NEW</span>
           </div>
-          <div style={{ fontSize:13, color:'var(--sap-text-faint)', marginBottom:18 }}>
+          <div style={{ fontSize:14, color:'var(--sap-text-faint)', marginBottom:18 }}>
             Pick a free team member, send them a $20 membership gift. They get notified and have {teamData.acceptance_window_days || 7} days to accept.
           </div>
 
@@ -450,10 +450,10 @@ export default function PayItForward() {
           {/* Gifts needing attention — declined, expired, or unused, all reassignable */}
           {teamData.needs_action && teamData.needs_action.length > 0 && (
             <div style={{ marginTop:18, padding:16, background:'#fff8e1', border:'1px solid #fbe89c', borderRadius:10 }}>
-              <div style={{ fontWeight:800, fontSize:13, color:'var(--sap-cobalt-deep)', marginBottom:4 }}>
+              <div style={{ fontWeight:800, fontSize:14, color:'var(--sap-cobalt-deep)', marginBottom:4 }}>
                 Gifts waiting for you to choose what's next
               </div>
-              <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginBottom:10 }}>
+              <div style={{ fontSize:12.5, color:'var(--sap-text-faint)', marginBottom:10 }}>
                 Reassign any of these to a front-line member who hasn't activated yet — no extra charge, the gift's already paid for.
               </div>
               {teamData.needs_action.map(function(v) {
@@ -470,7 +470,7 @@ export default function PayItForward() {
                       <span style={{ fontSize:13, fontWeight:800, color:'var(--sap-cobalt-deep)' }}>$20 gift</span>
                       <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#fef3c7', color:'#92400e' }}>{label}</span>
                     </div>
-                    <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginBottom:12 }}>
+                    <div style={{ fontSize:12.5, color:'var(--sap-text-faint)', marginBottom:12 }}>
                       {v.previous_recipient_username ? ('Was for ' + v.previous_recipient_username + ' \u00b7 ') : ''}Code {v.voucher_code}
                     </div>
                     {/* The action: reassign THIS gift TO a chosen member */}
