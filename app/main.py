@@ -22463,6 +22463,69 @@ def admin_responsor_free_member_post(
     return JSONResponse(payload, status_code=status)
 
 
+@app.get("/admin/api/apply-idempotency-indexes")
+def admin_apply_idempotency_indexes(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: create the one-time-purchase idempotency unique index on
+    production. Needed because SKIP_MIGRATIONS=true means run_migrations()
+    doesn't apply it on deploy. Added 28 May 2026.
+
+    SAFETY INTERLOCK: re-runs the duplicate audit first and REFUSES to create
+    the unique index if any duplicate payment_ref exists (a CREATE UNIQUE INDEX
+    would fail on dupes). Idempotent — CREATE UNIQUE INDEX IF NOT EXISTS is a
+    no-op if already present. Admin-only, GET (phone-friendly).
+    """
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    # Interlock: refuse if duplicates exist
+    dup = db.execute(_text(
+        "SELECT COUNT(*) AS n FROM ("
+        "  SELECT payment_ref FROM credit_pack_purchases "
+        "  WHERE payment_ref IS NOT NULL "
+        "  GROUP BY payment_ref HAVING COUNT(*) > 1"
+        ") d"
+    )).fetchone()
+    dup_count = dup.n if dup else 0
+    if dup_count:
+        return JSONResponse({
+            "error": "Refused — duplicate payment_refs exist; reconcile them first.",
+            "duplicate_groups": dup_count,
+            "hint": "Run /admin/api/audit-purchase-duplicates for details.",
+        }, status_code=409)
+
+    results = {}
+    try:
+        db.execute(_text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS uniq_credit_pack_payment_ref "
+            "ON credit_pack_purchases(payment_ref) WHERE payment_ref IS NOT NULL"
+        ))
+        db.commit()
+        results["uniq_credit_pack_payment_ref"] = "created (or already existed)"
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": f"Index creation failed: {e}"}, status_code=500)
+
+    # Verify it now exists
+    exists = db.execute(_text(
+        "SELECT 1 FROM pg_indexes WHERE indexname = 'uniq_credit_pack_payment_ref'"
+    )).fetchone()
+
+    return JSONResponse({
+        "success": True,
+        "indexes": results,
+        "verified_present": bool(exists),
+        "note": "Nexus pack idempotency backstop is now live. Grid idempotency "
+                "uses the existing uniq_commission_event index (already present).",
+    })
+
+
 @app.get("/admin/api/audit-purchase-duplicates")
 def admin_audit_purchase_duplicates(
     request: Request,
