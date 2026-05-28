@@ -10834,7 +10834,11 @@ def _crypto_activate_product(db, user, order, meta):
 
         # Full commission processing: 40% direct, 50% uni-level (8 levels), 5% platform, 5% bonus
         # Plus spillover fill into all upline grids at this tier
-        result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier)
+        # Idempotency: key on the WalletConnect order id so a replayed
+        # activation can't double-pay the grid chain (28 May 2026).
+        _wc_event = f"wc_order_{getattr(order, 'id', None)}" if getattr(order, "id", None) else None
+        result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier,
+                                       source_event_id=_wc_event)
         if not result["success"]:
             logger.error(f"Crypto grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
 
@@ -12474,7 +12478,10 @@ def _stripe_handle_checkout_completed(db, session, event):
                 tier_id_str = metadata.get("campaign_tier_id", "0")
                 tier_id = int(tier_id_str)
                 from .grid import process_tier_purchase
-                result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=tier_id)
+                result = process_tier_purchase(
+                    db=db, buyer_id=user.id, package_tier=tier_id,
+                    source_event_id=f"stripe_{session.get('id')}",
+                )
                 if result.get("success"):
                     # Hide fast-start hero on grid activation (mirrors crypto rail logic)
                     try:
@@ -13878,7 +13885,11 @@ def _nowpayments_activate_product(db, user, order, meta):
     elif order.product_type == "grid":
         package_tier = int(product_key.split("_")[1])
         from .grid import process_tier_purchase
-        result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier)
+        # Idempotency: key on the NOWPayments order id so a re-fired IPN
+        # callback can't double-pay the grid commission chain (28 May 2026).
+        _np_event = order.internal_order_id or (f"np_{order.np_payment_id}" if order.np_payment_id else None)
+        result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier,
+                                       source_event_id=_np_event)
         if not result["success"]:
             logger.error(f"NOWPayments grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
         else:

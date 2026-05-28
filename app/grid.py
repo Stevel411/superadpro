@@ -112,6 +112,7 @@ def process_tier_purchase(
     buyer_id:     int,
     package_tier: int,
     bypass_repurchase_guard: bool = False,
+    source_event_id: str = None,
 ) -> dict:
     """
     Main entry point for a tier purchase (new or repurchase).
@@ -129,6 +130,14 @@ def process_tier_purchase(
     The normal payment-flow path NEVER sets this — it relies on the
     invoice-creation guard at /api/nowpayments/create-invoice as the
     primary defence and this as the belt-and-braces backstop.
+
+    source_event_id (28 May 2026): a payment-event identifier (Stripe passes
+    the checkout session id). When set, it is (a) stamped on every grid
+    commission row for traceability, and (b) used by the replay guard below
+    to detect a re-run of the SAME payment event — closing the Stripe-retry
+    double-pay hole. The guard sits at the entry point, BEFORE any balance is
+    credited, because the commission writers credit balances inline; a
+    per-row guard would leave balances double-credited while refusing the row.
     """
     price = GRID_PACKAGES.get(package_tier)
     if not price:
@@ -137,6 +146,33 @@ def process_tier_purchase(
     buyer = db.query(User).filter(User.id == buyer_id).first()
     if not buyer:
         return {"success": False, "error": "Buyer not found"}
+
+    # ── Payment-event replay guard (28 May 2026) ───────────────────────────
+    # If this exact payment event has already produced grid commissions, it's
+    # a replay (e.g. Stripe re-delivering checkout.session.completed). Bail
+    # before crediting anyone. Checked first so no balance is touched on a
+    # replay. Member-bound commission rows also carry source_event_id and are
+    # backstopped by uniq_commission_event, but this entry check is what
+    # protects the inline balance credits.
+    if source_event_id:
+        already = db.query(Commission).filter(
+            Commission.source_event_id == source_event_id,
+            Commission.commission_type.in_(["direct_sponsor", "uni_level"]),
+        ).first()
+        if already:
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                f"DUPLICATE GRID PURCHASE BLOCKED (event={source_event_id}): "
+                f"buyer={buyer_id} tier={package_tier} — replay of an already-"
+                f"processed payment event. No commissions/placements re-issued."
+            )
+            return {
+                "success": True,
+                "idempotent_replay": True,
+                "buyer_id": buyer_id,
+                "package_tier": package_tier,
+                "message": "Tier purchase already processed for this payment event.",
+            }
 
     # ── Defence-in-depth: refuse if in-flight campaign exists at this tier ──
     # Catches the rare race where two invoices for the same tier both pay
@@ -201,8 +237,8 @@ def process_tier_purchase(
             }
 
     # Pay commissions based on the buyer's sponsor chain
-    _pay_direct_sponsor(db, buyer, price, package_tier)
-    _pay_unilevel_chain(db, buyer, price, package_tier)
+    _pay_direct_sponsor(db, buyer, price, package_tier, source_event_id=source_event_id)
+    _pay_unilevel_chain(db, buyer, price, package_tier, source_event_id=source_event_id)
     _record_platform_fee(db, price, package_tier, buyer_id)
 
     # Create the buyer's own grid at this tier (so they can receive spillover)
@@ -680,7 +716,7 @@ def _send_release_email(db: Session, buyer: User, released: list) -> None:
         )
 
 
-def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: int):
+def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: int, source_event_id: str = None):
     """40% to the buyer's personal sponsor — or escrowed for 3 days if
     the sponsor isn't qualified at this tier (grace period to upgrade).
     """
@@ -691,7 +727,7 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
         # There's nobody who could "catch up" to claim it.
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
                            f"No sponsor — 40% company absorb on ${price}",
-                           package_tier)
+                           package_tier, source_event_id=source_event_id)
         return
 
     sponsor = db.query(User).filter(User.id == buyer.sponsor_id).first()
@@ -703,7 +739,7 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
         sponsor.grid_earnings = Decimal(str(sponsor.grid_earnings or 0)) + Decimal(str(amount))
         _record_commission(db, buyer.id, sponsor.id, amount, "direct_sponsor",
                            f"Direct sponsor 40% — buyer {buyer.id} on ${price} package",
-                           package_tier)
+                           package_tier, source_event_id=source_event_id)
     elif sponsor:
         # Sponsor unqualified — escrow for 3 days, sponsor can claim by
         # upgrading to this tier within the grace window.
@@ -722,10 +758,10 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
         # escrow possible — company absorbs.
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
                            f"Sponsor {buyer.sponsor_id} not found — 40% company absorb",
-                           package_tier)
+                           package_tier, source_event_id=source_event_id)
 
 
-def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: int):
+def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: int, source_event_id: str = None):
     """6.25% to each of 8 sponsor chain levels above the buyer.
     Each level checked individually — if unqualified at this tier,
     the slot is escrowed for 3 days (grace period to upgrade).
@@ -745,7 +781,7 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
             for remaining in range(lvl, UNILEVEL_DEPTH + 1):
                 _record_commission(db, buyer.id, None, per_level, "uni_level",
                                    f"Uni-level {remaining} — chain ended, company absorb",
-                                   package_tier)
+                                   package_tier, source_event_id=source_event_id)
             break
 
         upline_id = current_user.sponsor_id
@@ -758,7 +794,7 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
             upline.level_earnings = Decimal(str(upline.level_earnings or 0)) + Decimal(str(per_level))
             _record_commission(db, buyer.id, upline_id, per_level, "uni_level",
                                f"Uni-level {lvl} — 6.25% of ${price}",
-                               package_tier)
+                               package_tier, source_event_id=source_event_id)
         elif upline:
             # Unqualified at this tier — escrow for 3 days. Upline can
             # claim by upgrading to package_tier within the grace window.
@@ -776,7 +812,7 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
             # Upline record missing (defensive). No escrow possible.
             _record_commission(db, buyer.id, None, per_level, "uni_level",
                                f"Uni-level {lvl} — upline {upline_id} not found, company absorb",
-                               package_tier)
+                               package_tier, source_event_id=source_event_id)
 
         current_id = upline_id
 
@@ -1038,7 +1074,14 @@ def _next_slot(db: Session, grid: Grid):
 
 def _record_commission(db: Session, from_user_id: Optional[int], to_user_id: Optional[int],
                        amount: float, comm_type: str, notes: str,
-                       package_tier: int = None):
+                       package_tier: int = None, source_event_id: str = None):
+    # source_event_id (28 May 2026): stamped on the row so the purchase event
+    # is traceable and so the entry-point replay guard in process_tier_purchase
+    # can detect a re-run by querying for prior commissions with this event id.
+    # The dedup DECISION lives at the entry point (before any balance is
+    # credited), NOT here — crediting happens in the callers before this is
+    # called, so an in-row guard would leave balances double-credited while
+    # refusing the row. Legacy callers pass None and are unaffected.
     db.add(Commission(
         from_user_id    = from_user_id,
         to_user_id      = to_user_id,
@@ -1048,6 +1091,7 @@ def _record_commission(db: Session, from_user_id: Optional[int], to_user_id: Opt
         status          = "paid" if to_user_id else "platform",
         notes           = notes,
         paid_at         = datetime.utcnow(),
+        source_event_id = source_event_id,
     ))
     # Cache invalidation — commission posted, dashboard/wallet/earnings
     # caches for the recipient need to refresh on next read. Late import

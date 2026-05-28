@@ -2501,6 +2501,17 @@ def run_migrations():
         "ALTER TABLE commissions ADD COLUMN IF NOT EXISTS source_event_id VARCHAR",
         "CREATE INDEX IF NOT EXISTS idx_commissions_source_event_id ON commissions(source_event_id)",
         "CREATE UNIQUE INDEX IF NOT EXISTS uniq_commission_event ON commissions(from_user_id, to_user_id, commission_type, source_event_id) WHERE source_event_id IS NOT NULL",
+        # ── One-time purchase idempotency (28 May 2026) ──────────────────────
+        # Nexus credit packs and Grid campaign tiers paid commissions on a
+        # payment event with NO replay protection — a Stripe webhook retry
+        # would double-pay the matrix / grid commission chains. These indexes
+        # are the race-proof backstop behind the application-level guards in
+        # purchase_credit_pack (keyed on payment_ref) and process_tier_purchase
+        # (commissions keyed on source_event_id via uniq_commission_event above,
+        # which already covers grid commission rows once they carry the key).
+        # Partial (WHERE ... IS NOT NULL) so legacy rows without a ref are
+        # untouched. Audited clean before creation (audit-purchase-duplicates).
+        "CREATE UNIQUE INDEX IF NOT EXISTS uniq_credit_pack_payment_ref ON credit_pack_purchases(payment_ref) WHERE payment_ref IS NOT NULL",
     ]
     results = []
     with engine.connect() as conn:

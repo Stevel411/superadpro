@@ -29,6 +29,7 @@ from decimal import Decimal
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
+from sqlalchemy.exc import IntegrityError
 
 from .database import (
     User, CreditMatrix, CreditMatrixPosition, CreditMatrixCommission,
@@ -452,6 +453,42 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
     if not pack:
         return {"success": False, "error": f"Invalid pack: {pack_key}"}
 
+    # ── Idempotency guard (28 May 2026) ────────────────────────────────────
+    # This path awards credits AND pays the full matrix commission chain
+    # (direct, spillover, completion). It had NO replay protection: a Stripe
+    # webhook retry of a nexus_pack checkout would run the whole thing again —
+    # double-awarding credits and double-paying every upline matrix commission
+    # out of company funds. Stripe retries on any non-2xx, so this was a real
+    # loaded gun, not a theoretical one.
+    #
+    # Fix: if a purchase with this payment_ref already exists, this is a replay
+    # — return the prior result idempotently, paying/awarding nothing. The
+    # unique partial index uniq_credit_pack_payment_ref is the race-proof
+    # backstop (two concurrent retries hitting different replicas both pass the
+    # SELECT, but the second INSERT below collides on the index and is caught).
+    # Only guards refs we actually set (Stripe = stripe_{session}, NOWPayments
+    # = order id); a null ref (legacy/manual) is unaffected.
+    if payment_ref:
+        prior = db.query(CreditPackPurchase).filter(
+            CreditPackPurchase.payment_ref == payment_ref
+        ).first()
+        if prior:
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                f"DUPLICATE NEXUS PURCHASE BLOCKED (payment_ref={payment_ref}): "
+                f"buyer={buyer.id} pack={pack_key} — replay of purchase {prior.id}. "
+                f"Idempotency working; no credits/commissions re-issued."
+            )
+            return {
+                "success": True,
+                "idempotent_replay": True,
+                "purchase_id": prior.id,
+                "credits_awarded": prior.credits_awarded,
+                "pack": prior.pack_key,
+                "price": float(prior.pack_price),
+                "message": "Pack already processed for this payment (idempotent).",
+            }
+
     price = Decimal(str(pack["price"]))
     credits = pack["credits"]
 
@@ -466,7 +503,30 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
         status="completed",
     )
     db.add(purchase)
-    db.flush()
+    try:
+        db.flush()  # surfaces a unique-index collision before we award anything
+    except IntegrityError:
+        # Race: a concurrent retry inserted the same payment_ref between our
+        # SELECT above and this flush. The DB index refused our duplicate.
+        # Roll back and return idempotently — the winning request did the work.
+        db.rollback()
+        import logging as _logging
+        _logging.getLogger(__name__).warning(
+            f"DUPLICATE NEXUS PURCHASE BLOCKED at index (payment_ref={payment_ref}): "
+            f"buyer={buyer.id} pack={pack_key} — concurrent replay refused by DB."
+        )
+        won = db.query(CreditPackPurchase).filter(
+            CreditPackPurchase.payment_ref == payment_ref
+        ).first() if payment_ref else None
+        return {
+            "success": True,
+            "idempotent_replay": True,
+            "purchase_id": won.id if won else None,
+            "credits_awarded": won.credits_awarded if won else credits,
+            "pack": pack_key,
+            "price": float(price),
+            "message": "Pack already processed for this payment (idempotent, race).",
+        }
 
     # Award SuperScene credits
     existing_credits = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == buyer.id).first()
