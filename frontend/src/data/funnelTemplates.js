@@ -25,6 +25,7 @@ import {
   Mail, PlayCircle, ShoppingBag, Radio, Briefcase,
   Download, Link2, CheckCircle2, Plus,
 } from 'lucide-react';
+import LeadMagnetPreview from '../components/templatePreviews/LeadMagnetPreview';
 
 export const TEMPLATES = [
   {
@@ -34,6 +35,15 @@ export const TEMPLATES = [
     icon: Mail,
     gradient: 'linear-gradient(135deg,#22d3ee 0%,#06b6d4 100%)',
     listName: 'Lead capture leads',
+  },
+  {
+    key: 'lead-magnet',
+    title: 'Lead magnet',
+    desc: 'Polished free-guide opt-in — workhorse for any niche',
+    icon: Download,
+    gradient: 'linear-gradient(135deg,#0a1438 0%,#0ea5e9 100%)',
+    listName: 'Lead magnet subscribers',
+    preview: LeadMagnetPreview,  // visual preview component (28 May 2026)
   },
   {
     key: 'video-sales',

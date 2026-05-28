@@ -439,8 +439,118 @@ def _thank_you(username):
 # ═══════════════════════════════════════════════════════════
 # Registry
 # ═══════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════
+# TEMPLATE 10: Lead Magnet (28 May 2026)
+# ═══════════════════════════════════════════════════════════
+# The workhorse lead-capture page: hero + benefit list + email-only form.
+# On-brand cobalt+cyan on white card, Sora/DM Sans, single email field,
+# form wired to capture into the member's CRM (automatic via published
+# form element) AND redirect to /ref/{username} so the lead's signup
+# attributes to the member as sponsor.
+def _lead_magnet(username):
+    els = []
+    y = 50
+
+    # 1. Badge
+    els.append({'id': _uid(), 'type': 'label', 'x': _centre(220), 'y': y, 'w': 220, 'h': 32,
+        'txt': '★ FREE DOWNLOAD',
+        's': {'fontFamily': "'JetBrains Mono',monospace", 'fontWeight': '700', 'fontSize': '12px',
+              'color': '#0e7490', 'textAlign': 'center', 'background': 'rgba(6,182,212,0.10)',
+              'borderRadius': '20px', 'border': '1px solid rgba(6,182,212,0.25)',
+              'lineHeight': '32px', 'letterSpacing': '0.08em'}})
+    y += 56
+
+    # 2. Headline
+    els.append({'id': _uid(), 'type': 'heading', 'x': _centre(900), 'y': y, 'w': 900, 'h': 110,
+        'txt': 'Get the free guide that shows you how — start growing today.',
+        's': {'fontFamily': "'Sora',sans-serif", 'fontWeight': '900', 'fontSize': '48px',
+              'color': '#0a1438', 'textAlign': 'center', 'lineHeight': '1.08', 'letterSpacing': '-0.5px'}})
+    y += 120
+
+    # 3. Subhead
+    els.append({'id': _uid(), 'type': 'text', 'x': _centre(640), 'y': y, 'w': 640, 'h': 60,
+        'txt': 'Enter your email and we\'ll send you the guide right away — no card, no commitment.',
+        's': {'fontFamily': "'DM Sans',sans-serif", 'fontSize': '17px', 'color': '#475569',
+              'textAlign': 'center', 'lineHeight': '1.55'}})
+    y += 80
+
+    # 4. Email-only optin form — captures lead + redirects to /ref/{username}
+    els.append({'id': _uid(), 'type': 'form', 'x': _centre(540), 'y': y, 'w': 540, 'h': 220,
+        'txt': '<div style="padding:24px;text-align:center"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#0a1438;margin-bottom:6px">Send me the free guide</div><div style="font-size:13px;color:#64748b;margin-bottom:16px">No card needed</div><input placeholder="Your best email" style="width:100%;padding:14px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;font-size:15px;margin-bottom:12px;box-sizing:border-box"><div style="width:100%;padding:15px;border-radius:10px;background:linear-gradient(135deg,#0a1438,#0ea5e9);color:#fff;font-weight:800;font-size:15px;font-family:Sora,sans-serif;text-align:center;box-sizing:border-box">Get the guide →</div></div>',
+        's': {'background': '#fff', 'borderRadius': '18px', 'border': '1px solid #e2e8f0',
+              'boxShadow': '0 10px 30px rgba(10,20,56,0.08)'},
+        '_formHeading': 'Send me the free guide',
+        '_formSubtitle': 'No card needed',
+        '_formBtnText': 'Get the guide →',
+        '_formBtnColor': '#0ea5e9',
+        '_formShowName': False,
+        '_formRedirect': '/ref/' + (username or 'demo'),
+    })
+    y += 260
+
+    # 5. Trust strip (3 icontexts as a row)
+    trust_w = 200
+    trust_y = y
+    trust_items = [
+        ('✓', 'No spam, ever'),
+        ('✓', 'Instant access'),
+        ('✓', 'Unsubscribe anytime'),
+    ]
+    total_w = trust_w * 3 + 24 * 2
+    start_x = _centre(total_w)
+    for i, (mark, txt) in enumerate(trust_items):
+        els.append({'id': _uid(), 'type': 'icontext',
+            'x': start_x + i * (trust_w + 24), 'y': trust_y, 'w': trust_w, 'h': 36,
+            'txt': mark + '  ' + txt,
+            's': {'fontFamily': "'DM Sans',sans-serif", 'fontSize': '14px', 'fontWeight': '600',
+                  'color': '#475569', 'textAlign': 'center', 'lineHeight': '36px'}})
+    y += 70
+
+    # 6. Section heading: "Inside this free guide"
+    els.append({'id': _uid(), 'type': 'heading', 'x': _centre(700), 'y': y, 'w': 700, 'h': 50,
+        'txt': 'Inside this free guide',
+        's': {'fontFamily': "'Sora',sans-serif", 'fontWeight': '800', 'fontSize': '30px',
+              'color': '#0a1438', 'textAlign': 'center'}})
+    y += 70
+
+    # 7. Three benefit cards (icontexts as full cards)
+    benefit_w = 300
+    benefit_h = 140
+    benefit_gap = 20
+    benefit_total = benefit_w * 3 + benefit_gap * 2
+    benefit_x0 = _centre(benefit_total)
+    benefits = [
+        ('1', 'The first step', 'Exactly what to do first, in plain language — no jargon, no fluff.'),
+        ('2', 'What to avoid', 'The common mistakes that waste time and money — sidestep them from day one.'),
+        ('3', 'How to grow', 'A simple framework for steady growth without burning out.'),
+    ]
+    for i, (n, h_, body) in enumerate(benefits):
+        els.append({'id': _uid(), 'type': 'box',
+            'x': benefit_x0 + i * (benefit_w + benefit_gap), 'y': y, 'w': benefit_w, 'h': benefit_h,
+            'txt': '<div style="padding:22px"><div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#0a1438,#0ea5e9);color:#fff;font-family:Sora,sans-serif;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;margin-bottom:12px">'+n+'</div><div style="font-family:Sora,sans-serif;font-weight:700;font-size:16px;color:#0a1438;margin-bottom:6px">'+h_+'</div><div style="font-size:13px;color:#475569;line-height:1.55">'+body+'</div></div>',
+            's': {'background': '#fff', 'borderRadius': '14px', 'border': '1px solid #e2e8f0',
+                  'boxShadow': '0 2px 8px rgba(0,0,0,0.04)'}})
+    y += benefit_h + 60
+
+    # 8. Final CTA back to the form (anchor)
+    els.append({'id': _uid(), 'type': 'heading', 'x': _centre(720), 'y': y, 'w': 720, 'h': 50,
+        'txt': 'Get the guide — free.',
+        's': {'fontFamily': "'Sora',sans-serif", 'fontWeight': '800', 'fontSize': '26px',
+              'color': '#0a1438', 'textAlign': 'center'}})
+    y += 70
+
+    # 9. Disclaimer footer
+    els.append({'id': _uid(), 'type': 'text', 'x': _centre(700), 'y': y, 'w': 700, 'h': 50,
+        'txt': 'Results vary and are not guaranteed. We respect your privacy and will never share your email.',
+        's': {'fontFamily': "'DM Sans',sans-serif", 'fontSize': '12px', 'color': '#7a8899',
+              'textAlign': 'center', 'lineHeight': '1.6'}})
+
+    return {'els': els, 'canvasBg': '#f8fafc'}
+
+
 BUILDERS = {
     'lead-capture': _lead_capture,
+    'lead-magnet': _lead_magnet,
     'video-sales': _video_sales,
     'product-offer': _product_offer,
     'network-opportunity': _business_opportunity,

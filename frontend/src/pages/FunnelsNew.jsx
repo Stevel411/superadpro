@@ -271,13 +271,14 @@ export default function FunnelsNew() {
                 }}>
                 <div style={{
                   height: 100,
-                  background: isBlank ? '#f8fafc' : tpl.gradient,
+                  background: isBlank ? '#f8fafc' : (tpl.preview ? '#f8fafc' : tpl.gradient),
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: isBlank ? '#94a3b8' : '#fff',
+                  overflow: 'hidden',
                 }}>
-                  <Icon size={36} strokeWidth={1.8}/>
+                  {tpl.preview ? <tpl.preview/> : <Icon size={36} strokeWidth={1.8}/>}
                 </div>
                 <div style={{padding:'12px 14px', textAlign: isBlank ? 'center' : 'left'}}>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,color:'#0a1438',marginBottom:2}}>
