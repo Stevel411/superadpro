@@ -208,7 +208,7 @@ export default function FunnelsNew() {
         Or pick a template
       </h2>
       <div style={{marginBottom:14,fontSize:12,color:'#64748b'}}>
-        Nine pre-built starting points for the most common use cases.
+        Pre-built starting points for the most common use cases.
       </div>
 
       {/* 3×3 template grid
@@ -271,7 +271,8 @@ export default function FunnelsNew() {
                   }
                 }}>
                 <div style={{
-                  height: 100,
+                  height: tpl.preview ? 'auto' : 100,
+                  minHeight: 100,
                   background: isBlank ? '#f8fafc' : (tpl.preview ? '#f8fafc' : tpl.gradient),
                   display: 'flex',
                   alignItems: 'center',
