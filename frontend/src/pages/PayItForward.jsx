@@ -4,6 +4,7 @@ import { apiGet, apiPost } from '../utils/api';
 import AppLayout from '../components/layout/AppLayout';
 import { Gift, Copy, Check, Heart, ExternalLink, ChevronRight, Share2 } from 'lucide-react';
 import { useConsentGate } from '../components/PurchaseConsentModal';
+import CustomSelect from '../components/ui/CustomSelect';
 
 // Step 4 triple-rail audit (7 May 2026): WalletConnect rail for PIF.
 // Lazy-loaded so the rest of the page stays fast for users not paying
@@ -106,6 +107,8 @@ export default function PayItForward() {
 
   // Per-voucher dropdown selection for the "needs attention" reassign UI
   var [reassignPick, setReassignPick] = useState({});
+  // Selected member id in the "gift a team member" dropdown
+  var [giftPick, setGiftPick] = useState('');
 
   function convertToShareable(code) {
     apiPost('/api/pay-it-forward/retarget/' + code, {
@@ -392,25 +395,33 @@ export default function PayItForward() {
           )}
 
           {teamData.team_members && teamData.team_members.length > 0 && !teamSelected && (
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:10 }}>
-              {teamData.team_members.map(function(m) {
-                return (
-                  <div key={m.user_id} style={{ border:'1px solid #e2e8f0', borderRadius:10, padding:14, display:'flex', flexDirection:'column', gap:6 }}>
-                    <div style={{ fontWeight:800, fontSize:14, color:'var(--sap-cobalt-deep)' }}>{m.first_name || m.username}</div>
-                    <div style={{ fontSize:12, color:'var(--sap-text-faint)' }}>@{m.username}</div>
-                    <div style={{ fontSize:11, color:'var(--sap-text-faint)' }}>Joined {m.joined_at ? new Date(m.joined_at).toLocaleDateString() : '—'}</div>
-                    {m.has_pending_gift ? (
-                      <button disabled style={{ marginTop:6, padding:'8px 12px', borderRadius:8, border:'1px solid #e2e8f0', background:'#f8fafc', color:'var(--sap-text-faint)', fontSize:12, fontWeight:700, cursor:'not-allowed' }}>
-                        Gift pending
-                      </button>
-                    ) : (
-                      <button onClick={function() { setTeamSelected(m); setError(''); setSuccess(''); }} style={{ marginTop:6, padding:'8px 12px', borderRadius:8, border:'none', background:'var(--sap-cobalt-deep)', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer' }}>
-                        Gift ($20)
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+            <div style={{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap' }}>
+              <div style={{ flex:1, minWidth:220 }}>
+                <CustomSelect
+                  value={giftPick}
+                  onChange={function(v) { setGiftPick(v); }}
+                  placeholder="Choose a team member to gift…"
+                  options={teamData.team_members.map(function(m) {
+                    return {
+                      value: String(m.user_id),
+                      label: (m.first_name ? (m.first_name + ' (@' + m.username + ')') : ('@' + m.username))
+                             + (m.has_pending_gift ? ' — gift pending' : ''),
+                    };
+                  })}
+                />
+              </div>
+              <button
+                onClick={function() {
+                  var m = teamData.team_members.find(function(x){ return String(x.user_id) === String(giftPick); });
+                  if (!m) { setError('Please choose a team member first.'); return; }
+                  if (m.has_pending_gift) { setError(m.first_name || m.username + ' already has a pending gift.'); return; }
+                  setTeamSelected(m); setError(''); setSuccess('');
+                }}
+                disabled={!giftPick}
+                style={{ padding:'11px 22px', border:'none', borderRadius:10, background: giftPick ? 'var(--sap-cobalt-deep)' : '#cbd5e1', color:'#fff', fontWeight:800, fontSize:13, cursor: giftPick ? 'pointer' : 'default', whiteSpace:'nowrap' }}
+              >
+                Gift ($20)
+              </button>
             </div>
           )}
 
@@ -446,35 +457,45 @@ export default function PayItForward() {
                 Reassign any of these to a front-line member who hasn't activated yet — no extra charge, the gift's already paid for.
               </div>
               {teamData.needs_action.map(function(v) {
-                var label = v.status === 'declined' ? 'declined'
-                          : v.status === 'expired' ? 'expired'
-                          : 'unused (recipient activated another way)';
+                var label = v.status === 'declined' ? 'Declined by recipient'
+                          : v.status === 'expired' ? 'Expired \u2014 not accepted in time'
+                          : 'Unused \u2014 recipient activated another way';
                 var picked = reassignPick[v.voucher_code] || '';
                 var eligible = (teamData.team_members || []).filter(function(m){ return !m.has_pending_gift; });
                 return (
-                  <div key={v.voucher_code} style={{ padding:'10px 0', borderBottom:'1px solid rgba(0,0,0,0.04)' }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-cobalt-deep)' }}>
-                      {v.previous_recipient_username || 'No recipient set'} — {label}
+                  <div key={v.voucher_code} style={{ background:'#fff', border:'1px solid #fde68a', borderRadius:10, padding:14, marginBottom:10 }}>
+                    {/* The gift this row is about */}
+                    <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2 }}>
+                      <Gift size={15} color="var(--sap-cobalt-deep)" />
+                      <span style={{ fontSize:13, fontWeight:800, color:'var(--sap-cobalt-deep)' }}>$20 gift</span>
+                      <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:99, background:'#fef3c7', color:'#92400e' }}>{label}</span>
                     </div>
-                    <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginBottom:8 }}>Gift code {v.voucher_code}</div>
+                    <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginBottom:12 }}>
+                      {v.previous_recipient_username ? ('Was for ' + v.previous_recipient_username + ' \u00b7 ') : ''}Code {v.voucher_code}
+                    </div>
+                    {/* The action: reassign THIS gift TO a chosen member */}
                     <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
-                      <select
-                        value={picked}
-                        onChange={function(e){ var nv = {}; nv[v.voucher_code] = e.target.value; setReassignPick(Object.assign({}, reassignPick, nv)); }}
-                        style={{ flex:1, minWidth:180, padding:'7px 10px', borderRadius:6, border:'1px solid #cbd5e1', fontSize:12, fontFamily:'inherit' }}
-                      >
-                        <option value="">Reassign to a front-line member…</option>
-                        {eligible.map(function(m){
-                          return <option key={m.user_id} value={m.user_id}>{m.first_name ? (m.first_name + ' (' + m.username + ')') : m.username}</option>;
-                        })}
-                      </select>
+                      <span style={{ fontSize:12, fontWeight:700, color:'#475569', whiteSpace:'nowrap' }}>Reassign to</span>
+                      <div style={{ flex:1, minWidth:200 }}>
+                        <CustomSelect
+                          small={true}
+                          value={picked}
+                          onChange={function(val){ var nv = Object.assign({}, reassignPick); nv[v.voucher_code] = val; setReassignPick(nv); }}
+                          placeholder="Choose a front-line member…"
+                          options={eligible.map(function(m){
+                            return { value: String(m.user_id), label: m.first_name ? (m.first_name + ' (@' + m.username + ')') : ('@' + m.username) };
+                          })}
+                        />
+                      </div>
                       <button
                         onClick={function(){ if (picked) retargetVoucher(v.voucher_code, parseInt(picked, 10)); }}
                         disabled={!picked}
-                        style={{ padding:'7px 14px', border:'none', borderRadius:6, background: picked ? 'var(--sap-cobalt-deep)' : '#cbd5e1', color:'#fff', fontSize:12, fontWeight:700, cursor: picked ? 'pointer' : 'default' }}
-                      >Reassign</button>
-                      <button onClick={function() { convertToShareable(v.voucher_code); }} style={{ padding:'7px 12px', border:'1px solid var(--sap-cobalt-deep)', borderRadius:6, background:'#fff', color:'var(--sap-cobalt-deep)', fontSize:12, fontWeight:700, cursor:'pointer' }}>
-                        Make shareable
+                        style={{ padding:'9px 16px', border:'none', borderRadius:8, background: picked ? 'var(--sap-cobalt-deep)' : '#cbd5e1', color:'#fff', fontSize:12, fontWeight:800, cursor: picked ? 'pointer' : 'default', whiteSpace:'nowrap' }}
+                      >Reassign gift</button>
+                    </div>
+                    <div style={{ marginTop:8 }}>
+                      <button onClick={function() { convertToShareable(v.voucher_code); }} style={{ padding:0, border:'none', background:'transparent', color:'var(--sap-cobalt-deep)', fontSize:11, fontWeight:700, cursor:'pointer', textDecoration:'underline' }}>
+                        Or get a shareable link to send anyone
                       </button>
                     </div>
                   </div>
