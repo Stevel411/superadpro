@@ -1114,6 +1114,119 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
 #  SMART DASHBOARD GOALS
 # ═══════════════════════════════════════════════════════════════
 
+@app.get("/api/account/purchases")
+def api_account_purchases(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member-facing 'Your Purchases & Holdings' data.
+
+    Reads the SOURCE-OF-TRUTH tables directly (same tables the
+    /admin/api/user-fulfillment diagnostic uses) so what a member sees is
+    exactly what's real — no denormalised counters that can drift. Returns
+    two things:
+
+      holdings: what the member has active RIGHT NOW (membership, Profit Grid
+                position, Creative Studio credit balance)
+      history:  every purchase as a row (date, product, what it delivered,
+                amount, status), merged across the scattered purchase tables
+                (Payment for membership, GridPosition for campaign tiers,
+                CreditPackPurchase for Nexus packs) and sorted newest-first.
+
+    Built 28 May 2026 after the Daniela/cashflow case: a member couldn't tell
+    what her three charges were because nothing in the member UI showed her
+    purchases or holdings. This closes that gap. v1 covers membership +
+    Campaign Tier + Nexus packs; courses/digital products can be added later.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import (
+        GridPosition, CreditPackPurchase, SuperSceneCredit, Payment,
+        GRID_PACKAGES, GRID_TIER_NAMES,
+    )
+
+    # ── HOLDINGS: what's active right now ──
+    # Membership
+    is_founder = bool(getattr(user, "is_founding_member", False))
+    locked = getattr(user, "membership_price_locked", None)
+    membership_price = float(locked) if locked else (15.0 if is_founder else 20.0)
+    membership = {
+        "label": "Founder" if is_founder else ("Partner" if user.is_active else "Free"),
+        "price": membership_price,
+        "active": bool(user.is_active),
+        "renews_at": user.membership_expires_at.isoformat() if getattr(user, "membership_expires_at", None) else None,
+    }
+
+    # Profit Grid — highest tier position they hold (Campaign Tier purchases)
+    gpos = db.query(GridPosition).filter(GridPosition.member_id == user.id).all()
+    grid_levels = sorted({g.grid_level for g in gpos if g.grid_level is not None})
+    grid = {
+        "has_position": len(gpos) > 0,
+        "tier": (max(grid_levels) if grid_levels else None),
+        "position_count": len(gpos),
+    }
+
+    # Creative Studio credits
+    ssc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user.id).first()
+    credit_balance = int(ssc.balance) if ssc else 0
+
+    holdings = {"membership": membership, "grid": grid, "credit_balance": credit_balance}
+
+    # ── HISTORY: every purchase, merged + sorted newest-first ──
+    history = []
+
+    # Membership + balance payments (Payment rows where this user is the payer)
+    for p in db.query(Payment).filter(Payment.from_user_id == user.id).all():
+        ptype = (getattr(p, "payment_type", "") or "")
+        if ptype.startswith("membership"):
+            history.append({
+                "date": p.created_at.isoformat() if p.created_at else None,
+                "product": "Founder Membership" if is_founder else "Membership",
+                "delivered": "Activated your membership account",
+                "amount": float(getattr(p, "amount_usdt", 0) or 0),
+                "status": "Delivered" if p.status in ("confirmed", "paid", "completed") else (p.status or "—"),
+                "kind": "membership",
+            })
+
+    # Campaign Tier purchases — one row per distinct grid placement event.
+    # GridPosition rows don't carry price; a Tier-N purchase is N*$... but the
+    # ground-truth price for the buyer is the tier purchase amount. We surface
+    # the placement as the deliverable; amount is the tier purchase price.
+    # Group placements created in the same second = one purchase event.
+    seen_grid_events = set()
+    for g in sorted(gpos, key=lambda x: (x.created_at or datetime.min)):
+        # bucket by created_at to the second to collapse the multi-row placement
+        bucket = g.created_at.replace(microsecond=0).isoformat() if g.created_at else str(g.id)
+        if bucket in seen_grid_events:
+            continue
+        seen_grid_events.add(bucket)
+        tier = g.grid_level or 1
+        tier_price = float(GRID_PACKAGES.get(tier, 0))
+        tier_name = GRID_TIER_NAMES.get(tier, f"Tier {tier}")
+        history.append({
+            "date": g.created_at.isoformat() if g.created_at else None,
+            "product": f"Campaign Tier {tier} — {tier_name} (Profit Grid)",
+            "delivered": f"Placed you in the Profit Grid — Tier {tier} ({tier_name}) position active",
+            "amount": tier_price,  # authoritative price from GRID_PACKAGES (NOT tier*20)
+            "status": "Delivered",
+            "kind": "campaign_tier",
+        })
+
+    # Nexus credit pack purchases
+    for cp in db.query(CreditPackPurchase).filter(CreditPackPurchase.user_id == user.id).all():
+        history.append({
+            "date": cp.created_at.isoformat() if cp.created_at else None,
+            "product": f"Credit Nexus — {(cp.pack_key or '').title()} Pack",
+            "delivered": f"Added {cp.credits_awarded} Creative Studio credits to your account",
+            "amount": float(cp.pack_price or 0),
+            "status": "Delivered" if cp.status == "completed" else (cp.status or "—"),
+            "kind": "nexus_pack",
+        })
+
+    # newest first
+    history.sort(key=lambda r: (r["date"] or ""), reverse=True)
+
+    return JSONResponse({"holdings": holdings, "history": history})
+
+
 @app.get("/api/dashboard/goals")
 def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Return personalised goal cards based on member's current situation."""
