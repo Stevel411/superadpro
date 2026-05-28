@@ -9,7 +9,6 @@ import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Z
 import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
 import DashboardHeroCarousel from '../components/DashboardHeroCarousel';
-import FoundingPartnerBanner from '../components/FoundingPartnerBanner';
 import FastStartHero from '../components/FastStartHero';
 import PendingCommissionsCard from '../components/PendingCommissionsCard';
 
@@ -372,12 +371,12 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Founding Partner banner (added 15 May 2026 with flat-pricing migration) ──
-          Shown only to free users. Polls /api/founding-members/status every
-          60s. Hides itself when spots fill (is_open=false) or when dismissed
-          for the session. Component handles all its own conditional rendering;
-          we mount unconditionally and let it decide whether to draw. */}
-      <FoundingPartnerBanner user={user} />
+      {/* ── Founding Partner banner REMOVED 28 May 2026 ──
+          The 100-spot $15/mo founding offer is permanently closed (cap filled,
+          pricing reverted to $20 Partner). The banner pitched a dead offer, so
+          it's removed outright rather than left relying on a runtime is_open
+          flag to hide. Founder *recognition* (the FOUNDER badge + gold toast
+          below) stays — that honours the 100 real Founders. */}
 
       {/* ── Pending commissions (grace-period escrow) ──
           Shows when a downline has upgraded to a tier the member can't
