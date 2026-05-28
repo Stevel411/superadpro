@@ -9740,42 +9740,70 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                 "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
             )).fetchone()
             current_count = current_count_row.cnt if current_count_row else 0
-            max_spot_row = db.execute(text(
-                "SELECT COALESCE(MAX(founding_spot_number), 0) AS max_spot "
-                "FROM users WHERE founding_spot_number IS NOT NULL"
-            )).fetchone()
-            max_spot_taken = max_spot_row.max_spot if max_spot_row else 0
-            # Deadline check (added 27 May 2026) — Founder offer closes on
-            # whichever comes first: 100 spots OR the timestamp in
-            # AppConfig['founder_offer_close_at']. See _founder_offer_still_open
-            # for parse rules. Called AFTER the advisory lock so we get a
-            # consistent point-in-time snapshot under the same critical section.
+            # 28 May 2026 — CRITICAL FIX. Previous logic used both
+            # `current_count < 100` AND `max_spot_taken < 100` as the cap
+            # gate, and assigned next_spot = MAX+1. That conflated two
+            # different things:
+            #   - "how many founders exist" (COUNT) — the real cap
+            #   - "highest spot number ever assigned" (MAX) — NOT the cap
+            # When demoted/cleaned-up accounts leave gaps in the spot
+            # numbering (e.g. spot #62 vacated but never recycled), MAX
+            # climbs to 100 while COUNT is still only 91. The
+            # `max_spot_taken < 100` guard then SLAMMED THE OFFER SHUT 9
+            # spots early — new signups silently fell through to $20
+            # Partner pricing despite 9 real spots being available.
+            # (Caught when 4 members paid Partner overnight with 9 founder
+            # spots open: williamnormanii, earnwithjason, earningcreator,
+            # michellg.)
+            #
+            # Correct behaviour:
+            #   - CAP gate uses COUNT only (how many founders exist < 100)
+            #   - SPOT NUMBER fills the LOWEST UNUSED gap <= 100, not MAX+1.
+            #     This recycles vacated spot numbers and can never exceed
+            #     100 as long as COUNT < 100. Gap-fill is still collision-
+            #     safe under the advisory lock (we hold FOUNDING_LOCK_KEY).
             deadline_open = _founder_offer_still_open(db)
-            if current_count < FOUNDING_TOTAL and max_spot_taken < FOUNDING_TOTAL and deadline_open:
-                next_spot = max_spot_taken + 1
-                user.is_founding_member = True
-                user.founding_spot_number = next_spot
-                user.membership_price_locked = Decimal("15.00")
-                # 23 May 2026 (evening): also set membership_tier='founding'
-                # so admin UI + any other code reading membership_tier sees
-                # this user as a Founder. Without this, is_founding_member
-                # would be True but tier would fall through to 'partner' at
-                # line ~8649 below, leaving inconsistent state (FOUNDER
-                # badge on dashboard, but PARTNER badge on admin).
-                user.membership_tier = "founding"
-                # Flush so the locked_price read below sees the new value.
-                db.flush()
-                # Auto-enrol the new Founder into the rotator queue so they
-                # start receiving distributed /start signups immediately.
-                # Idempotent — safe if somehow already enrolled (gift→paid
-                # upgrade path, manual admin intervention, etc.).
-                _enrol_user_to_rotator(db, user.id)
-                logger.info(
-                    f"Founding spot #{next_spot} claimed by user {user.id} "
-                    f"({user.username}) — count={current_count}, "
-                    f"max_taken={max_spot_taken}, "
-                    f"{FOUNDING_TOTAL - next_spot} spots remaining"
-                )
+            if current_count < FOUNDING_TOTAL and deadline_open:
+                # Find the lowest unused spot number in [1, FOUNDING_TOTAL].
+                # generate_series(1,100) LEFT JOIN against taken spots;
+                # pick the smallest with no match. Single query, race-safe
+                # under the advisory lock.
+                gap_row = db.execute(text(
+                    "SELECT s.n AS spot FROM generate_series(1, :total) AS s(n) "
+                    "LEFT JOIN users u ON u.founding_spot_number = s.n "
+                    "WHERE u.id IS NULL "
+                    "ORDER BY s.n LIMIT 1"
+                ), {"total": FOUNDING_TOTAL}).fetchone()
+                next_spot = gap_row.spot if gap_row else None
+                if next_spot is None:
+                    # No gap found — genuinely full. Fall through to partner.
+                    logger.warning(
+                        f"Founder allocation: COUNT={current_count} < 100 but "
+                        f"no gap found in spot numbering — treating as full."
+                    )
+                else:
+                    user.is_founding_member = True
+                    user.founding_spot_number = next_spot
+                    user.membership_price_locked = Decimal("15.00")
+                    # 23 May 2026 (evening): also set membership_tier='founding'
+                    # so admin UI + any other code reading membership_tier sees
+                    # this user as a Founder. Without this, is_founding_member
+                    # would be True but tier would fall through to 'partner' at
+                    # line ~8649 below, leaving inconsistent state (FOUNDER
+                    # badge on dashboard, but PARTNER badge on admin).
+                    user.membership_tier = "founding"
+                    # Flush so the locked_price read below sees the new value.
+                    db.flush()
+                    # Auto-enrol the new Founder into the rotator queue so they
+                    # start receiving distributed /start signups immediately.
+                    # Idempotent — safe if somehow already enrolled (gift→paid
+                    # upgrade path, manual admin intervention, etc.).
+                    _enrol_user_to_rotator(db, user.id)
+                    logger.info(
+                        f"Founding spot #{next_spot} (gap-fill) claimed by user {user.id} "
+                        f"({user.username}) — count={current_count}, "
+                        f"{FOUNDING_TOTAL - current_count - 1} spots remaining"
+                    )
         except Exception as e:
             # If the founding claim fails for any reason, ROLLBACK the
             # poisoned session before falling through to standard partner
@@ -33354,6 +33382,99 @@ def admin_sweep_double_pays(
         "total_reversed_usd": round(sum(r["amount_reversed_usd"] for r in reversed_list), 2),
         "reversed": reversed_list,
         "failed": failed,
+    })
+
+
+@app.post("/admin/api/grant-founder/{username}")
+@app.get("/admin/api/grant-founder/{username}")
+def admin_grant_founder(
+    username: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Retroactively grant Founder status to an already-active member who
+    SHOULD have been made a Founder but wasn't (e.g. the allocator-gap
+    bug of 28 May 2026 that closed the offer 9 spots early and silently
+    charged 4 members Partner pricing while spots were open).
+
+    Assigns the lowest unused spot number <= 100, sets is_founding_member,
+    membership_tier='founding', membership_price_locked=$15.00, and
+    enrols them in the rotator. Idempotent — if already a founder, no-op.
+
+    Race-safe via the same FOUNDING_LOCK_KEY advisory lock the live
+    allocator uses, so concurrent grants (or a grant racing a live
+    signup) can't collide on spot numbers.
+
+    Does NOT refund the price difference — that's a separate manual
+    decision per Steve (pay back the $5 only if the member asks).
+    Does NOT notify the member — silent correction.
+    """
+    _require_admin(user)
+    from decimal import Decimal as _Dec
+
+    target = db.query(User).filter(User.username == username.lower()).first()
+    if not target:
+        return JSONResponse({"error": f"User '{username}' not found"}, status_code=404)
+
+    if getattr(target, "is_founding_member", False):
+        return JSONResponse({
+            "already_founder": True,
+            "username": target.username,
+            "founding_spot_number": target.founding_spot_number,
+        })
+
+    FOUNDING_TOTAL = 100
+    FOUNDING_LOCK_KEY = 7423957
+    db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": FOUNDING_LOCK_KEY})
+
+    current_count = db.execute(text(
+        "SELECT COUNT(*) FROM users WHERE is_founding_member = TRUE"
+    )).scalar() or 0
+    if current_count >= FOUNDING_TOTAL:
+        return JSONResponse({
+            "error": "founder_cap_full",
+            "current_count": current_count,
+        }, status_code=409)
+
+    gap_row = db.execute(text(
+        "SELECT s.n AS spot FROM generate_series(1, :total) AS s(n) "
+        "LEFT JOIN users u ON u.founding_spot_number = s.n "
+        "WHERE u.id IS NULL ORDER BY s.n LIMIT 1"
+    ), {"total": FOUNDING_TOTAL}).fetchone()
+    if not gap_row:
+        return JSONResponse({"error": "no_spot_available"}, status_code=409)
+
+    next_spot = gap_row.spot
+    old_tier = target.membership_tier
+    target.is_founding_member = True
+    target.founding_spot_number = next_spot
+    target.membership_price_locked = _Dec("15.00")
+    target.membership_tier = "founding"
+    db.flush()
+    try:
+        _enrol_user_to_rotator(db, target.id)
+    except Exception:
+        pass
+    try:
+        cache_invalidate_user(target.id)
+    except Exception:
+        pass
+    db.commit()
+
+    logger.warning(
+        f"ADMIN GRANT FOUNDER: {target.username} (id={target.id}) granted "
+        f"founding spot #{next_spot} by admin {user.username}. Was tier="
+        f"{old_tier}, now founding @ $15 locked. (Retroactive correction "
+        f"for 28 May allocator-gap bug.)"
+    )
+
+    return JSONResponse({
+        "success": True,
+        "username": target.username,
+        "founding_spot_number": next_spot,
+        "previous_tier": old_tier,
+        "price_locked": "15.00",
+        "note": "Silent correction. No refund issued (pay $5 diff only if requested). No member notification sent.",
     })
 
 
