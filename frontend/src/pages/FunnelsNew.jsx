@@ -224,16 +224,17 @@ export default function FunnelsNew() {
         gap: 12,
       }}>
         {(() => {
-          // Build the render order: first two templates, then Blank
-          // Canvas in slot 3, then the rest. Single inline render
-          // function to keep this co-located with the grid for
-          // clarity — anyone editing this can see the order at a glance.
-          const ordered = [
-            TEMPLATES[0],          // Lead capture
-            TEMPLATES[1],          // Video sales letter
-            BLANK_CANVAS,          // ← top-right slot
-            ...TEMPLATES.slice(2), // Product offer, Webinar, Business opp, Digital, Affiliate, Thank you
-          ];
+          // Build the render order: Lead capture → Lead magnet → Video sales
+          // → Blank Canvas (top-right slot) → the rest. We look up the first
+          // tiles by KEY (not array index) so adding a new template to
+          // funnelTemplates.js can't silently break the order. The previous
+          // hardcoded TEMPLATES[0]/[1] approach broke when Lead Magnet was
+          // inserted at index 1 (28 May 2026) — fixed.
+          const byKey = (k) => TEMPLATES.find(t => t.key === k);
+          const headKeys = ['lead-capture', 'lead-magnet', 'video-sales'];
+          const head = headKeys.map(byKey).filter(Boolean);
+          const rest = TEMPLATES.filter(t => !headKeys.includes(t.key));
+          const ordered = [...head, BLANK_CANVAS, ...rest];
           return ordered.map(tpl => {
             const isBlank = tpl.key === 'blank';
             const Icon = tpl.icon;
