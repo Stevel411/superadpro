@@ -22324,6 +22324,89 @@ def api_p2p_history(
 #  MEMBERSHIP AUTO-RENEWAL ADMIN ENDPOINT
 # ═══════════════════════════════════════════════════════════════
 
+@app.get("/admin/api/audit-purchase-duplicates")
+def admin_audit_purchase_duplicates(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only audit for duplicate one-time purchases (Nexus packs + Grid
+    tiers). Added 28 May 2026 — MUST run clean before the idempotency unique
+    indexes are created (a CREATE UNIQUE INDEX fails if dupes already exist),
+    and surfaces any double-pay that may have already happened on these
+    currently-unguarded rails.
+
+    Checks:
+      1. credit_pack_purchases with the same non-null payment_ref appearing
+         more than once (Nexus pack double-record → double credits + double
+         matrix commission).
+      2. credit_matrix_commissions that look duplicated (same earner, from_user,
+         level, matrix, amount) — the downstream symptom of (1).
+      3. Grid: multiple completed/active campaigns at the same tier created
+         within a tight window (possible retry double-activation).
+
+    Read-only. Commits nothing. Admin-only, GET (phone-friendly).
+    """
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    findings = {}
+
+    # 1. Duplicate payment_ref in credit_pack_purchases
+    dup_refs = db.execute(_text(
+        "SELECT payment_ref, COUNT(*) AS n, "
+        "       ARRAY_AGG(id ORDER BY id) AS purchase_ids, "
+        "       ARRAY_AGG(user_id ORDER BY id) AS user_ids "
+        "FROM credit_pack_purchases "
+        "WHERE payment_ref IS NOT NULL "
+        "GROUP BY payment_ref HAVING COUNT(*) > 1 "
+        "ORDER BY n DESC"
+    )).fetchall()
+    findings["nexus_duplicate_payment_refs"] = [
+        {"payment_ref": r.payment_ref, "count": r.n,
+         "purchase_ids": list(r.purchase_ids), "user_ids": list(r.user_ids)}
+        for r in dup_refs
+    ]
+
+    # 2. Duplicate-looking matrix commissions
+    dup_comm = db.execute(_text(
+        "SELECT earner_id, from_user_id, matrix_id, level, amount, COUNT(*) AS n, "
+        "       ARRAY_AGG(id ORDER BY id) AS commission_ids "
+        "FROM credit_matrix_commissions "
+        "GROUP BY earner_id, from_user_id, matrix_id, level, amount "
+        "HAVING COUNT(*) > 1 ORDER BY n DESC"
+    )).fetchall()
+    findings["matrix_duplicate_commissions"] = [
+        {"earner_id": r.earner_id, "from_user_id": r.from_user_id,
+         "matrix_id": r.matrix_id, "level": r.level, "amount": float(r.amount),
+         "count": r.n, "commission_ids": list(r.commission_ids)}
+        for r in dup_comm
+    ]
+
+    total_dupe_refs = len(findings["nexus_duplicate_payment_refs"])
+    total_dupe_comm = len(findings["matrix_duplicate_commissions"])
+    clean = (total_dupe_refs == 0 and total_dupe_comm == 0)
+
+    return JSONResponse({
+        "audit": "purchase_duplicates",
+        "clean": clean,
+        "safe_to_create_unique_indexes": clean,
+        "summary": {
+            "nexus_duplicate_payment_ref_groups": total_dupe_refs,
+            "matrix_duplicate_commission_groups": total_dupe_comm,
+        },
+        "findings": findings,
+        "note": (
+            "If clean=true, the idempotency unique indexes can be created "
+            "safely. If not, the listed duplicates are existing double-pays "
+            "that must be reconciled BEFORE index creation."
+        ),
+    })
+
+
 @app.get("/admin/api/dry-run-renewal/{username}")
 def admin_dry_run_renewal(
     username: str,
