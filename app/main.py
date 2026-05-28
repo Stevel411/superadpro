@@ -7866,6 +7866,203 @@ def admin_api_backfill_campaign_binding(
     }
 
 
+@app.get("/admin/api/activation-funnel")
+def admin_api_activation_funnel(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: how is the registered → activated funnel performing?
+
+    Read-only. Answers the questions worth knowing about activation:
+      1. What's the conversion rate overall (active / total)?
+      2. How fresh are the inactive cohort? (recent = warm/recoverable;
+         old = mostly lost). Bucketed by age since registration.
+      3. For those who DID activate, how fast did they do it? (median
+         time-to-activation tells you when an inactive member is past
+         likely-to-convert window).
+      4. Which sponsors convert their referrals best? (top sponsors by
+         conversion rate, surfaces teaching/onboarding patterns).
+
+    Built 28 May 2026 — investigation triggered by 'we have 382 registered
+    members and 106 active members, what's that as a percentage?' The
+    real insight is the AGE breakdown of the inactive pool, not the
+    headline ratio.
+
+    Excludes admin accounts (is_admin=true) from the cohort so the numbers
+    reflect actual members.
+    """
+    _require_admin(user)
+    from .database import Payment
+
+    now = datetime.utcnow()
+
+    # ── Cohort counts ──
+    base_q = db.query(User).filter(User.is_admin == False)
+    total = base_q.count()
+    active = base_q.filter(User.is_active == True).count()
+    inactive = total - active
+
+    overall_conversion_pct = round((active / total * 100), 1) if total else 0.0
+
+    # ── Age buckets of INACTIVE members (since registration) ──
+    inactive_users = base_q.filter(User.is_active == False).all()
+    inactive_buckets = {
+        "last_24h": 0,
+        "1_to_7d": 0,
+        "7_to_30d": 0,
+        "30_to_90d": 0,
+        "over_90d": 0,
+    }
+    for u in inactive_users:
+        if not u.created_at:
+            continue
+        age_days = (now - u.created_at).total_seconds() / 86400.0
+        if age_days < 1:
+            inactive_buckets["last_24h"] += 1
+        elif age_days < 7:
+            inactive_buckets["1_to_7d"] += 1
+        elif age_days < 30:
+            inactive_buckets["7_to_30d"] += 1
+        elif age_days < 90:
+            inactive_buckets["30_to_90d"] += 1
+        else:
+            inactive_buckets["over_90d"] += 1
+
+    # Warm (recoverable, last 7d) vs cold (>30d, mostly lost)
+    inactive_warm_7d = inactive_buckets["last_24h"] + inactive_buckets["1_to_7d"]
+    inactive_cold_30d = inactive_buckets["30_to_90d"] + inactive_buckets["over_90d"]
+
+    # ── Time-to-activation for those who DID activate ──
+    active_users = base_q.filter(
+        User.is_active == True,
+        User.activated_at.isnot(None),
+        User.created_at.isnot(None),
+    ).all()
+    ttd_hours = []
+    activation_speed_buckets = {
+        "same_day": 0,
+        "1_to_3d": 0,
+        "3_to_7d": 0,
+        "7_to_30d": 0,
+        "over_30d": 0,
+    }
+    for u in active_users:
+        delta_h = (u.activated_at - u.created_at).total_seconds() / 3600.0
+        if delta_h < 0:
+            continue  # data weirdness, skip
+        ttd_hours.append(delta_h)
+        delta_d = delta_h / 24.0
+        if delta_d < 1:
+            activation_speed_buckets["same_day"] += 1
+        elif delta_d < 3:
+            activation_speed_buckets["1_to_3d"] += 1
+        elif delta_d < 7:
+            activation_speed_buckets["3_to_7d"] += 1
+        elif delta_d < 30:
+            activation_speed_buckets["7_to_30d"] += 1
+        else:
+            activation_speed_buckets["over_30d"] += 1
+
+    # Median time-to-activation
+    median_ttd_hours = None
+    if ttd_hours:
+        ttd_sorted = sorted(ttd_hours)
+        n = len(ttd_sorted)
+        median_ttd_hours = round(
+            (ttd_sorted[n // 2] if n % 2 else (ttd_sorted[n // 2 - 1] + ttd_sorted[n // 2]) / 2),
+            1
+        )
+
+    # ── Sponsor conversion patterns (top sponsors by referral count) ──
+    # Build sponsor -> {referrals, activated} map. Only sponsors with >= 5
+    # referrals (statistically meaningful), top 15 by referral count.
+    sponsor_rows = db.execute(text("""
+        SELECT
+            sponsor_id,
+            COUNT(*) as referrals,
+            SUM(CASE WHEN is_active THEN 1 ELSE 0 END) as activated
+        FROM users
+        WHERE sponsor_id IS NOT NULL AND is_admin = false
+        GROUP BY sponsor_id
+        HAVING COUNT(*) >= 5
+        ORDER BY COUNT(*) DESC
+        LIMIT 15
+    """)).fetchall()
+
+    sponsor_ids = [r.sponsor_id for r in sponsor_rows]
+    sponsor_users = {u.id: u for u in db.query(User).filter(User.id.in_(sponsor_ids)).all()} if sponsor_ids else {}
+
+    top_sponsors = []
+    for r in sponsor_rows:
+        su = sponsor_users.get(r.sponsor_id)
+        if not su:
+            continue
+        conv_pct = round((r.activated / r.referrals * 100), 1) if r.referrals else 0
+        top_sponsors.append({
+            "sponsor_id": r.sponsor_id,
+            "username": su.username,
+            "referrals": r.referrals,
+            "activated": r.activated,
+            "conversion_pct": conv_pct,
+        })
+
+    # ── Estimated MRR from active members ──
+    # Read membership_price_locked for accuracy (Founders locked at $15,
+    # Partners at $20). Falls back to is_founding_member -> $15 / else $20.
+    mrr_total = 0.0
+    founders_mrr = 0.0
+    partners_mrr = 0.0
+    for u in db.query(User).filter(User.is_admin == False, User.is_active == True).all():
+        locked = getattr(u, "membership_price_locked", None)
+        price = float(locked) if locked else (15.0 if getattr(u, "is_founding_member", False) else 20.0)
+        mrr_total += price
+        if getattr(u, "is_founding_member", False):
+            founders_mrr += price
+        else:
+            partners_mrr += price
+
+    return JSONResponse({
+        "summary": {
+            "total_registered": total,
+            "active": active,
+            "inactive": inactive,
+            "conversion_pct": overall_conversion_pct,
+            "median_time_to_activation_hours": median_ttd_hours,
+            "estimated_mrr_usd": round(mrr_total, 2),
+        },
+        "inactive_cohort": {
+            "by_age": inactive_buckets,
+            "warm_last_7d": inactive_warm_7d,
+            "cold_over_30d": inactive_cold_30d,
+            "interpretation": (
+                "Warm cohort (last 7d) is the recoverable pool — fresh registrations "
+                "still in the conversion window. Cold cohort (>30d) is mostly lost "
+                "and not worth re-engaging at scale."
+            ),
+        },
+        "activation_speed": {
+            "by_bucket": activation_speed_buckets,
+            "median_hours": median_ttd_hours,
+            "interpretation": (
+                "If the median is <48h, anyone past 7 days who hasn't activated "
+                "is unlikely to convert without targeted intervention."
+            ),
+        },
+        "top_sponsors_by_referrals": top_sponsors,
+        "mrr_breakdown": {
+            "total_usd": round(mrr_total, 2),
+            "from_founders_usd": round(founders_mrr, 2),
+            "from_partners_usd": round(partners_mrr, 2),
+            "explanation": (
+                "MRR = Monthly Recurring Revenue. Sum of all active members' locked "
+                "monthly membership prices. Excludes one-off purchases (Grid tiers, "
+                "Nexus packs, etc) and crypto/admin accounts."
+            ),
+        },
+    })
+
+
 @app.get("/admin/api/user-fulfillment")
 def admin_api_user_fulfillment(
     request: Request,
