@@ -91,10 +91,21 @@ export default function PayItForward() {
     apiPost('/api/pay-it-forward/retarget/' + code, {
       action: 'retarget', new_recipient_user_id: newRecipientId,
     }).then(function(r) {
-      if (r.success) { setSuccess('Gift re-targeted to ' + r.new_recipient_username); loadTeamData(); }
-      else { setError(r.error || 'Re-target failed'); }
-    }).catch(function() { setError('Re-target failed'); });
+      if (r.success) {
+        if (r.share_yourself && r.shareable_link) {
+          // Unused shareable voucher reassigned — gifter shares the link.
+          setSuccess('Gift reassigned to ' + r.new_recipient_username + '. Share this link with them: ' + window.location.origin + r.shareable_link);
+        } else {
+          setSuccess('Gift re-targeted to ' + r.new_recipient_username + ' — they\u2019ve been notified.');
+        }
+        setReassignPick({});
+        loadTeamData();
+      } else { setError(r.error || 'Reassign failed'); }
+    }).catch(function() { setError('Reassign failed'); });
   }
+
+  // Per-voucher dropdown selection for the "needs attention" reassign UI
+  var [reassignPick, setReassignPick] = useState({});
 
   function convertToShareable(code) {
     apiPost('/api/pay-it-forward/retarget/' + code, {
@@ -425,30 +436,55 @@ export default function PayItForward() {
             </div>
           )}
 
-          {/* Re-target needed — vouchers that were declined or expired */}
+          {/* Gifts needing attention — declined, expired, or unused, all reassignable */}
           {teamData.needs_action && teamData.needs_action.length > 0 && (
             <div style={{ marginTop:18, padding:16, background:'#fff8e1', border:'1px solid #fbe89c', borderRadius:10 }}>
-              <div style={{ fontWeight:800, fontSize:13, color:'var(--sap-cobalt-deep)', marginBottom:10 }}>
-                Vouchers waiting for you to choose what's next
+              <div style={{ fontWeight:800, fontSize:13, color:'var(--sap-cobalt-deep)', marginBottom:4 }}>
+                Gifts waiting for you to choose what's next
+              </div>
+              <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginBottom:10 }}>
+                Reassign any of these to a front-line member who hasn't activated yet — no extra charge, the gift's already paid for.
               </div>
               {teamData.needs_action.map(function(v) {
+                var label = v.status === 'declined' ? 'declined'
+                          : v.status === 'expired' ? 'expired'
+                          : 'unused (recipient activated another way)';
+                var picked = reassignPick[v.voucher_code] || '';
+                var eligible = (teamData.team_members || []).filter(function(m){ return !m.has_pending_gift; });
                 return (
-                  <div key={v.voucher_code} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(0,0,0,0.04)', gap:10, flexWrap:'wrap' }}>
-                    <div style={{ flex:1, minWidth:200 }}>
-                      <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-cobalt-deep)' }}>
-                        {v.previous_recipient_username || '—'} — {v.status === 'declined' ? 'declined' : 'expired'}
-                      </div>
-                      <div style={{ fontSize:11, color:'var(--sap-text-faint)' }}>Voucher {v.voucher_code}</div>
+                  <div key={v.voucher_code} style={{ padding:'10px 0', borderBottom:'1px solid rgba(0,0,0,0.04)' }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-cobalt-deep)' }}>
+                      {v.previous_recipient_username || 'No recipient set'} — {label}
                     </div>
-                    <button onClick={function() { convertToShareable(v.voucher_code); }} style={{ padding:'6px 10px', border:'1px solid var(--sap-cobalt-deep)', borderRadius:6, background:'#fff', color:'var(--sap-cobalt-deep)', fontSize:11, fontWeight:700, cursor:'pointer' }}>
-                      Convert to shareable link
-                    </button>
+                    <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginBottom:8 }}>Gift code {v.voucher_code}</div>
+                    <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+                      <select
+                        value={picked}
+                        onChange={function(e){ var nv = {}; nv[v.voucher_code] = e.target.value; setReassignPick(Object.assign({}, reassignPick, nv)); }}
+                        style={{ flex:1, minWidth:180, padding:'7px 10px', borderRadius:6, border:'1px solid #cbd5e1', fontSize:12, fontFamily:'inherit' }}
+                      >
+                        <option value="">Reassign to a front-line member…</option>
+                        {eligible.map(function(m){
+                          return <option key={m.user_id} value={m.user_id}>{m.first_name ? (m.first_name + ' (' + m.username + ')') : m.username}</option>;
+                        })}
+                      </select>
+                      <button
+                        onClick={function(){ if (picked) retargetVoucher(v.voucher_code, parseInt(picked, 10)); }}
+                        disabled={!picked}
+                        style={{ padding:'7px 14px', border:'none', borderRadius:6, background: picked ? 'var(--sap-cobalt-deep)' : '#cbd5e1', color:'#fff', fontSize:12, fontWeight:700, cursor: picked ? 'pointer' : 'default' }}
+                      >Reassign</button>
+                      <button onClick={function() { convertToShareable(v.voucher_code); }} style={{ padding:'7px 12px', border:'1px solid var(--sap-cobalt-deep)', borderRadius:6, background:'#fff', color:'var(--sap-cobalt-deep)', fontSize:12, fontWeight:700, cursor:'pointer' }}>
+                        Make shareable
+                      </button>
+                    </div>
                   </div>
                 );
               })}
-              <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginTop:8 }}>
-                Or pick a different team member above and re-target the voucher to them.
-              </div>
+              {teamData.team_members && teamData.team_members.filter(function(m){ return !m.has_pending_gift; }).length === 0 && (
+                <div style={{ fontSize:11, color:'var(--sap-text-faint)', marginTop:8 }}>
+                  You have no inactive front-line members to reassign to right now. "Make shareable" gives you a link you can send to anyone.
+                </div>
+              )}
             </div>
           )}
         </div>

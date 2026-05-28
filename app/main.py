@@ -32949,8 +32949,12 @@ def api_giftable_team(user: User = Depends(get_current_user), db: Session = Depe
             "has_pending_gift": c.id in pending_recipient_ids,
         })
 
-    # Vouchers needing gifter action (declined or expired — gifter should
-    # re-target or convert to shareable)
+    # Vouchers needing gifter action. Unified (28 May 2026):
+    #   - declined / expired TEAM gifts (reserved_for_user_id set) — the
+    #     recipient turned it down or let it lapse.
+    #   - UNUSED shareable vouchers (status 'available', paid for, never
+    #     claimed) — e.g. the intended person paid on their own, leaving the
+    #     gift link unused. The gifter can reassign it to a front-line member.
     needs_action = db.query(GiftVoucher).filter(
         GiftVoucher.gifter_user_id == user.id,
         GiftVoucher.status.in_(["declined", "expired"]),
@@ -32962,7 +32966,25 @@ def api_giftable_team(user: User = Depends(get_current_user), db: Session = Depe
         needs_action_data.append({
             "voucher_code": v.voucher_code,
             "status": v.status,
+            "kind": "team",
             "previous_recipient_username": prev_recipient.username if prev_recipient else None,
+            "created_at": v.created_at.isoformat() if v.created_at else None,
+        })
+
+    # Unused shareable vouchers (paid + available + never claimed)
+    unused_shareable = db.query(GiftVoucher).filter(
+        GiftVoucher.gifter_user_id == user.id,
+        GiftVoucher.status == "available",
+        GiftVoucher.claimed_by_user_id == None,
+        GiftVoucher.payment_ref != None,        # genuinely paid for
+        GiftVoucher.is_free_voucher == False,   # not an auto-granted freebie
+    ).order_by(GiftVoucher.created_at.desc()).all()
+    for v in unused_shareable:
+        needs_action_data.append({
+            "voucher_code": v.voucher_code,
+            "status": v.status,
+            "kind": "shareable",
+            "previous_recipient_username": v.recipient_name or None,
             "created_at": v.created_at.isoformat() if v.created_at else None,
         })
 
@@ -33344,10 +33366,20 @@ def api_team_gift_decline(code: str, user: User = Depends(get_current_user), db:
 
 @app.post("/api/pay-it-forward/retarget/{code}")
 async def api_team_gift_retarget(code: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Gifter re-targets a declined/expired team gift to a different
-    team member, OR converts it to a shareable voucher. Body:
+    """Gifter re-targets a stuck gift to a different front-line member, OR
+    converts it to a shareable voucher. Body:
         {"action": "retarget", "new_recipient_user_id": 123}
         {"action": "convert_to_shareable"}
+
+    Actionable statuses (28 May 2026 — unified reassign):
+      - 'declined' / 'expired' : team gifts the recipient turned down / let
+        lapse. Re-target reserves for the new recipient + notifies them
+        (7-day acceptance window), same as before.
+      - 'available'            : an UNUSED shareable voucher (the gifter
+        bought a /gift link, but the intended person paid on their own, so
+        it was never claimed). Re-target points it at a new front-line
+        member and hands the SAME link back for the gifter to share. No
+        money moves — the voucher was already paid for.
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
@@ -33357,8 +33389,12 @@ async def api_team_gift_retarget(code: str, request: Request, user: User = Depen
         return JSONResponse({"error": "not_found"}, status_code=404)
     if voucher.gifter_user_id != user.id:
         return JSONResponse({"error": "not_your_voucher"}, status_code=403)
-    if voucher.status not in ("declined", "expired"):
-        return JSONResponse({"error": "not_actionable", "detail": f"Can only re-target declined or expired gifts, not '{voucher.status}'"}, status_code=400)
+    if voucher.status not in ("declined", "expired", "available"):
+        return JSONResponse({"error": "not_actionable", "detail": f"Can only reassign declined, expired, or unused gifts, not '{voucher.status}'"}, status_code=400)
+    # An 'available' voucher that's somehow already claimed shouldn't be here,
+    # but guard anyway — never move a gift someone has redeemed.
+    if voucher.status == "available" and voucher.claimed_by_user_id:
+        return JSONResponse({"error": "not_actionable", "detail": "This gift has already been claimed."}, status_code=409)
 
     body = await request.json()
     action = body.get("action")
@@ -33375,7 +33411,34 @@ async def api_team_gift_retarget(code: str, request: Request, user: User = Depen
         if new_recipient.is_active:
             return JSONResponse({"error": f"{new_recipient.username} already has an active membership"}, status_code=400)
 
-        # Reset voucher to reserved status with new recipient + new window
+        # ── Unused shareable voucher (status 'available') ──────────────────
+        # Don't move it into the team-gift reserve/notify flow — the gifter
+        # shares the link themselves (Steve's choice). Just repoint the
+        # recipient labels and hand the same link back. Value/code/payment_ref
+        # untouched; no money moves.
+        if voucher.status == "available":
+            old_recipient = voucher.recipient_name
+            voucher.recipient_name = new_recipient.first_name or new_recipient.username
+            voucher.recipient_email = new_recipient.email
+            db.commit()
+            logger.info(
+                f"[GIFT-REASSIGN] gifter {user.username} ({user.id}) reassigned unused "
+                f"voucher {code} from '{old_recipient}' to {new_recipient.username} "
+                f"({new_recipient.id}). Link re-shared; no funds moved."
+            )
+            # Best-effort notify the new recipient too (doesn't block on it)
+            try:
+                _notify_team_gift_recipient(db, voucher, user, new_recipient)
+            except Exception as e:
+                logger.warning(f"Reassign notification (best-effort) failed: {e}")
+            return {
+                "success": True,
+                "new_recipient_username": new_recipient.username,
+                "shareable_link": f"/gift/{voucher.voucher_code}",
+                "share_yourself": True,
+            }
+
+        # ── Declined / expired team gift — reserve + notify (existing flow) ─
         voucher.status = "reserved"
         voucher.reserved_for_user_id = new_recipient.id
         voucher.reserved_until = datetime.utcnow() + timedelta(days=TEAM_GIFT_ACCEPTANCE_DAYS)
@@ -33667,125 +33730,6 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
         "message": "Your membership has been activated! Welcome to SuperAdPro.",
         "gifter_name": db.query(User).filter(User.id == voucher.gifter_user_id).first().first_name or "A member",
     }
-
-
-@app.get("/api/gift/{voucher_id}/eligible-recipients")
-def api_gift_eligible_recipients(
-    voucher_id: int,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """List the gifter's PERSONAL FRONT LINE (direct referrals) who are
-    eligible to receive a reassigned gift — i.e. members the gifter directly
-    sponsors who are not yet active. Read-only. Used to populate the
-    reassign dropdown. Added 28 May 2026.
-    """
-    from .database import GiftVoucher
-    if not user:
-        return JSONResponse({"error": "Please log in."}, status_code=401)
-
-    voucher = db.query(GiftVoucher).filter(GiftVoucher.id == voucher_id).first()
-    if not voucher:
-        return JSONResponse({"error": "Gift not found."}, status_code=404)
-    if voucher.gifter_user_id != user.id:
-        return JSONResponse({"error": "This isn't your gift to manage."}, status_code=403)
-
-    # Front line = direct referrals only (sponsor_id == gifter). Eligible =
-    # not already active (a gift is for new / inactive members).
-    front_line = db.query(User).filter(
-        User.sponsor_id == user.id,
-        User.is_active == False,  # noqa: E712 — SQLAlchemy needs ==
-    ).order_by(User.created_at.desc()).all()
-
-    return JSONResponse({
-        "voucher_id": voucher.id,
-        "voucher_code": voucher.voucher_code,
-        "status": voucher.status,
-        "eligible_recipients": [
-            {"user_id": m.id, "username": m.username,
-             "first_name": m.first_name, "email": m.email}
-            for m in front_line
-        ],
-        "note": "Your direct front-line members who haven't activated yet.",
-    })
-
-
-@app.post("/api/gift/{voucher_id}/reassign")
-async def api_gift_reassign(
-    voucher_id: int,
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Reassign an UNUSED gift voucher to a different front-line member.
-    No money moves — the voucher was already paid for; this only changes who
-    it's intended for, then hands the same link back to the gifter to share.
-    Added 28 May 2026 (Steve): a sponsor's intended recipient paid on their
-    own, leaving the paid voucher unused; let the sponsor redirect it to
-    someone on their personal front line without any refund flow.
-
-    Guards (all must pass):
-      - caller is the voucher's own gifter
-      - voucher is status='available' and unclaimed (can't move a used gift)
-      - new recipient is a DIRECT referral of the gifter (personal front line)
-      - new recipient is not already active (gift is for new/inactive members)
-
-    Body: { "new_recipient_user_id": <int> }
-    Leaves voucher_code, payment_ref, gift_value untouched.
-    """
-    from .database import GiftVoucher
-    if not user:
-        return JSONResponse({"error": "Please log in."}, status_code=401)
-
-    body = await request.json()
-    new_recipient_id = body.get("new_recipient_user_id")
-    if not new_recipient_id:
-        return JSONResponse({"error": "Please choose a member to receive the gift."}, status_code=400)
-
-    voucher = db.query(GiftVoucher).filter(GiftVoucher.id == voucher_id).first()
-    if not voucher:
-        return JSONResponse({"error": "Gift not found."}, status_code=404)
-    if voucher.gifter_user_id != user.id:
-        return JSONResponse({"error": "This isn't your gift to manage."}, status_code=403)
-    if voucher.status != "available" or voucher.claimed_by_user_id:
-        return JSONResponse({
-            "error": "This gift can't be reassigned — it's already been claimed or is no longer available.",
-            "status": voucher.status,
-        }, status_code=409)
-
-    new_recipient = db.query(User).filter(User.id == int(new_recipient_id)).first()
-    if not new_recipient:
-        return JSONResponse({"error": "That member could not be found."}, status_code=404)
-    if new_recipient.sponsor_id != user.id:
-        return JSONResponse({
-            "error": f"{new_recipient.username} isn't on your personal front line. "
-                     f"You can only reassign a gift to someone you directly referred.",
-        }, status_code=403)
-    if new_recipient.is_active:
-        return JSONResponse({
-            "error": f"{new_recipient.first_name or new_recipient.username} is already active — "
-                     f"a gift is for new or inactive members.",
-        }, status_code=400)
-
-    old_recipient = voucher.recipient_name
-    voucher.recipient_name = new_recipient.first_name or new_recipient.username
-    voucher.recipient_email = new_recipient.email
-    db.commit()
-
-    logger.info(
-        f"[GIFT-REASSIGN] gifter {user.username} ({user.id}) reassigned voucher "
-        f"{voucher.voucher_code} (id {voucher.id}) from '{old_recipient}' to "
-        f"{new_recipient.username} ({new_recipient.id}). No funds moved."
-    )
-
-    return JSONResponse({
-        "success": True,
-        "voucher_code": voucher.voucher_code,
-        "new_recipient": {"user_id": new_recipient.id, "username": new_recipient.username,
-                          "first_name": new_recipient.first_name},
-        "share_link": f"/gift/{voucher.voucher_code}",
-        "note": "Gift reassigned. Share the link below with your member — nothing was charged again.",
-    })
 
 
 @app.get("/admin/api/user-commissions/{username}")
