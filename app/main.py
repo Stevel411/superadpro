@@ -22463,6 +22463,63 @@ def admin_responsor_free_member_post(
     return JSONResponse(payload, status_code=status)
 
 
+@app.get("/admin/api/enrol-house-rotator")
+def admin_enrol_house_rotator(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Enrol the SuperAdPro house account into the rotator as an equal
+    rotating member (28 May 2026, Steve). The general re-enrol-founders
+    endpoint deliberately excludes admins (is_admin=FALSE filter) so other
+    admin/test accounts can't drift into the rotation — so the house is
+    added explicitly here. After this, cold no-ref signups distribute across
+    all rotator members INCLUDING the house, on equal footing with Founders.
+    Idempotent. Admin-only, GET.
+    """
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    house = db.query(User).filter(User.username == "SuperAdPro").first()
+    if not house:
+        return JSONResponse({"error": "SuperAdPro house account not found"}, status_code=404)
+
+    already = db.execute(_text(
+        "SELECT 1 FROM rotator_queue WHERE user_id = :uid"
+    ), {"uid": house.id}).fetchone()
+
+    if not already:
+        mx = db.execute(_text(
+            "SELECT COALESCE(MAX(queue_position), 0) FROM rotator_queue"
+        )).scalar() or 0
+        db.execute(_text(
+            "INSERT INTO rotator_queue (user_id, queue_position, joined_at) "
+            "VALUES (:uid, :pos, NOW()) ON CONFLICT (user_id) DO NOTHING"
+        ), {"uid": house.id, "pos": mx + 1})
+    db.execute(_text(
+        "UPDATE users SET rotator_opted_in = TRUE WHERE id = :uid"
+    ), {"uid": house.id})
+    db.commit()
+
+    queue_size = db.execute(_text(
+        "SELECT COUNT(*) FROM rotator_queue rq JOIN users u ON u.id = rq.user_id "
+        "WHERE u.is_active = TRUE AND u.rotator_opted_in = TRUE"
+    )).scalar() or 0
+
+    logger.info(f"[ROTATOR] admin {user.username} enrolled house account into rotator. Active queue: {queue_size}")
+
+    return JSONResponse({
+        "success": True,
+        "house_enrolled": True,
+        "was_already_enrolled": bool(already),
+        "active_rotator_size": queue_size,
+        "note": "SuperAdPro now rotates equally with Founders for cold no-ref signups.",
+    })
+
+
 @app.get("/admin/api/swap-founder-spot")
 def admin_swap_founder_spot(
     request: Request,
@@ -22925,17 +22982,25 @@ async def api_register(
                     synchronize_session=False,
                 )
 
-        # ── Rotator FALLBACK for /start funnel signups without a ref ──
-        # In the normal happy path, /start's peek-next-sponsor already
-        # advanced the queue and put the picked Founder in ?ref=, so
-        # sponsor_id is already resolved above. This branch fires only
-        # when via=start arrived WITHOUT a ref — e.g. peek-next-sponsor
-        # failed earlier, JS error, or someone hit /register?via=start
-        # directly. In that case we still want the rotator to apply, so
-        # call the picker as a last-resort.
+        # ── Rotator FALLBACK for any signup without an explicit ref ──
+        # If an explicit ref arrived (affiliate sharing page /join/{name},
+        # or /start's peek-next-sponsor pick), it's already resolved above
+        # and we never reach here. This branch handles the no-ref case:
+        #   - /start funnel signups whose peek-next-sponsor pick was lost
+        #     (JS error, direct hit on /register?via=start), AND
+        #   - cold company-page traffic (homepage, Tools, Explore, stream
+        #     pages, nav "Create account") which links to bare /register
+        #     with no ref and no via.
+        # (28 May 2026, Steve): cold no-ref signups now distribute across
+        # the rotator instead of all defaulting to the SuperAdPro house
+        # account. SuperAdPro is itself enrolled in the rotator as an equal
+        # member, so the house still gets its fair share of the rotation —
+        # and remains the final fallback below if the rotator is empty.
+        # Affiliate referrals are untouched: they carry an explicit ref and
+        # resolve above before this runs.
         rotator_assignment_made = False
         rotator_assigned_sponsor_id = None
-        if not sponsor_id and via in ("start", "rotator"):
+        if not sponsor_id:
             try:
                 rotator_assigned_sponsor_id = _pick_next_rotator_sponsor(db)
                 if rotator_assigned_sponsor_id:
