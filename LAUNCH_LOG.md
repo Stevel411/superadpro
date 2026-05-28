@@ -8,6 +8,63 @@
 
 ---
 
+## Status as of 2026-05-28 (Thursday morning) — TWO MONEY BUGS CAUGHT + FIXED
+
+Short morning session. Two real money bugs, both surfaced by Steve reading the dashboard and asking why numbers didn't reconcile. Both fixed.
+
+### Commits (28 May)
+
+| Hash | What |
+|---|---|
+| `1dc40d7` | Admin per-user commission trace endpoint `/admin/api/user-commissions/{username}` |
+| `d952cfb` | Stripe webhook race fix — per-user advisory lock in both handlers + audit/reverse tooling |
+| `5a0e637` | `/admin/api/sweep-double-pays` — browser-friendly batch cleanup (dry-run default, `?confirm=yes` to execute) |
+| `9de748a` | Layer 2 commission idempotency — `Commission.source_event_id` + partial unique index |
+| `1d6938e` | CRITICAL: founder allocator MAX-vs-COUNT bug fixed + `/admin/api/grant-founder/{username}` |
+
+### Bug 1 — Duplicate sponsor commissions (Stripe webhook race)
+
+Floyd (@ourfreedom) asked why his balance was $30 with only 2 referrals. The new commission-trace endpoint showed 3 `membership_sponsor` rows — two of them 350ms apart on the same signup (Dan / @dprose55420), one `stripe` and one `stripe-invoice-recovery`.
+
+Root cause: `checkout.session.completed` and `invoice.paid` arrive within milliseconds, hit different Railway replicas, both read `is_active=False` before either commits, both activate + pay the sponsor. The 26 May guard (`if user.is_active: return`) was correct logic but not atomic.
+
+Fix (three layers): per-user `pg_advisory_xact_lock` in both handlers + `db.refresh` recheck + DB partial unique index on `(from_user_id, to_user_id, commission_type, source_event_id)` keyed on `stripe_sub:<subscription_id>`. Race now impossible by construction.
+
+Cleanup: audit found **8 duplicates platform-wide, $80 over-paid.** Reversed all 8. **$30 recovered** (cashflow, starthere, ourfreedom still had balance); **$50 absorbed** (earnwithdarius had already withdrawn 5 duplicates). Floyd messaged with the "plain & accountable" explanation. Verified zero duplicates created since the fix deployed.
+
+### Bug 2 — Founder allocator closed the offer 9 spots early
+
+Steve spotted "95 active members but 91 founders" on the dashboard. Investigation: the founder-spot allocator gated on `current_count < 100` AND `max_spot_taken < 100`, assigning `next_spot = MAX+1`. Demoted/cleaned-up accounts left gaps in spot numbering (62, 69, 73, 77, 81, 85, 88, 91, 96), so `MAX(founding_spot_number)` climbed to 100 while `COUNT(is_founding_member)` was only 91. The moment spot #100 was assigned (maxtein, 23:48), `max_spot_taken < 100` went false and the offer silently slammed shut — new signups fell through to $20 Partner pricing despite 9 real spots open.
+
+4 members paid $20 Partner overnight while Founder spots were available: williamnormanii, earnwithjason, earningcreator, michellg.
+
+Fix: cap gate uses COUNT only; spot number fills lowest unused gap ≤100 via `generate_series` LEFT JOIN (recycles vacated spots, collision-safe under the existing advisory lock). The 4 affected members retroactively converted to Founders @ $15 locked, silently, via new `/admin/api/grant-founder/{username}` — filled spots 62, 69, 73, 77. Per Steve: **$5 differences not refunded unless a member asks; no notification sent.**
+
+Verified: `active_but_not_founding` now empty. 95 founders, 0 active Partners, 5 real spots remaining (#81, #85, #88, #91, #96). Status endpoint and allocator now agree.
+
+### Decisions logged
+
+- Test/admin accounts (incl. Master Affiliate user #1) holding ~6 founder spots are **deliberately left in place** — risk-for-no-reward to demote them.
+- **Post-cap strategy:** once the last Founder spots fill, the focus is entirely **Partner acquisition at $20/month ($10 to the business)**. The Founder offer was a launch accelerant; Partner volume is the ongoing engine.
+
+### Counts at session point
+
+- **95/100 founders, 5 real spots left.** Likely fills today.
+- Total users 362, 95 active, ~89 paid real money.
+- Total revenue ~$2,668; commissions paid ~$1,757 (66% payout ratio).
+
+### Still open
+
+- Database backups still broken (pg_dump missing — TOP PRIORITY)
+- Revenue display shows 3 decimals (cosmetic)
+- BSC scanner monitoring alarm (unbuilt)
+- Daily integrity-check cron (unbuilt — would have caught both of today's bugs within 24h; highest-leverage safety investment remaining)
+- Stripe webhook delivery reliability (the not-arriving variant)
+- Layer 3 idempotency for NOWPayments + WalletConnect rails (only Stripe done)
+- Other commission insertion sites (lines 18099, 18173) not yet on idempotency path
+
+---
+
 ## Status as of 2026-05-27 (evening) — FOUNDER DEADLINE LIVE + TEAM GIFTING BUILT + INFRA STABILISED
 
 **Single-day push to set up the Founder offer closure on Friday 29 May 23:59 UTC.** Five commits across the afternoon and evening; multiple infrastructure issues caught and resolved mid-session; one customer-support incident handled. Email and Facebook announcement went out cleanly to drive activation against the deadline. Session length: ~10 hours.

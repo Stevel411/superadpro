@@ -265,3 +265,32 @@ Lessons from the late-evening stretch:
 - **Identity-via-token-not-inference (already in this doc earlier) applied a second time tonight.** When Steve asked "how do we know it was Floyd?" my first answer used amount + timing inference. The correct answer was the tx hash from Floyd's own wallet — a token only he could produce. He produced it; identity confirmed; refund proceeded. Same pattern as morning: when stakes are real, infer is not the same as verify.
 
 The day ended at 12 commits, 85/100 Founders, annual live, deadline self-enforcing, team gifting ready, Creative Studio v2 brief saved. Significant infrastructure debt surfaced and partly resolved (scanner stable, crons fixed, broadcast formatter shipped, backup still broken). Strategic clarity gained.
+
+### 28 May 2026 (Thursday morning) — two money bugs caught by Steve reading the data
+
+Short morning session, two real bugs, both surfaced because Steve looked at numbers and asked why they didn't add up. Pattern worth internalising: **Steve catches bugs by noticing arithmetic that doesn't reconcile.** "Floyd has $30 with 2 referrals" and "95 active but 91 founders" — both were correct instincts that unravelled real money bugs. When he questions a number, the number is usually worth questioning.
+
+**Bug 1 — Duplicate sponsor commissions (carried over from late 27 May into this morning's framing).** Floyd asked why his balance was $30 with 2 referrals. Trace showed 3 commissions, two of which were 350ms apart on the same signup (one `stripe`, one `stripe-invoice-recovery`). Root cause was a Stripe webhook race across replicas — the 26 May "fix" was correct logic but not atomic. Built per-user advisory lock + DB unique index. 8 duplicates platform-wide, $30 recovered, $50 absorbed.
+
+Things I did right:
+- Built the diagnostic endpoint FIRST (`/admin/api/user-commissions`) instead of guessing. The itemised data showed the duplicate instantly. Don't theorise about money — query it.
+- Caught my own wrong first instinct: I initially assumed the $30 was uni-level commissions (a "comp plan working as designed" framing). The data proved it was a bug. I corrected course visibly rather than defending the first read.
+- Distinguished recoverable ($30, still in balances) from unrecoverable ($50, already withdrawn) before sweeping, so Steve knew the real cost.
+
+Things about Steve's reaction worth remembering:
+- He said "This is a disaster!" I pushed back on the framing — $50 absorbed is a real cost but not a disaster, and calling it a disaster leads to worse decisions. He accepted the reframe and the conversation got productive. **Don't soothe, but don't catastrophise with him either. Precision about magnitude is what he wants.**
+- He said "Don't tell me to do nothing more tonight! It's my business my money my time." That's a real correction and a fair one. I'd told him to stop for the night; he wanted to keep going. **When Steve wants to keep working, the right move is to build, not to manage his energy for him. He decides when he's done.** I shifted to building the idempotency layer and that was correct.
+
+**Bug 2 — Founder allocator closed the offer 9 spots early.** Steve spotted "95 active members but only 91 founders" on the dashboard and pushed: "that's an issue when even at 95 active there's still 5 founder positions available." He was right. The allocator gated on `max_spot_taken < 100` and assigned `MAX+1`; demoted-account gaps pushed MAX to 100 while COUNT was 91, slamming the offer shut. 4 members paid $20 Partner while $15 Founder spots were open.
+
+Things I did right:
+- When Steve first flagged "95 active / 91 founders," I went down a comped-accounts tangent and ALMOST missed the actual point. Steve re-stated it sharply ("4 people paid for partner positions when there's still 5 founder spots available") and that snapped me onto the real bug. **When Steve restates something more forcefully, it's because I answered the wrong question the first time. Re-read what he actually said.**
+- Traced root cause through the actual allocator code rather than guessing, found the MAX-vs-COUNT conflation, and recognised it was a side effect of the *correct* 26 May Sylvia Douna fix (MAX+1 to avoid collisions). Gap-fill resolves both failure modes.
+- Made the retroactive correction silent + idempotent + race-safe, matching Steve's exact instruction ("made founders silently, $15 locked, wait to see if anyone mentions the $5").
+
+Decisions Steve made that define his operating style:
+- **"Made founders silently... we will wait to see if anyone mentions the $5 overspend and pay it back if requested."** Pragmatic, not over-eager to self-flagellate. Fix the substance (they're founders now at the right price), don't proactively refund a small difference nobody's complained about. This is a trader's read on expected value, not a guilt-driven one.
+- **"Don't worry about those 5 test accounts and my Master Affiliate account."** Knows which cleanups are worth the risk and which aren't. Demoting the admin account to free a "spot" is risk for no reward. He sized that correctly without needing me to spell it out.
+- **Post-cap strategy: "all I care about is bringing more partners paying the $20 and the $10 it brings to the business."** Clear. The Founder offer was a launch accelerant. Partner volume is the engine. Don't over-build Founder mechanics now that the cap's nearly full.
+
+Meta-lesson for next Claude: **two consecutive sessions have now produced money bugs from the same underlying area (Stripe webhooks + commission writes).** The 26 May fix was incomplete, last night's race fix + this morning's allocator fix closed two more holes. The commission/activation code is the highest-risk surface on the platform. Any future change touching `_activate_membership`, commission inserts, or webhook handlers deserves end-to-end tracing and a duplicate-check afterward. The daily integrity-check cron (still unbuilt) is the single highest-leverage safety investment remaining.
