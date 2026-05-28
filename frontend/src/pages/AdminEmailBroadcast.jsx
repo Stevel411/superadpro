@@ -278,6 +278,27 @@ function ComposeTab() {
   var needsConfirm = audienceCount !== null && audienceCount > 100;
   var canSend = subject.trim() && body.trim() && (!needsConfirm || confirmText === 'SEND');
 
+  // Insert a merge tag at the cursor in the body textarea so the admin
+  // never has to remember the {{first_name}} / {{username}} syntax. Falls
+  // back to appending if the caret position isn't available.
+  function insertTag(tag) {
+    var el = document.getElementById('broadcast-body');
+    if (!el || typeof el.selectionStart !== 'number') {
+      setBody(function(prev) { return (prev || '') + tag; });
+      return;
+    }
+    var start = el.selectionStart;
+    var end = el.selectionEnd;
+    var next = body.slice(0, start) + tag + body.slice(end);
+    setBody(next);
+    // Restore focus and place the caret right after the inserted tag.
+    requestAnimationFrame(function() {
+      el.focus();
+      var pos = start + tag.length;
+      try { el.setSelectionRange(pos, pos); } catch (e) {}
+    });
+  }
+
   function send(testOnly) {
     if (sending) return;
     setSending(true);
@@ -321,10 +342,25 @@ function ComposeTab() {
         />
 
         <Label style={{ marginTop: 20 }}>Body</Label>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Personalise:</span>
+          <button
+            type="button"
+            onClick={function() { insertTag('{{first_name}}'); }}
+            style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 8, border: '1px solid #0ea5e9', background: '#f0f9ff', color: '#0369a1', cursor: 'pointer' }}
+          >+ First name</button>
+          <button
+            type="button"
+            onClick={function() { insertTag('{{username}}'); }}
+            style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#f8fafc', color: '#475569', cursor: 'pointer' }}
+          >+ Username</button>
+          <span style={{ fontSize: 11, color: '#94a3b8' }}>Each member sees their own name automatically.</span>
+        </div>
         <textarea
+          id="broadcast-body"
           value={body}
           onChange={function(e) { setBody(e.target.value); }}
-          placeholder={"Write naturally — paragraph breaks render correctly.\n\nUse {{first_name}} or {{username}} for personalisation.\n\nHTML also works if you want it: <strong>bold</strong>, <em>italic</em>, <a href=\"...\">links</a>."}
+          placeholder={"Write naturally — paragraph breaks render correctly.\n\nClick \u201c+ First name\u201d above to greet each member by name.\n\nHTML also works if you want it: <strong>bold</strong>, <em>italic</em>, <a href=\"...\">links</a>."}
           rows={14}
           style={Object.assign({}, input(), { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 13, resize: 'vertical' })}
         />
