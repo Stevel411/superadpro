@@ -528,7 +528,7 @@ export default function Watch() {
                   {t('watch.createACampaign', { defaultValue: '+ Create a campaign' })}
                 </Link>
               ) : (
-                <Link to="/campaign-tiers" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#1f1300',background:'linear-gradient(135deg,#f59e0b,#d97706)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 12px rgba(245,158,11,0.25)'}}>
+                <Link to="/campaign-tiers" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0a1438,#0ea5e9)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 12px rgba(10,20,56,0.25)'}}>
                   {t('watch.buyACampaignTier', { defaultValue: 'Buy a Campaign Tier' })}
                 </Link>
               )}
