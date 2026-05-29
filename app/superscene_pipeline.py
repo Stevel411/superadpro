@@ -269,10 +269,26 @@ def _build_branded_mp4(work, segs, logo_path, brand, W, H, output_filename):
     fullvo = os.path.join(work, "fullvo.m4a")
     run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", al, "-c", "copy", fullvo])
 
-    # ── Mux (apad keeps audio covering the whole video; -shortest ends at video) ──
+    # ── Mux ──
+    # apad with NO bound is an INFINITE silence stream. On some ffmpeg builds
+    # -shortest fails to terminate it and the mux hangs forever (the 300s
+    # timeout). Probe the video duration and bound the pad to exactly that
+    # (apad=whole_dur) so the stream is finite and the mux always terminates.
     out = os.path.join(work, output_filename)
+    try:
+        pr = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=nw=1:nk=1", body_v],
+            capture_output=True, text=True, timeout=30)
+        vdur = float((pr.stdout or "").strip() or 0)
+    except Exception:
+        vdur = 0.0
+    if vdur > 0:
+        pad = "[1:a]apad=whole_dur=%.3f[a]" % vdur
+    else:
+        pad = "[1:a]apad[a]"
     run(["ffmpeg", "-y", "-loglevel", "error", "-i", body_v, "-i", fullvo,
-         "-filter_complex", "[1:a]apad[a]", "-map", "0:v", "-map", "[a]",
+         "-filter_complex", pad, "-map", "0:v", "-map", "[a]",
          "-c:v", "copy", "-c:a", "aac", "-shortest", out])
     return out
 
