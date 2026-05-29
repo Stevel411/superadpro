@@ -40826,73 +40826,105 @@ async def sc_image_reimagine(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/api/superscene/pipeline/analyse")
 async def sc_pipeline_analyse(request: Request, db: Session = Depends(get_db)):
-    """Analyse a script and break it into scenes.
-    Body: {script, style?, model_key?, voice?, resolution?}
-    Returns: {success, pipeline_id, scenes: [...]}
+    """Build a storyboard from a brief OR a script.
+    Body: {brief? | script?, style?, voice?, quality?|model_key?, aspect?, resolution?, title?}
+    If only a brief is given, Grok writes the narration script first.
+    Returns: {success, pipeline_id, script, scenes, estimated_credits, ...}.
+    No video credits are charged here — only 1 credit for the analysis step.
     """
     from .database import SuperScenePipeline, SuperScenePipelineScene, SuperSceneCredit
     from .superscene_pipeline import analyse_script
+    from .superscene_evolink import resolve_video_model, calc_credits
+    from .explainer_catalog import is_valid_voice, is_valid_style
 
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     body = await request.json()
-    script    = (body.get("script") or "").strip()
-    style     = body.get("style", "cinematic")
-    model_key = body.get("model_key", "kling3")
-    voice     = body.get("voice", "en-US-GuyNeural")
+    script     = (body.get("script") or "").strip()
+    brief      = (body.get("brief") or "").strip()
+    style      = body.get("style", "cinematic")
+    quality    = body.get("quality")            # standard|premium -> model_key
+    model_key  = body.get("model_key", "kling3")
+    voice      = body.get("voice", "en-GB-SoniaNeural")
     resolution = body.get("resolution", "1080p")
-    title     = body.get("title", "")
+    aspect     = body.get("aspect", "16:9")
+    title      = body.get("title", "")
 
-    if not script:
-        raise HTTPException(status_code=400, detail="Script is required")
+    # Quality tier wins over an explicit model_key when supplied by the wizard
+    if quality:
+        model_key = resolve_video_model(quality)
+
+    # Validate look & sound against the catalog (integrity)
+    if not is_valid_voice(voice):
+        raise HTTPException(status_code=400, detail="Unknown voice")
+    if not is_valid_style(style):
+        raise HTTPException(status_code=400, detail="Unknown style")
+    if aspect not in ("16:9", "9:16", "1:1"):
+        raise HTTPException(status_code=400, detail="Unknown aspect ratio")
+
+    if not script and not brief:
+        raise HTTPException(status_code=400, detail="A brief or a script is required")
     if len(script) > 20000:
         raise HTTPException(status_code=400, detail="Script must be under 20,000 characters")
+    if len(brief) > 4000:
+        raise HTTPException(status_code=400, detail="Brief must be under 4,000 characters")
 
-    # Check user has at least some credits
+    # Need at least 1 credit for the analysis step
     credit_row = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
     if not credit_row or credit_row.balance < 1:
         raise HTTPException(status_code=402, detail="Insufficient credits for script analysis")
 
-    # Deduct 1 credit for analysis
+    # Deduct 1 credit (covers brief->script + scene breakdown)
     credit_row.balance -= 1
     db.commit()
 
-    # Analyse script with Claude Haiku
+    # Brief -> script via Grok when no script was supplied
+    if not script:
+        from .grok_service import ai_text_generate
+        sys_prompt = (
+            "You are an expert short-form video scriptwriter. Write a tight, "
+            "spoken-word narration script for an explainer video from the brief. "
+            "Natural, confident, conversational. Output ONLY the words to be "
+            "spoken: no scene labels, no stage directions, no headings."
+        )
+        try:
+            script = (await ai_text_generate(
+                prompt=f"Brief:\n{brief}\n\nWrite the narration script now.",
+                system=sys_prompt, max_tokens=1200,
+            ) or "").strip()
+        except Exception as e:
+            credit_row.balance += 1; db.commit()
+            raise HTTPException(status_code=502, detail=f"Script generation failed: {e}")
+        if not script:
+            credit_row.balance += 1; db.commit()
+            raise HTTPException(status_code=502, detail="Script generation returned empty")
+
+    # Break the script into scenes (runs on Grok)
     result = await analyse_script(script, style)
     if not result["success"]:
-        credit_row.balance += 1
-        db.commit()
+        credit_row.balance += 1; db.commit()
         raise HTTPException(status_code=502, detail=result.get("error", "Script analysis failed"))
 
     scenes = result["scenes"]
 
-    # Auto-generate title if not provided
     if not title:
-        title = script[:60].strip().replace("\n", " ")
-        if len(script) > 60:
-            title += "…"
+        seed = brief or script
+        title = seed[:60].strip().replace("\n", " ")
+        if len(seed) > 60:
+            title += "\u2026"
 
-    # Create pipeline record
     pipeline = SuperScenePipeline(
-        user_id=user.id,
-        title=title,
-        script=script,
-        style=style,
-        model_key=model_key,
-        voice=voice,
-        resolution=resolution,
-        status="draft",
-        total_scenes=len(scenes),
-        credits_used=1,
+        user_id=user.id, title=title, script=script, style=style,
+        model_key=model_key, voice=voice, resolution=resolution, aspect=aspect,
+        status="draft", total_scenes=len(scenes), credits_used=1,
     )
     db.add(pipeline)
     db.flush()
 
-    # Create scene records
     for s in scenes:
-        scene = SuperScenePipelineScene(
+        db.add(SuperScenePipelineScene(
             pipeline_id=pipeline.id,
             scene_number=s.get("scene_number", 0),
             narration_text=s.get("narration_text", ""),
@@ -40900,17 +40932,23 @@ async def sc_pipeline_analyse(request: Request, db: Session = Depends(get_db)):
             transition_type=s.get("transition_type", "cut"),
             duration_seconds=s.get("estimated_duration", 10),
             status="pending",
-        )
-        db.add(scene)
-
+        ))
     db.commit()
+
+    # No-charge estimate for the Look & sound step (matches what generate will charge)
+    est = sum(
+        calc_credits(model_key, int(round(float(s.get("estimated_duration", 10) or 10))))
+        for s in scenes
+    )
 
     return {
         "success": True,
         "pipeline_id": pipeline.id,
         "title": pipeline.title,
+        "script": script,
         "total_scenes": len(scenes),
         "scenes": scenes,
+        "estimated_credits": est,
         "credits_remaining": credit_row.balance,
     }
 @app.post("/api/superscene/pipeline/{pipeline_id}/generate")
@@ -40938,11 +40976,15 @@ async def sc_pipeline_generate(pipeline_id: int, request: Request, background_ta
     if not scenes:
         raise HTTPException(status_code=400, detail="No scenes in pipeline")
 
-    # Calculate total credit cost
+    # Calculate total cost and stamp each scene's charge so a failed
+    # scene can be refunded exactly what it cost (per-scene accounting).
     total_credits = 0
     for scene in scenes:
         dur = int(scene.duration_seconds or 10)
-        total_credits += calc_credits(pipeline.model_key, dur)
+        scene_cost = calc_credits(pipeline.model_key, dur)
+        scene.credits_charged = scene_cost
+        scene.credits_refunded = 0
+        total_credits += scene_cost
 
     credit_row = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
     if not credit_row or credit_row.balance < total_credits:
@@ -43311,6 +43353,18 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
             pipeline_id=pipeline_id
         ).order_by(SuperScenePipelineScene.scene_number).all()
 
+        credit_row = db.query(SuperSceneCredit).filter_by(user_id=user_id).first()
+
+        def _refund_scene(scene):
+            """Refund this scene's credits exactly once — never pay for output not delivered."""
+            charged = int(scene.credits_charged or 0)
+            if charged > 0 and int(scene.credits_refunded or 0) == 0:
+                if credit_row:
+                    credit_row.balance += charged
+                scene.credits_refunded = charged
+                pipeline.credits_used = max(0, int(pipeline.credits_used or 0) - charged)
+                db.commit()
+
         # ── STAGE 2: Generate voiceover for all scenes (parallel) ──
         logger.info(f"Pipeline {pipeline_id}: Starting voiceover for {len(scenes)} scenes")
         vo_tasks = []
@@ -43348,7 +43402,7 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
                 model_key=pipeline.model_key,
                 prompt=scene.visual_prompt or "",
                 duration=dur,
-                ratio="16:9",
+                ratio=(pipeline.aspect or "16:9"),
                 image_urls=image_urls,
                 resolution=pipeline.resolution,
             )
@@ -43356,7 +43410,7 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
             if not result["success"]:
                 scene.status = "failed"
                 scene.error_message = result.get("error", "Video generation failed")
-                db.commit()
+                _refund_scene(scene)
                 logger.warning(f"Pipeline {pipeline_id} scene {scene.scene_number}: video gen failed: {scene.error_message}")
                 continue
 
@@ -43384,26 +43438,26 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
                 elif poll_result.get("status") == "failed":
                     scene.status = "failed"
                     scene.error_message = "Video generation failed during processing"
-                    db.commit()
+                    _refund_scene(scene)
                     break
             else:
                 # Timeout
                 scene.status = "failed"
                 scene.error_message = "Video generation timed out"
-                db.commit()
+                _refund_scene(scene)
 
         # ── Check if all scenes completed ──
         completed_scenes = [s for s in scenes if s.status == "completed" and s.video_url]
         if not completed_scenes:
+            # Per-scene refunds already ran in the failure paths; sweep any
+            # missed failed scene (idempotent). The 1 analysis credit stays
+            # spent — the script + storyboard were delivered.
+            for s in scenes:
+                if s.status == "failed":
+                    _refund_scene(s)
             pipeline.status = "failed"
             pipeline.error_message = "No scenes completed successfully"
             db.commit()
-            # Refund credits
-            credit_row = db.query(SuperSceneCredit).filter_by(user_id=user_id).first()
-            if credit_row:
-                credit_row.balance += pipeline.credits_used
-                pipeline.credits_used = 0
-                db.commit()
             return
 
         # ── STAGE 5: Assemble final video ──
@@ -43432,6 +43486,10 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
             pipeline.status = "failed"
             pipeline.error_message = assembly_result.get("error", "Assembly failed")
             logger.error(f"Pipeline {pipeline_id}: Assembly failed: {pipeline.error_message}")
+            # Assembly is in-house FFmpeg — a failure means no final video,
+            # so refund every scene the member was charged for.
+            for s in scenes:
+                _refund_scene(s)
 
         db.commit()
 
@@ -43442,6 +43500,15 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
             if pipeline:
                 pipeline.status = "failed"
                 pipeline.error_message = str(e)[:500]
+                # Refund scenes charged but not delivered before the crash.
+                credit_row = db.query(SuperSceneCredit).filter_by(user_id=user_id).first()
+                for s in db.query(SuperScenePipelineScene).filter_by(pipeline_id=pipeline_id).all():
+                    charged = int(s.credits_charged or 0)
+                    if s.status != "completed" and charged > 0 and int(s.credits_refunded or 0) == 0:
+                        if credit_row:
+                            credit_row.balance += charged
+                        s.credits_refunded = charged
+                        pipeline.credits_used = max(0, int(pipeline.credits_used or 0) - charged)
                 db.commit()
         except:
             pass

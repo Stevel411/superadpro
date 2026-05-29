@@ -1961,6 +1961,13 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS p2p_transfers (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), amount_usdt FLOAT, note VARCHAR, status VARCHAR DEFAULT 'completed', created_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_activated_by_referral BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS low_balance_warned BOOLEAN DEFAULT FALSE",
+        # ── Explainer/pipeline refund-proof billing (29 May 2026) ──
+        # Per-scene credit accounting: a failed scene is refunded exactly
+        # what it cost, exactly once. aspect lets the wizard's 9:16 / 1:1
+        # reach the renderer (orchestrator previously hard-coded 16:9).
+        "ALTER TABLE superscene_pipeline_scenes ADD COLUMN IF NOT EXISTS credits_charged INTEGER DEFAULT 0",
+        "ALTER TABLE superscene_pipeline_scenes ADD COLUMN IF NOT EXISTS credits_refunded INTEGER DEFAULT 0",
+        "ALTER TABLE superscene_pipelines ADD COLUMN IF NOT EXISTS aspect VARCHAR(10) DEFAULT '16:9'",
         # Story-prompt banner dismissal — persists across devices so a member
         # who dismissed on mobile doesn't see it again on desktop. Timestamp
         # rather than boolean so future milestones can compare against the
@@ -4844,6 +4851,7 @@ class SuperScenePipeline(Base):
     model_key        = Column(String(30), default="kling3")
     voice            = Column(String(50), default="en-US-GuyNeural")
     resolution       = Column(String(10), default="1080p")
+    aspect           = Column(String(10), default="16:9")
     status           = Column(String(20), default="draft")
     total_scenes     = Column(Integer, default=0)
     completed_scenes = Column(Integer, default=0)
@@ -4872,6 +4880,8 @@ class SuperScenePipelineScene(Base):
     video_task_id    = Column(String(100))
     status           = Column(String(20), default="pending")
     error_message    = Column(Text)
+    credits_charged  = Column(Integer, default=0)   # per-scene cost, set at generate
+    credits_refunded = Column(Integer, default=0)   # set once when this scene is refunded
     created_at       = Column(DateTime, default=datetime.utcnow)
 
     pipeline = relationship("SuperScenePipeline", back_populates="scenes")
