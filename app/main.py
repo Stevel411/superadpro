@@ -39751,50 +39751,15 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     from .fal_provider import is_available as fal_available, generate_video as fal_generate
     from .grok_imagine import is_available as grok_available, generate_video as grok_generate
 
-    result = None
-
-    # Try Grok Imagine direct for grok-video (uses xAI API key, no EvoLink markup)
-    if grok_available(model_key):
-        logger.info(f"Routing {model_key} to Grok Imagine (direct xAI)")
-        result = await grok_generate(
-            model_key, prompt, duration, ratio,
-            image_urls=image_urls if image_urls else None,
-            generate_audio=gen_audio,
-            resolution=resolution,
-            negative_prompt=neg_prompt if neg_prompt else None,
-            seed=seed,
-        )
-        if not result["success"]:
-            logger.warning(f"Grok Imagine failed for {model_key}, falling back to EvoLink: {result.get('error')}")
-            result = None
-
-    # Try fal.ai for supported models (cheaper than EvoLink)
-    if result is None and fal_available(model_key) and not style_refs:
-        logger.info(f"Routing {model_key} to fal.ai (cheaper provider)")
-        result = await fal_generate(
-            model_key, prompt, duration, ratio,
-            image_urls=image_urls if image_urls else None,
-            generate_audio=gen_audio,
-            resolution=resolution,
-            negative_prompt=neg_prompt if neg_prompt else None,
-            seed=seed,
-        )
-        if not result["success"]:
-            logger.warning(f"fal.ai failed for {model_key}, falling back to EvoLink: {result.get('error')}")
-            result = None  # Fall through to EvoLink
-
-    # Fallback to EvoLink
-    if result is None:
-        logger.info(f"Routing {model_key} to EvoLink")
-        result = await generate_video(
-            model_key, prompt, duration, ratio,
-            image_urls=image_urls if image_urls else None,
-            style_refs=style_refs if style_refs else None,
-            generate_audio=gen_audio,
-            resolution=resolution,
-            negative_prompt=neg_prompt if neg_prompt else None,
-            seed=seed,
-        )
+    result = await _route_generate_video(
+        model_key, prompt, duration, ratio,
+        image_urls=image_urls if image_urls else None,
+        style_refs=style_refs if style_refs else None,
+        generate_audio=gen_audio,
+        resolution=resolution,
+        negative_prompt=neg_prompt if neg_prompt else None,
+        seed=seed,
+    )
 
     if not result["success"]:
         # Refund on failure
@@ -39946,16 +39911,8 @@ async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(g
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    # Route to correct provider based on task_id prefix
-    if task_id.startswith("grok:"):
-        from .grok_imagine import poll_video_status as grok_poll
-        result = await grok_poll(task_id)
-    elif task_id.startswith("fal:"):
-        from .fal_provider import poll_status as fal_poll
-        result = await fal_poll(task_id)
-    else:
-        from .superscene_evolink import poll_status
-        result = await poll_status(task_id)
+    # Route to the correct provider (shared helper, also used by the pipeline)
+    result = await _route_poll_status(task_id)
 
     if not result["success"]:
         raise HTTPException(status_code=502, detail=result.get("error"))
@@ -43452,6 +43409,55 @@ def bpg_admin_ui(request: Request, db: Session = Depends(get_db)):
 
 # ── Pipeline Background Orchestrator ──────────────────────────
 
+async def _route_generate_video(model_key, prompt, duration, ratio, image_urls=None,
+                                style_refs=None, generate_audio=False, resolution=None,
+                                negative_prompt=None, seed=None):
+    """Submit a video generation through the platform's provider chain:
+    Grok Imagine (direct xAI) -> fal.ai (cheaper) -> EvoLink (fallback).
+    Single source of truth used by both Video Clips and the Explainer pipeline.
+    Returns the provider result dict ({success, task_id, mode} or {success, error});
+    task_id carries a provider prefix (grok:/fal:) so polling can route correctly."""
+    from .fal_provider import is_available as fal_available, generate_video as fal_generate
+    from .grok_imagine import is_available as grok_available, generate_video as grok_generate
+    from .superscene_evolink import generate_video as evolink_generate
+    result = None
+    if grok_available(model_key):
+        logger.info(f"Routing {model_key} to Grok Imagine (direct xAI)")
+        result = await grok_generate(model_key, prompt, duration, ratio,
+            image_urls=image_urls if image_urls else None, generate_audio=generate_audio,
+            resolution=resolution, negative_prompt=negative_prompt if negative_prompt else None, seed=seed)
+        if not result.get("success"):
+            logger.warning(f"Grok Imagine failed for {model_key}, falling back: {result.get('error')}")
+            result = None
+    if result is None and fal_available(model_key) and not style_refs:
+        logger.info(f"Routing {model_key} to fal.ai (cheaper provider)")
+        result = await fal_generate(model_key, prompt, duration, ratio,
+            image_urls=image_urls if image_urls else None, generate_audio=generate_audio,
+            resolution=resolution, negative_prompt=negative_prompt if negative_prompt else None, seed=seed)
+        if not result.get("success"):
+            logger.warning(f"fal.ai failed for {model_key}, falling back to EvoLink: {result.get('error')}")
+            result = None
+    if result is None:
+        logger.info(f"Routing {model_key} to EvoLink")
+        result = await evolink_generate(model_key, prompt, duration, ratio,
+            image_urls=image_urls if image_urls else None, style_refs=style_refs if style_refs else None,
+            generate_audio=generate_audio, resolution=resolution,
+            negative_prompt=negative_prompt if negative_prompt else None, seed=seed)
+    return result
+
+
+async def _route_poll_status(task_id):
+    """Poll the correct provider for a video task, routed by task_id prefix."""
+    if task_id.startswith("grok:"):
+        from .grok_imagine import poll_video_status as grok_poll
+        return await grok_poll(task_id)
+    elif task_id.startswith("fal:"):
+        from .fal_provider import poll_status as fal_poll
+        return await fal_poll(task_id)
+    from .superscene_evolink import poll_status as evolink_poll
+    return await evolink_poll(task_id)
+
+
 async def _run_pipeline(pipeline_id: int, user_id: int):
     """Background task that orchestrates the entire pipeline:
     1. Generate voiceover for all scenes
@@ -43520,12 +43526,10 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
             from .explainer_catalog import style_prompt as _style_prompt
             _vp = (scene.visual_prompt or "").strip()
             _eff = (_vp + ", " + _style_prompt(pipeline.style)).strip(" ,") if _vp else _style_prompt(pipeline.style)
-            result = await generate_video(
-                model_key=pipeline.model_key,
-                prompt=_eff,
-                duration=dur,
-                ratio=(pipeline.aspect or "16:9"),
+            result = await _route_generate_video(
+                pipeline.model_key, _eff, dur, (pipeline.aspect or "16:9"),
                 image_urls=image_urls,
+                generate_audio=False,
                 resolution=pipeline.resolution,
             )
 
@@ -43543,7 +43547,7 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
             max_polls = 120  # 6 minutes max per scene
             for poll_count in range(max_polls):
                 await asyncio.sleep(3)
-                poll_result = await poll_status(result["task_id"])
+                poll_result = await _route_poll_status(result["task_id"])
 
                 if poll_result.get("status") == "completed" and poll_result.get("video_url"):
                     scene.video_url = poll_result["video_url"]
