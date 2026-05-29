@@ -40,13 +40,35 @@ export default function Dashboard() {
   // of the dashboard so members act in the activation window (median
   // time-to-activation is <1h per activation-funnel data).
   const [teamPulse, setTeamPulse] = useState(null);
+  // Collapsed/expanded state. Auto-default: <=2 prompts expanded, >2 collapsed
+  // (so small teams see everything inline, big teams aren't overwhelmed). Once
+  // the user manually toggles, that choice persists in sessionStorage for the
+  // session — they don't have to re-click on every dashboard visit.
+  const [teamPulseExpanded, setTeamPulseExpanded] = useState(null);  // null=auto, true/false=user-set
   useEffect(function() {
     var cancelled = false;
     apiGet('/api/team-pulse')
-      .then(function(d) { if (!cancelled && d && d.team) setTeamPulse(d); })
+      .then(function(d) {
+        if (cancelled || !d || !d.team) return;
+        setTeamPulse(d);
+        // Honour any prior user toggle from this session
+        var stored = null;
+        try { stored = sessionStorage.getItem('sap_team_pulse_expanded'); } catch (e) {}
+        if (stored === 'true') setTeamPulseExpanded(true);
+        else if (stored === 'false') setTeamPulseExpanded(false);
+        else {
+          // Auto rule: 2 or fewer prompts = expanded; 3+ = collapsed
+          setTeamPulseExpanded((d.prompts || []).length <= 2);
+        }
+      })
       .catch(function() { /* degrade gracefully — card just doesn't render */ });
     return function() { cancelled = true; };
   }, []);
+  function toggleTeamPulse() {
+    var next = !teamPulseExpanded;
+    setTeamPulseExpanded(next);
+    try { sessionStorage.setItem('sap_team_pulse_expanded', String(next)); } catch (e) {}
+  }
 
   // Story prompt nudge — shown to members with ≥1 paid commission who
   // haven't submitted a story. Dismissal persists SERVER-SIDE via
@@ -439,48 +461,70 @@ export default function Dashboard() {
             borderRadius:18, boxShadow:'0 4px 16px rgba(10,20,56,.05)',
             overflow:'hidden', marginBottom:18,
           }}>
-            {/* header */}
-            <div style={{
-              display:'flex', alignItems:'center', justifyContent:'space-between',
-              padding:'18px 22px', borderBottom:'1px solid var(--sap-border-light)',
-              flexWrap:'wrap', gap:12,
-            }}>
-              <div style={{display:'flex', alignItems:'center', gap:12}}>
+            {/* tappable header — toggles expand/collapse */}
+            <div
+              onClick={hasPrompts ? toggleTeamPulse : undefined}
+              style={{
+                display:'flex', alignItems:'center', justifyContent:'space-between',
+                padding:'18px 22px',
+                borderBottom: teamPulseExpanded ? '1px solid var(--sap-border-light)' : 'none',
+                flexWrap:'wrap', gap:12,
+                cursor: hasPrompts ? 'pointer' : 'default',
+              }}
+            >
+              <div style={{display:'flex', alignItems:'center', gap:12, flex:1, minWidth:0}}>
                 <div style={{
-                  width:38, height:38, borderRadius:11,
+                  width:38, height:38, borderRadius:11, flexShrink:0,
                   display:'flex', alignItems:'center', justifyContent:'center',
                   background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-accent))',
                   color:'#fff', fontSize:18,
                 }}>⚡</div>
-                <div>
+                <div style={{flex:1, minWidth:0}}>
                   <div style={{
-                    fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:17,
+                    fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:16,
                     color:'var(--sap-text-primary)',
                   }}>
-                    {hasPrompts ? t('teamPulse.title', { defaultValue: 'Your team needs you' })
-                                : t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })}
-                  </div>
-                  <div style={{fontSize:12.5, color:'var(--sap-text-faint)', marginTop:1}}>
                     {hasPrompts
-                      ? t('teamPulse.sub', { defaultValue: 'The first 24 hours after a sign-up is where activation happens.' })
-                      : t('teamPulse.subCalm', { defaultValue: 'No urgent outreach needed right now.' })}
+                      ? (prompts.length + ' team member' + (prompts.length === 1 ? '' : 's') + ' need' + (prompts.length === 1 ? 's' : '') + ' you')
+                      : t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })}
+                  </div>
+                  <div style={{
+                    fontSize:12.5, color:'var(--sap-text-faint)', marginTop:2,
+                    whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
+                  }}>
+                    {hasPrompts && !teamPulseExpanded
+                      ? prompts.slice(0,3).map(function(p){return p.name;}).join(' · ') + (prompts.length > 3 ? ' · +' + (prompts.length - 3) + ' more' : '')
+                      : (hasPrompts
+                          ? t('teamPulse.sub', { defaultValue: 'The first 24 hours after a sign-up is where activation happens.' })
+                          : t('teamPulse.subCalm', { defaultValue: 'No urgent outreach needed right now.' }))}
                   </div>
                 </div>
               </div>
-              <div style={{
-                display:'flex', alignItems:'center', gap:6,
-                fontSize:12, fontFamily:'JetBrains Mono,monospace', fontWeight:600,
-                color:'var(--sap-text-secondary)', background:'#f8fafc',
-                padding:'6px 12px', borderRadius:99, border:'1px solid var(--sap-border)',
-              }}>
-                Team: <strong style={{color:'var(--sap-text-primary)', fontWeight:800}}>{team.total}</strong>
-                <span style={{color:'var(--sap-text-faint)'}}>·</span>
-                Active: <strong style={{color:'var(--sap-text-primary)', fontWeight:800}}>{team.active}</strong>
+              <div style={{display:'flex', alignItems:'center', gap:10, flexShrink:0}}>
+                <div style={{
+                  display:'flex', alignItems:'center', gap:6,
+                  fontSize:12, fontFamily:'JetBrains Mono,monospace', fontWeight:600,
+                  color:'var(--sap-text-secondary)', background:'#f8fafc',
+                  padding:'6px 12px', borderRadius:99, border:'1px solid var(--sap-border)',
+                }}>
+                  <strong style={{color:'var(--sap-text-primary)', fontWeight:800}}>{team.active}</strong>
+                  <span style={{color:'var(--sap-text-faint)'}}>/</span>
+                  <strong style={{color:'var(--sap-text-primary)', fontWeight:800}}>{team.total}</strong>
+                </div>
+                {hasPrompts && (
+                  <div style={{
+                    width:28, height:28, borderRadius:8, display:'flex',
+                    alignItems:'center', justifyContent:'center',
+                    color:'var(--sap-text-faint)', fontSize:18,
+                    transition:'transform .15s',
+                    transform: teamPulseExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}>▾</div>
+                )}
               </div>
             </div>
 
-            {/* prompts (active state) */}
-            {hasPrompts && prompts.map(function(p, i) {
+            {/* prompts (only when expanded) */}
+            {hasPrompts && teamPulseExpanded && prompts.map(function(p, i) {
               var ts = tagStyle(p.kind);
               return (
                 <div key={p.user_id + '-' + p.kind} style={{
@@ -525,9 +569,9 @@ export default function Dashboard() {
               );
             })}
 
-            {/* empty state */}
+            {/* empty state — shown when no prompts at all (regardless of expanded state) */}
             {!hasPrompts && (
-              <div style={{padding:'32px 22px', textAlign:'center'}}>
+              <div style={{padding:'32px 22px', textAlign:'center', borderTop:'1px solid var(--sap-border-light)'}}>
                 <div style={{fontSize:32, marginBottom:8, opacity:.65}}>✓</div>
                 <div style={{
                   fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:15,
@@ -544,21 +588,24 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* footer */}
-            <div style={{
-              display:'flex', alignItems:'center', justifyContent:'space-between',
-              padding:'12px 22px', background:'#fafbfd', fontSize:12.5,
-              color:'var(--sap-text-secondary)', flexWrap:'wrap', gap:8,
-            }}>
-              <span>
-                {hasPrompts
-                  ? prompts.length + ' of ' + team.total + ' team members need attention'
-                  : team.active + ' active out of ' + team.total + ' total'}
-              </span>
-              <Link to="/team-messenger" style={{color:'var(--sap-accent)', fontWeight:700, textDecoration:'none'}}>
-                {t('teamPulse.openTeam', { defaultValue: 'Open TeamMessenger →' })}
-              </Link>
-            </div>
+            {/* footer — only when expanded (or when card has no prompts at all) */}
+            {(teamPulseExpanded || !hasPrompts) && (
+              <div style={{
+                display:'flex', alignItems:'center', justifyContent:'space-between',
+                padding:'12px 22px', background:'#fafbfd', fontSize:12.5,
+                color:'var(--sap-text-secondary)', flexWrap:'wrap', gap:8,
+                borderTop:'1px solid var(--sap-border-light)',
+              }}>
+                <span>
+                  {hasPrompts
+                    ? prompts.length + ' of ' + team.total + ' team members need attention'
+                    : team.active + ' active out of ' + team.total + ' total'}
+                </span>
+                <Link to="/team-messenger" style={{color:'var(--sap-accent)', fontWeight:700, textDecoration:'none'}}>
+                  {t('teamPulse.openTeam', { defaultValue: 'Open TeamMessenger →' })}
+                </Link>
+              </div>
+            )}
           </div>
         );
       })()}
