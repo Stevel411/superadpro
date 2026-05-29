@@ -43490,87 +43490,118 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
                 pipeline.credits_used = max(0, int(pipeline.credits_used or 0) - charged)
                 db.commit()
 
-        # ── STAGE 2: Generate voiceover for all scenes (parallel) ──
-        logger.info(f"Pipeline {pipeline_id}: Starting voiceover for {len(scenes)} scenes")
-        vo_tasks = []
-        for scene in scenes:
-            scene.status = "voiceover"
-            db.commit()
-            result = await generate_voiceover(scene.narration_text or "", pipeline.voice)
-            if result["success"]:
-                scene.voiceover_url = result["audio_url"]
-                # Use actual audio duration for video generation
-                scene.duration_seconds = result["duration_seconds"]
-            else:
-                scene.error_message = result.get("error", "Voiceover failed")
-                logger.warning(f"Pipeline {pipeline_id} scene {scene.scene_number}: voiceover failed: {scene.error_message}")
-            db.commit()
+        # ── STAGES 2+3: per-scene voiceover + video, run in PARALLEL ──
+        # Each scene is an independent text-to-video (continuity is off), so we
+        # process scenes concurrently with a cap. Every task uses its OWN DB
+        # session; the credit balance is refunded with an ATOMIC update so
+        # concurrent refunds can't race. Pipeline counters are recomputed once,
+        # after all scenes finish.
+        from sqlalchemy import update as _sql_update
+        from .explainer_catalog import style_prompt as _style_prompt
 
-        # ── STAGE 3: Generate video for each scene (sequential) ──
-        logger.info(f"Pipeline {pipeline_id}: Starting video generation")
-        last_frame_url = None
+        SCENE_CONCURRENCY = 3
+        _sem = asyncio.Semaphore(SCENE_CONCURRENCY)
+        _scene_ids = [s.id for s in scenes]
+        _voice = pipeline.voice
+        _style = pipeline.style
+        _model_key = pipeline.model_key
+        _aspect = pipeline.aspect or "16:9"
+        _resolution = pipeline.resolution
 
-        for scene in scenes:
-            scene.status = "generating"
-            db.commit()
+        # Mark every scene queued up front so the progress UI is honest
+        for s in scenes:
+            s.status = "queued"
+        db.commit()
 
-            # Determine duration (round to nearest supported duration)
-            dur = int(round(float(scene.duration_seconds or 10)))
-            dur = max(3, min(dur, 15))  # Clamp to 3-15s range
+        async def _process_scene(scene_id):
+            async with _sem:
+                sess = SessionLocal()
+                try:
+                    sc = sess.query(SuperScenePipelineScene).get(scene_id)
+                    if not sc:
+                        return
 
-            # Build generation parameters
-            image_urls = None
-            if last_frame_url:
-                image_urls = [last_frame_url]
+                    def _refund_atomic():
+                        charged = int(sc.credits_charged or 0)
+                        if charged > 0 and int(sc.credits_refunded or 0) == 0:
+                            sess.execute(_sql_update(SuperSceneCredit)
+                                         .where(SuperSceneCredit.user_id == user_id)
+                                         .values(balance=SuperSceneCredit.balance + charged))
+                            sc.credits_refunded = charged
+                            sess.commit()
 
-            from .explainer_catalog import style_prompt as _style_prompt
-            _vp = (scene.visual_prompt or "").strip()
-            _eff = (_vp + ", " + _style_prompt(pipeline.style)).strip(" ,") if _vp else _style_prompt(pipeline.style)
-            result = await _route_generate_video(
-                pipeline.model_key, _eff, dur, (pipeline.aspect or "16:9"),
-                image_urls=image_urls,
-                generate_audio=False,
-                resolution=pipeline.resolution,
-            )
+                    # Voiceover
+                    sc.status = "voiceover"; sess.commit()
+                    vo = await generate_voiceover(sc.narration_text or "", _voice)
+                    if vo.get("success"):
+                        sc.voiceover_url = vo["audio_url"]
+                        sc.duration_seconds = vo["duration_seconds"]
+                    else:
+                        sc.error_message = vo.get("error", "Voiceover failed")
+                    sess.commit()
 
-            if not result["success"]:
-                scene.status = "failed"
-                scene.error_message = result.get("error", "Video generation failed")
-                _refund_scene(scene)
-                logger.warning(f"Pipeline {pipeline_id} scene {scene.scene_number}: video gen failed: {scene.error_message}")
-                continue
+                    # Video
+                    sc.status = "generating"; sess.commit()
+                    dur = max(3, min(int(round(float(sc.duration_seconds or 10))), 15))
+                    _vp = (sc.visual_prompt or "").strip()
+                    _eff = (_vp + ", " + _style_prompt(_style)).strip(" ,") if _vp else _style_prompt(_style)
+                    result = await _route_generate_video(
+                        _model_key, _eff, dur, _aspect,
+                        image_urls=None, generate_audio=False, resolution=_resolution,
+                    )
+                    if not result.get("success"):
+                        sc.status = "failed"
+                        sc.error_message = result.get("error", "Video generation failed")
+                        _refund_atomic()
+                        return
+                    sc.video_task_id = result["task_id"]; sess.commit()
 
-            scene.video_task_id = result["task_id"]
-            db.commit()
+                    # Poll (~6 min)
+                    for _ in range(120):
+                        await asyncio.sleep(3)
+                        pr = await _route_poll_status(result["task_id"])
+                        if pr.get("status") == "completed" and pr.get("video_url"):
+                            sc.video_url = pr["video_url"]
+                            sc.status = "completed"; sess.commit()
+                            return
+                        if pr.get("status") == "failed":
+                            sc.status = "failed"
+                            sc.error_message = pr.get("error") or "Video generation failed during processing"
+                            _refund_atomic()
+                            return
+                    sc.status = "failed"
+                    sc.error_message = "Video generation timed out"
+                    _refund_atomic()
+                except Exception as _e:
+                    try:
+                        sc = sess.query(SuperScenePipelineScene).get(scene_id)
+                        if sc and sc.status != "completed":
+                            sc.status = "failed"
+                            sc.error_message = (str(_e) or "Scene failed")[:300]
+                            charged = int(sc.credits_charged or 0)
+                            if charged > 0 and int(sc.credits_refunded or 0) == 0:
+                                sess.execute(_sql_update(SuperSceneCredit)
+                                             .where(SuperSceneCredit.user_id == user_id)
+                                             .values(balance=SuperSceneCredit.balance + charged))
+                                sc.credits_refunded = charged
+                            sess.commit()
+                    except Exception:
+                        pass
+                finally:
+                    sess.close()
 
-            # Poll for completion
-            max_polls = 120  # 6 minutes max per scene
-            for poll_count in range(max_polls):
-                await asyncio.sleep(3)
-                poll_result = await _route_poll_status(result["task_id"])
+        logger.info(f"Pipeline {pipeline_id}: generating {len(_scene_ids)} scenes in parallel (cap {SCENE_CONCURRENCY})")
+        await asyncio.gather(*[_process_scene(_sid) for _sid in _scene_ids])
 
-                if poll_result.get("status") == "completed" and poll_result.get("video_url"):
-                    scene.video_url = poll_result["video_url"]
-                    scene.status = "completed"
-                    pipeline.completed_scenes = (pipeline.completed_scenes or 0) + 1
-                    db.commit()
-
-                    # Extract last frame for next scene continuity
-                    # Note: last_frame_url extraction happens client-side in Storyboard
-                    # For pipeline, we skip frame extraction and use text-to-video for each scene
-                    # This is a deliberate trade-off: speed over visual continuity
-                    break
-
-                elif poll_result.get("status") == "failed":
-                    scene.status = "failed"
-                    scene.error_message = "Video generation failed during processing"
-                    _refund_scene(scene)
-                    break
-            else:
-                # Timeout
-                scene.status = "failed"
-                scene.error_message = "Video generation timed out"
-                _refund_scene(scene)
+        # Reload authoritative state (tasks committed via their own sessions)
+        db.expire_all()
+        scenes = db.query(SuperScenePipelineScene).filter_by(
+            pipeline_id=pipeline_id).order_by(SuperScenePipelineScene.scene_number).all()
+        pipeline = db.query(SuperScenePipeline).get(pipeline_id)
+        credit_row = db.query(SuperSceneCredit).filter_by(user_id=user_id).first()
+        pipeline.completed_scenes = sum(1 for s in scenes if s.status == "completed" and s.video_url)
+        pipeline.credits_used = sum(max(0, int(s.credits_charged or 0) - int(s.credits_refunded or 0)) for s in scenes)
+        db.commit()
 
         # ── Check if all scenes completed ──
         completed_scenes = [s for s in scenes if s.status == "completed" and s.video_url]
