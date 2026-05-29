@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { BrandKitContent } from './BrandKitContent';
 
 // ── Explainer Video — guided 5-step wizard (Creative Studio tab) ──
 // Wired to the live pipeline + catalog endpoints:
@@ -74,6 +75,7 @@ export function ExplainerContent() {
   // audition
   const [playing, setPlaying] = useState(null);
   const [brandKit, setBrandKit] = useState(null);
+  const [showBrandKit, setShowBrandKit] = useState(false);
   const audioRef = useRef(null);
   const pollRef = useRef(null);
 
@@ -226,6 +228,20 @@ export function ExplainerContent() {
   };
   const nextLabel = ['Continue', 'Set look & sound', 'Confirm & generate', 'Generating…', 'Start a new video'][step];
 
+  const _branded = brandKit && (brandKit.logo_url || brandKit.business_name || brandKit.cta_text);
+  const brandBanner = _branded ? (
+    <div className="bkbanner on">
+      <span>✓ Branded with your <b>Brand Kit</b> — logo, colours{brandKit.captions ? ', captions' : ''} and your call-to-action are applied to every video automatically.</span>
+      <button type="button" className="bk-link" onClick={() => setShowBrandKit(true)}>Edit</button>
+    </div>
+  ) : (
+    <div className="bkbanner">
+      <span>💡 Set up your <b>Brand Kit</b> once — your logo, colours, captions and call-to-action then apply to every video automatically.</span>
+      <button type="button" className="bk-link" onClick={() => setShowBrandKit(true)}>Set up →</button>
+    </div>
+  );
+  const closeBrandKit = () => { setShowBrandKit(false); fetch('/api/superscene/brand-kit').then(r => r.json()).then(setBrandKit).catch(() => {}); };
+
   return (
     <div className="expl">
       <style>{CSS}</style>
@@ -254,6 +270,7 @@ export function ExplainerContent() {
           {step === 0 && <div className="panel">
             <h3>Start with a brief or a script</h3>
             <p className="pd">Describe what you want and let Grok write the script — or paste your own.</p>
+            {brandBanner}
             <div className="seg">
               <button className={mode === 'brief' ? 'on' : ''} onClick={() => setMode('brief')}><Icon d={IC.pencil} /> Write a brief</button>
               <button className={mode === 'script' ? 'on' : ''} onClick={() => setMode('script')}>Paste a script</button>
@@ -297,20 +314,7 @@ export function ExplainerContent() {
           {step === 2 && <div className="panel">
             <h3>Look &amp; sound</h3>
             <p className="pd">Pick the visual style and the voice. The estimate on the right updates live — nothing is charged until you confirm.</p>
-            {(() => {
-              const branded = brandKit && (brandKit.logo_url || brandKit.business_name || brandKit.cta_text);
-              return branded ? (
-                <div className="bkbanner on">
-                  <span>✓ Branded with your <b>Brand Kit</b> — logo, colours{brandKit.captions ? ', captions' : ''} and your call-to-action are applied to this video automatically.</span>
-                  <a href="/creative-studio?tab=brand-kit">Edit</a>
-                </div>
-              ) : (
-                <div className="bkbanner">
-                  <span>💡 Set up a <b>Brand Kit</b> to put your logo, colours, captions and call-to-action on every video automatically.</span>
-                  <a href="/creative-studio?tab=brand-kit">Set up →</a>
-                </div>
-              );
-            })()}
+            {brandBanner}
 
             <label className="grp">Style</label>
             <div className="styles">
@@ -426,6 +430,18 @@ export function ExplainerContent() {
           </div>
         </aside>
       </div>
+
+      {showBrandKit && (
+        <div className="bkm-overlay" onClick={closeBrandKit}>
+          <div className="bkm" onClick={e => e.stopPropagation()}>
+            <div className="bkm-head">
+              <span>Brand Kit — set it once, it applies to every video you make</span>
+              <button type="button" className="bkm-done" onClick={closeBrandKit}>Done</button>
+            </div>
+            <div className="bkm-body"><BrandKitContent /></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -506,6 +522,14 @@ const CSS = `
 .bkbanner{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin:0 0 18px; padding:11px 14px; border-radius:11px; font-size:13px; line-height:1.45; background:#f1f5ff; border:1px solid #dbe4ff; color:#26345c; }
 .bkbanner.on{ background:rgba(6,182,212,.06); border-color:rgba(6,182,212,.28); color:#0e5a6b; }
 .bkbanner a{ flex:0 0 auto; font-weight:600; color:#0e7490; text-decoration:none; white-space:nowrap; }
+.bk-link{ flex:0 0 auto; font-weight:600; color:#0e7490; background:none; border:0; padding:0; cursor:pointer; white-space:nowrap; font-family:'DM Sans'; font-size:13px; }
+.bkm-overlay{ position:fixed; inset:0; background:rgba(10,20,56,.55); z-index:1000; display:flex; align-items:flex-start; justify-content:center; padding:36px 16px; overflow:auto; }
+.bkm{ background:#fff; border-radius:18px; width:100%; max-width:980px; box-shadow:0 24px 70px rgba(10,20,56,.4); margin:auto; }
+.bkm-head{ position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:15px 22px; border-bottom:1px solid #e4e9f4; background:#fff; border-radius:18px 18px 0 0; z-index:2; }
+.bkm-head span{ font-family:'Sora',sans-serif; font-weight:700; font-size:14.5px; color:#0a1438; }
+.bkm-done{ flex:0 0 auto; border:0; background:linear-gradient(135deg,#1e3a8a,#0e7490); color:#fff; font-weight:600; font-size:13.5px; padding:9px 20px; border-radius:10px; cursor:pointer; }
+.bkm-body{ padding:22px; }
+
 .expl-err{ margin-top:16px; padding:11px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:13px; font-weight:500; }
 .perr{ margin-top:5px; font-size:11.5px; color:#b91c1c; font-family:'JetBrains Mono',monospace; }
 
