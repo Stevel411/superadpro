@@ -5,16 +5,21 @@ Each of the 8 credit packs has its OWN independent 3×3 matrix.
 A member who buys all 8 packs has 8 separate matrices filling.
 
 Handles: matrix creation (per pack), position placement (BFS spillover),
-commission calculation, matrix advancing, and completion bonuses.
+commission calculation, and matrix advancing.
 
 COMMISSION MODEL:
   Commission rate is based on RELATIONSHIP, not matrix level:
     DIRECT REFERRAL (you personally recruited them) = 15%
     SPILLOVER (someone else in your tree recruited them) = 10%
-    COMPLETION BONUS = 10% of total matrix value (39 × pack price)
-  
-  Total commission split = 35% of pack price:
-    15% direct + 10% spillover + 10% completion bonus = 35%
+
+  Running commission per purchase pays up to 3 upline levels
+  (15% direct at L1 + 10% spillover at L2 + 10% spillover at L3 = up to 35%).
+
+  COMPLETION BONUS: SCRAPPED 29 May 2026 (Steve). The 10%-of-matrix-value
+  bonus stacked on top of the 35% running commission and broke the budget —
+  running + bonus + the 50% AI cost exceeded 100% of pack revenue at full
+  consumption. Running commissions stay (they fit the 50% non-AI half, ~15%
+  margin). Matrices still complete and cycle; there is no bonus payout.
 
 PACK PRICE SPLIT:
   50% → AI cost budget (covers Creative Studio token usage)
@@ -155,7 +160,7 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
     Commission rate per position:
       15% if the matrix owner personally recruited the buyer
       10% if the buyer is spillover (recruited by someone else)
-    Completion bonus: 10% of total matrix value when 39/39 fills.
+    Completion bonus: SCRAPPED 29 May 2026 — matrices complete & cycle, no bonus payout.
     """
     result = {
         "success": False,
@@ -276,7 +281,7 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
 # Commission rates based on RELATIONSHIP, not matrix level
 DIRECT_RATE = Decimal("0.15")           # You personally recruited them
 SPILLOVER_RATE = Decimal("0.10")        # Someone else recruited them
-COMPLETION_BONUS_RATE = Decimal("0.10") # 10% of total matrix value on completion
+COMPLETION_BONUS_RATE = Decimal("0")    # SCRAPPED 29 May 2026 — no completion bonus (see complete_matrix)
 
 
 def pay_matrix_commissions(
@@ -363,42 +368,23 @@ def pay_matrix_commissions(
 # ═══════════════════════════════════════════════════════════════
 
 def complete_matrix(db: Session, matrix: CreditMatrix):
-    """Handle matrix completion — pay 10% bonus, mark complete, create next advance."""
+    """Handle matrix completion — mark complete, create next advance. Completion bonus scrapped 29 May 2026."""
     owner = db.query(User).filter(User.id == matrix.owner_id).first()
     if not owner:
         return
 
-    # Completion bonus = 10% of total matrix value (39 positions × pack price)
-    pack = CREDIT_PACKS.get(matrix.pack_key, {})
-    pack_price = Decimal(str(pack.get("price", 0)))
-    bonus_amount = MATRIX_MAX_DOWNLINE * pack_price * COMPLETION_BONUS_RATE  # 39 × price × 10%
+    # Completion bonus SCRAPPED 29 May 2026 (Steve). The 10%-of-matrix-value
+    # bonus (10% × 39 × pack price = 3.9 × price on a 39/39 fill) stacked ON TOP
+    # of the up-to-35% running matrix commission. Running + bonus + the 50% AI
+    # cost budget exceeded 100% of pack revenue at full consumption — i.e. it
+    # could put the company underwater on a fully populated, fully consumed
+    # pack. Running commissions (15% direct / 10% spillover) stay; they fit
+    # inside the 50% non-AI half and leave ~15% company margin. The matrix
+    # still completes and cycles to the next advance below — there is simply no
+    # bonus payout.
+    bonus_amount = Decimal("0")
 
-    if bonus_amount > 0:
-        bonus_commission = CreditMatrixCommission(
-            matrix_id=matrix.id,
-            earner_id=owner.id,
-            from_user_id=owner.id,
-            from_position_id=0,
-            level=0,
-            rate=COMPLETION_BONUS_RATE,
-            pack_price=pack_price,
-            amount=bonus_amount,
-            commission_type="matrix_completion",
-            status="paid",
-        )
-        db.add(bonus_commission)
-
-        owner.balance = Decimal(str(owner.balance or 0)) + bonus_amount
-        owner.total_earned = Decimal(str(owner.total_earned or 0)) + bonus_amount
-        owner.matrix_earnings = Decimal(str(getattr(owner, 'matrix_earnings', 0) or 0)) + bonus_amount
-        # Cache invalidation — completion bonus posted to owner's balance
-        try:
-            from .stats_cache import cache_invalidate_user
-            cache_invalidate_user(owner.id)
-        except Exception as e:
-            logger.warning(f"cache_invalidate_user({owner.id}) failed in complete_matrix: {e}")
-
-    # Mark complete
+    # Mark complete (matrix still cycles to a new advance — see below)
     matrix.status = "completed"
     matrix.completed_at = datetime.utcnow()
     matrix.completion_bonus_paid = bonus_amount

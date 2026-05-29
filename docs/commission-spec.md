@@ -184,9 +184,10 @@ $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 |---|---|---|
 | Direct affiliates | **15%** | Buyer was personally referred by the matrix owner |
 | Spillover | **10%** | Buyer was placed in the matrix via someone else |
-| Completion bonus | **10%** | When all 39 matrix positions (3 + 9 + 27) fill |
 
-**Income stream framing:** Credit Nexus is 85% to affiliates, 15% to the company.
+**Completion bonus: SCRAPPED 29 May 2026 (Steve).** Previously 10% of total matrix value (3.9 × pack price on a 39/39 fill). It stacked on top of the up-to-35% running commission (15% direct at L1 + 10% spillover at L2 + 10% at L3) and, with the 50% AI-cost budget, pushed total payout past 100% of pack revenue at full credit consumption — the company could go underwater on a fully populated, fully consumed pack. Running commissions stay; they fit inside the 50% non-AI half (~15% company margin worst case). Matrices still complete and cycle to a new advance, no bonus payout. Code: `app/credit_matrix.py::complete_matrix`.
+
+**Income stream framing:** Credit Nexus is 85% to affiliates, 15% to the company. ⚠️ REVISIT — this framing predates the bonus removal and the full cost model; reconcile with Steve before using publicly (see 29 May 2026 margin analysis).
 
 ### Tier ownership requirement ✅
 
@@ -196,7 +197,7 @@ $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 
 - 3×3×3 = 39 positions per pack-tier matrix
 - Each of the 8 pack tiers runs its own independent matrix (8 simultaneous matrices possible per member)
-- On fill: completion bonus pays, matrix resets, cycle repeats
+- On fill: matrix resets and a new advance starts (completion bonus scrapped 29 May 2026 — no payout)
 
 ### Important clarification ✅
 
