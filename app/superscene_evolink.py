@@ -79,7 +79,7 @@ MODEL_MAP_I2V = {
 TIER_ROUTES_T2V = {
     "quick":    "wan26",           # Fastest, cheapest
     "standard": "kling3",         # Best balance
-    "premium":  "kling-o3",       # Highest quality
+    "premium":  "grok-video",     # #1-ranked quality, routes to xAI-direct ($0.05/s) w/ EvoLink fallback
     "ultra":    "veo31-pro",      # 4K cinematic
 }
 
