@@ -282,7 +282,7 @@ export function ExplainerContent() {
                 <div className="sbody">
                   <textarea className="narr" rows={2} value={s.narration_text}
                     onChange={e => editScene(i, 'narration_text', e.target.value)} onBlur={() => saveScene(i)} />
-                  <input className="vis" value={s.visual_prompt} placeholder="Visual…"
+                  <textarea className="vis" rows={2} value={s.visual_prompt} placeholder="Visual direction for this scene…"
                     onChange={e => editScene(i, 'visual_prompt', e.target.value)} onBlur={() => saveScene(i)} />
                 </div>
               </div>
@@ -452,7 +452,7 @@ const CSS = `
 .scene .tag{ flex:0 0 auto; font-family:'JetBrains Mono'; font-size:10px; font-weight:600; color:var(--cyd); background:rgba(6,182,212,.09); border:1px solid rgba(6,182,212,.18); padding:5px 8px; border-radius:7px; height:fit-content; }
 .scene .sbody{ flex:1; min-width:0; display:flex; flex-direction:column; gap:7px; }
 .scene .narr{ font-weight:500; min-height:auto; }
-.scene .vis{ font-size:12.5px; color:var(--mut); }
+.scene .vis{ font-size:12.5px; color:var(--mut); min-height:auto; line-height:1.5; }
 
 .styles{ display:grid; grid-template-columns:repeat(4,1fr); gap:9px; }
 .style-tile{ border:1.5px solid var(--line); border-radius:11px; padding:7px; cursor:pointer; transition:.12s; background:#fff; }
