@@ -43595,9 +43595,25 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
                 "duration_seconds": float(scene.duration_seconds or 10),
             })
 
+        # Load the member's brand kit so the video comes out as THEIR brand
+        from .database import BrandKit
+        _bk = db.query(BrandKit).filter_by(user_id=user_id).first()
+        _brand = None
+        if _bk:
+            _brand = {
+                "title": pipeline.title, "business_name": _bk.business_name or "",
+                "logo_url": _bk.logo_url,
+                "primary_color": _bk.primary_color, "accent_color": _bk.accent_color,
+                "heading_font": _bk.heading_font, "body_font": _bk.body_font,
+                "cta_text": _bk.cta_text or "", "cta_url": _bk.cta_url or "",
+                "show_intro": _bk.show_intro, "show_outro": _bk.show_outro,
+                "show_logo_bug": _bk.show_logo_bug, "captions": _bk.captions,
+            }
         assembly_result = await assemble_video(
             scene_clips=scene_clips,
             output_filename=f"pipeline_{pipeline_id}.mp4",
+            brand=_brand,
+            aspect=(pipeline.aspect or "16:9"),
         )
 
         if assembly_result["success"]:
