@@ -41003,6 +41003,42 @@ async def sc_pipeline_analyse(request: Request, db: Session = Depends(get_db)):
         "estimates": estimates,
         "credits_remaining": credit_row.balance,
     }
+def _reconcile_stale_pipelines(user_id, current_pipeline_id, db):
+    """Self-heal stranded credits. FastAPI BackgroundTasks don't survive a
+    redeploy, so a run interrupted mid-flight can leave scenes 'generating' with
+    credits charged but never refunded. Refund any of the user's OTHER pipelines
+    that are non-terminal with no progress for 20+ minutes (safely past a real
+    run), and mark them failed. Returns credits refunded."""
+    from datetime import datetime, timedelta
+    from .database import SuperScenePipeline, SuperScenePipelineScene, SuperSceneCredit
+    cutoff = datetime.utcnow() - timedelta(minutes=20)
+    stale = db.query(SuperScenePipeline).filter(
+        SuperScenePipeline.user_id == user_id,
+        SuperScenePipeline.id != current_pipeline_id,
+        SuperScenePipeline.status.in_(["generating", "assembling"]),
+        SuperScenePipeline.updated_at < cutoff,
+    ).all()
+    if not stale:
+        return 0
+    credit_row = db.query(SuperSceneCredit).filter_by(user_id=user_id).first()
+    refunded = 0
+    for sp in stale:
+        for sc in db.query(SuperScenePipelineScene).filter_by(pipeline_id=sp.id).all():
+            charged = int(sc.credits_charged or 0)
+            if sc.status != "completed" and charged > 0 and int(sc.credits_refunded or 0) == 0:
+                if credit_row:
+                    credit_row.balance += charged
+                sc.credits_refunded = charged
+                sp.credits_used = max(0, int(sp.credits_used or 0) - charged)
+                refunded += charged
+        sp.status = "failed"
+        if not sp.error_message:
+            sp.error_message = "Generation was interrupted — credits refunded"
+    db.commit()
+    logger.info(f"Reconciled {len(stale)} stale pipeline(s) for user {user_id}; refunded {refunded} credits")
+    return refunded
+
+
 @app.post("/api/superscene/pipeline/{pipeline_id}/generate")
 async def sc_pipeline_generate(pipeline_id: int, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Start generating all scenes for a pipeline.
@@ -41051,6 +41087,13 @@ async def sc_pipeline_generate(pipeline_id: int, request: Request, background_ta
     scenes = db.query(SuperScenePipelineScene).filter_by(pipeline_id=pipeline.id).order_by(SuperScenePipelineScene.scene_number).all()
     if not scenes:
         raise HTTPException(status_code=400, detail="No scenes in pipeline")
+
+    # Self-heal: refund this user's earlier runs that were interrupted mid-flight
+    # (a redeploy kills in-flight background tasks, stranding charged credits).
+    try:
+        _reconcile_stale_pipelines(user.id, pipeline.id, db)
+    except Exception:
+        logger.warning("Stale-pipeline reconcile failed", exc_info=True)
 
     # Calculate total cost and stamp each scene's charge so a failed
     # scene can be refunded exactly what it cost (per-scene accounting).
