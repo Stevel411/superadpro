@@ -73,6 +73,7 @@ export function ExplainerContent() {
 
   // audition
   const [playing, setPlaying] = useState(null);
+  const [brandKit, setBrandKit] = useState(null);
   const audioRef = useRef(null);
   const pollRef = useRef(null);
 
@@ -86,6 +87,7 @@ export function ExplainerContent() {
         setAspect(d.defaults.aspect || '16:9');
       }
     }).catch(() => setError('Could not load voices & styles.'));
+    fetch('/api/superscene/brand-kit').then(r => r.json()).then(setBrandKit).catch(() => {});
     refreshCredits();
     return () => { if (pollRef.current) clearInterval(pollRef.current); stopAudio(); };
   }, []);
@@ -295,6 +297,20 @@ export function ExplainerContent() {
           {step === 2 && <div className="panel">
             <h3>Look &amp; sound</h3>
             <p className="pd">Pick the visual style and the voice. The estimate on the right updates live — nothing is charged until you confirm.</p>
+            {(() => {
+              const branded = brandKit && (brandKit.logo_url || brandKit.business_name || brandKit.cta_text);
+              return branded ? (
+                <div className="bkbanner on">
+                  <span>✓ Branded with your <b>Brand Kit</b> — logo, colours{brandKit.captions ? ', captions' : ''} and your call-to-action are applied to this video automatically.</span>
+                  <a href="/creative-studio?tab=brand-kit">Edit</a>
+                </div>
+              ) : (
+                <div className="bkbanner">
+                  <span>💡 Set up a <b>Brand Kit</b> to put your logo, colours, captions and call-to-action on every video automatically.</span>
+                  <a href="/creative-studio?tab=brand-kit">Set up →</a>
+                </div>
+              );
+            })()}
 
             <label className="grp">Style</label>
             <div className="styles">
@@ -487,6 +503,9 @@ const CSS = `
 .result video{ display:block; } .ractions{ display:flex; gap:9px; margin-top:14px; }
 .cnote{ font-size:12.5px; color:var(--mut); margin-top:12px; }
 
+.bkbanner{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin:0 0 18px; padding:11px 14px; border-radius:11px; font-size:13px; line-height:1.45; background:#f1f5ff; border:1px solid #dbe4ff; color:#26345c; }
+.bkbanner.on{ background:rgba(6,182,212,.06); border-color:rgba(6,182,212,.28); color:#0e5a6b; }
+.bkbanner a{ flex:0 0 auto; font-weight:600; color:#0e7490; text-decoration:none; white-space:nowrap; }
 .expl-err{ margin-top:16px; padding:11px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:13px; font-weight:500; }
 .perr{ margin-top:5px; font-size:11.5px; color:#b91c1c; font-family:'JetBrains Mono',monospace; }
 
