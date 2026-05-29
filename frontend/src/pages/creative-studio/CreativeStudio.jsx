@@ -5,6 +5,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import { CreditMatrixContent } from '../CreditMatrix';
 import { VideoCreatorContent } from '../VideoCreator';
 import { ExplainerContent } from './ExplainerContent';
+import { BrandKitContent } from './BrandKitContent';
 import './creative-studio.css';
 
 // ── Video Models ──────────────────────────────────────
@@ -65,6 +66,7 @@ function getTabs(t) {
     { key: 'video-clips', label: t('creativeStudio.tab.videoClips'), icon: 'video' },
     { key: 'full-video',  label: t('creativeStudio.tab.fullVideo'),  icon: 'film' },
     { key: 'explainer',   label: t('creativeStudio.tab.explainer'), icon: 'wand' },
+    { key: 'brand-kit',   label: t('creativeStudio.tab.brandKit'), icon: 'edit' },
     { key: 'images',      label: t('creativeStudio.tab.images'),     icon: 'image' },
     { key: 'reimagine',   label: t('creativeStudio.tab.reimagine'),  icon: 'wand' },
     { key: 'music',       label: t('creativeStudio.tab.music'),      icon: 'music' },
@@ -886,6 +888,9 @@ export default function CreativeStudio() {
 
           {/* ═══ EXPLAINER VIDEO TAB ═══ */}
           {tab === 'explainer' && <ExplainerContent />}
+
+          {/* ═══ BRAND KIT TAB ═══ */}
+          {tab === 'brand-kit' && <BrandKitContent />}
 
           {/* ═══ IMAGES TAB ═══ */}
           {tab === 'images' && <>
