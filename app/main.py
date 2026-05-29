@@ -43803,6 +43803,134 @@ def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
     return {"success": True, "users_updated": updated}
 
 
+@app.get("/admin/api/reassign-sponsor")
+def admin_api_reassign_sponsor(
+    user_id: int,
+    new_sponsor_id: int,
+    confirm: bool = False,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin tool: move a user under a different sponsor — correctly.
+
+    A sponsor correction is NOT a one-field UPDATE. Two genealogy fields move
+    together:
+      - sponsor_id          → direct sponsor / display / future grid placement
+      - pass_up_sponsor_id  → the SEPARATE permanent chain that course
+                              commissions walk (course_engine.
+                              find_qualified_passup_recipient). Leaving it on
+                              the old sponsor's chain silently routes the user's
+                              future course pass-up commissions to the wrong
+                              upline.
+
+    pass_up_sponsor_id is set to the NEW sponsor directly (kept-referral
+    semantics). Rationale: the intent of a correction is "this user belongs to
+    the new sponsor." Running the position-based assign_passup_sponsor logic
+    could land them on a pass-up position and route their economics to the new
+    sponsor's UPLINE instead — the opposite of the correction's intent. Safe to
+    set directly because nothing has fired for a corrected user (no course
+    pass-up commission has used the old chain).
+
+    Counters (personal_referrals / total_team) are recomputed for BOTH the old
+    and new sponsor using the canonical definitions from
+    /admin/recalculate-stats (personal_referrals = active direct referrals;
+    total_team = all direct referrals) — so the denormalised counters never
+    drift on a move.
+
+    Read-and-log, then write, then return before/after. Requires confirm=true;
+    without it, returns a preview of what would change.
+    Built 29 May 2026 (joyb521 registered under the wrong sponsor).
+    """
+    _require_admin(user)
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"User {user_id} not found"}, status_code=404)
+    new_sponsor = db.query(User).filter(User.id == new_sponsor_id).first()
+    if not new_sponsor:
+        return JSONResponse({"error": f"New sponsor {new_sponsor_id} not found"}, status_code=404)
+    if user_id == new_sponsor_id:
+        return JSONResponse({"error": "A user cannot be their own sponsor"}, status_code=400)
+
+    # Cycle guard: the new sponsor must not sit inside the target's own
+    # downline. Walk the new sponsor's sponsor_id chain upward; if we reach the
+    # target, the move would create a loop.
+    seen = set()
+    cur = new_sponsor.sponsor_id
+    while cur is not None and cur not in seen:
+        if cur == user_id:
+            return JSONResponse(
+                {"error": f"Cycle blocked: user {new_sponsor_id} is in {user_id}'s downline"},
+                status_code=400,
+            )
+        seen.add(cur)
+        parent = db.query(User).filter(User.id == cur).first()
+        cur = parent.sponsor_id if parent else None
+
+    before = {
+        "username": target.username,
+        "sponsor_id": target.sponsor_id,
+        "pass_up_sponsor_id": target.pass_up_sponsor_id,
+    }
+
+    if not confirm:
+        return {
+            "preview": True,
+            "message": "Add &confirm=true to apply this move.",
+            "target": before,
+            "new_sponsor": {"id": new_sponsor.id, "username": new_sponsor.username},
+            "would_set": {
+                "sponsor_id": new_sponsor_id,
+                "pass_up_sponsor_id": new_sponsor_id,
+            },
+        }
+
+    old_sponsor_id = target.sponsor_id
+    target.sponsor_id = new_sponsor_id
+    target.pass_up_sponsor_id = new_sponsor_id
+    db.flush()
+
+    # Recompute denormalised counters for both affected sponsors using the
+    # canonical definitions (matches /admin/recalculate-stats exactly).
+    def _recompute(sid):
+        if sid is None:
+            return None
+        s = db.query(User).filter(User.id == sid).first()
+        if not s:
+            return None
+        s.personal_referrals = db.query(User).filter(
+            User.sponsor_id == sid, User.is_active == True
+        ).count()
+        s.total_team = db.query(User).filter(User.sponsor_id == sid).count()
+        return {
+            "id": sid,
+            "username": s.username,
+            "personal_referrals": s.personal_referrals,
+            "total_team": s.total_team,
+        }
+
+    old_counts = _recompute(old_sponsor_id)
+    new_counts = _recompute(new_sponsor_id)
+    db.commit()
+
+    logger.info(
+        f"[reassign-sponsor] user {user_id} ({target.username}) moved: "
+        f"sponsor {old_sponsor_id}->{new_sponsor_id}, pass_up->{new_sponsor_id}, "
+        f"by admin {user.username}"
+    )
+
+    return {
+        "success": True,
+        "user": {"id": target.id, "username": target.username},
+        "before": before,
+        "after": {
+            "sponsor_id": target.sponsor_id,
+            "pass_up_sponsor_id": target.pass_up_sponsor_id,
+        },
+        "counters_recomputed": {"old_sponsor": old_counts, "new_sponsor": new_counts},
+    }
+
+
 @app.post("/admin/diagnostic/cleanup-test-withdrawals/{user_id}")
 def admin_diagnostic_cleanup_test_withdrawals(
     user_id: int,
