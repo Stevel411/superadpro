@@ -445,32 +445,17 @@ export default function Dashboard() {
           return { bg: '#f1f5f9', fg: '#475569', bd: 'var(--sap-border)' };
         }
         function onAction(p) {
-          // Fire-and-forget dismissal so this (target, kind) doesn't reappear
-          // on the next dashboard load. keepalive:true lets the POST survive
-          // the imminent page navigation. We don't wait for the response —
-          // the dismissal is idempotent server-side and the page is leaving
-          // anyway. By the time the sponsor returns to the dashboard, the
-          // GET /api/team-pulse will reflect the action.
-          //
-          // Optimistic UI removal isn't needed here because we navigate to
-          // TeamMessenger immediately — the card unmounts. The next mount
-          // (when the sponsor comes back) will read the fresh server state.
-          try {
-            fetch('/api/team-pulse/dismiss', {
-              method: 'POST',
-              credentials: 'include',
-              keepalive: true,
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ target_user_id: p.user_id, kind: p.kind }),
-            }).catch(function(){ /* network error: tolerate; user might be offline */ });
-          } catch (e) { /* fetch may be unavailable in some embedded contexts */ }
-
-          // Jump to TeamMessenger with this contact pre-selected and the
-          // template pre-filled. Both passed in URL params so a fresh page
-          // load works (no in-memory handoff that could vanish on refresh).
+          // Pass the prompt kind through to TeamMessenger so it can fire
+          // the dismissal AFTER the message is actually sent — not just
+          // because the sponsor clicked through. Sponsor might arrive,
+          // change their mind, and close the page without sending; in
+          // that case the prompt should stay visible. Dismissal-on-send
+          // is the correct trigger (29 May 2026 — revised from initial
+          // click-time dismissal that fired too early).
           var params = new URLSearchParams({
             to: String(p.user_id),
             template: p.welcome_template || '',
+            kind: p.kind || '',
           });
           window.location.href = '/team-messenger?' + params.toString();
         }

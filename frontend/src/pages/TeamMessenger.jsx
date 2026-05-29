@@ -40,19 +40,28 @@ export default function TeamMessenger() {
   useEffect(function() { if (activeContact && inputRef.current) inputRef.current.focus(); }, [activeContact]);
 
   // 28 May 2026 — one-click pre-fill from the dashboard Team Pulse card.
-  // URL: /team-messenger?to=<user_id>&template=<urlencoded text>
+  // URL: /team-messenger?to=<user_id>&template=<urlencoded text>&kind=<prompt_kind>
   // On first load after contacts are fetched, auto-select the target contact
   // and pre-fill the input with the welcome template. Member sees the message
   // staged, edits if they want, hits Send. Designed to remove the 6am "what
   // do I say?" friction that stops sponsors from reaching out in the first
   // hour (which is where activations actually happen).
+  //
+  // 29 May 2026 — additionally capture `kind` so we can fire the dashboard
+  // Team Pulse dismissal AFTER a successful send (not on click). See
+  // dismissPending state + sendMessage handler below.
   var [prefillApplied, setPrefillApplied] = useState(false);
+  var [dismissPending, setDismissPending] = useState(null);
+                                  // { target_user_id, kind } | null
+                                  // Set on prefill from URL; cleared after
+                                  // first successful send to the target.
   useEffect(function() {
     if (prefillApplied || !contacts || contacts.length === 0) return;
     try {
       var params = new URLSearchParams(window.location.search);
       var toRaw = params.get('to');
       var tmpl = params.get('template') || '';
+      var kindRaw = params.get('kind') || '';
       if (!toRaw) return;
       var toId = parseInt(toRaw, 10);
       if (isNaN(toId)) return;
@@ -60,6 +69,9 @@ export default function TeamMessenger() {
       if (match) {
         setActiveContact(match);
         if (tmpl) setText(tmpl);
+        if (kindRaw && (kindRaw === 'just_joined' || kindRaw === 'just_activated' || kindRaw === 'unactivated_warm')) {
+          setDismissPending({ target_user_id: toId, kind: kindRaw });
+        }
         setPrefillApplied(true);
         // Clean the URL so a refresh doesn't re-trigger the prefill on top of
         // whatever the member's typed since.
@@ -74,7 +86,29 @@ export default function TeamMessenger() {
     if (!text.trim() || !activeContact || sending) return;
     setSending(true);
     apiPost('/api/team-messages/send', { to_user_id: activeContact.id, message: text.trim() })
-      .then(function() { setText(''); setSending(false); loadData(); })
+      .then(function() {
+        setText('');
+        setSending(false);
+        loadData();
+        // 29 May 2026 — adaptive Team Pulse: if the sponsor arrived here from
+        // a dashboard prompt AND just successfully sent to the SAME person
+        // that prompt was about, fire the dismissal so the prompt drops off
+        // the card on the next dashboard load. If they switched to a
+        // different contact mid-flow, no dismissal — the original prompt
+        // legitimately wasn't actioned.
+        if (dismissPending && dismissPending.target_user_id === activeContact.id) {
+          var payload = { target_user_id: dismissPending.target_user_id, kind: dismissPending.kind };
+          setDismissPending(null);  // clear immediately so re-sends don't re-fire
+          try {
+            fetch('/api/team-pulse/dismiss', {
+              method: 'POST',
+              credentials: 'include',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(payload),
+            }).catch(function(){ /* network error: tolerate — dismissal is idempotent */ });
+          } catch (e) { /* fetch unavailable: skip silently */ }
+        }
+      })
       .catch(function() { setSending(false); });
   }
 
