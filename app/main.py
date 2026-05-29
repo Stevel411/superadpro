@@ -43593,6 +43593,7 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
                 "video_url": scene.video_url,
                 "voiceover_url": scene.voiceover_url,
                 "duration_seconds": float(scene.duration_seconds or 10),
+                "narration_text": scene.narration_text,
             })
 
         # Load the member's brand kit so the video comes out as THEIR brand

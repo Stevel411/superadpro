@@ -164,6 +164,15 @@ def _brand_hex(c: str, default: str) -> str:
     return "0x" + c if _re.match(r"^[0-9a-fA-F]{6}$", c) else default
 
 
+def _wrap_caption(text, width=42, max_lines=4):
+    import textwrap
+    lines = textwrap.wrap((text or "").strip(), width=width)
+    if len(lines) > max_lines:
+        lines = lines[:max_lines]
+        lines[-1] = lines[-1].rstrip(".") + "\u2026"
+    return "\n".join(lines)
+
+
 def _build_branded_mp4(work, segs, logo_path, brand, W, H, output_filename):
     """Synchronous FFmpeg builder: branded intro card + scene clips (with logo
     bug) + branded end card, with voiceover laid on a card-padded timeline.
@@ -207,17 +216,29 @@ def _build_branded_mp4(work, segs, logo_path, brand, W, H, output_filename):
                 "-t", str(_BRAND_INTRO_DUR), "-r", "30", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-an", out]
         run(cmd); segments.append((out, _BRAND_INTRO_DUR, None))
 
-    # ── Scenes (normalise + logo bug) ──
+    # ── Scenes (normalise + logo bug + burned-in caption) ──
+    show_caps = bool(brand.get("captions", True))
     for i, sc in enumerate(segs):
         out = os.path.join(work, "n%03d.mp4" % i)
-        norm = "[0:v]scale=%d:%d:force_original_aspect_ratio=decrease,pad=%d:%d:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30" % (W, H, W, H)
+        inputs = ["-i", sc["video"]]
+        parts = ["[0:v]scale=%d:%d:force_original_aspect_ratio=decrease,pad=%d:%d:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[s0]" % (W, H, W, H)]
+        last = "s0"
         if logo_path and show_bug:
-            cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", sc["video"], "-i", logo_path,
-                   "-filter_complex", "%s[bv];[1]scale=-1:%d[lg];[bv][lg]overlay=W-w-%d:%d[v]" % (norm, bug_h, int(W * 0.02), int(H * 0.04)),
-                   "-map", "[v]"]
-        else:
-            cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", sc["video"], "-vf", norm[5:]]
-        cmd += ["-r", "30", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-an", out]
+            inputs += ["-i", logo_path]
+            parts.append("[1]scale=-1:%d[lg]" % bug_h)
+            parts.append("[%s][lg]overlay=W-w-%d:%d[s1]" % (last, int(W * 0.02), int(H * 0.04)))
+            last = "s1"
+        narr = (sc.get("narration") or "").strip()
+        if show_caps and narr:
+            cf = tf("cap%03d.txt" % i, _wrap_caption(narr))
+            cfs = max(16, int(H * 0.038))
+            parts.append("[%s]drawtext=fontfile=%s:textfile=%s:fontcolor=white:fontsize=%d:line_spacing=6:"
+                         "box=1:boxcolor=black@0.45:boxborderw=%d:x=(w-text_w)/2:y=h-text_h-%d[s2]"
+                         % (last, body, cf, cfs, max(10, int(H * 0.018)), int(H * 0.06)))
+            last = "s2"
+        cmd = ["ffmpeg", "-y", "-loglevel", "error"] + inputs + [
+            "-filter_complex", ";".join(parts), "-map", "[%s]" % last,
+            "-r", "30", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-an", out]
         run(cmd); segments.append((out, sc.get("dur"), sc.get("vo")))
 
     # ── End card ──
@@ -297,7 +318,7 @@ async def _assemble_branded_video(scene_clips, output_filename, brand, aspect="1
                 if sc.get("voiceover_url"):
                     vo = os.path.join(work, "vo%03d.mp3" % i)
                     r = await client.get(sc["voiceover_url"]); open(vo, "wb").write(r.content)
-                segs.append({"video": vp, "vo": vo, "dur": float(sc.get("duration_seconds") or 5)})
+                segs.append({"video": vp, "vo": vo, "dur": float(sc.get("duration_seconds") or 5), "narration": sc.get("narration_text")})
 
         output_path = _build_branded_mp4(work, segs, logo_path, brand, W, H, output_filename)
 
