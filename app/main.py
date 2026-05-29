@@ -8163,6 +8163,262 @@ def admin_api_user_fulfillment(
     })
 
 
+@app.get("/admin/api/stripe-reconciliation")
+def admin_api_stripe_reconciliation(
+    request: Request,
+    days: int = 7,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: cross-check every Stripe charge in the last N days
+    against the corresponding platform fulfillment row.
+
+    For each StripeCharge row (kind='charge', amount_cents > 0), verify the
+    product was actually delivered:
+
+      product='founder_signup'      → User.is_active = True
+      product='membership_signup'   → User.is_active = True
+      product='founder_renewal'     → User.is_active = True AND
+                                       User.membership_expires_at >= charge time
+      product='membership_renewal'  → User.is_active = True AND
+                                       User.membership_expires_at >= charge time
+      product='campaign_tier'       → GridPosition exists for user, created
+                                       within 10 min of charge timestamp, OR
+                                       a manual_recovery_user{N}_grid* Payment
+                                       row exists from after the charge.
+      product='nexus_pack'          → CreditPackPurchase row exists with
+                                       payment_ref containing the Stripe
+                                       session_id and status='completed'
+      product='pif_voucher'         → GiftVoucher row exists with payment_ref
+                                       containing the Stripe session_id
+
+    Built 29 May 2026 in response to the Michell Gustavsson case where a
+    $20 succeeded Stripe charge looked suspicious in lookup_user but turned
+    out to be a Nexus pack that DID fulfill correctly. The lesson was that
+    no single tool gave us a 'did every Stripe charge in the last week
+    actually deliver a product' view. This endpoint provides that.
+
+    Read-only. Returns matched (sampled), mismatched (full list — these are
+    the real problems), and any charges with unknown product kinds.
+
+    Bounded: days is capped at 90 to avoid runaway queries. Default 7.
+
+    Returns 200 with structured JSON. mismatched_count > 0 is the signal to
+    investigate — those are charges where the customer paid but our DB
+    has no evidence we delivered the product.
+    """
+    _require_admin(user)
+    from .database import (
+        StripeCharge, GridPosition, CreditPackPurchase,
+        GiftVoucher, Payment, User as _User,
+    )
+    from datetime import datetime, timedelta
+
+    if days < 1:
+        days = 1
+    if days > 90:
+        days = 90
+
+    since = datetime.utcnow() - timedelta(days=days)
+
+    # Only positive-amount charges. Refunds (amount_cents < 0) and chargebacks
+    # aren't fulfillment events to check.
+    charges = (
+        db.query(StripeCharge)
+        .filter(
+            StripeCharge.created_at >= since,
+            StripeCharge.kind == "charge",
+            StripeCharge.amount_cents > 0,
+        )
+        .order_by(StripeCharge.created_at.desc())
+        .all()
+    )
+
+    matched = []
+    mismatched = []
+    unknown = []
+
+    # Window for time-based fulfillment matching. Webhooks normally process
+    # in sub-second; 10 min is a generous buffer that still attributes
+    # correctly. Looking backwards by 2 min handles edge case where the
+    # fulfillment row's clock is slightly ahead of the charge's.
+    WINDOW_BEFORE = timedelta(minutes=2)
+    WINDOW_AFTER = timedelta(minutes=10)
+
+    for ch in charges:
+        win_start = ch.created_at - WINDOW_BEFORE
+        win_end = ch.created_at + WINDOW_AFTER
+
+        ok = None
+        detail = {}
+
+        target = db.query(_User).filter(_User.id == ch.user_id).first()
+
+        if ch.product in ("founder_signup", "membership_signup"):
+            ok = bool(target and target.is_active)
+            detail = {
+                "check": "user_active_after_signup",
+                "user_active": bool(target.is_active) if target else False,
+                "activated_at": target.activated_at.isoformat() if target and target.activated_at else None,
+            }
+
+        elif ch.product in ("founder_renewal", "membership_renewal"):
+            expires = target.membership_expires_at if target else None
+            ok = bool(
+                target and target.is_active
+                and expires and expires >= ch.created_at
+            )
+            detail = {
+                "check": "user_active_and_expiry_covers_charge_time",
+                "user_active": bool(target.is_active) if target else False,
+                "expires_at": expires.isoformat() if expires else None,
+                "charge_time": ch.created_at.isoformat() if ch.created_at else None,
+            }
+
+        elif ch.product == "campaign_tier":
+            # GridPosition created in the window (any one is enough — a tier
+            # purchase walks up the sponsor chain creating multiple rows).
+            gpos = (
+                db.query(GridPosition)
+                .filter(
+                    GridPosition.member_id == ch.user_id,
+                    GridPosition.created_at >= win_start,
+                    GridPosition.created_at <= win_end,
+                )
+                .first()
+            )
+            # Manual recovery fallback (an admin granted Tier post-hoc).
+            recovery = (
+                db.query(Payment)
+                .filter(
+                    Payment.from_user_id == ch.user_id,
+                    Payment.tx_hash.like(f"manual_recovery_user{ch.user_id}_grid%"),
+                    Payment.status == "confirmed",
+                    Payment.created_at >= ch.created_at,
+                )
+                .first()
+            )
+            ok = bool(gpos) or bool(recovery)
+            detail = {
+                "check": "grid_position_in_window_or_manual_recovery",
+                "grid_position_id": gpos.id if gpos else None,
+                "grid_position_created_at": gpos.created_at.isoformat() if gpos and gpos.created_at else None,
+                "manual_recovery_payment_id": recovery.id if recovery else None,
+                "manual_recovery_tx_hash": recovery.tx_hash if recovery else None,
+            }
+
+        elif ch.product == "nexus_pack":
+            # Match by session_id in payment_ref (the writer uses
+            # payment_ref=f"stripe_{session_id}"). Fall back to time window
+            # if session_id is null on the charge.
+            pack = None
+            if ch.stripe_session_id:
+                pack = (
+                    db.query(CreditPackPurchase)
+                    .filter(
+                        CreditPackPurchase.user_id == ch.user_id,
+                        CreditPackPurchase.payment_ref.like(f"%{ch.stripe_session_id}%"),
+                    )
+                    .first()
+                )
+            if not pack:
+                pack = (
+                    db.query(CreditPackPurchase)
+                    .filter(
+                        CreditPackPurchase.user_id == ch.user_id,
+                        CreditPackPurchase.created_at >= win_start,
+                        CreditPackPurchase.created_at <= win_end,
+                        CreditPackPurchase.payment_method == "stripe",
+                    )
+                    .first()
+                )
+            ok = bool(pack) and (pack.status == "completed")
+            detail = {
+                "check": "credit_pack_purchase_completed",
+                "pack_id": pack.id if pack else None,
+                "pack_status": pack.status if pack else None,
+                "pack_key": pack.pack_key if pack else None,
+                "match_method": (
+                    "session_id" if pack and ch.stripe_session_id and ch.stripe_session_id in (pack.payment_ref or "")
+                    else "time_window" if pack else "none"
+                ),
+            }
+
+        elif ch.product == "pif_voucher":
+            voucher = None
+            if ch.stripe_session_id:
+                voucher = (
+                    db.query(GiftVoucher)
+                    .filter(
+                        GiftVoucher.gifter_user_id == ch.user_id,
+                        GiftVoucher.payment_ref.like(f"%{ch.stripe_session_id}%"),
+                    )
+                    .first()
+                )
+            if not voucher:
+                voucher = (
+                    db.query(GiftVoucher)
+                    .filter(
+                        GiftVoucher.gifter_user_id == ch.user_id,
+                        GiftVoucher.created_at >= win_start,
+                        GiftVoucher.created_at <= win_end,
+                    )
+                    .first()
+                )
+            ok = bool(voucher)
+            detail = {
+                "check": "gift_voucher_created",
+                "voucher_id": voucher.id if voucher else None,
+                "voucher_code": voucher.voucher_code if voucher else None,
+                "voucher_status": voucher.status if voucher else None,
+            }
+
+        else:
+            # Unknown product type — don't blow up, just flag.
+            detail = {"check": "unknown_product"}
+
+        row = {
+            "charge_id": ch.id,
+            "user_id": ch.user_id,
+            "username": target.username if target else None,
+            "email": target.email if target else None,
+            "product": ch.product,
+            "amount_cents": ch.amount_cents,
+            "stripe_session_id": ch.stripe_session_id,
+            "stripe_payment_intent_id": ch.stripe_payment_intent_id,
+            "stripe_subscription_id": ch.stripe_subscription_id,
+            "created_at": ch.created_at.isoformat() if ch.created_at else None,
+            "fulfillment": detail,
+        }
+
+        if ok is True:
+            matched.append(row)
+        elif ok is False:
+            mismatched.append(row)
+        else:
+            unknown.append(row)
+
+    # Group mismatched by product so it's easier to scan
+    mismatched_by_product = {}
+    for r in mismatched:
+        mismatched_by_product.setdefault(r["product"], []).append(r)
+
+    return JSONResponse({
+        "since": since.isoformat() + "Z",
+        "days": days,
+        "total_charges_checked": len(charges),
+        "matched_count": len(matched),
+        "mismatched_count": len(mismatched),
+        "unknown_count": len(unknown),
+        "mismatched_by_product_summary": {
+            k: len(v) for k, v in mismatched_by_product.items()
+        },
+        "mismatched": mismatched,
+        "unknown": unknown,
+        "matched_sample": matched[:5],
+    })
+
+
 @app.get("/admin/api/rotator-state")
 def admin_api_rotator_state(
     request: Request,
