@@ -356,6 +356,7 @@ export function ExplainerContent() {
                     </span>
                   </div>
                   <div className="track"><div className="fill" style={{ width: st === 'completed' ? '100%' : st === 'generating' ? '62%' : st === 'voiceover' ? '30%' : '0%' }} /></div>
+                  {st === 'failed' && s.error_message && <div className="perr">{s.error_message}</div>}
                 </div>
               );
             })}
@@ -487,6 +488,7 @@ const CSS = `
 .cnote{ font-size:12.5px; color:var(--mut); margin-top:12px; }
 
 .expl-err{ margin-top:16px; padding:11px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:13px; font-weight:500; }
+.perr{ margin-top:5px; font-size:11.5px; color:#b91c1c; font-family:'JetBrains Mono',monospace; }
 
 .foot{ display:flex; align-items:center; justify-content:space-between; margin-top:20px; }
 .btn{ font-family:'DM Sans'; font-weight:600; font-size:14px; border-radius:11px; padding:11px 20px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--inks); display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
