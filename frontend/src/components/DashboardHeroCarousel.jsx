@@ -37,7 +37,7 @@ var SLIDES = [
     title: 'Credit Nexus Packs',
     eyebrow: 'EARN COMMISSIONS',
     headline: 'Unlock the platform. Earn 15% on every pack your team buys.',
-    body: 'Activate any Credit Nexus pack from $20 to $1,000. Each pack opens a 3×3 matrix that pays you on direct referrals, spillover, and completion bonuses.',
+    body: 'Activate any Credit Nexus pack from $20 to $1,000. Each pack opens a 3×3 matrix that pays you on direct referrals and spillover.',
     cta: 'See Nexus packs',
     href: '/credit-nexus',
     accent: '#0ea5e9',

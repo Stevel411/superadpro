@@ -332,10 +332,9 @@ function MatrixContent(props) {
 
   return <>
     <ProductExplainer t={t} tNamespace="nexusStream" variant="nexus" defaultOpen={false} compact={true} />
-    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:20 }}>
       <CommBox val="15%" label={t('compPlan.directReferral')} sub={t('compPlan.youRecruited')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
       <CommBox val="10%" label={t('compPlan.autoPlace')} sub={t('compPlan.placedByNetwork')} gradient="linear-gradient(135deg,#15803d,#22c55e)" color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.nexusFills39')} gradient="linear-gradient(135deg,#6d28d9,#a78bfa)" color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     {/* Mini tree */}

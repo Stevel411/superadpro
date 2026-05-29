@@ -685,11 +685,12 @@ def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
     # Maximum earning potential for THIS matrix at full cycle —
     # honest figures based on the real commission structure, not
     # the fabricated "$4,690 per Nexus" that lived in the frontend.
-    # Per spec: 3 direct × 15% + 36 spillover × 10% + 39 × 10% completion.
+    # Per spec: 3 direct × 15% + 36 spillover × 10%. Completion bonus scrapped
+    # 29 May 2026 — no longer part of the projection (see complete_matrix).
     max_direct = Decimal("3") * pack_price * Decimal("0.15")
     max_spillover = Decimal("36") * pack_price * Decimal("0.10")
-    max_completion = Decimal(str(MATRIX_MAX_DOWNLINE)) * pack_price * Decimal("0.10")
-    max_total_per_cycle = max_direct + max_spillover + max_completion
+    max_completion = Decimal("0")  # completion bonus scrapped 29 May 2026
+    max_total_per_cycle = max_direct + max_spillover
 
     return {
         "matrix": {

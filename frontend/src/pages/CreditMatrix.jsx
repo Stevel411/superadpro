@@ -559,21 +559,6 @@ export function CreditMatrixContent() {
                     </div>
                   </div>
 
-                  {/* Completion */}
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '8px 0' }}>
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>
-                        Completion bonus
-                        <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(245,158,11,.12)', color: '#92400e', marginLeft: 6, verticalAlign: 'middle', textTransform: 'uppercase' }}>10%</span>
-                      </div>
-                      <div style={{ fontSize: 11, color: 'var(--sap-text-muted)', marginTop: 2 }}>
-                        Pays when all 39 positions fill
-                      </div>
-                    </div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: (matrixStats.earnings_completion || 0) > 0 ? 'var(--sap-green-bright)' : 'var(--sap-text-faint)' }}>
-                      ${(matrixStats.earnings_completion || 0).toFixed(2)}
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
@@ -711,10 +696,6 @@ export function CreditMatrixContent() {
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
                 <span style={{ color: 'var(--sap-violet)' }}>36 spillover × 10%</span>
                 <span style={{ fontWeight: 700, color: '#4c1d95' }}>${(matrixStats.max_spillover_per_cycle || 0).toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
-                <span style={{ color: 'var(--sap-violet)' }}>Completion bonus (39 × 10%)</span>
-                <span style={{ fontWeight: 700, color: '#4c1d95' }}>${(matrixStats.max_completion_per_cycle || 0).toFixed(2)}</span>
               </div>
               <div style={{ borderTop: '1px solid #c4b5fd', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
                 <span style={{ color: '#4c1d95' }}>Max per full Nexus cycle</span>

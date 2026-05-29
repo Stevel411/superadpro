@@ -136,10 +136,11 @@ export default function CreditMatrixVisualiser() {
   var eSpillover = stats.earnings_spillover || 0;
   var eCompletion = stats.earnings_completion || 0;
   var eTotal = eDirect + eSpillover + eCompletion;
-  // Max per full cycle: 3 direct × 15% + 36 spillover × 10% + 39 × 10% completion
+  // Max per full cycle: 3 direct × 15% + 36 spillover × 10%
+  // (completion bonus scrapped 29 May 2026)
   var eMax = (stats.max_total_per_cycle != null)
     ? stats.max_total_per_cycle
-    : (3 * packPrice * 0.15 + 36 * packPrice * 0.10 + 39 * packPrice * 0.10);
+    : (3 * packPrice * 0.15 + 36 * packPrice * 0.10);
 
   return (
     <AppLayout title={t("matrixVis.title")} subtitle={t("matrixVis.subtitle")}>
