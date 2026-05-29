@@ -177,7 +177,7 @@ def _build_branded_mp4(work, segs, logo_path, brand, W, H, output_filename):
     bug_h = max(20, int(H * 0.07)); ilogo = max(48, int(H * 0.18))
 
     def run(cmd):
-        subprocess.run(cmd, capture_output=True, check=True)
+        subprocess.run(cmd, capture_output=True, check=True, timeout=300)
     def tf(name, txt):
         fp = os.path.join(work, name); open(fp, "w").write(txt); return fp
 
@@ -304,12 +304,12 @@ async def _assemble_branded_video(scene_clips, output_filename, brand, aspect="1
                     r = await client.get(sc["voiceover_url"]); open(vo, "wb").write(r.content)
                 segs.append({"video": vp, "vo": vo, "dur": float(sc.get("duration_seconds") or 5), "narration": sc.get("narration_text")})
 
-        output_path = _build_branded_mp4(work, segs, logo_path, brand, W, H, output_filename)
+        output_path = await asyncio.to_thread(_build_branded_mp4, work, segs, logo_path, brand, W, H, output_filename)
 
         from .r2_storage import upload_file as r2_upload_file, r2_available
         if not r2_available():
             return {"success": False, "error": "R2 storage not configured"}
-        video_url = r2_upload_file(output_path, "pipeline/final", "mp4", "video/mp4")
+        video_url = await asyncio.to_thread(r2_upload_file, output_path, "pipeline/final", "mp4", "video/mp4")
         shutil.rmtree(work, ignore_errors=True)
         return {"success": True, "video_url": video_url}
     except subprocess.CalledProcessError as e:
@@ -372,7 +372,7 @@ async def assemble_video(
             "-i", concat_path,
             "-c", "copy", concat_out
         ]
-        subprocess.run(cmd_concat, capture_output=True, check=True)
+        await asyncio.to_thread(subprocess.run, cmd_concat, capture_output=True, check=True, timeout=300)
 
         # Step 2: Overlay voiceover audio
         has_voiceovers = any(d["voiceover"] for d in downloaded)
@@ -385,14 +385,14 @@ async def assemble_video(
                         f.write(f"file '{item['voiceover']}'\n")
 
             vo_merged = os.path.join(work_dir, "vo_merged.mp3")
-            subprocess.run([
+            await asyncio.to_thread(subprocess.run, [
                 "ffmpeg", "-y", "-f", "concat", "-safe", "0",
                 "-i", vo_concat_path,
                 "-c", "copy", vo_merged
-            ], capture_output=True, check=True)
+            ], capture_output=True, check=True, timeout=300)
 
             # Mix video with voiceover (voiceover over original audio)
-            subprocess.run([
+            await asyncio.to_thread(subprocess.run, [
                 "ffmpeg", "-y",
                 "-i", concat_out,
                 "-i", vo_merged,
@@ -401,7 +401,7 @@ async def assemble_video(
                 "-map", "0:v", "-map", "[a]",
                 "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
                 output_path
-            ], capture_output=True, check=True)
+            ], capture_output=True, check=True, timeout=300)
         else:
             # No voiceover — just use concatenated video
             os.rename(concat_out, output_path)
@@ -410,7 +410,7 @@ async def assemble_video(
         from .r2_storage import upload_file as r2_upload_file, r2_available
         if not r2_available():
             return {"success": False, "error": "R2 storage not configured"}
-        final_url = r2_upload_file(output_path, "pipeline/final", "mp4", "video/mp4")
+        final_url = await asyncio.to_thread(r2_upload_file, output_path, "pipeline/final", "mp4", "video/mp4")
 
         # Cleanup temp files
         import shutil
