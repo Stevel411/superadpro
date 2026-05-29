@@ -2,8 +2,8 @@
 SuperScene Pipeline — Long-form Video Production
 Script → Scenes → Voiceover → Video → Assembly → Final Video
 
-Uses Claude Haiku for script analysis, Edge TTS for voiceover,
-EvoLink for video generation, FFmpeg for assembly.
+Uses Grok (grok_service) for script analysis, Edge TTS for voiceover,
+EvoLink/FAL for video generation, FFmpeg for assembly.
 """
 import os
 import json
@@ -24,11 +24,15 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
 async def analyse_script(script: str, style: str = "cinematic") -> dict:
     """
-    Break a script into scenes using Claude Haiku.
+    Break a script into scenes using Grok (grok_service.ai_text_generate),
+    the production text AI for member features.
     Returns: {success, scenes: [{scene_number, narration_text, visual_prompt, estimated_duration, transition_type}]}
     """
-    if not ANTHROPIC_API_KEY:
-        return {"success": False, "error": "Anthropic API key not configured"}
+    # Scene breakdown runs on Grok, NOT Anthropic. grok_service owns its own
+    # key/availability and failures are caught below. Do not gate this on
+    # ANTHROPIC_API_KEY — that key is engineering/watchdog only, and gating here
+    # silently killed the whole explainer pipeline at stage 1 whenever it was
+    # unset (fixed 29 May 2026).
 
     system_prompt = """You are a professional video director and storyboard artist. 
 Your job is to break a script into individual scenes for AI video generation.
