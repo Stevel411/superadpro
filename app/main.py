@@ -40336,22 +40336,9 @@ async def sc_voiceover_generate(request: Request, db: Session = Depends(get_db))
         raise HTTPException(status_code=502, detail=str(e))
 @app.get("/api/superscene/voiceover/voices")
 async def sc_voiceover_voices():
-    """Return available TTS voices."""
-    voices = [
-        {"id": "en-US-GuyNeural",           "name": "Guy",          "gender": "Male",   "accent": "US"},
-        {"id": "en-US-JennyNeural",         "name": "Jenny",        "gender": "Female", "accent": "US"},
-        {"id": "en-US-AriaNeural",          "name": "Aria",         "gender": "Female", "accent": "US"},
-        {"id": "en-US-DavisNeural",         "name": "Davis",        "gender": "Male",   "accent": "US"},
-        {"id": "en-US-JaneNeural",          "name": "Jane",         "gender": "Female", "accent": "US"},
-        {"id": "en-US-JasonNeural",         "name": "Jason",        "gender": "Male",   "accent": "US"},
-        {"id": "en-US-TonyNeural",          "name": "Tony",         "gender": "Male",   "accent": "US"},
-        {"id": "en-US-NancyNeural",         "name": "Nancy",        "gender": "Female", "accent": "US"},
-        {"id": "en-GB-RyanNeural",          "name": "Ryan",         "gender": "Male",   "accent": "British"},
-        {"id": "en-GB-SoniaNeural",         "name": "Sonia",        "gender": "Female", "accent": "British"},
-        {"id": "en-AU-NatashaNeural",       "name": "Natasha",      "gender": "Female", "accent": "Australian"},
-        {"id": "en-AU-WilliamNeural",       "name": "William",      "gender": "Male",   "accent": "Australian"},
-    ]
-    return {"voices": voices}
+    """Return available TTS voices (unified catalog — single source of truth)."""
+    from .explainer_catalog import VOICES
+    return {"voices": VOICES}
 @app.get("/api/superscene/voiceover/preview/{voice_id}")
 async def sc_voiceover_preview(voice_id: str):
     """Generate a short audio preview of a voice. Returns audio/mpeg stream.
@@ -40361,21 +40348,7 @@ async def sc_voiceover_preview(voice_id: str):
     import tempfile
     from fastapi.responses import FileResponse
 
-    # Validate voice ID — allow all en-* Neural voices
-    valid_voices = {
-        "en-US-GuyNeural", "en-US-JennyNeural", "en-US-AriaNeural",
-        "en-US-DavisNeural", "en-US-JaneNeural", "en-US-JasonNeural",
-        "en-US-TonyNeural", "en-US-NancyNeural", "en-US-SaraNeural",
-        "en-US-AndrewNeural", "en-US-EmmaNeural", "en-US-BrianNeural",
-        "en-US-ChristopherNeural", "en-US-EricNeural", "en-US-MichelleNeural",
-        "en-US-RogerNeural", "en-US-SteffanNeural",
-        "en-GB-RyanNeural", "en-GB-SoniaNeural", "en-GB-ThomasNeural",
-        "en-GB-LibbyNeural", "en-GB-MaisieNeural",
-        "en-AU-NatashaNeural", "en-AU-WilliamNeural",
-        "en-IN-NeerjaNeural", "en-IN-PrabhatNeural",
-        "en-IE-ConnorNeural", "en-IE-EmilyNeural",
-        "en-ZA-LeahNeural", "en-ZA-LukeNeural",
-    }
+    from .explainer_catalog import VOICE_IDS as valid_voices
     if voice_id not in valid_voices:
         raise HTTPException(status_code=400, detail="Invalid voice ID")
 
@@ -40397,6 +40370,19 @@ async def sc_voiceover_preview(voice_id: str):
     except Exception as e:
         logger.exception(f"Voice preview error for {voice_id}")
         raise HTTPException(status_code=502, detail="Voice preview generation failed")
+@app.get("/api/superscene/explainer/catalog")
+async def sc_explainer_catalog():
+    """Voice + style catalog for the Explainer Video wizard (Look & sound).
+    Voices run on edge-tts (free) so auditioning any voice costs no credits.
+    Styles shape each scene's visual prompt; the video model is chosen by the
+    quality tier at generate time, not by the style."""
+    from .explainer_catalog import VOICES, STYLES, DEFAULT_VOICE, DEFAULT_STYLE
+    return {
+        "voices": VOICES,
+        "styles": STYLES,
+        "defaults": {"voice": DEFAULT_VOICE, "style": DEFAULT_STYLE,
+                     "quality": "premium", "aspect": "16:9"},
+    }
 # ── SuperScene — Lip Sync (OmniHuman 1.5 via EvoLink) ────────
 
 @app.post("/api/superscene/lipsync/generate")
