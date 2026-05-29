@@ -40935,11 +40935,12 @@ async def sc_pipeline_analyse(request: Request, db: Session = Depends(get_db)):
         ))
     db.commit()
 
-    # No-charge estimate for the Look & sound step (matches what generate will charge)
-    est = sum(
-        calc_credits(model_key, int(round(float(s.get("estimated_duration", 10) or 10))))
-        for s in scenes
-    )
+    # No-charge estimates for the Look & sound step (per quality tier, so the
+    # cost updates live when the member switches Standard/Premium).
+    def _est(mk):
+        return sum(calc_credits(mk, int(round(float(s.get("estimated_duration", 10) or 10)))) for s in scenes)
+    estimates = {tier: _est(resolve_video_model(tier)) for tier in ("standard", "premium")}
+    est = estimates.get(quality if quality in estimates else "premium", _est(model_key))
 
     return {
         "success": True,
@@ -40949,6 +40950,7 @@ async def sc_pipeline_analyse(request: Request, db: Session = Depends(get_db)):
         "total_scenes": len(scenes),
         "scenes": scenes,
         "estimated_credits": est,
+        "estimates": estimates,
         "credits_remaining": credit_row.balance,
     }
 @app.post("/api/superscene/pipeline/{pipeline_id}/generate")
@@ -40971,6 +40973,30 @@ async def sc_pipeline_generate(pipeline_id: int, request: Request, background_ta
         raise HTTPException(status_code=404, detail="Pipeline not found")
     if pipeline.status not in ("draft", "failed"):
         raise HTTPException(status_code=400, detail=f"Pipeline is already {pipeline.status}")
+
+    # Apply the final Look & sound choices (chosen after analyse) before charging.
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if body:
+        from .superscene_evolink import resolve_video_model
+        from .explainer_catalog import is_valid_voice, is_valid_style
+        if body.get("voice"):
+            if not is_valid_voice(body["voice"]):
+                raise HTTPException(status_code=400, detail="Unknown voice")
+            pipeline.voice = body["voice"]
+        if body.get("style"):
+            if not is_valid_style(body["style"]):
+                raise HTTPException(status_code=400, detail="Unknown style")
+            pipeline.style = body["style"]
+        if body.get("aspect"):
+            if body["aspect"] not in ("16:9", "9:16", "1:1"):
+                raise HTTPException(status_code=400, detail="Unknown aspect ratio")
+            pipeline.aspect = body["aspect"]
+        if body.get("quality"):
+            pipeline.model_key = resolve_video_model(body["quality"])
+        db.commit()
 
     scenes = db.query(SuperScenePipelineScene).filter_by(pipeline_id=pipeline.id).order_by(SuperScenePipelineScene.scene_number).all()
     if not scenes:
@@ -43398,9 +43424,12 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
             if last_frame_url:
                 image_urls = [last_frame_url]
 
+            from .explainer_catalog import style_prompt as _style_prompt
+            _vp = (scene.visual_prompt or "").strip()
+            _eff = (_vp + ", " + _style_prompt(pipeline.style)).strip(" ,") if _vp else _style_prompt(pipeline.style)
             result = await generate_video(
                 model_key=pipeline.model_key,
-                prompt=scene.visual_prompt or "",
+                prompt=_eff,
                 duration=dur,
                 ratio=(pipeline.aspect or "16:9"),
                 image_urls=image_urls,
