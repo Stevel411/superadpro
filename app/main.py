@@ -38795,6 +38795,18 @@ def api_team_pulse(user: User = Depends(get_current_user), db: Session = Depends
     now = datetime.utcnow()
     team = db.query(User).filter(User.sponsor_id == user.id).all()
 
+    # ── Adaptive dismissal (29 May 2026) ──
+    # Once the sponsor has clicked Welcome / Say hi / Send nudge on a prompt,
+    # the corresponding (target_user_id, prompt_kind) row exists in
+    # team_pulse_actions. Exclude those from future loads so the card freshens
+    # naturally as the sponsor works through it. Loaded once up-front as a
+    # set to keep the inner loop O(1).
+    from .database import TeamPulseAction as _TPA
+    dismissed = {
+        (row.target_user_id, row.prompt_kind)
+        for row in db.query(_TPA).filter(_TPA.sponsor_user_id == user.id).all()
+    }
+
     active_count = sum(1 for t in team if t.is_active)
     total = len(team)
     last_join = max((t.created_at for t in team if t.created_at), default=None)
@@ -38808,6 +38820,8 @@ def api_team_pulse(user: User = Depends(get_current_user), db: Session = Depends
         if t.is_active and t.activated_at:
             act_age_hours = (now - t.activated_at).total_seconds() / 3600.0
             if act_age_hours < 24:
+                if (t.id, "just_activated") in dismissed:
+                    continue
                 prompts.append({
                     "kind": "just_activated",
                     "priority": 2,
@@ -38826,6 +38840,8 @@ def api_team_pulse(user: User = Depends(get_current_user), db: Session = Depends
 
         # Not active
         if age_hours < 24:
+            if (t.id, "just_joined") in dismissed:
+                continue
             prompts.append({
                 "kind": "just_joined",
                 "priority": 1,
@@ -38841,6 +38857,8 @@ def api_team_pulse(user: User = Depends(get_current_user), db: Session = Depends
                 "welcome_template": _welcome_template(t.first_name or t.username, "just_joined"),
             })
         elif age_hours < 24 * 7:
+            if (t.id, "unactivated_warm") in dismissed:
+                continue
             days = round(age_hours / 24, 1)
             prompts.append({
                 "kind": "unactivated_warm",
@@ -38871,6 +38889,75 @@ def api_team_pulse(user: User = Depends(get_current_user), db: Session = Depends
             "last_join_age_hours": round((now - last_join).total_seconds() / 3600.0, 1) if last_join else None,
         },
     })
+
+
+@app.post("/api/team-pulse/dismiss")
+def api_team_pulse_dismiss(
+    payload: dict = Body(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Mark a Team Pulse prompt as actioned so it stops appearing on the card.
+
+    Called from the dashboard when the sponsor clicks Welcome / Say hi /
+    Send nudge. Records a (sponsor_user_id, target_user_id, prompt_kind)
+    row in team_pulse_actions. Idempotent — re-clicking the same button
+    is a no-op (ON CONFLICT DO NOTHING via the unique index).
+
+    Body: {"target_user_id": int, "kind": "just_joined"|"just_activated"|"unactivated_warm"}
+
+    The frontend fires this with fetch keepalive:true before navigating to
+    TeamMessenger, so the write survives the page unload. When the sponsor
+    returns to the dashboard, GET /api/team-pulse excludes this prompt.
+
+    Built 29 May 2026 alongside the adaptive Team Pulse card. Member-auth.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    try:
+        target_user_id = int(payload.get("target_user_id") or 0)
+    except (TypeError, ValueError):
+        return JSONResponse({"error": "target_user_id must be an integer"}, status_code=400)
+
+    kind = (payload.get("kind") or "").strip()
+    VALID_KINDS = ("just_joined", "just_activated", "unactivated_warm")
+    if not target_user_id or kind not in VALID_KINDS:
+        return JSONResponse(
+            {"error": f"target_user_id required, kind must be one of {VALID_KINDS}"},
+            status_code=400,
+        )
+
+    # Sanity-guard: the target must actually be a downline of the sponsor.
+    # Prevents someone calling this endpoint with arbitrary user_ids and
+    # filling the action log with junk. The Team Pulse card itself only
+    # surfaces direct referrals, so this is the same scope.
+    target = db.query(User).filter(
+        User.id == target_user_id, User.sponsor_id == user.id
+    ).first()
+    if not target:
+        return JSONResponse(
+            {"error": "Target user is not in your team"}, status_code=403
+        )
+
+    # Idempotent insert. The unique index (sponsor_user_id, target_user_id,
+    # prompt_kind) means a duplicate raises IntegrityError — we catch and
+    # treat as success. Cheaper than checking existence first.
+    from .database import TeamPulseAction as _TPA
+    from sqlalchemy.exc import IntegrityError
+
+    try:
+        action = _TPA(
+            sponsor_user_id=user.id,
+            target_user_id=target_user_id,
+            prompt_kind=kind,
+        )
+        db.add(action)
+        db.commit()
+        return JSONResponse({"ok": True, "dismissed": True, "was_new": True})
+    except IntegrityError:
+        db.rollback()
+        return JSONResponse({"ok": True, "dismissed": True, "was_new": False})
 
 
 def _human_ago(hours: float) -> str:

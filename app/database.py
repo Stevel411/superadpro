@@ -2512,6 +2512,15 @@ def run_migrations():
         # Partial (WHERE ... IS NOT NULL) so legacy rows without a ref are
         # untouched. Audited clean before creation (audit-purchase-duplicates).
         "CREATE UNIQUE INDEX IF NOT EXISTS uniq_credit_pack_payment_ref ON credit_pack_purchases(payment_ref) WHERE payment_ref IS NOT NULL",
+        # ── Team Pulse action log (29 May 2026) ──
+        # Adaptive dashboard card — once the sponsor clicks Welcome / Say hi /
+        # Send nudge on a prompt, we record it here so the GET endpoint can
+        # exclude that (sponsor, target, kind) on future loads. Composite
+        # unique index makes the dismiss endpoint idempotent (re-click is
+        # a no-op). See TeamPulseAction model docstring for full rationale.
+        "CREATE TABLE IF NOT EXISTS team_pulse_actions (id SERIAL PRIMARY KEY, sponsor_user_id INTEGER REFERENCES users(id) NOT NULL, target_user_id INTEGER REFERENCES users(id) NOT NULL, prompt_kind VARCHAR(40) NOT NULL, actioned_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS idx_team_pulse_actions_sponsor ON team_pulse_actions(sponsor_user_id)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS uniq_team_pulse_actions ON team_pulse_actions(sponsor_user_id, target_user_id, prompt_kind)",
     ]
     results = []
     with engine.connect() as conn:
@@ -5417,3 +5426,40 @@ class CustomDomain(Base):
     dns_records_json = Column(Text, nullable=True)
 
     user            = relationship("User", foreign_keys=[user_id])
+
+
+class TeamPulseAction(Base):
+    """One row per (sponsor, target, prompt_kind) combination the sponsor has
+    actioned from the dashboard Team Pulse card.
+
+    Built 29 May 2026: original card kept showing prompts even after the
+    sponsor clicked Welcome / Say hi / Send nudge, so the list never freshened.
+    Now: clicking the action button writes a row here, and the GET /api/team-pulse
+    endpoint excludes any prompt whose (sponsor, target, kind) tuple has an
+    existing row. Fresh prompts (different kind, e.g. a JUST_JOINED member who
+    later becomes JUST_ACTIVATED) surface naturally because the kind differs.
+
+    Dismissal is permanent per kind — there's no auto-expiry. Rationale: if the
+    sponsor wants to follow up with a member they've already engaged, they go
+    to TeamMessenger directly. The dashboard card is for 'who's urgent right
+    now', and once the sponsor has reached out, that prompt isn't urgent any
+    more. A genuine state change in the member (e.g. activation) produces a
+    new kind and resurfaces.
+
+    Keyed by (sponsor_user_id, target_user_id, prompt_kind) — uniqueness
+    enforced via partial unique index in run_migrations so re-clicking the
+    same button is a no-op (UPSERT-friendly via ON CONFLICT DO NOTHING in
+    the endpoint).
+    """
+    __tablename__ = "team_pulse_actions"
+
+    id               = Column(Integer, primary_key=True, index=True)
+    sponsor_user_id  = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    target_user_id   = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    prompt_kind      = Column(String(40), nullable=False)
+                                # 'just_joined' | 'just_activated' | 'unactivated_warm'
+                                # — matches the kind field emitted by /api/team-pulse
+    actioned_at      = Column(DateTime, default=datetime.utcnow, index=True)
+
+    sponsor = relationship("User", foreign_keys=[sponsor_user_id])
+    target  = relationship("User", foreign_keys=[target_user_id])
