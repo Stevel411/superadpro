@@ -1968,6 +1968,23 @@ def run_migrations():
         "ALTER TABLE superscene_pipeline_scenes ADD COLUMN IF NOT EXISTS credits_charged INTEGER DEFAULT 0",
         "ALTER TABLE superscene_pipeline_scenes ADD COLUMN IF NOT EXISTS credits_refunded INTEGER DEFAULT 0",
         "ALTER TABLE superscene_pipelines ADD COLUMN IF NOT EXISTS aspect VARCHAR(10) DEFAULT '16:9'",
+        # ── Brand Kit (per-user branding for Creative Studio output, 29 May 2026) ──
+        ("CREATE TABLE IF NOT EXISTS brand_kits ("
+         "id SERIAL PRIMARY KEY, "
+         "user_id INTEGER NOT NULL UNIQUE REFERENCES users(id), "
+         "business_name VARCHAR(120), "
+         "logo_url TEXT, "
+         "primary_color VARCHAR(9) DEFAULT '#0a1438', "
+         "accent_color VARCHAR(9) DEFAULT '#06b6d4', "
+         "heading_font VARCHAR(40) DEFAULT 'Sora', "
+         "body_font VARCHAR(40) DEFAULT 'DM Sans', "
+         "cta_text VARCHAR(120), "
+         "cta_url VARCHAR(300), "
+         "show_intro BOOLEAN DEFAULT TRUE, "
+         "show_outro BOOLEAN DEFAULT TRUE, "
+         "show_logo_bug BOOLEAN DEFAULT TRUE, "
+         "captions BOOLEAN DEFAULT TRUE, "
+         "updated_at TIMESTAMP DEFAULT NOW())"),
         # Story-prompt banner dismissal — persists across devices so a member
         # who dismissed on mobile doesn't see it again on desktop. Timestamp
         # rather than boolean so future milestones can compare against the
@@ -4885,6 +4902,29 @@ class SuperScenePipelineScene(Base):
     created_at       = Column(DateTime, default=datetime.utcnow)
 
     pipeline = relationship("SuperScenePipeline", back_populates="scenes")
+
+
+class BrandKit(Base):
+    """Per-user brand kit applied to Creative Studio output (explainer videos,
+    posters, etc.) so a member's videos come out as THEIR brand, not generic."""
+    __tablename__ = "brand_kits"
+    id            = Column(Integer, primary_key=True, index=True)
+    user_id       = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False, index=True)
+    business_name = Column(String(120))
+    logo_url      = Column(Text)
+    primary_color = Column(String(9), default="#0a1438")
+    accent_color  = Column(String(9), default="#06b6d4")
+    heading_font  = Column(String(40), default="Sora")
+    body_font     = Column(String(40), default="DM Sans")
+    cta_text      = Column(String(120))
+    cta_url       = Column(String(300))
+    show_intro    = Column(Boolean, default=True)
+    show_outro    = Column(Boolean, default=True)
+    show_logo_bug = Column(Boolean, default=True)
+    captions      = Column(Boolean, default=True)
+    updated_at    = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id])
 
 
 # ═══════════════════════════════════════════════════════════

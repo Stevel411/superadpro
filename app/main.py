@@ -40383,6 +40383,99 @@ async def sc_explainer_catalog():
         "defaults": {"voice": DEFAULT_VOICE, "style": DEFAULT_STYLE,
                      "quality": "premium", "aspect": "16:9"},
     }
+@app.get("/api/superscene/brand-kit")
+async def sc_brand_kit_get(request: Request, db: Session = Depends(get_db)):
+    """Return the member's brand kit, or sensible defaults if none is set yet."""
+    from .database import BrandKit
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    bk = db.query(BrandKit).filter_by(user_id=user.id).first()
+    if not bk:
+        return {"business_name": "", "logo_url": None,
+                "primary_color": "#0a1438", "accent_color": "#06b6d4",
+                "heading_font": "Sora", "body_font": "DM Sans",
+                "cta_text": "", "cta_url": "",
+                "show_intro": True, "show_outro": True, "show_logo_bug": True,
+                "captions": True, "configured": False}
+    return {"business_name": bk.business_name or "", "logo_url": bk.logo_url,
+            "primary_color": bk.primary_color, "accent_color": bk.accent_color,
+            "heading_font": bk.heading_font, "body_font": bk.body_font,
+            "cta_text": bk.cta_text or "", "cta_url": bk.cta_url or "",
+            "show_intro": bool(bk.show_intro), "show_outro": bool(bk.show_outro),
+            "show_logo_bug": bool(bk.show_logo_bug), "captions": bool(bk.captions),
+            "configured": True}
+
+
+_BRANDKIT_FONTS = {"Sora", "DM Sans", "Inter", "Montserrat", "Poppins", "Roboto", "Lato", "Open Sans"}
+
+@app.post("/api/superscene/brand-kit")
+async def sc_brand_kit_save(request: Request, db: Session = Depends(get_db)):
+    """Create or update the member's brand kit (validated)."""
+    import re
+    from .database import BrandKit
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    body = await request.json()
+
+    def _hex(v, default):
+        v = (v or "").strip()
+        return v if re.match(r"^#[0-9a-fA-F]{6}$", v) else default
+    def _font(v, default):
+        v = (v or "").strip()
+        return v if v in _BRANDKIT_FONTS else default
+
+    bk = db.query(BrandKit).filter_by(user_id=user.id).first()
+    if not bk:
+        bk = BrandKit(user_id=user.id); db.add(bk)
+    bk.business_name = (body.get("business_name") or "")[:120]
+    if "logo_url" in body:
+        bk.logo_url = body.get("logo_url") or None
+    bk.primary_color = _hex(body.get("primary_color"), "#0a1438")
+    bk.accent_color  = _hex(body.get("accent_color"), "#06b6d4")
+    bk.heading_font  = _font(body.get("heading_font"), "Sora")
+    bk.body_font     = _font(body.get("body_font"), "DM Sans")
+    bk.cta_text = (body.get("cta_text") or "")[:120]
+    bk.cta_url  = (body.get("cta_url") or "")[:300]
+    bk.show_intro    = bool(body.get("show_intro", True))
+    bk.show_outro    = bool(body.get("show_outro", True))
+    bk.show_logo_bug = bool(body.get("show_logo_bug", True))
+    bk.captions      = bool(body.get("captions", True))
+    db.commit()
+    return {"success": True}
+
+
+@app.post("/api/superscene/brand-kit/logo")
+async def sc_brand_kit_logo(file: UploadFile = File(...), user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Upload a brand logo to R2 (persistent) and store it on the member's brand kit."""
+    from fastapi.responses import JSONResponse
+    from .database import BrandKit
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    allowed = {"image/png", "image/jpeg", "image/webp", "image/svg+xml"}
+    if file.content_type not in allowed:
+        return JSONResponse({"error": "Logo must be PNG, JPEG, WebP or SVG."}, status_code=400)
+    contents = await file.read()
+    if len(contents) > 4 * 1024 * 1024:
+        return JSONResponse({"error": "Logo too large (max 4MB)."}, status_code=400)
+    import os
+    ext = os.path.splitext(file.filename or "logo.png")[1].lower().lstrip(".")
+    if ext not in {"png", "jpg", "jpeg", "webp", "svg"}:
+        ext = "png"
+    from app.r2_storage import r2_available, upload_image
+    if not r2_available():
+        return JSONResponse({"error": "Storage unavailable, please try again later."}, status_code=503)
+    url = upload_image(contents, "brand-kits/logos", ext, file.content_type)
+    bk = db.query(BrandKit).filter_by(user_id=user.id).first()
+    if not bk:
+        bk = BrandKit(user_id=user.id); db.add(bk)
+    bk.logo_url = url
+    db.commit()
+    return JSONResponse({"success": True, "url": url})
+
+
 # ── SuperScene — Lip Sync (OmniHuman 1.5 via EvoLink) ────────
 
 @app.post("/api/superscene/lipsync/generate")
