@@ -69,6 +69,7 @@ export function ExplainerContent() {
 
   // generation
   const [genScenes, setGenScenes] = useState([]);
+  const [genStatus, setGenStatus] = useState('');
   const [finalUrl, setFinalUrl] = useState(null);
   const [creditsUsed, setCreditsUsed] = useState(0);
 
@@ -187,6 +188,7 @@ export function ExplainerContent() {
         const res = await fetch('/api/superscene/pipeline/' + pid + '/status');
         const d = await res.json();
         setGenScenes(d.scenes || []);
+        setGenStatus(d.status || '');
         if (d.status === 'completed' && d.final_video_url) {
           clearInterval(pollRef.current);
           setFinalUrl(d.final_video_url);
@@ -380,6 +382,12 @@ export function ExplainerContent() {
                 </div>
               );
             })}
+            {(genStatus === 'assembling' || (genScenes.length > 0 && genScenes.every(s => (s.status || '') === 'completed') && genStatus && genStatus !== 'completed')) && (
+              <div className="assembling">
+                <span className="asm-spin" />
+                <div className="asm-txt"><b>Stitching your video together…</b>Adding your intro, captions and end card, then rendering the final file. This takes a minute — it'll appear here automatically.</div>
+              </div>
+            )}
             <div className="guard"><Icon d={IC.shield} /><div>Each scene is charged only as it generates. <b>A scene that fails is automatically refunded</b> — you never pay for output you didn't get.</div></div>
           </div>}
 
@@ -532,6 +540,11 @@ const CSS = `
 
 .expl-err{ margin-top:16px; padding:11px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:13px; font-weight:500; }
 .perr{ margin-top:5px; font-size:11.5px; color:#b91c1c; font-family:'JetBrains Mono',monospace; }
+.assembling{ display:flex; align-items:center; gap:14px; margin-top:18px; padding:14px 16px; border-radius:12px; background:rgba(6,182,212,.06); border:1px solid rgba(6,182,212,.25); }
+.asm-spin{ flex:0 0 auto; width:22px; height:22px; border-radius:50%; border:3px solid rgba(6,182,212,.25); border-top-color:#06b6d4; animation:asmspin .8s linear infinite; }
+.asm-txt{ font-size:13px; color:#0e5a6b; line-height:1.45; } .asm-txt b{ display:block; font-family:'Sora',sans-serif; color:#0a1438; margin-bottom:1px; }
+@keyframes asmspin{ to{ transform:rotate(360deg); } }
+
 
 .foot{ display:flex; align-items:center; justify-content:space-between; margin-top:20px; }
 .btn{ font-family:'DM Sans'; font-weight:600; font-size:14px; border-radius:11px; padding:11px 20px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--inks); display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
