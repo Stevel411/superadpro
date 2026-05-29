@@ -8,7 +8,58 @@
 
 ---
 
-## Status as of 2026-05-28 (Thursday morning) — TWO MONEY BUGS CAUGHT + FIXED
+## Status as of 2026-05-29 (Friday midday) — STRIPE RECONCILIATION CLEAN + TEAM PULSE ADAPTIVE
+
+Short midday session after a long 4.7 session the previous night (see prior handover for the 17 commits that landed overnight: Lead Magnet template, Team Pulse card initial build, Purchases & Holdings page, Daniela billing case resolution, financial_sanity Stripe blind spot closed, activation-funnel diagnostic). This session: 1.5 hours, 3 commits, no regressions.
+
+### Commits (29 May midday)
+
+| Hash | What |
+|---|---|
+| `cb8681afd` | `/admin/api/stripe-reconciliation?days=N` — permanent diagnostic, cross-checks every StripeCharge in window vs fulfillment table per product type (campaign_tier→GridPosition, nexus_pack→CreditPackPurchase, etc.). Default 7 days, max 90. |
+| `cc872338b` | Team Pulse adaptive card — new `team_pulse_actions` table, `POST /api/team-pulse/dismiss`, GET filter. **Initially wrong trigger** (dismissed on click, not send). |
+| `2d3c586ea` | Team Pulse — dismissal trigger corrected to fire on actual `/api/team-messages/send` success in TeamMessenger when recipient matches URL-passed target. |
+
+### Michell Gustavsson billing case — resolved
+
+Member queried "$20 paid but Campaign Tier 1 didn't activate." First diagnosis (mine, wrong): Stripe webhook race left her without fulfillment. Real story after hitting `/admin/api/user-fulfillment?user_id=523`: she bought a Credit Nexus Starter Pack ($20, 100 credits — got them), then attempted Campaign Tier 1 separately and her card declined for insufficient funds (because the Nexus pack had just cleared $20 minutes earlier). She's been served correctly. Email draft ready for Steve to review and send.
+
+**Repeat of the Daniela lesson from last night:** `lookup_user` only reads the payments table; GridPosition and CreditPackPurchase are invisible to it. `/admin/api/user-fulfillment` is the canonical "did the member get what they paid for" endpoint. Use it FIRST for any billing query.
+
+### Stripe reconciliation result
+
+`/admin/api/stripe-reconciliation?days=7` → **168 charges checked, 168 matched, 0 mismatched, 0 unknown.** Stripe rail is healthy for the audit period — the webhook race + advisory lock + double-fire guard fixes from late May are holding. The Michell case was genuinely an isolated user-flow misunderstanding, not a webhook bug pattern affecting others.
+
+### Real bug found while investigating Michell — not yet fixed
+
+Her membership Payment row #278 records `amount_usdt=20.0` (should be $15) and her membership_company commission #837 paid $10 (should be $5 — Founder math is sponsor $10 + company $5). $5 over-credit to company. Almost certainly affects all 4 founders converted during the 28 May spot-allocator bug window: williamnormanii, earnwithjason, earningcreator, michellg. Net company over-credit if pattern holds: ~$20 across the 4 accounts.
+
+**Parked for next session:** audit each of the 4 via `/admin/api/user-fulfillment`, then one-shot SQL to fix the 4 Payment rows and reverse the $5 over-credits.
+
+### Team Pulse card behaviour now
+
+- Card shows up to 5 prompts: `just_joined` (24h), `just_activated` (24h), `unactivated_warm` (1-7d)
+- Click Welcome / Say hi / Send nudge → land in TeamMessenger with contact pre-selected, template pre-filled, AND `kind` passed via URL
+- Hit Send in TeamMessenger → dismissal fires server-side for `(sponsor, target, kind)`
+- Next dashboard load → that prompt is gone, next queued prompt fills the slot
+- If sponsor switches to a different contact in TeamMessenger and sends to them, no dismissal — the original prompt is correctly left on the card
+- State transitions resurface members naturally (e.g. just_joined → unactivated_warm at day 2+ is a NEW kind, different dismissal scope)
+
+### Still open
+
+- $5-per-founder cleanup on the 4 spot-allocator-affected accounts (HIGH priority — small money but real)
+- Templates Session 2: Video Sales Letter (still parked)
+- Templates sessions 3-6: Webinar / Consultation / Link Hub / Earn
+- Retire old 9 templates from picker
+- Funnel page copy rewrite (waiting on Steve's words)
+- Reach-out-to-recent-registrants admin tool (Steve hasn't ruled)
+- Mobile "Wa..." title truncation on Watch page
+- 7 stuck NOWPayments orders (cosmetic)
+- i18n batch (19 locale files stale + 6 training locales)
+- **DB backups still broken** (pg_dump missing — TOP PRIORITY, multiple sessions in a row)
+- Wider Stripe reconciliation past 7 days (30/90-day sweep — not urgent, 7-day is clean)
+
+---
 
 Short morning session. Two real money bugs, both surfaced by Steve reading the dashboard and asking why numbers didn't reconcile. Both fixed.
 
