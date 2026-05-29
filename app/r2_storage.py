@@ -62,6 +62,15 @@ def upload_image(data: bytes, folder: str, ext: str = "jpg", content_type: str =
     return f"{R2_PUBLIC_URL}/{key}"
 
 
+def upload_file(path: str, folder: str, ext: str = "bin", content_type: str = "application/octet-stream") -> str:
+    """Upload a file from disk to R2 (streamed/multipart) and return its public URL."""
+    client = _get_client()
+    filename = f"{uuid.uuid4().hex[:16]}.{ext}"
+    key = f"{folder}/{filename}"
+    client.upload_file(path, R2_BUCKET, key, ExtraArgs={"ContentType": content_type})
+    return f"{R2_PUBLIC_URL}/{key}"
+
+
 def delete_image(url: str) -> bool:
     """
     Delete an image from R2 given its public URL.

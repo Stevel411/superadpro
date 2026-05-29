@@ -114,27 +114,11 @@ async def generate_voiceover(text: str, voice: str = "en-US-GuyNeural") -> dict:
         )
         duration = float(result.stdout.strip()) if result.stdout.strip() else 5.0
 
-        # Upload to R2
-        import boto3
-        r2_endpoint = os.getenv("R2_ENDPOINT", "")
-        r2_key = os.getenv("R2_ACCESS_KEY_ID", "")
-        r2_secret = os.getenv("R2_SECRET_ACCESS_KEY", "")
-        r2_bucket = os.getenv("R2_BUCKET", "superadpro-media")
-        r2_public = os.getenv("R2_PUBLIC_URL", "")
-
-        if not all([r2_endpoint, r2_key, r2_secret]):
+        # Upload to R2 via the shared storage helper (single source of truth)
+        from .r2_storage import upload_file as r2_upload_file, r2_available
+        if not r2_available():
             return {"success": False, "error": "R2 storage not configured"}
-
-        s3 = boto3.client("s3", endpoint_url=r2_endpoint,
-                          aws_access_key_id=r2_key,
-                          aws_secret_access_key=r2_secret)
-
-        import time
-        key = f"pipeline/voiceover/{int(time.time())}_{hash(text) % 100000}.mp3"
-        s3.upload_file(tmp_path, r2_bucket, key,
-                       ExtraArgs={"ContentType": "audio/mpeg"})
-
-        audio_url = f"{r2_public}/{key}"
+        audio_url = r2_upload_file(tmp_path, "pipeline/voiceover", "mp3", "audio/mpeg")
         os.unlink(tmp_path)
 
         return {"success": True, "audio_url": audio_url, "duration_seconds": round(duration, 2)}
@@ -322,17 +306,12 @@ async def _assemble_branded_video(scene_clips, output_filename, brand, aspect="1
 
         output_path = _build_branded_mp4(work, segs, logo_path, brand, W, H, output_filename)
 
-        import boto3
-        r2_endpoint = os.getenv("R2_ENDPOINT", ""); r2_key = os.getenv("R2_ACCESS_KEY_ID", "")
-        r2_secret = os.getenv("R2_SECRET_ACCESS_KEY", ""); r2_bucket = os.getenv("R2_BUCKET", "superadpro-media")
-        r2_public = os.getenv("R2_PUBLIC_URL", "")
-        if not all([r2_endpoint, r2_key, r2_secret]):
+        from .r2_storage import upload_file as r2_upload_file, r2_available
+        if not r2_available():
             return {"success": False, "error": "R2 storage not configured"}
-        s3 = boto3.client("s3", endpoint_url=r2_endpoint, aws_access_key_id=r2_key, aws_secret_access_key=r2_secret)
-        key = "pipeline/final/%d_%s" % (int(time.time()), output_filename)
-        s3.upload_file(output_path, r2_bucket, key, ExtraArgs={"ContentType": "video/mp4"})
+        video_url = r2_upload_file(output_path, "pipeline/final", "mp4", "video/mp4")
         shutil.rmtree(work, ignore_errors=True)
-        return {"success": True, "video_url": "%s/%s" % (r2_public, key)}
+        return {"success": True, "video_url": video_url}
     except subprocess.CalledProcessError as e:
         logger.exception("Branded FFmpeg error")
         return {"success": False, "error": "Branded assembly failed: %s" % (e.stderr[:200] if e.stderr else "FFmpeg error")}
@@ -427,27 +406,11 @@ async def assemble_video(
             # No voiceover — just use concatenated video
             os.rename(concat_out, output_path)
 
-        # Upload final video to R2
-        import boto3
-        import time
-        r2_endpoint = os.getenv("R2_ENDPOINT", "")
-        r2_key = os.getenv("R2_ACCESS_KEY_ID", "")
-        r2_secret = os.getenv("R2_SECRET_ACCESS_KEY", "")
-        r2_bucket = os.getenv("R2_BUCKET", "superadpro-media")
-        r2_public = os.getenv("R2_PUBLIC_URL", "")
-
-        if not all([r2_endpoint, r2_key, r2_secret]):
+        # Upload final video to R2 via the shared storage helper
+        from .r2_storage import upload_file as r2_upload_file, r2_available
+        if not r2_available():
             return {"success": False, "error": "R2 storage not configured"}
-
-        s3 = boto3.client("s3", endpoint_url=r2_endpoint,
-                          aws_access_key_id=r2_key,
-                          aws_secret_access_key=r2_secret)
-
-        key = f"pipeline/final/{int(time.time())}_{output_filename}"
-        s3.upload_file(output_path, r2_bucket, key,
-                       ExtraArgs={"ContentType": "video/mp4"})
-
-        final_url = f"{r2_public}/{key}"
+        final_url = r2_upload_file(output_path, "pipeline/final", "mp4", "video/mp4")
 
         # Cleanup temp files
         import shutil
