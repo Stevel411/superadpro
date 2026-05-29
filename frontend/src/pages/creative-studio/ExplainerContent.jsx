@@ -62,6 +62,7 @@ export function ExplainerContent() {
   // look & sound
   const [style, setStyle] = useState('cinematic');
   const [voice, setVoice] = useState('en-GB-SoniaNeural');
+  const [voiceAccent, setVoiceAccent] = useState('');
   const [quality, setQuality] = useState('premium');
   const [aspect, setAspect] = useState('16:9');
 
@@ -210,6 +211,7 @@ export function ExplainerContent() {
   const styles = catalog.styles || [];
   const voicesByAccent = voices.reduce((m, v) => { (m[v.accent] = m[v.accent] || []).push(v); return m; }, {});
   const curVoice = voices.find(v => v.id === voice);
+  const activeAccent = voiceAccent || (curVoice && curVoice.accent) || Object.keys(voicesByAccent)[0] || '';
   const curStyle = styles.find(s => s.key === style);
   const cost = estimates[quality] || 0;
   const doneCount = genScenes.filter(s => s.status === 'completed').length;
@@ -305,22 +307,23 @@ export function ExplainerContent() {
               ))}
             </div>
 
-            <label className="grp">Voice <span className="free">tap ▶ to hear — auditioning is free</span></label>
-            <div className="voices">
-              {Object.keys(voicesByAccent).map(acc => (
-                <div key={acc} className="vgroup">
-                  <div className="vacc">{acc}</div>
-                  {voicesByAccent[acc].map(v => (
-                    <div key={v.id} className={'voice' + (voice === v.id ? ' on' : '')} onClick={() => setVoice(v.id)}>
-                      <button className="vplay" onClick={e => { e.stopPropagation(); audition(v.id); }}>
-                        <Icon d={playing === v.id ? IC.stop : IC.play} fill />
-                      </button>
-                      <span className="vname">{v.name}</span>
-                      <span className="vtone">{v.gender} · {v.tone}</span>
-                    </div>
-                  ))}
-                </div>
-              ))}
+            <label className="grp">Voice <span className="free">pick an accent, then a voice — tap ▶ to hear (free)</span></label>
+            <div className="vrow">
+              <select className="vsel" value={activeAccent} onChange={e => {
+                const acc = e.target.value; setVoiceAccent(acc);
+                const first = (voicesByAccent[acc] || [])[0]; if (first) setVoice(first.id);
+                stopAudio();
+              }}>
+                {Object.keys(voicesByAccent).map(acc => <option key={acc} value={acc}>{acc}</option>)}
+              </select>
+              <select className="vsel grow" value={voice} onChange={e => { setVoice(e.target.value); stopAudio(); }}>
+                {(voicesByAccent[activeAccent] || []).map(v => (
+                  <option key={v.id} value={v.id}>{v.name} — {v.gender} · {v.tone}</option>
+                ))}
+              </select>
+              <button className="vplay" onClick={() => audition(voice)} title="Preview voice" type="button">
+                <Icon d={playing === voice ? IC.stop : IC.play} fill />
+              </button>
             </div>
 
             <div className="setrow"><span className="k">Quality</span>
@@ -461,13 +464,11 @@ const CSS = `
 .style-tile .st-lab{ font-size:12.5px; font-weight:700; color:var(--ink); }
 .style-tile .st-desc{ font-size:10.5px; color:var(--mut); line-height:1.3; margin-top:1px; }
 
-.voices{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px 18px; }
-.vgroup .vacc{ font-size:10.5px; font-weight:700; color:var(--faint); text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; }
-.voice{ display:flex; align-items:center; gap:9px; padding:7px 9px; border:1px solid var(--line); border-radius:9px; cursor:pointer; margin-bottom:5px; transition:.12s; }
-.voice.on{ border-color:var(--cy); background:rgba(6,182,212,.05); }
-.vplay{ flex:0 0 auto; width:26px; height:26px; border-radius:50%; border:0; background:linear-gradient(135deg,var(--cy2),var(--cy)); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.vplay svg{ width:12px; height:12px; }
-.vname{ font-size:13px; font-weight:600; color:var(--ink); } .vtone{ font-size:11px; color:var(--mut); margin-left:auto; }
+.vrow{ display:flex; align-items:center; gap:10px; }
+.vrow .vsel{ width:auto; }
+.vrow .vsel.grow{ flex:1; min-width:0; }
+.vplay{ flex:0 0 auto; width:42px; height:42px; border-radius:10px; border:0; background:linear-gradient(135deg,var(--cy2),var(--cy)); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.vplay svg{ width:14px; height:14px; }
 
 .setrow{ display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-top:1px solid var(--soft); margin-top:8px; }
 .setrow .k{ font-size:14px; font-weight:600; color:var(--inks); }
@@ -506,7 +507,7 @@ const CSS = `
 .rcost .bal{ font-family:'JetBrains Mono'; font-weight:600; color:var(--inks); }
 .rcost .rnote{ font-size:11.5px; color:var(--faint); display:flex; align-items:center; gap:6px; } .rcost .rnote svg{ width:13px; height:13px; color:var(--cy); }
 
-@media(max-width:880px){ .expl-work{ grid-template-columns:1fr; } .expl-side{ position:static; } .styles{ grid-template-columns:repeat(2,1fr); } .voices{ grid-template-columns:1fr; } }
+@media(max-width:880px){ .expl-work{ grid-template-columns:1fr; } .expl-side{ position:static; } .styles{ grid-template-columns:repeat(2,1fr); } .vrow{ flex-wrap:wrap; } .vrow .vsel.grow{ flex-basis:100%; } }
 `;
 
 export default ExplainerContent;
