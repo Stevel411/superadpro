@@ -38513,6 +38513,143 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
 #  TEAM MESSENGER
 # ═══════════════════════════════════════════════════════════════
 
+@app.get("/api/team-pulse")
+def api_team_pulse(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Dashboard Team Pulse card data — surfaces time-sensitive sponsor prompts.
+
+    Returns a small, prioritised list of action items for the sponsor:
+      - JUST_JOINED:   referrals registered in the last 24h (highest leverage —
+                       activation window is open)
+      - UNACTIVATED:   referrals 1-7d old who haven't activated yet (cooling
+                       but still recoverable per the data: median time-to-
+                       activation is <1h so older inactives are mostly lost)
+      - JUST_ACTIVATED: referrals who activated in the last 24h (welcome +
+                       show them what to do next)
+
+    Capped at the top 5 most actionable items so the card stays focused and
+    isn't a "12 things to do" overwhelm. Empty list = team is calm, render
+    the empty state. Built 28 May 2026 to drive the 30% -> 40%+ activation
+    lift identified in the activation-funnel diagnostic.
+
+    Read-only, member-auth.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    now = datetime.utcnow()
+    team = db.query(User).filter(User.sponsor_id == user.id).all()
+
+    active_count = sum(1 for t in team if t.is_active)
+    total = len(team)
+    last_join = max((t.created_at for t in team if t.created_at), default=None)
+
+    prompts = []
+    for t in team:
+        if not t.created_at:
+            continue
+        age_hours = (now - t.created_at).total_seconds() / 3600.0
+
+        if t.is_active and t.activated_at:
+            act_age_hours = (now - t.activated_at).total_seconds() / 3600.0
+            if act_age_hours < 24:
+                prompts.append({
+                    "kind": "just_activated",
+                    "priority": 2,
+                    "user_id": t.id,
+                    "name": t.first_name or t.username,
+                    "username": t.username,
+                    "avatar": t.avatar_url,
+                    "happened_at": t.activated_at.isoformat(),
+                    "age_hours": round(act_age_hours, 1),
+                    "tag": "JUST ACTIVATED",
+                    "meta": f"Activated {_human_ago(act_age_hours)} — welcome them, show what to do next",
+                    "action_label": "Welcome",
+                    "welcome_template": _welcome_template(t.first_name or t.username, "just_activated"),
+                })
+            continue
+
+        # Not active
+        if age_hours < 24:
+            prompts.append({
+                "kind": "just_joined",
+                "priority": 1,
+                "user_id": t.id,
+                "name": t.first_name or t.username,
+                "username": t.username,
+                "avatar": t.avatar_url,
+                "happened_at": t.created_at.isoformat(),
+                "age_hours": round(age_hours, 1),
+                "tag": "JUST JOINED",
+                "meta": f"Signed up {_human_ago(age_hours)} — still in the activation window",
+                "action_label": "Say hi",
+                "welcome_template": _welcome_template(t.first_name or t.username, "just_joined"),
+            })
+        elif age_hours < 24 * 7:
+            days = round(age_hours / 24, 1)
+            prompts.append({
+                "kind": "unactivated_warm",
+                "priority": 3,
+                "user_id": t.id,
+                "name": t.first_name or t.username,
+                "username": t.username,
+                "avatar": t.avatar_url,
+                "happened_at": t.created_at.isoformat(),
+                "age_hours": round(age_hours, 1),
+                "tag": f"UNACTIVATED · DAY {int(days)+1}",
+                "meta": f"Joined {_human_ago(age_hours)}, hasn't activated yet — a quick nudge today can still bring them in",
+                "action_label": "Send nudge",
+                "welcome_template": _welcome_template(t.first_name or t.username, "unactivated_warm"),
+            })
+        # >7 days unactivated: don't surface (data says they're mostly lost)
+
+    # Sort by priority (lower number = higher priority), then most recent
+    prompts.sort(key=lambda p: (p["priority"], -p["age_hours"] if p["priority"] == 1 else p["age_hours"]))
+    prompts = prompts[:5]  # cap for focus
+
+    return JSONResponse({
+        "prompts": prompts,
+        "team": {
+            "total": total,
+            "active": active_count,
+            "last_join_at": last_join.isoformat() if last_join else None,
+            "last_join_age_hours": round((now - last_join).total_seconds() / 3600.0, 1) if last_join else None,
+        },
+    })
+
+
+def _human_ago(hours: float) -> str:
+    """Friendly relative time like '12 minutes ago' / '2 hours ago' / '3 days ago'."""
+    if hours < 1:
+        mins = max(1, int(hours * 60))
+        return f"{mins} minute{'s' if mins != 1 else ''} ago"
+    if hours < 24:
+        h = int(round(hours))
+        return f"{h} hour{'s' if h != 1 else ''} ago"
+    days = int(hours / 24)
+    return f"{days} day{'s' if days != 1 else ''} ago"
+
+
+def _welcome_template(name: str, kind: str) -> str:
+    """Tasteful pre-filled welcome messages — sponsor can edit before sending.
+    Deliberately first-person, warm, low-pressure. Not auto-sent — the sponsor
+    sees and approves every message. Templates are intentionally short so the
+    sponsor adds the personal touch."""
+    n = name.split()[0] if name else "there"
+    if kind == "just_joined":
+        return (f"Hey {n} — welcome to SuperAdPro! Saw you just signed up. "
+                f"I'm here if you have any questions getting started. "
+                f"What brought you in?")
+    if kind == "unactivated_warm":
+        return (f"Hey {n} — just checking in. You joined a couple of days ago "
+                f"but haven't activated yet. Anything I can help with? "
+                f"Happy to jump on a quick call if it's easier.")
+    if kind == "just_activated":
+        return (f"Welcome aboard {n}! Glad you've activated. "
+                f"Quick tip — the first thing I'd do is check out the page builder "
+                f"and set up your own SuperPage. Shout if you need a hand.")
+    return f"Hey {n} — welcome to the team!"
+
+
 @app.get("/api/team-messages")
 def api_team_messages(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
@@ -38558,23 +38695,54 @@ def api_team_messages(request: Request, user: User = Depends(get_current_user),
             m.is_read = True
     db.commit()
 
-    # Get team members (direct referrals) for the contact list — include all, not just active
+    # Get team members (direct referrals) for the contact list — include all, not just active.
+    # 28 May 2026: enriched with created_at, is_active, and last_message_at so the
+    # dashboard Team Pulse card and TeamMessenger UI can identify time-sensitive
+    # prompts (new joins in last 24h, unactivated members who need a nudge, etc).
     team = db.query(User).filter(User.sponsor_id == user.id).all()
     # Also include sponsor
     sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
+
+    # Pre-fetch last-message timestamps per contact in a single query to avoid N+1.
+    # Pair (least, greatest) used so a thread between A and B is symmetric regardless
+    # of who sent the most recent message.
+    contact_ids = [t.id for t in team] + ([sponsor.id] if sponsor else [])
+    last_msg_by_contact = {}
+    if contact_ids:
+        # PostgreSQL LEAST/GREATEST canonicalises the user pair so each conversation
+        # is a single row regardless of direction.
+        last_msg_rows = db.execute(text("""
+            SELECT
+              CASE WHEN from_user_id = :me THEN to_user_id ELSE from_user_id END AS other_id,
+              MAX(created_at) AS last_at
+            FROM team_messages
+            WHERE :me IN (from_user_id, to_user_id)
+              AND CASE WHEN from_user_id = :me THEN to_user_id ELSE from_user_id END = ANY(:others)
+            GROUP BY other_id
+        """), {"me": user.id, "others": contact_ids}).fetchall()
+        for r in last_msg_rows:
+            last_msg_by_contact[r.other_id] = r.last_at
 
     contacts = []
     for t in team:
         contacts.append({
             "id": t.id, "name": t.first_name or t.username,
             "username": t.username, "avatar": t.avatar_url,
-            "relationship": "referral", "tier": t.membership_tier or "free"
+            "relationship": "referral", "tier": t.membership_tier or "free",
+            "is_active": bool(t.is_active),
+            "joined_at": t.created_at.isoformat() if t.created_at else None,
+            "activated_at": t.activated_at.isoformat() if t.activated_at else None,
+            "last_message_at": last_msg_by_contact[t.id].isoformat() if t.id in last_msg_by_contact and last_msg_by_contact[t.id] else None,
         })
     if sponsor:
         contacts.insert(0, {
             "id": sponsor.id, "name": sponsor.first_name or sponsor.username,
             "username": sponsor.username, "avatar": sponsor.avatar_url,
-            "relationship": "sponsor", "tier": sponsor.membership_tier or "free"
+            "relationship": "sponsor", "tier": sponsor.membership_tier or "free",
+            "is_active": bool(sponsor.is_active),
+            "joined_at": sponsor.created_at.isoformat() if sponsor.created_at else None,
+            "activated_at": sponsor.activated_at.isoformat() if sponsor.activated_at else None,
+            "last_message_at": last_msg_by_contact[sponsor.id].isoformat() if sponsor.id in last_msg_by_contact and last_msg_by_contact[sponsor.id] else None,
         })
 
     # Unread count

@@ -35,6 +35,19 @@ export default function Dashboard() {
   const [toasts, setToasts] = useState([]);
   const [goals, setGoals] = useState(null);
 
+  // Team Pulse — 28 May 2026. Surfaces time-sensitive sponsor prompts
+  // (new joins, unactivated nudges, just-activated welcomes) at the top
+  // of the dashboard so members act in the activation window (median
+  // time-to-activation is <1h per activation-funnel data).
+  const [teamPulse, setTeamPulse] = useState(null);
+  useEffect(function() {
+    var cancelled = false;
+    apiGet('/api/team-pulse')
+      .then(function(d) { if (!cancelled && d && d.team) setTeamPulse(d); })
+      .catch(function() { /* degrade gracefully — card just doesn't render */ });
+    return function() { cancelled = true; };
+  }, []);
+
   // Story prompt nudge — shown to members with ≥1 paid commission who
   // haven't submitted a story. Dismissal persists SERVER-SIDE via
   // /api/member/story/prompt-dismiss so it syncs across devices. The
@@ -370,6 +383,185 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* ── Team Pulse card (28 May 2026) ──
+          Surfaces time-sensitive sponsor prompts at the top of the dashboard
+          so members can act in the activation window. Renders ONLY for
+          members who actually have a team (>0 direct referrals). Empty
+          state shown when team exists but no prompts are urgent. Hidden
+          entirely for members with no downline (no value to show). Data
+          from /api/team-pulse. */}
+      {teamPulse && teamPulse.team && teamPulse.team.total > 0 && (function() {
+        var prompts = teamPulse.prompts || [];
+        var team = teamPulse.team || {};
+        var hasPrompts = prompts.length > 0;
+
+        function initials(n) {
+          if (!n) return '?';
+          var parts = String(n).trim().split(/\s+/);
+          return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+        }
+        function avatarGradient(idx) {
+          var grads = [
+            'linear-gradient(135deg,#0a1438,#0ea5e9)',
+            'linear-gradient(135deg,#7c3aed,#a855f7)',
+            'linear-gradient(135deg,#0e7490,#14b8a6)',
+            'linear-gradient(135deg,#1e3a8a,#22d3ee)',
+            'linear-gradient(135deg,#0f766e,#10b981)',
+          ];
+          return grads[idx % grads.length];
+        }
+        function indicatorColour(kind) {
+          if (kind === 'just_joined' || kind === 'just_activated') return 'var(--sap-green)';
+          if (kind === 'unactivated_warm') return '#d97706';
+          return '#94a3b8';
+        }
+        function tagStyle(kind) {
+          if (kind === 'just_joined') return { bg: 'var(--sap-green-bg)', fg: 'var(--sap-green)', bd: 'rgba(22,163,74,.25)' };
+          if (kind === 'just_activated') return { bg: '#ecfeff', fg: '#0e7490', bd: 'rgba(14,116,144,.25)' };
+          if (kind === 'unactivated_warm') return { bg: '#fef3c7', fg: '#d97706', bd: 'rgba(217,119,6,.25)' };
+          return { bg: '#f1f5f9', fg: '#475569', bd: 'var(--sap-border)' };
+        }
+        function onAction(p) {
+          // Jump to TeamMessenger with this contact pre-selected and the
+          // template pre-filled. Both passed in URL params so a fresh page
+          // load works (no in-memory handoff that could vanish on refresh).
+          var params = new URLSearchParams({
+            to: String(p.user_id),
+            template: p.welcome_template || '',
+          });
+          window.location.href = '/team-messenger?' + params.toString();
+        }
+
+        return (
+          <div style={{
+            background:'var(--sap-bg-card)', border:'1px solid var(--sap-border)',
+            borderRadius:18, boxShadow:'0 4px 16px rgba(10,20,56,.05)',
+            overflow:'hidden', marginBottom:18,
+          }}>
+            {/* header */}
+            <div style={{
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              padding:'18px 22px', borderBottom:'1px solid var(--sap-border-light)',
+              flexWrap:'wrap', gap:12,
+            }}>
+              <div style={{display:'flex', alignItems:'center', gap:12}}>
+                <div style={{
+                  width:38, height:38, borderRadius:11,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-accent))',
+                  color:'#fff', fontSize:18,
+                }}>⚡</div>
+                <div>
+                  <div style={{
+                    fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:17,
+                    color:'var(--sap-text-primary)',
+                  }}>
+                    {hasPrompts ? t('teamPulse.title', { defaultValue: 'Your team needs you' })
+                                : t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })}
+                  </div>
+                  <div style={{fontSize:12.5, color:'var(--sap-text-faint)', marginTop:1}}>
+                    {hasPrompts
+                      ? t('teamPulse.sub', { defaultValue: 'The first 24 hours after a sign-up is where activation happens.' })
+                      : t('teamPulse.subCalm', { defaultValue: 'No urgent outreach needed right now.' })}
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display:'flex', alignItems:'center', gap:6,
+                fontSize:12, fontFamily:'JetBrains Mono,monospace', fontWeight:600,
+                color:'var(--sap-text-secondary)', background:'#f8fafc',
+                padding:'6px 12px', borderRadius:99, border:'1px solid var(--sap-border)',
+              }}>
+                Team: <strong style={{color:'var(--sap-text-primary)', fontWeight:800}}>{team.total}</strong>
+                <span style={{color:'var(--sap-text-faint)'}}>·</span>
+                Active: <strong style={{color:'var(--sap-text-primary)', fontWeight:800}}>{team.active}</strong>
+              </div>
+            </div>
+
+            {/* prompts (active state) */}
+            {hasPrompts && prompts.map(function(p, i) {
+              var ts = tagStyle(p.kind);
+              return (
+                <div key={p.user_id + '-' + p.kind} style={{
+                  display:'flex', alignItems:'center', gap:14,
+                  padding:'16px 22px',
+                  borderBottom: i < prompts.length - 1 ? '1px solid var(--sap-border-light)' : 'none',
+                }}>
+                  <div style={{
+                    width:6, alignSelf:'stretch', borderRadius:3, flexShrink:0,
+                    marginLeft:-8, background: indicatorColour(p.kind),
+                  }}/>
+                  <div style={{
+                    width:44, height:44, borderRadius:14, flexShrink:0,
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:16, color:'#fff',
+                    background: avatarGradient(i),
+                  }}>{initials(p.name)}</div>
+                  <div style={{flex:1, minWidth:0}}>
+                    <div style={{
+                      fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:15,
+                      color:'var(--sap-text-primary)', marginBottom:2,
+                    }}>
+                      {p.name}
+                      <span style={{
+                        display:'inline-flex', alignItems:'center', gap:4,
+                        fontSize:11, fontFamily:'JetBrains Mono,monospace', fontWeight:600,
+                        padding:'2px 7px', borderRadius:99, marginLeft:8, verticalAlign:1,
+                        background: ts.bg, color: ts.fg, border:'1px solid ' + ts.bd,
+                      }}>{p.tag}</span>
+                    </div>
+                    <div style={{fontSize:13, color:'var(--sap-text-secondary)'}}>{p.meta}</div>
+                  </div>
+                  <button onClick={function() { onAction(p); }} style={{
+                    display:'inline-flex', alignItems:'center', gap:6,
+                    padding:'9px 16px', borderRadius:10, cursor:'pointer',
+                    fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:13,
+                    background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-accent))',
+                    color:'#fff', boxShadow:'0 4px 12px rgba(10,20,56,.2)', border:'none',
+                    whiteSpace:'nowrap',
+                  }}>{p.action_label} →</button>
+                </div>
+              );
+            })}
+
+            {/* empty state */}
+            {!hasPrompts && (
+              <div style={{padding:'32px 22px', textAlign:'center'}}>
+                <div style={{fontSize:32, marginBottom:8, opacity:.65}}>✓</div>
+                <div style={{
+                  fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:15,
+                  color:'var(--sap-text-primary)', marginBottom:4,
+                }}>
+                  {t('teamPulse.emptyTitle', { defaultValue: 'Nothing urgent on your team right now' })}
+                </div>
+                <div style={{
+                  fontSize:13, color:'var(--sap-text-faint)',
+                  maxWidth:380, margin:'0 auto',
+                }}>
+                  {t('teamPulse.emptySub', { defaultValue: "When someone new joins or needs a nudge, they'll show up here. Keep building." })}
+                </div>
+              </div>
+            )}
+
+            {/* footer */}
+            <div style={{
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              padding:'12px 22px', background:'#fafbfd', fontSize:12.5,
+              color:'var(--sap-text-secondary)', flexWrap:'wrap', gap:8,
+            }}>
+              <span>
+                {hasPrompts
+                  ? prompts.length + ' of ' + team.total + ' team members need attention'
+                  : team.active + ' active out of ' + team.total + ' total'}
+              </span>
+              <Link to="/team-messenger" style={{color:'var(--sap-accent)', fontWeight:700, textDecoration:'none'}}>
+                {t('teamPulse.openTeam', { defaultValue: 'Open TeamMessenger →' })}
+              </Link>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Founding Partner banner REMOVED 28 May 2026 ──
           The 100-spot $15/mo founding offer is permanently closed (cap filled,

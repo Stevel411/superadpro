@@ -39,6 +39,37 @@ export default function TeamMessenger() {
   useEffect(function() { if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: 'smooth' }); }, [messages, activeContact]);
   useEffect(function() { if (activeContact && inputRef.current) inputRef.current.focus(); }, [activeContact]);
 
+  // 28 May 2026 — one-click pre-fill from the dashboard Team Pulse card.
+  // URL: /team-messenger?to=<user_id>&template=<urlencoded text>
+  // On first load after contacts are fetched, auto-select the target contact
+  // and pre-fill the input with the welcome template. Member sees the message
+  // staged, edits if they want, hits Send. Designed to remove the 6am "what
+  // do I say?" friction that stops sponsors from reaching out in the first
+  // hour (which is where activations actually happen).
+  var [prefillApplied, setPrefillApplied] = useState(false);
+  useEffect(function() {
+    if (prefillApplied || !contacts || contacts.length === 0) return;
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var toRaw = params.get('to');
+      var tmpl = params.get('template') || '';
+      if (!toRaw) return;
+      var toId = parseInt(toRaw, 10);
+      if (isNaN(toId)) return;
+      var match = contacts.find(function(c) { return c.id === toId; });
+      if (match) {
+        setActiveContact(match);
+        if (tmpl) setText(tmpl);
+        setPrefillApplied(true);
+        // Clean the URL so a refresh doesn't re-trigger the prefill on top of
+        // whatever the member's typed since.
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState({}, document.title, '/team-messenger');
+        }
+      }
+    } catch (e) { /* URL parsing failed — no-op, just don't prefill */ }
+  }, [contacts, prefillApplied]);
+
   function sendMessage() {
     if (!text.trim() || !activeContact || sending) return;
     setSending(true);
