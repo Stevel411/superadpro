@@ -486,6 +486,13 @@ export default function Dashboard() {
                 }}>⚡</div>
                 <div style={{flex:1, minWidth:0}}>
                   <div style={{
+                    fontSize:10.5, fontWeight:700, letterSpacing:'.07em', textTransform:'uppercase',
+                    color:'var(--sap-accent)', marginBottom:3,
+                    fontFamily:'JetBrains Mono,monospace',
+                  }}>
+                    {t('teamPulse.label', { defaultValue: 'Team Pulse' })}
+                  </div>
+                  <div style={{
                     fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:16,
                     color:'var(--sap-text-primary)',
                   }}>
