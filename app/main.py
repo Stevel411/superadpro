@@ -16370,6 +16370,41 @@ def admin_convert_nexus_to_tier_preview(
     )
 
 
+@app.get("/admin/api/convert-nexus-to-tier/execute")
+def admin_convert_nexus_to_tier_execute_get(
+    user_id: int,
+    pack_purchase_id: int,
+    target_tier: int,
+    token: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Address-bar-friendly EXECUTE path, guarded by a fixed one-purpose token.
+
+    Steve cannot paste into the browser console, so the normal POST+confirm
+    path is unusable for him. This GET runs the real conversion (confirm=1)
+    but ONLY if ?token= matches the constant below — so it cannot fire by
+    accident from a stray URL, yet works from the address bar. All the same
+    guards (spend check, active-campaign, prior-recovery) still run inside
+    admin_convert_nexus_to_tier. Built 30 May 2026.
+
+    This is a single-case operational tool for the Stefan conversion; the
+    token makes accidental triggering effectively impossible.
+    """
+    _require_admin(user)
+    EXECUTE_TOKEN = "stefan-183-tier3-go"
+    if token != EXECUTE_TOKEN:
+        return JSONResponse(
+            {"error": "Missing or incorrect token. Append &token=<token> to execute. "
+                      "This guard prevents accidental execution from a URL."},
+            status_code=403,
+        )
+    return admin_convert_nexus_to_tier(
+        user_id=user_id, pack_purchase_id=pack_purchase_id,
+        target_tier=target_tier, confirm=1, user=user, db=db,
+    )
+
+
 @app.post("/admin/api/convert-nexus-to-tier")
 def admin_convert_nexus_to_tier(
     user_id: int,
