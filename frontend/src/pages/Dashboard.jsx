@@ -577,7 +577,7 @@ export default function Dashboard() {
             <span className="sub">{t('dashboard.whereToStartSub', { defaultValue: 'Four ways into the platform — pick wherever you want to begin.' })}</span>
           </div>
           <div className="dc-doors">
-            <Link to="/command-centre" className="dc-door">
+            <Link to="/income" className="dc-door">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#1e3a8a,#0ea5e9)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg></div>
               <h4>{t('dashboard.doorBusiness', { defaultValue: 'Business' })}</h4>
               <p>{t('dashboard.doorBusinessDesc', { defaultValue: 'Your income, team, commissions and stats.' })}</p>
