@@ -16352,6 +16352,201 @@ def admin_diagnostic_manual_grid_activation(
     }
 
 
+@app.post("/admin/api/convert-nexus-to-tier")
+def admin_convert_nexus_to_tier(
+    user_id: int,
+    pack_purchase_id: int,
+    target_tier: int,
+    confirm: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Convert a member's Credit Nexus pack purchase into a Campaign Tier
+    activation: void the Nexus pack, null its UNSPENT credits, reverse the
+    commissions that Nexus purchase fired, then activate the target Campaign
+    Tier via the normal process_tier_purchase path.
+
+    DRY RUN BY DEFAULT. With confirm=0 (default) this inspects state and
+    returns the exact plan, committing NOTHING. Only confirm=1 executes,
+    inside a single transaction with full guards and an AdminRepairLog row.
+
+    Built 30 May 2026 for the Stefan/financialsunrise (user 183) case: bought
+    a $100 Nexus Pro pack but intended a $100 Campaign Tier (tier 3). The
+    payment fulfilled correctly (no bug) — this is an admin-directed product
+    swap, not a recovery.
+
+    SAFETY GUARDS (all enforced in BOTH dry-run and execute):
+      - Admin only.
+      - Refuses if ANY of the pack's credits have been spent (would create a
+        negative/owed balance). Spend = total_awarded_completed - current_balance.
+      - Refuses if the user already has an active campaign at target_tier
+        (no double-placement).
+      - Refuses if a manual-recovery Payment for this user/tier already exists.
+      - All mutations in one transaction; any failure rolls back fully.
+    """
+    _require_admin(user)
+    import json as _json
+    from datetime import datetime as _dt
+    from .database import (
+        CreditPackPurchase as _CPP, SuperSceneCredit as _SSC, Commission as _Com,
+        VideoCampaign as _VC, GRID_PACKAGES as _GP, GRID_TIER_NAMES as _GTN,
+        AdminRepairLog as _ARL,
+    )
+    from .grid import process_tier_purchase as _ptp
+
+    if target_tier not in (1, 2, 3, 4, 5, 6, 7, 8):
+        return JSONResponse({"error": "target_tier must be 1-8"}, status_code=400)
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+
+    pack = db.query(_CPP).filter(_CPP.id == pack_purchase_id, _CPP.user_id == user_id).first()
+    if not pack:
+        return JSONResponse({"error": f"credit pack purchase {pack_purchase_id} not found for user {user_id}"}, status_code=404)
+
+    plan = {"dry_run": (confirm != 1), "user_id": user_id, "username": target.username}
+
+    # ── Guard A: spend check ──────────────────────────────────────────────
+    ssc = db.query(_SSC).filter(_SSC.user_id == user_id).first()
+    current_balance = int(ssc.balance) if ssc else 0
+    total_awarded = sum(
+        p.credits_awarded for p in
+        db.query(_CPP).filter(_CPP.user_id == user_id, _CPP.status == "completed").all()
+    )
+    credits_spent = total_awarded - current_balance
+    plan["credits"] = {
+        "current_balance": current_balance,
+        "total_awarded_completed": total_awarded,
+        "credits_spent": credits_spent,
+        "this_pack_credits": pack.credits_awarded,
+    }
+    if credits_spent > 0:
+        plan["error"] = (
+            f"REFUSED: {credits_spent} credit(s) already spent. Nulling the pack "
+            f"would create a negative/owed balance. Resolve manually."
+        )
+        return JSONResponse(plan, status_code=409)
+
+    # ── Guard B: no active campaign at target tier ────────────────────────
+    existing_camp = db.query(_VC).filter(
+        _VC.user_id == user_id, _VC.campaign_tier == target_tier, _VC.status == "active",
+    ).first()
+    if existing_camp:
+        plan["error"] = f"REFUSED: active campaign id={existing_camp.id} already at tier {target_tier}."
+        return JSONResponse(plan, status_code=409)
+
+    # ── Guard C: no prior manual recovery for this tier ───────────────────
+    marker = f"manual_recovery_user{user_id}_grid{target_tier}_"
+    prior = db.query(Payment).filter(
+        Payment.from_user_id == user_id, Payment.tx_hash.like(marker + "%"),
+        Payment.status == "confirmed",
+    ).first()
+    if prior:
+        plan["error"] = f"REFUSED: prior manual recovery exists (payment id={prior.id})."
+        return JSONResponse(plan, status_code=409)
+
+    # ── Identify commissions fired FROM the Nexus pack (to reverse) ───────
+    nexus_coms = db.query(_Com).filter(
+        _Com.from_user_id == user_id,
+        _Com.commission_type.in_([
+            "matrix_level", "matrix_completion", "matrix_direct",
+            "matrix_spillover", "direct_referral", "nexus_direct",
+        ]),
+        _Com.status.in_(["paid", "pending", "platform"]),
+    ).all()
+    plan["nexus_commissions_to_reverse"] = [
+        {"id": c.id, "type": c.commission_type, "to_user_id": c.to_user_id,
+         "amount": float(c.amount_usdt or 0), "status": c.status}
+        for c in nexus_coms
+    ]
+
+    # ── The pack to void ──────────────────────────────────────────────────
+    plan["pack_to_void"] = {
+        "id": pack.id, "pack_key": pack.pack_key, "price": float(pack.pack_price),
+        "credits_awarded": pack.credits_awarded, "current_status": pack.status,
+    }
+
+    # ── Target tier activation preview ────────────────────────────────────
+    tier_price = _GP.get(target_tier)
+    plan["tier_activation"] = {
+        "tier": target_tier, "name": _GTN.get(target_tier), "price": float(tier_price),
+        "direct_sponsor_40pct": round(tier_price * 0.40, 2),
+        "uni_level_50pct": round(tier_price * 0.50, 2),
+        "bonus_pool_10pct": round(tier_price * 0.10, 2),
+        "buyer_sponsor_id": target.sponsor_id,
+    }
+
+    if confirm != 1:
+        plan["message"] = "DRY RUN — nothing committed. Re-call with confirm=1 to execute."
+        return plan
+
+    # ════════════════ EXECUTE (confirm=1) — single transaction ════════════
+    try:
+        # 1. Void the Nexus pack
+        pack.status = "refunded"
+
+        # 2. Null the unspent credits (spend already verified == 0)
+        if ssc:
+            ssc.balance = (ssc.balance or 0) - pack.credits_awarded
+            if ssc.balance < 0:
+                raise ValueError(f"balance would go negative ({ssc.balance}) — aborting")
+
+        # 3. Reverse the Nexus commissions (mark reversed + claw back paid balances)
+        reversed_ids = []
+        for c in nexus_coms:
+            if c.status == "paid" and c.to_user_id:
+                recipient = db.query(User).filter(User.id == c.to_user_id).first()
+                if recipient:
+                    recipient.balance = (recipient.balance or 0) - (c.amount_usdt or 0)
+            c.status = "reversed"
+            c.notes = (c.notes or "") + f" [reversed {_dt.utcnow().date()} — Nexus->tier{target_tier} conversion]"
+            reversed_ids.append(c.id)
+
+        # 4. Record the conversion as a Payment row (audit-visible, distinguishable)
+        conv_tx = f"manual_recovery_user{user_id}_grid{target_tier}_{int(_dt.utcnow().timestamp())}"
+        conv_payment = Payment(
+            from_user_id=user_id, to_user_id=None, amount_usdt=tier_price,
+            payment_type=f"nexus_to_tier_{target_tier}", tx_hash=conv_tx, status="confirmed",
+        )
+        db.add(conv_payment)
+        db.flush()
+
+        # 5. Activate the tier (real path: commissions + spillover placement)
+        result = _ptp(db=db, buyer_id=user_id, package_tier=target_tier,
+                      bypass_repurchase_guard=True, source_event_id=conv_tx)
+        if not result.get("success"):
+            db.rollback()
+            return JSONResponse({"error": f"tier activation failed: {result.get('error')}",
+                                 "rolled_back": True}, status_code=500)
+
+        # 6. Audit log
+        db.add(_ARL(
+            repair_tool="convert-nexus-to-tier", target_kind="user", target_id=user_id,
+            admin_user_id=user.id, admin_username=user.username or "<no username>",
+            dry_run=False, success=True,
+            changes_json=_json.dumps({
+                "pack_voided": pack.id, "credits_nulled": pack.credits_awarded,
+                "commissions_reversed": reversed_ids, "target_tier": target_tier,
+                "tier_price": float(tier_price), "conversion_tx": conv_tx,
+            }),
+        ))
+        db.commit()
+
+        return {
+            "status": "converted", "user_id": user_id, "username": target.username,
+            "pack_voided": pack.id, "credits_nulled": pack.credits_awarded,
+            "new_balance": int(ssc.balance) if ssc else 0,
+            "commissions_reversed": reversed_ids,
+            "tier_activated": target_tier, "tier_price": float(tier_price),
+            "conversion_tx": conv_tx, "tier_result": result,
+        }
+    except Exception as e:
+        db.rollback()
+        logger.exception(f"convert-nexus-to-tier FAILED user={user_id} tier={target_tier}")
+        return JSONResponse({"error": f"conversion failed, rolled back: {e}"}, status_code=500)
+
+
 @app.post("/admin/api/nowpayments-order/{order_id}/recover")
 async def admin_api_recover_nowpayments_order(
     order_id: int,
