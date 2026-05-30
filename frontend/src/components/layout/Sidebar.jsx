@@ -55,8 +55,6 @@ function buildNav(t, isAdmin) {
       { label: t('nav.gridCalculator'), shortLabel: t('navShort.gridCalculator', { defaultValue: 'Calc' }), icon: Zap, path: '/grid-calculator', basic: true },
       { label: t('nav.myGrid'), shortLabel: t('navShort.myGrid', { defaultValue: 'My Grid' }), icon: LayoutGrid, path: '/grid-visualiser', basic: true },
       { label: t('nav.myCredits', { defaultValue: 'Creator Credits' }), shortLabel: t('navShort.myCredits', { defaultValue: 'Credits' }), icon: Layers, path: '/my-credits', basic: true },
-      { label: t('nav.courseAcademy'), shortLabel: t('navShort.courseAcademy', { defaultValue: 'Courses' }), icon: GraduationCap, path: '/courses', basic: true, comingSoon: true },
-      { label: t('nav.incomeChains'), shortLabel: t('navShort.incomeChains', { defaultValue: 'Chains' }), icon: Link2, path: '/income-chains', basic: true },
     ]},
 
     { type: 'divider' },
