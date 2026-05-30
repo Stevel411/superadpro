@@ -215,8 +215,8 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
           }
 
           /* ── Comp plan 6×6 grid stays small ── */
-          div[style*="repeat(8"] { gap: 2px !important; }
-          div[style*="repeat(8"] > div { padding: 2px !important; font-size: 8px !important; }
+          div[style*="repeat(6"] { gap: 2px !important; }
+          div[style*="repeat(6"] > div { padding: 2px !important; font-size: 8px !important; }
         }
       `}</style>
     </div>

@@ -789,8 +789,8 @@ function GridVisSection() {
               <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:tier.color,minWidth:50,textAlign:'right'}}>{filled} / 36</div>
             </div>
 
-            {/* 8×8 Grid — large cells with person icons */}
-            <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:6,marginBottom:16}}>
+            {/* 6×6 Grid — large cells with person icons */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:6,marginBottom:16}}>
               {cells.map(function(c, i) {
                 var isLatest = i === filled - 1 && running;
                 var depthColor = c.filled ? DEPTH_COLORS[Math.min(c.depth - 1, 4)] : 'var(--sap-text-ghost)';
