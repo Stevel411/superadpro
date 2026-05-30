@@ -617,47 +617,60 @@ def _send_grace_escrow_emails(db: Session, buyer: User, package_tier: int, price
         first_name = recipient.first_name or recipient.username or "there"
 
         hero = (
-            f'<div style="font-size:48px;margin-bottom:14px">&#9203;</div>'
-            f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">'
-            f'Your downline upgraded, <span style="color:#0ea5e9">{first_name}</span></p>'
+            f'<div style="font-size:48px;margin-bottom:14px">&#127881;</div>'
+            f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f1d3a;line-height:1.25">'
+            f'You earned <span style="color:#0ea5e9">${total:.2f}</span>, {first_name}!</p>'
             f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
-            f'<strong>{buyer_name}</strong> just bought Campaign Tier {package_tier} '
-            f'(${int(price)}). You have <strong>3 days</strong> to upgrade and claim '
-            f'<strong>${total:.2f}</strong> in commissions.'
+            f'<strong>{buyer_name}</strong> just activated Campaign Tier {package_tier} '
+            f'(${int(price)}), and you earned a commission on it. Here\'s how to claim it.'
             f'</p>'
+        )
+
+        explainer = (
+            f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px">'
+            f'<tr><td style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:24px">'
+            f'<p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:1px;'
+            f'text-transform:uppercase;color:#0284c7">What\'s happening</p>'
+            f'<p style="margin:0 0 12px;font-size:14.5px;color:#334155;line-height:1.7">'
+            f'<strong>You earned this commission.</strong> When your team activates a Campaign Tier, '
+            f'you earn on it &mdash; this time that\'s <strong>${total:.2f}</strong>.</p>'
+            f'<p style="margin:0 0 12px;font-size:14.5px;color:#334155;line-height:1.7">'
+            f'<strong>Why it\'s being held.</strong> The compensation plan pays Grid commissions at '
+            f'tiers you hold yourself. This was earned at <strong>Tier {package_tier}</strong>, so to '
+            f'receive it you\'d need an active Tier {package_tier} (or higher).</p>'
+            f'<p style="margin:0;font-size:14.5px;color:#334155;line-height:1.7">'
+            f'<strong>You have until {deadline_str}.</strong> Upgrade before then and the full '
+            f'<strong>${total:.2f}</strong> is released to your Campaign Wallet automatically &mdash; '
+            f'and you\'ll earn at this tier going forward. Prefer not to upgrade? That\'s absolutely fine; '
+            f'no action is needed.</p>'
+            f'</td></tr></table>'
         )
 
         commission_card = (
             f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">'
-            f'<tr><td style="background:linear-gradient(135deg,#fef3c7,#fde68a);'
-            f'border:1px solid #f59e0b;border-radius:14px;padding:28px;text-align:center">'
-            f'<p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#92400e;'
-            f'text-transform:uppercase;letter-spacing:1px">Held in escrow</p>'
-            f'<p style="margin:0 0 8px;font-size:36px;font-weight:900;color:#78350f;'
+            f'<tr><td style="background:linear-gradient(135deg,#172554,#1e3a8a);'
+            f'border-radius:14px;padding:26px;text-align:center">'
+            f'<p style="margin:0 0 6px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);'
+            f'text-transform:uppercase;letter-spacing:1px">Held for you</p>'
+            f'<p style="margin:0 0 8px;font-size:38px;font-weight:900;color:#22d3ee;'
             f'font-family:\'Sora\',sans-serif">${total:.2f}</p>'
-            f'<p style="margin:0;font-size:13px;color:#92400e;font-weight:600">'
-            f'Deadline: {deadline_str}'
+            f'<p style="margin:0;font-size:13px;color:rgba(255,255,255,0.7);font-weight:600">'
+            f'Available to claim until {deadline_str}'
             f'</p></td></tr></table>'
         )
 
-        body = commission_card + _card(
-            '<p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:1.5px;'
-            'text-transform:uppercase;color:#0284c7">What to do</p>' +
-            _check(
-                f'Buy Campaign Tier {package_tier} within 3 days',
-                'The ${:.2f} pending commission releases to your wallet automatically'.format(total),
-                'You also start earning at this tier going forward',
-            ),
-            bg='#f0f9ff', border='#bae6fd',
-        ) + _btn(f"{SITE_URL}/campaign-tiers", f"Upgrade to Tier {package_tier} &rarr;")
+        body = explainer + commission_card + _btn(
+            f"{SITE_URL}/campaign-tiers", f"Upgrade to Tier {package_tier} &amp; claim ${total:.2f} &rarr;")
 
-        subject = f"Your downline upgraded — ${total:.2f} held for 3 days"
-        text = (f"Hi {first_name}, {buyer_name} just upgraded to Campaign Tier {package_tier}. "
-                f"${total:.2f} is held in escrow for you for 3 days. Upgrade by {deadline_str} "
-                f"to claim it: {SITE_URL}/campaign-tiers")
+        subject = f"You earned ${total:.2f}, {first_name} — here's how to claim it"
+        text = (f"Hi {first_name}, {buyer_name} just activated Campaign Tier {package_tier} and you earned "
+                f"${total:.2f} in commission. The plan pays Grid commissions at tiers you hold yourself, and "
+                f"this was earned at Tier {package_tier}. Upgrade to Tier {package_tier} (or higher) by "
+                f"{deadline_str} and the ${total:.2f} releases to your Campaign Wallet automatically. Prefer not "
+                f"to upgrade? No action needed. Upgrade: {SITE_URL}/campaign-tiers")
         try:
             send_email(recipient.email, subject,
-                       _shell("Grace Period", "linear-gradient(135deg,#fffbeb,#fef3c7)", hero, body),
+                       _shell("Commission Available", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body),
                        text)
         except Exception:
             import logging

@@ -24953,40 +24953,67 @@ def _process_grace_period_cycle(db: Session) -> dict:
         earliest_expiry = min(r.expires_at for r in rows)
         deadline_str = earliest_expiry.strftime("%d %b %Y, %H:%M UTC")
         first_name = recipient.first_name or recipient.username or "there"
+        n_count = len(rows)
+        commission_word = "a commission" if n_count == 1 else f"{n_count} commissions"
 
         hero = (
-            f'<div style="font-size:48px;margin-bottom:14px">&#9203;</div>'
-            f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#92400e;line-height:1.2">'
-            f'24 hours left, <span style="color:#0ea5e9">{first_name}</span></p>'
-            f'<p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">'
-            f'<strong>${total:.2f}</strong> in pending commissions expires within 24 hours '
-            f'unless you upgrade to Tier {required_tier}.'
+            f'<div style="font-size:48px;margin-bottom:14px">&#128274;</div>'
+            f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f1d3a;line-height:1.25">'
+            f'You\'ve earned <span style="color:#0ea5e9">${total:.2f}</span>, {first_name} &mdash; '
+            f'here\'s how to claim it</p>'
+            f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
+            f'Someone in your team upgraded their Campaign Tier, and you earned {commission_word} on it. '
+            f'It\'s being held for you while you decide what to do next.'
             f'</p>'
         )
+
+        # Plain-language explanation of exactly what's happening and why.
+        explainer = (
+            f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px">'
+            f'<tr><td style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:24px">'
+            f'<p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:1px;'
+            f'text-transform:uppercase;color:#0284c7">What\'s happening</p>'
+            f'<p style="margin:0 0 12px;font-size:14.5px;color:#334155;line-height:1.7">'
+            f'<strong>You earned this commission.</strong> When your team grows at a Campaign Tier, '
+            f'you earn on it &mdash; this time that comes to <strong>${total:.2f}</strong>.</p>'
+            f'<p style="margin:0 0 12px;font-size:14.5px;color:#334155;line-height:1.7">'
+            f'<strong>Why it\'s being held.</strong> The compensation plan pays Grid commissions at '
+            f'tiers you hold yourself. This commission was earned at <strong>Tier {required_tier}</strong>, '
+            f'so to receive it into your wallet you\'d need an active Tier {required_tier} (or higher).</p>'
+            f'<p style="margin:0;font-size:14.5px;color:#334155;line-height:1.7">'
+            f'<strong>You have until {deadline_str}.</strong> Upgrade to Tier {required_tier} before then '
+            f'and the full <strong>${total:.2f}</strong> is released straight to your Campaign Wallet. '
+            f'If you\'d rather not upgrade, that\'s completely fine &mdash; no action is needed, and the held '
+            f'amount is simply not paid out.</p>'
+            f'</td></tr></table>'
+        )
+
         amount_card = (
             f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">'
-            f'<tr><td style="background:linear-gradient(135deg,#fef3c7,#fde68a);'
-            f'border:1px solid #f59e0b;border-radius:14px;padding:28px;text-align:center">'
-            f'<p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#92400e;'
-            f'text-transform:uppercase;letter-spacing:1px">Expires soon</p>'
-            f'<p style="margin:0 0 8px;font-size:36px;font-weight:900;color:#78350f;'
+            f'<tr><td style="background:linear-gradient(135deg,#172554,#1e3a8a);'
+            f'border-radius:14px;padding:26px;text-align:center">'
+            f'<p style="margin:0 0 6px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);'
+            f'text-transform:uppercase;letter-spacing:1px">Held for you</p>'
+            f'<p style="margin:0 0 8px;font-size:38px;font-weight:900;color:#22d3ee;'
             f'font-family:\'Sora\',sans-serif">${total:.2f}</p>'
-            f'<p style="margin:0;font-size:13px;color:#92400e;font-weight:600">'
-            f'Deadline: {deadline_str}'
+            f'<p style="margin:0;font-size:13px;color:rgba(255,255,255,0.7);font-weight:600">'
+            f'Available to claim until {deadline_str}'
             f'</p></td></tr></table>'
         )
-        body = amount_card + _btn(
+        body = explainer + amount_card + _btn(
             f"{SITE_URL}/campaign-tiers",
-            f"Upgrade to Tier {required_tier} &rarr;",
+            f"Upgrade to Tier {required_tier} &amp; claim ${total:.2f} &rarr;",
         )
-        subject = f"24h left — ${total:.2f} in pending commissions"
-        text = (f"Hi {first_name}, you have 24 hours left to upgrade to Tier {required_tier} "
-                f"and claim ${total:.2f} in pending commissions. Deadline: {deadline_str}. "
-                f"Upgrade: {SITE_URL}/campaign-tiers")
+        subject = f"How to claim your ${total:.2f} commission, {first_name}"
+        text = (f"Hi {first_name}, you've earned ${total:.2f} in commission because someone in your team "
+                f"upgraded their Campaign Tier. The plan pays Grid commissions at tiers you hold yourself, "
+                f"and this was earned at Tier {required_tier}. If you upgrade to Tier {required_tier} (or higher) "
+                f"by {deadline_str}, the ${total:.2f} is released to your Campaign Wallet. If you'd rather not "
+                f"upgrade, no action is needed. Upgrade: {SITE_URL}/campaign-tiers")
         try:
             send_email(recipient.email, subject,
-                       _shell("Grace Reminder",
-                              "linear-gradient(135deg,#fffbeb,#fef3c7)",
+                       _shell("Commission Available",
+                              "linear-gradient(135deg,#f0f9ff,#e0f2fe)",
                               hero, body),
                        text)
             reminder_emails_sent += 1
