@@ -499,10 +499,37 @@ def _release_pending_for_user(db: Session, user_id: int, just_acquired_tier: int
     caller to build the release-confirmation notification + email.
     """
     from .database import PendingCommission, User as _User, Notification as _Notification
+
+    # ── GENUINE-PURCHASE GATE (30 May 2026) ────────────────────────────────
+    # Escrowed commissions are released ONLY when the member has genuinely
+    # PURCHASED a qualifying tier — never on a tier that merely exists as a
+    # spillover-created grid. Without this, a member who never bought a tier
+    # could have escrow released to their wallet just because a downline
+    # activation auto-created a grid at their level (the beachgirl/504 case,
+    # where $9.25 released against a Tier 1 she never paid for). We verify a
+    # purchased grid at required_tier-or-higher exists before releasing each
+    # row. owner_purchased is set True only inside process_tier_purchase for
+    # the actual buyer.
+    purchased_tiers = {
+        g.package_tier for g in db.query(Grid).filter(
+            Grid.owner_id == user_id,
+            Grid.owner_purchased == True,  # noqa: E712
+        ).all()
+    }
+    max_purchased_tier = max(purchased_tiers) if purchased_tiers else 0
+    if max_purchased_tier <= 0:
+        # No genuinely purchased tier — nothing may be released. Leave the
+        # pending rows untouched (they stay escrowed until a real purchase or
+        # until they expire on their own grace deadline).
+        return []
+    # Cap the effective qualifying tier at what the member actually bought,
+    # so a caller passing a higher just_acquired_tier can't over-release.
+    effective_tier = min(just_acquired_tier, max_purchased_tier)
+
     pending = db.query(PendingCommission).filter(
         PendingCommission.recipient_id == user_id,
         PendingCommission.status == "pending",
-        PendingCommission.required_tier <= just_acquired_tier,
+        PendingCommission.required_tier <= effective_tier,
         PendingCommission.expires_at > datetime.utcnow(),
     ).all()
     if not pending:
@@ -525,7 +552,7 @@ def _release_pending_for_user(db: Session, user_id: int, just_acquired_tier: int
         _record_commission(
             db, pc.trigger_id, user_id, float(amt), pc.commission_type,
             f"Grace-period release: pending #{pc.id} (trigger user {pc.trigger_id}, "
-            f"tier {pc.package_tier}) claimed by tier {just_acquired_tier} upgrade",
+            f"tier {pc.package_tier}) claimed by tier {effective_tier} upgrade",
             pc.package_tier,
         )
         # Mark as released
@@ -548,7 +575,7 @@ def _release_pending_for_user(db: Session, user_id: int, just_acquired_tier: int
             type    = "commission",
             icon    = "🔓",
             title   = f"${float(total_released):.2f} released from grace period",
-            message = (f"You just upgraded to Tier {just_acquired_tier} — "
+            message = (f"You just upgraded to Tier {effective_tier} — "
                        f"{n_count} pending commission{'s' if n_count != 1 else ''} "
                        f"released to your Campaign Wallet."),
             link    = "/wallet",
