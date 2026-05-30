@@ -490,12 +490,12 @@ export default function Dashboard() {
                 <div className="dc-name">{d.display_name || user?.username}</div>
                 <div className="dc-meta">
                   {user?.is_founding_member && <span className="dc-badge">{t('dashboard.founderBadge', { defaultValue: 'Founder' })}</span>}
-                  {d.active_since && <span>{t('dashboard.activeSince', { defaultValue: 'Active since' })} {d.active_since}</span>}
+                  {d.active_since && <span>{t('dashboard.activeSince', { date: d.active_since, defaultValue: 'Active since ' + d.active_since })}</span>}
                 </div>
               </div>
             </div>
             <div className="dc-stats">
-              <div className="dc-stat"><div className="l">{t('dashboard.available', { defaultValue: 'Available' })}</div><div className="v cyan">{formatMoney(d.balance)}</div></div>
+              <div className="dc-stat"><div className="l">{t('dashboard.available', { defaultValue: 'Available' })}</div><div className="v cyan">{formatMoney((d.balance || 0) + (d.campaign_balance || 0))}</div></div>
               <div className="dc-stat"><div className="l">{t('dashboard.thisMonth', { defaultValue: 'This month' })}</div><div className="v">{formatMoney(d.earnings_this_month != null ? d.earnings_this_month : (d.this_month || 0))}</div></div>
               <div className="dc-stat"><div className="l">{t('dashboard.team', { defaultValue: 'Team' })}</div><div className="v">{d.total_team || 0}</div></div>
               <div className="dc-stat"><div className="l">{t('dashboard.allTime', { defaultValue: 'All time' })}</div><div className="v">{formatMoney(d.total_earned)}</div></div>
