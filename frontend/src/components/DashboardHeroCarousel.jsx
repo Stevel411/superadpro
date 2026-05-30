@@ -34,11 +34,11 @@ import { ChevronLeft, ChevronRight, Sparkles, Gift, Layers, Rocket, TrendingUp }
 var SLIDES = [
   {
     key: 'nexus',
-    title: 'Credit Nexus Packs',
+    title: 'Credit Packs',
     eyebrow: 'EARN COMMISSIONS',
-    headline: 'Unlock the platform. Earn 15% on every pack your team buys.',
-    body: 'Activate any Credit Nexus pack from $20 to $1,000. Each pack opens a 3×3 matrix that pays you on direct referrals and spillover.',
-    cta: 'See Nexus packs',
+    headline: 'Earn 20% on every credit pack your referrals buy.',
+    body: 'Power your AI tools with credits — packs from $20 to $1,000. Refer anyone and earn a flat 20% on every pack they buy, first one and every one after.',
+    cta: 'See credit packs',
     href: '/credit-nexus',
     accent: '#0ea5e9',
     accentLight: '#38bdf8',
