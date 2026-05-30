@@ -231,7 +231,7 @@ export default function Wallet() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
           <EarningsCard icon="👥" label={t("wallet.membership")} value={d.membership_earnings || 0} color="var(--sap-green-bright)" />
           <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={d.grid_earnings || 0} color="var(--sap-accent)" />
-          <EarningsCard icon="🎬" label={t("wallet.creditNexus", { defaultValue: 'Credit Nexus' })} value={d.nexus_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
+          <EarningsCard icon="🎬" label={t("wallet.creditNexus", { defaultValue: 'Creator Credits' })} value={d.nexus_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
           <EarningsCard icon="📚" label={t("wallet.coursesMarket")} value={d.course_earnings || 0} color="var(--sap-amber)" />
         </div>
       )}

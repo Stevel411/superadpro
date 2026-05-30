@@ -238,7 +238,7 @@ export default function MyTeam() {
           <StreamRow icon="🔗" name="Membership" desc="When your referrals activate or renew" amount={membershipEarned} colour="#16a34a" />
           <StreamRow icon="⚡" name="Campaign Grid" desc="When you or downline buy campaign tiers" amount={gridEarned} colour="#0ea5e9" />
           <StreamRow icon="🎓" name="Course Academy" desc="Course sales + pass-up cascade" amount={courseEarned} colour="#8b5cf6" />
-          <StreamRow icon="💎" name="Credit Nexus" desc="When downline buy credit packs (15% direct / 10% spillover)" amount={nexusEarned} colour="#f59e0b" last />
+          <StreamRow icon="💎" name="Creator Credits" desc="Flat 20% when your referrals buy credit packs" amount={nexusEarned} colour="#0ea5e9" last />
         </div>
       </div>
 
@@ -653,7 +653,7 @@ function EmptyState(props) {
 function streamFromType(type) {
   type = (type || '').toLowerCase();
   if (type.indexOf('matrix') >= 0 || type.indexOf('nexus') >= 0)
-    return { icon: '💎', label: 'Credit Nexus', colour: '#f59e0b' };
+    return { icon: '💎', label: 'Creator Credits', colour: '#0ea5e9' };
   if (type.indexOf('course') >= 0 || type.indexOf('pass_up') >= 0 || type === 'direct_sale' || type === 'pass_up')
     return { icon: '🎓', label: 'Courses', colour: '#8b5cf6' };
   if (type.indexOf('membership') >= 0 || type === 'sponsor')

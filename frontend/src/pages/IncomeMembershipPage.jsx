@@ -681,7 +681,7 @@ function StreamComparisonStrip({ data, t }) {
     { id: 'membership', label: '🟢 ' + t('membership.stream.membership', { defaultValue: 'Membership' }), value: streams.membership || 0, color: '#16a34a' },
     { id: 'grid',       label: '⚡ '  + t('membership.stream.grid',       { defaultValue: 'Grid' }),       value: streams.grid || 0,       color: '#0ea5e9' },
     { id: 'course',     label: '🎓 ' + t('membership.stream.course',     { defaultValue: 'Course' }),     value: streams.course || 0,     color: '#8b5cf6' },
-    { id: 'nexus',      label: '💎 ' + t('membership.stream.nexus',      { defaultValue: 'Nexus' }),      value: streams.nexus || 0,      color: '#f59e0b' },
+    { id: 'nexus',      label: '💎 ' + t('membership.stream.nexus',      { defaultValue: 'Creator Credits' }),      value: streams.nexus || 0,      color: '#f59e0b' },
   ];
 
   return (

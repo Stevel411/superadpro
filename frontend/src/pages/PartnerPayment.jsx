@@ -373,7 +373,7 @@ export default function PartnerPayment() {
           </div>
           {[
             t('partner.feature.fullAccess', { defaultValue: 'Full platform access — every tool, no upgrades needed' }),
-            t('partner.feature.commissions', { defaultValue: 'Earn commissions on referrals, Campaign Tier sales, and Credit Nexus' }),
+            t('partner.feature.commissions', { defaultValue: 'Earn commissions on referrals, Campaign Tier sales, and Creator Credits' }),
             t('partner.feature.aiTools', { defaultValue: 'AI-powered Creative Studio, Lead Finder, Email Autoresponder, ProSeller AI' }),
             t('partner.feature.funnels', { defaultValue: 'Hosted landing pages, SuperPages funnel builder, LinkHub bio links' }),
             t('partner.feature.training', { defaultValue: 'Full training centre, comp plan resources, and member community' }),

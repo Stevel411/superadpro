@@ -9,8 +9,8 @@ Chart.Chart.defaults.font.family="'Rethink Sans','DM Sans',sans-serif";
 Chart.Chart.defaults.font.size=12;
 Chart.Chart.defaults.color='#475569';
 
-var TL={direct_sponsor:'Direct 40%',uni_level:'Uni-Level',grid_completion_bonus:'Grid Bonus',membership:'Membership',membership_renewal:'Renewal',membership_sponsor:'Membership',course_direct_sale:'Course Sale',course_pass_up:'Course Pass-Up','Membership Sponsor':'Membership',nexus_sponsor:'Nexus',nexus_level:'Nexus Level',nexus_completion:'Nexus Complete',matrix_level:'Nexus Level',matrix_completion:'Nexus Complete'};
-var TC={direct_sponsor:'#059669',uni_level:'#0284c7',grid_completion_bonus:'#d97706',membership:'#15803d',membership_renewal:'#16a34a',membership_sponsor:'#15803d',course_direct_sale:'#ea580c',course_pass_up:'#f97316','Membership Sponsor':'#15803d',nexus_sponsor:'#7c3aed',nexus_level:'#6d28d9',nexus_completion:'#7e22ce',matrix_level:'#6d28d9',matrix_completion:'#7e22ce'};
+var TL={direct_sponsor:'Direct 40%',uni_level:'Uni-Level',grid_completion_bonus:'Grid Bonus',membership:'Membership',membership_renewal:'Renewal',membership_sponsor:'Membership',course_direct_sale:'Course Sale',course_pass_up:'Course Pass-Up','Membership Sponsor':'Membership',nexus_sponsor:'Creator Credits',nexus_level:'Creator Credits',nexus_completion:'Creator Credits',matrix_level:'Creator Credits',matrix_completion:'Creator Credits',direct_referral:'Creator Credits'};
+var TC={direct_sponsor:'#059669',uni_level:'#0284c7',grid_completion_bonus:'#d97706',membership:'#15803d',membership_renewal:'#16a34a',membership_sponsor:'#15803d',course_direct_sale:'#ea580c',course_pass_up:'#f97316','Membership Sponsor':'#15803d',nexus_sponsor:'#0ea5e9',nexus_level:'#0ea5e9',nexus_completion:'#0ea5e9',matrix_level:'#0ea5e9',matrix_completion:'#0ea5e9',direct_referral:'#0ea5e9'};
 
 function useChart(cfg){var ref=useRef(null),ch=useRef(null);useEffect(function(){if(!ref.current||!cfg)return;if(ch.current)ch.current.destroy();ch.current=new Chart.Chart(ref.current,cfg);return function(){if(ch.current)ch.current.destroy()};},[cfg]);return ref;}
 
