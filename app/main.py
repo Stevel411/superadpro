@@ -16021,6 +16021,125 @@ def admin_user_grid_state(
         "owns_grids": grid_data,
         "seated_in_grids": seated_data,
     }
+
+
+@app.get("/admin/api/grid-placement-orphans")
+def admin_grid_placement_orphans(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """DRY-RUN diagnostic (read-only, NO mutations): find members whose tier
+    activation created/owns a grid but who were never seated UP their own
+    upline chain — the 'active tier, but not in my grid' orphan pattern
+    (beachgirl, user 504, 30 May 2026).
+
+    Logic: for each (member, tier) where the member is active in/owns a grid
+    at that tier, walk their sponsor chain and count how many upline owners
+    they SHOULD be seated under vs how many GridPosition rows actually seat
+    them. Reports:
+      - strict_orphans: seated in ZERO upline grids for a tier they hold
+        (total spillover failure — beachgirl's signature)
+      - partial_orphans: seated in SOME but fewer than the active upline chain
+        (partial spillover failure)
+    Plus fingerprints (has a confirmed grid Payment? activation window) to help
+    identify the cause. This endpoint NEVER writes — it only reports.
+    """
+    _require_admin(user)
+    from .database import Commission as _Commission
+
+    # All non-complete grids define "who owns/holds a tier". A member "holds"
+    # tier T if they own a Grid at T (created by their own purchase OR by a
+    # downline spilling into them — both produce a Grid row). We additionally
+    # require evidence the member themselves is active, to avoid flagging
+    # phantom grids for inactive shells.
+    owned = db.query(Grid).all()
+    # Map: owner_id -> set(tiers they own a grid at)
+    owner_tiers = {}
+    for g in owned:
+        owner_tiers.setdefault(g.owner_id, set()).add(g.package_tier)
+
+    # Pre-index: for a given (member_id, tier) how many grids is the member seated in?
+    # GridPosition has no tier directly — join via grid_id -> Grid.package_tier.
+    grid_tier = {g.id: g.package_tier for g in owned}
+    # also include complete grids for tier lookup
+    for g in db.query(Grid).filter(Grid.is_complete == True).all():  # noqa: E712
+        grid_tier[g.id] = g.package_tier
+
+    seated_by_member = {}  # member_id -> { tier -> set(grid_owner_id) }
+    all_positions = db.query(GridPosition).all()
+    grid_owner = {g.id: g.owner_id for g in db.query(Grid).all()}
+    for gp in all_positions:
+        t = grid_tier.get(gp.grid_id)
+        o = grid_owner.get(gp.grid_id)
+        if t is None or o is None:
+            continue
+        seated_by_member.setdefault(gp.member_id, {}).setdefault(t, set()).add(o)
+
+    # Build a sponsor map once
+    users = db.query(User).all()
+    sponsor_of = {u.id: u.sponsor_id for u in users}
+    active_of = {u.id: bool(u.is_active) for u in users}
+    uname_of = {u.id: u.username for u in users}
+
+    def upline_owners_for(member_id, tier):
+        """Walk the member's sponsor chain; collect upline ids who own a grid
+        at this tier (i.e. who the member SHOULD be seated under)."""
+        owners = []
+        seen = set()
+        cur = sponsor_of.get(member_id)
+        while cur and cur not in seen:
+            seen.add(cur)
+            if tier in owner_tiers.get(cur, set()):
+                owners.append(cur)
+            cur = sponsor_of.get(cur)
+        return owners
+
+    strict, partial = [], []
+    for member_id, tiers in owner_tiers.items():
+        if not active_of.get(member_id):
+            continue
+        for tier in tiers:
+            expected_owners = upline_owners_for(member_id, tier)
+            if not expected_owners:
+                continue  # no upline holds this tier — nothing to be seated in (e.g. root)
+            seated_owners = seated_by_member.get(member_id, {}).get(tier, set())
+            seated_count = len(seated_owners & set(expected_owners))
+            if seated_count == 0:
+                # has the member ever paid for this tier? (fingerprint)
+                paid = db.query(_Commission).filter(
+                    _Commission.from_user_id == member_id,
+                    _Commission.commission_type.in_(["direct_sponsor", "uni_level"]),
+                    _Commission.package_tier == tier,
+                ).first()
+                strict.append({
+                    "member_id": member_id,
+                    "username": uname_of.get(member_id),
+                    "tier": tier,
+                    "expected_upline_grids": len(expected_owners),
+                    "seated_in": 0,
+                    "generated_commissions_for_tier": bool(paid),
+                })
+            elif seated_count < len(expected_owners):
+                partial.append({
+                    "member_id": member_id,
+                    "username": uname_of.get(member_id),
+                    "tier": tier,
+                    "expected_upline_grids": len(expected_owners),
+                    "seated_in": seated_count,
+                })
+
+    strict.sort(key=lambda x: (x["tier"], x["member_id"]))
+    partial.sort(key=lambda x: (x["tier"], x["member_id"]))
+    return {
+        "dry_run": True,
+        "note": "Read-only scan. No data changed. strict_orphans = seated in ZERO upline grids (beachgirl pattern); partial_orphans = seated in some but not all.",
+        "strict_orphan_count": len(strict),
+        "partial_orphan_count": len(partial),
+        "strict_orphans": strict,
+        "partial_orphans": partial,
+    }
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
