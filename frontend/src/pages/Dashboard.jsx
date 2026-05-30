@@ -574,24 +574,9 @@ export default function Dashboard() {
               );
             })}
 
-            {/* empty state — shown when no prompts at all (regardless of expanded state) */}
-            {!hasPrompts && (
-              <div style={{padding:'32px 22px', textAlign:'center', borderTop:'1px solid var(--sap-border-light)'}}>
-                <div style={{fontSize:32, marginBottom:8, opacity:.65}}>✓</div>
-                <div style={{
-                  fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:15,
-                  color:'var(--sap-text-primary)', marginBottom:4,
-                }}>
-                  {t('teamPulse.emptyTitle', { defaultValue: 'Nothing urgent on your team right now' })}
-                </div>
-                <div style={{
-                  fontSize:13, color:'var(--sap-text-faint)',
-                  maxWidth:380, margin:'0 auto',
-                }}>
-                  {t('teamPulse.emptySub', { defaultValue: "When someone new joins or needs a nudge, they'll show up here. Keep building." })}
-                </div>
-              </div>
-            )}
+            {/* No oversized empty-state block when calm — the compact header
+                ('Your team is all caught up') already says it. A big checkmark
+                hero here just duplicated the message and dominated the page. */}
 
             {/* footer — only when expanded (or when card has no prompts at all) */}
             {(teamPulseExpanded || !hasPrompts) && (
