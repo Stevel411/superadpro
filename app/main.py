@@ -45820,100 +45820,112 @@ async def api_credit_matrix_commissions(user: User = Depends(get_current_user),
     }
 @app.get("/api/credit-matrix/stats")
 async def api_credit_matrix_stats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Dashboard stats for credit matrix earnings."""
+    """Credit-pack dashboard stats — FLAT 20% model (matrix retired 30 May 2026).
+
+    Returns the data the back-office ledger view binds to: credit balance,
+    referral earnings, paying-referral count, credits bought. No matrix
+    structure (positions/fill/cycles) — those concepts no longer exist.
+
+    referral_earnings reuses compute_user_earnings()['nexus_earnings'] so this
+    figure is identical to every other surface (wallet card, analytics, etc.)
+    and can't drift.
+    """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    from app.database import CreditMatrix, CreditMatrixCommission, CreditPackPurchase
+    from app.database import CreditMatrixCommission, CreditPackPurchase, SuperSceneCredit
     from decimal import Decimal
 
-    # Active matrix
-    active = db.query(CreditMatrix).filter(
-        CreditMatrix.owner_id == user.id, CreditMatrix.status == "active"
-    ).first()
+    # Referral earnings — from the central live-ledger reader (matches all
+    # other dashboards). direct_referral rows live in credit_matrix_commissions.
+    earn = compute_user_earnings(db, user.id)
+    referral_earnings = earn.get("nexus_earnings", 0.0)
 
-    # Completed cycles
-    completed_count = db.query(CreditMatrix).filter(
-        CreditMatrix.owner_id == user.id, CreditMatrix.status == "completed"
-    ).count()
+    # Paying referrals: distinct people whose purchases paid this user a
+    # direct_referral commission (i.e. their referrals who actually bought).
+    paying_referrals = (
+        db.query(func.count(func.distinct(CreditMatrixCommission.from_user_id)))
+          .filter(
+              CreditMatrixCommission.earner_id == user.id,
+              CreditMatrixCommission.status == "paid",
+          ).scalar() or 0
+    )
 
-    # Total earned from all matrices
-    all_commissions = db.query(CreditMatrixCommission).filter(
-        CreditMatrixCommission.earner_id == user.id
-    ).all()
-    total_earned = sum(Decimal(str(c.amount)) for c in all_commissions)
-
-    # Own purchases
+    # Own purchases (buyer side)
     own_purchases = db.query(CreditPackPurchase).filter(
         CreditPackPurchase.user_id == user.id, CreditPackPurchase.status == "completed"
     ).all()
-    total_spent = sum(Decimal(str(p.pack_price)) for p in own_purchases)
+    total_spent = float(sum(Decimal(str(p.pack_price)) for p in own_purchases))
     total_credits_bought = sum(p.credits_awarded for p in own_purchases)
 
-    # Credit balance
-    from app.database import SuperSceneCredit
+    # Current credit balance
     credit_record = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user.id).first()
-    credit_balance = credit_record.balance if credit_record else 0
+    credit_balance = int(credit_record.balance) if credit_record else 0
+
+    # Buyer's purchase history (most recent first)
+    purchases = [{
+        "pack_key": p.pack_key,
+        "pack_label": CREDIT_PACKS.get(p.pack_key, {}).get("label", p.pack_key),
+        "pack_price": float(p.pack_price),
+        "credits_awarded": p.credits_awarded,
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+    } for p in sorted(own_purchases, key=lambda x: x.created_at or datetime.min, reverse=True)]
 
     return {
         "success": True,
         "stats": {
-            "active_matrix": {
-                "id": active.id if active else None,
-                "cycle": active.advance_number if active else 0,
-                "positions_filled": active.positions_filled if active else 0,
-                "max_positions": MATRIX_MAX_DOWNLINE,
-                "fill_pct": round((active.positions_filled / MATRIX_MAX_DOWNLINE) * 100, 1) if active else 0,
-            },
-            "completed_cycles": completed_count,
-            "total_earned": float(total_earned),
-            "total_spent": float(total_spent),
-            "total_credits_bought": total_credits_bought,
             "credit_balance": credit_balance,
-            "roi": float((total_earned / total_spent * 100) if total_spent > 0 else 0),
+            "referral_earnings": round(referral_earnings, 2),
+            "paying_referrals": int(paying_referrals),
+            "credits_bought": total_credits_bought,
+            "total_spent": round(total_spent, 2),
+            "referral_rate_pct": 20,
+            "purchases": purchases,
         },
     }
 @app.get("/api/credit-matrix/team-activity")
 async def api_credit_matrix_team_activity(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Recent credit pack purchases from team members (for activity feed)."""
+    """Referral commission feed — FLAT 20% model (matrix retired 30 May 2026).
+
+    Lists this user's recent direct_referral commissions: who bought, what
+    pack, what the user earned, when. Replaces the old matrix-position team
+    feed (positions no longer fill)."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    from app.database import CreditMatrixPosition, CreditPackPurchase, CreditMatrix
+    from app.database import CreditMatrixCommission, CreditPackPurchase
 
-    # Get the user's active matrix
-    matrix = db.query(CreditMatrix).filter(
-        CreditMatrix.owner_id == user.id, CreditMatrix.status == "active"
-    ).first()
-
-    if not matrix:
-        return {"success": True, "activity": []}
-
-    # Get all users in this matrix
-    positions = db.query(CreditMatrixPosition).filter(
-        CreditMatrixPosition.matrix_id == matrix.id, CreditMatrixPosition.level > 0
-    ).all()
-    team_user_ids = [p.user_id for p in positions]
-
-    if not team_user_ids:
-        return {"success": True, "activity": []}
-
-    # Get recent purchases from team
-    purchases = db.query(CreditPackPurchase).filter(
-        CreditPackPurchase.user_id.in_(team_user_ids),
-        CreditPackPurchase.status == "completed",
-    ).order_by(CreditPackPurchase.created_at.desc()).limit(20).all()
+    coms = (
+        db.query(CreditMatrixCommission)
+          .filter(
+              CreditMatrixCommission.earner_id == user.id,
+              CreditMatrixCommission.status == "paid",
+          )
+          .order_by(CreditMatrixCommission.created_at.desc())
+          .limit(20).all()
+    )
 
     activity = []
-    for p in purchases:
-        buyer = db.query(User).filter(User.id == p.user_id).first()
-        pack_info = CREDIT_PACKS.get(p.pack_key, {})
+    for c in coms:
+        buyer = db.query(User).filter(User.id == c.from_user_id).first()
+        # Best-effort pack label: match the buyer's purchase nearest this commission
+        pack_label = None
+        pack_price = float(c.pack_price or 0)
+        if buyer:
+            pp = (
+                db.query(CreditPackPurchase)
+                  .filter(CreditPackPurchase.user_id == buyer.id,
+                          CreditPackPurchase.status == "completed")
+                  .order_by(CreditPackPurchase.created_at.desc()).first()
+            )
+            if pp:
+                pack_label = CREDIT_PACKS.get(pp.pack_key, {}).get("label", pp.pack_key)
         activity.append({
             "username": buyer.username if buyer else "Unknown",
-            "pack": pack_info.get("label", p.pack_key),
-            "price": float(p.pack_price),
-            "credits": p.credits_awarded,
-            "created_at": p.created_at.isoformat() if p.created_at else None,
+            "pack": pack_label or "Credit pack",
+            "pack_price": pack_price,
+            "earned": float(c.amount),
+            "created_at": c.created_at.isoformat() if c.created_at else None,
         })
 
     return {"success": True, "activity": activity}
