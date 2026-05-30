@@ -35503,6 +35503,80 @@ def admin_find_stuck_lapsed_members(
     }
 
 
+@app.get("/admin/api/matrix-landscape")
+def admin_matrix_landscape(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only snapshot of the credit-matrix landscape, to assess what a
+    close-out would affect BEFORE doing it.
+
+    Matrix per-position commissions are written status='paid' inline as
+    positions fill — they are NOT held. The completion bonus was scrapped
+    (COMPLETION_BONUS_RATE=0). So in theory close-out strips no owed money.
+    This endpoint proves that against live data:
+
+      - active_matrices: count + per-matrix owner/positions/earned
+      - unpaid_commissions: any CreditMatrixCommission NOT status='paid'
+        (would be money in-flight that close-out must not strip)
+      - completion_bonus_exposure: sum of completion_bonus_paid and any
+        matrix at/near 39 positions that might expect a bonus
+
+    Read-only — mutates nothing. Built 30 May 2026 ahead of the matrix
+    close-out for the flat-20% Nexus switch.
+    """
+    _require_admin(user)
+    from .database import CreditMatrix as _CM, CreditMatrixCommission as _CMC
+
+    active = db.query(_CM).filter(_CM.status == "active").all()
+    completed = db.query(_CM).filter(_CM.status == "completed").count()
+
+    active_summary = [{
+        "matrix_id": m.id, "owner_id": m.owner_id, "pack_key": m.pack_key,
+        "advance_number": m.advance_number, "positions_filled": m.positions_filled,
+        "total_earned": float(m.total_earned or 0),
+        "completion_bonus_paid": float(m.completion_bonus_paid or 0),
+        "created_at": m.created_at.isoformat() if m.created_at else None,
+    } for m in active]
+
+    # Money-safety check 1: any commission NOT yet paid (in-flight)?
+    unpaid = db.query(_CMC).filter(_CMC.status != "paid").all()
+    unpaid_summary = [{
+        "id": c.id, "earner_id": c.earner_id, "amount": float(c.amount or 0),
+        "status": c.status, "commission_type": c.commission_type,
+    } for c in unpaid]
+
+    # Money-safety check 2: completion-bonus exposure
+    total_completion_paid = float(
+        db.query(func.coalesce(func.sum(_CM.completion_bonus_paid), 0)).scalar() or 0
+    )
+    near_complete = [m.id for m in active if (m.positions_filled or 0) >= 35]
+
+    # Total paid matrix commissions (this is earned money — STAYS, not touched)
+    total_paid_commissions = float(
+        db.query(func.coalesce(func.sum(_CMC.amount), 0))
+          .filter(_CMC.status == "paid").scalar() or 0
+    )
+
+    return {
+        "active_matrix_count": len(active),
+        "completed_matrix_count": completed,
+        "active_matrices": active_summary,
+        "unpaid_commissions_count": len(unpaid),
+        "unpaid_commissions": unpaid_summary,
+        "completion_bonus_total_ever_paid": total_completion_paid,
+        "matrices_near_completion_35plus": near_complete,
+        "total_paid_commissions_all_time": total_paid_commissions,
+        "close_out_safety": (
+            "SAFE — no unpaid commissions, no completion exposure"
+            if not unpaid and not near_complete
+            else "REVIEW — see unpaid_commissions / matrices_near_completion before closing out"
+        ),
+        "note": "Paid commissions are earned money and are NEVER touched by close-out. "
+                "Close-out only marks active matrices inactive so they stop filling/displaying.",
+    }
+
+
 @app.get("/admin/api/expired-active-members")
 def admin_find_expired_active_members(
     user: User = Depends(get_current_user),
