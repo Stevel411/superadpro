@@ -25118,6 +25118,103 @@ def _format_metrics_for_email(metrics: dict) -> str:
     return "\n".join(lines)
 
 
+def _deterministic_briefing(metrics: dict, today_str: str) -> str:
+    """Build the morning-briefing prose DETERMINISTICALLY from the metrics.
+
+    Integrity rule (30 May 2026): the briefing summary must NEVER be authored
+    by an LLM. A prior Grok-written summary fabricated a "16 expired-but-active
+    members, renewal cron didn't fire" incident that did not exist — inventing
+    both a count and a root-cause around normal data. A "never invent numbers"
+    instruction does not hold a generative model fed a large suggestive context.
+
+    Every fact and every number below is read straight from `metrics`. Anomalies
+    are flagged only when a real metric crosses a real threshold. There is no
+    generative step, so a fabricated fact is structurally impossible. This is the
+    single source of truth for the email body and the JSON `summary`.
+    """
+    m = metrics
+
+    # ── Detect real anomalies (thresholds, not judgement) ──────────────
+    anomalies = []
+    if m.get("audit_double_pays", 0) > 0:
+        anomalies.append(
+            f"Double-pay audit flagged {m['audit_double_pays']} suspect "
+            f"commission pair(s) — same payment paid to the same recipient "
+            f"more than once. This is real money and needs investigation "
+            f"(/admin/api/sweep-double-pays)."
+        )
+    if m.get("stuck_lapsed_count", 0) > 0:
+        anomalies.append(
+            f"{m['stuck_lapsed_count']} stuck-lapsed member(s): paid, valid "
+            f"renewal data, but flagged inactive — locked out of a product "
+            f"they paid for. List at /admin/api/stuck-lapsed-members."
+        )
+    if m.get("orphan_wc_transfers_24h", 0) > 0:
+        anomalies.append(
+            f"{m['orphan_wc_transfers_24h']} orphan wallet transfer(s) in the "
+            f"last 24h — funds arrived without matching an active order. "
+            f"Reconcile before they age."
+        )
+
+    # ── Headline ────────────────────────────────────────────────────────
+    parts = []
+    if anomalies:
+        n = len(anomalies)
+        parts.append(
+            f"{n} item{'s' if n > 1 else ''} need{'s' if n == 1 else ''} your "
+            f"attention today.\n\n" + "\n".join(f"- {a}" for a in anomalies)
+        )
+    else:
+        parts.append(
+            "All health checks clean — no double-pays, no stuck-lapsed members, "
+            "no orphan transfers. Nothing needs action on the integrity side."
+        )
+
+    # ── Platform state (always factual, from metrics) ────────────────────
+    parts.append(
+        f"Platform: {m['total_members']} total members, {m['active_members']} "
+        f"active ({m['founding_members']}/100 founding seats filled)."
+    )
+
+    # ── Last 24h activity ────────────────────────────────────────────────
+    activity = (
+        f"Last 24h: {m['signups_24h']} new signup"
+        f"{'s' if m['signups_24h'] != 1 else ''}, "
+        f"{m['commissions_count_24h']} commission"
+        f"{'s' if m['commissions_count_24h'] != 1 else ''} paid totalling "
+        f"${m['commissions_total_24h']:.2f}"
+    )
+    by_type = m.get("commissions_by_type_24h") or {}
+    if by_type:
+        bits = ", ".join(f"{ct} ${amt:.2f}" for ct, amt in by_type.items())
+        activity += f" ({bits})"
+    activity += (
+        f". {m['withdrawals_24h_count']} withdrawal"
+        f"{'s' if m['withdrawals_24h_count'] != 1 else ''} totalling "
+        f"${m['withdrawals_24h_total']:.2f}."
+    )
+    parts.append(activity)
+
+    top = m.get("top_earners_24h") or []
+    if top:
+        lead = top[0]
+        parts.append(f"Top earner (24h): {lead['username']} at ${lead['earned']:.2f}.")
+
+    # ── Watch line (deterministic, only on real conditions) ──────────────
+    if anomalies:
+        watch = "Watch today: the flagged item(s) above."
+    elif m.get("founding_members", 0) >= 100:
+        watch = (
+            "Watch today: founding seats are full (100/100) — new activations "
+            "are correctly gated to $20 Partner pricing."
+        )
+    else:
+        watch = "Watch today: nothing pressing — platform is steady."
+    parts.append(watch)
+
+    return "\n\n".join(parts)
+
+
 @app.get("/cron/daily-briefing")
 async def cron_daily_briefing(
     request: Request,
@@ -25159,44 +25256,17 @@ async def cron_daily_briefing(
         metrics = _compute_daily_metrics(db)
         metrics_text = _format_metrics_for_email(metrics)
         launch_log = _read_launch_log()
-        
-        # Step 2: ask Grok to write a briefing
-        from . import grok_service
-        
-        system_prompt = (
-            "You are a concise platform-health analyst writing a morning "
-            "briefing email to Steve, the founder of SuperAdPro. He reads "
-            "this every morning before deciding what to focus on. "
-            "Tone: direct, calm, factual. No filler, no hype. Lead with "
-            "anything anomalous. If everything looks normal, say so plainly. "
-            "Never invent numbers — only report what's in the data given. "
-            "Format: short paragraphs, no markdown headers, no bullet points. "
-            "Aim for 150–250 words total. End with one sentence flagging "
-            "anything Steve should personally watch today."
-        )
-        
-        user_prompt = (
-            f"Today is {today_str}. Here's the platform data:\n\n"
-            f"{metrics_text}\n\n"
-            f"--- CONTEXT FROM LAUNCH LOG ---\n"
-            f"{launch_log if launch_log else '(LAUNCH_LOG.md not yet created)'}\n\n"
-            f"Write the morning briefing now."
-        )
-        
+
+        # Step 2: build the briefing summary DETERMINISTICALLY.
+        # The summary is generated by rule from the metrics — NOT by an LLM.
+        # A prior Grok-authored summary fabricated a "16 expired-but-active
+        # members / renewal cron didn't fire" incident that did not exist
+        # (30 May 2026). A generative step over a large context cannot be
+        # trusted with facts Steve makes launch decisions on, and a
+        # "never invent numbers" instruction does not prevent it. With a
+        # deterministic generator there is no step that can invent a fact.
         ai_started = datetime.utcnow()
-        try:
-            summary = await grok_service.ai_text_generate(
-                prompt=user_prompt,
-                system=system_prompt,
-                max_tokens=600,
-                temperature=0.4,
-            )
-        except Exception as e:
-            logger.error(f"[daily-briefing] AI summary failed: {e}")
-            summary = (
-                f"AI summary unavailable today (error: {str(e)[:120]}). "
-                f"Raw metrics below.\n\n{metrics_text}"
-            )
+        summary = _deterministic_briefing(metrics, today_str)
         ai_ms = int((datetime.utcnow() - ai_started).total_seconds() * 1000)
         
         # Step 3: build the email content
