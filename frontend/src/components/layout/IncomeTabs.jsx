@@ -76,19 +76,8 @@ function buildTabs(t) {
         '/campaign-analytics',
         '/grid-calculator',
         '/grid-visualiser',
-        '/income-chains',
         '/income-grid-3d',
       ],
-    },
-    {
-      id: 'courses',
-      label: t('income.tabs.courses', { defaultValue: 'Course Academy' }),
-      icon: GraduationCap, tone: 'amber',
-      path: '/courses',
-      // /courses/learn/:courseId is the actual course player — when
-      // a member is taking a course they're conceptually inside the
-      // Course Academy stream so light up this tab too.
-      match: ['/courses', '/courses/commissions', '/courses/how-it-works', '/courses/learn'],
     },
     {
       id: 'history',
@@ -290,9 +279,7 @@ export function isIncomeFamilyRoute(pathname) {
     '/compensation-plan',
     '/campaign-tiers',
     '/my-credits',
-    '/courses',
     '/grid-visualiser',
-    '/income-chains',
     '/income-grid-3d',
     '/watch',
     '/create-campaign',
