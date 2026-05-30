@@ -281,6 +281,12 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
 # Commission rates based on RELATIONSHIP, not matrix level
 DIRECT_RATE = Decimal("0.15")           # You personally recruited them
 SPILLOVER_RATE = Decimal("0.10")        # Someone else recruited them
+# ── Flat-20% Nexus switch (30 May 2026) ──
+# The matrix is retired. Every credit-pack purchase now pays a flat 20% to the
+# buyer's DIRECT sponsor only — no levels, no spillover, no completion. Sponsor
+# is always set (a real member, or the company account id 1 for no-ref signups,
+# in which case the 20% accrues to the company). See purchase_credit_pack.
+FLAT_REFERRAL_RATE = Decimal("0.20")
 COMPLETION_BONUS_RATE = Decimal("0")    # SCRAPPED 29 May 2026 — no completion bonus (see complete_matrix)
 
 
@@ -523,32 +529,56 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
         db.add(new_credits)
     db.flush()
 
-    # Find the buyer's sponsor for matrix placement
+    # ── Flat 20% referral commission (matrix retired 30 May 2026) ──
+    # Pay the buyer's DIRECT sponsor 20% of the pack price. No matrix, no
+    # spillover, no levels, no completion. sponsor_id is always set: a real
+    # member earns, or the company account (id 1) earns when there's no
+    # referrer (no-ref signups default sponsor_id=1 at registration), so the
+    # 20% accrues to the company in that case. Commission is written to the
+    # existing credit_matrix_commissions table (type='direct_referral') so the
+    # central earnings reader (compute_user_earnings -> nexus_earnings) and
+    # every dashboard that depends on it keep working unchanged.
     sponsor = None
     if buyer.sponsor_id:
         sponsor = db.query(User).filter(User.id == buyer.sponsor_id).first()
 
-    if not sponsor:
-        # No sponsor — create the buyer's own matrix but skip commission
-        matrix = get_or_create_active_matrix(db, buyer.id, pack_key)
-        db.commit()
-        return {
-            "success": True,
-            "purchase_id": purchase.id,
-            "credits_awarded": credits,
-            "pack": pack_key,
-            "price": float(price),
-            "matrix_placement": None,
-            "message": "Credits awarded. No sponsor — matrix placement skipped.",
-        }
-
-    # Place in EVERY upline's matrix for this pack (walks the full sponsor chain)
-    placement = place_in_matrix(db, buyer, pack_key, price, sponsor)
-
-    if placement["success"] and placement.get("position_id"):
-        purchase.matrix_entry_id = placement["position_id"]
+    commission_amount = None
+    commission_id = None
+    if sponsor:
+        commission_amount = (Decimal(str(price)) * FLAT_REFERRAL_RATE).quantize(Decimal("0.000001"))
+        com = CreditMatrixCommission(
+            matrix_id=None,
+            earner_id=sponsor.id,
+            from_user_id=buyer.id,
+            from_position_id=None,
+            level=1,
+            rate=FLAT_REFERRAL_RATE,
+            pack_price=Decimal(str(price)),
+            amount=commission_amount,
+            commission_type="direct_referral",
+            status="paid",
+        )
+        db.add(com)
+        # Credit the sponsor's withdrawable balance (atomic increment to avoid
+        # races when several of a sponsor's referrals buy at once).
+        from sqlalchemy import func as _sqlfunc
+        db.query(User).filter(User.id == sponsor.id).update(
+            {User.balance: _sqlfunc.coalesce(User.balance, 0) + commission_amount},
+            synchronize_session=False,
+        )
+        db.flush()
+        commission_id = com.id
 
     db.commit()
+
+    # Invalidate the sponsor's 60s earnings cache so the new commission shows
+    # immediately on their dashboard.
+    if sponsor:
+        try:
+            from .stats_cache import cache_invalidate_user
+            cache_invalidate_user(sponsor.id)
+        except Exception:
+            pass
 
     return {
         "success": True,
@@ -556,13 +586,13 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
         "credits_awarded": credits,
         "pack": pack_key,
         "price": float(price),
-        "matrix_placement": {
-            "matrix_id": placement.get("matrix_id"),
-            "position_id": placement.get("position_id"),
-            "level": placement.get("level"),
-            "matrices_filled": placement.get("matrices_filled", []),
-            "commissions_paid": placement.get("commissions_paid", []),
-        },
+        "referral_commission": {
+            "sponsor_id": sponsor.id if sponsor else None,
+            "amount": float(commission_amount) if commission_amount is not None else 0.0,
+            "rate": float(FLAT_REFERRAL_RATE),
+            "commission_id": commission_id,
+            "to_company": bool(sponsor and sponsor.id == 1),
+        } if sponsor else None,
     }
 
 

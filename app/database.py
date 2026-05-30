@@ -2545,6 +2545,13 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS team_pulse_actions (id SERIAL PRIMARY KEY, sponsor_user_id INTEGER REFERENCES users(id) NOT NULL, target_user_id INTEGER REFERENCES users(id) NOT NULL, prompt_kind VARCHAR(40) NOT NULL, actioned_at TIMESTAMP DEFAULT NOW())",
         "CREATE INDEX IF NOT EXISTS idx_team_pulse_actions_sponsor ON team_pulse_actions(sponsor_user_id)",
         "CREATE UNIQUE INDEX IF NOT EXISTS uniq_team_pulse_actions ON team_pulse_actions(sponsor_user_id, target_user_id, prompt_kind)",
+        # ── Flat-20% Nexus switch (30 May 2026) ──
+        # The flat referral commission reuses credit_matrix_commissions but has
+        # no matrix/position. Relax these NOT NULL constraints so a flat
+        # direct_referral row can be written with NULL matrix_id/from_position_id.
+        # Relaxing only (never tightening) — cannot break existing rows.
+        "ALTER TABLE credit_matrix_commissions ALTER COLUMN matrix_id DROP NOT NULL",
+        "ALTER TABLE credit_matrix_commissions ALTER COLUMN from_position_id DROP NOT NULL",
     ]
     results = []
     with engine.connect() as conn:
@@ -5039,15 +5046,15 @@ class CreditMatrixCommission(Base):
     """Commission earned from a matrix position being filled."""
     __tablename__ = "credit_matrix_commissions"
     id            = Column(Integer, primary_key=True, index=True)
-    matrix_id     = Column(Integer, ForeignKey("credit_matrices.id", ondelete="CASCADE"), nullable=False, index=True)
+    matrix_id     = Column(Integer, ForeignKey("credit_matrices.id", ondelete="CASCADE"), nullable=True, index=True)
     earner_id     = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     from_user_id  = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    from_position_id = Column(Integer, ForeignKey("credit_matrix_positions.id"), nullable=False)
-    level         = Column(Integer, nullable=False)          # 1, 2, or 3
-    rate          = Column(Numeric(8, 4), nullable=False)    # 0.10, 0.05, or 0.03
+    from_position_id = Column(Integer, ForeignKey("credit_matrix_positions.id"), nullable=True)
+    level         = Column(Integer, nullable=False)          # 1, 2, or 3 (legacy); 1 for flat direct_referral
+    rate          = Column(Numeric(8, 4), nullable=False)    # 0.10/0.05/0.03 legacy; 0.20 flat
     pack_price    = Column(Numeric(18, 6), nullable=False)   # original pack price
     amount        = Column(Numeric(18, 6), nullable=False)   # actual commission amount
-    commission_type = Column(String(30), default="matrix_level", index=True)  # matrix_level / matrix_completion
+    commission_type = Column(String(30), default="matrix_level", index=True)  # matrix_level / matrix_completion / direct_referral
     status        = Column(String(20), default="paid")       # paid / pending / held
     created_at    = Column(DateTime, default=datetime.utcnow)
 
