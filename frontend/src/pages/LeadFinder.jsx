@@ -115,7 +115,7 @@ export default function LeadFinder() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>{t('leadFinder.proOnlyTitle')}</h2>
         <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 20 }}>{t('leadFinder.proOnlyDesc')}</p>
-        <a href="/upgrade" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', borderRadius: 12, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff', textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>{t('leadFinder.upgradeBtn')}</a>
+        <a href="/upgrade" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', borderRadius: 12, background: 'linear-gradient(135deg,#1e3a8a,#0ea5e9)', color: '#fff', textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>{t('leadFinder.upgradeBtn')}</a>
       </div>
     </AppLayout>;
   }
@@ -125,8 +125,8 @@ export default function LeadFinder() {
 
       <div style={{ background: 'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius: 16, padding: '24px 28px', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(139,92,246,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Search size={18} color="#c084fc"/>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(14,165,233,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Search size={18} color="#0ea5e9"/>
           </div>
           <div>
             <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#fff' }}>{t('leadFinder.findBusinessLeads')}</div>
@@ -139,14 +139,14 @@ export default function LeadFinder() {
         <div style={{ display: 'flex', gap: 6, marginBottom: 12, background: 'rgba(0,0,0,.2)', padding: 4, borderRadius: 10, border: '1px solid rgba(255,255,255,.08)' }}>
           <button onClick={function() { setMode('web'); setSearched(false); setResults([]); }}
             style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-              background: mode === 'web' ? 'linear-gradient(135deg,#8b5cf6,#7c3aed)' : 'transparent',
+              background: mode === 'web' ? 'linear-gradient(135deg,#1e3a8a,#0ea5e9)' : 'transparent',
               color: mode === 'web' ? '#fff' : 'rgba(255,255,255,.5)',
               fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all .15s' }}>
             <Globe size={13}/> {t('leadFinder.modeWebSearch')}
           </button>
           <button onClick={function() { setMode('maps'); setSearched(false); setResults([]); }}
             style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-              background: mode === 'maps' ? 'linear-gradient(135deg,#8b5cf6,#7c3aed)' : 'transparent',
+              background: mode === 'maps' ? 'linear-gradient(135deg,#1e3a8a,#0ea5e9)' : 'transparent',
               color: mode === 'maps' ? '#fff' : 'rgba(255,255,255,.5)',
               fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all .15s' }}>
             <Building2 size={13}/> {t('leadFinder.modeLocalBusinesses')}
@@ -170,7 +170,7 @@ export default function LeadFinder() {
           </div>}
           <button onClick={doSearch} disabled={loading}
             style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: loading ? 'default' : 'pointer',
-              background: loading ? 'rgba(139,92,246,.3)' : 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff',
+              background: loading ? 'rgba(14,165,233,.3)' : 'linear-gradient(135deg,#1e3a8a,#0ea5e9)', color: '#fff',
               fontSize: 13, fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6,
               opacity: loading ? 0.6 : 1, transition: 'all .15s', whiteSpace: 'nowrap' }}>
             {loading ? <><Loader2 size={14} style={{ animation: 'spin .8s linear infinite' }}/> {t('leadFinder.searching')}</> : <><Search size={14}/> {t('leadFinder.findLeadsBtn')}</>}
@@ -189,9 +189,9 @@ export default function LeadFinder() {
       </div>}
 
       {loading && <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '60px 20px', textAlign: 'center' }}>
-        <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto 16px' }}/>
+        <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto 16px' }}/>
         <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#0f172a' }}>
-          {t('leadFinder.searchingFor')} "<span style={{ color: '#8b5cf6' }}>{niche}{mode === 'maps' && location ? ' · ' + location : ''}</span>"
+          {t('leadFinder.searchingFor')} "<span style={{ color: '#0ea5e9' }}>{niche}{mode === 'maps' && location ? ' · ' + location : ''}</span>"
         </div>
         <div style={{ fontSize: 13, color: '#7a8899', marginTop: 6 }}>{t('leadFinder.searchingTime')}</div>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -232,9 +232,9 @@ export default function LeadFinder() {
         {results.map(function(r, i) {
           var isSelected = selected[i];
           var hasEmail = typeof r.email === 'string' && r.email.includes('@');
-          return <div key={i} style={{ display: 'grid', gridTemplateColumns: '32px 2fr 1.5fr 1fr 70px', padding: '14px 20px', alignItems: 'center', borderBottom: '1px solid #f1f5f9', background: isSelected ? 'rgba(139,92,246,.04)' : i % 2 === 0 ? '#fff' : '#fafbfc', transition: 'background .1s' }}>
+          return <div key={i} style={{ display: 'grid', gridTemplateColumns: '32px 2fr 1.5fr 1fr 70px', padding: '14px 20px', alignItems: 'center', borderBottom: '1px solid #f1f5f9', background: isSelected ? 'rgba(14,165,233,.05)' : i % 2 === 0 ? '#fff' : '#fafbfc', transition: 'background .1s' }}>
             <div>
-              <input type="checkbox" checked={!!isSelected} onChange={function() { toggleSelect(i); }} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#8b5cf6' }}/>
+              <input type="checkbox" checked={!!isSelected} onChange={function() { toggleSelect(i); }} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#0ea5e9' }}/>
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{r.name}</div>
@@ -344,7 +344,7 @@ export default function LeadFinder() {
               {
                 title: t('leadFinder.libEcommerce'),
                 icon: '🛒',
-                color: '#8b5cf6',
+                color: '#0ea5e9',
                 bg: '#f5f3ff',
                 searches: [
                   { n: 'dropshipping coach', l: '' },
@@ -447,7 +447,7 @@ export default function LeadFinder() {
               {
                 title: t('leadFinder.libRetail'),
                 icon: '🛍️',
-                color: '#8b5cf6',
+                color: '#0ea5e9',
                 bg: '#f5f3ff',
                 searches: [
                   { n: 'Boutiques', l: 'Brighton' },
