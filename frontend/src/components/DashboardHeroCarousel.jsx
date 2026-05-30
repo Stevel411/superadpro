@@ -34,11 +34,11 @@ import { ChevronLeft, ChevronRight, Sparkles, Gift, Layers, Rocket, TrendingUp }
 var SLIDES = [
   {
     key: 'nexus',
-    title: 'Credit Packs',
+    title: 'Creator Credits',
     eyebrow: 'EARN COMMISSIONS',
     headline: 'Earn 20% on every credit pack your referrals buy.',
-    body: 'Power your AI tools with credits — packs from $20 to $1,000. Refer anyone and earn a flat 20% on every pack they buy, first one and every one after.',
-    cta: 'See credit packs',
+    body: 'Power your AI tools with Creator Credits — packs from $20 to $1,000. Refer anyone and earn a flat 20% on every pack they buy, first one and every one after.',
+    cta: 'See Creator Credits',
     href: '/my-credits',
     accent: '#0ea5e9',
     accentLight: '#38bdf8',
