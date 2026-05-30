@@ -3092,10 +3092,11 @@ def compensation_hub_page(request: Request):
 
 @app.get("/nexus")
 def nexus_stream_page(request: Request):
-    """Serve React SPA for the Stream 03 Nexus compensation page. Public."""
-    if _react_index.exists():
-        return HTMLResponse(_get_react_index_html() or "")
-    return RedirectResponse(url="/", status_code=302)
+    """Retired 30 May 2026 (Nexus -> Creator Credits rebrand; matrix removed).
+    The public matrix-stream page no longer fits the model. 301 to the
+    compensation hub so any old inbound links land somewhere sensible."""
+    from starlette.responses import RedirectResponse
+    return RedirectResponse(url="/explore/compensation", status_code=301)
 
 
 @app.get("/start")
