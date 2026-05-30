@@ -69,17 +69,28 @@ function buildNav(t, isAdmin) {
     // into AI Content vs Builder happens on the /tools page; here in
     // the sidebar we keep the existing flat list grouped by tool.
     { type: 'group', label: t('nav.tools', { defaultValue: 'Tools' }), shortLabel: t('navShort.tools', { defaultValue: 'Tools' }), key: 'tools', icon: Wrench, items: [
-      { label: t('nav.bannerCreator', { defaultValue: 'Banner Creator' }), shortLabel: t('navShort.bannerCreator', { defaultValue: 'Banner' }), icon: PenLine, path: '/tools/banner-creator' },
-      { label: t('nav.memeGenerator', { defaultValue: 'Meme Generator' }), shortLabel: t('navShort.memeGenerator', { defaultValue: 'Meme' }), icon: Sparkles, path: '/tools/meme-generator' },
+      // ── START HERE: the create → publish → share → find-audience loop ──
+      { subheader: t('nav.toolsStartHere', { defaultValue: 'Start Here' }), accent: true },
       { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio', basic: true },
+      { label: t('nav.superPages'), shortLabel: t('navShort.superPages', { defaultValue: 'Pages' }), icon: Globe, path: '/pro/funnels', pro: true },
+      { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub', basic: true },
+      { label: t('nav.leadFinder', { defaultValue: 'Lead Finder' }), shortLabel: t('navShort.leadFinder', { defaultValue: 'Leads' }), icon: Search, path: '/lead-finder', pro: true },
+
+      // ── CREATE ──
+      { subheader: t('nav.toolsCreate', { defaultValue: 'Create' }) },
       { label: t('nav.brandPosters', { defaultValue: 'Brand Posters' }), shortLabel: t('navShort.brandPosters', { defaultValue: 'Posters' }), icon: Sparkles, path: '/brand-posters', basic: true },
       { label: t('nav.myPosters', { defaultValue: 'My Posters' }), shortLabel: t('navShort.myPosters', { defaultValue: 'My Posters' }), icon: Clock, path: '/brand-posters/history', basic: true },
       { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator', basic: true },
-      { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub', basic: true },
+      { label: t('nav.bannerCreator', { defaultValue: 'Banner Creator' }), shortLabel: t('navShort.bannerCreator', { defaultValue: 'Banner' }), icon: PenLine, path: '/tools/banner-creator' },
+      { label: t('nav.memeGenerator', { defaultValue: 'Meme Generator' }), shortLabel: t('navShort.memeGenerator', { defaultValue: 'Meme' }), icon: Sparkles, path: '/tools/meme-generator' },
+
+      // ── PAGES & LINKS ──
+      { subheader: t('nav.toolsLinks', { defaultValue: 'Pages & Links' }) },
       { label: t('nav.linkTools'), shortLabel: t('navShort.linkTools', { defaultValue: 'Tools' }), icon: LayoutGrid, path: '/link-tools', basic: true },
-      { label: t('nav.superPages'), shortLabel: t('navShort.superPages', { defaultValue: 'Pages' }), icon: Globe, path: '/pro/funnels', pro: true },
+
+      // ── LEADS & SELLING ──
+      { subheader: t('nav.toolsLeads', { defaultValue: 'Leads & Selling' }) },
       { label: t('nav.autoResponder'), shortLabel: t('navShort.autoResponder', { defaultValue: 'Email' }), icon: Mail, path: '/pro/leads', pro: true },
-      { label: t('nav.leadFinder', { defaultValue: 'Lead Finder' }), shortLabel: t('navShort.leadFinder', { defaultValue: 'Leads' }), icon: Search, path: '/lead-finder', pro: true },
       { label: t('nav.proSeller', { defaultValue: 'ProSeller' }), shortLabel: t('navShort.proSeller', { defaultValue: 'Seller' }), icon: Megaphone, path: '/proseller', pro: true },
     ]},
 
@@ -428,6 +439,7 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                       {item.shortLabel || item.label}
                     </div>
                     {item.items.map(function(sub, j) {
+                      if (sub.subheader) { return null; } // no section labels in icon-only mode
                       var SubIcon = sub.icon;
                       // Three-tier lock evaluation:
                       //   - basic: true → locked for free members (is_active = false)
@@ -499,6 +511,20 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                   {isOpen && (
                     <div style={{paddingBottom:4}}>
                       {item.items.map(function(sub, j) {
+                        // Lightweight section label inside a group (e.g. Tools:
+                        // Start Here / Create / Pages & Links / Leads & Selling).
+                        if (sub.subheader) {
+                          return (
+                            <div key={j} style={{
+                              padding: j === 0 ? '6px 16px 4px 24px' : '12px 16px 4px 24px',
+                              fontSize: 10, fontWeight: 800, letterSpacing: 1,
+                              textTransform: 'uppercase',
+                              color: sub.accent ? '#38bdf8' : 'rgba(255,255,255,0.4)',
+                            }}>
+                              {sub.subheader}
+                            </div>
+                          );
+                        }
                         var SubIcon = sub.icon;
                         // Same flat-pricing evaluation as the collapsed branch above.
                         var isAdmin = !!(user && user.is_admin);
