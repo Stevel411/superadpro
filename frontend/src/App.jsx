@@ -108,7 +108,6 @@ const GridStreamPage = React.lazy(() => import('./pages/public/GridStreamPage'))
 const MembershipStreamPage = React.lazy(() => import('./pages/public/MembershipStreamPage'));
 const CompensationHubPage = React.lazy(() => import('./pages/public/CompensationHubPage'));
 const NexusStreamPage = React.lazy(() => import('./pages/public/NexusStreamPage'));
-const CreditMatrixVisualiser = React.lazy(() => import('./pages/CreditMatrixVisualiser'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const CreativeStudio = React.lazy(() => import('./pages/creative-studio/CreativeStudio'));
 const ContentCreatorPage = React.lazy(() => import('./pages/content-creator/ContentCreatorPage'));
@@ -174,7 +173,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/CreditMatrix'),
   () => import('./pages/GridVisualiser'),
   () => import('./pages/GridCalculator'),
-  () => import('./pages/CreditMatrixVisualiser'),
   () => import('./pages/tools/QRCodeGenerator'),
   () => import('./pages/tools/MemeGenerator'),
   () => import('./pages/tools/BannerCreator'),
@@ -424,7 +422,6 @@ function AppRoutes() {
       <Route path="/grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><GridVisualiser /></RequireTier></ProtectedRoute>} />
       <Route path="/labs-grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><LabsGridVisualiser /></RequireTier></ProtectedRoute>} />
       <Route path="/grid-calculator" element={<ProtectedRoute><RequireTier tier="basic"><GridCalculator /></RequireTier></ProtectedRoute>} />
-      <Route path="/nexus-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrixVisualiser /></RequireTier></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
       <Route path="/creative-studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><CreativeStudio /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/content-creator" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Content Creator…'}</div>}><ContentCreatorPage /></React.Suspense></RequireTier></ProtectedRoute>} />

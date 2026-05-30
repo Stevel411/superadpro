@@ -276,10 +276,9 @@ export default function IncomePage() {
               { label: t('income.stat.team', { defaultValue: 'In your nexus' }), value: data?.nexus_team_count || 0 },
               { label: t('income.stat.earnedAllTime', { defaultValue: 'Earned all time' }), value: formatMoney(data?.creative_studio_earned || 0) },
             ] : null}
-            statusLine={!nexusActive ? t('income.stream.nexusDormant', { defaultValue: 'Buy a credit pack to take your position in the 3×3 Credit Nexus.' }) : null}
+            statusLine={!nexusActive ? t('income.stream.nexusDormant', { defaultValue: 'Buy Creative Credits and earn 20% when your referrals buy too.' }) : null}
             actions={[
               { label: t('income.action.buyCredits', { defaultValue: 'Buy credits' }), to: '/credit-nexus' },
-              { label: t('income.action.myNexus', { defaultValue: 'My Nexus' }), to: '/nexus-visualiser' },
               { label: t('income.action.howItWorks', { defaultValue: 'How it works' }), to: '/credit-nexus' },
             ]}
           />

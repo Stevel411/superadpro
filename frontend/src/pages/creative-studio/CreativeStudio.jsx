@@ -863,14 +863,14 @@ export default function CreativeStudio() {
               </div>
             </div>}
 
-            {/* Profit Nexus Earnings Banner */}
+            {/* Creative Credits earnings banner */}
             <div className="cs-matrix-banner">
               <div className="cs-matrix-banner-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="var(--sap-purple)"/>
-                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="var(--sap-purple-light)"/>
-                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="var(--sap-purple-light)"/>
-                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="var(--sap-purple)"/>
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="#0ea5e9"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="#22d3ee"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="#22d3ee"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="#06b6d4"/>
                 </svg>
               </div>
               <div className="cs-matrix-banner-text">

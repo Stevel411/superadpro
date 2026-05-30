@@ -44961,13 +44961,6 @@ def credit_nexus_page(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/nexus-visualiser")
-def nexus_visualiser_page(request: Request):
-    """Serve React SPA — Nexus Visualiser page."""
-    if _react_index.exists():
-        return HTMLResponse(_get_react_index_html() or "")
-    return HTMLResponse("<h1>Loading...</h1>")
-
 @app.get("/credit-matrix")
 def credit_matrix_redirect(request: Request):
     from starlette.responses import RedirectResponse

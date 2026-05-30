@@ -82,10 +82,10 @@ function buildTabs(t) {
     },
     {
       id: 'nexus',
-      label: t('income.tabs.nexus', { defaultValue: 'Profit Nexus' }),
-      icon: Layers, tone: 'violet',
+      label: t('income.tabs.nexus', { defaultValue: 'Credits' }),
+      icon: Layers, tone: 'sky',
       path: '/credit-nexus',
-      match: ['/credit-nexus', '/nexus-visualiser'],
+      match: ['/credit-nexus'],
     },
     {
       id: 'courses',
@@ -299,7 +299,6 @@ export function isIncomeFamilyRoute(pathname) {
     '/credit-nexus',
     '/courses',
     '/grid-visualiser',
-    '/nexus-visualiser',
     '/income-chains',
     '/income-grid-3d',
     '/watch',
