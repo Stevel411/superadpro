@@ -471,7 +471,8 @@ export default function Dashboard() {
       {(function() {
         var refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
         var vspLink = refLink + '/video';
-        var watchGoal = (goals || []).find(function(g) { return g.type === 'watch'; });
+        var goalsList = Array.isArray(goals) ? goals : (goals && Array.isArray(goals.goals) ? goals.goals : []);
+        var watchGoal = goalsList.find(function(g) { return g.type === 'watch'; });
         var tp = teamPulse && teamPulse.team ? teamPulse : null;
         var tpPrompts = tp ? (tp.prompts || []) : [];
         var tpHasPrompts = tpPrompts.length > 0;
