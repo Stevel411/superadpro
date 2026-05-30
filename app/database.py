@@ -397,6 +397,7 @@ class Grid(Base):
     positions_filled = Column(Integer, default=0)          # 0-64
     is_complete     = Column(Boolean, default=False)       # True when 64 filled
     owner_paid      = Column(Boolean, default=False)       # owner payout sent
+    owner_purchased = Column(Boolean, default=False)       # True ONLY if the owner genuinely bought this tier (set in process_tier_purchase). False = grid auto-created by downline spillover (get_or_create_active_grid). Drives the real "tier ACTIVE" signal so spillover-created grids don't falsely show as owned. Added 30 May 2026.
     revenue_total   = Column(Money, default=0.0)           # total revenue collected
     bonus_pool_accrued = Column(Money, default=0.0)        # 5% bonus pool accumulator
     bonus_paid      = Column(Boolean, default=False)       # True if completion bonus paid
@@ -3062,6 +3063,13 @@ try:
         conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_pool_accrued NUMERIC(18,6) DEFAULT 0.0"))
         conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_paid BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_rolled_over BOOLEAN DEFAULT FALSE"))
+        # ── owner_purchased: distinguish genuinely-bought grids from those
+        #    auto-created by downline spillover (2026-05-30). Defaults FALSE;
+        #    process_tier_purchase sets it TRUE on the buyer's own grid, and a
+        #    one-time backfill (admin endpoint) marks pre-existing purchased
+        #    grids TRUE via the commission ledger. Drives the "tier ACTIVE"
+        #    signal so spillover-created grids no longer falsely show as owned. ──
+        conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS owner_purchased BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_earnings NUMERIC(18,6) DEFAULT 0.0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS campaign_balance NUMERIC(18,6) DEFAULT 0.0"))
         # Achievement metadata for badges that carry per-instance data

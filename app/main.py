@@ -16140,6 +16140,117 @@ def admin_grid_placement_orphans(
     }
 
 
+def _classify_grid_purchased(db, grid, _Commission, _Payment, _VideoCampaign):
+    """Decide whether a Grid was GENUINELY PURCHASED by its owner, vs merely
+    auto-created by downline spillover. Returns (purchased: bool, signal: str).
+
+    A grid is treated as genuinely purchased if ANY of these hold for the
+    owner at that tier (most authoritative first):
+      1. A grid Payment row by the owner (grid_package / manual_recovery_grid_N
+         / grid_* product payment_type).
+      2. The owner generated direct_sponsor / uni_level commissions AS THE
+         BUYER at that tier (process_tier_purchase always pays the chain — so
+         a real purchase leaves commission rows from_user_id == owner).
+      3. The owner has (or had) a VideoCampaign at that tier (the campaign
+         artifact only exists for genuine tier holders).
+    None of the above => spillover-created phantom grid.
+    """
+    owner_id = grid.owner_id
+    tier = grid.package_tier
+
+    from sqlalchemy import or_
+
+    pay = db.query(_Payment).filter(
+        _Payment.from_user_id == owner_id,
+        _Payment.status == "confirmed",
+        or_(
+            _Payment.payment_type == "grid_package",
+            _Payment.payment_type == f"manual_recovery_grid_{tier}",
+            _Payment.payment_type.like("grid_%"),
+            _Payment.payment_type.like("walletconnect_grid%"),
+        ),
+    ).first()
+    if pay:
+        return True, f"payment:{pay.payment_type}"
+
+    comm = db.query(_Commission).filter(
+        _Commission.from_user_id == owner_id,
+        _Commission.commission_type.in_(["direct_sponsor", "uni_level"]),
+        _Commission.package_tier == tier,
+    ).first()
+    if comm:
+        return True, "generated_commission_as_buyer"
+
+    camp = db.query(_VideoCampaign).filter(
+        _VideoCampaign.user_id == owner_id,
+        _VideoCampaign.campaign_tier == tier,
+    ).first()
+    if camp:
+        return True, "video_campaign_exists"
+
+    return False, "spillover_only"
+
+
+@app.get("/admin/api/backfill-owner-purchased")
+def admin_backfill_owner_purchased(
+    apply: bool = False,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Classify every Grid as genuinely-purchased vs spillover-created, to set
+    the new owner_purchased flag.
+
+    DRY-RUN by default (apply=false): reports counts + a sample of grids that
+    WOULD flip, changing nothing. Pass ?apply=true to write owner_purchased.
+
+    This is the one-time backfill for grids that predate the owner_purchased
+    column (everything before 30 May 2026). After this runs once, the flag is
+    maintained live by process_tier_purchase.
+    """
+    _require_admin(user)
+    from .database import Commission as _Commission, Payment as _Payment
+
+    grids = db.query(Grid).all()
+    would_true, would_false = [], []
+    signals = {}
+    for g in grids:
+        purchased, signal = _classify_grid_purchased(db, g, _Commission, _Payment, VideoCampaign)
+        signals[signal] = signals.get(signal, 0) + 1
+        owner = db.query(User).filter(User.id == g.owner_id).first()
+        rec = {
+            "grid_id": g.id,
+            "owner_id": g.owner_id,
+            "owner_username": owner.username if owner else None,
+            "tier": g.package_tier,
+            "current_owner_purchased": bool(getattr(g, "owner_purchased", False)),
+            "classified_as_purchased": purchased,
+            "signal": signal,
+        }
+        (would_true if purchased else would_false).append(rec)
+
+    changed = 0
+    if apply:
+        for g in grids:
+            purchased, _ = _classify_grid_purchased(db, g, _Commission, _Payment, VideoCampaign)
+            if bool(getattr(g, "owner_purchased", False)) != purchased:
+                g.owner_purchased = purchased
+                db.add(g)
+                changed += 1
+        db.commit()
+
+    return {
+        "dry_run": (not apply),
+        "applied": apply,
+        "rows_changed": changed if apply else None,
+        "total_grids": len(grids),
+        "would_be_purchased": len(would_true),
+        "would_be_spillover_only": len(would_false),
+        "signal_breakdown": signals,
+        "sample_spillover_only": would_false[:25],
+        "sample_purchased": would_true[:10],
+    }
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
@@ -36514,9 +36625,22 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
         agg["views_delivered"] += int(c.views_delivered or 0)
         agg["views_target"]    += int(c.views_target or 0)
 
-    # Check grids
-    active_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == False).all()
-    completed_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == True).all()
+    # Check grids. A tier is "active/owned" ONLY if the owner GENUINELY
+    # purchased it (owner_purchased=True) — NOT merely because a grid row
+    # exists. Spillover from a downline auto-creates a Grid via
+    # get_or_create_active_grid with owner_purchased=False; those must not
+    # show the owner as having bought the tier (fixed 30 May 2026 — members
+    # were seeing tiers ACTIVE that they never paid for).
+    active_grids = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.is_complete == False,
+        Grid.owner_purchased == True,  # noqa: E712 — genuine purchase only
+    ).all()
+    completed_grids = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.is_complete == True,
+        Grid.owner_purchased == True,  # noqa: E712
+    ).all()
     grid_by_tier = {}
     completed_tier_set = {g.package_tier for g in completed_grids}
     for g in active_grids:

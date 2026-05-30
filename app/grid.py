@@ -242,7 +242,14 @@ def process_tier_purchase(
     _record_platform_fee(db, price, package_tier, buyer_id)
 
     # Create the buyer's own grid at this tier (so they can receive spillover)
-    get_or_create_active_grid(db, buyer_id, package_tier)
+    # and flag it as a GENUINE purchase — this is the one place the grid owner
+    # is the actual buyer. Spillover-created grids (get_or_create_active_grid
+    # called from _spillover_fill) leave owner_purchased=False, so they won't
+    # falsely show the owner as having an active tier they never bought.
+    _own_grid = get_or_create_active_grid(db, buyer_id, package_tier)
+    if not _own_grid.owner_purchased:
+        _own_grid.owner_purchased = True
+        db.add(_own_grid)
 
     # Spillover: fill one seat in every upline grid at this tier
     grids_filled = _spillover_fill(db, buyer_id, package_tier)
