@@ -16352,6 +16352,24 @@ def admin_diagnostic_manual_grid_activation(
     }
 
 
+@app.get("/admin/api/convert-nexus-to-tier/preview")
+def admin_convert_nexus_to_tier_preview(
+    user_id: int,
+    pack_purchase_id: int,
+    target_tier: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """GET dry-run preview — address-bar friendly. CANNOT execute: there is no
+    confirm parameter, so this always runs in inspect-only mode and commits
+    nothing. Delegates to the POST handler with confirm=0. Execution is the
+    separate POST /admin/api/convert-nexus-to-tier with confirm=1."""
+    return admin_convert_nexus_to_tier(
+        user_id=user_id, pack_purchase_id=pack_purchase_id,
+        target_tier=target_tier, confirm=0, user=user, db=db,
+    )
+
+
 @app.post("/admin/api/convert-nexus-to-tier")
 def admin_convert_nexus_to_tier(
     user_id: int,
