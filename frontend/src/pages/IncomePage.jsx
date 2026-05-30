@@ -269,8 +269,8 @@ export default function IncomePage() {
           <StreamCard
             tone="violet"
             icon={Layers}
-            title={t('income.stream.nexus', { defaultValue: 'Profit Nexus' })}
-            subtitle={t('income.stream.nexusSub', { defaultValue: '3×3 Credit Nexus · cascading commissions' })}
+            title={t('income.stream.nexus', { defaultValue: 'Creator Credits' })}
+            subtitle={t('income.stream.nexusSub', { defaultValue: 'Flat 20% on every credit pack your referrals buy' })}
             tag={nexusActive ? { label: t('income.tag.active', { defaultValue: 'Active' }), tone: 'active' } : { label: t('income.tag.available', { defaultValue: 'Available' }), tone: 'dormant' }}
             stats={nexusActive ? [
               { label: t('income.stat.team', { defaultValue: 'In your nexus' }), value: data?.nexus_team_count || 0 },
