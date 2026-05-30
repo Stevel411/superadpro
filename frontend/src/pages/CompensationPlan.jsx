@@ -11,15 +11,15 @@ var TIER_NAMES = ['Starter','Builder','Pro','Advanced','Premium','Elite','Master
 var TIER_CREDITS = [100, 250, 500, 1000, 2000, 3000, 4000, 5000];
 var TIER_GRADS = [
   'linear-gradient(135deg,#064e3b,#10b981)', 'linear-gradient(135deg,#1e3a5f,#3b82f6)',
-  'linear-gradient(135deg,#172554,#8b5cf6)', 'linear-gradient(135deg,#831843,#ec4899)',
+  'linear-gradient(135deg,#172554,#0ea5e9)', 'linear-gradient(135deg,#831843,#ec4899)',
   'linear-gradient(135deg,#134e4a,#2dd4bf)', 'linear-gradient(135deg,#6b7280,#d1d5db)',
   'linear-gradient(135deg,#78350f,#fbbf24)', 'linear-gradient(135deg,#450a0a,#ef4444)',
 ];
 
 var PACK_EMOJIS = ['🚀','🔨','⚡','🚀','💎','🚀','🚀','👑'];
 var PACK_GRADIENTS = [
-  'linear-gradient(135deg,#312e81,#6366f1)','linear-gradient(135deg,#0c4a6e,#0ea5e9)',
-  'linear-gradient(135deg,#4c1d95,#8b5cf6)','linear-gradient(135deg,#831843,#ec4899)',
+  'linear-gradient(135deg,#172554,#1e3a8a)','linear-gradient(135deg,#0c4a6e,#0ea5e9)',
+  'linear-gradient(135deg,#0c4a6e,#06b6d4)','linear-gradient(135deg,#831843,#ec4899)',
   'linear-gradient(135deg,#78350f,#f59e0b)','linear-gradient(135deg,#134e4a,#14b8a6)',
   'linear-gradient(135deg,#1e3a5f,#3b82f6)','linear-gradient(135deg,#7f1d1d,#ef4444)',
 ];
@@ -29,7 +29,7 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
 
 var STREAMS_BASE = [
   { id:'membership', num:'1', Icon:Users, color:'var(--sap-green)', bg:'var(--sap-green-bg-mid)', link:'/income/membership' },
-  { id:'grid', num:'2', Icon:Zap, color:'var(--sap-indigo)', bg:'#eef2ff', link:'/grid-visualiser' },
+  { id:'grid', num:'2', Icon:Zap, color:'var(--sap-royal, #1e3a8a)', bg:'#eef2ff', link:'/grid-visualiser' },
   { id:'matrix', num:'3', Icon:Layers, color:'#0ea5e9', bg:'#e0f2fe', link:'/my-credits' },
   { id:'courses', num:'4', Icon:GraduationCap, color:'var(--sap-amber)', bg:'var(--sap-amber-bg)', link:'/courses', comingSoon:true },
 ];
@@ -171,12 +171,12 @@ export default function CompensationPlan() {
           </div>
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:20 }}>
-            <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:14, padding:'20px' }}>
+            <div style={{ background:'rgba(14,165,233,.06)', border:'1px solid rgba(14,165,233,.15)', borderRadius:14, padding:'20px' }}>
               <div style={{ fontSize:20, marginBottom:8 }}>⚡</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:6 }}>{t('compPlan.campaignTiersLabel')}</div>
               <div style={{ fontSize:14, color:'var(--sap-text-secondary)', lineHeight:1.7 }}>{t('compPlan.campaignTiersRepDesc')}</div>
             </div>
-            <div style={{ background:'rgba(139,92,246,.06)', border:'1px solid rgba(139,92,246,.15)', borderRadius:14, padding:'20px' }}>
+            <div style={{ background:'rgba(6,182,212,.06)', border:'1px solid rgba(6,182,212,.15)', borderRadius:14, padding:'20px' }}>
               <div style={{ fontSize:20, marginBottom:8 }}>🧮</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:6 }}>{t('compPlan.creditPacksLabel')}</div>
               <div style={{ fontSize:14, color:'var(--sap-text-secondary)', lineHeight:1.7 }}>{t('compPlan.creditPacksRepDesc')}</div>
@@ -243,7 +243,7 @@ function MembershipContent() {
   var { t } = useTranslation();
   return <>
     <FlowArrow steps={[
-      { title:t('compPlan.referralJoins', { defaultValue: 'Your referral joins' }), sub:t('compPlan.partnerOrFounding', { defaultValue: 'Partner $20/mo or Founding $15/mo' }), bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'var(--sap-indigo)' },
+      { title:t('compPlan.referralJoins', { defaultValue: 'Your referral joins' }), sub:t('compPlan.partnerOrFounding', { defaultValue: 'Partner $20/mo or Founding $15/mo' }), bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'var(--sap-royal, #1e3a8a)' },
       { title:t('compPlan.tenToYou', { defaultValue: '$10 to you' }), sub:t('compPlan.everyMonthActive', { defaultValue: 'Every month they stay active' }), bg:'rgba(34,197,94,.06)', border:'rgba(34,197,94,.15)', color:'var(--sap-green)' },
       { title:t('compPlan.affiliateWallet'), sub:t('compPlan.withdrawAnytime'), bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'var(--sap-accent)' },
     ]}/>
@@ -293,7 +293,7 @@ function GridContent() {
     <ProductExplainer t={t} tNamespace="gridStream" variant="grid" defaultOpen={false} compact={true} />
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
       <CommBox val="40%" label={t('compPlan.directSponsor')} sub={t('compPlan.yourReferralBuysTier')} gradient="linear-gradient(135deg,#15803d,#22c55e)" color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="6.25%" label={t('compPlan.eightLevelsDeep')} sub={t('compPlan.earnEntireNetwork')} gradient="linear-gradient(135deg,#1e40af,#3b82f6)" color="var(--sap-indigo)" bg="rgba(99,102,241,.06)" border="rgba(99,102,241,.15)"/>
+      <CommBox val="6.25%" label={t('compPlan.eightLevelsDeep')} sub={t('compPlan.earnEntireNetwork')} gradient="linear-gradient(135deg,#1e40af,#3b82f6)" color="var(--sap-royal, #1e3a8a)" bg="rgba(14,165,233,.06)" border="rgba(14,165,233,.15)"/>
       <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
     </div>
 
@@ -309,7 +309,7 @@ function GridContent() {
       t('compPlan.gridKey5'),
       t('compPlan.gridKey6'),
       t('compPlan.gridKey7'),
-    ]} color="var(--sap-indigo)"/>
+    ]} color="var(--sap-royal, #1e3a8a)"/>
     <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'var(--sap-text-muted)', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
   </>;
 }
@@ -360,7 +360,7 @@ function MatrixContent(props) {
     {/* Calculator */}
     <div style={{ background:'var(--sap-bg-elevated)', border:'1px solid #e2e8f0', borderRadius:16, padding:28, marginBottom:20 }}>
       <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
-        <div style={{ width:48, height:48, borderRadius:12, background:'rgba(139,92,246,.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>🧮</div>
+        <div style={{ width:48, height:48, borderRadius:12, background:'rgba(6,182,212,.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>🧮</div>
         <div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'var(--sap-text-primary)' }}>{t('compPlan.nexusCalculator')}</div>
           <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>{t('compPlan.calcDesc')}</div>
@@ -394,9 +394,9 @@ function MatrixContent(props) {
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#4ade80', marginTop:4 }}>${mSpillEarn.toFixed(2)}</div>
             <div style={{ fontSize:13, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixSpill} × ${mPrice} × 10%</div>
           </div>
-          <div style={{ background: mComplete ? 'rgba(139,92,246,.2)' : 'rgba(255,255,255,.05)', borderRadius:10, padding:14, textAlign:'center', border: mComplete ? '1px solid rgba(139,92,246,.3)' : '1px solid transparent' }}>
+          <div style={{ background: mComplete ? 'rgba(6,182,212,.2)' : 'rgba(255,255,255,.05)', borderRadius:10, padding:14, textAlign:'center', border: mComplete ? '1px solid rgba(6,182,212,.3)' : '1px solid transparent' }}>
             <div style={{ fontSize:13, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.bonusPercent')}</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color: mComplete ? '#c084fc' : 'rgba(255,255,255,.2)', marginTop:4 }}>{mComplete ? '$'+mCompletionBonus.toFixed(2) : '🔒'}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color: mComplete ? '#22d3ee' : 'rgba(255,255,255,.2)', marginTop:4 }}>{mComplete ? '$'+mCompletionBonus.toFixed(2) : '🔒'}</div>
             <div style={{ fontSize:13, color:'rgba(255,255,255,.4)', marginTop:2 }}>{mComplete ? '39 × $'+mPrice+' × 10%' : t('compPlan.unlocksAt')}</div>
           </div>
         </div>
@@ -412,7 +412,7 @@ function MatrixContent(props) {
       t('compPlan.nexusKey5'),
       t('compPlan.nexusKey6'),
       t('compPlan.nexusKey7'),
-    ]} color="var(--sap-purple)"/>
+    ]} color="var(--sap-cyan, #06b6d4)"/>
     <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'var(--sap-text-muted)', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
   </>;
 }
@@ -427,7 +427,7 @@ function CoursesContent() {
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
       <CommBox val="100%" label={t('compPlan.firstSale')} sub={t('compPlan.keepEveryPenny')} gradient="linear-gradient(135deg,#15803d,#22c55e)" color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
       <CommBox val="Pass-up" label={t('compPlan.cascadeSystem')} sub={t('compPlan.subsequentSales')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
-      <CommBox val="3 Tiers" label="$100 / $300 / $500" sub="Course price points" gradient="linear-gradient(135deg,#6d28d9,#a78bfa)" color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
+      <CommBox val="3 Tiers" label="$100 / $300 / $500" sub="Course price points" gradient="linear-gradient(135deg,#1e3a8a,#06b6d4)" color="var(--sap-cyan, #06b6d4)" bg="rgba(6,182,212,.06)" border="rgba(6,182,212,.15)"/>
     </div>
 
     <InfoBox items={[
@@ -487,9 +487,9 @@ function GridTierCards() {
                 <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-green)', textTransform:'uppercase', letterSpacing:1 }}>Direct 40%</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-green)', marginTop:4 }}>${direct40}</div>
               </div>
-              <div style={{ background:'rgba(99,102,241,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-indigo)', textTransform:'uppercase', letterSpacing:1 }}>Uni-Level 6.25%</div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-indigo)', marginTop:4 }}>${uniLevel}</div>
+              <div style={{ background:'rgba(14,165,233,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-royal, #1e3a8a)', textTransform:'uppercase', letterSpacing:1 }}>Uni-Level 6.25%</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-royal, #1e3a8a)', marginTop:4 }}>${uniLevel}</div>
                 <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>× 8 levels</div>
               </div>
               <div style={{ background:'rgba(245,158,11,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
@@ -519,9 +519,9 @@ function PackSelector({ value, onChange, options }) {
   return (
     <div ref={ref} style={{ position:'relative', width:'100%' }}>
       <div onClick={function(){ setOpen(!open); }}
-        style={{ padding:'12px 16px', borderRadius:12, border: open?'2px solid #6366f1':'2px solid #e2e8f0',
+        style={{ padding:'12px 16px', borderRadius:12, border: open?'2px solid #0ea5e9':'2px solid #e2e8f0',
           background:'#fff', cursor:'pointer', display:'flex', alignItems:'center', gap:12,
-          boxShadow: open?'0 0 0 3px rgba(99,102,241,.1)':'none', transition:'all .15s' }}>
+          boxShadow: open?'0 0 0 3px rgba(14,165,233,.1)':'none', transition:'all .15s' }}>
         {sel && <div style={{ width:36, height:36, borderRadius:10, background:sel.gradient, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{sel.emoji}</div>}
         <div style={{ flex:1 }}>
           <div style={{ fontSize:14, fontWeight:700, color:'#0f172a' }}>{sel ? sel.label : 'Select a pack...'}</div>
@@ -547,7 +547,7 @@ function PackSelector({ value, onChange, options }) {
                   <div style={{ fontSize:13, fontWeight:isSel?700:500, color:isSel?'#4f46e5':'#0f172a' }}>{o.label}</div>
                   <div style={{ fontSize:13, color:'#7a8899' }}>${o.price} · {o.credits.toLocaleString()} credits</div>
                 </div>
-                {isSel && <Check size={16} color="#6366f1"/>}
+                {isSel && <Check size={16} color="#0ea5e9"/>}
               </div>
             );
           })}
@@ -703,7 +703,7 @@ function SliderRow(props) {
       </div>
       <input type="range" min={props.min} max={props.max} value={props.value}
         onChange={function(e){ props.onChange(parseInt(e.target.value)); }}
-        style={{ width:'100%', accentColor: props.color || 'var(--sap-indigo)' }}/>
+        style={{ width:'100%', accentColor: props.color || 'var(--sap-royal, #1e3a8a)' }}/>
     </div>
   );
 }

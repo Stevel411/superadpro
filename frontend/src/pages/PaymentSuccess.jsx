@@ -21,7 +21,7 @@ function getTypeConfig(t) {
     desc: t('paymentSuccess.upgradedToProDesc'),
     action: '/dashboard',
     actionLabel: t('paymentSuccess.exploreProFeatures'),
-    color: 'var(--sap-purple)',
+    color: 'var(--sap-cyan, #06b6d4)',
   },
   pif: {
     icon: '🎁',
@@ -45,7 +45,7 @@ function getTypeConfig(t) {
     desc: t('paymentSuccess.creditNexusDesc'),
     action: '/my-credits',
     actionLabel: t('paymentSuccess.viewCreditNexus'),
-    color: 'var(--sap-purple)',
+    color: 'var(--sap-cyan, #06b6d4)',
   },
   superscene: {
     icon: '🎬',
@@ -53,7 +53,7 @@ function getTypeConfig(t) {
     desc: t('paymentSuccess.creditsReady'),
     action: '/creative-studio',
     actionLabel: t('paymentSuccess.goToCreativeStudio'),
-    color: 'var(--sap-purple)',
+    color: 'var(--sap-cyan, #06b6d4)',
   },
   course: {
     icon: '🎓',
@@ -61,7 +61,7 @@ function getTypeConfig(t) {
     desc: t('paymentSuccess.courseReady'),
     action: '/courses',
     actionLabel: t('paymentSuccess.goToCourseLibrary'),
-    color: 'var(--sap-purple)',
+    color: 'var(--sap-cyan, #06b6d4)',
   },
   email_boost: {
     icon: '🚀',
