@@ -418,6 +418,7 @@ function AppRoutes() {
       <Route path="/superdeck" element={<ProtectedRoute><RequireTier tier="basic"><SuperDeckList /></RequireTier></ProtectedRoute>} />
       <Route path="/superdeck/edit/:deckId" element={<ProtectedRoute><RequireTier tier="basic"><SuperDeckEditor /></RequireTier></ProtectedRoute>} />
       <Route path="/video-creator" element={<ProtectedRoute><RequireTier tier="basic"><VideoCreator /></RequireTier></ProtectedRoute>} />
+      <Route path="/my-credits" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/credit-nexus" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><GridVisualiser /></RequireTier></ProtectedRoute>} />
       <Route path="/labs-grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><LabsGridVisualiser /></RequireTier></ProtectedRoute>} />

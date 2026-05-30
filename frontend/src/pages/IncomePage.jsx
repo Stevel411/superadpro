@@ -278,8 +278,8 @@ export default function IncomePage() {
             ] : null}
             statusLine={!nexusActive ? t('income.stream.nexusDormant', { defaultValue: 'Buy Creative Credits and earn 20% when your referrals buy too.' }) : null}
             actions={[
-              { label: t('income.action.buyCredits', { defaultValue: 'Buy credits' }), to: '/credit-nexus' },
-              { label: t('income.action.howItWorks', { defaultValue: 'How it works' }), to: '/credit-nexus' },
+              { label: t('income.action.buyCredits', { defaultValue: 'Buy credits' }), to: '/my-credits' },
+              { label: t('income.action.howItWorks', { defaultValue: 'How it works' }), to: '/my-credits' },
             ]}
           />
 

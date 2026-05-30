@@ -81,13 +81,6 @@ function buildTabs(t) {
       ],
     },
     {
-      id: 'nexus',
-      label: t('income.tabs.nexus', { defaultValue: 'Credits' }),
-      icon: Layers, tone: 'sky',
-      path: '/credit-nexus',
-      match: ['/credit-nexus'],
-    },
-    {
       id: 'courses',
       label: t('income.tabs.courses', { defaultValue: 'Course Academy' }),
       icon: GraduationCap, tone: 'amber',
@@ -296,7 +289,7 @@ export function isIncomeFamilyRoute(pathname) {
     '/wallet',
     '/compensation-plan',
     '/campaign-tiers',
-    '/credit-nexus',
+    '/my-credits',
     '/courses',
     '/grid-visualiser',
     '/income-chains',

@@ -39,7 +39,7 @@ var SLIDES = [
     headline: 'Earn 20% on every credit pack your referrals buy.',
     body: 'Power your AI tools with credits — packs from $20 to $1,000. Refer anyone and earn a flat 20% on every pack they buy, first one and every one after.',
     cta: 'See credit packs',
-    href: '/credit-nexus',
+    href: '/my-credits',
     accent: '#0ea5e9',
     accentLight: '#38bdf8',
     bgFrom: '#0a1438',

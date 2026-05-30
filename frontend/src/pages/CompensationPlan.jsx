@@ -30,7 +30,7 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
 var STREAMS_BASE = [
   { id:'membership', num:'1', Icon:Users, color:'var(--sap-green)', bg:'var(--sap-green-bg-mid)', link:'/income/membership' },
   { id:'grid', num:'2', Icon:Zap, color:'var(--sap-indigo)', bg:'#eef2ff', link:'/grid-visualiser' },
-  { id:'matrix', num:'3', Icon:Layers, color:'#0ea5e9', bg:'#e0f2fe', link:'/credit-nexus' },
+  { id:'matrix', num:'3', Icon:Layers, color:'#0ea5e9', bg:'#e0f2fe', link:'/my-credits' },
   { id:'courses', num:'4', Icon:GraduationCap, color:'var(--sap-amber)', bg:'var(--sap-amber-bg)', link:'/courses', comingSoon:true },
 ];
 

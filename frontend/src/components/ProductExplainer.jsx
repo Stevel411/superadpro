@@ -35,13 +35,13 @@ export default function ProductExplainer({
   // colours live in one place — easier to tweak later.
   const palette = variant === 'nexus'
     ? {
-        // Violet for Nexus
-        iconBg: '#ede9fe',
-        iconColor: '#6d28d9',
-        subtitleColor: '#6d28d9',
-        accentBoxBg: '#f5f3ff',
-        accentBoxBorder: '#c4b5fd',
-        accentBoxLabelColor: '#6d28d9',
+        // Cyan for Credits (rebranded from violet Nexus 30 May 2026)
+        iconBg: '#e0f2fe',
+        iconColor: '#0284c7',
+        subtitleColor: '#0369a1',
+        accentBoxBg: '#f0f9ff',
+        accentBoxBorder: '#7dd3fc',
+        accentBoxLabelColor: '#0369a1',
       }
     : {
         // Cyan for Grid

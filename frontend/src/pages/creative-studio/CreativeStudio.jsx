@@ -877,7 +877,7 @@ export default function CreativeStudio() {
                 <div className="cs-matrix-banner-title">{t('creativeStudio.nexusBannerTitle')}</div>
                 <div className="cs-matrix-banner-desc">{t('creativeStudio.nexusBannerDesc')}</div>
               </div>
-              <a href="/credit-nexus" className="cs-matrix-banner-link">{t('creativeStudio.viewNexus')}</a>
+              <a href="/my-credits" className="cs-matrix-banner-link">{t('creativeStudio.viewNexus')}</a>
             </div>
 
           </>}

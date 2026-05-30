@@ -12794,8 +12794,8 @@ async def stripe_checkout_nexus_pack(
             db_session=db,
             product_kind="nexus_pack",
             amount_cents=amount_cents,
-            success_path=f"/credit-nexus?activated={pack_key}",
-            cancel_path="/credit-nexus",
+            success_path=f"/my-credits?activated={pack_key}",
+            cancel_path="/my-credits",
             extra_metadata={"nexus_pack_key": pack_key},
         )
         return result
@@ -44955,16 +44955,24 @@ def video_creator_page(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/credit-nexus")
-def credit_nexus_page(request: Request):
+@app.get("/my-credits")
+def my_credits_page(request: Request):
+    """Serve React SPA — Credits & Referrals page (renamed from /credit-nexus
+    30 May 2026 as part of the Nexus -> Creative Credits rebrand)."""
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/credit-nexus")
+def credit_nexus_page(request: Request):
+    # Legacy URL — 301 to the renamed page so old bookmarks/links never break.
+    from starlette.responses import RedirectResponse
+    return RedirectResponse("/my-credits", status_code=301)
+
 @app.get("/credit-matrix")
 def credit_matrix_redirect(request: Request):
     from starlette.responses import RedirectResponse
-    return RedirectResponse("/credit-nexus", status_code=301)
+    return RedirectResponse("/my-credits", status_code=301)
 
 @app.get("/campaign-analytics")
 def campaign_analytics_page(request: Request):
