@@ -2,7 +2,7 @@
 
 **Status:** Locked ground truth — AI assistants must read this before making any claims about commission rates, tier prices, or payout mechanics. Do not fabricate numbers. If a rule is not documented here or contradicts here, ask Steve.
 
-**Last confirmed:** 25 May 2026 (Steve cut Profit Grid from 8×8/64 seats to 6×6/36 seats with bonus at position 36. Visual redesign: gold direct + cyan spillover + purple completion seat.)
+**Last confirmed:** 30 May 2026 (Creator Credits confirmed live as flat 20% direct, matrix retired — verified against credit_matrix.py FLAT_REFERRAL_RATE. Prior session misread dead 15%/10% matrix constants as live; corrected.)
 
 **Legend:**
 - ✅ Confirmed by Steve in-session
@@ -171,39 +171,43 @@ On deploy day, all in-flight grids (regardless of `positions_filled`) re-targete
 
 ---
 
-## 3. Credit Nexus (Stream 03) ✅
+## 3. Creator Credits (Stream 03) ✅
+
+**Renamed from "Credit Nexus" and re-architected to a flat rate. The 3×3 matrix is RETIRED.** Live as of 30 May 2026, confirmed against code (`app/credit_matrix.py` line ~285–290, `FLAT_REFERRAL_RATE`). See history note below.
 
 ### Pack prices ✅
 
-8 independent credit packs, each with its own 3×3 matrix:
+8 credit packs (unchanged):
 $20 → $50 → $100 → $200 → $400 → $600 → $800 → $1,000
 
-### Commission structure ✅
+### Commission structure ✅ (LIVE)
 
 | Type | Rate | Trigger |
 |---|---|---|
-| Direct affiliates | **15%** | Buyer was personally referred by the matrix owner |
-| Spillover | **10%** | Buyer was placed in the matrix via someone else |
+| Flat referral | **20%** | Paid to the buyer's DIRECT sponsor on every credit-pack purchase — first one and every repurchase |
 
-**Completion bonus: SCRAPPED 29 May 2026 (Steve).** Previously 10% of total matrix value (3.9 × pack price on a 39/39 fill). It stacked on top of the up-to-35% running commission (15% direct at L1 + 10% spillover at L2 + 10% at L3) and, with the 50% AI-cost budget, pushed total payout past 100% of pack revenue at full credit consumption — the company could go underwater on a fully populated, fully consumed pack. Running commissions stay; they fit inside the 50% non-AI half (~15% company margin worst case). Matrices still complete and cycle to a new advance, no bonus payout. Code: `app/credit_matrix.py::complete_matrix`.
-
-**Income stream framing:** Credit Nexus is 85% to affiliates, 15% to the company. ⚠️ REVISIT — this framing predates the bonus removal and the full cost model; reconcile with Steve before using publicly (see 29 May 2026 margin analysis).
+- **No matrix, no levels, no spillover, no completion bonus.** One flat 20% to the direct sponsor only.
+- Sponsor is always set: a real member, or the company account (user id 1) for no-referrer signups, in which case the 20% accrues to the company.
+- **Code reference:** `app/credit_matrix.py` — `FLAT_REFERRAL_RATE = Decimal("0.20")`, paid in the credit-pack purchase flow (around line 548). This is the ONLY live commission path for credit packs.
 
 ### Tier ownership requirement ✅
 
-**NONE.** A member earns on every pack purchased in their matrix regardless of what they own themselves. This is a deliberate design choice by Steve — explicitly different from Grid and Courses.
+**NONE.** A member earns 20% on every credit pack their direct referrals buy, regardless of what they own themselves. Deliberate design choice by Steve — explicitly different from Grid and Courses.
 
-### Matrix mechanics ✅
+### ⚠️ DEAD CODE WARNING (for future sessions)
 
-- 3×3×3 = 39 positions per pack-tier matrix
-- Each of the 8 pack tiers runs its own independent matrix (8 simultaneous matrices possible per member)
-- On fill: matrix resets and a new advance starts (completion bonus scrapped 29 May 2026 — no payout)
+`app/credit_matrix.py` STILL CONTAINS the retired matrix functions and constants:
+`pay_matrix_commissions`, `place_in_matrix`, `complete_matrix`, `DIRECT_RATE = 0.15`,
+`SPILLOVER_RATE = 0.10`, `COMPLETION_BONUS_RATE`, the 39-position (3×3×3) logic.
+**These are NOT called from any live flow.** Do not read these constants and conclude
+the live rate is 15%/10% — it is not, it is a flat 20%. (This exact mistake was made
+30 May 2026.) These should be deleted; until then, treat them as dead.
 
-### Important clarification ✅
+### History (do not delete — per spec rule 5) ❌→✅
 
-The commission is **relationship-based, not level-based.** Earlier drafts of the deck said "L1 15% / L2 10% / L3 10%" — this is incorrect. Steve confirmed: 15% if direct, 10% if spillover, regardless of which level the buyer sits at in the matrix.
-
-**Code reference:** `app/credit_matrix.py::pay_matrix_commissions` (relationship-based).
+- **❌ OLD (pre-30 May 2026): "Credit Nexus" 3×3 matrix.** 39 positions per pack-tier matrix, 8 independent matrices per member, relationship-based rates 15% direct / 10% spillover, plus a 10%-of-matrix-value completion bonus on a 39/39 fill.
+- **❌ Completion bonus scrapped 29 May 2026** (margin: bonus + up-to-35% running commission + 50% AI-cost budget could push payout past 100% of pack revenue).
+- **✅ Matrix fully retired ~29–30 May 2026, replaced with flat 20% direct (above).** The "85% affiliates / 15% company" framing from the matrix era is obsolete — under flat 20%, the affiliate share is 20% of pack price to the direct sponsor.
 
 ---
 
@@ -242,7 +246,7 @@ Every withdrawal pays the company $1 (admin fee). The rest goes to the member's 
 | Membership (Partner) | 50% ($10/mo) | 50% ($10/mo) | ✅ Yes — primary recurring |
 | Membership (Founding) | $10/mo flat | $5/mo flat | ✅ Yes — first 100 only |
 | Campaign Tiers | 95% | 5% (admin only) | ❌ No |
-| Credit Nexus | 85% | 15% | ✅ Yes |
+| Creator Credits | flat 20% to direct sponsor | 80% (or 100% if no referrer) | ✅ Yes (no tier needed) |
 | Courses | 100% | 0% | ❌ No |
 | Withdrawals | — | $1/withdrawal | ❌ No (offset only) |
 
@@ -258,7 +262,7 @@ Under flat-pricing this is mostly a Grid/Course concern (unqualified upline → 
 
 ### Tier qualification — general principle 🟡
 
-Grid and Courses require tier ownership/qualification. Nexus does not. Member-facing material should make the distinction clear to avoid confusion.
+Grid and Courses require tier ownership/qualification. Creator Credits does not. Member-facing material should make the distinction clear to avoid confusion.
 
 ---
 
