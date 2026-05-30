@@ -79,7 +79,7 @@ export default function ToolsPage() {
               ? t('tools.door.ai.eyebrowOpen', { defaultValue: 'Included with your membership' })
               : t('tools.door.ai.eyebrowLocked', { defaultValue: 'Activate to unlock' })}
             title={t('tools.door.ai.title', { defaultValue: 'AI Content Tools' })}
-            desc={t('tools.door.ai.desc', { defaultValue: 'Creative Studio, Content Creator, SuperDeck, Banner Creator, Meme Generator, QR Generator, Niche Finder. Generate assets, copy, and ideas with AI.' })}
+            desc={t('tools.door.ai.desc', { defaultValue: 'Creative Studio, Content Creator, Banner Creator, Meme Generator. Generate assets, copy, and ideas with AI.' })}
             count={isActive
               ? t('tools.door.ai.count', { defaultValue: '7 tools' })
               : t('tools.door.ai.countLocked', { defaultValue: '7 tools · locked' })}

@@ -120,7 +120,7 @@ function UpgradeCard({ t }) {
           {t('tools.ai.upgradeTitle', { defaultValue: 'Unlock all 7 AI content tools' })}
         </div>
         <div style={{ fontSize: 14, color: 'var(--sap-text-secondary, #475569)', lineHeight: 1.6, marginBottom: 14 }}>
-          {t('tools.ai.upgradeDesc', { defaultValue: 'Creative Studio, Content Creator, SuperDeck, plus quick-asset tools and Niche Finder. Generate posts, banners, videos, decks, niches — all included with your Partner membership.' })}
+          {t('tools.ai.upgradeDesc', { defaultValue: 'Creative Studio, Content Creator, plus quick-asset tools. Generate posts, banners, and videos — all included with your Partner membership.' })}
         </div>
       </div>
       <Link to="/upgrade" style={{

@@ -113,7 +113,7 @@ export default function PublicLayout({ children }) {
             {/* Free Tools */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>{t('nav.freeTools')}</div>
-              {[['Meme Generator', '/free/meme-generator'], ['QR Code Generator', '/free/qr-code-generator'], ['Banner & Profile Creator', '/free/banner-creator']].map(function([l,h]){
+              {[['Meme Generator', '/free/meme-generator'], ['Banner & Profile Creator', '/free/banner-creator']].map(function([l,h]){
                 return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
               })}

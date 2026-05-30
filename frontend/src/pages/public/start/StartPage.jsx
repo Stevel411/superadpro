@@ -280,7 +280,6 @@ export default function StartPage() {
                   <li>Brand Poster Generator &mdash; six templates</li>
                   <li>Lead Finder &mdash; live web-sourced prospects</li>
                   <li>SuperPages &mdash; drag-and-drop landing pages</li>
-                  <li>SuperDeck &mdash; AI presentations</li>
                 </ul>
               </div>
               <div className="fusion-seam-wrap">
@@ -317,7 +316,6 @@ export default function StartPage() {
                 { title: 'Brand Poster Generator', desc: 'Six AI templates. Branded marketing posters in sixty seconds. Your referral link baked in automatically.', icon: 'M4 4h16v16H4zM4 9h16M9 4v16' },
                 { title: 'Lead Finder', desc: 'Search-driven prospect lists with live contact details. Filter by sector, geography, and intent signals.', icon: 'M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35' },
                 { title: 'SuperPages & Funnels', desc: 'Drag-and-drop landing page builder. Eight templates, AI copy, free-form canvas, conversion tracking.', icon: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10' },
-                { title: 'SuperDeck', desc: 'AI-powered slide presentations. Free-form drag canvas, eighteen typefaces, present mode, multilingual.', icon: 'M3 3h18v12H3zM7 19h10M9 15v4M15 15v4' },
                 { title: 'MyLeads CRM', desc: 'Lead capture, autoresponder with visual email timeline, AI-generated outreach. Native Brevo integration.', icon: 'M2 3h20v14H2z M2 7l10 6 10-6' },
               ].map(function(tool) {
                 return (

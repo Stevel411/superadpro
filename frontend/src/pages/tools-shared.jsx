@@ -43,11 +43,8 @@ export function getAIContentTools(t) {
   return [
     { id: 'studio',  icon: Sparkles, name: t('tools.ai.studio.name', { defaultValue: 'Creative Studio' }), desc: t('tools.ai.studio.desc', { defaultValue: 'AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse.' }), to: '/creative-studio' },
     { id: 'content', icon: FileText, name: t('tools.ai.content.name', { defaultValue: 'Content Creator' }), desc: t('tools.ai.content.desc', { defaultValue: 'AI-written posts, articles, captions, scripts.' }), to: '/content-creator' },
-    { id: 'deck',    icon: Monitor,  name: t('tools.ai.deck.name', { defaultValue: 'SuperDeck' }), desc: t('tools.ai.deck.desc', { defaultValue: 'AI presentation builder with 18 fonts and present mode.' }), to: '/superdeck' },
     { id: 'banner',  icon: Image,    name: t('tools.ai.banner.name', { defaultValue: 'Banner Creator' }), desc: t('tools.ai.banner.desc', { defaultValue: 'AI-generated banners and profile images for social platforms.' }), to: '/tools/banner-creator' },
     { id: 'meme',    icon: Smile,    name: t('tools.ai.meme.name', { defaultValue: 'Meme Generator' }), desc: t('tools.ai.meme.desc', { defaultValue: 'Quick template-based memes and viral images.' }), to: '/tools/meme-generator' },
-    { id: 'qr',      icon: QrCode,   name: t('tools.ai.qr.name', { defaultValue: 'QR Generator' }), desc: t('tools.ai.qr.desc', { defaultValue: 'Custom QR codes for any link. Trackable.' }), to: '/tools/qr-code-generator' },
-    { id: 'niche',   icon: Star,     name: t('tools.ai.niche.name', { defaultValue: 'Niche Finder' }), desc: t('tools.ai.niche.desc', { defaultValue: 'Discover under-served niches with AI-powered analysis.' }), to: '/niche-finder' },
   ];
 }
 
@@ -97,7 +94,6 @@ export function getProTools(t) {
     builder.find(function(x) { return x.id === 'pages'; }),
     builder.find(function(x) { return x.id === 'auto'; }),
     builder.find(function(x) { return x.id === 'leads'; }),
-    ai.find(function(x) { return x.id === 'niche'; }),
     builder.find(function(x) { return x.id === 'proseller'; }),
   ].filter(Boolean);
 }

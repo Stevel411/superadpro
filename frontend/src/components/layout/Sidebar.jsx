@@ -71,18 +71,15 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.tools', { defaultValue: 'Tools' }), shortLabel: t('navShort.tools', { defaultValue: 'Tools' }), key: 'tools', icon: Wrench, items: [
       { label: t('nav.bannerCreator', { defaultValue: 'Banner Creator' }), shortLabel: t('navShort.bannerCreator', { defaultValue: 'Banner' }), icon: PenLine, path: '/tools/banner-creator' },
       { label: t('nav.memeGenerator', { defaultValue: 'Meme Generator' }), shortLabel: t('navShort.memeGenerator', { defaultValue: 'Meme' }), icon: Sparkles, path: '/tools/meme-generator' },
-      { label: t('nav.qrGenerator', { defaultValue: 'QR Generator' }), shortLabel: t('navShort.qrGenerator', { defaultValue: 'QR' }), icon: Globe, path: '/tools/qr-code-generator' },
       { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio', basic: true },
       { label: t('nav.brandPosters', { defaultValue: 'Brand Posters' }), shortLabel: t('navShort.brandPosters', { defaultValue: 'Posters' }), icon: Sparkles, path: '/brand-posters', basic: true },
       { label: t('nav.myPosters', { defaultValue: 'My Posters' }), shortLabel: t('navShort.myPosters', { defaultValue: 'My Posters' }), icon: Clock, path: '/brand-posters/history', basic: true },
       { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator', basic: true },
       { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub', basic: true },
       { label: t('nav.linkTools'), shortLabel: t('navShort.linkTools', { defaultValue: 'Tools' }), icon: LayoutGrid, path: '/link-tools', basic: true },
-      { label: t('nav.superDeck'), shortLabel: t('navShort.superDeck', { defaultValue: 'Deck' }), icon: Monitor, path: '/superdeck', basic: true },
       { label: t('nav.superPages'), shortLabel: t('navShort.superPages', { defaultValue: 'Pages' }), icon: Globe, path: '/pro/funnels', pro: true },
       { label: t('nav.autoResponder'), shortLabel: t('navShort.autoResponder', { defaultValue: 'Email' }), icon: Mail, path: '/pro/leads', pro: true },
       { label: t('nav.leadFinder', { defaultValue: 'Lead Finder' }), shortLabel: t('navShort.leadFinder', { defaultValue: 'Leads' }), icon: Search, path: '/lead-finder', pro: true },
-      { label: t('nav.nicheFinder', { defaultValue: 'Niche Finder' }), shortLabel: t('navShort.nicheFinder', { defaultValue: 'Niche' }), icon: Search, path: '/niche-finder', pro: true },
       { label: t('nav.proSeller', { defaultValue: 'ProSeller' }), shortLabel: t('navShort.proSeller', { defaultValue: 'Seller' }), icon: Megaphone, path: '/proseller', pro: true },
     ]},
 

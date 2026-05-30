@@ -68,18 +68,14 @@ function buildTabs(t) {
         '/tools/ai-content',
         '/creative-studio',
         '/content-creator',
-        '/superdeck',
         '/tools/banner-creator',
         '/tools/meme-generator',
-        '/tools/qr-code-generator',
-        '/niche-finder',
         // Legacy paths kept here so deep-pages still highlight correctly
         // until the legacy redirects clear out of cache.
         '/tools/free',
         '/tools/basic',
         '/free/banner-creator',
         '/free/meme-generator',
-        '/free/qr-code-generator',
       ],
       requiresTier: 'paid',
     },
@@ -319,8 +315,6 @@ export function isToolsFamilyRoute(pathname) {
     // AI Content tools (deep pages)
     '/creative-studio',
     '/content-creator',
-    '/superdeck',
-    '/niche-finder',
     // Builder tools (deep pages)
     '/linkhub',
     '/link-tools',
@@ -334,7 +328,6 @@ export function isToolsFamilyRoute(pathname) {
     // confirmed retired or redirected.
     '/free/banner-creator',
     '/free/meme-generator',
-    '/free/qr-code-generator',
   ];
   for (var i = 0; i < TOOLS_PATHS.length; i++) {
     var p = TOOLS_PATHS[i];

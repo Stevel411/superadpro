@@ -85,7 +85,6 @@ const TrainingCentre = React.lazy(() => import('./pages/TrainingCentre'));
 const CryptoGuide = React.lazy(() => import('./pages/CryptoGuide'));
 const PlatformTour = React.lazy(() => import('./pages/PlatformTour'));
 const TeamMessenger = React.lazy(() => import('./pages/TeamMessenger'));
-const QRGenerator = React.lazy(() => import('./pages/QRGenerator'));
 const SuperLinkPage = React.lazy(() => import('./pages/SuperLink'));
 const ReferralVideo = React.lazy(() => import('./pages/ReferralVideo'));
 
@@ -97,8 +96,6 @@ const BrandPosterHistory = React.lazy(() => import('./pages/brand-posters/BrandP
 
 // ── Heavy/rare pages (already lazy from before) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
-const SuperDeckList = React.lazy(() => import('./pages/superdeck/SuperDeckList'));
-const SuperDeckEditor = React.lazy(() => import('./pages/superdeck/SuperDeckEditor'));
 const VideoCreator = React.lazy(() => import('./pages/VideoCreator'));
 const CreditMatrix = React.lazy(() => import('./pages/CreditMatrix'));
 const GridVisualiser = React.lazy(() => import('./pages/GridVisualiser'));
@@ -112,9 +109,7 @@ const CreativeStudio = React.lazy(() => import('./pages/creative-studio/Creative
 const ContentCreatorPage = React.lazy(() => import('./pages/content-creator/ContentCreatorPage'));
 const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
 const MemeGenerator = React.lazy(() => import('./pages/free/MemeGenerator'));
-const QRCodeGen = React.lazy(() => import('./pages/free/QRCodeGen'));
 const BannerCreator = React.lazy(() => import('./pages/free/BannerCreator'));
-const QRCodeGenInternal = React.lazy(() => import('./pages/tools/QRCodeGenerator'));
 const MemeGeneratorInternal = React.lazy(() => import('./pages/tools/MemeGenerator'));
 const BannerCreatorInternal = React.lazy(() => import('./pages/tools/BannerCreator'));
 
@@ -166,13 +161,11 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/CryptoGuide'),
   () => import('./pages/PlatformTour'),
   () => import('./pages/TeamMessenger'),
-  () => import('./pages/QRGenerator'),
   () => import('./pages/SuperLink'),
   () => import('./pages/CampaignAnalytics'),
   () => import('./pages/CreditMatrix'),
   () => import('./pages/GridVisualiser'),
   () => import('./pages/GridCalculator'),
-  () => import('./pages/tools/QRCodeGenerator'),
   () => import('./pages/tools/MemeGenerator'),
   () => import('./pages/tools/BannerCreator'),
 ];
@@ -356,9 +349,7 @@ function AppRoutes() {
       <Route path="/campaign-studio" element={<ProtectedRoute><RequireTier tier="basic"><AiTool title={'Campaign Studio'} subtitle={'AI-powered campaign generator'} apiEndpoint="/api/campaign-studio/generate"
         fields={[{key:'niche',label:'Your Niche',placeholder:'e.g. crypto trading, fitness, real estate'},{key:'audience',label:'Target Audience',placeholder:'e.g. beginners, professionals, women 25-45'},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Urgent','Inspirational','Educational']},{key:'goal',label:'Campaign Goal',type:'select',options:['Lead Generation','Sales','Brand Awareness','Recruitment']}]}
         resultLabel="Your Campaign" /></RequireTier></ProtectedRoute>} />
-      <Route path="/niche-finder" element={<ProtectedRoute><RequireTier tier="pro"><AiTool title={'Niche Finder'} subtitle={'Discover profitable niches'} apiEndpoint="/api/niche-finder/generate"
-        fields={[{key:'interests',label:'Your Interests',placeholder:'e.g. health, technology, finance'},{key:'budget',label:'Budget Range',type:'select',options:['Under $500','$500-$2000','$2000-$5000','$5000+']},{key:'experience',label:'Experience Level',type:'select',options:['Beginner','Intermediate','Advanced']}]}
-        resultLabel="Niche Recommendations" /></RequireTier></ProtectedRoute>} />
+      <Route path="/niche-finder" element={<Navigate to="/tools" replace />} />
       <Route path="/social-post-generator" element={<ProtectedRoute><RequireTier tier="basic"><AiTool title={'Social Post Generator'} subtitle={'AI social media content'} apiEndpoint="/api/social-posts/generate"
         fields={[{key:'topic',label:'Topic',placeholder:'What do you want to post about?'},{key:'platform',label:'Platform',type:'select',options:['Facebook','Instagram','X / Twitter','LinkedIn','TikTok']},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Funny','Inspirational','Educational']}]}
         resultLabel="Your Social Post" /></RequireTier></ProtectedRoute>} />
@@ -402,7 +393,7 @@ function AppRoutes() {
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
       <Route path="/team-messenger" element={<ProtectedRoute><RequireTier tier="basic"><TeamMessenger /></RequireTier></ProtectedRoute>} />
-      <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />
+      <Route path="/qr-generator" element={<Navigate to="/tools" replace />} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/network-tree" element={<ProtectedRoute><AdminNetworkTree /></ProtectedRoute>} />
       <Route path="/admin/rotator" element={<ProtectedRoute><Lazy><AdminRotatorState /></Lazy></ProtectedRoute>} />
@@ -414,8 +405,7 @@ function AppRoutes() {
       <Route path="/pro/funnels/new" element={<ProtectedRoute><RequireTier tier="pro"><FunnelsNew /></RequireTier></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><LabsSuperPagesEditor /></RequireTier></ProtectedRoute>} />
-      <Route path="/superdeck" element={<ProtectedRoute><RequireTier tier="basic"><SuperDeckList /></RequireTier></ProtectedRoute>} />
-      <Route path="/superdeck/edit/:deckId" element={<ProtectedRoute><RequireTier tier="basic"><SuperDeckEditor /></RequireTier></ProtectedRoute>} />
+      <Route path="/superdeck" element={<Navigate to="/tools" replace />} />
       <Route path="/video-creator" element={<ProtectedRoute><RequireTier tier="basic"><VideoCreator /></RequireTier></ProtectedRoute>} />
       <Route path="/my-credits" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/credit-nexus" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
@@ -478,10 +468,9 @@ function AppRoutes() {
       <Route path="/vip" element={<Navigate to="/register" replace />} />
       {/* /join/:username handled by SuperLinkPage below */}
       <Route path="/free/meme-generator" element={<Lazy><MemeGenerator /></Lazy>} />
-      <Route path="/free/qr-code-generator" element={<Lazy><QRCodeGen /></Lazy>} />
       <Route path="/free/banner-creator" element={<Lazy><BannerCreator /></Lazy>} />
       {/* Internal tool versions — same engine, light theme + AppLayout, login required */}
-      <Route path="/tools/qr-code-generator" element={<ProtectedRoute><Lazy><QRCodeGenInternal /></Lazy></ProtectedRoute>} />
+      <Route path="/tools/qr-code-generator" element={<Navigate to="/tools" replace />} />
       <Route path="/tools/meme-generator" element={<ProtectedRoute><Lazy><MemeGeneratorInternal /></Lazy></ProtectedRoute>} />
       <Route path="/tools/banner-creator" element={<ProtectedRoute><Lazy><BannerCreatorInternal /></Lazy></ProtectedRoute>}/>
       <Route path="/join/:username" element={<SuperLinkPage />} />
