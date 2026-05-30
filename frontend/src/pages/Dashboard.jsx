@@ -8,7 +8,6 @@ import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, DollarSign, Gauge, Gift, Compass, Share2 } from 'lucide-react';
 import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
-import DashboardHeroCarousel from '../components/DashboardHeroCarousel';
 import FastStartHero from '../components/FastStartHero';
 import PendingCommissionsCard from '../components/PendingCommissionsCard';
 
@@ -406,206 +405,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Team Pulse card (28 May 2026) ──
-          Surfaces time-sensitive sponsor prompts at the top of the dashboard
-          so members can act in the activation window. Renders ONLY for
-          members who actually have a team (>0 direct referrals). Empty
-          state shown when team exists but no prompts are urgent. Hidden
-          entirely for members with no downline (no value to show). Data
-          from /api/team-pulse. */}
-      {teamPulse && teamPulse.team && teamPulse.team.total > 0 && (function() {
-        var prompts = teamPulse.prompts || [];
-        var team = teamPulse.team || {};
-        var hasPrompts = prompts.length > 0;
-
-        function initials(n) {
-          if (!n) return '?';
-          var parts = String(n).trim().split(/\s+/);
-          return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
-        }
-        function avatarGradient(idx) {
-          var grads = [
-            'linear-gradient(135deg,#0a1438,#0ea5e9)',
-            'linear-gradient(135deg,#7c3aed,#a855f7)',
-            'linear-gradient(135deg,#0e7490,#14b8a6)',
-            'linear-gradient(135deg,#1e3a8a,#22d3ee)',
-            'linear-gradient(135deg,#0f766e,#10b981)',
-          ];
-          return grads[idx % grads.length];
-        }
-        function indicatorColour(kind) {
-          if (kind === 'just_joined' || kind === 'just_activated') return 'var(--sap-green)';
-          if (kind === 'unactivated_warm') return '#d97706';
-          return '#94a3b8';
-        }
-        function tagStyle(kind) {
-          if (kind === 'just_joined') return { bg: 'var(--sap-green-bg)', fg: 'var(--sap-green)', bd: 'rgba(22,163,74,.25)' };
-          if (kind === 'just_activated') return { bg: '#ecfeff', fg: '#0e7490', bd: 'rgba(14,116,144,.25)' };
-          if (kind === 'unactivated_warm') return { bg: '#fef3c7', fg: '#d97706', bd: 'rgba(217,119,6,.25)' };
-          return { bg: '#f1f5f9', fg: '#475569', bd: 'var(--sap-border)' };
-        }
-        function onAction(p) {
-          // Pass the prompt kind through to TeamMessenger so it can fire
-          // the dismissal AFTER the message is actually sent — not just
-          // because the sponsor clicked through. Sponsor might arrive,
-          // change their mind, and close the page without sending; in
-          // that case the prompt should stay visible. Dismissal-on-send
-          // is the correct trigger (29 May 2026 — revised from initial
-          // click-time dismissal that fired too early).
-          var params = new URLSearchParams({
-            to: String(p.user_id),
-            template: p.welcome_template || '',
-            kind: p.kind || '',
-          });
-          window.location.href = '/team-messenger?' + params.toString();
-        }
-
-        return (
-          <div style={{
-            background:'var(--sap-bg-card)', border:'1px solid var(--sap-border)',
-            borderRadius:18, boxShadow:'0 4px 16px rgba(10,20,56,.05)',
-            overflow:'hidden', marginBottom:18,
-          }}>
-            {/* tappable header — toggles expand/collapse */}
-            <div
-              onClick={hasPrompts ? toggleTeamPulse : undefined}
-              style={{
-                display:'flex', alignItems:'center', justifyContent:'space-between',
-                padding:'18px 22px',
-                borderBottom: teamPulseExpanded ? '1px solid var(--sap-border-light)' : 'none',
-                flexWrap:'wrap', gap:12,
-                cursor: hasPrompts ? 'pointer' : 'default',
-              }}
-            >
-              <div style={{display:'flex', alignItems:'center', gap:12, flex:1, minWidth:0}}>
-                <div style={{
-                  width:38, height:38, borderRadius:11, flexShrink:0,
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-accent))',
-                  color:'#fff', fontSize:18,
-                }}>⚡</div>
-                <div style={{flex:1, minWidth:0}}>
-                  <div style={{
-                    fontSize:10.5, fontWeight:700, letterSpacing:'.07em', textTransform:'uppercase',
-                    color:'var(--sap-accent)', marginBottom:3,
-                    fontFamily:'JetBrains Mono,monospace',
-                  }}>
-                    {t('teamPulse.label', { defaultValue: 'Team Pulse' })}
-                  </div>
-                  <div style={{
-                    fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:16,
-                    color:'var(--sap-text-primary)',
-                  }}>
-                    {hasPrompts
-                      ? (prompts.length + ' team member' + (prompts.length === 1 ? '' : 's') + ' need' + (prompts.length === 1 ? 's' : '') + ' you')
-                      : t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })}
-                  </div>
-                  <div style={{
-                    fontSize:12.5, color:'var(--sap-text-faint)', marginTop:2,
-                    whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
-                  }}>
-                    {hasPrompts && !teamPulseExpanded
-                      ? prompts.slice(0,3).map(function(p){return p.name;}).join(' · ') + (prompts.length > 3 ? ' · +' + (prompts.length - 3) + ' more' : '')
-                      : (hasPrompts
-                          ? t('teamPulse.sub', { defaultValue: 'The first 24 hours after a sign-up is where activation happens.' })
-                          : t('teamPulse.subCalm', { defaultValue: 'No urgent outreach needed right now.' }))}
-                  </div>
-                </div>
-              </div>
-              <div style={{display:'flex', alignItems:'center', gap:10, flexShrink:0}}>
-                <div style={{
-                  display:'flex', alignItems:'center', gap:6,
-                  fontSize:12, fontFamily:'JetBrains Mono,monospace', fontWeight:600,
-                  color:'var(--sap-text-secondary)', background:'#f8fafc',
-                  padding:'6px 12px', borderRadius:99, border:'1px solid var(--sap-border)',
-                }}>
-                  <strong style={{color:'var(--sap-text-primary)', fontWeight:800}}>{team.active}</strong>
-                  <span style={{color:'var(--sap-text-faint)'}}>/</span>
-                  <strong style={{color:'var(--sap-text-primary)', fontWeight:800}}>{team.total}</strong>
-                </div>
-                {hasPrompts && (
-                  <div style={{
-                    width:28, height:28, borderRadius:8, display:'flex',
-                    alignItems:'center', justifyContent:'center',
-                    color:'var(--sap-text-faint)', fontSize:18,
-                    transition:'transform .15s',
-                    transform: teamPulseExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                  }}>▾</div>
-                )}
-              </div>
-            </div>
-
-            {/* prompts (only when expanded) */}
-            {hasPrompts && teamPulseExpanded && prompts.map(function(p, i) {
-              var ts = tagStyle(p.kind);
-              return (
-                <div key={p.user_id + '-' + p.kind} style={{
-                  display:'flex', alignItems:'center', gap:14,
-                  padding:'16px 22px',
-                  borderBottom: i < prompts.length - 1 ? '1px solid var(--sap-border-light)' : 'none',
-                }}>
-                  <div style={{
-                    width:6, alignSelf:'stretch', borderRadius:3, flexShrink:0,
-                    marginLeft:-8, background: indicatorColour(p.kind),
-                  }}/>
-                  <div style={{
-                    width:44, height:44, borderRadius:14, flexShrink:0,
-                    display:'flex', alignItems:'center', justifyContent:'center',
-                    fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:16, color:'#fff',
-                    background: avatarGradient(i),
-                  }}>{initials(p.name)}</div>
-                  <div style={{flex:1, minWidth:0}}>
-                    <div style={{
-                      fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:15,
-                      color:'var(--sap-text-primary)', marginBottom:2,
-                    }}>
-                      {p.name}
-                      <span style={{
-                        display:'inline-flex', alignItems:'center', gap:4,
-                        fontSize:11, fontFamily:'JetBrains Mono,monospace', fontWeight:600,
-                        padding:'2px 7px', borderRadius:99, marginLeft:8, verticalAlign:1,
-                        background: ts.bg, color: ts.fg, border:'1px solid ' + ts.bd,
-                      }}>{p.tag}</span>
-                    </div>
-                    <div style={{fontSize:13, color:'var(--sap-text-secondary)'}}>{p.meta}</div>
-                  </div>
-                  <button onClick={function() { onAction(p); }} style={{
-                    display:'inline-flex', alignItems:'center', gap:6,
-                    padding:'9px 16px', borderRadius:10, cursor:'pointer',
-                    fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:13,
-                    background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-accent))',
-                    color:'#fff', boxShadow:'0 4px 12px rgba(10,20,56,.2)', border:'none',
-                    whiteSpace:'nowrap',
-                  }}>{p.action_label} →</button>
-                </div>
-              );
-            })}
-
-            {/* No oversized empty-state block when calm — the compact header
-                ('Your team is all caught up') already says it. A big checkmark
-                hero here just duplicated the message and dominated the page. */}
-
-            {/* footer — only when expanded (or when card has no prompts at all) */}
-            {(teamPulseExpanded || !hasPrompts) && (
-              <div style={{
-                display:'flex', alignItems:'center', justifyContent:'space-between',
-                padding:'12px 22px', background:'#fafbfd', fontSize:12.5,
-                color:'var(--sap-text-secondary)', flexWrap:'wrap', gap:8,
-                borderTop:'1px solid var(--sap-border-light)',
-              }}>
-                <span>
-                  {hasPrompts
-                    ? prompts.length + ' of ' + team.total + ' team members need attention'
-                    : team.active + ' active out of ' + team.total + ' total'}
-                </span>
-                <Link to="/team-messenger" style={{color:'var(--sap-accent)', fontWeight:700, textDecoration:'none'}}>
-                  {t('teamPulse.openTeam', { defaultValue: 'Open TeamMessenger →' })}
-                </Link>
-              </div>
-            )}
-          </div>
-        );
-      })()}
 
       {/* ── Founding Partner banner REMOVED 28 May 2026 ──
           The 100-spot $15/mo founding offer is permanently closed (cap filled,
@@ -657,16 +456,197 @@ export default function Dashboard() {
           the component is null-render-safe. */}
       <FastStartHero />
 
-      {/* Hero carousel — rotating display of platform products & income streams.
-          60-second rotation between Credit Nexus, Brand Poster Generator, Pay
-          It Forward. The Dashboard top is treated as a storefront for the
-          platform per Steve's product direction 12 May 2026.
-          V1: hardcoded slides. V2 (Week 2): admin-managed slide CMS.
-          24 May 2026: gated on is_active. Free users were seeing 5 product
-          slides for things they couldn't access yet, contributing to the
-          decision-paralysis on Dashboard. Carousel now reserved for paid
-          members — Free users see the single Upgrade CTA instead. */}
-      {user?.is_active && <DashboardHeroCarousel />}
+      {/* ════════════════════════════════════════════════════════════
+          REDESIGNED DASHBOARD CORE (30 May 2026, Steve direction)
+          Replaces the old stacked heroes (carousel, welcome hero, VSP
+          banner, Explore doors, Quick Actions) with a decluttered grid:
+            1. Greeting + stats strip
+            2. Focus row: Your next move (Team Pulse) + Share & grow
+            3. Four doors: Business / Tools / Marketing / Campaign Videos
+            4. Income at-a-glance strip
+          Conditional banners above/below (free activation, fast start,
+          grid migration, gift welcome, tier nudge, story prompt) are
+          preserved — only the clutter blocks were removed.
+          ════════════════════════════════════════════════════════════ */}
+      {(function() {
+        var refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
+        var vspLink = refLink + '/video';
+        var watchGoal = (goals || []).find(function(g) { return g.type === 'watch'; });
+        var tp = teamPulse && teamPulse.team ? teamPulse : null;
+        var tpPrompts = tp ? (tp.prompts || []) : [];
+        var tpHasPrompts = tpPrompts.length > 0;
+        var tpTeamTotal = tp ? (tp.team.total || 0) : 0;
+        var avColors = ['linear-gradient(135deg,#0ea5e9,#22d3ee)','linear-gradient(135deg,#1e3a8a,#0ea5e9)','linear-gradient(135deg,#06b6d4,#0ea5e9)'];
+
+        return (
+        <div className="dash-core">
+          {/* 1 · Greeting + stats strip */}
+          <div className="dc-strip">
+            <div className="dc-greet">
+              <div className="dc-av">{(d.display_name || user?.username || 'M').charAt(0).toUpperCase()}</div>
+              <div>
+                <div className="dc-eyebrow">{t('dashboard.welcomeBack', { defaultValue: 'Welcome back' })}</div>
+                <div className="dc-name">{d.display_name || user?.username}</div>
+                <div className="dc-meta">
+                  {user?.is_founding_member && <span className="dc-badge">{t('dashboard.founderBadge', { defaultValue: 'Founder' })}</span>}
+                  {d.active_since && <span>{t('dashboard.activeSince', { defaultValue: 'Active since' })} {d.active_since}</span>}
+                </div>
+              </div>
+            </div>
+            <div className="dc-stats">
+              <div className="dc-stat"><div className="l">{t('dashboard.available', { defaultValue: 'Available' })}</div><div className="v cyan">{formatMoney(d.balance)}</div></div>
+              <div className="dc-stat"><div className="l">{t('dashboard.thisMonth', { defaultValue: 'This month' })}</div><div className="v">{formatMoney(d.earnings_this_month != null ? d.earnings_this_month : (d.this_month || 0))}</div></div>
+              <div className="dc-stat"><div className="l">{t('dashboard.team', { defaultValue: 'Team' })}</div><div className="v">{d.total_team || 0}</div></div>
+              <div className="dc-stat"><div className="l">{t('dashboard.allTime', { defaultValue: 'All time' })}</div><div className="v">{formatMoney(d.total_earned)}</div></div>
+            </div>
+          </div>
+
+          {/* 2 · Focus row */}
+          <div className="dc-focus">
+            {/* Your next move — Team Pulse promoted (only for members with a team) */}
+            {tpTeamTotal > 0 ? (
+              <div className="dc-card dc-pad">
+                <div className="dc-card-eyebrow">⚡ {t('teamPulse.label', { defaultValue: 'Your next move' })}</div>
+                <div className="dc-nm-title">
+                  {tpHasPrompts
+                    ? t('teamPulse.title', { count: tpPrompts.length, defaultValue: tpPrompts.length + ' team members need you' })
+                    : t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })}
+                </div>
+                {tpHasPrompts ? (
+                  <div className="dc-nm-list">
+                    {tpPrompts.slice(0, 3).map(function(p, i) {
+                      var nm = p.name || p.username || 'Member';
+                      return (
+                        <div className="dc-nm-row" key={i}>
+                          <div className="dc-nm-ava" style={{ background: avColors[i % avColors.length] }}>{nm.charAt(0).toUpperCase()}</div>
+                          <div className="dc-nm-who"><div className="n">{nm}</div><div className="s">{p.reason || p.subtitle || ''}</div></div>
+                          {p.tag && <span className={'dc-nm-tag ' + (p.tag === 'hot' ? 'hot' : 'new')}>{p.tag}</span>}
+                          <Link to="/command-centre" className="dc-nm-btn">{t('teamPulse.reachOut', { defaultValue: 'Reach out' })} →</Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="dc-nm-calm">{t('teamPulse.subCalm', { defaultValue: 'No urgent outreach needed right now.' })}</div>
+                )}
+                <div className="dc-nm-foot">
+                  <span className="c">{tpHasPrompts ? t('teamPulse.needAttention', { count: tpPrompts.length, total: tpTeamTotal, defaultValue: tpPrompts.length + ' of ' + tpTeamTotal + ' team members need attention' }) : ''}</span>
+                  <Link to="/command-centre">{t('teamPulse.openTeam', { defaultValue: 'Open Command Centre' })} →</Link>
+                </div>
+              </div>
+            ) : (
+              /* No team yet — show a share-first prompt in the focus slot */
+              <div className="dc-card dc-pad">
+                <div className="dc-card-eyebrow">⚡ {t('dashboard.nextMove', { defaultValue: 'Your next move' })}</div>
+                <div className="dc-nm-title">{t('dashboard.growYourTeam', { defaultValue: 'Share your link to grow your team' })}</div>
+                <div className="dc-nm-calm">{t('dashboard.growYourTeamBody', { defaultValue: 'Every Partner you refer earns you $10/month. Share your referral link or your Video Sales Page to get started.' })}</div>
+                <div className="dc-nm-foot">
+                  <span className="c"></span>
+                  <Link to="/social-share">{t('dashboard.shareNow', { defaultValue: 'Share now' })} →</Link>
+                </div>
+              </div>
+            )}
+
+            {/* Share & grow — referral + VSP merged */}
+            <div className="dc-card dc-pad">
+              <div className="dc-card-eyebrow">{t('dashboard.shareGrow', { defaultValue: 'Share & grow' })}</div>
+              <div className="dc-sg-title">{t('dashboard.yourLinks', { defaultValue: 'Your links' })}</div>
+              <div className="dc-sg-block">
+                <div className="dc-sg-lab">{t('dashboard.yourReferralLink', { defaultValue: 'Referral link' })}</div>
+                <div className="dc-sg-link">
+                  <span className="u">superadpro.com/ref/{user?.username}</span>
+                  <button className="cp" onClick={function() { copyRefLink(refLink); }}>{refCopied ? t('dashboard.copied', { defaultValue: 'Copied' }) : t('dashboard.copy', { defaultValue: 'Copy' })}</button>
+                </div>
+              </div>
+              <div className="dc-sg-vsp">
+                <span className="badge">● {t('dashboard.new', { defaultValue: 'New' })}</span>
+                <div className="t">{t('dashboard.videoSalesBanner.titleShort', { defaultValue: 'Your Video Sales Page' })}</div>
+                <div className="d">{t('dashboard.videoSalesBanner.bodyShort', { defaultValue: 'A polished landing page with the platform overview and your link baked in.' })}</div>
+                <div className="dc-sg-vsp-btns">
+                  <button className="vb-copy" onClick={function() { copyRefLink(vspLink); }}>{t('dashboard.copyLink', { defaultValue: 'Copy link' })}</button>
+                  <a className="vb-prev" href={vspLink} target="_blank" rel="noopener noreferrer">{t('dashboard.preview', { defaultValue: 'Preview' })}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3 · Four doors */}
+          <div className="dc-section-label">
+            <span className="t">{t('dashboard.whereToStart', { defaultValue: 'Where to start' })}</span>
+            <span className="sub">{t('dashboard.whereToStartSub', { defaultValue: 'Four ways into the platform — pick wherever you want to begin.' })}</span>
+          </div>
+          <div className="dc-doors">
+            <Link to="/command-centre" className="dc-door">
+              <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#1e3a8a,#0ea5e9)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg></div>
+              <h4>{t('dashboard.doorBusiness', { defaultValue: 'Business' })}</h4>
+              <p>{t('dashboard.doorBusinessDesc', { defaultValue: 'Your income, team, commissions and stats.' })}</p>
+              <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
+            </Link>
+
+            <Link to="/tools" className="dc-door">
+              <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#0ea5e9,#22d3ee)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 6l4 4-9 9-4 1 1-4z"/><path d="M16 4l4 4"/></svg></div>
+              <h4>{t('dashboard.doorTools', { defaultValue: 'Tools' })}</h4>
+              <p>{t('dashboard.doorToolsDesc', { defaultValue: 'All your AI tools, builders and creators.' })}</p>
+              <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
+            </Link>
+
+            {/* Marketing — hub not built yet, Coming soon state (Steve, 30 May 2026) */}
+            <div className="dc-door dc-door-soon" aria-disabled="true">
+              <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#06b6d4,#0891b2)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 11l16-7v16L3 13zM3 11v4M8 13v5a2 2 0 004 0"/></svg></div>
+              <h4>{t('dashboard.doorMarketing', { defaultValue: 'Marketing' })}</h4>
+              <p>{t('dashboard.doorMarketingDesc', { defaultValue: 'Your links, posters, pages and campaigns.' })}</p>
+              <span className="dc-door-soon-tag">{t('dashboard.comingSoon', { defaultValue: 'Coming soon' })}</span>
+            </div>
+
+            {/* Campaign Videos — live daily-task card for Grid owners, soft door otherwise */}
+            <Link to="/watch" className="dc-door dc-door-video">
+              <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#0a1438,#0ea5e9)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg></div>
+              <h4>{t('dashboard.doorCampaignVideos', { defaultValue: 'Campaign Videos' })}</h4>
+              {watchGoal ? (
+                <>
+                  <p>{t('dashboard.doorVideoDescQualify', { defaultValue: "Watch today's videos to stay qualified for campaign withdrawals." })}</p>
+                  <div className="dc-vid-prog">
+                    <div className="dc-vid-bar"><span style={{ width: (watchGoal.progress || 0) + '%' }}></span></div>
+                    <div className="dc-vid-lab">{goalText(watchGoal, 'progress_label')}{watchGoal.completed ? ' · ' + t('dashboard.resetsMidnight', { defaultValue: 'resets at midnight' }) : ''}</div>
+                  </div>
+                  <span className="dc-door-go">{watchGoal.completed ? t('dashboard.watchMore', { defaultValue: 'Watch more' }) : t('dashboard.watchNow', { defaultValue: 'Watch now' })} →</span>
+                </>
+              ) : (
+                <>
+                  <p>{t('dashboard.doorVideoDescSoft', { defaultValue: 'Own a Campaign Tier to earn by watching daily videos.' })}</p>
+                  <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
+                </>
+              )}
+            </Link>
+          </div>
+
+          {/* 4 · Income at-a-glance */}
+          <div className="dc-section-label">
+            <span className="t">{t('dashboard.yourIncome', { defaultValue: 'Your income' })}</span>
+            <span className="sub">{t('dashboard.yourIncomeSub', { defaultValue: 'Three streams, at a glance.' })}</span>
+          </div>
+          <div className="dc-income">
+            <Link to="/income" className="dc-inc-card">
+              <div className="dc-inc-ico" style={{ background: '#dcfce7' }}>👥</div>
+              <div className="dc-inc-body"><div className="dc-inc-name">{t('dashboard.streamMembership', { defaultValue: 'Membership' })}</div><div className="dc-inc-sub">{t('dashboard.directsPaying', { count: d.directs_active || 0, defaultValue: (d.directs_active || 0) + ' directs paying' })}</div></div>
+              <div className="dc-inc-amt">{formatMoney(d.membership_earned)}</div>
+            </Link>
+            <Link to="/income" className="dc-inc-card">
+              <div className="dc-inc-ico" style={{ background: '#e0f2fe' }}>🎯</div>
+              <div className="dc-inc-body"><div className="dc-inc-name">{t('dashboard.streamGrid', { defaultValue: 'Campaign Grid' })}</div><div className="dc-inc-sub">{t('dashboard.inYourTeam', { count: d.total_team || 0, defaultValue: (d.total_team || 0) + ' in your team' })}</div></div>
+              <div className="dc-inc-amt">{formatMoney(d.grid_earned)}</div>
+            </Link>
+            <Link to="/my-credits" className="dc-inc-card">
+              <div className="dc-inc-ico" style={{ background: '#cffafe' }}>⚡</div>
+              <div className="dc-inc-body"><div className="dc-inc-name">{t('dashboard.streamCredits', { defaultValue: 'Creator Credits' })}</div><div className="dc-inc-sub">{t('dashboard.referrals', { count: d.direct_referrals_count || 0, defaultValue: (d.direct_referrals_count || 0) + ' referrals' })}</div></div>
+              <div className="dc-inc-amt">{formatMoney(d.creative_studio_earned)}</div>
+            </Link>
+          </div>
+        </div>
+        );
+      })()}
+
+
 
       {/* Onboarding banner — replaces the old full-page wizard redirect.
           Shown when user.onboarding_completed is false. Two paths out:
@@ -1109,521 +1089,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Compact welcome hero ──────────────────────────────
-          Narrower, cleaner hero replacing the taller cosmic-purple
-          banner. Avatar + name/meta on left, referral pill on right.
-          Uses design-token cobalt gradient matching other hero banners
-          on the platform. */}
-      <div style={{
-        background: 'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
-        borderRadius: 18,
-        padding: '22px 28px',
-        marginBottom: 20,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 20,
-        flexWrap: 'wrap',
-        boxShadow: '0 8px 32px rgba(30,58,138,0.35)',
-      }}>
-        {/* Left — avatar + identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0 }}>
-          {/* Avatar: show uploaded image if user has one, otherwise first letter */}
-          {user?.avatar_url ? (
-            <img src={user.avatar_url} alt=""
-              style={{
-                width: 72, height: 72, borderRadius: '50%',
-                objectFit: 'cover', flexShrink: 0,
-                border: '3px solid rgba(255,255,255,0.15)',
-              }} />
-          ) : (
-            <div style={{
-              width: 72, height: 72, borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--sap-accent-pale), var(--sap-accent))',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900,
-              color: '#fff', flexShrink: 0,
-              border: '3px solid rgba(255,255,255,0.15)',
-              boxShadow: '0 4px 14px rgba(14,165,233,0.25)',
-            }}>
-              {(d.display_name || d.first_name || user?.username || '?').charAt(0).toUpperCase()}
-            </div>
-          )}
-          <div style={{ minWidth: 0 }}>
-            <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: 2,
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)',
-              marginBottom: 4,
-            }}>{t('dashboard.welcomeBack', { defaultValue: 'Welcome back' })}</div>
-            <div style={{
-              fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 900,
-              color: '#fff', marginBottom: 6, lineHeight: 1.1,
-              letterSpacing: '-0.3px',
-            }}>
-              {d.display_name || d.first_name || user?.username || ''}
-            </div>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              fontSize: 13, color: 'rgba(255,255,255,0.75)',
-              flexWrap: 'wrap',
-            }}>
-              {/* ── Tier badge (rewritten 15 May 2026 — flat partner pricing) ──
-                  Three states with distinct treatments:
-                    - free       → "Become a Partner →" CTA (clickable, routes to /upgrade)
-                    - partner    → PARTNER badge, silver text
-                    - founding   → FOUNDER badge, gold text (premium treatment)
-                  Legacy 'basic' / 'pro' values are mapped to 'partner' defensively
-                  so any pre-migration cached data doesn't render as raw text.
-
-                  The free-user CTA replaces what used to be a passive FREE badge.
-                  This converts dead pixel space into an inline conversion prompt
-                  that surfaces alongside the dismissable gold banner above. */}
-              {user && (function() {
-                var tier = (user.membership_tier || 'free').toLowerCase();
-                // Founding-ness is tracked on a SEPARATE boolean field —
-                // tier is just 'partner' or 'free' under flat-pricing,
-                // founding members are flagged via is_founding_member.
-                // (Previous version only looked at tier === 'founding'
-                // and never matched, so founding partners rendered as
-                // PARTNER on their own dashboard — Steve caught this
-                // checking Test12 after activation.)
-                var isFounder = user.is_founding_member === true;
-                var isPartner = !isFounder && (tier === 'partner' || tier === 'basic' || tier === 'pro');
-                if (!isFounder && !isPartner) {
-                  // Free user — render an active CTA link rather than a dead badge.
-                  return (
-                    <Link to="/upgrade" style={{
-                      padding: '3px 11px', borderRadius: 6,
-                      background: 'linear-gradient(135deg, rgba(251,191,36,0.18) 0%, rgba(217,119,6,0.18) 100%)',
-                      border: '1px solid rgba(251,191,36,0.4)',
-                      fontSize: 11, fontWeight: 800, letterSpacing: 0.5,
-                      color: '#fcd34d',
-                      textDecoration: 'none',
-                      textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                    }}>
-                      {t('dashboard.becomePartner', { defaultValue: 'Become a Partner →' })}
-                    </Link>
-                  );
-                }
-                // Active member — render the appropriate badge.
-                var label = isFounder ? 'FOUNDER' : 'PARTNER';
-                var color = isFounder ? '#ffd700' : '#d4dce8';
-                var shadow = isFounder ? '0 1px 2px rgba(0,0,0,0.4)' : '0 1px 2px rgba(0,0,0,0.3)';
-                return (
-                  <span style={{
-                    padding: '3px 11px', borderRadius: 6,
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
-                    color: color,
-                    textShadow: shadow,
-                  }}>{label}</span>
-                );
-              })()}
-              {/* Active since — only shown for genuinely active members.
-                  Previously this rendered for everyone using created_at,
-                  which lied about free users (they have a created date but
-                  no active date). For free users we hide it; once they
-                  activate, the date populates from user.created_at server-
-                  side. The 'Active since' phrase only makes sense once
-                  active, so the line is omitted entirely otherwise. */}
-              {user?.is_active && d.active_since && (
-                <>
-                  <span style={{ opacity: 0.4 }}>·</span>
-                  <span>{t('dashboard.activeSince', { date: d.active_since, defaultValue: 'Active since {{date}}' })}</span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Right — referral link pill */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          background: 'rgba(255,255,255,0.1)',
-          border: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: 12,
-          padding: '10px 12px 10px 18px',
-          flexShrink: 0,
-          minWidth: 280,
-        }}>
-          <div style={{ minWidth: 0 }}>
-            <div style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: 1.3,
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)',
-              marginBottom: 2,
-            }}>{t('dashboard.yourReferralLink', { defaultValue: 'Your referral link' })}</div>
-            <div style={{
-              fontSize: 14, fontFamily: 'monospace', fontWeight: 600,
-              color: '#fff',
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-            }}>
-              superadpro.com/ref/{user?.username}
-            </div>
-          </div>
-          <button onClick={function() { copyRefLink('https://www.superadpro.com/ref/' + (user?.username || '')); }}
-            style={{
-              padding: '8px 14px', borderRadius: 8, border: 'none',
-              background: '#fff', color: 'var(--sap-cobalt-mid)',
-              fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              fontFamily: 'inherit', flexShrink: 0,
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-            }}>
-            📋 {refCopied ? t('dashboard.copied') : t('dashboard.copy')}
-          </button>
-        </div>
-      </div>
-
-      {/* ── NEW (26 May 2026): Video Sales Page banner ──
-          Surfaces the new /ref/{username}/video page that ships
-          tonight. Sits between the welcome card and EXPLORE doors so
-          it's above-the-fold on first dashboard load. Temporary
-          placement — moves into the My Marketing hub when that lands
-          in a future session.
-
-          Two CTAs: "Copy link" gives them the shareable URL in 1 click,
-          "Preview" opens the page in a new tab so they can see what
-          they're sharing before they share it. */}
-      {user?.username && (
-        <div className="vsp-banner" style={{
-          background: 'linear-gradient(135deg, #0e1a3e 0%, #1e3a8a 55%, #0e7490 100%)',
-          borderRadius: 16,
-          padding: '20px 24px',
-          marginBottom: 28,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 20,
-          flexWrap: 'wrap',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: '0 8px 24px -8px rgba(34,211,238,0.35), 0 0 0 1px rgba(34,211,238,0.2)',
-        }}>
-          {/* Subtle inner gloss + cyan accent line */}
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 1,
-            background: 'linear-gradient(90deg, transparent, rgba(34,211,238,0.7), transparent)',
-          }}/>
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '40%',
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.06), transparent)',
-            pointerEvents: 'none',
-          }}/>
-
-          {/* NEW pill — left side */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            padding: '5px 10px',
-            borderRadius: 999,
-            background: 'rgba(34,211,238,0.18)',
-            border: '1px solid rgba(34,211,238,0.4)',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: 10, fontWeight: 800,
-            color: '#67e8f9',
-            letterSpacing: 0.5,
-            textTransform: 'uppercase',
-            flexShrink: 0,
-            position: 'relative',
-          }}>
-            <span style={{
-              width: 5, height: 5, borderRadius: '50%',
-              background: '#22d3ee',
-              boxShadow: '0 0 8px rgba(34,211,238,0.8)',
-            }}/>
-            NEW
-          </div>
-
-          {/* Copy block */}
-          <div style={{ flex: 1, minWidth: 240, position: 'relative' }}>
-            <div style={{
-              fontFamily: 'Sora, sans-serif',
-              fontSize: 17, fontWeight: 800,
-              color: '#fff',
-              letterSpacing: '-0.01em',
-              marginBottom: 4,
-            }}>
-              {t('dashboard.videoSalesBanner.title', { defaultValue: 'Your Video Sales Page is live' })}
-            </div>
-            <div style={{
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.72)',
-              lineHeight: 1.5,
-            }}>
-              {t('dashboard.videoSalesBanner.body', { defaultValue: 'A polished landing page with our 22-minute platform overview and your affiliate link baked in. Share it anywhere — every signup is tagged to you.' })}
-            </div>
-          </div>
-
-          {/* URL + CTAs */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            flexShrink: 0,
-            flexWrap: 'wrap',
-            position: 'relative',
-          }}>
-            <code style={{
-              padding: '8px 12px',
-              borderRadius: 8,
-              background: 'rgba(0,0,0,0.25)',
-              border: '1px solid rgba(34,211,238,0.2)',
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: 12, fontWeight: 600,
-              color: '#a5f3fc',
-              maxWidth: 320,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}>superadpro.com/ref/{user.username}/video</code>
-            <button
-              onClick={() => copyRefLink(`https://www.superadpro.com/ref/${user.username}/video`)}
-              style={{
-                padding: '9px 14px',
-                borderRadius: 8,
-                border: 'none',
-                background: 'linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%)',
-                color: '#fff',
-                fontFamily: 'Sora, sans-serif',
-                fontSize: 12, fontWeight: 800,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                boxShadow: '0 4px 12px rgba(34,211,238,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-              }}>
-              📋 {refCopied ? t('dashboard.copied') : t('dashboard.copy')}
-            </button>
-            <a
-              href={`/ref/${user.username}/video`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                padding: '9px 14px',
-                borderRadius: 8,
-                background: 'transparent',
-                color: '#fff',
-                fontFamily: 'Sora, sans-serif',
-                fontSize: 12, fontWeight: 800,
-                textDecoration: 'none',
-                border: '1px solid rgba(255,255,255,0.25)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 5,
-                transition: 'background .15s, border-color .15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'; }}>
-              👁 {t('dashboard.videoSalesBanner.preview', { defaultValue: 'Preview' })}
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* ── Explore the platform · 4 doors (1×4 row) ──
-          Dashboard is the member's entry point. These 4 doors are the
-          navigation out to each major area of the platform. The Command
-          Centre door stays on /dashboard (= "home") — other three take
-          the member outward. Uses only design-tokens.css variables,
-          same responsive pattern as income-grid (4 cols → 2 on mobile). */}
-      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.exploreSection', { defaultValue: 'Explore the platform' })}</div>
-      <div className="doors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 20 }}>
-        {[
-          {
-            id: 'command-centre',
-            label: t('dashboard.doorCockpitLabel', { defaultValue: 'Your cockpit' }),
-            title: t('dashboard.doorCommandCentre', { defaultValue: 'Command Centre' }),
-            desc: t('dashboard.doorCommandCentreDesc', { defaultValue: "Daily briefing, team pulse, today's play." }),
-            count: t('dashboard.doorItems', { count: 9, defaultValue: '9 items' }),
-            colourVar: 'var(--sap-accent)',
-            icon: Gauge,
-            link: '/command-centre',
-          },
-          {
-            id: 'income',
-            label: t('dashboard.doorEarnLabel', { defaultValue: 'Where you earn' }),
-            title: t('dashboard.doorIncome', { defaultValue: 'Income' }),
-            desc: t('dashboard.doorIncomeDesc', { defaultValue: 'Earnings, wallet, and the 4 streams that pay you.' }),
-            count: t('dashboard.doorItems', { count: 7, defaultValue: '7 items' }),
-            colourVar: 'var(--sap-green)',
-            icon: DollarSign,
-            link: '/income',
-          },
-          {
-            id: 'tools',
-            label: t('dashboard.doorBuildLabel', { defaultValue: 'Build your business' }),
-            title: t('dashboard.doorTools', { defaultValue: 'Tools' }),
-            desc: t('dashboard.doorToolsDesc', { defaultValue: 'Creative Studio, Lead Finder, funnels, outreach.' }),
-            count: t('dashboard.doorTools', { count: 14, defaultValue: '14 tools' }),
-            colourVar: 'var(--sap-violet)',
-            icon: PenSquare,
-            link: '/tools',
-          },
-          {
-            id: 'learn',
-            label: t('dashboard.doorLearnLabel', { defaultValue: 'Skill up' }),
-            title: t('dashboard.doorLearn', { defaultValue: 'Learn' }),
-            desc: t('dashboard.doorLearnDesc', { defaultValue: 'Training, comp plan, promotional assets, community.' }),
-            count: t('dashboard.doorItems', { count: 9, defaultValue: '9 items' }),
-            colourVar: 'var(--sap-amber-dark)',
-            icon: BookOpen,
-            link: '/learn',
-          },
-        ].map((door) => {
-          const Icon = door.icon;
-          return (
-            <Link key={door.id} to={door.link} className="action-card" style={{
-              background: 'linear-gradient(180deg, var(--sap-bg-card) 0%, #f8fafc 100%)',
-              border: '1px solid var(--sap-border)',
-              borderRadius: 14,
-              padding: '26px 24px 22px 32px',
-              boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)',
-              textDecoration: 'none',
-              transition: 'all 0.18s',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 0,
-              position: 'relative',
-              overflow: 'hidden',
-              color: 'inherit',
-              minHeight: 240,
-            }}>
-              {/* Inset 5px LEFT accent stripe — sits 12px in from top and
-                  bottom edges with rounded right cap, so the card's
-                  rounded corners are preserved. Switched from top→inset-left
-                  7 May 2026 (Grok-style redesign). */}
-              <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 6, background: door.colourVar, borderRadius: '0 4px 4px 0' }} />
-              {/* Centered unframed icon — 44px, colour-only stroke. Replaces
-                  the previous 64px filled colour block + white icon inside. */}
-              <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                <Icon size={72} color={door.colourVar} strokeWidth={2.8} style={{ display: 'inline-block' }} />
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
-                {door.label}
-              </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 25, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.15, marginBottom: 10 }}>
-                {door.title}
-              </div>
-              <div style={{...TYPE.bodyMuted, fontSize: 14, lineHeight: 1.5, marginBottom: 14, flex: 1}}>
-                {door.desc}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
-                <span style={{ color: 'var(--sap-text-faint)' }}>{door.count}</span>
-                <span style={{ color: door.colourVar, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-                  {t('dashboard.doorOpen', { defaultValue: 'Open' })} →
-                </span>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* ── Quick actions · 4 cards matching the door card template ──
-          Same visual weight as the doors row above — 5px top accent
-          stripe, 64px icon block, eyebrow + 28px Sora title, description,
-          footer with action label + Open pill. Members get four shortcut
-          actions that don't belong inside a door but still deserve
-          prominent placement on the home page:
-
-            - Pay It Forward · gift a membership to someone starting out
-            - Platform Tour · onboarding refresher for new members
-            - Today's Watch Video · the campaign-grid earning video
-            - Affiliate Share · jump straight to the share page
-
-          Same hover lift + same typography as the four doors so the page
-          reads as two consistent rows of cards rather than a heroic row
-          followed by a smaller secondary row. */}
-      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
-      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 20 }}>
-        {[
-          {
-            id: 'payItForward',
-            label: t('dashboard.payItForwardLabel', { defaultValue: 'Help others' }),
-            title: t('dashboard.payItForward', { defaultValue: 'Pay It Forward' }),
-            desc: t('dashboard.payItForwardDesc', { defaultValue: 'Gift a membership to someone starting out — help others while you grow.' }),
-            cta: t('dashboard.payItForwardCta', { defaultValue: 'Gift now' }),
-            colourVar: 'var(--sap-pink)',
-            icon: Gift,
-            link: '/pay-it-forward',
-          },
-          {
-            id: 'platformTour',
-            label: t('dashboard.platformTourLabel', { defaultValue: 'Get oriented' }),
-            title: t('dashboard.platformTour', { defaultValue: 'Platform Tour' }),
-            desc: t('dashboard.platformTourDesc', { defaultValue: 'Quick walkthrough of the platform so you know where everything lives.' }),
-            cta: t('dashboard.platformTourCta', { defaultValue: 'Start tour' }),
-            colourVar: 'var(--sap-violet)',
-            icon: Compass,
-            link: '/tour',
-          },
-          {
-            id: 'watchVideo',
-            label: t('dashboard.todaysWatchLabel', { defaultValue: 'Stay qualified' }),
-            title: t('dashboard.todaysWatch', { defaultValue: "Watch Video" }),
-            desc: t('dashboard.todaysWatchDesc', { defaultValue: 'Watch your daily campaign-grid video to activate Grid Payouts.' }),
-            cta: t('dashboard.todaysWatchCta', { defaultValue: 'Watch now' }),
-            colourVar: 'var(--sap-accent)',
-            icon: Eye,
-            link: '/watch',
-          },
-          {
-            id: 'affiliateShare',
-            label: t('dashboard.affiliateShareLabel', { defaultValue: 'Grow your team' }),
-            title: t('dashboard.affiliateShare', { defaultValue: 'Affiliate Share' }),
-            desc: t('dashboard.affiliateShareDesc', { defaultValue: 'Share your link and story to bring more members onto your team.' }),
-            cta: t('dashboard.affiliateShareCta', { defaultValue: 'Open share' }),
-            colourVar: 'var(--sap-green)',
-            icon: Share2,
-            link: '/social-share',
-          },
-        ].map(function(action, i) {
-          var Icon = action.icon;
-          return (
-            <Link key={i} to={action.link} className="action-card" style={{
-              background: 'linear-gradient(180deg, #fff 0%, #f8fafc 100%)',
-              border: '1px solid #e2e8f0',
-              borderRadius: 14,
-              padding: '26px 24px 22px 32px',
-              boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)',
-              textDecoration: 'none',
-              transition: 'all 0.18s',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 0,
-              position: 'relative',
-              overflow: 'hidden',
-              color: 'inherit',
-              minHeight: 240,
-            }}
-            onMouseEnter={function(e) {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 2px 6px rgba(15,23,42,0.06), 0 12px 32px rgba(15,23,42,0.10)';
-            }}
-            onMouseLeave={function(e) {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 1px 3px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)';
-            }}>
-              {/* Inset 5px LEFT accent stripe — same pattern as doors row */}
-              <div style={{ position: 'absolute', top: 12, bottom: 12, left: 0, width: 6, background: action.colourVar, borderRadius: '0 4px 4px 0' }} />
-              {/* Centered unframed icon — 44px stroke icon, no background block */}
-              <div style={{ textAlign: 'center', marginBottom: 8 }}>
-                <Icon size={72} color={action.colourVar} strokeWidth={2.8} style={{ display: 'inline-block' }} />
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
-                {action.label}
-              </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 25, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.15, marginBottom: 10 }}>
-                {action.title}
-              </div>
-              <div style={{...TYPE.bodyMuted, fontSize: 14, lineHeight: 1.5, marginBottom: 14, flex: 1}}>
-                {action.desc}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
-                <span style={{ color: 'var(--sap-text-faint)' }}>{action.cta}</span>
-                <span style={{ color: action.colourVar, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-                  {t('dashboard.doorOpen', { defaultValue: 'Open' })} →
-                </span>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
 
       {/* ── Smart Goals removed (26 Apr 2026, founder direction) ──
           The "Your Goals This Week" and "More Opportunities" cards used
@@ -1662,7 +1127,88 @@ export default function Dashboard() {
         }
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
         @keyframes toastSlideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+        /* ── Redesigned dashboard core (30 May 2026) ── */
+        .dash-core{--dc-line:#e6ecf5;--dc-ink:#0f172a;--dc-ink2:#475569;--dc-ink3:#94a3b8}
+        .dc-strip{background:linear-gradient(135deg,#0a1438,#1e3a8a);border-radius:18px;padding:22px 26px;margin-bottom:18px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06)}
+        .dc-greet{display:flex;align-items:center;gap:15px;flex:1;min-width:240px}
+        .dc-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#22d3ee);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:#041027;flex-shrink:0}
+        .dc-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+        .dc-name{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:#fff;line-height:1.1;margin:1px 0 4px}
+        .dc-meta{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,.6)}
+        .dc-badge{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#fde68a;border:1px solid rgba(253,230,138,.4);padding:2px 8px;border-radius:5px}
+        .dc-stats{display:flex;gap:10px;flex-wrap:wrap}
+        .dc-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 18px;min-width:112px}
+        .dc-stat .l{font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px}
+        .dc-stat .v{font-family:'Sora',sans-serif;font-weight:800;font-size:21px;color:#fff}
+        .dc-stat .v.cyan{color:#22d3ee}
+        .dc-focus{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;margin-bottom:22px}
+        .dc-card{background:#fff;border:1px solid var(--dc-line);border-radius:18px;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06)}
+        .dc-pad{padding:22px 24px}
+        .dc-card-eyebrow{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0ea5e9}
+        .dc-nm-title{font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:var(--dc-ink);margin:6px 0 16px;letter-spacing:-.01em}
+        .dc-nm-list{display:flex;flex-direction:column;gap:9px}
+        .dc-nm-row{display:flex;align-items:center;gap:13px;padding:11px 13px;border-radius:12px;background:#f6f9fd;border:1px solid #eef3f9}
+        .dc-nm-ava{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff;flex-shrink:0}
+        .dc-nm-who{flex:1;min-width:0}
+        .dc-nm-who .n{font-weight:700;font-size:14.5px;color:var(--dc-ink)}
+        .dc-nm-who .s{font-size:12.5px;color:var(--dc-ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .dc-nm-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:5px}
+        .dc-nm-tag.hot{background:#fee2e2;color:#b91c1c}
+        .dc-nm-tag.new{background:#cffafe;color:#0e7490}
+        .dc-nm-btn{margin-left:6px;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;color:#fff;background:linear-gradient(135deg,#0a1438,#0ea5e9);border:none;padding:8px 14px;border-radius:9px;cursor:pointer;white-space:nowrap;text-decoration:none}
+        .dc-nm-calm{font-size:14px;color:var(--dc-ink2);line-height:1.6;padding:4px 0 2px}
+        .dc-nm-foot{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+        .dc-nm-foot .c{font-size:12.5px;color:var(--dc-ink3)}
+        .dc-nm-foot a{font-family:'Sora',sans-serif;font-weight:700;font-size:13px;color:#0ea5e9;text-decoration:none;white-space:nowrap}
+        .dc-sg-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:var(--dc-ink);margin:6px 0 14px;letter-spacing:-.01em}
+        .dc-sg-block{margin-bottom:14px}
+        .dc-sg-lab{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dc-ink3);margin-bottom:6px}
+        .dc-sg-link{display:flex;align-items:center;gap:8px;background:#f6f9fd;border:1px solid #e6ecf5;border-radius:10px;padding:9px 12px}
+        .dc-sg-link .u{flex:1;min-width:0;font-size:13px;font-weight:600;color:#0a1438;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .dc-sg-link .cp{font-family:'Sora',sans-serif;font-weight:700;font-size:12px;color:#fff;background:#0ea5e9;border:none;padding:6px 12px;border-radius:7px;cursor:pointer;flex-shrink:0}
+        .dc-sg-vsp{background:linear-gradient(135deg,#0f1d3a,#16294f);border-radius:12px;padding:14px 16px;color:#fff}
+        .dc-sg-vsp .badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#22d3ee;border:1px solid rgba(34,211,238,.4);padding:2px 7px;border-radius:5px;margin-bottom:8px}
+        .dc-sg-vsp .t{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;margin-bottom:3px}
+        .dc-sg-vsp .d{font-size:12.5px;color:rgba(255,255,255,.65);line-height:1.5;margin-bottom:11px}
+        .dc-sg-vsp-btns{display:flex;gap:8px}
+        .dc-sg-vsp-btns button,.dc-sg-vsp-btns a{font-family:'Sora',sans-serif;font-weight:700;font-size:12px;border-radius:8px;padding:7px 13px;cursor:pointer;border:none;text-decoration:none;display:inline-block}
+        .dc-sg-vsp-btns .vb-copy{background:linear-gradient(135deg,#0ea5e9,#06b6d4);color:#041027}
+        .dc-sg-vsp-btns .vb-prev{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+        .dc-section-label{display:flex;align-items:baseline;gap:10px;margin:8px 2px 14px;flex-wrap:wrap}
+        .dc-section-label .t{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:var(--dc-ink);letter-spacing:-.01em}
+        .dc-section-label .sub{font-size:13px;color:var(--dc-ink3)}
+        .dc-doors{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+        .dc-door{background:#fff;border:1px solid var(--dc-line);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06);position:relative;transition:.2s;cursor:pointer;text-decoration:none;display:block}
+        .dc-door:hover{box-shadow:0 2px 4px rgba(10,20,56,.06),0 16px 40px rgba(10,20,56,.12);transform:translateY(-3px)}
+        .dc-door-ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:#fff}
+        .dc-door-ico svg{width:23px;height:23px}
+        .dc-door h4{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:var(--dc-ink);margin-bottom:5px}
+        .dc-door p{font-size:13px;color:var(--dc-ink2);line-height:1.5;margin-bottom:12px}
+        .dc-door-go{font-family:'Sora',sans-serif;font-weight:700;font-size:13px;color:#0ea5e9}
+        .dc-door-soon{cursor:default;opacity:.92}
+        .dc-door-soon:hover{transform:none;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06)}
+        .dc-door-soon-tag{display:inline-block;font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#0e7490;background:#cffafe;padding:4px 10px;border-radius:6px}
+        .dc-door-video{border-color:#bae6fd;background:linear-gradient(180deg,#f7fcff,#fff)}
+        .dc-vid-prog{margin:2px 0 12px}
+        .dc-vid-bar{height:7px;border-radius:99px;background:#e2eefb;overflow:hidden;margin-bottom:6px}
+        .dc-vid-bar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0ea5e9,#22d3ee)}
+        .dc-vid-lab{font-size:11.5px;font-weight:600;color:var(--dc-ink3)}
+        .dc-income{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+        .dc-inc-card{background:#fff;border:1px solid var(--dc-line);border-radius:16px;padding:18px 20px;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06);display:flex;align-items:center;gap:14px;text-decoration:none;transition:.2s}
+        .dc-inc-card:hover{box-shadow:0 2px 4px rgba(10,20,56,.06),0 16px 40px rgba(10,20,56,.12);transform:translateY(-2px)}
+        .dc-inc-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+        .dc-inc-body{flex:1;min-width:0}
+        .dc-inc-name{font-family:'Sora',sans-serif;font-weight:700;font-size:14px;color:var(--dc-ink)}
+        .dc-inc-sub{font-size:12px;color:var(--dc-ink3)}
+        .dc-inc-amt{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#0a1438;text-align:right}
+        @media(max-width:900px){
+          .dc-focus{grid-template-columns:1fr}
+          .dc-doors{grid-template-columns:repeat(2,1fr)}
+          .dc-income{grid-template-columns:1fr}
+        }
       `}</style>
+
 
       {/* Toast notifications: new members + achievement unlocks */}
       {toasts.length > 0 && <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420, transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)', willChange: 'transform' }}>
