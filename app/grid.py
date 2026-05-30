@@ -274,6 +274,15 @@ def process_tier_purchase(
             f"Grace-escrow email side-effects failed for buyer {buyer_id} "
             f"tier {package_tier}: {e}"
         )
+    # Notify each grid owner that a new member just entered their grid.
+    try:
+        _send_grid_entry_emails(db, buyer, grids_filled, package_tier, price)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(
+            f"Grid-entry email side-effects failed for buyer {buyer_id} "
+            f"tier {package_tier}: {e}"
+        )
     if released:
         try:
             _send_release_email(db, buyer, released)
@@ -683,6 +692,95 @@ def _send_grace_escrow_emails(db: Session, buyer: User, package_tier: int, price
             import logging
             logging.getLogger(__name__).warning(
                 f"Grace-escrow email send failed for recipient {recipient_id}"
+            )
+
+
+def _send_grid_entry_emails(db: Session, buyer: User, grids_filled: list,
+                            package_tier: int, price: float) -> None:
+    """Best-effort: email each grid owner that a new member just entered their
+    grid via this purchase's spillover. One email per owner per purchase.
+    Called AFTER db.commit() so a mailer failure can't roll back placements.
+
+    grids_filled comes from _spillover_fill: a list of dicts with keys
+    grid_id, owner_id, level, position, filled, complete.
+    """
+    if not grids_filled:
+        return
+    from .database import GRID_TIER_NAMES
+    from .email_utils import _shell, _btn, send_email, SITE_URL
+
+    buyer_name = (buyer.first_name or buyer.username or f"user {buyer.id}")
+    tier_name = GRID_TIER_NAMES.get(package_tier, f"Tier {package_tier}")
+
+    # One owner could (in theory) get multiple entries from a single purchase
+    # only across different grids; in practice it's one seat per owner-grid.
+    # De-dupe by owner_id and take the most-progressed entry for the message.
+    by_owner = {}
+    for e in grids_filled:
+        oid = e.get("owner_id")
+        if oid is None or oid == buyer.id:
+            continue
+        prev = by_owner.get(oid)
+        if prev is None or (e.get("filled") or 0) > (prev.get("filled") or 0):
+            by_owner[oid] = e
+
+    for owner_id, e in by_owner.items():
+        owner = db.query(User).filter(User.id == owner_id).first()
+        if not owner or not owner.email:
+            continue
+        first_name = owner.first_name or owner.username or "there"
+        filled = e.get("filled") or 0
+        remaining = max(GRID_TOTAL - filled, 0)
+        is_complete = bool(e.get("complete"))
+
+        if is_complete:
+            head = (f'<div style="font-size:48px;margin-bottom:14px">&#127942;</div>'
+                    f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f1d3a;line-height:1.25">'
+                    f'Your {tier_name} grid is full, {first_name}!</p>'
+                    f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
+                    f'<strong>{buyer_name}</strong> just took the final seat in your {tier_name} grid '
+                    f'&mdash; that\'s all {GRID_TOTAL} positions filled.</p>')
+        else:
+            head = (f'<div style="font-size:48px;margin-bottom:14px">&#128229;</div>'
+                    f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f1d3a;line-height:1.25">'
+                    f'New entry in your {tier_name} grid, {first_name}!</p>'
+                    f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
+                    f'<strong>{buyer_name}</strong> just entered your {tier_name} grid.</p>')
+
+        progress_card = (
+            f'<table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 24px">'
+            f'<tr><td style="background:linear-gradient(135deg,#172554,#1e3a8a);'
+            f'border-radius:14px;padding:26px;text-align:center">'
+            f'<p style="margin:0 0 6px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);'
+            f'text-transform:uppercase;letter-spacing:1px">{tier_name} grid progress</p>'
+            f'<p style="margin:0 0 8px;font-size:38px;font-weight:900;color:#22d3ee;'
+            f'font-family:\'Sora\',sans-serif">{filled} / {GRID_TOTAL}</p>'
+            f'<p style="margin:0;font-size:13px;color:rgba(255,255,255,0.7);font-weight:600">'
+            + ("Grid complete &mdash; nice work!" if is_complete
+               else f"{remaining} seat{'s' if remaining != 1 else ''} to go")
+            + f'</p></td></tr></table>'
+        )
+
+        body = progress_card + _btn(f"{SITE_URL}/grid-visualiser", "View your grid &rarr;")
+
+        if is_complete:
+            subject = f"\U0001F3C6 Your {tier_name} grid just filled, {first_name}!"
+            text = (f"Hi {first_name}, {buyer_name} just took the final seat in your {tier_name} grid "
+                    f"({filled}/{GRID_TOTAL} filled). View your grid: {SITE_URL}/grid-visualiser")
+        else:
+            subject = f"New entry in your {tier_name} grid"
+            text = (f"Hi {first_name}, {buyer_name} just entered your {tier_name} grid "
+                    f"({filled}/{GRID_TOTAL} filled, {remaining} to go). "
+                    f"View your grid: {SITE_URL}/grid-visualiser")
+
+        try:
+            send_email(owner.email, subject,
+                       _shell("Grid Entry", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", head, body),
+                       text)
+        except Exception:
+            import logging
+            logging.getLogger(__name__).warning(
+                f"Grid-entry email send failed for owner {owner_id}"
             )
 
 
