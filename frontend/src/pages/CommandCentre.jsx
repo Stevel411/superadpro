@@ -121,9 +121,9 @@ export default function CommandCentre() {
       sublabel: t('commandCentre.gridTeamSublabel'),
       value: d.grid_team_count || 0,
       icon: LayoutGrid,
-      color: 'var(--sap-violet)',
+      color: 'var(--sap-accent)',
       link: '/command-centre/grid-team',
-      pillBg: '#ede9fe', pillBgHover: '#ddd6fe', pillColor: '#6d28d9',
+      pillBg: '#e0f2fe', pillBgHover: '#bae6fd', pillColor: '#0369a1',
       pillLabel: t('commandCentre.viewTeam', { defaultValue: 'View team' }),
     },
     {
@@ -131,9 +131,9 @@ export default function CommandCentre() {
       sublabel: t('commandCentre.nexusTeamSublabel'),
       value: d.nexus_team_count || 0,
       icon: Star,
-      color: 'var(--sap-indigo)',
+      color: 'var(--sap-royal, #1e3a8a)',
       link: '/command-centre/nexus-team',
-      pillBg: '#e0e7ff', pillBgHover: '#c7d2fe', pillColor: '#4338ca',
+      pillBg: '#ecfeff', pillBgHover: '#a5f3fc', pillColor: '#0e7490',
       pillLabel: t('commandCentre.viewTeam', { defaultValue: 'View team' }),
     },
   ];
@@ -157,20 +157,20 @@ export default function CommandCentre() {
       desc: t('commandCentre.fullAnalyticsDesc'),
       link: '/analytics',
       icon: BarChart3,
-      color: 'var(--sap-indigo)',
-      accentPale: '#c7d2fe',
-      bg: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
-      pillBg: '#e0e7ff', pillBgHover: '#c7d2fe', pillColor: '#4338ca',
+      color: 'var(--sap-royal, #1e3a8a)',
+      accentPale: '#a5f3fc',
+      bg: 'linear-gradient(135deg,#f0f9ff,#ecfeff)',
+      pillBg: '#ecfeff', pillBgHover: '#a5f3fc', pillColor: '#0e7490',
     },
     {
       title: t('commandCentre.sendBroadcastTitle'),
       desc: t('commandCentre.sendBroadcastDesc'),
       link: '/team-messenger',
       icon: MessageSquare,
-      color: 'var(--sap-violet)',
-      accentPale: '#ddd6fe',
-      bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
-      pillBg: '#ede9fe', pillBgHover: '#ddd6fe', pillColor: '#6d28d9',
+      color: 'var(--sap-accent)',
+      accentPale: '#bae6fd',
+      bg: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
+      pillBg: '#e0f2fe', pillBgHover: '#bae6fd', pillColor: '#0369a1',
     },
     {
       title: t('commandCentre.leaderboardTitle'),
@@ -219,7 +219,7 @@ export default function CommandCentre() {
         {[
           { color: 'var(--sap-green)',       val: d.membership_earned,            name: t('dashboard.membership') },
           { color: 'var(--sap-amber-dark)',  val: d.grid_earned || 0,             name: t('dashboard.campaigns') },
-          { color: 'var(--sap-purple)',      val: d.creative_studio_earned || 0,  name: t('dashboard.creditNexus', { defaultValue: 'Credit Nexus' }) },
+          { color: 'var(--sap-cyan, #06b6d4)',      val: d.creative_studio_earned || 0,  name: t('dashboard.creditNexus', { defaultValue: 'Creator Credits' }) },
           { color: 'var(--sap-accent)',      val: d.course_earnings || 0,         name: t('dashboard.courseIncome', { defaultValue: 'Courses' }) },
         ].map(function(s, i) { return (
           <div key={i} style={{
@@ -260,7 +260,7 @@ export default function CommandCentre() {
               : null
           },
           { color: 'var(--sap-amber-dark)', val: '$' + formatMoney(d.total_earned),                name: t('dashboard.lifetimeEarned'),                                           isMoney: true,  sub: null },
-          { color: 'var(--sap-purple)',     val: '$' + formatMoney(d.earnings_this_month || 0),    name: t('dashboard.monthlyEarned', { defaultValue: 'This Month' }),            isMoney: true,  sub: null },
+          { color: 'var(--sap-cyan, #06b6d4)',     val: '$' + formatMoney(d.earnings_this_month || 0),    name: t('dashboard.monthlyEarned', { defaultValue: 'This Month' }),            isMoney: true,  sub: null },
         ].map(function(s, i) { return (
           <div key={i} style={{
             background: '#fff',
