@@ -35185,6 +35185,75 @@ def admin_find_stuck_lapsed_members(
     }
 
 
+@app.get("/admin/api/expired-active-members")
+def admin_find_expired_active_members(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List members who are is_active=True but whose membership_expires_at
+    has already passed.
+
+    This is the counterpart to /admin/api/stuck-lapsed-members. The active
+    member count is the is_active flag, which is intentionally decoupled
+    from expiry: when a membership expires the member enters a 5-day grace
+    period during which they correctly remain active. So an expired-but-
+    active member is NORMAL if they're inside grace.
+
+    Split into two buckets:
+      - "in_grace": expired <= 5 days ago — correct, no action needed.
+      - "past_grace": expired > 5 days ago but STILL active — the real bug
+        (the lapse step in process_auto_renewals never flipped them). These
+        are the ones that genuinely inflate the active count.
+
+    Read-only — never mutates anything.
+
+    Built 30 May 2026 to answer "who are the expired-but-active members?" —
+    there was previously no endpoint listing this group, only the per-user
+    /admin/api/membership-state/{username}.
+    """
+    _require_admin(user)
+    now = datetime.utcnow()
+    GRACE_DAYS = 5
+
+    rows = (
+        db.query(User)
+          .filter(
+              User.is_active == True,
+              User.membership_expires_at.isnot(None),
+              User.membership_expires_at < now,
+          )
+          .all()
+    )
+
+    in_grace = []
+    past_grace = []
+    for u in rows:
+        days_since_expiry = (now - u.membership_expires_at).days
+        rec = {
+            "user_id": u.id,
+            "username": u.username,
+            "first_name": u.first_name or "",
+            "membership_tier": u.membership_tier,
+            "membership_expires_at": u.membership_expires_at.isoformat(),
+            "days_since_expiry": days_since_expiry,
+        }
+        if days_since_expiry <= GRACE_DAYS:
+            in_grace.append(rec)
+        else:
+            past_grace.append(rec)
+
+    return {
+        "total_expired_active": len(rows),
+        "in_grace_count": len(in_grace),
+        "past_grace_count": len(past_grace),
+        "in_grace": sorted(in_grace, key=lambda r: r["days_since_expiry"], reverse=True),
+        "past_grace": sorted(past_grace, key=lambda r: r["days_since_expiry"], reverse=True),
+        "grace_window_days": GRACE_DAYS,
+        "note": "in_grace = normal (correctly active during 5-day grace). past_grace = genuine bug: expired beyond grace but never lapsed.",
+        "checked_at": now.isoformat(),
+    }
+
+
 @app.post("/admin/api/reactivate-stuck-lapsed")
 def admin_reactivate_stuck_lapsed_members(
     user: User = Depends(get_current_user),
