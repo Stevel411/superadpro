@@ -16316,6 +16316,47 @@ def _reconcile_grid_payment(db, grid, owner, models):
         _NP.product_key == f"grid_{tier}", _NP.status.in_(["confirmed", "finished"]),
     ).first()
 
+    # tier price for amount-matching Stripe/Nexus (these rails don't tag the
+    # tier on the charge, so we match by the grid's package_price). Grid prices
+    # are distinct ($20/$50/$100...), so amount disambiguates the tier.
+    price = float(getattr(grid, "package_price", 0) or 0)
+
+    # ── Stripe campaign_tier charge (the rail the engine was blind to). The
+    #    webhook writes a StripeCharge product='campaign_tier' kind='charge' and
+    #    runs the SAME process_tier_purchase. Match by user + amount == price. ──
+    stripe_paid = None
+    _SC = models.get("StripeCharge")
+    if _SC is not None and price > 0:
+        stripe_paid = db.query(_SC).filter(
+            _SC.user_id == oid,
+            _SC.product == "campaign_tier",
+            _SC.kind == "charge",
+            _SC.amount_cents >= int(round(price * 100)) - 100,
+            _SC.amount_cents <= int(round(price * 100)) + 100,
+        ).first()
+
+    # ── Nexus-paid-then-manually-moved (the financialsunrise path). Owner paid
+    #    for a Credit Nexus position at the SAME price ladder and was manually
+    #    moved into the grid — the move left no trail, so the only evidence is a
+    #    confirmed credit_matrix payment/order at the matching price. Errs toward
+    #    'paid' (the safe direction — never claw back someone who paid). ──
+    nexus_paid = None
+    if price > 0:
+        nexus_paid = db.query(_Payment).filter(
+            _Payment.from_user_id == oid,
+            _Payment.status == "confirmed",
+            _Payment.payment_type.like("%credit_matrix%"),
+            _Payment.amount_usdt >= price,
+            _Payment.amount_usdt < price + 1.0,
+        ).first() or db.query(_WC).filter(
+            _WC.user_id == oid, _WC.product_type == "credit_matrix", _WC.status == "confirmed",
+            _WC.unique_amount >= price, _WC.unique_amount < price + 1.0,
+        ).first() or db.query(_NP).filter(
+            _NP.user_id == oid, _NP.product_type == "credit_matrix",
+            _NP.status.in_(["confirmed", "finished"]),
+            _NP.price_usd >= price, _NP.price_usd < price + 1.0,
+        ).first()
+
     # ── payment ATTEMPT that didn't confirm ──
     attempted = db.query(_NP).filter(
         _NP.user_id == oid, _NP.product_type == "grid",
@@ -16372,6 +16413,19 @@ def _reconcile_grid_payment(db, grid, owner, models):
             "paid", "nowpayments", f"np_order#{np_paid.id}", None,
             getattr(np_paid, "internal_order_id", None) or str(np_paid.id),
             float(getattr(np_paid, "price_usd", 0) or 0))
+    elif stripe_paid:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "paid_stripe", "stripe",
+            f"stripe_charge#{stripe_paid.id} campaign_tier ${stripe_paid.amount_cents/100:.2f}",
+            None, getattr(stripe_paid, "stripe_session_id", None) or getattr(stripe_paid, "stripe_charge_id", None),
+            round(stripe_paid.amount_cents / 100.0, 2))
+    elif nexus_paid:
+        _amt = float(getattr(nexus_paid, "amount_usdt", None) or getattr(nexus_paid, "unique_amount", None)
+                     or getattr(nexus_paid, "price_usd", 0) or 0)
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "paid_via_nexus", "nexus",
+            f"confirmed Nexus payment ${_amt:.2f} at tier price ${price:.2f} (manually moved to grid; no link recorded)",
+            getattr(nexus_paid, "id", None), None, round(_amt, 2))
     elif attempted:
         verdict, rail, evidence, pay_id, order_ref, amount = (
             "attempted_expired", None, f"order status={attempted.status}", None,
@@ -16418,15 +16472,17 @@ def admin_grid_payment_audit(
     from .database import (
         Commission as _Commission, Payment as _Payment,
         WalletConnectPaymentOrder as _WC, NowPaymentsOrder as _NP,
-        CryptoPaymentOrder as _CPO,
+        CryptoPaymentOrder as _CPO, StripeCharge as _SC,
     )
     from sqlalchemy import func
 
-    models = {"Commission": _Commission, "Payment": _Payment, "WC": _WC, "NP": _NP, "CPO": _CPO}
+    models = {"Commission": _Commission, "Payment": _Payment, "WC": _WC, "NP": _NP,
+              "CPO": _CPO, "StripeCharge": _SC}
     grids = db.query(Grid).all()
     users_by_id = {u.id: u for u in db.query(User).all()}
 
-    verdict_counts = {"comped": 0, "paid": 0, "attempted_expired": 0, "spillover": 0, "unpaid": 0}
+    verdict_counts = {"comped": 0, "paid": 0, "paid_stripe": 0, "paid_via_nexus": 0,
+                      "attempted_expired": 0, "spillover": 0, "unpaid": 0}
     exposure_ids = {"unpaid": set(), "attempted_expired": set()}
     # Real money exposure: commissions PAID UP-CHAIN off unpaid/attempted
     # activations (40% direct + 6.25%x8 uni-level, generated when the purchase
@@ -16473,19 +16529,22 @@ def admin_grid_payment_audit(
             total += float(s)
         return round(total, 2)
 
-    order = {"unpaid": 0, "attempted_expired": 1, "spillover": 2, "comped": 3, "paid": 4}
+    order = {"unpaid": 0, "attempted_expired": 1, "spillover": 2, "comped": 3,
+             "paid": 4, "paid_stripe": 5, "paid_via_nexus": 6}
     rows.sort(key=lambda r: (order.get(r["verdict"], 9), r["tier"], r["owner_id"]))
     unpaid_upchain = _sum_upchain(upchain_owner_tiers["unpaid"])
     attempted_upchain = _sum_upchain(upchain_owner_tiers["attempted_expired"])
     return {
         "dry_run": True,
-        "note": ("Phase 1 authoritative reconciliation. comped=admin/company (Steve). "
-                 "paid=confirmed payment on any rail. attempted_expired=order exists but "
-                 "expired/failed (tried to pay, activated anyway). spillover=no purchase ran, "
-                 "grid holds downline spillover only (LEGITIMATE). unpaid=purchase ran "
-                 "(generated buyer commissions) but NO money in (the genuine concern). "
-                 "upchain_commission = real money credited to OTHER members off these "
-                 "activations (the actual exposure, vs completion-bonus which is $0 until grids complete)."),
+        "note": ("Phase 1 authoritative reconciliation, ALL rails. comped=admin/company (Steve). "
+                 "paid=confirmed crypto payment/order. paid_stripe=Stripe campaign_tier charge "
+                 "(matched by amount=tier price — the rail the engine was previously blind to). "
+                 "paid_via_nexus=confirmed Credit Nexus payment at the matching tier price, "
+                 "manually moved to grid with no link recorded (the financialsunrise path). "
+                 "attempted_expired=order exists but expired/failed. spillover=no purchase ran "
+                 "(LEGITIMATE). unpaid=purchase ran but NO money in on ANY rail (the real "
+                 "non-payers). upchain_commission = real money credited to OTHER members off "
+                 "unpaid/attempted activations."),
         "total_grids": len(grids),
         "verdict_counts": verdict_counts,
         "bonus_exposure_unpaid_usd": _sum_ids(exposure_ids["unpaid"]),
