@@ -322,7 +322,7 @@ export default function TeamMessenger() {
                       {ur>0&&<span style={{fontSize:13,fontWeight:800,padding:'2px 6px',borderRadius:10,background:'#0ea5e9',color:'#fff',flexShrink:0,marginLeft:6}}>{ur}</span>}
                     </div>
                     <div style={{fontSize:13,fontWeight:600,color:isSponsor?'#0ea5e9':'#3b82f6',marginTop:3}}>
-                      {isSponsor?t('teamMessenger.sponsor',{defaultValue:'Sponsor'}):t('teamMessenger.referral',{defaultValue:'Referral'})} · {c.tier||'Basic'}
+                      {isSponsor?t('teamMessenger.sponsor',{defaultValue:'Sponsor'}):t('teamMessenger.referral',{defaultValue:'Referral'})} · {c.tier||'Partner'}
                     </div>
                   </div>
                 </div>
@@ -347,7 +347,7 @@ export default function TeamMessenger() {
               </div>
               <div>
                 <div style={{fontSize:15,fontWeight:700,color:'#0f172a'}}>{activeContact.name}</div>
-                <div style={{fontSize:13,color:'#7a8899'}}>{activeContact.relationship==='sponsor'?t('teamMessenger.yourSponsor',{defaultValue:'Your Sponsor'}):t('teamMessenger.yourReferral',{defaultValue:'Your Referral'})} · {activeContact.tier||'Basic'}</div>
+                <div style={{fontSize:13,color:'#7a8899'}}>{activeContact.relationship==='sponsor'?t('teamMessenger.yourSponsor',{defaultValue:'Your Sponsor'}):t('teamMessenger.yourReferral',{defaultValue:'Your Referral'})} · {activeContact.tier||'Partner'}</div>
               </div>
             </div>
 
