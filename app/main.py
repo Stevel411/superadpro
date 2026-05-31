@@ -17803,45 +17803,51 @@ def admin_stripe_tier_metadata_reconcile(
         )
         users_by_id = {u.id: u for u in db.query(User).all()}
 
-        # 1) Pull real paid-live campaign_tier intents straight from Stripe
+        def _md_to_dict(obj):
+            """Coerce a Stripe metadata object (StripeObject or dict) to a plain dict."""
+            raw = getattr(obj, "metadata", None)
+            if raw is None and isinstance(obj, dict):
+                raw = obj.get("metadata")
+            if not raw:
+                return {}
+            try:
+                return dict(raw)
+            except (TypeError, ValueError):
+                return {}
+
+        def _attr(obj, name, default=None):
+            """Read a field from a Stripe object whether it's attr- or dict-style."""
+            v = getattr(obj, name, None)
+            if v is None and isinstance(obj, dict):
+                v = obj.get(name)
+            return default if v is None else v
+
+        # 1) Pull real paid-live campaign_tier intents straight from Stripe,
+        #    using the SDK's own auto-pagination (no manual dict access).
         real = []
-        starting_after = None
         scanned = 0
-        for _ in range(40):  # up to 4000 intents; ample for current volume
-            params = {"limit": 100}
-            if starting_after:
-                params["starting_after"] = starting_after
-            page = _stripe.PaymentIntent.list(**params)
-            data = page.get("data", []) if isinstance(page, dict) else page.data
-            if not data:
-                break
-            for pi in data:
-                scanned += 1
-                md = (pi.get("metadata") or {}) if isinstance(pi, dict) else (pi.metadata or {})
-                pk = md.get("product_kind")
-                if pk != "campaign_tier":
-                    continue
-                status = pi.get("status") if isinstance(pi, dict) else pi.status
-                livemode = pi.get("livemode") if isinstance(pi, dict) else pi.livemode
-                if status != "succeeded" or not livemode:
-                    continue
-                uid_raw = md.get("superadpro_user_id")
-                try:
-                    uid = int(uid_raw) if uid_raw is not None else None
-                except (TypeError, ValueError):
-                    uid = None
-                amt = (pi.get("amount_received") if isinstance(pi, dict) else pi.amount_received) or 0
-                u = users_by_id.get(uid)
-                real.append({
-                    "payment_intent": (pi.get("id") if isinstance(pi, dict) else pi.id),
-                    "superadpro_user_id": uid,
-                    "username": (u.username if u else None),
-                    "amount_usd": round(amt / 100.0, 2),
-                    "tier_metadata": md.get("tier") or md.get("package_tier"),
-                })
-            starting_after = (data[-1].get("id") if isinstance(data[-1], dict) else data[-1].id)
-            has_more = page.get("has_more") if isinstance(page, dict) else page.has_more
-            if not has_more:
+        for pi in _stripe.PaymentIntent.list(limit=100).auto_paging_iter():
+            scanned += 1
+            md = _md_to_dict(pi)
+            if md.get("product_kind") != "campaign_tier":
+                continue
+            if _attr(pi, "status") != "succeeded" or not _attr(pi, "livemode"):
+                continue
+            uid_raw = md.get("superadpro_user_id")
+            try:
+                uid = int(uid_raw) if uid_raw is not None else None
+            except (TypeError, ValueError):
+                uid = None
+            amt = _attr(pi, "amount_received", 0) or 0
+            u = users_by_id.get(uid)
+            real.append({
+                "payment_intent": _attr(pi, "id"),
+                "superadpro_user_id": uid,
+                "username": (u.username if u else None),
+                "amount_usd": round(amt / 100.0, 2),
+                "tier_metadata": md.get("tier") or md.get("package_tier"),
+            })
+            if scanned >= 5000:
                 break
         out["scanned_payment_intents"] = scanned
         out["real_paid_live_campaign_tier"] = real
