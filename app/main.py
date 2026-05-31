@@ -16251,6 +16251,133 @@ def admin_backfill_owner_purchased(
     }
 
 
+@app.get("/admin/api/grid-payment-audit")
+def admin_grid_payment_audit(
+    only_flagged: bool = False,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY money-reconciliation audit (no mutations).
+
+    For EVERY grid, cross-references the activation against CONFIRMED money:
+      - confirmed grid Payment row by the owner (grid_package / walletconnect_grid
+        / nowpayments_grid / manual_recovery_grid_N)
+      - a confirmed WalletConnectPaymentOrder for grid/grid_{tier}
+      - a confirmed|finished NowPaymentsOrder for grid/grid_{tier}
+    Plus context: did the owner generate buyer-commissions at that tier, and how
+    much commission + completion bonus was PAID OUT off this grid.
+
+    A grid is FLAGGED ('no_confirmed_payment') when a grid exists at a tier but
+    NONE of the three confirmed-money signals are present — i.e. the tier was
+    activated (and may be paying commissions/bonuses) without traceable money in.
+    This is the definitive answer to 'are there grids active without payment'.
+
+    ?only_flagged=true returns just the problem grids. Reports payout exposure
+    (commission + bonus paid) so the financial impact is quantified, not guessed.
+    """
+    _require_admin(user)
+    from .database import (
+        Commission as _Commission, Payment as _Payment,
+        WalletConnectPaymentOrder as _WC, NowPaymentsOrder as _NP,
+    )
+    from sqlalchemy import or_, func
+
+    grids = db.query(Grid).all()
+    uname = {u.id: u.username for u in db.query(User).all()}
+
+    rows = []
+    flagged_count = 0
+    total_exposure = 0.0  # commission+bonus paid out off grids with no confirmed payment
+
+    for g in grids:
+        oid, tier = g.owner_id, g.package_tier
+
+        confirmed_payment = db.query(_Payment).filter(
+            _Payment.from_user_id == oid,
+            _Payment.status == "confirmed",
+            or_(
+                _Payment.payment_type == "grid_package",
+                _Payment.payment_type == f"manual_recovery_grid_{tier}",
+                _Payment.payment_type.like("walletconnect_grid%"),
+                _Payment.payment_type.like("nowpayments_grid%"),
+                _Payment.payment_type.like("grid_%"),
+            ),
+        ).first()
+
+        wc_order = db.query(_WC).filter(
+            _WC.user_id == oid,
+            _WC.product_type == "grid",
+            _WC.product_key == f"grid_{tier}",
+            _WC.status == "confirmed",
+        ).first()
+
+        np_order = db.query(_NP).filter(
+            _NP.user_id == oid,
+            _NP.product_type == "grid",
+            _NP.product_key == f"grid_{tier}",
+            _NP.status.in_(["confirmed", "finished"]),
+        ).first()
+
+        has_confirmed_money = bool(confirmed_payment or wc_order or np_order)
+
+        # context signal (NOT proof of money — process_tier_purchase can run
+        # without a confirmed payment): did owner generate buyer-commissions?
+        gen_comm = db.query(_Commission).filter(
+            _Commission.from_user_id == oid,
+            _Commission.commission_type.in_(["direct_sponsor", "uni_level"]),
+            _Commission.package_tier == tier,
+        ).first()
+
+        # payout exposure off THIS grid's owner at this tier (bonus + the
+        # owner's own direct/unilevel earnings are NOT off this grid; the real
+        # exposure is the completion bonus paid to the owner for this grid)
+        bonus_paid = db.query(func.coalesce(func.sum(_Commission.amount_usdt), 0)).filter(
+            _Commission.to_user_id == oid,
+            _Commission.from_user_id == oid,
+            _Commission.commission_type == "grid_completion_bonus",
+            _Commission.package_tier == tier,
+            _Commission.status == "paid",
+        ).scalar() or 0
+
+        signal = (
+            ("payment:" + confirmed_payment.payment_type) if confirmed_payment
+            else "wc_order_confirmed" if wc_order
+            else "np_order_confirmed" if np_order
+            else ("commission_only_NO_PAYMENT" if gen_comm else "NO_SIGNAL")
+        )
+
+        flagged = not has_confirmed_money
+        if flagged:
+            flagged_count += 1
+            total_exposure += float(bonus_paid)
+
+        rec = {
+            "grid_id": g.id,
+            "owner_id": oid,
+            "owner_username": uname.get(oid),
+            "tier": tier,
+            "is_complete": bool(g.is_complete),
+            "owner_purchased_flag": bool(getattr(g, "owner_purchased", False)),
+            "has_confirmed_payment": has_confirmed_money,
+            "money_signal": signal,
+            "generated_buyer_commissions": bool(gen_comm),
+            "completion_bonus_paid": float(bonus_paid),
+            "flagged_no_confirmed_payment": flagged,
+        }
+        if (not only_flagged) or flagged:
+            rows.append(rec)
+
+    rows.sort(key=lambda r: (not r["flagged_no_confirmed_payment"], r["tier"], r["owner_id"]))
+    return {
+        "dry_run": True,
+        "note": "Read-only. Flagged = grid active with NO confirmed Payment/WC/NP order at that tier. 'commission_only_NO_PAYMENT' = activation ran + paid commissions but no money in.",
+        "total_grids": len(grids),
+        "flagged_no_confirmed_payment": flagged_count,
+        "payout_exposure_on_flagged_usd": round(total_exposure, 2),
+        "grids": rows,
+    }
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
