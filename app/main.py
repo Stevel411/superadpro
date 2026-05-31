@@ -16705,6 +16705,110 @@ def admin_revenue_reconciliation(
     }
 
 
+@app.get("/admin/api/stripe-charge-verification")
+def admin_stripe_charge_verification(
+    product: str = "campaign_tier",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY: do StripeCharge rows correspond to REAL settled Stripe money?
+
+    The grid audit flipped 45 grids to paid_stripe by matching StripeCharge rows
+    (product='campaign_tier'). But the live Stripe API showed only 31 charges /
+    ~$497 across ALL products — far less than 45 tier charges (>=$20 each) could
+    fit. So some StripeCharge rows may be TEST-MODE checkouts or manual-recovery
+    audit rows that ran process_tier_purchase without moving real money. This
+    verifies each row against the live Stripe API: does the charge/PaymentIntent
+    actually exist, livemode, and paid/succeeded?
+
+    live_verified_paid  = real money confirmed at Stripe (genuinely paid_stripe)
+    not_found_or_test   = id doesn't resolve with the live key (test-mode or
+                          synthetic) OR no real charge id to verify → NOT real money
+    """
+    _require_admin(user)
+    from .database import StripeCharge as _SC
+    rows = db.query(_SC).filter(_SC.product == product).all()
+
+    out = {
+        "product": product, "total_rows": len(rows),
+        "sum_amount_usd": 0.0, "by_kind": {},
+        "with_charge_id": 0, "with_pi_id_only": 0, "with_session_only": 0, "with_no_real_id": 0,
+        "stripe_configured": False,
+        "live_verified_paid": 0, "live_verified_sum_usd": 0.0,
+        "not_found_or_test": 0, "verify_errors": 0,
+        "distinct_users": 0,
+        "samples": [],
+    }
+    users = set()
+    try:
+        from . import stripe_service as _ss
+        configured = _ss.is_configured()
+        if configured:
+            _ss._ensure_sdk()
+            import stripe as _stripe
+        out["stripe_configured"] = configured
+    except Exception as e:
+        configured = False
+        out["stripe_configured"] = False
+        out["config_error"] = str(e)[:160]
+
+    for r in rows:
+        amt = (r.amount_cents or 0) / 100.0
+        out["sum_amount_usd"] += amt
+        users.add(r.user_id)
+        k = r.kind or "?"
+        out["by_kind"][k] = out["by_kind"].get(k, 0) + 1
+        cid = r.stripe_charge_id or ""
+        pid = r.stripe_payment_intent_id or ""
+        if cid:
+            out["with_charge_id"] += 1
+        elif pid:
+            out["with_pi_id_only"] += 1
+        elif r.stripe_session_id:
+            out["with_session_only"] += 1
+        else:
+            out["with_no_real_id"] += 1
+
+        if configured:
+            verified = False
+            try:
+                if cid:
+                    ch = _stripe.Charge.retrieve(cid)
+                    if ch and ch.get("paid") and ch.get("livemode"):
+                        verified = True
+                elif pid:
+                    pi = _stripe.PaymentIntent.retrieve(pid)
+                    if pi and pi.get("status") == "succeeded" and pi.get("livemode"):
+                        verified = True
+                # session-only / no-id rows can't be verified as real money
+                if verified:
+                    out["live_verified_paid"] += 1
+                    out["live_verified_sum_usd"] += amt
+                else:
+                    out["not_found_or_test"] += 1
+            except Exception:
+                # resource_missing with a live key => test-mode/synthetic id
+                out["not_found_or_test"] += 1
+
+    out["sum_amount_usd"] = round(out["sum_amount_usd"], 2)
+    out["live_verified_sum_usd"] = round(out["live_verified_sum_usd"], 2)
+    out["distinct_users"] = len(users)
+    for r in rows[:12]:
+        out["samples"].append({
+            "id": r.id, "user_id": r.user_id, "kind": r.kind,
+            "amount_usd": round((r.amount_cents or 0) / 100.0, 2),
+            "charge_id": (r.stripe_charge_id or "")[:16],
+            "pi_id": (r.stripe_payment_intent_id or "")[:16],
+            "session": (r.stripe_session_id or "")[:16],
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        })
+    out["read"] = ("If live_verified_paid ~= total_rows -> real money, paid_stripe is correct, "
+                   "0 unpaid stands. If not_found_or_test is high -> those grids were activated "
+                   "via test-mode/synthetic charges with NO real money; the real unpaid count is "
+                   "hidden inside paid_stripe and the engine must exclude unverified charges.")
+    return out
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
