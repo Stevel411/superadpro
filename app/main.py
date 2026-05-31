@@ -17808,13 +17808,22 @@ def admin_stripe_tier_metadata_reconcile(
         out["phase"] = "loaded_users"
 
         def _md_to_dict(obj):
-            """Coerce a Stripe metadata StripeObject to a plain dict."""
+            """Coerce a Stripe metadata StripeObject to a plain dict.
+
+            dict(StripeObject) raises KeyError:0 (Python's dict() integer-indexes it).
+            StripeObject provides .to_dict(); fall back to iterating .keys().
+            """
             raw = getattr(obj, "metadata", None)
             if not raw:
                 return {}
+            if hasattr(raw, "to_dict"):
+                try:
+                    return raw.to_dict()
+                except Exception:
+                    pass
             try:
-                return dict(raw)
-            except (TypeError, ValueError):
+                return {k: raw[k] for k in raw.keys()}
+            except Exception:
                 return {}
 
         # 1) Enumerate EVERY real settled charge via BalanceTransaction.list (the only
