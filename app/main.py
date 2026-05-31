@@ -13144,6 +13144,29 @@ def _stripe_handle_checkout_completed(db, session, event):
         # Dispatch based on product_kind from session metadata.
         logger.info(f"Stripe one-time payment received: user={user.id} product={product_kind} amount={amount_cents}")
 
+        # ── ROOT-CAUSE GUARD (31 May 2026) ─────────────────────────────────
+        # Activation must ONLY run on a real, completed, LIVE payment. Without
+        # this, test-mode (cs_test_) checkout sessions and live sessions that
+        # never actually paid (payment_status != 'paid') were running
+        # process_tier_purchase — activating grids + paying up-chain commissions
+        # with NO money in. Forensic: 44 campaign_tier charges / $1000, ZERO
+        # live-verified; ~40 grids activated free; ~$687 phantom commissions.
+        #   - payment_status must be 'paid' (form-completed-but-unpaid sessions
+        #     report 'unpaid'/'no_payment_required')
+        #   - the event must be livemode (test-mode events never touch production)
+        _pay_status = (session.get("payment_status") or "").lower()
+        _livemode = bool(event.get("livemode", session.get("livemode", False)))
+        if _pay_status != "paid" or not _livemode:
+            logger.error(
+                f"Stripe one-time payment NOT activated — guard tripped. "
+                f"user={user.id} product={product_kind} payment_status={_pay_status!r} "
+                f"livemode={_livemode} session={session.get('id')}. "
+                f"(Refusing to activate without a real, paid, live charge.)"
+            )
+            # Record nothing as activated; return cleanly so Stripe doesn't retry.
+            db.commit()
+            return
+
         if product_kind == "campaign_tier":
             # Activate the purchased campaign tier — reuses the exact same
             # logic the crypto rail uses (process_tier_purchase handles
