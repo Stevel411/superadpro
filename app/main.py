@@ -13181,6 +13181,63 @@ def _stripe_handle_checkout_completed(db, session, event):
                     source_event_id=f"stripe_{session.get('id')}",
                 )
                 if result.get("success"):
+                    # ── Authoritative grid Payment row (31 May 2026 systemic fix) ──
+                    # The crypto rails leave a TRUSTED confirmed artifact: their
+                    # order row (WalletConnectOrder / NowPaymentsOrder / Crypto-
+                    # PaymentOrder) flips to status='confirmed' only after on-chain
+                    # verification, and the reconciliation engine reads that as
+                    # top-priority proof of payment. Stripe tier purchases used to
+                    # leave ONLY a StripeCharge row — and that row is written for
+                    # AUDIT *before* the payment_status/livemode guard above, so it
+                    # exists even for test-mode (cs_test_) and incomplete live
+                    # sessions. It is therefore NOT trustworthy on its own, which is
+                    # exactly what blinded the engine to card-paid tiers (caught
+                    # 31 May 2026: >=9 real card-payers wrongly flagged 'unpaid',
+                    # commissions voided then fully restored).
+                    #
+                    # We now write a CONFIRMED grid Payment row HERE — past the
+                    # guard — so it is created ONLY for real, settled, live money,
+                    # exactly parallel to a confirmed crypto order. This gives the
+                    # engine a first-class trusted signal that needs no per-run live
+                    # Stripe API re-verification.
+                    #   payment_type 'stripe_grid_{tier}' is read by the engine's
+                    #     confirmed_payment branch via an ADDITIVE TIER-EXACT clause
+                    #     (== f"stripe_grid_{tier}"). Deliberately does NOT match the
+                    #     broad LIKE 'grid_%' wildcard, so a tier-1 Stripe payment
+                    #     marks ONLY the tier-1 grid paid — never a spillover-created
+                    #     higher-tier grid. This mirrors how the crypto rails match
+                    #     tier-specifically (order.product_key == f"grid_{tier}").
+                    #   tx_hash 'stripe_grid_{session_id}' is unique => idempotent on
+                    #     webhook re-delivery (check-then-add below). The commission
+                    #     side is independently replay-guarded by source_event_id in
+                    #     process_tier_purchase, so a redelivery double-writes neither.
+                    try:
+                        _grid_tx = f"stripe_grid_{session.get('id')}"
+                        _exists = db.query(Payment).filter(Payment.tx_hash == _grid_tx).first()
+                        if not _exists:
+                            db.add(Payment(
+                                from_user_id=user.id,
+                                to_user_id=None,
+                                amount_usdt=round(amount_cents / 100.0, 2),
+                                payment_type=f"stripe_grid_{tier_id}",
+                                tx_hash=_grid_tx,
+                                status="confirmed",
+                            ))
+                            db.flush()
+                            logger.info(
+                                f"Stripe grid Payment row written: user={user.id} "
+                                f"tier={tier_id} tx={_grid_tx} amount=${amount_cents/100:.2f}"
+                            )
+                    except Exception:
+                        # Activation already succeeded; a failed audit-row write must
+                        # not crash the webhook (Stripe would retry and risk a double
+                        # activation). Log loudly — this is a reconciliation gap, not
+                        # a money error.
+                        logger.exception(
+                            f"Failed to write Stripe grid Payment row for user "
+                            f"{user.id} tier {tier_id} — activation succeeded, "
+                            f"engine will fall back to live StripeCharge verification."
+                        )
                     # Hide fast-start hero on grid activation (mirrors crypto rail logic)
                     try:
                         if user.fast_start_hidden_at is None:
@@ -16321,6 +16378,13 @@ def _reconcile_grid_payment(db, grid, owner, models):
             _Payment.payment_type == "grid_package",
             _Payment.payment_type == f"manual_recovery_grid_{tier}",
             _Payment.payment_type == f"nexus_to_tier_{tier}",
+            # Stripe campaign_tier rail (31 May 2026): the webhook writes a
+            # confirmed Payment row 'stripe_grid_{tier}' ONLY past the
+            # payment_status=='paid' + livemode guard, so it is trusted like a
+            # confirmed crypto order. TIER-EXACT on purpose (not a 'grid_%'
+            # wildcard) so a lower-tier Stripe purchase never masks a genuinely
+            # unpaid higher-tier (spillover) grid.
+            _Payment.payment_type == f"stripe_grid_{tier}",
             _Payment.payment_type.like("walletconnect_grid%"),
             _Payment.payment_type.like("nowpayments_grid%"),
             _Payment.payment_type.like("grid_%"),
