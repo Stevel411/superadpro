@@ -16499,6 +16499,153 @@ def admin_grid_payment_audit(
     }
 
 
+@app.get("/admin/api/revenue-reconciliation")
+def admin_revenue_reconciliation(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY platform money-in vs commissions-out reconciliation (no mutations).
+
+    Answers the real question: is the platform paying out more in commissions than
+    it takes in? Measures the WHOLE business, not the crypto-treasury float:
+
+      REVENUE IN
+        - stripe_net_usd        : authoritative net revenue from Stripe BalanceTransaction
+                                  API (card -> bank; never touches the crypto treasury)
+        - recorded_payments_usd : confirmed Payment rows grouped by rail (cross-ref;
+                                  may understate if records drifted)
+      COMMISSIONS OUT
+        - commissions_credited_usd : Commission rows status=paid, by type (the liability —
+                                    includes balances not yet withdrawn)
+        - commissions_withdrawn_usd: Withdrawal rows status=paid (cash that actually left)
+
+    Crypto treasury inflows are NOT pulled here (they're on-chain — use the BscScan
+    figure: ~3,940 gross, less the 888 null-address artifact). This endpoint supplies
+    the two halves the treasury view was missing: Stripe revenue + the commission ledger.
+    """
+    _require_admin(user)
+    from .database import Commission as _Commission, Payment as _Payment, Withdrawal as _Withdrawal
+    from sqlalchemy import func
+
+    # ── commissions credited (the liability), by type ──
+    cred_rows = db.query(
+        _Commission.commission_type,
+        func.coalesce(func.sum(_Commission.amount_usdt), 0),
+        func.count(_Commission.id),
+    ).filter(_Commission.status == "paid").group_by(_Commission.commission_type).all()
+    commissions_by_type = {ct: {"usd": round(float(s), 2), "count": n} for ct, s, n in cred_rows}
+    commissions_credited_usd = round(sum(v["usd"] for v in commissions_by_type.values()), 2)
+
+    reversed_usd = round(float(db.query(func.coalesce(func.sum(_Commission.amount_usdt), 0)).filter(
+        _Commission.status == "reversed").scalar() or 0), 2)
+
+    # ── commissions actually withdrawn (cash out) ──
+    withdrawn_usd = round(float(db.query(func.coalesce(func.sum(_Withdrawal.amount_usdt), 0)).filter(
+        _Withdrawal.status == "paid").scalar() or 0), 2)
+    withdrawn_count = db.query(func.count(_Withdrawal.id)).filter(_Withdrawal.status == "paid").scalar() or 0
+
+    # ── recorded payment revenue by rail (cross-reference) ──
+    pay_rows = db.query(
+        _Payment.payment_type,
+        func.coalesce(func.sum(_Payment.amount_usdt), 0),
+        func.count(_Payment.id),
+    ).filter(_Payment.status == "confirmed").group_by(_Payment.payment_type).all()
+    recorded_payments = {}
+    stripe_recorded = 0.0
+    for pt, s, n in pay_rows:
+        recorded_payments[pt] = {"usd": round(float(s), 2), "count": n}
+    recorded_payments_total = round(sum(v["usd"] for v in recorded_payments.values()), 2)
+    # membership rows paid via Stripe carry tx_hash like 'stripe_...'
+    stripe_recorded = round(float(db.query(func.coalesce(func.sum(_Payment.amount_usdt), 0)).filter(
+        _Payment.status == "confirmed", _Payment.tx_hash.like("stripe_%")).scalar() or 0), 2)
+
+    # ── authoritative Stripe net revenue (live API) ──
+    stripe_block = {"available": False}
+    try:
+        from . import stripe_service as _ss
+        if _ss.is_configured():
+            _ss._ensure_sdk()
+            import stripe as _stripe
+            gross = fees = net = 0.0
+            count = 0
+            params = {"limit": 100, "type": "charge"}
+            # paginate balance transactions (authoritative settled revenue)
+            while True:
+                page = _stripe.BalanceTransaction.list(**params)
+                for bt in page.data:
+                    gross += (bt.amount or 0) / 100.0
+                    fees += (bt.fee or 0) / 100.0
+                    net += (bt.net or 0) / 100.0
+                    count += 1
+                if page.has_more and page.data:
+                    params["starting_after"] = page.data[-1].id
+                else:
+                    break
+            # refunds (money returned to customers)
+            refunds_total = 0.0
+            rparams = {"limit": 100, "type": "refund"}
+            while True:
+                rpage = _stripe.BalanceTransaction.list(**rparams)
+                for bt in rpage.data:
+                    refunds_total += abs(bt.amount or 0) / 100.0
+                if rpage.has_more and rpage.data:
+                    rparams["starting_after"] = rpage.data[-1].id
+                else:
+                    break
+            stripe_block = {
+                "available": True,
+                "charges_count": count,
+                "gross_usd": round(gross, 2),
+                "fees_usd": round(fees, 2),
+                "net_usd": round(net, 2),
+                "refunds_usd": round(refunds_total, 2),
+            }
+        else:
+            stripe_block = {"available": False, "reason": "stripe not configured in env"}
+    except Exception as e:
+        stripe_block = {"available": False, "error": str(e)[:200]}
+
+    # ── known crypto figure (from BscScan, supplied as context, not pulled here) ──
+    crypto_note = ("Crypto treasury inflows are on-chain — from BscScan: ~3940.54 gross in, "
+                   "less 888 null-address artifact = ~3052 real; less ~279 owner(user 1) "
+                   "self-payments = ~2773 member crypto revenue. Treasury OUT was ~4779 but "
+                   "includes owner sweeps, not only commissions.")
+
+    stripe_net = stripe_block.get("net_usd", 0.0) if stripe_block.get("available") else 0.0
+
+    return {
+        "dry_run": True,
+        "note": ("Real money-in vs commissions-out. Stripe (card->bank) is separate from the "
+                 "crypto treasury; the earlier -839 treasury 'net' ignored Stripe entirely and "
+                 "counted owner sweeps as outflow. commissions_credited = total liability "
+                 "(incl. unwithdrawn balances); commissions_withdrawn = cash that actually left."),
+        "revenue_in": {
+            "stripe": stripe_block,
+            "crypto_treasury_note": crypto_note,
+            "recorded_payments_by_rail": recorded_payments,
+            "recorded_payments_total_usd": recorded_payments_total,
+            "stripe_recorded_in_payment_table_usd": stripe_recorded,
+        },
+        "commissions_out": {
+            "commissions_credited_usd": commissions_credited_usd,
+            "commissions_credited_by_type": commissions_by_type,
+            "commissions_reversed_usd": reversed_usd,
+            "commissions_withdrawn_cash_usd": withdrawn_usd,
+            "commissions_withdrawn_count": withdrawn_count,
+        },
+        "quick_read": {
+            "stripe_net_revenue_usd": stripe_net,
+            "approx_member_crypto_revenue_usd": 2773.0,
+            "approx_total_revenue_usd": round(stripe_net + 2773.0, 2),
+            "commissions_credited_usd": commissions_credited_usd,
+            "commissions_withdrawn_cash_usd": withdrawn_usd,
+            "interpretation": ("Compare commissions_withdrawn_cash (real cash out) against "
+                               "approx_total_revenue (Stripe net + member crypto). Comp plan "
+                               "expects commissions to be 50-90% of revenue by design."),
+        },
+    }
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
