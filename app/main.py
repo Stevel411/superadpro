@@ -16283,14 +16283,23 @@ def admin_grid_payment_audit(
     from sqlalchemy import or_, func
 
     grids = db.query(Grid).all()
-    uname = {u.id: u.username for u in db.query(User).all()}
+    users_by_id = {u.id: u for u in db.query(User).all()}
 
     rows = []
-    flagged_count = 0
-    total_exposure = 0.0  # commission+bonus paid out off grids with no confirmed payment
+    # Categorise every grid. Comped = admin/company account (Steve, user 1 —
+    # the ONLY comped account, confirmed 31 May 2026). Those legitimately have
+    # no payment and are excluded from the "should have paid" question.
+    cat_counts = {"comped": 0, "paid": 0, "attempted_expired": 0, "no_record": 0}
+    # Bonus exposure must be deduped by commission id — an owner with multiple
+    # grids at the same tier would otherwise count the same bonus row N times
+    # (the bug that inflated the earlier $252). Collect commission ids per
+    # category, sum each row once.
+    exposure_comm_ids = {"no_record": set(), "attempted_expired": set()}
 
     for g in grids:
         oid, tier = g.owner_id, g.package_tier
+        owner = users_by_id.get(oid)
+        is_comped = bool(owner and owner.is_admin)
 
         confirmed_payment = db.query(_Payment).filter(
             _Payment.from_user_id == oid,
@@ -16303,77 +16312,92 @@ def admin_grid_payment_audit(
                 _Payment.payment_type.like("grid_%"),
             ),
         ).first()
-
-        wc_order = db.query(_WC).filter(
-            _WC.user_id == oid,
-            _WC.product_type == "grid",
-            _WC.product_key == f"grid_{tier}",
-            _WC.status == "confirmed",
+        wc_paid = db.query(_WC).filter(
+            _WC.user_id == oid, _WC.product_type == "grid",
+            _WC.product_key == f"grid_{tier}", _WC.status == "confirmed",
         ).first()
+        np_paid = db.query(_NP).filter(
+            _NP.user_id == oid, _NP.product_type == "grid",
+            _NP.product_key == f"grid_{tier}", _NP.status.in_(["confirmed", "finished"]),
+        ).first()
+        has_confirmed_money = bool(confirmed_payment or wc_paid or np_paid)
 
-        np_order = db.query(_NP).filter(
-            _NP.user_id == oid,
-            _NP.product_type == "grid",
+        # A payment ATTEMPT that didn't confirm (expired/failed/cancelled order)
+        # — tells us the member tried to pay via a rail (often the retired
+        # NOWPayments) and was activated anyway. Different from "no record at all".
+        attempted = db.query(_NP).filter(
+            _NP.user_id == oid, _NP.product_type == "grid",
             _NP.product_key == f"grid_{tier}",
-            _NP.status.in_(["confirmed", "finished"]),
+            _NP.status.in_(["expired", "failed", "cancelled", "waiting", "partially_paid"]),
+        ).first() or db.query(_WC).filter(
+            _WC.user_id == oid, _WC.product_type == "grid",
+            _WC.product_key == f"grid_{tier}",
+            _WC.status.in_(["expired", "cancelled", "pending"]),
         ).first()
 
-        has_confirmed_money = bool(confirmed_payment or wc_order or np_order)
-
-        # context signal (NOT proof of money — process_tier_purchase can run
-        # without a confirmed payment): did owner generate buyer-commissions?
-        gen_comm = db.query(_Commission).filter(
-            _Commission.from_user_id == oid,
-            _Commission.commission_type.in_(["direct_sponsor", "uni_level"]),
-            _Commission.package_tier == tier,
-        ).first()
-
-        # payout exposure off THIS grid's owner at this tier (bonus + the
-        # owner's own direct/unilevel earnings are NOT off this grid; the real
-        # exposure is the completion bonus paid to the owner for this grid)
-        bonus_paid = db.query(func.coalesce(func.sum(_Commission.amount_usdt), 0)).filter(
+        # completion-bonus rows for this owner+tier (deduped later by id)
+        bonus_rows = db.query(_Commission).filter(
             _Commission.to_user_id == oid,
             _Commission.from_user_id == oid,
             _Commission.commission_type == "grid_completion_bonus",
             _Commission.package_tier == tier,
             _Commission.status == "paid",
-        ).scalar() or 0
+        ).all()
+        bonus_here = sum(float(c.amount_usdt or 0) for c in bonus_rows)
+
+        if is_comped:
+            category = "comped"
+        elif has_confirmed_money:
+            category = "paid"
+        elif attempted:
+            category = "attempted_expired"
+        else:
+            category = "no_record"
+        cat_counts[category] += 1
+
+        if category in ("no_record", "attempted_expired"):
+            for c in bonus_rows:
+                exposure_comm_ids[category].add(c.id)
 
         signal = (
             ("payment:" + confirmed_payment.payment_type) if confirmed_payment
-            else "wc_order_confirmed" if wc_order
-            else "np_order_confirmed" if np_order
-            else ("commission_only_NO_PAYMENT" if gen_comm else "NO_SIGNAL")
+            else "wc_order_confirmed" if wc_paid
+            else "np_order_confirmed" if np_paid
+            else f"attempted_{attempted.status}" if attempted
+            else "no_payment_record"
         )
 
-        flagged = not has_confirmed_money
-        if flagged:
-            flagged_count += 1
-            total_exposure += float(bonus_paid)
-
+        flagged = category in ("no_record", "attempted_expired")
         rec = {
-            "grid_id": g.id,
-            "owner_id": oid,
-            "owner_username": uname.get(oid),
-            "tier": tier,
-            "is_complete": bool(g.is_complete),
-            "owner_purchased_flag": bool(getattr(g, "owner_purchased", False)),
-            "has_confirmed_payment": has_confirmed_money,
+            "grid_id": g.id, "owner_id": oid, "owner_username": (owner.username if owner else None),
+            "tier": tier, "is_complete": bool(g.is_complete),
+            "category": category,
             "money_signal": signal,
-            "generated_buyer_commissions": bool(gen_comm),
-            "completion_bonus_paid": float(bonus_paid),
-            "flagged_no_confirmed_payment": flagged,
+            "completion_bonus_paid": round(bonus_here, 2),
         }
         if (not only_flagged) or flagged:
             rows.append(rec)
 
-    rows.sort(key=lambda r: (not r["flagged_no_confirmed_payment"], r["tier"], r["owner_id"]))
+    # Dedupe exposure: sum each distinct completion-bonus commission once.
+    def _sum_ids(idset):
+        if not idset:
+            return 0.0
+        total = db.query(func.coalesce(func.sum(_Commission.amount_usdt), 0)).filter(
+            _Commission.id.in_(idset)
+        ).scalar() or 0
+        return round(float(total), 2)
+
+    rows.sort(key=lambda r: (r["category"] != "no_record", r["category"] != "attempted_expired", r["tier"], r["owner_id"]))
     return {
         "dry_run": True,
-        "note": "Read-only. Flagged = grid active with NO confirmed Payment/WC/NP order at that tier. 'commission_only_NO_PAYMENT' = activation ran + paid commissions but no money in.",
+        "note": ("Read-only. comped=admin/company (Steve, excluded — legitimately not paid). "
+                 "paid=confirmed grid payment/order. attempted_expired=member tried to pay "
+                 "(order exists but expired/failed) and was activated anyway. no_record=grid "
+                 "active with no payment attempt of any kind. Bonus exposure deduped by commission id."),
         "total_grids": len(grids),
-        "flagged_no_confirmed_payment": flagged_count,
-        "payout_exposure_on_flagged_usd": round(total_exposure, 2),
+        "category_counts": cat_counts,
+        "bonus_exposure_no_record_usd": _sum_ids(exposure_comm_ids["no_record"]),
+        "bonus_exposure_attempted_expired_usd": _sum_ids(exposure_comm_ids["attempted_expired"]),
         "grids": rows,
     }
 
