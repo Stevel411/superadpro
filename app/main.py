@@ -17924,6 +17924,120 @@ def admin_stripe_tier_metadata_reconcile(
     return out
 
 
+# Exact pre-void campaign_balance for the 5 recipients the VOID floored to $0
+# (recorded from the void execution result). For these, campaign_balance is
+# restored to this value; everyone else (the 7 balance-covered REVERSAL recipients)
+# is credited back the full sum of their restored commissions.
+_VOID_FLOORED_PREVOID_BALANCE = {349: 2.75, 432: 9.25, 151: 0.24, 264: 3.75, 307: 0.00}
+_RESTORE_CONFIRM_TOKEN = "RESTORE-WRONGLY-VOIDED-COMMISSIONS-TO-KNOWN-GOOD"
+
+
+@app.get("/admin/api/commission-restore-execute")
+def admin_commission_restore_execute(
+    confirm: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """FULL UNWIND of tonight's commission reversal + void back to the pre-tonight state.
+
+    WHY: the engine misclassified real Stripe tier payers as unpaid (Stripe tier
+    purchases leave no Payment-table record), so the reversal+void hit REAL commissions.
+    The safe correction is to restore EVERYTHING tonight's two operations touched back to
+    its known-good pre-tonight state, then re-run reconciliation cleanly on corrected data
+    and re-void only the genuinely-fictitious. This endpoint does the restore half.
+
+    Targets ONLY rows tonight's executors marked — status='reversed' carrying either the
+    '[VOIDED 31 May 2026' or '[REVERSED 31 May 2026' note signature. For each:
+      - status -> 'paid'  (this alone auto-restores total_earned/grid_earnings displays,
+        which compute_user_earnings derives live from the status='paid' ledger)
+      - campaign_balance (a real stored wallet the ops debited) is credited back by the
+        EXACT amount debited: the 7 balance-covered REVERSAL recipients get their full
+        restored-commission sum; the 5 VOID-floored recipients are restored to their
+        recorded pre-void balance (so spenders aren't over-credited).
+
+    Idempotent: only flips rows still status='reversed'; re-running finds none.
+    SAFETY: mutates ONLY when confirm == the exact token; otherwise returns the plan.
+    """
+    _require_admin(user)
+    from .database import Commission as _Commission
+    from sqlalchemy import or_
+    from decimal import Decimal as _D
+    from collections import defaultdict
+
+    will_execute = (confirm == _RESTORE_CONFIRM_TOKEN)
+
+    rows = db.query(_Commission).filter(
+        _Commission.status == "reversed",
+        or_(_Commission.notes.like("%[VOIDED 31 May 2026%"),
+            _Commission.notes.like("%[REVERSED 31 May 2026%")),
+    ).all()
+
+    by_recipient = defaultdict(list)
+    for c in rows:
+        by_recipient[c.to_user_id].append(c)
+
+    users_by_id = {u.id: u for u in db.query(User).all()}
+    results = []
+    tot_restored_rows = 0
+    tot_balance_credited = 0.0
+    for rid, comms in by_recipient.items():
+        u = users_by_id.get(rid)
+        commission_sum = round(sum(float(c.amount_usdt or 0) for c in comms), 2)
+        if rid in _VOID_FLOORED_PREVOID_BALANCE:
+            credit = round(_VOID_FLOORED_PREVOID_BALANCE[rid], 2)   # restore to recorded pre-void balance
+            bucket = "void_floored"
+        else:
+            credit = commission_sum                                 # balance-covered reversal: full debit
+            bucket = "reversal_full"
+        cb_before = float(getattr(u, "campaign_balance", 0) or 0) if u else 0.0
+        if will_execute and u:
+            for c in comms:
+                c.status = "paid"
+                c.notes = (c.notes or "") + (
+                    f"\n\n[RESTORED 31 May 2026 by admin {user.username}: re-marked paid — "
+                    f"reversal/void was based on a misclassification that missed real Stripe "
+                    f"tier payments. Returned to pre-tonight state.]")
+            u.campaign_balance = _D(str(cb_before)) + _D(str(credit))
+        tot_restored_rows += len(comms)
+        tot_balance_credited += credit
+        results.append({
+            "recipient_id": rid, "username": (u.username if u else None),
+            "commissions_restored_to_paid": len(comms),
+            "restored_commission_sum_usd": commission_sum,
+            "bucket": bucket,
+            "campaign_balance_before": round(cb_before, 2),
+            "campaign_balance_credit_usd": round(credit, 2),
+            "campaign_balance_after": round(cb_before + credit, 2),
+        })
+
+    if will_execute:
+        db.commit()
+        for rid in by_recipient:
+            try:
+                cache_delete(f"dash:{rid}:main"); cache_delete(f"earnings:{rid}")
+            except Exception:
+                pass
+
+    results.sort(key=lambda r: -r["restored_commission_sum_usd"])
+    return {
+        "executed": will_execute,
+        "MUTATED": will_execute,
+        "scope": ("FULL UNWIND of tonight's reversal+void. Restores every row marked "
+                  "[VOIDED 31 May 2026] or [REVERSED 31 May 2026] from 'reversed' to 'paid' "
+                  "(earnings displays recompute from the ledger), and credits campaign_balance "
+                  "back by the exact amount debited (7 reversal recipients: full sum; 5 void "
+                  "recipients: recorded pre-void balance, so spenders aren't over-credited). "
+                  "Idempotent. NO grids were ever deactivated — none to reactivate."),
+        "confirm_token_to_execute": (None if will_execute else _RESTORE_CONFIRM_TOKEN),
+        "how_to_run": (None if will_execute else
+                       "/admin/api/commission-restore-execute?confirm=" + _RESTORE_CONFIRM_TOKEN),
+        "rows_to_restore": tot_restored_rows,
+        "recipients_affected": len(results),
+        "total_campaign_balance_credited_usd": round(tot_balance_credited, 2),
+        "recipients": results,
+    }
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
