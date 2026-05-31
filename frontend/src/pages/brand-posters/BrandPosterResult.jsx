@@ -19,13 +19,22 @@ export default function BrandPosterResult() {
   // the proxy endpoint returns 410 Gone and the <img> onError fires.
   var [failedIndexes, setFailedIndexes] = useState({});
 
+  // Generation now runs asynchronously: the form POSTs and is redirected here
+  // with status 'generating'; we poll this detail endpoint until the render
+  // finishes ('ready') or fails ('failed'). See the async refactor in
+  // bpg_generate / _bpg_run_generation.
+  var [pollCount, setPollCount] = useState(0);
+
   function loadGeneration() {
     return apiGet('/api/posters/generation/' + generationId).then(function(res) {
-      if (res && res.candidates) {
+      if (res && res.id) {
         setGeneration(res);
-        setCandidates(res.candidates);
+        setCandidates(res.candidates || []);
         if (res.chosen_index !== null && res.chosen_index !== undefined) {
           setSelectedIndex(res.chosen_index);
+        }
+        if (res.status === 'failed') {
+          setError(res.error_message || 'Generation failed — please try again.');
         }
       } else {
         setError((res && res.detail) || 'Generation not found.');
@@ -40,6 +49,23 @@ export default function BrandPosterResult() {
   useEffect(function() {
     loadGeneration();
   }, [generationId]);
+
+  // Poll while the render is still in progress. Stops automatically once the
+  // status is terminal (candidates arrive, or 'failed' sets error). The cap
+  // (~6 min) is a safety net; the backend self-heals a stuck row to 'failed'
+  // at 5 min, so the poll will receive that and stop well before the cap.
+  useEffect(function() {
+    if (!generation) return undefined;
+    var st = generation.status;
+    if ((st === 'generating' || st === 'pending') && pollCount < 120) {
+      var t = setTimeout(function() {
+        setPollCount(function(c) { return c + 1; });
+        loadGeneration();
+      }, 3000);
+      return function() { clearTimeout(t); };
+    }
+    return undefined;
+  }, [generation, pollCount]);
 
   async function handleChoose() {
     if (selectedIndex === null) return;
@@ -70,6 +96,27 @@ export default function BrandPosterResult() {
       <AppLayout title="Loading your posters…">
         <div style={{ padding: 60, textAlign: 'center', color: 'var(--sap-text-muted)' }}>
           Loading…
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Render still in progress — show progress and keep polling (the effect above
+  // re-checks every 3s). Generation runs server-side, so leaving this page does
+  // not cancel it; the finished set lands in History either way.
+  var genStatus = generation && generation.status;
+  if ((genStatus === 'generating' || genStatus === 'pending') && !error) {
+    return (
+      <AppLayout title="Creating your posters…" subtitle="This usually takes 45–60 seconds">
+        <div style={{ padding: 60, textAlign: 'center', color: 'var(--sap-text-muted)' }}>
+          <Clock size={28} style={{ marginBottom: 16, opacity: 0.7 }} />
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--sap-text)' }}>
+            Generating 4 candidate posters…
+          </div>
+          <div style={{ fontSize: 13, marginTop: 10, maxWidth: 440, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
+            Hang tight — this takes around a minute. You can safely leave this page;
+            your finished posters will be waiting in your History.
+          </div>
         </div>
       </AppLayout>
     );

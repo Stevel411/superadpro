@@ -44244,8 +44244,94 @@ def bpg_template_detail(slug: str, request: Request, db: Session = Depends(get_d
     }
 
 
+def _bpg_reconcile_stale_generations(user_id, db):
+    """Self-heal: a BackgroundTask killed by a redeploy can strand a poster
+    generation in 'generating' forever. Mark this user's poster generations
+    stuck 'generating'/'pending' for >5 min (well past the ~60s real run) as
+    'failed' so the result page stops waiting. No credits to refund — BPG is
+    free for Nexus pack owners (credits_charged=0). Mirrors the SuperScene
+    _reconcile_stale_pipelines pattern."""
+    from datetime import datetime as _dt, timedelta as _td
+    from .database import PosterGeneration as _PG
+    cutoff = _dt.utcnow() - _td(minutes=5)
+    stale = db.query(_PG).filter(
+        _PG.user_id == user_id,
+        _PG.status.in_(["generating", "pending"]),
+        _PG.created_at < cutoff,
+    ).all()
+    for g in stale:
+        g.status = "failed"
+        if not g.error_message:
+            g.error_message = "Generation was interrupted — please try again."
+    if stale:
+        db.commit()
+        logger.info(f"BPG self-heal: marked {len(stale)} stale generation(s) failed for user {user_id}")
+    return len(stale)
+
+
+async def _bpg_run_generation(gen_id, rendered_prompt, reference_photo_url, aspect):
+    """Background runner for ONE Brand Poster generation (fire-and-forget via
+    FastAPI BackgroundTasks). Calls the AI provider WITHOUT holding any DB
+    transaction open, then records the outcome in its own short-lived session.
+    Never raises — logs instead — since it runs detached from the request.
+
+    The slow provider call used to run inline inside the POST, holding the HTTP
+    request (and a DB transaction) open for 45-60s; that 502'd at the gateway on
+    long renders and lost the whole generation. Holding a DB transaction across
+    a slow external call is also what took the site down on 31 May 2026 — so
+    this deliberately opens the DB session ONLY after the provider call returns.
+
+    Like every BackgroundTask it does not survive a redeploy; a run killed
+    mid-flight leaves the row 'generating'. _bpg_reconcile_stale_generations
+    (next generate) and the age-based flip in the detail endpoint both clear
+    those, so the poller never waits forever."""
+    from . import grok_imagine_service as grok_imagine
+    from .database import SessionLocal as _SessionLocal, PosterGeneration as _PG
+    import json as _json
+    # ── slow external call: NO db session/transaction held across it ──
+    try:
+        result = await grok_imagine.generate_candidates(
+            prompt=rendered_prompt, reference_url=reference_photo_url,
+            aspect=aspect, n=4,
+        )
+    except Exception as exc:
+        logger.exception(f"BPG bg generation {gen_id} crashed during Grok call")
+        result = {"error": f"Generation crashed: {exc}"}
+
+    # ── short-lived session purely to record the outcome ──
+    db = _SessionLocal()
+    try:
+        gen = db.query(_PG).filter_by(id=gen_id).first()
+        if not gen:
+            logger.error(f"BPG bg generation {gen_id}: row not found when writing outcome")
+            return
+        if gen.status not in ("generating", "pending"):
+            # Already resolved (e.g. self-heal flipped it failed). Don't clobber.
+            logger.info(f"BPG bg generation {gen_id}: already '{gen.status}', leaving as-is")
+            return
+        if "error" in result:
+            gen.status = "failed"
+            gen.error_message = str(result.get("error") or "Image generation failed")[:500]
+        else:
+            imgs = result.get("images", []) or []
+            if not imgs:
+                gen.status = "failed"
+                gen.error_message = "No images returned — please try again"
+            else:
+                gen.candidate_urls = _json.dumps(imgs)
+                gen.status = "ready"
+                gen.completed_at = datetime.utcnow()
+        db.commit()
+        logger.info(f"BPG bg generation {gen_id} -> {gen.status}")
+    except Exception:
+        logger.exception(f"BPG bg generation {gen_id}: error writing outcome")
+        db.rollback()
+    finally:
+        db.close()
+
+
 @app.post("/api/posters/generate")
-async def bpg_generate(request: Request, db: Session = Depends(get_db)):
+async def bpg_generate(request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """THE main endpoint. Generate 4 candidate posters from a template.
 
     Body: {
@@ -44335,53 +44421,38 @@ async def bpg_generate(request: Request, db: Session = Depends(get_db)):
     db.flush()
     gen_id = generation.id
 
-    # Call Grok Imagine (async)
-    try:
-        result = await grok_imagine.generate_candidates(
-            prompt=rendered_prompt,
-            reference_url=reference_photo_url,
-            aspect=template["aspect_ratio"],
-            n=4,
-        )
-    except Exception as exc:
-        logger.exception(f"BPG generation {gen_id} crashed during Grok call: {exc}")
-        generation.status = "failed"
-        generation.error_message = f"Generation crashed: {exc}"
-        db.commit()
-        raise HTTPException(status_code=502, detail="Image generation service error")
-
-    if "error" in result:
-        logger.warning(f"BPG generation {gen_id} Grok error: {result.get('error')}")
-        generation.status = "failed"
-        generation.error_message = result.get("error", "Unknown Grok error")
-        db.commit()
-        raise HTTPException(
-            status_code=502,
-            detail=result.get("error", "Image generation failed — please try again"),
-        )
-
-    candidate_urls = result.get("images", [])
-    if not candidate_urls:
-        generation.status = "failed"
-        generation.error_message = "Grok returned no images"
-        db.commit()
-        raise HTTPException(status_code=502, detail="No images returned — please try again")
-
-    # Success — record the candidates and return
-    generation.candidate_urls = _json.dumps(candidate_urls)
-    generation.status = "ready"
-    generation.completed_at = datetime.utcnow()
+    # Persist the 'generating' row NOW (commit, not just flush) so the
+    # background runner and the result-page poller can see it after this
+    # request returns and the request-scoped session closes.
     db.commit()
 
-    logger.info(f"BPG generation {gen_id} succeeded — {len(candidate_urls)} candidates "
-                f"for user {user.username}, template {template_slug}")
+    # Self-heal any of THIS user's earlier runs stranded 'generating' by a
+    # mid-flight redeploy (BackgroundTasks don't survive one).
+    try:
+        _bpg_reconcile_stale_generations(user.id, db)
+    except Exception:
+        logger.warning("BPG stale-generation reconcile failed", exc_info=True)
+
+    # Kick the render into the background and return IMMEDIATELY. Previously
+    # this awaited a 45-60s provider call inline, holding the HTTP request open
+    # the whole time — which 502'd at the gateway on long renders and lost the
+    # generation. Now the request returns at once with status 'generating'; the
+    # result page polls GET /api/posters/generation/{id} until 'ready'/'failed'.
+    background_tasks.add_task(
+        _bpg_run_generation,
+        gen_id=gen_id,
+        rendered_prompt=rendered_prompt,
+        reference_photo_url=reference_photo_url,
+        aspect=template["aspect_ratio"],
+    )
+
+    logger.info(f"BPG generation {gen_id} queued for user {user.username}, template {template_slug}")
 
     return {
         "success": True,
         "generation_id": gen_id,
-        "candidates": candidate_urls,
+        "status": "generating",
         "template_slug": template_slug,
-        "rendered_prompt_preview": rendered_prompt[:200] + "...",
     }
 
 
@@ -44413,6 +44484,18 @@ def bpg_generation_detail(generation_id: int, request: Request, db: Session = De
     gen = db.query(PosterGeneration).filter_by(id=generation_id, user_id=user.id).first()
     if not gen:
         raise HTTPException(status_code=404, detail="Generation not found")
+
+    # Age-based self-heal: a generation stuck 'generating'/'pending' well past
+    # the real run window was almost certainly orphaned by a redeploy (Background-
+    # Tasks don't survive one). Flip it to 'failed' so the result-page poller
+    # stops waiting instead of looping forever.
+    if gen.status in ("generating", "pending") and gen.created_at:
+        from datetime import timedelta as _td
+        if gen.created_at < datetime.utcnow() - _td(minutes=5):
+            gen.status = "failed"
+            if not gen.error_message:
+                gen.error_message = "Generation timed out — please try again."
+            db.commit()
 
     tpl = db.query(PosterTemplate).filter_by(id=gen.template_id).first()
 
