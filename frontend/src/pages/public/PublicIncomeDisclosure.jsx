@@ -80,9 +80,9 @@ export default function PublicIncomeDisclosure() {
           </Section>
 
           <Section title={t('incomeDisclaimer.membershipPricing', { defaultValue: 'Membership commission structure' })}>
-            <p>{t('incomeDisclaimer.membershipAlloc', { defaultValue: 'Members earn 50% recurring commission on each active membership in their direct referral line:' })}</p>
+            <p>{t('incomeDisclaimer.membershipAlloc', { defaultValue: 'Members earn a flat $10/month recurring commission for each active Partner membership in their direct referral line:' })}</p>
             <CostBreakdown items={[
-              { pct: '50%', label: t('incomeDisclaimer.membership.sponsorLabel'), desc: t('incomeDisclaimer.membership.sponsorDesc') },
+              { pct: '$10/mo', label: t('incomeDisclaimer.membership.sponsorLabel'), desc: t('incomeDisclaimer.membership.sponsorDesc') },
             ]}/>
           </Section>
 

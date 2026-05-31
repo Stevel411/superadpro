@@ -93,7 +93,7 @@ export default function AnalyticsPage(){
       {/* ═══ ROW 2: 4 Income Streams ═══ */}
       <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#7a8899',margin:'16px 0 8px'}}>{t('analytics.yourIncomeStreams')}</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-        <GC gradient="linear-gradient(135deg,#15803d,#22c55e)" label={t('analytics.membership',{defaultValue:'Membership'})} value={'$'+(tot.membership_earnings||0).toFixed(2)} sub={t('analytics.fiftyRecurring',{defaultValue:'50% recurring'})}>
+        <GC gradient="linear-gradient(135deg,#15803d,#22c55e)" label={t('analytics.membership',{defaultValue:'Membership'})} value={'$'+(tot.membership_earnings||0).toFixed(2)} sub={t('analytics.fiftyRecurring',{defaultValue:'$10/mo per referral'})}>
           <div style={{position:'absolute',top:14,right:14}}><Spark data={mSpark('membership')} color="#fff"/></div>
         </GC>
         <GC gradient="linear-gradient(135deg,#b45309,#f59e0b)" label={t('analytics.campaignGrid',{defaultValue:'Campaign Grid'})} value={'$'+(tot.grid_earnings||0).toFixed(2)} sub={t('analytics.gridCommissions',{defaultValue:'6×6 grid commissions'})}>

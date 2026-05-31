@@ -56,7 +56,7 @@ export default function JoinFunnel() {
           </h1>
 
           <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.55)', maxWidth: 560, margin: '0 auto 40px', lineHeight: 1.7 }}>
-            Earn 50% commissions, build a grid income team, and access AI-powered marketing tools — all from one platform.
+            Earn $10/mo for every active referral, build a grid income team, and access AI-powered marketing tools — all from one platform.
           </p>
 
           <Link to={`/register?ref=${username}`} style={{
