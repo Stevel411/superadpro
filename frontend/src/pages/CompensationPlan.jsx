@@ -243,7 +243,7 @@ function MembershipContent() {
   var { t } = useTranslation();
   return <>
     <FlowArrow steps={[
-      { title:t('compPlan.referralJoins', { defaultValue: 'Your referral joins' }), sub:t('compPlan.partnerOrFounding', { defaultValue: 'Partner $20/mo or Founding $15/mo' }), bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'var(--sap-royal, #1e3a8a)' },
+      { title:t('compPlan.referralJoins', { defaultValue: 'Your referral joins' }), sub:t('compPlan.partnerOrFounding', { defaultValue: 'Partner $20/mo' }), bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'var(--sap-royal, #1e3a8a)' },
       { title:t('compPlan.tenToYou', { defaultValue: '$10 to you' }), sub:t('compPlan.everyMonthActive', { defaultValue: 'Every month they stay active' }), bg:'rgba(34,197,94,.06)', border:'rgba(34,197,94,.15)', color:'var(--sap-green)' },
       { title:t('compPlan.affiliateWallet'), sub:t('compPlan.withdrawAnytime'), bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'var(--sap-accent)' },
     ]}/>
@@ -251,26 +251,7 @@ function MembershipContent() {
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.commissionBreakdown')}</div>
     <EarnTable headers={[t('compPlan.plan'),t('compPlan.monthly'),t('compPlan.annual'),t('compPlan.yourCommMonthly'),t('compPlan.yourCommAnnual')]} rows={[
       ['Partner','$20/mo','$200/yr','$10/mo','$100 '+t('compPlan.upfront')],
-      ['Founding ★','$15/mo','—','$10/mo','—'],
     ]}/>
-
-    <div style={{
-      marginTop: 12,
-      padding: '14px 18px',
-      background: 'linear-gradient(135deg, rgba(6,182,212,0.06) 0%, rgba(34,211,238,0.10) 100%)',
-      border: '1px solid rgba(6,182,212,0.20)',
-      borderRadius: 10,
-      fontSize: 13,
-      color: 'var(--sap-text-secondary, #475569)',
-      lineHeight: 1.55,
-    }}>
-      <div style={{ fontWeight: 800, color: 'var(--sap-text-primary, #0f172a)', marginBottom: 4 }}>
-        ★ {t('compPlan.foundingNote', { defaultValue: 'About Founding membership' })}
-      </div>
-      {t('compPlan.foundingDesc', {
-        defaultValue: 'The first 100 active members claim a Founding spot at $15/month — locked at that price for as long as they stay active. Sponsor still earns the same $10/month. Once all 100 spots are taken, new members join as standard Partners at $20/month.',
-      })}
-    </div>
 
     <InfoBox items={[
       t('compPlan.memKey1'),

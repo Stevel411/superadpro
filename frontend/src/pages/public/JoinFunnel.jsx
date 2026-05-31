@@ -105,7 +105,7 @@ export default function JoinFunnel() {
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, marginBottom: 20, textAlign: 'center' }}>{t('joinFunnel.quickAnswers')}</h3>
           {[
-            ['Is it free to join?', 'Yes — creating an account is completely free. You activate Partner membership ($20/mo) to start earning commissions. The first 100 active members get the Founding rate of $15/mo locked for life.'],
+            ['Is it free to join?', 'Yes — creating an account is completely free. You activate Partner membership ($20/mo) to start earning commissions and unlock the full toolkit.'],
             ['When do I get paid?', 'Commissions are credited instantly to your platform wallet. Withdraw anytime to your crypto wallet.'],
             ['Do I need to recruit to earn?', 'No. You can earn from campaign grid completions driven by your whole team\'s activity, not just people you personally referred.'],
           ].map(function([q, a]) {

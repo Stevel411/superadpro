@@ -112,21 +112,6 @@ export default function StartPage() {
         ease: 'sine.inOut',
       });
 
-      // Animated counter for the founding spots remaining — counts DOWN
-      // from 100 to the live remaining count. Tells the scarcity story
-      // far better than counting up to a member-count number.
-      var counter = { val: 100 };
-      gsap.to(counter, {
-        val: stats.foundingRemaining,
-        duration: 2.4,
-        ease: 'power3.out',
-        delay: 1.8,
-        onUpdate: function() {
-          var el = document.getElementById('memberCount');
-          if (el) el.textContent = Math.round(counter.val).toLocaleString();
-        },
-      });
-
       // ── Beat 2: fusion seam ── reveal both sides + the central pulser
       gsap.fromTo('.fusion-left',
         { x: -80, opacity: 0 },
@@ -176,12 +161,7 @@ export default function StartPage() {
         .fromTo('.converge-label-4', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6 }, '<0.3')
         .fromTo('.converge-hub', { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 1, ease: 'expo.out' }, '+=0.2');
 
-      // ── Beat 5: founding moment ── dots cascade, price reveals
-      gsap.fromTo('.founding-dot',
-        { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2)', stagger: { each: 0.008, from: 'random' },
-          scrollTrigger: { trigger: '.founding-section', start: 'top 65%' } }
-      );
+      // ── Beat 5: membership moment ── price reveals
       gsap.fromTo('.founding-price',
         { y: 60, opacity: 0, scale: 0.85 },
         { y: 0, opacity: 1, scale: 1, duration: 1.6, ease: 'expo.out',
@@ -222,29 +202,29 @@ export default function StartPage() {
           </div>
 
           <div className="hero-overlay" ref={heroTextRef}>
-            <div className="hero-tag">100 Founding Partner spots · price locked for life</div>
+            <div className="hero-tag">AI marketing tools · one simple membership</div>
             <h1 className="hero-headline">
-              <span className="hero-word">Be</span>{' '}
-              <span className="hero-word">one of the</span>{' '}
-              <span className="hero-word hero-word-bright">first 100.</span><br/>
+              <span className="hero-word">Build,</span>{' '}
+              <span className="hero-word">market</span>{' '}
+              <span className="hero-word">&</span>{' '}
+              <span className="hero-word hero-word-bright">earn.</span><br/>
               <span className="hero-headline-line2">
-                <span className="hero-word">Locked at</span>{' '}
-                <span className="hero-word hero-word-bright">$15/mo</span>{' '}
-                <span className="hero-word">forever.</span>
+                <span className="hero-word">All from</span>{' '}
+                <span className="hero-word hero-word-bright">$20/mo.</span>
               </span>
             </h1>
 
             <div className="hero-promise">
-              <div className="hero-promise-label">// Founding spots remaining</div>
-              <span className="hero-promise-val" id="memberCount">0</span>
-              <div className="hero-promise-sub">// Out of 100 · price never increases</div>
+              <div className="hero-promise-label">// Partner membership</div>
+              <span className="hero-promise-val">$20<span style={{fontSize:'0.4em',fontWeight:600}}>/mo</span></span>
+              <div className="hero-promise-sub">// Full toolkit · every income stream</div>
             </div>
 
-            <p className="hero-sub">When spot #100 is claimed this offer closes forever. Standard membership reverts to $20/month. Founding Partners keep their $15 rate for life — no exceptions, no annual increases.</p>
+            <p className="hero-sub">One membership unlocks the entire platform — AI content tools, page and funnel builders, lead finder, autoresponder, and every income stream. Use it to grow your own business, with or without referring anyone.</p>
 
             <div className="hero-cta-row">
               <a href="/register?via=start" onClick={handleClaim} className="hero-cta-primary" style={claiming ? {pointerEvents:'none',opacity:.6} : undefined}>
-                <span className="hero-cta-label">{claiming ? 'Finding your sponsor…' : 'Claim your Founder spot'}</span>
+                <span className="hero-cta-label">{claiming ? 'Finding your sponsor…' : 'Get started free'}</span>
                 <span className="hero-cta-arrow">→</span>
                 <span className="hero-cta-shimmer"/>
               </a>
@@ -252,8 +232,8 @@ export default function StartPage() {
             </div>
 
             <div className="hero-stats">
-              <div className="hero-stat"><span className="hero-stat-num">$15</span><div className="hero-stat-label">/mo locked</div></div>
-              <div className="hero-stat"><span className="hero-stat-num">100</span><div className="hero-stat-label">total spots</div></div>
+              <div className="hero-stat"><span className="hero-stat-num">$20</span><div className="hero-stat-label">/mo membership</div></div>
+              <div className="hero-stat"><span className="hero-stat-num">13</span><div className="hero-stat-label">tools included</div></div>
               <div className="hero-stat"><span className="hero-stat-num">$0</span><div className="hero-stat-label">to sign up</div></div>
             </div>
           </div>
@@ -398,28 +378,21 @@ export default function StartPage() {
           </div>
         </section>
 
-        {/* ═════════ BEAT 5 — FOUNDING MOMENT ═════════ */}
+        {/* ═════════ BEAT 5 — MEMBERSHIP ═════════ */}
         <section className="founding-section beat">
           <div className="beat-inner founding-inner">
             <div className="beat-header">
-              <div className="beat-tag">Section 05 &mdash; The founding</div>
-              <h2 className="beat-h">A founding rate. Locked for life.<span className="beat-h-accent">Only one hundred members get it.</span></h2>
-            </div>
-
-            <div className="founding-dots-grid">
-              {Array.from({ length: 100 }).map(function(_, i) {
-                var isLit = i < (100 - stats.foundingRemaining);
-                return <span key={i} className={'founding-dot ' + (isLit ? 'lit' : 'dim')}/>;
-              })}
+              <div className="beat-tag">Section 05 &mdash; The membership</div>
+              <h2 className="beat-h">One membership. Everything included.<span className="beat-h-accent">No tiers, no upsells.</span></h2>
             </div>
 
             <div className="founding-price">
-              <div className="founding-price-label">// Founding Partner</div>
-              <span className="founding-price-val">$15</span>
-              <div className="founding-price-foot">/ month &mdash; locked for life</div>
+              <div className="founding-price-label">// Partner membership</div>
+              <span className="founding-price-val">$20</span>
+              <div className="founding-price-foot">/ month &mdash; full platform access</div>
             </div>
             <p className="beat-sub" style={{maxWidth:560,margin:'24px auto 0'}}>
-              This price will not exist after spot 100. The standard membership is $20/month. The difference compounds over years.
+              Every tool, every income stream, one flat price. Registration is free &mdash; activate Partner membership whenever you're ready to start earning.
             </p>
           </div>
         </section>
@@ -431,7 +404,7 @@ export default function StartPage() {
               <div className="beat-tag">Section 06 &mdash; The doorway</div>
               <h2 className="portal-headline">Step in.</h2>
               <p className="portal-sub portal-cta">
-                The Founding Partner spots are filling. The only way in is at the top of this page.
+                Free to join. The full toolkit is one click away at the top of this page.
               </p>
             </div>
             <div className="portal-ctas">
