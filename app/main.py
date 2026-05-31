@@ -17782,8 +17782,10 @@ def admin_stripe_tier_metadata_reconcile(
     """
     _require_admin(user)
     out = {"stripe_configured": False, "scanned_payment_intents": 0,
+           "build": "balancetx-v5",  # confirms which deploy is live
+           "phase": "init",
            "real_paid_live_campaign_tier": [], "owners_falsely_unpaid": [],
-           "note": ("Real paid+livemode Stripe PaymentIntents with metadata.product_kind="
+           "note": ("Real paid+livemode Stripe charges with metadata.product_kind="
                     "'campaign_tier', mapped by metadata.superadpro_user_id. owners_falsely_unpaid "
                     "= any such payer whose grid is currently verdict 'unpaid' — they PAID and "
                     "must be EXCLUDED from deactivation.")}
@@ -17795,6 +17797,7 @@ def admin_stripe_tier_metadata_reconcile(
         _ss._ensure_sdk()
         import stripe as _stripe
         out["stripe_configured"] = True
+        out["phase"] = "imports"
 
         from .database import (
             Commission as _Commission, Payment as _Payment,
@@ -17802,6 +17805,7 @@ def admin_stripe_tier_metadata_reconcile(
             CryptoPaymentOrder as _CPO, StripeCharge as _SC,
         )
         users_by_id = {u.id: u for u in db.query(User).all()}
+        out["phase"] = "loaded_users"
 
         def _md_to_dict(obj):
             """Coerce a Stripe metadata StripeObject to a plain dict."""
@@ -17818,6 +17822,7 @@ def admin_stripe_tier_metadata_reconcile(
         #    KeyError:0 parsing nested expandables). For each settled charge, retrieve the
         #    Charge (and its PaymentIntent if needed) via .retrieve (also proven) and read
         #    the campaign_tier metadata. This is the authoritative settled-money source.
+        out["phase"] = "balancetx_list"
         real = []
         scanned = 0
         charge_ids = []
@@ -17832,6 +17837,8 @@ def admin_stripe_tier_metadata_reconcile(
                 params["starting_after"] = page.data[-1].id
             else:
                 break
+        out["settled_charges_found"] = len(charge_ids)
+        out["phase"] = "retrieve_charges"
 
         for cid in charge_ids:
             scanned += 1
@@ -17851,7 +17858,7 @@ def admin_stripe_tier_metadata_reconcile(
                         pi = _stripe.PaymentIntent.retrieve(pi_id)
                         md = _md_to_dict(pi)
                     except Exception:
-                        md = md
+                        pass
             if md.get("product_kind") != "campaign_tier":
                 continue
             uid_raw = md.get("superadpro_user_id")
@@ -17873,6 +17880,7 @@ def admin_stripe_tier_metadata_reconcile(
         out["scanned_settled_charges"] = scanned
         out["scanned_payment_intents"] = scanned  # back-compat key
         out["real_paid_live_campaign_tier"] = real
+        out["phase"] = "cross_reference"
 
         # 2) Build the verified-stripe set from these REAL charges, re-run verdicts,
         #    and flag any 'unpaid' owner who actually has a real tier payment.
@@ -17898,8 +17906,12 @@ def admin_stripe_tier_metadata_reconcile(
         out["owners_falsely_unpaid"] = falsely
         out["owners_falsely_unpaid_count"] = len(falsely)
         out["real_paid_live_campaign_tier_count"] = len(real)
+        out["phase"] = "done"
     except Exception as e:
+        import traceback as _tb
         out["error"] = f"{type(e).__name__}: {e}"
+        out["failed_in_phase"] = out.get("phase")
+        out["traceback"] = _tb.format_exc()[-1500:]
     return out
 
 
