@@ -16334,6 +16334,17 @@ def _reconcile_grid_payment(db, grid, owner, models):
             _SC.amount_cents >= int(round(price * 100)) - 100,
             _SC.amount_cents <= int(round(price * 100)) + 100,
         ).first()
+        # CRITICAL: only count as paid if the charge is LIVE-VERIFIED real money.
+        # A StripeCharge row alone is NOT proof of payment — test-mode (cs_test_)
+        # and incomplete live checkout sessions write rows + run process_tier_purchase
+        # with no money in (caught 31 May 2026: 44 campaign_tier rows / $1000, ZERO
+        # verified). The endpoint pre-verifies against the live Stripe API and passes
+        # the verified (user_id, amount_cents) set; if a verified set is provided and
+        # this charge isn't in it, it is NOT real money.
+        verified_stripe = models.get("verified_stripe")
+        if stripe_paid is not None and verified_stripe is not None:
+            if (oid, int(stripe_paid.amount_cents or 0)) not in verified_stripe:
+                stripe_paid = None
 
     # ── Nexus-paid-then-manually-moved (the financialsunrise path). Owner paid
     #    for a Credit Nexus position at the SAME price ladder and was manually
@@ -16478,6 +16489,42 @@ def admin_grid_payment_audit(
 
     models = {"Commission": _Commission, "Payment": _Payment, "WC": _WC, "NP": _NP,
               "CPO": _CPO, "StripeCharge": _SC}
+
+    # Pre-verify campaign_tier Stripe charges against the LIVE Stripe API ONCE
+    # (not per grid). Only charges confirmed paid + livemode count as paid_stripe —
+    # this stops test-mode (cs_test_) and incomplete checkout sessions from falsely
+    # clearing grids. Caught 31 May 2026: 44 campaign_tier rows / $1000, ZERO real.
+    verified_stripe = set()  # (user_id, amount_cents) of live-verified paid charges
+    stripe_verify_note = "not_run"
+    try:
+        from . import stripe_service as _ss
+        if _ss.is_configured():
+            _ss._ensure_sdk()
+            import stripe as _stripe
+            tier_charges = db.query(_SC).filter(
+                _SC.product == "campaign_tier", _SC.kind == "charge").all()
+            n_ok = 0
+            for r in tier_charges:
+                ok = False
+                try:
+                    if r.stripe_charge_id:
+                        ch = _stripe.Charge.retrieve(r.stripe_charge_id)
+                        ok = bool(ch and ch.get("paid") and ch.get("livemode"))
+                    elif r.stripe_payment_intent_id:
+                        pi = _stripe.PaymentIntent.retrieve(r.stripe_payment_intent_id)
+                        ok = bool(pi and pi.get("status") == "succeeded" and pi.get("livemode"))
+                except Exception:
+                    ok = False
+                if ok:
+                    verified_stripe.add((r.user_id, int(r.amount_cents or 0)))
+                    n_ok += 1
+            stripe_verify_note = f"live-verified {n_ok} of {len(tier_charges)} campaign_tier charges as real paid money"
+        else:
+            stripe_verify_note = "stripe not configured — no paid_stripe can be confirmed"
+    except Exception as e:
+        stripe_verify_note = f"verify error: {str(e)[:140]}"
+    models["verified_stripe"] = verified_stripe
+
     grids = db.query(Grid).all()
     users_by_id = {u.id: u for u in db.query(User).all()}
 
@@ -16546,6 +16593,7 @@ def admin_grid_payment_audit(
                  "non-payers). upchain_commission = real money credited to OTHER members off "
                  "unpaid/attempted activations."),
         "total_grids": len(grids),
+        "stripe_verification": stripe_verify_note,
         "verdict_counts": verdict_counts,
         "bonus_exposure_unpaid_usd": _sum_ids(exposure_ids["unpaid"]),
         "bonus_exposure_attempted_expired_usd": _sum_ids(exposure_ids["attempted_expired"]),
