@@ -16857,6 +16857,146 @@ def admin_stripe_charge_verification(
     return out
 
 
+@app.get("/admin/api/free-grid-owners")
+def admin_free_grid_owners(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY: of the owners holding unpaid/attempted grids, EXACTLY who has
+    paid ONLY for membership and nothing toward any campaign tier (a genuinely
+    free grid) vs who paid for at least one tier on some rail.
+
+    'any tier payment' checks ALL rails per-owner (across every tier, not just the
+    unpaid grid's tier): confirmed grid_package / grid_* / walletconnect_grid* /
+    nowpayments_grid* / nexus_to_tier_* / manual_recovery_grid_* Payment; confirmed
+    WC/NP/crypto grid order; AND a LIVE-VERIFIED Stripe campaign_tier charge. If an
+    owner has NONE of those, they are membership_only (free grid). financialsunrise
+    lands in paid_some_tier because of his nexus_to_tier_3 — exactly the distinction
+    that makes this the right answer instead of the per-grid audit.
+    """
+    _require_admin(user)
+    from .database import (
+        Payment as _Payment, WalletConnectPaymentOrder as _WC,
+        NowPaymentsOrder as _NP, CryptoPaymentOrder as _CPO,
+        Commission as _Commission, StripeCharge as _SC,
+    )
+    from sqlalchemy import or_
+
+    models = {"Commission": _Commission, "Payment": _Payment, "WC": _WC, "NP": _NP,
+              "CPO": _CPO, "StripeCharge": _SC}
+
+    # live-verify campaign_tier Stripe charges once → set of user_ids with real money
+    verified_stripe = set()
+    verified_uids = set()
+    stripe_note = "not_run"
+    try:
+        from . import stripe_service as _ss
+        if _ss.is_configured():
+            _ss._ensure_sdk()
+            import stripe as _stripe
+            for r in db.query(_SC).filter(_SC.product == "campaign_tier", _SC.kind == "charge").all():
+                ok = False
+                try:
+                    if r.stripe_charge_id:
+                        ch = _stripe.Charge.retrieve(r.stripe_charge_id)
+                        ok = bool(ch and ch.get("paid") and ch.get("livemode"))
+                    elif r.stripe_payment_intent_id:
+                        pi = _stripe.PaymentIntent.retrieve(r.stripe_payment_intent_id)
+                        ok = bool(pi and pi.get("status") == "succeeded" and pi.get("livemode"))
+                except Exception:
+                    ok = False
+                if ok:
+                    verified_stripe.add((r.user_id, int(r.amount_cents or 0)))
+                    verified_uids.add(r.user_id)
+            stripe_note = f"live-verified {len(verified_uids)} users with a real campaign_tier charge"
+        else:
+            stripe_note = "stripe not configured"
+    except Exception as e:
+        stripe_note = f"verify error: {str(e)[:120]}"
+    models["verified_stripe"] = verified_stripe
+
+    grids = db.query(Grid).all()
+    users_by_id = {u.id: u for u in db.query(User).all()}
+
+    # collect owners with unpaid/attempted grids + the tiers affected
+    flagged = {}
+    for g in grids:
+        rec = _reconcile_grid_payment(db, g, users_by_id.get(g.owner_id), models)
+        if rec["verdict"] in ("unpaid", "attempted_expired"):
+            flagged.setdefault(g.owner_id, set()).add(g.package_tier)
+
+    def _any_tier_payment(oid):
+        p = db.query(_Payment).filter(
+            _Payment.from_user_id == oid, _Payment.status == "confirmed",
+            or_(
+                _Payment.payment_type == "grid_package",
+                _Payment.payment_type.like("grid_%"),
+                _Payment.payment_type.like("walletconnect_grid%"),
+                _Payment.payment_type.like("nowpayments_grid%"),
+                _Payment.payment_type.like("nexus_to_tier_%"),
+                _Payment.payment_type.like("manual_recovery_grid_%"),
+            ),
+        ).first()
+        if p:
+            return {"source": "payment", "ref": p.payment_type, "amount_usd": float(p.amount_usdt or 0)}
+        wc = db.query(_WC).filter(_WC.user_id == oid, _WC.product_type == "grid", _WC.status == "confirmed").first()
+        if wc:
+            return {"source": "wc_order", "ref": wc.product_key, "amount_usd": float(wc.unique_amount or 0)}
+        np = db.query(_NP).filter(_NP.user_id == oid, _NP.product_type == "grid", _NP.status.in_(["confirmed", "finished"])).first()
+        if np:
+            return {"source": "np_order", "ref": np.product_key, "amount_usd": float(np.price_usd or 0)}
+        cp = db.query(_CPO).filter(_CPO.user_id == oid, _CPO.product_type == "grid", _CPO.status == "confirmed").first()
+        if cp:
+            return {"source": "crypto_order", "ref": cp.product_key, "amount_usd": 0.0}
+        if oid in verified_uids:
+            return {"source": "stripe_verified", "ref": "campaign_tier", "amount_usd": 0.0}
+        return None
+
+    def _membership(oid, u):
+        mpay = db.query(_Payment).filter(
+            _Payment.from_user_id == oid, _Payment.status == "confirmed",
+            _Payment.payment_type.like("%membership%"),
+        ).order_by(_Payment.id.desc()).first()
+        return {
+            "tier": getattr(u, "membership_tier", None),
+            "is_founding": bool(getattr(u, "is_founding_member", False)),
+            "price_locked": (str(u.membership_price_locked) if getattr(u, "membership_price_locked", None) is not None else None),
+            "payment": ({"type": mpay.payment_type, "amount_usd": float(mpay.amount_usdt or 0),
+                         "tx": (mpay.tx_hash[:28] if mpay.tx_hash else None)} if mpay else None),
+        }
+
+    membership_only, paid_some_tier = [], []
+    for oid in sorted(flagged):
+        u = users_by_id.get(oid)
+        base = {
+            "user_id": oid, "username": (u.username if u else None),
+            "membership": _membership(oid, u),
+            "free_grid_tiers": sorted(flagged[oid]),
+        }
+        tp = _any_tier_payment(oid)
+        if tp is None:
+            membership_only.append(base)
+        else:
+            base["tier_payment_found"] = tp
+            paid_some_tier.append(base)
+
+    return {
+        "dry_run": True,
+        "note": ("EXACT split of unpaid-grid owners. membership_only = paid their membership "
+                 "and NOTHING toward any campaign tier on any rail (genuinely free grid). "
+                 "paid_some_tier = has at least one confirmed tier payment somewhere (e.g. "
+                 "nexus_to_tier_N) even though a specific grid is unpaid. Stripe campaign_tier "
+                 "only counts if LIVE-VERIFIED."),
+        "stripe_verification": stripe_note,
+        "membership_only_count": len(membership_only),
+        "membership_only_user_ids": [r["user_id"] for r in membership_only],
+        "membership_only_usernames": [r["username"] for r in membership_only],
+        "paid_some_tier_count": len(paid_some_tier),
+        "membership_only_users": membership_only,
+        "paid_some_tier_users": paid_some_tier,
+    }
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
