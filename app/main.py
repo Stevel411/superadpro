@@ -17520,6 +17520,134 @@ def admin_commission_void_execute(
     }
 
 
+@app.get("/admin/api/grid-deactivation-preview")
+def admin_grid_deactivation_preview(
+    include_attempted: bool = False,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY blast-radius preview for deactivating the unpaid grids (no mutations).
+
+    Scope: grids with verdict 'unpaid' (the 40). ?include_attempted=true also shows
+    the 5 'attempted_expired'. comped (you), paid, paid_stripe, paid_via_nexus are
+    NOT touched. Deactivation = DELETING the grid (the only way to drop the owner's
+    tier qualification, since _user_is_qualified keys off owning a non-complete grid).
+    That cascades:
+      - GridPosition rows INSIDE the grid (other members' downline/spillover seats)
+      - Commission.grid_id FKs pointing at it (would need nulling)
+      - the owner's OWN seats in upline grids are NOT inside this grid (left intact)
+
+    For each grid this shows the seats removed, the distinct downline members affected,
+    how many of those are currently active/paying (collateral), and FLAGS any owner with
+    Nexus payment history (Steve's exclusion: 'known issue manually sorted that paid
+    nexus instead of campaigns' — e.g. financialsunrise). NOTHING is deleted here.
+    """
+    _require_admin(user)
+    from .database import (
+        Commission as _Commission, Payment as _Payment,
+        WalletConnectPaymentOrder as _WC, NowPaymentsOrder as _NP,
+        CryptoPaymentOrder as _CPO, StripeCharge as _SC, GridPosition as _GP,
+    )
+    from sqlalchemy import or_, func
+
+    models = {"Commission": _Commission, "Payment": _Payment, "WC": _WC, "NP": _NP,
+              "CPO": _CPO, "StripeCharge": _SC}
+    verified_stripe = set()
+    try:
+        from . import stripe_service as _ss
+        if _ss.is_configured():
+            _ss._ensure_sdk()
+            import stripe as _stripe
+            for r in db.query(_SC).filter(_SC.product == "campaign_tier", _SC.kind == "charge").all():
+                ok = False
+                try:
+                    if r.stripe_charge_id:
+                        ch = _stripe.Charge.retrieve(r.stripe_charge_id)
+                        ok = bool(ch and ch.get("paid") and ch.get("livemode"))
+                    elif r.stripe_payment_intent_id:
+                        pi = _stripe.PaymentIntent.retrieve(r.stripe_payment_intent_id)
+                        ok = bool(pi and pi.get("status") == "succeeded" and pi.get("livemode"))
+                except Exception:
+                    ok = False
+                if ok:
+                    verified_stripe.add((r.user_id, int(r.amount_cents or 0)))
+    except Exception:
+        pass
+    models["verified_stripe"] = verified_stripe
+
+    users_by_id = {u.id: u for u in db.query(User).all()}
+    nexus_cache = {}
+    def _owner_has_nexus(oid):
+        if oid not in nexus_cache:
+            nexus_cache[oid] = bool(db.query(_Payment).filter(
+                _Payment.from_user_id == oid, _Payment.status == "confirmed",
+                or_(_Payment.payment_type.like("%credit_matrix%"),
+                    _Payment.payment_type.like("nexus_to_tier_%")),
+            ).first())
+        return nexus_cache[oid]
+
+    wanted = {"unpaid"} | ({"attempted_expired"} if include_attempted else set())
+    grids_out = []
+    flagged_for_review = []
+    all_downline = set()
+    paying_downline = set()
+    total_positions = 0
+    total_commission_fks = 0
+
+    for g in db.query(Grid).all():
+        rec = _reconcile_grid_payment(db, g, users_by_id.get(g.owner_id), models)
+        if rec["verdict"] not in wanted:
+            continue
+        positions = db.query(_GP).filter(_GP.grid_id == g.id).all()
+        occupants = sorted({p.member_id for p in positions if p.member_id and p.member_id != g.owner_id})
+        paying = [m for m in occupants if (users_by_id.get(m) and getattr(users_by_id.get(m), "is_active", False))]
+        comm_fk = db.query(func.count(_Commission.id)).filter(_Commission.grid_id == g.id).scalar() or 0
+        owner_seats_elsewhere = db.query(func.count(_GP.id)).filter(
+            _GP.member_id == g.owner_id, _GP.grid_id != g.id).scalar() or 0
+        all_downline.update(occupants)
+        paying_downline.update(paying)
+        total_positions += len(positions)
+        total_commission_fks += comm_fk
+        owner = users_by_id.get(g.owner_id)
+        row = {
+            "grid_id": g.id, "owner_id": g.owner_id,
+            "owner_username": (owner.username if owner else None),
+            "tier": g.package_tier, "verdict": rec["verdict"],
+            "is_complete": bool(g.is_complete), "positions_filled": g.positions_filled,
+            "seats_inside_to_remove": len(positions),
+            "distinct_downline_members": len(occupants),
+            "downline_currently_active": len(paying),
+            "commission_rows_referencing_grid": comm_fk,
+            "owner_seats_in_other_grids": owner_seats_elsewhere,
+            "owner_has_nexus_history": _owner_has_nexus(g.owner_id),
+        }
+        if row["owner_has_nexus_history"]:
+            flagged_for_review.append(row)
+        else:
+            grids_out.append(row)
+
+    grids_out.sort(key=lambda r: (r["tier"], r["owner_id"]))
+    flagged_for_review.sort(key=lambda r: (r["tier"], r["owner_id"]))
+    return {
+        "dry_run": True,
+        "MUTATES_NOTHING": True,
+        "note": ("Blast radius for DELETING the unpaid grids. seats_inside_to_remove = "
+                 "GridPositions (downline spillover seats) that get deleted with each grid. "
+                 "owner_has_nexus_history flags owners with Nexus/credit_matrix payments — "
+                 "per Steve's rule these 'known nexus-sorted' cases should be REVIEWED, not "
+                 "auto-deactivated (e.g. financialsunrise). commission_rows_referencing_grid = "
+                 "Commission.grid_id FKs that must be nulled before delete. NOTHING deleted here."),
+        "grids_to_deactivate_count": len(grids_out),
+        "grids_FLAGGED_nexus_history_count": len(flagged_for_review),
+        "total_seats_removed": total_positions,
+        "total_distinct_downline_members_affected": len(all_downline),
+        "total_currently_active_downline_affected": len(paying_downline),
+        "total_commission_fks_to_null": total_commission_fks,
+        "grids_to_deactivate": grids_out,
+        "grids_FLAGGED_for_review_nexus_history": flagged_for_review,
+    }
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
