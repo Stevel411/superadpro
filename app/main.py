@@ -16279,6 +16279,7 @@ def admin_grid_payment_audit(
     from .database import (
         Commission as _Commission, Payment as _Payment,
         WalletConnectPaymentOrder as _WC, NowPaymentsOrder as _NP,
+        CryptoPaymentOrder as _CPO,
     )
     from sqlalchemy import or_, func
 
@@ -16307,10 +16308,22 @@ def admin_grid_payment_audit(
             or_(
                 _Payment.payment_type == "grid_package",
                 _Payment.payment_type == f"manual_recovery_grid_{tier}",
+                _Payment.payment_type == f"nexus_to_tier_{tier}",  # Nexus position converted to grid tier
                 _Payment.payment_type.like("walletconnect_grid%"),
                 _Payment.payment_type.like("nowpayments_grid%"),
                 _Payment.payment_type.like("grid_%"),
             ),
+        ).first()
+
+        # Legacy /api/crypto/verify-payment writes a confirmed CryptoPaymentOrder
+        # (product_key=grid_{tier}) + a Payment tagged 'crypto_grid' that carries
+        # NO tier. Match on the ORDER for per-tier precision (the Payment string
+        # alone would mark every tier 'paid' off a single crypto_grid row).
+        crypto_order = db.query(_CPO).filter(
+            _CPO.user_id == oid,
+            _CPO.product_type == "grid",
+            _CPO.product_key == f"grid_{tier}",
+            _CPO.status == "confirmed",
         ).first()
         wc_paid = db.query(_WC).filter(
             _WC.user_id == oid, _WC.product_type == "grid",
@@ -16320,7 +16333,7 @@ def admin_grid_payment_audit(
             _NP.user_id == oid, _NP.product_type == "grid",
             _NP.product_key == f"grid_{tier}", _NP.status.in_(["confirmed", "finished"]),
         ).first()
-        has_confirmed_money = bool(confirmed_payment or wc_paid or np_paid)
+        has_confirmed_money = bool(confirmed_payment or wc_paid or np_paid or crypto_order)
 
         # A payment ATTEMPT that didn't confirm (expired/failed/cancelled order)
         # — tells us the member tried to pay via a rail (often the retired
@@ -16333,6 +16346,10 @@ def admin_grid_payment_audit(
             _WC.user_id == oid, _WC.product_type == "grid",
             _WC.product_key == f"grid_{tier}",
             _WC.status.in_(["expired", "cancelled", "pending"]),
+        ).first() or db.query(_CPO).filter(
+            _CPO.user_id == oid, _CPO.product_type == "grid",
+            _CPO.product_key == f"grid_{tier}",
+            _CPO.status.in_(["expired", "cancelled", "pending"]),
         ).first()
 
         # completion-bonus rows for this owner+tier (deduped later by id)
@@ -16361,6 +16378,7 @@ def admin_grid_payment_audit(
 
         signal = (
             ("payment:" + confirmed_payment.payment_type) if confirmed_payment
+            else "crypto_order_confirmed" if crypto_order
             else "wc_order_confirmed" if wc_paid
             else "np_order_confirmed" if np_paid
             else f"attempted_{attempted.status}" if attempted
