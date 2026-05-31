@@ -16251,29 +16251,168 @@ def admin_backfill_owner_purchased(
     }
 
 
+def _reconcile_grid_payment(db, grid, owner, models):
+    """PHASE 1 — authoritative per-grid reconciliation (READ-ONLY, no mutations).
+
+    Returns a definitive verdict for one grid by checking every funding signal
+    in priority order. This is the single source of truth used by both the audit
+    endpoint and (Phase 2) the activation-ledger backfill — so the same logic
+    decides 'who paid' everywhere.
+
+    Verdicts (priority order):
+      comped            — owner is admin/company (Steve). Legitimately unpaid.
+      paid              — a CONFIRMED payment exists on ANY rail at this tier:
+                          crypto / walletconnect / nowpayments confirmed order,
+                          or a confirmed grid Payment row (grid_package /
+                          manual_recovery_grid_N / nexus_to_tier_N / *_grid).
+      attempted_expired — a grid order EXISTS but expired/failed/pending; the
+                          member tried to pay (often via retired NOWPayments)
+                          and was activated anyway.
+      spillover         — grid auto-created to hold downline spillover; the owner
+                          NEVER ran a purchase (no buyer-commissions generated).
+                          LEGITIMATE platform mechanics — not a problem.
+      unpaid            — the owner WAS run through process_tier_purchase (it
+                          generated their buyer-commissions up the chain) but no
+                          confirmed payment and no payment attempt exists. This is
+                          the genuine integrity concern: activated as a buyer with
+                          no money in.
+
+    The spillover/unpaid split is the crux: both look like 'no payment record',
+    but spillover is expected and unpaid is the problem. They are distinguished by
+    whether the owner generated buyer-commissions at this tier (purchase ran).
+    """
+    _Commission = models["Commission"]
+    _Payment = models["Payment"]
+    _WC = models["WC"]
+    _NP = models["NP"]
+    _CPO = models["CPO"]
+    from sqlalchemy import or_
+
+    oid, tier = grid.owner_id, grid.package_tier
+
+    # ── confirmed payment across all rails ──
+    confirmed_payment = db.query(_Payment).filter(
+        _Payment.from_user_id == oid,
+        _Payment.status == "confirmed",
+        or_(
+            _Payment.payment_type == "grid_package",
+            _Payment.payment_type == f"manual_recovery_grid_{tier}",
+            _Payment.payment_type == f"nexus_to_tier_{tier}",
+            _Payment.payment_type.like("walletconnect_grid%"),
+            _Payment.payment_type.like("nowpayments_grid%"),
+            _Payment.payment_type.like("grid_%"),
+        ),
+    ).first()
+    crypto_order = db.query(_CPO).filter(
+        _CPO.user_id == oid, _CPO.product_type == "grid",
+        _CPO.product_key == f"grid_{tier}", _CPO.status == "confirmed",
+    ).first()
+    wc_paid = db.query(_WC).filter(
+        _WC.user_id == oid, _WC.product_type == "grid",
+        _WC.product_key == f"grid_{tier}", _WC.status == "confirmed",
+    ).first()
+    np_paid = db.query(_NP).filter(
+        _NP.user_id == oid, _NP.product_type == "grid",
+        _NP.product_key == f"grid_{tier}", _NP.status.in_(["confirmed", "finished"]),
+    ).first()
+
+    # ── payment ATTEMPT that didn't confirm ──
+    attempted = db.query(_NP).filter(
+        _NP.user_id == oid, _NP.product_type == "grid",
+        _NP.product_key == f"grid_{tier}",
+        _NP.status.in_(["expired", "failed", "cancelled", "waiting", "partially_paid"]),
+    ).first() or db.query(_WC).filter(
+        _WC.user_id == oid, _WC.product_type == "grid",
+        _WC.product_key == f"grid_{tier}",
+        _WC.status.in_(["expired", "cancelled", "pending"]),
+    ).first() or db.query(_CPO).filter(
+        _CPO.user_id == oid, _CPO.product_type == "grid",
+        _CPO.product_key == f"grid_{tier}",
+        _CPO.status.in_(["expired", "cancelled", "pending"]),
+    ).first()
+
+    # ── did the owner run a purchase at this tier? (buyer-commissions where
+    #    from_user_id == owner). Distinguishes unpaid-activation from spillover. ──
+    gen_comm = db.query(_Commission).filter(
+        _Commission.from_user_id == oid,
+        _Commission.commission_type.in_(["direct_sponsor", "uni_level"]),
+        _Commission.package_tier == tier,
+    ).first()
+
+    # ── completion bonus actually paid off this owner+tier ──
+    bonus_rows = db.query(_Commission).filter(
+        _Commission.to_user_id == oid,
+        _Commission.from_user_id == oid,
+        _Commission.commission_type == "grid_completion_bonus",
+        _Commission.package_tier == tier,
+        _Commission.status == "paid",
+    ).all()
+
+    is_comped = bool(owner and owner.is_admin)
+
+    # ── verdict (priority order) ──
+    if is_comped:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "comped", "admin", "owner is admin/company account", None, None, None)
+    elif confirmed_payment:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "paid", confirmed_payment.payment_type, f"payment#{confirmed_payment.id}",
+            confirmed_payment.id, None, float(confirmed_payment.amount_usdt or 0))
+    elif crypto_order:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "paid", "crypto", f"crypto_order#{crypto_order.id}", None,
+            getattr(crypto_order, "internal_order_id", None) or str(crypto_order.id),
+            float(getattr(crypto_order, "base_amount", 0) or 0))
+    elif wc_paid:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "paid", "walletconnect", f"wc_order#{wc_paid.id}", None, str(wc_paid.id),
+            float(getattr(wc_paid, "base_amount", 0) or getattr(wc_paid, "unique_amount", 0) or 0))
+    elif np_paid:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "paid", "nowpayments", f"np_order#{np_paid.id}", None,
+            getattr(np_paid, "internal_order_id", None) or str(np_paid.id),
+            float(getattr(np_paid, "price_usd", 0) or 0))
+    elif attempted:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "attempted_expired", None, f"order status={attempted.status}", None,
+            getattr(attempted, "internal_order_id", None) or str(getattr(attempted, "id", "")), None)
+    elif gen_comm:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "unpaid", None, "purchase ran (generated buyer commissions) but no payment", None, None, None)
+    else:
+        verdict, rail, evidence, pay_id, order_ref, amount = (
+            "spillover", "spillover", "no purchase ran — grid holds downline spillover only", None, None, None)
+
+    return {
+        "grid_id": grid.id,
+        "owner_id": oid,
+        "owner_username": (owner.username if owner else None),
+        "tier": tier,
+        "is_complete": bool(grid.is_complete),
+        "verdict": verdict,
+        "rail": rail,
+        "evidence": evidence,
+        "payment_id": pay_id,
+        "order_ref": order_ref,
+        "amount_usd": amount,
+        "completion_bonus_rows": [(c.id, float(c.amount_usdt or 0)) for c in bonus_rows],
+        "completion_bonus_paid": round(sum(float(c.amount_usdt or 0) for c in bonus_rows), 2),
+    }
+
+
 @app.get("/admin/api/grid-payment-audit")
 def admin_grid_payment_audit(
     only_flagged: bool = False,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """READ-ONLY money-reconciliation audit (no mutations).
+    """READ-ONLY authoritative grid payment reconciliation (Phase 1, no mutations).
 
-    For EVERY grid, cross-references the activation against CONFIRMED money:
-      - confirmed grid Payment row by the owner (grid_package / walletconnect_grid
-        / nowpayments_grid / manual_recovery_grid_N)
-      - a confirmed WalletConnectPaymentOrder for grid/grid_{tier}
-      - a confirmed|finished NowPaymentsOrder for grid/grid_{tier}
-    Plus context: did the owner generate buyer-commissions at that tier, and how
-    much commission + completion bonus was PAID OUT off this grid.
-
-    A grid is FLAGGED ('no_confirmed_payment') when a grid exists at a tier but
-    NONE of the three confirmed-money signals are present — i.e. the tier was
-    activated (and may be paying commissions/bonuses) without traceable money in.
-    This is the definitive answer to 'are there grids active without payment'.
-
-    ?only_flagged=true returns just the problem grids. Reports payout exposure
-    (commission + bonus paid) so the financial impact is quantified, not guessed.
+    Runs _reconcile_grid_payment over every grid and aggregates by verdict:
+      comped / paid / attempted_expired / spillover / unpaid.
+    'unpaid' is the genuine concern (purchase ran, no money in). 'spillover' is
+    legitimate. Bonus exposure is deduped by commission id and split by verdict.
+    ?only_flagged=true returns just unpaid + attempted_expired.
     """
     _require_admin(user)
     from .database import (
@@ -16281,141 +16420,47 @@ def admin_grid_payment_audit(
         WalletConnectPaymentOrder as _WC, NowPaymentsOrder as _NP,
         CryptoPaymentOrder as _CPO,
     )
-    from sqlalchemy import or_, func
+    from sqlalchemy import func
 
+    models = {"Commission": _Commission, "Payment": _Payment, "WC": _WC, "NP": _NP, "CPO": _CPO}
     grids = db.query(Grid).all()
     users_by_id = {u.id: u for u in db.query(User).all()}
 
+    verdict_counts = {"comped": 0, "paid": 0, "attempted_expired": 0, "spillover": 0, "unpaid": 0}
+    exposure_ids = {"unpaid": set(), "attempted_expired": set()}
     rows = []
-    # Categorise every grid. Comped = admin/company account (Steve, user 1 —
-    # the ONLY comped account, confirmed 31 May 2026). Those legitimately have
-    # no payment and are excluded from the "should have paid" question.
-    cat_counts = {"comped": 0, "paid": 0, "attempted_expired": 0, "no_record": 0}
-    # Bonus exposure must be deduped by commission id — an owner with multiple
-    # grids at the same tier would otherwise count the same bonus row N times
-    # (the bug that inflated the earlier $252). Collect commission ids per
-    # category, sum each row once.
-    exposure_comm_ids = {"no_record": set(), "attempted_expired": set()}
 
     for g in grids:
-        oid, tier = g.owner_id, g.package_tier
-        owner = users_by_id.get(oid)
-        is_comped = bool(owner and owner.is_admin)
-
-        confirmed_payment = db.query(_Payment).filter(
-            _Payment.from_user_id == oid,
-            _Payment.status == "confirmed",
-            or_(
-                _Payment.payment_type == "grid_package",
-                _Payment.payment_type == f"manual_recovery_grid_{tier}",
-                _Payment.payment_type == f"nexus_to_tier_{tier}",  # Nexus position converted to grid tier
-                _Payment.payment_type.like("walletconnect_grid%"),
-                _Payment.payment_type.like("nowpayments_grid%"),
-                _Payment.payment_type.like("grid_%"),
-            ),
-        ).first()
-
-        # Legacy /api/crypto/verify-payment writes a confirmed CryptoPaymentOrder
-        # (product_key=grid_{tier}) + a Payment tagged 'crypto_grid' that carries
-        # NO tier. Match on the ORDER for per-tier precision (the Payment string
-        # alone would mark every tier 'paid' off a single crypto_grid row).
-        crypto_order = db.query(_CPO).filter(
-            _CPO.user_id == oid,
-            _CPO.product_type == "grid",
-            _CPO.product_key == f"grid_{tier}",
-            _CPO.status == "confirmed",
-        ).first()
-        wc_paid = db.query(_WC).filter(
-            _WC.user_id == oid, _WC.product_type == "grid",
-            _WC.product_key == f"grid_{tier}", _WC.status == "confirmed",
-        ).first()
-        np_paid = db.query(_NP).filter(
-            _NP.user_id == oid, _NP.product_type == "grid",
-            _NP.product_key == f"grid_{tier}", _NP.status.in_(["confirmed", "finished"]),
-        ).first()
-        has_confirmed_money = bool(confirmed_payment or wc_paid or np_paid or crypto_order)
-
-        # A payment ATTEMPT that didn't confirm (expired/failed/cancelled order)
-        # — tells us the member tried to pay via a rail (often the retired
-        # NOWPayments) and was activated anyway. Different from "no record at all".
-        attempted = db.query(_NP).filter(
-            _NP.user_id == oid, _NP.product_type == "grid",
-            _NP.product_key == f"grid_{tier}",
-            _NP.status.in_(["expired", "failed", "cancelled", "waiting", "partially_paid"]),
-        ).first() or db.query(_WC).filter(
-            _WC.user_id == oid, _WC.product_type == "grid",
-            _WC.product_key == f"grid_{tier}",
-            _WC.status.in_(["expired", "cancelled", "pending"]),
-        ).first() or db.query(_CPO).filter(
-            _CPO.user_id == oid, _CPO.product_type == "grid",
-            _CPO.product_key == f"grid_{tier}",
-            _CPO.status.in_(["expired", "cancelled", "pending"]),
-        ).first()
-
-        # completion-bonus rows for this owner+tier (deduped later by id)
-        bonus_rows = db.query(_Commission).filter(
-            _Commission.to_user_id == oid,
-            _Commission.from_user_id == oid,
-            _Commission.commission_type == "grid_completion_bonus",
-            _Commission.package_tier == tier,
-            _Commission.status == "paid",
-        ).all()
-        bonus_here = sum(float(c.amount_usdt or 0) for c in bonus_rows)
-
-        if is_comped:
-            category = "comped"
-        elif has_confirmed_money:
-            category = "paid"
-        elif attempted:
-            category = "attempted_expired"
-        else:
-            category = "no_record"
-        cat_counts[category] += 1
-
-        if category in ("no_record", "attempted_expired"):
-            for c in bonus_rows:
-                exposure_comm_ids[category].add(c.id)
-
-        signal = (
-            ("payment:" + confirmed_payment.payment_type) if confirmed_payment
-            else "crypto_order_confirmed" if crypto_order
-            else "wc_order_confirmed" if wc_paid
-            else "np_order_confirmed" if np_paid
-            else f"attempted_{attempted.status}" if attempted
-            else "no_payment_record"
-        )
-
-        flagged = category in ("no_record", "attempted_expired")
-        rec = {
-            "grid_id": g.id, "owner_id": oid, "owner_username": (owner.username if owner else None),
-            "tier": tier, "is_complete": bool(g.is_complete),
-            "category": category,
-            "money_signal": signal,
-            "completion_bonus_paid": round(bonus_here, 2),
-        }
+        rec = _reconcile_grid_payment(db, g, users_by_id.get(g.owner_id), models)
+        v = rec["verdict"]
+        verdict_counts[v] = verdict_counts.get(v, 0) + 1
+        if v in exposure_ids:
+            for cid, _amt in rec["completion_bonus_rows"]:
+                exposure_ids[v].add(cid)
+        rec.pop("completion_bonus_rows", None)  # internal — don't leak ids to output
+        flagged = v in ("unpaid", "attempted_expired")
         if (not only_flagged) or flagged:
             rows.append(rec)
 
-    # Dedupe exposure: sum each distinct completion-bonus commission once.
     def _sum_ids(idset):
         if not idset:
             return 0.0
-        total = db.query(func.coalesce(func.sum(_Commission.amount_usdt), 0)).filter(
-            _Commission.id.in_(idset)
-        ).scalar() or 0
-        return round(float(total), 2)
+        return round(float(db.query(func.coalesce(func.sum(_Commission.amount_usdt), 0)).filter(
+            _Commission.id.in_(idset)).scalar() or 0), 2)
 
-    rows.sort(key=lambda r: (r["category"] != "no_record", r["category"] != "attempted_expired", r["tier"], r["owner_id"]))
+    order = {"unpaid": 0, "attempted_expired": 1, "spillover": 2, "comped": 3, "paid": 4}
+    rows.sort(key=lambda r: (order.get(r["verdict"], 9), r["tier"], r["owner_id"]))
     return {
         "dry_run": True,
-        "note": ("Read-only. comped=admin/company (Steve, excluded — legitimately not paid). "
-                 "paid=confirmed grid payment/order. attempted_expired=member tried to pay "
-                 "(order exists but expired/failed) and was activated anyway. no_record=grid "
-                 "active with no payment attempt of any kind. Bonus exposure deduped by commission id."),
+        "note": ("Phase 1 authoritative reconciliation. comped=admin/company (Steve). "
+                 "paid=confirmed payment on any rail. attempted_expired=order exists but "
+                 "expired/failed (tried to pay, activated anyway). spillover=no purchase ran, "
+                 "grid holds downline spillover only (LEGITIMATE). unpaid=purchase ran "
+                 "(generated buyer commissions) but NO money in (the genuine concern)."),
         "total_grids": len(grids),
-        "category_counts": cat_counts,
-        "bonus_exposure_no_record_usd": _sum_ids(exposure_comm_ids["no_record"]),
-        "bonus_exposure_attempted_expired_usd": _sum_ids(exposure_comm_ids["attempted_expired"]),
+        "verdict_counts": verdict_counts,
+        "bonus_exposure_unpaid_usd": _sum_ids(exposure_ids["unpaid"]),
+        "bonus_exposure_attempted_expired_usd": _sum_ids(exposure_ids["attempted_expired"]),
         "grids": rows,
     }
 
