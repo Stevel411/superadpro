@@ -17988,6 +17988,227 @@ def admin_stripe_tier_metadata_reconcile(
     return out
 
 
+_STRIPE_GRID_BACKFILL_TOKEN = "BACKFILL-STRIPE-GRID-PAYMENTS-LIVE-VERIFIED"
+
+
+@app.get("/admin/api/stripe-grid-backfill")
+def admin_stripe_grid_backfill(
+    confirm: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Backfill trusted grid Payment rows for HISTORICAL Stripe campaign_tier
+    purchases that predate the live webhook fix (commit 9da4e086a, 31 May 2026).
+
+    WHY: going forward the webhook writes a confirmed 'stripe_grid_{tier}' Payment
+    row past the paid+livemode guard, so the reconciliation engine confirms a
+    card-paid tier from a TRUSTED local row. Charges made BEFORE that deploy have
+    no such row — the engine still reads them as paid, but only via the slow
+    per-run live-StripeCharge-verification fallback (~44 Stripe API calls every
+    run, and fragile if Stripe is unavailable). This one-time backfill verifies
+    each historical campaign_tier charge ONCE against LIVE Stripe and writes the
+    same trusted row, so the engine never has to phone Stripe for them again.
+
+    SAFETY / discipline (financial surface):
+      - Reads settled money straight from Stripe (BalanceTransaction -> Charge ->
+        PaymentIntent metadata). Does NOT trust the stripe_charges mirror for the
+        paid/livemode decision (the mirror row exists even for test/abandoned
+        sessions — that was the original blind spot).
+      - Counts a charge ONLY if paid && livemode && NOT refunded.
+      - Tier comes from the authoritative metadata key 'campaign_tier_id',
+        cross-checked against amount->tier. A charge whose tier can't be resolved
+        is SKIPPED and flagged — never guessed.
+      - WRITES NO COMMISSIONS. These are payment-proof rows only; the up-chain
+        commissions already exist from the original purchase. Nothing here moves
+        a balance or a commission.
+      - tx_hash reuses the cs_ session id from the mirror so it matches exactly
+        what the webhook would have written for the same session (webhook and
+        backfill stay idempotent against each other). Falls back to pi_/ch_ ids
+        only when no session id is on record.
+      - DRY-RUN by default: returns the full plan, writes nothing. Mutates ONLY
+        when confirm == the token. Idempotent: an existing tx_hash is skipped.
+    """
+    _require_admin(user)
+    do_apply = (confirm == _STRIPE_GRID_BACKFILL_TOKEN)
+    out = {
+        "dry_run": (not do_apply),
+        "stripe_configured": False,
+        "phase": "init",
+        "candidates": [],
+        "summary": {},
+        "note": ("Live-verified historical Stripe campaign_tier charges -> trusted "
+                 "stripe_grid_{tier} Payment rows. DRY-RUN unless confirm token passed. "
+                 "Writes NO commissions (proof rows only)."),
+    }
+    try:
+        from . import stripe_service as _ss
+        if not _ss.is_configured():
+            out["note"] = "Stripe not configured in this environment."
+            return out
+        _ss._ensure_sdk()
+        import stripe as _stripe
+        out["stripe_configured"] = True
+
+        from .database import Payment as _Payment, StripeCharge as _SC
+        users_by_id = {u.id: u for u in db.query(User).all()}
+
+        # price(cents) -> tier. Grid prices are distinct, so amount disambiguates.
+        price_to_tier = {int(round(float(_p) * 100)): _t for _t, _p in GRID_PACKAGES.items()}
+
+        def _md_to_dict(obj):
+            """Coerce Stripe metadata to a plain dict. dict(StripeObject) raises
+            KeyError:0; use .to_dict() (proven) with a keys() fallback."""
+            raw = getattr(obj, "metadata", None)
+            if not raw:
+                return {}
+            if hasattr(raw, "to_dict"):
+                try:
+                    return raw.to_dict()
+                except Exception:
+                    pass
+            try:
+                return {k: raw[k] for k in raw.keys()}
+            except Exception:
+                return {}
+
+        # mirror lookups: charge_id / pi_id -> stripe_session_id (cs_...), so the
+        # backfill tx_hash matches the webhook's for the same session.
+        sc_by_charge, sc_by_pi = {}, {}
+        for sc in db.query(_SC).filter(_SC.product == "campaign_tier", _SC.kind == "charge").all():
+            if sc.stripe_charge_id:
+                sc_by_charge[sc.stripe_charge_id] = sc
+            if sc.stripe_payment_intent_id:
+                sc_by_pi[sc.stripe_payment_intent_id] = sc
+
+        # 1) enumerate settled charges (the only list call proven in this SDK)
+        charge_ids = []
+        params = {"limit": 100, "type": "charge"}
+        while True:
+            page = _stripe.BalanceTransaction.list(**params)
+            for bt in page.data:
+                src = getattr(bt, "source", None)
+                if isinstance(src, str) and src.startswith("ch_"):
+                    charge_ids.append(src)
+            if getattr(page, "has_more", False) and page.data:
+                params["starting_after"] = page.data[-1].id
+            else:
+                break
+        out["settled_charges_found"] = len(charge_ids)
+        out["phase"] = "scan"
+
+        counts = {"would_write": 0, "written": 0, "skip_exists": 0,
+                  "skip_no_tier": 0, "skip_no_user": 0, "skip_refunded": 0,
+                  "not_campaign_tier": 0, "not_paid_live": 0}
+        to_write = []
+
+        for cid in charge_ids:
+            try:
+                ch = _stripe.Charge.retrieve(cid)
+            except Exception:
+                continue
+            if not getattr(ch, "paid", False) or not getattr(ch, "livemode", False):
+                counts["not_paid_live"] += 1
+                continue
+
+            amt_cents = getattr(ch, "amount_captured", None)
+            if amt_cents is None:
+                amt_cents = getattr(ch, "amount", 0) or 0
+            amt_cents = int(amt_cents or 0)
+            amount_usd = round(amt_cents / 100.0, 2)
+
+            md = _md_to_dict(ch)
+            pi_id = getattr(ch, "payment_intent", None)
+            if md.get("product_kind") is None and isinstance(pi_id, str) and pi_id:
+                try:
+                    md = _md_to_dict(_stripe.PaymentIntent.retrieve(pi_id))
+                except Exception:
+                    pass
+            if md.get("product_kind") != "campaign_tier":
+                counts["not_campaign_tier"] += 1
+                continue
+
+            # resolve user
+            try:
+                uid = int(md.get("superadpro_user_id"))
+            except (TypeError, ValueError):
+                uid = None
+            u = users_by_id.get(uid) if uid else None
+
+            # resolve tier — authoritative metadata key, amount cross-check
+            tier, tier_src = None, None
+            _ct = md.get("campaign_tier_id")
+            if _ct is not None and str(_ct).strip() != "":
+                try:
+                    tier, tier_src = int(_ct), "metadata.campaign_tier_id"
+                except (TypeError, ValueError):
+                    tier = None
+            tier_from_amount = price_to_tier.get(amt_cents)
+            if tier is None and tier_from_amount is not None:
+                tier, tier_src = tier_from_amount, "amount_match"
+            amount_tier_mismatch = (
+                tier is not None and tier_from_amount is not None and tier_from_amount != tier
+            )
+
+            # webhook-matching tx_hash from the mirror's cs_ session id
+            sc = sc_by_charge.get(cid) or (sc_by_pi.get(pi_id) if isinstance(pi_id, str) else None)
+            sess_id = getattr(sc, "stripe_session_id", None) if sc else None
+            if sess_id:
+                tx_hash = f"stripe_grid_{sess_id}"
+            elif isinstance(pi_id, str) and pi_id:
+                tx_hash = f"stripe_grid_pi_{pi_id}"
+            else:
+                tx_hash = f"stripe_grid_ch_{cid}"
+
+            rec = {
+                "charge_id": cid, "payment_intent_id": pi_id, "session_id": sess_id,
+                "user_id": uid, "username": (u.username if u else None),
+                "amount_usd": amount_usd, "tier": tier, "tier_source": tier_src,
+                "tx_hash": tx_hash, "amount_tier_mismatch": amount_tier_mismatch,
+            }
+
+            # refunds: don't write a 'paid' proof row for money that was returned
+            if bool(getattr(ch, "refunded", False)) or \
+               (amt_cents and int(getattr(ch, "amount_refunded", 0) or 0) >= amt_cents):
+                rec["action"] = "skip_refunded"; counts["skip_refunded"] += 1
+                out["candidates"].append(rec); continue
+            if not u:
+                rec["action"] = "skip_no_user"; counts["skip_no_user"] += 1
+                out["candidates"].append(rec); continue
+            if tier is None:
+                rec["action"] = "skip_no_tier"; counts["skip_no_tier"] += 1
+                out["candidates"].append(rec); continue
+            if db.query(_Payment).filter(_Payment.tx_hash == tx_hash).first():
+                rec["action"] = "skip_exists"; counts["skip_exists"] += 1
+                out["candidates"].append(rec); continue
+
+            rec["action"] = "would_write"; counts["would_write"] += 1
+            out["candidates"].append(rec)
+            to_write.append(rec)
+
+        # 2) apply (only with the exact token)
+        if do_apply and to_write:
+            for rec in to_write:
+                db.add(_Payment(
+                    from_user_id=rec["user_id"], to_user_id=None,
+                    amount_usdt=rec["amount_usd"],
+                    payment_type=f"stripe_grid_{rec['tier']}",
+                    tx_hash=rec["tx_hash"], status="confirmed",
+                ))
+                counts["written"] += 1
+            db.commit()
+            logger.info(f"stripe-grid-backfill APPLIED: wrote {counts['written']} grid Payment rows")
+
+        out["summary"] = counts
+        out["phase"] = "done"
+    except Exception as e:
+        import traceback as _tb
+        db.rollback()
+        out["error"] = f"{type(e).__name__}: {e}"
+        out["failed_in_phase"] = out.get("phase")
+        out["traceback"] = _tb.format_exc()[-1500:]
+    return out
+
+
 # Exact pre-void campaign_balance for the 5 recipients the VOID floored to $0
 # (recorded from the void execution result). For these, campaign_balance is
 # restored to this value; everyone else (the 7 balance-covered REVERSAL recipients)
