@@ -484,7 +484,11 @@ export default function Dashboard() {
           {/* 1 · Greeting + stats strip */}
           <div className="dc-strip">
             <div className="dc-greet">
-              <div className="dc-av">{(d.display_name || user?.username || 'M').charAt(0).toUpperCase()}</div>
+              <div className="dc-av">
+                {(d.avatar_url || user?.avatar_url)
+                  ? <img src={d.avatar_url || user?.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} onError={function(e){ e.target.style.display = 'none'; e.target.parentNode.textContent = (d.display_name || user?.username || 'M').charAt(0).toUpperCase(); }}/>
+                  : (d.display_name || user?.username || 'M').charAt(0).toUpperCase()}
+              </div>
               <div>
                 <div className="dc-eyebrow">{t('dashboard.welcomeBack', { defaultValue: 'Welcome back' })}</div>
                 <div className="dc-name">{d.display_name || user?.username}</div>
@@ -1133,7 +1137,7 @@ export default function Dashboard() {
         .dash-core{--dc-line:#e6ecf5;--dc-ink:#0f172a;--dc-ink2:#475569;--dc-ink3:#94a3b8}
         .dc-strip{background:linear-gradient(135deg,#0a1438,#1e3a8a);border-radius:18px;padding:22px 26px;margin-bottom:18px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06)}
         .dc-greet{display:flex;align-items:center;gap:15px;flex:1;min-width:240px}
-        .dc-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#22d3ee);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:#041027;flex-shrink:0}
+        .dc-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#22d3ee);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:#041027;flex-shrink:0;overflow:hidden}
         .dc-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.5)}
         .dc-name{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:#fff;line-height:1.1;margin:1px 0 4px}
         .dc-meta{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,.6)}
