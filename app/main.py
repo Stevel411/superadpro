@@ -44160,11 +44160,19 @@ def bpg_access_check(request: Request, db: Session = Depends(get_db)):
     from .poster_gating import get_member_pack_summary
 
     user = get_current_user(request, db)
+    poster_cost = _bpg_credit_cost()
     if not user:
         return {"authenticated": False, "has_access": False, "pack_count": 0,
-                "highest_tier_key": None, "total_invested_usd": 0.0}
+                "highest_tier_key": None, "total_invested_usd": 0.0,
+                "credit_balance": 0, "poster_cost": poster_cost}
 
-    summary = get_member_pack_summary(db, user)
+    from .database import SuperSceneCredit
+    summary = dict(get_member_pack_summary(db, user))
+    _cr = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
+    credit_balance = int(_cr.balance) if _cr else 0
+    summary["credit_balance"] = credit_balance
+    summary["poster_cost"] = poster_cost
+    summary["has_access"] = credit_balance >= poster_cost
     return {"authenticated": True, **summary}
 
 
@@ -44182,11 +44190,15 @@ def bpg_list_templates(request: Request, db: Session = Depends(get_db)):
     the template hasn't been seeded yet.
     """
     from .poster_templates import get_active_templates
-    from .poster_gating import member_has_bpg_access
-    from .database import PosterTemplate
+    from .database import PosterTemplate, SuperSceneCredit
 
     user = get_current_user(request, db)
-    has_access = member_has_bpg_access(db, user) if user else False
+    poster_cost = _bpg_credit_cost()
+    credit_balance = 0
+    if user:
+        _cr = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
+        credit_balance = int(_cr.balance) if _cr else 0
+    has_access = bool(user) and credit_balance >= poster_cost
 
     # Build a {slug: row} map from the DB so each template's preview/thumb
     # can be looked up in O(1) without N queries.
@@ -44212,6 +44224,8 @@ def bpg_list_templates(request: Request, db: Session = Depends(get_db)):
     return {
         "authenticated": bool(user),
         "has_access": has_access,
+        "credit_balance": credit_balance,
+        "poster_cost": poster_cost,
         "templates": templates,
     }
 
@@ -44220,18 +44234,25 @@ def bpg_list_templates(request: Request, db: Session = Depends(get_db)):
 def bpg_template_detail(slug: str, request: Request, db: Session = Depends(get_db)):
     """Return one template's input field schema for the form view."""
     from .poster_templates import get_template_by_slug
-    from .poster_gating import member_has_bpg_access
+    from .database import SuperSceneCredit
 
     template = get_template_by_slug(slug)
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
 
     user = get_current_user(request, db)
-    has_access = member_has_bpg_access(db, user) if user else False
+    poster_cost = _bpg_credit_cost()
+    credit_balance = 0
+    if user:
+        _cr = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
+        credit_balance = int(_cr.balance) if _cr else 0
+    has_access = bool(user) and credit_balance >= poster_cost
 
     return {
         "authenticated": bool(user),
         "has_access": has_access,
+        "credit_balance": credit_balance,
+        "poster_cost": poster_cost,
         "template": {
             "slug": template["slug"],
             "name": template["name"],
@@ -44244,13 +44265,70 @@ def bpg_template_detail(slug: str, request: Request, db: Session = Depends(get_d
     }
 
 
+# ── Brand Poster Generator: credit pricing + refund ───────────────────────
+# Generating a poster runs the image model N times (one per candidate). Per
+# Steve's Creative Studio pricing rule the member is charged 2x the cost of
+# the most-expensive AI provider that serves the tool. For BPG that provider
+# is xAI grok-imagine (APPROX_COST_USD_PER_IMAGE). The price is DERIVED from
+# the live cost constant + the credit catalogue so it can't silently drift:
+# bump GROK_IMAGINE_MODEL to a pricier tier and the credit cost follows.
+BPG_N_CANDIDATES = 4   # images produced per Generate click (see _bpg_run_generation)
+
+
+def _bpg_credit_cost() -> int:
+    """Creator-credit cost of one poster generation: 2x the most-expensive
+    serving provider's cost, converted to whole credits and rounded up.
+    At $0.05/image x 4 candidates x 2 = $0.40, and $0.20/credit -> 2 credits."""
+    import math
+    from .grok_imagine_service import APPROX_COST_USD_PER_IMAGE
+    from .database import CREDIT_PACKS
+    starter = CREDIT_PACKS.get("starter") or {"price": 20, "credits": 100}
+    usd_per_credit = (float(starter["price"]) / float(starter["credits"])) or 0.20
+    provider_cost_usd = float(APPROX_COST_USD_PER_IMAGE) * BPG_N_CANDIDATES
+    retail_usd = provider_cost_usd * 2.0          # 2x most-expensive provider
+    return max(1, math.ceil(retail_usd / usd_per_credit))
+
+
+def _bpg_fail_and_refund(db, gen_id: int, error_message: str = None) -> int:
+    """Atomically flip an in-flight poster generation ('generating'/'pending')
+    to 'failed' and refund any Creator Credits it was charged — exactly once.
+
+    Race-safe: the row is locked FOR UPDATE so the background runner, the
+    stale-reconcile sweep, and the detail-endpoint age-flip serialise; only the
+    first to see a non-terminal status refunds. credits_charged is zeroed after
+    refund, so a failed generation can never be refunded twice. No external
+    calls are made under the lock (the slow provider call runs in the caller,
+    before this) — holding a txn across a slow call is what took the site down
+    on 31 May 2026. Returns credits refunded (0 if already terminal/uncharged)."""
+    from .database import PosterGeneration as _PG, SuperSceneCredit as _SSC
+    gen = db.query(_PG).filter_by(id=gen_id).with_for_update().first()
+    if not gen:
+        return 0
+    if gen.status not in ("generating", "pending"):
+        return 0  # already resolved elsewhere — do not double-refund
+    refunded = 0
+    charged = int(gen.credits_charged or 0)
+    if charged > 0:
+        credit_row = db.query(_SSC).filter_by(user_id=gen.user_id).with_for_update().first()
+        if credit_row:
+            credit_row.balance = int(credit_row.balance or 0) + charged
+            refunded = charged
+        gen.credits_charged = 0   # net charge on a failed generation is zero
+    gen.status = "failed"
+    if error_message and not gen.error_message:
+        gen.error_message = str(error_message)[:500]
+    db.commit()
+    if refunded:
+        logger.info(f"BPG generation {gen_id} failed — refunded {refunded} credit(s) to user {gen.user_id}")
+    return refunded
+
+
 def _bpg_reconcile_stale_generations(user_id, db):
     """Self-heal: a BackgroundTask killed by a redeploy can strand a poster
-    generation in 'generating' forever. Mark this user's poster generations
-    stuck 'generating'/'pending' for >5 min (well past the ~60s real run) as
-    'failed' so the result page stops waiting. No credits to refund — BPG is
-    free for Nexus pack owners (credits_charged=0). Mirrors the SuperScene
-    _reconcile_stale_pipelines pattern."""
+    generation in 'generating' forever. Fail this user's generations stuck
+    'generating'/'pending' for >5 min (well past the ~60s real run) so the
+    result page stops waiting, refunding any credits charged. Mirrors the
+    SuperScene _reconcile_stale_pipelines pattern."""
     from datetime import datetime as _dt, timedelta as _td
     from .database import PosterGeneration as _PG
     cutoff = _dt.utcnow() - _td(minutes=5)
@@ -44259,13 +44337,11 @@ def _bpg_reconcile_stale_generations(user_id, db):
         _PG.status.in_(["generating", "pending"]),
         _PG.created_at < cutoff,
     ).all()
+    refunded = 0
     for g in stale:
-        g.status = "failed"
-        if not g.error_message:
-            g.error_message = "Generation was interrupted — please try again."
+        refunded += _bpg_fail_and_refund(db, g.id, "Generation was interrupted — please try again.")
     if stale:
-        db.commit()
-        logger.info(f"BPG self-heal: marked {len(stale)} stale generation(s) failed for user {user_id}")
+        logger.info(f"BPG self-heal: failed {len(stale)} stale generation(s) for user {user_id}; refunded {refunded} credit(s)")
     return len(stale)
 
 
@@ -44393,19 +44469,17 @@ async def _bpg_run_generation(gen_id, rendered_prompt, reference_photo_url, aspe
             logger.info(f"BPG bg generation {gen_id}: already '{gen.status}', leaving as-is")
             return
         if "error" in result:
-            gen.status = "failed"
-            gen.error_message = str(result.get("error") or "Image generation failed")[:500]
+            _bpg_fail_and_refund(db, gen_id, str(result.get("error") or "Image generation failed"))
         else:
             imgs = result.get("images", []) or []
             if not imgs:
-                gen.status = "failed"
-                gen.error_message = "No images returned — please try again"
+                _bpg_fail_and_refund(db, gen_id, "No images returned — please try again")
             else:
                 gen.candidate_urls = _json.dumps(imgs)
                 gen.status = "ready"
                 gen.completed_at = datetime.utcnow()
-        db.commit()
-        logger.info(f"BPG bg generation {gen_id} -> {gen.status}")
+                db.commit()
+        logger.info(f"BPG bg generation {gen_id} resolved")
     except Exception:
         logger.exception(f"BPG bg generation {gen_id}: error writing outcome")
         db.rollback()
@@ -44424,28 +44498,34 @@ async def bpg_generate(request: Request, background_tasks: BackgroundTasks, db: 
     }
 
     Flow:
-      1. Require auth + BPG access (Nexus pack ownership)
+      1. Require auth + enough Creator Credits (charged per generation)
       2. Load template + assemble prompt via poster_templates.render_prompt
-      3. Create a PosterGeneration row in 'generating' status
-      4. Call Grok Imagine (async)
+      3. Create a PosterGeneration row in 'generating', charging the credits
+      4. Call Grok Imagine (async, in a BackgroundTask)
       5. On success: store candidate URLs, return them
-      6. On failure: mark failed, refund nothing (no credits charged in
-         simple-binary gating model)
+      6. On failure: mark failed and auto-refund the charged credits
+         (_bpg_fail_and_refund)
     """
     from .poster_templates import get_template_by_slug, render_prompt
-    from .poster_gating import member_has_bpg_access
-    from .database import PosterTemplate, PosterGeneration
+    from .database import PosterTemplate, PosterGeneration, SuperSceneCredit
     from . import grok_imagine_service as grok_imagine
 
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    if not member_has_bpg_access(db, user):
+    # Creator-credit gate: generating a poster costs credits (2x the most-
+    # expensive serving provider cost — see _bpg_credit_cost). Fast pre-check
+    # here; the charge is re-checked under a row lock at deduction time so two
+    # concurrent generates can't overspend. A failed render is auto-refunded.
+    cost = _bpg_credit_cost()
+    _cr = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
+    _bal = int(_cr.balance) if _cr else 0
+    if _bal < cost:
         raise HTTPException(
-            status_code=403,
-            detail="Brand Poster Generator is unlocked for Credit Nexus pack owners. "
-                   "Activate any Nexus pack (from $20) to unlock generation.",
+            status_code=402,
+            detail=f"Generating a poster costs {cost} Creator Credits — you have {_bal}. "
+                   f"Top up your Creator Credits to keep generating.",
         )
 
     body = await request.json()
@@ -44489,7 +44569,11 @@ async def bpg_generate(request: Request, background_tasks: BackgroundTasks, db: 
     if len(rendered_prompt) > 6000:
         raise HTTPException(status_code=400, detail="Rendered prompt too long")
 
-    # Create the generation record in 'generating' status
+    # Create the generation record in 'generating' status and charge the
+    # Creator Credits in the SAME transaction. Lock the credit row and RE-CHECK
+    # the balance under the lock so two concurrent generates can't both pass the
+    # pre-check and overspend. A failed render refunds this exact charge via
+    # _bpg_fail_and_refund.
     import json as _json
     generation = PosterGeneration(
         user_id=user.id,
@@ -44498,13 +44582,24 @@ async def bpg_generate(request: Request, background_tasks: BackgroundTasks, db: 
         reference_photo_url=reference_photo_url,
         rendered_prompt=rendered_prompt,
         status="generating",
-        credits_charged=0,  # Free for Nexus pack owners under current model
+        credits_charged=cost,
     )
     db.add(generation)
     db.flush()
     gen_id = generation.id
 
-    # Persist the 'generating' row NOW (commit, not just flush) so the
+    credit_row = db.query(SuperSceneCredit).filter_by(user_id=user.id).with_for_update().first()
+    bal = int(credit_row.balance) if credit_row else 0
+    if not credit_row or bal < cost:
+        db.rollback()
+        raise HTTPException(
+            status_code=402,
+            detail=f"Generating a poster costs {cost} Creator Credits — you have {bal}. "
+                   f"Top up your Creator Credits to keep generating.",
+        )
+    credit_row.balance = bal - cost
+
+    # Persist the 'generating' row AND the credit deduction together so the
     # background runner and the result-page poller can see it after this
     # request returns and the request-scoped session closes.
     db.commit()
@@ -44575,10 +44670,8 @@ def bpg_generation_detail(generation_id: int, request: Request, db: Session = De
     if gen.status in ("generating", "pending") and gen.created_at:
         from datetime import timedelta as _td
         if gen.created_at < datetime.utcnow() - _td(minutes=5):
-            gen.status = "failed"
-            if not gen.error_message:
-                gen.error_message = "Generation timed out — please try again."
-            db.commit()
+            _bpg_fail_and_refund(db, gen.id, "Generation timed out — please try again.")
+            db.refresh(gen)
 
     tpl = db.query(PosterTemplate).filter_by(id=gen.template_id).first()
 

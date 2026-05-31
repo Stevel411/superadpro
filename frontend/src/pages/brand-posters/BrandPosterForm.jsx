@@ -10,6 +10,8 @@ export default function BrandPosterForm() {
 
   var [template, setTemplate] = useState(null);
   var [hasAccess, setHasAccess] = useState(false);
+  var [posterCost, setPosterCost] = useState(2);
+  var [creditBalance, setCreditBalance] = useState(0);
   var [loading, setLoading] = useState(true);
   var [error, setError] = useState('');
   var [inputs, setInputs] = useState({});
@@ -23,6 +25,8 @@ export default function BrandPosterForm() {
       if (res && res.template) {
         setTemplate(res.template);
         setHasAccess(!!res.has_access);
+        if (typeof res.poster_cost === 'number') setPosterCost(res.poster_cost);
+        if (typeof res.credit_balance === 'number') setCreditBalance(res.credit_balance);
         // Initialise inputs with defaults
         var initial = {};
         res.template.input_fields.forEach(function(f) {
@@ -142,16 +146,16 @@ export default function BrandPosterForm() {
         {/* No-access banner */}
         {!hasAccess && (
           <div style={{
-            background: '#fef3c7',
-            border: '1px solid #fbbf24',
+            background: '#e0f2fe',
+            border: '1px solid #0ea5e9',
             borderRadius: 12,
             padding: '14px 18px',
             marginBottom: 20,
-            color: '#92400e',
+            color: '#0a1438',
             fontSize: 14,
             lineHeight: 1.5,
           }}>
-            <strong>Preview mode.</strong> Activate any Credit Nexus pack to actually generate this poster.
+            <strong>Preview mode.</strong> Generating this poster costs {posterCost} Creator Credits — you have {creditBalance}. Top up your Creator Credits to generate.
           </div>
         )}
 
@@ -327,10 +331,10 @@ export default function BrandPosterForm() {
           ) : hasAccess ? (
             <>
               <Sparkles size={18} />
-              Generate poster
+              Generate poster · {posterCost} credits
             </>
           ) : (
-            <>Activate a Nexus pack to unlock →</>
+            <>Top up Creator Credits to generate →</>
           )}
         </button>
 

@@ -34,7 +34,7 @@ export default function BrandPosterResult() {
           setSelectedIndex(res.chosen_index);
         }
         if (res.status === 'failed') {
-          setError(res.error_message || 'Generation failed — please try again.');
+          setError((res.error_message || 'Generation failed — please try again.') + ' Your Creator Credits were refunded.');
         }
       } else {
         setError((res && res.detail) || 'Generation not found.');

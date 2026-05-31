@@ -67,13 +67,13 @@ export default function BrandPostersGallery() {
               <div>
                 <div style={{ fontWeight: 800, fontSize: 18, marginBottom: 4 }}>
                   {data.has_access
-                    ? 'You have full access — generate as many posters as you want'
-                    : 'Brand Poster Generator is unlocked for Credit Nexus pack owners'}
+                    ? ('Each poster costs ' + (data.poster_cost || 2) + ' Creator Credits')
+                    : 'You need Creator Credits to generate posters'}
                 </div>
                 <div style={{ fontSize: 14, opacity: 0.9 }}>
                   {data.has_access
-                    ? 'Pick a template below to start.'
-                    : 'Activate any Nexus pack (from $20) to unlock generation. Browse the gallery to see what you\'ll get.'}
+                    ? ('You have ' + (data.credit_balance || 0) + ' credits — pick a template below to start.')
+                    : ('You have ' + (data.credit_balance || 0) + ' credits. Top up your Creator Credits to start — browse the gallery to see what you\'ll get.')}
                 </div>
               </div>
             </div>
@@ -90,7 +90,7 @@ export default function BrandPostersGallery() {
                 alignItems: 'center',
                 gap: 8,
               }}>
-                Activate a Nexus pack <ArrowRight size={16} />
+                Top up Creator Credits <ArrowRight size={16} />
               </Link>
             )}
             {data.has_access && (
