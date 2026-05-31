@@ -17764,6 +17764,117 @@ def admin_grid_occupants_breakdown(
     }
 
 
+@app.get("/admin/api/stripe-tier-metadata-reconcile")
+def admin_stripe_tier_metadata_reconcile(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """AUTHORITATIVE reconciliation straight from Stripe metadata (read-only).
+
+    Goes to Stripe directly — lists every PaymentIntent, reads metadata.product_kind
+    and metadata.superadpro_user_id (stamped on payment_intent_data at checkout for
+    EVERY tier purchase), keeps only product_kind == 'campaign_tier' that is
+    status=='succeeded' AND livemode==true (i.e. real money, not test mode / abandoned),
+    maps superadpro_user_id -> user, and cross-references against grid ownership and the
+    current 'unpaid' verdict. The point: if any grid owner I classified 'unpaid' actually
+    has a REAL paid live Stripe tier charge, they PAID — surface them so they are NOT
+    deactivated. This does not trust the stripe_charges mirror; it reads Stripe itself.
+    """
+    _require_admin(user)
+    out = {"stripe_configured": False, "scanned_payment_intents": 0,
+           "real_paid_live_campaign_tier": [], "owners_falsely_unpaid": [],
+           "note": ("Real paid+livemode Stripe PaymentIntents with metadata.product_kind="
+                    "'campaign_tier', mapped by metadata.superadpro_user_id. owners_falsely_unpaid "
+                    "= any such payer whose grid is currently verdict 'unpaid' — they PAID and "
+                    "must be EXCLUDED from deactivation.")}
+    try:
+        from . import stripe_service as _ss
+        if not _ss.is_configured():
+            out["note"] = "Stripe not configured in this environment."
+            return out
+        _ss._ensure_sdk()
+        import stripe as _stripe
+        out["stripe_configured"] = True
+
+        from .database import (
+            Commission as _Commission, Payment as _Payment,
+            WalletConnectPaymentOrder as _WC, NowPaymentsOrder as _NP,
+            CryptoPaymentOrder as _CPO, StripeCharge as _SC,
+        )
+        users_by_id = {u.id: u for u in db.query(User).all()}
+
+        # 1) Pull real paid-live campaign_tier intents straight from Stripe
+        real = []
+        starting_after = None
+        scanned = 0
+        for _ in range(40):  # up to 4000 intents; ample for current volume
+            params = {"limit": 100}
+            if starting_after:
+                params["starting_after"] = starting_after
+            page = _stripe.PaymentIntent.list(**params)
+            data = page.get("data", []) if isinstance(page, dict) else page.data
+            if not data:
+                break
+            for pi in data:
+                scanned += 1
+                md = (pi.get("metadata") or {}) if isinstance(pi, dict) else (pi.metadata or {})
+                pk = md.get("product_kind")
+                if pk != "campaign_tier":
+                    continue
+                status = pi.get("status") if isinstance(pi, dict) else pi.status
+                livemode = pi.get("livemode") if isinstance(pi, dict) else pi.livemode
+                if status != "succeeded" or not livemode:
+                    continue
+                uid_raw = md.get("superadpro_user_id")
+                try:
+                    uid = int(uid_raw) if uid_raw is not None else None
+                except (TypeError, ValueError):
+                    uid = None
+                amt = (pi.get("amount_received") if isinstance(pi, dict) else pi.amount_received) or 0
+                u = users_by_id.get(uid)
+                real.append({
+                    "payment_intent": (pi.get("id") if isinstance(pi, dict) else pi.id),
+                    "superadpro_user_id": uid,
+                    "username": (u.username if u else None),
+                    "amount_usd": round(amt / 100.0, 2),
+                    "tier_metadata": md.get("tier") or md.get("package_tier"),
+                })
+            starting_after = (data[-1].get("id") if isinstance(data[-1], dict) else data[-1].id)
+            has_more = page.get("has_more") if isinstance(page, dict) else page.has_more
+            if not has_more:
+                break
+        out["scanned_payment_intents"] = scanned
+        out["real_paid_live_campaign_tier"] = real
+
+        # 2) Build the verified-stripe set from these REAL intents, re-run verdicts,
+        #    and flag any 'unpaid' owner who actually has a real tier payment.
+        verified_uids = {r["superadpro_user_id"] for r in real if r["superadpro_user_id"]}
+        verified_stripe = set()
+        for r in real:
+            if r["superadpro_user_id"]:
+                verified_stripe.add((r["superadpro_user_id"], int(round(r["amount_usd"] * 100))))
+        models = {"Commission": _Commission, "Payment": _Payment, "WC": _WC, "NP": _NP,
+                  "CPO": _CPO, "StripeCharge": _SC, "verified_stripe": verified_stripe}
+
+        falsely = []
+        for g in db.query(Grid).all():
+            owner = users_by_id.get(g.owner_id)
+            rec = _reconcile_grid_payment(db, g, owner, models)
+            if rec["verdict"] == "unpaid" and g.owner_id in verified_uids:
+                falsely.append({
+                    "grid_id": g.id, "owner_id": g.owner_id,
+                    "owner_username": (owner.username if owner else None),
+                    "tier": g.package_tier,
+                    "reason": "has real paid+livemode Stripe campaign_tier PaymentIntent — PAID, exclude",
+                })
+        out["owners_falsely_unpaid"] = falsely
+        out["owners_falsely_unpaid_count"] = len(falsely)
+        out["real_paid_live_campaign_tier_count"] = len(real)
+    except Exception as e:
+        out["error"] = f"{type(e).__name__}: {e}"
+    return out
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
