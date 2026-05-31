@@ -18099,25 +18099,9 @@ def admin_stripe_grid_backfill(
         counts = {"would_write": 0, "written": 0, "skip_exists": 0,
                   "skip_no_tier": 0, "skip_no_user": 0, "skip_refunded": 0,
                   "not_campaign_tier": 0, "not_paid_live": 0}
-        counts["write_failed"] = 0
+        to_write = []
 
         for cid in charge_ids:
-            # ── cheap pre-skip (NO Stripe call): if the mirror gives this charge's
-            #    cs_ session id and a row already exists, skip BEFORE the expensive
-            #    Charge.retrieve. This is what makes apply resumable — a run that
-            #    timed out mid-scan leaves committed rows behind (per-row commit
-            #    below), and the next run skips them here for free, so it finishes
-            #    the remainder fast instead of re-timing-out on the same work.
-            _sc_pre = sc_by_charge.get(cid)
-            if _sc_pre is not None and getattr(_sc_pre, "stripe_session_id", None):
-                _pre_tx = f"stripe_grid_{_sc_pre.stripe_session_id}"
-                if db.query(_Payment).filter(_Payment.tx_hash == _pre_tx).first():
-                    counts["skip_exists"] += 1
-                    out["candidates"].append({
-                        "charge_id": cid, "tx_hash": _pre_tx,
-                        "action": "skip_exists", "cheap_skip": True})
-                    continue
-
             try:
                 ch = _stripe.Charge.retrieve(cid)
             except Exception:
@@ -18197,28 +18181,22 @@ def admin_stripe_grid_backfill(
                 rec["action"] = "skip_exists"; counts["skip_exists"] += 1
                 out["candidates"].append(rec); continue
 
-            # writable row. DRY-RUN: record intent only. APPLY: write + commit
-            # THIS row now, so partial progress survives a timeout (resumable).
-            if not do_apply:
-                rec["action"] = "would_write"; counts["would_write"] += 1
-                out["candidates"].append(rec); continue
-            try:
+            rec["action"] = "would_write"; counts["would_write"] += 1
+            out["candidates"].append(rec)
+            to_write.append(rec)
+
+        # 2) apply (only with the exact token)
+        if do_apply and to_write:
+            for rec in to_write:
                 db.add(_Payment(
                     from_user_id=rec["user_id"], to_user_id=None,
                     amount_usdt=rec["amount_usd"],
                     payment_type=f"stripe_grid_{rec['tier']}",
                     tx_hash=rec["tx_hash"], status="confirmed",
                 ))
-                db.commit()
-                rec["action"] = "written"; counts["written"] += 1
-            except Exception:
-                db.rollback()
-                rec["action"] = "write_failed"; counts["write_failed"] += 1
-            out["candidates"].append(rec)
-
-        if do_apply:
-            logger.info(f"stripe-grid-backfill APPLIED: wrote {counts['written']} grid Payment rows "
-                        f"({counts['skip_exists']} already present)")
+                counts["written"] += 1
+            db.commit()
+            logger.info(f"stripe-grid-backfill APPLIED: wrote {counts['written']} grid Payment rows")
 
         out["summary"] = counts
         out["phase"] = "done"
@@ -18229,50 +18207,6 @@ def admin_stripe_grid_backfill(
         out["failed_in_phase"] = out.get("phase")
         out["traceback"] = _tb.format_exc()[-1500:]
     return out
-
-
-@app.get("/admin/api/stripe-grid-rows")
-def admin_stripe_grid_rows(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """INSTANT check (DB-only, no Stripe calls): how many trusted stripe_grid_*
-    Payment rows exist right now, by tier and by user. Use this to confirm
-    whether the backfill applied without waiting on the live Stripe scan.
-
-    Expected after a full backfill of the historical cohort: 11 rows
-    (financialsunrise t1+t2, plus 9 members at t1). Going forward the webhook
-    adds one per live card-tier purchase.
-    """
-    _require_admin(user)
-    from .database import Payment as _Payment
-    rows = db.query(_Payment).filter(
-        _Payment.payment_type.like("stripe_grid_%"),
-        _Payment.status == "confirmed",
-    ).order_by(_Payment.id).all()
-    users_by_id = {u.id: u for u in db.query(User).all()}
-    by_tier, by_user = {}, {}
-    items = []
-    total = 0.0
-    for p in rows:
-        total += float(p.amount_usdt or 0)
-        by_tier[p.payment_type] = by_tier.get(p.payment_type, 0) + 1
-        uname = (users_by_id.get(p.from_user_id).username
-                 if users_by_id.get(p.from_user_id) else None)
-        by_user[uname] = by_user.get(uname, 0) + 1
-        items.append({
-            "id": p.id, "user_id": p.from_user_id, "username": uname,
-            "payment_type": p.payment_type, "amount_usd": float(p.amount_usdt or 0),
-            "tx_hash": p.tx_hash,
-        })
-    return {
-        "stripe_grid_row_count": len(rows),
-        "total_usd": round(total, 2),
-        "by_type": by_tier,
-        "by_user": by_user,
-        "rows": items,
-        "note": "DB-only, instant. Trusted stripe_grid_* confirmed Payment rows currently on record.",
-    }
 
 
 # Exact pre-void campaign_balance for the 5 recipients the VOID floored to $0
