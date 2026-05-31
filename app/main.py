@@ -17813,43 +17813,68 @@ def admin_stripe_tier_metadata_reconcile(
             except (TypeError, ValueError):
                 return {}
 
-        # 1) Pull real paid-live campaign_tier intents straight from Stripe, using the
-        #    SAME manual-pagination + attribute-access pattern proven to work in
-        #    admin_revenue_reconciliation (page.data / page.has_more / page.data[-1].id).
+        # 1) Enumerate EVERY real settled charge via BalanceTransaction.list (the only
+        #    list call proven to work in this SDK/API version — PaymentIntent.list throws
+        #    KeyError:0 parsing nested expandables). For each settled charge, retrieve the
+        #    Charge (and its PaymentIntent if needed) via .retrieve (also proven) and read
+        #    the campaign_tier metadata. This is the authoritative settled-money source.
         real = []
         scanned = 0
-        params = {"limit": 100}
+        charge_ids = []
+        params = {"limit": 100, "type": "charge"}
         while True:
-            page = _stripe.PaymentIntent.list(**params)
-            for pi in page.data:
-                scanned += 1
-                md = _md_to_dict(pi)
-                if md.get("product_kind") != "campaign_tier":
-                    continue
-                if getattr(pi, "status", None) != "succeeded" or not getattr(pi, "livemode", False):
-                    continue
-                uid_raw = md.get("superadpro_user_id")
-                try:
-                    uid = int(uid_raw) if uid_raw is not None else None
-                except (TypeError, ValueError):
-                    uid = None
-                amt = getattr(pi, "amount_received", 0) or 0
-                u = users_by_id.get(uid)
-                real.append({
-                    "payment_intent": getattr(pi, "id", None),
-                    "superadpro_user_id": uid,
-                    "username": (u.username if u else None),
-                    "amount_usd": round(amt / 100.0, 2),
-                    "tier_metadata": md.get("tier") or md.get("package_tier"),
-                })
+            page = _stripe.BalanceTransaction.list(**params)
+            for bt in page.data:
+                src = getattr(bt, "source", None)  # ch_... charge id
+                if isinstance(src, str) and src.startswith("ch_"):
+                    charge_ids.append(src)
             if getattr(page, "has_more", False) and page.data:
                 params["starting_after"] = page.data[-1].id
             else:
                 break
-        out["scanned_payment_intents"] = scanned
+
+        for cid in charge_ids:
+            scanned += 1
+            try:
+                ch = _stripe.Charge.retrieve(cid)
+            except Exception:
+                continue
+            if not getattr(ch, "paid", False) or not getattr(ch, "livemode", False):
+                continue
+            md = _md_to_dict(ch)
+            # tier metadata lives on the PaymentIntent (set via payment_intent_data);
+            # the Charge usually has none — retrieve the PI to read it.
+            if md.get("product_kind") is None:
+                pi_id = getattr(ch, "payment_intent", None)
+                if isinstance(pi_id, str) and pi_id:
+                    try:
+                        pi = _stripe.PaymentIntent.retrieve(pi_id)
+                        md = _md_to_dict(pi)
+                    except Exception:
+                        md = md
+            if md.get("product_kind") != "campaign_tier":
+                continue
+            uid_raw = md.get("superadpro_user_id")
+            try:
+                uid = int(uid_raw) if uid_raw is not None else None
+            except (TypeError, ValueError):
+                uid = None
+            amt = getattr(ch, "amount_captured", None)
+            if amt is None:
+                amt = getattr(ch, "amount", 0) or 0
+            u = users_by_id.get(uid)
+            real.append({
+                "charge_id": cid,
+                "superadpro_user_id": uid,
+                "username": (u.username if u else None),
+                "amount_usd": round((amt or 0) / 100.0, 2),
+                "tier_metadata": md.get("tier") or md.get("package_tier"),
+            })
+        out["scanned_settled_charges"] = scanned
+        out["scanned_payment_intents"] = scanned  # back-compat key
         out["real_paid_live_campaign_tier"] = real
 
-        # 2) Build the verified-stripe set from these REAL intents, re-run verdicts,
+        # 2) Build the verified-stripe set from these REAL charges, re-run verdicts,
         #    and flag any 'unpaid' owner who actually has a real tier payment.
         verified_uids = {r["superadpro_user_id"] for r in real if r["superadpro_user_id"]}
         verified_stripe = set()
@@ -17868,7 +17893,7 @@ def admin_stripe_tier_metadata_reconcile(
                     "grid_id": g.id, "owner_id": g.owner_id,
                     "owner_username": (owner.username if owner else None),
                     "tier": g.package_tier,
-                    "reason": "has real paid+livemode Stripe campaign_tier PaymentIntent — PAID, exclude",
+                    "reason": "has real paid+livemode Stripe campaign_tier charge — PAID, exclude",
                 })
         out["owners_falsely_unpaid"] = falsely
         out["owners_falsely_unpaid_count"] = len(falsely)
