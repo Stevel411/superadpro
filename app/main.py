@@ -44269,6 +44269,76 @@ def _bpg_reconcile_stale_generations(user_id, db):
     return len(stale)
 
 
+def _send_xai_credit_alert(status_code, detail):
+    """Best-effort admin heads-up when xAI image generation is REFUSED with a
+    credit/permission error (403 = out of image credits / no access, 402 =
+    payment required). Lets the admin top up image credits BEFORE more members
+    hit the wall, instead of finding out from a support message.
+
+    Throttled to at most once per 6h via an app_config marker so a burst of
+    failed generations can't spam the inbox. Mirrors _send_bsc_scan_failure_alert:
+    best-effort, never raises (caller wraps in try/except), ops inbox recipient.
+    """
+    from .database import SessionLocal as _SessionLocal, AppConfig as _AppConfig
+    from datetime import datetime as _dt, timedelta as _td
+    THROTTLE_HOURS = 6
+    KEY = "xai_credit_alert_last_sent"
+
+    # ── throttle: mark-before-send so concurrent failures don't all email ──
+    db = _SessionLocal()
+    try:
+        now = _dt.utcnow()
+        cfg = db.query(_AppConfig).filter(_AppConfig.key == KEY).first()
+        if cfg and cfg.value:
+            try:
+                if now - _dt.fromisoformat(cfg.value) < _td(hours=THROTTLE_HOURS):
+                    return  # already alerted within the window — stay quiet
+            except Exception:
+                pass
+        if cfg:
+            cfg.value = now.isoformat()
+            cfg.updated_at = now
+        else:
+            db.add(_AppConfig(key=KEY, value=now.isoformat(), updated_at=now))
+        db.commit()
+    except Exception:
+        db.rollback()
+        # throttle bookkeeping failed — fall through and still try one email
+    finally:
+        db.close()
+
+    try:
+        from .email_utils import send_email
+        to_email = os.environ.get("ADMIN_ALERT_EMAIL", "stevelawsonmarketing@gmail.com")
+        subject = "⚠️  Creative Studio: xAI image generation refused — likely out of credits"
+        html_body = f"""
+        <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+          <h2 style="color:#dc2626;margin:0 0 16px;">Brand Poster Generator is being refused by xAI</h2>
+          <p style="font-size:14px;line-height:1.6;color:#334155;">
+            xAI's image API returned <strong>HTTP {status_code}</strong> on a member's
+            poster generation. This almost always means the xAI account is
+            <strong>out of image-generation credits</strong> (image gen is billed
+            separately from your Grok text usage, so text features keep working while
+            image gen is blocked). Until topped up, members will see generation failures.
+          </p>
+          <div style="background:#f1f5f9;border-radius:10px;padding:16px;margin:16px 0;font-family:monospace;font-size:13px;color:#334155;word-break:break-all;">
+            <div><strong>xAI status:</strong> {status_code}</div>
+            <div style="margin-top:8px;"><strong>Detail:</strong> {(detail or '')[:400]}</div>
+          </div>
+          <p style="font-size:13px;color:#475569;line-height:1.6;">
+            <strong>Fix:</strong> top up image credits at
+            <a href="https://console.x.ai">console.x.ai</a> → Billing/Credits.
+            Generation resumes immediately once credits are added — no deploy needed.
+          </p>
+          <p style="font-size:12px;color:#94a3b8;">You'll get at most one of these every {THROTTLE_HOURS}h.</p>
+        </div>
+        """
+        send_email(to_email=to_email, subject=subject, html_body=html_body)
+        logger.warning(f"xAI credit/permission alert emailed to admin (xAI status {status_code})")
+    except Exception:
+        logger.exception("Failed to send xAI credit alert email")
+
+
 async def _bpg_run_generation(gen_id, rendered_prompt, reference_photo_url, aspect):
     """Background runner for ONE Brand Poster generation (fire-and-forget via
     FastAPI BackgroundTasks). Calls the AI provider WITHOUT holding any DB
@@ -44297,6 +44367,19 @@ async def _bpg_run_generation(gen_id, rendered_prompt, reference_photo_url, aspe
     except Exception as exc:
         logger.exception(f"BPG bg generation {gen_id} crashed during Grok call")
         result = {"error": f"Generation crashed: {exc}"}
+
+    # ── proactive heads-up: if xAI refused on a credit/permission error,
+    #    email the admin ONCE (throttled) so image credits get topped up
+    #    before more members hit the wall. 403 = out of credits / no access,
+    #    402 = payment required. Best-effort; never affects the outcome write. ──
+    if isinstance(result, dict) and "error" in result:
+        _sc = result.get("status_code")
+        _dt = (result.get("detail") or "").lower()
+        if _sc in (402, 403) or any(k in _dt for k in ("credit", "insufficient", "billing", "quota")):
+            try:
+                _send_xai_credit_alert(_sc, result.get("detail") or result.get("error"))
+            except Exception:
+                logger.exception(f"BPG bg generation {gen_id}: xAI credit alert dispatch failed")
 
     # ── short-lived session purely to record the outcome ──
     db = _SessionLocal()
