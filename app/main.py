@@ -16969,6 +16969,33 @@ def admin_orphans_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+# ── Known exchange / custodial hot wallets (31 May 2026) ───────────────────
+# Members who pay by withdrawing USDT from an exchange (Binance etc.) send from
+# the exchange's POOLED hot wallet, not their own. The on-chain from_address
+# therefore matches no member and no order by address, so every such transfer
+# is filed as an "orphan" even though the member's order completed and they
+# activated normally. Left unclassified, these bury the genuine signal (a real
+# un-credited payment) under exchange noise — 132 unresolved / $726 as of today,
+# 99% from one wallet.
+#
+# This is a CLASSIFICATION allowlist ONLY. Orphan rows are still recorded in
+# full (we never drop a payment record); wallets listed here are merely tagged
+# is_exchange_wallet=True and bucketed separately in the investigation view so
+# "needs review" stays clean. Verified safe to classify as noise on 31 May 2026:
+# recent_signups (only_inactive, 168h) showed ZERO members holding pending
+# payment orders, i.e. nobody is stuck-paid, i.e. these transfers left no member
+# un-activated. To re-examine, just remove an address here and it reappears in
+# the main review bucket. Add only wallets confirmed (or strongly inferred) to
+# be shared exchange/custodial sources.
+KNOWN_EXCHANGE_WALLETS = {
+    "0xa96be652a08d9905f15b7fbe2255708709becd09",  # high-volume shared wallet, 39 transfers, no member owner, ~$18 avg — exchange/custodial pattern
+}
+
+
+def _is_exchange_wallet(addr: str) -> bool:
+    return (addr or "").strip().lower() in KNOWN_EXCHANGE_WALLETS
+
+
 @app.get("/admin/api/orphans")
 def admin_api_list_orphans(
     status: str = "pending",
@@ -16982,6 +17009,10 @@ def admin_api_list_orphans(
       - 'pending'  — resolved=False (default)
       - 'resolved' — resolved=True
       - 'all'      — both
+
+    Each orphan is tagged is_exchange_wallet (see KNOWN_EXCHANGE_WALLETS) so the
+    UI can separate benign exchange noise from transfers that genuinely need a
+    human look. Records are never suppressed — only classified.
     """
     _require_admin(user)
     from .database import OnchainOrphanTransfer
@@ -17006,6 +17037,15 @@ def admin_api_list_orphans(
         OnchainOrphanTransfer.resolved == False,  # noqa: E712
         OnchainOrphanTransfer.likely_rounded_amount == True,  # noqa: E712
     ).count()
+
+    # Split pending into exchange-noise vs genuinely-needs-review by from_address.
+    # Done in Python over all pending rows so the header counts are accurate
+    # regardless of the display `limit`.
+    all_pending = db.query(OnchainOrphanTransfer).filter(
+        OnchainOrphanTransfer.resolved == False  # noqa: E712
+    ).all()
+    exchange_noise_count = sum(1 for r in all_pending if _is_exchange_wallet(r.from_address))
+    needs_review_count = pending_count - exchange_noise_count
 
     # For each pending orphan, find candidate WC orders we COULD reconcile to
     # — same product price, same status, same week. Capped at 5 candidates per
@@ -17056,12 +17096,15 @@ def admin_api_list_orphans(
                 "resolution_note": r.resolution_note,
                 "resolved_at": r.resolved_at.isoformat() if r.resolved_at else None,
                 "candidates": candidates_map.get(r.id, []),
+                "is_exchange_wallet": _is_exchange_wallet(r.from_address),
             }
             for r in rows
         ],
         "counts": {
             "pending": pending_count,
             "likely_rounded": likely_rounded_count,
+            "needs_review": needs_review_count,
+            "exchange_noise": exchange_noise_count,
         },
     }
 
@@ -18538,9 +18581,22 @@ function loadInvestigation() {
       return byAddr[b].length - byAddr[a].length;
     });
 
-    var totalUnresolved = orphans.length;
-    var totalValue = orphans.reduce(function(s, o) { return s + (o.amount_usdt || 0); }, 0);
-    var addrsWithMultiple = addrs.filter(function(a) { return byAddr[a].length > 1; }).length;
+    // An address is exchange-noise if its transfers are flagged is_exchange_wallet.
+    function addrIsExchange(addr) {
+      var ts = byAddr[addr] || [];
+      return ts.length > 0 && ts.every(function(t) { return t.is_exchange_wallet; });
+    }
+    var reviewAddrs = addrs.filter(function(a) { return !addrIsExchange(a); });
+    var exchangeAddrs = addrs.filter(addrIsExchange);
+
+    var reviewOrphans = orphans.filter(function(o) { return !o.is_exchange_wallet; });
+    var exchangeOrphans = orphans.filter(function(o) { return o.is_exchange_wallet; });
+
+    var reviewCount = reviewOrphans.length;
+    var reviewValue = reviewOrphans.reduce(function(s, o) { return s + (o.amount_usdt || 0); }, 0);
+    var exchangeCount = exchangeOrphans.length;
+    var exchangeValue = exchangeOrphans.reduce(function(s, o) { return s + (o.amount_usdt || 0); }, 0);
+    var addrsWithMultiple = reviewAddrs.filter(function(a) { return byAddr[a].length > 1; }).length;
 
     // Collect every distinct user_id from candidates so we can batch-fetch
     // usernames in one pass (avoids N tiny requests)
@@ -18552,14 +18608,17 @@ function loadInvestigation() {
     });
 
     var summaryStrip = '<div class="summary-strip">' +
-      '<div class="stat-block"><div class="stat-label">Unresolved transfers</div><div class="stat-value warn">' + totalUnresolved + '</div></div>' +
-      '<div class="stat-block"><div class="stat-label">Total unresolved value</div><div class="stat-value">' + moneyFmt(totalValue) + '</div></div>' +
-      '<div class="stat-block"><div class="stat-label">Unique wallets</div><div class="stat-value">' + addrs.length + '</div></div>' +
-      '<div class="stat-block"><div class="stat-label">Wallets with retries</div><div class="stat-value' + (addrsWithMultiple > 0 ? ' critical' : '') + '">' + addrsWithMultiple + '</div></div>' +
+      '<div class="stat-block"><div class="stat-label">Needs review</div><div class="stat-value' + (reviewCount > 0 ? ' warn' : '') + '">' + reviewCount + '</div></div>' +
+      '<div class="stat-block"><div class="stat-label">Needs-review value</div><div class="stat-value">' + moneyFmt(reviewValue) + '</div></div>' +
+      '<div class="stat-block"><div class="stat-label">Review wallets</div><div class="stat-value">' + reviewAddrs.length + '</div></div>' +
+      '<div class="stat-block"><div class="stat-label">Review wallets w/ retries</div><div class="stat-value' + (addrsWithMultiple > 0 ? ' critical' : '') + '">' + addrsWithMultiple + '</div></div>' +
+      '<div class="stat-block"><div class="stat-label">Exchange noise (filtered)</div><div class="stat-value" style="color:var(--muted)">' + exchangeCount + ' · ' + moneyFmt(exchangeValue) + '</div></div>' +
     '</div>';
 
     document.getElementById('content').innerHTML = summaryStrip +
-      '<div id="walletGroups"><div class="loading">Looking up wallet owners and candidate payers…</div></div>';
+      (reviewCount === 0 ? '<div class="empty-state" style="margin-bottom:20px">✓ Nothing needs review — all unresolved transfers are from known exchange/custodial wallets (members activated normally).</div>' : '') +
+      '<div id="walletGroups"><div class="loading">Looking up wallet owners and candidate payers…</div></div>' +
+      (exchangeCount > 0 ? '<details style="margin-top:24px"><summary style="cursor:pointer;color:var(--muted);font-size:13px;font-weight:700">Show ' + exchangeCount + ' exchange-noise transfer(s) from ' + exchangeAddrs.length + ' known shared wallet(s) — ' + moneyFmt(exchangeValue) + '</summary><div id="exchangeGroups" style="margin-top:12px"></div></details>' : '');
 
     // Batch-fetch usernames for every candidate user_id seen
     var userIdArray = Array.from(userIds);
@@ -18590,11 +18649,17 @@ function loadInvestigation() {
         return vb - va;
       });
 
-      var container = document.getElementById('walletGroups');
-      container.innerHTML = '';
+      var reviewContainer = document.getElementById('walletGroups');
+      var exchangeContainer = document.getElementById('exchangeGroups');
+      reviewContainer.innerHTML = '';
       walletResults.forEach(function(r) {
-        container.appendChild(renderWalletGroup(r.addr, r.transfers, r.lookup, usernamesByUserId));
+        var isExch = (r.transfers.length > 0 && r.transfers.every(function(t) { return t.is_exchange_wallet; }));
+        var target = isExch ? exchangeContainer : reviewContainer;
+        if (target) target.appendChild(renderWalletGroup(r.addr, r.transfers, r.lookup, usernamesByUserId));
       });
+      if (reviewContainer.innerHTML === '') {
+        reviewContainer.innerHTML = '';
+      }
     });
   }).catch(function(e) {
     document.getElementById('content').innerHTML =
