@@ -17648,6 +17648,122 @@ def admin_grid_deactivation_preview(
     }
 
 
+@app.get("/admin/api/grid-occupants-breakdown")
+def admin_grid_occupants_breakdown(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY. For each unpaid grid that HAS occupants, list every member sitting
+    inside it and classify them: did THAT occupant pay for a campaign tier on any rail
+    (paying — PROTECT) or not (non-paying — eligible to deactivate). This operationalises
+    Steve's rule: 'only non-paying members of the grid should be deactivated.'
+
+    Reuses the same all-rails tier-payment check used for owners. Mutates nothing.
+    """
+    _require_admin(user)
+    from .database import (
+        Commission as _Commission, Payment as _Payment,
+        WalletConnectPaymentOrder as _WC, NowPaymentsOrder as _NP,
+        CryptoPaymentOrder as _CPO, StripeCharge as _SC, GridPosition as _GP,
+    )
+    from sqlalchemy import or_
+
+    models = {"Commission": _Commission, "Payment": _Payment, "WC": _WC, "NP": _NP,
+              "CPO": _CPO, "StripeCharge": _SC}
+    verified_stripe = set(); verified_uids = set()
+    try:
+        from . import stripe_service as _ss
+        if _ss.is_configured():
+            _ss._ensure_sdk()
+            import stripe as _stripe
+            for r in db.query(_SC).filter(_SC.product == "campaign_tier", _SC.kind == "charge").all():
+                ok = False
+                try:
+                    if r.stripe_charge_id:
+                        ch = _stripe.Charge.retrieve(r.stripe_charge_id)
+                        ok = bool(ch and ch.get("paid") and ch.get("livemode"))
+                    elif r.stripe_payment_intent_id:
+                        pi = _stripe.PaymentIntent.retrieve(r.stripe_payment_intent_id)
+                        ok = bool(pi and pi.get("status") == "succeeded" and pi.get("livemode"))
+                except Exception:
+                    ok = False
+                if ok:
+                    verified_stripe.add((r.user_id, int(r.amount_cents or 0))); verified_uids.add(r.user_id)
+    except Exception:
+        pass
+    models["verified_stripe"] = verified_stripe
+
+    pay_cache = {}
+    def _paid_any_tier(oid):
+        if oid in pay_cache:
+            return pay_cache[oid]
+        res = False
+        if db.query(_Payment).filter(
+            _Payment.from_user_id == oid, _Payment.status == "confirmed",
+            or_(_Payment.payment_type == "grid_package", _Payment.payment_type.like("grid_%"),
+                _Payment.payment_type.like("walletconnect_grid%"), _Payment.payment_type.like("nowpayments_grid%"),
+                _Payment.payment_type.like("nexus_to_tier_%"), _Payment.payment_type.like("manual_recovery_grid_%"),
+                _Payment.payment_type.like("%credit_matrix%")),
+        ).first():
+            res = True
+        elif db.query(_WC).filter(_WC.user_id == oid, _WC.product_type == "grid", _WC.status == "confirmed").first():
+            res = True
+        elif db.query(_NP).filter(_NP.user_id == oid, _NP.product_type == "grid", _NP.status.in_(["confirmed", "finished"])).first():
+            res = True
+        elif db.query(_CPO).filter(_CPO.user_id == oid, _CPO.product_type == "grid", _CPO.status == "confirmed").first():
+            res = True
+        elif oid in verified_uids:
+            res = True
+        pay_cache[oid] = res
+        return res
+
+    users_by_id = {u.id: u for u in db.query(User).all()}
+    grids_detail = []
+    protect_ids = set(); deactivate_ids = set()
+
+    for g in db.query(Grid).all():
+        rec = _reconcile_grid_payment(db, g, users_by_id.get(g.owner_id), models)
+        if rec["verdict"] != "unpaid":
+            continue
+        positions = db.query(_GP).filter(_GP.grid_id == g.id).all()
+        occ_ids = sorted({p.member_id for p in positions if p.member_id and p.member_id != g.owner_id})
+        if not occ_ids:
+            continue
+        occ_rows = []
+        for m in occ_ids:
+            mu = users_by_id.get(m)
+            paid = _paid_any_tier(m)
+            (protect_ids if paid else deactivate_ids).add(m)
+            occ_rows.append({
+                "member_id": m, "username": (mu.username if mu else None),
+                "paid_for_tier": paid,
+                "classification": ("PAYING — protect" if paid else "non-paying — deactivate-eligible"),
+            })
+        owner = users_by_id.get(g.owner_id)
+        grids_detail.append({
+            "grid_id": g.id, "owner_id": g.owner_id,
+            "owner_username": (owner.username if owner else None), "tier": g.package_tier,
+            "occupant_count": len(occ_ids),
+            "paying_occupants": sum(1 for r in occ_rows if r["paid_for_tier"]),
+            "non_paying_occupants": sum(1 for r in occ_rows if not r["paid_for_tier"]),
+            "occupants": occ_rows,
+        })
+
+    grids_detail.sort(key=lambda r: -r["occupant_count"])
+    return {
+        "dry_run": True,
+        "MUTATES_NOTHING": True,
+        "note": ("Who is sitting inside the occupied unpaid grids, classified by whether THEY "
+                 "paid for a tier. 'only non-paying members should be deactivated' => protect "
+                 "paying_occupants, deactivate non_paying. A member counted as paying here is "
+                 "protected even if they appear as a non-paying grid OWNER elsewhere."),
+        "occupied_unpaid_grids": len(grids_detail),
+        "distinct_paying_occupants_to_PROTECT": len(protect_ids),
+        "distinct_nonpaying_occupants_eligible": len(deactivate_ids),
+        "grids": grids_detail,
+    }
+
+
 @app.get("/admin/api/user/{user_id}/commission-state")
 def admin_user_commission_state(
     user_id: int,
