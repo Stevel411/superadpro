@@ -378,6 +378,12 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                 if grid.positions_filled >= GRID_TOTAL:
                     _complete_grid(db, grid)
                     entry["complete"] = True
+                    # Carry the bonus outcome so the completion email can state
+                    # the money accurately: paid to wallet vs rolled over to the
+                    # next advance (depends on whether the owner was qualified).
+                    entry["bonus_amount"] = float(grid.bonus_pool_accrued or 0)
+                    entry["bonus_paid"] = bool(grid.bonus_paid)
+                    entry["bonus_rolled_over"] = bool(grid.bonus_rolled_over)
 
                 grids_filled.append(entry)
 
@@ -759,20 +765,48 @@ def _send_grid_entry_emails(db: Session, buyer: User, grids_filled: list,
         filled = e.get("filled") or 0
         remaining = max(GRID_TOTAL - filled, 0)
         is_complete = bool(e.get("complete"))
+        bonus_amount = float(e.get("bonus_amount") or 0)
+        bonus_paid = bool(e.get("bonus_paid"))
+        bonus_rolled_over = bool(e.get("bonus_rolled_over"))
 
         if is_complete:
+            if bonus_paid and bonus_amount > 0:
+                money_line = (f' Your <strong>${bonus_amount:,.2f}</strong> completion bonus '
+                              f'has been added to your Campaign Wallet.')
+            elif bonus_rolled_over and bonus_amount > 0:
+                money_line = (f' Your <strong>${bonus_amount:,.2f}</strong> completion bonus rolled '
+                              f'over to your next advance &mdash; activate a {tier_name} campaign to '
+                              f'claim it when that grid completes.')
+            else:
+                money_line = ''
             head = (f'<div style="font-size:48px;margin-bottom:14px">&#127942;</div>'
                     f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f1d3a;line-height:1.25">'
                     f'Your {tier_name} grid is full, {first_name}!</p>'
                     f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
                     f'<strong>{buyer_name}</strong> just took the final seat in your {tier_name} grid '
-                    f'&mdash; that\'s all {GRID_TOTAL} positions filled.</p>')
+                    f'&mdash; that\'s all {GRID_TOTAL} positions filled.{money_line}</p>')
         else:
             head = (f'<div style="font-size:48px;margin-bottom:14px">&#128229;</div>'
                     f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f1d3a;line-height:1.25">'
                     f'New entry in your {tier_name} grid, {first_name}!</p>'
                     f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
                     f'<strong>{buyer_name}</strong> just entered your {tier_name} grid.</p>')
+
+        # Bonus callout card — only on a completion that actually paid out.
+        bonus_card = ''
+        if is_complete and bonus_paid and bonus_amount > 0:
+            bonus_card = (
+                f'<table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 0">'
+                f'<tr><td style="background:linear-gradient(135deg,#0ea5e9,#06b6d4);'
+                f'border-radius:14px;padding:22px;text-align:center">'
+                f'<p style="margin:0 0 4px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);'
+                f'text-transform:uppercase;letter-spacing:1px">Completion bonus earned</p>'
+                f'<p style="margin:0;font-size:40px;font-weight:900;color:#ffffff;'
+                f'font-family:\'Sora\',sans-serif">${bonus_amount:,.2f}</p>'
+                f'<p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.85);font-weight:600">'
+                f'Added to your Campaign Wallet</p>'
+                f'</td></tr></table>'
+            )
 
         progress_card = (
             f'<table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 24px">'
@@ -788,12 +822,24 @@ def _send_grid_entry_emails(db: Session, buyer: User, grids_filled: list,
             + f'</p></td></tr></table>'
         )
 
-        body = progress_card + _btn(f"{SITE_URL}/grid-visualiser", "View your grid &rarr;")
+        body = progress_card + bonus_card + _btn(f"{SITE_URL}/grid-visualiser", "View your grid &rarr;")
 
         if is_complete:
-            subject = f"\U0001F3C6 Your {tier_name} grid just filled, {first_name}!"
-            text = (f"Hi {first_name}, {buyer_name} just took the final seat in your {tier_name} grid "
-                    f"({filled}/{GRID_TOTAL} filled). View your grid: {SITE_URL}/grid-visualiser")
+            if bonus_paid and bonus_amount > 0:
+                subject = f"\U0001F3C6 Grid complete + ${bonus_amount:,.2f} bonus, {first_name}!"
+                text = (f"Hi {first_name}, {buyer_name} just took the final seat in your {tier_name} grid "
+                        f"({filled}/{GRID_TOTAL} filled). Your ${bonus_amount:,.2f} completion bonus has been "
+                        f"added to your Campaign Wallet. View your grid: {SITE_URL}/grid-visualiser")
+            elif bonus_rolled_over and bonus_amount > 0:
+                subject = f"\U0001F3C6 Your {tier_name} grid is full, {first_name}!"
+                text = (f"Hi {first_name}, {buyer_name} just took the final seat in your {tier_name} grid "
+                        f"({filled}/{GRID_TOTAL} filled). Your ${bonus_amount:,.2f} completion bonus rolled "
+                        f"over to your next advance — activate a {tier_name} campaign to claim it next time. "
+                        f"View your grid: {SITE_URL}/grid-visualiser")
+            else:
+                subject = f"\U0001F3C6 Your {tier_name} grid just filled, {first_name}!"
+                text = (f"Hi {first_name}, {buyer_name} just took the final seat in your {tier_name} grid "
+                        f"({filled}/{GRID_TOTAL} filled). View your grid: {SITE_URL}/grid-visualiser")
         else:
             subject = f"New entry in your {tier_name} grid"
             text = (f"Hi {first_name}, {buyer_name} just entered your {tier_name} grid "
