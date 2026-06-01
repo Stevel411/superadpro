@@ -4392,6 +4392,7 @@ def admin_finances_page(request: Request, user: User = Depends(get_current_user)
       <div class="row"><span class="row-label">WalletConnect (BSC)</span><span class="row-val">{m(at['inflows']['walletconnect_usd'])}</span></div>
       <div class="row"><span class="row-label">NOWPayments</span><span class="row-val">{m(at['inflows']['nowpayments_usd'])}</span></div>
       <div class="row"><span class="row-label">Stripe (net)</span><span class="row-val">{m(at['inflows']['stripe_net_usd'])}</span></div>
+      <div class="row" style="border:none;padding-top:10px"><span class="row-label" style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;opacity:.7">By product · already counted above</span></div>
       <div class="row"><span class="row-label">Creative Studio</span><span class="row-val">{m(at['inflows']['creative_studio_gross_usd'])}</span></div>
       <div class="row"><span class="row-label">Nexus credit packs</span><span class="row-val">{m(at['inflows']['nexus_credit_packs_usd'])}</span></div>
     </div>
@@ -4401,6 +4402,7 @@ def admin_finances_page(request: Request, user: User = Depends(get_current_user)
       <div class="row"><span class="row-label">WalletConnect</span><span class="row-val">{m(tm['inflows']['walletconnect_usd'])}</span></div>
       <div class="row"><span class="row-label">NOWPayments</span><span class="row-val">{m(tm['inflows']['nowpayments_usd'])}</span></div>
       <div class="row"><span class="row-label">Stripe</span><span class="row-val">{m(tm['inflows']['stripe_net_usd'])}</span></div>
+      <div class="row" style="border:none;padding-top:10px"><span class="row-label" style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;opacity:.7">By product · already counted above</span></div>
       <div class="row"><span class="row-label">Creative Studio</span><span class="row-val">{m(tm['inflows']['creative_studio_gross_usd'])}</span></div>
       <div class="row"><span class="row-label">Nexus credit packs</span><span class="row-val">{m(tm['inflows']['nexus_credit_packs_usd'])}</span></div>
     </div>
@@ -4410,6 +4412,7 @@ def admin_finances_page(request: Request, user: User = Depends(get_current_user)
       <div class="row"><span class="row-label">WalletConnect</span><span class="row-val">{m(h24['inflows']['walletconnect_usd'])}</span></div>
       <div class="row"><span class="row-label">NOWPayments</span><span class="row-val">{m(h24['inflows']['nowpayments_usd'])}</span></div>
       <div class="row"><span class="row-label">Stripe</span><span class="row-val">{m(h24['inflows']['stripe_net_usd'])}</span></div>
+      <div class="row" style="border:none;padding-top:10px"><span class="row-label" style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;opacity:.7">By product · already counted above</span></div>
       <div class="row"><span class="row-label">Creative Studio</span><span class="row-val">{m(h24['inflows']['creative_studio_gross_usd'])}</span></div>
       <div class="row"><span class="row-label">Nexus credit packs</span><span class="row-val">{m(h24['inflows']['nexus_credit_packs_usd'])}</span></div>
     </div>

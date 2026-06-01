@@ -1097,6 +1097,7 @@ function InflowsCard(props) {
       <RowK label="WalletConnect (BSC)"   value={m(d.walletconnect_usd)}/>
       <RowK label="NOWPayments"           value={m(d.nowpayments_usd)}/>
       <RowK label="Stripe (net)"          value={m(d.stripe_net_usd)}/>
+      <div style={{fontSize:10,fontWeight:700,letterSpacing:'.06em',textTransform:'uppercase',color:'var(--sap-text-faint)',margin:'12px 0 2px'}}>By product · already counted above</div>
       <RowK label="Creative Studio"       value={m(d.creative_studio_gross_usd)}/>
       <RowK label="Nexus credit packs"    value={m(d.nexus_credit_packs_usd)}/>
     </div>

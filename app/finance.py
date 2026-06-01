@@ -148,15 +148,24 @@ def _inflows(db: Session, since: datetime = None) -> Dict[str, Any]:
         cp_q = cp_q.filter(CreditPackPurchase.created_at >= since)
     nexus_pack_total = _sum_or_zero(cp_q.scalar())
 
-    total = (
-        walletconnect_total + nowpayments_total + stripe_total +
-        creative_studio_gross + nexus_pack_total
-    )
+    # Total new money in = the three payment RAILS only. Every payment
+    # enters through exactly one rail (WalletConnect/BSC, NOWPayments, or
+    # Stripe), so the rails are the complete, non-overlapping total.
+    #
+    # creative_studio_gross and nexus_pack_total are NOT added here: they
+    # are the SAME money re-sliced by product. A nexus pack bought via
+    # Stripe already sits inside stripe_net_usd; adding nexus_pack_total on
+    # top double-counts it (this is the bug that made $100 display as $120,
+    # found 1 Jun 2026). They are returned as an informational product
+    # breakdown only — a subset of the rail totals, never summed into it.
+    total = walletconnect_total + nowpayments_total + stripe_total
 
     return {
         "walletconnect_usd": float(walletconnect_total),
         "nowpayments_usd": float(nowpayments_total),
         "stripe_net_usd": float(stripe_total),
+        # Product breakdown — subset of the rails above, shown for mix
+        # visibility, NOT additive to total_usd.
         "creative_studio_gross_usd": float(creative_studio_gross),
         "nexus_credit_packs_usd": float(nexus_pack_total),
         "total_usd": float(total),
