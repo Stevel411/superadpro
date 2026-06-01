@@ -19,7 +19,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  Briefcase, Gauge, Users, Target, Layers, BarChart3, Zap, LayoutGrid,
+  Briefcase, Gauge, Users, Target, Layers, BarChart3, Zap, LayoutGrid, LineChart,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
@@ -31,8 +31,10 @@ function buildTabs(t) {
       icon: Gauge, tone: 'cyan', path: '/command-centre', match: ['/command-centre'] },
     { id: 'team', label: t('businessHub.tabs.team', { defaultValue: 'Team' }),
       icon: Users, tone: 'cobalt', path: '/my-team', match: ['/my-team'] },
-    { id: 'analytics', label: t('businessHub.tabs.analytics', { defaultValue: 'Analytics' }),
+    { id: 'analytics', label: t('businessHub.tabs.analytics', { defaultValue: 'Campaign Analytics' }),
       icon: BarChart3, tone: 'cyan', path: '/campaign-analytics', match: ['/campaign-analytics'] },
+    { id: 'fullanalytics', label: t('businessHub.tabs.fullAnalytics', { defaultValue: 'Full Analytics' }),
+      icon: LineChart, tone: 'cobalt', path: '/analytics', match: ['/analytics'] },
     { id: 'mygrid', label: t('businessHub.tabs.myGrid', { defaultValue: 'My Grid' }),
       icon: LayoutGrid, tone: 'cobalt', path: '/grid-visualiser', match: ['/grid-visualiser'] },
     { id: 'grid', label: t('businessHub.tabs.grid', { defaultValue: 'Profit Grid' }),
@@ -162,6 +164,7 @@ export function isBusinessHubFamilyRoute(pathname) {
     '/grid-visualiser',
     '/my-credits',
     '/campaign-analytics',
+    '/analytics',
     '/grid-calculator',
   ];
   for (var i = 0; i < PATHS.length; i++) {

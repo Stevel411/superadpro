@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import {
-  Briefcase, Gauge, Users, Target, Layers, BarChart3, Zap, LayoutGrid,
+  Briefcase, Gauge, Users, Target, Layers, BarChart3, Zap, LayoutGrid, LineChart,
 } from 'lucide-react';
 
 // ── Business Hub ────────────────────────────────────────────────────
@@ -40,9 +40,13 @@ export default function BusinessHub() {
           desc: t('businessHub.teamDesc', { defaultValue: 'Your downline, direct referrals and commission breakdown.' }),
           onClick: go('/my-team') },
         { key: 'analytics', icon: BarChart3, grad: 'linear-gradient(135deg,#0c4a6e,#0ea5e9)',
-          title: t('businessHub.analytics', { defaultValue: 'Analytics' }),
+          title: t('businessHub.analytics', { defaultValue: 'Campaign Analytics' }),
           desc: t('businessHub.analyticsDesc', { defaultValue: 'Campaign performance, views and conversion stats.' }),
           onClick: go('/campaign-analytics') },
+        { key: 'fullanalytics', icon: LineChart, grad: 'linear-gradient(135deg,#1e3a8a,#0ea5e9)',
+          title: t('businessHub.fullAnalytics', { defaultValue: 'Full Analytics' }),
+          desc: t('businessHub.fullAnalyticsDesc', { defaultValue: 'Charts, breakdowns, link performance, withdrawals and team growth.' }),
+          onClick: go('/analytics') },
       ],
     },
     {
@@ -116,12 +120,13 @@ var css = `
   .bh-hero p{font-size:14.5px;color:#9fb4d8;margin:0;font-weight:500;max-width:580px;line-height:1.5}
   .bh-hero-ico{position:absolute;right:-6px;top:-10px;color:rgba(56,189,248,0.10);transform:rotate(-12deg);pointer-events:none}
   .bh-sect{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.06em;margin:20px 2px 12px}
-  .bh-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:6px;align-items:stretch}
+  .bh-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:6px;align-items:stretch}
   .bh-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 17px;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;position:relative;text-align:left}
   .bh-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(10,20,56,0.12)}
   .bh-card:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(34,211,238,0.35)}
   .bh-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:11px;flex-shrink:0}
   .bh-card h3{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#0a1438;margin:0 0 4px}
   .bh-card p{font-size:12.5px;color:#64748b;margin:0;font-weight:500;line-height:1.45;flex:1}
-  @media (max-width:900px){ .bh-row{grid-template-columns:1fr} }
+  @media (max-width:900px){ .bh-row{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  @media (max-width:560px){ .bh-row{grid-template-columns:1fr} }
 `;
