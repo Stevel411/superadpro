@@ -685,6 +685,18 @@ export default function Dashboard() {
             </Link>
           </div>
 
+          {/* Community — Facebook group link */}
+          <a href="https://www.facebook.com/groups/36149938357930877" target="_blank" rel="noopener noreferrer" className="dc-fb">
+            <div className="dc-fb-ico">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+            </div>
+            <div className="dc-fb-txt">
+              <div className="t">{t('dashboard.fbGroupTitle', { defaultValue: 'Join our Facebook group' })}</div>
+              <div className="s">{t('dashboard.fbGroupSub', { defaultValue: 'Connect with the SuperAdPro community — tips, wins and support.' })}</div>
+            </div>
+            <span className="dc-fb-go">{t('dashboard.fbGroupGo', { defaultValue: 'Open' })} →</span>
+          </a>
+
           {/* 4 · Income at-a-glance */}
           <div className="dc-section-label">
             <span className="t">{t('dashboard.yourIncome', { defaultValue: 'Your income' })}</span>
@@ -1266,6 +1278,14 @@ export default function Dashboard() {
         .dc-door-soon:hover{transform:none;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06)}
         .dc-door-soon-tag{display:inline-block;font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#0e7490;background:#cffafe;padding:4px 10px;border-radius:6px}
         .dc-door-video{border-color:#bae6fd;background:linear-gradient(180deg,#f7fcff,#fff)}
+        .dc-fb{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--dc-line);border-radius:16px;padding:15px 20px;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06);text-decoration:none;margin-bottom:26px;transition:.2s}
+        .dc-fb:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(10,20,56,.06),0 16px 40px rgba(10,20,56,.12)}
+        .dc-fb-ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a,#0ea5e9);color:#fff;flex-shrink:0}
+        .dc-fb-ico svg{width:24px;height:24px}
+        .dc-fb-txt{flex:1;min-width:0}
+        .dc-fb-txt .t{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:var(--dc-ink)}
+        .dc-fb-txt .s{font-size:13px;color:var(--dc-ink2);line-height:1.5}
+        .dc-fb-go{font-family:'Sora',sans-serif;font-weight:700;font-size:13px;color:#0ea5e9;white-space:nowrap;flex-shrink:0}
         .dc-vid-prog{margin:2px 0 12px}
         .dc-vid-bar{height:7px;border-radius:99px;background:#e2eefb;overflow:hidden;margin-bottom:6px}
         .dc-vid-bar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0ea5e9,#22d3ee)}
