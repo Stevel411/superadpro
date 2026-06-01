@@ -483,28 +483,37 @@ export default function Dashboard() {
         // identifiable section instead of blurring into the nudge list.
         var tpNew = tpPrompts.filter(function(p) { return p.kind === 'just_joined' || p.kind === 'just_activated'; });
         var tpAttn = tpPrompts.filter(function(p) { return p.kind === 'unactivated_warm'; });
-        // Build the Team Messenger prefill link the backend was already
-        // preparing for (to + template + kind). Team Messenger pre-fills the
-        // welcome message and fires /api/team-pulse/dismiss after the send.
-        function tpRow(p, i, isNew) {
+        // Team Messenger prefill link the backend already prepares for
+        // (to + template + kind). Team Messenger pre-fills the welcome
+        // message and fires /api/team-pulse/dismiss after the send.
+        function tmLink(p) {
+          return '/team-messenger?to=' + p.user_id +
+                 '&template=' + encodeURIComponent(p.welcome_template || '') +
+                 '&kind=' + (p.kind || '');
+        }
+        // At-risk (warm unactivated) row, shown below the new-member banner.
+        function tpRow(p, i) {
           var nm = p.name || p.username || 'Member';
-          var link = '/team-messenger?to=' + p.user_id +
-                     '&template=' + encodeURIComponent(p.welcome_template || '') +
-                     '&kind=' + (p.kind || '');
-          var label = p.action_label || (isNew ? 'Say hi' : 'Send nudge');
           return (
-            <div className={'dc-nm-row' + (isNew ? ' dc-nm-row-new' : '')} key={(isNew ? 'n' : 'a') + i}>
+            <div className="dc-nm-row" key={'a' + i}>
               <div className="dc-nm-ava" style={{ background: avColors[i % avColors.length] }}>
                 {p.avatar
                   ? <img src={p.avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} onError={function(e){ e.target.style.display = 'none'; }}/>
                   : nm.charAt(0).toUpperCase()}
               </div>
               <div className="dc-nm-who"><div className="n">{nm}</div><div className="s">{p.meta || ''}</div></div>
-              {isNew && <span className="dc-nm-tag new">{p.kind === 'just_activated' ? 'active' : 'new'}</span>}
-              <Link to={link} className={isNew ? 'dc-nm-btn dc-nm-btn-cyan' : 'dc-nm-btn'}>{label} →</Link>
+              <Link to={tmLink(p)} className="dc-nm-btn">{(p.action_label || 'Send nudge')} →</Link>
             </div>
           );
         }
+        // New-member banner copy. Names the joiners; the banner welcomes the
+        // most recent one first (prefilled), and the count ticks down as the
+        // sponsor works through them.
+        var tpBannerSub = '';
+        if (tpNew.length === 1) tpBannerSub = (tpNew[0].name || tpNew[0].username) + ' — say hi within 24h';
+        else if (tpNew.length === 2) tpBannerSub = (tpNew[0].name || 'A member') + ' & ' + (tpNew[1].name || 'another') + ' — say hi within 24h';
+        else if (tpNew.length > 2) tpBannerSub = (tpNew[0].name || 'A member') + ', ' + (tpNew[1].name || 'another') + ' & ' + (tpNew.length - 2) + ' more';
+        var tpBannerLabel = tpNew.length === 1 ? (tpNew[0].action_label || 'Say hi') : 'Welcome';
         var tpFoot = tpNew.length && tpAttn.length
           ? (tpNew.length + ' new · ' + tpAttn.length + ' need attention')
           : tpNew.length
@@ -544,31 +553,47 @@ export default function Dashboard() {
             {tpTeamTotal > 0 ? (
               <div className="dc-card dc-pad">
                 <div className="dc-card-eyebrow">⚡ {t('teamPulse.label', { defaultValue: 'Team Pulse' })}</div>
-                <div className="dc-nm-title">
-                  {!tpHasPrompts
-                    ? t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })
-                    : tpNew.length
-                      ? t('teamPulse.titleNew', { count: tpNew.length, defaultValue: tpNew.length + (tpNew.length === 1 ? ' new team member' : ' new team members') })
-                      : t('teamPulse.titleAttn', { count: tpAttn.length, defaultValue: tpAttn.length + (tpAttn.length === 1 ? ' member needs a nudge' : ' members need a nudge') })}
-                </div>
-                {tpHasPrompts ? (
-                  <>
-                    {tpNew.length > 0 && (
-                      <>
-                        <div className="dc-tp-sec newc"><span className="pip"></span> {t('teamPulse.newMembers', { defaultValue: 'New members' })}</div>
-                        <div className="dc-nm-list">{tpNew.map(function(p, i) { return tpRow(p, i, true); })}</div>
-                      </>
-                    )}
-                    {tpAttn.length > 0 && (
-                      <>
-                        <div className="dc-tp-sec attn">{t('teamPulse.needsAttention', { defaultValue: 'Needs attention' })}</div>
-                        <div className="dc-nm-list">{tpAttn.map(function(p, i) { return tpRow(p, i, false); })}</div>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div className="dc-nm-calm">{t('teamPulse.subCalm', { defaultValue: 'No urgent outreach needed right now.' })}</div>
+
+                {tpNew.length > 0 && (
+                  <Link to={tmLink(tpNew[0])} className="dc-tp-banner">
+                    <div className="dc-tp-bell">
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                      <span className="dot">{tpNew.length}</span>
+                    </div>
+                    <div className="dc-tp-btxt">
+                      <div className="t">{tpNew.length === 1 ? t('teamPulse.bannerOne', { defaultValue: '1 new member joined' }) : t('teamPulse.bannerMany', { count: tpNew.length, defaultValue: tpNew.length + ' new members joined' })}</div>
+                      <div className="s">{tpBannerSub}</div>
+                    </div>
+                    <div className="dc-tp-stack">
+                      {tpNew.slice(0, 3).map(function(p, i) {
+                        var nm = p.name || p.username || 'M';
+                        return (
+                          <div className="a" key={'s' + i} style={{ background: avColors[i % avColors.length] }}>
+                            {p.avatar
+                              ? <img src={p.avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} onError={function(e){ e.target.style.display = 'none'; }}/>
+                              : nm.charAt(0).toUpperCase()}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <span className="dc-tp-welcome">{tpBannerLabel} →</span>
+                  </Link>
                 )}
+
+                {tpAttn.length > 0 ? (
+                  <>
+                    <div className="dc-nm-title">{t('teamPulse.titleAttn', { count: tpAttn.length, defaultValue: tpAttn.length + (tpAttn.length === 1 ? ' member needs a nudge' : ' members need a nudge') })}</div>
+                    <div className="dc-nm-list">{tpAttn.map(function(p, i) { return tpRow(p, i); })}</div>
+                  </>
+                ) : tpNew.length > 0 ? (
+                  <div className="dc-nm-calm">{t('teamPulse.noElse', { defaultValue: 'No one else needs a nudge right now.' })}</div>
+                ) : (
+                  <>
+                    <div className="dc-nm-title">{t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })}</div>
+                    <div className="dc-nm-calm">{t('teamPulse.subCalm', { defaultValue: 'No urgent outreach needed right now.' })}</div>
+                  </>
+                )}
+
                 <div className="dc-nm-foot">
                   <span className="c">{tpHasPrompts ? tpFoot : ''}</span>
                   <Link to="/command-centre">{t('teamPulse.openTeam', { defaultValue: 'Open Performance' })} →</Link>
@@ -1201,12 +1226,17 @@ export default function Dashboard() {
         .dc-nm-foot{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
         .dc-nm-foot .c{font-size:12.5px;color:var(--dc-ink3)}
         .dc-nm-foot a{font-family:'Sora',sans-serif;font-weight:700;font-size:13px;color:#0ea5e9;text-decoration:none;white-space:nowrap}
-        .dc-tp-sec{display:flex;align-items:center;gap:7px;font-family:'Sora',sans-serif;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin:2px 2px 9px}
-        .dc-tp-sec.newc{color:#0e7490}
-        .dc-tp-sec.attn{color:#475569;margin-top:16px}
-        .dc-tp-sec .pip{width:7px;height:7px;border-radius:50%;background:#06b6d4}
-        .dc-nm-row-new{background:#f0fdff;border-color:#cff2f8}
-        .dc-nm-btn-cyan{background:linear-gradient(135deg,#0891b2,#22d3ee)}
+        .dc-tp-banner{display:flex;align-items:center;gap:12px;background:#ecfeff;border:1px solid #a5f0fc;border-radius:13px;padding:12px 14px;margin:6px 0 16px;text-decoration:none}
+        .dc-tp-bell{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#0891b2,#22d3ee);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+        .dc-tp-bell .dot{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 3px;border-radius:8px;background:#06b6d4;border:2px solid #ecfeff;font-size:9px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif}
+        .dc-tp-btxt{flex:1;min-width:0}
+        .dc-tp-btxt .t{font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:#0e7490}
+        .dc-tp-btxt .s{font-size:12px;color:#0891b2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .dc-tp-stack{display:flex;align-items:center;flex-shrink:0}
+        .dc-tp-stack .a{width:28px;height:28px;border-radius:50%;border:2px solid #ecfeff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:11px;color:#fff;margin-left:-8px;overflow:hidden}
+        .dc-tp-stack .a:first-child{margin-left:0}
+        .dc-tp-welcome{font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;color:#fff;background:linear-gradient(135deg,#0891b2,#22d3ee);padding:8px 14px;border-radius:9px;white-space:nowrap;flex-shrink:0}
+        @media (max-width:560px){ .dc-tp-stack{display:none} }
         .dc-sg-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:var(--dc-ink);margin:6px 0 14px;letter-spacing:-.01em}
         .dc-sg-block{margin-bottom:14px}
         .dc-sg-lab{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dc-ink3);margin-bottom:6px}
