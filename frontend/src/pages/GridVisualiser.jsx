@@ -64,8 +64,14 @@ var css = `
   .lgv-tile.completion-filled{box-shadow:0 6px 24px rgba(124,58,237,0.35)}
   .lgv-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.45);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff;margin-bottom:5px;text-shadow:0 1px 2px rgba(0,0,0,0.2);position:relative;z-index:1;flex-shrink:0}
   .lgv-uname{font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;line-height:1.1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,0.25);position:relative;z-index:1;padding:0 3px}
-  .lgv-money{font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#4ade80;background:rgba(0,0,0,0.30);border-radius:6px;padding:1px 7px;margin-top:4px;position:relative;z-index:1;text-shadow:none;letter-spacing:0.2px}
-  .lgv-star{font-size:34px;line-height:1;margin-bottom:5px;position:relative;z-index:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.28))}
+  .lgv-money{font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#15803d;background:rgba(255,255,255,0.82);border-radius:6px;padding:1px 7px;margin-top:4px;position:relative;z-index:1;text-shadow:none;letter-spacing:0.2px}
+  .lgv-star{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:5px;position:relative;z-index:1;flex-shrink:0;overflow:hidden}
+  .lgv-star::before{content:'';position:absolute;top:3px;left:6px;right:6px;height:38%;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,0.55),transparent);pointer-events:none;z-index:2}
+  .lgv-star-ico{position:relative;z-index:1;font-size:20px;line-height:1}
+  .lgv-star.gold{background:radial-gradient(circle at 50% 32%,#fff4c2 0%,#ffd63d 34%,#f5b210 66%,#b9760a 100%);border:1.5px solid #ffe9a3;box-shadow:0 2px 8px rgba(180,116,10,0.5),inset 0 -2px 5px rgba(140,80,0,0.45),inset 0 2px 4px rgba(255,255,255,0.6)}
+  .lgv-star.gold .lgv-star-ico{color:#7a4906;text-shadow:0 1px 1px rgba(255,255,255,0.45)}
+  .lgv-star.cyan{background:radial-gradient(circle at 50% 32%,#d6fbff 0%,#5fe3f5 34%,#16b6d4 66%,#0a7f9c 100%);border:1.5px solid #aef3ff;box-shadow:0 2px 8px rgba(8,127,156,0.5),inset 0 -2px 5px rgba(6,90,110,0.45),inset 0 2px 4px rgba(255,255,255,0.6)}
+  .lgv-star.cyan .lgv-star-ico{color:#06596b;text-shadow:0 1px 1px rgba(255,255,255,0.45)}
   .lgv-pos{position:absolute;top:6px;left:8px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:rgba(255,255,255,0.55);z-index:1;letter-spacing:0.3px}
   .lgv-tile.empty .lgv-pos{color:#94a3b8;font-size:13px;position:static;font-weight:700}
   .lgv-direct-badge{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:#7c3aed;border:2px solid #fff;z-index:2;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;box-shadow:0 2px 6px rgba(124,58,237,0.4)}
@@ -162,12 +168,11 @@ export default function GridVisualiser() {
                     var bg = isCompletionSeat ? BONUS_GRAD : (isDirect ? DIRECT_GRAD : SPILLOVER_GRAD);
                     var tileClass = 'lgv-tile ' + (isCompletionSeat ? 'completion-filled' : (isDirect ? 'direct' : 'spillover'));
                     var seatMoney = isCompletionSeat ? bonusMax : (isDirect ? directPerFill : unilevelPerFill);
-                    var starColor = isDirect ? '#fbbf24' : '#22d3ee';
                     return (
                       <div key={i} className={tileClass} style={{ background:bg }}
                            title={seat.username + ' · ' + (isDirect ? 'Direct' : 'Spillover') + ' · ' + seat.member_id + (isCompletionSeat ? ' · Completion seat' : '')}>
                         <div className="lgv-pos">{pos}</div>
-                        {!isCompletionSeat ? <div className="lgv-star" style={{ color:starColor }}>★</div> : null}
+                        {!isCompletionSeat ? <div className={'lgv-star ' + (isDirect ? 'gold' : 'cyan')}><span className="lgv-star-ico">★</span></div> : null}
                         <div className="lgv-uname">{seat.username}</div>
                         <div className="lgv-money">+${seatMoney.toFixed(2)}</div>
                       </div>
