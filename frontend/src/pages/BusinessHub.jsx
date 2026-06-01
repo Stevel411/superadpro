@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import {
-  Briefcase, Gauge, Users, Target, Layers, BarChart3, Zap,
+  Briefcase, Gauge, Users, Target, Layers, BarChart3, Zap, LayoutGrid,
 } from 'lucide-react';
 
 // ── Business Hub ────────────────────────────────────────────────────
@@ -48,9 +48,13 @@ export default function BusinessHub() {
     {
       heading: t('businessHub.sectionEarn', { defaultValue: 'Earn & optimise' }),
       cards: [
+        { key: 'mygrid', icon: LayoutGrid, grad: 'linear-gradient(135deg,#1e3a8a,#22d3ee)',
+          title: t('businessHub.myGrid', { defaultValue: 'My Grid' }),
+          desc: t('businessHub.myGridDesc', { defaultValue: 'Your live Profit Grid — see your seats filling and per-seat earnings in real time.' }),
+          onClick: go('/grid-visualiser') },
         { key: 'grid', icon: Target, grad: 'linear-gradient(135deg,#0a1438,#1e3a8a)',
           title: t('businessHub.profitGrid', { defaultValue: 'Profit Grid' }),
-          desc: t('businessHub.profitGridDesc', { defaultValue: 'Activate and manage your Campaign Tiers and Profit Grid positions.' }),
+          desc: t('businessHub.profitGridDesc', { defaultValue: 'Activate and manage your Campaign Tiers and grid positions.' }),
           onClick: go('/campaign-tiers') },
         { key: 'credits', icon: Layers, grad: 'linear-gradient(135deg,#0e7490,#06b6d4)',
           title: t('businessHub.creatorCredits', { defaultValue: 'Creator Credits' }),

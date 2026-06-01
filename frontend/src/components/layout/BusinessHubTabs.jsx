@@ -19,7 +19,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  Briefcase, Gauge, Users, Target, Layers, BarChart3, Zap,
+  Briefcase, Gauge, Users, Target, Layers, BarChart3, Zap, LayoutGrid,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
@@ -31,14 +31,16 @@ function buildTabs(t) {
       icon: Gauge, tone: 'cyan', path: '/command-centre', match: ['/command-centre'] },
     { id: 'team', label: t('businessHub.tabs.team', { defaultValue: 'Team' }),
       icon: Users, tone: 'cobalt', path: '/my-team', match: ['/my-team'] },
+    { id: 'analytics', label: t('businessHub.tabs.analytics', { defaultValue: 'Analytics' }),
+      icon: BarChart3, tone: 'cyan', path: '/campaign-analytics', match: ['/campaign-analytics'] },
+    { id: 'mygrid', label: t('businessHub.tabs.myGrid', { defaultValue: 'My Grid' }),
+      icon: LayoutGrid, tone: 'cobalt', path: '/grid-visualiser', match: ['/grid-visualiser'] },
     { id: 'grid', label: t('businessHub.tabs.grid', { defaultValue: 'Profit Grid' }),
       icon: Target, tone: 'cyan', path: '/campaign-tiers', match: ['/campaign-tiers'] },
     { id: 'credits', label: t('businessHub.tabs.credits', { defaultValue: 'Creator Credits' }),
       icon: Layers, tone: 'cobalt', path: '/my-credits', match: ['/my-credits'] },
-    { id: 'analytics', label: t('businessHub.tabs.analytics', { defaultValue: 'Analytics' }),
-      icon: BarChart3, tone: 'cyan', path: '/campaign-analytics', match: ['/campaign-analytics'] },
     { id: 'calc', label: t('businessHub.tabs.calc', { defaultValue: 'Grid Calculator' }),
-      icon: Zap, tone: 'cobalt', path: '/grid-calculator', match: ['/grid-calculator'] },
+      icon: Zap, tone: 'cyan', path: '/grid-calculator', match: ['/grid-calculator'] },
   ];
 }
 
@@ -157,6 +159,7 @@ export function isBusinessHubFamilyRoute(pathname) {
     '/command-centre',
     '/my-team',
     '/campaign-tiers',
+    '/grid-visualiser',
     '/my-credits',
     '/campaign-analytics',
     '/grid-calculator',
