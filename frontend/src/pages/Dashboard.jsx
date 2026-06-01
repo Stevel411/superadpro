@@ -595,13 +595,13 @@ export default function Dashboard() {
               <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
             </Link>
 
-            {/* Marketing — hub not built yet, Coming soon state (Steve, 30 May 2026) */}
-            <div className="dc-door dc-door-soon" aria-disabled="true">
+            {/* Marketing — hub is live; opens /my-marketing (Steve, 1 Jun 2026) */}
+            <Link to="/my-marketing" className="dc-door">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#06b6d4,#0891b2)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 11l16-7v16L3 13zM3 11v4M8 13v5a2 2 0 004 0"/></svg></div>
               <h4>{t('dashboard.doorMarketing', { defaultValue: 'Marketing' })}</h4>
               <p>{t('dashboard.doorMarketingDesc', { defaultValue: 'Your links, posters, pages and campaigns.' })}</p>
-              <span className="dc-door-soon-tag">{t('dashboard.comingSoon', { defaultValue: 'Coming soon' })}</span>
-            </div>
+              <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
+            </Link>
 
             {/* Campaign Videos — live daily-task card for Grid owners, soft door otherwise */}
             <Link to="/watch" className="dc-door dc-door-video">

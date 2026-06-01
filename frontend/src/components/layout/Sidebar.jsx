@@ -8,7 +8,7 @@ import {
   Target, Mail, Trophy, Bot, Film, Gauge,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download, Search, HelpCircle, Beaker
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download, Search, HelpCircle, Beaker, Gift
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -32,7 +32,26 @@ function buildNav(t, isAdmin) {
     // ── Top standalones ────────────────────────────────────────
     { type: 'standalone', label: t('nav.dashboard'), shortLabel: t('navShort.dashboard', { defaultValue: 'Home' }), icon: Home, path: '/dashboard' },
     { type: 'standalone', label: t('nav.commandCentre', { defaultValue: 'Command Centre' }), shortLabel: t('navShort.commandCentre', { defaultValue: 'Centre' }), icon: Gauge, path: '/command-centre' },
-    { type: 'standalone', label: t('nav.myMarketing', { defaultValue: 'My Marketing' }), shortLabel: t('navShort.myMarketing', { defaultValue: 'Market' }), icon: Megaphone, path: '/my-marketing' },
+
+    { type: 'divider' },
+
+    // ── MY MARKETING ── one home for the member's promotional surfaces.
+    // Pages here were de-duplicated out of Tools/Learn (and comp-plan out of
+    // Income) so each has a single home. The hub landing (/my-marketing) is
+    // the first item; the rest are direct links. Personal Sales Video
+    // (dynamic /ref/{username}/video) and Marketing Videos (not built yet)
+    // live on the hub page only, so they're intentionally not listed here.
+    { type: 'group', label: t('nav.myMarketing', { defaultValue: 'My Marketing' }), shortLabel: t('navShort.myMarketing', { defaultValue: 'Market' }), key: 'mymarketing', icon: Megaphone, items: [
+      { label: t('nav.myMarketingHub', { defaultValue: 'My Marketing Hub' }), shortLabel: t('navShort.myMarketingHub', { defaultValue: 'Hub' }), icon: Megaphone, path: '/my-marketing' },
+      { label: t('nav.affiliateLink', { defaultValue: 'Affiliate Link & Social Share' }), shortLabel: t('navShort.affiliateLink', { defaultValue: 'Link' }), icon: Share2, path: '/social-share' },
+      { label: t('nav.payItForward', { defaultValue: 'Pay It Forward' }), shortLabel: t('navShort.payItForward', { defaultValue: 'Gift' }), icon: Gift, path: '/pay-it-forward', basic: true },
+      { label: t('nav.compPlan'), shortLabel: t('navShort.compPlan', { defaultValue: 'Plan' }), icon: FileText, path: '/compensation-plan' },
+      { label: t('nav.shareStory', { defaultValue: 'Share Your Story' }), shortLabel: t('navShort.shareStory', { defaultValue: 'My Story' }), icon: Sparkles, path: '/share-story' },
+      { label: t('nav.brandPosters', { defaultValue: 'Brand Posters' }), shortLabel: t('navShort.brandPosters', { defaultValue: 'Posters' }), icon: Sparkles, path: '/brand-posters', basic: true },
+      { label: t('nav.myPosters', { defaultValue: 'My Posters' }), shortLabel: t('navShort.myPosters', { defaultValue: 'My Posters' }), icon: Clock, path: '/brand-posters/history', basic: true },
+      { label: t('nav.marketingMaterials'), shortLabel: t('navShort.marketingMaterials', { defaultValue: 'Media' }), icon: Download, path: '/marketing-materials' },
+      { label: t('nav.emailSwipes', { defaultValue: 'Email Swipes' }), shortLabel: t('navShort.emailSwipes', { defaultValue: 'Swipes' }), icon: Mail, path: '/email-swipes' },
+    ]},
 
     { type: 'divider' },
 
@@ -79,8 +98,6 @@ function buildNav(t, isAdmin) {
 
       // ── CREATE ──
       { subheader: t('nav.toolsCreate', { defaultValue: 'Create' }) },
-      { label: t('nav.brandPosters', { defaultValue: 'Brand Posters' }), shortLabel: t('navShort.brandPosters', { defaultValue: 'Posters' }), icon: Sparkles, path: '/brand-posters', basic: true },
-      { label: t('nav.myPosters', { defaultValue: 'My Posters' }), shortLabel: t('navShort.myPosters', { defaultValue: 'My Posters' }), icon: Clock, path: '/brand-posters/history', basic: true },
       { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator', basic: true },
       { label: t('nav.bannerCreator', { defaultValue: 'Banner Creator' }), shortLabel: t('navShort.bannerCreator', { defaultValue: 'Banner' }), icon: PenLine, path: '/tools/banner-creator' },
       { label: t('nav.memeGenerator', { defaultValue: 'Meme Generator' }), shortLabel: t('navShort.memeGenerator', { defaultValue: 'Meme' }), icon: Sparkles, path: '/tools/meme-generator' },
@@ -103,13 +120,8 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.learn', { defaultValue: 'Learn' }), shortLabel: t('navShort.learn', { defaultValue: 'Learn' }), key: 'learn', icon: GraduationCap, items: [
       { label: t('nav.training', { defaultValue: 'Training' }), shortLabel: t('navShort.training', { defaultValue: 'Training' }), icon: BookOpen, path: '/training' },
       { label: t('nav.videos', { defaultValue: 'Videos' }), shortLabel: t('navShort.videos', { defaultValue: 'Videos' }), icon: Tv, path: '/videos' },
-      { label: t('nav.compPlan'), shortLabel: t('navShort.compPlan', { defaultValue: 'Plan' }), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.platformTour'), shortLabel: t('navShort.platformTour', { defaultValue: 'Tour' }), icon: Map, path: '/tour' },
-      { label: t('nav.marketingMaterials'), shortLabel: t('navShort.marketingMaterials', { defaultValue: 'Media' }), icon: Download, path: '/marketing-materials' },
-      { label: t('nav.emailSwipes', { defaultValue: 'Email Swipes' }), shortLabel: t('navShort.emailSwipes', { defaultValue: 'Swipes' }), icon: Mail, path: '/email-swipes' },
-      { label: t('nav.socialShare'), shortLabel: t('navShort.socialShare', { defaultValue: 'Share' }), icon: Share2, path: '/social-share' },
       { label: t('nav.cryptoGuide'), shortLabel: t('navShort.cryptoGuide', { defaultValue: 'Crypto' }), icon: Shield, path: '/crypto-guide' },
-      { label: t('nav.shareStory', { defaultValue: 'Share Your Story' }), shortLabel: t('navShort.shareStory', { defaultValue: 'My Story' }), icon: Sparkles, path: '/share-story' },
       { label: t('nav.leaderboard'), shortLabel: t('navShort.leaderboard', { defaultValue: 'Ranks' }), icon: Trophy, path: '/leaderboard' },
     ]},
 

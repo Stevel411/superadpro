@@ -5,6 +5,7 @@ import MobileTabBar from './MobileTabBar';
 import IncomeTabs, { isIncomeFamilyRoute } from './IncomeTabs';
 import ToolsTabs, { isToolsFamilyRoute } from './ToolsTabs';
 import LearnTabs, { isLearnFamilyRoute } from './LearnTabs';
+import MyMarketingTabs, { isMyMarketingFamilyRoute } from './MyMarketingTabs';
 import InstallPrompt from '../InstallPrompt';
 import { useLocation } from 'react-router-dom';
 
@@ -134,21 +135,27 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
             {topbarActions}
           </Topbar>
         )}
+        {/* Persistent My Marketing tabs strip — Steve 1 Jun 2026. Checked
+            FIRST and the others are guarded against its routes, so a page
+            that moved into My Marketing (social-share, comp-plan, brand-
+            posters, marketing-materials, email-swipes, share-story, pay-it-
+            forward) shows only this strip, never its old Learn/Income one. */}
+        {isMyMarketingFamilyRoute(location.pathname) && <MyMarketingTabs />}
         {/* Persistent Income tabs strip — rendered on any Income family route
             (Wallet, Comp Plan, Campaign Grid, etc.) so members can hop
             between sub-pages with one click. Same Platform-Tour pattern. */}
-        {isIncomeFamilyRoute(location.pathname) && <IncomeTabs />}
+        {!isMyMarketingFamilyRoute(location.pathname) && isIncomeFamilyRoute(location.pathname) && <IncomeTabs />}
         {/* Persistent Tools tabs strip — same pattern, for the Tools door
             family (Overview / Free / Basic / Pro and all individual tool
             pages). Tier-aware: locked tabs show a Lock icon and Locked
             label but stay tappable, leading to the sub-page that itself
             renders the upgrade card as content. */}
-        {isToolsFamilyRoute(location.pathname) && <ToolsTabs />}
+        {!isMyMarketingFamilyRoute(location.pathname) && isToolsFamilyRoute(location.pathname) && <ToolsTabs />}
         {/* Persistent Learn tabs strip — Door 4. No tier-gating since
             Learn content is open to all members. Active tab adopts its
             section colour (indigo / pink / amber) instead of the violet
             used by Tools' Overview tab — matches each section's brand. */}
-        {isLearnFamilyRoute(location.pathname) && <LearnTabs />}
+        {!isMyMarketingFamilyRoute(location.pathname) && isLearnFamilyRoute(location.pathname) && <LearnTabs />}
         <main className="flex-1 overflow-y-auto" style={Object.assign(
           {background:'#f0f3f9', padding: isMobile ? '16px' : '24px'},
           // Tab-bar pages (Watch / Dashboard / Wallet / home): leave space
