@@ -1,4 +1,5 @@
 import React from 'react';
+if (typeof window !== 'undefined') { window.__SAP_BUILD__ = '2026-06-01a'; }
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Spinner } from './components/ui';

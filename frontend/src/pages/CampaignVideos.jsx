@@ -66,7 +66,7 @@ export default function CampaignVideos() {
     <AppLayout title={t('campaignVideos.title', { defaultValue: 'My Campaign Videos' })}
                subtitle={t('campaignVideos.subtitle', { defaultValue: 'Watch, create and track your video advertising campaigns' })}>
       <style>{css}</style>
-      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+      <div data-build="2026-06-01a" style={{ maxWidth: 1180, margin: '0 auto' }}>
 
         <div className="cv-hero">
           <div className="cv-hero-ico"><Video size={88} /></div>
