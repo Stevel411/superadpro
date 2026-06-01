@@ -31,7 +31,9 @@ function buildNav(t, isAdmin) {
   var items = [
     // ── Top standalones ────────────────────────────────────────
     { type: 'standalone', label: t('nav.dashboard'), shortLabel: t('navShort.dashboard', { defaultValue: 'Home' }), icon: Home, path: '/dashboard' },
-    { type: 'standalone', label: t('nav.commandCentre', { defaultValue: 'Command Centre' }), shortLabel: t('navShort.commandCentre', { defaultValue: 'Centre' }), icon: Gauge, path: '/command-centre' },
+    // Command Centre standalone removed 1 Jun 2026 — now reached as
+    // "Performance" inside the Business Hub (/business-hub). Page stays at
+    // /command-centre.
 
     { type: 'divider' },
 
@@ -61,7 +63,7 @@ function buildNav(t, isAdmin) {
     // so its sub-features (Watch, Create, Videos, Analytics, Calculator,
     // My Grid) sit immediately after the Grid entry as a flat block.
     { type: 'group', label: t('nav.income', { defaultValue: 'Income' }), shortLabel: t('navShort.income', { defaultValue: 'Income' }), key: 'income', icon: DollarSign, items: [
-      { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet', basic: true },
+      // Wallet moved out 1 Jun 2026 — now a standalone next to Account.
       // My Team — direct referrals + downline view + activation leads
       // (warm inactive members with earned balance). Open to everyone
       // (no tierLocked / no basic flag) so even inactive members see
@@ -128,9 +130,11 @@ function buildNav(t, isAdmin) {
     { type: 'divider' },
 
     // ── ACCOUNT ── Member's own profile (intentionally small) ─
-    // Wallet moved to Income, Crypto Guide moved to Learn,
+    // Wallet relocated here 1 Jun 2026 as its own standalone (was inside
+    // the Income group) so the most-used money page sits next to Account
+    // at the bottom of the sidebar. Crypto Guide moved to Learn,
     // Support promoted to standalone in the help cluster.
-    // Only Profile remains here.
+    { type: 'standalone', label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet', basic: true },
     { type: 'group', label: t('nav.account'), shortLabel: t('navShort.account', { defaultValue: 'Acct' }), key: 'account', icon: UserCircle, items: [
       { label: t('nav.myProfile'), shortLabel: t('navShort.myProfile', { defaultValue: 'Profile' }), icon: User, path: '/account' },
     ]},

@@ -197,7 +197,7 @@ export default function CommandCentre() {
         user={user}
         t={t}
         eyebrowKey="commandCentre.eyebrow"
-        eyebrowDefault="Your Command Centre"
+        eyebrowDefault="Your Performance"
       />
 
       {/* ── PERFORMANCE SNAPSHOT — Earnings + Network strips ─────

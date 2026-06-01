@@ -553,7 +553,7 @@ function CommandCentreHandoff({ directCount, t }) {
             : t('membership.handoffTitle', { defaultValue: 'See your direct referrals in detail' })}
         </div>
         <div style={{ fontSize: 13, color: 'var(--sap-text-secondary, #475569)' }}>
-          {t('membership.handoffSub', { defaultValue: 'Status, names, send broadcasts, and re-engagement actions live in your Command Centre.' })}
+          {t('membership.handoffSub', { defaultValue: 'Status, names, send broadcasts, and re-engagement actions live in your Performance dashboard.' })}
         </div>
       </div>
       <div style={{ color: 'var(--sap-text-muted, #64748b)', flexShrink: 0 }}>

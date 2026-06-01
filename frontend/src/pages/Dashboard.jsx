@@ -536,7 +536,7 @@ export default function Dashboard() {
                 )}
                 <div className="dc-nm-foot">
                   <span className="c">{tpHasPrompts ? t('teamPulse.needAttention', { count: tpPrompts.length, total: tpTeamTotal, defaultValue: tpPrompts.length + ' of ' + tpTeamTotal + ' team members need attention' }) : ''}</span>
-                  <Link to="/command-centre">{t('teamPulse.openTeam', { defaultValue: 'Open Command Centre' })} →</Link>
+                  <Link to="/command-centre">{t('teamPulse.openTeam', { defaultValue: 'Open Performance' })} →</Link>
                 </div>
               </div>
             ) : (
@@ -581,16 +581,16 @@ export default function Dashboard() {
             <span className="sub">{t('dashboard.whereToStartSub', { defaultValue: 'Four ways into the platform — pick wherever you want to begin.' })}</span>
           </div>
           <div className="dc-doors">
-            <Link to="/income" className="dc-door">
+            <Link to="/business-hub" className="dc-door">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#1e3a8a,#0ea5e9)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg></div>
-              <h4>{t('dashboard.doorBusiness', { defaultValue: 'Business' })}</h4>
+              <h4>{t('dashboard.doorBusiness', { defaultValue: 'My Business' })}</h4>
               <p>{t('dashboard.doorBusinessDesc', { defaultValue: 'Your income, team, commissions and stats.' })}</p>
               <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
             </Link>
 
             <Link to="/tools" className="dc-door">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#0ea5e9,#22d3ee)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 6l4 4-9 9-4 1 1-4z"/><path d="M16 4l4 4"/></svg></div>
-              <h4>{t('dashboard.doorTools', { defaultValue: 'Tools' })}</h4>
+              <h4>{t('dashboard.doorTools', { defaultValue: 'My Tools' })}</h4>
               <p>{t('dashboard.doorToolsDesc', { defaultValue: 'All your AI tools, builders and creators.' })}</p>
               <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
             </Link>
@@ -598,7 +598,7 @@ export default function Dashboard() {
             {/* Marketing — hub is live; opens /my-marketing (Steve, 1 Jun 2026) */}
             <Link to="/my-marketing" className="dc-door">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#06b6d4,#0891b2)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 11l16-7v16L3 13zM3 11v4M8 13v5a2 2 0 004 0"/></svg></div>
-              <h4>{t('dashboard.doorMarketing', { defaultValue: 'Marketing' })}</h4>
+              <h4>{t('dashboard.doorMarketing', { defaultValue: 'My Marketing' })}</h4>
               <p>{t('dashboard.doorMarketingDesc', { defaultValue: 'Your links, posters, pages and campaigns.' })}</p>
               <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
             </Link>
@@ -606,7 +606,7 @@ export default function Dashboard() {
             {/* Campaign Videos — live daily-task card for Grid owners, soft door otherwise */}
             <Link to="/watch" className="dc-door dc-door-video">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#0a1438,#0ea5e9)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg></div>
-              <h4>{t('dashboard.doorCampaignVideos', { defaultValue: 'Campaign Videos' })}</h4>
+              <h4>{t('dashboard.doorCampaignVideos', { defaultValue: 'My Campaign Videos' })}</h4>
               {watchGoal ? (
                 <>
                   <p>{t('dashboard.doorVideoDescQualify', { defaultValue: "Watch today's videos to stay qualified for campaign withdrawals." })}</p>

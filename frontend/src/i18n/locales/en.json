@@ -123,7 +123,7 @@
     "showcases": "Showcases",
     "memberStories": "Member Stories",
     "leadFinder": "Lead Finder",
-    "commandCentre": "Command Centre"
+    "commandCentre": "Performance"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -254,7 +254,7 @@
     "doorLearnDesc": "Education, assets, and community to help you grow.",
     "doorLearnLabel": "Learn",
     "doorOpen": "Open",
-    "doorTools": "Tools",
+    "doorTools": "My Tools",
     "doorToolsDesc": "AI content and builder tools to power your campaigns.",
     "exploreSection": "Explore",
     "payItForward": "Pay it forward",
@@ -270,7 +270,10 @@
     "onboardingBannerStep4": "Create your first piece of AI content",
     "onboardingBannerCTA": "Start Setup →",
     "onboardingBannerSkip": "Maybe later",
-    "onboardingBannerDismissAria": "Dismiss setup banner"
+    "onboardingBannerDismissAria": "Dismiss setup banner",
+    "doorBusiness": "My Business",
+    "doorMarketing": "My Marketing",
+    "doorCampaignVideos": "My Campaign Videos"
   },
   "compPlan": {
     "title": "Compensation Plan",
@@ -4252,8 +4255,8 @@
     "contactSupport": "Contact Support"
   },
   "commandCentre": {
-    "pageTitle": "Command Centre",
-    "eyebrow": "Your Command Centre",
+    "pageTitle": "Performance",
+    "eyebrow": "Your Performance",
     "backToDashboard": "Back to Dashboard",
     "directsHeader": "Your direct referrals",
     "structuresHeader": "Your income structures",
@@ -4511,7 +4514,7 @@
     "encourageSub": "{{target}} paying directs means real recurring income. Keep doing what's working — share your link with {{remaining}} more people this week.",
     "handoffTitle": "See your direct referrals in detail",
     "handoffTitle5plus": "Manage your {{n}} direct referrals",
-    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Command Centre.",
+    "handoffSub": "Status, names, send broadcasts, and re-engagement actions live in your Performance dashboard.",
     "metric": {
       "activation": "Activation Rate",
       "activationHeadline": "{{paid}} of {{total}} paid",
@@ -4651,7 +4654,7 @@
     "pageTitle": "Marketing Materials"
   },
   "bucketList": {
-    "commandCentre": "Command Centre"
+    "commandCentre": "Performance"
   },
   "editor": {
     "aiCommands": "AI commands",

@@ -7163,6 +7163,13 @@ def my_marketing(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/business-hub")
+def business_hub(request: Request):
+    """Serve React SPA — Business Hub (My Business) door."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/affiliate")
 def affiliate(request: Request):
     """Redirect old URL to new Social Share page."""
