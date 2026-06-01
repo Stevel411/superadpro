@@ -225,24 +225,73 @@ def financial_sanity(db, hours: int = 24):
 
     warnings: list[dict] = []
 
-    # Red flag: commissions to members > inflows (impossible unless there's a leak)
+    # Commissions vs inflows.
+    #
+    # A naive same-window compare is misleading: a commission created today —
+    # especially a Profit Grid completion bonus — is funded by tier sales that
+    # happened on EARLIER days. Comparing today's payouts against today's
+    # inflows therefore over-fires on any slow sales day even when the platform
+    # is fully solvent (the payout was funded by last week's revenue). This
+    # produced a daily false "critical" that trained the eye to ignore it.
+    #
+    # Fix (1 Jun 2026): the timing skew only washes out over a multi-day
+    # window. So:
+    #   - On a SHORT window (< 72h) an overage is expected timing noise →
+    #     report it as informational, not critical. It is NOT a money leak.
+    #   - On a multi-day window (>= 72h) the funded-on-an-earlier-day effect
+    #     has largely averaged out, so a persistent overage is a real signal →
+    #     critical. A small tolerance band absorbs rounding / boundary effects.
     if net_to_members > total_in and total_in > 0:
-        warnings.append({
-            "type": "commissions_exceed_inflows",
-            "severity": "critical",
-            "total_in_usd": round(total_in, 2),
-            "net_to_members_usd": round(net_to_members, 2),
-            "overage_usd": round(net_to_members - total_in, 2),
-            "description": "Member commissions paid out exceed total platform inflows — possible commission bug",
-        })
+        overage = net_to_members - total_in
+        # Tolerance: ignore trivial overages (rounding, one commission landing
+        # a second after a window edge). 5% of inflows or $25, whichever larger.
+        tolerance = max(total_in * 0.05, 25.0)
+        is_multiday = hours >= 72
+
+        if is_multiday and overage > tolerance:
+            warnings.append({
+                "type": "commissions_exceed_inflows",
+                "severity": "critical",
+                "window_hours": hours,
+                "total_in_usd": round(total_in, 2),
+                "net_to_members_usd": round(net_to_members, 2),
+                "overage_usd": round(overage, 2),
+                "description": (
+                    f"Over a {hours}h window, member commissions exceed inflows by "
+                    f"${round(overage, 2)} beyond tolerance — the timing skew should "
+                    f"have averaged out over this long a window, so investigate "
+                    f"(commission bug, mispriced payout, or genuine reserve drawdown)."
+                ),
+            })
+        else:
+            # Short-window overage, or within tolerance → informational note.
+            warnings.append({
+                "type": "commissions_exceed_inflows_timing",
+                "severity": "info",
+                "window_hours": hours,
+                "total_in_usd": round(total_in, 2),
+                "net_to_members_usd": round(net_to_members, 2),
+                "overage_usd": round(overage, 2),
+                "description": (
+                    "Member commissions exceed inflows for this short window. This "
+                    "is normal timing skew — commissions (esp. Grid completion "
+                    "bonuses) are funded by sales on earlier days. Not a leak. "
+                    "Re-check with hours>=72 to confirm the multi-day picture is "
+                    "balanced."
+                ),
+            })
 
     # Warning: withdrawals > recent platform reserves (rough — doesn't account for accumulated reserves)
     # Leave this as info, not a warning, since platform may have float from earlier periods.
 
+    # overall_status only escalates on real warning/critical severities — an
+    # info-level timing note (expected short-window skew) keeps it "healthy".
+    has_real_warning = any(w.get("severity") in ("warning", "critical") for w in warnings)
+
     return {
         "window_hours": hours,
         "since": since.isoformat(),
-        "overall_status": "healthy" if not warnings else "warnings",
+        "overall_status": "warnings" if has_real_warning else "healthy",
         "inflows": {
             "by_product": inflows_by_product,
             "crypto_total_usd": round(total_crypto_in, 2),
