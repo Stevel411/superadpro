@@ -8454,6 +8454,96 @@ def admin_api_stripe_reconciliation(
     })
 
 
+@app.get("/admin/api/stripe-phantom-charges")
+def admin_api_stripe_phantom_charges(
+    request: Request,
+    dry_run: bool = True,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Find (and optionally remove) phantom duplicate charge rows created by
+    the pre-1-Jun-2026 invoice.paid bug: a subscription's FIRST invoice was
+    mislabelled membership_renewal/founder_renewal and written as a second
+    charge row alongside the real *_signup row from checkout.session.completed,
+    inflating revenue.
+
+    A phantom is a *_renewal charge whose stripe_subscription_id also has a
+    *_signup charge for the same user created within 5 minutes — i.e. a
+    'renewal' that landed seconds after signup. Real renewals are a month+ later.
+
+    Read-only by default. Navigate ?dry_run=false to actually delete the
+    phantom rows. Browser-navigable, admin auth only.
+    """
+    _require_admin(user)
+    from datetime import timedelta as _td
+
+    renewals = (
+        db.query(StripeCharge)
+        .filter(
+            StripeCharge.kind == "charge",
+            StripeCharge.product.in_(["membership_renewal", "founder_renewal"]),
+            StripeCharge.stripe_subscription_id.isnot(None),
+        )
+        .order_by(StripeCharge.created_at.asc())
+        .all()
+    )
+
+    phantoms = []
+    for r in renewals:
+        signup = (
+            db.query(StripeCharge)
+            .filter(
+                StripeCharge.kind == "charge",
+                StripeCharge.product.in_(["membership_signup", "founder_signup"]),
+                StripeCharge.stripe_subscription_id == r.stripe_subscription_id,
+                StripeCharge.user_id == r.user_id,
+            )
+            .order_by(StripeCharge.created_at.asc())
+            .first()
+        )
+        if not signup or not signup.created_at or not r.created_at:
+            continue
+        gap = abs((r.created_at - signup.created_at).total_seconds())
+        if gap <= 300:  # renewal within 5 min of signup = phantom first-invoice
+            phantoms.append({
+                "phantom_charge_id": r.id,
+                "user_id": r.user_id,
+                "subscription_id": r.stripe_subscription_id,
+                "phantom_product": r.product,
+                "phantom_amount_usd": round((r.amount_cents or 0) / 100, 2),
+                "phantom_created_at": r.created_at.isoformat(),
+                "paired_signup_charge_id": signup.id,
+                "signup_created_at": signup.created_at.isoformat(),
+                "gap_seconds": round(gap, 1),
+            })
+
+    phantom_total_usd = round(sum(p["phantom_amount_usd"] for p in phantoms), 2)
+
+    deleted = 0
+    if not dry_run and phantoms:
+        ids = [p["phantom_charge_id"] for p in phantoms]
+        deleted = (
+            db.query(StripeCharge)
+            .filter(StripeCharge.id.in_(ids))
+            .delete(synchronize_session=False)
+        )
+        db.commit()
+
+    return JSONResponse({
+        "dry_run": dry_run,
+        "phantom_count": len(phantoms),
+        "phantom_total_usd_removed_from_revenue": phantom_total_usd,
+        "deleted_rows": deleted,
+        "phantoms": phantoms,
+        "note": (
+            "Dry run — navigate ?dry_run=false to delete these rows."
+            if dry_run else
+            f"Deleted {deleted} phantom charge row(s). Revenue figures will drop "
+            f"by ${phantom_total_usd} (correcting the double-count)."
+        ),
+    })
+
+
 @app.get("/admin/api/rotator-state")
 def admin_api_rotator_state(
     request: Request,
@@ -13511,30 +13601,73 @@ def _stripe_handle_invoice_paid(db, invoice, event):
         user.stripe_refund_eligible_until = _stripe.refund_window_expiry()
         user.payment_method = "stripe"
 
-    # ── Charge row (renewal or first invoice) ─────────────────────────
-    # Decide product_kind from price metadata or tier locked on user.
-    # Re-check is_founding_member because the self-healing branch above
-    # may have just set it.
-    if user.is_founding_member:
-        product_kind = "founder_renewal" if not (is_subscription_create and is_user_inactive) else "founder_signup"
-    else:
-        product_kind = "membership_renewal" if not (is_subscription_create and is_user_inactive) else "membership_signup"
-    company_share, refundable = _stripe.calculate_refundable(product_kind, amount_cents)
+        # Write the SIGNUP charge row here. Normally checkout.session.completed
+        # writes it, but in this self-healing path that event was missed, so
+        # this is the only place the signup payment gets recorded. (The shared
+        # charge block below now only fires for subscription_cycle renewals,
+        # so without this a self-healed signup would record zero revenue.)
+        db.flush()
+        signup_product = "founder_signup" if user.is_founding_member else "membership_signup"
+        _sc_share, _sc_refundable = _stripe.calculate_refundable(signup_product, amount_cents)
+        db.add(StripeCharge(
+            user_id=user.id,
+            stripe_payment_intent_id=payment_intent_id,
+            stripe_subscription_id=subscription_id,
+            kind="charge",
+            product=signup_product,
+            amount_cents=amount_cents,
+            currency=invoice.get("currency", "usd"),
+            company_share_cents=_sc_share,
+            refundable_cents=_sc_refundable,
+            description=f"Invoice paid (self-healed signup, {billing_reason or 'unknown'})",
+            raw_event_json=str(event)[:50000],
+        ))
 
-    charge = StripeCharge(
-        user_id=user.id,
-        stripe_payment_intent_id=payment_intent_id,
-        stripe_subscription_id=subscription_id,
-        kind="charge",
-        product=product_kind,
-        amount_cents=amount_cents,
-        currency=invoice.get("currency", "usd"),
-        company_share_cents=company_share,
-        refundable_cents=refundable,
-        description=f"Invoice paid ({billing_reason or 'unknown'})",
-        raw_event_json=str(event)[:50000],
-    )
-    db.add(charge)
+    # ── Charge row (renewal invoices ONLY) ────────────────────────────
+    # CRITICAL: the FIRST invoice of a subscription (billing_reason=
+    # 'subscription_create') IS the signup payment, which
+    # checkout.session.completed already recorded as a membership_signup /
+    # founder_signup charge row. invoice.paid must NOT write a second charge
+    # row for it, or the same $20 is counted twice and revenue is inflated.
+    #
+    # PRIOR BUG (found 1 Jun 2026): the product label was chosen from
+    # `is_subscription_create and is_user_inactive`. On a normal signup,
+    # checkout.session.completed activates the user BEFORE invoice.paid
+    # arrives ~2s later, so is_user_inactive was False → the first invoice
+    # was mislabelled 'membership_renewal' and written as a duplicate charge.
+    # joyhealey (user 627) had a $20 signup (charge 184) + a phantom $20
+    # 'renewal' 2s later (charge 185) on the same sub — making real $80
+    # display as $100. Commission side was already correctly gated on
+    # billing_reason=='subscription_cycle', so no double commission was paid;
+    # this was a revenue-counting bug only.
+    #
+    # FIX: gate the charge row on billing_reason alone. Only write a charge
+    # for a TRUE recurring cycle. subscription_create is owned by checkout.
+    is_true_renewal_cycle = (billing_reason == "subscription_cycle")
+    if is_true_renewal_cycle:
+        product_kind = "founder_renewal" if user.is_founding_member else "membership_renewal"
+        company_share, refundable = _stripe.calculate_refundable(product_kind, amount_cents)
+
+        charge = StripeCharge(
+            user_id=user.id,
+            stripe_payment_intent_id=payment_intent_id,
+            stripe_subscription_id=subscription_id,
+            kind="charge",
+            product=product_kind,
+            amount_cents=amount_cents,
+            currency=invoice.get("currency", "usd"),
+            company_share_cents=company_share,
+            refundable_cents=refundable,
+            description=f"Invoice paid ({billing_reason or 'unknown'})",
+            raw_event_json=str(event)[:50000],
+        )
+        db.add(charge)
+    else:
+        logger.info(
+            f"invoice.paid for user {user.id} billing_reason={billing_reason!r} "
+            f"— no renewal charge row written (signup invoice is owned by "
+            f"checkout.session.completed; only subscription_cycle writes a charge)."
+        )
 
     # ── Extend membership_expires_at — Stripe is the source of truth ───
     # 26 May 2026 root-cause fix.
