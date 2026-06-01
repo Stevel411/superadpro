@@ -478,6 +478,38 @@ export default function Dashboard() {
         var tpHasPrompts = tpPrompts.length > 0;
         var tpTeamTotal = tp ? (tp.team.total || 0) : 0;
         var avColors = ['linear-gradient(135deg,#0ea5e9,#22d3ee)','linear-gradient(135deg,#1e3a8a,#0ea5e9)','linear-gradient(135deg,#06b6d4,#0ea5e9)'];
+        // New-member prompts (just joined / just activated) vs at-risk (warm
+        // unactivated). Split by backend `kind` so new members get their own
+        // identifiable section instead of blurring into the nudge list.
+        var tpNew = tpPrompts.filter(function(p) { return p.kind === 'just_joined' || p.kind === 'just_activated'; });
+        var tpAttn = tpPrompts.filter(function(p) { return p.kind === 'unactivated_warm'; });
+        // Build the Team Messenger prefill link the backend was already
+        // preparing for (to + template + kind). Team Messenger pre-fills the
+        // welcome message and fires /api/team-pulse/dismiss after the send.
+        function tpRow(p, i, isNew) {
+          var nm = p.name || p.username || 'Member';
+          var link = '/team-messenger?to=' + p.user_id +
+                     '&template=' + encodeURIComponent(p.welcome_template || '') +
+                     '&kind=' + (p.kind || '');
+          var label = p.action_label || (isNew ? 'Say hi' : 'Send nudge');
+          return (
+            <div className={'dc-nm-row' + (isNew ? ' dc-nm-row-new' : '')} key={(isNew ? 'n' : 'a') + i}>
+              <div className="dc-nm-ava" style={{ background: avColors[i % avColors.length] }}>
+                {p.avatar
+                  ? <img src={p.avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} onError={function(e){ e.target.style.display = 'none'; }}/>
+                  : nm.charAt(0).toUpperCase()}
+              </div>
+              <div className="dc-nm-who"><div className="n">{nm}</div><div className="s">{p.meta || ''}</div></div>
+              {isNew && <span className="dc-nm-tag new">{p.kind === 'just_activated' ? 'active' : 'new'}</span>}
+              <Link to={link} className={isNew ? 'dc-nm-btn dc-nm-btn-cyan' : 'dc-nm-btn'}>{label} →</Link>
+            </div>
+          );
+        }
+        var tpFoot = tpNew.length && tpAttn.length
+          ? (tpNew.length + ' new · ' + tpAttn.length + ' need attention')
+          : tpNew.length
+            ? (tpNew.length + (tpNew.length === 1 ? ' new member' : ' new members'))
+            : (tpAttn.length + (tpAttn.length === 1 ? ' member needs attention' : ' members need attention'));
 
         return (
         <div className="dash-core">
@@ -511,31 +543,34 @@ export default function Dashboard() {
             {/* Your next move — Team Pulse promoted (only for members with a team) */}
             {tpTeamTotal > 0 ? (
               <div className="dc-card dc-pad">
-                <div className="dc-card-eyebrow">⚡ {t('teamPulse.label', { defaultValue: 'Your next move' })}</div>
+                <div className="dc-card-eyebrow">⚡ {t('teamPulse.label', { defaultValue: 'Team Pulse' })}</div>
                 <div className="dc-nm-title">
-                  {tpHasPrompts
-                    ? t('teamPulse.title', { count: tpPrompts.length, defaultValue: tpPrompts.length + ' team members need you' })
-                    : t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })}
+                  {!tpHasPrompts
+                    ? t('teamPulse.titleCalm', { defaultValue: 'Your team is all caught up' })
+                    : tpNew.length
+                      ? t('teamPulse.titleNew', { count: tpNew.length, defaultValue: tpNew.length + (tpNew.length === 1 ? ' new team member' : ' new team members') })
+                      : t('teamPulse.titleAttn', { count: tpAttn.length, defaultValue: tpAttn.length + (tpAttn.length === 1 ? ' member needs a nudge' : ' members need a nudge') })}
                 </div>
                 {tpHasPrompts ? (
-                  <div className="dc-nm-list">
-                    {tpPrompts.slice(0, 3).map(function(p, i) {
-                      var nm = p.name || p.username || 'Member';
-                      return (
-                        <div className="dc-nm-row" key={i}>
-                          <div className="dc-nm-ava" style={{ background: avColors[i % avColors.length] }}>{nm.charAt(0).toUpperCase()}</div>
-                          <div className="dc-nm-who"><div className="n">{nm}</div><div className="s">{p.reason || p.subtitle || ''}</div></div>
-                          {p.tag && <span className={'dc-nm-tag ' + (p.tag === 'hot' ? 'hot' : 'new')}>{p.tag}</span>}
-                          <Link to="/command-centre" className="dc-nm-btn">{t('teamPulse.reachOut', { defaultValue: 'Reach out' })} →</Link>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <>
+                    {tpNew.length > 0 && (
+                      <>
+                        <div className="dc-tp-sec newc"><span className="pip"></span> {t('teamPulse.newMembers', { defaultValue: 'New members' })}</div>
+                        <div className="dc-nm-list">{tpNew.map(function(p, i) { return tpRow(p, i, true); })}</div>
+                      </>
+                    )}
+                    {tpAttn.length > 0 && (
+                      <>
+                        <div className="dc-tp-sec attn">{t('teamPulse.needsAttention', { defaultValue: 'Needs attention' })}</div>
+                        <div className="dc-nm-list">{tpAttn.map(function(p, i) { return tpRow(p, i, false); })}</div>
+                      </>
+                    )}
+                  </>
                 ) : (
                   <div className="dc-nm-calm">{t('teamPulse.subCalm', { defaultValue: 'No urgent outreach needed right now.' })}</div>
                 )}
                 <div className="dc-nm-foot">
-                  <span className="c">{tpHasPrompts ? t('teamPulse.needAttention', { count: tpPrompts.length, total: tpTeamTotal, defaultValue: tpPrompts.length + ' of ' + tpTeamTotal + ' team members need attention' }) : ''}</span>
+                  <span className="c">{tpHasPrompts ? tpFoot : ''}</span>
                   <Link to="/command-centre">{t('teamPulse.openTeam', { defaultValue: 'Open Performance' })} →</Link>
                 </div>
               </div>
@@ -1166,6 +1201,12 @@ export default function Dashboard() {
         .dc-nm-foot{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
         .dc-nm-foot .c{font-size:12.5px;color:var(--dc-ink3)}
         .dc-nm-foot a{font-family:'Sora',sans-serif;font-weight:700;font-size:13px;color:#0ea5e9;text-decoration:none;white-space:nowrap}
+        .dc-tp-sec{display:flex;align-items:center;gap:7px;font-family:'Sora',sans-serif;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin:2px 2px 9px}
+        .dc-tp-sec.newc{color:#0e7490}
+        .dc-tp-sec.attn{color:#475569;margin-top:16px}
+        .dc-tp-sec .pip{width:7px;height:7px;border-radius:50%;background:#06b6d4}
+        .dc-nm-row-new{background:#f0fdff;border-color:#cff2f8}
+        .dc-nm-btn-cyan{background:linear-gradient(135deg,#0891b2,#22d3ee)}
         .dc-sg-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:var(--dc-ink);margin:6px 0 14px;letter-spacing:-.01em}
         .dc-sg-block{margin-bottom:14px}
         .dc-sg-lab{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dc-ink3);margin-bottom:6px}
