@@ -279,16 +279,16 @@ export function isIncomeFamilyRoute(pathname) {
     '/compensation-plan',
     '/campaign-tiers',
     '/my-credits',
-    '/grid-visualiser',
     '/income-grid-3d',
     '/watch',
     '/create-campaign',
     '/video-library',
     '/campaign-analytics',
   ];
-  // Note: /pro/funnels and /grid-calculator deliberately excluded — those
-  // pages are focused tools/dashboards and the income-family strip would
-  // add noise without value.
+  // Note: /pro/funnels, /grid-calculator and /grid-visualiser deliberately
+  // excluded — those pages are focused tools/dashboards and the income-family
+  // strip would add noise without value. (/grid-visualiser is the Profit Grid
+  // page, which now carries its own enlarged tier selector as the primary nav.)
   for (var i = 0; i < INCOME_PATHS.length; i++) {
     var p = INCOME_PATHS[i];
     if (pathname === p || pathname.indexOf(p + '/') === 0) return true;

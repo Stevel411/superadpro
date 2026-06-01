@@ -39,6 +39,20 @@ var COBALT_HEADER = 'linear-gradient(135deg,#172554 0%,#1e3a8a 100%)';
 var CYAN_PROGRESS = 'linear-gradient(90deg,#0891b2,#06b6d4,#22d3ee)';
 var TIER_ACTIVE_GRAD = 'linear-gradient(135deg,#1e3a8a,#0891b2)';
 
+// Per-tier card gradients — all within the locked cobalt/royal/sky/cyan/
+// electric palette (no amber/purple/red). Champion is the deepest cobalt→
+// electric sweep to read as the premium top tier while staying in-palette.
+var TIER_GRADS = {
+  1: 'linear-gradient(150deg,#0ea5e9,#22d3ee)',
+  2: 'linear-gradient(150deg,#0891b2,#06b6d4)',
+  3: 'linear-gradient(150deg,#1e3a8a,#3b82f6)',
+  4: 'linear-gradient(150deg,#0e7490,#06b6d4)',
+  5: 'linear-gradient(150deg,#1d4ed8,#38bdf8)',
+  6: 'linear-gradient(150deg,#155e75,#22d3ee)',
+  7: 'linear-gradient(150deg,#0a1438,#1e3a8a)',
+  8: 'linear-gradient(150deg,#0a1438,#0891b2 60%,#22d3ee)',
+};
+
 var css = `
   @keyframes lgv-shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
   @keyframes lgv-pulse {
@@ -48,6 +62,27 @@ var css = `
   .lgv-tier-tab{padding:9px 16px;border-radius:8px;border:1px solid #cbd5e1;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:#475569;background:#fff;letter-spacing:0.2px}
   .lgv-tier-tab:hover:not(.active){background:#f8fafc;border-color:#94a3b8}
   .lgv-tier-tab.active{color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(8,145,178,0.25)}
+  .lgv-hero{text-align:center;margin-bottom:16px}
+  .lgv-hero h2{font-family:'Sora',sans-serif;font-weight:800;font-size:23px;color:#0a1438;margin:0 0 5px;letter-spacing:-0.4px}
+  .lgv-hero p{font-size:15px;color:#475569;margin:0;font-weight:500;line-height:1.5}
+  .lgv-hero .amt{color:#0891b2;font-weight:800}
+  .lgv-claim{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;background:linear-gradient(135deg,#0a1438,#1e3a8a);border-radius:12px;padding:13px 20px;margin-bottom:18px;text-align:center}
+  .lgv-claim .big{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#fff;letter-spacing:-0.2px}
+  .lgv-claim .big b{color:#34d399}
+  .lgv-claim .split{font-size:12.5px;color:#9fb4d8;font-weight:600}
+  .lgv-tiers-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:11px}
+  .lgv-tcard{position:relative;border-radius:14px;padding:14px 13px 13px;cursor:pointer;border:2px solid transparent;transition:transform .15s ease, box-shadow .15s ease;overflow:hidden;text-align:left;color:#fff;font-family:'DM Sans',sans-serif}
+  .lgv-tcard::before{content:'';position:absolute;top:0;left:0;right:0;height:38%;background:linear-gradient(180deg,rgba(255,255,255,0.20),transparent);pointer-events:none}
+  .lgv-tcard:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(10,20,56,0.22)}
+  .lgv-tcard .tt{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.2px;position:relative;z-index:1}
+  .lgv-tcard .tp{font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;margin-top:1px;position:relative;z-index:1}
+  .lgv-tcard .tpay{margin-top:10px;background:rgba(255,255,255,0.92);border-radius:8px;padding:7px 9px;position:relative;z-index:1}
+  .lgv-tcard .tpay .r{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:11.5px;line-height:1.7}
+  .lgv-tcard .tpay .r .lbl{color:#475569;font-weight:600}
+  .lgv-tcard .tpay .r .g{color:#15803d;font-weight:700;font-family:'Sora',sans-serif}
+  .lgv-tcard.active{border-color:#fff;box-shadow:0 8px 22px rgba(10,20,56,0.30)}
+  .lgv-tcard.active .badge{position:absolute;top:11px;right:12px;font-family:'Sora',sans-serif;font-size:8.5px;font-weight:800;letter-spacing:0.9px;color:#fff;background:rgba(0,0,0,0.30);padding:2px 7px;border-radius:5px;z-index:2}
+  .lgv-disclaimer{font-size:11px;color:#94a3b8;text-align:center;margin:0 0 18px;font-weight:500;line-height:1.5;max-width:760px;margin-left:auto;margin-right:auto}
   .lgv-tile{aspect-ratio:1;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:8px 6px;color:#fff;overflow:hidden;transition:transform .18s ease, box-shadow .18s ease;cursor:default}
   .lgv-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,rgba(255,255,255,0.22),transparent);pointer-events:none}
   .lgv-tile:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 10px 24px rgba(10,20,56,0.16)}
@@ -114,19 +149,47 @@ export default function GridVisualiser() {
       <style>{css}</style>
       <div style={{ maxWidth:1180, margin:'0 auto' }}>
 
-        {/* Tier tabs */}
-        <div style={{ display:'flex', gap:8, marginBottom:18, flexWrap:'wrap' }}>
+        {/* Hero — make the tiers noticeable: people often don't realise the
+            higher tiers pay far more per seat. Figures are the real comp split
+            (40% direct / 50% uni-level / 10% completion), company takes 0%. */}
+        <div className="lgv-hero">
+          <h2>Bigger grids, bigger commissions</h2>
+          <p>A Starter seat pays <span className="amt">$8</span>. A Champion seat pays <span className="amt">$400</span> — same grid, same 36 seats. Pick your tier:</p>
+        </div>
+
+        {/* 100% revenue-share claim — accurate now the company share is 0%.
+            Scoped to Campaign Tiers / Profit Grid with the proof breakdown. */}
+        <div className="lgv-claim">
+          <span className="big">SuperAdPro shares <b>100% of Campaign Tier revenue</b> back to the community</span>
+          <span className="split">100% of Profit Grid commissions go to affiliates — 40% direct · 50% across the 8-level uni-level · 10% completion bonus · 0% to the company</span>
+        </div>
+
+        {/* Enlarged tier cards — two rows of four, each showing all three ways
+            the tier pays. Replaces the small text tabs. */}
+        <div className="lgv-tiers-grid">
           {TIERS.map(function(t) {
             var isActive = activeTier === t.t;
+            var direct = t.price * 0.40;
+            var spill = t.price * 0.0625;
             return (
-              <button key={t.t} className={'lgv-tier-tab' + (isActive ? ' active' : '')}
-                style={isActive ? { background:TIER_ACTIVE_GRAD } : {}}
-                onClick={function(){ setActiveTier(t.t); }}>
-                T{t.t} {t.name} — ${t.price}
-              </button>
+              <div key={t.t} className={'lgv-tcard' + (isActive ? ' active' : '')}
+                   style={{ background: TIER_GRADS[t.t] }}
+                   onClick={function(){ setActiveTier(t.t); }}
+                   title={'T' + t.t + ' ' + t.name + ' — $' + t.price}>
+                {isActive ? <span className="badge">ACTIVE</span> : null}
+                <div className="tt">T{t.t} {t.name}</div>
+                <div className="tp">${t.price} entry</div>
+                <div className="tpay">
+                  <div className="r"><span className="lbl">Direct seat</span><span className="g">+${direct.toFixed(2)}</span></div>
+                  <div className="r"><span className="lbl">Spillover seat</span><span className="g">+${spill.toFixed(2)}</span></div>
+                  <div className="r"><span className="lbl">Completion bonus</span><span className="g">+${t.bonus.toLocaleString()}</span></div>
+                </div>
+              </div>
             );
           })}
         </div>
+
+        <p className="lgv-disclaimer">Figures show the commission each seat pays under the Campaign Tier compensation plan, not a prediction of earnings. What you actually earn depends on your own activity and referrals. See the income disclaimer for details.</p>
 
         {/* Main two-column layout — 3fr (grid) / 2fr (right column).
             align-items: stretch ensures the right column stretches to
@@ -143,19 +206,19 @@ export default function GridVisualiser() {
             </div>
             <div style={{ padding:'18px 22px' }}>
               {/* Progress row with countdown */}
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, fontSize:11.5 }}>
-                <div style={{ color:'#64748b', fontWeight:600 }}>Progress to bonus</div>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, fontSize:14 }}>
+                <div style={{ color:'#475569', fontWeight:700 }}>Progress to bonus</div>
                 <div style={{ color:'#0891b2', fontWeight:700, fontFamily:'JetBrains Mono,monospace' }}>{seatsToUnlock} seats to ♛</div>
               </div>
               <div style={{ height:8, background:'#f1f5f9', borderRadius:4, overflow:'hidden', marginBottom:18 }}>
                 <div className="lgv-progress-fill" style={{ height:'100%', width:pct+'%', background:CYAN_PROGRESS, borderRadius:4, transition:'width .6s ease' }}/>
               </div>
               {/* Legend */}
-              <div style={{ display:'flex', gap:18, justifyContent:'center', marginBottom:18, fontSize:11.5, color:'#64748b', fontWeight:600, flexWrap:'wrap' }}>
-                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:14, height:14, borderRadius:4, background:DIRECT_GRAD }}/> Direct referral</span>
-                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:14, height:14, borderRadius:4, background:SPILLOVER_GRAD }}/> Spillover</span>
-                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:14, height:14, borderRadius:4, background:BONUS_GRAD }}/> Bonus seat</span>
-                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:14, height:14, borderRadius:4, background:'#fafbff', border:'2px dashed #cbd5e1' }}/> Empty</span>
+              <div style={{ display:'flex', gap:18, justifyContent:'center', marginBottom:18, fontSize:13, color:'#475569', fontWeight:600, flexWrap:'wrap' }}>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:DIRECT_GRAD }}/> Direct referral</span>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:SPILLOVER_GRAD }}/> Spillover</span>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:BONUS_GRAD }}/> Bonus seat</span>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:'#fafbff', border:'2px dashed #cbd5e1' }}/> Empty</span>
               </div>
               {/* 6×6 tile grid */}
               <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
@@ -204,34 +267,34 @@ export default function GridVisualiser() {
 
             {/* Commissions earned card */}
             <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden' }}>
-              <div style={{ padding:'11px 16px', background:COBALT_HEADER, fontFamily:'Sora,sans-serif', fontSize:12, fontWeight:700, color:'#fff', letterSpacing:'0.5px', textTransform:'uppercase', display:'flex', alignItems:'center', gap:8 }}>
-                <span style={{ fontSize:14, color:'#38bdf8' }}>◆</span>Commissions earned
+              <div style={{ padding:'13px 18px', background:COBALT_HEADER, fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:700, color:'#fff', letterSpacing:'0.5px', textTransform:'uppercase', display:'flex', alignItems:'center', gap:8 }}>
+                <span style={{ fontSize:16, color:'#38bdf8' }}>◆</span>Commissions earned
               </div>
               <div style={{ padding:'14px 16px' }}>
                 {/* Direct row */}
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid #f1f5f9' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
-                    <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Direct referrals</div>
-                    <div style={{ color:'#94a3b8', fontSize:10, fontWeight:500, marginTop:2 }}>{directFills} × ${directPerFill.toFixed(2)} (40%)</div>
+                    <div style={{ fontSize:13.5, color:'#475569', fontWeight:700 }}>Direct referrals</div>
+                    <div style={{ color:'#94a3b8', fontSize:11.5, fontWeight:500, marginTop:2 }}>{directFills} × ${directPerFill.toFixed(2)} (40%)</div>
                   </div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, letterSpacing:'-0.3px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, letterSpacing:'-0.3px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
                     ${directEarned.toFixed(2)}
                   </div>
                 </div>
                 {/* Uni-level row */}
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid #f1f5f9' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
-                    <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Uni-level fills</div>
-                    <div style={{ color:'#94a3b8', fontSize:10, fontWeight:500, marginTop:2 }}>{unilevelFills} × ${unilevelPerFill.toFixed(2)} (6.25%)</div>
+                    <div style={{ fontSize:13.5, color:'#475569', fontWeight:700 }}>Uni-level fills</div>
+                    <div style={{ color:'#94a3b8', fontSize:11.5, fontWeight:500, marginTop:2 }}>{unilevelFills} × ${unilevelPerFill.toFixed(2)} (6.25%)</div>
                   </div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0891b2', letterSpacing:'-0.3px' }}>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0891b2', letterSpacing:'-0.3px' }}>
                     ${unilevelEarned.toFixed(2)}
                   </div>
                 </div>
                 {/* Total */}
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0' }}>
-                  <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Total earned this grid</div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0a1438', letterSpacing:'-0.3px' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0' }}>
+                  <div style={{ fontSize:13.5, color:'#475569', fontWeight:700 }}>Total earned this grid</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0a1438', letterSpacing:'-0.3px' }}>
                     ${totalEarned.toFixed(2)}
                   </div>
                 </div>
