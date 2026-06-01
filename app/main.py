@@ -4159,6 +4159,60 @@ def admin_finances_page(request: Request, user: User = Depends(get_current_user)
     liab = data["liabilities"]
     con = data["concerns"]
 
+    # ── Treasury coverage (admin-only) ────────────────────────────────
+    # Read the live on-chain USDT (BEP-20) balance of the BSC treasury and
+    # compare it to "withdrawable now" (affiliate balance) — the liability
+    # that must be covered in USDT today. This is the liquidity redline:
+    # withdrawals are paid in USDT from this wallet, while ~90% of inflows
+    # arrive as fiat via Stripe (3-day hold) into the bank, NOT this wallet.
+    # Safe fallback: if the RPC call fails, show "unavailable" rather than
+    # break the page.
+    TREASURY_ADDR = "0xb2Ccdf9050A8d05A346F6879eC4fa633f9b2554D"
+    BSC_USDT = "0x55d398326f99059fF775485246999027B3197955"  # BEP-20 USDT, 18 decimals
+    treasury_usdt = None
+    treasury_error = None
+    try:
+        import requests as _rq
+        _data = "0x70a08231000000000000000000000000" + TREASURY_ADDR[2:].lower()
+        _rpcs = [
+            "https://bsc-dataseed.binance.org",
+            "https://bsc-dataseed1.defibit.io",
+            "https://rpc.ankr.com/bsc",
+        ]
+        for _rpc in _rpcs:
+            try:
+                _r = _rq.post(_rpc, json={
+                    "jsonrpc": "2.0", "method": "eth_call",
+                    "params": [{"to": BSC_USDT, "data": _data}, "latest"], "id": 1,
+                }, timeout=6)
+                _hex = (_r.json() or {}).get("result")
+                if _hex and _hex != "0x":
+                    treasury_usdt = int(_hex, 16) / 1e18
+                    break
+            except Exception:
+                continue
+        if treasury_usdt is None:
+            treasury_error = "RPC unavailable"
+    except Exception as _e:
+        treasury_error = str(_e)[:120]
+
+    withdrawable_now = float(liab.get("member_balance_owed_usd") or 0)
+    total_withdrawable = withdrawable_now + float(liab.get("campaign_balance_owed_usd") or 0)
+    if treasury_usdt is None:
+        cov_status, cov_pill, cov_msg = "unknown", "warn", "Treasury balance unavailable — RPC unreachable. Retry shortly."
+    else:
+        _buffer = treasury_usdt - withdrawable_now
+        _ratio = (treasury_usdt / withdrawable_now * 100) if withdrawable_now > 0 else 100.0
+        if _buffer >= withdrawable_now * 0.25:   # >=25% headroom over the must-cover liability
+            cov_status, cov_pill = "healthy", "good"
+            cov_msg = f"Treasury covers withdrawable-now with ${_buffer:,.2f} headroom ({_ratio:,.0f}%)."
+        elif _buffer >= 0:
+            cov_status, cov_pill = "tight", "warn"
+            cov_msg = f"Covered but thin — only ${_buffer:,.2f} buffer over withdrawable-now ({_ratio:,.0f}%). Top up soon."
+        else:
+            cov_status, cov_pill = "shortfall", "warn"
+            cov_msg = f"SHORTFALL — treasury is ${abs(_buffer):,.2f} below withdrawable-now ({_ratio:,.0f}%). Top up now."
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4415,6 +4469,26 @@ def admin_finances_page(request: Request, user: User = Depends(get_current_user)
       <div class="row" style="border:none;padding-top:10px"><span class="row-label" style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;opacity:.7">By product · already counted above</span></div>
       <div class="row"><span class="row-label">Creative Studio</span><span class="row-val">{m(h24['inflows']['creative_studio_gross_usd'])}</span></div>
       <div class="row"><span class="row-label">Nexus credit packs</span><span class="row-val">{m(h24['inflows']['nexus_credit_packs_usd'])}</span></div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Treasury coverage</h2>
+    <span class="pill {cov_pill}">{cov_status}</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">BSC treasury (USDT, live on-chain)</div>
+      <div class="big-num">{m(treasury_usdt) if treasury_usdt is not None else '—'}</div>
+      <div class="row"><span class="row-label">Withdrawable now (affiliate)</span><span class="row-val">{m(withdrawable_now)}</span></div>
+      <div class="row"><span class="row-label">Buffer over withdrawable-now</span><span class="row-val">{m(treasury_usdt - withdrawable_now) if treasury_usdt is not None else '—'}</span></div>
+      <div class="row"><span class="row-label">If campaign balance unlocks too</span><span class="row-val">{m(total_withdrawable)}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Status</div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.5;color:var(--ink,#0f172a);margin-top:6px">{cov_msg}</div>
+      <div class="row" style="margin-top:12px"><span class="row-label">Treasury wallet</span><span class="row-val" style="font-size:11px;font-family:monospace">{TREASURY_ADDR[:10]}…{TREASURY_ADDR[-6:]}</span></div>
+      <div class="row"><span class="row-label">Note</span><span class="row-val" style="font-size:11px">Withdrawals pay USDT from here; Stripe fiat lands in bank (~3d hold)</span></div>
     </div>
   </div>
 
