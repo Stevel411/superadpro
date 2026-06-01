@@ -32,6 +32,7 @@ function buildNav(t, isAdmin) {
     // ── Top standalones ────────────────────────────────────────
     { type: 'standalone', label: t('nav.dashboard'), shortLabel: t('navShort.dashboard', { defaultValue: 'Home' }), icon: Home, path: '/dashboard' },
     { type: 'standalone', label: t('nav.commandCentre', { defaultValue: 'Command Centre' }), shortLabel: t('navShort.commandCentre', { defaultValue: 'Centre' }), icon: Gauge, path: '/command-centre' },
+    { type: 'standalone', label: t('nav.myMarketing', { defaultValue: 'My Marketing' }), shortLabel: t('navShort.myMarketing', { defaultValue: 'Market' }), icon: Megaphone, path: '/my-marketing' },
 
     { type: 'divider' },
 

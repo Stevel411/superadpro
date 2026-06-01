@@ -28,6 +28,7 @@ const Courses = React.lazy(() => import('./pages/Courses'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const Affiliate = React.lazy(() => import('./pages/Affiliate'));
 const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
+const MyMarketing = React.lazy(() => import('./pages/MyMarketing'));
 const LeadFinder = React.lazy(() => import('./pages/LeadFinder'));
 const CampaignTiers = React.lazy(() => import('./pages/CampaignTiers'));
 const Watch = React.lazy(() => import('./pages/Watch'));
@@ -324,6 +325,7 @@ function AppRoutes() {
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />
+      <Route path="/my-marketing" element={<ProtectedRoute><MyMarketing /></ProtectedRoute>} />
       <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
       <Route path="/campaign-tiers" element={<ProtectedRoute><RequireTier tier="basic"><CampaignTiers /></RequireTier></ProtectedRoute>} />

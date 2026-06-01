@@ -7155,6 +7155,14 @@ def marketing_materials(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
+
+@app.get("/my-marketing")
+def my_marketing(request: Request):
+    """Serve React SPA — My Marketing hub."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/affiliate")
 def affiliate(request: Request):
     """Redirect old URL to new Social Share page."""
