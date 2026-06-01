@@ -264,29 +264,29 @@ export default function GridVisualiser() {
               </div>
               <div style={{ padding:'14px 16px' }}>
                 {/* Direct row */}
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0', borderBottom:'1px solid #f1f5f9' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
-                    <div style={{ fontSize:13.5, color:'#475569', fontWeight:700 }}>Direct referrals</div>
-                    <div style={{ color:'#94a3b8', fontSize:11.5, fontWeight:500, marginTop:2 }}>{directFills} × ${directPerFill.toFixed(2)} (40%)</div>
+                    <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Direct referrals</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{directFills} × ${directPerFill.toFixed(2)} · 40%</div>
                   </div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, letterSpacing:'-0.3px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, letterSpacing:'-0.4px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
                     ${directEarned.toFixed(2)}
                   </div>
                 </div>
                 {/* Uni-level row */}
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0', borderBottom:'1px solid #f1f5f9' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
-                    <div style={{ fontSize:13.5, color:'#475569', fontWeight:700 }}>Uni-level fills</div>
-                    <div style={{ color:'#94a3b8', fontSize:11.5, fontWeight:500, marginTop:2 }}>{unilevelFills} × ${unilevelPerFill.toFixed(2)} (6.25%)</div>
+                    <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Uni-level fills</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{unilevelFills} × ${unilevelPerFill.toFixed(2)} · 6.25%</div>
                   </div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0891b2', letterSpacing:'-0.3px' }}>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#0891b2', letterSpacing:'-0.4px' }}>
                     ${unilevelEarned.toFixed(2)}
                   </div>
                 </div>
                 {/* Total */}
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'11px 0' }}>
-                  <div style={{ fontSize:13.5, color:'#475569', fontWeight:700 }}>Total earned this grid</div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0a1438', letterSpacing:'-0.3px' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0' }}>
+                  <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Total earned this grid</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#0a1438', letterSpacing:'-0.4px' }}>
                     ${totalEarned.toFixed(2)}
                   </div>
                 </div>
@@ -297,57 +297,69 @@ export default function GridVisualiser() {
             <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden', position:'relative', borderLeft:'4px solid #7c3aed' }}>
               <div style={{ position:'absolute', top:'-30%', right:'-20%', width:240, height:'200%', background:'radial-gradient(circle,rgba(196,181,253,0.18),transparent 65%)', pointerEvents:'none' }}/>
               <div style={{ padding:'16px 18px', position:'relative' }}>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:10.5, fontWeight:800, color:'#7c3aed', textTransform:'uppercase', letterSpacing:'1.2px', marginBottom:8, display:'flex', alignItems:'center', gap:8 }}>
-                  <span style={{ fontSize:14, color:'#7c3aed' }}>♛</span>Completion bonus
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:12, fontWeight:800, color:'#7c3aed', textTransform:'uppercase', letterSpacing:'1px', marginBottom:8, display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ fontSize:15, color:'#7c3aed' }}>♛</span>Completion bonus
                 </div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, background:BONUS_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', letterSpacing:'-1px', lineHeight:1, marginBottom:4 }}>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, background:BONUS_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', letterSpacing:'-1px', lineHeight:1, marginBottom:5 }}>
                   ${bonusMax.toFixed(2)}
                 </div>
-                <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600, marginBottom:10 }}>
+                <div style={{ fontSize:13, color:'#475569', fontWeight:600, marginBottom:11 }}>
                   10% × {TOTAL_SEATS} seats × ${tier.price} tier
                 </div>
-                <div style={{ display:'inline-block', background:'linear-gradient(135deg,#7c3aed 0%,#a78bfa 100%)', color:'#fff', fontSize:10.5, fontWeight:800, padding:'5px 12px', borderRadius:99, marginTop:4, fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.4px', boxShadow:'0 3px 10px rgba(124,58,237,0.3)' }}>
+                <div style={{ display:'inline-block', background:'linear-gradient(135deg,#7c3aed 0%,#a78bfa 100%)', color:'#fff', fontSize:12, fontWeight:800, padding:'6px 14px', borderRadius:99, marginTop:4, fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.4px', boxShadow:'0 3px 10px rgba(124,58,237,0.3)' }}>
                   {seatsToUnlock} seats to unlock
                 </div>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:12, paddingTop:12, borderTop:'1px solid #f1f5f9' }}>
-                  <div style={{ fontSize:11, color:'#64748b', fontWeight:600 }}>Accrued</div>
-                  <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:11.5, color:'#7c3aed', fontWeight:800, background:'#f5f3ff', padding:'3px 9px', borderRadius:6, border:'1px solid #e9d5ff', letterSpacing:'0.5px' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:13, paddingTop:13, borderTop:'1px solid #f1f5f9' }}>
+                  <div style={{ fontSize:13, color:'#475569', fontWeight:700 }}>Accrued</div>
+                  <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:12.5, color:'#7c3aed', fontWeight:800, background:'#f5f3ff', padding:'4px 10px', borderRadius:6, border:'1px solid #e9d5ff', letterSpacing:'0.5px' }}>
                     ${bonusAccrued.toFixed(2)} / ${bonusMax.toFixed(0)} ({bonusPct}%)
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* 2×2 stats grid */}
+            {/* 2×2 stats grid — icon-led cards, larger captions */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, flex:1 }}>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
-                <div style={{ fontSize:11, color:'#0891b2', fontWeight:700, marginBottom:4, letterSpacing:'0.5px', textTransform:'uppercase' }}>Positions</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'13px 15px', display:'flex', gap:11, alignItems:'flex-start' }}>
+                <div style={{ width:30, height:30, borderRadius:8, background:'#e6f6fb', color:'#0891b2', display:'flex', alignItems:'center', justifyContent:'center', flex:'none' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                </div>
                 <div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>
-                    {filled}<span style={{ fontSize:13, color:'#94a3b8', fontWeight:600 }}>/{TOTAL_SEATS}</span>
+                  <div style={{ fontSize:12.5, color:'#0891b2', fontWeight:700, letterSpacing:'0.4px', textTransform:'uppercase', marginBottom:6 }}>Positions</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:25, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>
+                    {filled}<span style={{ fontSize:14, color:'#94a3b8', fontWeight:600 }}>/{TOTAL_SEATS}</span>
                   </div>
-                  <div style={{ fontSize:10.5, color:'#64748b', fontWeight:600, marginTop:4 }}>{pct}% to bonus</div>
+                  <div style={{ fontSize:12.5, color:'#475569', fontWeight:600, marginTop:5 }}>{pct}% to bonus</div>
                 </div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
-                <div style={{ fontSize:11, color:'#0891b2', fontWeight:700, marginBottom:4, letterSpacing:'0.5px', textTransform:'uppercase' }}>Tier</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'13px 15px', display:'flex', gap:11, alignItems:'flex-start' }}>
+                <div style={{ width:30, height:30, borderRadius:8, background:'#e6f6fb', color:'#0891b2', display:'flex', alignItems:'center', justifyContent:'center', flex:'none' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m17 11 4-4-4-4"/><path d="M21 7H9a4 4 0 0 0-4 4v10"/><path d="m7 17-4 4"/></svg>
+                </div>
                 <div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>T{tier.t}</div>
-                  <div style={{ fontSize:10.5, color:'#64748b', fontWeight:600, marginTop:4 }}>{tier.name} — ${tier.price}</div>
+                  <div style={{ fontSize:12.5, color:'#0891b2', fontWeight:700, letterSpacing:'0.4px', textTransform:'uppercase', marginBottom:6 }}>Tier</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:25, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>T{tier.t}</div>
+                  <div style={{ fontSize:12.5, color:'#475569', fontWeight:600, marginTop:5 }}>{tier.name} — ${tier.price}</div>
                 </div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
-                <div style={{ fontSize:11, color:'#0891b2', fontWeight:700, marginBottom:4, letterSpacing:'0.5px', textTransform:'uppercase' }}>Advances</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'13px 15px', display:'flex', gap:11, alignItems:'flex-start' }}>
+                <div style={{ width:30, height:30, borderRadius:8, background:'#e6f6fb', color:'#0891b2', display:'flex', alignItems:'center', justifyContent:'center', flex:'none' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                </div>
                 <div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>{completedAdvances}</div>
-                  <div style={{ fontSize:10.5, color:'#64748b', fontWeight:600, marginTop:4 }}>Bonuses paid prior</div>
+                  <div style={{ fontSize:12.5, color:'#0891b2', fontWeight:700, letterSpacing:'0.4px', textTransform:'uppercase', marginBottom:6 }}>Advances</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:25, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>{completedAdvances}</div>
+                  <div style={{ fontSize:12.5, color:'#475569', fontWeight:600, marginTop:5 }}>Bonuses paid prior</div>
                 </div>
               </div>
-              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
-                <div style={{ fontSize:11, color:'#0891b2', fontWeight:700, marginBottom:4, letterSpacing:'0.5px', textTransform:'uppercase' }}>Directs</div>
+              <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'13px 15px', display:'flex', gap:11, alignItems:'flex-start' }}>
+                <div style={{ width:30, height:30, borderRadius:8, background:'#e6f6fb', color:'#0891b2', display:'flex', alignItems:'center', justifyContent:'center', flex:'none' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
                 <div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>{directCount}</div>
-                  <div style={{ fontSize:10.5, color:'#64748b', fontWeight:600, marginTop:4 }}>Personal referrals</div>
+                  <div style={{ fontSize:12.5, color:'#0891b2', fontWeight:700, letterSpacing:'0.4px', textTransform:'uppercase', marginBottom:6 }}>Directs</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:25, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>{directCount}</div>
+                  <div style={{ fontSize:12.5, color:'#475569', fontWeight:600, marginTop:5 }}>Personal referrals</div>
                 </div>
               </div>
             </div>
