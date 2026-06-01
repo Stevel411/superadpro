@@ -155,17 +155,26 @@ class CacheHeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
         path = request.url.path
+        status = response.status_code
         if path.startswith("/static/app/assets/"):
-            # Vite hashed assets — immutable, cache forever
-            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+            if status == 200:
+                # Vite hashed assets — immutable, cache forever
+                response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+            else:
+                # A missing asset (e.g. a 404 during a deploy cutover) must
+                # NEVER carry the immutable header — a CDN caches that 404 for
+                # a year and poisons the bundle (cost us a broken deploy on
+                # 1 Jun 2026). Keep every non-200 explicitly uncacheable.
+                response.headers["Cache-Control"] = "no-store"
         elif path == "/static/app/index.html" or path.endswith("/index.html"):
             # SPA entry HTML — short cache so deploys land fast
             response.headers["Cache-Control"] = "public, max-age=300, must-revalidate"
         elif path.startswith("/static/"):
-            if any(path.endswith(ext) for ext in [".png",".jpg",".jpeg",".gif",".webp",".woff2",".woff",".ttf",".ico",".svg",".mp4"]):
-                response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
-            elif any(path.endswith(ext) for ext in [".css",".js",".json"]):
-                response.headers["Cache-Control"] = "public, max-age=3600"
+            if status == 200:
+                if any(path.endswith(ext) for ext in [".png",".jpg",".jpeg",".gif",".webp",".woff2",".woff",".ttf",".ico",".svg",".mp4"]):
+                    response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+                elif any(path.endswith(ext) for ext in [".css",".js",".json"]):
+                    response.headers["Cache-Control"] = "public, max-age=3600"
         return response
 app.add_middleware(CacheHeaderMiddleware)
 
