@@ -149,14 +149,6 @@ export default function GridVisualiser() {
       <style>{css}</style>
       <div style={{ maxWidth:1180, margin:'0 auto' }}>
 
-        {/* Hero — make the tiers noticeable: people often don't realise the
-            higher tiers pay far more per seat. Figures are the real comp split
-            (40% direct / 50% uni-level / 10% completion), company takes 0%. */}
-        <div className="lgv-hero">
-          <h2>Bigger grids, bigger commissions</h2>
-          <p>A Starter seat pays <span className="amt">$8</span>. A Champion seat pays <span className="amt">$400</span> — same grid, same 36 seats. Pick your tier:</p>
-        </div>
-
         {/* 100% revenue-share claim — accurate now the company share is 0%.
             Scoped to Campaign Tiers / Profit Grid with the proof breakdown. */}
         <div className="lgv-claim">
