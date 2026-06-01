@@ -604,7 +604,7 @@ export default function Dashboard() {
             </Link>
 
             {/* Campaign Videos — live daily-task card for Grid owners, soft door otherwise */}
-            <Link to="/watch" className="dc-door dc-door-video">
+            <Link to={watchGoal ? "/watch" : "/campaign-videos"} className="dc-door dc-door-video">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#0a1438,#0ea5e9)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg></div>
               <h4>{t('dashboard.doorCampaignVideos', { defaultValue: 'My Campaign Videos' })}</h4>
               {watchGoal ? (

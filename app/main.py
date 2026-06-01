@@ -7170,6 +7170,13 @@ def business_hub(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/campaign-videos")
+def campaign_videos(request: Request):
+    """Serve React SPA — My Campaign Videos hub."""
+    if _react_index.exists():
+        return HTMLResponse(_get_react_index_html() or "")
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/affiliate")
 def affiliate(request: Request):
     """Redirect old URL to new Social Share page."""

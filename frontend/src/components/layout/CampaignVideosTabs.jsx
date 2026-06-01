@@ -1,46 +1,37 @@
 /**
- * BusinessHubTabs.jsx — Persistent navigation strip for the My Business door
+ * CampaignVideosTabs.jsx — Persistent strip for the My Campaign Videos door
  * ════════════════════════════════════════════════════════════════
- * Mirrors MyMarketingTabs/IncomeTabs. Rendered by AppLayout on any
- * Business-Hub-family route between the topbar and the page content, so
- * members hop between their business pages with one click.
+ * Mirrors BusinessHubTabs / MyMarketingTabs. Rendered by AppLayout on any
+ * Campaign-Videos-family route. These routes (/watch, /create-campaign,
+ * /video-library, /campaign-analytics) were previously in the Income
+ * family strip — AppLayout now checks Campaign Videos first and guards
+ * Income with !isCampaignVideosFamilyRoute, so they show this strip.
  *
- * Precedence: this strip is checked FIRST in AppLayout, and the other
- * strips (My Marketing / Income / Tools / Learn) are guarded with
- * !isBusinessHubFamilyRoute, so a Business-family page shows only this
- * strip — never a second one. The Income family still references some of
- * these pages internally (Profit Grid, Analytics, Credits); resolving
- * that overlap is a separate IA pass (thin Income vs. Business). Until
- * then no page ever renders two strips — the guard guarantees that.
- *
- * Command-centre deep pages (/command-centre/directs/* and the BucketList
- * drill-downs) light up the Performance tab via prefix match.
+ * Campaign Tiers appears as a tab (nav link) but /campaign-tiers is NOT
+ * in this family — it stays in the Business Hub family so the page keeps
+ * one strip (Business). The tab is just a jump-to link.
  */
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  Briefcase, Gauge, Users, Target, Layers, Zap, LayoutGrid, LineChart,
+  Video, PlayCircle, PlusCircle, Film, BarChart3, Target,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
 function buildTabs(t) {
   return [
-    { id: 'hub', label: t('businessHub.tabs.hub', { defaultValue: 'Hub' }),
-      icon: Briefcase, tone: 'cobalt', path: '/business-hub', match: ['/business-hub'] },
-    { id: 'performance', label: t('businessHub.tabs.performance', { defaultValue: 'Performance' }),
-      icon: Gauge, tone: 'cyan', path: '/command-centre', match: ['/command-centre'] },
-    { id: 'team', label: t('businessHub.tabs.team', { defaultValue: 'Team' }),
-      icon: Users, tone: 'cobalt', path: '/my-team', match: ['/my-team'] },
-    { id: 'analytics-full', label: t('businessHub.tabs.fullAnalytics', { defaultValue: 'Full Analytics' }),
-      icon: LineChart, tone: 'cyan', path: '/analytics', match: ['/analytics'] },
-    { id: 'mygrid', label: t('businessHub.tabs.myGrid', { defaultValue: 'My Grid' }),
-      icon: LayoutGrid, tone: 'cobalt', path: '/grid-visualiser', match: ['/grid-visualiser'] },
-    { id: 'grid', label: t('businessHub.tabs.grid', { defaultValue: 'Profit Grid' }),
+    { id: 'hub', label: t('campaignVideos.tabs.hub', { defaultValue: 'Hub' }),
+      icon: Video, tone: 'cobalt', path: '/campaign-videos', match: ['/campaign-videos'] },
+    { id: 'watch', label: t('campaignVideos.tabs.watch', { defaultValue: 'Watch & Earn' }),
+      icon: PlayCircle, tone: 'cyan', path: '/watch', match: ['/watch'] },
+    { id: 'create', label: t('campaignVideos.tabs.create', { defaultValue: 'Create Campaign' }),
+      icon: PlusCircle, tone: 'cobalt', path: '/create-campaign', match: ['/create-campaign', '/upload'] },
+    { id: 'mine', label: t('campaignVideos.tabs.mine', { defaultValue: 'My Campaigns' }),
+      icon: Film, tone: 'cyan', path: '/video-library', match: ['/video-library'] },
+    { id: 'analytics', label: t('campaignVideos.tabs.analytics', { defaultValue: 'Video Analytics' }),
+      icon: BarChart3, tone: 'cobalt', path: '/campaign-analytics', match: ['/campaign-analytics'] },
+    { id: 'tiers', label: t('campaignVideos.tabs.tiers', { defaultValue: 'Campaign Tiers' }),
       icon: Target, tone: 'cyan', path: '/campaign-tiers', match: ['/campaign-tiers'] },
-    { id: 'credits', label: t('businessHub.tabs.credits', { defaultValue: 'Creator Credits' }),
-      icon: Layers, tone: 'cobalt', path: '/my-credits', match: ['/my-credits'] },
-    { id: 'calc', label: t('businessHub.tabs.calc', { defaultValue: 'Grid Calculator' }),
-      icon: Zap, tone: 'cyan', path: '/grid-calculator', match: ['/grid-calculator'] },
   ];
 }
 
@@ -63,11 +54,11 @@ function findActiveTabId(pathname, tabs) {
 }
 
 function scrollTabsStrip(direction) {
-  var el = document.getElementById('businesshub-tabs-scroll');
+  var el = document.getElementById('campaignvideos-tabs-scroll');
   if (el) el.scrollBy({ left: direction === 'left' ? -240 : 240, behavior: 'smooth' });
 }
 
-export default function BusinessHubTabs() {
+export default function CampaignVideosTabs() {
   const { t } = useTranslation();
   const location = useLocation();
   const tabs = buildTabs(t);
@@ -83,7 +74,7 @@ export default function BusinessHubTabs() {
         }} />
 
         <button type="button" onClick={() => scrollTabsStrip('left')}
-          aria-label={t('businessHub.scrollLeft', { defaultValue: 'Scroll left' })}
+          aria-label={t('campaignVideos.scrollLeft', { defaultValue: 'Scroll left' })}
           style={{
             position: 'absolute', top: '50%', left: 0, transform: 'translateY(-50%)',
             width: 30, height: 30, borderRadius: '50%', background: '#fff', border: '1px solid #e2e8f0',
@@ -93,7 +84,7 @@ export default function BusinessHubTabs() {
           <ChevronLeft size={14} strokeWidth={2.5} />
         </button>
 
-        <div id="businesshub-tabs-scroll" style={{
+        <div id="campaignvideos-tabs-scroll" style={{
           display: 'flex', gap: 8, overflowX: 'auto', overflowY: 'hidden',
           scrollBehavior: 'smooth', padding: '4px 44px',
           scrollbarWidth: 'none', msOverflowStyle: 'none',
@@ -136,7 +127,7 @@ export default function BusinessHubTabs() {
         }} />
 
         <button type="button" onClick={() => scrollTabsStrip('right')}
-          aria-label={t('businessHub.scrollRight', { defaultValue: 'Scroll right' })}
+          aria-label={t('campaignVideos.scrollRight', { defaultValue: 'Scroll right' })}
           style={{
             position: 'absolute', top: '50%', right: 0, transform: 'translateY(-50%)',
             width: 30, height: 30, borderRadius: '50%', background: '#fff', border: '1px solid #e2e8f0',
@@ -147,22 +138,21 @@ export default function BusinessHubTabs() {
         </button>
       </div>
 
-      <style>{`#businesshub-tabs-scroll::-webkit-scrollbar { display: none; }`}</style>
+      <style>{`#campaignvideos-tabs-scroll::-webkit-scrollbar { display: none; }`}</style>
     </div>
   );
 }
 
-// Helper for AppLayout. Mirrors isMyMarketingFamilyRoute / isIncomeFamilyRoute.
-export function isBusinessHubFamilyRoute(pathname) {
+// Helper for AppLayout. /campaign-tiers is intentionally excluded — it
+// stays in the Business Hub family so that page renders one strip.
+export function isCampaignVideosFamilyRoute(pathname) {
   const PATHS = [
-    '/business-hub',
-    '/command-centre',
-    '/my-team',
-    '/campaign-tiers',
-    '/grid-visualiser',
-    '/my-credits',
-    '/analytics',
-    '/grid-calculator',
+    '/campaign-videos',
+    '/watch',
+    '/create-campaign',
+    '/upload',
+    '/video-library',
+    '/campaign-analytics',
   ];
   for (var i = 0; i < PATHS.length; i++) {
     var p = PATHS[i];
