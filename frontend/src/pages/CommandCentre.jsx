@@ -160,6 +160,7 @@ export default function CommandCentre() {
         t={t}
         eyebrowKey="commandCentre.eyebrow"
         eyebrowDefault="Your Performance"
+        hideBackLink
       />
 
       {/* ═══ 1 · PERFORMANCE SNAPSHOT ═══ */}

@@ -295,7 +295,7 @@ export function UpgradeCard({ tone, icon: Icon, eyebrow, title, desc, items, pri
 //   backLinkTo     — destination for the small back pill (default /dashboard)
 //   backLinkLabelKey/backLinkLabelDefault — label for the back pill
 // ──────────────────────────────────────────────────────────────────
-export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, backLinkLabelKey, backLinkLabelDefault }) {
+export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, backLinkLabelKey, backLinkLabelDefault, hideBackLink }) {
   const [refCopied, setRefCopied] = useState(false);
 
   const copyRefLink = (link) => {
@@ -426,8 +426,11 @@ export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, b
         </div>
       </div>
 
-      {/* Right — small back pill ADJACENT to (left of) the referral pill */}
+      {/* Right — small back pill ADJACENT to (left of) the referral pill.
+          Hidden when hideBackLink is set (e.g. Performance, where the
+          sidebar Dashboard link + the tab strip already cover it). */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, flexWrap: 'wrap' }}>
+        {!hideBackLink && (
         <Link to={back.to} style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
           padding: '8px 14px',
@@ -444,6 +447,7 @@ export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, b
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           {t(back.labelKey, { defaultValue: back.labelDefault })}
         </Link>
+        )}
 
         {/* Referral pill — identical to Dashboard */}
         <div style={{
