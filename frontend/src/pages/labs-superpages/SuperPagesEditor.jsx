@@ -958,7 +958,7 @@ export default function LabsSuperPagesEditor() {
             <button onClick={ungroupSelected} title="Ungroup (⌘⇧G)"
               style={{
                 padding: '4px 10px', borderRadius: 6,
-                background: '#eef4fb', border: '1px solid #d7e4f3',
+                background: '#eef4fb', border: '1px solid #c5d7ef',
                 color: '#4d648c', cursor: 'pointer',
                 fontSize: 11, fontWeight: 800,
               }}>Ungroup</button>
@@ -1031,7 +1031,7 @@ export default function LabsSuperPagesEditor() {
               // panel. Width bumped 260 → 320 for breathing room
               // around controls inside.
               background: '#eef4fb',
-              borderRight: '1px solid #d7e4f3',
+              borderRight: '1px solid #c5d7ef',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',

@@ -111,7 +111,7 @@ function ProviderRow({ provider, value, onChange }) {
     <div style={{
       padding: 10,
       background: '#f3f8fd',
-      border: '1px solid #d7e4f3',
+      border: '1px solid #c5d7ef',
       borderRadius: 8,
       marginBottom: 8,
     }}>
@@ -120,7 +120,7 @@ function ProviderRow({ provider, value, onChange }) {
           <span style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 18, height: 18,
-            background: hasValue ? '#22d3ee' : '#d7e4f3',
+            background: hasValue ? '#22d3ee' : '#c5d7ef',
             color: hasValue ? '#0a1438' : '#6b80a8',
             borderRadius: 4,
             fontSize: 11, fontWeight: 700,
@@ -208,7 +208,7 @@ export default function ScriptsPanel({ scripts, onChange }) {
       <div style={{
         marginTop: 14,
         padding: 10,
-        border: '1px solid ' + (advancedEnabled ? 'rgba(245,158,11,0.4)' : '#d7e4f3'),
+        border: '1px solid ' + (advancedEnabled ? 'rgba(245,158,11,0.4)' : '#c5d7ef'),
         background: advancedEnabled ? 'rgba(245,158,11,0.05)' : '#f3f8fd',
         borderRadius: 8,
       }}>

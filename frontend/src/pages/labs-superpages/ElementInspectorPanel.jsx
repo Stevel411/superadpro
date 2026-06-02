@@ -5855,7 +5855,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
       display: 'flex', alignItems: 'center', gap: 8,
       padding: '8px 10px',
       background: '#f3f8fd',
-      border: '1px solid #d7e4f3',
+      border: '1px solid #c5d7ef',
       borderRadius: 6,
       color: '#6b80a8',
       fontSize: 12, fontWeight: 600,
@@ -5887,7 +5887,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         fontFamily: 'inherit',
       }}>
         {/* Header */}
-        <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid #d7e4f3' }}>
+        <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid #c5d7ef' }}>
           <div style={{
             fontSize: 10, fontWeight: 800,
             color: '#4d648c',
@@ -5911,7 +5911,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontSize: 11, fontWeight: 700,
               cursor: 'pointer',
               fontFamily: 'inherit',
-              border: '2px solid ' + (!isPublished ? '#0ea5e9' : '#c5d8ef'),
+              border: '2px solid ' + (!isPublished ? '#0ea5e9' : '#abc5e5'),
               background: !isPublished ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
               color: !isPublished ? '#22d3ee' : '#4d648c',
             }}>
@@ -5926,7 +5926,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontSize: 11, fontWeight: 700,
               cursor: 'pointer',
               fontFamily: 'inherit',
-              border: '2px solid ' + (isPublished ? '#10b981' : '#c5d8ef'),
+              border: '2px solid ' + (isPublished ? '#10b981' : '#abc5e5'),
               background: isPublished ? 'rgba(16,185,129,0.16)' : '#f3f8fd',
               color: isPublished ? '#34d399' : '#4d648c',
             }}>
@@ -5991,7 +5991,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <div style={sectionLabelStyle}>Typography</div>
         <div style={{
           padding: 10,
-          border: '1px solid #d7e4f3',
+          border: '1px solid #c5d7ef',
           borderRadius: 8,
           background: '#f3f8fd',
         }}>
@@ -6061,7 +6061,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
                     flex: 1,
                     padding: '6px 8px',
                     fontSize: 11, fontWeight: 700,
-                    border: '2px solid ' + (active ? '#0ea5e9' : '#c5d8ef'),
+                    border: '2px solid ' + (active ? '#0ea5e9' : '#abc5e5'),
                     background: active ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
                     color: active ? '#22d3ee' : '#4d648c',
                     borderRadius: 5,

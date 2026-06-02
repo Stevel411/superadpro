@@ -234,7 +234,7 @@
 .labs-chrome .ins-cobalt textarea,
 .labs-chrome .ins-cobalt select {
   background: #ffffff !important;
-  border: 2px solid #c5d8ef !important;
+  border: 2px solid #abc5e5 !important;
   color: #0f172a !important;
   box-shadow: 0 1px 2px rgba(15,40,90,0.04) !important;
   transition: all 0.15s ease !important;
@@ -271,8 +271,8 @@
   --sap-text-faint: #8aa0c4;
   --sap-text-primary: #0f172a;
   --sap-text-secondary: #4d648c;
-  --sap-border: #d7e4f3;
-  --sap-border-faint: #e3edf8;
+  --sap-border: #c5d7ef;
+  --sap-border-faint: #d4e1f1;
   --sap-bg-elevated: #ffffff;
   --sap-bg-input: #ffffff;
 }
@@ -336,7 +336,7 @@
 /* The 'EDITING' header strip at top of the Inspector — make the
    border read on cobalt. */
 .labs-chrome .ins-cobalt > div:first-child[style*="border-bottom"] {
-  border-bottom-color: #e3edf8 !important;
+  border-bottom-color: #d4e1f1 !important;
 }
 
 /* The lifted tiles — navy outline + frosted gradient.
@@ -350,7 +350,7 @@
   min-height: 94px !important;
   background: #ffffff !important;
   background-image: none !important;
-  border: 2px solid #c5d8ef !important;
+  border: 2px solid #abc5e5 !important;
   border-radius: 12px !important;
   padding: 14px 10px !important;
   display: flex !important;
