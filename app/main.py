@@ -21131,6 +21131,103 @@ def admin_api_wallet_lookup(
     }
 
 
+@app.get("/admin/api/orphans/bulk-resolve")
+def admin_api_bulk_resolve_orphans(
+    request: Request,
+    dust_below: float = 0.01,
+    manual_ids: str = "",
+    dry_run: bool = True,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Browser-navigable bulk orphan cleanup (admin, phone-friendly — GET only).
+
+    Two actions in one pass:
+      1. DUST → spam: any unresolved orphan with amount_usdt < dust_below
+         (default $0.01) is bot/dust spam — marked resolved as 'spam'.
+      2. manual_ids → manual: a comma-separated list of orphan ids (e.g. your
+         own treasury top-ups) marked resolved as 'manual: admin top-up'.
+
+    Dry run by default — shows exactly what WOULD be resolved. Add
+    ?dry_run=false to apply. Combine params, e.g.:
+      /admin/api/orphans/bulk-resolve?manual_ids=148,149,150&dry_run=false
+    (dust is always included; set dust_below=0 to skip the dust sweep.)
+    """
+    _require_admin(user)
+    from .database import OnchainOrphanTransfer
+    import decimal as _dec
+
+    ids = []
+    for part in (manual_ids or "").split(","):
+        part = part.strip()
+        if part.isdigit():
+            ids.append(int(part))
+
+    dust_q = db.query(OnchainOrphanTransfer).filter(
+        OnchainOrphanTransfer.resolved == False,  # noqa: E712
+    )
+    if dust_below and dust_below > 0:
+        dust_rows = dust_q.filter(OnchainOrphanTransfer.amount_usdt < _dec.Decimal(str(dust_below))).all()
+    else:
+        dust_rows = []
+
+    manual_rows = []
+    if ids:
+        manual_rows = db.query(OnchainOrphanTransfer).filter(
+            OnchainOrphanTransfer.id.in_(ids),
+            OnchainOrphanTransfer.resolved == False,  # noqa: E712
+        ).all()
+
+    # Don't double-handle an id that's both dust and in manual_ids — manual wins.
+    dust_ids = {r.id for r in dust_rows} - set(ids)
+    dust_rows = [r for r in dust_rows if r.id in dust_ids]
+
+    plan = {
+        "dust_spam": [{"id": r.id, "amount_usdt": float(r.amount_usdt), "from": r.from_address} for r in dust_rows],
+        "manual": [{"id": r.id, "amount_usdt": float(r.amount_usdt), "from": r.from_address} for r in manual_rows],
+    }
+    dust_total = round(sum(float(r.amount_usdt) for r in dust_rows), 6)
+    manual_total = round(sum(float(r.amount_usdt) for r in manual_rows), 2)
+
+    resolved_count = 0
+    if not dry_run:
+        now = datetime.utcnow()
+        for r in dust_rows:
+            r.resolved = True
+            r.resolved_at = now
+            r.resolved_by_user_id = user.id
+            r.resolution_note = "spam: sub-cent dust (bulk)"
+            resolved_count += 1
+        for r in manual_rows:
+            r.resolved = True
+            r.resolved_at = now
+            r.resolved_by_user_id = user.id
+            r.resolution_note = "manual: admin treasury top-up (bulk)"
+            resolved_count += 1
+        db.commit()
+        logger.info(
+            f"ADMIN ORPHAN BULK-RESOLVE: admin={user.username} dust={len(dust_rows)} "
+            f"manual={len(manual_rows)} (ids={ids})"
+        )
+
+    return JSONResponse({
+        "dry_run": dry_run,
+        "dust_below": dust_below,
+        "would_resolve_dust": len(dust_rows),
+        "dust_total_usdt": dust_total,
+        "would_resolve_manual": len(manual_rows),
+        "manual_total_usdt": manual_total,
+        "resolved_count": resolved_count,
+        "plan": plan,
+        "note": (
+            "Dry run — add &dry_run=false to apply."
+            if dry_run else
+            f"Resolved {resolved_count} orphan(s): {len(dust_rows)} dust as spam, "
+            f"{len(manual_rows)} as manual top-ups."
+        ),
+    })
+
+
 @app.post("/admin/api/orphans/{orphan_id}/resolve")
 async def admin_api_resolve_orphan(
     orphan_id: int,
