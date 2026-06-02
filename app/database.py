@@ -1888,6 +1888,29 @@ class AppConfig(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
 
+class OperatingExpense(Base):
+    """Admin-entered operating expenses, fed into the P&L on /admin/finances.
+
+    kind:
+      - 'recurring' : a monthly cost (hosting, API subscriptions). The P&L
+        PRORATES it — counts amount × months-since-its-start-date.
+      - 'one_off'   : a single cost (logo, contractor, annual fee). Counted
+        in full once, on incurred_on.
+
+    active=False soft-deletes (kept for history; excluded from the P&L).
+    """
+    __tablename__ = "operating_expenses"
+    id          = Column(Integer, primary_key=True, autoincrement=True)
+    label       = Column(String(120), nullable=False)
+    amount_usd  = Column(Numeric(12, 2), nullable=False)
+    kind        = Column(String(20), nullable=False, default="recurring")  # recurring | one_off
+    incurred_on = Column(DateTime, nullable=False, default=datetime.utcnow)  # start date (recurring) / date paid (one_off)
+    note        = Column(Text, nullable=True)
+    active      = Column(Boolean, nullable=False, default=True)
+    created_at  = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at  = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
 class NowPaymentsOrder(Base):
     """NOWPayments invoice-based payment orders (crypto + fiat card)."""
     __tablename__ = "nowpayments_orders"
@@ -2428,6 +2451,20 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS app_config ("
         "  key VARCHAR(80) PRIMARY KEY,"
         "  value TEXT,"
+        "  updated_at TIMESTAMP NOT NULL DEFAULT NOW()"
+        ")",
+        # ── Operating expenses ledger (added 2 Jun 2026 for P&L) ──
+        # Admin-entered costs; 'recurring' is prorated monthly in the P&L,
+        # 'one_off' counted once on incurred_on. Soft-delete via active.
+        "CREATE TABLE IF NOT EXISTS operating_expenses ("
+        "  id SERIAL PRIMARY KEY,"
+        "  label VARCHAR(120) NOT NULL,"
+        "  amount_usd NUMERIC(12,2) NOT NULL,"
+        "  kind VARCHAR(20) NOT NULL DEFAULT 'recurring',"
+        "  incurred_on TIMESTAMP NOT NULL DEFAULT NOW(),"
+        "  note TEXT,"
+        "  active BOOLEAN NOT NULL DEFAULT TRUE,"
+        "  created_at TIMESTAMP NOT NULL DEFAULT NOW(),"
         "  updated_at TIMESTAMP NOT NULL DEFAULT NOW()"
         ")",
         # ── Rotator queue (added 16 May 2026 for /start funnel) ──

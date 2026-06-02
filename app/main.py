@@ -21151,6 +21151,117 @@ def admin_api_wallet_lookup(
     }
 
 
+@app.get("/admin/api/expenses")
+def admin_api_expenses_list(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List operating expenses (active only) for the P&L expenses panel."""
+    _require_admin(user)
+    from .database import OperatingExpense
+    rows = db.query(OperatingExpense).filter(
+        OperatingExpense.active == True  # noqa: E712
+    ).order_by(OperatingExpense.kind.asc(), OperatingExpense.amount_usd.desc()).all()
+    return JSONResponse({"expenses": [{
+        "id": r.id, "label": r.label, "amount_usd": float(r.amount_usd or 0),
+        "kind": r.kind, "incurred_on": r.incurred_on.isoformat() if r.incurred_on else None,
+        "note": r.note or "",
+    } for r in rows]})
+
+
+@app.post("/admin/api/expenses")
+async def admin_api_expenses_add(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Add an operating expense. JSON body: {label, amount_usd, kind,
+    incurred_on?, note?}. kind = 'recurring' | 'one_off'."""
+    _require_admin(user)
+    from .database import OperatingExpense
+    body = await request.json()
+    label = (body.get("label") or "").strip()[:120]
+    kind = (body.get("kind") or "recurring").strip()
+    note = (body.get("note") or "").strip()[:1000]
+    if not label:
+        return JSONResponse({"success": False, "error": "label required"}, status_code=400)
+    if kind not in ("recurring", "one_off"):
+        return JSONResponse({"success": False, "error": "kind must be recurring or one_off"}, status_code=400)
+    try:
+        amount = Decimal(str(body.get("amount_usd")))
+        if amount <= 0:
+            raise ValueError()
+    except Exception:
+        return JSONResponse({"success": False, "error": "amount_usd must be a positive number"}, status_code=400)
+
+    incurred = datetime.utcnow()
+    raw_date = (body.get("incurred_on") or "").strip()
+    if raw_date:
+        try:
+            incurred = datetime.fromisoformat(raw_date[:19])
+        except Exception:
+            try:
+                incurred = datetime.strptime(raw_date[:10], "%Y-%m-%d")
+            except Exception:
+                pass
+
+    ex = OperatingExpense(label=label, amount_usd=amount, kind=kind,
+                          incurred_on=incurred, note=note, active=True)
+    db.add(ex)
+    db.commit()
+    logger.info(f"ADMIN EXPENSE ADD: admin={user.username} label='{label}' {kind} ${amount}")
+    return JSONResponse({"success": True, "id": ex.id})
+
+
+@app.post("/admin/api/expenses/{expense_id}")
+async def admin_api_expenses_update(
+    expense_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update or soft-delete an expense. Body: any of {label, amount_usd,
+    kind, incurred_on, note} to edit, or {delete: true} to soft-delete."""
+    _require_admin(user)
+    from .database import OperatingExpense
+    ex = db.query(OperatingExpense).filter(OperatingExpense.id == expense_id).first()
+    if not ex:
+        return JSONResponse({"success": False, "error": "not found"}, status_code=404)
+    body = await request.json()
+
+    if body.get("delete") is True:
+        ex.active = False
+        db.commit()
+        logger.info(f"ADMIN EXPENSE DELETE: admin={user.username} id={expense_id}")
+        return JSONResponse({"success": True, "deleted": True})
+
+    if "label" in body:
+        ex.label = (body.get("label") or ex.label).strip()[:120]
+    if "kind" in body and body["kind"] in ("recurring", "one_off"):
+        ex.kind = body["kind"]
+    if "note" in body:
+        ex.note = (body.get("note") or "").strip()[:1000]
+    if "amount_usd" in body:
+        try:
+            amt = Decimal(str(body["amount_usd"]))
+            if amt > 0:
+                ex.amount_usd = amt
+        except Exception:
+            return JSONResponse({"success": False, "error": "bad amount"}, status_code=400)
+    if body.get("incurred_on"):
+        try:
+            ex.incurred_on = datetime.fromisoformat(str(body["incurred_on"])[:19])
+        except Exception:
+            try:
+                ex.incurred_on = datetime.strptime(str(body["incurred_on"])[:10], "%Y-%m-%d")
+            except Exception:
+                pass
+    db.commit()
+    logger.info(f"ADMIN EXPENSE UPDATE: admin={user.username} id={expense_id}")
+    return JSONResponse({"success": True})
+
+
 @app.get("/admin/api/pnl-config")
 def admin_api_pnl_config(
     request: Request,

@@ -982,20 +982,24 @@ function FinancesTab() {
               <div style={{marginTop:12}}>
                 <RowK label="Gross retained revenue" value={m(pnl.gross_retained_revenue_usd)}/>
                 <RowK label={'− Stripe fees ('+pnl.stripe_fees_source+')'} value={'−'+m(pnl.stripe_fees_usd)}/>
-                <RowK label={'− Operating costs ('+pnl.months_live+' mo × '+m(pnl.monthly_opex_usd)+'/mo)'} value={'−'+m(pnl.opex_to_date_usd)}/>
+                <RowK label="− Operating costs (since launch)" value={'−'+m(pnl.opex_to_date_usd)}/>
               </div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
               <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>Inputs</div>
               <div style={{marginTop:6}}>
                 <RowK label="Stripe volume processed" value={m(pnl.stripe_volume_usd)+' · '+pnl.stripe_txn_count+' charges'}/>
-                <RowK label="Monthly operating cost" value={m(pnl.monthly_opex_usd)+(pnl.opex_is_set?'':'  ⚠ not set')}/>
+                <RowK label="Recurring costs / mo" value={m(pnl.monthly_recurring_usd)}/>
+                <RowK label="One-off costs (total)" value={m(pnl.one_off_total_usd)}/>
+                <RowK label="Costs counted to date" value={m(pnl.opex_to_date_usd)+((pnl.expense_count===0)?'  ⚠ none added':'')}/>
               </div>
               <div style={{marginTop:10,fontSize:11,lineHeight:1.5,color:'var(--sap-text-faint)'}}>
-                Set real figures: <code>/admin/api/pnl-config?monthly_opex=NN&amp;stripe_fees_actual=NN</code> (dry-run; add &amp;apply=true).
+                Stripe fees actual: <code>/admin/api/pnl-config?stripe_fees_actual=NN&amp;apply=true</code>
               </div>
             </div>
           </div>
+
+          <ExpensesPanel pnl={pnl} m={m} onChange={load}/>
         </>
       )}
 
@@ -1096,6 +1100,113 @@ function FinancesTab() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Operating expenses panel — add/list/delete, feeds the P&L
+function ExpensesPanel(props) {
+  var pnl = props.pnl, m = props.m, onChange = props.onChange;
+  var expenses = (pnl && pnl.expenses) || [];
+  var [label, setLabel] = useState('');
+  var [amount, setAmount] = useState('');
+  var [kind, setKind] = useState('recurring');
+  var [date, setDate] = useState('');
+  var [busy, setBusy] = useState(false);
+  var [error, setError] = useState('');
+
+  function add() {
+    setError('');
+    var amt = Number(amount);
+    if (!label.trim()) { setError('Enter a name'); return; }
+    if (!(amt > 0)) { setError('Enter an amount greater than 0'); return; }
+    setBusy(true);
+    apiPost('/admin/api/expenses', {
+      label: label.trim(), amount_usd: amt, kind: kind,
+      incurred_on: date || undefined,
+    }).then(function() {
+      setLabel(''); setAmount(''); setKind('recurring'); setDate('');
+      setBusy(false);
+      if (onChange) onChange();
+    }).catch(function(e) { setError(String(e)); setBusy(false); });
+  }
+
+  function del(id) {
+    setBusy(true);
+    apiPost('/admin/api/expenses/' + id, { delete: true }).then(function() {
+      setBusy(false);
+      if (onChange) onChange();
+    }).catch(function(e) { setError(String(e)); setBusy(false); });
+  }
+
+  var inputStyle = { padding: '9px 11px', border: '1px solid #d8dee8', borderRadius: 9, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' };
+  var recurring = expenses.filter(function(e) { return e.kind !== 'one_off'; });
+  var oneoffs = expenses.filter(function(e) { return e.kind === 'one_off'; });
+
+  function row(e) {
+    return (
+      <div key={e.id} style={{display:'flex',alignItems:'center',gap:10,padding:'9px 0',borderBottom:'1px solid #f0f3f8'}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:13.5,fontWeight:600,color:'var(--sap-text-primary)'}}>{e.label}</div>
+          {e.note ? <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>{e.note}</div> : null}
+        </div>
+        <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:13.5,color:'var(--sap-text-primary)',whiteSpace:'nowrap'}}>
+          {m(e.amount_usd)}{e.kind === 'one_off' ? '' : '/mo'}
+        </div>
+        <button onClick={function() { del(e.id); }} disabled={busy}
+          style={{border:'none',background:'transparent',color:'var(--sap-red)',cursor:'pointer',fontSize:12,fontWeight:700,padding:'4px 6px'}}>Remove</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{marginBottom:24}}>
+      <div style={{marginBottom:8,display:'flex',alignItems:'baseline',gap:10}}>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Operating expenses</div>
+        <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>recurring is prorated · one-off counted once · feeds the P&amp;L above</div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(320px,1fr))',gap:14}}>
+
+        {/* Add form */}
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:18}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:12}}>Add an expense</div>
+          <div style={{display:'flex',flexDirection:'column',gap:9}}>
+            <input style={inputStyle} placeholder="Name (e.g. Railway hosting)" value={label} onChange={function(ev){setLabel(ev.target.value);}}/>
+            <div style={{display:'flex',gap:9}}>
+              <input style={Object.assign({}, inputStyle, {flex:1})} type="number" min="0" step="0.01" placeholder="Amount $" value={amount} onChange={function(ev){setAmount(ev.target.value);}}/>
+              <select style={Object.assign({}, inputStyle, {flex:1,cursor:'pointer'})} value={kind} onChange={function(ev){setKind(ev.target.value);}}>
+                <option value="recurring">Monthly (recurring)</option>
+                <option value="one_off">One-off</option>
+              </select>
+            </div>
+            <input style={inputStyle} type="date" value={date} onChange={function(ev){setDate(ev.target.value);}}
+              title={kind==='one_off' ? 'Date paid' : 'Start date (defaults to today)'}/>
+            {error ? <div style={{fontSize:12,color:'var(--sap-red)',fontWeight:600}}>{error}</div> : null}
+            <button onClick={add} disabled={busy}
+              style={{marginTop:2,padding:'10px 14px',borderRadius:9,border:'none',cursor:busy?'default':'pointer',
+                      background:'linear-gradient(135deg,var(--sap-cobalt-deep),var(--sap-sky,#0ea5e9))',color:'#fff',
+                      fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:13,opacity:busy?0.6:1}}>
+              {busy ? 'Saving…' : 'Add expense'}
+            </button>
+          </div>
+        </div>
+
+        {/* List */}
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:18}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>Logged expenses</div>
+          {expenses.length === 0 ? (
+            <div style={{fontSize:13,color:'var(--sap-text-faint)',padding:'14px 0'}}>No expenses yet. Add your hosting, API and email costs to see true net profit.</div>
+          ) : (
+            <div>
+              {recurring.length > 0 ? <div style={{fontSize:10,fontWeight:800,letterSpacing:'.06em',textTransform:'uppercase',color:'var(--sap-cobalt-deep)',margin:'8px 0 2px'}}>Recurring</div> : null}
+              {recurring.map(row)}
+              {oneoffs.length > 0 ? <div style={{fontSize:10,fontWeight:800,letterSpacing:'.06em',textTransform:'uppercase',color:'var(--sap-text-faint)',margin:'12px 0 2px'}}>One-off</div> : null}
+              {oneoffs.map(row)}
+            </div>
+          )}
+        </div>
+
+      </div>
     </div>
   );
 }

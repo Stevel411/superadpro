@@ -412,9 +412,34 @@ def _profit_and_loss(db: Session) -> Dict[str, Any]:
         fees_source = f"estimated ({float(blended_pct)*100:.1f}% + ${float(per_txn):.2f}/txn × {stripe_txn_count} charges)"
     stripe_fees = stripe_fees.quantize(Decimal("0.01"))
 
-    # ── Operating costs (monthly opex, prorated since launch) ──
-    monthly_opex = _dec_cfg("pnl_monthly_opex_usd", "0")
-    opex_to_date = (monthly_opex * Decimal(str(months_live))).quantize(Decimal("0.01"))
+    # ── Operating costs from the itemised expense ledger ──
+    #   recurring : amount × months since its incurred_on (prorated, min the
+    #               months it's actually existed, capped at months_live)
+    #   one_off   : full amount once, if incurred on/after launch (else still
+    #               counted — a pre-launch one-off is a real sunk cost)
+    from app.database import OperatingExpense
+    expenses = db.query(OperatingExpense).filter(OperatingExpense.active == True).all()  # noqa: E712
+    opex_to_date = Decimal("0")
+    monthly_recurring = Decimal("0")
+    one_off_total = Decimal("0")
+    for ex in expenses:
+        amt = Decimal(str(ex.amount_usd or 0))
+        if ex.kind == "one_off":
+            one_off_total += amt
+            opex_to_date += amt
+        else:  # recurring
+            monthly_recurring += amt
+            start = ex.incurred_on or launch
+            months_active = max((now - start).days / 30.4375, 0.0)
+            months_active = min(months_active, float(months_live))
+            opex_to_date += (amt * Decimal(str(months_active)))
+    opex_to_date = opex_to_date.quantize(Decimal("0.01"))
+    # Back-compat: if no ledger rows yet but a legacy single monthly_opex was
+    # set via pnl-config, honour it (prorated) so nothing silently drops.
+    legacy_monthly = _dec_cfg("pnl_monthly_opex_usd", "0")
+    if not expenses and legacy_monthly > 0:
+        monthly_recurring = legacy_monthly
+        opex_to_date = (legacy_monthly * Decimal(str(months_live))).quantize(Decimal("0.01"))
 
     net_profit = (gross_retained - stripe_fees - opex_to_date).quantize(Decimal("0.01"))
 
@@ -427,17 +452,31 @@ def _profit_and_loss(db: Session) -> Dict[str, Any]:
         "stripe_txn_count": stripe_txn_count,
         "stripe_fees_usd": float(stripe_fees),
         "stripe_fees_source": fees_source,
-        "monthly_opex_usd": float(monthly_opex),
+        "monthly_recurring_usd": float(monthly_recurring),
+        "one_off_total_usd": float(one_off_total),
         "opex_to_date_usd": float(opex_to_date),
         "net_profit_usd": float(net_profit),
-        "opex_is_set": monthly_opex > 0,
+        "opex_is_set": opex_to_date > 0 or len(expenses) > 0,
+        "expense_count": len(expenses),
+        "expenses": [
+            {
+                "id": ex.id,
+                "label": ex.label,
+                "amount_usd": float(ex.amount_usd or 0),
+                "kind": ex.kind,
+                "incurred_on": ex.incurred_on.isoformat() if ex.incurred_on else None,
+                "note": ex.note or "",
+            }
+            for ex in sorted(expenses, key=lambda e: (e.kind, -float(e.amount_usd or 0)))
+        ],
         "notes": (
             "Net profit = gross company-retained revenue − Stripe processing "
-            "fees − operating costs (monthly opex prorated since launch). "
-            "Stripe fees are estimated unless an actual figure is set. Set "
-            "costs via /admin/api/pnl-config. Does not subtract your personal "
-            "treasury top-ups (those are revenue arriving in the wrong pot, "
-            "recovered as the fiat→USDT pipeline matures, not a true cost)."
+            "fees − operating costs (recurring prorated since their start date "
+            "+ one-offs in full). Stripe fees are estimated unless an actual "
+            "figure is set. Manage costs in the Operating expenses panel. Does "
+            "not subtract your personal treasury top-ups (those are revenue "
+            "arriving in the wrong pot, recovered as the fiat→USDT pipeline "
+            "matures, not a true cost)."
         ),
     }
 
