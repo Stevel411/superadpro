@@ -864,7 +864,7 @@ export default function LabsSuperPagesEditor() {
         onSetDevice={setDeviceView}
         canvasScale={canvasScale}
       />
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0, position: 'relative' }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0, position: 'relative', padding: 10, gap: 10 }}>
         {/* Floating layer panel — opens from the topbar button.
             Positioned over the canvas without taking layout space, so
             members can toggle it as a tool without losing canvas width. */}
@@ -1031,7 +1031,9 @@ export default function LabsSuperPagesEditor() {
               // panel. Width bumped 260 → 320 for breathing room
               // around controls inside.
               background: '#eef4fb',
-              borderRight: '1px solid #c5d7ef',
+              border: '1px solid #c5d7ef',
+              borderRadius: 12,
+              boxShadow: '0 1px 3px rgba(30,58,138,0.06), 0 6px 16px rgba(30,58,138,0.08)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',

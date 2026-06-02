@@ -150,7 +150,9 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       // Width bumped 284 → 320 to balance with Inspector and give
       // tiles more breathing room.
       background: '#eef4fb',
-      borderLeft: '1px solid #c5d7ef',
+      border: '1px solid #c5d7ef',
+      borderRadius: 12,
+      boxShadow: '0 1px 3px rgba(30,58,138,0.06), 0 6px 16px rgba(30,58,138,0.08)',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
 
