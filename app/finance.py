@@ -30,7 +30,7 @@ from sqlalchemy.orm import Session
 from app.database import (
     User, Payment, Withdrawal, Commission, StripeCharge,
     SuperSceneOrder, CreditPackPurchase, OnchainOrphanTransfer,
-    PendingCommission,
+    PendingCommission, AppConfig,
 )
 
 
@@ -341,9 +341,101 @@ def _company_retained(db: Session, since: datetime = None) -> Dict[str, Any]:
     }
 
 
-def _member_liabilities(db: Session) -> Dict[str, Any]:
-    """Money the platform owes members. Not time-windowed — always
-    current snapshot."""
+def _appconfig_get(db: Session, key: str, default: str = "") -> str:
+    row = db.query(AppConfig).filter(AppConfig.key == key).first()
+    return row.value if row and row.value is not None else default
+
+
+def _profit_and_loss(db: Session) -> Dict[str, Any]:
+    """Lifetime P&L — turns gross company-retained revenue into an actual
+    bottom line by netting off real costs.
+
+    Layers:
+      1. Gross retained revenue  = _company_retained(all-time).total_usd
+      2. − Stripe processing fees (ESTIMATED from charge count + volume at a
+           configurable blended rate; override with the real figure from the
+           Stripe dashboard via app_config 'pnl_stripe_fees_actual_usd').
+      3. − Operating costs (infra/APIs etc.) — a monthly figure the admin
+           sets via app_config 'pnl_monthly_opex_usd', prorated across the
+           months since launch.
+      = Net profit since launch.
+
+    All cost inputs live in app_config (set via the admin endpoint) so they
+    persist across deploys without a schema change. Nothing here is paid out
+    or charged — it's a reporting view only.
+    """
+    retained = _company_retained(db)
+    gross_retained = Decimal(str(retained["total_usd"]))
+
+    # ── Launch date = first real Stripe charge (charge table went live at
+    #    launch). Falls back to 30 days if somehow empty. ──
+    first_charge = db.query(func.min(StripeCharge.created_at)).filter(
+        StripeCharge.kind == "charge",
+    ).scalar()
+    now = datetime.utcnow()
+    launch = first_charge or (now - timedelta(days=30))
+    days_live = max((now - launch).days, 1)
+    months_live = max(days_live / 30.4375, 0.1)  # avg month length
+
+    # ── Stripe fees ──
+    # Actual override (admin pastes the real lifetime fee total from Stripe).
+    actual_fees_raw = _appconfig_get(db, "pnl_stripe_fees_actual_usd", "").strip()
+    # Blended rate: members are global, so default a touch above the UK 1.5%
+    # domestic rate to cover EU/international cards + Stripe Billing's +0.7%
+    # subscription fee. Override via 'pnl_stripe_blended_pct'/'pnl_stripe_per_txn_usd'.
+    blended_pct = Decimal(_appconfig_get(db, "pnl_stripe_blended_pct", "2.4")) / Decimal("100")
+    per_txn = Decimal(_appconfig_get(db, "pnl_stripe_per_txn_usd", "0.27"))  # ~£0.20 in USD
+
+    stripe_rows = db.query(
+        func.coalesce(func.sum(StripeCharge.amount_cents), 0),
+        func.count(StripeCharge.id),
+    ).filter(StripeCharge.kind == "charge", StripeCharge.amount_cents > 0).first()
+    stripe_volume = Decimal(str((stripe_rows[0] or 0) / 100))
+    stripe_txn_count = int(stripe_rows[1] or 0)
+
+    if actual_fees_raw:
+        try:
+            stripe_fees = Decimal(actual_fees_raw)
+            fees_source = "actual (from Stripe dashboard)"
+        except Exception:
+            stripe_fees = (stripe_volume * blended_pct) + (per_txn * stripe_txn_count)
+            fees_source = "estimated (bad actual value — using estimate)"
+    else:
+        stripe_fees = (stripe_volume * blended_pct) + (per_txn * stripe_txn_count)
+        fees_source = f"estimated ({blended_pct*100:.1f}% + ${per_txn}/txn × {stripe_txn_count} charges)"
+    stripe_fees = stripe_fees.quantize(Decimal("0.01"))
+
+    # ── Operating costs (monthly opex, prorated since launch) ──
+    monthly_opex = Decimal(_appconfig_get(db, "pnl_monthly_opex_usd", "0") or "0")
+    opex_to_date = (monthly_opex * Decimal(str(months_live))).quantize(Decimal("0.01"))
+
+    net_profit = (gross_retained - stripe_fees - opex_to_date).quantize(Decimal("0.01"))
+
+    return {
+        "launch_date": launch.isoformat(),
+        "days_live": days_live,
+        "months_live": round(months_live, 2),
+        "gross_retained_revenue_usd": float(gross_retained),
+        "stripe_volume_usd": float(stripe_volume),
+        "stripe_txn_count": stripe_txn_count,
+        "stripe_fees_usd": float(stripe_fees),
+        "stripe_fees_source": fees_source,
+        "monthly_opex_usd": float(monthly_opex),
+        "opex_to_date_usd": float(opex_to_date),
+        "net_profit_usd": float(net_profit),
+        "opex_is_set": monthly_opex > 0,
+        "notes": (
+            "Net profit = gross company-retained revenue − Stripe processing "
+            "fees − operating costs (monthly opex prorated since launch). "
+            "Stripe fees are estimated unless an actual figure is set. Set "
+            "costs via /admin/api/pnl-config. Does not subtract your personal "
+            "treasury top-ups (those are revenue arriving in the wrong pot, "
+            "recovered as the fiat→USDT pipeline matures, not a true cost)."
+        ),
+    }
+
+
+
     balance_sum = _sum_or_zero(
         db.query(func.sum(User.balance)).scalar()
     )
@@ -512,6 +604,7 @@ def compute_financial_overview(db: Session) -> Dict[str, Any]:
     mrr = _mrr(db)
     liabilities = _member_liabilities(db)
     concerns = _concerns(db)
+    pnl = _profit_and_loss(db)
 
     # Headline — the single sentence Steve actually wants
     headline = (
@@ -529,5 +622,6 @@ def compute_financial_overview(db: Session) -> Dict[str, Any]:
         "mrr": mrr,
         "liabilities": liabilities,
         "concerns": concerns,
+        "pnl": pnl,
         "headline": headline,
     }

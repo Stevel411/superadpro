@@ -4380,6 +4380,26 @@ def admin_finances_page(request: Request, user: User = Depends(get_current_user)
   <div class="headline">{data['headline']}</div>
 
   <div class="section-header">
+    <h2>Profit &amp; Loss</h2>
+    <span class="pill {'good' if data['pnl']['net_profit_usd'] >= 0 else 'warn'}">net profit since launch</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">NET PROFIT SINCE LAUNCH ({data['pnl']['days_live']} days)</div>
+      <div class="big-num" style="color:{'#15803d' if data['pnl']['net_profit_usd'] >= 0 else '#b91c1c'}">{m(data['pnl']['net_profit_usd'])}</div>
+      <div class="row"><span class="row-label">Gross retained revenue</span><span class="row-val">{m(data['pnl']['gross_retained_revenue_usd'])}</span></div>
+      <div class="row"><span class="row-label">− Stripe fees ({data['pnl']['stripe_fees_source']})</span><span class="row-val">−{m(data['pnl']['stripe_fees_usd'])}</span></div>
+      <div class="row"><span class="row-label">− Operating costs ({data['pnl']['months_live']} mo × {m(data['pnl']['monthly_opex_usd'])}/mo)</span><span class="row-val">−{m(data['pnl']['opex_to_date_usd'])}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Inputs</div>
+      <div class="row"><span class="row-label">Stripe volume processed</span><span class="row-val">{m(data['pnl']['stripe_volume_usd'])} · {data['pnl']['stripe_txn_count']} charges</span></div>
+      <div class="row"><span class="row-label">Monthly operating cost</span><span class="row-val">{m(data['pnl']['monthly_opex_usd'])}{'' if data['pnl']['opex_is_set'] else '  ⚠ not set'}</span></div>
+      <div class="row" style="border:none;padding-top:10px"><span class="row-label" style="font-size:11px;line-height:1.5">Set real figures: <code>/admin/api/pnl-config?monthly_opex=NN&amp;stripe_fees_actual=NN</code> (dry-run; add &amp;apply=true). Leave a field out to keep its current value.</span></div>
+    </div>
+  </div>
+
+  <div class="section-header">
     <h2>Monthly recurring revenue</h2>
     <span class="pill good">forward view</span>
   </div>
@@ -21129,6 +21149,82 @@ def admin_api_wallet_lookup(
         "pending_or_expired_orders_from_users": pending_payload,
         "orphan_transfers": orphans_payload,
     }
+
+
+@app.get("/admin/api/pnl-config")
+def admin_api_pnl_config(
+    request: Request,
+    monthly_opex: float = None,
+    stripe_fees_actual: float = None,
+    stripe_blended_pct: float = None,
+    stripe_per_txn: float = None,
+    apply: bool = False,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Set the cost inputs that turn gross retained revenue into net profit
+    on /admin/finances. Browser-navigable (phone URL bar), dry-run by default.
+
+    Params (all optional — only the ones you pass are touched):
+      - monthly_opex:        your total monthly infra/API/email/hosting cost
+                             (prorated since launch in the P&L).
+      - stripe_fees_actual:  the REAL lifetime Stripe fee total from your
+                             Stripe dashboard. Overrides the estimate.
+                             Pass 0 to clear it and go back to the estimate.
+      - stripe_blended_pct:  blended % rate for the fee ESTIMATE (default 2.4).
+      - stripe_per_txn:      per-charge fixed fee in USD for the estimate
+                             (default 0.27 ≈ £0.20).
+
+    Dry run by default — shows what WOULD change. Add &apply=true to save.
+    Example:
+      /admin/api/pnl-config?monthly_opex=150&stripe_fees_actual=120&apply=true
+    """
+    _require_admin(user)
+    from .database import AppConfig
+
+    updates = {}
+    if monthly_opex is not None:
+        updates["pnl_monthly_opex_usd"] = str(round(monthly_opex, 2))
+    if stripe_fees_actual is not None:
+        # 0 clears the override (empty string -> estimate path)
+        updates["pnl_stripe_fees_actual_usd"] = "" if stripe_fees_actual == 0 else str(round(stripe_fees_actual, 2))
+    if stripe_blended_pct is not None:
+        updates["pnl_stripe_blended_pct"] = str(round(stripe_blended_pct, 3))
+    if stripe_per_txn is not None:
+        updates["pnl_stripe_per_txn_usd"] = str(round(stripe_per_txn, 3))
+
+    if not updates:
+        return JSONResponse({
+            "success": False,
+            "error": "Pass at least one of: monthly_opex, stripe_fees_actual, stripe_blended_pct, stripe_per_txn",
+        }, status_code=400)
+
+    # current values for the diff
+    def _cur(k):
+        row = db.query(AppConfig).filter(AppConfig.key == k).first()
+        return row.value if row else None
+
+    plan = {k: {"from": _cur(k), "to": v} for k, v in updates.items()}
+
+    if apply:
+        for k, v in updates.items():
+            row = db.query(AppConfig).filter(AppConfig.key == k).first()
+            if row:
+                row.value = v
+            else:
+                db.add(AppConfig(key=k, value=v))
+        db.commit()
+        logger.info(f"ADMIN PNL-CONFIG: admin={user.username} set {updates}")
+
+    return JSONResponse({
+        "applied": apply,
+        "changes": plan,
+        "note": (
+            "Dry run — add &apply=true to save."
+            if not apply else
+            "Saved. Reload /admin/finances to see the updated net profit."
+        ),
+    })
 
 
 @app.get("/admin/api/orphans/bulk-resolve")
