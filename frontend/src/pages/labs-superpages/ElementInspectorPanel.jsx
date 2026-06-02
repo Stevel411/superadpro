@@ -6098,7 +6098,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
             scripts moved out of this group above). */}
         <div style={sectionLabelStyle}>Advanced</div>
         <div style={comingSoonBtnStyle} title="Coming soon">
-          <span style={{ color: '#22d3ee', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>↗</span>
+          <span style={{ color: '#0369a1', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>↗</span>
           <span>Custom domain</span>
           {comingSoonNote}
         </div>

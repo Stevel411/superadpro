@@ -151,12 +151,12 @@ function ProviderRow({ provider, value, onChange }) {
       />
       {hasValue && !formatValid && (
         <div style={{ fontSize: 10, color: '#fbbf24', marginTop: 4 }}>
-          Format looks off — expected like <code style={{background:'rgba(0,0,0,0.2)',padding:'0 4px',borderRadius:3}}>{provider.placeholder}</code>
+          Format looks off — expected like <code style={{background:'#fff',padding:'1px 5px',borderRadius:4,border:'1px solid #c5d7ef',color:'#1e293b'}}>{provider.placeholder}</code>
         </div>
       )}
       <a href={provider.docsUrl} target="_blank" rel="noopener noreferrer" style={{
         display: 'inline-block',
-        fontSize: 10, color: '#22d3ee',
+        fontSize: 10, color: '#0369a1', fontWeight: 600,
         marginTop: 4,
         textDecoration: 'none',
       }}>
@@ -228,7 +228,7 @@ export default function ScriptsPanel({ scripts, onChange }) {
               Advanced — raw script tags
             </div>
             <div style={{ fontSize: 12, color: '#4d648c', lineHeight: 1.5 }}>
-              Paste any HTML or <code style={{background:'rgba(0,0,0,0.2)',padding:'0 4px',borderRadius:3,color:'#22d3ee'}}>&lt;script&gt;</code> tags directly into your page.
+              Paste any HTML or <code style={{background:'#fff',padding:'1px 5px',borderRadius:4,border:'1px solid #c5d7ef',color:'#1e293b'}}>&lt;script&gt;</code> tags directly into your page.
               Use this only if you know what you're doing — code here runs on every visitor's browser
               and isn't checked for safety.
             </div>

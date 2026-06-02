@@ -1522,7 +1522,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
         {/* Empty state */}
         {els.length === 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 600 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: 'clamp(220px, 40vh, 460px)', paddingBottom: 60, height: '100%', minHeight: 600 }}>
             <div style={{ fontSize: 40, marginBottom: 12, color: '#7a8899' }}>✦</div>
             <h3 style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: '#0f172a', marginBottom: 6, letterSpacing: '-0.02em' }}>{t('superPagesEditor.startBuilding')}</h3>
             <p style={{ fontSize: 14, color: '#475569', maxWidth: 360, textAlign: 'center', lineHeight: 1.55, fontWeight: 500, marginBottom: 20 }}>{t('superPagesEditor.startBuildingDesc')}</p>
