@@ -290,7 +290,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       <div className="sp-cluster-divider"/>
 
       <button onClick={onBack} style={pillM}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}
         title={t('superPagesEditor.backToMyPages', { defaultValue: 'Back to My Pages' })}>
         <ArrowLeft size={14}/>
@@ -331,7 +331,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
             display:'inline-flex', alignItems:'center', gap:5,
             padding:'5px 10px', borderRadius:6,
             background:'rgba(34,211,238,0.14)', border:'1px solid rgba(34,211,238,0.4)',
-            color:'#22d3ee', fontSize:12, fontWeight:700,
+            color:'#fff', fontSize:12, fontWeight:700,
             fontFamily:'JetBrains Mono, ui-monospace, monospace',
             flexShrink: 0,
           }}>
@@ -352,12 +352,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       {!compactPrimary && (
         <>
           <button onClick={onUndo} style={pillS} title={t('superPagesEditor.undoLabel')}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
             <Undo2 size={14}/>
           </button>
           <button onClick={onRedo} style={pillS} title={t('superPagesEditor.redoLabel')}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
             <Redo2 size={14}/>
           </button>
@@ -389,7 +389,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       )}
 
       <button onClick={onToggleLayers} style={layersOpen ? pillM_active : pillM}
-        onMouseEnter={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; } }}
+        onMouseEnter={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; } }}
         onMouseLeave={e => { if (!layersOpen) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
         title={t('superPagesEditor.layersLabel', { defaultValue: 'Layers' })}>
         <Layers size={14}/>
@@ -399,7 +399,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       {!compactSecondary && (
         <>
           <button onClick={onToggleGrid} style={gridOn ? pillS_active : pillS}
-            onMouseEnter={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; } }}
+            onMouseEnter={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; } }}
             onMouseLeave={e => { if (!gridOn) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
             title="Toggle 8px grid + snap (⌘')">
             <Grid3x3 size={14}/>
@@ -407,10 +407,10 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
           {onShowWiring && (
             <button onClick={onShowWiring} style={currentListName ? pillM_active : pillM}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#22d3ee'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; }}
               onMouseLeave={e => {
                 e.currentTarget.style.borderColor = currentListName ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)';
-                e.currentTarget.style.color = currentListName ? '#22d3ee' : 'rgba(255,255,255,0.85)';
+                e.currentTarget.style.color = currentListName ? '#fff' : 'rgba(255,255,255,0.85)';
               }}
               title={currentListName ? `Campaign · leads go to: ${currentListName}` : 'Campaign · choose where leads from this page are sent'}>
               <Link2 size={14}/>
@@ -469,7 +469,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
                     background: item.active ? 'rgba(34,211,238,0.12)' : 'transparent',
                     border:'1px solid ' + (item.active ? 'rgba(34,211,238,0.3)' : 'transparent'),
                     borderRadius:6,
-                    color: item.danger ? 'rgba(255,255,255,0.7)' : (item.active ? '#22d3ee' : (item.accent || 'rgba(255,255,255,0.85)')),
+                    color: item.danger ? 'rgba(255,255,255,0.7)' : (item.active ? '#fff' : (item.accent || 'rgba(255,255,255,0.85)')),
                     fontSize:13, fontWeight:600,
                     fontFamily:'DM Sans,sans-serif',
                     cursor:'pointer',
@@ -606,7 +606,7 @@ const pillM = {
 const pillM_accent = {
   ...pillBase,
   background: 'rgba(34,211,238,0.16)',
-  color: '#22d3ee',
+  color: '#fff',
   border: '1px solid rgba(34,211,238,0.45)',
 };
 
@@ -614,7 +614,7 @@ const pillM_accent = {
 const pillM_active = {
   ...pillBase,
   background: 'rgba(34,211,238,0.14)',
-  color: '#22d3ee',
+  color: '#fff',
   border: '1px solid rgba(34,211,238,0.5)',
 };
 
@@ -630,9 +630,9 @@ const pillM_previewActive = {
 // Published status indicator — green tint when the page is live.
 const pillM_publishedActive = {
   ...pillBase,
-  background: 'rgba(34,197,94,0.18)',
-  color: '#86efac',
-  border: '1px solid rgba(34,197,94,0.5)',
+  background: 'rgba(34,211,238,0.22)',
+  color: '#fff',
+  border: '1px solid #22d3ee',
 };
 
 // Icon-only square pill. 36×36 — same height as the M pills, square.
@@ -649,7 +649,7 @@ const pillS = {
 const pillS_accent = {
   ...pillS,
   background: 'transparent',
-  color: '#22d3ee',
+  color: '#fff',
   border: '1px solid rgba(255,255,255,0.12)',
 };
 
@@ -657,7 +657,7 @@ const pillS_accent = {
 const pillS_active = {
   ...pillS,
   background: 'rgba(34,211,238,0.16)',
-  color: '#22d3ee',
+  color: '#fff',
   border: '1px solid rgba(34,211,238,0.5)',
 };
 
@@ -686,6 +686,6 @@ const grpBtn = {
 };
 const grpBtnActive = {
   background: 'rgba(34,211,238,0.22)',
-  color: '#22d3ee',
+  color: '#fff',
   boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
 };
