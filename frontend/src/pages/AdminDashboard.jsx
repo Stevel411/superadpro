@@ -952,6 +952,7 @@ function FinancesTab() {
   var at = overview && overview.all_time;
   var tm = overview && overview.this_month;
   var h24 = overview && overview.last_24h;
+  var pnl = overview && overview.pnl;
   var mrr = overview && overview.mrr;
   var liab = overview && overview.liabilities;
   var con = overview && overview.concerns;
@@ -966,6 +967,37 @@ function FinancesTab() {
         <div style={{fontSize:12,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',opacity:.7,marginBottom:6}}>Headline</div>
         <div style={{fontFamily:'Sora,sans-serif',fontSize:16,lineHeight:1.5}}>{overview && overview.headline}</div>
       </div>
+
+      {/* ── Profit & Loss ────────────────────────────────────── */}
+      {pnl && (
+        <>
+          <div style={{marginBottom:8,display:'flex',alignItems:'baseline',gap:10}}>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Profit &amp; Loss</div>
+            <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>net profit since launch ({pnl.days_live} days)</div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14,marginBottom:20}}>
+            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>Net profit since launch</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:(pnl.net_profit_usd>=0?'var(--sap-green)':'var(--sap-red)')}}>{m(pnl.net_profit_usd)}</div>
+              <div style={{marginTop:12}}>
+                <RowK label="Gross retained revenue" value={m(pnl.gross_retained_revenue_usd)}/>
+                <RowK label={'− Stripe fees ('+pnl.stripe_fees_source+')'} value={'−'+m(pnl.stripe_fees_usd)}/>
+                <RowK label={'− Operating costs ('+pnl.months_live+' mo × '+m(pnl.monthly_opex_usd)+'/mo)'} value={'−'+m(pnl.opex_to_date_usd)}/>
+              </div>
+            </div>
+            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--sap-text-faint)',marginBottom:6}}>Inputs</div>
+              <div style={{marginTop:6}}>
+                <RowK label="Stripe volume processed" value={m(pnl.stripe_volume_usd)+' · '+pnl.stripe_txn_count+' charges'}/>
+                <RowK label="Monthly operating cost" value={m(pnl.monthly_opex_usd)+(pnl.opex_is_set?'':'  ⚠ not set')}/>
+              </div>
+              <div style={{marginTop:10,fontSize:11,lineHeight:1.5,color:'var(--sap-text-faint)'}}>
+                Set real figures: <code>/admin/api/pnl-config?monthly_opex=NN&amp;stripe_fees_actual=NN</code> (dry-run; add &amp;apply=true).
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ── MRR + active members ─────────────────────────────── */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:14,marginBottom:20}}>
