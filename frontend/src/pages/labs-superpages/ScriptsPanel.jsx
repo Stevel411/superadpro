@@ -81,7 +81,7 @@ const PROVIDERS = [
 
 const labelStyle = {
   fontSize: 10, fontWeight: 800,
-  color: 'rgba(255,255,255,0.55)',
+  color: '#4d648c',
   letterSpacing: '0.06em', textTransform: 'uppercase',
   marginBottom: 4,
 };
@@ -110,8 +110,8 @@ function ProviderRow({ provider, value, onChange }) {
   return (
     <div style={{
       padding: 10,
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,255,255,0.1)',
+      background: '#f3f8fd',
+      border: '1px solid #d7e4f3',
       borderRadius: 8,
       marginBottom: 8,
     }}>
@@ -120,8 +120,8 @@ function ProviderRow({ provider, value, onChange }) {
           <span style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 18, height: 18,
-            background: hasValue ? '#22d3ee' : 'rgba(255,255,255,0.1)',
-            color: hasValue ? '#0a1438' : 'rgba(255,255,255,0.5)',
+            background: hasValue ? '#22d3ee' : '#d7e4f3',
+            color: hasValue ? '#0a1438' : '#6b80a8',
             borderRadius: 4,
             fontSize: 11, fontWeight: 700,
           }}>{provider.icon}</span>
@@ -183,7 +183,7 @@ export default function ScriptsPanel({ scripts, onChange }) {
       {activeCount > 0 && (
         <div style={{
           fontSize: 11,
-          color: 'rgba(255,255,255,0.65)',
+          color: '#4d648c',
           marginBottom: 8,
           padding: '6px 10px',
           background: 'rgba(34,211,238,0.08)',
@@ -208,8 +208,8 @@ export default function ScriptsPanel({ scripts, onChange }) {
       <div style={{
         marginTop: 14,
         padding: 10,
-        border: '1px solid ' + (advancedEnabled ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.1)'),
-        background: advancedEnabled ? 'rgba(245,158,11,0.05)' : 'rgba(255,255,255,0.04)',
+        border: '1px solid ' + (advancedEnabled ? 'rgba(245,158,11,0.4)' : '#d7e4f3'),
+        background: advancedEnabled ? 'rgba(245,158,11,0.05)' : '#f3f8fd',
         borderRadius: 8,
       }}>
         <label style={{
@@ -224,10 +224,10 @@ export default function ScriptsPanel({ scripts, onChange }) {
             style={{ marginTop: 2, cursor: 'pointer' }}
           />
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 2 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', marginBottom: 2 }}>
               Advanced — raw script tags
             </div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 12, color: '#4d648c', lineHeight: 1.5 }}>
               Paste any HTML or <code style={{background:'rgba(0,0,0,0.2)',padding:'0 4px',borderRadius:3,color:'#22d3ee'}}>&lt;script&gt;</code> tags directly into your page.
               Use this only if you know what you're doing — code here runs on every visitor's browser
               and isn't checked for safety.
@@ -250,7 +250,7 @@ export default function ScriptsPanel({ scripts, onChange }) {
                   fontFamily: 'monospace', fontSize: 11, lineHeight: 1.5,
                 }}
               />
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
                 Runs first, before page renders. Best for analytics, fonts, meta tags.
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function ScriptsPanel({ scripts, onChange }) {
                   fontFamily: 'monospace', fontSize: 11, lineHeight: 1.5,
                 }}
               />
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
                 Runs after page loads. Best for chat widgets, lazy-loaded scripts.
               </div>
             </div>

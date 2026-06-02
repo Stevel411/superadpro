@@ -106,7 +106,7 @@ function FontRow({ font, isActive, onPick, observer, observerRefs }) {
         width: '100%',
         fontFamily: 'inherit',
       }}
-      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#eef4fb'; }}
       onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
     >
       <span style={{
@@ -215,7 +215,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
       {label && (
         <div style={{
           fontSize: 10, fontWeight: 800,
-          color: 'rgba(255,255,255,0.55)',
+          color: '#4d648c',
           letterSpacing: '0.08em', textTransform: 'uppercase',
           marginBottom: 6,
         }}>{label}</div>

@@ -5894,7 +5894,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
             letterSpacing: '0.12em', textTransform: 'uppercase',
             marginBottom: 4,
           }}>Page settings</div>
-          <div style={{ fontSize: 11, color: '#4d648c', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: '#4d648c', lineHeight: 1.5 }}>
             No element selected. Click any block on the canvas to edit it, or adjust page-wide settings below.
           </div>
         </div>
@@ -5933,7 +5933,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
             Published
           </button>
         </div>
-        <div style={{ fontSize: 10, color: '#7089ac', marginTop: 6, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 12, color: '#7089ac', marginTop: 6, lineHeight: 1.4 }}>
           {isPublished ? 'Live and visible to visitors.' : 'Only you can see this page until you publish.'}
         </div>
 
@@ -5954,7 +5954,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           placeholder="my-page"
           style={{ ...psInputStyle, fontFamily: 'monospace' }}
         />
-        <div style={{ fontSize: 10, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
           /p/your-username/{slugFragment || 'my-page'}
         </div>
 
@@ -5976,7 +5976,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           placeholder="https://..."
           style={psInputStyle}
         />
-        <div style={{ fontSize: 10, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
           Shown when your page is shared on Facebook, LinkedIn, etc.
         </div>
 
@@ -6073,7 +6073,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               );
             })}
           </div>
-          <div style={{ fontSize: 10, color: '#6b80a8', marginTop: 6, lineHeight: 1.4 }}>
+          <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 6, lineHeight: 1.4 }}>
             Bumps all heading sizes proportionally.
           </div>
         </div>
@@ -6101,7 +6101,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           {comingSoonNote}
         </div>
 
-        <div style={{ fontSize: 10, color: '#7089ac', marginTop: 12, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12, color: '#7089ac', marginTop: 12, lineHeight: 1.5 }}>
           Changes save when you click Save in the top bar.
         </div>
       </div>
