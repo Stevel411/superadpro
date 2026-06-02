@@ -289,7 +289,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       <div className="sp-cluster-divider"/>
 
-      <button onClick={onBack} style={pillM}
+      <button onClick={onBack} className="sp-tb-pill" style={pillM}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}
         title={t('superPagesEditor.backToMyPages', { defaultValue: 'Back to My Pages' })}>
@@ -344,19 +344,19 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         border:'1px solid rgba(255,255,255,0.12)', borderRadius:8, padding:3, gap:0,
         flexShrink: 0,
       }}>
-        <button onClick={() => onSetDevice('desktop')} style={{...grpBtn, ...(deviceView==='desktop' ? grpBtnActive : {})}} title={t('superPagesEditor.desktopPreview')}><Monitor size={13}/></button>
-        <button onClick={() => onSetDevice('tablet')}  style={{...grpBtn, ...(deviceView==='tablet'  ? grpBtnActive : {})}} title={t('superPagesEditor.tabletPreview')}><Tablet size={13}/></button>
-        <button onClick={() => onSetDevice('mobile')}  style={{...grpBtn, ...(deviceView==='mobile'  ? grpBtnActive : {})}} title={t('superPagesEditor.mobilePreview')}><Smartphone size={13}/></button>
+        <button onClick={() => onSetDevice('desktop')} className="sp-tb-pill" style={{...grpBtn, ...(deviceView==='desktop' ? grpBtnActive : {})}} title={t('superPagesEditor.desktopPreview')}><Monitor size={13}/></button>
+        <button onClick={() => onSetDevice('tablet')}  className="sp-tb-pill" style={{...grpBtn, ...(deviceView==='tablet'  ? grpBtnActive : {})}} title={t('superPagesEditor.tabletPreview')}><Tablet size={13}/></button>
+        <button onClick={() => onSetDevice('mobile')}  className="sp-tb-pill" style={{...grpBtn, ...(deviceView==='mobile'  ? grpBtnActive : {})}} title={t('superPagesEditor.mobilePreview')}><Smartphone size={13}/></button>
       </div>
 
       {!compactPrimary && (
         <>
-          <button onClick={onUndo} style={pillS} title={t('superPagesEditor.undoLabel')}
+          <button onClick={onUndo} className="sp-tb-pill" style={pillS} title={t('superPagesEditor.undoLabel')}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
             <Undo2 size={14}/>
           </button>
-          <button onClick={onRedo} style={pillS} title={t('superPagesEditor.redoLabel')}
+          <button onClick={onRedo} className="sp-tb-pill" style={pillS} title={t('superPagesEditor.redoLabel')}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}>
             <Redo2 size={14}/>
@@ -373,7 +373,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           + Preview, Publish-status, Save, Open (always visible)
           ───────────────────────────────────────────────────────────── */}
       {!compactTertiary && (
-        <button onClick={onShowTemplates} style={pillM_accent}
+        <button onClick={onShowTemplates} className="sp-tb-pill" style={pillM_accent}
           onMouseEnter={e => {
             e.currentTarget.style.background = 'rgba(34,211,238,0.26)';
             e.currentTarget.style.borderColor = '#22d3ee';
@@ -388,7 +388,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         </button>
       )}
 
-      <button onClick={onToggleLayers} style={layersOpen ? pillM_active : pillM}
+      <button onClick={onToggleLayers} className="sp-tb-pill" style={layersOpen ? pillM_active : pillM}
         onMouseEnter={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; } }}
         onMouseLeave={e => { if (!layersOpen) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
         title={t('superPagesEditor.layersLabel', { defaultValue: 'Layers' })}>
@@ -398,7 +398,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       {!compactSecondary && (
         <>
-          <button onClick={onToggleGrid} style={gridOn ? pillS_active : pillS}
+          <button onClick={onToggleGrid} className="sp-tb-pill" style={gridOn ? pillS_active : pillS}
             onMouseEnter={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; } }}
             onMouseLeave={e => { if (!gridOn) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; } }}
             title="Toggle 8px grid + snap (⌘')">
@@ -406,7 +406,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           </button>
 
           {onShowWiring && (
-            <button onClick={onShowWiring} style={currentListName ? pillM_active : pillM}
+            <button onClick={onShowWiring} className="sp-tb-pill" style={currentListName ? pillM_active : pillM}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#22d3ee'; e.currentTarget.style.color = '#fff'; }}
               onMouseLeave={e => {
                 e.currentTarget.style.borderColor = currentListName ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.12)';
@@ -418,7 +418,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
             </button>
           )}
 
-          <button onClick={onShowHelp} style={pillS_accent}
+          <button onClick={onShowHelp} className="sp-tb-pill" style={pillS_accent}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(34,211,238,0.22)'; e.currentTarget.style.borderColor = '#22d3ee'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
             title={t('superPagesEditor.helpLabel', { defaultValue: 'Help' })}>
@@ -488,7 +488,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       <div className="sp-cluster-divider"/>
 
-      <button onClick={onTogglePreview} style={previewMode ? pillM_previewActive : pillM_accent}
+      <button onClick={onTogglePreview} className="sp-tb-pill" style={previewMode ? pillM_previewActive : pillM_accent}
         onMouseEnter={e => {
           if (previewMode) return;
           e.currentTarget.style.background = 'rgba(34,211,238,0.26)';
@@ -503,7 +503,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         <span>{previewMode ? t('superPagesEditor.editLabel', { defaultValue: 'Edit' }) : t('superPagesEditor.previewLabel', { defaultValue: 'Preview' })}</span>
       </button>
 
-      <button onClick={onTogglePublish} style={isPublished ? pillM_publishedActive : pillM_accent}
+      <button onClick={onTogglePublish} className="sp-tb-pill" style={isPublished ? pillM_publishedActive : pillM_accent}
         onMouseEnter={e => {
           if (isPublished) return;
           e.currentTarget.style.background = 'rgba(34,211,238,0.26)';
