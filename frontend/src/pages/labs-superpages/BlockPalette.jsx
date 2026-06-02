@@ -14,6 +14,35 @@ const BLOCK_ICONS = {
   countdown: Timer, socialicons: Share2, icontext: FileText, separator: SeparatorHorizontal, logostrip: LayoutGrid, spacer: MoveVertical, box: Square, divider: GripHorizontal, embed: Code,
 };
 
+// Short descriptor shown under each palette tile label (Option A tiles,
+// 2 Jun 2026). English-only in Labs; translate if promoted to live.
+const BLOCK_DESC = {
+  heading: 'Title or header',
+  text: 'Body paragraph',
+  label: 'Small tag',
+  image: 'A picture',
+  video: 'Embed a video',
+  audio: 'Audio clip',
+  button: 'Action button',
+  form: 'Email opt-in',
+  announcement: 'Banner bar',
+  review: 'Review card',
+  badge: 'Trust badge',
+  testimonial: 'Customer quote',
+  faq: 'Q&A accordion',
+  stat: 'Key number',
+  progress: 'Progress bar',
+  countdown: 'Countdown timer',
+  socialicons: 'Social links',
+  icontext: 'Icon + text',
+  separator: 'Divider line',
+  logostrip: 'Logo row',
+  spacer: 'Empty spacing',
+  box: 'Layout container',
+  divider: 'Section divider',
+  embed: 'Custom code',
+};
+
 // Hybrid block classification (locked 14 May 2026):
 // GLASS = engagement blocks (members interact / read deeply).
 // SOLID = information blocks (members read at a glance).
@@ -392,6 +421,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                           is now a fixed set, no user-customisation needed. */}
                       <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
                       <span className="pal-label">{blockLabel(t, item)}</span>
+                      <span className="pal-sub">{BLOCK_DESC[item.type] || ""}</span>
                     </div>
                   );
                 })}
@@ -460,6 +490,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                       <span className={`tile-type-chip ${blockType}`} />
                       <Icon size={20} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>
                       <span className="pal-label">{blockLabel(t, item)}</span>
+                      <span className="pal-sub">{BLOCK_DESC[item.type] || ""}</span>
                     </div>
                   );
                 })}
