@@ -383,8 +383,15 @@ def _profit_and_loss(db: Session) -> Dict[str, Any]:
     # Blended rate: members are global, so default a touch above the UK 1.5%
     # domestic rate to cover EU/international cards + Stripe Billing's +0.7%
     # subscription fee. Override via 'pnl_stripe_blended_pct'/'pnl_stripe_per_txn_usd'.
-    blended_pct = Decimal(_appconfig_get(db, "pnl_stripe_blended_pct", "2.4")) / Decimal("100")
-    per_txn = Decimal(_appconfig_get(db, "pnl_stripe_per_txn_usd", "0.27"))  # ~£0.20 in USD
+    def _dec_cfg(key, default):
+        raw = (_appconfig_get(db, key, default) or default).strip()
+        try:
+            return Decimal(raw)
+        except Exception:
+            return Decimal(default)
+
+    blended_pct = _dec_cfg("pnl_stripe_blended_pct", "2.4") / Decimal("100")
+    per_txn = _dec_cfg("pnl_stripe_per_txn_usd", "0.27")  # ~£0.20 in USD
 
     stripe_rows = db.query(
         func.coalesce(func.sum(StripeCharge.amount_cents), 0),
@@ -402,11 +409,11 @@ def _profit_and_loss(db: Session) -> Dict[str, Any]:
             fees_source = "estimated (bad actual value — using estimate)"
     else:
         stripe_fees = (stripe_volume * blended_pct) + (per_txn * stripe_txn_count)
-        fees_source = f"estimated ({blended_pct*100:.1f}% + ${per_txn}/txn × {stripe_txn_count} charges)"
+        fees_source = f"estimated ({float(blended_pct)*100:.1f}% + ${float(per_txn):.2f}/txn × {stripe_txn_count} charges)"
     stripe_fees = stripe_fees.quantize(Decimal("0.01"))
 
     # ── Operating costs (monthly opex, prorated since launch) ──
-    monthly_opex = Decimal(_appconfig_get(db, "pnl_monthly_opex_usd", "0") or "0")
+    monthly_opex = _dec_cfg("pnl_monthly_opex_usd", "0")
     opex_to_date = (monthly_opex * Decimal(str(months_live))).quantize(Decimal("0.01"))
 
     net_profit = (gross_retained - stripe_fees - opex_to_date).quantize(Decimal("0.01"))
