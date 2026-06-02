@@ -366,24 +366,25 @@
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
+    background 0.15s ease,
     border-color 0.15s ease !important;
 }
 
 .labs-chrome .pal-item:hover {
   transform: translateY(-2px) !important;
-  border-color: #0ea5e9 !important;
-  background: #f5fbff !important;
+  border-color: #0284c7 !important;
+  background: #0ea5e9 !important;
   background-image: none !important;
-  box-shadow: 0 4px 14px rgba(14,165,233,0.18) !important;
+  box-shadow: 0 6px 18px rgba(14,165,233,0.40) !important;
 }
 
 .labs-chrome .pal-item:active {
   transform: translateY(0px) !important;
   transition-duration: 0.08s !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,1),
-    0 2px 6px rgba(0,0,0,0.2),
-    0 6px 14px rgba(10,20,56,0.28) !important;
+  border-color: #0284c7 !important;
+  background: #0284c7 !important;
+  background-image: none !important;
+  box-shadow: 0 3px 10px rgba(2,132,199,0.45) !important;
 }
 
 /* Tile icons — bolder stroke + rounded caps + colour transitions.
@@ -399,8 +400,9 @@
   stroke-linejoin: round !important;
   transition: color 0.15s ease !important;
 }
-.labs-chrome .pal-item:hover svg {
-  color: #0ea5e9 !important;
+.labs-chrome .pal-item:hover svg,
+.labs-chrome .pal-item:active svg {
+  color: #ffffff !important;
 }
 
 /* Tile label */
@@ -411,6 +413,11 @@
   font-weight: 700 !important;
   letter-spacing: -0.01em !important;
   text-align: center !important;
+  transition: color 0.15s ease !important;
+}
+.labs-chrome .pal-item:hover .pal-label,
+.labs-chrome .pal-item:active .pal-label {
+  color: #ffffff !important;
 }
 
 /* Tile descriptor (Option A, 2 Jun 2026) */
@@ -421,6 +428,11 @@
   color: #64789c !important;
   font-weight: 500 !important;
   text-align: center !important;
+  transition: color 0.15s ease !important;
+}
+.labs-chrome .pal-item:hover .pal-sub,
+.labs-chrome .pal-item:active .pal-sub {
+  color: rgba(255,255,255,0.92) !important;
 }
 
 /* Type chip — small dot in the corner showing glass vs solid
