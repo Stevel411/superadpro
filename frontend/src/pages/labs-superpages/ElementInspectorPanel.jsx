@@ -2617,7 +2617,7 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#22d3ee' : '#4d648c',
+                  color: active ? '#0284c7' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
                   textTransform: 'capitalize',
@@ -2908,7 +2908,7 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#22d3ee' : '#4d648c',
+                  color: active ? '#0284c7' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
                 }}>
@@ -3628,7 +3628,7 @@ function DividerProperties({ el, updateElement, updateElementStyle, markDirty })
     fontWeight: 600,
     border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
     background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
-    color: active ? '#22d3ee' : '#4d648c',
+    color: active ? '#0284c7' : '#4d648c',
     borderRadius: 5,
     cursor: 'pointer',
   });
@@ -3857,7 +3857,7 @@ function CountdownProperties({ el, updateElement, markDirty }) {
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#22d3ee' : '#4d648c',
+                  color: active ? '#0284c7' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
                 }}>
@@ -5903,7 +5903,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <div style={sectionLabelStyle}>Status</div>
         <div style={{ display: 'flex', gap: 6 }}>
           <button
-            onClick={() => updateStatus('draft')}
+            onClick={() => updateStatus('draft')} className="sp-tb-pill"
             style={{
               flex: 1,
               padding: '8px 10px',
@@ -5913,12 +5913,12 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontFamily: 'inherit',
               border: '2px solid ' + (!isPublished ? '#0ea5e9' : '#abc5e5'),
               background: !isPublished ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
-              color: !isPublished ? '#22d3ee' : '#4d648c',
+              color: !isPublished ? '#0284c7' : '#4d648c',
             }}>
             Draft
           </button>
           <button
-            onClick={() => updateStatus('published')}
+            onClick={() => updateStatus('published')} className="sp-tb-pill"
             style={{
               flex: 1,
               padding: '8px 10px',
@@ -5928,7 +5928,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontFamily: 'inherit',
               border: '2px solid ' + (isPublished ? '#0ea5e9' : '#abc5e5'),
               background: isPublished ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
-              color: isPublished ? '#22d3ee' : '#4d648c',
+              color: isPublished ? '#0284c7' : '#4d648c',
             }}>
             Published
           </button>
@@ -6058,14 +6058,14 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               return (
                 <button
                   key={opt.k}
-                  onClick={() => update({ typography: { ...(ps.typography || {}), headingScale: opt.k } })}
+                  onClick={() => update({ typography: { ...(ps.typography || {}), headingScale: opt.k } })} className="sp-tb-pill"
                   style={{
                     flex: 1,
                     padding: '6px 8px',
                     fontSize: 11, fontWeight: 700,
                     border: '2px solid ' + (active ? '#0ea5e9' : '#abc5e5'),
                     background: active ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
-                    color: active ? '#22d3ee' : '#4d648c',
+                    color: active ? '#0284c7' : '#4d648c',
                     borderRadius: 5,
                     cursor: 'pointer',
                     fontFamily: 'inherit',

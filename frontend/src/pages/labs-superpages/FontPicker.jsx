@@ -223,7 +223,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
 
       {/* Trigger button — shows current font in its own face */}
       <button
-        onClick={() => setOpen(v => !v)}
+        onClick={() => setOpen(v => !v)} className="sp-tb-pill"
         style={{
           width: '100%',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',

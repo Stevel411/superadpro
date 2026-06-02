@@ -608,7 +608,8 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(14,165,233,0.35) !important;
 }
-.labs-chrome .sp-tb-pill:hover svg { color: #fff !important; }
+.labs-chrome .sp-tb-pill:hover svg,
+.labs-chrome .sp-tb-pill:hover span { color: #fff !important; }
 .labs-chrome .sp-tb-pill:active {
   background: #0284c7 !important;
   border-color: #0284c7 !important;
