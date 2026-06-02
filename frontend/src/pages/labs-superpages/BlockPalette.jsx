@@ -222,7 +222,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 ['image', t('superPagesEditor.bgImage', { defaultValue: 'Image' })],
               ].map(([key,label]) => (
                 <button key={key} onClick={() => setBgType(key)} style={{
-                  flex:1,padding:'6px 0',border:bgType===key?'1px solid rgba(14,165,233,0.3)':'1px solid #e2e8f0',borderRadius:6,fontSize:13,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',cursor:'pointer',
+                  flex:1,padding:'6px 0',border:bgType===key?'1px solid rgba(14,165,233,0.3)':'1px solid #c5d7ef',borderRadius:6,fontSize:13,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',cursor:'pointer',
                   background:bgType===key?'rgba(14,165,233,0.08)':'#ffffff',
                   color:bgType===key?'#0284c7':'#475569',
                   transition:'all .15s',
@@ -234,7 +234,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             {bgType === 'solid' && (
               <div>
                 <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                  <div style={{position:'relative',width:36,height:36,borderRadius:8,border:'1px solid #e2e8f0',overflow:'hidden',flexShrink:0,background:canvasBg?.startsWith('#')?canvasBg:'#ffffff'}}>
+                  <div style={{position:'relative',width:36,height:36,borderRadius:8,border:'1px solid #c5d7ef',overflow:'hidden',flexShrink:0,background:canvasBg?.startsWith('#')?canvasBg:'#ffffff'}}>
                     <input type="color" value={canvasBg?.startsWith('#')?canvasBg:'#ffffff'} onChange={e => applyBg(e.target.value)}
                       style={{position:'absolute',inset:-4,width:'calc(100% + 8px)',height:'calc(100% + 8px)',border:'none',cursor:'pointer',padding:0}}/>
                   </div>
@@ -244,7 +244,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   {['#ffffff','#f8fafc','#f1f5f9','#e2e8f0','#0f172a','#132044','#1e293b','#0ea5e9','#6366f1','#8b5cf6','#16a34a','#f59e0b','#ec4899','#dc2626'].map(c => (
                     <div key={c} onClick={() => applyBg(c)} style={{
                       width:22,height:22,borderRadius:5,background:c,cursor:'pointer',
-                      border:canvasBg===c?'2px solid #0ea5e9':'1px solid #e2e8f0',
+                      border:canvasBg===c?'2px solid #0ea5e9':'1px solid #c5d7ef',
                       boxShadow: canvasBg===c ? '0 0 0 2px rgba(14,165,233,0.25)' : 'none',
                     }}/>
                   ))}
@@ -257,12 +257,12 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               <div>
                 <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:8}}>
                   <input type="color" value={grad1.startsWith('#')?grad1:'#0ea5e9'} onChange={e => { setGrad1(e.target.value); applyGradient(e.target.value, grad2, gradDir); }}
-                    style={{width:34,height:30,borderRadius:6,border:'1px solid #e2e8f0',cursor:'pointer',padding:0}}/>
+                    style={{width:34,height:30,borderRadius:6,border:'1px solid #c5d7ef',cursor:'pointer',padding:0}}/>
                   <span style={{fontSize:14,color:'#7a8899'}}>→</span>
                   <input type="color" value={grad2.startsWith('#')?grad2:'#6366f1'} onChange={e => { setGrad2(e.target.value); applyGradient(grad1, e.target.value, gradDir); }}
-                    style={{width:34,height:30,borderRadius:6,border:'1px solid #e2e8f0',cursor:'pointer',padding:0}}/>
+                    style={{width:34,height:30,borderRadius:6,border:'1px solid #c5d7ef',cursor:'pointer',padding:0}}/>
                   <select value={gradDir} onChange={e => { setGradDir(e.target.value); applyGradient(grad1, grad2, e.target.value); }}
-                    style={{padding:'5px 8px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:13,background:'#ffffff',color:'#475569',cursor:'pointer'}}>
+                    style={{padding:'5px 8px',borderRadius:6,border:'1px solid #c5d7ef',fontSize:13,background:'#ffffff',color:'#475569',cursor:'pointer'}}>
                     <option value="135deg">↘</option><option value="180deg">↓</option><option value="90deg">→</option><option value="45deg">↗</option>
                   </select>
                 </div>
@@ -271,7 +271,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                     <div key={i} onClick={() => { setGrad1(c1); setGrad2(c2); applyGradient(c1, c2, gradDir); }} style={{
                       width:28,height:20,borderRadius:5,cursor:'pointer',
                       background:`linear-gradient(135deg,${c1},${c2})`,
-                      border:'1px solid #e2e8f0',
+                      border:'1px solid #c5d7ef',
                     }}/>
                   ))}
                 </div>
@@ -320,7 +320,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 </label>
                 {canvasBgImage && (
                   <div style={{display:'flex',alignItems:'center',gap:6}}>
-                    <div style={{width:40,height:28,borderRadius:4,background:`url(${canvasBgImage}) center/cover`,border:'1px solid #e2e8f0'}}/>
+                    <div style={{width:40,height:28,borderRadius:4,background:`url(${canvasBgImage}) center/cover`,border:'1px solid #c5d7ef'}}/>
                     <div style={{flex:1,fontSize:13,color:'#475569',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t('superPagesEditor.backgroundSet')}</div>
                     <button onClick={() => { setCanvasBgImage(''); setBgImageUrl(''); markDirty(); }}
                       style={{width:22,height:22,borderRadius:4,background:'rgba(220,38,38,0.08)',border:'1px solid rgba(220,38,38,0.25)',cursor:'pointer',fontSize:13,color:'#dc2626',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
@@ -521,15 +521,15 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                     maxWidth:'88%',padding:'7px 11px',borderRadius:10,fontSize:13,lineHeight:1.5,wordWrap:'break-word',
                     ...(m.role==='user'
                       ? {background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',alignSelf:'flex-end',borderBottomRightRadius:2,boxShadow:'0 2px 6px rgba(14,165,233,0.25)'}
-                      : {background:'#ffffff',color:'#334155',alignSelf:'flex-start',border:'1px solid #e2e8f0',borderBottomLeftRadius:2}),
+                      : {background:'#ffffff',color:'#334155',alignSelf:'flex-start',border:'1px solid #c5d7ef',borderBottomLeftRadius:2}),
                   }}>{m.text}</div>
                 ))}
               </div>
-              <div style={{display:'flex',gap:5,padding:'8px 12px',borderTop:'1px solid #e8ecf2',flexShrink:0,background:'#ffffff'}}>
+              <div style={{display:'flex',gap:5,padding:'8px 12px',borderTop:'1px solid #d4e1f1',flexShrink:0,background:'#ffffff'}}>
                 <textarea value={chatMsg} onChange={e => setChatMsg(e.target.value)}
                   onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()} }}
                   rows={1} placeholder={t("superPagesEditor.askAiPlaceholder")}
-                  style={{flex:1,padding:'8px 11px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#0f172a',resize:'none',background:'#ffffff',outline:'none'}}/>
+                  style={{flex:1,padding:'8px 11px',border:'1px solid #c5d7ef',borderRadius:8,fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#0f172a',resize:'none',background:'#ffffff',outline:'none'}}/>
                 <button onClick={sendChat} disabled={chatSending}
                   style={{width:34,height:34,border:'none',borderRadius:8,background:'linear-gradient(135deg,#1e3a8a,#0ea5e9)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1,boxShadow:'0 2px 6px rgba(14,165,233,0.3)'}}>
                   <Send size={14}/>

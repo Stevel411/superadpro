@@ -269,7 +269,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
           overflow: 'hidden',
         }}>
           {/* Search */}
-          <div style={{ padding: 8, borderBottom: '1px solid #e2e8f0', flexShrink: 0 }}>
+          <div style={{ padding: 8, borderBottom: '1px solid #c5d7ef', flexShrink: 0 }}>
             <input
               ref={searchInputRef}
               type="text"
@@ -342,7 +342,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
           {/* Footer */}
           <div style={{
             padding: '6px 12px',
-            borderTop: '1px solid #e2e8f0',
+            borderTop: '1px solid #c5d7ef',
             fontSize: 10, color: '#94a3b8',
             flexShrink: 0,
             display: 'flex', justifyContent: 'space-between',

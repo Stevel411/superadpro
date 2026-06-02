@@ -2617,7 +2617,7 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#22d3ee' : '#e2e8f0',
+                  color: active ? '#22d3ee' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
                   textTransform: 'capitalize',
@@ -2908,7 +2908,7 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#22d3ee' : '#e2e8f0',
+                  color: active ? '#22d3ee' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
                 }}>
@@ -3628,7 +3628,7 @@ function DividerProperties({ el, updateElement, updateElementStyle, markDirty })
     fontWeight: 600,
     border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
     background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
-    color: active ? '#22d3ee' : '#e2e8f0',
+    color: active ? '#22d3ee' : '#4d648c',
     borderRadius: 5,
     cursor: 'pointer',
   });
@@ -3857,7 +3857,7 @@ function CountdownProperties({ el, updateElement, markDirty }) {
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#22d3ee' : '#e2e8f0',
+                  color: active ? '#22d3ee' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
                 }}>
@@ -5231,7 +5231,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
   // values so existing forms render identically.
   const buildFormHTML = (cfg) => {
     // Field input style — fieldSize controls placeholder/text size.
-    const fieldStyle = `width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:${cfg.fieldSize}px;margin-bottom:8px;box-sizing:border-box`;
+    const fieldStyle = `width:100%;padding:10px 12px;border-radius:8px;border:1px solid #c5d7ef;background:#ffffff;color:#132044;font-size:${cfg.fieldSize}px;margin-bottom:8px;box-sizing:border-box`;
 
     let fields = '';
     if (cfg.showName) {
