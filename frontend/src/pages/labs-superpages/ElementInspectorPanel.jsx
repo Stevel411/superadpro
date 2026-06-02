@@ -40,19 +40,20 @@ import ScriptsPanel from './ScriptsPanel';
 // ── Shared styles for the panel ────────────────────────────────
 const labelStyle = {
   display: 'block',
-  fontSize: 10, fontWeight: 800,
-  color: 'var(--sap-text-muted, #64748b)',
-  letterSpacing: '0.08em',
+  fontSize: 11, fontWeight: 700,
+  color: '#4d648c',
+  fontFamily: "'Sora', sans-serif",
+  letterSpacing: '0.06em',
   textTransform: 'uppercase',
-  marginBottom: 6,
+  marginBottom: 7,
 };
 
 const inputStyle = {
   width: '100%',
-  padding: '7px 10px',
+  padding: '9px 11px',
   border: '1px solid var(--sap-border, #e2e8f0)',
-  borderRadius: 6,
-  fontSize: 12,
+  borderRadius: 8,
+  fontSize: 13,
   color: 'var(--sap-text-primary, #0f172a)',
   background: 'var(--sap-bg-elevated, #f8fafc)',
   outline: 'none',
@@ -5830,18 +5831,19 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
     const isPublished = pageStatus === 'published';
 
     const sectionLabelStyle = {
-      fontSize: 10, fontWeight: 800,
-      color: 'rgba(255,255,255,0.55)',
-      letterSpacing: '0.08em',
+      fontSize: 11, fontWeight: 700,
+      color: '#4d648c',
+      fontFamily: "'Sora', sans-serif",
+      letterSpacing: '0.06em',
       textTransform: 'uppercase',
-      marginBottom: 6, marginTop: 14,
+      marginBottom: 7, marginTop: 14,
     };
     const psInputStyle = {
       width: '100%',
-      padding: '7px 10px',
+      padding: '9px 11px',
       border: '1px solid #0a1438',
-      borderRadius: 6,
-      fontSize: 12,
+      borderRadius: 8,
+      fontSize: 13,
       color: '#0f172a',
       background: '#ffffff',
       outline: 'none',
@@ -5852,10 +5854,10 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
       width: '100%',
       display: 'flex', alignItems: 'center', gap: 8,
       padding: '8px 10px',
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.12)',
+      background: '#f3f8fd',
+      border: '1px solid #d7e4f3',
       borderRadius: 6,
-      color: 'rgba(255,255,255,0.7)',
+      color: '#6b80a8',
       fontSize: 12, fontWeight: 600,
       textAlign: 'left',
       cursor: 'not-allowed',
@@ -5885,14 +5887,14 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         fontFamily: 'inherit',
       }}>
         {/* Header */}
-        <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid #d7e4f3' }}>
           <div style={{
             fontSize: 10, fontWeight: 800,
-            color: 'rgba(255,255,255,0.55)',
+            color: '#4d648c',
             letterSpacing: '0.12em', textTransform: 'uppercase',
             marginBottom: 4,
           }}>Page settings</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 11, color: '#4d648c', lineHeight: 1.5 }}>
             No element selected. Click any block on the canvas to edit it, or adjust page-wide settings below.
           </div>
         </div>
@@ -5909,9 +5911,9 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontSize: 11, fontWeight: 700,
               cursor: 'pointer',
               fontFamily: 'inherit',
-              border: '1px solid ' + (!isPublished ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
-              background: !isPublished ? 'rgba(14,165,233,0.16)' : 'rgba(255,255,255,0.04)',
-              color: !isPublished ? '#22d3ee' : '#e2e8f0',
+              border: '2px solid ' + (!isPublished ? '#0ea5e9' : '#c5d8ef'),
+              background: !isPublished ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
+              color: !isPublished ? '#22d3ee' : '#4d648c',
             }}>
             Draft
           </button>
@@ -5924,14 +5926,14 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontSize: 11, fontWeight: 700,
               cursor: 'pointer',
               fontFamily: 'inherit',
-              border: '1px solid ' + (isPublished ? '#10b981' : 'rgba(255,255,255,0.15)'),
-              background: isPublished ? 'rgba(16,185,129,0.16)' : 'rgba(255,255,255,0.04)',
-              color: isPublished ? '#34d399' : '#e2e8f0',
+              border: '2px solid ' + (isPublished ? '#10b981' : '#c5d8ef'),
+              background: isPublished ? 'rgba(16,185,129,0.16)' : '#f3f8fd',
+              color: isPublished ? '#34d399' : '#4d648c',
             }}>
             Published
           </button>
         </div>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', marginTop: 6, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 10, color: '#7089ac', marginTop: 6, lineHeight: 1.4 }}>
           {isPublished ? 'Live and visible to visitors.' : 'Only you can see this page until you publish.'}
         </div>
 
@@ -5952,7 +5954,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           placeholder="my-page"
           style={{ ...psInputStyle, fontFamily: 'monospace' }}
         />
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 10, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
           /p/your-username/{slugFragment || 'my-page'}
         </div>
 
@@ -5974,7 +5976,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           placeholder="https://..."
           style={psInputStyle}
         />
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 4, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 10, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
           Shown when your page is shared on Facebook, LinkedIn, etc.
         </div>
 
@@ -5989,9 +5991,9 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <div style={sectionLabelStyle}>Typography</div>
         <div style={{
           padding: 10,
-          border: '1px solid rgba(255,255,255,0.12)',
+          border: '1px solid #d7e4f3',
           borderRadius: 8,
-          background: 'rgba(255,255,255,0.04)',
+          background: '#f3f8fd',
         }}>
           <FontPicker
             label="Heading font"
@@ -6019,13 +6021,13 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           {/* Base size slider */}
           <div style={{
             fontSize: 10, fontWeight: 800,
-            color: 'rgba(255,255,255,0.55)',
+            color: '#4d648c',
             letterSpacing: '0.08em', textTransform: 'uppercase',
             marginTop: 14, marginBottom: 6,
             display: 'flex', justifyContent: 'space-between',
           }}>
             <span>Body size</span>
-            <span style={{ color: 'rgba(255,255,255,0.85)', fontFamily: 'monospace' }}>
+            <span style={{ color: '#1e293b', fontFamily: 'monospace' }}>
               {((ps.typography && ps.typography.baseSize) || 16)}px
             </span>
           </div>
@@ -6040,7 +6042,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           {/* Heading scale */}
           <div style={{
             fontSize: 10, fontWeight: 800,
-            color: 'rgba(255,255,255,0.55)',
+            color: '#4d648c',
             letterSpacing: '0.08em', textTransform: 'uppercase',
             marginTop: 14, marginBottom: 6,
           }}>Heading scale</div>
@@ -6059,9 +6061,9 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
                     flex: 1,
                     padding: '6px 8px',
                     fontSize: 11, fontWeight: 700,
-                    border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
-                    background: active ? 'rgba(14,165,233,0.16)' : 'rgba(255,255,255,0.04)',
-                    color: active ? '#22d3ee' : '#e2e8f0',
+                    border: '2px solid ' + (active ? '#0ea5e9' : '#c5d8ef'),
+                    background: active ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
+                    color: active ? '#22d3ee' : '#4d648c',
                     borderRadius: 5,
                     cursor: 'pointer',
                     fontFamily: 'inherit',
@@ -6071,7 +6073,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               );
             })}
           </div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.4 }}>
+          <div style={{ fontSize: 10, color: '#6b80a8', marginTop: 6, lineHeight: 1.4 }}>
             Bumps all heading sizes proportionally.
           </div>
         </div>
@@ -6099,7 +6101,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           {comingSoonNote}
         </div>
 
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 12, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 10, color: '#7089ac', marginTop: 12, lineHeight: 1.5 }}>
           Changes save when you click Save in the top bar.
         </div>
       </div>
