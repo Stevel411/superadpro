@@ -26,13 +26,13 @@
    1. ROOT WRAPPER + ATMOSPHERIC PAGE WASH
    ───────────────────────────────────────────────────────────── */
 .labs-chrome {
-  /* Page base + atmospheric wash. Cobalt dominant, violet as a subtle
-     accent only — the previous balance read as "magenta tint" on the
-     right edge rather than atmospheric design. */
-  background: #f1f5fb !important;
-  background-image:
-    radial-gradient(ellipse at 12% 30%, rgba(14,165,233,0.16), transparent 55%),
-    radial-gradient(ellipse at 70% 90%, rgba(10,20,56,0.05), transparent 50%) !important;
+  /* Neutral workspace. The editor chrome should recede so the user's PAGE
+     is the hero — a near-white grey reads premium (Figma/Webflow), whereas
+     a blue-tinted wash read cheap (Steve flag 2 Jun 2026). Brand cobalt/cyan
+     now appears ONLY on active/selected states + primary buttons, not as a
+     background wash. */
+  background: #f4f5f7 !important;
+  background-image: none !important;
   color: #0f172a;
   font-family: 'Manrope', 'Inter', sans-serif;
   font-weight: 500;
@@ -370,10 +370,10 @@
    shadow brightens. */
 .labs-chrome .pal-item {
   aspect-ratio: 1 !important;
-  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
-  border: 1px solid #0a1438 !important;
-  border-radius: 14px !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e8edf3 !important;
+  border-radius: 12px !important;
   padding: 14px 6px !important;
   display: flex !important;
   flex-direction: column !important;
@@ -384,25 +384,19 @@
   cursor: grab !important;
   overflow: visible !important;
   isolation: isolate !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,1),
-    0 3px 8px rgba(0,0,0,0.22),
-    0 10px 24px rgba(10,20,56,0.32) !important;
+  box-shadow: none !important;
   transition:
-    transform 0.18s cubic-bezier(0.4,0,0.2,1),
-    box-shadow 0.18s cubic-bezier(0.4,0,0.2,1),
-    border-color 0.18s ease !important;
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease !important;
 }
 
 .labs-chrome .pal-item:hover {
-  transform: translateY(-2px) !important;
-  border-color: #06b6d4 !important;
-  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%) !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,1),
-    0 4px 12px rgba(6,182,212,0.3),
-    0 14px 32px rgba(10,20,56,0.45) !important;
+  transform: translateY(-1px) !important;
+  border-color: #0ea5e9 !important;
+  background: #f0f9ff !important;
+  background-image: none !important;
+  box-shadow: 0 2px 8px rgba(14,165,233,0.15) !important;
 }
 
 .labs-chrome .pal-item:active {
@@ -417,18 +411,18 @@
 /* Tile icons — bolder stroke + rounded caps + colour transitions.
    Bumped to 24px to match the larger tile footprint. */
 .labs-chrome .pal-item svg {
-  width: 24px !important;
-  height: 24px !important;
-  color: #0ea5e9 !important;
-  stroke-width: 2.5 !important;
+  width: 22px !important;
+  height: 22px !important;
+  color: #64748b !important;
+  stroke-width: 2 !important;
   fill: none !important;
   stroke: currentColor !important;
   stroke-linecap: round !important;
   stroke-linejoin: round !important;
-  transition: color 0.18s ease !important;
+  transition: color 0.15s ease !important;
 }
 .labs-chrome .pal-item:hover svg {
-  color: #06b6d4 !important;
+  color: #0ea5e9 !important;
 }
 
 /* Tile label */

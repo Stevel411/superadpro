@@ -1236,8 +1236,8 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // Padding bumped 28 → 40. Background stays light grey so the
       // canvas area reads as the document workspace against the cobalt
       // brand chrome on either side. Subtle radial gradient retained.
-      background: '#f1f5f9',
-      backgroundImage: 'radial-gradient(ellipse at 30% 20%, rgba(14,165,233,0.04), transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.03), transparent 50%)',
+      background: '#f4f5f7',
+      backgroundImage: 'none',
       overflow: 'auto',
       padding: 40,
       // No justify-content / align-items here: those collapse overflow scroll
@@ -1485,8 +1485,8 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
             backgroundImage:
-              'linear-gradient(to right, rgba(14,165,233,0.08) 1px, transparent 1px),' +
-              'linear-gradient(to bottom, rgba(14,165,233,0.08) 1px, transparent 1px)',
+              'linear-gradient(to right, rgba(100,116,139,0.10) 1px, transparent 1px),' +
+              'linear-gradient(to bottom, rgba(100,116,139,0.10) 1px, transparent 1px)',
             backgroundSize: '8px 8px',
             pointerEvents: 'none',
             zIndex: 0,

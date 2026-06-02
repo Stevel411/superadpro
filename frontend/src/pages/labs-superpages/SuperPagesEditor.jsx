@@ -950,7 +950,7 @@ export default function LabsSuperPagesEditor() {
             <button onClick={groupSelected} title="Group (⌘G)"
               style={{
                 padding: '4px 10px', borderRadius: 6,
-                background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
+                background: 'rgba(14,165,233,0.10)',
                 border: '1px solid rgba(14,165,233,0.3)',
                 color: '#0284c7', cursor: 'pointer',
                 fontSize: 11, fontWeight: 800,
@@ -970,8 +970,8 @@ export default function LabsSuperPagesEditor() {
              rendered HTML with full responsive CSS. */
           <div style={{
             flex:1,
-            background: '#f1f5f9',
-            backgroundImage: 'radial-gradient(ellipse at 30% 20%, rgba(14,165,233,0.04), transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.03), transparent 50%)',
+            background: '#f4f5f7',
+            backgroundImage: 'none',
             overflow:'auto',
             display:'flex',
             flexDirection:'column',
