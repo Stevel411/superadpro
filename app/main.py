@@ -4117,12 +4117,8 @@ def admin_finance_summary_api(user: User = Depends(get_current_user), db: Sessio
         from app.finance import compute_financial_overview
         return JSONResponse(compute_financial_overview(db))
     except Exception as e:
-        import traceback as _tb
-        tb = _tb.format_exc()
         logger.exception("finance summary failed")
-        logger.error("FINANCE_SUMMARY_TRACEBACK:\n" + tb)
-        return JSONResponse({"error": "compute_failed", "detail": str(e)[:300],
-                             "trace_tail": tb[-1200:]}, status_code=500)
+        return JSONResponse({"error": "compute_failed", "detail": str(e)[:300]}, status_code=500)
 
 
 @app.get("/admin/finances", response_class=HTMLResponse)

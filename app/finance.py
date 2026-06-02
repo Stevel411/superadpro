@@ -442,7 +442,9 @@ def _profit_and_loss(db: Session) -> Dict[str, Any]:
     }
 
 
-
+def _member_liabilities(db: Session) -> Dict[str, Any]:
+    """Money the platform owes members. Not time-windowed — always
+    current snapshot."""
     balance_sum = _sum_or_zero(
         db.query(func.sum(User.balance)).scalar()
     )
