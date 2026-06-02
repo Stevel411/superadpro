@@ -192,7 +192,7 @@
   font-weight: 900 !important;
   letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
-  color: #94a3b8 !important;
+  color: #a89878 !important;
   margin-bottom: 4px;
 }
 
@@ -217,7 +217,7 @@
 .labs-chrome .ins-cobalt > div > div[style*="text-transform"][style*="uppercase"],
 .labs-chrome .ins-cobalt div[style*="text-transform:uppercase"],
 .labs-chrome .ins-cobalt div[style*="text-transform: uppercase"] {
-  color: #94a3b8 !important;
+  color: #a89878 !important;
 }
 
 /* Inputs, textareas, selects — white card treatment on cobalt
@@ -234,7 +234,7 @@
 .labs-chrome .ins-cobalt textarea,
 .labs-chrome .ins-cobalt select {
   background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
+  border: 1px solid #e6dcc4 !important;
   color: #0f172a !important;
   box-shadow: none !important;
   transition: all 0.15s ease !important;
@@ -266,13 +266,13 @@
      to match the BlockPalette on the right. The inspector was originally
      built for a white background, so the text/border tokens are restored
      to their light-theme values here (were white-translucent for cobalt). */
-  color: #334155;
-  --sap-text-muted: #64748b;
-  --sap-text-faint: #94a3b8;
+  color: #4a4332;
+  --sap-text-muted: #8a7c5a;
+  --sap-text-faint: #a89878;
   --sap-text-primary: #0f172a;
-  --sap-text-secondary: #475569;
-  --sap-border: #e2e8f0;
-  --sap-border-faint: #f1f5f9;
+  --sap-text-secondary: #6b5f43;
+  --sap-border: #e6dcc4;
+  --sap-border-faint: #f0ead9;
   --sap-bg-elevated: #ffffff;
   --sap-bg-input: #ffffff;
 }
@@ -336,7 +336,7 @@
 /* The 'EDITING' header strip at top of the Inspector — make the
    border read on cobalt. */
 .labs-chrome .ins-cobalt > div:first-child[style*="border-bottom"] {
-  border-bottom-color: #e8edf3 !important;
+  border-bottom-color: #ece3cf !important;
 }
 
 /* The lifted tiles — navy outline + frosted gradient.
@@ -350,7 +350,7 @@
   aspect-ratio: 1 !important;
   background: #ffffff !important;
   background-image: none !important;
-  border: 1px solid #e8edf3 !important;
+  border: 1px solid #ece3cf !important;
   border-radius: 12px !important;
   padding: 14px 6px !important;
   display: flex !important;
@@ -391,7 +391,7 @@
 .labs-chrome .pal-item svg {
   width: 22px !important;
   height: 22px !important;
-  color: #64748b !important;
+  color: #8a7c5a !important;
   stroke-width: 2 !important;
   fill: none !important;
   stroke: currentColor !important;

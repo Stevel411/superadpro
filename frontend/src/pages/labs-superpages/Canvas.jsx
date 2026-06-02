@@ -1236,7 +1236,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // Padding bumped 28 → 40. Background stays light grey so the
       // canvas area reads as the document workspace against the cobalt
       // brand chrome on either side. Subtle radial gradient retained.
-      background: '#f4f5f7',
+      background: '#efe7d5',
       backgroundImage: 'none',
       overflow: 'auto',
       padding: 40,

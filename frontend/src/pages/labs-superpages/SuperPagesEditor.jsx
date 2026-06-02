@@ -788,7 +788,7 @@ export default function LabsSuperPagesEditor() {
       // /pro/funnels) and via the Back button next to it.
       hideSidebar={true}
       hideTopbar={true}
-      bgStyle={{ padding: 0, background: '#f4f5f7', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
+      bgStyle={{ padding: 0, background: '#efe7d5', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       {/* 25 May 2026: CSS variables for page-level typography are now
           set as React-controlled inline style props rather than via
@@ -958,8 +958,8 @@ export default function LabsSuperPagesEditor() {
             <button onClick={ungroupSelected} title="Ungroup (⌘⇧G)"
               style={{
                 padding: '4px 10px', borderRadius: 6,
-                background: '#f8fafc', border: '1px solid #e2e8f0',
-                color: '#475569', cursor: 'pointer',
+                background: '#f7f2e7', border: '1px solid #e6dcc4',
+                color: '#6b5f43', cursor: 'pointer',
                 fontSize: 11, fontWeight: 800,
               }}>Ungroup</button>
           </div>
@@ -970,7 +970,7 @@ export default function LabsSuperPagesEditor() {
              rendered HTML with full responsive CSS. */
           <div style={{
             flex:1,
-            background: '#f4f5f7',
+            background: '#efe7d5',
             backgroundImage: 'none',
             overflow:'auto',
             display:'flex',
@@ -1030,8 +1030,8 @@ export default function LabsSuperPagesEditor() {
               // cobalt (#1e3a8a) for uniform brand surface across the
               // panel. Width bumped 260 → 320 for breathing room
               // around controls inside.
-              background: '#f8fafc',
-              borderRight: '1px solid #e2e8f0',
+              background: '#f7f2e7',
+              borderRight: '1px solid #e6dcc4',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
