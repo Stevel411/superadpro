@@ -5926,9 +5926,9 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontSize: 11, fontWeight: 700,
               cursor: 'pointer',
               fontFamily: 'inherit',
-              border: '2px solid ' + (isPublished ? '#10b981' : '#abc5e5'),
-              background: isPublished ? 'rgba(16,185,129,0.16)' : '#f3f8fd',
-              color: isPublished ? '#34d399' : '#4d648c',
+              border: '2px solid ' + (isPublished ? '#0ea5e9' : '#abc5e5'),
+              background: isPublished ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
+              color: isPublished ? '#22d3ee' : '#4d648c',
             }}>
             Published
           </button>
@@ -6020,10 +6020,11 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
 
           {/* Base size slider */}
           <div style={{
-            fontSize: 10, fontWeight: 800,
+            fontSize: 11, fontWeight: 700,
             color: '#4d648c',
-            letterSpacing: '0.08em', textTransform: 'uppercase',
-            marginTop: 14, marginBottom: 6,
+            fontFamily: "'Sora', sans-serif",
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            marginTop: 14, marginBottom: 7,
             display: 'flex', justifyContent: 'space-between',
           }}>
             <span>Body size</span>
@@ -6041,10 +6042,11 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
 
           {/* Heading scale */}
           <div style={{
-            fontSize: 10, fontWeight: 800,
+            fontSize: 11, fontWeight: 700,
             color: '#4d648c',
-            letterSpacing: '0.08em', textTransform: 'uppercase',
-            marginTop: 14, marginBottom: 6,
+            fontFamily: "'Sora', sans-serif",
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            marginTop: 14, marginBottom: 7,
           }}>Heading scale</div>
           <div style={{ display: 'flex', gap: 4 }}>
             {[

@@ -307,11 +307,11 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           save transition is visually stable. */}
       <div style={{
         display:'flex', alignItems:'center', gap:6,
-        fontSize:13, color:'#fbbf24', fontWeight:700,
+        fontSize:13, color:'#22d3ee', fontWeight:700,
         flexShrink: 0,
         visibility: dirty ? 'visible' : 'hidden',
       }} title={t('superPagesEditor.unsavedChanges', { defaultValue: 'Unsaved changes' })}>
-        <span style={{width:7, height:7, borderRadius:'50%', background:'#fbbf24', display:'inline-block'}}/>
+        <span style={{width:7, height:7, borderRadius:'50%', background:'#22d3ee', display:'inline-block'}}/>
         <span>{t('superPagesEditor.unsavedShort', { defaultValue: 'Unsaved' })}</span>
       </div>
 
@@ -427,7 +427,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
           <button onClick={onClear} style={pillS_danger}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.18)'; e.currentTarget.style.color = '#fff'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fca5a5'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
             title={t('superPagesEditor.clearCanvasLabel', { defaultValue: 'Clear canvas' })}>
             <Trash2 size={14}/>
           </button>
@@ -469,7 +469,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
                     background: item.active ? 'rgba(34,211,238,0.12)' : 'transparent',
                     border:'1px solid ' + (item.active ? 'rgba(34,211,238,0.3)' : 'transparent'),
                     borderRadius:6,
-                    color: item.danger ? '#fca5a5' : (item.active ? '#22d3ee' : (item.accent || 'rgba(255,255,255,0.85)')),
+                    color: item.danger ? 'rgba(255,255,255,0.7)' : (item.active ? '#22d3ee' : (item.accent || 'rgba(255,255,255,0.85)')),
                     fontSize:13, fontWeight:600,
                     fontFamily:'DM Sans,sans-serif',
                     cursor:'pointer',
@@ -664,7 +664,7 @@ const pillS_active = {
 // Square pill, danger colour — Clear canvas (destructive action).
 const pillS_danger = {
   ...pillS,
-  color: '#fca5a5',
+  color: 'rgba(255,255,255,0.7)',
 };
 
 // Device-toggle child button — sits inside the device-toggle group pill.

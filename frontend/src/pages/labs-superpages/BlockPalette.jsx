@@ -199,7 +199,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       <div style={{borderBottom:'1px solid #d4e1f1',flexShrink:0}}>
         <div onClick={() => setBgOpen(!bgOpen)} style={{padding:'10px 16px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <div style={{width:24,height:24,borderRadius:6,border:'1px solid #adc2de',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg||'#ffffff',boxShadow:'inset 0 0 0 1px rgba(0,0,0,0.06)'}}/>
+            <div style={{width:24,height:24,borderRadius:6,border:'1.5px solid #9bb4d8',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg||'#ffffff',boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 3px rgba(15,40,90,0.18)'}}/>
             <div>
               <div style={{fontSize:13,fontWeight:800,letterSpacing:0.5,textTransform:'uppercase',color:'#4d648c'}}>{t('superPagesEditor.pageBackground')}</div>
               <div style={{fontSize:13,color:'#6b80a8',marginTop:1}}>
