@@ -1530,20 +1530,20 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
               <button onClick={onShowTemplates} style={{
                 padding: '12px 22px',
                 borderRadius: 10,
-                background: 'linear-gradient(135deg, #0ea5e9, #a855f7)',
+                background: '#0a1438',
                 color: '#fff',
                 border: 'none',
-                fontFamily: 'Manrope, sans-serif',
-                fontWeight: 900,
+                fontFamily: 'Sora, sans-serif',
+                fontWeight: 800,
                 fontSize: 14,
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(14,165,233,0.3), 0 8px 24px rgba(168,85,247,0.15)',
+                boxShadow: '0 4px 12px rgba(10,20,56,0.18)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
                 letterSpacing: '0.005em',
               }}>
-                ✨ Browse templates
+                ✦ Browse templates
               </button>
             )}
             <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 12, fontWeight: 600 }}>
@@ -1613,7 +1613,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                       background: deviceView === 'tablet' ? 'rgba(168,85,247,0.12)' : 'rgba(236,72,153,0.12)',
                       border: 'none', borderRadius: 5, cursor: 'pointer',
                       fontSize: 10, fontWeight: 900,
-                      color: deviceView === 'tablet' ? '#7c3aed' : '#be185d',
+                      color: deviceView === 'tablet' ? '#0ea5e9' : '#0a1438',
                       letterSpacing: '0.06em', textTransform: 'uppercase',
                     }}
                     title={`This element has a ${deviceView} override. Click to reset to ${deviceView === 'mobile' ? 'tablet/desktop' : 'desktop'}.`}>
@@ -1635,7 +1635,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                 style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }} title={t('superPagesEditor.duplicate')}>⧉</button>
               <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
               <button onClick={e => { e.stopPropagation(); updateElement(el.id, { locked: !el.locked }); markDirty(); }}
-                style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: el.locked ? '#a855f7' : '#64748b' }}
+                style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: el.locked ? '#0ea5e9' : '#64748b' }}
                 title={el.locked ? 'Unlock element' : 'Lock element'}>{el.locked ? '🔒' : '🔓'}</button>
               <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
               <button onClick={e => { e.stopPropagation(); if (window._spDeleteElement) window._spDeleteElement(el.id); }}
@@ -1755,7 +1755,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       <style>{`
         .cel:hover { outline: 1px dashed rgba(14,165,233,0.35); outline-offset: 3px; }
         .cel.selected { outline: 2px solid #0ea5e9; outline-offset: 4px; }
-        .cel.multi-selected { outline: 2px dashed #a855f7; outline-offset: 4px; }
+        .cel.multi-selected { outline: 2px dashed #0ea5e9; outline-offset: 4px; }
         .cel.editing { outline: 2px solid #6366f1; outline-offset: 4px; cursor: text !important; }
         .cel.editing * { cursor: text !important; user-select: auto !important; }
         .cel > *:not(.cel-bar):not(.cel-resize) { pointer-events: none; }

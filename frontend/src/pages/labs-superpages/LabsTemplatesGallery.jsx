@@ -151,7 +151,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
           width: '100%',
           maxWidth: 1200,
           padding: '32px 36px 40px',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.3), 0 8px 24px rgba(168,85,247,0.15)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.3), 0 8px 24px rgba(14,165,233,0.15)',
           position: 'relative',
         }}
       >
@@ -164,7 +164,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
               gap: 8,
               padding: '5px 12px',
               borderRadius: 99,
-              background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
+              background: 'linear-gradient(135deg, rgba(14,165,233,0.12), rgba(34,211,238,0.10))',
               border: '1px solid rgba(14,165,233,0.25)',
               fontFamily: 'Sora, sans-serif',
               fontSize: 10,
@@ -223,7 +223,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
               padding: '8px 14px',
               borderRadius: 10,
               border: '1px solid rgba(14,165,233,0.3)',
-              background: 'linear-gradient(135deg, rgba(14,165,233,0.08), rgba(168,85,247,0.06))',
+              background: 'linear-gradient(135deg, rgba(14,165,233,0.08), rgba(14,165,233,0.06))',
               color: '#0284c7',
               fontFamily: 'Manrope, sans-serif',
               fontWeight: 800,
@@ -234,9 +234,9 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
             <button onClick={() => setMode('import')} style={{
               padding: '8px 14px',
               borderRadius: 10,
-              border: '1px solid rgba(168,85,247,0.3)',
-              background: 'rgba(168,85,247,0.06)',
-              color: '#7c3aed',
+              border: '1px solid rgba(10,20,56,0.18)',
+              background: 'rgba(14,165,233,0.06)',
+              color: '#0ea5e9',
               fontFamily: 'Manrope, sans-serif',
               fontWeight: 800,
               fontSize: 12,
@@ -254,7 +254,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
 
         {/* Save mode — name your current page, then save */}
         {mode === 'save' && (
-          <div style={{ marginBottom: 18, padding: '16px 18px', background: 'linear-gradient(135deg, rgba(14,165,233,0.06), rgba(168,85,247,0.06))', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 14 }}>
+          <div style={{ marginBottom: 18, padding: '16px 18px', background: 'linear-gradient(135deg, rgba(14,165,233,0.06), rgba(14,165,233,0.06))', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 14 }}>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 900, color: '#0f172a', marginBottom: 4, letterSpacing: '-0.015em' }}>Save current page as a template</div>
             <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12, lineHeight: 1.5 }}>
               Your template will be saved to this browser. Use the share button on any saved template to copy a SAP code others can import.
@@ -276,7 +276,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
               />
               <button onClick={handleSaveCurrent} style={{
                 padding: '10px 18px', borderRadius: 9, border: 'none',
-                background: 'linear-gradient(135deg,#0ea5e9,#a855f7)', color: '#fff',
+                background: 'linear-gradient(135deg,#0ea5e9,#22d3ee)', color: '#fff',
                 fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: 12,
                 cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.3)',
               }}>Save</button>
@@ -292,7 +292,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
 
         {/* Import mode — paste a SAP code */}
         {mode === 'import' && (
-          <div style={{ marginBottom: 18, padding: '16px 18px', background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.25)', borderRadius: 14 }}>
+          <div style={{ marginBottom: 18, padding: '16px 18px', background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 14 }}>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 900, color: '#0f172a', marginBottom: 4, letterSpacing: '-0.015em' }}>Import a template code</div>
             <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12, lineHeight: 1.5 }}>
               Paste the full code (including the SAP-XXXX-XXXX prefix and the long payload after the double colon).
@@ -314,9 +314,9 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <button onClick={handleImport} style={{
                   padding: '10px 18px', borderRadius: 9, border: 'none',
-                  background: 'linear-gradient(135deg,#a855f7,#ec4899)', color: '#fff',
+                  background: '#0a1438', color: '#fff',
                   fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: 12,
-                  cursor: 'pointer', boxShadow: '0 4px 12px rgba(168,85,247,0.3)',
+                  cursor: 'pointer', boxShadow: '0 4px 12px rgba(10,20,56,0.18)',
                 }}>Import</button>
                 <button onClick={() => setMode('browse')} style={{
                   padding: '10px 14px', borderRadius: 9,
@@ -333,9 +333,9 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
         {mode === 'share' && shareForTpl && (() => {
           const fullCode = encodeTemplateForShare(shareForTpl);
           return (
-            <div style={{ marginBottom: 18, padding: '16px 18px', background: 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.06))', border: '1px solid rgba(168,85,247,0.3)', borderRadius: 14 }}>
+            <div style={{ marginBottom: 18, padding: '16px 18px', background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(10,20,56,0.18)', borderRadius: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.015em' }}>Share <span style={{ color: '#7c3aed' }}>{shareForTpl.name}</span></div>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.015em' }}>Share <span style={{ color: '#0ea5e9' }}>{shareForTpl.name}</span></div>
                 <button onClick={() => { setMode('browse'); setShareForTpl(null); }} style={{
                   padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(15,23,42,0.1)',
                   background: '#fff', color: '#475569', fontFamily: 'Manrope,sans-serif',
@@ -367,9 +367,9 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
                 }
               }} style={{
                 marginTop: 8, padding: '8px 16px', borderRadius: 9, border: 'none',
-                background: 'linear-gradient(135deg,#a855f7,#ec4899)', color: '#fff',
+                background: '#0a1438', color: '#fff',
                 fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: 12,
-                cursor: 'pointer', boxShadow: '0 4px 12px rgba(168,85,247,0.3)',
+                cursor: 'pointer', boxShadow: '0 4px 12px rgba(10,20,56,0.18)',
               }}>📋 Copy code</button>
             </div>
           );
@@ -433,16 +433,16 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
                 boxShadow:
                   'inset 0 1px 0 rgba(255,255,255,0.9), ' +
                   '0 4px 12px rgba(14,165,233,0.12), ' +
-                  '0 8px 20px rgba(168,85,247,0.10)',
+                  '0 8px 20px rgba(14,165,233,0.10)',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.borderColor = 'rgba(168,85,247,0.35)';
+                e.currentTarget.style.borderColor = 'rgba(14,165,233,0.35)';
                 e.currentTarget.style.boxShadow =
                   'inset 0 1px 0 rgba(255,255,255,1), ' +
                   '0 8px 20px rgba(14,165,233,0.22), ' +
-                  '0 14px 36px rgba(168,85,247,0.22), ' +
-                  '0 0 0 1px rgba(168,85,247,0.12)';
+                  '0 14px 36px rgba(14,165,233,0.22), ' +
+                  '0 0 0 1px rgba(14,165,233,0.12)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = '';
@@ -450,7 +450,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
                 e.currentTarget.style.boxShadow =
                   'inset 0 1px 0 rgba(255,255,255,0.9), ' +
                   '0 4px 12px rgba(14,165,233,0.12), ' +
-                  '0 8px 20px rgba(168,85,247,0.10)';
+                  '0 8px 20px rgba(14,165,233,0.10)';
               }}
             >
               {/* Thumbnail — gradient placeholder representing the template's
@@ -535,9 +535,9 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
                     <button onClick={(e) => { e.stopPropagation(); handleShare(tpl); }}
                       style={{
                         padding: '5px 10px', borderRadius: 6,
-                        background: 'rgba(168,85,247,0.08)',
-                        border: '1px solid rgba(168,85,247,0.25)',
-                        color: '#7c3aed', cursor: 'pointer',
+                        background: 'rgba(14,165,233,0.08)',
+                        border: '1px solid rgba(14,165,233,0.25)',
+                        color: '#0ea5e9', cursor: 'pointer',
                         fontSize: 11, fontWeight: 800,
                         fontFamily: 'Manrope,sans-serif',
                       }}>🔗 Share</button>
@@ -633,7 +633,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
                   style={{
                     padding: '9px 16px',
                     borderRadius: 8,
-                    background: 'linear-gradient(135deg, #0ea5e9, #a855f7)',
+                    background: 'linear-gradient(135deg, #0ea5e9, #22d3ee)',
                     border: 'none',
                     color: '#fff',
                     fontFamily: 'Manrope, sans-serif',

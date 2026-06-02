@@ -31,8 +31,8 @@
      right edge rather than atmospheric design. */
   background: #f1f5fb !important;
   background-image:
-    radial-gradient(ellipse at 12% 30%, rgba(14,165,233,0.20), transparent 55%),
-    radial-gradient(ellipse at 70% 90%, rgba(99,102,241,0.06), transparent 50%) !important;
+    radial-gradient(ellipse at 12% 30%, rgba(14,165,233,0.16), transparent 55%),
+    radial-gradient(ellipse at 70% 90%, rgba(10,20,56,0.05), transparent 50%) !important;
   color: #0f172a;
   font-family: 'Manrope', 'Inter', sans-serif;
   font-weight: 500;
@@ -43,8 +43,9 @@
 /* CSS variables exposed for child component inline-style use */
 .labs-chrome {
   --labs-accent-start: #0ea5e9;
-  --labs-accent-end: #a855f7;
-  --labs-accent-grad: linear-gradient(135deg, #0ea5e9, #a855f7);
+  --labs-accent-end: #22d3ee;
+  --labs-accent-grad: linear-gradient(135deg, #0ea5e9, #22d3ee);
+  --labs-brand-deep: #0a1438;
   --labs-text-primary: #0f172a;
   --labs-text-secondary: #475569;
   --labs-text-muted: #64748b;

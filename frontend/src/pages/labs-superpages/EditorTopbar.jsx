@@ -521,9 +521,9 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       <button onClick={onSave} disabled={saving} style={{
         ...pillM,
-        background: saving ? 'rgba(255,255,255,0.15)' : '#22c55e',
+        background: saving ? 'rgba(255,255,255,0.15)' : '#0a1438',
         color: saving ? 'rgba(255,255,255,0.55)' : '#ffffff',
-        border: '1px solid ' + (saving ? 'rgba(255,255,255,0.2)' : '#16a34a'),
+        border: '1px solid ' + (saving ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.18)'),
         boxShadow: saving ? 'none' : '0 1px 3px rgba(0,0,0,0.2)',
         cursor: saving ? 'not-allowed' : 'pointer',
         fontWeight: 800,
