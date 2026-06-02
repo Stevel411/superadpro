@@ -184,15 +184,15 @@
   -ms-overflow-style: none;
 }
 
-/* Section labels — Sora 900 uppercase. White-tinted for cobalt
-   panel chrome (was muted slate #94a3b8 for white panel). */
+/* Section labels — Sora 900 uppercase. Muted slate for the light
+   palette panel (reverted from white-tinted cobalt, 2 Jun 2026). */
 .labs-chrome .palette-section-label {
   font-family: 'Sora', sans-serif !important;
   font-size: 10px !important;
   font-weight: 900 !important;
   letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
-  color: rgba(255,255,255,0.55) !important;
+  color: #94a3b8 !important;
   margin-bottom: 4px;
 }
 

@@ -120,15 +120,15 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       // 20 May 2026 v2: flat lighter cobalt for uniform brand surface.
       // Width bumped 284 → 320 to balance with Inspector and give
       // tiles more breathing room.
-      background: '#1e3a8a',
-      borderLeft: '1px solid rgba(255,255,255,0.08)',
+      background: '#f8fafc',
+      borderLeft: '1px solid #e2e8f0',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
 
       {/* Header */}
-      <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)',flexShrink:0}}>
-        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#ffffff'}}>{t('superPagesEditor.blocks')}</h3>
-        <p style={{margin:'2px 0 8px',fontSize:13,color:'rgba(255,255,255,0.6)'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
+      <div style={{padding:'14px 16px',borderBottom:'1px solid #e8edf3',flexShrink:0}}>
+        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#0f172a'}}>{t('superPagesEditor.blocks')}</h3>
+        <p style={{margin:'2px 0 8px',fontSize:13,color:'#64748b'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
         {/* Block search — filters tiles by name as you type. */}
         <div style={{position:'relative'}}>
           <input
@@ -139,17 +139,17 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               width:'100%',
               padding:'7px 28px 7px 10px',
               borderRadius:8,
-              border:'1px solid rgba(255,255,255,0.18)',
-              background:'rgba(255,255,255,0.08)',
+              border:'1px solid #e2e8f0',
+              background:'#ffffff',
               fontSize:12,
               fontFamily:'Manrope,sans-serif',
               fontWeight:600,
-              color:'#ffffff',
+              color:'#0f172a',
               outline:'none',
               boxSizing:'border-box',
             }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#22d3ee'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = '#e2e8f0'; }}
           />
           {search && (
             <button
@@ -158,7 +158,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               style={{
                 position:'absolute', right:6, top:'50%', transform:'translateY(-50%)',
                 width:18, height:18, borderRadius:4, border:'none',
-                background:'rgba(255,255,255,0.18)', color:'rgba(255,255,255,0.9)',
+                background:'#e2e8f0', color:'#64748b',
                 cursor:'pointer', fontSize:11, fontWeight:700,
                 display:'flex', alignItems:'center', justifyContent:'center', padding:0,
               }}>×</button>
@@ -167,13 +167,13 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       </div>
 
       {/* Background Controls — collapsible */}
-      <div style={{borderBottom:'1px solid rgba(255,255,255,0.08)',flexShrink:0}}>
+      <div style={{borderBottom:'1px solid #e8edf3',flexShrink:0}}>
         <div onClick={() => setBgOpen(!bgOpen)} style={{padding:'10px 16px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <div style={{width:24,height:24,borderRadius:6,border:'1px solid rgba(255,255,255,0.18)',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg||'#ffffff',boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.3)'}}/>
+            <div style={{width:24,height:24,borderRadius:6,border:'1px solid #cbd5e1',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg||'#ffffff',boxShadow:'inset 0 0 0 1px rgba(0,0,0,0.06)'}}/>
             <div>
-              <div style={{fontSize:13,fontWeight:800,letterSpacing:0.5,textTransform:'uppercase',color:'rgba(255,255,255,0.7)'}}>{t('superPagesEditor.pageBackground')}</div>
-              <div style={{fontSize:13,color:'rgba(255,255,255,0.55)',marginTop:1}}>
+              <div style={{fontSize:13,fontWeight:800,letterSpacing:0.5,textTransform:'uppercase',color:'#475569'}}>{t('superPagesEditor.pageBackground')}</div>
+              <div style={{fontSize:13,color:'#64748b',marginTop:1}}>
                 {canvasBgImage ? t('superPagesEditor.bgImage', { defaultValue: 'Image' })
                   : canvasBg?.startsWith('linear') ? t('superPagesEditor.bgGradient', { defaultValue: 'Gradient' })
                   : canvasBg || t('superPagesEditor.bgSolid', { defaultValue: 'Solid' })}
@@ -476,8 +476,8 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
           card sits clear of the panel's bottom edge, matching the
           frosted-tile aesthetic above. Card itself stays white-themed
           internally for AI-chat legibility. */}
-      <div style={{padding:'10px 12px 14px',flexShrink:0,background:'#1e3a8a'}}>
-        <div style={{borderRadius:12,background:'#ffffff',display:'flex',flexDirection:'column',overflow:'hidden',border:'1px solid #0a1438',boxShadow:'inset 0 1px 0 rgba(255,255,255,1), 0 3px 8px rgba(0,0,0,0.22), 0 10px 24px rgba(10,20,56,0.32)'}}>
+      <div style={{padding:'10px 12px 14px',flexShrink:0,background:'#f8fafc',borderTop:'1px solid #e8edf3'}}>
+        <div style={{borderRadius:12,background:'#ffffff',display:'flex',flexDirection:'column',overflow:'hidden',border:'1px solid #e2e8f0',boxShadow:'0 1px 3px rgba(10,20,56,0.06), 0 6px 16px rgba(10,20,56,0.08)'}}>
           <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'10px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <span style={{fontSize:13,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'#0284c7'}}>{t('superPagesEditor.aiAssistant')}</span>
             <span style={{fontSize:12,color:'#7a8899',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
@@ -500,7 +500,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   rows={1} placeholder={t("superPagesEditor.askAiPlaceholder")}
                   style={{flex:1,padding:'8px 11px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#0f172a',resize:'none',background:'#ffffff',outline:'none'}}/>
                 <button onClick={sendChat} disabled={chatSending}
-                  style={{width:34,height:34,border:'none',borderRadius:8,background:'linear-gradient(135deg,#0ea5e9,#6366f1)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1,boxShadow:'0 2px 6px rgba(14,165,233,0.3)'}}>
+                  style={{width:34,height:34,border:'none',borderRadius:8,background:'linear-gradient(135deg,#1e3a8a,#0ea5e9)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1,boxShadow:'0 2px 6px rgba(14,165,233,0.3)'}}>
                   <Send size={14}/>
                 </button>
               </div>
