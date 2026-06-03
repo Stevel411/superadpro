@@ -155,7 +155,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.adminDashboard'), shortLabel: t('navShort.adminDashboard', { defaultValue: 'Admin' }), icon: Shield, path: '/admin' },
       { label: t('nav.adminStories', { defaultValue: 'Story Moderation' }), shortLabel: t('navShort.adminStories', { defaultValue: 'Stories' }), icon: Sparkles, path: '/admin/stories' },
       { label: t('nav.adminShowcase', { defaultValue: 'Showcase Moderation' }), shortLabel: t('navShort.adminShowcase', { defaultValue: 'Showcase' }), icon: LayoutGrid, path: '/admin/showcase' },
-      { label: t('nav.labsPageBuilder', { defaultValue: 'Labs: Page Builder' }), shortLabel: t('navShort.labsPageBuilder', { defaultValue: 'Labs' }), icon: Beaker, path: '/labs/pagebuilder' },
+      { label: t('nav.labsPageBuilder', { defaultValue: 'Page Builder (Beta)' }), shortLabel: t('navShort.labsPageBuilder', { defaultValue: 'Beta' }), icon: Beaker, path: '/labs/pagebuilder' },
     ]});
   }
 
