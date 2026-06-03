@@ -31042,10 +31042,17 @@ def security_audit(secret: str, db: Session = Depends(get_db)):
     if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
+        from decimal import Decimal as _Dec
+        def _safe(v):
+            if isinstance(v, datetime):
+                return v.isoformat() + "Z"
+            if isinstance(v, _Dec):
+                return float(v)
+            return v
         def rows(sql):
             res = db.execute(text(sql))
-            cols = res.keys()
-            return [dict(zip(cols, r)) for r in res.fetchall()]
+            cols = list(res.keys())
+            return [{c: _safe(v) for c, v in zip(cols, r)} for r in res.fetchall()]
 
         admins = rows("""
             SELECT id, username, email, is_active, is_admin,
