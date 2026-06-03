@@ -363,59 +363,38 @@ const PRODUCT_LAUNCH = {
 // ─────────────────────────────────────────────────────────────────
 const COACHING = {
   id: 'coaching',
-  name: 'Book a Free Call',
+  name: 'Book a Call',
   category: 'Service',
-  description: 'Warm consultation page with personal intro, credibility, testimonials, and a clear booking CTA.',
-  accent: '#10b981',
-  thumbnailGradient: 'linear-gradient(135deg, #ecfdf5 0%, #6ee7b7 50%, #0891b2 100%)',
+  description: 'Sage-green consultation page: benefit-led hero beside a booking card that captures name, email and what the visitor wants to cover.',
+  accent: '#059669',
+  thumbnailGradient: 'linear-gradient(135deg, #f0fdf4 0%, #6ee7b7 55%, #059669 100%)',
   canvasBg: '#f0fdf4',
   canvasBgImage: '',
   els: [
-    // Eyebrow
-    { id: tid('co', 1), type: 'badge', x: 460, y: 80, w: 180, h: 32,
-      txt: '✓ FREE 30-MIN CALL',
-      s: { fontFamily: 'Manrope,sans-serif', fontWeight: '900', fontSize: '11px', color: '#047857', textAlign: 'center', background: 'rgba(16,185,129,0.1)', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '0.08em' } },
+    // Badge (top-left)
+    { id: tid('co', 1), type: 'badge', x: 100, y: 74, w: 236, h: 34,
+      txt: '&#128222; FREE STRATEGY CALL',
+      s: { fontFamily: 'Sora,sans-serif', fontWeight: '700', fontSize: '11px', color: '#047857', textAlign: 'center', background: '#d1fae5', borderRadius: '999px', border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '0.1em' } },
 
-    // Hero
-    { id: tid('co', 2), type: 'heading', x: 100, y: 135, w: 900, h: 130,
-      txt: "Let's Map Out Your <span style='color:#0891b2'>Next 90 Days</span>",
-      s: { fontFamily: 'Sora,sans-serif', fontWeight: '900', fontSize: '54px', color: '#0f172a', textAlign: 'center', letterSpacing: '-0.035em', lineHeight: '1.05' } },
+    // Hero heading (left)
+    { id: tid('co', 2), type: 'heading', x: 100, y: 128, w: 480, h: 168,
+      txt: "Let's map out your <span style='color:#059669'>next 90 days</span> together",
+      s: { fontFamily: 'Sora,sans-serif', fontWeight: '800', fontSize: '40px', color: '#064e3b', textAlign: 'left', letterSpacing: '-0.03em', lineHeight: '1.1' } },
 
-    // Subhead
-    { id: tid('co', 3), type: 'text', x: 200, y: 280, w: 700, h: 70,
-      txt: 'I work with 8 affiliate marketers each month, 1:1. If you want clarity on what to build next, a free 30-min call is the fastest way to find out if we are a fit.',
-      s: { fontFamily: 'Manrope,sans-serif', fontSize: '18px', color: '#475569', textAlign: 'center', lineHeight: '1.55', fontWeight: '500' } },
+    // Subhead (left)
+    { id: tid('co', 3), type: 'text', x: 100, y: 304, w: 470, h: 80,
+      txt: 'A focused 30-minute call where we pinpoint exactly what is holding your growth back — and the three moves that fix it.',
+      s: { fontFamily: "'DM Sans',sans-serif", fontSize: '17px', color: '#4b6358', textAlign: 'left', lineHeight: '1.55', fontWeight: '500' } },
 
-    // CTA
-    { id: tid('co', 4), type: 'button', x: 380, y: 380, w: 340, h: 64,
-      txt: 'Book My Free Call →',
-      s: { background: 'linear-gradient(135deg,#10b981,#0891b2)', color: '#fff', fontFamily: 'Manrope,sans-serif', fontWeight: '900', fontSize: '15px', textAlign: 'center', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 0 rgba(4,120,87,0.6),0 8px 24px rgba(16,185,129,0.35)' } },
+    // Benefit checklist (left)
+    { id: tid('co', 4), type: 'text', x: 100, y: 404, w: 470, h: 150,
+      txt: '<div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;gap:10px;align-items:flex-start;font-family:\'DM Sans\',sans-serif;font-size:14.5px;color:#1f3d33;font-weight:500"><span style="flex-shrink:0;width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">&#10003;</span>A clear, personalised action plan you keep</div><div style="display:flex;gap:10px;align-items:flex-start;font-family:\'DM Sans\',sans-serif;font-size:14.5px;color:#1f3d33;font-weight:500"><span style="flex-shrink:0;width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">&#10003;</span>An honest read on what is and is not working</div><div style="display:flex;gap:10px;align-items:flex-start;font-family:\'DM Sans\',sans-serif;font-size:14.5px;color:#1f3d33;font-weight:500"><span style="flex-shrink:0;width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">&#10003;</span>Zero pressure, zero pitch — just strategy</div></div>',
+      s: {} },
 
-    // "What you'll get" heading
-    { id: tid('co', 5), type: 'heading', x: 350, y: 510, w: 400, h: 50,
-      txt: "On the Call",
-      s: { fontFamily: 'Sora,sans-serif', fontWeight: '900', fontSize: '32px', color: '#0f172a', textAlign: 'center', letterSpacing: '-0.025em' } },
-
-    // 3 icontext rows
-    { id: tid('co', 6), type: 'icontext', x: 80, y: 590, w: 320, h: 110,
-      txt: '<div style="display:flex;gap:16px;align-items:flex-start"><div style="font-size:24px;flex-shrink:0;width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(8,145,178,0.15));border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center">🎯</div><div><div style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px">Clarity on your offer</div><div style="font-size:13px;color:#64748b;line-height:1.55">We pinpoint what you should be selling and to whom.</div></div></div>',
-      s: { background: '#ffffff', borderRadius: '14px', border: '1px solid #d1fae5', padding: '20px' } },
-    { id: tid('co', 7), type: 'icontext', x: 390, y: 590, w: 320, h: 110,
-      txt: '<div style="display:flex;gap:16px;align-items:flex-start"><div style="font-size:24px;flex-shrink:0;width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(8,145,178,0.15));border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center">🛠️</div><div><div style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px">Concrete next 3 steps</div><div style="font-size:13px;color:#64748b;line-height:1.55">You leave with a written action plan, not vague advice.</div></div></div>',
-      s: { background: '#ffffff', borderRadius: '14px', border: '1px solid #d1fae5', padding: '20px' } },
-    { id: tid('co', 8), type: 'icontext', x: 700, y: 590, w: 320, h: 110,
-      txt: '<div style="display:flex;gap:16px;align-items:flex-start"><div style="font-size:24px;flex-shrink:0;width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(8,145,178,0.15));border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center">🤝</div><div><div style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px">Zero sales pressure</div><div style="font-size:13px;color:#64748b;line-height:1.55">If we are a fit, we talk options. If not, you keep the plan.</div></div></div>',
-      s: { background: '#ffffff', borderRadius: '14px', border: '1px solid #d1fae5', padding: '20px' } },
-
-    // Testimonial
-    { id: tid('co', 9), type: 'testimonial', x: 200, y: 760, w: 700, h: 180,
-      txt: '<div style="margin-bottom:12px"><span style="color:#fbbf24">★★★★★</span></div><div style="font-size:16px;color:#0f172a;line-height:1.6;margin-bottom:16px;font-weight:500">"The 30-minute call was worth more than the last three courses I bought combined. I knew exactly what to do next within an hour."</div><div style="display:flex;align-items:center;gap:11px"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0891b2);font-size:13px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif">EK</div><div><div style="font-size:14px;font-weight:900;color:#0f172a;font-family:Sora,sans-serif">Emma Kowalski</div><div style="font-size:12px;color:#64748b;font-weight:600">Affiliate marketer · joined March 2025</div></div></div>',
-      s: { background: '#ffffff', borderRadius: '18px', border: '1px solid #d1fae5', padding: '28px', boxShadow: '0 8px 24px rgba(16,185,129,0.08)' } },
-
-    // Second CTA
-    { id: tid('co', 10), type: 'button', x: 380, y: 980, w: 340, h: 64,
-      txt: 'Book My Free Call →',
-      s: { background: 'linear-gradient(135deg,#10b981,#0891b2)', color: '#fff', fontFamily: 'Manrope,sans-serif', fontWeight: '900', fontSize: '15px', textAlign: 'center', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 0 rgba(4,120,87,0.6),0 8px 24px rgba(16,185,129,0.35)' } },
+    // Booking card (right) — real capture via data-sp-submit button
+    { id: tid('co', 5), type: 'form', x: 620, y: 128, w: 400, h: 446,
+      txt: '<div style="text-align:left"><div style="display:flex;align-items:center;gap:13px;margin-bottom:18px"><svg width="52" height="52" viewBox="0 0 54 54" fill="none"><defs><linearGradient id="coav" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#10b981"/><stop offset="1" stop-color="#059669"/></linearGradient></defs><circle cx="27" cy="27" r="27" fill="url(#coav)"/><circle cx="27" cy="21" r="9" fill="#fff" opacity="0.95"/><path d="M11 47c1-9 8-14 16-14s15 5 16 14" fill="#fff" opacity="0.95"/></svg><div><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#064e3b">Your Name</div><div style="font-size:12.5px;color:#4b6358">Founder &middot; Growth Strategist</div></div></div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#5b7468;margin:0 0 9px">Pick a slot</div><input placeholder="Full name" style="display:block;width:100%;padding:13px 15px;background:#f3fbf6;border:1px solid #bbf7d0;border-radius:10px;color:#0f1f1a;font-size:13px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:\'DM Sans\',sans-serif"><input placeholder="Email address" style="display:block;width:100%;padding:13px 15px;background:#f3fbf6;border:1px solid #bbf7d0;border-radius:10px;color:#0f1f1a;font-size:13px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:\'DM Sans\',sans-serif"><input name="topic" placeholder="What do you want to cover?" style="display:block;width:100%;padding:13px 15px;background:#f3fbf6;border:1px solid #bbf7d0;border-radius:10px;color:#0f1f1a;font-size:13px;margin-bottom:16px;box-sizing:border-box;outline:none;font-family:\'DM Sans\',sans-serif"><button data-sp-submit="1" style="display:block;width:100%;padding:14px 20px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:14px;font-weight:800;border-radius:10px;text-align:center;box-sizing:border-box;border:none;cursor:pointer;font-family:Sora,sans-serif">Confirm my call &#8594;</button><div style="text-align:center;margin-top:12px;font-size:12px;color:#5b7468">&#128274; No spam. Cancel anytime.</div></div>',
+      s: { background: '#ffffff', borderRadius: '18px', border: '1px solid #c7f0db', padding: '26px', boxShadow: '0 18px 50px rgba(5,80,60,0.12)' } },
   ]
 };
 
