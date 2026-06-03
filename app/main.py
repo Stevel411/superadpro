@@ -31030,6 +31030,84 @@ def db_check(secret: str, db: Session = Depends(get_db)):
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
+@app.get("/admin/security-audit")
+def security_audit(secret: str, db: Session = Depends(get_db)):
+    """READ-ONLY incident audit. Surfaces full blast radius of the
+    activate-owner privilege-escalation: every admin account, every
+    account carrying the owner-tN/owner-membership payment fingerprint,
+    all accounts created today, balance anomalies, and — critically —
+    every withdrawal in the last 48h (the 'did real money leave' check).
+    Pure SELECTs; mutates nothing."""
+    from fastapi.responses import JSONResponse
+    if secret != _get_required_secret("ADMIN_SECRET"):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        def rows(sql):
+            res = db.execute(text(sql))
+            cols = res.keys()
+            return [dict(zip(cols, r)) for r in res.fetchall()]
+
+        admins = rows("""
+            SELECT id, username, email, is_active, is_admin,
+                   balance, campaign_balance, created_at
+            FROM users WHERE is_admin = true ORDER BY id""")
+
+        fingerprint_payments = rows("""
+            SELECT id, from_user_id, amount_usdt, payment_type, tx_hash,
+                   status, created_at
+            FROM payments
+            WHERE tx_hash LIKE 'owner-%'
+            ORDER BY created_at DESC LIMIT 200""")
+
+        created_today = rows("""
+            SELECT id, username, email, is_admin, is_active, balance,
+                   campaign_balance, created_at
+            FROM users WHERE created_at >= CURRENT_DATE ORDER BY id""")
+
+        nonzero_balance_today = rows("""
+            SELECT id, username, balance, campaign_balance, created_at
+            FROM users
+            WHERE created_at >= CURRENT_DATE
+              AND (COALESCE(balance,0) > 0 OR COALESCE(campaign_balance,0) > 0)
+            ORDER BY balance DESC""")
+
+        # THE money-out check: any outgoing withdrawal in the last 48h.
+        withdrawals_recent = rows("""
+            SELECT id, user_id, amount_usdt, wallet_address, network,
+                   tx_hash, status, requested_at, processed_at
+            FROM withdrawals
+            WHERE requested_at >= NOW() - INTERVAL '48 hours'
+            ORDER BY requested_at DESC""")
+
+        commissions_today = rows("""
+            SELECT id, from_user_id, to_user_id, amount_usdt,
+                   commission_type, status, created_at
+            FROM commissions
+            WHERE created_at >= CURRENT_DATE
+            ORDER BY created_at DESC LIMIT 200""")
+
+        return JSONResponse({
+            "generated_at": datetime.utcnow().isoformat() + "Z",
+            "summary": {
+                "admin_accounts": len(admins),
+                "fingerprint_payments": len(fingerprint_payments),
+                "accounts_created_today": len(created_today),
+                "nonzero_balance_created_today": len(nonzero_balance_today),
+                "withdrawals_last_48h": len(withdrawals_recent),
+                "withdrawals_paid_last_48h": sum(
+                    1 for w in withdrawals_recent if w.get("status") == "paid"),
+                "commissions_created_today": len(commissions_today),
+            },
+            "admin_accounts": admins,
+            "withdrawals_last_48h": withdrawals_recent,
+            "nonzero_balance_created_today": nonzero_balance_today,
+            "accounts_created_today": created_today,
+            "fingerprint_payments": fingerprint_payments,
+            "commissions_created_today": commissions_today,
+        }, status_code=200)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 @app.get("/admin/force-wipe")
 def force_wipe(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
