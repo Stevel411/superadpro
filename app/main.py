@@ -703,7 +703,7 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         if not MAINTENANCE_MODE:
             return await call_next(request)
         path = request.url.path
-        if path == "/health" or path.startswith("/admin/") or path.startswith("/static/"):
+        if path == "/health" or path.startswith("/admin/") or path.startswith("/static/") or path == "/cron/security-watch":
             return await call_next(request)
         resp = HTMLResponse(MAINTENANCE_HTML, status_code=200)
         resp.headers["Cache-Control"] = "no-store"
@@ -27703,6 +27703,158 @@ def cron_process_renewals_get(request: Request, secret: str = "", db: Session = 
 # an admin's terminal during incident response) often default to POST.
 # Both auth via the same query-string secret to keep the entry surface
 # uniform with the other crons in this file.
+# ── Security watchdog (2026-06-03 hardening) ──────────────────────────
+# Path-INDEPENDENT breach detector. Polls DB STATE rather than hooking
+# specific endpoints, so it catches a privileged action no matter which
+# route performed it — the core lesson of the 2026-06-03 breach, where the
+# attacker used endpoints nobody was watching. Run every 60s via Railway
+# cron (/cron/security-watch). Alerts on new admins, admin balance
+# adjustments, and new withdrawals. First run silently baselines so there
+# is no alert storm on deploy. See SECURITY.md.
+_SECWATCH_RECIPIENT = "stevelawsonmarketing@gmail.com"
+
+def _secwatch_get(db, key, default=""):
+    row = db.query(AppConfig).filter(AppConfig.key == key).first()
+    return row.value if (row and row.value is not None) else default
+
+def _secwatch_set(db, key, value):
+    row = db.query(AppConfig).filter(AppConfig.key == key).first()
+    if row:
+        row.value = str(value)
+    else:
+        db.add(AppConfig(key=key, value=str(value)))
+
+def _secwatch_send_alert(events):
+    """Best-effort consolidated security alert email. Never raises."""
+    try:
+        from .email_utils import send_email
+        rows = "".join(
+            f'<div style="background:#fef2f2;border-left:3px solid #dc2626;'
+            f'border-radius:8px;padding:12px 14px;margin:10px 0;font-size:13px;'
+            f'line-height:1.5;color:#334155;">{e}</div>' for e in events
+        )
+        subject = f"\U0001F6A8 SuperAdPro SECURITY ALERT \u2014 {len(events)} privileged event(s)"
+        html_body = f"""
+        <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+          <h2 style="color:#dc2626;margin:0 0 8px;">Privileged activity detected</h2>
+          <p style="font-size:14px;color:#475569;line-height:1.6;margin:0 0 8px;">
+            The security watchdog detected the following privileged action(s) on the
+            live platform. <strong>If this was not you, treat it as an active
+            intrusion:</strong> set <code>MAINTENANCE_MODE=on</code>, confirm
+            <code>WITHDRAWALS_ENABLED</code> is unset (withdrawals frozen), and review
+            <code>/admin/security-audit</code>.
+          </p>
+          {rows}
+          <p style="font-size:12px;color:#94a3b8;margin-top:16px;">
+            Detected {datetime.utcnow().isoformat()}Z \u00b7 SuperAdPro security watchdog
+          </p>
+        </div>
+        """
+        send_email(to_email=_SECWATCH_RECIPIENT, subject=subject, html_body=html_body)
+        return True
+    except Exception as _e:
+        try:
+            logging.error(f"[secwatch] alert email failed: {_e}")
+        except Exception:
+            pass
+        return False
+
+def run_security_watch(db, dry=False):
+    """Poll DB state for privileged actions. Returns a summary dict.
+    Markers persist in app_config so each event is alerted exactly once."""
+    from sqlalchemy import func
+    events = []
+
+    last_wd  = int((_secwatch_get(db, "secwatch_last_withdrawal_id", "0") or "0"))
+    last_adj = int((_secwatch_get(db, "secwatch_last_admin_adj_id", "0") or "0"))
+    known_admins_raw = _secwatch_get(db, "secwatch_known_admin_ids", "")
+    initialized = _secwatch_get(db, "secwatch_initialized", "")
+
+    cur_max_wd  = db.query(func.max(Withdrawal.id)).scalar() or 0
+    cur_max_adj = (db.query(func.max(Commission.id))
+                     .filter(Commission.commission_type == "admin_adjustment").scalar()) or 0
+    admin_rows = db.query(User.id, User.username).filter(User.is_admin == True).all()  # noqa: E712
+    cur_admin_ids = {int(r[0]) for r in admin_rows}
+
+    # First run: baseline silently — never alert on pre-existing history.
+    if not initialized:
+        if not dry:
+            _secwatch_set(db, "secwatch_last_withdrawal_id", cur_max_wd)
+            _secwatch_set(db, "secwatch_last_admin_adj_id", cur_max_adj)
+            _secwatch_set(db, "secwatch_known_admin_ids",
+                          ",".join(str(i) for i in sorted(cur_admin_ids)))
+            _secwatch_set(db, "secwatch_initialized", "1")
+            db.commit()
+        return {"status": "baselined", "admins": sorted(cur_admin_ids),
+                "max_withdrawal_id": cur_max_wd, "max_admin_adj_id": cur_max_adj}
+
+    known_admins = {int(x) for x in known_admins_raw.split(",") if x.strip().isdigit()}
+
+    # 1) New admin accounts (there is no legitimate make-admin flow in prod)
+    new_admins = cur_admin_ids - known_admins
+    if new_admins:
+        for r in admin_rows:
+            if int(r[0]) in new_admins:
+                events.append(f"<strong>NEW ADMIN</strong> \u2014 user_id {r[0]} "
+                              f"(@{r[1]}) now has is_admin=True. There is no "
+                              f"legitimate make-admin flow in production.")
+
+    # 2) New admin balance adjustments
+    if cur_max_adj > last_adj:
+        for c in (db.query(Commission)
+                    .filter(Commission.commission_type == "admin_adjustment",
+                            Commission.id > last_adj).all()):
+            events.append(f"<strong>BALANCE ADJUSTMENT</strong> \u2014 commission "
+                          f"#{c.id} \u2192 user_id {c.to_user_id}, {c.amount_usdt} "
+                          f"USDT (status {c.status}).")
+
+    # 3) New withdrawals
+    if cur_max_wd > last_wd:
+        for w in (db.query(Withdrawal).filter(Withdrawal.id > last_wd).all()):
+            events.append(f"<strong>WITHDRAWAL</strong> \u2014 #{w.id}, user_id "
+                          f"{w.user_id}, {w.amount_usdt} USDT \u2192 {w.wallet_address} "
+                          f"[{w.network or '?'}/{w.status}].")
+
+    if dry:
+        return {"status": "dry_run", "events": len(events), "detail": events,
+                "admins": sorted(cur_admin_ids)}
+
+    sent = _secwatch_send_alert(events) if events else True
+    # Advance markers only if there was nothing to alert, or the alert sent.
+    # If the mailer failed while events existed, leave markers so the next
+    # run retries — we'd rather re-alert than silently lose a breach signal.
+    if sent:
+        _secwatch_set(db, "secwatch_last_withdrawal_id", cur_max_wd)
+        _secwatch_set(db, "secwatch_last_admin_adj_id", cur_max_adj)
+        if new_admins:
+            _secwatch_set(db, "secwatch_known_admin_ids",
+                          ",".join(str(i) for i in sorted(cur_admin_ids)))
+        db.commit()
+
+    return {"status": "checked", "events": len(events),
+            "alerted": bool(events) and sent, "email_ok": sent,
+            "detail": events, "admins": sorted(cur_admin_ids)}
+
+
+@app.get("/cron/security-watch")
+async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0,
+                              db: Session = Depends(get_db)):
+    """Security watchdog cron. Polls DB state for privileged actions (new
+    admins, balance adjustments, withdrawals) and emails an alert. Intended
+    to run every 60s via Railway cron. Protected by CRON_SECRET.
+      ?test=1 - send a test alert to verify the email channel end-to-end
+      ?dry=1  - report findings without emailing or advancing markers
+    See SECURITY.md."""
+    if not secret or secret != os.getenv("CRON_SECRET", ""):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    if test:
+        ok = _secwatch_send_alert([
+            "<strong>TEST</strong> \u2014 this is a test of the SuperAdPro security "
+            "alert channel. If you received this email, alerting works."])
+        return {"status": "test_sent", "email_ok": ok, "recipient": _SECWATCH_RECIPIENT}
+    return run_security_watch(db, dry=bool(dry))
+
+
 @app.post("/cron/process-pending-withdrawals")
 def cron_process_pending_withdrawals_post(
     request: Request, secret: str = "", db: Session = Depends(get_db)
