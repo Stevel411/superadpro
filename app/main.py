@@ -14189,7 +14189,7 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
 @app.get("/admin/reset-test-data")
 def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
     """Delete all users except SuperAdPro admin, reset admin balances, clear ALL data for fresh test cycle."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Forbidden"}, status_code=403)
     try:
         from sqlalchemy import text as _text
@@ -15746,7 +15746,7 @@ def admin_list_backups(user: User = Depends(get_current_user)):
 @app.get("/cron/backup")
 def cron_backup(secret: str = ""):
     """Cron endpoint: trigger daily backup. Protected by secret."""
-    if secret != _get_required_secret("BACKUP_SECRET", "superadpro-backup-2026"):
+    if secret != _get_required_secret("BACKUP_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     from .db_backup import run_backup
     result = run_backup()
@@ -18654,7 +18654,7 @@ def admin_diagnostic_recompute_wallet(
     """Recompute a user's wallet fields from the ground truth: non-reversed
     Commission rows. Authoritative + idempotent. Use after any commission
     reversal to guarantee wallet matches ledger."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Forbidden"}, status_code=403)
     from .database import Commission as _C
     from decimal import Decimal as _D
@@ -30532,7 +30532,7 @@ Requirements:
 @app.get("/admin/test-email")
 def test_email(secret: str, email: str):
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
         from app.email_utils import (send_welcome_email, send_commission_email,
@@ -30556,7 +30556,7 @@ def test_email(secret: str, email: str):
 # ── One-time fix: sync upline_earnings from membership commissions ──
 @app.get("/admin/fix-upline-earnings")
 def fix_upline_earnings(secret: str, db: Session = Depends(get_db)):
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     # Sum membership_sponsor commissions per user and update upline_earnings
     from sqlalchemy import func
@@ -30578,7 +30578,7 @@ def fix_upline_earnings(secret: str, db: Session = Depends(get_db)):
 # ── Treasury wallet balance check ──
 @app.get("/admin/hot-wallet-balance")
 def hot_wallet_balance(secret: str):
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     from app.withdrawals import get_treasury_usdt_balance, get_treasury_pol_balance, TREASURY_ADDRESS
     usdt = get_treasury_usdt_balance()
@@ -30595,7 +30595,7 @@ def hot_wallet_balance(secret: str):
 # mode this endpoint had before 2 May 2026).
 @app.get("/admin/process-pending-withdrawals")
 def process_pending_withdrawals(secret: str, db: Session = Depends(get_db)):
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     from app.withdrawals import process_pending_withdrawals_batch
     counts = process_pending_withdrawals_batch(db)
@@ -30607,7 +30607,7 @@ def process_pending_withdrawals(secret: str, db: Session = Depends(get_db)):
 # members per sponsor and corrects the counter to match. Safe to re-run.
 @app.get("/admin/recompute-personal-referrals")
 def recompute_personal_referrals(secret: str, db: Session = Depends(get_db)):
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     # Aggregate paid downline by sponsor: anyone active with a paid tier and
@@ -30656,7 +30656,7 @@ def recompute_personal_referrals(secret: str, db: Session = Depends(get_db)):
 # simply wait up to 5 minutes for the natural TTL to expire.
 @app.get("/admin/flush-leaderboard-cache")
 def flush_leaderboard_cache(secret: str):
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
         cache_invalidate_leaderboard()
@@ -30671,7 +30671,7 @@ def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
     from app.grid import get_or_create_active_grid
     import uuid
 
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     user = db.query(User).filter(User.username == username).first()
@@ -30759,7 +30759,7 @@ def test_dashboard(secret: str, db: Session = Depends(get_db)):
     """Test full dashboard context creation for a new user."""
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqtext
-    if secret != "superadpro-migrate-2026":
+    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     import traceback
     results = {}
@@ -30819,7 +30819,7 @@ def test_register(secret: str, db: Session = Depends(get_db)):
     """Test user creation and return exact error."""
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqtext
-    if secret != "superadpro-migrate-2026":
+    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     import traceback
     try:
@@ -30842,7 +30842,7 @@ def test_register(secret: str, db: Session = Depends(get_db)):
 def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
     """Force-run DB migrations — use once after deploy."""
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-migrate-2026":
+    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     from app.database import run_migrations
     try:
@@ -30853,7 +30853,7 @@ def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
 @app.get("/admin/force-migrate")
 def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
     """Force run specific migrations that may have been missed."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid"}, status_code=403)
     from sqlalchemy import text
     results = []
@@ -30886,7 +30886,7 @@ def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
 @app.get("/admin/debug-dashboard")
 def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
     """Debug: test dashboard context loading for the owner account."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid"}, status_code=403)
     import traceback as _tb
     try:
@@ -30939,7 +30939,7 @@ def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
     """
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqt
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid"}, status_code=403)
     try:
         db.execute(sqt("UPDATE users SET membership_tier = 'founding', is_founding_member = TRUE, membership_price_locked = 15.00, is_active = true, is_admin = true, membership_expires_at = '2099-12-31' WHERE username = 'SuperAdPro'"))
@@ -30955,7 +30955,7 @@ def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
 def admin_seed_owner_campaigns(secret: str = "", db: Session = Depends(get_db)):
     """Seed the owner account with active campaigns at all 8 tiers so they show in grid."""
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid"}, status_code=403)
     try:
         owner = db.query(User).filter(User.is_admin == True).first()
@@ -31006,7 +31006,7 @@ def admin_seed_owner_campaigns(secret: str = "", db: Session = Depends(get_db)):
 def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqt
-    if secret != "superadpro-migrate-2026":
+    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
         cols = db.execute(sqt("SELECT column_name FROM information_schema.columns WHERE table_name='linkhub_links' ORDER BY ordinal_position")).fetchall()
@@ -31019,7 +31019,7 @@ def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
 @app.get("/admin/db-check")
 def db_check(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-migrate-2026":
+    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
         users = db.execute(text("SELECT id, username, email FROM users")).fetchall()
@@ -31034,7 +31034,7 @@ def db_check(secret: str, db: Session = Depends(get_db)):
 def force_wipe(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqtext
-    if secret != "superadpro-reset-2026":
+    if secret != _get_required_secret("ADMIN_RESET_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     results = {}
     tables = [
@@ -31068,7 +31068,7 @@ def force_wipe(secret: str, db: Session = Depends(get_db)):
 @app.get("/admin/reset-account")
 def reset_account(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-reset-2026":
+    if secret != _get_required_secret("ADMIN_RESET_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
         from sqlalchemy import text as sqtext
@@ -31669,10 +31669,10 @@ async def api_comp_plan_chat(request: Request):
 def admin_watchdog_run(secret: str = "", db: Session = Depends(get_db)):
     """
     Main watchdog endpoint — hit this via Railway cron every 15-30 mins.
-    Usage: /admin/watchdog?secret=superadpro-owner-2026
+    Usage: /admin/watchdog?secret=$ADMIN_SECRET
     """
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     from .watchdog import run_watchdog
@@ -31682,7 +31682,7 @@ def admin_watchdog_run(secret: str = "", db: Session = Depends(get_db)):
 def admin_watchdog_status(secret: str = "", db: Session = Depends(get_db)):
     """Check watchdog status and recent logs."""
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     from .watchdog import is_enabled
@@ -31712,7 +31712,7 @@ def admin_watchdog_status(secret: str = "", db: Session = Depends(get_db)):
 def admin_watchdog_health_only(secret: str = "", db: Session = Depends(get_db)):
     """Run health check only (no fixes) — useful for monitoring dashboards."""
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     from .watchdog import run_health_check
@@ -31721,7 +31721,7 @@ def admin_watchdog_health_only(secret: str = "", db: Session = Depends(get_db)):
 def admin_watchdog_toggle(secret: str = "", db: Session = Depends(get_db)):
     """Toggle watchdog on/off (runtime only — doesn't persist across deploys)."""
     from fastapi.responses import JSONResponse
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     import app.watchdog as wd
@@ -31740,11 +31740,11 @@ def admin_adjust_balance(
     """
     Manually adjust a user's balance (positive to credit, negative to debit).
 
-    Usage: /admin/adjust-balance?secret=superadpro-owner-2026&username=master&amount=5.00&reason=Refund+adjustment
+    Usage: /admin/adjust-balance?secret=$ADMIN_SECRET&username=master&amount=5.00&reason=Refund+adjustment
     """
     from fastapi.responses import JSONResponse
 
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     if not username:
         return JSONResponse({"error": "username is required"}, status_code=400)
@@ -31799,11 +31799,11 @@ def admin_test_grid_fill(
     Simulate filling seats in a grid to test the full commission flow.
     Creates dummy users and places them into the owner's grid.
     
-    Usage: /admin/test-grid-fill?secret=superadpro-owner-2026&owner_username=master&tier=1&seats=5
+    Usage: /admin/test-grid-fill?secret=$ADMIN_SECRET&owner_username=master&tier=1&seats=5
     
     Use seats=GRID_TOTAL to test full grid completion + auto-spawn.
     """
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     owner = db.query(User).filter(User.username == owner_username).first()
@@ -31900,9 +31900,9 @@ def admin_test_grid_reset(
     Reset a grid for re-testing — removes all test positions, commissions, and the grid itself.
     Only removes grids and data for gridtest_* users.
     
-    Usage: /admin/test-grid-reset?secret=superadpro-owner-2026&owner_username=master&tier=1
+    Usage: /admin/test-grid-reset?secret=$ADMIN_SECRET&owner_username=master&tier=1
     """
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     owner = db.query(User).filter(User.username == owner_username).first()
@@ -31972,9 +31972,9 @@ def admin_test_grid_e2e(
 ):
     """
     E2E Grid Commission Test.
-    Usage: /admin/test-grid-e2e?secret=superadpro-owner-2026&tier=1&chain_depth=8&buyers_per_level=2
+    Usage: /admin/test-grid-e2e?secret=$ADMIN_SECRET&tier=1&chain_depth=8&buyers_per_level=2
     """
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     try:
@@ -32106,7 +32106,7 @@ def admin_test_grid_cleanup(
     db: Session = Depends(get_db)
 ):
     """Clean up ALL gridtest_* users and related data."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     test_users = db.query(User).filter(User.username.like("gridtest_%")).all()
@@ -32141,7 +32141,7 @@ def admin_test_course_passup_e2e(
     """
     E2E Course Pass-Up Commission Test — verifies the infinite cascade logic.
 
-    Usage: /admin/test-course-passup-e2e?secret=superadpro-owner-2026&tier=1
+    Usage: /admin/test-course-passup-e2e?secret=$ADMIN_SECRET&tier=1
 
     Builds a controlled 7-person chain with specific tier-ownership patterns
     and runs 7 test scenarios covering direct sales, pass-up cascades, and
@@ -32160,7 +32160,7 @@ def admin_test_course_passup_e2e(
     Self-cleaning: users are prefixed `coursepuptest_` — purge with
     /admin/test-course-passup-cleanup once you've reviewed the results.
     """
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     from app.course_engine import process_course_purchase, is_passup_sale
@@ -32495,7 +32495,7 @@ def admin_test_course_passup_e2e(
             "expected_commission_value": round(expected_total, 2),
             "maths_balances": round(total_commissions, 2) == round(expected_total, 2),
             "run_id": run_id,
-            "cleanup_url": f"/admin/test-course-passup-cleanup?secret=superadpro-owner-2026",
+            "cleanup_url": f"/admin/test-course-passup-cleanup?secret=$ADMIN_SECRET",
         }
 
         return report
@@ -32519,7 +32519,7 @@ def admin_test_course_passup_seed(
 
     Delete them via /admin/test-course-passup-cleanup once testing is done.
     """
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     from app.database import Course
@@ -32561,7 +32561,7 @@ def admin_test_course_passup_seed(
         "seeded": True,
         "created": created,
         "skipped": skipped,
-        "next_step": "Now run /admin/test-course-passup-e2e?secret=superadpro-owner-2026&tier=1",
+        "next_step": "Now run /admin/test-course-passup-e2e?secret=$ADMIN_SECRET&tier=1",
     }
 @app.get("/admin/test-course-passup-cleanup")
 def admin_test_course_passup_cleanup(
@@ -32572,7 +32572,7 @@ def admin_test_course_passup_cleanup(
     any TEST_COURSE_* seed courses. Also reverses any balance/course_earnings
     that accidentally landed on REAL users (e.g. your master admin receiving
     platform commissions during a test run). Safe to run multiple times."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     from app.database import CoursePurchase, CourseCommission, Course
@@ -32701,9 +32701,9 @@ def admin_grid_audit(
     """
     Full audit of a grid — shows positions, commissions, balances.
     
-    Usage: /admin/grid-audit?secret=superadpro-owner-2026&owner_username=master&tier=1
+    Usage: /admin/grid-audit?secret=$ADMIN_SECRET&owner_username=master&tier=1
     """
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     owner = db.query(User).filter(User.username == owner_username).first()
@@ -35282,7 +35282,7 @@ async def cron_poll_pending_videos(request: Request, secret: str = "", db: Sessi
 @app.get("/admin/test-autoresponder")
 def admin_test_autoresponder(secret: str = "", db: Session = Depends(get_db)):
     """Debug: show autoresponder status — sequences, nurturing leads, send log."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid"}, status_code=403)
     from .database import MemberLead, EmailSequence, EmailSendLog
     import json as _jt
@@ -47732,7 +47732,7 @@ async def voice_guide_speak(request: Request, user: User = Depends(get_current_u
 @app.get("/admin/recalculate-stats")
 def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
     """Recalculate personal_referrals and total_team for all users."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Invalid"}, status_code=403)
 
     users = db.query(User).all()
@@ -47894,7 +47894,7 @@ def admin_diagnostic_cleanup_test_withdrawals(
     This is NOT a general-purpose 'cancel a withdrawal' tool; that would be
     dangerous (could hide real customer withdrawals). Idempotent — re-running
     leaves already-cancelled rows alone."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Forbidden"}, status_code=403)
 
     # Hardcoded safety: this endpoint is ONLY for the SuperAdPro account.
@@ -47969,7 +47969,7 @@ def admin_diagnostic_inspect_ledgers(
     user so we can see exactly what the ledgers contain. No mutations. Used
     to diagnose when computed totals look wrong — e.g. 'earned X but withdrew
     more than X'."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Forbidden"}, status_code=403)
 
     target = db.query(User).filter(User.id == user_id).first()
@@ -48030,7 +48030,7 @@ def admin_diagnostic_recompute_total_withdrawn(secret: str = "", db: Session = D
 
     Returns a per-user diff for users whose stored value differed from the
     computed truth, so we can see exactly how much drift had accumulated."""
-    if secret != "superadpro-owner-2026":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         return JSONResponse({"error": "Forbidden"}, status_code=403)
 
     users = db.query(User).all()
