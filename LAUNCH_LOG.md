@@ -8,6 +8,55 @@
 
 ---
 
+## Status as of 2026-06-03 (Tuesday) — PAGE-BUILDER TEMPLATE REBUILD + REAL THUMBNAILS
+
+Long evening session. Continued the member-facing funnel-template rebuild, consolidated the three competing template sources behind one authoritative set, and gave both the Create-page picker and the Pages dashboard real scaled live thumbnails. All commits rebuilt the static bundle (hash changed) — no stale-bundle pushes. HEAD = `f3017dc89`.
+
+### Commits (3 June)
+
+| Hash | What |
+|---|---|
+| `951d278e7` | Rebuild **Book a Call** template (id `coaching`) — sage/green palette, real booking-card form capturing name/email/topic via `data-sp-submit`, DM Sans/Sora, dropped dead `testimonial` element type. |
+| `c3256a74b` | **De-Labs visible UI** — admin sidebar "Labs: Page Builder" → "Page Builder (Beta)"; editor "Back to Labs" → "Back to Beta". Internal file/component/`.labs-chrome` names left untouched (invisible; renaming = pure risk). |
+| `033ed6e7f` | Rebuild **Course Sales** template — premium violet, 2-col benefit headline + price/guarantee left, course-player card right, "Enrol now" CTA with member-set checkout link (`url:''`). Dropped Manrope/amber/stats clutter. |
+| `38c65b852` | **Create-page consolidation** — `/pro/funnels/new` now serves the authoritative `LABS_TEMPLATES.filter(ready)` set via a `PICKER_TEMPLATES` adapter; selecting one creates the page client-side via `/api/funnels/save` (gjs_css = template content). Retires the old `template_builder.py` from-template path for the picker (left dormant, not deleted). Blank + AI "coming soon" banner + CampaignSetupModal binding all preserved. |
+| `fe0c7ad79` | **Real template thumbnails** — new reusable `components/PagePreview.jsx` renders exported HTML in a scaled, ResizeObserver-sized `srcDoc` iframe (never hits `/p/`, so no analytics inflation; pointerEvents:none). Create-page tiles show the actual design; **Blank pinned to top-right** of the 3-col grid. |
+| `f3017dc89` | **Dashboard page thumbnails** — `/pro/funnels` cards lead with a real scaled `PagePreview` of each page + status pill on the thumbnail, title/slug moved below; "No preview yet" empty state for blank pages. Backend adds `gjs_css` to the `/api/funnels` list dict; PagePreview gained IntersectionObserver lazy-mounting so a dashboard with many pages stays fast. |
+
+(Lead Magnet was rebuilt `a285a21cc` in the prior session — it's the first `ready` template.)
+
+### Template lineup (decided this session)
+
+Final Create-page set = **8 full-design templates**: Lead Magnet ✓, Book a Call ✓, Course Sales ✓ (3 built/`ready`), then **Product Launch** (coral, folds in VSL's video option), **Webinar Registration** (midnight+gold), **Link in Bio** (indigo→teal), **Affiliate Funnel** (build — core to audience), **Business Opportunity** (build — core). Thank You → simple utility.
+
+**Build-then-flip model:** only templates flagged `ready:true` in `labsTemplates.js` appear in the picker. Rebuild each → flag ready → it shows automatically. Members keep the current live set with zero disruption meanwhile.
+
+### Brand-scope rule clarified (locked)
+
+The house lock (cobalt/cyan/white + Sora/DM Sans) applies **only to SuperAdPro's own surfaces** (editor chrome, dashboard, marketing site, sidebar). It does **not** govern member-created content — page-builder TEMPLATES and anything a member designs on the canvas should span a varied, tasteful palette (green/coral/violet/gold/gradients) like Leadpages. The cobalt/cyan chrome just frames whatever colour the member's page is.
+
+### Thumbnail separation (no cross-contamination)
+
+Three separate buckets, no bleed: (1) **built-in templates** — code-defined in `labsTemplates.js`, shared, identical for everyone, thumbnails from the template's own content; (2) **member pages** — private per-account, thumbnails from their own `gjs_css`, shown only on their own `/pro/funnels`; (3) **personal custom templates** — a member's explicit "save as template", stored in their own browser localStorage (`labs_custom_templates`, 30 cap), shown only in their own in-editor gallery, shared only via a manual `SAP-XXXX-XXXX` code. A member's page never carries across into the shared template picker.
+
+### NOT yet verified by Steve (first action next session)
+
+- **Create→edit round-trip** — open `/pro/funnels/new`, click a template (e.g. Course Sales), confirm it opens in the editor as that design, publishes, and the form captures a test lead. Code contract verified end-to-end; the live click-through is not.
+- **Dashboard thumbnails** — open `/pro/funnels`, confirm the Lead Capture Page shows a real thumbnail and the blank "Untitled Page" shows "No preview yet".
+
+### Still open (page builder)
+
+- **Block icons** — Steve shown a 3-option mockup (mono / per-type colour / tinted chips). Awaiting his pick to wire into `BlockPalette.jsx`. Recommendation: option 3 (tinted chips). Editor chrome is a house-palette surface, so colourful icons are a deliberate exception there.
+- **Build remaining 5 templates** (Product Launch, Webinar, Link in Bio, Affiliate Funnel, Business Opportunity) using Course Sales / Book a Call as the build pattern.
+- **Beta-gate mechanism** (is_admin + env-flag on the prod route) — isolation model approved but the gate itself is NOT built. Genuinely isolated today = only the localStorage sandbox.
+- **De-Labs step 3** — clean `/labs/...` URLs → `/pro/...` with redirects (sidebar item still points to `/labs/pagebuilder`, so the address bar still shows "labs").
+- **"Profit Grid (Labs)"** title (`LabsGridVisualiser.jsx:105`) — need Steve to say finished tool (drop "(Labs)") vs beta.
+- **Cleanup once flow confirmed** — delete dormant `data/funnelTemplates.js` `TEMPLATES` + the `template_builder.py` from-template path.
+
+### Environment note
+
+The visualizer / inline-mockup MCP tool (`show_widget`) timed out this session ("local MCP server unresponsive"). Fell back to a standalone HTML mockup file. If inline visuals fail again next session, Steve may need to restart local MCP servers.
+
 ## Status as of 2026-06-02 (Monday) — LABS PAGE BUILDER CHROME CLEANUP (EMERGENCY HANDOVER)
 
 Chat context filled mid-session before a handover doc could be produced. State below was reconstructed in a fresh recovery session by cloning `main` and inspecting the commit log — every claim here is verified against the repo, not memory. Work was confined entirely to the **Labs** sandbox (`frontend/src/pages/labs-superpages/`, all CSS scoped under `.labs-chrome`). The live editor members use (`pages/superpages/`) was not touched in either commit.
