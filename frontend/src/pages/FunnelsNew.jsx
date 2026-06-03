@@ -25,6 +25,8 @@ import { apiPost } from '../utils/api';
 import { ArrowLeft, ArrowRight, Sparkles, LayoutTemplate } from 'lucide-react';
 import { TEMPLATES, BLANK_CANVAS } from '../data/funnelTemplates';
 import { LABS_TEMPLATES } from './labs-superpages/labsTemplates';
+import exportHTML from './labs-superpages/exportHTML';
+import PagePreview from '../components/PagePreview';
 import CampaignSetupModal from '../components/CampaignSetupModal';
 
 // Create-page picker source (3 Jun 2026): the authoritative rebuilt full-design
@@ -32,15 +34,21 @@ import CampaignSetupModal from '../components/CampaignSetupModal';
 // Un-rebuilt templates never surface here. Selecting one creates the page from its
 // content via /api/funnels/save — the same payload shape the editor saves — which
 // retires the old data/funnelTemplates + template_builder.py path for the picker.
-const PICKER_TEMPLATES = LABS_TEMPLATES.filter(t => t.ready).map(t => ({
-  key: t.id,
-  title: t.name,
-  desc: t.description,
-  gradient: t.thumbnailGradient,
-  icon: LayoutTemplate,
-  listName: `${t.name} leads`,
-  __content: { els: t.els, canvasBg: t.canvasBg || '#ffffff', canvasBgImage: t.canvasBgImage || '' },
-}));
+// __html is the real exported page, rendered as a scaled live thumbnail in the tile.
+const PICKER_TEMPLATES = LABS_TEMPLATES.filter(t => t.ready).map(t => {
+  const canvasBg = t.canvasBg || '#ffffff';
+  const canvasBgImage = t.canvasBgImage || '';
+  return {
+    key: t.id,
+    title: t.name,
+    desc: t.description,
+    gradient: t.thumbnailGradient,
+    icon: LayoutTemplate,
+    listName: `${t.name} leads`,
+    __content: { els: t.els, canvasBg, canvasBgImage },
+    __html: exportHTML(t.els, canvasBg, canvasBgImage),
+  };
+});
 
 export default function FunnelsNew() {
   const { t } = useTranslation();
@@ -242,10 +250,11 @@ export default function FunnelsNew() {
       }}>
         {(() => {
           // Create-page picker source (3 Jun 2026): rebuilt full-design
-          // templates (ready:true) plus Blank. Selecting one creates the page
-          // from its content via the same save shape the editor uses — see
+          // templates (ready:true). Blank is pinned to the top-right slot
+          // (index 2 in a 3-col grid) — the prominent 'escape from templates'
+          // position. Selecting a template creates from its content — see
           // handleCampaignConfirm.
-          const ordered = [...PICKER_TEMPLATES, BLANK_CANVAS];
+          const ordered = [...PICKER_TEMPLATES.slice(0, 2), BLANK_CANVAS, ...PICKER_TEMPLATES.slice(2)];
           return ordered.map(tpl => {
             const isBlank = tpl.key === 'blank';
             const Icon = tpl.icon;
@@ -281,18 +290,23 @@ export default function FunnelsNew() {
                     e.currentTarget.style.boxShadow = '';
                   }
                 }}>
-                <div style={{
-                  height: tpl.preview ? 'auto' : 100,
-                  minHeight: 100,
-                  background: isBlank ? '#f8fafc' : (tpl.preview ? '#f8fafc' : tpl.gradient),
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: isBlank ? '#94a3b8' : '#fff',
-                  overflow: 'hidden',
-                }}>
-                  {tpl.preview ? <tpl.preview/> : <Icon size={36} strokeWidth={1.8}/>}
-                </div>
+                {isBlank ? (
+                  <div style={{
+                    height: 150,
+                    background: '#f8fafc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#94a3b8',
+                    borderBottom: '1px solid #eef2f8',
+                  }}>
+                    <Icon size={34} strokeWidth={1.8}/>
+                  </div>
+                ) : (
+                  <div style={{ borderBottom: '1px solid #eef2f8' }}>
+                    <PagePreview html={tpl.__html} height={150}/>
+                  </div>
+                )}
                 <div style={{padding:'12px 14px', textAlign: isBlank ? 'center' : 'left'}}>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,color:'#0a1438',marginBottom:2}}>
                     {tpl.title}
