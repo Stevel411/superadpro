@@ -476,6 +476,14 @@ def send_usdt_tron(to_address, amount_usdt):
     the structured failure dict so the cron retry loop can decide whether
     to retry or mark permanent.
     """
+    # SECURITY FREEZE (2026-06-03 incident): see send_usdt_bsc. Frozen by
+    # default; only sends when WITHDRAWALS_ENABLED == "true".
+    if os.getenv("WITHDRAWALS_ENABLED") != "true":
+        logging.error(
+            "WITHDRAWAL FROZEN (TRON): send blocked — WITHDRAWALS_ENABLED!=true. "
+            "to=%s amount=%s", to_address, amount_usdt)
+        return {"success": False, "tx_hash": None,
+                "error": "WITHDRAWALS_FROZEN: sends disabled pending security review"}
     amount_usdt = Decimal(str(amount_usdt))
 
     try:
@@ -724,6 +732,17 @@ def send_usdt_bsc(to_address, amount_usdt):
     - Different chain ID (56 vs 137)
     - Gas token is BNB not POL (semantically same, just different name)
     """
+    # SECURITY FREEZE (2026-06-03 incident): all on-chain sends are disabled
+    # unless WITHDRAWALS_ENABLED == "true" is explicitly set in Railway.
+    # Default (env unset) = FROZEN, so this is active the moment it deploys
+    # and cannot be bypassed by the admin endpoint, the retry cron, or any
+    # queued pending withdrawal. Re-enable only after the incident is closed.
+    if os.getenv("WITHDRAWALS_ENABLED") != "true":
+        logging.error(
+            "WITHDRAWAL FROZEN (BSC): send blocked — WITHDRAWALS_ENABLED!=true. "
+            "to=%s amount=%s", to_address, amount_usdt)
+        return {"success": False, "tx_hash": None,
+                "error": "WITHDRAWALS_FROZEN: sends disabled pending security review"}
     from web3 import Web3
 
     private_key = _get_bsc_private_key()
