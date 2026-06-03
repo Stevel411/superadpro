@@ -1,5 +1,9 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
+> **🔒 SECURITY: `SECURITY.md` — non-negotiable invariants.**
+>
+> Read it before touching auth, admin endpoints, secrets, or payments. No secrets in source (env, fail-closed); no `?secret=` auth on privileged routes; no state-changing GETs; dev/test/seed endpoints off in prod; API docs off in prod; server never holds drainable payout keys. **Run `python3 scripts/security_check.py` before every push.** These rules exist because of the 2026-06-03 breach.
+
 > **⚠️ READ FIRST: `docs/PLATFORM_STATE.md`**
 >
 > That file is the snapshot of CURRENT TRUTH about each part of the platform. It is updated every session and is more recent than anything in this file. If `PLATFORM_STATE.md` contradicts `CLAUDE.md` or `LAUNCH_LOG.md`, **`PLATFORM_STATE.md` wins**.

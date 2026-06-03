@@ -137,7 +137,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="SuperAdPro")
+# API docs (/docs, /redoc, /openapi.json) are DISABLED by default. They
+# publicly expose the full endpoint map + parameters, which was the
+# discovery vector in the 2026-06-03 breach. Set ENABLE_API_DOCS=true in
+# a non-prod environment if you need them.
+_API_DOCS = os.getenv("ENABLE_API_DOCS", "").strip().lower() == "true"
+app = FastAPI(
+    title="SuperAdPro",
+    docs_url="/docs" if _API_DOCS else None,
+    redoc_url="/redoc" if _API_DOCS else None,
+    openapi_url="/openapi.json" if _API_DOCS else None,
+)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Cache headers for static assets.
@@ -701,6 +711,31 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         return resp
 
 app.add_middleware(MaintenanceMiddleware)
+
+# ── Dev/test/seed endpoint guard (2026-06-03 hardening) ───────
+# These endpoints are developer tooling (seed admin, grid/course test
+# harnesses, force-wipe, migrations). They must NOT be reachable on the
+# live platform. They 404 unless DEV_ENDPOINTS_ENABLED=true is set
+# (never set it in production). This is independent of the secret check.
+from fastapi.responses import JSONResponse as _JSONResponse404
+DEV_ENDPOINTS_ENABLED = os.getenv("DEV_ENDPOINTS_ENABLED", "").strip().lower() == "true"
+_DEV_ONLY_PATHS = frozenset({
+    "/admin/activate-owner", "/admin/test-register", "/admin/test-email",
+    "/admin/test-dashboard", "/admin/debug-dashboard", "/admin/fix-owner",
+    "/admin/seed-owner-campaigns", "/admin/run-migrations", "/admin/force-migrate",
+    "/admin/force-wipe", "/admin/reset-account",
+    "/admin/test-grid-fill", "/admin/test-grid-reset", "/admin/test-grid-e2e",
+    "/admin/test-grid-cleanup", "/admin/test-course-passup-e2e",
+    "/admin/test-course-passup-seed", "/admin/test-course-passup-cleanup",
+    "/api/superscene/seed-credits",
+})
+class DevEndpointGuardMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if (not DEV_ENDPOINTS_ENABLED) and request.url.path in _DEV_ONLY_PATHS:
+            return _JSONResponse404({"detail": "Not Found"}, status_code=404)
+        return await call_next(request)
+
+app.add_middleware(DevEndpointGuardMiddleware)
 
 # ── Rate limit / lockout ──────────────────────────────────────
 failed_attempts  = {}
@@ -43257,7 +43292,7 @@ async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session 
 @app.get("/api/superscene/seed-credits")
 async def sc_seed_credits(secret: str, user_id: int = 1, amount: int = 500, db: Session = Depends(get_db)):
     """Secret-key protected: seed SuperScene credits without login. For testing only."""
-    if secret != "sap-sc-seed-2026-X9kR":
+    if secret != _get_required_secret("ADMIN_SECRET"):
         raise HTTPException(status_code=403, detail="Invalid secret")
     if amount < 1 or amount > 5000:
         raise HTTPException(status_code=400, detail="Amount must be 1-5000")
