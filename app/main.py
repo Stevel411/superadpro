@@ -616,7 +616,19 @@ templates.env.finalize = lambda x: float(x) if isinstance(x, decimal.Decimal) el
 import json as _json
 templates.env.filters["from_json"] = lambda s: _json.loads(s) if s else []
 
-limiter = Limiter(key_func=get_remote_address)
+def _client_ip(request) -> str:
+    """Real client IP behind Cloudflare. get_remote_address sees the
+    Cloudflare edge IP — which would lump all users under one key and miss
+    the real attacker. Prefer CF-Connecting-IP, then first X-Forwarded-For hop."""
+    cf = request.headers.get("cf-connecting-ip")
+    if cf:
+        return cf.strip()
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        return xff.split(",")[0].strip()
+    return get_remote_address(request)
+
+limiter = Limiter(key_func=_client_ip)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -625,7 +637,10 @@ async def global_exception_handler(request: Request, exc: Exception):
     """Catch unhandled exceptions and return JSON instead of HTML error pages."""
     import traceback
     logger.error(f"Unhandled error: {exc}\n{traceback.format_exc()}")
-    return JSONResponse({"error": str(exc)}, status_code=500)
+    # Do NOT return exc details to the client — error strings leak DB errors,
+    # file paths, and SQL fragments that automated recon harvests. Full
+    # detail is logged server-side above.
+    return JSONResponse({"error": "Internal server error"}, status_code=500)
 
 # ── CORS — locked to our domain ──
 ALLOWED_ORIGINS = [
@@ -736,6 +751,50 @@ class DevEndpointGuardMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 app.add_middleware(DevEndpointGuardMiddleware)
+
+# ── Automated-probing throttle (2026-06-03 hardening) ─────────
+# Counters AI/scripted recon: an IP that bursts auth failures (403) or
+# endpoint-enumeration misses (404) gets temp-banned (429). Path-
+# independent — throttles brute-forcing/scanning regardless of which routes
+# carry their own @limiter.limit. In-memory per instance: a first layer;
+# the durable edge layer is Cloudflare WAF rate-limiting (see SECURITY.md).
+import time as _probe_time
+from collections import deque as _probe_deque, defaultdict as _probe_dd
+_PROBE_WINDOW_S = 60
+_PROBE_THRESHOLD = 25       # suspicious responses per IP per window before ban
+_PROBE_BAN_S = 600          # ban duration once tripped (10 min)
+_probe_hits = _probe_dd(_probe_deque)   # ip -> deque[timestamps]
+_probe_bans = {}                        # ip -> ban_until_ts
+
+class ProbeThrottleMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        ip = _client_ip(request)
+        now = _probe_time.time()
+        ban_until = _probe_bans.get(ip)
+        if ban_until and now < ban_until:
+            return _JSONResponse404({"detail": "Too many requests"}, status_code=429)
+        resp = await call_next(request)
+        # Count auth failures / enumeration misses, but never /static/ (a page
+        # with broken asset refs must not ban a real visitor).
+        if resp.status_code in (401, 403, 404, 429) and not request.url.path.startswith("/static/"):
+            dq = _probe_hits[ip]
+            dq.append(now)
+            cutoff = now - _PROBE_WINDOW_S
+            while dq and dq[0] < cutoff:
+                dq.popleft()
+            if len(dq) >= _PROBE_THRESHOLD:
+                _probe_bans[ip] = now + _PROBE_BAN_S
+                dq.clear()
+                try:
+                    logging.warning(f"[probe-throttle] temp-banned {ip} for {_PROBE_BAN_S}s")
+                except Exception:
+                    pass
+        if len(_probe_bans) > 5000:   # bound memory
+            for _k in [k for k, v in list(_probe_bans.items()) if v < now]:
+                _probe_bans.pop(_k, None)
+        return resp
+
+app.add_middleware(ProbeThrottleMiddleware)
 
 # ── Rate limit / lockout ──────────────────────────────────────
 failed_attempts  = {}

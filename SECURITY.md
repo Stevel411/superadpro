@@ -52,7 +52,33 @@ Operational flags: `MAINTENANCE_MODE` (default on while paused),
 `WITHDRAWALS_ENABLED` (leave unset = frozen), `DEV_ENDPOINTS_ENABLED`
 (leave unset = off), `ENABLE_API_DOCS` (leave unset = off).
 
+## Hardening against automated / AI-assisted attacks
+There is no such thing as "AI-proof." AI doesn't find new vuln *classes* — it
+finds the existing ones faster, cheaper, and at scale. So the goal is to remove
+what automated recon is best at finding and to throttle/detect the probing:
+13. **No information leakage.** Error responses are generic
+    (`{"error":"Internal server error"}`); full detail logged server-side only.
+    No stack traces, DB errors, SQL fragments, or framework versions to clients.
+    Debug mode off in prod.
+14. **Throttle automated probing.** `ProbeThrottleMiddleware` temp-bans an IP
+    that bursts 401/403/404 (brute-force / enumeration). Rate-limit key uses the
+    real client IP (`CF-Connecting-IP`), not the Cloudflare edge IP.
+15. **Enable Cloudflare WAF + rate-limiting + Bot Fight Mode at the edge.** The
+    app-level throttle is a per-instance safety net; the durable anti-automation
+    layer is the CDN, which stops probes before they reach the app.
+16. **Scan dependencies for CVEs every release.** `pip-audit -r requirements.txt`.
+    Known-CVE dependency versions are the #1 thing scanners cross-reference.
+17. **No string-interpolated SQL.** Use ORM / parameterised queries only
+    (verified clean 2026-06-03).
+
+
 ## Open follow-ups (tracked)
+- `starlette 0.52.1` has PYSEC-2026-161; fix is 1.0.1 but it's coupled to
+  `fastapi==0.129.0` — bump as a coordinated, watched fastapi+starlette deploy,
+  not blind. (The other 16 dependency CVEs were patched 2026-06-03.)
+- Enable Cloudflare WAF managed rules + a rate-limiting rule on `/admin/*` and
+  auth routes + Bot Fight Mode — the strongest anti-automation layer.
+- Add `pip-audit -r requirements.txt` to CI / the pre-release checklist.
 - `CRON_SECRET`, `BACKUP_SECRET`, `REMOTION_RENDER_SECRET` still carry
   insecure source fallbacks via `_get_required_secret(name, fallback)`.
   Confirm each env var is set in Railway, then drop the fallback (strict).
