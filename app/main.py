@@ -41252,6 +41252,9 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
             "leads_captured": f.leads_captured or 0,        # all-time, legacy field
             "is_ai_generated": f.is_ai_generated or False,
             "created_at": f.created_at.isoformat() if f.created_at else None,
+            # Page content (JSON {els, canvasBg, ...}) so the dashboard card can
+            # render a real scaled thumbnail. Frontend parses this -> exportHTML.
+            "gjs_css": f.gjs_css or "",
             # New campaign-dashboard fields ─────────────────────
             "views_30d": views_30d,
             "optins_30d": optins_30d,

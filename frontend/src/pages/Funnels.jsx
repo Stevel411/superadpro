@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
 import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, ArrowRight, Send, Share2, X, Check } from 'lucide-react';
 import CampaignSetupModal from '../components/CampaignSetupModal';
 import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
+import exportHTML from './labs-superpages/exportHTML';
+import PagePreview from '../components/PagePreview';
 
 
 // ─── CardStat ─ compact stat tile used inside the My Pages cards ──
@@ -51,6 +53,21 @@ function CardStat({ icon: Icon, value, label, dim = false, accentColor = null })
 export default function Funnels() {
   const { t } = useTranslation();
   const [pages, setPages] = useState([]);
+  // Real page thumbnails: build each page's exported HTML once (cheap string
+  // build), memoised on the page list. PagePreview then lazily mounts the
+  // iframe only for cards scrolled into view, so the dashboard stays fast.
+  const previews = useMemo(() => {
+    const m = {};
+    for (const p of (pages || [])) {
+      try {
+        if (!p.gjs_css) continue;
+        const parsed = JSON.parse(p.gjs_css);
+        const els = Array.isArray(parsed) ? parsed : (parsed.els || []);
+        if (els.length) m[p.id] = exportHTML(els, parsed.canvasBg || '#ffffff', parsed.canvasBgImage || '');
+      } catch { /* malformed gjs_css → no preview, falls back to empty state */ }
+    }
+    return m;
+  }, [pages]);
   // Surface API errors to the user rather than swallowing them in a
   // silent catch. Renders a red banner at the top of the page when
   // /api/funnels fails. 18 May 2026.
@@ -419,6 +436,7 @@ export default function Funnels() {
               const leadsNew24h = p.leads_new_24h ?? 0;
               const openRate = p.sequence_open_rate ?? 0;
               const hasTraffic = views30 > 0 || (p.leads_total ?? 0) > 0;
+              const previewHtml = previews[p.id] || '';
 
               return (
               <div
@@ -438,59 +456,47 @@ export default function Funnels() {
                   boxShadow: '0 2px 4px rgba(10,20,56,.05), 0 1px 2px rgba(10,20,56,.06)',
                   transition: 'transform .15s, box-shadow .15s, border-color .15s',
                 }}>
-                {/* ── Coloured gradient header — cobalt → cyan ──
-                    26 May 2026: page cards got an always-on cobalt-to-cyan
-                    gradient band so this page reads like a gateway-to-pages
-                    rather than an analytics summary. Same gradient on every
-                    card on purpose (option 1 from the design decision) —
-                    consistent, on-brand, no implied meaning from colour
-                    differences. AI badge floats to the right of the title. */}
-                <div style={{
-                  background: 'linear-gradient(135deg,#0a1438 0%,#1e3a8a 45%,#06b6d4 100%)',
-                  padding: '18px 18px 16px',
-                  color: '#fff',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}>
-                  {/* Subtle inner gloss highlight (top 42%) — same trick as
-                      the GridVisualiser tile pattern for that polished look. */}
+                {/* ── Real page thumbnail (3 Jun 2026) — replaces the cobalt
+                    title-band. Renders the actual page scaled down via
+                    PagePreview; status becomes a pill on the thumbnail; the
+                    title + slug move into the body below. Empty/blank pages
+                    show a clean "No preview yet" state. */}
+                <div style={{ position:'relative', borderBottom:'1px solid #eef2f8' }}>
                   <div style={{
-                    position:'absolute', top:0, left:0, right:0, height:'42%',
-                    background:'linear-gradient(180deg,rgba(255,255,255,0.16),transparent)',
-                    pointerEvents:'none',
-                  }}/>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,position:'relative'}}>
-                    <div style={{width:8,height:8,borderRadius:'50%',background:p.status==='published'?'#22d3ee':'rgba(255,255,255,.45)',boxShadow:p.status==='published'?'0 0 0 3px rgba(34,211,238,.18)':'none'}}/>
-                    <div style={{
-                      fontFamily:'Sora,sans-serif',
-                      fontSize:17,
-                      fontWeight:800,
-                      color:'#fff',
-                      flex:1,
-                      overflow:'hidden',
-                      textOverflow:'ellipsis',
-                      whiteSpace:'nowrap',
-                      letterSpacing:'-0.01em',
-                    }}>{p.title||t('superPages.untitled')}</div>
-                    {p.is_ai_generated && <span style={{
-                      fontSize:10,
-                      fontWeight:800,
-                      color:'#0a1438',
-                      background:'rgba(255,255,255,.92)',
-                      padding:'3px 8px',
-                      borderRadius:5,
-                      letterSpacing:'.4px',
-                      flexShrink:0,
-                    }}>AI</span>}
+                    position:'absolute', top:10, left:10, zIndex:2,
+                    display:'inline-flex', alignItems:'center', gap:6,
+                    fontFamily:'DM Sans,sans-serif', fontSize:10.5, fontWeight:700,
+                    padding:'4px 9px', borderRadius:999,
+                    background:'rgba(255,255,255,.92)', boxShadow:'0 2px 8px rgba(10,20,56,.18)',
+                    color: p.status==='published' ? '#047857' : '#64748b',
+                  }}>
+                    <span style={{width:7,height:7,borderRadius:'50%',background:p.status==='published'?'#10b981':'#94a3b8'}}/>
+                    {p.status==='published' ? 'Published' : 'Draft'}
                   </div>
+                  {p.is_ai_generated && <span style={{
+                    position:'absolute', top:10, right:10, zIndex:2,
+                    fontSize:10, fontWeight:800, color:'#0a1438',
+                    background:'rgba(255,255,255,.92)', padding:'3px 8px',
+                    borderRadius:5, letterSpacing:'.4px', boxShadow:'0 2px 8px rgba(10,20,56,.18)',
+                  }}>AI</span>}
+                  {previewHtml ? (
+                    <PagePreview html={previewHtml} height={170}/>
+                  ) : (
+                    <div style={{ height:170, background:'#f8fafc', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:7, color:'#94a3b8' }}>
+                      <FileText size={30} strokeWidth={1.5}/>
+                      <span style={{fontSize:11.5,fontWeight:600,fontFamily:'DM Sans,sans-serif'}}>No preview yet</span>
+                    </div>
+                  )}
+                </div>
+                {/* Title + slug — moved below the thumbnail */}
+                <div style={{ padding:'14px 18px 0' }}>
+                  <div style={{
+                    fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0a1438',
+                    overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', letterSpacing:'-0.01em',
+                  }}>{p.title||t('superPages.untitled')}</div>
                   {p.slug && <div style={{
-                    fontSize:12,
-                    color:'rgba(255,255,255,.72)',
-                    overflow:'hidden',
-                    textOverflow:'ellipsis',
-                    whiteSpace:'nowrap',
-                    fontFamily:'JetBrains Mono,monospace',
-                    position:'relative',
+                    fontSize:11.5, color:'#8aa0c4', fontFamily:'JetBrains Mono,monospace', marginTop:3,
+                    overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
                   }}>/{p.slug}</div>}
                 </div>
 

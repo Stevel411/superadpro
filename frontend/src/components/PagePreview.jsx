@@ -10,9 +10,12 @@ import { useRef, useState, useEffect } from 'react';
 //    a thumbnail can't inflate page-view analytics.
 //  - pointerEvents:none lets clicks fall through to the surrounding card.
 //  - ResizeObserver keeps the scale correct as the grid/card resizes.
+//  - IntersectionObserver lazily mounts the iframe only when the card is near
+//    the viewport, so a dashboard with many pages stays fast.
 export default function PagePreview({ html, height = 150, canvasWidth = 1100 }) {
   const ref = useRef(null);
   const [scale, setScale] = useState(0.32);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -21,19 +24,23 @@ export default function PagePreview({ html, height = 150, canvasWidth = 1100 }) 
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
-    return () => ro.disconnect();
+    const io = new IntersectionObserver(
+      (entries) => { if (entries.some(e => e.isIntersecting)) { setVisible(true); io.disconnect(); } },
+      { rootMargin: '250px' }
+    );
+    io.observe(el);
+    return () => { ro.disconnect(); io.disconnect(); };
   }, [canvasWidth]);
 
   return (
     <div ref={ref} style={{ height, overflow: 'hidden', position: 'relative', background: '#fff', pointerEvents: 'none' }}>
-      {html ? (
+      {html && visible ? (
         <iframe
           title="page preview"
           srcDoc={html}
           scrolling="no"
           tabIndex={-1}
           aria-hidden="true"
-          loading="lazy"
           style={{
             width: canvasWidth,
             height: Math.ceil(height / (scale || 0.32)),
@@ -44,9 +51,7 @@ export default function PagePreview({ html, height = 150, canvasWidth = 1100 }) 
           }}
         />
       ) : (
-        <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, fontFamily: 'DM Sans,sans-serif' }}>
-          No preview yet
-        </div>
+        <div style={{ height, background: '#f8fafc' }} />
       )}
     </div>
   );
