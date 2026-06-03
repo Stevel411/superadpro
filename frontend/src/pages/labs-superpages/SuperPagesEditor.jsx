@@ -756,8 +756,8 @@ export default function LabsSuperPagesEditor() {
             <p style={{ fontSize: 13, lineHeight: 1.6, color: '#475569', margin: '0 0 28px' }}>
               {t('superPagesEditor.desktopRequiredNote', { defaultValue: 'Your pages are fully responsive and will look great on all devices once published — this restriction only applies to the editor itself.' })}
             </p>
-            <button onClick={() => navigate('/labs/pagebuilder')} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'var(--sap-accent)', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 700 }}>
-              Back to Labs
+            <button onClick={() => navigate(isSandbox ? '/labs/pagebuilder/sandbox' : '/pro/funnels')} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'var(--sap-accent)', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 700 }}>
+              {isSandbox ? 'Back to Labs' : 'Back to my pages'}
             </button>
           </div>
         </div>
