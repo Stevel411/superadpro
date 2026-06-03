@@ -128,42 +128,46 @@ const LEAD_MAGNET = {
   id: 'lead-magnet',
   name: 'Free Guide / Lead Magnet',
   category: 'Lead Capture',
-  description: 'Clean opt-in page with download promise, social proof, and a single conversion path. Light theme.',
+  description: 'Light, on-brand opt-in page: guide cover, benefit headline, social proof and a single conversion path.',
   accent: '#0ea5e9',
-  thumbnailGradient: 'linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 50%, #e0f2fe 100%)',
-  canvasBg: '#f8fafc',
+  thumbnailGradient: 'linear-gradient(135deg, #f7faff 0%, #e7eefb 55%, #d9eafb 100%)',
+  canvasBg: '#f5f9fe',
   canvasBgImage: '',
   els: [
-    // Eyebrow
-    { id: tid('lm', 1), type: 'badge', x: 460, y: 80, w: 180, h: 30,
-      txt: '🎁 FREE DOWNLOAD',
-      s: { fontFamily: 'Manrope,sans-serif', fontWeight: '900', fontSize: '11px', color: '#0284c7', textAlign: 'center', background: 'linear-gradient(135deg,rgba(14,165,233,0.1),rgba(168,85,247,0.1))', borderRadius: '6px', border: '1px solid rgba(14,165,233,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '0.08em' } },
+    // Eyebrow badge (centred, top)
+    { id: tid('lm', 1), type: 'badge', x: 450, y: 64, w: 200, h: 32,
+      txt: 'FREE GUIDE',
+      s: { fontFamily: 'Sora,sans-serif', fontWeight: '700', fontSize: '11px', color: '#0284c7', textAlign: 'center', background: '#e3f1fb', borderRadius: '999px', border: '1px solid #bcdcf5', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '0.12em' } },
 
-    // Hero
-    { id: tid('lm', 2), type: 'heading', x: 100, y: 130, w: 900, h: 130,
-      txt: 'The 10 Conversion Hacks That Tripled My Affiliate Income',
-      s: { fontFamily: 'Sora,sans-serif', fontWeight: '900', fontSize: '52px', color: '#0f172a', textAlign: 'center', letterSpacing: '-0.035em', lineHeight: '1.05' } },
+    // Guide cover (left) — placeholder image, member swaps for their own
+    { id: tid('lm', 2), type: 'image', x: 150, y: 150, w: 300, h: 400,
+      txt: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MDAiIGhlaWdodD0iODAwIiB2aWV3Qm94PSIwIDAgNjAwIDgwMCI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPgo8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwYTE0MzgiLz48c3RvcCBvZmZzZXQ9IjAuNiIgc3RvcC1jb2xvcj0iIzFlM2E4YSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBlYTVlOSIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icyIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyZDNlZSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBlYTVlOSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPgo8cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjgwMCIgZmlsbD0idXJsKCNnKSIvPjxyZWN0IHdpZHRoPSIyMiIgaGVpZ2h0PSI4MDAiIGZpbGw9InVybCgjcykiLz4KPHRleHQgeD0iNjQiIHk9IjkwIiBmb250LWZhbWlseT0iU29yYSxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iODAwIiBsZXR0ZXItc3BhY2luZz0iNCIgZmlsbD0iIzIyZDNlZSI+RlJFRSDCtyBQREYgR1VJREU8L3RleHQ+Cjx0ZXh0IHg9IjY0IiB5PSIzODAiIGZvbnQtZmFtaWx5PSJTb3JhLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiNmZmZmZmYiPllvdXIgR3VpZGU8L3RleHQ+Cjx0ZXh0IHg9IjY0IiB5PSI0NTAiIGZvbnQtZmFtaWx5PSJTb3JhLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjIiIGZvbnQtd2VpZ2h0PSI4MDAiIGZpbGw9IiNmZmZmZmYiPlRpdGxlIEhlcmU8L3RleHQ+Cjx0ZXh0IHg9IjY0IiB5PSI1MjAiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjI2IiBmaWxsPSIjYmNkM2YwIj5BIHNob3J0IHN1YnRpdGxlIGxpbmU8L3RleHQ+Cjx0ZXh0IHg9IjY0IiB5PSI3NDAiIGZvbnQtZmFtaWx5PSJTb3JhLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC42KSI+U3VwZXJQYWdlczwvdGV4dD4KPC9zdmc+Cg==', _imageAlt: 'Free guide cover', _imageFit: 'cover',
+      s: { borderRadius: '14px', boxShadow: '0 18px 44px rgba(10,20,56,0.18)' } },
 
-    // Subhead
-    { id: tid('lm', 3), type: 'text', x: 260, y: 280, w: 580, h: 60,
-      txt: 'The exact playbook I use to turn cold traffic into paying customers. Free PDF, no upsells, no fluff.',
-      s: { fontFamily: 'Manrope,sans-serif', fontSize: '18px', color: '#475569', textAlign: 'center', lineHeight: '1.6', fontWeight: '500' } },
+    // Hero heading (right)
+    { id: tid('lm', 3), type: 'heading', x: 500, y: 150, w: 540, h: 140,
+      txt: 'Steal My <span style="color:#0ea5e9">AI Funnel</span> Playbook',
+      s: { fontFamily: 'Sora,sans-serif', fontWeight: '800', fontSize: '42px', color: '#0a1438', textAlign: 'left', letterSpacing: '-0.035em', lineHeight: '1.04' } },
 
-    // Opt-in form (centred glass card on light bg)
-    { id: tid('lm', 4), type: 'form', x: 350, y: 380, w: 400, h: 300,
-      txt: '<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:900;font-size:24px;color:#0f172a;margin-bottom:6px;letter-spacing:-0.02em">Send me the PDF</div><div style="font-size:13px;color:#64748b;margin-bottom:18px;line-height:1.5">Where should I send it?</div><input placeholder="Your first name" style="display:block;width:100%;padding:13px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;color:#0f172a;font-size:13px;margin-bottom:10px;box-sizing:border-box;outline:none"><input placeholder="Your email" style="display:block;width:100%;padding:13px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;color:#0f172a;font-size:13px;margin-bottom:10px;box-sizing:border-box;outline:none"><div style="display:block;width:100%;padding:14px 20px;margin-top:6px;background:linear-gradient(135deg,#0ea5e9,#a855f7);color:#fff;font-size:14px;font-weight:900;border-radius:10px;text-align:center;box-sizing:border-box">Download Now →</div><div style="font-size:10px;color:#94a3b8;margin-top:12px;font-weight:600">🔒 Instant delivery. Unsubscribe anytime.</div></div>',
-      s: { background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '32px', boxShadow: '0 8px 24px rgba(14,165,233,0.08), 0 24px 60px rgba(168,85,247,0.06)' } },
+    // Subhead (right)
+    { id: tid('lm', 4), type: 'text', x: 500, y: 300, w: 540, h: 64,
+      txt: 'The exact system I use to turn cold traffic into buyers. Free PDF, no upsells, no fluff.',
+      s: { fontFamily: "'DM Sans',sans-serif", fontSize: '17px', color: '#4d648c', textAlign: 'left', lineHeight: '1.55', fontWeight: '500' } },
 
-    // Trust row — icontext x 3
-    { id: tid('lm', 5), type: 'icontext', x: 80, y: 750, w: 320, h: 90,
-      txt: '<div style="display:flex;gap:16px;align-items:flex-start"><div style="font-size:24px;flex-shrink:0;width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(168,85,247,0.15));border:1px solid rgba(14,165,233,0.3);display:flex;align-items:center;justify-content:center">📊</div><div><div style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px">Data-backed</div><div style="font-size:13px;color:#64748b;line-height:1.55">Every hack proven across 2,400+ campaigns.</div></div></div>',
-      s: { background: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0', padding: '18px' } },
-    { id: tid('lm', 6), type: 'icontext', x: 390, y: 750, w: 320, h: 90,
-      txt: '<div style="display:flex;gap:16px;align-items:flex-start"><div style="font-size:24px;flex-shrink:0;width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(168,85,247,0.15));border:1px solid rgba(14,165,233,0.3);display:flex;align-items:center;justify-content:center">⚡</div><div><div style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px">Read in 15 minutes</div><div style="font-size:13px;color:#64748b;line-height:1.55">Practical actions you can apply today.</div></div></div>',
-      s: { background: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0', padding: '18px' } },
-    { id: tid('lm', 7), type: 'icontext', x: 700, y: 750, w: 320, h: 90,
-      txt: '<div style="display:flex;gap:16px;align-items:flex-start"><div style="font-size:24px;flex-shrink:0;width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(168,85,247,0.15));border:1px solid rgba(14,165,233,0.3);display:flex;align-items:center;justify-content:center">🎯</div><div><div style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px">Zero fluff</div><div style="font-size:13px;color:#64748b;line-height:1.55">Just the hacks. No 200-page PDF.</div></div></div>',
-      s: { background: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0', padding: '18px' } },
+    // Benefit checklist (right)
+    { id: tid('lm', 5), type: 'text', x: 500, y: 380, w: 540, h: 130,
+      txt: '<div style="display:flex;flex-direction:column;gap:11px"><div style="display:flex;gap:10px;align-items:flex-start;font-family:\'DM Sans\',sans-serif;font-size:14px;color:#26354f;font-weight:500"><span style="flex-shrink:0;width:20px;height:20px;border-radius:6px;background:#e3f1fb;border:1px solid #bcdcf5;color:#0284c7;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">&#10003;</span>12 plug-and-play funnel layouts that convert</div><div style="display:flex;gap:10px;align-items:flex-start;font-family:\'DM Sans\',sans-serif;font-size:14px;color:#26354f;font-weight:500"><span style="flex-shrink:0;width:20px;height:20px;border-radius:6px;background:#e3f1fb;border:1px solid #bcdcf5;color:#0284c7;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">&#10003;</span>The 6 AI prompts that write your copy for you</div><div style="display:flex;gap:10px;align-items:flex-start;font-family:\'DM Sans\',sans-serif;font-size:14px;color:#26354f;font-weight:500"><span style="flex-shrink:0;width:20px;height:20px;border-radius:6px;background:#e3f1fb;border:1px solid #bcdcf5;color:#0284c7;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center">&#10003;</span>A done-for-you 5-email follow-up sequence</div></div>',
+      s: {} },
+
+    // Opt-in form (right) — real capture via data-sp-submit button
+    { id: tid('lm', 6), type: 'form', x: 500, y: 530, w: 540, h: 300,
+      txt: '<div style="text-align:left;padding:2px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:21px;color:#0a1438;margin-bottom:5px;letter-spacing:-0.02em">Get instant access</div><div style="font-size:13px;color:#4d648c;margin-bottom:18px;line-height:1.5">Drop your details and we will send it straight over.</div><input placeholder="Your first name" style="display:block;width:100%;padding:13px 15px;background:#f4f8fd;border:1px solid #cdddf0;border-radius:10px;color:#0f1f3d;font-size:13px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:\'DM Sans\',sans-serif"><input placeholder="Your best email" style="display:block;width:100%;padding:13px 15px;background:#f4f8fd;border:1px solid #cdddf0;border-radius:10px;color:#0f1f3d;font-size:13px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:\'DM Sans\',sans-serif"><button data-sp-submit="1" style="display:block;width:100%;padding:14px 20px;margin-top:4px;background:linear-gradient(135deg,#0ea5e9,#06b6d4);color:#fff;font-size:14px;font-weight:800;border-radius:10px;text-align:center;box-sizing:border-box;border:none;cursor:pointer;font-family:Sora,sans-serif">Send me the guide &#8594;</button><div style="font-size:10px;color:#7089ac;margin-top:12px;font-weight:500">&#128274; No spam. Unsubscribe anytime.</div></div>',
+      s: { background: '#ffffff', borderRadius: '18px', border: '1px solid #dbe6f5', padding: '26px', boxShadow: '0 14px 40px rgba(10,20,56,0.10)' } },
+
+    // Social proof (right)
+    { id: tid('lm', 7), type: 'text', x: 500, y: 850, w: 540, h: 36,
+      txt: '<div style="font-family:\'DM Sans\',sans-serif;font-size:13px;color:#4d648c;font-weight:500"><span style="color:#fbbf24;letter-spacing:1px">&#9733;&#9733;&#9733;&#9733;&#9733;</span> <b style="color:#0a1438">4.9</b> &middot; Joined by <b style="color:#0a1438">2,847</b> marketers</div>',
+      s: {} },
   ]
 };
 
