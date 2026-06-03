@@ -659,6 +659,49 @@ app.add_middleware(SecurityHeadersMiddleware)
 # be smaller than the compression overhead.
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
+# ── Maintenance / offline mode (2026-06-03 security pause) ─────
+# When MAINTENANCE_MODE is on (DEFAULT), every public/member route
+# serves a holding page. Only /health (Railway healthcheck), /admin/
+# (owner cleanup + diagnostics), and /static/ pass through. Withdrawals
+# are independently frozen. To bring the platform back online, set
+# MAINTENANCE_MODE=off in Railway. Added last => runs outermost.
+MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "on").strip().lower() not in ("off", "false", "0", "no")
+MAINTENANCE_HTML = """<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>SuperAdPro — Temporarily Offline</title>
+<style>
+:root{--cobalt:#0a1438;--royal:#1e3a8a;--cyan:#22d3ee}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+font-family:'DM Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#e8eefc;
+background:radial-gradient(1200px 600px at 50% -10%,#13245e 0,var(--cobalt) 55%,#060b22 100%)}
+.card{max-width:560px;padding:48px 36px;text-align:center}
+h1{font-family:'Sora',sans-serif;font-weight:700;font-size:28px;margin:0 0 14px;letter-spacing:-.5px}
+p{font-size:16px;line-height:1.6;color:#aebbe0;margin:0 0 14px}
+.bar{height:4px;width:64px;margin:0 auto 28px;border-radius:4px;background:linear-gradient(90deg,var(--royal),var(--cyan))}
+.tag{display:inline-block;margin-top:18px;font-size:13px;color:#7d8cba}
+</style></head><body><div class="card">
+<div class="bar"></div>
+<h1>We&#39;re temporarily offline</h1>
+<p>SuperAdPro is paused for scheduled maintenance and security improvements. The platform is unavailable right now, including sign-in and payments.</p>
+<p>We&#39;ll be back shortly. Thank you for your patience.</p>
+<span class="tag">SuperAdPro</span>
+</div></body></html>"""
+
+class MaintenanceMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if not MAINTENANCE_MODE:
+            return await call_next(request)
+        path = request.url.path
+        if path == "/health" or path.startswith("/admin/") or path.startswith("/static/"):
+            return await call_next(request)
+        resp = HTMLResponse(MAINTENANCE_HTML, status_code=200)
+        resp.headers["Cache-Control"] = "no-store"
+        resp.headers["Retry-After"] = "3600"
+        return resp
+
+app.add_middleware(MaintenanceMiddleware)
+
 # ── Rate limit / lockout ──────────────────────────────────────
 failed_attempts  = {}
 MAX_ATTEMPTS     = 5
@@ -31113,6 +31156,50 @@ def security_audit(secret: str, db: Session = Depends(get_db)):
             "commissions_created_today": commissions_today,
         }, status_code=200)
     except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.get("/admin/incident-cleanup")
+def incident_cleanup(secret: str, confirm: str = "", db: Session = Depends(get_db)):
+    """Neutralise the 2026-06-03 attacker accounts. REVERSIBLE: uses
+    status flags / deactivation, never deletes. Leaves real members,
+    paid withdrawals (evidence), grid structure, and user 1 untouched.
+    Requires &confirm=YES."""
+    from fastapi.responses import JSONResponse
+    if secret != _get_required_secret("ADMIN_SECRET"):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    ATTACKER = [667, 668, 669, 670, 673, 674]
+    ids = ",".join(str(i) for i in ATTACKER)
+    if confirm != "YES":
+        return JSONResponse({"error": f"Pass &confirm=YES to execute. Will neutralise accounts {ids}."}, status_code=400)
+    try:
+        before = [dict(r._mapping) for r in db.execute(text(
+            f"SELECT id, username, is_admin, is_active, balance, campaign_balance FROM users WHERE id IN ({ids})"))]
+        r1 = db.execute(text(
+            f"UPDATE users SET is_admin=false, is_active=false, balance=0, campaign_balance=0 WHERE id IN ({ids})"))
+        r2 = db.execute(text(
+            f"UPDATE payments SET status='voided_incident_20260603' WHERE from_user_id IN ({ids}) AND tx_hash LIKE 'owner-%'"))
+        r3 = db.execute(text(
+            f"UPDATE commissions SET status='reversed_incident_20260603' WHERE from_user_id IN ({ids}) AND commission_type='admin_adjustment' AND created_at >= CURRENT_DATE"))
+        db.commit()
+        gp = db.execute(text(f"SELECT count(*) FROM grid_positions WHERE user_id IN ({ids})")).scalar()
+        admins_after = [dict(r._mapping) for r in db.execute(text(
+            "SELECT id, username FROM users WHERE is_admin = true ORDER BY id"))]
+        active_attacker = db.execute(text(
+            f"SELECT count(*) FROM users WHERE id IN ({ids}) AND (is_active=true OR is_admin=true)")).scalar()
+        return JSONResponse({
+            "status": "cleanup_complete",
+            "attacker_ids": ATTACKER,
+            "before": before,
+            "accounts_neutralised": r1.rowcount,
+            "fake_payments_voided": r2.rowcount,
+            "attacker_commissions_reversed": r3.rowcount,
+            "attacker_grid_positions_remaining": gp,
+            "attacker_accounts_still_active_or_admin": active_attacker,
+            "admins_after_should_be_only_user_1": admins_after,
+            "untouched": "real members (650-666,671,672), paid withdrawals (evidence), grid structure, user 1",
+        }, status_code=200)
+    except Exception as e:
+        db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.get("/admin/force-wipe")
