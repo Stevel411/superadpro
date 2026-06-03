@@ -36,87 +36,48 @@ function tid(template, n) { return 't_' + template + '_' + n; }
 // ─────────────────────────────────────────────────────────────────
 const COURSE_SALES = {
   id: 'course-sales',
-  name: 'Course Sales Page',
+  name: 'Course Sales',
   category: 'Conversion',
-  description: 'High-conversion course page with hero, stats, testimonials, opt-in form and FAQ. The reference design.',
-  accent: '#a855f7',
-  thumbnailGradient: 'linear-gradient(135deg, #0a1228 0%, #1a0a3a 60%, #0a1228 100%)',
-  canvasBg: '#0a1228',
+  description: 'Premium violet course sales page: benefit headline, price and guarantee beside a course-player card with a module preview. CTA button links to the member\'s checkout.',
+  accent: '#7c3aed',
+  thumbnailGradient: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 55%, #1b1033 100%)',
+  canvasBg: '#1b1033',
   canvasBgImage: '',
   els: [
-    // Top urgency banner
-    { id: tid('cs', 1), type: 'announcement', x: 0, y: 0, w: 1100, h: 44,
-      txt: '⏰ EARLY-BIRD PRICING ENDS IN 48 HOURS — SAVE 40%',
-      s: { background: '#f59e0b', color: '#000', fontFamily: 'Manrope,sans-serif', fontWeight: '900', fontSize: '13px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '0.02em' } },
+    // Badge (top-left)
+    { id: tid('cs', 1), type: 'badge', x: 90, y: 90, w: 214, h: 34,
+      txt: '&#127891; ONLINE COURSE',
+      s: { fontFamily: 'Sora,sans-serif', fontWeight: '700', fontSize: '11px', color: '#d6c4fb', textAlign: 'center', background: 'rgba(168,85,247,0.14)', borderRadius: '999px', border: '1px solid rgba(168,85,247,0.32)', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '0.1em' } },
 
-    // Badge "cohort starts..."
-    { id: tid('cs', 2), type: 'badge', x: 410, y: 100, w: 280, h: 32,
-      txt: '⚡ COHORT 04 · STARTS MARCH 18',
-      s: { fontFamily: 'Manrope,sans-serif', fontWeight: '900', fontSize: '11px', color: '#000', textAlign: 'center', background: '#fbbf24', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '0.08em' } },
+    // Hero heading (left)
+    { id: tid('cs', 2), type: 'heading', x: 90, y: 150, w: 470, h: 150,
+      txt: 'Master the skill that <span style="color:#c4b5fd">actually pays</span>',
+      s: { fontFamily: 'Sora,sans-serif', fontWeight: '800', fontSize: '40px', color: '#ffffff', textAlign: 'left', letterSpacing: '-0.03em', lineHeight: '1.1' } },
 
-    // Hero heading
-    { id: tid('cs', 3), type: 'heading', x: 150, y: 152, w: 800, h: 130,
-      txt: 'Master <span style="color:#a855f7">AI Marketing</span> in 30 Days',
-      s: { fontFamily: 'Sora,sans-serif', fontWeight: '900', fontSize: '60px', color: '#fff', textAlign: 'center', letterSpacing: '-0.04em', lineHeight: '0.98' } },
+    // Subhead (left)
+    { id: tid('cs', 3), type: 'text', x: 90, y: 316, w: 460, h: 84,
+      txt: 'A step-by-step system taught from real results, not theory. Eight modules, lifetime access, built for people who want to do the work.',
+      s: { fontFamily: "'DM Sans',sans-serif", fontSize: '16px', color: '#b9a9d6', textAlign: 'left', lineHeight: '1.55', fontWeight: '500' } },
 
-    // Subhead
-    { id: tid('cs', 4), type: 'text', x: 260, y: 302, w: 580, h: 60,
-      txt: 'The proven playbook for affiliate marketers who want to ship faster, convert higher, and let AI do the heavy lifting. 30 lessons, real templates, no fluff.',
-      s: { fontFamily: 'Manrope,sans-serif', fontSize: '18px', color: '#94a3b8', textAlign: 'center', lineHeight: '1.55', fontWeight: '500' } },
-
-    // Three stats
-    { id: tid('cs', 5), type: 'stat', x: 280, y: 388, w: 180, h: 80,
-      txt: '<div style="font-family:Sora,sans-serif;font-size:34px;font-weight:900;color:#fff;letter-spacing:-0.025em;line-height:1">2,847</div><div style="font-size:10px;color:#64748b;margin-top:6px;text-transform:uppercase;letter-spacing:0.12em;font-weight:800">Students Enrolled</div>',
-      s: { textAlign: 'center', background: '#0a0a0f', borderRadius: '14px', padding: '22px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } },
-    { id: tid('cs', 6), type: 'stat', x: 460, y: 388, w: 180, h: 80,
-      txt: '<div style="font-family:Sora,sans-serif;font-size:34px;font-weight:900;color:#fff;letter-spacing:-0.025em;line-height:1">4.9<span style="color:#a855f7">★</span></div><div style="font-size:10px;color:#64748b;margin-top:6px;text-transform:uppercase;letter-spacing:0.12em;font-weight:800">Average Rating</div>',
-      s: { textAlign: 'center', background: '#0a0a0f', borderRadius: '14px', padding: '22px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } },
-    { id: tid('cs', 7), type: 'stat', x: 640, y: 388, w: 180, h: 80,
-      txt: '<div style="font-family:Sora,sans-serif;font-size:34px;font-weight:900;color:#fff;letter-spacing:-0.025em;line-height:1">94<span style="color:#a855f7">%</span></div><div style="font-size:10px;color:#64748b;margin-top:6px;text-transform:uppercase;letter-spacing:0.12em;font-weight:800">Completion</div>',
-      s: { textAlign: 'center', background: '#0a0a0f', borderRadius: '14px', padding: '22px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } },
-
-    // Primary CTA button
-    { id: tid('cs', 8), type: 'button', x: 380, y: 504, w: 340, h: 64,
-      txt: 'Enroll Now — $197 →',
-      s: { background: 'linear-gradient(135deg,#0ea5e9,#a855f7)', color: '#fff', fontFamily: 'Manrope,sans-serif', fontWeight: '900', fontSize: '15px', textAlign: 'center', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 0 rgba(124,58,237,0.6),0 8px 24px rgba(168,85,247,0.35)' } },
-
-    // Countdown
-    { id: tid('cs', 9), type: 'countdown', x: 350, y: 610, w: 400, h: 90,
-      txt: '', s: { display: 'flex', alignItems: 'center', justifyContent: 'center' }, _targetDate: '' },
-
-    // Image placeholder (course preview)
-    { id: tid('cs', 10), type: 'image', x: 100, y: 740, w: 900, h: 340,
-      txt: '',
-      s: { borderRadius: '12px', background: 'linear-gradient(135deg,#1e293b,#0c1530)' } },
-
-    // Two testimonials side-by-side
-    { id: tid('cs', 11), type: 'testimonial', x: 60, y: 1120, w: 490, h: 200,
-      txt: '<div style="margin-bottom:12px"><span style="color:#fbbf24">★★★★★</span></div><div style="font-size:15px;color:#e8e8f5;line-height:1.55;margin-bottom:16px;font-weight:500">"Within 3 weeks I built my first profitable funnel using the AI templates. Made back the course cost in 9 days."</div><div style="display:flex;align-items:center;gap:11px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#a855f7);font-size:12px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif">SM</div><div><div style="font-size:13px;font-weight:900;color:#fff;font-family:Sora,sans-serif">Sarah Mitchell</div><div style="font-size:11px;color:#94a3b8;font-weight:600">Affiliate marketer</div></div></div>',
-      s: { background: 'rgba(255,255,255,0.06)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.12)', padding: '24px 26px', backdropFilter: 'blur(20px)' } },
-    { id: tid('cs', 12), type: 'testimonial', x: 560, y: 1120, w: 490, h: 200,
-      txt: '<div style="margin-bottom:12px"><span style="color:#fbbf24">★★★★★</span></div><div style="font-size:15px;color:#e8e8f5;line-height:1.55;margin-bottom:16px;font-weight:500">"Steve doesn\'t gatekeep. Every prompt, every template, every workflow — it\'s all in there. Best course I\'ve done this year."</div><div style="display:flex;align-items:center;gap:11px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#a855f7);font-size:12px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif">JC</div><div><div style="font-size:13px;font-weight:900;color:#fff;font-family:Sora,sans-serif">James Carter</div><div style="font-size:11px;color:#94a3b8;font-weight:600">Online coach</div></div></div>',
-      s: { background: 'rgba(255,255,255,0.06)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.12)', padding: '24px 26px', backdropFilter: 'blur(20px)' } },
-
-    // Opt-in form
-    { id: tid('cs', 13), type: 'form', x: 300, y: 1370, w: 500, h: 340,
-      txt: '<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:900;font-size:28px;color:#fff;margin-bottom:6px;letter-spacing:-0.025em">Reserve your seat</div><div style="font-size:13px;color:#94a3b8;margin-bottom:20px;line-height:1.5">Enter your details. We\'ll send the enrollment link instantly.</div><input placeholder="Your first name" style="display:block;width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box;outline:none"><input placeholder="Your best email" style="display:block;width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box;outline:none"><div style="display:block;width:100%;padding:14px 20px;margin-top:6px;background:linear-gradient(135deg,#0ea5e9,#a855f7);color:#fff;font-size:14px;font-weight:900;border-radius:10px;text-align:center;box-sizing:border-box">Get Instant Access →</div><div style="font-size:10px;color:#64748b;margin-top:12px;font-weight:600">🔒 Your info is safe. We hate spam too.</div></div>',
-      s: { background: 'rgba(255,255,255,0.06)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.12)', padding: '32px', backdropFilter: 'blur(20px)' } },
-
-    // FAQ heading
-    { id: tid('cs', 14), type: 'heading', x: 350, y: 1760, w: 400, h: 60,
-      txt: 'Frequently Asked',
-      s: { fontFamily: 'Sora,sans-serif', fontWeight: '900', fontSize: '38px', color: '#fff', textAlign: 'center', letterSpacing: '-0.035em' } },
-
-    // FAQ items
-    { id: tid('cs', 15), type: 'faq', x: 210, y: 1850, w: 680, h: 160,
-      txt: '<div style="padding:18px 22px;border-radius:14px;background:linear-gradient(135deg,rgba(14,165,233,0.12),rgba(168,85,247,0.08));border:1px solid rgba(14,165,233,0.3);display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span style="font-size:15px;font-weight:800;color:#fff;font-family:Sora,sans-serif">What\'s included in the 30-day course?</span><span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#a855f7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0;transform:rotate(45deg)">+</span></div><p style="font-size:13px;color:#cbd5e1;line-height:1.65;font-weight:500">30 video lessons, 50+ AI prompt templates, the complete affiliate funnel system, weekly live Q&As, and a private Discord community. Lifetime access — no recurring fees.</p></div>',
+    // Price (left)
+    { id: tid('cs', 4), type: 'text', x: 90, y: 414, w: 300, h: 50,
+      txt: '<div style="display:flex;align-items:baseline;gap:11px"><span style="font-family:Sora,sans-serif;font-size:34px;font-weight:800;color:#fff;letter-spacing:-0.02em">$149</span><span style="font-family:\'DM Sans\',sans-serif;font-size:16px;color:#7d6ba8;text-decoration:line-through">$299</span></div>',
       s: {} },
-    { id: tid('cs', 16), type: 'faq', x: 210, y: 2030, w: 680, h: 70,
-      txt: '<div style="padding:18px 22px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-between;align-items:center"><span style="font-size:15px;font-weight:800;color:#fff;font-family:Sora,sans-serif">Do I need experience with AI tools?</span><span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#a855f7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0">+</span></div>',
+
+    // Primary CTA — member sets checkout link via the inspector
+    { id: tid('cs', 5), type: 'button', x: 90, y: 486, w: 240, h: 58,
+      txt: 'Enrol now &#8594;', url: '',
+      s: { background: 'linear-gradient(135deg,#a855f7,#7c3aed)', color: '#fff', fontFamily: 'Sora,sans-serif', fontWeight: '800', fontSize: '15px', textAlign: 'center', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 14px 32px -12px rgba(124,58,237,0.6)' } },
+
+    // Guarantee (left)
+    { id: tid('cs', 6), type: 'text', x: 90, y: 562, w: 440, h: 28,
+      txt: '<div style="font-family:\'DM Sans\',sans-serif;font-size:12.5px;color:#b9a9d6">&#128737; 30-day money-back guarantee — no questions asked</div>',
       s: {} },
-    { id: tid('cs', 17), type: 'faq', x: 210, y: 2120, w: 680, h: 70,
-      txt: '<div style="padding:18px 22px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-between;align-items:center"><span style="font-size:15px;font-weight:800;color:#fff;font-family:Sora,sans-serif">Is there a money-back guarantee?</span><span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#a855f7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0">+</span></div>',
-      s: {} },
+
+    // Course-player card (right) — decorative preview
+    { id: tid('cs', 7), type: 'text', x: 600, y: 150, w: 410, h: 432,
+      txt: '<div><div style="position:relative;border-radius:12px;overflow:hidden;border:1px solid #4c2f7a"><svg width="100%" viewBox="0 0 420 210" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="csbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b1d6e"/><stop offset="1" stop-color="#1b1033"/></linearGradient><linearGradient id="csplay" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a855f7"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><rect width="420" height="210" fill="url(#csbg)"/><circle cx="210" cy="95" r="38" fill="url(#csplay)"/><path d="M201 79l24 16-24 16z" fill="#fff"/><rect x="22" y="172" width="376" height="6" rx="3" fill="#4c2f7a"/><rect x="22" y="172" width="150" height="6" rx="3" fill="#a855f7"/></svg></div><div style="margin-top:14px;display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:center;gap:11px;background:rgba(255,255,255,0.04);border:1px solid #4c2f7a;border-radius:10px;padding:10px 12px;font-family:\'DM Sans\',sans-serif;font-size:13px;color:#e4dcf6"><span style="flex-shrink:0;width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#a855f7,#7c3aed);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700;font-size:12px;color:#fff">1</span>Foundations &amp; mindset</div><div style="display:flex;align-items:center;gap:11px;background:rgba(255,255,255,0.04);border:1px solid #4c2f7a;border-radius:10px;padding:10px 12px;font-family:\'DM Sans\',sans-serif;font-size:13px;color:#e4dcf6"><span style="flex-shrink:0;width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#a855f7,#7c3aed);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700;font-size:12px;color:#fff">2</span>The core system, step by step</div><div style="display:flex;align-items:center;gap:11px;background:rgba(255,255,255,0.04);border:1px solid #4c2f7a;border-radius:10px;padding:10px 12px;font-family:\'DM Sans\',sans-serif;font-size:13px;color:#e4dcf6"><span style="flex-shrink:0;width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#a855f7,#7c3aed);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700;font-size:12px;color:#fff">3</span>Scaling what works</div></div></div>',
+      s: { background: '#241544', border: '1px solid #4c2f7a', borderRadius: '18px', padding: '18px', boxShadow: '0 30px 70px -30px rgba(0,0,0,0.7)' } },
   ]
 };
 
