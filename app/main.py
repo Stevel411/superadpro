@@ -27918,6 +27918,14 @@ async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0, dia
             "matches_cron": bool(_s and _c and _s == _c),
             "matches_admin": bool(_s and _a and _s == _a),
         }
+    if test:
+        # TEMP (2026-06-03): unauthenticated test path so the email channel can
+        # be verified from a phone without secret-in-URL friction. REMOVE after
+        # Steve confirms — restore the secret requirement below.
+        ok = _secwatch_send_alert([
+            "<strong>TEST</strong> \u2014 this is a test of the SuperAdPro security "
+            "alert channel. If you received this email, alerting works."])
+        return {"status": "test_sent", "email_ok": ok, "recipient": _SECWATCH_RECIPIENT}
     _valid_secrets = {s for s in (os.getenv("CRON_SECRET", ""), os.getenv("ADMIN_SECRET", "")) if s}
     if not secret or secret not in _valid_secrets:
         raise HTTPException(status_code=403, detail="Forbidden")
