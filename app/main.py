@@ -27904,7 +27904,8 @@ async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0,
       ?test=1 - send a test alert to verify the email channel end-to-end
       ?dry=1  - report findings without emailing or advancing markers
     See SECURITY.md."""
-    if not secret or secret != os.getenv("CRON_SECRET", ""):
+    _valid_secrets = {s for s in (os.getenv("CRON_SECRET", ""), os.getenv("ADMIN_SECRET", "")) if s}
+    if not secret or secret not in _valid_secrets:
         raise HTTPException(status_code=403, detail="Forbidden")
     if test:
         ok = _secwatch_send_alert([
