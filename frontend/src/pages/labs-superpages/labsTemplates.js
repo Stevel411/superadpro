@@ -36,6 +36,7 @@ function tid(template, n) { return 't_' + template + '_' + n; }
 // ─────────────────────────────────────────────────────────────────
 const COURSE_SALES = {
   id: 'course-sales',
+  ready: true,
   name: 'Course Sales',
   category: 'Conversion',
   description: 'Premium violet course sales page: benefit headline, price and guarantee beside a course-player card with a module preview. CTA button links to the member\'s checkout.',
@@ -87,6 +88,7 @@ const COURSE_SALES = {
 // ─────────────────────────────────────────────────────────────────
 const LEAD_MAGNET = {
   id: 'lead-magnet',
+  ready: true,
   name: 'Free Guide / Lead Magnet',
   category: 'Lead Capture',
   description: 'Light, on-brand opt-in page: guide cover, benefit headline, social proof and a single conversion path.',
@@ -324,6 +326,7 @@ const PRODUCT_LAUNCH = {
 // ─────────────────────────────────────────────────────────────────
 const COACHING = {
   id: 'coaching',
+  ready: true,
   name: 'Book a Call',
   category: 'Service',
   description: 'Sage-green consultation page: benefit-led hero beside a booking card that captures name, email and what the visitor wants to cover.',

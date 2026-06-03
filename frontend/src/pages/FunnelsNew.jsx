@@ -22,9 +22,25 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiPost } from '../utils/api';
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, LayoutTemplate } from 'lucide-react';
 import { TEMPLATES, BLANK_CANVAS } from '../data/funnelTemplates';
+import { LABS_TEMPLATES } from './labs-superpages/labsTemplates';
 import CampaignSetupModal from '../components/CampaignSetupModal';
+
+// Create-page picker source (3 Jun 2026): the authoritative rebuilt full-design
+// templates (labsTemplates.js, ready:true only), adapted to the tile/modal shape.
+// Un-rebuilt templates never surface here. Selecting one creates the page from its
+// content via /api/funnels/save — the same payload shape the editor saves — which
+// retires the old data/funnelTemplates + template_builder.py path for the picker.
+const PICKER_TEMPLATES = LABS_TEMPLATES.filter(t => t.ready).map(t => ({
+  key: t.id,
+  title: t.name,
+  desc: t.description,
+  gradient: t.thumbnailGradient,
+  icon: LayoutTemplate,
+  listName: `${t.name} leads`,
+  __content: { els: t.els, canvasBg: t.canvasBg || '#ffffff', canvasBgImage: t.canvasBgImage || '' },
+}));
 
 export default function FunnelsNew() {
   const { t } = useTranslation();
@@ -60,15 +76,16 @@ export default function FunnelsNew() {
         });
         if (res.id) navigate(`/pro/funnel/${res.id}/edit`);
       } else {
-        const res = await apiPost('/api/funnels/from-template', {
-          niche: tpl.key, ...bindingPayload,
+        // Create from the rebuilt template's own content — same payload shape
+        // the editor saves (gjs_css = JSON {els, canvasBg, canvasBgImage}).
+        // The editor loads this back on open; no backend template builder.
+        const res = await apiPost('/api/funnels/save', {
+          title: tpl.title,
+          status: 'draft',
+          gjs_css: JSON.stringify(tpl.__content),
+          ...bindingPayload,
         });
-        if (res.id) {
-          navigate(`/pro/funnel/${res.id}/edit`);
-        } else if (res.edit_url) {
-          const parts = res.edit_url.match(/\/(\d+)\//);
-          if (parts) navigate(`/pro/funnel/${parts[1]}/edit`);
-        }
+        if (res.id) navigate(`/pro/funnel/${res.id}/edit`);
       }
     } catch (e) {
       alert(`Couldn't create page: ${e.message}`);
@@ -224,17 +241,11 @@ export default function FunnelsNew() {
         gap: 12,
       }}>
         {(() => {
-          // Build the render order: Lead capture → Lead magnet → Video sales
-          // → Blank Canvas (top-right slot) → the rest. We look up the first
-          // tiles by KEY (not array index) so adding a new template to
-          // funnelTemplates.js can't silently break the order. The previous
-          // hardcoded TEMPLATES[0]/[1] approach broke when Lead Magnet was
-          // inserted at index 1 (28 May 2026) — fixed.
-          const byKey = (k) => TEMPLATES.find(t => t.key === k);
-          const headKeys = ['lead-capture', 'lead-magnet', 'video-sales'];
-          const head = headKeys.map(byKey).filter(Boolean);
-          const rest = TEMPLATES.filter(t => !headKeys.includes(t.key));
-          const ordered = [...head, BLANK_CANVAS, ...rest];
+          // Create-page picker source (3 Jun 2026): rebuilt full-design
+          // templates (ready:true) plus Blank. Selecting one creates the page
+          // from its content via the same save shape the editor uses — see
+          // handleCampaignConfirm.
+          const ordered = [...PICKER_TEMPLATES, BLANK_CANVAS];
           return ordered.map(tpl => {
             const isBlank = tpl.key === 'blank';
             const Icon = tpl.icon;
