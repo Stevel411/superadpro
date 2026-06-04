@@ -137,6 +137,74 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ── SECRET REDACTION IN LOGS (security hardening, 4 Jun 2026) ──────────
+# Root lesson of the 3-Jun breach aftermath: secrets passed in URLs
+# (?secret=...) are written verbatim into access logs (Railway, Cloudflare).
+# This filter scrubs secret-bearing query params and Authorization/bearer
+# tokens from EVERY log record before it is emitted — across the app logger,
+# uvicorn's access log, and any attached handler — so secrets stop leaking
+# into logs regardless of which endpoint was hit. This is a defence-in-depth
+# BACKSTOP; the root fix is moving secrets out of URLs entirely (header /
+# session auth), tracked in SECURITY.md.
+import re as _re_redact
+_SECRET_QS_RE = _re_redact.compile(
+    r'(?i)\b(secret|token|password|passwd|pwd|api[_-]?key|apikey|key|auth|'
+    r'access[_-]?token|refresh[_-]?token|bearer|sig|signature)=([^&\s"\'\\]+)'
+)
+_BEARER_RE = _re_redact.compile(r'(?i)(bearer\s+)([A-Za-z0-9._\-]{6,})')
+
+def _redact_secrets(s):
+    if not isinstance(s, str):
+        return s
+    s = _SECRET_QS_RE.sub(lambda m: f"{m.group(1)}=***REDACTED***", s)
+    s = _BEARER_RE.sub(lambda m: f"{m.group(1)}***REDACTED***", s)
+    return s
+
+class SecretRedactionFilter(logging.Filter):
+    """Strips secret query params / bearer tokens from every log record."""
+    def filter(self, record):
+        try:
+            if isinstance(record.msg, str):
+                record.msg = _redact_secrets(record.msg)
+            if record.args:
+                if isinstance(record.args, tuple):
+                    record.args = tuple(_redact_secrets(a) for a in record.args)
+                elif isinstance(record.args, dict):
+                    record.args = {k: _redact_secrets(v) for k, v in record.args.items()}
+        except Exception:
+            pass
+        return True
+
+_secret_redaction_filter = SecretRedactionFilter()
+
+def _install_secret_redaction():
+    """Attach the redaction filter to every logger AND every handler so it
+    catches records emitted directly and those propagated from children.
+    uvicorn.access configures its own handler at server start, so this is
+    also re-run from the startup event once those loggers exist."""
+    try:
+        names = list(logging.root.manager.loggerDict.keys()) + [""]
+        seen = set()
+        for name in names:
+            lg = logging.getLogger(name)
+            lg.addFilter(_secret_redaction_filter)
+            for h in getattr(lg, "handlers", []):
+                if id(h) not in seen:
+                    h.addFilter(_secret_redaction_filter)
+                    seen.add(id(h))
+        for h in logging.getLogger().handlers:
+            if id(h) not in seen:
+                h.addFilter(_secret_redaction_filter)
+                seen.add(id(h))
+    except Exception as _e:
+        try:
+            logger.warning(f"secret-redaction install partial: {_e}")
+        except Exception:
+            pass
+
+# Install at import (covers app logger + handlers configured so far).
+_install_secret_redaction()
+
 # API docs (/docs, /redoc, /openapi.json) are DISABLED by default. They
 # publicly expose the full endpoint map + parameters, which was the
 # discovery vector in the 2026-06-03 breach. Set ENABLE_API_DOCS=true in
@@ -391,6 +459,9 @@ JSONResponse.render = _decimal_safe_render
 @app.on_event("startup")
 async def startup_event():
     import time
+    # Re-install secret redaction now that uvicorn's loggers/handlers exist
+    # (uvicorn.access is the one that logs request URLs incl. ?secret=...).
+    _install_secret_redaction()
     from .database import engine, run_migrations
     from sqlalchemy import text
     for attempt in range(1, 6):
