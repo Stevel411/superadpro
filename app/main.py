@@ -4288,13 +4288,21 @@ def admin_member_liability(secret: str = "", db: Session = Depends(get_db)):
                 continue
     except Exception:
         pass
+    pending_escrow = 0.0
+    try:
+        from app.database import PendingCommission as _PC
+        from sqlalchemy import func as _f
+        pending_escrow = float(db.query(_f.coalesce(_f.sum(_PC.amount_usdt), 0)).filter(_PC.status == "pending").scalar() or 0)
+    except Exception:
+        pending_escrow = None
     return {
         "funds_owed_to_members_withdrawable_now_usd": round(withdrawable_now, 2),
         "campaign_balance_held_for_ads_usd": round(campaign, 2),
+        "pending_escrow_contingent_usd": (round(pending_escrow, 2) if pending_escrow is not None else "unavailable"),
         "treasury_usdt_on_chain": (round(treasury_usdt, 2) if treasury_usdt is not None else "unavailable"),
         "treasury_covers_withdrawable_now": (treasury_usdt is not None and treasury_usdt >= withdrawable_now),
         "headroom_usd": (round(treasury_usdt - withdrawable_now, 2) if treasury_usdt is not None else None),
-        "note": "Withdrawable-now is the affiliate balance owed to members, computed from the commission ledger (paid member commissions minus withdrawals). It excludes the breach's voided admin_adjustment credits. Campaign balance is held for ad campaigns, not freely withdrawable.",
+        "note": "Withdrawable-now is the affiliate balance owed to members (paid member commissions minus withdrawals, breach credits excluded) — the only CASH liability. Campaign balance is ad-credit, not withdrawable. Pending escrow is CONTINGENT grace-period commissions: released to a member's ad-credit only if they upgrade within the window, otherwise reverts to the company — not cash owed.",
     }
 
 
