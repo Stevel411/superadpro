@@ -697,7 +697,14 @@ def request_withdrawal(
         amount_usdt    = amount_d,
         wallet_address = user.wallet_address,
         network        = (user.wallet_network or "").lower() or None,
-        status         = "pending",
+        # SECURITY (4 Jun 2026): created in 'awaiting_approval', NOT 'pending'.
+        # The retry cron (process_pending_withdrawals_batch) only sweeps
+        # status='pending', so this row cannot auto-send. An admin must
+        # release it with a live TOTP code via the approval endpoint, which
+        # flips it to 'pending' and processes it once. This is the gate that
+        # closes the 3-Jun-2026 incident: a compromised endpoint cannot move
+        # money without the admin's authenticator code.
+        status         = "awaiting_approval",
         wallet_type    = wallet_type,
         idempotency_key = idempotency_key,
     )
@@ -738,22 +745,17 @@ def request_withdrawal(
             "error": "Duplicate request detected. Please refresh your wallet and try again.",
         }
 
-    # Auto-process: send USDT on Polygon immediately. On failure the
-    # cron will retry per RETRY_BACKOFF_MINUTES. process_withdrawal
-    # may also auto-refund for structurally-blocked or max-attempts
-    # cases — _reply_for_existing_withdrawal handles all those states.
-    try:
-        from .withdrawals import process_withdrawal
-        proc_result = process_withdrawal(db, withdrawal.id)
-    except Exception as e:
-        logger.warning(f"Auto-withdrawal failed for user {user_id}: {e}")
-        db.rollback()
-        proc_result = None
-
-    # Re-read the row — process_withdrawal may have changed its status,
-    # and may have refunded (e.g. structural block on the very first try
-    # if the user's tier just completed). Build the response from the
-    # authoritative row state, not from the proc_result dict alone.
+    # ── ADMIN-APPROVAL GATE (security rebuild, 4 Jun 2026) ──────────
+    # Withdrawals NO LONGER auto-send on request. The balance is already
+    # earmarked (atomic deduction above) and the row now sits in
+    # 'awaiting_approval', invisible to the retry cron. Money leaves only
+    # when an admin releases the row via the 2FA-gated approval endpoint
+    # (/admin/api/withdrawals/{id}/approve), which verifies the admin's
+    # live TOTP code, re-checks the per-tx cap and destination, flips the
+    # row to 'pending' and calls process_withdrawal once.
+    #
+    # We do NOT call process_withdrawal here. The member gets a clear
+    # "requested — pending review" reply built from the row state below.
     db.refresh(withdrawal)
     return _reply_for_existing_withdrawal(db, user, withdrawal, wallet_type, net_amount=net_amount)
 
@@ -790,6 +792,18 @@ def _reply_for_existing_withdrawal(db, user, withdrawal, requested_wallet_type, 
         "bsc":  "BNB Chain (BEP-20)",
     }
     network_label = network_label_map.get(network, "USDT")
+
+    if status == "awaiting_approval":
+        return {
+            "success":     True,
+            "queued":      True,
+            "message":     "Withdrawal requested. It's awaiting review and will be released shortly — you'll be notified when it's sent.",
+            "net_amount":  float(net),
+            "fee":         float(WITHDRAWAL_FEE),
+            "remaining":   remaining,
+            "wallet_type": wallet_type,
+            "status":      "awaiting_approval",
+        }
 
     if status == "paid":
         return {

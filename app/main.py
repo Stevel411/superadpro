@@ -22768,6 +22768,242 @@ def admin_api_commissions(
         "commissions": paged,
     }
 
+# ═══════════════════════════════════════════════════════════════════
+#  2FA-GATED WITHDRAWAL RELEASE  (security rebuild, 4 Jun 2026)
+#  -------------------------------------------------------------------
+#  Root cause of the 3-Jun incident: a compromised admin endpoint could
+#  move money with no factor that lived off the server. Fix: withdrawals
+#  are created in 'awaiting_approval' (request_withdrawal) and never
+#  auto-send. The retry cron only sweeps status='pending', so it can't
+#  touch them. The ONLY way money leaves is an admin releasing a row here
+#  with a live TOTP code from their authenticator — which an endpoint
+#  attacker does not have.
+#
+#  Reuses the platform's existing TOTP system (User.totp_secret /
+#  totp_enabled, pyotp) — the SAME authenticator entry used for admin
+#  login authorises withdrawals. No second secret, no duplicate code.
+#
+#  Belt-and-suspenders guardrails (independent of the TOTP check):
+#    - per-transaction cap (WITHDRAWAL_MAX_PER_TX env, default $200)
+#    - destination must match the member's saved wallet (stamped at
+#      request time under the member's own 2FA)
+#    - balance was already atomically earmarked at request from the real
+#      balance column — can't release more than was reserved
+#    - master kill-switch WITHDRAWALS_ENABLED still gates the on-chain send
+# ═══════════════════════════════════════════════════════════════════
+
+def _withdrawal_max_per_tx():
+    """Per-transaction release cap. Env-tunable so a larger legit payout
+    can be allowed without a code change; defaults to $200."""
+    from decimal import Decimal as _D
+    try:
+        return _D(str(os.getenv("WITHDRAWAL_MAX_PER_TX", "200")))
+    except Exception:
+        return _D("200")
+
+
+@app.get("/admin/withdrawals-queue", response_class=HTMLResponse)
+def admin_withdrawals_queue_page(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Phone-friendly admin page: lists withdrawals awaiting release and
+    lets the admin approve (with their 2FA code) or reject each one.
+    No console, no hand-built URLs — the buttons issue POSTs to the
+    endpoints below."""
+    _require_admin(user)
+    from decimal import Decimal as _D
+
+    rows = (
+        db.query(Withdrawal)
+        .filter(Withdrawal.status == "awaiting_approval")
+        .order_by(Withdrawal.requested_at.asc())
+        .all()
+    )
+    twofa_on = bool(getattr(user, "totp_enabled", False) and user.totp_secret)
+    cap = _withdrawal_max_per_tx()
+    sends_live = (os.getenv("WITHDRAWALS_ENABLED") == "true")
+
+    def _esc(s):
+        return (str(s or "")
+                .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                .replace('"', "&quot;"))
+
+    cards = []
+    for w in rows:
+        member = db.query(User).filter(User.id == w.user_id).first()
+        uname = _esc(member.username if member else f"user {w.user_id}")
+        amt = float(w.amount_usdt or 0)
+        net = max(0.0, amt - 1.0)
+        over_cap = _D(str(amt)) > cap
+        addr_mismatch = bool(
+            member and member.wallet_address and w.wallet_address
+            and member.wallet_address.strip().lower() != w.wallet_address.strip().lower()
+        )
+        req = w.requested_at.strftime("%Y-%m-%d %H:%M UTC") if w.requested_at else "—"
+        warn = ""
+        if over_cap:
+            warn += f'<div class="warn">⚠ Over per-tx cap (${float(cap):.0f}). Raise WITHDRAWAL_MAX_PER_TX to release.</div>'
+        if addr_mismatch:
+            warn += '<div class="warn">⚠ Destination ≠ member\'s saved wallet. Reject and ask them to re-request.</div>'
+        cards.append(f"""
+        <div class="card" id="wd-{w.id}">
+          <div class="row"><span class="lbl">Member</span><span class="val">{uname} (#{w.user_id})</span></div>
+          <div class="row"><span class="lbl">Amount</span><span class="val">${amt:.2f} <span class="muted">(net ${net:.2f} after $1 fee)</span></span></div>
+          <div class="row"><span class="lbl">Wallet</span><span class="val">{_esc(w.wallet_type)}</span></div>
+          <div class="row"><span class="lbl">To</span><span class="val mono">{_esc(w.wallet_address)}</span></div>
+          <div class="row"><span class="lbl">Network</span><span class="val">{_esc((w.network or '—').upper())}</span></div>
+          <div class="row"><span class="lbl">Requested</span><span class="val">{req}</span></div>
+          {warn}
+          <div class="actions">
+            <input class="code" id="code-{w.id}" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="2FA code" />
+            <button class="approve" onclick="release({w.id})">Approve &amp; send</button>
+            <button class="reject" onclick="reject({w.id})">Reject &amp; refund</button>
+          </div>
+          <div class="result" id="res-{w.id}"></div>
+        </div>""")
+
+    body_cards = "".join(cards) if cards else '<div class="empty">No withdrawals awaiting release.</div>'
+
+    banner = ""
+    if not twofa_on:
+        banner += '<div class="banner err">You have not enabled 2FA on this admin account. Enable it in Account → Security before you can release withdrawals.</div>'
+    if not sends_live:
+        banner += '<div class="banner info">Sends are currently FROZEN (WITHDRAWALS_ENABLED is off). You can review and reject, but Approve will not send until the freeze is lifted in Railway.</div>'
+
+    html = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Withdrawal Release Queue — SuperAdPro</title>
+<style>
+  :root {{ --cobalt:#0a1438; --royal:#1e3a8a; --sky:#0ea5e9; --cyan:#06b6d4; --electric:#22d3ee; }}
+  * {{ box-sizing:border-box; }}
+  body {{ margin:0; font-family:'DM Sans',-apple-system,system-ui,sans-serif; background:#0a1438; color:#e8eefc; padding:16px; }}
+  h1 {{ font-family:'Sora',sans-serif; font-size:20px; margin:4px 0 2px; }}
+  .sub {{ color:#9fb3d9; font-size:13px; margin-bottom:14px; }}
+  .banner {{ padding:10px 12px; border-radius:10px; font-size:13px; margin-bottom:12px; line-height:1.4; }}
+  .banner.err {{ background:#3b1020; color:#ffd3dd; border:1px solid #7a2740; }}
+  .banner.info {{ background:#0c2433; color:#bfe9ff; border:1px solid #1e5e7a; }}
+  .card {{ background:#0f1d44; border:1px solid #1e3a8a; border-radius:14px; padding:14px; margin-bottom:12px; }}
+  .row {{ display:flex; justify-content:space-between; gap:12px; padding:4px 0; font-size:14px; align-items:flex-start; }}
+  .lbl {{ color:#8aa3d4; flex:0 0 auto; }}
+  .val {{ text-align:right; word-break:break-word; }}
+  .muted {{ color:#7e93bd; font-size:12px; }}
+  .mono {{ font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; }}
+  .warn {{ background:#3a2a0c; color:#ffe2a8; border:1px solid #7a5e1e; border-radius:8px; padding:7px 9px; font-size:12.5px; margin-top:8px; }}
+  .actions {{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; }}
+  .code {{ flex:1 1 110px; min-width:100px; padding:11px; border-radius:10px; border:1px solid #2b4ba0; background:#0a1740; color:#fff; font-size:16px; letter-spacing:2px; text-align:center; }}
+  button {{ border:0; border-radius:10px; padding:11px 14px; font-weight:600; font-size:14px; cursor:pointer; }}
+  .approve {{ background:linear-gradient(90deg,#0ea5e9,#22d3ee); color:#04121f; }}
+  .reject {{ background:#22304f; color:#ffd3dd; }}
+  .result {{ margin-top:9px; font-size:13px; min-height:0; }}
+  .result.ok {{ color:#86e8b0; }} .result.bad {{ color:#ff9fb0; }}
+  .empty {{ color:#8aa3d4; text-align:center; padding:40px 0; }}
+  .foot {{ color:#6f86b5; font-size:11.5px; margin-top:18px; line-height:1.5; }}
+</style></head><body>
+  <h1>Withdrawal Release Queue</h1>
+  <div class="sub">{len(rows)} awaiting your release · per-tx cap ${float(cap):.0f}</div>
+  {banner}
+  {body_cards}
+  <div class="foot">Each release needs a fresh 6-digit code from your authenticator app — the same one you use for admin login. Money does not move without it.</div>
+<script>
+async function post(url, code) {{
+  const r = await fetch(url, {{ method:'POST', headers:{{'Content-Type':'application/json'}}, body: JSON.stringify(code ? {{totp_code: code}} : {{}}) }});
+  let d = {{}}; try {{ d = await r.json(); }} catch(e) {{}}
+  return {{ ok: r.ok, d }};
+}}
+async function release(id) {{
+  const code = (document.getElementById('code-'+id).value || '').trim();
+  const res = document.getElementById('res-'+id);
+  if (!code) {{ res.className='result bad'; res.textContent='Enter your 2FA code first.'; return; }}
+  res.className='result'; res.textContent='Releasing…';
+  const {{ok, d}} = await post('/admin/api/withdrawals/'+id+'/approve', code);
+  if (ok && d.success) {{ res.className='result ok'; res.textContent='✓ '+(d.message||'Released'); const c=document.getElementById('wd-'+id); if(c) c.style.opacity=.45; }}
+  else {{ res.className='result bad'; res.textContent='✗ '+((d&&d.error)||'Failed'); }}
+}}
+async function reject(id) {{
+  if (!confirm('Reject this withdrawal and refund the member?')) return;
+  const res = document.getElementById('res-'+id);
+  res.className='result'; res.textContent='Rejecting…';
+  const r = await fetch('/admin/api/withdrawals/'+id+'/refund', {{ method:'POST', headers:{{'Content-Type':'application/json'}}, body: JSON.stringify({{reason:'Rejected at release queue'}}) }});
+  let d={{}}; try {{ d = await r.json(); }} catch(e) {{}}
+  if (r.ok && !d.error) {{ res.className='result ok'; res.textContent='✓ Refunded'; const c=document.getElementById('wd-'+id); if(c) c.style.opacity=.45; }}
+  else {{ res.className='result bad'; res.textContent='✗ '+((d&&d.error)||'Failed'); }}
+}}
+</script></body></html>"""
+    return HTMLResponse(html)
+
+
+@app.post("/admin/api/withdrawals/{withdrawal_id}/approve")
+async def admin_withdrawal_approve(
+    withdrawal_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Release ONE awaiting_approval withdrawal. Requires the admin's live
+    TOTP code (verified against their own totp_secret — same factor as
+    login). Re-checks the per-tx cap and destination, flips the row to
+    'pending' and processes it once. This is the only path that moves a
+    withdrawal toward sending."""
+    _require_admin(user)
+    from decimal import Decimal as _D
+
+    if not (getattr(user, "totp_enabled", False) and user.totp_secret):
+        return JSONResponse({"success": False, "error": "Enable 2FA on your admin account before releasing withdrawals (Account → Security)."}, status_code=403)
+
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    code = str(body.get("totp_code") or body.get("code") or "").strip()
+    if not code:
+        return JSONResponse({"success": False, "error": "Enter your 2FA code to release this withdrawal."}, status_code=400)
+
+    import pyotp
+    if not pyotp.TOTP(user.totp_secret).verify(code, valid_window=1):
+        return JSONResponse({"success": False, "error": "Invalid 2FA code."}, status_code=400)
+
+    withdrawal = db.query(Withdrawal).filter(Withdrawal.id == withdrawal_id).first()
+    if not withdrawal:
+        return JSONResponse({"success": False, "error": "Withdrawal not found"}, status_code=404)
+    if withdrawal.status != "awaiting_approval":
+        return JSONResponse({"success": False, "error": f"Withdrawal is '{withdrawal.status}', not awaiting approval."}, status_code=400)
+
+    # Guardrail: per-transaction cap
+    cap = _withdrawal_max_per_tx()
+    if _D(str(withdrawal.amount_usdt or 0)) > cap:
+        return JSONResponse({"success": False, "error": f"Amount ${float(withdrawal.amount_usdt or 0):.2f} exceeds the per-transaction cap of ${float(cap):.2f}. Raise WITHDRAWAL_MAX_PER_TX in Railway to release a larger amount."}, status_code=400)
+
+    # Guardrail: destination must still match the member's saved wallet
+    member = db.query(User).filter(User.id == withdrawal.user_id).first()
+    if member and member.wallet_address and withdrawal.wallet_address and \
+       member.wallet_address.strip().lower() != withdrawal.wallet_address.strip().lower():
+        return JSONResponse({"success": False, "error": "Destination address no longer matches the member's saved wallet. Reject and ask the member to re-request."}, status_code=400)
+
+    # Release: flip to 'pending' (so process_withdrawal will accept it) and
+    # process once. If the on-chain send fails (e.g. WITHDRAWALS_ENABLED off,
+    # or transient RPC), the row stays 'pending' — already-approved, safe for
+    # the retry cron — or you can reject it to refund.
+    withdrawal.status = "pending"
+    stamp = f" | released by {user.username} @ {datetime.utcnow().isoformat()}Z"
+    withdrawal.notes = ((withdrawal.notes or "") + stamp)[:500]
+    db.commit()
+
+    try:
+        from app.withdrawals import process_withdrawal
+        result = process_withdrawal(db, withdrawal.id)
+    except Exception as e:
+        logger.error(f"approve: process_withdrawal raised for #{withdrawal_id}: {e}")
+        db.rollback()
+        result = {"success": False, "error": "Send failed — see logs. Row left pending; retry from the queue or reject to refund."}
+
+    db.refresh(withdrawal)
+    if result.get("success"):
+        return JSONResponse({"success": True, "message": f"Released — ${float(withdrawal.amount_usdt or 0):.2f} sent", "tx_hash": withdrawal.tx_hash or "", "status": withdrawal.status})
+    return JSONResponse({"success": False, "error": result.get("error", "Send failed"), "status": withdrawal.status}, status_code=400)
+
+
 @app.get("/admin/api/withdrawals")
 def admin_api_withdrawals(
     user: User = Depends(get_current_user),
@@ -22868,9 +23104,9 @@ async def admin_withdrawal_refund(
     if not withdrawal:
         return JSONResponse({"error": "Withdrawal not found"}, status_code=404)
 
-    if withdrawal.status not in ("pending", "processing"):
+    if withdrawal.status not in ("pending", "processing", "awaiting_approval"):
         return JSONResponse({
-            "error": f"Cannot refund — withdrawal is '{withdrawal.status}'. Only pending/processing withdrawals can be refunded."
+            "error": f"Cannot refund — withdrawal is '{withdrawal.status}'. Only awaiting_approval/pending/processing withdrawals can be refunded."
         }, status_code=400)
 
     # Default wallet_type from the row. Admin can override only with an
@@ -31197,6 +31433,11 @@ def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
     from sqlalchemy import text
     results = []
     migrations = [
+        # SECURITY (4 Jun 2026): quarantine any legacy un-sent 'pending'
+        # withdrawal so it ALSO requires 2FA admin release on reopen and
+        # cannot be auto-swept by the retry cron. Idempotent; rows with a
+        # tx_hash (already sent) are left untouched.
+        "UPDATE withdrawals SET status='awaiting_approval' WHERE status='pending' AND (tx_hash IS NULL OR tx_hash='')",
         "ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_text_color VARCHAR",
         "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_video_url VARCHAR(500)",
         "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_headline VARCHAR(300)",
