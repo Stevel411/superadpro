@@ -784,12 +784,42 @@ p{font-size:16px;line-height:1.6;color:#aebbe0;margin:0 0 14px}
 <span class="tag">SuperAdPro</span>
 </div></body></html>"""
 
+def _maintenance_admin_bypass(request) -> bool:
+    """During maintenance, an authenticated admin gets full platform access
+    (so the React admin dashboard and all its /api/* calls work); everyone
+    else sees the offline page. Verifies the signed session cookie then checks
+    is_admin. Fail-safe: any error => treated as non-admin => stays blocked."""
+    token = request.cookies.get("session")
+    if not token:
+        return False
+    try:
+        user_id = session_serializer.loads(token, max_age=60 * 60 * 24 * 30)
+    except Exception:
+        return False
+    try:
+        db = SessionLocal()
+        try:
+            u = db.query(User).filter(User.id == int(user_id)).first()
+            return bool(u and getattr(u, "is_admin", False))
+        finally:
+            db.close()
+    except Exception:
+        return False
+
 class MaintenanceMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         if not MAINTENANCE_MODE:
             return await call_next(request)
         path = request.url.path
         if path == "/health" or path == "/admin" or path.startswith("/admin/") or path.startswith("/static/") or path == "/cron/security-watch":
+            return await call_next(request)
+        # Authenticated admins bypass maintenance entirely. The React admin
+        # dashboard at /admin boots, then calls /api/* to load — those are not
+        # allowlisted, so without this an admin gets bounced to the offline
+        # page. With it, the owner uses the full platform during a lockdown;
+        # everyone else still sees maintenance. Requires a valid HMAC-signed
+        # admin session cookie, so it cannot be forged.
+        if _maintenance_admin_bypass(request):
             return await call_next(request)
         resp = HTMLResponse(MAINTENANCE_HTML, status_code=200)
         resp.headers["Cache-Control"] = "no-store"
