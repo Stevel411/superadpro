@@ -631,6 +631,29 @@ class Withdrawal(Base):
     notes             = Column(Text, nullable=True)
 
 
+class WithdrawalApproval(Base):
+    """Append-only record that a specific withdrawal was released by an admin
+    via 2FA (4 Jun 2026, post-breach hard-lock).
+
+    The send path (process_withdrawal) REFUSES to broadcast a withdrawal
+    unless a matching row exists here whose approved amount + destination
+    still match the withdrawal row. This makes approval an enforced fact at
+    the send chokepoint rather than a status-string convention: a stray
+    status='pending' write anywhere in the codebase can no longer drain the
+    treasury via the retry cron, because there is no approval record behind
+    it. UNIQUE(withdrawal_id) makes re-approval idempotent. Also the first
+    brick of the broader admin audit log.
+    """
+    __tablename__ = "withdrawal_approvals"
+    id                      = Column(Integer, primary_key=True, index=True)
+    withdrawal_id           = Column(Integer, ForeignKey("withdrawals.id"), unique=True, index=True)
+    approved_by_user_id     = Column(Integer, ForeignKey("users.id"), nullable=True)
+    approved_by_username    = Column(String, nullable=True)
+    approved_amount_usdt    = Column(Money, nullable=True)
+    approved_wallet_address = Column(String, nullable=True)
+    approved_at             = Column(DateTime, default=datetime.utcnow)
+
+
 class PurchaseConsent(Base):
     """Captures a user's express consent to the no-refund / immediate-
     activation terms BEFORE they make any money-in transaction.
@@ -1983,6 +2006,12 @@ def run_migrations():
         # balance if available, this column simply makes that controllable.
         "ALTER TABLE membership_renewals ADD COLUMN IF NOT EXISTS auto_renew_from_balance BOOLEAN DEFAULT TRUE",
         "CREATE TABLE IF NOT EXISTS p2p_transfers (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), amount_usdt FLOAT, note VARCHAR, status VARCHAR DEFAULT 'completed', created_at TIMESTAMP DEFAULT NOW())",
+        # SECURITY (4 Jun 2026, post-breach): append-only record that a
+        # specific withdrawal was released by an admin via 2FA. The send path
+        # (process_withdrawal) REFUSES to broadcast without a matching row, so
+        # status='pending' alone can never move funds. UNIQUE(withdrawal_id)
+        # makes re-approval idempotent. First brick of the audit log.
+        "CREATE TABLE IF NOT EXISTS withdrawal_approvals (id SERIAL PRIMARY KEY, withdrawal_id INTEGER NOT NULL UNIQUE REFERENCES withdrawals(id), approved_by_user_id INTEGER REFERENCES users(id), approved_by_username VARCHAR, approved_amount_usdt NUMERIC(18,6), approved_wallet_address VARCHAR, approved_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_activated_by_referral BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS low_balance_warned BOOLEAN DEFAULT FALSE",
         # ── Explainer/pipeline refund-proof billing (29 May 2026) ──

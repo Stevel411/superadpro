@@ -338,61 +338,21 @@ def _validate_campaign_structural(db, user):
 
 
 def send_usdt(to_address, amount_usdt):
+    """REMOVED (4 Jun 2026, post-breach hardening).
+
+    The legacy Polygon send path is dormant (the dispatcher routes only to
+    send_usdt_bsc / send_usdt_tron, both of which enforce the
+    WITHDRAWALS_ENABLED freeze inside the function). This function had NO
+    freeze guard — it would sign and broadcast a treasury transfer
+    unconditionally. It has no callers. Rather than leave that loaded gun in
+    the tree, the signing/broadcast body is deleted and any accidental future
+    call fails loudly instead of silently moving funds.
     """
-    Send USDT on Polygon from treasury to a recipient address.
-    Returns: {"success": bool, "tx_hash": str, "error": str}
-    """
-    from web3 import Web3
-
-    private_key = _get_private_key()
-    amount_usdt = Decimal(str(amount_usdt))
-
-    try:
-        w3 = _get_web3()
-        from_address = Web3.to_checksum_address(TREASURY_ADDRESS)
-        to_addr = Web3.to_checksum_address(to_address)
-
-        # Convert USDT amount to raw units (6 decimals)
-        amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS))
-        if amount_raw <= 0:
-            return {"success": False, "tx_hash": "", "error": "Invalid amount"}
-
-        # Check treasury has enough USDT
-        contract = w3.eth.contract(address=Web3.to_checksum_address(USDT_CONTRACT), abi=ERC20_ABI)
-        balance_raw = contract.functions.balanceOf(from_address).call()
-        if balance_raw < amount_raw:
-            wallet_balance = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
-            logger.error(f"Insufficient treasury USDT: {wallet_balance} < {amount_usdt}")
-            return {"success": False, "tx_hash": "", "error": f"Insufficient treasury funds (${wallet_balance:.2f} available)"}
-
-        # Check POL for gas
-        pol_balance = w3.eth.get_balance(from_address)
-        if pol_balance < w3.to_wei(0.001, 'ether'):
-            return {"success": False, "tx_hash": "", "error": "Treasury needs POL for gas fees"}
-
-        # Build ERC-20 transfer transaction
-        nonce = w3.eth.get_transaction_count(from_address)
-        gas_price = w3.eth.gas_price
-
-        tx = contract.functions.transfer(to_addr, amount_raw).build_transaction({
-            "from": from_address,
-            "nonce": nonce,
-            "gas": 100000,
-            "gasPrice": int(gas_price * 1.2),
-            "chainId": POLYGON_CHAIN_ID,
-        })
-
-        # Sign and send
-        signed_tx = w3.eth.account.sign_transaction(tx, private_key=private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        tx_hash_hex = tx_hash.hex()
-
-        logger.info(f"USDT withdrawal sent: {amount_usdt} USDT to {to_address} -- tx: {tx_hash_hex}")
-        return {"success": True, "tx_hash": tx_hash_hex, "error": ""}
-
-    except Exception as e:
-        logger.error(f"USDT withdrawal failed: {e}")
-        return {"success": False, "tx_hash": "", "error": str(e)}
+    raise RuntimeError(
+        "send_usdt (legacy Polygon) is permanently disabled. Use "
+        "send_usdt_dispatch(network, to_address, amount) — it enforces the "
+        "WITHDRAWALS_ENABLED freeze and the per-network send guards."
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -925,6 +885,44 @@ def process_withdrawal(db, withdrawal_id):
 
     if withdrawal.status != "pending":
         return {"success": False, "error": f"Withdrawal is {withdrawal.status}, not pending"}
+
+    # ── HARD APPROVAL GATE (4 Jun 2026, post-breach) ───────────────────
+    # status=='pending' is NOT sufficient to move money. A withdrawal may
+    # only be broadcast if an admin recorded a 2FA-verified approval for THIS
+    # withdrawal whose approved amount + destination still match the row.
+    # This makes the send path enforce approval directly, so a stray
+    # status='pending' write (anywhere, ever) cannot drain the treasury via
+    # the retry cron or any other caller. Fails CLOSED: missing approval,
+    # mismatch, or any lookup error blocks the send. Returns permanent=False
+    # and does NOT bump attempts — an unapproved 'pending' row is an anomaly
+    # to investigate, not a send to retry-then-refund.
+    try:
+        from .database import WithdrawalApproval
+        appr = (db.query(WithdrawalApproval)
+                  .filter(WithdrawalApproval.withdrawal_id == withdrawal.id)
+                  .first())
+    except Exception as _appr_err:
+        logger.error(f"Withdrawal #{withdrawal_id}: approval lookup failed "
+                     f"({_appr_err}) — blocking send (fail-closed).")
+        db.rollback()
+        return {"success": False, "error": "Approval store unavailable — send blocked.", "permanent": False}
+    if not appr:
+        logger.error(f"Withdrawal #{withdrawal_id} reached process_withdrawal "
+                     f"WITHOUT a recorded 2FA approval — blocking send. It should "
+                     f"only become 'pending' via the 2FA release route; investigate "
+                     f"how it got here.")
+        return {"success": False, "error": "No recorded admin approval — send blocked.", "permanent": False}
+    try:
+        appr_amt = Decimal(str(appr.approved_amount_usdt)) if appr.approved_amount_usdt is not None else Decimal(str(withdrawal.amount_usdt or 0))
+        amt_ok  = appr_amt == Decimal(str(withdrawal.amount_usdt or 0))
+        dest_ok = (appr.approved_wallet_address or "").strip().lower() == (withdrawal.wallet_address or "").strip().lower()
+    except Exception:
+        amt_ok = dest_ok = False
+    if not (amt_ok and dest_ok):
+        logger.error(f"Withdrawal #{withdrawal_id}: amount/destination no longer "
+                     f"matches the recorded approval — blocking send (fail-closed).")
+        return {"success": False, "error": "Withdrawal changed since approval — send blocked. Reject and re-request.", "permanent": False}
+    # ── end approval gate ──
 
     user = db.query(User).filter(User.id == withdrawal.user_id).first()
     if not user:

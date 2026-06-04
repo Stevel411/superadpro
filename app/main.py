@@ -23287,6 +23287,30 @@ async def admin_withdrawal_approve(
        member.wallet_address.strip().lower() != withdrawal.wallet_address.strip().lower():
         return JSONResponse({"success": False, "error": "Destination address no longer matches the member's saved wallet. Reject and ask the member to re-request."}, status_code=400)
 
+    # Record the 2FA-verified approval BEFORE flipping to 'pending'. The send
+    # path (process_withdrawal) refuses to broadcast without this row, so the
+    # ordering is load-bearing: no approval record => no send, even if the
+    # status flips. Snapshot the amount + destination so the send path can
+    # detect any post-approval mutation. If the table is missing (migration
+    # not yet run), fail loud and leave the row awaiting_approval — never send.
+    try:
+        from app.database import WithdrawalApproval
+        if not db.query(WithdrawalApproval).filter(
+                WithdrawalApproval.withdrawal_id == withdrawal.id).first():
+            db.add(WithdrawalApproval(
+                withdrawal_id=withdrawal.id,
+                approved_by_user_id=user.id,
+                approved_by_username=user.username,
+                approved_amount_usdt=withdrawal.amount_usdt,
+                approved_wallet_address=withdrawal.wallet_address,
+                approved_at=datetime.utcnow(),
+            ))
+            db.flush()
+    except Exception as e:
+        logger.error(f"approve: could not record approval for #{withdrawal_id}: {e}")
+        db.rollback()
+        return JSONResponse({"success": False, "error": "Could not record approval — the approval store may need a migration (withdrawal_approvals). Withdrawal left awaiting approval; nothing sent."}, status_code=500)
+
     # Release: flip to 'pending' (so process_withdrawal will accept it) and
     # process once. If the on-chain send fails (e.g. WITHDRAWALS_ENABLED off,
     # or transient RPC), the row stays 'pending' — already-approved, safe for
@@ -31744,6 +31768,7 @@ def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
         # cannot be auto-swept by the retry cron. Idempotent; rows with a
         # tx_hash (already sent) are left untouched.
         "UPDATE withdrawals SET status='awaiting_approval' WHERE status='pending' AND (tx_hash IS NULL OR tx_hash='')",
+        "CREATE TABLE IF NOT EXISTS withdrawal_approvals (id SERIAL PRIMARY KEY, withdrawal_id INTEGER NOT NULL UNIQUE REFERENCES withdrawals(id), approved_by_user_id INTEGER REFERENCES users(id), approved_by_username VARCHAR, approved_amount_usdt NUMERIC(18,6), approved_wallet_address VARCHAR, approved_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_text_color VARCHAR",
         "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_video_url VARCHAR(500)",
         "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_headline VARCHAR(300)",
