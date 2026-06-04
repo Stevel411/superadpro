@@ -16089,6 +16089,123 @@ def admin_rotator_panel(request: Request, user: User = Depends(get_current_user)
     if _react_index.exists():
         return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/admin")
+
+
+# ── Owner sign-in for maintenance / lockdown (2026-06-04) ─────────────
+# The normal React /login flow is behind the maintenance wall, so during a
+# security pause the owner has no way to obtain an app session — which the
+# admin panel and the withdrawal-release queue require. This dedicated
+# sign-in lives under /admin/ (passes the maintenance allowlist) and is
+# therefore ALSO behind Cloudflare Access (email-OTP, owner only) and the
+# origin lock (reachable only through Cloudflare). It reuses the SAME
+# password / TOTP / session primitives as /login — no duplicated auth.
+# Layers before a session is granted: Access OTP -> origin lock ->
+# password -> authenticator code -> must be is_admin.
+_SIGNIN_CSS = """<style>
+:root{--cobalt:#0a1438;--royal:#1e3a8a;--cyan:#22d3ee;--sky:#0ea5e9}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+font-family:'DM Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#e8eefc;
+background:radial-gradient(1200px 600px at 50% -10%,#13245e 0,var(--cobalt) 55%,#060b22 100%)}
+.card{width:100%;max-width:380px;margin:24px;padding:34px 28px;background:rgba(12,22,56,.72);
+border:1px solid rgba(120,150,220,.18);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.bar{height:4px;width:56px;margin:0 0 22px;border-radius:4px;background:linear-gradient(90deg,var(--royal),var(--cyan))}
+h1{font-family:'Sora',sans-serif;font-weight:700;font-size:22px;margin:0 0 8px;letter-spacing:-.3px}
+.sub{font-size:13px;line-height:1.5;color:#9fb0dc;margin:0 0 20px}
+label{display:block;font-size:12px;color:#aebbe0;margin:14px 0 6px;font-weight:600}
+input{width:100%;padding:13px 14px;font-size:16px;color:#fff;background:#0b1740;
+border:1px solid rgba(120,150,220,.28);border-radius:10px;outline:none}
+input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.15)}
+button{width:100%;margin-top:22px;padding:14px;font-size:15px;font-weight:700;font-family:'Sora',sans-serif;
+color:#04122e;background:linear-gradient(90deg,var(--cyan),var(--sky));border:0;border-radius:10px;cursor:pointer}
+.err{margin:0 0 4px;padding:10px 12px;font-size:13px;color:#ffd9d9;background:rgba(220,60,60,.16);
+border:1px solid rgba(220,80,80,.4);border-radius:8px}
+.tag{display:block;margin-top:20px;font-size:11px;color:#6f7ea8;text-align:center}
+</style>"""
+
+def _admin_signin_page(step="password", error=""):
+    err_html = '<p class="err">' + error + '</p>' if error else ''
+    if step == "2fa":
+        action = "/admin/signin/2fa"
+        sub = "Enter the 6-digit code from your authenticator app."
+        fields = ('<label>Authenticator code</label>'
+                  '<input name="code" inputmode="numeric" autocomplete="one-time-code" '
+                  'pattern="[0-9]*" maxlength="6" placeholder="123456" autofocus required>')
+        btn = "Verify &amp; sign in"
+    else:
+        action = "/admin/signin"
+        sub = "Owner access only \u00b7 protected by Cloudflare Access."
+        fields = ('<label>Username or email</label>'
+                  '<input name="username" autocomplete="username" autocapitalize="off" autofocus required>'
+                  '<label>Password</label>'
+                  '<input name="password" type="password" autocomplete="current-password" required>')
+        btn = "Continue"
+    html = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<meta name="robots" content="noindex"><title>SuperAdPro \u2014 Admin sign-in</title>'
+            + _SIGNIN_CSS +
+            '</head><body><form class="card" method="post" action="' + action + '" autocomplete="on">'
+            '<div class="bar"></div><h1>Admin sign-in</h1>'
+            '<p class="sub">' + sub + '</p>' + err_html + fields +
+            '<button type="submit">' + btn + '</button>'
+            '<span class="tag">SuperAdPro</span></form></body></html>')
+    return HTMLResponse(html)
+
+@app.get("/admin/signin")
+def admin_signin_form(request: Request):
+    return _admin_signin_page(step="password")
+
+@app.post("/admin/signin")
+@limiter.limit("10/minute")
+def admin_signin_password(
+    request: Request,
+    username: str = Form(), password: str = Form(),
+    db: Session = Depends(get_db),
+):
+    uname = sanitize(username)
+    if is_locked_out(uname):
+        return _admin_signin_page(error=f"Account locked \u2014 too many attempts. Try again in {LOCKOUT_MINUTES} minutes.")
+    user = db.query(User).filter((User.username == uname) | (User.email == uname)).first()
+    if not (user and verify_password(password, user.password)):
+        record_failed_attempt(uname)
+        return _admin_signin_page(error="Invalid username or password.")
+    if not is_admin(user):
+        # Valid credentials but not an admin — this entrance is owner-only.
+        return _admin_signin_page(error="This sign-in is for administrators only.")
+    clear_failed_attempts(uname)
+    if getattr(user, "totp_enabled", False) and user.totp_secret:
+        resp = _admin_signin_page(step="2fa")
+        resp.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax", secure=True)
+        return resp
+    resp = RedirectResponse(url="/admin", status_code=303)
+    set_secure_cookie(resp, user.id)
+    return resp
+
+@app.post("/admin/signin/2fa")
+@limiter.limit("10/minute")
+def admin_signin_2fa(
+    request: Request,
+    code: str = Form(),
+    db: Session = Depends(get_db),
+):
+    import pyotp
+    pre_auth = request.cookies.get("pre_auth")
+    if not pre_auth:
+        return _admin_signin_page(error="Sign-in expired \u2014 please start again.")
+    try:
+        uid = int(pre_auth)
+    except (ValueError, TypeError):
+        return _admin_signin_page(error="Invalid session \u2014 please start again.")
+    user = db.query(User).filter(User.id == uid).first()
+    if not user or not user.totp_secret or not is_admin(user):
+        return _admin_signin_page(error="Invalid session \u2014 please start again.")
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return _admin_signin_page(step="2fa", error="Invalid code \u2014 try again.")
+    resp = RedirectResponse(url="/admin", status_code=303)
+    set_secure_cookie(resp, user.id)
+    resp.delete_cookie("pre_auth")
+    return resp
+
+
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN API — dual-purpose: dashboard UI + AI agent automation
 # ═══════════════════════════════════════════════════════════════
