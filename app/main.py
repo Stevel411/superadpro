@@ -4258,6 +4258,46 @@ def admin_finance_summary_api(user: User = Depends(get_current_user), db: Sessio
         return JSONResponse({"error": "compute_failed", "detail": str(e)[:300]}, status_code=500)
 
 
+@app.get("/admin/api/member-liability")
+def admin_member_liability(secret: str = "", db: Session = Depends(get_db)):
+    """Minimal, robust read of what is owed to members — sidesteps the full
+    finance HTML page (which has a template bug). Reuses the canonical
+    compute_financial_overview (ledger-based). Accepts ADMIN_SECRET or
+    CRON_SECRET. See SECURITY.md."""
+    _valid = {s for s in (os.getenv("ADMIN_SECRET", ""), os.getenv("CRON_SECRET", "")) if s}
+    if not secret or secret not in _valid:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    from app.finance import compute_financial_overview
+    data = compute_financial_overview(db)
+    liab = data.get("liabilities", {}) or {}
+    withdrawable_now = float(liab.get("member_balance_owed_usd") or 0)
+    campaign = float(liab.get("campaign_balance_owed_usd") or 0)
+    treasury_usdt = None
+    try:
+        import requests as _rq
+        _d = "0x70a08231000000000000000000000000" + "b2Ccdf9050A8d05A346F6879eC4fa633f9b2554D".lower()
+        for _rpc in ("https://bsc-dataseed.binance.org", "https://bsc-dataseed1.defibit.io", "https://rpc.ankr.com/bsc"):
+            try:
+                _r = _rq.post(_rpc, json={"jsonrpc": "2.0", "method": "eth_call",
+                    "params": [{"to": "0x55d398326f99059fF775485246999027B3197955", "data": _d}, "latest"], "id": 1}, timeout=6)
+                _hex = (_r.json() or {}).get("result")
+                if _hex and _hex != "0x":
+                    treasury_usdt = int(_hex, 16) / 1e18
+                    break
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return {
+        "funds_owed_to_members_withdrawable_now_usd": round(withdrawable_now, 2),
+        "campaign_balance_held_for_ads_usd": round(campaign, 2),
+        "treasury_usdt_on_chain": (round(treasury_usdt, 2) if treasury_usdt is not None else "unavailable"),
+        "treasury_covers_withdrawable_now": (treasury_usdt is not None and treasury_usdt >= withdrawable_now),
+        "headroom_usd": (round(treasury_usdt - withdrawable_now, 2) if treasury_usdt is not None else None),
+        "note": "Withdrawable-now is the affiliate balance owed to members, computed from the commission ledger (paid member commissions minus withdrawals). It excludes the breach's voided admin_adjustment credits. Campaign balance is held for ad campaigns, not freely withdrawable.",
+    }
+
+
 @app.get("/admin/finances", response_class=HTMLResponse)
 def admin_finances_page(request: Request, secret: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Human-readable finance dashboard for Steve.
