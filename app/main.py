@@ -789,7 +789,7 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         if not MAINTENANCE_MODE:
             return await call_next(request)
         path = request.url.path
-        if path == "/health" or path.startswith("/admin/") or path.startswith("/static/") or path == "/cron/security-watch":
+        if path == "/health" or path == "/admin" or path.startswith("/admin/") or path.startswith("/static/") or path == "/cron/security-watch":
             return await call_next(request)
         resp = HTMLResponse(MAINTENANCE_HTML, status_code=200)
         resp.headers["Cache-Control"] = "no-store"
@@ -797,6 +797,67 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         return resp
 
 app.add_middleware(MaintenanceMiddleware)
+
+# ── Cloudflare Access origin lock (2026-06-04 hardening) ──────────────
+# Cloudflare Access (email-OTP) guards /admin at the edge. But if the raw
+# Railway origin URL is reachable, an attacker could bypass Cloudflare and
+# hit /admin directly. This middleware validates the signed
+# Cf-Access-Jwt-Assertion header that Cloudflare injects on every request it
+# forwards from the Access app: a request to /admin lacking a valid token
+# did NOT pass through Access, so it is rejected (403). Same Access app,
+# enforced a second time at the origin.
+#
+# SAFE ROLLOUT: fail-OPEN while the two env vars are unset (so shipping this
+# can't lock the owner out), then fail-CLOSED for /admin once both are set.
+# Emergency disable = unset CF_ACCESS_AUD in Railway.
+CF_ACCESS_TEAM_DOMAIN = os.getenv("CF_ACCESS_TEAM_DOMAIN", "").strip().rstrip("/")
+CF_ACCESS_AUD = os.getenv("CF_ACCESS_AUD", "").strip()
+_CF_ACCESS_ENABLED = bool(CF_ACCESS_TEAM_DOMAIN and CF_ACCESS_AUD)
+_cf_jwks_client = None
+
+def _get_cf_jwks_client():
+    global _cf_jwks_client
+    if _cf_jwks_client is None and _CF_ACCESS_ENABLED:
+        import jwt as _pyjwt
+        _cf_jwks_client = _pyjwt.PyJWKClient(
+            f"https://{CF_ACCESS_TEAM_DOMAIN}/cdn-cgi/access/certs",
+            cache_keys=True,
+        )
+    return _cf_jwks_client
+
+def _cf_access_token_valid(request) -> bool:
+    token = request.headers.get("cf-access-jwt-assertion") or request.cookies.get("CF_Authorization")
+    if not token:
+        return False
+    try:
+        import jwt as _pyjwt
+        signing_key = _get_cf_jwks_client().get_signing_key_from_jwt(token)
+        _pyjwt.decode(
+            token, signing_key.key, algorithms=["RS256"],
+            audience=CF_ACCESS_AUD,
+            issuer=f"https://{CF_ACCESS_TEAM_DOMAIN}",
+        )
+        return True
+    except Exception as e:
+        try:
+            logger.warning(f"[cf-access] origin-lock rejected /admin request: {e}")
+        except Exception:
+            pass
+        return False
+
+class CloudflareAccessOriginMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if _CF_ACCESS_ENABLED:
+            path = request.url.path
+            if path == "/admin" or path.startswith("/admin/"):
+                if not _cf_access_token_valid(request):
+                    return JSONResponse(
+                        {"error": "Forbidden — this endpoint is only reachable through Cloudflare Access."},
+                        status_code=403,
+                    )
+        return await call_next(request)
+
+app.add_middleware(CloudflareAccessOriginMiddleware)
 
 # ── Dev/test/seed endpoint guard (2026-06-03 hardening) ───────
 # These endpoints are developer tooling (seed admin, grid/course test
