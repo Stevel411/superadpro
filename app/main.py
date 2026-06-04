@@ -889,6 +889,33 @@ class CloudflareAccessOriginMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(CloudflareAccessOriginMiddleware)
 
+# ── /cron origin lock — Cloudflare-only (2026-06-04 hardening) ────────
+# /cron/* is deliberately NOT behind Cloudflare Access (machine cron jobs
+# call it), which left it reachable from the open internet, gated only by a
+# URL secret. This closes that: Cloudflare stamps a secret header
+# (X-Origin-Verify, set via a Transform Rule) on every request it forwards;
+# the origin requires it on /cron. A direct hit to the raw Railway URL
+# (the bypass) lacks the header and is rejected. Crons that call the public
+# domain traverse Cloudflare and get the header automatically — no cron
+# edits, and the route's own CRON_SECRET check still runs behind this as a
+# second factor.
+#
+# SAFE ROLLOUT: fail-OPEN while ORIGIN_VERIFY_SECRET is unset (shipping this
+# can't break anything), fail-CLOSED for /cron once set. Emergency disable =
+# unset ORIGIN_VERIFY_SECRET in Railway. Scoped to /cron only, so it can
+# never affect main site or member traffic.
+ORIGIN_VERIFY_SECRET = os.getenv("ORIGIN_VERIFY_SECRET", "").strip()
+_ORIGIN_VERIFY_ENABLED = bool(ORIGIN_VERIFY_SECRET)
+
+class CronOriginVerifyMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if _ORIGIN_VERIFY_ENABLED and request.url.path.startswith("/cron/"):
+            if request.headers.get("x-origin-verify") != ORIGIN_VERIFY_SECRET:
+                return JSONResponse({"error": "Forbidden"}, status_code=403)
+        return await call_next(request)
+
+app.add_middleware(CronOriginVerifyMiddleware)
+
 # ── Dev/test/seed endpoint guard (2026-06-03 hardening) ───────
 # These endpoints are developer tooling (seed admin, grid/course test
 # harnesses, force-wipe, migrations). They must NOT be reachable on the
