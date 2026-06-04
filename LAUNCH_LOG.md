@@ -8,6 +8,48 @@
 
 ---
 
+## Status as of 2026-06-04 (Thursday) — SECURITY LOCKDOWN AFTER 3-JUN BREACH (Fort Knox)
+
+Platform is **OFFLINE** (`MAINTENANCE_MODE` on) and **withdrawals FROZEN** (`WITHDRAWALS_ENABLED` unset). This session hardened the platform against the 3-Jun treasury breach and **verified the exact attack chain is closed**. HEAD = `fb088e816`.
+
+### The breach (context)
+3 Jun: attacker exploited a guessable hardcoded owner secret exposed via public `/docs`, used secret-gated admin GET endpoints to mint instantly-activated accounts + synthetic grid payments, and drained ~1,187 USDT from the **company** BSC treasury (`0xb2Ccdf9050A8d05A346F6879eC4fa633f9b2554D`). **Member ledger intact.** Funds laundered to `0x4cd00e387622c35bddb9b4c962c136462338bc31` (Tether freeze requested — time-sensitive). Attacker accounts = user ids **670 / 673 / 674** (`hackerpwn*`, `@test.com`, no sponsor, instant-activated). **PRESERVE as evidence — do not delete.** (671 `abd` / 672 `danny12` are real referred signups, not the attacker.)
+
+### Commits (4 June)
+| Hash | What |
+|---|---|
+| `2f7bcbed9` | 2FA-gated manual withdrawal release — new withdrawals queue as `awaiting_approval`; admin releases via TOTP at `/admin/withdrawals-queue`. **NOT yet end-to-end tested.** |
+| `761e22d60` | P0 secret-log redaction — scrubs `secret=`/`token=`/`bearer` etc. from all logs. |
+| `ed99f0903` | P3 Cloudflare Access **origin lock** on `/admin*` (+ bare-`/admin` maintenance allowlist fix). |
+| `b1aaadb60` | Owner sign-in at **`/admin/signin`** (server-rendered, works during maintenance, behind Access; reuses password + TOTP + session). |
+| `928965dc2` | Authenticated admins **bypass maintenance** entirely (React admin dashboard + APIs work during lockdown; everyone else stays offline). |
+| `fb088e816` | P2: lock `/cron` to Cloudflare-only via stamped `X-Origin-Verify` header — **INERT** until `ORIGIN_VERIFY_SECRET` env is set (activation PENDING). |
+
+### Verified — exact attack chain closed (tested against live origin)
+1. Public API docs → **disabled** (`ENABLE_API_DOCS` unset → `docs_url=None`).
+2. Hardcoded owner secret → **gone** from codebase.
+3. Owner/dev endpoints (`activate-owner`, `force-wipe`, `test-grid-fill`, `run-migrations`) → **404** from internet (DevEndpointGuard).
+4. Admin money endpoints (e.g. `adjust-balance`) → **403** from internet (Cloudflare Access + origin lock).
+5. Treasury send → **frozen** (`WITHDRAWALS_ENABLED!=true`); 2FA-gated when re-enabled.
+6. Leaked `ADMIN_SECRET` + `CRON_SECRET` → **rotated 4 Jun** (new values live in Railway); old values verified **dead** (403).
+
+### Access architecture (new)
+- **Cloudflare Access** (email-OTP, Steve only) on `www.superadpro.com/admin*`. Team domain `young-rice-7806.cloudflareaccess.com`; AUD `2cb5fbefff16c3acd009ce08593d5e93f6c68505a68417d623e170f4573998aa`. Railway env `CF_ACCESS_TEAM_DOMAIN` + `CF_ACCESS_AUD` set & active.
+- **Origin lock** validates the CF Access JWT at the app on `/admin*` — raw-Railway-origin `/admin*` → 403.
+- **Owner sign-in** `www.superadpro.com/admin/signin` (password → TOTP → session) is the only way to obtain an app session during maintenance.
+
+### PENDING — `/cron` Cloudflare-only lockdown (2-min job next session)
+Code shipped & inert. To activate: (1) Cloudflare → Rules → Overview → **Create rule** (button is in the main panel top-right of the new dashboard; or search "Modify Request Header") → Transform Rule, **Set static** request header `X-Origin-Verify` = `<fresh secret>` on All incoming requests; (2) Railway main service env `ORIGIN_VERIFY_SECRET` = `<same secret>` (generate a FRESH value — don't reuse chat). **Caveat:** confirm `daily-briefing-cron` calls the **public www domain** (through Cloudflare) or it'll be blocked. Escape hatch: unset `ORIGIN_VERIFY_SECRET`.
+
+### Watch / open
+- Withdrawal-release 2FA gate not end-to-end tested (do once treasury funded + `WITHDRAWALS_ENABLED=true`).
+- Solvency gap ~$531 (treasury ~$1.76 vs ~$533 owed-withdrawable). Tether freeze on `0x4cd00e...` time-sensitive.
+- Confirm `daily-briefing-cron` got the new `CRON_SECRET` (else 06:00 UTC briefing fails) and calls the public domain.
+- `SECURITY.md` not yet written; audit log (P0) not built; P1 auth primitives + P2 endpoint conversion pending.
+- Reopen: website can return before withdrawals; withdrawals wait on gate test + solvency.
+
+---
+
 ## Status as of 2026-06-03 (Tuesday) — PAGE-BUILDER TEMPLATE REBUILD + REAL THUMBNAILS
 
 Long evening session. Continued the member-facing funnel-template rebuild, consolidated the three competing template sources behind one authoritative set, and gave both the Create-page picker and the Pages dashboard real scaled live thumbnails. All commits rebuilt the static bundle (hash changed) — no stale-bundle pushes. HEAD = `f3017dc89`.
