@@ -27896,7 +27896,7 @@ def run_security_watch(db, dry=False):
 
 
 @app.get("/cron/security-watch")
-async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0, diag: int = 0,
+async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0,
                               db: Session = Depends(get_db)):
     """Security watchdog cron. Polls DB state for privileged actions (new
     admins, balance adjustments, withdrawals) and emails an alert. Intended
@@ -27904,28 +27904,6 @@ async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0, dia
       ?test=1 - send a test alert to verify the email channel end-to-end
       ?dry=1  - report findings without emailing or advancing markers
     See SECURITY.md."""
-    if diag:
-        _c = os.getenv("CRON_SECRET", "")
-        _a = os.getenv("ADMIN_SECRET", "")
-        _s = secret or ""
-        _mask = (lambda v: "(empty)" if not v else (v[:2] + "..." + v[-2:] if len(v) > 4 else "(too short)"))
-        return {
-            "build_marker": "secwatch-diag-v1",
-            "cron_secret_configured": bool(_c),
-            "admin_secret_configured": bool(_a),
-            "received_secret_length": len(_s),
-            "received_secret_masked": _mask(_s),
-            "matches_cron": bool(_s and _c and _s == _c),
-            "matches_admin": bool(_s and _a and _s == _a),
-        }
-    if test:
-        # TEMP (2026-06-03): unauthenticated test path so the email channel can
-        # be verified from a phone without secret-in-URL friction. REMOVE after
-        # Steve confirms — restore the secret requirement below.
-        ok = _secwatch_send_alert([
-            "<strong>TEST</strong> \u2014 this is a test of the SuperAdPro security "
-            "alert channel. If you received this email, alerting works."])
-        return {"status": "test_sent", "email_ok": ok, "recipient": _SECWATCH_RECIPIENT}
     _valid_secrets = {s for s in (os.getenv("CRON_SECRET", ""), os.getenv("ADMIN_SECRET", "")) if s}
     if not secret or secret not in _valid_secrets:
         raise HTTPException(status_code=403, detail="Forbidden")
