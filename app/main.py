@@ -4259,7 +4259,7 @@ def admin_finance_summary_api(user: User = Depends(get_current_user), db: Sessio
 
 
 @app.get("/admin/finances", response_class=HTMLResponse)
-def admin_finances_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def admin_finances_page(request: Request, secret: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Human-readable finance dashboard for Steve.
 
     Renders the SAME data as /admin/api/finance-summary in a layout
@@ -4274,7 +4274,8 @@ def admin_finances_page(request: Request, user: User = Depends(get_current_user)
       • Member liabilities (what we owe)
       • Concerns (money in limbo)
     """
-    if not user or not getattr(user, "is_admin", False):
+    _secret_ok = bool(secret) and secret == os.getenv("ADMIN_SECRET", "")
+    if not ((user and getattr(user, "is_admin", False)) or _secret_ok):
         return HTMLResponse("<h1>Admin access required</h1>", status_code=403)
 
     try:
