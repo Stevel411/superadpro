@@ -985,7 +985,6 @@ _DEV_ONLY_PATHS = frozenset({
     "/admin/test-grid-fill", "/admin/test-grid-reset", "/admin/test-grid-e2e",
     "/admin/test-grid-cleanup", "/admin/test-course-passup-e2e",
     "/admin/test-course-passup-seed", "/admin/test-course-passup-cleanup",
-    "/api/superscene/seed-credits",
 })
 class DevEndpointGuardMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
@@ -16323,6 +16322,29 @@ def _require_admin(user):
         raise HTTPException(status_code=403, detail="Admin access required")
 
 
+def _require_admin_2fa(user, code: str):
+    """Second-factor gate for privileged, value-minting admin actions.
+
+    Composes _require_admin (session admin check) with a LIVE TOTP code —
+    the same authenticator used for admin login and balance adjustments.
+    A forged GET/CSRF link or accidental prefetch cannot carry a current
+    code, so this closes the 'admin action triggerable by a bare URL'
+    class (the 3-Jun breach family) even while the route stays GET so it
+    remains usable from a phone URL bar (append ?code=NNNNNN).
+
+    Raises HTTPException on failure; returns None on success.
+    """
+    _require_admin(user)
+    import pyotp
+    if not getattr(user, "totp_enabled", False) or not getattr(user, "totp_secret", None):
+        raise HTTPException(status_code=403, detail="Enable 2FA on your admin account before using this action.")
+    c = (code or "").strip()
+    if not c:
+        raise HTTPException(status_code=401, detail="2FA code required. Append ?code=NNNNNN (your authenticator code) to authorise this action.")
+    if not pyotp.TOTP(user.totp_secret).verify(c, valid_window=1):
+        raise HTTPException(status_code=401, detail="Invalid or expired 2FA code.")
+
+
 # ─── Maintenance mode helpers ─────────────────────────────────
 # Read the current platform status. Cached for 5 seconds so endpoints
 # don't hit the DB on every request — but short enough that flipping
@@ -20042,6 +20064,7 @@ async def admin_manual_confirm_walletconnect_order(
     request: Request,
     order_id: int = 0,
     tx_hash: str = "",
+    code: str = "",
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -20079,7 +20102,7 @@ async def admin_manual_confirm_walletconnect_order(
     _nowpayments_activate_product (same handoff as the cron). Returns
     a JSON activation summary.
     """
-    _require_admin(user)
+    _require_admin_2fa(user, code)
 
     from .database import WalletConnectPaymentOrder
     from .walletconnect_payments import _get_web3_bsc
@@ -38040,6 +38063,7 @@ def admin_sweep_double_pays(
 @app.get("/admin/api/grant-founder/{username}")
 def admin_grant_founder(
     username: str,
+    code: str = "",
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -38060,7 +38084,7 @@ def admin_grant_founder(
     decision per Steve (pay back the $5 only if the member asks).
     Does NOT notify the member — silent correction.
     """
-    _require_admin(user)
+    _require_admin_2fa(user, code)
     from decimal import Decimal as _Dec
 
     target = db.query(User).filter(User.username == username.lower()).first()
@@ -43038,11 +43062,11 @@ async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)
     logger.warning(f"SuperScene ADMIN: granted {amount} credits to user {target_id} (new balance: {row.balance})")
     return {"success": True, "user_id": target_id, "granted": amount, "new_balance": row.balance}
 @app.get("/admin/superscene/grant/{amount}")
-async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session = Depends(get_db)):
-    """Admin-only: grant yourself SuperScene credits by visiting this URL."""
+async def sc_admin_grant_credits_get(amount: int, request: Request, code: str = "", db: Session = Depends(get_db)):
+    """Admin-only: grant SuperScene credits by visiting this URL.
+    Requires a live 2FA code (?code=NNNNNN) — a forged link can't carry one."""
     user = get_current_user(request, db)
-    if not user or not getattr(user, "is_admin", False):
-        raise HTTPException(status_code=403, detail="Admin only")
+    _require_admin_2fa(user, code)
     if amount < 1 or amount > 5000:
         raise HTTPException(status_code=400, detail="Amount must be 1-5000")
     row = _get_or_create_sc_credits(user.id, db)
@@ -43058,30 +43082,6 @@ async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session 
     <a href="/superscene" style="display:inline-block;margin-top:30px;padding:14px 32px;background:#f43f5e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px">Go to SuperScene →</a>
     </body></html>
     """)
-@app.get("/api/superscene/seed-credits")
-async def sc_seed_credits(secret: str, user_id: int = 1, amount: int = 500, db: Session = Depends(get_db)):
-    """Secret-key protected: seed SuperScene credits without login. For testing only."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        raise HTTPException(status_code=403, detail="Invalid secret")
-    if amount < 1 or amount > 5000:
-        raise HTTPException(status_code=400, detail="Amount must be 1-5000")
-    try:
-        from sqlalchemy import text as sa_text
-        result = db.execute(sa_text("""
-            INSERT INTO superscene_credits (user_id, balance)
-            VALUES (:uid, :amt)
-            ON CONFLICT (user_id) DO UPDATE
-              SET balance = superscene_credits.balance + :amt,
-                  updated_at = NOW()
-            RETURNING balance
-        """), {"uid": user_id, "amt": amount})
-        new_balance = result.fetchone()[0]
-        db.commit()
-        logger.warning(f"SuperScene SEED: +{amount} credits to user {user_id} (new balance: {new_balance})")
-        return {"success": True, "user_id": user_id, "granted": amount, "new_balance": new_balance}
-    except Exception as e:
-        logger.exception("SuperScene seed-credits error")
-        raise HTTPException(status_code=500, detail=str(e))
 @app.get("/api/superscene/credits")
 async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
