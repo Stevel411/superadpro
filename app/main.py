@@ -32775,63 +32775,35 @@ def admin_watchdog_toggle(secret: str = "", db: Session = Depends(get_db)):
     logger.info(f"Watchdog toggled: {status}")
     return {"success": True, "watchdog_enabled": wd.WATCHDOG_ENABLED, "message": f"Watchdog {status}. For permanent change, set WATCHDOG_ENABLED in Railway env vars."}
 @app.get("/admin/adjust-balance")
-def admin_adjust_balance(
-    secret: str = "",
-    username: str = "",
-    amount: float = 0,
-    reason: str = "Manual adjustment",
-    db: Session = Depends(get_db)
-):
+def admin_adjust_balance():
     """
-    Manually adjust a user's balance (positive to credit, negative to debit).
+    REMOVED 5 Jun 2026 — security hardening (synthetic-balance surface).
 
-    Usage: /admin/adjust-balance?secret=$ADMIN_SECRET&username=master&amount=5.00&reason=Refund+adjustment
+    This endpoint wrote an ARBITRARY balance to any user, gated ONLY by a
+    secret in the URL — no session, no _require_admin. That is the exact
+    synthetic-balance injection pattern the 3-Jun drain exploited (fake
+    balance -> egress). Secrets in URLs leak via server logs, browser
+    history, referer headers and screenshots, and a GET that mutates money
+    is CSRF-shaped on top of that. The only thing standing in front of it
+    was the Cloudflare perimeter (config, not code).
+
+    Balance adjustments now have ONE door, session-authenticated:
+        Admin dashboard -> Members -> open member -> Adjust balance
+    which calls POST /admin/api/user/{id}/adjust-balance
+    (get_current_user + _require_admin, AdminDashboard.jsx). That UI works
+    on phone and desktop via the admin login session, so nothing is lost.
+
+    Kept registered (returns 410, never mutates) so any old bookmark gets a
+    clear message instead of a confusing 404.
     """
     from fastapi.responses import JSONResponse
-
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    if not username:
-        return JSONResponse({"error": "username is required"}, status_code=400)
-    if amount == 0:
-        return JSONResponse({"error": "amount must be non-zero"}, status_code=400)
-
-    user = db.query(User).filter(User.username == username).first()
-    if not user:
-        return JSONResponse({"error": f"User '{username}' not found"}, status_code=404)
-
-    old_balance = float(user.balance or 0)
-    user.balance = old_balance + amount
-    new_balance = float(user.balance)
-
-    # Audit trail
-    comm = Commission(
-        to_user_id=user.id,
-        from_user_id=user.id,
-        amount_usdt=abs(amount),
-        commission_type="admin_adjustment",
-        notes=f"{'Credit' if amount > 0 else 'Debit'}: {reason}",
-        package_tier=0,
-        status="paid"
+    return JSONResponse(
+        {
+            "error": "This endpoint was removed for security and no longer adjusts balances.",
+            "use_instead": "Admin dashboard -> Members -> open the member -> Adjust balance",
+        },
+        status_code=410,
     )
-    db.add(comm)
-    db.commit()
-    # Cache invalidation — admin manually changed user's balance
-    try:
-        cache_invalidate_user(user.id)
-    except Exception as e:
-        logger.warning(f"cache_invalidate_user({user.id}) failed in admin_adjust_balance: {e}")
-
-    logger.info(f"Admin balance adjustment: {username} {'+' if amount > 0 else ''}{amount:.2f} ({reason}). {old_balance:.2f} → {new_balance:.2f}")
-
-    return {
-        "success": True,
-        "username": username,
-        "adjustment": amount,
-        "old_balance": round(old_balance, 2),
-        "new_balance": round(new_balance, 2),
-        "reason": reason
-    }
 @app.get("/admin/test-grid-fill")
 def admin_test_grid_fill(
     secret: str,
