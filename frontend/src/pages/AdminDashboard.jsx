@@ -334,6 +334,7 @@ function UsersTab() {
   var [detail, setDetail] = useState(null);
   var [adjustAmt, setAdjustAmt] = useState('');
   var [adjustReason, setAdjustReason] = useState('');
+  var [adjustCode, setAdjustCode] = useState('');
   var [msg, setMsg] = useState('');
 
   // Debounce search input so we don't fire an API call on every keystroke.
@@ -412,10 +413,11 @@ function UsersTab() {
 
   function adjustBalance() {
     if (!adjustAmt) return;
-    apiPost('/admin/api/user/' + selected + '/adjust-balance', {amount: parseFloat(adjustAmt), reason: adjustReason}).then(function(r) {
-      setMsg(r.success ? 'Balance adjusted' : (r.error || 'Failed'));
+    if (!adjustCode) { setMsg('Enter your authenticator code'); return; }
+    apiPost('/admin/api/user/' + selected + '/adjust-balance', {amount: parseFloat(adjustAmt), reason: adjustReason, totp_code: adjustCode}).then(function(r) {
+      setMsg(r.success ? 'Balance adjusted' : (r.error || r.detail || 'Failed'));
       openUser(selected);
-      setAdjustAmt(''); setAdjustReason('');
+      setAdjustAmt(''); setAdjustReason(''); setAdjustCode('');
     });
   }
 
@@ -798,6 +800,9 @@ function UsersTab() {
                   placeholder="Reason"
                   style={{flex:1,padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none'}}/>
               </div>
+              <input value={adjustCode} onChange={function(e) { setAdjustCode(e.target.value.replace(/[^0-9]/g,'')); }}
+                placeholder="Authenticator code (6 digits)" inputMode="numeric" maxLength={6}
+                style={{width:'100%',padding:'8px 12px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',marginBottom:6,boxSizing:'border-box'}}/>
               <button onClick={adjustBalance}
                 style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,background:'var(--sap-accent)',color:'#fff'}}>
                 Apply Balance Adjustment

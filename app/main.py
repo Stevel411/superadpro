@@ -16644,6 +16644,20 @@ async def admin_api_adjust_balance(
 ):
     _require_admin(user)
     body = await request.json()
+    # 2FA gate: a money-affecting admin action requires a fresh authenticator
+    # code, not just a logged-in session. A 30-day session cookie alone must
+    # not be able to mint balance — this matches the bar withdrawals already
+    # enforce, and defends against a hijacked/stolen admin session (which
+    # would not carry the TOTP). This is prevention at the legitimate route;
+    # the security-watch Check 4 still backstops any path that bypasses it.
+    import pyotp
+    code = str(body.get("totp_code") or body.get("code") or "").strip()
+    if not getattr(user, "totp_secret", None):
+        return {"error": "Admin 2FA is not enrolled — cannot adjust balance."}
+    if not code:
+        return {"error": "Authenticator code required."}
+    if not pyotp.TOTP(user.totp_secret).verify(code, valid_window=1):
+        return {"error": "Invalid authenticator code."}
     amount = float(body.get("amount", 0))
     reason = body.get("reason", "Admin adjustment")
     if amount == 0:
