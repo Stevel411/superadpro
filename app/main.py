@@ -811,7 +811,12 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         if not MAINTENANCE_MODE:
             return await call_next(request)
         path = request.url.path
-        if path == "/health" or path == "/admin" or path.startswith("/admin/") or path.startswith("/static/") or path == "/cron/security-watch":
+        # /cron/security-watch and /cron/daily-briefing run during lockdown:
+        # both are read-only ops (security scan / metrics email to Steve),
+        # gated by CRON_SECRET + the X-Origin-Verify origin lock. The money
+        # crons (renewals, BSC scan, withdrawal processing) stay WALLED on
+        # purpose while frozen.
+        if path == "/health" or path == "/admin" or path.startswith("/admin/") or path.startswith("/static/") or path == "/cron/security-watch" or path == "/cron/daily-briefing":
             return await call_next(request)
         # Authenticated admins bypass maintenance entirely. The React admin
         # dashboard at /admin boots, then calls /api/* to load — those are not
