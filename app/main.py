@@ -28601,8 +28601,8 @@ def run_security_watch(db, dry=False):
 
 
 @app.get("/cron/security-watch")
-async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0,
-                              debug: int = 0,
+async def cron_security_watch(request: Request, secret: str = "", test: int = 0,
+                              dry: int = 0, debug: int = 0,
                               db: Session = Depends(get_db)):
     """Security watchdog cron. Polls DB state for privileged actions (new
     admins, balance adjustments, withdrawals) and emails an alert. Intended
@@ -28611,7 +28611,16 @@ async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0,
       ?dry=1  - report findings without emailing or advancing markers
     See SECURITY.md."""
     _valid_secrets = {s for s in (os.getenv("CRON_SECRET", ""), os.getenv("ADMIN_SECRET", "")) if s}
-    if not secret or secret not in _valid_secrets:
+    # Auth: a valid CRON_SECRET (how the Railway cron calls it) OR a logged-in
+    # admin session (so Steve can just tap the link from his phone — no secret
+    # to paste into the URL). The /cron origin-verify lock + maintenance
+    # allowlist still apply; this only changes who is accepted at the handler.
+    _admin_session = False
+    try:
+        _admin_session = _maintenance_admin_bypass(request)
+    except Exception:
+        _admin_session = False
+    if not ((secret and secret in _valid_secrets) or _admin_session):
         raise HTTPException(status_code=403, detail="Forbidden")
     try:
         if test:
