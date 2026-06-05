@@ -35022,7 +35022,7 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
     """
     # Auth check
     auth = request.headers.get("authorization", "")
-    cron_secret = _get_required_secret("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    cron_secret = _get_required_secret("CRON_SECRET")
     if auth != f"Bearer {cron_secret}":
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
 
@@ -35091,7 +35091,7 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
 @app.get("/cron/process-autoresponder")
 async def cron_process_autoresponder_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
     """GET version for cron-job.org — auth via ?secret= query param."""
-    cron_secret = _get_required_secret("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    cron_secret = _get_required_secret("CRON_SECRET")
     if not secret or secret != cron_secret:
         return JSONResponse({"error": "Invalid secret"}, status_code=401)
 
@@ -35158,7 +35158,7 @@ async def cron_poll_pending_videos(request: Request, secret: str = "", db: Sessi
     status for more than 30 minutes. Refund credits on failure so users never lose them
     when they close their browser mid-generation. Run every 15 mins via cron-job.org.
     """
-    cron_secret = _get_required_secret("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    cron_secret = _get_required_secret("CRON_SECRET")
     if not secret or secret != cron_secret:
         return JSONResponse({"error": "Invalid secret"}, status_code=401)
 
@@ -43500,7 +43500,7 @@ async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depen
 
     # Verify cron secret
     secret = request.headers.get("X-Cron-Secret", "")
-    expected = _get_required_secret("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    expected = _get_required_secret("CRON_SECRET")
     if secret != expected:
         raise HTTPException(status_code=403, detail="Forbidden")
 
@@ -48427,7 +48427,7 @@ async def api_video_creator_generate(request: Request, user: User = Depends(get_
     import httpx, json, uuid, os, asyncio, tempfile
 
     REMOTION_URL = os.getenv("REMOTION_RENDER_URL", "http://localhost:4010")
-    RENDER_SECRET = _get_required_secret("REMOTION_RENDER_SECRET", "superdeck-render-2026")
+    RENDER_SECRET = _get_required_secret("REMOTION_RENDER_SECRET")
     FPS = 30
 
     results = {"status": "processing", "steps": []}
@@ -48702,7 +48702,7 @@ async def api_video_creator_download(job_id: str, user: User = Depends(get_curre
 
     import httpx, os, uuid
     REMOTION_URL = os.getenv("REMOTION_RENDER_URL", "http://localhost:4010")
-    RENDER_SECRET = _get_required_secret("REMOTION_RENDER_SECRET", "superdeck-render-2026")
+    RENDER_SECRET = _get_required_secret("REMOTION_RENDER_SECRET")
 
     try:
         async with httpx.AsyncClient(timeout=120) as client:
