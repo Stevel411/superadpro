@@ -8,7 +8,31 @@
 
 ---
 
-## Status as of 2026-06-04 (Thursday) — SECURITY LOCKDOWN AFTER 3-JUN BREACH (Fort Knox)
+## Status as of 2026-06-05 (Friday) — TREASURY EGRESS HARD-LOCK + `/cron` LOCK ACTIVATED
+
+Platform still **OFFLINE** (`MAINTENANCE_MODE` on) and **withdrawals FROZEN** (`WITHDRAWALS_ENABLED` unset). This session: activated the parked `/cron` Cloudflare-only lock, shipped a hard-lock on treasury withdrawals, and ran a treasury-focused vulnerability assessment. HEAD = `4e99c92` (+ this docs commit).
+
+### Commits / changes (5 June)
+- **`4e99c92` — Treasury egress hard-lock.** New table `withdrawal_approvals` (append-only, UNIQUE per withdrawal). The 2FA release route records an approval (who/when + amount & destination snapshot) BEFORE flipping to `pending`. `process_withdrawal` now REFUSES to broadcast unless a matching approval row exists AND its amount/destination still match — fails CLOSED on missing approval / mismatch / lookup error. Covers both callers (inline release + retry cron), so `status='pending'` alone can no longer move money. Legacy unguarded Polygon `send_usdt()` stubbed (it had no freeze guard; no callers). Migration added to `run_migrations()` + `/admin/force-migrate`. Separate table by design — a missing table can't break existing `Withdrawal` queries; guard just fails closed.
+- **`/cron` Cloudflare-only lock ACTIVATED (config, not code — code was `fb088e816` last session).** Cloudflare Transform Rule sets request header `X-Origin-Verify` on all incoming requests; Railway `ORIGIN_VERIFY_SECRET` set to match. `daily-briefing-cron` confirmed calling `www.superadpro.com` (through Cloudflare) so the header is stamped. `CRON_SECRET` confirmed propagated to the cron service.
+
+### Verified this session (tested against live raw origin)
+- **`/cron` lock:** raw origin `/cron/*` → **403** (`{"error":"Forbidden"}`, the middleware, before the secret check). Through www → passes the lock (reaches the maintenance wall), proving Cloudflare stamps the header AND it matches Railway. Bypass dead.
+- **Breach replay layers re-confirmed live:** `/docs`,`/openapi.json`,`/redoc` disabled at the FastAPI constructor (404 on reopen, currently maintenance-masked); dev/owner endpoints (`activate-owner`,`run-migrations`,`force-wipe`,`test-grid-fill`) → **404**; admin money endpoints (`adjust-balance` GET + POST API) → **403** raw origin / **302** CF-Access challenge via www.
+- **Payment inbound can't be spoofed:** Stripe webhook verifies signature (`construct_event`); NOWPayments IPN verifies HMAC-SHA512 + only acts on pre-existing orders + guards status-downgrade; BSC scanner credits on real on-chain transfers only.
+- **Treasury key clean:** used only at the two signing points, never logged/echoed; no endpoint dumps env. The 5 hardcoded `*_CONFIRM_TOKEN` strings are all behind `_require_admin` (secondary confirmations, not the gate).
+- `SKIP_MIGRATIONS` confirmed **NOT set** → `withdrawal_approvals` self-creates on the `4e99c92` boot. `run_migrations()` applies each statement independently (per-statement commit, skip-on-error), so a missing/failing migration elsewhere doesn't block it.
+
+### Currently watching / open (treasury-first ranking)
+1. **#1 risk = treasury hot-wallet key lives on the server.** App locks protect the *app's* path to the key, not the key. Mitigation is OPERATIONAL not code: **sweep treasury to a cold wallet (key NOT on any server), keep only a thin payout float on the hot wallet.** Highest-value next move; free. Do before reopening withdrawals / before parking real money.
+2. **Withdrawal approval lock NOT yet live-tested** (treasury frozen). At reopen: confirm `withdrawal_approvals` exists → enrol admin TOTP → create a real `awaiting_approval` row → release with code → confirm send + approval row written.
+3. **Secret-in-URL admin endpoints (P2).** Defended by CF-Access + origin lock + rotated secret, but it's perimeter defense. Convert money-affecting ones to authenticated POST.
+4. **Detection blind spot (the "smoke alarm").** `security-watch` watches new admins / balance adjustments / withdrawals — NOT the breach signature. Extend with **treasury-balance-drop**, **instant-activation-without-verified-payment**, **synthetic-payment** alerts. (This is the "audit log" reframed as detection; `withdrawal_approvals` is its first record type. Note: Steve is sole operator — accountability angle irrelevant; detection is the value.)
+5. **`/api/videos` 500 diagnosed:** `explainer_videos` is a model but missing from `run_migrations()` (NOT a SKIP_MIGRATIONS issue). One-line fix (add CREATE TABLE), deferred.
+6. **Rotate the GitHub PAT** — still in plaintext in project instructions; used this session.
+7. Breach recovery now with **UK Action Fraud** (Steve filed; Tether freeze out of his hands). Attacker accounts 670/673/674 = evidence, **do not delete**.
+
+
 
 Platform is **OFFLINE** (`MAINTENANCE_MODE` on) and **withdrawals FROZEN** (`WITHDRAWALS_ENABLED` unset). This session hardened the platform against the 3-Jun treasury breach and **verified the exact attack chain is closed**. HEAD = `fb088e816`.
 
