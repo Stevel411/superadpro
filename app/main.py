@@ -4502,14 +4502,13 @@ def admin_finance_summary_api(user: User = Depends(get_current_user), db: Sessio
 
 
 @app.get("/admin/api/member-liability")
-def admin_member_liability(secret: str = "", db: Session = Depends(get_db)):
+def admin_member_liability(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Minimal, robust read of what is owed to members — sidesteps the full
     finance HTML page (which has a template bug). Reuses the canonical
     compute_financial_overview (ledger-based). Accepts ADMIN_SECRET or
     CRON_SECRET. See SECURITY.md."""
     _valid = {s for s in (os.getenv("ADMIN_SECRET", ""), os.getenv("CRON_SECRET", "")) if s}
-    if not secret or secret not in _valid:
-        raise HTTPException(status_code=403, detail="Forbidden")
+    _require_admin(user)
     from app.finance import compute_financial_overview
     data = compute_financial_overview(db)
     liab = data.get("liabilities", {}) or {}
@@ -4550,7 +4549,7 @@ def admin_member_liability(secret: str = "", db: Session = Depends(get_db)):
 
 
 @app.get("/admin/finances", response_class=HTMLResponse)
-def admin_finances_page(request: Request, secret: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def admin_finances_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Human-readable finance dashboard for Steve.
 
     Renders the SAME data as /admin/api/finance-summary in a layout
@@ -4565,8 +4564,7 @@ def admin_finances_page(request: Request, secret: str = "", user: User = Depends
       • Member liabilities (what we owe)
       • Concerns (money in limbo)
     """
-    _secret_ok = bool(secret) and secret == os.getenv("ADMIN_SECRET", "")
-    if not ((user and getattr(user, "is_admin", False)) or _secret_ok):
+    if not (user and getattr(user, "is_admin", False)):
         return HTMLResponse("<h1>Admin access required</h1>", status_code=403)
 
     try:
@@ -14545,10 +14543,9 @@ async def admin_walletconnect_health(user: User = Depends(get_current_user)):
 
 
 @app.get("/admin/debug-transfers")
-def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
+def debug_transfers(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """TEMPORARY debug — shows raw Alchemy transfer data."""
-    if secret != os.environ.get("CRON_SECRET", ""):
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    _require_admin(user)
     try:
         from .crypto_payments import TREASURY_WALLET, ACCEPTED_TOKENS
         from .database import CryptoPaymentOrder
@@ -31739,29 +31736,6 @@ Requirements:
         return JSONResponse({"error": f"AI generation failed: {str(e)[:100]}"}, status_code=500)
 
 # ── Test email sending ────────────
-@app.get("/admin/test-email")
-def test_email(secret: str, email: str):
-    from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    try:
-        from app.email_utils import (send_welcome_email, send_commission_email,
-            send_password_reset_email, send_membership_activated_email,
-            send_renewal_reminder_email)
-        r1 = send_welcome_email(email, "Steve", "stevel411")
-        r2 = send_commission_email(email, "Steve", "Direct Sponsor", "testuser123")
-        r3 = send_password_reset_email(email, "Steve", "test-reset-token-abc123")
-        r4 = send_membership_activated_email(email, "Steve")
-        r5 = send_renewal_reminder_email(email, "Steve", 3)
-        return JSONResponse({
-            "welcome": r1,
-            "commission_cha_ching": r2,
-            "password_reset": r3,
-            "membership_activated": r4,
-            "renewal_reminder": r5
-        })
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
 # ── Owner full activation (master affiliate setup) ────────────
 # ── One-time fix: sync upline_earnings from membership commissions ──
 @app.get("/admin/fix-upline-earnings")
@@ -31786,9 +31760,8 @@ def fix_upline_earnings(user: User = Depends(get_current_user), db: Session = De
 
 # ── Treasury wallet balance check ──
 @app.get("/admin/hot-wallet-balance")
-def hot_wallet_balance(secret: str):
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+def hot_wallet_balance(user: User = Depends(get_current_user)):
+    _require_admin(user)
     from app.withdrawals import get_treasury_usdt_balance, get_treasury_pol_balance, TREASURY_ADDRESS
     usdt = get_treasury_usdt_balance()
     pol = get_treasury_pol_balance()
@@ -31862,359 +31835,16 @@ def recompute_personal_referrals(user: User = Depends(get_current_user), db: Ses
 # (each hit lands on a different worker) until you see fresh data, OR
 # simply wait up to 5 minutes for the natural TTL to expire.
 @app.get("/admin/flush-leaderboard-cache")
-def flush_leaderboard_cache(secret: str):
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+def flush_leaderboard_cache(user: User = Depends(get_current_user)):
+    _require_admin(user)
     try:
         cache_invalidate_leaderboard()
         return {"flushed": True, "note": "Cache cleared on this worker. Hit the URL again to clear other workers."}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
-@app.get("/admin/activate-owner")
-def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
-
-    from fastapi.responses import JSONResponse
-    from app.grid import get_or_create_active_grid
-    import uuid
-
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-
-    user = db.query(User).filter(User.username == username).first()
-    if not user:
-        return JSONResponse({"error": f"User not found"}, status_code=404)
-
-    results = []
-    try:
-        # 1. Activate membership (Stream 1)
-        user.is_active  = True
-        user.activated_at = user.activated_at or datetime.utcnow()
-        user.is_admin   = True
-        user.sponsor_id = None  # owner sits at root
-
-        dummy_tx_m = f"owner-membership-{uuid.uuid4().hex[:12]}"
-        if not db.query(Payment).filter(Payment.tx_hash == dummy_tx_m).first():
-            db.add(Payment(
-                from_user_id=user.id, to_user_id=None,
-                amount_usdt=MEMBERSHIP_FEE, payment_type="membership",
-                tx_hash=dummy_tx_m, status="confirmed",
-            ))
-        results.append("Membership activated (Stream 1)")
-
-        # 2. Activate all 8 grid tiers (Stream 2)
-        for tier, price in GRID_PACKAGES.items():
-            dummy_tx = f"owner-t{tier}-{uuid.uuid4().hex[:10]}"
-            get_or_create_active_grid(db, user.id, tier)
-            if not db.query(Payment).filter(Payment.tx_hash == dummy_tx).first():
-                db.add(Payment(
-                    from_user_id=user.id, to_user_id=None,
-                    amount_usdt=price, payment_type="grid_package",
-                    tx_hash=dummy_tx, status="confirmed",
-                ))
-            results.append(f"Tier {tier} grid activated (${int(price)})")
-
-        # 3. Set watch quota to Tier 8
-        from datetime import date, timedelta
-        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
-        if not quota:
-            quota = WatchQuota(user_id=user.id, package_tier=8,
-                               daily_required=8, today_watched=0,
-                               today_date=date.today().isoformat(),
-                               consecutive_missed=0, commissions_paused=False)
-            db.add(quota)
-        else:
-            quota.package_tier=8; quota.daily_required=8; quota.commissions_paused=False
-        results.append("Watch quota set to Tier 8 (8 videos/day)")
-
-        # 4. Set up membership renewal (no expiry for owner)
-        renewal = db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user.id).first()
-        now = datetime.utcnow()
-        if not renewal:
-            renewal = MembershipRenewal(
-                user_id=user.id,
-                activated_at=now,
-                next_renewal_date=now + timedelta(days=36500),  # 100 years — owner never expires
-                last_renewed_at=now,
-                renewal_source="manual",
-                total_renewals=0,
-            )
-            db.add(renewal)
-        else:
-            renewal.activated_at = renewal.activated_at or now
-            renewal.next_renewal_date = now + timedelta(days=36500)
-            renewal.last_renewed_at = now
-            renewal.in_grace_period = False
-        results.append("Membership renewal set (owner — never expires)")
-
-        user.balance = 0.00
-        user.total_earned = 0.00
-        db.commit()
-
-        return JSONResponse({
-            "status": "Owner fully activated",
-            "user": username,
-            "activations": results,
-        })
-    except Exception as e:
-        db.rollback()
-        return JSONResponse({"error": str(e)}, status_code=500)
 
 # ── TEMP: Account reset utility (remove after use) ────────────
-@app.get("/admin/test-dashboard")
-def test_dashboard(secret: str, db: Session = Depends(get_db)):
-    """Test full dashboard context creation for a new user."""
-    from fastapi.responses import JSONResponse
-    from sqlalchemy import text as sqtext
-    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    import traceback
-    results = {}
-
-    # Create temp user
-    try:
-        user = create_user(db, "dashtest999", "dashtest999@test.com", "password123",
-                          first_name="Dash", last_name="", wallet_address="", country="")
-        uid = user.id
-        results["create_user"] = f"ok id={uid}"
-    except Exception as e:
-        db.rollback()
-        return JSONResponse({"failed_at": "create_user", "error": str(e), "trace": traceback.format_exc()})
-
-    from app.grid import get_grid_stats, get_user_commission_history
-    from app.payment import get_renewal_status
-
-    try:
-        get_grid_stats(db, uid)
-        results["get_grid_stats"] = "ok"
-    except Exception as e:
-        db.rollback()
-        results["get_grid_stats"] = "FAILED: " + str(e) + " | " + traceback.format_exc()
-
-    try:
-        get_user_commission_history(db, uid)
-        results["get_commission_history"] = "ok"
-    except Exception as e:
-        db.rollback()
-        results["get_commission_history"] = "FAILED: " + str(e) + " | " + traceback.format_exc()
-
-    try:
-        get_renewal_status(db, uid)
-        results["get_renewal_status"] = "ok"
-    except Exception as e:
-        db.rollback()
-        results["get_renewal_status"] = "FAILED: " + str(e) + " | " + traceback.format_exc()
-
-    try:
-        format_member_id(uid)
-        results["format_member_id"] = "ok"
-    except Exception as e:
-        results["format_member_id"] = f"FAILED: {e}"
-
-    # Clean up
-    try:
-        db.rollback()
-        db.execute(sqtext("DELETE FROM users WHERE id = :uid"), {"uid": uid})
-        db.commit()
-        results["cleanup"] = "ok"
-    except Exception as e:
-        results["cleanup"] = f"FAILED: {e}"
-
-    return JSONResponse(results)
-@app.get("/admin/test-register")
-def test_register(secret: str, db: Session = Depends(get_db)):
-    """Test user creation and return exact error."""
-    from fastapi.responses import JSONResponse
-    from sqlalchemy import text as sqtext
-    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    import traceback
-    try:
-        # Check columns exist
-        cols = db.execute(sqtext("SELECT column_name FROM information_schema.columns WHERE table_name='users'")).fetchall()
-        col_names = [c[0] for c in cols]
-        
-        # Try creating a test user
-        user = create_user(db, "testuser123", "test123@test.com", "password123",
-                          first_name="Test", last_name="", wallet_address="", country="")
-        user_id = user.id
-        # Delete test user
-        db.execute(sqtext("DELETE FROM users WHERE id = :uid"), {"uid": user_id})
-        db.commit()
-        return JSONResponse({"success": True, "columns": col_names, "test_user_created": True})
-    except Exception as e:
-        db.rollback()
-        return JSONResponse({"error": str(e), "trace": traceback.format_exc()}, status_code=500)
-@app.get("/admin/run-migrations")
-def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
-    """Force-run DB migrations — use once after deploy."""
-    from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    from app.database import run_migrations
-    try:
-        run_migrations()
-        return JSONResponse({"success": True, "message": "Migrations complete"})
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
-@app.get("/admin/force-migrate")
-def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
-    """Force run specific migrations that may have been missed."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid"}, status_code=403)
-    from sqlalchemy import text
-    results = []
-    migrations = [
-        # SECURITY (4 Jun 2026): quarantine any legacy un-sent 'pending'
-        # withdrawal so it ALSO requires 2FA admin release on reopen and
-        # cannot be auto-swept by the retry cron. Idempotent; rows with a
-        # tx_hash (already sent) are left untouched.
-        "UPDATE withdrawals SET status='awaiting_approval' WHERE status='pending' AND (tx_hash IS NULL OR tx_hash='')",
-        "CREATE TABLE IF NOT EXISTS withdrawal_approvals (id SERIAL PRIMARY KEY, withdrawal_id INTEGER NOT NULL UNIQUE REFERENCES withdrawals(id), approved_by_user_id INTEGER REFERENCES users(id), approved_by_username VARCHAR, approved_amount_usdt NUMERIC(18,6), approved_wallet_address VARCHAR, approved_at TIMESTAMP DEFAULT NOW())",
-        "ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_text_color VARCHAR",
-        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_video_url VARCHAR(500)",
-        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_headline VARCHAR(300)",
-        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_subtitle TEXT",
-        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_cta_text VARCHAR(100)",
-        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_cta_color VARCHAR(20)",
-        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_html_inject TEXT",
-        "CREATE TABLE IF NOT EXISTS team_messages (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), message TEXT NOT NULL, is_read BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
-        "CREATE INDEX IF NOT EXISTS idx_team_msg_from ON team_messages(from_user_id)",
-        "CREATE INDEX IF NOT EXISTS idx_team_msg_to ON team_messages(to_user_id)",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_billing VARCHAR DEFAULT 'monthly'",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS campaign_balance NUMERIC(18,6) DEFAULT 0.0",
-        "ALTER TABLE credit_matrices ADD COLUMN IF NOT EXISTS pack_key VARCHAR(20)",
-        "ALTER TABLE credit_matrices ADD COLUMN IF NOT EXISTS advance_number INTEGER DEFAULT 1",
-        "CREATE INDEX IF NOT EXISTS idx_credit_matrices_pack ON credit_matrices(owner_id, pack_key, status)",
-        "CREATE TABLE IF NOT EXISTS presentations (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, title VARCHAR(300) DEFAULT 'Untitled Presentation', slides_json TEXT DEFAULT '[]', theme VARCHAR(50) DEFAULT 'midnight', slide_count INTEGER DEFAULT 0, thumbnail_url TEXT, status VARCHAR(20) DEFAULT 'draft', created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
-    ]
-    for sql in migrations:
-        try:
-            db.execute(text(sql))
-            results.append({"sql": sql[:60], "status": "ok"})
-        except Exception as e:
-            results.append({"sql": sql[:60], "status": "error", "error": str(e)[:200]})
-    db.commit()
-    return {"results": results}
-@app.get("/admin/debug-dashboard")
-def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
-    """Debug: test dashboard context loading for the owner account."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid"}, status_code=403)
-    import traceback as _tb
-    try:
-        user = db.query(User).filter(User.is_admin == True).first()
-        if not user:
-            return {"error": "No admin user"}
-        # Step 1: check_achievements
-        try:
-            check_achievements(db, user)
-            step1 = "ok"
-        except Exception as e:
-            return {"step": "check_achievements_FAILED", "error": str(e), "tb": _tb.format_exc()[-1500:]}
-        # Step 2: build context
-        try:
-            from starlette.requests import Request as SRequest
-            scope = {"type": "http", "method": "GET", "path": "/", "headers": [], "query_string": b""}
-            ctx = get_dashboard_context(SRequest(scope), user, db)
-            step2 = "ok"
-        except Exception as e:
-            return {"step": "get_dashboard_context_FAILED", "error": str(e), "tb": _tb.format_exc()[-1500:]}
-        # Step 3: serialise each key individually
-        failures = {}
-        safe = {}
-        for k, v in ctx.items():
-            if k in ('request', 'user'):
-                continue
-            try:
-                json.dumps(v)
-                safe[k] = v
-            except (TypeError, ValueError) as e:
-                failures[k] = f"{type(v).__name__}: {str(e)[:200]}"
-                safe[k] = str(v)[:200]
-        # Step 4: final json.dumps on the whole thing
-        try:
-            json.dumps(safe)
-            step4 = "ok"
-        except Exception as e:
-            return {"step": "final_json_FAILED", "error": str(e), "failures": failures}
-        return {"step": "ALL_OK", "failures": failures, "total_keys": len(safe)}
-    except Exception as e:
-        return {"error": str(e), "tb": _tb.format_exc()[-1500:]}
-@app.get("/admin/fix-owner")
-def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
-    """Force SuperAdPro account to Founding + admin + permanent membership.
-
-    Under flat-pricing (15 May 2026) the SuperAdPro house account is
-    Founding spot #15 with permanent 2099 expiry as a perma-comped
-    admin. Tier changed from legacy 'pro' to 'founding' to match the
-    new model.
-    """
-    from fastapi.responses import JSONResponse
-    from sqlalchemy import text as sqt
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid"}, status_code=403)
-    try:
-        db.execute(sqt("UPDATE users SET membership_tier = 'founding', is_founding_member = TRUE, membership_price_locked = 15.00, is_active = true, is_admin = true, membership_expires_at = '2099-12-31' WHERE username = 'SuperAdPro'"))
-        db.commit()
-        user = db.query(User).filter(User.username == "SuperAdPro").first()
-        if user:
-            return {"success": True, "username": user.username, "membership_tier": user.membership_tier, "is_admin": user.is_admin, "is_active": user.is_active, "expires_at": str(user.membership_expires_at)}
-        return {"error": "User SuperAdPro not found"}
-    except Exception as e:
-        db.rollback()
-        return JSONResponse({"error": str(e)}, status_code=500)
-@app.get("/admin/seed-owner-campaigns")
-def admin_seed_owner_campaigns(secret: str = "", db: Session = Depends(get_db)):
-    """Seed the owner account with active campaigns at all 8 tiers so they show in grid."""
-    from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid"}, status_code=403)
-    try:
-        owner = db.query(User).filter(User.is_admin == True).first()
-        if not owner:
-            return JSONResponse({"error": "No admin user found"}, status_code=404)
-
-        from .database import VideoCampaign, CAMPAIGN_VIEW_TARGETS, GRID_TIER_NAMES
-        created = []
-        for tier in range(1, 9):
-            # Check if owner already has an active campaign at this tier
-            existing = db.query(VideoCampaign).filter(
-                VideoCampaign.user_id == owner.id,
-                VideoCampaign.campaign_tier == tier,
-                VideoCampaign.status == "active",
-                VideoCampaign.is_completed == False
-            ).first()
-            if existing:
-                created.append({"tier": tier, "status": "already_exists", "id": existing.id})
-                continue
-
-            tier_name = GRID_TIER_NAMES.get(tier, f"Tier {tier}")
-            campaign = VideoCampaign(
-                user_id=owner.id,
-                title=f"SuperAdPro {tier_name} Campaign",
-                description=f"Owner demonstration campaign — {tier_name} tier",
-                category="marketing",
-                platform="youtube",
-                video_url="https://www.youtube.com/watch?v=demo",
-                embed_url="https://www.youtube.com/embed/demo",
-                video_id="demo",
-                status="active",
-                views_target=CAMPAIGN_VIEW_TARGETS.get(tier, 2000),
-                views_delivered=0,
-                campaign_tier=tier,
-                is_completed=False,
-                owner_tier=tier,
-            )
-            db.add(campaign)
-            db.flush()
-            created.append({"tier": tier, "status": "created", "id": campaign.id, "name": tier_name})
-
-        db.commit()
-        return {"success": True, "owner": owner.username, "campaigns": created}
-    except Exception as e:
-        db.rollback()
-        return JSONResponse({"error": str(e)}, status_code=500)
 
 def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
@@ -32230,10 +31860,9 @@ def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 @app.get("/admin/db-check")
-def db_check(secret: str, db: Session = Depends(get_db)):
+def db_check(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_MIGRATE_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _require_admin(user)
     try:
         users = db.execute(text("SELECT id, username, email FROM users")).fetchall()
         return JSONResponse({
@@ -32244,7 +31873,7 @@ def db_check(secret: str, db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.get("/admin/security-audit")
-def security_audit(secret: str, db: Session = Depends(get_db)):
+def security_audit(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """READ-ONLY incident audit. Surfaces full blast radius of the
     activate-owner privilege-escalation: every admin account, every
     account carrying the owner-tN/owner-membership payment fingerprint,
@@ -32252,8 +31881,7 @@ def security_audit(secret: str, db: Session = Depends(get_db)):
     every withdrawal in the last 48h (the 'did real money leave' check).
     Pure SELECTs; mutates nothing."""
     from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _require_admin(user)
     try:
         from decimal import Decimal as _Dec
         def _safe(v):
@@ -32370,70 +31998,6 @@ def incident_cleanup(confirm: str = "", user: User = Depends(get_current_user), 
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
 
-@app.get("/admin/force-wipe")
-def force_wipe(secret: str, db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
-    from sqlalchemy import text as sqtext
-    if secret != _get_required_secret("ADMIN_RESET_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    results = {}
-    tables = [
-        "commissions","grid_positions","grids","payments","withdrawals",
-        "watch_quotas","video_watches","ai_usage_quotas",
-        "password_reset_tokens","membership_renewals","p2p_transfers","users"
-    ]
-    try:
-        # TRUNCATE all tables with CASCADE + RESTART IDENTITY resets sequences
-        db.execute(sqtext(
-            "TRUNCATE TABLE " + ", ".join(tables) + " RESTART IDENTITY CASCADE"
-        ))
-        db.commit()
-        count = db.execute(sqtext("SELECT COUNT(*) FROM users")).scalar()
-        results["users_remaining"] = count
-        results["sequences_reset"] = True
-        return JSONResponse({"status": "done", "results": results})
-    except Exception as e:
-        db.rollback()
-        # Fallback: truncate one by one
-        for table in tables:
-            try:
-                db.execute(sqtext(f"TRUNCATE TABLE {table} RESTART IDENTITY CASCADE"))
-                results[table] = "ok"
-            except Exception as e2:
-                results[table] = str(e2)
-        try:
-            db.commit()
-        except: db.rollback()
-        return JSONResponse({"status": "done_fallback", "error": str(e), "results": results})
-@app.get("/admin/reset-account")
-def reset_account(secret: str, db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_RESET_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    try:
-        from sqlalchemy import text as sqtext
-        tables = [
-            "commissions","grid_positions","grids","payments","withdrawals",
-            "watch_quotas","video_watches","ai_usage_quotas",
-            "password_reset_tokens","membership_renewals","p2p_transfers","users"
-        ]
-        cleared = []
-        for table in tables:
-            try:
-                db.execute(sqtext(f"TRUNCATE TABLE {table} CASCADE"))
-                cleared.append(table)
-            except Exception:
-                try:
-                    db.execute(sqtext(f"DELETE FROM {table}"))
-                    cleared.append(table)
-                except Exception as e:
-                    cleared.append(f"{table}(skipped:{e})")
-        db.commit()
-        count = db.execute(sqtext("SELECT COUNT(*) FROM users")).scalar()
-        return JSONResponse({"status": "Full reset complete — all users, emails, passwords cleared.", "users_remaining": count, "tables": cleared})
-    except Exception as e:
-        db.rollback()
-        return JSONResponse({"error": str(e)}, status_code=500)
 
 # ═══════════════════════════════════════════════════════════════════
 #  COURSES — Catalogue, Purchase, Pass-Up Commissions
@@ -33006,24 +32570,22 @@ async def api_comp_plan_chat(request: Request):
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/admin/watchdog")
-def admin_watchdog_run(secret: str = "", db: Session = Depends(get_db)):
+def admin_watchdog_run(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Main watchdog endpoint — hit this via Railway cron every 15-30 mins.
     Usage: /admin/watchdog?secret=$ADMIN_SECRET
     """
     from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _require_admin(user)
 
     from .watchdog import run_watchdog
     result = run_watchdog(db)
     return result
 @app.get("/admin/watchdog/status")
-def admin_watchdog_status(secret: str = "", db: Session = Depends(get_db)):
+def admin_watchdog_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Check watchdog status and recent logs."""
     from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _require_admin(user)
 
     from .watchdog import is_enabled
 
@@ -33049,11 +32611,10 @@ def admin_watchdog_status(secret: str = "", db: Session = Depends(get_db)):
         ]
     }
 @app.get("/admin/watchdog/health")
-def admin_watchdog_health_only(secret: str = "", db: Session = Depends(get_db)):
+def admin_watchdog_health_only(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Run health check only (no fixes) — useful for monitoring dashboards."""
     from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _require_admin(user)
 
     from .watchdog import run_health_check
     return run_health_check(db)
@@ -33097,913 +32658,13 @@ def admin_adjust_balance():
         },
         status_code=410,
     )
-@app.get("/admin/test-grid-fill")
-def admin_test_grid_fill(
-    secret: str,
-    owner_username: str = "master",
-    tier: int = 1,
-    seats: int = 1,
-    db: Session = Depends(get_db)
-):
-    """
-    Simulate filling seats in a grid to test the full commission flow.
-    Creates dummy users and places them into the owner's grid.
-    
-    Usage: /admin/test-grid-fill?secret=$ADMIN_SECRET&owner_username=master&tier=1&seats=5
-    
-    Use seats=GRID_TOTAL to test full grid completion + auto-spawn.
-    """
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-
-    owner = db.query(User).filter(User.username == owner_username).first()
-    if not owner:
-        return JSONResponse({"error": f"User '{owner_username}' not found"}, status_code=404)
-
-    price = GRID_PACKAGES.get(tier)
-    if not price:
-        return JSONResponse({"error": f"Invalid tier: {tier}"}, status_code=400)
-
-    # Cap at GRID_TOTAL positions
-    seats = min(seats, GRID_TOTAL)
-
-    results = []
-    for i in range(seats):
-        # Create a unique dummy test user
-        import secrets as sec
-        suffix = sec.token_hex(4)
-        dummy_username = f"gridtest_{suffix}"
-        dummy = User(
-            username=dummy_username,
-            email=f"{dummy_username}@test.local",
-            password="test",
-            first_name=f"Test_{suffix}",
-            sponsor_id=owner.id,
-            is_active=True,
-        )
-        db.add(dummy)
-        db.flush()
-
-        # Place into grid
-        result = place_member_in_grid(
-            db=db,
-            member_id=dummy.id,
-            owner_id=owner.id,
-            package_tier=tier,
-        )
-        results.append({
-            "seat": i + 1,
-            "dummy_user": dummy_username,
-            "result": result,
-        })
-
-        if not result["success"]:
-            break
-
-    db.commit()
-
-    # Get current grid state after fills
-    from app.grid import get_or_create_active_grid
-    active_grid = db.query(Grid).filter(
-        Grid.owner_id == owner.id,
-        Grid.package_tier == tier,
-    ).order_by(Grid.advance_number.desc()).first()
-
-    # Check owner's updated balances
-    db.refresh(owner)
-
-    # Count commissions generated
-    from sqlalchemy import func
-    total_commissions = db.query(func.count(Commission.id)).filter(
-        Commission.grid_id.in_([r["result"].get("grid_id") for r in results if r["result"].get("success")])
-    ).scalar()
-
-    return {
-        "test": "grid_fill",
-        "owner": owner_username,
-        "tier": tier,
-        "seats_filled": len([r for r in results if r["result"].get("success")]),
-        "seats_requested": seats,
-        "grid_state": {
-            "id": active_grid.id if active_grid else None,
-            "advance": active_grid.advance_number if active_grid else None,
-            "filled": active_grid.positions_filled if active_grid else 0,
-            "is_complete": active_grid.is_complete if active_grid else False,
-        },
-        "owner_balances": {
-            "balance": float(owner.balance or 0),
-            "total_earned": float(owner.total_earned or 0),
-            "grid_earnings": float(owner.grid_earnings or 0),
-            "level_earnings": float(owner.level_earnings or 0),
-        },
-        "commissions_generated": total_commissions,
-        "fill_results": results,
-    }
-@app.get("/admin/test-grid-reset")
-def admin_test_grid_reset(
-    secret: str,
-    owner_username: str = "master",
-    tier: int = 1,
-    db: Session = Depends(get_db)
-):
-    """
-    Reset a grid for re-testing — removes all test positions, commissions, and the grid itself.
-    Only removes grids and data for gridtest_* users.
-    
-    Usage: /admin/test-grid-reset?secret=$ADMIN_SECRET&owner_username=master&tier=1
-    """
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-
-    owner = db.query(User).filter(User.username == owner_username).first()
-    if not owner:
-        return JSONResponse({"error": f"User '{owner_username}' not found"}, status_code=404)
-
-    # Find test users
-    test_users = db.query(User).filter(User.username.like("gridtest_%")).all()
-    test_user_ids = [u.id for u in test_users]
-
-    if not test_user_ids:
-        return {"message": "No test users found — nothing to clean up"}
-
-    # Find grids for this owner+tier
-    grids = db.query(Grid).filter(
-        Grid.owner_id == owner.id,
-        Grid.package_tier == tier,
-    ).all()
-    grid_ids = [g.id for g in grids]
-
-    # Remove positions from test users
-    positions_deleted = db.query(GridPosition).filter(
-        GridPosition.grid_id.in_(grid_ids),
-        GridPosition.member_id.in_(test_user_ids)
-    ).delete(synchronize_session=False) if grid_ids else 0
-
-    # Remove commissions from test grids
-    commissions_deleted = db.query(Commission).filter(
-        Commission.grid_id.in_(grid_ids)
-    ).delete(synchronize_session=False) if grid_ids else 0
-
-    # Reset grid counters
-    for g in grids:
-        remaining = db.query(GridPosition).filter(GridPosition.grid_id == g.id).count()
-        g.positions_filled = remaining
-        g.is_complete = False
-        g.completed_at = None
-        g.owner_paid = False
-        g.revenue_total = remaining * g.package_price
-
-    # Remove test users
-    users_deleted = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
-
-    # Reset owner balances (rough — manual review needed for production)
-    owner.balance = 0
-    owner.total_earned = 0
-    owner.grid_earnings = 0
-    owner.level_earnings = 0
-    owner.upline_earnings = 0
-
-    db.commit()
-
-    return {
-        "cleaned": True,
-        "positions_deleted": positions_deleted,
-        "commissions_deleted": commissions_deleted,
-        "test_users_deleted": users_deleted,
-        "grids_reset": len(grids),
-    }
-@app.get("/admin/test-grid-e2e")
-def admin_test_grid_e2e(
-    secret: str,
-    tier: int = 1,
-    chain_depth: int = 8,
-    buyers_per_level: int = 2,
-    db: Session = Depends(get_db)
-):
-    """
-    E2E Grid Commission Test.
-    Usage: /admin/test-grid-e2e?secret=$ADMIN_SECRET&tier=1&chain_depth=8&buyers_per_level=2
-    """
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-
-    try:
-        from app.grid import process_tier_purchase, GRID_PACKAGES
-        import secrets as sec
-
-        price = GRID_PACKAGES.get(tier)
-        if not price:
-            return JSONResponse({"error": f"Invalid tier: {tier}"}, status_code=400)
-
-        chain_depth = min(chain_depth, 10)
-        buyers_per_level = min(buyers_per_level, 5)
-
-        results = {"test": "grid_e2e", "tier": tier, "price": price, "chain": [], "purchases": [], "balances_after": {}, "commissions": [], "grids": []}
-
-        # Step 1: Create owner
-        sfx = sec.token_hex(3)
-        owner = User(username=f"gridtest_owner_{sfx}", email=f"gridtest_owner_{sfx}@test.local",
-                     password="test", first_name="Owner", is_active=True, is_admin=True)
-        db.add(owner)
-        db.flush()
-        results["chain"].append({"level": 0, "username": owner.username, "id": owner.id, "role": "owner"})
-
-        # Step 2: Create sponsor chain
-        chain_users = [owner]
-        for lvl in range(1, chain_depth + 1):
-            sfx = sec.token_hex(3)
-            u = User(username=f"gridtest_L{lvl}_{sfx}", email=f"gridtest_L{lvl}_{sfx}@test.local",
-                     password="test", first_name=f"Level{lvl}", sponsor_id=chain_users[-1].id,
-                     is_active=True, membership_tier="partner")
-            db.add(u)
-            db.flush()
-            vc = VideoCampaign(user_id=u.id, title=f"Test Campaign L{lvl}",
-                               video_url="https://www.youtube.com/watch?v=test",
-                               embed_url="https://www.youtube.com/embed/test",
-                               platform="youtube", campaign_tier=tier, status="active",
-                               is_completed=False, views_target=1000)
-            db.add(vc)
-            db.flush()
-            chain_users.append(u)
-            results["chain"].append({"level": lvl, "username": u.username, "id": u.id, "sponsor_id": chain_users[-2].id})
-
-        db.commit()
-
-        # Step 3: Create buyers and process purchases
-        last_sponsor = chain_users[-1]
-        buyer_ids = []
-        for b in range(buyers_per_level):
-            sfx = sec.token_hex(3)
-            buyer = User(username=f"gridtest_buyer_{b+1}_{sfx}", email=f"gridtest_buyer_{b+1}_{sfx}@test.local",
-                         password="test", first_name=f"Buyer{b+1}", sponsor_id=last_sponsor.id,
-                         is_active=True, membership_tier="partner")
-            db.add(buyer)
-            db.flush()
-            buyer_ids.append(buyer.id)
-
-            purchase_result = process_tier_purchase(db=db, buyer_id=buyer.id, package_tier=tier, bypass_repurchase_guard=True)
-            results["purchases"].append({"buyer": buyer.username, "buyer_id": buyer.id,
-                                         "sponsor": last_sponsor.username, "result": purchase_result})
-
-        db.commit()
-
-        # Step 4: Collect balances
-        for u in chain_users:
-            db.refresh(u)
-            results["balances_after"][u.username] = {
-                "id": u.id,
-                "balance": float(u.balance or 0),
-                "total_earned": float(u.total_earned or 0),
-                "grid_earnings": float(u.grid_earnings or 0),
-                "level_earnings": float(u.level_earnings or 0),
-            }
-
-        # Step 5: Collect commissions
-        all_test_ids = [u.id for u in chain_users] + buyer_ids
-        comms = db.query(Commission).filter(
-            Commission.from_user_id.in_(all_test_ids)
-        ).order_by(Commission.id).all()
-
-        for c in comms:
-            recipient = db.query(User).filter(User.id == c.to_user_id).first() if c.to_user_id else None
-            from_user = db.query(User).filter(User.id == c.from_user_id).first() if c.from_user_id else None
-            results["commissions"].append({
-                "type": c.commission_type,
-                "amount": float(c.amount_usdt or 0),
-                "from": from_user.username if from_user else "N/A",
-                "to": recipient.username if recipient else "COMPANY",
-                "notes": c.notes,
-            })
-
-        # Step 6: Collect grid states
-        for u in chain_users:
-            grids = db.query(Grid).filter(Grid.owner_id == u.id, Grid.package_tier == tier).order_by(Grid.advance_number).all()
-            for g in grids:
-                positions = db.query(GridPosition).filter(GridPosition.grid_id == g.id).all()
-                results["grids"].append({
-                    "owner": u.username, "grid_id": g.id, "advance": g.advance_number,
-                    "filled": g.positions_filled, "complete": g.is_complete,
-                    "bonus_accrued": float(g.bonus_pool_accrued or 0),
-                    "bonus_paid": g.bonus_paid,
-                    "positions_count": len(positions),
-                })
-
-        # Summary
-        total_paid = sum(float(c.amount_usdt or 0) for c in comms if c.to_user_id is not None)
-        total_company = sum(float(c.amount_usdt or 0) for c in comms if c.to_user_id is None)
-        total_all = sum(float(c.amount_usdt or 0) for c in comms)
-        expected = len(results["purchases"]) * price
-
-        results["summary"] = {
-            "total_purchases": len(results["purchases"]),
-            "total_revenue": expected,
-            "paid_to_members": round(total_paid, 2),
-            "company_absorbed": round(total_company, 2),
-            "total_commissions": round(total_all, 2),
-            "expected_total": round(expected, 2),
-            "match": round(total_all, 2) == round(expected, 2),
-        }
-
-        return results
-
-    except Exception as e:
-        import traceback
-        db.rollback()
-        return JSONResponse({"error": str(e), "traceback": traceback.format_exc()}, status_code=500)
-@app.get("/admin/test-grid-cleanup")
-def admin_test_grid_cleanup(
-    secret: str,
-    db: Session = Depends(get_db)
-):
-    """Clean up ALL gridtest_* users and related data."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-
-    test_users = db.query(User).filter(User.username.like("gridtest_%")).all()
-    test_user_ids = [u.id for u in test_users]
-    if not test_user_ids:
-        return {"message": "No test users found"}
-
-    grids = db.query(Grid).filter(Grid.owner_id.in_(test_user_ids)).all()
-    grid_ids = [g.id for g in grids]
-    pos_del = db.query(GridPosition).filter(GridPosition.grid_id.in_(grid_ids)).delete(synchronize_session=False) if grid_ids else 0
-    pos_del2 = db.query(GridPosition).filter(GridPosition.member_id.in_(test_user_ids)).delete(synchronize_session=False)
-    comm_del = db.query(Commission).filter(
-        (Commission.from_user_id.in_(test_user_ids)) | (Commission.to_user_id.in_(test_user_ids))
-    ).delete(synchronize_session=False)
-    camp_del = db.query(VideoCampaign).filter(VideoCampaign.user_id.in_(test_user_ids)).delete(synchronize_session=False)
-    grid_del = db.query(Grid).filter(Grid.owner_id.in_(test_user_ids)).delete(synchronize_session=False)
-    user_del = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
-    db.commit()
-
-    return {"cleaned": True, "users": user_del, "grids": grid_del, "positions": pos_del + pos_del2,
-            "commissions": comm_del, "campaigns": camp_del}
 # ═══════════════════════════════════════════════════════════════════════════
 #  COURSE PASS-UP E2E TEST
 # ═══════════════════════════════════════════════════════════════════════════
 
-@app.get("/admin/test-course-passup-e2e")
-def admin_test_course_passup_e2e(
-    secret: str,
-    tier: int = 1,
-    db: Session = Depends(get_db)
-):
-    """
-    E2E Course Pass-Up Commission Test — verifies the infinite cascade logic.
-
-    Usage: /admin/test-course-passup-e2e?secret=$ADMIN_SECRET&tier=1
-
-    Builds a controlled 7-person chain with specific tier-ownership patterns
-    and runs 7 test scenarios covering direct sales, pass-up cascades, and
-    edge cases. Returns a structured report showing exactly where each
-    commission landed versus where it was expected to land.
-
-    Scenarios:
-     1. Direct sale (sale #1) — sponsor OWNS tier → sponsor earns
-     2. Direct sale (sale #3) — sponsor DOES NOT own tier → company absorbs (FOMO)
-     3. Pass-up sale (#2) — immediate pass-up sponsor OWNS tier → depth=1
-     4. Pass-up sale (#2) — pass-up sponsor doesn't own, but their pass-up does → depth=2
-     5. Pass-up sale (#2) — nobody in the chain owns the tier → company absorbs
-     6. Pass-up sale (#2) — chain terminates at admin → admin earns
-     7. Every test user's final balance is reconciled
-
-    Self-cleaning: users are prefixed `coursepuptest_` — purge with
-    /admin/test-course-passup-cleanup once you've reviewed the results.
-    """
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-
-    from app.course_engine import process_course_purchase, is_passup_sale
-    from app.database import Course, CoursePurchase, CourseCommission
-    import secrets as sec
-    from decimal import Decimal as _D
-
-    if tier not in (1, 2, 3):
-        return JSONResponse({"error": "Tier must be 1, 2, or 3"}, status_code=400)
-
-    # ── Find or create the course at this tier ──
-    course = db.query(Course).filter(Course.tier == tier, Course.is_active == True).first()
-    if not course:
-        return JSONResponse({
-            "error": f"No active course found at Tier {tier}. Seed test courses first via /admin/test-course-passup-seed.",
-        }, status_code=400)
-
-    course_price = float(course.price or 0)
-    if course_price <= 0:
-        return JSONResponse({"error": f"Course at Tier {tier} has invalid price"}, status_code=400)
-
-    report = {
-        "test": "course_passup_e2e",
-        "tier": tier,
-        "course_price": course_price,
-        "course_title": course.title,
-        "chain": [],
-        "scenarios": [],
-        "commissions": [],
-        "balances_before": {},
-        "balances_after": {},
-        "summary": {},
-    }
-
-    try:
-        run_id = sec.token_hex(3)
-
-        # ── Build a controlled 7-person chain ──
-        # Roles:
-        #   admin_test — acts as root admin (is_admin=True)
-        #   top_owner  — owns tier (qualified) — will be walked-to in scenario 4
-        #   mid_unqual — does NOT own tier (unqualified) — walk passes through
-        #   mid_qual   — owns tier (qualified) — catches pass-up in scenario 3
-        #   sponsor_a  — does NOT own tier (FOMO sponsor) — referrer in scenario 2
-        #   sponsor_b  — OWNS tier (qualified) — referrer in scenarios 1, 3, 4
-        #   no_own_chain — chain where NOBODY owns the tier (scenario 5)
-
-        def _mk_user(username, sponsor_id=None, pass_up_id=None, is_admin=False, owns_tier=False):
-            u = User(
-                username=f"coursepuptest_{username}_{run_id}",
-                email=f"coursepuptest_{username}_{run_id}@test.local",
-                password="test",
-                first_name=username.title(),
-                sponsor_id=sponsor_id,
-                pass_up_sponsor_id=pass_up_id,
-                is_active=True,
-                is_admin=is_admin,
-                membership_tier="partner",
-                balance=_D("0"),
-                total_earned=_D("0"),
-                course_earnings=_D("0"),
-            )
-            db.add(u)
-            db.flush()
-            if owns_tier:
-                # Create a purchase record so user_owns_tier() returns True
-                p = CoursePurchase(
-                    user_id=u.id,
-                    course_id=course.id,
-                    course_tier=tier,
-                    amount_paid=_D(str(course_price)),
-                    payment_method="test_seed",
-                    tx_ref=f"seed_{run_id}",
-                )
-                db.add(p)
-                db.flush()
-            return u
-
-        # Build the chain (sponsor_id not relevant to pass-up logic itself — only pass_up_sponsor_id is)
-        admin_test = _mk_user("admin", is_admin=True, owns_tier=False)       # admin bypasses tier check
-        top_owner  = _mk_user("top_owner", pass_up_id=admin_test.id, owns_tier=True)
-        mid_unqual = _mk_user("mid_unqual", pass_up_id=top_owner.id, owns_tier=False)
-        mid_qual   = _mk_user("mid_qual", pass_up_id=admin_test.id, owns_tier=True)
-        sponsor_a  = _mk_user("sponsor_a", pass_up_id=mid_qual.id, owns_tier=False)   # for scenario 2 FOMO
-        sponsor_b  = _mk_user("sponsor_b", pass_up_id=mid_qual.id, owns_tier=True)    # for scenarios 1, 3
-        sponsor_c  = _mk_user("sponsor_c", pass_up_id=mid_unqual.id, owns_tier=False) # for scenario 4 cascade
-        sponsor_d  = _mk_user("sponsor_d", pass_up_id=None, owns_tier=False)          # scenario 5 no chain
-        sponsor_e  = _mk_user("sponsor_e", pass_up_id=admin_test.id, owns_tier=False) # scenario 6 admin catches
-        db.commit()
-
-        all_test_users = [admin_test, top_owner, mid_unqual, mid_qual, sponsor_a, sponsor_b, sponsor_c, sponsor_d, sponsor_e]
-
-        for u in all_test_users:
-            db.refresh(u)
-            report["chain"].append({
-                "role": u.username.split("_")[1] if "_" in u.username else u.username,
-                "username": u.username,
-                "id": u.id,
-                "is_admin": u.is_admin,
-                "pass_up_sponsor_id": u.pass_up_sponsor_id,
-                "owns_tier": db.query(CoursePurchase).filter(
-                    CoursePurchase.user_id == u.id,
-                    CoursePurchase.course_tier == tier
-                ).count() > 0,
-            })
-            report["balances_before"][u.username] = float(u.balance or 0)
-
-        # ── Helper: force a sponsor's sale_count so next sale is at target # ──
-        def _prime_sponsor_sale_count(sponsor, desired_next_sale):
-            """Make sponsor's next sale be sale number `desired_next_sale`."""
-            sponsor.course_sale_count = desired_next_sale - 1
-
-        # ── Helper: make a buyer, set their sponsor, process purchase ──
-        def _run_scenario(name, sponsor, desired_sale_num, expected_outcome):
-            """Create a buyer, run the purchase, capture the commission row(s)."""
-            _prime_sponsor_sale_count(sponsor, desired_sale_num)
-            db.flush()
-
-            buyer = User(
-                username=f"coursepuptest_buyer_{sec.token_hex(2)}_{run_id}",
-                email=f"coursepuptest_buyer_{sec.token_hex(2)}_{run_id}@test.local",
-                password="test",
-                first_name="Buyer",
-                sponsor_id=sponsor.id,
-                is_active=True,
-                membership_tier="partner",
-                balance=_D(str(course_price + 10)),  # enough to cover wallet payment
-                total_earned=_D("0"),
-                course_earnings=_D("0"),
-            )
-            db.add(buyer)
-            db.flush()
-
-            result = process_course_purchase(
-                db=db, buyer_id=buyer.id, course_id=course.id,
-                payment_method="wallet", tx_ref=f"test_{run_id}_{name}",
-            )
-
-            # Find the commission row that was just written
-            comm = db.query(CourseCommission).filter(
-                CourseCommission.buyer_id == buyer.id
-            ).order_by(CourseCommission.id.desc()).first()
-
-            actual = {
-                "earner_id": comm.earner_id if comm else None,
-                "commission_type": comm.commission_type if comm else None,
-                "pass_up_depth": comm.pass_up_depth if comm else None,
-                "source_chain": comm.source_chain if comm else None,
-                "notes": comm.notes if comm else None,
-            }
-            if comm and comm.earner_id:
-                earner_user = db.query(User).filter(User.id == comm.earner_id).first()
-                actual["earner_username"] = earner_user.username if earner_user else None
-
-            # Compare against expected
-            match = True
-            mismatches = []
-            for k, v in expected_outcome.items():
-                if k in actual and actual[k] != v:
-                    match = False
-                    mismatches.append(f"{k}: expected={v}, got={actual[k]}")
-
-            report["scenarios"].append({
-                "scenario": name,
-                "sponsor": sponsor.username,
-                "sale_number": desired_sale_num,
-                "is_passup_sale": is_passup_sale(desired_sale_num),
-                "buyer": buyer.username,
-                "buyer_id": buyer.id,
-                "purchase_result": result,
-                "expected": expected_outcome,
-                "actual": actual,
-                "match": match,
-                "mismatches": mismatches,
-            })
-            return buyer
-
-        # ──────────────────────────────────────────────────────────────
-        # SCENARIO 1 — Direct sale (#1), sponsor OWNS tier → sponsor earns
-        # ──────────────────────────────────────────────────────────────
-        _run_scenario(
-            name="1_direct_sponsor_owns",
-            sponsor=sponsor_b,  # sponsor_b owns tier
-            desired_sale_num=1,
-            expected_outcome={
-                "commission_type": "direct_sale",
-                "pass_up_depth": 0,
-                "earner_username": sponsor_b.username,
-            },
-        )
-
-        # ──────────────────────────────────────────────────────────────
-        # SCENARIO 2 — Direct sale (#3), sponsor DOES NOT own → company absorbs
-        # ──────────────────────────────────────────────────────────────
-        _run_scenario(
-            name="2_direct_sponsor_fomo",
-            sponsor=sponsor_a,  # sponsor_a does NOT own tier
-            desired_sale_num=3,
-            expected_outcome={
-                "commission_type": "platform",
-                "pass_up_depth": 0,
-            },
-        )
-
-        # ──────────────────────────────────────────────────────────────
-        # SCENARIO 3 — Pass-up (#2), immediate pass-up sponsor OWNS → depth=1
-        # sponsor_b.pass_up_sponsor = mid_qual (owns tier) → depth 1
-        # ──────────────────────────────────────────────────────────────
-        _run_scenario(
-            name="3_passup_depth_1",
-            sponsor=sponsor_b,
-            desired_sale_num=2,
-            expected_outcome={
-                "commission_type": "pass_up",
-                "pass_up_depth": 1,
-                "source_chain": 1,  # sale #2 → Income Chain 1
-                "earner_username": mid_qual.username,
-            },
-        )
-
-        # ──────────────────────────────────────────────────────────────
-        # SCENARIO 4 — Pass-up (#2), 1st level unqualified, 2nd owns → depth=2
-        # sponsor_c.pass_up_sponsor = mid_unqual (no own)
-        # mid_unqual.pass_up_sponsor = top_owner (owns tier) → depth 2
-        # ──────────────────────────────────────────────────────────────
-        _run_scenario(
-            name="4_passup_cascade_depth_2",
-            sponsor=sponsor_c,
-            desired_sale_num=2,
-            expected_outcome={
-                "commission_type": "pass_up",
-                "pass_up_depth": 2,
-                "source_chain": 1,
-                "earner_username": top_owner.username,
-            },
-        )
-
-        # ──────────────────────────────────────────────────────────────
-        # SCENARIO 5 — Pass-up (#2), no pass-up sponsor set → company absorbs
-        # ──────────────────────────────────────────────────────────────
-        _run_scenario(
-            name="5_passup_no_chain",
-            sponsor=sponsor_d,
-            desired_sale_num=2,
-            expected_outcome={
-                "commission_type": "platform",
-                "pass_up_depth": 0,
-                "source_chain": 1,  # still tagged — the chain just found no recipient
-            },
-        )
-
-        # ──────────────────────────────────────────────────────────────
-        # SCENARIO 6 — Pass-up (#2), chain ends at admin → admin earns (bypass tier check)
-        # sponsor_e.pass_up_sponsor = admin_test
-        # ──────────────────────────────────────────────────────────────
-        _run_scenario(
-            name="6_passup_admin_catches",
-            sponsor=sponsor_e,
-            desired_sale_num=2,
-            expected_outcome={
-                "commission_type": "pass_up",
-                "pass_up_depth": 1,
-                "source_chain": 1,
-                "earner_username": admin_test.username,
-            },
-        )
-
-        # ──────────────────────────────────────────────────────────────
-        # SCENARIO 7 — Pass-up (#4), validate even positions also pass up (Chain 2)
-        # ──────────────────────────────────────────────────────────────
-        _run_scenario(
-            name="7_passup_sale_4",
-            sponsor=sponsor_b,
-            desired_sale_num=4,
-            expected_outcome={
-                "commission_type": "pass_up",
-                "pass_up_depth": 1,
-                "source_chain": 2,  # sale #4 → Income Chain 2
-                "earner_username": mid_qual.username,
-            },
-        )
-
-        db.commit()
-
-        # ── Reconcile final balances ──
-        for u in all_test_users:
-            db.refresh(u)
-            report["balances_after"][u.username] = {
-                "balance": float(u.balance or 0),
-                "course_earnings": float(u.course_earnings or 0),
-                "delta": round(float(u.balance or 0) - report["balances_before"][u.username], 2),
-            }
-
-        # ── Collect all commissions generated in this run ──
-        all_comms = db.query(CourseCommission).filter(
-            CourseCommission.notes.like(f"%{run_id}%")
-        ).order_by(CourseCommission.id).all()
-        # If notes don't include run_id, fall back to collecting by purchase ref
-        if not all_comms:
-            test_purchases = db.query(CoursePurchase).filter(
-                CoursePurchase.tx_ref.like(f"test_{run_id}_%")
-            ).all()
-            test_purchase_ids = [p.id for p in test_purchases]
-            all_comms = db.query(CourseCommission).filter(
-                CourseCommission.purchase_id.in_(test_purchase_ids)
-            ).order_by(CourseCommission.id).all() if test_purchase_ids else []
-
-        for c in all_comms:
-            earner = db.query(User).filter(User.id == c.earner_id).first() if c.earner_id else None
-            buyer = db.query(User).filter(User.id == c.buyer_id).first() if c.buyer_id else None
-            report["commissions"].append({
-                "type": c.commission_type,
-                "depth": c.pass_up_depth,
-                "amount": float(c.amount or 0),
-                "buyer": buyer.username if buyer else None,
-                "earner": earner.username if earner else "COMPANY",
-                "notes": c.notes,
-            })
-
-        # ── Summary: scenario pass/fail + totals ──
-        passed = sum(1 for s in report["scenarios"] if s["match"])
-        failed = sum(1 for s in report["scenarios"] if not s["match"])
-        total_commissions = sum(float(c.amount or 0) for c in all_comms)
-        expected_total = len(report["scenarios"]) * course_price
-
-        report["summary"] = {
-            "scenarios_run": len(report["scenarios"]),
-            "scenarios_passed": passed,
-            "scenarios_failed": failed,
-            "all_pass": failed == 0,
-            "total_commission_value": round(total_commissions, 2),
-            "expected_commission_value": round(expected_total, 2),
-            "maths_balances": round(total_commissions, 2) == round(expected_total, 2),
-            "run_id": run_id,
-            "cleanup_url": f"/admin/test-course-passup-cleanup?secret=$ADMIN_SECRET",
-        }
-
-        return report
-
-    except Exception as e:
-        import traceback
-        db.rollback()
-        return JSONResponse({
-            "error": str(e),
-            "traceback": traceback.format_exc(),
-            "partial_report": report,
-        }, status_code=500)
-@app.get("/admin/test-course-passup-seed")
-def admin_test_course_passup_seed(
-    secret: str,
-    db: Session = Depends(get_db)
-):
-    """Seed three skeleton TEST courses at Tier 1/2/3 so the E2E test can run.
-    Safe to run multiple times — skips tiers that already have an active course
-    with the 'TEST_COURSE_' title prefix.
-
-    Delete them via /admin/test-course-passup-cleanup once testing is done.
-    """
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-
-    from app.database import Course
-    from decimal import Decimal as _D
-
-    tier_configs = [
-        {"tier": 1, "price": 100, "title": "TEST_COURSE_Tier_1 (DELETE BEFORE BETA)"},
-        {"tier": 2, "price": 300, "title": "TEST_COURSE_Tier_2 (DELETE BEFORE BETA)"},
-        {"tier": 3, "price": 500, "title": "TEST_COURSE_Tier_3 (DELETE BEFORE BETA)"},
-    ]
-
-    created = []
-    skipped = []
-
-    for cfg in tier_configs:
-        existing = db.query(Course).filter(
-            Course.title == cfg["title"],
-            Course.is_active == True,
-        ).first()
-        if existing:
-            skipped.append({"tier": cfg["tier"], "course_id": existing.id, "reason": "already seeded"})
-            continue
-
-        course = Course(
-            title=cfg["title"],
-            slug=f"test-course-tier-{cfg['tier']}",
-            description=f"Skeleton test course for pass-up E2E verification only. Do not publish.",
-            price=_D(str(cfg["price"])),
-            tier=cfg["tier"],
-            is_active=True,
-            sort_order=999,
-        )
-        db.add(course)
-        db.flush()
-        created.append({"tier": cfg["tier"], "course_id": course.id, "price": cfg["price"], "title": cfg["title"]})
-
-    db.commit()
-    return {
-        "seeded": True,
-        "created": created,
-        "skipped": skipped,
-        "next_step": "Now run /admin/test-course-passup-e2e?secret=$ADMIN_SECRET&tier=1",
-    }
-@app.get("/admin/test-course-passup-cleanup")
-def admin_test_course_passup_cleanup(
-    secret: str,
-    db: Session = Depends(get_db)
-):
-    """Clean up ALL coursepuptest_* users, related course records, AND
-    any TEST_COURSE_* seed courses. Also reverses any balance/course_earnings
-    that accidentally landed on REAL users (e.g. your master admin receiving
-    platform commissions during a test run). Safe to run multiple times."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
-
-    from app.database import CoursePurchase, CourseCommission, Course
-    from decimal import Decimal as _D
-
-    test_users = db.query(User).filter(User.username.like("coursepuptest_%")).all()
-    test_user_ids_set = {u.id for u in test_users}
-    test_user_ids = list(test_user_ids_set)
-
-    # Identify the set of ALL commissions tied to this test run — either because
-    # the buyer was a test user OR because the purchase was of a TEST_COURSE_.
-    # (A real admin may have earned commissions from these test purchases.)
-    test_courses = db.query(Course).filter(Course.title.like("TEST_COURSE_%")).all()
-    test_course_ids = [c.id for c in test_courses]
-
-    # Gather every purchase that is part of the test set
-    all_test_purchase_ids = set()
-    if test_user_ids:
-        for p in db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).all():
-            all_test_purchase_ids.add(p.id)
-    if test_course_ids:
-        for p in db.query(CoursePurchase).filter(CoursePurchase.course_id.in_(test_course_ids)).all():
-            all_test_purchase_ids.add(p.id)
-
-    # Gather all commissions tied to those purchases
-    test_commissions = []
-    if all_test_purchase_ids:
-        test_commissions = db.query(CourseCommission).filter(
-            CourseCommission.purchase_id.in_(list(all_test_purchase_ids))
-        ).all()
-    # Also catch commissions where earner is a test user but somehow unlinked
-    if test_user_ids:
-        extras = db.query(CourseCommission).filter(
-            (CourseCommission.earner_id.in_(test_user_ids)) |
-            (CourseCommission.buyer_id.in_(test_user_ids))
-        ).all()
-        existing_ids = {c.id for c in test_commissions}
-        for c in extras:
-            if c.id not in existing_ids:
-                test_commissions.append(c)
-
-    # ── REVERSE balance/earnings on any REAL user who earned from test commissions ──
-    # A "real user" is any earner whose id is NOT in the test_user_ids set.
-    # This typically catches the master admin who received platform/no-chain commissions.
-    real_user_reversals = {}  # user_id -> total amount to reverse
-    for c in test_commissions:
-        if c.earner_id and c.earner_id not in test_user_ids_set:
-            amt = _D(str(c.amount or 0))
-            real_user_reversals[c.earner_id] = real_user_reversals.get(c.earner_id, _D("0")) + amt
-
-    reversals_applied = []
-    for uid, amt in real_user_reversals.items():
-        real_user = db.query(User).filter(User.id == uid).first()
-        if not real_user:
-            continue
-        # Clamp at 0 — never let reversal push a balance negative
-        current_balance = _D(str(real_user.balance or 0))
-        current_course_earnings = _D(str(real_user.course_earnings or 0))
-        current_total_earned = _D(str(real_user.total_earned or 0))
-
-        applied_balance = min(amt, current_balance)
-        applied_course = min(amt, current_course_earnings)
-        applied_total = min(amt, current_total_earned)
-
-        real_user.balance = current_balance - applied_balance
-        real_user.course_earnings = current_course_earnings - applied_course
-        real_user.total_earned = current_total_earned - applied_total
-
-        reversals_applied.append({
-            "user_id": uid,
-            "username": real_user.username,
-            "amount_reversed": float(amt),
-            "balance_reversed": float(applied_balance),
-            "course_earnings_reversed": float(applied_course),
-            "total_earned_reversed": float(applied_total),
-        })
-
-    # ── Now delete the test data ──
-    comm_del = 0
-    pur_del = 0
-    user_del = 0
-
-    if all_test_purchase_ids or test_user_ids:
-        # Delete all identified test commissions
-        if test_commissions:
-            test_comm_ids = [c.id for c in test_commissions]
-            comm_del = db.query(CourseCommission).filter(
-                CourseCommission.id.in_(test_comm_ids)
-            ).delete(synchronize_session=False)
-
-        # Delete all test purchases
-        if all_test_purchase_ids:
-            pur_del = db.query(CoursePurchase).filter(
-                CoursePurchase.id.in_(list(all_test_purchase_ids))
-            ).delete(synchronize_session=False)
-
-        # Delete test users
-        if test_user_ids:
-            user_del = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
-
-    # Delete the TEST_COURSE_* seed courses themselves
-    course_del = 0
-    if test_course_ids:
-        course_del = db.query(Course).filter(Course.id.in_(test_course_ids)).delete(synchronize_session=False)
-
-    db.commit()
-
-    if not test_user_ids and not test_course_ids and not reversals_applied:
-        return {"message": "No test data found to clean"}
-
-    return {
-        "cleaned": True,
-        "users": user_del,
-        "purchases": pur_del,
-        "commissions": comm_del,
-        "test_courses": course_del,
-        "reversals_applied": reversals_applied,
-    }
 @app.get("/admin/grid-audit")
 def admin_grid_audit(
-    secret: str,
+    user: User = Depends(get_current_user),
     owner_username: str = "master",
     tier: int = 1,
     db: Session = Depends(get_db)
@@ -34013,8 +32674,7 @@ def admin_grid_audit(
     
     Usage: /admin/grid-audit?secret=$ADMIN_SECRET&owner_username=master&tier=1
     """
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _require_admin(user)
 
     owner = db.query(User).filter(User.username == owner_username).first()
     if not owner:
@@ -36590,10 +35250,9 @@ async def cron_poll_pending_videos(request: Request, secret: str = "", db: Sessi
         "errors": errors,
     })
 @app.get("/admin/test-autoresponder")
-def admin_test_autoresponder(secret: str = "", db: Session = Depends(get_db)):
+def admin_test_autoresponder(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Debug: show autoresponder status — sequences, nurturing leads, send log."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid"}, status_code=403)
+    _require_admin(user)
     from .database import MemberLead, EmailSequence, EmailSendLog
     import json as _jt
 
@@ -49277,15 +47936,14 @@ def admin_diagnostic_cleanup_test_withdrawals(
 @app.get("/admin/diagnostic/inspect-ledgers/{user_id}")
 def admin_diagnostic_inspect_ledgers(
     user_id: int,
-    secret: str = "",
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Read-only ledger inspector. Dumps Withdrawal + Commission rows for a
     user so we can see exactly what the ledgers contain. No mutations. Used
     to diagnose when computed totals look wrong — e.g. 'earned X but withdrew
     more than X'."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    _require_admin(user)
 
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
