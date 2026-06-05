@@ -16700,12 +16700,51 @@ async def admin_api_adjust_balance(
     # the security-watch Check 4 still backstops any path that bypasses it.
     import pyotp
     code = str(body.get("totp_code") or body.get("code") or "").strip()
+    _attempt_amt = body.get("amount", 0)
+    _ip = _client_ip(request)
+
+    def _blocked(reason):
+        # Tripwire. To reach this route the caller already holds an admin
+        # session — and admin LOGIN itself requires 2FA — so a session that
+        # can't produce a valid code is a stolen-session signal. A blocked
+        # money-adjustment attempt is therefore a louder intrusion alarm than
+        # a successful (authorised) one. Log it and fire an IMMEDIATE alert,
+        # throttled to once / 5 min so hammering can't storm the inbox (the
+        # first attempt still alerts instantly). Returns a soft error (200)
+        # so a legitimate fat-fingered code shows cleanly and does NOT ban the
+        # admin's own IP via the probe-throttle.
+        try:
+            logger.warning(
+                f"[adjust-balance BLOCKED] {reason} — admin_session user_id "
+                f"{getattr(user, 'id', None)} (@{getattr(user, 'username', '?')}) "
+                f"target user_id {user_id} amount {_attempt_amt} ip {_ip}")
+        except Exception:
+            pass
+        try:
+            import time as _t
+            _last = float(_secwatch_get(db, "secwatch_last_blocked_adj_ts", "0") or "0")
+            _now = _t.time()
+            if _now - _last >= 300:
+                _secwatch_send_alert([
+                    f"<strong>BALANCE-ADJUSTMENT ATTEMPT BLOCKED</strong> \u2014 an "
+                    f"admin session (user_id {getattr(user, 'id', None)}, "
+                    f"@{getattr(user, 'username', '?')}) tried to adjust user_id "
+                    f"{user_id} by {_attempt_amt} and was refused ({reason}). "
+                    f"Source IP: {_ip}. If this was not you, your admin session "
+                    f"may be compromised \u2014 set MAINTENANCE_MODE=on, confirm "
+                    f"withdrawals are frozen, and review /admin/security-audit."])
+                _secwatch_set(db, "secwatch_last_blocked_adj_ts", str(_now))
+                db.commit()
+        except Exception:
+            pass
+        return {"error": reason}
+
     if not getattr(user, "totp_secret", None):
-        return {"error": "Admin 2FA is not enrolled — cannot adjust balance."}
+        return _blocked("Admin 2FA is not enrolled — cannot adjust balance.")
     if not code:
-        return {"error": "Authenticator code required."}
+        return _blocked("Authenticator code required.")
     if not pyotp.TOTP(user.totp_secret).verify(code, valid_window=1):
-        return {"error": "Invalid authenticator code."}
+        return _blocked("Invalid authenticator code.")
     amount = float(body.get("amount", 0))
     reason = body.get("reason", "Admin adjustment")
     if amount == 0:
@@ -28597,15 +28636,29 @@ def run_security_watch(db, dry=False):
         try:
             d_bal      = cur_sum_balance - float(base_balance_raw)
             d_earned   = cur_sum_earned - float(base_earned_raw)
-            divergence = d_bal - d_earned
+            # Balance rise explained by recorded admin-adjustment CREDITS since
+            # the last poll (same window Check 2 uses: id > last_adj). Netting
+            # these out means a legitimate, 2FA-gated admin adjustment is
+            # reported once (by Check 2) instead of double-alarming here.
+            # Anything NOT explained by an admin-adjustment credit — balance
+            # that appeared through some other path — still trips this alarm.
+            # Fails safe: a credit lacking the 'Credit' note prefix just
+            # under-nets, biasing toward alarming rather than missing.
+            admin_credit = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+                Commission.commission_type == "admin_adjustment",
+                Commission.id > last_adj,
+                Commission.notes.like("Credit%"),
+            ).scalar() or 0)
+            divergence = (d_bal - d_earned) - admin_credit
             if divergence > _SECWATCH_BALANCE_DIVERGENCE_USDT:
                 events.append(
-                    f"<strong>SYNTHETIC-BALANCE SIGNAL</strong> \u2014 total member "
-                    f"balance rose ${d_bal:,.2f} but lifetime earnings only rose "
-                    f"${d_earned:,.2f} (unexplained +${divergence:,.2f}). Balance "
-                    f"increased without a matching earnings record. If this was not "
-                    f"an admin balance adjustment you made, treat it as a "
-                    f"synthetic-balance injection and lock down.")
+                    f"<strong>SYNTHETIC-BALANCE SIGNAL</strong> \u2014 member balance "
+                    f"rose ${d_bal:,.2f}, earnings rose ${d_earned:,.2f}, and only "
+                    f"${admin_credit:,.2f} of that rise is a recorded admin "
+                    f"adjustment \u2014 leaving ${divergence:,.2f} unexplained. "
+                    f"Balance appeared with no earnings and no admin-adjustment "
+                    f"record behind it; treat as a synthetic-balance injection "
+                    f"through a non-standard path and lock down.")
         except (ValueError, TypeError):
             bal_first = True  # corrupt marker — re-baseline this cycle
 
