@@ -8,6 +8,46 @@
 
 ---
 
+## Status as of 2026-06-05 (Friday) — Session 2: SYNTHETIC-BALANCE SURFACE CLOSED + SECRET-IN-URL CLASS ELIMINATED
+
+Continuation of the same day. Platform still **OFFLINE** + withdrawals **FROZEN**. This session closed the breach class end-to-end and built the detection layer that didn't previously exist. HEAD = `3acdca1a0`.
+
+### What the 3-Jun breach actually was
+An application/API attack, **not** a code/repo breach: public API docs exposed the endpoint map; ~40 admin GETs were gated only by a guessable hardcoded secret; attacker self-promoted to admin, minted synthetic balance, and the app auto-paid the treasury. Member ledger intact. Attacker accounts **670/673/674 = evidence, do not delete.**
+
+### Commits (12, in order)
+- `871771f7d` Removed secret-in-URL balance-mint route (`GET /admin/adjust-balance` → 410).
+- `b4de3f787` Detection: security-watch **Check 4** (synthetic-balance divergence) + **Check 5** (treasury-drain); `GET /admin/api/balance-reconciliation` review tool; fixed the one credit path (team-gift) that didn't bump `total_earned`.
+- `5f24904b7` `/cron/security-watch` accepts admin session (phone-tappable, no secret).
+- **`c357c49bd` Root cause:** `AppConfig` never imported at module scope → `_secwatch_get/_set` threw `NameError` every run. **The watchdog had never run since it was written.** Fixed.
+- `f5bbcb0d5` First-run baseline arms Check 4/5 in one pass.
+- `a12e1b829` **2FA on admin balance adjustments** (`POST /admin/api/user/{id}/adjust-balance` verifies TOTP). Frontend code field added + bundle rebuilt.
+- `5394a5c7d` **In-process security watchdog:** 60s daemon loop runs `run_security_watch` automatically (advisory lock `1885347292`, can't-die loop). Kill switch `SECWATCH_INPROC_ENABLED` (default true).
+- `c558ef143` Blocked-attempt tripwire (failed/missing 2FA on balance-adjust → instant alert, throttled 1/5min) + collapsed legit-adjustment double-alert.
+- `dadfa8687` Converted 10 high-risk admin routes from `?secret=` → session auth.
+- `3acdca1a0` Deleted **18 dead dev/test endpoints (~1,365 lines)** + converted 13 read-only diagnostics to session auth + `/admin/finances` session-only. **Secret-gated admin routes: 43 → ~0.**
+
+### Verified
+Email alert channel (live); reconciliation report (flagged user 334/test30 with $4 unexplained excess — untraced); synthetic-balance alarm Check 4 (exact-math fire on +$5); admin-adjustment alarm Check 2; 2FA on balance adjust (−5 restore required code). **Still to confirm:** in-process loop ticking post-deploy (+$5, don't tap any link, expect alert email within ~60s, then −5).
+
+### Key rules established
+- `User.balance` is a **stored mutable column**, not ledger-computed; withdrawal eligibility reads it directly.
+- **Invariant:** every legit credit to `balance` also bumps `total_earned` → `balance <= total_earned` for legit accounts. Check 4 + reconciliation depend on this. **Any new credit path must bump `total_earned` in lockstep.**
+- New AppConfig markers: `secwatch_sum_balance`, `secwatch_sum_earned`, `secwatch_treasury_usdt`, `secwatch_paid_wd_total`, `secwatch_last_blocked_adj_ts`. New env flag: `SECWATCH_INPROC_ENABLED`.
+
+### Next (ranked)
+1. **Cold-storage sweep + thin hot float + rotate the hot wallet** (Steve, hardware wallet) — the #1 residual: the hot-wallet key lives on the server, which no app lock can protect. Update BSC scanner watched address + member deposit address in the same deploy.
+2. Confirm in-process watchdog ticking (test above).
+3. Funded-reopen tests: withdrawal approval lock end-to-end + treasury-drain alarm positive test.
+4. **Rotate the GitHub PAT** (still plaintext, full read+write — a leaked push token is a treasury risk) + 2FA on GitHub/Railway accounts.
+5. Trace user 334 (test30) $4 excess.
+6. Run `scripts/security_check.py` as independent validation.
+
+### Watch
+In-process watchdog advisory lock `1885347292` (heartbeat every 30 ticks); Check 5 blind for a cycle if `treasury_usdt` reads null (BSC RPC fail); tripwire throttles 1 email/5min; stale `_DEV_ONLY_PATHS` entries for deleted routes left in place (harmless).
+
+---
+
 ## Status as of 2026-06-05 (Friday) — TREASURY EGRESS HARD-LOCK + `/cron` LOCK ACTIVATED
 
 Platform still **OFFLINE** (`MAINTENANCE_MODE` on) and **withdrawals FROZEN** (`WITHDRAWALS_ENABLED` unset). This session: activated the parked `/cron` Cloudflare-only lock, shipped a hard-lock on treasury withdrawals, and ran a treasury-focused vulnerability assessment. HEAD = `4e99c92` (+ this docs commit).
