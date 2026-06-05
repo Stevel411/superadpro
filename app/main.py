@@ -681,6 +681,54 @@ async def startup_event():
         scanner_thread.start()
         print(f"✅ In-process BSC scanner scheduled (interval {inproc_interval}s, lock_id {BSC_SCAN_LOCK_ID})")
 
+    # ── In-process security watchdog ──────────────────────────────────
+    # Runs run_security_watch every 60s inside the always-on web process,
+    # mirroring the BSC scanner (daemon thread + Postgres advisory lock for
+    # multi-replica safety). THIS is what arms the synthetic-balance /
+    # treasury-drain / admin-event alarms continuously — without it they
+    # only fire on a manual /cron/security-watch hit. The /cron endpoint
+    # stays as a manual backup. Kill switch: SECWATCH_INPROC_ENABLED=false.
+    # The loop is wrapped so a single bad tick can never kill the watchdog.
+    if os.environ.get("SECWATCH_INPROC_ENABLED", "true").lower() == "true":
+        def _security_watch_loop():
+            import time as _time
+            from .database import SessionLocal
+            from sqlalchemy import text as _text
+            _time.sleep(45)  # let startup settle; stagger vs the BSC loop
+            print("✅ In-process security watchdog started (interval 60s)", flush=True)
+            SECWATCH_LOCK_ID = 1885347292  # unique 32-bit constant for this loop
+            wtick = 0
+            while True:
+                wtick += 1
+                try:
+                    db = SessionLocal()
+                    try:
+                        got = db.execute(
+                            _text("SELECT pg_try_advisory_lock(:k)"),
+                            {"k": SECWATCH_LOCK_ID}).scalar()
+                        if got:
+                            try:
+                                res = run_security_watch(db)
+                                if isinstance(res, dict) and res.get("events"):
+                                    print(f"[secwatch tick {wtick}] {res.get('events')} "
+                                          f"event(s) alerted={res.get('alerted')}", flush=True)
+                                elif wtick % 30 == 0:
+                                    print(f"[secwatch tick {wtick}] ok (heartbeat)", flush=True)
+                            finally:
+                                db.execute(_text("SELECT pg_advisory_unlock(:k)"),
+                                           {"k": SECWATCH_LOCK_ID})
+                                db.commit()
+                    finally:
+                        db.close()
+                except Exception as e:
+                    import traceback as _tb
+                    print(f"[secwatch tick {wtick}] EXCEPTION: {e}\n{_tb.format_exc()}", flush=True)
+                _time.sleep(60)
+
+        secwatch_thread = threading.Thread(target=_security_watch_loop, daemon=True, name="security-watch")
+        secwatch_thread.start()
+        print("✅ In-process security watchdog scheduled (interval 60s, lock_id 1885347292)")
+
 templates = Jinja2Templates(directory="templates")
 # Make Decimal values render cleanly in templates
 templates.env.filters["money"] = lambda v: f"{float(v or 0):.2f}"
