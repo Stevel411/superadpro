@@ -28391,6 +28391,10 @@ def cron_process_renewals_get(request: Request, secret: str = "", db: Session = 
 # adjustments, and new withdrawals. First run silently baselines so there
 # is no alert storm on deploy. See SECURITY.md.
 _SECWATCH_RECIPIENT = "stevelawsonmarketing@gmail.com"
+# Smoke-alarm thresholds (USDT). Tuned to ignore cent-level rounding while
+# catching the kind of injection/drain that could move real money.
+_SECWATCH_BALANCE_DIVERGENCE_USDT = 1.00   # SUM(balance) rising faster than SUM(total_earned)
+_SECWATCH_TREASURY_DROP_USDT      = 1.00   # treasury USDT leaving with no 'paid' withdrawal behind it
 
 def _secwatch_get(db, key, default=""):
     row = db.query(AppConfig).filter(AppConfig.key == key).first()
@@ -28494,9 +28498,81 @@ def run_security_watch(db, dry=False):
                           f"{w.user_id}, {w.amount_usdt} USDT \u2192 {w.wallet_address} "
                           f"[{w.network or '?'}/{w.status}].")
 
+    # 4) Synthetic-balance signature (aggregate, ledger-invariant).
+    # Every legitimate credit to user.balance also bumps total_earned by the
+    # same amount (commissions, course payouts, sponsor shares, P2P-in).
+    # Withdrawals/spends lower balance only; P2P nets to zero across its two
+    # legs. So SUM(balance) can never rise faster than SUM(total_earned) for
+    # legitimate activity. A positive divergence = balance appeared without a
+    # matching earnings record = the synthetic-balance signature (3-Jun breach
+    # shape), independent of which write path injected it. A legitimate admin
+    # balance adjustment credits balance without total_earned and will also
+    # surface here — it is itemised in Check 2 of the same alert.
+    cur_sum_balance = float(db.query(func.coalesce(func.sum(User.balance), 0)).scalar() or 0)
+    cur_sum_earned  = float(db.query(func.coalesce(func.sum(User.total_earned), 0)).scalar() or 0)
+    base_balance_raw = _secwatch_get(db, "secwatch_sum_balance", "")
+    base_earned_raw  = _secwatch_get(db, "secwatch_sum_earned", "")
+    bal_first = (base_balance_raw == "" or base_earned_raw == "")
+    if not bal_first:
+        try:
+            d_bal      = cur_sum_balance - float(base_balance_raw)
+            d_earned   = cur_sum_earned - float(base_earned_raw)
+            divergence = d_bal - d_earned
+            if divergence > _SECWATCH_BALANCE_DIVERGENCE_USDT:
+                events.append(
+                    f"<strong>SYNTHETIC-BALANCE SIGNAL</strong> \u2014 total member "
+                    f"balance rose ${d_bal:,.2f} but lifetime earnings only rose "
+                    f"${d_earned:,.2f} (unexplained +${divergence:,.2f}). Balance "
+                    f"increased without a matching earnings record. If this was not "
+                    f"an admin balance adjustment you made, treat it as a "
+                    f"synthetic-balance injection and lock down.")
+        except (ValueError, TypeError):
+            bal_first = True  # corrupt marker — re-baseline this cycle
+
+    # 5) Treasury USDT drain (BSC live rail). Funds leaving the treasury with
+    # no 'paid' withdrawal to account for them = a direct on-chain drain, the
+    # one egress no app lock can stop. Best-effort on-chain read; a failed RPC
+    # read skips this cycle rather than false-alarming or wiping the baseline.
+    try:
+        from .walletconnect_payments import health_check as _bsc_health
+        cur_treasury = _bsc_health().get("treasury_usdt")
+    except Exception as _te:
+        cur_treasury = None
+        try:
+            logging.error(f"[secwatch] treasury read failed: {_te}")
+        except Exception:
+            pass
+    cur_paid_wd_total = float(
+        db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0))
+          .filter(Withdrawal.status == "paid").scalar() or 0)
+    treasury_first = True
+    if cur_treasury is not None:
+        base_treasury_raw = _secwatch_get(db, "secwatch_treasury_usdt", "")
+        base_paid_wd_raw  = _secwatch_get(db, "secwatch_paid_wd_total", "")
+        treasury_first = (base_treasury_raw == "" or base_paid_wd_raw == "")
+        if not treasury_first:
+            try:
+                drop        = float(base_treasury_raw) - float(cur_treasury)
+                newly_paid  = cur_paid_wd_total - float(base_paid_wd_raw)
+                unexplained = drop - newly_paid
+                if unexplained > _SECWATCH_TREASURY_DROP_USDT:
+                    events.append(
+                        f"<strong>TREASURY DRAIN SIGNAL</strong> \u2014 BSC treasury "
+                        f"USDT fell ${drop:,.2f}; approved/paid withdrawals only "
+                        f"account for ${newly_paid:,.2f}; ${unexplained:,.2f} left "
+                        f"the treasury with no withdrawal record behind it. Possible "
+                        f"direct on-chain drain \u2014 lock down and check the "
+                        f"treasury key.")
+            except (ValueError, TypeError):
+                treasury_first = True  # corrupt marker — re-baseline this cycle
+
     if dry:
         return {"status": "dry_run", "events": len(events), "detail": events,
-                "admins": sorted(cur_admin_ids)}
+                "admins": sorted(cur_admin_ids),
+                "sum_balance": round(cur_sum_balance, 2),
+                "sum_earned": round(cur_sum_earned, 2),
+                "treasury_usdt": cur_treasury,
+                "paid_withdrawal_total": round(cur_paid_wd_total, 2)}
 
     sent = _secwatch_send_alert(events) if events else True
     # Advance markers only if there was nothing to alert, or the alert sent.
@@ -28508,6 +28584,15 @@ def run_security_watch(db, dry=False):
         if new_admins:
             _secwatch_set(db, "secwatch_known_admin_ids",
                           ",".join(str(i) for i in sorted(cur_admin_ids)))
+        # Advance Check 4/5 baselines. On the first cycle (markers absent)
+        # this silently establishes the baseline so there is no alarm storm.
+        _secwatch_set(db, "secwatch_sum_balance", round(cur_sum_balance, 2))
+        _secwatch_set(db, "secwatch_sum_earned", round(cur_sum_earned, 2))
+        if cur_treasury is not None:
+            # Only move the treasury baseline when the on-chain read succeeded,
+            # so a transient RPC failure can't erase the reference point.
+            _secwatch_set(db, "secwatch_treasury_usdt", round(float(cur_treasury), 2))
+            _secwatch_set(db, "secwatch_paid_wd_total", round(cur_paid_wd_total, 2))
         db.commit()
 
     return {"status": "checked", "events": len(events),
@@ -28533,6 +28618,80 @@ async def cron_security_watch(secret: str = "", test: int = 0, dry: int = 0,
             "alert channel. If you received this email, alerting works."])
         return {"status": "test_sent", "email_ok": ok, "recipient": _SECWATCH_RECIPIENT}
     return run_security_watch(db, dry=bool(dry))
+
+
+@app.get("/admin/api/balance-reconciliation")
+def admin_balance_reconciliation(
+    request: Request,
+    limit: int = 50,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Read-only integrity review: accounts whose wallet balance exceeds their
+    lifetime earnings.
+
+    INVARIANT: every legitimate credit to user.balance also bumps
+    total_earned by the same amount (commissions, course payouts, sponsor
+    shares, P2P-in). Withdrawals and spends only lower balance. So for any
+    legitimate account, balance <= total_earned. A row where
+    balance > total_earned means balance was credited without an earnings
+    record — either a legitimate admin balance adjustment (shown per-row via
+    its admin_adjustment commission total) or a synthetic-balance injection.
+
+    Session-authenticated admin; GET so it's reachable from a phone URL bar.
+    Reads only — never writes. Companion to the security-watch Check 4
+    aggregate alarm; this is the per-account drill-down for review.
+    """
+    _require_admin(user)
+    from sqlalchemy import func
+
+    sum_balance = float(db.query(func.coalesce(func.sum(User.balance), 0)).scalar() or 0)
+    sum_earned  = float(db.query(func.coalesce(func.sum(User.total_earned), 0)).scalar() or 0)
+
+    tol = 0.01
+    rows = (db.query(User)
+              .filter(func.coalesce(User.balance, 0)
+                      > func.coalesce(User.total_earned, 0) + tol)
+              .all())
+
+    flagged = []
+    for u in rows:
+        bal = float(u.balance or 0)
+        earned = float(u.total_earned or 0)
+        excess = bal - earned
+        adj_total = float(
+            db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
+              .filter(Commission.to_user_id == u.id,
+                      Commission.commission_type == "admin_adjustment",
+                      Commission.status == "paid").scalar() or 0)
+        flagged.append({
+            "user_id": u.id,
+            "username": u.username,
+            "balance": round(bal, 2),
+            "total_earned": round(earned, 2),
+            "excess": round(excess, 2),
+            "admin_adjustment_total": round(adj_total, 2),
+            "explained_by_admin_adj": (adj_total + tol) >= excess,
+        })
+    flagged.sort(key=lambda r: r["excess"], reverse=True)
+    unexplained = [f for f in flagged if not f["explained_by_admin_adj"]]
+
+    return {
+        "invariant": "balance <= total_earned for legitimate accounts",
+        "aggregate": {
+            "sum_balance": round(sum_balance, 2),
+            "sum_total_earned": round(sum_earned, 2),
+            "divergence": round(sum_balance - sum_earned, 2),
+            "note": "divergence <= 0 is normal (members spend/withdraw); "
+                    "a positive aggregate divergence is itself a red flag.",
+        },
+        "flagged_count": len(flagged),
+        "unexplained_count": len(unexplained),
+        "note": "Per-row excess covered by admin_adjustment commissions is "
+                "likely benign; unexplained excess warrants investigation.",
+        "accounts": flagged[:max(1, min(limit, 500))],
+    }
 
 
 @app.post("/cron/process-pending-withdrawals")
@@ -38250,6 +38409,13 @@ async def api_team_gift_accept(code: str, user: User = Depends(get_current_user)
         gifter = db.query(User).filter(User.id == voucher.gifter_user_id).first()
         if gifter:
             gifter.balance = float(gifter.balance or 0) + 10
+            # Lockstep with balance — every other credit path bumps
+            # total_earned by the same amount (commissions, course payouts,
+            # sponsor shares, P2P-in). Omitting it here understated the
+            # gifter's lifetime earnings by $10 vs their wallet (Analytics
+            # "Total Earned" drift) and breaks the balance<=total_earned
+            # integrity invariant the security watchdog relies on.
+            gifter.total_earned = float(gifter.total_earned or 0) + 10
         # Notify gifter
         if gifter:
             db.add(Notification(
