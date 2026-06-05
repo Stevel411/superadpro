@@ -28467,6 +28467,23 @@ def run_security_watch(db, dry=False):
             _secwatch_set(db, "secwatch_last_admin_adj_id", cur_max_adj)
             _secwatch_set(db, "secwatch_known_admin_ids",
                           ",".join(str(i) for i in sorted(cur_admin_ids)))
+            # Baseline the synthetic-balance (Check 4) and treasury (Check 5)
+            # detectors in the same pass, so a single run fully arms the
+            # watchdog rather than needing a confusing second run.
+            _b = float(db.query(func.coalesce(func.sum(User.balance), 0)).scalar() or 0)
+            _e = float(db.query(func.coalesce(func.sum(User.total_earned), 0)).scalar() or 0)
+            _secwatch_set(db, "secwatch_sum_balance", round(_b, 2))
+            _secwatch_set(db, "secwatch_sum_earned", round(_e, 2))
+            try:
+                from .walletconnect_payments import health_check as _bsc_health
+                _t = _bsc_health().get("treasury_usdt")
+            except Exception:
+                _t = None
+            _pw = float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0))
+                          .filter(Withdrawal.status == "paid").scalar() or 0)
+            if _t is not None:
+                _secwatch_set(db, "secwatch_treasury_usdt", round(float(_t), 2))
+                _secwatch_set(db, "secwatch_paid_wd_total", round(_pw, 2))
             _secwatch_set(db, "secwatch_initialized", "1")
             db.commit()
         return {"status": "baselined", "admins": sorted(cur_admin_ids),
