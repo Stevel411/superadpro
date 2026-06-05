@@ -14616,10 +14616,9 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
         return {"error": str(e), "trace": traceback.format_exc()}
 @app.post("/admin/reset-test-data")
 @app.get("/admin/reset-test-data")
-def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
+def admin_reset_test_data(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Delete all users except SuperAdPro admin, reset admin balances, clear ALL data for fresh test cycle."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    _require_admin(user)
     try:
         from sqlalchemy import text as _text
         from .database import engine
@@ -19247,14 +19246,13 @@ def admin_user_commission_state(
 @app.post("/admin/diagnostic/recompute-wallet/{user_id}")
 def admin_diagnostic_recompute_wallet(
     user_id: int,
-    secret: str = "",
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Recompute a user's wallet fields from the ground truth: non-reversed
     Commission rows. Authoritative + idempotent. Use after any commission
     reversal to guarantee wallet matches ledger."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    _require_admin(user)
     from .database import Commission as _C
     from decimal import Decimal as _D
 
@@ -31767,9 +31765,8 @@ def test_email(secret: str, email: str):
 # ── Owner full activation (master affiliate setup) ────────────
 # ── One-time fix: sync upline_earnings from membership commissions ──
 @app.get("/admin/fix-upline-earnings")
-def fix_upline_earnings(secret: str, db: Session = Depends(get_db)):
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+def fix_upline_earnings(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    _require_admin(user)
     # Sum membership_sponsor commissions per user and update upline_earnings
     from sqlalchemy import func
     results = []
@@ -31806,9 +31803,8 @@ def hot_wallet_balance(secret: str):
 # and never loops forever on broken withdrawals (the original failure
 # mode this endpoint had before 2 May 2026).
 @app.get("/admin/process-pending-withdrawals")
-def process_pending_withdrawals(secret: str, db: Session = Depends(get_db)):
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+def process_pending_withdrawals(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    _require_admin(user)
     from app.withdrawals import process_pending_withdrawals_batch
     counts = process_pending_withdrawals_batch(db)
     return {"ok": True, **counts}
@@ -31818,9 +31814,8 @@ def process_pending_withdrawals(secret: str, db: Session = Depends(get_db)):
 # sponsor's personal_referrals counter. Counts the number of active paid
 # members per sponsor and corrects the counter to match. Safe to re-run.
 @app.get("/admin/recompute-personal-referrals")
-def recompute_personal_referrals(secret: str, db: Session = Depends(get_db)):
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+def recompute_personal_referrals(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    _require_admin(user)
 
     # Aggregate paid downline by sponsor: anyone active with a paid tier and
     # an activation timestamp counts as one paid referral for their sponsor.
@@ -32334,14 +32329,12 @@ def security_audit(secret: str, db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.get("/admin/incident-cleanup")
-def incident_cleanup(secret: str, confirm: str = "", db: Session = Depends(get_db)):
+def incident_cleanup(confirm: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Neutralise the 2026-06-03 attacker accounts. REVERSIBLE: uses
     status flags / deactivation, never deletes. Leaves real members,
     paid withdrawals (evidence), grid structure, and user 1 untouched.
     Requires &confirm=YES."""
-    from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _require_admin(user)
     ATTACKER = [667, 668, 669, 670, 673, 674]
     ids = ",".join(str(i) for i in ATTACKER)
     if confirm != "YES":
@@ -33065,11 +33058,9 @@ def admin_watchdog_health_only(secret: str = "", db: Session = Depends(get_db)):
     from .watchdog import run_health_check
     return run_health_check(db)
 @app.post("/admin/watchdog/toggle")
-def admin_watchdog_toggle(secret: str = "", db: Session = Depends(get_db)):
+def admin_watchdog_toggle(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Toggle watchdog on/off (runtime only — doesn't persist across deploys)."""
-    from fastapi.responses import JSONResponse
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _require_admin(user)
 
     import app.watchdog as wd
     wd.WATCHDOG_ENABLED = not wd.WATCHDOG_ENABLED
@@ -49056,10 +49047,9 @@ async def voice_guide_speak(request: Request, user: User = Depends(get_current_u
         logger.error(f"Voice guide TTS failed: {e}")
         return JSONResponse({"error": "Speech generation failed"}, status_code=500)
 @app.get("/admin/recalculate-stats")
-def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
+def admin_recalculate_stats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Recalculate personal_referrals and total_team for all users."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Invalid"}, status_code=403)
+    _require_admin(user)
 
     users = db.query(User).all()
     updated = 0
@@ -49206,7 +49196,7 @@ def admin_api_reassign_sponsor(
 @app.post("/admin/diagnostic/cleanup-test-withdrawals/{user_id}")
 def admin_diagnostic_cleanup_test_withdrawals(
     user_id: int,
-    secret: str = "",
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """One-shot pre-launch cleanup: mark old test withdrawals on the
@@ -49220,8 +49210,7 @@ def admin_diagnostic_cleanup_test_withdrawals(
     This is NOT a general-purpose 'cancel a withdrawal' tool; that would be
     dangerous (could hide real customer withdrawals). Idempotent — re-running
     leaves already-cancelled rows alone."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    _require_admin(user)
 
     # Hardcoded safety: this endpoint is ONLY for the SuperAdPro account.
     if user_id != 1:
@@ -49346,7 +49335,7 @@ def admin_diagnostic_inspect_ledgers(
 
 
 @app.post("/admin/diagnostic/recompute-all-total-withdrawn")
-def admin_diagnostic_recompute_total_withdrawn(secret: str = "", db: Session = Depends(get_db)):
+def admin_diagnostic_recompute_total_withdrawn(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """One-time defensive cleanup of the legacy user.total_withdrawn column.
     Sums Withdrawal.amount_usdt where status IN ('paid', 'completed') and
     overwrites the column. Dashboard reads have already been migrated to
@@ -49356,8 +49345,7 @@ def admin_diagnostic_recompute_total_withdrawn(secret: str = "", db: Session = D
 
     Returns a per-user diff for users whose stored value differed from the
     computed truth, so we can see exactly how much drift had accumulated."""
-    if secret != _get_required_secret("ADMIN_SECRET"):
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    _require_admin(user)
 
     users = db.query(User).all()
     drifts = []
