@@ -32,6 +32,7 @@ from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTrac
 from . import stripe_service
 from .database import StripeCharge
 from .database import CREDIT_PACKS  # 23 May 2026: needed at module level for Stripe Nexus checkout route
+from .database import AppConfig  # used by security-watch helpers (and others) at module scope
 STRIPE_BOOST_PACKS = {}  # legacy compat — kept until any consumer is rewritten
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
