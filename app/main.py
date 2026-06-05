@@ -28620,7 +28620,7 @@ def run_security_watch(db, dry=False):
 
 @app.get("/cron/security-watch")
 async def cron_security_watch(request: Request, secret: str = "", test: int = 0,
-                              dry: int = 0, debug: int = 0,
+                              dry: int = 0,
                               db: Session = Depends(get_db)):
     """Security watchdog cron. Polls DB state for privileged actions (new
     admins, balance adjustments, withdrawals) and emails an alert. Intended
@@ -28640,26 +28640,12 @@ async def cron_security_watch(request: Request, secret: str = "", test: int = 0,
         _admin_session = False
     if not ((secret and secret in _valid_secrets) or _admin_session):
         raise HTTPException(status_code=403, detail="Forbidden")
-    try:
-        if test:
-            ok = _secwatch_send_alert([
-                "<strong>TEST</strong> \u2014 this is a test of the SuperAdPro security "
-                "alert channel. If you received this email, alerting works."])
-            return {"status": "test_sent", "email_ok": ok, "recipient": _SECWATCH_RECIPIENT}
-        return run_security_watch(db, dry=bool(dry))
-    except Exception as _e:
-        import traceback as _tb
-        _trace = _tb.format_exc()
-        logger.error(f"[secwatch endpoint] {_e}\n{_trace}")
-        # Secret-gated, opt-in only: surface the real error to the
-        # authenticated caller so it can be diagnosed without Railway log
-        # access. Never reached without a valid CRON_SECRET/ADMIN_SECRET.
-        if debug:
-            return JSONResponse(
-                {"error": str(_e), "type": type(_e).__name__,
-                 "trace": _trace.splitlines()[-15:]},
-                status_code=500)
-        raise
+    if test:
+        ok = _secwatch_send_alert([
+            "<strong>TEST</strong> \u2014 this is a test of the SuperAdPro security "
+            "alert channel. If you received this email, alerting works."])
+        return {"status": "test_sent", "email_ok": ok, "recipient": _SECWATCH_RECIPIENT}
+    return run_security_watch(db, dry=bool(dry))
 
 
 @app.get("/admin/api/balance-reconciliation")
