@@ -77,6 +77,11 @@ export default function ExploreHub() {
           <span className="es-pill reveal"><span className="es-dot" />AI marketing tools · one simple membership</span>
           <h1 className="reveal">Everything you need to<br /><span className="es-grad">market your business.</span></h1>
           <p className="es-sub reveal">One membership unlocks the full platform — page &amp; funnel builders, lead finder, autoresponder, video campaigns, and an AI Creative Studio. Use it to grow your own business, your way.</p>
+          <div className="es-video-wrap reveal">
+            <video controls preload="metadata" playsInline poster="/static/images/explore-tour-poster.jpg">
+              <source src="/static/videos/explore-tour.mp4" type="video/mp4" />
+            </video>
+          </div>
           <div className="es-cta-row reveal">
             <Link to="/register" className="es-btn es-primary es-lg">Start for $20/mo</Link>
             <a href="#tools" className="es-btn es-ghost es-lg">See the tools</a>
@@ -85,17 +90,6 @@ export default function ExploreHub() {
             <div className="es-stat"><div className="es-num">$20</div><div className="es-lbl">/mo membership</div></div>
             <div className="es-stat"><div className="es-num">13</div><div className="es-lbl">tools included</div></div>
             <div className="es-stat"><div className="es-num">1</div><div className="es-lbl">login for everything</div></div>
-          </div>
-        </section>
-
-        {/* VIDEO TOUR */}
-        <section className="es-sec es-video-sec">
-          <p className="es-eyebrow reveal">See it in action</p>
-          <h2 className="reveal">The whole platform in under a minute</h2>
-          <div className="es-video-wrap reveal">
-            <video controls preload="metadata" playsInline poster="/static/images/explore-tour-poster.jpg">
-              <source src="/static/videos/explore-tour.mp4" type="video/mp4" />
-            </video>
           </div>
         </section>
 
@@ -233,8 +227,7 @@ var CSS_EXPLORE_SALES = `
 .explore-sales .es-num{font-family:'Sora',sans-serif;font-weight:800;color:#fff;font-size:32px;letter-spacing:-.02em;line-height:1}
 .explore-sales .es-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--es-muted);margin-top:7px}
 .explore-sales .es-sec{max-width:1180px;margin:0 auto;padding:90px 24px}
-.explore-sales .es-video-sec{padding-top:34px}
-.explore-sales .es-video-wrap{max-width:920px;margin:34px auto 0;border:1px solid rgba(34,211,238,.28);border-radius:18px;overflow:hidden;background:#0a1640;box-shadow:0 40px 110px -50px rgba(6,40,90,.95);line-height:0}
+.explore-sales .es-video-wrap{max-width:880px;margin:30px auto 0;border:1px solid rgba(34,211,238,.28);border-radius:18px;overflow:hidden;background:#0a1640;box-shadow:0 40px 110px -50px rgba(6,40,90,.95);line-height:0}
 .explore-sales .es-video-wrap video{display:block;width:100%;height:auto}
 .explore-sales .es-eyebrow{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--es-cyan);text-align:center}
 .explore-sales h2{font-weight:700;font-size:clamp(28px,3.6vw,44px);line-height:1.1;letter-spacing:-.02em;text-align:center;margin:14px auto 0;max-width:18ch}
