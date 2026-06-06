@@ -31785,10 +31785,9 @@ def fix_upline_earnings(user: User = Depends(get_current_user), db: Session = De
 @app.get("/admin/hot-wallet-balance")
 def hot_wallet_balance(user: User = Depends(get_current_user)):
     _require_admin(user)
-    from app.withdrawals import get_treasury_usdt_balance, get_treasury_pol_balance, TREASURY_ADDRESS
-    usdt = get_treasury_usdt_balance()
-    pol = get_treasury_pol_balance()
-    return {"address": TREASURY_ADDRESS, "usdt_balance": float(usdt), "pol_balance": float(pol), "chain": "Polygon"}
+    from app.withdrawals import get_treasury_bsc_balances, TREASURY_ADDRESS_BSC
+    usdt, bnb = get_treasury_bsc_balances()
+    return {"address": TREASURY_ADDRESS_BSC, "usdt_balance": float(usdt), "bnb_balance": float(bnb), "chain": "BSC"}
 
 # ── Retry pending withdrawals (admin manual trigger) ──
 # Thin wrapper around the same batch processor the cron uses. Kept under

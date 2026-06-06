@@ -1,11 +1,13 @@
 """
 SuperAdPro — Automated USDT Withdrawal System
-Sends USDT on Polygon PoS from treasury wallet to member wallets.
+Sends USDT (BEP-20) on BNB Smart Chain from the treasury wallet to member
+wallets. BSC is the sole withdrawal rail — the legacy Polygon path and the
+Tron (TRC-20) rail were retired 6 Jun 2026.
 
-Treasury: 0x71746f1634B0FBB3981B9B84EbE1A1a6f2430467
-USDT on Polygon: 0xc2132D05D31c914a87C6611C10748AEb04B58e8F
-Chain: Polygon PoS Mainnet (chainId 137)
-Gas token: POL (formerly MATIC)
+Treasury (BSC): 0xb2Ccdf9050A8d05A346F6879eC4fa633f9b2554D
+USDT on BSC:    0x55d398326f99059fF775485246999027B3197955
+Chain:          BNB Smart Chain Mainnet (chainId 56)
+Gas token:      BNB
 
 Security guardrails:
   - KYC must be approved
@@ -24,17 +26,10 @@ from datetime import datetime, timedelta
 logger = logging.getLogger("superadpro.withdrawals")
 
 # -- Config --
-# ── Polygon (legacy, dormant — retained for v2 reactivation) ──
-TREASURY_ADDRESS = "0x71746f1634B0FBB3981B9B84EbE1A1a6f2430467"
-USDT_CONTRACT    = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
-POLYGON_CHAIN_ID = 137
-USDT_DECIMALS    = 6
-# Per-network USDT decimals. Critical: USDT on BSC uses 18 decimals
-# (it's the Binance-Peg wrapped version), while USDT on Tron and
-# Ethereum/Polygon uses 6. Mixing these up causes the on-chain transfer
-# to send effectively zero (off by a factor of 10^12) — see incident
-# 6 May 2026 where a $9 BSC withdrawal sent <0.00001 USDT on-chain.
-USDT_DECIMALS_TRON = 6
+# USDT on BSC (Binance-Peg) uses 18 decimals — NOT the 6 decimals used by
+# USDT on Tron/Ethereum/Polygon. Mixing these up sends effectively zero
+# (off by 10^12) — see incident 6 May 2026 where a $9 BSC withdrawal sent
+# <0.00001 USDT on-chain. BSC is now the only rail, so 18 is the only value.
 USDT_DECIMALS_BSC  = 18
 
 # ── BSC (BEP-20) — primary EVM withdrawal network from 6 May 2026 ──
@@ -71,19 +66,6 @@ BSC_RPC_FALLBACKS = [
     os.environ.get("BSC_RPC_FALLBACKS", _DEFAULT_BSC_FALLBACKS).split(",")
     if u.strip()
 ]
-
-# ── Tron (TRC-20) — primary alternative withdrawal network from 6 May 2026 ──
-# Treasury private key in env: TREASURY_PRIVATE_KEY_TRON
-# RPC:                          TRON_RPC_URL (default: https://api.trongrid.io)
-# USDT contract:                TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
-# Gas token:                    TRX (energy/bandwidth model differs from EVM)
-TREASURY_ADDRESS_TRON = os.environ.get("TREASURY_ADDRESS_TRON", "TLET6kN1Ly59VEcr21zs8kptk7sC7Nbjdz")
-USDT_CONTRACT_TRON    = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
-TRON_RPC_URL          = os.environ.get("TRON_RPC_URL", "https://api.trongrid.io")
-# Optional API key — without this, public TronGrid rate-limits at ~5 req/s
-# and we will hit 429s under launch load. Configure TRON_API_KEY in Railway
-# for production reliability. The free tier on trongrid.io is sufficient.
-TRON_API_KEY          = os.environ.get("TRON_API_KEY", "")
 
 WITHDRAWAL_FEE    = Decimal("1.00")
 MIN_WITHDRAWAL    = Decimal("10.00")
@@ -122,59 +104,6 @@ ERC20_ABI = [
         "type": "function"
     }
 ]
-
-
-def _get_web3():
-    """Get a Web3 instance connected to Polygon via Alchemy."""
-    from web3 import Web3
-    alchemy_key = os.environ.get("ALCHEMY_API_KEY", "")
-    if not alchemy_key:
-        raise ValueError("ALCHEMY_API_KEY not set")
-    rpc_url = f"https://polygon-mainnet.g.alchemy.com/v2/{alchemy_key}"
-    w3 = Web3(Web3.HTTPProvider(rpc_url))
-    if not w3.is_connected():
-        raise ConnectionError("Cannot connect to Polygon RPC")
-    return w3
-
-
-def _get_private_key():
-    """Get treasury private key from environment."""
-    key = os.environ.get("TREASURY_PRIVATE_KEY", "")
-    if not key:
-        raise ValueError("TREASURY_PRIVATE_KEY not set")
-    if not key.startswith("0x"):
-        key = "0x" + key
-    return key
-
-
-def get_treasury_usdt_balance():
-    """Check USDT balance of the treasury wallet."""
-    try:
-        from web3 import Web3
-        w3 = _get_web3()
-        contract = w3.eth.contract(
-            address=Web3.to_checksum_address(USDT_CONTRACT),
-            abi=ERC20_ABI
-        )
-        balance_raw = contract.functions.balanceOf(
-            Web3.to_checksum_address(TREASURY_ADDRESS)
-        ).call()
-        return Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS)
-    except Exception as e:
-        logger.error(f"Failed to check treasury USDT balance: {e}")
-        return Decimal("0")
-
-
-def get_treasury_pol_balance():
-    """Check POL (gas token) balance of the treasury wallet."""
-    try:
-        from web3 import Web3
-        w3 = _get_web3()
-        balance_wei = w3.eth.get_balance(Web3.to_checksum_address(TREASURY_ADDRESS))
-        return Decimal(str(w3.from_wei(balance_wei, 'ether')))
-    except Exception as e:
-        logger.error(f"Failed to check treasury POL balance: {e}")
-        return Decimal("0")
 
 
 def check_daily_withdrawal_total(db, user_id):
@@ -218,17 +147,19 @@ def validate_withdrawal(db, user, amount):
     if not user.wallet_address:
         return {"valid": False, "error": "No withdrawal wallet set. Add your USDT wallet address in Account settings."}
 
+    # BSC (BEP-20) is the only withdrawal network. Polygon was retired as
+    # dormant and Tron (TRC-20) was dropped 6 Jun 2026 — its energy/bandwidth
+    # fees were uneconomic on small payouts. Any member who previously saved a
+    # Tron wallet must re-add a BSC (0x…) address before withdrawing.
     network = (getattr(user, 'wallet_network', None) or "").lower()
-    if network not in ("tron", "bsc"):
-        return {"valid": False, "error": "Withdrawal network not selected. Go to Account → Wallet and choose TRC-20 (Tron) or BEP-20 (BSC)."}
+    if network != "bsc":
+        return {"valid": False, "error": "Add your USDT (BEP-20 / BSC) wallet address in Account → Wallet before withdrawing."}
 
     # Length sanity check — defence in depth. Frontend regex should have
     # already caught format errors but if a row got past that somehow,
     # this stops it from reaching the send function with malformed input.
-    if network == "bsc" and len(user.wallet_address) != 42:
+    if len(user.wallet_address) != 42:
         return {"valid": False, "error": "BSC wallet address must be 42 characters starting with 0x. Re-enter in Account settings."}
-    if network == "tron" and len(user.wallet_address) != 34:
-        return {"valid": False, "error": "Tron wallet address must be 34 characters starting with T. Re-enter in Account settings."}
 
     # KYC check
     if getattr(user, 'kyc_status', 'none') != 'approved':
@@ -337,186 +268,14 @@ def _validate_campaign_structural(db, user):
     return {"valid": True}
 
 
-def send_usdt(to_address, amount_usdt):
-    """REMOVED (4 Jun 2026, post-breach hardening).
-
-    The legacy Polygon send path is dormant (the dispatcher routes only to
-    send_usdt_bsc / send_usdt_tron, both of which enforce the
-    WITHDRAWALS_ENABLED freeze inside the function). This function had NO
-    freeze guard — it would sign and broadcast a treasury transfer
-    unconditionally. It has no callers. Rather than leave that loaded gun in
-    the tree, the signing/broadcast body is deleted and any accidental future
-    call fails loudly instead of silently moving funds.
-    """
-    raise RuntimeError(
-        "send_usdt (legacy Polygon) is permanently disabled. Use "
-        "send_usdt_dispatch(network, to_address, amount) — it enforces the "
-        "WITHDRAWALS_ENABLED freeze and the per-network send guards."
-    )
-
-
 # ═══════════════════════════════════════════════════════════════════════
-#  MULTI-NETWORK SEND FUNCTIONS — added 6 May 2026
-#  Replaces single-network Polygon path with TRC-20 + BEP-20 dispatch.
-#  Each function returns the same shape as legacy send_usdt:
-#     {"success": bool, "tx_hash": str, "error": str}
-#  so the dispatcher and the cron retry loop can call them interchangeably.
+#  USDT SEND — BSC (BEP-20) only. The legacy Polygon send path and the Tron
+#  (TRC-20) rail were retired 6 Jun 2026 (Polygon dormant; Tron dropped —
+#  TRC-20 energy/bandwidth fees were uneconomic on small payouts).
+#  send_usdt_bsc returns {"success": bool, "tx_hash": str, "error": str};
+#  send_usdt_dispatch wraps it and the cron retry loop calls through that.
 # ═══════════════════════════════════════════════════════════════════════
 
-def _get_tron_client():
-    """Build a tronpy Tron client.
-
-    Uses TRON_API_KEY if set (lifts the public rate limit). Without an
-    API key, public TronGrid rate-limits at ~5 req/s and we will hit
-    429s under launch load. For prod, configure TRON_API_KEY.
-    """
-    from tronpy import Tron
-    from tronpy.providers import HTTPProvider
-
-    if TRON_API_KEY:
-        provider = HTTPProvider(TRON_RPC_URL, api_key=TRON_API_KEY)
-    else:
-        provider = HTTPProvider(TRON_RPC_URL)
-    return Tron(provider)
-
-
-def _get_tron_private_key():
-    """Get Tron treasury private key from env. Hex string, 64 chars, no 0x prefix."""
-    from tronpy.keys import PrivateKey
-
-    key = os.environ.get("TREASURY_PRIVATE_KEY_TRON", "")
-    if not key:
-        raise ValueError("TREASURY_PRIVATE_KEY_TRON not set")
-    # tronpy expects raw bytes; accept either with or without 0x prefix
-    if key.startswith("0x") or key.startswith("0X"):
-        key = key[2:]
-    if len(key) != 64:
-        raise ValueError(f"TREASURY_PRIVATE_KEY_TRON wrong length ({len(key)} chars, expected 64)")
-    return PrivateKey(bytes.fromhex(key))
-
-
-def get_treasury_tron_balances():
-    """Return (usdt_balance, trx_balance) for the Tron treasury.
-
-    USDT in human units (e.g. 200.50). TRX in human units (e.g. 30.4).
-    Used by admin diagnostics and pre-flight check before sending.
-    """
-    try:
-        client = _get_tron_client()
-        contract = client.get_contract(USDT_CONTRACT_TRON)
-        balance_raw = contract.functions.balanceOf(TREASURY_ADDRESS_TRON)
-        usdt = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS_TRON)
-        trx = Decimal(str(client.get_account_balance(TREASURY_ADDRESS_TRON)))
-        return float(usdt), float(trx)
-    except Exception as e:
-        logger.error(f"Failed to read Tron treasury balances: {e}")
-        return 0.0, 0.0
-
-
-def send_usdt_tron(to_address, amount_usdt):
-    """Send USDT-TRC-20 from treasury to a recipient address.
-
-    Returns: {"success": bool, "tx_hash": str, "error": str}
-            (same shape as legacy send_usdt — dispatcher-compatible)
-
-    Tron differs from EVM in two operationally-important ways:
-
-    1. **Gas model is energy + bandwidth, not gas-price**. A USDT transfer
-       costs roughly 13.4 TRX (~$4.50) without staking. There's no
-       "estimated gas" knob to tweak; the cost is fixed by the contract
-       call's energy consumption. We just need enough TRX in the treasury
-       to pay it.
-
-    2. **Address format is base58check (T-prefix)**. tronpy handles the
-       encoding internally — we pass strings, it converts. No checksum
-       conversion needed like EVM's to_checksum_address.
-
-    Behaviour mirrors the EVM send: pre-flight checks (balance,
-    gas-token), sign locally, broadcast, return tx hash. On error returns
-    the structured failure dict so the cron retry loop can decide whether
-    to retry or mark permanent.
-    """
-    # SECURITY FREEZE (2026-06-03 incident): see send_usdt_bsc. Frozen by
-    # default; only sends when WITHDRAWALS_ENABLED == "true".
-    if os.getenv("WITHDRAWALS_ENABLED") != "true":
-        logging.error(
-            "WITHDRAWAL FROZEN (TRON): send blocked — WITHDRAWALS_ENABLED!=true. "
-            "to=%s amount=%s", to_address, amount_usdt)
-        return {"success": False, "tx_hash": None,
-                "error": "WITHDRAWALS_FROZEN: sends disabled pending security review"}
-    amount_usdt = Decimal(str(amount_usdt))
-
-    try:
-        client = _get_tron_client()
-        priv_key = _get_tron_private_key()
-
-        # Sanity check the destination address — catches obvious paste-error
-        # bugs before we burn a transaction. The frontend regex should have
-        # already validated, but defense-in-depth on a money-flow path.
-        if not client.is_address(to_address):
-            return {"success": False, "tx_hash": "", "error": f"Invalid Tron address: {to_address}"}
-
-        # Convert USDT to raw units. Tron USDT uses 6 decimals
-        # (native USDT, same as Ethereum). USDT_DECIMALS_TRON = 6 — do
-        # NOT confuse with USDT_DECIMALS_BSC = 18.
-        amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS_TRON))
-        if amount_raw <= 0:
-            return {"success": False, "tx_hash": "", "error": "Invalid amount"}
-
-        # Pre-flight: USDT balance check
-        contract = client.get_contract(USDT_CONTRACT_TRON)
-        balance_raw = contract.functions.balanceOf(TREASURY_ADDRESS_TRON)
-        if balance_raw < amount_raw:
-            wallet_balance = Decimal(str(balance_raw)) / Decimal(10 ** USDT_DECIMALS_TRON)
-            logger.error(f"Insufficient Tron treasury USDT: {wallet_balance} < {amount_usdt}")
-            return {"success": False, "tx_hash": "", "error": f"Insufficient treasury funds (${wallet_balance:.2f} available)"}
-
-        # Pre-flight: TRX for energy/bandwidth.
-        # ~13.4 TRX is the typical cost for a USDT transfer without staking.
-        # Set a slightly lower threshold (10 TRX) as the "would-be-stuck" line —
-        # below this, the transaction will fail mid-flight with cryptic errors.
-        # Above this, we let it try and any actual fee shortfall surfaces
-        # cleanly via the broadcast response.
-        trx_balance = Decimal(str(client.get_account_balance(TREASURY_ADDRESS_TRON)))
-        if trx_balance < Decimal("10"):
-            return {"success": False, "tx_hash": "", "error": f"Treasury needs TRX for transaction fees ({trx_balance:.2f} TRX available, need 10+)"}
-
-        # Build, sign, broadcast
-        txn = (
-            contract.functions.transfer(to_address, amount_raw)
-            .with_owner(TREASURY_ADDRESS_TRON)
-            .fee_limit(50_000_000)  # 50 TRX cap as a hard limit on energy cost
-            .build()
-            .sign(priv_key)
-        )
-        result = txn.broadcast()
-
-        # tronpy's broadcast() returns a dict with "result" bool and "txid" string
-        # if the network accepted the transaction. We log and return the txid.
-        # Note: "accepted by network" != "confirmed on-chain". The cron loop
-        # treats this as success and a downstream confirm-checker (TODO) can
-        # validate inclusion in a block. For launch, broadcast acceptance is
-        # the practical equivalent of EVM "transaction submitted".
-        if not result or not result.get("result"):
-            err_msg = result.get("message", "broadcast rejected") if result else "broadcast returned None"
-            logger.error(f"Tron broadcast failed: {err_msg}")
-            return {"success": False, "tx_hash": "", "error": f"Broadcast failed: {err_msg}"}
-
-        tx_id = result.get("txid", "")
-        logger.info(f"USDT-TRC-20 sent: {amount_usdt} USDT to {to_address} -- tx: {tx_id}")
-        return {"success": True, "tx_hash": tx_id, "error": ""}
-
-    except Exception as e:
-        # Common Tron-specific failures:
-        # - "validate signature error" → wrong private key
-        # - "Account resource insufficient" → not enough TRX
-        # - "Cannot find account" → recipient address never received TRX (rare)
-        logger.error(f"USDT-TRC-20 send failed: {type(e).__name__}: {e}")
-        return {"success": False, "tx_hash": "", "error": str(e)}
-
-
-# ── BSC (BEP-20) send path ─────────────────────────────────────────────
-# EVM-compatible — same web3.py library as Polygon, different RPC + contract.
 
 def _build_web3_for_url(url):
     """Build a Web3 instance for a single RPC URL. Raises ConnectionError
@@ -683,7 +442,7 @@ def send_usdt_bsc(to_address, amount_usdt):
     """Send USDT-BEP-20 from BSC treasury to a recipient address.
 
     Returns: {"success": bool, "tx_hash": str, "error": str}
-            (same shape as send_usdt and send_usdt_tron — dispatcher-compatible)
+            (dispatcher-compatible shape)
 
     Mirrors the legacy Polygon send (which used the same web3.py) but
     against BSC. Differences from the Polygon version:
@@ -726,8 +485,7 @@ def send_usdt_bsc(to_address, amount_usdt):
         # Ethereum/Tron/Polygon which use 6). Using the wrong constant
         # causes the on-chain transfer to send dust — this exact bug
         # caused the 6 May 2026 incident where $9 sent on-chain as
-        # 0.000000000009 USDT. Always USDT_DECIMALS_BSC here, not
-        # USDT_DECIMALS.
+        # 0.000000000009 USDT.
         amount_raw = int(amount_usdt * Decimal(10 ** USDT_DECIMALS_BSC))
         if amount_raw <= 0:
             return {"success": False, "tx_hash": "", "error": "Invalid amount"}
@@ -783,24 +541,22 @@ def send_usdt_bsc(to_address, amount_usdt):
 # Solana, Arbitrum).
 
 def send_usdt_dispatch(network, to_address, amount_usdt):
-    """Route a USDT send to the right chain.
+    """Route a USDT send to the BSC treasury.
 
-    network: 'tron' or 'bsc' (case-insensitive)
-    Returns the same dict shape as the underlying send functions.
+    network: must be 'bsc' (case-insensitive). BSC (BEP-20) is the only
+    supported withdrawal rail; Polygon and Tron were retired 6 Jun 2026.
 
-    For unknown/missing network values, returns a structured error rather
+    For unknown/unsupported network values, returns a structured error rather
     than guessing — silently sending on the wrong chain is worse than a
     clean failure that surfaces in admin alerts.
     """
     net = (network or "").lower()
-    if net == "tron":
-        return send_usdt_tron(to_address, amount_usdt)
     if net == "bsc":
         return send_usdt_bsc(to_address, amount_usdt)
     return {
         "success": False,
         "tx_hash": "",
-        "error": f"Unknown withdrawal network: {network!r}. Expected 'tron' or 'bsc'.",
+        "error": f"Unsupported withdrawal network: {network!r}. BSC (BEP-20) is the only supported rail.",
     }
 
 
@@ -867,7 +623,7 @@ def process_withdrawal(db, withdrawal_id):
     Process a single pending withdrawal:
     1. Re-validate (catches structural blocks that appeared since request)
     2. Deduct $1 fee
-    3. Send USDT on Polygon to member's wallet
+    3. Send USDT (BEP-20) on BNB Smart Chain to member's wallet
     4. Update withdrawal record with tx_hash and status, OR
     5. Increment attempts and either re-queue (with backoff) or mark
        failed_permanent (with refund if structurally blocked).
@@ -973,17 +729,12 @@ def process_withdrawal(db, withdrawal_id):
     withdrawal.last_attempted_at = datetime.utcnow()
     db.commit()
 
-    # Route to the right network. The Withdrawal row was stamped with the
-    # network at request time (Step 1 schema migration), so the chain we
-    # send on matches the chain the member's wallet is on. If a row predates
-    # the migration (network IS NULL — legacy Polygon-era data), the
-    # dispatcher returns a structured error rather than guessing.
-    #
-    # The legacy send_usdt() (Polygon) is intentionally NOT in the dispatch
-    # table — Polygon is dormant. Any pending Polygon-era withdrawals would
-    # need to be either manually refunded or manually retried via the
-    # legacy function while we're transitioning. After 6 May 2026 launch
-    # there should be no more Polygon-era pending rows.
+    # BSC is the only supported network. The Withdrawal row carries the
+    # network it was stamped with at request time; the dispatcher only
+    # routes 'bsc'. Any row whose network is NULL (legacy Polygon/Tron-era
+    # data) or anything other than 'bsc' gets a structured unsupported-
+    # network error rather than being sent — fail closed, never guess the
+    # chain. Such rows must be manually refunded; they will not auto-send.
     network = (withdrawal.network or "").lower()
     if not network:
         logger.error(f"Withdrawal #{withdrawal_id} has no network — cannot dispatch")
