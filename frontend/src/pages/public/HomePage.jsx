@@ -59,7 +59,9 @@ export default function HomePage() {
         </div>
 
         <section className="hero">
-          <div className="hero-photo"></div>
+          <video className="hero-video" autoPlay muted loop playsInline poster="/static/images/homepage-hero-poster.jpg">
+            <source src="/static/videos/homepage-hero.mp4" type="video/mp4" />
+          </video>
           <div className="hero-overlay"></div>
 
           <div className="hero-content">
@@ -149,7 +151,7 @@ export default function HomePage() {
                       <div className="feature-pill-sub">{t('homePage.feat2Sub')}</div>
                     </div>
                     <div className="feature-pill">
-                      <div className="feature-pill-title amber">{t('homePage.feat3Title')}</div>
+                      <div className="feature-pill-title cyan">{t('homePage.feat3Title')}</div>
                       <div className="feature-pill-sub">{t('homePage.feat3Sub')}</div>
                     </div>
                   </div>
@@ -202,16 +204,16 @@ var CSS_HOMEPAGE = `
 .home-page .float-lang-item-name{flex:1}
 .home-page .float-lang-item-check{margin-left:auto;font-size:11px;color:var(--sky-bright)}
 .home-page .hero{position:relative;min-height:100vh;overflow:hidden}
-.home-page .hero-photo{position:absolute;inset:0;z-index:0;background-image:url("/static/images/homepage-hero.jpg");background-size:cover;background-position:center right;background-repeat:no-repeat;transform:scale(1.02);animation:homeKenBurns 60s ease-in-out infinite alternate}
+.home-page .hero-video{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center right}
 @keyframes homeKenBurns{0%{transform:scale(1.02) translate(0,0)}100%{transform:scale(1.06) translate(-1%,-0.3%)}}
 .home-page .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(11,18,48,.85) 0%,rgba(11,18,48,.65) 15%,rgba(11,18,48,.3) 30%,transparent 50%)}
 .home-page .hero-content{position:relative;z-index:10;max-width:1440px;width:100%;margin:0 auto;padding:120px 48px 60px;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-start}
 .home-page .hero-top{max-width:640px}
 .home-page .brand-hero{display:flex;align-items:center;gap:20px;margin-bottom:40px;animation:homeFadeUp .9s ease forwards;opacity:0}
-.home-page .brand-hero-mark{width:70px;height:70px;border-radius:16px;background:linear-gradient(135deg,var(--sky),var(--indigo));display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(14,165,233,.55),0 0 80px rgba(99,102,241,.35);position:relative;flex-shrink:0}
-.home-page .brand-hero-mark::before{content:'';position:absolute;inset:-4px;border-radius:20px;background:linear-gradient(135deg,var(--sky),var(--amber),var(--indigo));z-index:-1;opacity:.55;filter:blur(14px)}
+.home-page .brand-hero-mark{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--indigo));display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(14,165,233,.55),0 0 80px rgba(99,102,241,.35);position:relative;flex-shrink:0}
+.home-page .brand-hero-mark::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:linear-gradient(135deg,var(--sky),#22d3ee,var(--indigo));z-index:-1;opacity:.55;filter:blur(14px)}
 .home-page .brand-hero-name{font-family:'Sora',sans-serif;font-size:clamp(46px,5.8vw,74px);font-weight:900;letter-spacing:-.05em;line-height:.94;color:var(--ink)}
-.home-page .brand-hero-name em{background:linear-gradient(135deg,var(--sky-bright),var(--amber));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-style:normal;display:inline-block;padding-right:.08em}
+.home-page .brand-hero-name em{background:linear-gradient(135deg,var(--sky-bright),#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-style:normal;display:inline-block;padding-right:.08em}
 .home-page h1.headline{font-family:'Sora',sans-serif;font-size:clamp(44px,5.6vw,76px);font-weight:900;line-height:.95;letter-spacing:-.045em;margin-bottom:26px;animation:homeFadeUp .9s ease .15s forwards;opacity:0}
 .home-page h1.headline .accent{display:block;font-weight:300;letter-spacing:-.035em;line-height:1.1;padding-bottom:.08em;background:linear-gradient(135deg,var(--sky-bright),var(--indigo-soft));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .home-page .sub{font-size:17px;line-height:1.65;color:var(--ink-60);max-width:490px;margin-bottom:32px;animation:homeFadeUp .9s ease .25s forwards;opacity:0}
@@ -241,10 +243,11 @@ var CSS_HOMEPAGE = `
 .home-page .feature-pill-title.sky{color:var(--sky-bright)}
 .home-page .feature-pill-title.green{color:var(--green)}
 .home-page .feature-pill-title.amber{color:var(--amber)}
+.home-page .feature-pill-title.cyan{color:#22d3ee}
 .home-page .feature-pill-sub{font-size:12px;color:var(--ink-40);font-weight:500;text-shadow:0 1px 6px rgba(11,18,48,.8)}
 @keyframes homeFadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:1024px){
-  .home-page .hero-photo{background-position:75% center}
+  .home-page .hero-video{object-position:75% center}
   .home-page .hero-overlay{background:linear-gradient(180deg,rgba(11,18,48,.75) 0%,rgba(11,18,48,.55) 40%,rgba(11,18,48,.85) 100%)}
   .home-page .hero-content{padding:120px 24px 40px}
   .home-page .float-nav{right:20px;gap:6px}
