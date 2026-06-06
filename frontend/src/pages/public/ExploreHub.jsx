@@ -130,7 +130,9 @@ export default function ExploreHub() {
               <div style={{ marginTop: '28px' }}><Link to="/register" className="es-btn es-primary es-lg">Try Creative Studio</Link></div>
             </div>
             <div className="es-reel">
-              <div className="es-frame"><div className="es-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg></div></div>
+              <video className="es-reel-video" controls preload="metadata" playsInline poster="/static/images/creative-studio-poster.jpg">
+                <source src="/static/videos/creative-studio.mp4" type="video/mp4" />
+              </video>
               <div className="es-promptbar"><span className="es-ph">A cinematic product reveal, soft studio light…</span><span className="es-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span></div>
             </div>
           </div>
@@ -250,6 +252,7 @@ var CSS_EXPLORE_SALES = `
 .explore-sales .es-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
 .explore-sales .es-chip{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--es-mist);border:1px solid var(--es-line);background:rgba(10,22,55,.6);padding:7px 12px;border-radius:999px}
 .explore-sales .es-reel{border-radius:18px;border:1px solid var(--es-line);background:rgba(7,14,38,.75);padding:16px;box-shadow:0 30px 80px -30px rgba(0,10,40,.9)}
+.explore-sales .es-reel-video{display:block;width:100%;height:auto;border-radius:12px}
 .explore-sales .es-frame{aspect-ratio:16/10;border-radius:12px;background:radial-gradient(120px 80px at 30% 30%,rgba(34,211,238,.4),transparent 60%),radial-gradient(160px 100px at 75% 70%,rgba(14,165,233,.35),transparent 60%),linear-gradient(135deg,#0c1c4a,#0a1640);display:grid;place-items:center}
 .explore-sales .es-play{width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);display:grid;place-items:center}
 .explore-sales .es-play svg{width:24px;height:24px;color:#fff;margin-left:3px}
