@@ -185,9 +185,17 @@ export default function ExploreHub() {
 
 var CSS_EXPLORE_SALES = `
 .explore-sales-bg{position:fixed;inset:0;z-index:-1;background:
-  radial-gradient(900px 600px at 78% 6%, rgba(34,211,238,.12), transparent 60%),
-  radial-gradient(800px 700px at 12% 28%, rgba(30,58,138,.4), transparent 55%),
-  linear-gradient(180deg,#070f2b 0%, #0a1438 42%, #0a1640 100%);}
+  radial-gradient(760px 380px at 50% -4%, rgba(56,189,248,.20), transparent 65%),
+  radial-gradient(900px 600px at 82% 4%, rgba(34,211,238,.18), transparent 60%),
+  radial-gradient(820px 640px at 8% 22%, rgba(30,58,138,.45), transparent 55%),
+  linear-gradient(180deg,#081132 0%, #0a1438 42%, #0a1640 100%);}
+.explore-sales-bg::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(34,211,238,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,.06) 1px, transparent 1px);
+  background-size:48px 48px;
+  -webkit-mask-image:radial-gradient(125% 70% at 50% -8%, #000 0%, transparent 58%);
+  mask-image:radial-gradient(125% 70% at 50% -8%, #000 0%, transparent 58%);}
 .explore-sales{--es-cyan:#22d3ee;--es-sky:#0ea5e9;--es-sky-b:#38bdf8;--es-mist:#c7d4f0;--es-muted:#8fa3cf;--es-line:rgba(120,160,230,.16);--es-glass:rgba(18,32,72,.55);
   position:relative;color:var(--es-mist);font-family:'DM Sans',sans-serif;line-height:1.6;min-height:100vh;overflow-x:hidden}
 .explore-sales *{box-sizing:border-box}
