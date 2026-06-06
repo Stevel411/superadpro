@@ -59,9 +59,7 @@ export default function HomePage() {
         </div>
 
         <section className="hero">
-          <video className="hero-video" autoPlay muted loop playsInline poster="/static/images/homepage-hero-poster.jpg">
-            <source src="/static/videos/homepage-hero.mp4" type="video/mp4" />
-          </video>
+          <div className="hero-photo"></div>
           <div className="hero-overlay"></div>
 
           <div className="hero-content">
@@ -204,7 +202,7 @@ var CSS_HOMEPAGE = `
 .home-page .float-lang-item-name{flex:1}
 .home-page .float-lang-item-check{margin-left:auto;font-size:11px;color:var(--sky-bright)}
 .home-page .hero{position:relative;min-height:100vh;overflow:hidden}
-.home-page .hero-video{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center right}
+.home-page .hero-photo{position:absolute;inset:0;z-index:0;background-image:url("/static/images/homepage-hero.jpg");background-size:cover;background-position:center right;background-repeat:no-repeat;transform:scale(1.02);animation:homeKenBurns 60s ease-in-out infinite alternate}
 @keyframes homeKenBurns{0%{transform:scale(1.02) translate(0,0)}100%{transform:scale(1.06) translate(-1%,-0.3%)}}
 .home-page .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(11,18,48,.85) 0%,rgba(11,18,48,.65) 15%,rgba(11,18,48,.3) 30%,transparent 50%)}
 .home-page .hero-content{position:relative;z-index:10;max-width:1440px;width:100%;margin:0 auto;padding:120px 48px 60px;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-start}
@@ -247,7 +245,7 @@ var CSS_HOMEPAGE = `
 .home-page .feature-pill-sub{font-size:12px;color:var(--ink-40);font-weight:500;text-shadow:0 1px 6px rgba(11,18,48,.8)}
 @keyframes homeFadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:1024px){
-  .home-page .hero-video{object-position:75% center}
+  .home-page .hero-photo{background-position:75% center}
   .home-page .hero-overlay{background:linear-gradient(180deg,rgba(11,18,48,.75) 0%,rgba(11,18,48,.55) 40%,rgba(11,18,48,.85) 100%)}
   .home-page .hero-content{padding:120px 24px 40px}
   .home-page .float-nav{right:20px;gap:6px}
