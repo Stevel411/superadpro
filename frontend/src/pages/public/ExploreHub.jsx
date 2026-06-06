@@ -36,6 +36,9 @@ export default function ExploreHub() {
   return (
     <>
       <style>{CSS_EXPLORE_SALES}</style>
+      <video className="es-bg-video" autoPlay muted loop playsInline aria-hidden="true" poster="/static/images/homepage-hero-poster.jpg">
+        <source src="/static/videos/homepage-hero.mp4" type="video/mp4" />
+      </video>
       <div className="explore-sales-bg" aria-hidden="true" />
       <div className="explore-sales">
 
@@ -184,11 +187,12 @@ export default function ExploreHub() {
 }
 
 var CSS_EXPLORE_SALES = `
+.es-bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;opacity:.55}
 .explore-sales-bg{position:fixed;inset:0;z-index:-1;background:
-  radial-gradient(760px 380px at 50% -4%, rgba(56,189,248,.20), transparent 65%),
-  radial-gradient(900px 600px at 82% 4%, rgba(34,211,238,.18), transparent 60%),
-  radial-gradient(820px 640px at 8% 22%, rgba(30,58,138,.45), transparent 55%),
-  linear-gradient(180deg,#081132 0%, #0a1438 42%, #0a1640 100%);}
+  radial-gradient(760px 380px at 50% -4%, rgba(56,189,248,.18), transparent 65%),
+  radial-gradient(900px 600px at 82% 4%, rgba(34,211,238,.16), transparent 60%),
+  radial-gradient(820px 640px at 8% 22%, rgba(30,58,138,.38), transparent 55%),
+  linear-gradient(180deg, rgba(8,17,50,.66) 0%, rgba(10,20,64,.82) 50%, rgba(10,22,64,.93) 100%);}
 .explore-sales-bg::after{content:'';position:absolute;inset:0;pointer-events:none;
   background-image:
     linear-gradient(rgba(34,211,238,.06) 1px, transparent 1px),
