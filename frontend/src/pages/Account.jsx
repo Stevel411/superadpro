@@ -27,7 +27,7 @@ export default function Account() {
   var [savingPw, setSavingPw] = useState(false);
 
   var [walletAddr, setWalletAddr] = useState(user?.wallet_address || '');
-  var [walletNetwork, setWalletNetwork] = useState(user?.wallet_network || '');
+  var [walletNetwork, setWalletNetwork] = useState(user?.wallet_network === 'bsc' ? 'bsc' : '');
   var [savingWallet, setSavingWallet] = useState(false);
 
   var [kycDob, setKycDob] = useState('');
@@ -119,25 +119,18 @@ export default function Account() {
       return;
     }
 
-    // Network must be selected
-    if (net !== 'tron' && net !== 'bsc') {
-      showToast('Please choose a network: TRC-20 (Tron) or BEP-20 (BSC).', 'err');
+    // BSC (BEP-20) is the only withdrawal network. Tron was retired
+    // 6 Jun 2026; Polygon long dormant.
+    if (net !== 'bsc') {
+      showToast('Add your USDT (BEP-20 / BSC) wallet address.', 'err');
       return;
     }
 
-    // Client-side format validation per network. Backend validates again
-    // as defence-in-depth; this is just to give the member a fast inline
-    // error rather than a roundtrip to discover a typo.
-    if (net === 'bsc') {
-      if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
-        showToast('BSC (BEP-20) wallet must start with 0x followed by 40 hex characters.', 'err');
-        return;
-      }
-    } else if (net === 'tron') {
-      if (!/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(addr)) {
-        showToast('Tron (TRC-20) wallet must start with T followed by 33 base58 characters.', 'err');
-        return;
-      }
+    // Client-side format validation. Backend validates again as
+    // defence-in-depth; this is just a fast inline error for typos.
+    if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+      showToast('BSC (BEP-20) wallet must start with 0x followed by 40 hex characters.', 'err');
+      return;
     }
 
     setSavingWallet(true);
@@ -308,13 +301,11 @@ export default function Account() {
               update dynamically based on the selection. */}
           <div style={{marginBottom:12}}>
             <label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:6}}>Withdrawal Network</label>
-            {/* TRC-20 is temporarily disabled — NOWPayments TRC-20 fees
-                are ~46% of payment which makes the network economically
-                unviable. BSC is the only supported network for both
-                deposits and withdrawals until self-custody is built or
-                NOWPayments resolves their TRC-20 fee structure. The
-                'tron' branch in handlers below is left intact so we can
-                flip TRC-20 back on with a single line change. */}
+            {/* BSC (BEP-20) is the only supported network for deposits and
+                withdrawals. Tron (TRC-20) was retired 6 Jun 2026 — its
+                energy/bandwidth fees were uneconomic on small payouts —
+                and Polygon has been long dormant. Single-option pill kept
+                (rather than auto-select) so the choice is explicit. */}
             <div style={{display:'grid',gridTemplateColumns:'1fr',gap:8}}>
               <button
                 type="button"
@@ -340,12 +331,12 @@ export default function Account() {
 
           <div style={{marginBottom:12}}>
             <label style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>
-              Wallet Address {walletNetwork==='tron'?'(USDT on Tron)':walletNetwork==='bsc'?'(USDT on BSC)':''}
+              Wallet Address {walletNetwork==='bsc'?'(USDT on BSC)':''}
             </label>
             <input
               value={walletAddr}
               onChange={function(e){setWalletAddr(e.target.value);}}
-              placeholder={walletNetwork==='tron'?'T...':walletNetwork==='bsc'?'0x...':'Choose network first'}
+              placeholder={walletNetwork==='bsc'?'0x...':'Select BEP-20 above'}
               disabled={!walletNetwork}
               style={Object.assign({},iS,{fontFamily:'monospace',fontSize:14,opacity:walletNetwork?1:0.5})}
               onFocus={foc}
@@ -354,9 +345,7 @@ export default function Account() {
           </div>
 
           <div style={{padding:'10px 12px',background:'var(--sap-bg-input)',border:'1px solid #e8ecf2',borderRadius:8,marginBottom:12,fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
-            {walletNetwork==='tron' ? (
-              <>TronLink · Trust Wallet · Binance — any wallet that supports USDT on Tron (TRC-20). Make sure the address starts with <strong>T</strong> and is 34 characters.</>
-            ) : walletNetwork==='bsc' ? (
+            {walletNetwork==='bsc' ? (
               <>MetaMask · Trust Wallet · Binance — any wallet that supports USDT on BNB Chain (BEP-20). Make sure the address starts with <strong>0x</strong> and is 42 characters.</>
             ) : (
               <>Tap <strong>BEP-20 (BNB Chain)</strong> above. Withdrawals are sent as USDT on BNB Smart Chain — any wallet that supports BEP-20 will work (MetaMask, Trust Wallet, Binance, etc.). Make sure your wallet address starts with <strong>0x</strong> and is 42 characters.</>
