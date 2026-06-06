@@ -301,7 +301,8 @@ function RequireTier({ tier, children }) {
 function SmartHome() {
   const { user, loading } = useAuth();
   if (loading) return null;
-  if (user) return <Navigate to="/dashboard" replace />;
+  const preview = new URLSearchParams(window.location.search).has('preview');
+  if (user && !preview) return <Navigate to="/dashboard" replace />;
   return <HomePage />;
 }
 
