@@ -279,6 +279,7 @@ export default function Wallet() {
                       <input id="withdraw_totp_affiliate" style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric"/>
                     </div>
                   )}
+                  <div style={payoutNoteStyle}>⏱ Payouts are reviewed and processed within 5 days of request, for your account's security.</div>
                   <button onClick={() => handleWithdraw('affiliate')} disabled={withdrawing} style={{...btnPrimary, opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawAffiliate')}</button>
                   <div style={{ fontSize:15, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
                   {withdrawResult && withdrawResult.wallet === 'affiliate' && (
@@ -343,6 +344,7 @@ export default function Wallet() {
                       <input id="withdraw_totp_campaign" style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric"/>
                     </div>
                   )}
+                  <div style={payoutNoteStyle}>⏱ Payouts are reviewed and processed within 5 days of request, for your account's security.</div>
                   <button onClick={() => handleWithdraw('campaign')} disabled={withdrawing} style={{...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)', opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawCampaign')}</button>
                   <div style={{ fontSize:15, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
                   {withdrawResult && withdrawResult.wallet === 'campaign' && (
@@ -701,6 +703,7 @@ function LoadingSpinner() {
 // ── Styles ──
 const labelStyle = { fontSize: 13, fontWeight: 700, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6, display: 'block' };
 const inputStyle = { width: '100%', padding: '11px 14px', border: '1px solid rgba(15,25,60,.12)', borderRadius: 9, fontSize: 15, color: 'var(--sap-text-primary)', fontFamily: 'inherit', background: '#f6f8fc', boxSizing: 'border-box' };
+const payoutNoteStyle = { fontSize: 14, color: '#0c4a6e', background: '#eff6ff', border: '1px solid #bae6fd', borderRadius: 9, padding: '10px 12px', lineHeight: 1.45, textAlign: 'center' };
 const p2pInputStyle = { width: '100%', padding: '11px 14px', border: '1px solid rgba(15,25,60,.12)', borderRadius: 9, fontSize: 15, fontFamily: 'inherit', color: 'var(--sap-text-primary)', background: '#f6f8fc', boxSizing: 'border-box' };
 const btnPrimary = { fontSize: 15, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', padding: '11px 22px', borderRadius: 9, textDecoration: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'inline-block' };
 const thStyle = { fontSize: 14, fontWeight: 800, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1, padding: '11px 14px', borderBottom: '1px solid rgba(15,25,60,.08)', textAlign: 'left', background: '#f6f8fc' };
