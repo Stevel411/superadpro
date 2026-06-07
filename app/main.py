@@ -7214,11 +7214,15 @@ def admin_api_sponsor_sweep(
     base = "https://api.brevo.com/v3/smtp/emails"
 
     # Candidate sponsors: members who actually recruited (total_team>0 or
-    # personal_referrals>0 — both counters survived the wipe). ?full=1 widens to
-    # every member with an email for a final completeness pass.
+    # personal_referrals>0 — both counters survived the wipe). ?full=1 flips to
+    # the COMPLEMENT (members the recruiter pass skipped) to catch downlines
+    # held by zero-counter sponsors — the two passes together cover everyone
+    # exactly once.
     q = db.query(User.id, User.username, User.email).filter(
         User.email.isnot(None), User.email != "")
-    if not full:
+    if full:
+        q = q.filter(~((User.total_team > 0) | (User.personal_referrals > 0)))
+    else:
         q = q.filter((User.total_team > 0) | (User.personal_referrals > 0))
     candidates = q.order_by(User.id.asc()).all()
     total_candidates = len(candidates)
@@ -7332,7 +7336,7 @@ def admin_api_sponsor_sweep(
     done = (next_offset >= total_candidates) and not stopped_early
     return JSONResponse({
         "candidate_pool": total_candidates,
-        "candidate_mode": "all_members" if full else "recruiters_only(total_team>0)",
+        "candidate_mode": "non_recruiter_complement" if full else "recruiters_only(total_team>0)",
         "processed_this_batch": processed,
         "stopped_early_time_budget": stopped_early,
         "sponsors_with_recoverable_links_this_batch": sponsors_with_links,
