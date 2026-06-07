@@ -7006,6 +7006,114 @@ def admin_api_sponsor_recovery_notifications(
     })
 
 
+@app.get("/admin/api/brevo-team-recovery")
+async def admin_api_brevo_team_recovery(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    max_pages: int = 40,
+):
+    """Rebuild the sponsor tree from Brevo's transactional email logs (external,
+    survived the wipe). On signup we email the sponsor "<first_name> just joined
+    your SuperAdPro team!" via Brevo, so each logged email is recipient=sponsor,
+    subject=referred first name, date≈signup. We map recipient email -> sponsor
+    user, then match the referred first name + email date to a currently
+    null-sponsor account, accepting only unambiguous matches. Read-only; reports
+    coverage + the log date range (which reveals Brevo's retention window)."""
+    _require_admin(user)
+    import os as _os, httpx as _httpx
+    from sqlalchemy import func as _func
+    from collections import defaultdict as _dd
+    from datetime import datetime as _dt
+
+    api_key = _os.environ.get("BREVO_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "BREVO_API_KEY not configured in env"}, status_code=400)
+    headers = {"api-key": api_key, "accept": "application/json"}
+    base = "https://api.brevo.com/v3/smtp/emails"
+
+    def _parse_dt(s):
+        if not s:
+            return None
+        try:
+            return _dt.fromisoformat(s.replace("Z", "+00:00")).replace(tzinfo=None)
+        except Exception:
+            try:
+                return _dt.strptime(s[:19], "%Y-%m-%dT%H:%M:%S")
+            except Exception:
+                return None
+
+    collected, total_seen, oldest, newest = [], 0, None, None
+    offset, limit = 0, 1000
+    try:
+        async with _httpx.AsyncClient(timeout=30) as client:
+            for _ in range(max_pages):
+                r = await client.get(base, headers=headers,
+                                     params={"limit": limit, "offset": offset, "sort": "desc"})
+                if r.status_code != 200:
+                    return JSONResponse({"error": f"Brevo API {r.status_code}",
+                                         "body": r.text[:300]}, status_code=502)
+                emails = (r.json() or {}).get("transactionalEmails", []) or []
+                if not emails:
+                    break
+                for e in emails:
+                    total_seen += 1
+                    dt = e.get("date") or ""
+                    if dt:
+                        if oldest is None or dt < oldest: oldest = dt
+                        if newest is None or dt > newest: newest = dt
+                    if "joined your SuperAdPro team" in (e.get("subject") or ""):
+                        collected.append((e.get("email") or "", e.get("subject") or "", dt))
+                if len(emails) < limit:
+                    break
+                offset += limit
+    except Exception as e:
+        return JSONResponse({"error": f"Brevo fetch failed: {str(e)[:200]}"}, status_code=502)
+
+    null_users = db.query(User.id, User.first_name, User.username, User.created_at, User.is_active).filter(
+        User.sponsor_id.is_(None), User.id != 1).all()
+    by_fn = _dd(list)
+    for u in null_users:
+        if u.first_name:
+            by_fn[u.first_name.strip().lower()].append(u)
+
+    resolved, active_resolved, ambiguous, sponsor_not_found = {}, 0, 0, 0
+    for recipient_email, subj, dt in collected:
+        sponsor = db.query(User).filter(_func.lower(User.email) == recipient_email.strip().lower()).first()
+        if not sponsor:
+            sponsor_not_found += 1
+            continue
+        fn = subj.replace("\U0001f389", "").strip().split(" just joined")[0].strip().lower()
+        cands = by_fn.get(fn, [])
+        edt = _parse_dt(dt)
+        near = [c for c in cands if c.created_at and edt and abs((c.created_at - edt).total_seconds()) <= 7200]
+        pool = near or cands
+        if len(pool) == 1:
+            ref = pool[0]
+            if ref.id != sponsor.id and ref.id not in resolved:
+                resolved[ref.id] = {"user_id": ref.id, "username": ref.username,
+                                    "recovered_sponsor_id": sponsor.id,
+                                    "sponsor_username": sponsor.username,
+                                    "is_active": bool(ref.is_active)}
+                if ref.is_active:
+                    active_resolved += 1
+        elif len(pool) > 1:
+            ambiguous += 1
+
+    return JSONResponse({
+        "transactional_emails_scanned": total_seen,
+        "brevo_log_date_range": {"oldest": oldest, "newest": newest},
+        "team_join_emails_found": len(collected),
+        "recovered_from_brevo": len(resolved),
+        "of_which_active": active_resolved,
+        "ambiguous_same_name_same_time": ambiguous,
+        "sponsor_email_not_matched": sponsor_not_found,
+        "sample_recovered": list(resolved.values())[:25],
+        "note": ("oldest date in brevo_log_date_range = Brevo's retention edge; "
+                 "signups before that aren't in the logs. recovered links are "
+                 "recipient(sponsor)->subject(referred), unambiguous matches only."),
+    })
+
+
 @app.get("/api/command-centre/grid-team")
 def api_command_centre_grid_team(
     request: Request,
