@@ -9999,6 +9999,53 @@ def admin_api_nexus_credit_restore(
     })
 
 
+@app.get("/admin/api/stripe-charge-inspect")
+def admin_api_stripe_charge_inspect(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    charge_id: str = "",
+):
+    """Retrieve one live Stripe charge and dump its full current metadata,
+    description, amount and refund state — to confirm exactly what a charge was
+    for (e.g. a nexus pack later converted to a campaign tier). Read-only."""
+    _require_admin(user)
+    from .database import User as _User
+    if not charge_id:
+        return JSONResponse({"error": "pass ?charge_id=ch_..."}, status_code=400)
+    try:
+        from . import stripe_service as _ss
+        if not _ss.is_configured():
+            return JSONResponse({"error": "stripe not configured"}, status_code=200)
+        _ss._ensure_sdk()
+        import stripe as _stripe
+        ch = _stripe.Charge.retrieve(charge_id)
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:200]}"}, status_code=200)
+    md = (ch.metadata.to_dict() if getattr(ch, "metadata", None) else {})
+    uid = 0
+    try:
+        uid = int(md.get("superadpro_user_id") or 0)
+    except (TypeError, ValueError):
+        uid = 0
+    uname = None
+    if uid:
+        u = db.query(_User.username).filter(_User.id == uid).first()
+        uname = u.username if u else None
+    return JSONResponse({
+        "charge_id": charge_id,
+        "amount_usd": (ch.amount or 0) / 100.0,
+        "status": getattr(ch, "status", None),
+        "paid": bool(getattr(ch, "paid", False)),
+        "refunded": bool(getattr(ch, "refunded", False)),
+        "amount_refunded_usd": (getattr(ch, "amount_refunded", 0) or 0) / 100.0,
+        "description": getattr(ch, "description", None),
+        "metadata": md,
+        "resolved_user_id": uid,
+        "resolved_username": uname,
+        "created_ts": getattr(ch, "created", None),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
