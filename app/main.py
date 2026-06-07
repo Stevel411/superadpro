@@ -9643,16 +9643,24 @@ def admin_api_stripe_tier_credit_recovery(
     _t0 = _time.time()
     by_kind = {}
     tier_purchases, credit_purchases = [], []
-    scanned, hit_cap = 0, False
-    params = {"limit": 100}
+    scanned, charges_read, hit_cap = 0, 0, False
+    params = {"limit": 100, "type": "charge"}
     try:
         while True:
-            if _time.time() - _t0 > 35:
+            if _time.time() - _t0 > 40:
                 hit_cap = True
                 break
-            page = _stripe.Charge.list(**params)
-            for ch in page.data:
+            page = _stripe.BalanceTransaction.list(**params)
+            for bt in page.data:
                 scanned += 1
+                src = getattr(bt, "source", None)
+                if not src or not str(src).startswith("ch_"):
+                    continue
+                try:
+                    ch = _stripe.Charge.retrieve(src)
+                except Exception:
+                    continue
+                charges_read += 1
                 md = dict(ch.metadata or {})
                 pk = md.get("product_kind") or "unknown"
                 paid = bool(getattr(ch, "paid", False)) and getattr(ch, "status", "") == "succeeded"
@@ -9679,7 +9687,8 @@ def admin_api_stripe_tier_credit_recovery(
                 break
     except Exception as e:
         return JSONResponse({"stripe_enum_error": f"{type(e).__name__}: {str(e)[:200]}",
-                             "scanned": scanned, "by_kind": by_kind}, status_code=200)
+                             "balance_txns_scanned": scanned, "charges_read": charges_read,
+                             "by_kind": by_kind}, status_code=200)
 
     # Cross-check current state for each Stripe-paid tier buyer.
     def _state(uid):
@@ -9701,7 +9710,8 @@ def admin_api_stripe_tier_credit_recovery(
         c.update(_state(c["user_id"]))
 
     return JSONResponse({
-        "charges_scanned": scanned,
+        "balance_txns_scanned": scanned,
+        "charges_read": charges_read,
         "hit_time_cap": hit_cap,
         "charges_by_product_kind": by_kind,
         "campaign_tier_purchases_paid": tier_purchases,
