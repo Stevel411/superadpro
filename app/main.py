@@ -9615,6 +9615,105 @@ def admin_api_purchase_source_census(
     return JSONResponse(out)
 
 
+@app.get("/admin/api/stripe-tier-credit-recovery")
+def admin_api_stripe_tier_credit_recovery(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Phase 1 of tier/credit recovery: enumerate LIVE Stripe charges and read
+    each one's metadata (product_kind / campaign_tier_id / superadpro_user_id —
+    set at checkout via payment_intent_data, so it lands on the charge). Live
+    API, not the 1-row local mirror, so webhook-missed charges are caught.
+
+    Reports, for every PAID non-refunded charge, the exact (user, product, tier)
+    it bought, then cross-checks current state (active grid? credit balance?) so
+    we see precisely which Stripe-paid entitlements need restoring. Read-only."""
+    _require_admin(user)
+    from .database import Grid, SuperSceneCredit, User as _User
+    try:
+        from . import stripe_service as _ss
+        if not _ss.is_configured():
+            return JSONResponse({"error": "stripe not configured in env"}, status_code=200)
+        _ss._ensure_sdk()
+        import stripe as _stripe
+        import time as _time
+    except Exception as e:
+        return JSONResponse({"error": f"stripe init failed: {type(e).__name__}"}, status_code=200)
+
+    _t0 = _time.time()
+    by_kind = {}
+    tier_purchases, credit_purchases = [], []
+    scanned, hit_cap = 0, False
+    params = {"limit": 100}
+    try:
+        while True:
+            if _time.time() - _t0 > 35:
+                hit_cap = True
+                break
+            page = _stripe.Charge.list(**params)
+            for ch in page.data:
+                scanned += 1
+                md = dict(ch.metadata or {})
+                pk = md.get("product_kind") or "unknown"
+                paid = bool(getattr(ch, "paid", False)) and getattr(ch, "status", "") == "succeeded"
+                refunded = bool(getattr(ch, "refunded", False))
+                by_kind[pk] = by_kind.get(pk, 0) + 1
+                if not paid or refunded:
+                    continue
+                try:
+                    uid = int(md.get("superadpro_user_id") or 0)
+                except (TypeError, ValueError):
+                    uid = 0
+                amt = (ch.amount or 0) / 100.0
+                created = ch.created
+                if pk == "campaign_tier":
+                    tier_purchases.append({"user_id": uid, "tier_id": md.get("campaign_tier_id"),
+                                           "amount_usd": amt, "charge_id": ch.id, "created_ts": created})
+                elif pk in ("creative_credits", "superscene", "nexus_pack"):
+                    credit_purchases.append({"user_id": uid, "product_kind": pk,
+                                             "pack": md.get("pack_key") or md.get("credit_pack"),
+                                             "amount_usd": amt, "charge_id": ch.id, "created_ts": created})
+            if getattr(page, "has_more", False) and page.data:
+                params["starting_after"] = page.data[-1].id
+            else:
+                break
+    except Exception as e:
+        return JSONResponse({"stripe_enum_error": f"{type(e).__name__}: {str(e)[:200]}",
+                             "scanned": scanned, "by_kind": by_kind}, status_code=200)
+
+    # Cross-check current state for each Stripe-paid tier buyer.
+    def _state(uid):
+        if not uid:
+            return {"valid_user": False}
+        u = db.query(_User.id, _User.username, _User.is_active).filter(_User.id == uid).first()
+        if not u:
+            return {"valid_user": False}
+        grids_inc = db.query(Grid).filter(Grid.owner_id == uid, Grid.is_complete == False).count()
+        ssc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == uid).first()
+        return {"valid_user": True, "username": u.username, "is_active": bool(u.is_active),
+                "grids_incomplete_now": grids_inc,
+                "credit_balance_now": int(ssc.balance) if ssc else 0}
+
+    for t in tier_purchases:
+        t.update(_state(t["user_id"]))
+        t["needs_grid_restore"] = bool(t.get("valid_user") and t.get("grids_incomplete_now", 0) == 0)
+    for c in credit_purchases:
+        c.update(_state(c["user_id"]))
+
+    return JSONResponse({
+        "charges_scanned": scanned,
+        "hit_time_cap": hit_cap,
+        "charges_by_product_kind": by_kind,
+        "campaign_tier_purchases_paid": tier_purchases,
+        "tier_buyers_needing_grid_restore": sum(1 for t in tier_purchases if t.get("needs_grid_restore")),
+        "credit_purchases_paid": credit_purchases,
+        "note": ("Stripe-paid tiers/credits with exact user+tier from charge metadata. "
+                 "needs_grid_restore=true means they paid via Stripe but have no active "
+                 "grid now (wiped). Crypto-paid purchases are NOT here — those come from "
+                 "the on-chain pass. Read-only; nothing restored yet."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
