@@ -32998,6 +32998,128 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;let
 </body></html>"""
 
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/owner-grids")
+def admin_owner_grids(
+    user: User = Depends(get_current_user),
+    owner: str = "SuperAdPro",
+    db: Session = Depends(get_db),
+):
+    """
+    READ-ONLY: every grid an owner holds across ALL tiers, with completion
+    flags straight from the DB. Diagnoses 'my completed-grid stats vanished':
+    /api/grid-visualiser computes completed_advances PER TIER, so a completion
+    in tier X is invisible while the page is showing tier Y (it defaults to T1).
+    This lists all tiers at once, plus the owner's stored earning fields and
+    their commission ledger grouped by type+status. No writes.
+    Usage: /admin/owner-grids?owner=SuperAdPro
+    """
+    _require_admin(user)
+    import html as _h
+
+    o = db.query(User).filter(User.username == owner).first()
+    if not o and owner.strip().isdigit():
+        o = db.query(User).filter(User.id == int(owner)).first()
+    if not o:
+        return HTMLResponse(f"<p>Owner '{_h.escape(owner)}' not found.</p>", status_code=404)
+
+    grids = db.query(Grid).filter(Grid.owner_id == o.id).order_by(
+        Grid.package_tier, Grid.advance_number).all()
+
+    per_tier = {}
+    for g in grids:
+        d = per_tier.setdefault(g.package_tier, {"total": 0, "complete": 0})
+        d["total"] += 1
+        if g.is_complete:
+            d["complete"] += 1
+    total_complete = sum(d["complete"] for d in per_tier.values())
+    complete_tiers = sorted(t for t, d in per_tier.items() if d["complete"] > 0)
+
+    comms = db.query(Commission).filter(Commission.to_user_id == o.id).all()
+    by_ts = {}
+    for c in comms:
+        key = (c.commission_type or "?", c.status or "?")
+        d = by_ts.setdefault(key, {"count": 0, "total": 0.0})
+        d["count"] += 1
+        d["total"] += float(c.amount_usdt or 0)
+
+    bal = float(getattr(o, "balance", 0) or 0)
+    tot = float(getattr(o, "total_earned", 0) or 0)
+    ge = float(getattr(o, "grid_earnings", 0) or 0)
+    le = float(getattr(o, "level_earnings", 0) or 0)
+
+    if total_complete > 0:
+        verdict = (f"✅ {total_complete} completed grid(s) found in the DB, in tier(s) "
+                   f"{', '.join('T'+str(t) for t in complete_tiers)}. The data is intact — "
+                   f"the grid page defaults to T1, so select that tier tab to see these stats.")
+        vclean = True
+    else:
+        verdict = ("⚠️ No grids flagged is_complete=True for this owner in any tier. "
+                   "If you expected completions, the records themselves are missing — not just hidden by the tier view.")
+        vclean = False
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    pt_rows = ["<tr><th>tier</th><th>grids</th><th>completed</th></tr>"]
+    for t in sorted(per_tier.keys()):
+        d = per_tier[t]
+        hl = " style='background:#f0fdf4'" if d["complete"] > 0 else ""
+        pt_rows.append(f"<tr{hl}><td>T{t}</td><td>{d['total']}</td><td>{d['complete']}</td></tr>")
+    pt_tbl = "<table>" + "".join(pt_rows) + "</table>" if per_tier else "<p>No grids owned.</p>"
+
+    g_rows = ["<tr><th>grid</th><th>tier</th><th>adv</th><th>filled</th><th>complete</th><th>revenue</th><th>completed_at</th></tr>"]
+    for g in grids:
+        hl = " style='background:#f0fdf4'" if g.is_complete else ""
+        cat = g.completed_at.strftime('%Y-%m-%d') if getattr(g, "completed_at", None) else "—"
+        g_rows.append(f"<tr{hl}><td>{g.id}</td><td>T{g.package_tier}</td><td>{g.advance_number}</td>"
+                      f"<td>{g.positions_filled}</td><td>{'YES' if g.is_complete else 'no'}</td>"
+                      f"<td>${float(g.revenue_total or 0):.2f}</td><td>{cat}</td></tr>")
+    g_tbl = "<table>" + "".join(g_rows) + "</table>" if grids else "<p>No grids owned.</p>"
+
+    c_rows = ["<tr><th>type</th><th>status</th><th>count</th><th>total</th></tr>"]
+    for (ct, st), d in sorted(by_ts.items()):
+        warn = not any(k in st.lower() for k in ("revers", "void", "fail", "refund"))
+        col = "#0f172a" if warn else "#15803d"
+        c_rows.append(f"<tr><td>{esc(ct)}</td><td style='color:{col}'>{esc(st)}</td>"
+                      f"<td>{d['count']}</td><td>${d['total']:.2f}</td></tr>")
+    c_tbl = "<table>" + "".join(c_rows) + "</table>" if by_ts else "<p>No commissions recorded to this owner.</p>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Owner Grids</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} h2{{font-size:15px;margin:22px 0 8px;color:#1e3a8a}}
+.sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.verdict{{padding:14px 16px;border-radius:10px;font-weight:600;margin-bottom:16px;
+ background:{'#f0fdf4' if vclean else '#fffbeb'};border:1px solid {'#86efac' if vclean else '#fde68a'};
+ color:{'#15803d' if vclean else '#92400e'}}}
+.chips{{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}}
+.chip{{flex:1;min-width:120px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}}
+.chip .v{{font-size:20px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden;margin:6px 0}}
+th,td{{text-align:left;padding:8px 10px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.4px}}
+</style></head><body>
+<h1>Owner Grids — {esc(o.username)} (#{o.id})</h1>
+<div class="sub">Read-only · generated {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+<div class="verdict">{verdict}</div>
+<div class="chips">
+<div class="chip"><div class="l">Completed grids</div><div class="v">{total_complete}</div></div>
+<div class="chip"><div class="l">Balance</div><div class="v">${bal:.2f}</div></div>
+<div class="chip"><div class="l">Total earned</div><div class="v">${tot:.2f}</div></div>
+<div class="chip"><div class="l">Grid earnings</div><div class="v">${ge:.2f}</div></div>
+<div class="chip"><div class="l">Level earnings</div><div class="v">${le:.2f}</div></div>
+</div>
+<h2>Per-tier summary</h2>{pt_tbl}
+<h2>All grids (green = completed)</h2>{g_tbl}
+<h2>Commissions credited to this owner (by type + status)</h2>{c_tbl}
+</body></html>"""
+
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
