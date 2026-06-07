@@ -33302,6 +33302,80 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;let
 {tbl}
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/commission-census")
+def admin_commission_census(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    READ-ONLY census of the commission ledger. Groups the Commission table by
+    (commission_type, status) with row counts and summed amounts, and reports
+    the companion CreditMatrixCommission / CourseCommission tables. Tells us
+    whether the grid commission rows (direct_sponsor / uni_level) actually
+    exist in the ledger at all, or were deleted / never written — which decides
+    whether the counters or the ledger is closer to truth. No writes.
+    """
+    _require_admin(user)
+    import html as _h
+    from sqlalchemy import func as _f
+
+    grp = (db.query(Commission.commission_type, Commission.status,
+                     _f.count(Commission.id), _f.coalesce(_f.sum(Commission.amount_usdt), 0))
+             .group_by(Commission.commission_type, Commission.status)
+             .all())
+    total_rows = sum(int(r[2]) for r in grp)
+    total_sum = sum(float(r[3] or 0) for r in grp)
+
+    # companion tables
+    try:
+        cm_rows = int(db.query(_f.count(CreditMatrixCommission.id)).scalar() or 0)
+        cm_sum = float(db.query(_f.coalesce(_f.sum(CreditMatrixCommission.amount), 0)).scalar() or 0)
+    except Exception:
+        cm_rows, cm_sum = -1, 0.0
+    try:
+        cc_rows = int(db.query(_f.count(CourseCommission.id)).scalar() or 0)
+        cc_sum = float(db.query(_f.coalesce(_f.sum(CourseCommission.amount), 0)).scalar() or 0)
+    except Exception:
+        cc_rows, cc_sum = -1, 0.0
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    grp_sorted = sorted(grp, key=lambda r: float(r[3] or 0), reverse=True)
+    tr = ["<tr><th>commission_type</th><th>status</th><th>rows</th><th>sum</th></tr>"]
+    for ct, st, cnt, amt in grp_sorted:
+        tr.append(f"<tr><td>{esc(ct)}</td><td>{esc(st)}</td><td>{int(cnt)}</td><td>${float(amt or 0):.2f}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>" if grp else "<p style='color:#b91c1c;font-weight:600'>The commissions table is EMPTY.</p>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Commission Census</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} h2{{font-size:15px;margin:22px 0 8px;color:#1e3a8a}}
+.sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.chips{{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}}
+.chip{{flex:1;min-width:130px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}}
+.chip .v{{font-size:20px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:left;padding:8px 10px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.4px}}
+</style></head><body>
+<h1>Commission Ledger Census</h1>
+<div class="sub">Read-only · what actually lives in the commissions table · {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+<div class="chips">
+<div class="chip"><div class="l">Commission rows</div><div class="v">{total_rows}</div></div>
+<div class="chip"><div class="l">Σ commissions</div><div class="v">${total_sum:.2f}</div></div>
+<div class="chip"><div class="l">CreditMatrix rows</div><div class="v">{cm_rows}</div></div>
+<div class="chip"><div class="l">Σ CreditMatrix</div><div class="v">${cm_sum:.2f}</div></div>
+<div class="chip"><div class="l">Course rows</div><div class="v">{cc_rows}</div></div>
+<div class="chip"><div class="l">Σ Course</div><div class="v">${cc_sum:.2f}</div></div>
+</div>
+<h2>commissions — by type &amp; status</h2>{tbl}
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
