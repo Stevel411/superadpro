@@ -698,6 +698,7 @@ async def startup_event():
             print("✅ In-process security watchdog started (interval 60s)", flush=True)
             SECWATCH_LOCK_ID = 1885347292  # unique 32-bit constant for this loop
             wtick = 0
+            self_heal = False  # latched when a dead lock-holder is detected
             while True:
                 wtick += 1
                 try:
@@ -706,10 +707,30 @@ async def startup_event():
                         got = db.execute(
                             _text("SELECT pg_try_advisory_lock(:k)"),
                             {"k": SECWATCH_LOCK_ID}).scalar()
+                        # Stale-lock self-heal. The advisory lock is Postgres
+                        # SESSION-scoped; behind a connection pooler it can be
+                        # left held on a pooled server session if a process is
+                        # killed mid-tick, so a restarted process gets `false`
+                        # forever and never ticks. Guard: if we can't get the
+                        # lock but NO worker has ticked in 150s, the holder is
+                        # dead — latch self_heal and tick anyway. A live holder
+                        # refreshes the heartbeat every ~60s, so a healthy peer
+                        # never trips this; takeover only happens when the
+                        # holder truly stopped. Cleared as soon as we reacquire.
                         if got:
+                            self_heal = False
+                        elif not self_heal:
+                            try:
+                                _lt = float(_secwatch_get(db, "secwatch_last_tick_ts", "0") or "0")
+                            except (ValueError, TypeError):
+                                _lt = 0.0
+                            if (_time.time() - _lt) > 150:
+                                self_heal = True
+                                print("[secwatch] stale lock detected — self-heal takeover", flush=True)
+                        if got or self_heal:
                             try:
                                 res = run_security_watch(db)
-                                # Heartbeat: stamp every live (lock-held) tick so
+                                # Heartbeat: stamp every live tick so
                                 # /admin/secwatch-status can prove the daemon is
                                 # actually ticking, not just alive on paper.
                                 try:
@@ -722,8 +743,9 @@ async def startup_event():
                                 elif wtick % 30 == 0:
                                     print(f"[secwatch tick {wtick}] ok (heartbeat)", flush=True)
                             finally:
-                                db.execute(_text("SELECT pg_advisory_unlock(:k)"),
-                                           {"k": SECWATCH_LOCK_ID})
+                                if got:
+                                    db.execute(_text("SELECT pg_advisory_unlock(:k)"),
+                                               {"k": SECWATCH_LOCK_ID})
                                 db.commit()
                     finally:
                         db.close()
@@ -34465,12 +34487,24 @@ def admin_secwatch_status(
         except (ValueError, TypeError):
             secs_since_tick = None
     res = run_security_watch(db, dry=True)
+    # Advisory-lock probe: is the daemon's coordination lock (1885347292)
+    # currently held by ANY session? Held + stale heartbeat = a stuck lock
+    # left by a killed process (the self-heal case). Not held + stale = the
+    # daemon thread itself isn't running (a different fault).
+    try:
+        from sqlalchemy import text as _text
+        lock_holders = db.execute(_text(
+            "SELECT count(*) FROM pg_locks WHERE locktype='advisory' AND objid=:o"
+        ), {"o": 1885347292}).scalar()
+    except Exception:
+        lock_holders = None
     out = {
         "baseline_last_withdrawal_id": baseline,
         "current_max_withdrawal_id": cur_max,
         "watchdog_behind": cur_max > baseline,
         "seconds_since_last_tick": secs_since_tick,
         "daemon_alive": (secs_since_tick is not None and secs_since_tick < 150),
+        "advisory_lock_holders": lock_holders,
         "dry_run_pending_events": res.get("events"),
         "pending_detail": res.get("detail"),
         "treasury_read_ok": res.get("treasury_usdt") is not None,
