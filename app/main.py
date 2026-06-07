@@ -34182,6 +34182,135 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase}}
 {tbl}
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/rebuild-membership-ledger")
+def admin_rebuild_membership_ledger(
+    user: User = Depends(get_current_user),
+    limit: int = 60,
+    apply: int = 0,
+    code: str = "",
+    db: Session = Depends(get_db),
+):
+    """
+    Final rebuild stream: materialise the membership residual. Each real
+    earner's membership earnings = total_earned − (grid+level+bonus+upline+
+    course+marketplace counters), which is the surviving known-good value
+    (post the 31-May restore). Membership has no dedicated counter, so it
+    lives as this residual. Writes a membership_sponsor reconstructed row for
+    the GAP (residual − existing ledger membership) so it can't double-count
+    any membership rows already present. Idempotent, ledger only, synthetic
+    accounts excluded.
+
+    - GET: dry-run.  ?apply=1&code=NNNNNN: 2FA-gated write.
+    """
+    _require_admin(user)
+    import html as _h
+
+    MARKER = "ledger_rebuild_20260607"
+    SYNTHETIC = {667, 668, 669, 670, 673, 674}
+    MEM_TYPES = ["membership", "membership_renewal", "membership_sponsor",
+                 "Membership Sponsor", "gift_membership_sponsor"]
+
+    want_apply = bool(apply)
+    do_apply = want_apply and bool((code or "").strip())
+    if do_apply:
+        _require_admin_2fa(user, code)
+
+    earners = db.query(User).filter(User.total_earned > 0).all()
+
+    rows = []
+    written = skipped = 0
+    sum_gap = 0.0
+    for u in earners:
+        if u.id in SYNTHETIC:
+            continue
+        te = float(u.total_earned or 0)
+        accounted = (float(u.grid_earnings or 0) + float(u.level_earnings or 0)
+                     + float(u.bonus_earnings or 0) + float(u.upline_earnings or 0)
+                     + float(u.course_earnings or 0) + float(u.marketplace_earnings or 0))
+        residual = round(te - accounted, 2)
+        existing = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == u.id,
+            Commission.status == "paid",
+            Commission.commission_type.in_(MEM_TYPES),
+        ).scalar() or 0)
+        gap = round(residual - existing, 2)
+        if residual <= 0.01 and existing <= 0.01:
+            continue
+        rows.append({"id": u.id, "u": u.username or "", "residual": residual,
+                     "existing": existing, "gap": gap})
+        if gap > 0.01:
+            sum_gap += gap
+            if do_apply:
+                sev = f"{MARKER}:{u.id}:membership"
+                if db.query(Commission.id).filter(Commission.source_event_id == sev).first():
+                    skipped += 1
+                    continue
+                db.add(Commission(
+                    from_user_id=None, to_user_id=u.id, grid_id=None,
+                    amount_usdt=gap, commission_type="membership_sponsor",
+                    package_tier=0, status="paid",
+                    notes=("RECONSTRUCTED membership residual from surviving "
+                           "known-good counter (total_earned − grid/level/bonus) — "
+                           "per-event detail lost before 2026-06-07 (post 31-May restore)."),
+                    paid_at=datetime.utcnow(), source_event_id=sev,
+                ))
+                written += 1
+                try:
+                    cache_invalidate_user(u.id)
+                except Exception:
+                    pass
+    if do_apply:
+        db.commit()
+
+    rows.sort(key=lambda r: r["gap"], reverse=True)
+    shown = rows[:max(1, limit)]
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    if written or do_apply:
+        banner = (f"<div style='padding:14px 16px;border-radius:10px;font-weight:600;margin-bottom:16px;"
+                  f"background:#f0fdf4;border:1px solid #86efac;color:#15803d'>✅ Applied — wrote {written} "
+                  f"membership row(s), skipped {skipped}. Ledger only.</div>")
+    elif want_apply:
+        banner = (f"<div style='padding:14px 16px;border-radius:10px;font-weight:600;margin-bottom:16px;"
+                  f"background:#fffbeb;border:1px solid #fde68a;color:#92400e'>Preview only — append "
+                  f"<b>&amp;code=NNNNNN</b> to write.</div>")
+    else:
+        banner = ""
+
+    tr = ["<tr><th>id</th><th>user</th><th>membership residual</th><th>already in ledger</th><th>gap to write</th></tr>"]
+    for r in shown:
+        gcol = "#16a34a" if r["gap"] > 0.01 else "#94a3b8"
+        tr.append(f"<tr><td>{r['id']}</td><td>{esc(r['u'])}</td><td>${r['residual']:.2f}</td>"
+                  f"<td>${r['existing']:.2f}</td>"
+                  f"<td style='color:{gcol};font-weight:700'>${r['gap']:.2f}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Rebuild Membership Ledger</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.chips{{display:flex;gap:10px;margin-bottom:16px}}
+.chip{{flex:1;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase}} .chip .v{{font-size:20px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:left;padding:8px 10px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase}}
+</style></head><body>
+<h1>Rebuild Membership Ledger — {'applied' if written else 'dry-run'}</h1>
+<div class="sub">membership residual (total_earned − counters) → membership_sponsor · {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+{banner}
+<div class="chips">
+<div class="chip"><div class="l">Earners</div><div class="v">{len(rows)}</div></div>
+<div class="chip"><div class="l">Σ gap to write</div><div class="v">${sum_gap:.2f}</div></div>
+</div>
+{tbl}
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
