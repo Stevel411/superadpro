@@ -32883,7 +32883,10 @@ def admin_grid_cleanup_audit(
     in_real = [p for p in held if grids_by_id.get(p.grid_id) and grids_by_id[p.grid_id].owner_id not in synth_ids]
     in_founder = [p for p in held if grids_by_id.get(p.grid_id) and grids_by_id[p.grid_id].owner_id == FOUNDER_ID]
     # phantom commissions FROM suspects to others that are NOT reversed = still live on books
-    live_from = sum(d["total"] for st, d in from_bd.items() if st not in ("reversed", "failed", "voided"))
+    def _is_live(st):
+        # statuses are suffixed, e.g. 'reversed_incident_20260603' — match by substring
+        return not any(k in (st or "").lower() for k in ("revers", "void", "fail", "refund"))
+    live_from = sum(d["total"] for st, d in from_bd.items() if _is_live(st))
 
     payload = {
         "summary": {
@@ -32956,7 +32959,7 @@ def admin_grid_cleanup_audit(
             return f"<p style='color:#15803d'>{title}: none.</p>"
         r = [f"<tr><th>status</th><th>count</th><th>total</th></tr>"]
         for st, d in sorted(bd.items()):
-            warn = st not in ("reversed", "failed", "voided")
+            warn = _is_live(st)
             style = " style='color:#b91c1c;font-weight:600'" if warn else " style='color:#15803d'"
             r.append(f"<tr><td{style}>{_h.escape(st)}</td><td>{d['count']}</td><td>${d['total']:.2f}</td></tr>")
         return f"<p style='font-weight:600;margin:14px 0 4px'>{title}</p><table>" + "".join(r) + "</table>"
