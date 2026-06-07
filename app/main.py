@@ -10291,6 +10291,113 @@ def admin_api_grid_position_replay(
     })
 
 
+@app.get("/admin/api/grid-root-restore")
+def admin_api_grid_root_restore(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+    empty_active_all_tiers: int = 1,
+):
+    """Correct the company-root (user 1) grid after grid-position-replay.
+
+    User 1 had completed advances pre-hack (e.g. 2 on T1, bonuses paid — seen as
+    'Advances: 2' + surviving revenue) whose per-seat detail is unrecoverable (44
+    of ~72 seats lost: deleted accounts, pre-Brevo-window). The replay treated
+    every grid as a fresh advance-1 and seated reconstructable descendant-buyers
+    into user 1's ACTIVE grid, manufacturing false progress toward a phantom
+    completion bonus. Those buyers historically filled user 1's COMPLETED
+    advances and remain correctly seated in their real intermediate uplines.
+
+    This removes the reconstructed positions from user-1-owned grids and restores
+    the pre-hack shape: completed advances marked done (full seats, bonus_paid),
+    active grids emptied. Members' seats elsewhere are untouched; no commissions
+    or bonuses fire. Dry-run dumps the real grid rows first.
+
+    empty_active_all_tiers=1 (default) empties every active user-1 grid (T1/T2/T3);
+    set 0 to only touch grids whose tier had a completed advance."""
+    _require_admin(user)
+    from .database import (Grid, GridPosition, GRID_PACKAGES as _PKG,
+                           GRID_TOTAL as _TOTAL)
+    from .grid import _policy_bonus_target
+    from decimal import Decimal as _Dec
+    import pyotp
+    ROOT = 1
+
+    grids = (db.query(Grid).filter(Grid.owner_id == ROOT)
+             .order_by(Grid.package_tier, Grid.advance_number).all())
+    tiers_with_completion = {g.package_tier for g in grids if g.is_complete}
+
+    dump, total_remove = [], 0
+    for g in grids:
+        cnt = db.query(GridPosition).filter(GridPosition.grid_id == g.id).count()
+        if g.is_complete:
+            plan = "restore_complete_full"
+        elif empty_active_all_tiers or g.package_tier in tiers_with_completion:
+            plan = "empty_active"
+        else:
+            plan = "leave_as_is"
+        if plan != "leave_as_is":
+            total_remove += cnt
+        dump.append({"grid_id": g.id, "tier": g.package_tier, "advance": g.advance_number,
+                     "is_complete": bool(g.is_complete),
+                     "positions_filled_counter": g.positions_filled,
+                     "actual_position_rows": cnt,
+                     "revenue_total": float(g.revenue_total or 0), "plan": plan})
+
+    if not apply:
+        return JSONResponse({
+            "mode": "dry_run", "root_user": ROOT,
+            "tiers_with_completed_advances": sorted(tiers_with_completion),
+            "grids": dump,
+            "positions_to_remove_from_root_grids": total_remove,
+            "note": ("Dry-run. Apply: completed advances -> full 36 seats + bonus_paid "
+                     "(counter consistency; bonus already paid historically); active grids "
+                     "-> emptied (the reconstructed seats belong to your completed advances; "
+                     "members keep their seats in their real uplines). Result matches pre-hack: "
+                     "completed advances done, current grid empty. ?apply=1&code=YOUR_2FA. "
+                     "?empty_active_all_tiers=0 to only touch tiers that had a completed advance."),
+        })
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?code=NNNNNN"}, status_code=403)
+
+    removed = 0
+    for d in dump:
+        if d["plan"] == "leave_as_is":
+            continue
+        removed += db.query(GridPosition).filter(
+            GridPosition.grid_id == d["grid_id"]).delete(synchronize_session=False)
+    db.flush()
+
+    fixed = 0
+    for g in grids:
+        match = next((d for d in dump if d["grid_id"] == g.id), None)
+        if not match or match["plan"] == "leave_as_is":
+            continue
+        price = _Dec(str(_PKG.get(g.package_tier, 0)))
+        if g.is_complete:
+            g.positions_filled = _TOTAL
+            g.revenue_total = price * _TOTAL
+            g.bonus_pool_accrued = _Dec(str(_policy_bonus_target(g.package_tier)))
+            g.bonus_paid = True
+        else:
+            g.positions_filled = 0
+            g.revenue_total = 0
+            g.bonus_pool_accrued = 0
+        fixed += 1
+    db.commit()
+
+    return JSONResponse({
+        "mode": "applied", "positions_removed": removed, "grids_fixed": fixed,
+        "note": ("User-1 grids restored to pre-hack shape: completed advances done, active "
+                 "grids empty. Members' seats in their own uplines untouched. No false "
+                 "progress, no phantom-bonus risk. No commissions or bonuses fired."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
