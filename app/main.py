@@ -10398,6 +10398,84 @@ def admin_api_grid_root_restore(
     })
 
 
+@app.get("/admin/api/grid-root-audit")
+def admin_api_grid_root_audit(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    target_user_id: int = 1,
+    hours: int = 72,
+):
+    """Read-only ground-truth dump for diagnosing an unexpected wallet credit.
+
+    Returns the target user's actual wallet/earnings fields (incl. campaign_balance,
+    which lookup_user does NOT expose), the full bonus state of their grids, and
+    every Commission row touching them in the window — so an unexplained
+    campaign_balance change can be traced to its exact source and reversed
+    precisely. No writes."""
+    _require_admin(user)
+    from .database import Grid, GridPosition, Commission, User as _User
+    from datetime import datetime as _dt, timedelta as _td
+    from sqlalchemy import or_ as _or
+
+    t = db.query(_User).filter(_User.id == target_user_id).first()
+    if not t:
+        return JSONResponse({"error": f"user {target_user_id} not found"}, status_code=404)
+
+    wallet = {
+        "campaign_balance": float(getattr(t, "campaign_balance", 0) or 0),
+        "balance": float(getattr(t, "balance", 0) or 0),
+        "total_earned": float(getattr(t, "total_earned", 0) or 0),
+        "bonus_earnings": float(getattr(t, "bonus_earnings", 0) or 0),
+        "grid_earnings": float(getattr(t, "grid_earnings", 0) or 0),
+        "level_earnings": float(getattr(t, "level_earnings", 0) or 0),
+    }
+
+    grids = (db.query(Grid).filter(Grid.owner_id == target_user_id)
+             .order_by(Grid.package_tier, Grid.advance_number).all())
+    grid_rows = []
+    for g in grids:
+        cnt = db.query(GridPosition).filter(GridPosition.grid_id == g.id).count()
+        grid_rows.append({
+            "grid_id": g.id, "tier": g.package_tier, "advance": g.advance_number,
+            "is_complete": bool(g.is_complete), "bonus_paid": bool(g.bonus_paid),
+            "bonus_rolled_over": bool(getattr(g, "bonus_rolled_over", False)),
+            "bonus_pool_accrued": float(g.bonus_pool_accrued or 0),
+            "positions_filled": g.positions_filled, "actual_rows": cnt,
+            "completed_at": g.completed_at.isoformat() if g.completed_at else None,
+        })
+
+    since = _dt.utcnow() - _td(hours=hours)
+    coms = (db.query(Commission)
+            .filter(_or(Commission.to_user_id == target_user_id,
+                        Commission.from_user_id == target_user_id))
+            .filter(Commission.created_at >= since)
+            .order_by(Commission.created_at.desc()).all())
+    com_rows = [{
+        "id": c.id, "type": c.commission_type, "amount": float(c.amount_usdt or 0),
+        "from": c.from_user_id, "to": c.to_user_id, "status": c.status,
+        "grid_id": getattr(c, "grid_id", None),
+        "created_at": c.created_at.isoformat() if c.created_at else None,
+        "paid_at": c.paid_at.isoformat() if c.paid_at else None,
+        "notes": (c.notes or "")[:120],
+    } for c in coms]
+    grid_bonus_to_user = [c for c in com_rows
+                          if c["type"] in ("grid_completion_bonus", "grid_completion_bonus_topup")
+                          and c["to"] == target_user_id]
+
+    return JSONResponse({
+        "target_user_id": target_user_id, "username": t.username,
+        "wallet": wallet,
+        "grids": grid_rows,
+        "commissions_window_hours": hours,
+        "commissions_touching_user": com_rows,
+        "grid_completion_bonuses_to_user_in_window": grid_bonus_to_user,
+        "note": ("Read-only. campaign_balance is the grid/campaign wallet (grid completion "
+                 "bonuses land here). A grid_completion_bonus Commission row + matching "
+                 "campaign_balance/bonus_earnings/total_earned bump = a real payout; its "
+                 "absence means any reported figure is grid-state-derived, not a credit."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
