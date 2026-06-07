@@ -9916,6 +9916,89 @@ def admin_api_tier_grid_restore(
     })
 
 
+@app.get("/admin/api/nexus-credit-restore")
+def admin_api_nexus_credit_restore(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    pairs: str = "",
+    apply: int = 0,
+    code: str = "",
+):
+    """Restore wiped credit balances from VERIFIED paid Nexus/credit purchases.
+    pairs = comma-separated user:credits (e.g. '264:100,157:350'). Adds to
+    superscene_credits.balance directly (the spendable 'creator credits'
+    balance) — NEVER calls purchase_credit_pack, which fires the 20% sponsor
+    commission. Used-credit history was wiped so this restores GROSS purchased;
+    current balance is 0 for all wiped accounts. Dry-run by default; ?apply=1&
+    code=2FA writes."""
+    _require_admin(user)
+    from .database import SuperSceneCredit, User as _User
+    import pyotp
+
+    items = []
+    for tok in (pairs or "").split(","):
+        tok = tok.strip()
+        if not tok or ":" not in tok:
+            continue
+        u, c = tok.split(":", 1)
+        try:
+            items.append((int(u), int(c)))
+        except ValueError:
+            continue
+    if not items:
+        return JSONResponse({"error": "pass ?pairs=user:credits,user:credits"}, status_code=400)
+    items = sorted(set(items), key=lambda x: x[0])
+
+    plan = []
+    for uid, credits in items:
+        u = db.query(_User.id, _User.username, _User.is_active).filter(_User.id == uid).first()
+        if not u:
+            plan.append({"user_id": uid, "credits": credits, "action": "skip_user_gone"})
+            continue
+        ssc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == uid).first()
+        cur = int(ssc.balance) if ssc else 0
+        plan.append({"user_id": uid, "username": u.username, "credits_to_add": credits,
+                     "current_balance": cur, "resulting_balance": cur + credits,
+                     "action": "will_restore"})
+
+    to_do = [p for p in plan if p["action"] == "will_restore"]
+    if not apply:
+        return JSONResponse({
+            "mode": "dry_run", "pairs_in": len(items), "will_restore": len(to_do),
+            "skipped": sum(1 for p in plan if str(p["action"]).startswith("skip")),
+            "total_credits_to_add": sum(p.get("credits_to_add", 0) for p in to_do),
+            "plan": plan,
+            "note": ("Dry-run — nothing written. ?apply=1&code=YOUR_2FA to restore. "
+                     "Adds to superscene_credits.balance; no commissions fired."),
+        })
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?code=NNNNNN"},
+                            status_code=403)
+
+    done = []
+    for p in to_do:
+        uid, credits = p["user_id"], p["credits_to_add"]
+        ssc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == uid).first()
+        if ssc:
+            ssc.balance = int(ssc.balance or 0) + credits
+            newbal = ssc.balance
+        else:
+            db.add(SuperSceneCredit(user_id=uid, balance=credits))
+            newbal = credits
+        done.append({"user_id": uid, "username": p.get("username"),
+                     "added": credits, "new_balance": newbal})
+    db.commit()
+    return JSONResponse({
+        "mode": "applied", "restored": len(done),
+        "total_credits_added": sum(d["added"] for d in done),
+        "results": done,
+        "note": "Credit balances restored (no commissions fired).",
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
