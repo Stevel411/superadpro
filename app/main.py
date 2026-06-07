@@ -33045,9 +33045,31 @@ def admin_owner_grids(
         d["total"] += float(c.amount_usdt or 0)
 
     bal = float(getattr(o, "balance", 0) or 0)
+    cb = float(getattr(o, "campaign_balance", 0) or 0)
     tot = float(getattr(o, "total_earned", 0) or 0)
     ge = float(getattr(o, "grid_earnings", 0) or 0)
     le = float(getattr(o, "level_earnings", 0) or 0)
+
+    # Live PAID ledger sums by type (status containing revers/void/fail excluded)
+    def _paid_sum(types):
+        s = 0.0
+        for c in comms:
+            st = (c.status or "").lower()
+            if any(k in st for k in ("revers", "void", "fail", "refund")):
+                continue
+            if (c.commission_type or "") in types:
+                s += float(c.amount_usdt or 0)
+        return s
+    ledger_direct = _paid_sum({"direct_sponsor"})
+    ledger_uni = _paid_sum({"uni_level"})
+    ledger_bonus = _paid_sum({"grid_completion_bonus", "grid_completion_bonus_topup"})
+    ledger_grid_total = ledger_direct + ledger_uni + ledger_bonus
+    # reconciliation: counters vs ledger
+    recon = [
+        ("grid_earnings (direct 40%)", ge, ledger_direct, "direct_sponsor"),
+        ("level_earnings (uni-level)", le, ledger_uni, "uni_level"),
+    ]
+    recon_drift = any(abs(stored - led) > 0.01 for _, stored, led, _ in recon)
 
     if total_complete > 0:
         verdict = (f"✅ {total_complete} completed grid(s) found in the DB, in tier(s) "
@@ -33086,6 +33108,20 @@ def admin_owner_grids(
                       f"<td>{d['count']}</td><td>${d['total']:.2f}</td></tr>")
     c_tbl = "<table>" + "".join(c_rows) + "</table>" if by_ts else "<p>No commissions recorded to this owner.</p>"
 
+    r_rows = ["<tr><th>counter</th><th>stored value</th><th>live paid ledger</th><th>match?</th></tr>"]
+    for label, stored, led, _t in recon:
+        ok = abs(stored - led) <= 0.01
+        mark = "✅" if ok else "⚠️ diff $%.2f" % (stored - led)
+        hl = "" if ok else " style='background:#fffbeb'"
+        r_rows.append(f"<tr{hl}><td>{esc(label)}</td><td>${stored:.2f}</td><td>${led:.2f}</td><td>{mark}</td></tr>")
+    recon_tbl = "<table>" + "".join(r_rows) + "</table>"
+    recon_note = ("" if not recon_drift else
+                  "<p style='font-size:13px;color:#92400e'>The stored earnings counters that feed your "
+                  "displayed stats don't match the actual paid commission rows. These counters are lifetime "
+                  "<em>stats</em> — your withdrawable wallets (affiliate ${:.2f} / campaign ${:.2f}) are separate "
+                  "— so this is a display-accuracy issue, not a balance leak. A reconcile from the ledger fixes "
+                  "the displayed figures.</p>".format(bal, cb))
+
     html_out = f"""<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Owner Grids</title>
@@ -33109,12 +33145,14 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;let
 <div class="verdict">{verdict}</div>
 <div class="chips">
 <div class="chip"><div class="l">Completed grids</div><div class="v">{total_complete}</div></div>
-<div class="chip"><div class="l">Balance</div><div class="v">${bal:.2f}</div></div>
+<div class="chip"><div class="l">Balance (affiliate)</div><div class="v">${bal:.2f}</div></div>
+<div class="chip"><div class="l">Campaign wallet</div><div class="v">${cb:.2f}</div></div>
 <div class="chip"><div class="l">Total earned</div><div class="v">${tot:.2f}</div></div>
 <div class="chip"><div class="l">Grid earnings</div><div class="v">${ge:.2f}</div></div>
 <div class="chip"><div class="l">Level earnings</div><div class="v">${le:.2f}</div></div>
 </div>
 <h2>Per-tier summary</h2>{pt_tbl}
+<h2>Counters vs live ledger (what feeds your displayed earnings)</h2>{recon_tbl}{recon_note}
 <h2>All grids (green = completed)</h2>{g_tbl}
 <h2>Commissions credited to this owner (by type + status)</h2>{c_tbl}
 </body></html>"""
