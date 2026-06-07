@@ -7010,8 +7010,10 @@ def admin_api_sponsor_recovery_notifications(
 def admin_api_brevo_team_recovery(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    max_pages: int = 6,
-    per: int = 100,
+    sponsor_user_id: int = 1,
+    email: str = "",
+    max_pages: int = 10,
+    per: int = 500,
 ):
     """Rebuild the sponsor tree from Brevo's transactional email logs (external,
     survived the wipe). On signup we email the sponsor "<first_name> just joined
@@ -7031,6 +7033,18 @@ def admin_api_brevo_team_recovery(
         return JSONResponse({"error": "BREVO_API_KEY not configured in env"}, status_code=400)
     headers = {"api-key": api_key, "accept": "application/json"}
     base = "https://api.brevo.com/v3/smtp/emails"
+
+    # /smtp/emails REQUIRES a filter (email/messageId/templateId). We filter by
+    # RECIPIENT: every team-join email a sponsor received names someone who
+    # joined under them. Default = company/owner (user 1) — the cohort you see
+    # in your own inbox. ?sponsor_user_id=N recovers another sponsor's downline;
+    # ?email= overrides the address.
+    target = db.query(User).filter(User.id == sponsor_user_id).first()
+    if not target:
+        return JSONResponse({"error": f"sponsor_user_id {sponsor_user_id} not found"}, status_code=200)
+    target_email = (email or target.email or "").strip()
+    if not target_email:
+        return JSONResponse({"error": f"no email on user {sponsor_user_id}; pass ?email="}, status_code=200)
 
     def _parse_dt(s):
         if not s:
@@ -7055,7 +7069,7 @@ def admin_api_brevo_team_recovery(
                     hit_cap = True
                     break
                 r = client.get(base, headers=headers,
-                               params={"limit": limit, "offset": offset, "sort": "desc"})
+                               params={"email": target_email, "limit": limit, "offset": offset, "sort": "desc"})
                 if first_status is None:
                     first_status = r.status_code
                 if r.status_code != 200:
@@ -7091,21 +7105,9 @@ def admin_api_brevo_team_recovery(
         if u.first_name:
             by_fn[u.first_name.strip().lower()].append(u)
 
-    # batch sponsor lookup by recipient email (one query, not one per email)
-    rec_emails = {r.strip().lower() for r, _, _ in collected if r}
-    sponsor_by_email = {}
-    if rec_emails:
-        for su in db.query(User.id, User.username, User.email).filter(
-                _func.lower(User.email).in_(rec_emails)).all():
-            if su.email:
-                sponsor_by_email[su.email.strip().lower()] = su
-
-    resolved, active_resolved, ambiguous, sponsor_not_found = {}, 0, 0, 0
+    resolved, active_resolved, ambiguous = {}, 0, 0
+    sponsor = target  # every email returned was received by this sponsor
     for recipient_email, subj, dt in collected:
-        sponsor = sponsor_by_email.get(recipient_email.strip().lower())
-        if not sponsor:
-            sponsor_not_found += 1
-            continue
         fn = subj.replace("\U0001f389", "").strip().split(" just joined")[0].strip().lower()
         cands = by_fn.get(fn, [])
         edt = _parse_dt(dt)
@@ -7129,11 +7131,11 @@ def admin_api_brevo_team_recovery(
         "brevo_first_status": first_status,
         "brevo_first_item_sample": first_sample,
         "brevo_log_date_range": {"oldest": oldest, "newest": newest},
+        "queried_sponsor": {"user_id": target.id, "username": target.username, "email": target_email},
         "team_join_emails_found": len(collected),
-        "recovered_from_brevo": len(resolved),
+        "recovered_under_this_sponsor": len(resolved),
         "of_which_active": active_resolved,
         "ambiguous_same_name_same_time": ambiguous,
-        "sponsor_email_not_matched": sponsor_not_found,
         "sample_recovered": list(resolved.values())[:25],
         "note": ("oldest date in brevo_log_date_range = Brevo's retention edge; "
                  "signups before that aren't in the logs. recovered links are "
