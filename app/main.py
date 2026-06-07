@@ -7050,7 +7050,11 @@ def admin_api_brevo_team_recovery(
         if not s:
             return None
         try:
-            return _dt.fromisoformat(s.replace("Z", "+00:00")).replace(tzinfo=None)
+            d = _dt.fromisoformat(s.replace("Z", "+00:00"))
+            if d.tzinfo is not None:
+                from datetime import timezone as _tz
+                d = d.astimezone(_tz.utc).replace(tzinfo=None)
+            return d
         except Exception:
             try:
                 return _dt.strptime(s[:19], "%Y-%m-%dT%H:%M:%S")
@@ -7098,32 +7102,41 @@ def admin_api_brevo_team_recovery(
         return JSONResponse({"brevo_fetch_failed": f"{type(e).__name__}: {str(e)[:200]}",
                              "first_status": first_status}, status_code=200)
 
-    null_users = db.query(User.id, User.first_name, User.username, User.created_at, User.is_active).filter(
-        User.sponsor_id.is_(None), User.id != 1).all()
+    all_users = db.query(User.id, User.first_name, User.username, User.created_at,
+                         User.is_active, User.sponsor_id).all()
     by_fn = _dd(list)
-    for u in null_users:
+    for u in all_users:
         if u.first_name:
             by_fn[u.first_name.strip().lower()].append(u)
 
-    resolved, active_resolved, ambiguous = {}, 0, 0
     sponsor = target  # every email returned was received by this sponsor
+    resolved, active_resolved, ambiguous, already_correct, conflict, not_found = {}, 0, 0, 0, 0, 0
     for recipient_email, subj, dt in collected:
         fn = subj.replace("\U0001f389", "").strip().split(" just joined")[0].strip().lower()
         cands = by_fn.get(fn, [])
         edt = _parse_dt(dt)
-        near = [c for c in cands if c.created_at and edt and abs((c.created_at - edt).total_seconds()) <= 7200]
+        near = [c for c in cands if c.created_at and edt and abs((c.created_at - edt).total_seconds()) <= 1800]
         pool = near or cands
         if len(pool) == 1:
             ref = pool[0]
-            if ref.id != sponsor.id and ref.id not in resolved:
-                resolved[ref.id] = {"user_id": ref.id, "username": ref.username,
-                                    "recovered_sponsor_id": sponsor.id,
-                                    "sponsor_username": sponsor.username,
-                                    "is_active": bool(ref.is_active)}
-                if ref.is_active:
-                    active_resolved += 1
+            if ref.id == sponsor.id:
+                continue
+            if ref.sponsor_id == sponsor.id:
+                already_correct += 1
+            elif ref.sponsor_id is None:
+                if ref.id not in resolved:
+                    resolved[ref.id] = {"user_id": ref.id, "username": ref.username,
+                                        "recovered_sponsor_id": sponsor.id,
+                                        "sponsor_username": sponsor.username,
+                                        "is_active": bool(ref.is_active)}
+                    if ref.is_active:
+                        active_resolved += 1
+            else:
+                conflict += 1  # already has a DIFFERENT sponsor — never overwrite
         elif len(pool) > 1:
             ambiguous += 1
+        else:
+            not_found += 1
 
     return JSONResponse({
         "transactional_emails_scanned": total_seen,
@@ -7135,7 +7148,10 @@ def admin_api_brevo_team_recovery(
         "team_join_emails_found": len(collected),
         "recovered_under_this_sponsor": len(resolved),
         "of_which_active": active_resolved,
-        "ambiguous_same_name_same_time": ambiguous,
+        "already_correct": already_correct,
+        "ambiguous_same_name": ambiguous,
+        "conflict_has_other_sponsor": conflict,
+        "referred_not_found_in_db": not_found,
         "sample_recovered": list(resolved.values())[:25],
         "note": ("oldest date in brevo_log_date_range = Brevo's retention edge; "
                  "signups before that aren't in the logs. recovered links are "
