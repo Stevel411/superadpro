@@ -22815,6 +22815,118 @@ def admin_reject_item(item_type: str, item_id: int, user: User = Depends(get_cur
     raise HTTPException(status_code=404, detail="Moderation queue removed")
 
 # ── Finances ─────────────────────────────────────────────────
+_REVENUE_STRIPE_CACHE_TTL = 1800  # 30 min — Stripe enumeration is paginated; cache it
+
+def _compute_platform_revenue(db, force=False):
+    """Real platform revenue (GMV / gross money in) from surviving truth.
+
+    The old admin card summed SUM(Payment WHERE confirmed), but the payments
+    table is an internal MIRROR that was hollowed out in the 31-May restore,
+    so it under-reported to ~$55. Money's actual truth lives in Stripe (card,
+    fully enumerable via the live API — NEVER lost) and on-chain (crypto). So:
+
+      total = stripe_gross (live API)               # all card revenue, complete
+            + crypto_baseline                        # analysed on-chain member
+                                                     #   crypto revenue at reopen
+            + crypto_recorded_since_reopen           # new confirmed non-Stripe
+                                                     #   payments after the cutoff
+
+    The baseline + cutoff split prevents double-counting: the baseline covers
+    everything up to reopen; the recorded-since term only counts crypto rows
+    created after it. Both baseline and cutoff are AppConfig values the admin
+    can correct if the BscScan view differs. Stripe gross is cached 30 min and
+    fails safe to the last cached value so a slow/down Stripe API never breaks
+    the dashboard load.
+    """
+    from sqlalchemy import func as _func
+    import time as _t
+    from datetime import datetime as _dt
+
+    # crypto historical baseline (seed once)
+    base_raw = _secwatch_get(db, "revenue_crypto_baseline_usd", "")
+    if base_raw == "":
+        base_raw = "2773.0"
+        _secwatch_set(db, "revenue_crypto_baseline_usd", base_raw); db.commit()
+    try:
+        crypto_baseline = float(base_raw)
+    except (ValueError, TypeError):
+        crypto_baseline = 2773.0
+
+    cutoff_raw = _secwatch_get(db, "revenue_crypto_baseline_cutoff", "")
+    if cutoff_raw == "":
+        cutoff_raw = "2026-06-07T00:00:00"
+        _secwatch_set(db, "revenue_crypto_baseline_cutoff", cutoff_raw); db.commit()
+    try:
+        cutoff_dt = _dt.fromisoformat(cutoff_raw)
+    except Exception:
+        cutoff_dt = _dt(2026, 6, 7)
+
+    # new crypto/non-Stripe confirmed payments since reopen (null tx_hash = non-Stripe)
+    try:
+        crypto_since = float(db.query(_func.coalesce(_func.sum(Payment.amount_usdt), 0)).filter(
+            Payment.status == "confirmed",
+            ~_func.coalesce(Payment.tx_hash, "").like("stripe_%"),
+            Payment.created_at >= cutoff_dt,
+        ).scalar() or 0)
+    except Exception:
+        crypto_since = 0.0
+
+    # Stripe gross (live, cached, fail-safe)
+    cache_val = _secwatch_get(db, "revenue_stripe_gross_usd", "")
+    cache_at = _secwatch_get(db, "revenue_stripe_gross_at", "")
+    fresh = False
+    if cache_val and cache_at:
+        try:
+            fresh = (_t.time() - float(cache_at)) < _REVENUE_STRIPE_CACHE_TTL
+        except (ValueError, TypeError):
+            fresh = False
+    stripe_gross = None
+    if fresh and not force:
+        try:
+            stripe_gross = float(cache_val)
+        except (ValueError, TypeError):
+            stripe_gross = None
+    if stripe_gross is None:
+        try:
+            from . import stripe_service as _ss
+            if _ss.is_configured():
+                _ss._ensure_sdk()
+                import stripe as _stripe
+                g = 0.0
+                params = {"limit": 100, "type": "charge"}
+                while True:
+                    page = _stripe.BalanceTransaction.list(**params)
+                    for bt in page.data:
+                        g += (bt.amount or 0) / 100.0
+                    if page.has_more and page.data:
+                        params["starting_after"] = page.data[-1].id
+                    else:
+                        break
+                stripe_gross = round(g, 2)
+                _secwatch_set(db, "revenue_stripe_gross_usd", str(stripe_gross))
+                _secwatch_set(db, "revenue_stripe_gross_at", str(_t.time()))
+                db.commit()
+            else:
+                stripe_gross = float(cache_val) if cache_val else 0.0
+        except Exception:
+            try:
+                stripe_gross = float(cache_val) if cache_val else 0.0
+            except (ValueError, TypeError):
+                stripe_gross = 0.0
+    if stripe_gross is None:
+        stripe_gross = 0.0
+
+    total = round(stripe_gross + crypto_baseline + crypto_since, 2)
+    return {
+        "total_usd": total,
+        "stripe_gross_usd": round(stripe_gross, 2),
+        "crypto_baseline_usd": round(crypto_baseline, 2),
+        "crypto_recorded_since_reopen_usd": round(crypto_since, 2),
+        "stripe_cache_fresh": bool(fresh),
+        "source": "stripe_live + crypto_baseline + crypto_since_reopen",
+    }
+
+
 @app.get("/admin/api/finances")
 def admin_api_finances(
     user: User = Depends(get_current_user),
@@ -22823,7 +22935,11 @@ def admin_api_finances(
     _require_admin(user)
     from sqlalchemy import func
 
-    total_revenue = db.query(func.sum(Payment.amount_usdt)).filter(Payment.status == "confirmed").scalar() or 0
+    # Real revenue (GMV) from surviving truth — Stripe live + crypto baseline +
+    # crypto recorded since reopen. Replaces SUM(Payment WHERE confirmed), which
+    # under-reported to ~$55 because the payments mirror was wiped in the restore.
+    _rev = _compute_platform_revenue(db)
+    total_revenue = _rev["total_usd"]
     # Only "paid" commissions count — "pending" hasn't actually been distributed yet,
     # and including it overstates total_commissions_paid and understates platform_profit.
     # Bug fixed 7 May 2026: total_commissions previously summed only the
@@ -22872,6 +22988,7 @@ def admin_api_finances(
         "total_users": total_users,
         "active_users": active_users,
         "total_revenue": float(total_revenue),
+        "revenue_breakdown": _rev,
         "total_commissions_paid": float(total_commissions),
         "pending_withdrawals_count": pending_withdrawals_count,
         "active_grids": active_grids,
