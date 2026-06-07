@@ -33507,6 +33507,71 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;let
 {tbl}
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/data-census")
+def admin_data_census(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    READ-ONLY row-count census across the financial / event tables, to see
+    exactly which detail records survived and which are empty. Diagnoses the
+    'counters retained, event rows gone' pattern found in commissions and
+    grid positions. No writes.
+    """
+    _require_admin(user)
+    import html as _h
+    from sqlalchemy import func as _f
+
+    targets = [
+        ("User", "User"), ("Grid", "Grid"), ("GridPosition", "GridPosition"),
+        ("Commission", "Commission"), ("PendingCommission", "PendingCommission"),
+        ("Payment", "Payment"), ("Withdrawal", "Withdrawal"),
+        ("CreditMatrix", "CreditMatrix"), ("CreditMatrixPosition", "CreditMatrixPosition"),
+        ("CreditMatrixCommission", "CreditMatrixCommission"),
+        ("CourseCommission", "CourseCommission"), ("CoursePurchase", "CoursePurchase"),
+        ("MembershipRenewal", "MembershipRenewal"),
+        ("WalletConnectPaymentOrder", "WalletConnectPaymentOrder"),
+        ("NowPaymentsOrder", "NowPaymentsOrder"),
+        ("VideoCampaign", "VideoCampaign"),
+    ]
+    g = globals()
+    rows = []
+    for label, modelname in targets:
+        model = g.get(modelname)
+        if model is None:
+            rows.append((label, "—", "model not in scope"))
+            continue
+        try:
+            cnt = int(db.query(_f.count()).select_from(model).scalar() or 0)
+            rows.append((label, str(cnt), ""))
+        except Exception as e:
+            rows.append((label, "ERR", str(e)[:60]))
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    tr = ["<tr><th>table</th><th>rows</th><th>note</th></tr>"]
+    for label, cnt, note in rows:
+        hl = " style='background:#fffbeb'" if cnt == "0" else ""
+        tr.append(f"<tr{hl}><td>{esc(label)}</td><td><b>{esc(cnt)}</b></td><td style='color:#64748b'>{esc(note)}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Data Census</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+table{{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:left;padding:9px 12px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.4px}}
+</style></head><body>
+<h1>Data Census — financial / event tables</h1>
+<div class="sub">Read-only row counts · {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC · amber = empty</div>
+{tbl}
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
