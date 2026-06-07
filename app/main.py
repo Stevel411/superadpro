@@ -7190,7 +7190,7 @@ def admin_api_sponsor_sweep(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     offset: int = 0,
-    batch: int = 40,
+    batch: int = 25,
     full: int = 0,
     reset: int = 0,
 ):
@@ -7241,6 +7241,7 @@ def admin_api_sponsor_sweep(
     processed, sponsors_with_links, new_links, stopped_early = 0, 0, 0, False
     next_offset = offset
     per_sponsor = []
+    sponsors_errored = []
     try:
         with _httpx.Client(timeout=12) as client:
             for idx, cand in enumerate(window):
@@ -7253,23 +7254,41 @@ def admin_api_sponsor_sweep(
                     next_offset = offset + idx + 1
                     continue
                 collected, off2, limit = [], 0, 500
-                try:
-                    for _pg in range(4):
-                        r = client.get(base, headers=headers, params={
-                            "email": cemail, "limit": limit, "offset": off2, "sort": "desc"})
-                        if r.status_code != 200:
-                            break
-                        emails = (r.json() or {}).get("transactionalEmails", []) or []
-                        if not emails:
-                            break
-                        for e in emails:
-                            if "joined your SuperAdPro team" in (e.get("subject") or ""):
-                                collected.append((e.get("subject") or "", e.get("date") or ""))
-                        if len(emails) < limit:
-                            break
-                        off2 += limit
-                except Exception:
-                    pass
+                sponsor_err = None
+                for _pg in range(4):
+                    ok, r = False, None
+                    for _attempt in range(2):   # one retry on rate-limit / transient
+                        try:
+                            r = client.get(base, headers=headers, params={
+                                "email": cemail, "limit": limit, "offset": off2, "sort": "desc"})
+                            if r.status_code == 200:
+                                ok = True
+                                break
+                            sponsor_err = f"http_{r.status_code}"
+                            if r.status_code in (429, 500, 502, 503, 504):
+                                _time.sleep(1.0)
+                                continue
+                            break   # other non-200: do not retry
+                        except Exception as _ex:
+                            sponsor_err = type(_ex).__name__
+                            _time.sleep(1.0)
+                    if not ok:
+                        break   # surfaced via sponsor_err below; not a silent zero
+                    sponsor_err = None   # this page succeeded
+                    emails = (r.json() or {}).get("transactionalEmails", []) or []
+                    if not emails:
+                        break
+                    for e in emails:
+                        if "joined your SuperAdPro team" in (e.get("subject") or ""):
+                            collected.append((e.get("subject") or "", e.get("date") or ""))
+                    if len(emails) < limit:
+                        break
+                    off2 += limit
+                if sponsor_err:
+                    sponsors_errored.append({"sponsor_id": cand.id,
+                                             "sponsor_username": cand.username,
+                                             "error": sponsor_err})
+                _time.sleep(0.3)   # spacing to stay under Brevo's rate limit
 
                 links_here = 0
                 for subj, dt in collected:
@@ -7318,6 +7337,8 @@ def admin_api_sponsor_sweep(
         "stopped_early_time_budget": stopped_early,
         "sponsors_with_recoverable_links_this_batch": sponsors_with_links,
         "new_links_staged_this_batch": new_links,
+        "sponsors_errored_this_batch": len(sponsors_errored),
+        "errored_sample": sponsors_errored[:25],
         "per_sponsor_this_batch": per_sponsor[:40],
         "cumulative_staged_total": len(staged),
         "cumulative_staged_active": sum(1 for v in staged.values() if v.get("is_active")),
