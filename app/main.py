@@ -7458,6 +7458,98 @@ def admin_api_sponsor_sweep_apply(
     })
 
 
+@app.get("/admin/api/set-sponsor")
+def admin_api_set_sponsor(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    user_id: int = 0,
+    sponsor_id: int = 0,
+    code: str = "",
+    force: int = 0,
+):
+    """2FA-gated manual sponsor set for the member-confirmation remainder. Sets
+    User(user_id).sponsor_id = sponsor_id. By default only fills a NULL link;
+    pass ?force=1 to overwrite an existing one (use sparingly — corrections).
+    Guards against self-link and cycles (sponsor cannot sit in the member's own
+    downline)."""
+    _require_admin(user)
+    import pyotp
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?code=NNNNNN"},
+                            status_code=403)
+    if user_id <= 0 or sponsor_id <= 0:
+        return JSONResponse({"error": "pass ?user_id=N&sponsor_id=M"}, status_code=400)
+    if user_id == sponsor_id:
+        return JSONResponse({"error": "a member cannot be their own sponsor"}, status_code=400)
+    target = db.query(User).filter(User.id == user_id).first()
+    sponsor = db.query(User).filter(User.id == sponsor_id).first()
+    if not target:
+        return JSONResponse({"error": f"user_id {user_id} not found"}, status_code=404)
+    if not sponsor:
+        return JSONResponse({"error": f"sponsor_id {sponsor_id} not found"}, status_code=404)
+    if target.sponsor_id is not None and not force:
+        return JSONResponse({"error": f"user {user_id} already linked to sponsor "
+                             f"{target.sponsor_id}; pass ?force=1 to overwrite",
+                             "current_sponsor_id": target.sponsor_id}, status_code=409)
+    # Cycle guard: walk up from the proposed sponsor; must not reach user_id.
+    hop, seen = sponsor.sponsor_id, {sponsor_id}
+    for _ in range(25):
+        if hop is None:
+            break
+        if hop == user_id:
+            return JSONResponse({"error": "rejected — would create a sponsor cycle "
+                                 f"(user {user_id} is an ancestor of {sponsor_id})"},
+                                status_code=400)
+        if hop in seen:
+            break
+        seen.add(hop)
+        nxt = db.query(User.sponsor_id).filter(User.id == hop).first()
+        hop = nxt[0] if nxt else None
+    prev = target.sponsor_id
+    target.sponsor_id = sponsor_id
+    db.commit()
+    return JSONResponse({
+        "ok": True, "user_id": user_id, "username": target.username,
+        "previous_sponsor_id": prev, "new_sponsor_id": sponsor_id,
+        "sponsor_username": sponsor.username,
+    })
+
+
+@app.get("/admin/api/sponsor-residual-nulls")
+def admin_api_sponsor_residual_nulls(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Lists every member still missing a sponsor_id after the Brevo sweep
+    (excludes root user 1, whose null is correct). These are the pre-9-May
+    signups outside Brevo's retention — the member-confirmation remainder.
+    Ordered oldest-first (earliest founders) with the context needed to
+    recognise/confirm them."""
+    _require_admin(user)
+    rows = (db.query(User.id, User.username, User.email, User.first_name,
+                     User.created_at, User.is_active, User.total_team,
+                     User.personal_referrals, User.founding_spot_number)
+            .filter(User.sponsor_id.is_(None), User.id != 1)
+            .order_by(User.created_at.asc()).all())
+    out = [{
+        "user_id": r.id, "username": r.username, "first_name": r.first_name,
+        "email": r.email, "is_active": bool(r.is_active),
+        "created_at": r.created_at.isoformat() if r.created_at else None,
+        "founding_spot": r.founding_spot_number,
+        "total_team": r.total_team, "personal_referrals": r.personal_referrals,
+    } for r in rows]
+    return JSONResponse({
+        "residual_null_count": len(out),
+        "active_count": sum(1 for r in out if r["is_active"]),
+        "note": ("These need member-confirmation or owner knowledge — their "
+                 "join emails predate Brevo's ~9-May retention edge. To set a "
+                 "sponsor manually, use /admin/api/set-sponsor (2FA)."),
+        "users": out,
+    })
+
+
 @app.get("/api/command-centre/grid-team")
 def api_command_centre_grid_team(
     request: Request,
