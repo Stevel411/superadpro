@@ -23357,29 +23357,36 @@ def admin_withdrawals_queue_page(
 <style>
   :root {{ --cobalt:#0a1438; --royal:#1e3a8a; --sky:#0ea5e9; --cyan:#06b6d4; --electric:#22d3ee; }}
   * {{ box-sizing:border-box; }}
-  body {{ margin:0; font-family:'DM Sans',-apple-system,system-ui,sans-serif; background:#0a1438; color:#e8eefc; padding:16px; }}
-  h1 {{ font-family:'Sora',sans-serif; font-size:20px; margin:4px 0 2px; }}
-  .sub {{ color:#9fb3d9; font-size:13px; margin-bottom:14px; }}
+  body {{ margin:0; font-family:'DM Sans',-apple-system,system-ui,sans-serif; background:#eef2f9; color:#0f172a; padding:16px; }}
+  .topbar {{ display:flex; align-items:center; margin-bottom:10px; }}
+  .back {{ display:inline-flex; align-items:center; gap:6px; text-decoration:none; background:#fff; border:1px solid #d8e0ee; color:#1e3a8a; font-weight:600; font-size:13px; padding:8px 12px; border-radius:10px; }}
+  h1 {{ font-family:'Sora',sans-serif; font-size:20px; margin:4px 0 2px; color:#0a1438; }}
+  .sub {{ color:#64748b; font-size:13px; margin-bottom:14px; }}
   .banner {{ padding:10px 12px; border-radius:10px; font-size:13px; margin-bottom:12px; line-height:1.4; }}
-  .banner.err {{ background:#3b1020; color:#ffd3dd; border:1px solid #7a2740; }}
-  .banner.info {{ background:#0c2433; color:#bfe9ff; border:1px solid #1e5e7a; }}
-  .card {{ background:#0f1d44; border:1px solid #1e3a8a; border-radius:14px; padding:14px; margin-bottom:12px; }}
-  .row {{ display:flex; justify-content:space-between; gap:12px; padding:4px 0; font-size:14px; align-items:flex-start; }}
-  .lbl {{ color:#8aa3d4; flex:0 0 auto; }}
-  .val {{ text-align:right; word-break:break-word; }}
-  .muted {{ color:#7e93bd; font-size:12px; }}
+  .banner.err {{ background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; }}
+  .banner.info {{ background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }}
+  .card {{ background:#fff; border:1px solid #e2e8f3; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 3px rgba(15,23,42,.05); }}
+  .row {{ display:flex; justify-content:space-between; gap:12px; padding:5px 0; font-size:14px; align-items:flex-start; border-bottom:1px solid #f1f5f9; }}
+  .row:last-of-type {{ border-bottom:0; }}
+  .lbl {{ color:#64748b; flex:0 0 auto; }}
+  .val {{ text-align:right; word-break:break-word; color:#0f172a; font-weight:500; }}
+  .muted {{ color:#94a3b8; font-size:12px; font-weight:400; }}
   .mono {{ font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; }}
-  .warn {{ background:#3a2a0c; color:#ffe2a8; border:1px solid #7a5e1e; border-radius:8px; padding:7px 9px; font-size:12.5px; margin-top:8px; }}
+  .warn {{ background:#fffbeb; color:#92400e; border:1px solid #fde68a; border-radius:8px; padding:7px 9px; font-size:12.5px; margin-top:8px; }}
   .actions {{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; }}
-  .code {{ flex:1 1 110px; min-width:100px; padding:11px; border-radius:10px; border:1px solid #2b4ba0; background:#0a1740; color:#fff; font-size:16px; letter-spacing:2px; text-align:center; }}
-  button {{ border:0; border-radius:10px; padding:11px 14px; font-weight:600; font-size:14px; cursor:pointer; }}
-  .approve {{ background:linear-gradient(90deg,#0ea5e9,#22d3ee); color:#04121f; }}
-  .reject {{ background:#22304f; color:#ffd3dd; }}
-  .result {{ margin-top:9px; font-size:13px; min-height:0; }}
-  .result.ok {{ color:#86e8b0; }} .result.bad {{ color:#ff9fb0; }}
-  .empty {{ color:#8aa3d4; text-align:center; padding:40px 0; }}
-  .foot {{ color:#6f86b5; font-size:11.5px; margin-top:18px; line-height:1.5; }}
+  .code {{ flex:1 1 110px; min-width:100px; padding:11px; border-radius:10px; border:1px solid #cbd5e1; background:#fff; color:#0f172a; font-size:16px; letter-spacing:2px; text-align:center; }}
+  button {{ border:0; border-radius:10px; padding:11px 14px; font-weight:700; font-size:14px; cursor:pointer; }}
+  button:disabled {{ opacity:.5; cursor:default; }}
+  .approve {{ background:linear-gradient(90deg,#0ea5e9,#06b6d4); color:#fff; }}
+  .reject {{ background:#f1f5f9; color:#b91c1c; border:1px solid #e2e8f3; }}
+  .result {{ margin-top:10px; font-size:13px; min-height:0; }}
+  .result.ok {{ background:#f0fdf4; border:1px solid #86efac; color:#15803d; padding:12px 14px; border-radius:10px; font-weight:600; line-height:1.5; }}
+  .result.bad {{ background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:10px 12px; border-radius:10px; font-weight:600; }}
+  .result a {{ color:#0369a1; font-weight:700; }}
+  .empty {{ color:#64748b; text-align:center; padding:40px 0; }}
+  .foot {{ color:#94a3b8; font-size:11.5px; margin-top:18px; line-height:1.5; }}
 </style></head><body>
+  <div class="topbar"><a class="back" href="/admin">← Back to Admin</a></div>
   <h1>Withdrawal Release Queue</h1>
   <div class="sub">{len(rows)} awaiting your release · per-tx cap ${float(cap):.0f}</div>
   {banner}
@@ -23397,8 +23404,14 @@ async function release(id) {{
   if (!code) {{ res.className='result bad'; res.textContent='Enter your 2FA code first.'; return; }}
   res.className='result'; res.textContent='Releasing…';
   const {{ok, d}} = await post('/admin/api/withdrawals/'+id+'/approve', code);
-  if (ok && d.success) {{ res.className='result ok'; res.textContent='✓ '+(d.message||'Released'); const c=document.getElementById('wd-'+id); if(c) c.style.opacity=.45; }}
-  else {{ res.className='result bad'; res.textContent='✗ '+((d&&d.error)||'Failed'); }}
+  if (ok && d.success) {{
+    res.className='result ok';
+    var link = d.tx_hash ? '<br><a href="https://bscscan.com/tx/'+d.tx_hash+'" target="_blank" rel="noopener">View transaction on BSCScan ↗</a>' : '';
+    res.innerHTML = '✓ '+(d.message||'Released')+' — broadcast on-chain.'+link;
+    var c=document.getElementById('wd-'+id);
+    if(c){{ c.style.opacity=.7; var el=c.querySelectorAll('button,input'); for(var i=0;i<el.length;i++){{ el[i].disabled=true; }} }}
+  }}
+  else {{ res.className='result bad'; res.innerHTML='✗ '+((d&&d.error)||'Failed'); }}
 }}
 async function reject(id) {{
   if (!confirm('Reject this withdrawal and refund the member?')) return;
