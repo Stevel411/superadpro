@@ -9545,6 +9545,76 @@ def admin_api_user_fulfillment(
     })
 
 
+@app.get("/admin/api/purchase-source-census")
+def admin_api_purchase_source_census(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Wipe-recovery scoping: count every PURCHASE-REFERENCE source platform-wide
+    so we know where recoverable tier/credit purchases actually live. For each
+    surviving source, breaks down by product and gives the date range (which
+    reveals the wipe boundary). Read-only; each source wrapped independently."""
+    _require_admin(user)
+    from sqlalchemy import func as _f
+    from .database import (StripeCharge, WalletConnectPaymentOrder, NowPaymentsOrder,
+                           Payment, Grid, GridPosition, SuperSceneCredit, Commission)
+    out = {}
+
+    def _census(label, model, group_col=None, status_col=None, date_col=None):
+        try:
+            total = db.query(_f.count()).select_from(model).scalar() or 0
+            info = {"total_rows": total}
+            if date_col is not None:
+                mn = db.query(_f.min(date_col)).scalar()
+                mx = db.query(_f.max(date_col)).scalar()
+                info["oldest"] = mn.isoformat() if mn else None
+                info["newest"] = mx.isoformat() if mx else None
+            if group_col is not None:
+                rows = db.query(group_col, _f.count()).group_by(group_col).all()
+                info["by_product"] = {str(k): v for k, v in rows}
+            if status_col is not None:
+                rows = db.query(status_col, _f.count()).group_by(status_col).all()
+                info["by_status"] = {str(k): v for k, v in rows}
+            out[label] = info
+        except Exception as e:
+            out[label] = f"ERR {type(e).__name__}: {str(e)[:120]}"
+
+    _census("stripe_charges", StripeCharge, group_col=StripeCharge.product, date_col=StripeCharge.created_at)
+    _census("walletconnect_orders", WalletConnectPaymentOrder,
+            group_col=WalletConnectPaymentOrder.product_type,
+            status_col=WalletConnectPaymentOrder.status,
+            date_col=WalletConnectPaymentOrder.created_at)
+    _census("nowpayments_orders", NowPaymentsOrder,
+            group_col=NowPaymentsOrder.product_type,
+            status_col=NowPaymentsOrder.status,
+            date_col=NowPaymentsOrder.created_at)
+    _census("payments", Payment, group_col=Payment.payment_type, date_col=Payment.created_at)
+    _census("grids", Grid, date_col=Grid.created_at)
+    _census("grid_positions", GridPosition, date_col=GridPosition.created_at)
+    _census("commissions", Commission, group_col=Commission.commission_type, date_col=Commission.created_at)
+
+    # Legacy Polygon rail (retired) — may still hold 264-era purchase refs.
+    try:
+        from .database import CryptoPaymentOrder
+        _census("crypto_orders_legacy_polygon", CryptoPaymentOrder, date_col=CryptoPaymentOrder.created_at)
+    except Exception as e:
+        out["crypto_orders_legacy_polygon"] = f"ERR {type(e).__name__}"
+
+    # Creator-credit state
+    try:
+        rows = db.query(SuperSceneCredit).count()
+        bal = db.query(_f.coalesce(_f.sum(SuperSceneCredit.balance), 0)).scalar() or 0
+        nonzero = db.query(_f.count()).select_from(SuperSceneCredit).filter(SuperSceneCredit.balance > 0).scalar() or 0
+        out["superscene_credits"] = {"rows": rows, "sum_balance": int(bal), "rows_with_balance": nonzero}
+    except Exception as e:
+        out["superscene_credits"] = f"ERR {type(e).__name__}"
+
+    out["note"] = ("Where confirmed grid/campaign_tier and superscene/creative_credits "
+                   "purchases appear with a sensible date range = the recoverable source. "
+                   "An empty/short-range table = wiped (fall back to on-chain).")
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
