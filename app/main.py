@@ -33838,6 +33838,114 @@ th{{background:#f8fafc;color:#475569;font-size:10px;text-transform:uppercase;let
 <div class="wrap">{tbl}</div>
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/withdrawal-reconcile")
+def admin_withdrawal_reconcile(
+    user: User = Depends(get_current_user),
+    limit: int = 60,
+    db: Session = Depends(get_db),
+):
+    """
+    Read-only. Reconcile the per-user total_withdrawn COUNTER against the
+    authoritative Withdrawal table (status='paid' = on-chain confirmed, real
+    USDT out). Separates two very different problems:
+
+      - counter_drift  = total_withdrawn − paid_actual
+            (≠0 → the counter is wrong; NOT a money problem)
+      - real_overdraw  = paid_actual − total_earned  (when > 0)
+            (real USDT left the treasury beyond what the account legitimately
+             earned → this is the solvency gap / breach-escape signal)
+
+    No writes.
+    """
+    _require_admin(user)
+    import html as _h
+
+    # users that have either a counter or any withdrawal row
+    uids = set()
+    for (uid,) in db.query(User.id).filter(User.total_withdrawn > 0).all():
+        uids.add(uid)
+    for (uid,) in db.query(Withdrawal.user_id).distinct().all():
+        if uid:
+            uids.add(uid)
+
+    rows = []
+    tot_counter = tot_paid = tot_pending = tot_overdraw = 0.0
+    for uid in uids:
+        u = db.query(User).get(uid)
+        if not u:
+            continue
+        counter = float(u.total_withdrawn or 0)
+        te = float(u.total_earned or 0)
+        paid = float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
+            Withdrawal.user_id == uid, Withdrawal.status == "paid").scalar() or 0)
+        pending = float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
+            Withdrawal.user_id == uid,
+            Withdrawal.status.in_(["pending", "processing", "awaiting_approval"])).scalar() or 0)
+        drift = round(counter - paid, 2)
+        overdraw = round(paid - te, 2)
+        rows.append({
+            "id": uid, "u": u.username or "", "te": te, "counter": counter,
+            "paid": paid, "pending": pending, "drift": drift, "over": overdraw,
+        })
+        tot_counter += counter
+        tot_paid += paid
+        tot_pending += pending
+        if overdraw > 0:
+            tot_overdraw += overdraw
+
+    rows.sort(key=lambda r: r["over"], reverse=True)
+    shown = rows[:max(1, limit)]
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    def fmt(v):
+        return f"${v:.2f}" if v else "·"
+
+    tr = ["<tr><th>id</th><th>user</th><th>total_earned</th><th>counter (total_withdrawn)</th>"
+          "<th>paid_actual</th><th>pending</th><th>counter_drift</th><th>real_overdraw</th></tr>"]
+    for r in shown:
+        ocol = "#dc2626" if r["over"] > 0.5 else "#94a3b8"
+        dcol = "#d97706" if abs(r["drift"]) > 0.5 else "#94a3b8"
+        tr.append(
+            f"<tr><td>{r['id']}</td><td>{esc(r['u'])}</td><td>{fmt(r['te'])}</td>"
+            f"<td>{fmt(r['counter'])}</td><td><b>{fmt(r['paid'])}</b></td><td>{fmt(r['pending'])}</td>"
+            f"<td style='color:{dcol}'>{r['drift']:+.2f}</td>"
+            f"<td style='color:{ocol};font-weight:700'>{r['over']:+.2f}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Withdrawal Reconcile</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.chips{{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}}
+.chip{{flex:1;min-width:130px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 14px}}
+.chip.ok{{background:#f0f9ff;border-color:#bae6fd}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}}
+.chip .v{{font-size:20px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:right;padding:6px 9px;border-bottom:1px solid #eef1f5;white-space:nowrap}}
+th:nth-child(2),td:nth-child(2){{text-align:left}}
+th{{background:#f8fafc;color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.3px}}
+.note{{font-size:13px;color:#64748b;margin:12px 0;line-height:1.5}}
+.wrap{{overflow-x:auto}}
+</style></head><body>
+<h1>Withdrawal Reconcile — read-only</h1>
+<div class="sub">total_withdrawn counter vs paid Withdrawal rows (real USDT out) · {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+<div class="chips">
+<div class="chip ok"><div class="l">Σ counter</div><div class="v">${tot_counter:.2f}</div></div>
+<div class="chip ok"><div class="l">Σ paid_actual (real out)</div><div class="v">${tot_paid:.2f}</div></div>
+<div class="chip ok"><div class="l">Σ pending</div><div class="v">${tot_pending:.2f}</div></div>
+<div class="chip"><div class="l">Σ counter drift</div><div class="v">${tot_counter-tot_paid:.2f}</div></div>
+<div class="chip"><div class="l">Σ real overdraw</div><div class="v">${tot_overdraw:.2f}</div></div>
+</div>
+<p class="note"><b>counter_drift</b> = total_withdrawn − paid_actual (≠0 means the counter is wrong, not the money). <b>real_overdraw</b> = paid_actual − total_earned when positive: <span style="color:#dc2626">real USDT that left the treasury beyond legitimate earnings</span> — this column summed is the true solvency gap. Sorted by real_overdraw.</p>
+<div class="wrap">{tbl}</div>
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
