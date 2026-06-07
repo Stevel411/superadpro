@@ -105,6 +105,8 @@ def run_backup() -> dict:
 
         _prune_old_backups(client)
 
+        drops = _alert_on_drops(row_counts)
+
         return {
             "success": True,
             "file": filename,
@@ -116,6 +118,7 @@ def run_backup() -> dict:
             "table_count": len(tables_data),
             "total_rows": total_rows,
             "row_counts": row_counts,
+            "drops_flagged": drops,
         }
 
     except Exception as e:
@@ -172,5 +175,179 @@ def load_backup(key_or_file: str) -> dict:
         blob = obj["Body"].read()
         raw = gzip.decompress(blob)
         return json.loads(raw)
+    except Exception as e:
+        return {"error": str(e), "exception_type": type(e).__name__}
+
+
+# ── Drop detection (makes a future data loss LOUD, not silent) ──────────────
+CRITICAL_TABLES = {
+    "users", "commissions", "withdrawals", "grids", "grid_positions", "payments",
+    "credit_matrices", "credit_matrix_positions", "credit_matrix_commissions",
+    "membership_renewals", "video_campaigns", "course_purchases", "course_commissions",
+    "pending_commissions", "withdrawal_approvals", "walletconnect_payment_orders",
+    "nowpayments_orders", "onchain_orphan_transfers", "stripe_charges", "p2p_transfers",
+}
+_BASELINE_KEY = "last_backup_row_counts"
+
+
+def _alert_on_drops(new_counts: dict) -> list:
+    """Compare new row counts to the previous backup's baseline; email admin on
+    a sharp or critical drop, then store the new baseline. Best-effort — never
+    raises into the backup path. Returns the list of flagged drops."""
+    import json as _json
+    from .database import SessionLocal, AppConfig
+
+    flags = []
+    db = SessionLocal()
+    try:
+        row = db.query(AppConfig).filter(AppConfig.key == _BASELINE_KEY).first()
+        prev = {}
+        if row and row.value:
+            try:
+                prev = _json.loads(row.value)
+            except Exception:
+                prev = {}
+        for t, n in new_counts.items():
+            if n is None or n < 0:
+                continue
+            p = prev.get(t)
+            if p is None or p < 0:
+                continue
+            if n < p:
+                drop = p - n
+                pct = round((drop / p * 100), 1) if p else 0.0
+                critical = (t in CRITICAL_TABLES and drop >= 1)
+                big = (drop >= 5 and pct >= 20)
+                if critical or big:
+                    flags.append({"table": t, "prev": p, "now": n, "drop": drop, "pct": pct})
+        payload = _json.dumps(new_counts)
+        if row:
+            row.value = payload
+        else:
+            db.add(AppConfig(key=_BASELINE_KEY, value=payload))
+        db.commit()
+    except Exception:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+    finally:
+        db.close()
+
+    if flags:
+        try:
+            from .email_utils import send_email
+            admin_email = os.getenv("ADMIN_EMAIL", "stevelawsonmarketing@gmail.com")
+            li = "".join(
+                f"<li><b>{f['table']}</b>: {f['prev']} → {f['now']} "
+                f"(−{f['drop']} rows, −{f['pct']}%)</li>" for f in flags
+            )
+            html = (
+                "<h2>⚠️ SuperAdPro backup: row-count drop detected</h2>"
+                "<p>The latest backup has fewer rows than the previous one in:</p>"
+                f"<ul>{li}</ul>"
+                "<p>If you did not intentionally delete this data, investigate now. "
+                "The most recent backups are in R2 and are restorable via "
+                "<code>/admin/restore-backup</code>.</p>"
+            )
+            send_email(admin_email, "⚠️ SuperAdPro: data drop detected in backup", html, "")
+        except Exception:
+            pass
+    return flags
+
+
+# ── Restore (insert-missing only — never overwrites or deletes) ─────────────
+def _coerce_value(col, v):
+    """Coerce a JSON-deserialised backup value back to the column's type."""
+    if v is None:
+        return None
+    from datetime import datetime, date
+    from decimal import Decimal
+    tname = col.type.__class__.__name__.lower()
+    try:
+        if "datetime" in tname or "timestamp" in tname:
+            return datetime.fromisoformat(v) if isinstance(v, str) else v
+        if tname == "date":
+            return date.fromisoformat(v) if isinstance(v, str) else v
+        if "float" in tname:
+            return float(v)
+        if any(k in tname for k in ("numeric", "decimal", "money")):
+            return Decimal(str(v)) if not isinstance(v, Decimal) else v
+    except Exception:
+        return v
+    return v
+
+
+def restore_table(file_or_key: str, table_name: str, do_apply: bool = False) -> dict:
+    """Insert-missing restore for ONE table from a backup. Safe semantics: only
+    rows whose primary key is absent from the live table are inserted
+    (ON CONFLICT DO NOTHING). Surviving rows are never overwritten or deleted.
+
+    Returns a dry-run report (backup rows, live rows, would-insert) and, when
+    do_apply, the number actually inserted.
+    """
+    from sqlalchemy import text as _text
+    from sqlalchemy.dialects.postgresql import insert as _pg_insert
+
+    payload = load_backup(file_or_key)
+    if "error" in payload:
+        return payload
+    tables = payload.get("tables", {})
+    if table_name not in tables:
+        return {"error": f"table '{table_name}' not present in this backup"}
+    rows = tables[table_name]
+    if isinstance(rows, dict) and "_error" in rows:
+        return {"error": f"table '{table_name}' was not captured in this backup: {rows['_error']}"}
+
+    table = next((t for t in Base.metadata.sorted_tables if t.name == table_name), None)
+    if table is None:
+        return {"error": f"table '{table_name}' not in current schema metadata"}
+
+    pk_cols = [c.name for c in table.primary_key.columns]
+    if not pk_cols:
+        return {"error": f"table '{table_name}' has no primary key — refusing to restore"}
+
+    colnames = {c.name for c in table.columns}
+
+    def _pk_of(d):
+        return tuple(d.get(c) for c in pk_cols)
+
+    try:
+        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            live_pks = set()
+            for m in conn.execute(_text(
+                f'SELECT {", ".join(chr(34)+c+chr(34) for c in pk_cols)} FROM "{table_name}"'
+            )).all():
+                live_pks.add(tuple(m))
+            backup_n = len(rows)
+            missing = [r for r in rows if _pk_of(r) not in live_pks]
+
+            report = {
+                "table": table_name,
+                "backup_file": file_or_key,
+                "rows_in_backup": backup_n,
+                "rows_live_now": len(live_pks),
+                "would_insert": len(missing),
+                "applied": False,
+                "inserted": 0,
+            }
+            if not do_apply or not missing:
+                return report
+
+            clean = []
+            for r in missing:
+                clean.append({k: _coerce_value(table.columns[k], v)
+                              for k, v in r.items() if k in colnames})
+            inserted = 0
+            CHUNK = 500
+            for i in range(0, len(clean), CHUNK):
+                batch = clean[i:i + CHUNK]
+                stmt = _pg_insert(table).values(batch).on_conflict_do_nothing(
+                    index_elements=pk_cols)
+                res = conn.execute(stmt)
+                inserted += (res.rowcount or 0)
+            report["applied"] = True
+            report["inserted"] = inserted
+            return report
     except Exception as e:
         return {"error": str(e), "exception_type": type(e).__name__}

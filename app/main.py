@@ -34311,6 +34311,40 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase}}
 {tbl}
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/restore-backup")
+def admin_restore_backup(
+    user: User = Depends(get_current_user),
+    file: str = "",
+    table: str = "",
+    apply: int = 0,
+    code: str = "",
+):
+    """
+    Insert-missing restore of ONE table from an R2 backup. Safe by design: only
+    rows whose primary key is absent from the live table get inserted
+    (ON CONFLICT DO NOTHING) — surviving rows are never overwritten or deleted.
+
+    - GET with no file/table: lists available backups + usage.
+    - GET ?file=...&table=...: dry-run (rows in backup, live now, would insert).
+    - GET ?file=...&table=...&apply=1&code=NNNNNN: 2FA-gated write.
+    """
+    _require_admin(user)
+    from .db_backup import restore_table, list_backups
+
+    do_apply = bool(apply) and bool((code or "").strip())
+    if do_apply:
+        _require_admin_2fa(user, code)
+
+    if not file or not table:
+        return JSONResponse({
+            "usage": "Dry-run: /admin/restore-backup?file=<backup.json.gz>&table=<name>  |  "
+                     "Apply: add &apply=1&code=NNNNNN (2FA). Insert-missing only — never overwrites.",
+            "available_backups": list_backups(),
+        })
+
+    return JSONResponse(restore_table(file, table, do_apply=do_apply))
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
