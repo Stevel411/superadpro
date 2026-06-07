@@ -23289,6 +23289,42 @@ def admin_withdrawals_queue_page(
             warn += f'<div class="warn">⚠ Over per-tx cap (${float(cap):.0f}). Raise WITHDRAWAL_MAX_PER_TX to release.</div>'
         if addr_mismatch:
             warn += '<div class="warn">⚠ Destination ≠ member\'s saved wallet. Reject and ask them to re-request.</div>'
+
+        # ── Risk signals (7 Jun 2026) — help catch a malicious approval ──
+        # Computed from existing data: account age, KYC, balance provenance
+        # (balance exceeding lifetime earnings = the synthetic-balance shape),
+        # and 24h withdrawal velocity. Surfaced so a crafted "boring" payout
+        # from a fresh/synthetic account doesn't get waved through.
+        risk_rows = ""
+        if member:
+            if member.created_at:
+                age_days = (datetime.utcnow() - member.created_at).days
+                age_txt = f"{age_days}d old"
+                if age_days < 7:
+                    warn += f'<div class="warn">⚠ New account ({age_days}d old) — verify before releasing.</div>'
+            else:
+                age_txt = "age unknown"
+            kyc = (getattr(member, "kyc_status", None) or "none")
+            if kyc != "approved":
+                warn += f'<div class="warn">⚠ KYC not approved (status: {_esc(kyc)}).</div>'
+            bal = float(member.balance or 0)
+            earned = float(member.total_earned or 0)
+            excess = bal - earned
+            if excess > 0.01:
+                warn += (f'<div class="warn">⚠ Balance ${bal:,.2f} exceeds lifetime earnings '
+                         f'${earned:,.2f} by ${excess:,.2f} — possible synthetic balance. '
+                         f'Cross-check provenance before releasing.</div>')
+            since_24h = datetime.utcnow() - timedelta(hours=24)
+            wd_24h = (db.query(Withdrawal)
+                        .filter(Withdrawal.user_id == w.user_id,
+                                Withdrawal.requested_at >= since_24h).count())
+            if wd_24h >= 3:
+                warn += f'<div class="warn">⚠ {wd_24h} withdrawals from this member in 24h — velocity spike.</div>'
+            risk_rows = (
+                f'<div class="row"><span class="lbl">Account</span><span class="val">{age_txt} · KYC {_esc(kyc)}</span></div>'
+                f'<div class="row"><span class="lbl">Balance / Earned</span><span class="val">${bal:,.2f} / ${earned:,.2f}</span></div>'
+                f'<div class="row"><span class="lbl">Withdrawals 24h</span><span class="val">{wd_24h}</span></div>'
+            )
         cards.append(f"""
         <div class="card" id="wd-{w.id}">
           <div class="row"><span class="lbl">Member</span><span class="val">{uname} (#{w.user_id})</span></div>
@@ -23297,6 +23333,7 @@ def admin_withdrawals_queue_page(
           <div class="row"><span class="lbl">To</span><span class="val mono">{_esc(w.wallet_address)}</span></div>
           <div class="row"><span class="lbl">Network</span><span class="val">{_esc((w.network or '—').upper())}</span></div>
           <div class="row"><span class="lbl">Requested</span><span class="val">{req}</span></div>
+          {risk_rows}
           {warn}
           <div class="actions">
             <input class="code" id="code-{w.id}" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="2FA code" />
