@@ -6765,6 +6765,65 @@ def api_command_centre_directs(
     }
 
 
+@app.get("/admin/api/user-downline")
+def admin_api_user_downline(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Diagnose a 'my team is missing' report. Shows the DB truth for a user's
+    downline so we can tell a data problem (links/rows gone) from a display
+    problem (Payment-table loss misbucketing, etc.).
+
+    Returns the direct referrals (sponsor_id == user_id) with their active
+    state and whether a confirmed membership Payment row exists for them
+    (which is what the team page's lapsed/never_paid split relies on — and
+    that table was hollowed in the restore), plus the full descendant counts.
+    """
+    _require_admin(user)
+    from sqlalchemy import func as _func
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+
+    directs = db.query(User).filter(User.sponsor_id == user_id).order_by(User.created_at.asc()).all()
+    direct_ids = [d.id for d in directs]
+    paid_ids = set()
+    if direct_ids:
+        for (uid,) in db.query(Payment.from_user_id).filter(
+            Payment.from_user_id.in_(direct_ids),
+            Payment.payment_type.like("membership%"),
+            Payment.status.in_(["confirmed", "paid"]),
+        ).distinct().all():
+            paid_ids.add(uid)
+
+    rows = [{
+        "id": d.id,
+        "username": d.username,
+        "is_active": bool(d.is_active),
+        "created_at": d.created_at.isoformat() if d.created_at else None,
+        "has_membership_payment_row": d.id in paid_ids,
+    } for d in directs]
+
+    active_n = sum(1 for d in directs if d.is_active)
+    try:
+        desc = compute_descendant_counts(db, user_id)
+    except Exception as e:
+        desc = {"error": str(e)[:120]}
+
+    return JSONResponse({
+        "user": {"id": target.id, "username": target.username, "is_active": bool(target.is_active)},
+        "direct_count_total": len(directs),
+        "direct_active": active_n,
+        "direct_inactive": len(directs) - active_n,
+        "directs_with_membership_payment_row": len(paid_ids),
+        "directs_missing_payment_row_but_inactive": sum(
+            1 for d in directs if (not d.is_active) and d.id not in paid_ids),
+        "descendant_counts": desc,
+        "directs": rows,
+    })
+
+
 @app.get("/api/command-centre/grid-team")
 def api_command_centre_grid_team(
     request: Request,
