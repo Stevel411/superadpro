@@ -32812,6 +32812,189 @@ def admin_grid_audit(
         },
         "grids": audit,
     }
+
+
+@app.get("/admin/grid-cleanup-audit")
+def admin_grid_cleanup_audit(
+    user: User = Depends(get_current_user),
+    ids: str = "667,668,669,670,673,674",
+    db: Session = Depends(get_db),
+):
+    """
+    READ-ONLY footprint of suspected synthetic / attacker accounts in the grid.
+
+    For each suspect user_id it reports:
+      - grids they OWN (phantom grids spawned by the voided package buys)
+      - grid POSITIONS they hold inside OTHER members' grids (matrix pollution)
+      - commission rows from/to them, grouped by status (so we can see what's
+        already been reversed vs what's still live on real members' balances)
+      - whether any of their positions sit inside the founder's (user 1) grids
+
+    No writes whatsoever — pure diagnostics so we can decide exactly what to
+    clean before touching anything. Phone-friendly HTML; ?format=json available.
+    Usage: /admin/grid-cleanup-audit?ids=667,668,669,670,673,674
+    """
+    _require_admin(user)
+    import html as _h
+
+    FOUNDER_ID = 1
+    try:
+        synth_ids = [int(x) for x in ids.split(",") if x.strip().isdigit()]
+    except Exception:
+        synth_ids = []
+    if not synth_ids:
+        return HTMLResponse("<p>No valid ids. Use ?ids=667,670,673…</p>", status_code=400)
+
+    suspects = db.query(User).filter(User.id.in_(synth_ids)).all()
+    suspect_map = {u.id: u for u in suspects}
+
+    owned_grids = db.query(Grid).filter(Grid.owner_id.in_(synth_ids)).order_by(
+        Grid.owner_id, Grid.package_tier, Grid.advance_number).all()
+
+    held = db.query(GridPosition).filter(GridPosition.member_id.in_(synth_ids)).order_by(
+        GridPosition.grid_id, GridPosition.grid_level, GridPosition.position_num).all()
+
+    held_grid_ids = sorted({p.grid_id for p in held})
+    grids_by_id = {}
+    if held_grid_ids:
+        for g in db.query(Grid).filter(Grid.id.in_(held_grid_ids)).all():
+            grids_by_id[g.id] = g
+    owner_ids_needed = sorted({g.owner_id for g in grids_by_id.values()})
+    owner_names = {}
+    if owner_ids_needed:
+        for u in db.query(User).filter(User.id.in_(owner_ids_needed)).all():
+            owner_names[u.id] = u.username or f"#{u.id}"
+
+    comms_from = db.query(Commission).filter(Commission.from_user_id.in_(synth_ids)).all()
+    comms_to = db.query(Commission).filter(Commission.to_user_id.in_(synth_ids)).all()
+
+    def breakdown(rows):
+        out = {}
+        for c in rows:
+            st = c.status or "unknown"
+            d = out.setdefault(st, {"count": 0, "total": 0.0})
+            d["count"] += 1
+            d["total"] += float(c.amount_usdt or 0)
+        return out
+
+    from_bd, to_bd = breakdown(comms_from), breakdown(comms_to)
+
+    # positions held by suspects that sit inside grids owned by NON-suspects
+    in_real = [p for p in held if grids_by_id.get(p.grid_id) and grids_by_id[p.grid_id].owner_id not in synth_ids]
+    in_founder = [p for p in held if grids_by_id.get(p.grid_id) and grids_by_id[p.grid_id].owner_id == FOUNDER_ID]
+    # phantom commissions FROM suspects to others that are NOT reversed = still live on books
+    live_from = sum(d["total"] for st, d in from_bd.items() if st not in ("reversed", "failed", "voided"))
+
+    payload = {
+        "summary": {
+            "owned_grids": len(owned_grids),
+            "positions_held_total": len(held),
+            "positions_in_real_members_grids": len(in_real),
+            "positions_in_founder_grids": len(in_founder),
+            "live_phantom_commission_from_suspects_usd": round(live_from, 2),
+        },
+    }
+
+    # ---- render HTML ----
+    s = payload["summary"]
+    verdict_clean = (s["owned_grids"] == 0 and s["positions_held_total"] == 0 and s["live_phantom_commission_from_suspects_usd"] == 0)
+    verdict = ("✅ No residual grid footprint — these accounts hold no grids, no positions, and no live commissions."
+               if verdict_clean else
+               "⚠️ Residual grid footprint found — see below. Nothing has been changed; this is read-only.")
+
+    def chip(label, val, warn=False):
+        bg = "#fef2f2" if warn and val else "#f0f9ff"
+        bd = "#fecaca" if warn and val else "#bae6fd"
+        col = "#b91c1c" if warn and val else "#0c4a6e"
+        return (f"<div style='flex:1;min-width:130px;background:{bg};border:1px solid {bd};"
+                f"border-radius:10px;padding:12px 14px;'><div style='font-size:12px;color:#64748b;"
+                f"text-transform:uppercase;letter-spacing:.5px;'>{_h.escape(label)}</div>"
+                f"<div style='font-size:22px;font-weight:700;color:{col};'>{val}</div></div>")
+
+    rows = []
+    rows.append("<tr><th>id</th><th>username</th><th>active</th><th>balance</th></tr>")
+    for u in suspects:
+        rows.append(f"<tr><td>{u.id}</td><td>{_h.escape(u.username or '')}</td>"
+                    f"<td>{'yes' if u.is_active else 'no'}</td><td>${float(u.balance or 0):.2f}</td></tr>")
+    suspects_tbl = "".join(rows)
+
+    if owned_grids:
+        g_rows = ["<tr><th>grid</th><th>owner</th><th>tier</th><th>adv</th><th>filled</th><th>complete</th><th>owner_bought</th><th>revenue</th></tr>"]
+        for g in owned_grids:
+            g_rows.append(f"<tr><td>{g.id}</td><td>{g.owner_id}</td><td>{g.package_tier}</td>"
+                          f"<td>{g.advance_number}</td><td>{g.positions_filled}</td>"
+                          f"<td>{'yes' if g.is_complete else 'no'}</td>"
+                          f"<td>{'yes' if g.owner_purchased else 'no'}</td>"
+                          f"<td>${float(g.revenue_total or 0):.2f}</td></tr>")
+        owned_tbl = "<table>" + "".join(g_rows) + "</table>"
+    else:
+        owned_tbl = "<p style='color:#15803d'>None — these accounts own no grids.</p>"
+
+    if held:
+        p_rows = ["<tr><th>pos</th><th>grid</th><th>grid owner</th><th>tier</th><th>lvl</th><th>seat</th><th>seat holder</th></tr>"]
+        for p in held:
+            g = grids_by_id.get(p.grid_id)
+            ownid = g.owner_id if g else None
+            oname = owner_names.get(ownid, f"#{ownid}") if ownid is not None else "?"
+            flag = ""
+            if ownid == FOUNDER_ID:
+                flag = " style='background:#fef2f2'"
+            elif ownid is not None and ownid not in synth_ids:
+                flag = " style='background:#fffbeb'"
+            p_rows.append(f"<tr{flag}><td>{p.id}</td><td>{p.grid_id}</td><td>{_h.escape(str(oname))} (#{ownid})</td>"
+                          f"<td>{g.package_tier if g else '?'}</td><td>{p.grid_level}</td>"
+                          f"<td>{p.position_num}</td><td>#{p.member_id}</td></tr>")
+        held_tbl = "<table>" + "".join(p_rows) + "</table>"
+        held_tbl += ("<p style='font-size:13px;color:#64748b'>Pink rows sit inside the founder's grid; "
+                     "amber rows sit inside another real member's grid. These are the positions that would "
+                     "move if the accounts were removed — clean them deliberately, don't hard-delete.</p>")
+    else:
+        held_tbl = "<p style='color:#15803d'>None — these accounts occupy no positions in any grid.</p>"
+
+    def comm_tbl(bd, title):
+        if not bd:
+            return f"<p style='color:#15803d'>{title}: none.</p>"
+        r = [f"<tr><th>status</th><th>count</th><th>total</th></tr>"]
+        for st, d in sorted(bd.items()):
+            warn = st not in ("reversed", "failed", "voided")
+            style = " style='color:#b91c1c;font-weight:600'" if warn else " style='color:#15803d'"
+            r.append(f"<tr><td{style}>{_h.escape(st)}</td><td>{d['count']}</td><td>${d['total']:.2f}</td></tr>")
+        return f"<p style='font-weight:600;margin:14px 0 4px'>{title}</p><table>" + "".join(r) + "</table>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid Cleanup Audit</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a;}}
+h1{{font-size:20px;margin:0 0 4px}} h2{{font-size:15px;margin:22px 0 8px;color:#1e3a8a}}
+.sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.verdict{{padding:14px 16px;border-radius:10px;font-weight:600;margin-bottom:16px;
+ background:{'#f0fdf4' if verdict_clean else '#fffbeb'};border:1px solid {'#86efac' if verdict_clean else '#fde68a'};
+ color:{'#15803d' if verdict_clean else '#92400e'}}}
+.chips{{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}}
+table{{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden;margin:6px 0 4px}}
+th,td{{text-align:left;padding:8px 10px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.4px}}
+</style></head><body>
+<h1>Grid Cleanup Audit — synthetic account footprint</h1>
+<div class="sub">Read-only. Suspect IDs: {_h.escape(', '.join(str(i) for i in synth_ids))} · generated {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+<div class="verdict">{verdict}</div>
+<div class="chips">
+{chip('Grids owned', s['owned_grids'], warn=True)}
+{chip('Positions held', s['positions_held_total'], warn=True)}
+{chip('In real grids', s['positions_in_real_members_grids'], warn=True)}
+{chip('In YOUR grid', s['positions_in_founder_grids'], warn=True)}
+{chip('Live phantom $', f"${s['live_phantom_commission_from_suspects_usd']:.2f}", warn=True)}
+</div>
+<h2>Suspect accounts</h2><table>{suspects_tbl}</table>
+<h2>Grids OWNED by suspects</h2>{owned_tbl}
+<h2>Positions HELD by suspects (matrix pollution)</h2>{held_tbl}
+<h2>Commissions</h2>
+{comm_tbl(from_bd, 'FROM suspects → paid to others (phantom payouts; non-reversed = still live)')}
+{comm_tbl(to_bd, 'TO suspects (money the synthetic accounts earned)')}
+</body></html>"""
+
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
