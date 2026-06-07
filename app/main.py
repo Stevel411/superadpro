@@ -6883,6 +6883,64 @@ def admin_api_sponsor_audit(
     })
 
 
+@app.get("/admin/api/sponsor-recovery-scan")
+def admin_api_sponsor_recovery_scan(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """How much of the wiped sponsor tree can be auto-recovered, and from where.
+    Resolves each null-sponsor user (excluding the company root, id 1) against
+    two surviving high-confidence sources, in priority order:
+      1) pass_up_sponsor_id  (the permanent pass-up chain)
+      2) surviving sponsor-commission rows: a row with from_user_id = the member
+         and to_user_id = their sponsor (membership_sponsor / direct_sponsor).
+         Rebuilt summary rows have from_user_id NULL so they can't pollute this.
+    Read-only — reports coverage + a sample. No writes.
+    """
+    _require_admin(user)
+    from sqlalchemy import func as _func
+    null_users = db.query(User.id, User.username, User.pass_up_sponsor_id).filter(
+        User.sponsor_id.is_(None), User.id != 1).all()
+    null_ids = [u.id for u in null_users]
+    passup = {u.id: u.pass_up_sponsor_id for u in null_users if u.pass_up_sponsor_id}
+
+    comm_map = {}
+    if null_ids:
+        rows = db.query(Commission.from_user_id, Commission.to_user_id).filter(
+            Commission.from_user_id.in_(null_ids),
+            Commission.to_user_id.isnot(None),
+            Commission.commission_type.in_(["membership_sponsor", "direct_sponsor"]),
+        ).all()
+        for frm, to in rows:
+            if frm and to and frm not in comm_map:
+                comm_map[frm] = to
+
+    resolved, via_passup, via_commission, unresolved_ids = {}, 0, 0, []
+    for u in null_users:
+        if u.id in passup:
+            resolved[u.id] = (passup[u.id], "passup"); via_passup += 1
+        elif u.id in comm_map:
+            resolved[u.id] = (comm_map[u.id], "commission"); via_commission += 1
+        else:
+            unresolved_ids.append(u.id)
+
+    uname = {uid: un for uid, un, _ in [(u.id, u.username, None) for u in null_users]}
+    sample_resolved = [{
+        "user_id": uid, "username": uname.get(uid),
+        "recovered_sponsor_id": sp, "source": src,
+    } for uid, (sp, src) in list(resolved.items())[:15]]
+
+    return JSONResponse({
+        "total_null_sponsor_excl_root": len(null_users),
+        "auto_recoverable_total": len(resolved),
+        "via_passup": via_passup,
+        "via_commission_records": via_commission,
+        "needs_member_confirmation": len(unresolved_ids),
+        "sample_recovered": sample_resolved,
+        "sample_unresolved_ids": unresolved_ids[:15],
+    })
+
+
 @app.get("/api/command-centre/grid-team")
 def api_command_centre_grid_team(
     request: Request,
