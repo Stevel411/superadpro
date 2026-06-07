@@ -34079,6 +34079,109 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase}}
 {tbl}
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/fix-withdrawn-counter")
+def admin_fix_withdrawn_counter(
+    user: User = Depends(get_current_user),
+    apply: int = 0,
+    code: str = "",
+    db: Session = Depends(get_db),
+):
+    """
+    Correct the total_withdrawn COUNTER to equal real on-chain withdrawals
+    (status in paid/completed). The reconcile proved $941.74 of counter drift
+    on six legit accounts whose total_withdrawn claims withdrawals with ZERO
+    backing Withdrawal rows — bad data, no money. This sets the counter to
+    truth. Accounts already reconciled (owner, attackers) are untouched.
+    Counter-only — never touches balance, total_earned, or any money field.
+
+    - GET: dry-run.  ?apply=1&code=NNNNNN: 2FA-gated write.
+    """
+    _require_admin(user)
+    import html as _h
+
+    want_apply = bool(apply)
+    do_apply = want_apply and bool((code or "").strip())
+    if do_apply:
+        _require_admin_2fa(user, code)
+
+    uids = set()
+    for (uid,) in db.query(User.id).filter(User.total_withdrawn > 0).all():
+        uids.add(uid)
+
+    rows = []
+    fixed = 0
+    sum_removed = 0.0
+    for uid in uids:
+        u = db.query(User).get(uid)
+        if not u:
+            continue
+        counter = float(u.total_withdrawn or 0)
+        real_out = float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
+            Withdrawal.user_id == uid,
+            Withdrawal.status.in_(["paid", "completed"])).scalar() or 0)
+        delta = round(counter - real_out, 2)
+        if abs(delta) <= 0.01:
+            continue
+        rows.append({"id": uid, "u": u.username or "", "from": counter,
+                     "to": real_out, "delta": delta})
+        sum_removed += delta
+        if do_apply:
+            u.total_withdrawn = real_out
+            fixed += 1
+            try:
+                cache_invalidate_user(uid)
+            except Exception:
+                pass
+    if do_apply:
+        db.commit()
+
+    rows.sort(key=lambda r: abs(r["delta"]), reverse=True)
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    if fixed or do_apply:
+        banner = (f"<div style='padding:14px 16px;border-radius:10px;font-weight:600;margin-bottom:16px;"
+                  f"background:#f0fdf4;border:1px solid #86efac;color:#15803d'>✅ Applied — corrected {fixed} "
+                  f"counter(s), removed ${sum_removed:.2f} of phantom withdrawn. No money touched.</div>")
+    elif want_apply:
+        banner = (f"<div style='padding:14px 16px;border-radius:10px;font-weight:600;margin-bottom:16px;"
+                  f"background:#fffbeb;border:1px solid #fde68a;color:#92400e'>Preview only — append "
+                  f"<b>&amp;code=NNNNNN</b> to write.</div>")
+    else:
+        banner = ""
+
+    tr = ["<tr><th>id</th><th>user</th><th>counter now</th><th>real paid</th><th>phantom removed</th></tr>"]
+    for r in rows:
+        tr.append(f"<tr><td>{r['id']}</td><td>{esc(r['u'])}</td><td>${r['from']:.2f}</td>"
+                  f"<td><b>${r['to']:.2f}</b></td>"
+                  f"<td style='color:#dc2626;font-weight:700'>−${r['delta']:.2f}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Fix Withdrawn Counter</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.chips{{display:flex;gap:10px;margin-bottom:16px}}
+.chip{{flex:1;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase}} .chip .v{{font-size:20px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:left;padding:8px 10px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase}}
+</style></head><body>
+<h1>Fix Withdrawn Counter — {'applied' if fixed else 'dry-run'}</h1>
+<div class="sub">total_withdrawn → real paid (paid+completed) · {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+{banner}
+<div class="chips">
+<div class="chip"><div class="l">Accounts to fix</div><div class="v">{len(rows)}</div></div>
+<div class="chip"><div class="l">Σ phantom removed</div><div class="v">${sum_removed:.2f}</div></div>
+</div>
+{tbl}
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
