@@ -9724,6 +9724,111 @@ def admin_api_stripe_tier_credit_recovery(
     })
 
 
+@app.get("/admin/api/nowpayments-enrich")
+def admin_api_nowpayments_enrich(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    ids: str = "",
+):
+    """Resolve a batch of NOWPayments payment IDs (from the dashboard CSV export)
+    to (user, product, tier) via the per-payment API, which returns the
+    order_description the CSV omits. order_id encodes the user (SAP-<user>-<n>);
+    order_description names the product ('Campaign Tier 1 — Starter'). Always
+    echoes the raw description so the classification can be verified, not
+    trusted blind. Read-only."""
+    _require_admin(user)
+    import re as _re, time as _time
+    from .database import Grid, SuperSceneCredit, User as _User
+    try:
+        from . import nowpayments_service as _np
+        if not _np.is_configured():
+            return JSONResponse({"error": "nowpayments not configured in env"}, status_code=200)
+    except Exception as e:
+        return JSONResponse({"error": f"np init failed: {type(e).__name__}"}, status_code=200)
+
+    id_list = [i.strip() for i in (ids or "").split(",") if i.strip()]
+    if not id_list:
+        return JSONResponse({"error": "pass ?ids=comma,separated,payment_ids"}, status_code=400)
+
+    def _classify(desc):
+        d = (desc or "").lower()
+        m = _re.search(r"tier\s*(\d+)", d)
+        if "campaign tier" in d or (m and "grid" in d) or m and "tier" in d and "credit" not in d and "nexus" not in d:
+            return ("campaign_tier", int(m.group(1)) if m else None)
+        if "superscene" in d or "creative" in d or "studio credit" in d:
+            return ("creative_credits", None)
+        if "nexus" in d or "credit pack" in d or "credit matrix" in d:
+            return ("nexus_pack", None)
+        if "founder" in d or "partner" in d or "membership" in d:
+            return ("membership", None)
+        return ("unknown", None)
+
+    def _uid_from_order(oid):
+        m = _re.match(r"SAP-(\d+)-", oid or "")
+        return int(m.group(1)) if m else 0
+
+    _t0 = _time.time()
+    resolved, errors = [], []
+    for pid in id_list:
+        if _time.time() - _t0 > 50:
+            errors.append({"payment_id": pid, "error": "time_budget_hit_remaining_skipped"})
+            break
+        try:
+            data = _np.get_payment_status(pid)
+        except Exception as e:
+            errors.append({"payment_id": pid, "error": type(e).__name__})
+            continue
+        if not isinstance(data, dict) or data.get("error"):
+            errors.append({"payment_id": pid, "error": str(data)[:100]})
+            continue
+        oid = data.get("order_id") or ""
+        desc = data.get("order_description") or ""
+        uid = _uid_from_order(oid)
+        kind, tier = _classify(desc)
+        resolved.append({
+            "payment_id": pid, "order_id": oid, "user_id": uid,
+            "raw_description": desc, "product_kind": kind, "tier": tier,
+            "price_usd": data.get("price_amount"),
+            "actually_paid": data.get("actually_paid"),
+            "pay_currency": data.get("pay_currency"),
+            "status": data.get("payment_status"),
+        })
+
+    # Cross-check current state per distinct user in the tier/credit set.
+    uids = sorted({r["user_id"] for r in resolved
+                   if r["user_id"] and r["product_kind"] in ("campaign_tier", "creative_credits", "nexus_pack")})
+    state = {}
+    for uid in uids:
+        u = db.query(_User.id, _User.username, _User.is_active).filter(_User.id == uid).first()
+        if not u:
+            state[uid] = {"valid_user": False}
+            continue
+        grids_inc = db.query(Grid).filter(Grid.owner_id == uid, Grid.is_complete == False).count()
+        ssc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == uid).first()
+        state[uid] = {"valid_user": True, "username": u.username, "is_active": bool(u.is_active),
+                      "grids_incomplete_now": grids_inc,
+                      "credit_balance_now": int(ssc.balance) if ssc else 0}
+
+    tiers = [r for r in resolved if r["product_kind"] == "campaign_tier"]
+    credits = [r for r in resolved if r["product_kind"] == "creative_credits"]
+    nexus = [r for r in resolved if r["product_kind"] == "nexus_pack"]
+    membership = [r for r in resolved if r["product_kind"] == "membership"]
+    unknown = [r for r in resolved if r["product_kind"] == "unknown"]
+    return JSONResponse({
+        "requested": len(id_list), "resolved": len(resolved), "errors": errors[:20],
+        "summary": {"campaign_tier": len(tiers), "creative_credits": len(credits),
+                    "nexus_pack": len(nexus), "membership": len(membership), "unknown": len(unknown)},
+        "campaign_tier_purchases": tiers,
+        "creative_credit_purchases": credits,
+        "nexus_pack_purchases": nexus,
+        "unknown_descriptions": unknown,
+        "current_state_by_user": {str(k): v for k, v in state.items()},
+        "note": ("raw_description is echoed for every row — verify the product_kind/tier "
+                 "classification against it before we restore anything. membership rows "
+                 "are listed only in summary (not part of tier/credit recovery)."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
