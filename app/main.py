@@ -33946,6 +33946,129 @@ th{{background:#f8fafc;color:#475569;font-size:10px;text-transform:uppercase;let
 <div class="wrap">{tbl}</div>
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/rebuild-bonus-ledger")
+def admin_rebuild_bonus_ledger(
+    user: User = Depends(get_current_user),
+    apply: int = 0,
+    code: str = "",
+    db: Session = Depends(get_db),
+):
+    """
+    Materialise the grid-completion-bonus stream gap. The grid-stream rebuild
+    handled direct_sponsor + uni_level but NOT the completion bonus; only the
+    owner account's $144 bonus was ever in the ledger. richard1980 ($72),
+    success ($72) etc. carry bonus_earnings on the counter with no ledger row,
+    so compute_user_earnings under-reports them.
+
+    For each owner with bonus_earnings > 0, writes a grid_completion_bonus row
+    for the GAP (bonus_earnings − existing ledger bonus of both
+    grid_completion_bonus + grid_completion_bonus_topup), so it can never
+    double-count an owner who already has bonus rows (e.g. the owner account's
+    $144 → gap $0 → skipped). Idempotent via source_event_id; ledger only.
+
+    - GET: dry-run.  ?apply=1&code=NNNNNN: 2FA-gated write.
+    """
+    _require_admin(user)
+    import html as _h
+
+    MARKER = "ledger_rebuild_20260607"
+    SYNTHETIC = {667, 668, 669, 670, 673, 674}
+    BONUS_TYPES = ["grid_completion_bonus", "grid_completion_bonus_topup"]
+
+    want_apply = bool(apply)
+    do_apply = want_apply and bool((code or "").strip())
+    if do_apply:
+        _require_admin_2fa(user, code)
+
+    owners = db.query(User).filter(User.bonus_earnings > 0).all()
+
+    rows = []
+    written = skipped = 0
+    sum_gap = 0.0
+    for u in owners:
+        if u.id in SYNTHETIC:
+            continue
+        counter = float(u.bonus_earnings or 0)
+        existing = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == u.id,
+            Commission.status == "paid",
+            Commission.commission_type.in_(BONUS_TYPES),
+        ).scalar() or 0)
+        gap = round(counter - existing, 2)
+        rows.append({"id": u.id, "u": u.username or "", "counter": counter,
+                     "existing": existing, "gap": gap})
+        if gap > 0.01:
+            sum_gap += gap
+            if do_apply:
+                sev = f"{MARKER}:{u.id}:bonus"
+                if db.query(Commission.id).filter(Commission.source_event_id == sev).first():
+                    skipped += 1
+                    continue
+                db.add(Commission(
+                    from_user_id=None, to_user_id=u.id, grid_id=None,
+                    amount_usdt=gap, commission_type="grid_completion_bonus",
+                    package_tier=None, status="paid",
+                    notes=("RECONSTRUCTED completion-bonus gap from surviving "
+                           "bonus_earnings counter — original per-event detail lost "
+                           "before 2026-06-07. Gap = counter − existing ledger bonus."),
+                    paid_at=datetime.utcnow(), source_event_id=sev,
+                ))
+                written += 1
+                try:
+                    cache_invalidate_user(u.id)
+                except Exception:
+                    pass
+    if do_apply:
+        db.commit()
+
+    rows.sort(key=lambda r: r["gap"], reverse=True)
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    if written or do_apply:
+        banner = (f"<div style='padding:14px 16px;border-radius:10px;font-weight:600;margin-bottom:16px;"
+                  f"background:#f0fdf4;border:1px solid #86efac;color:#15803d'>✅ Applied — wrote {written} "
+                  f"bonus row(s), skipped {skipped}. Ledger only.</div>")
+    elif want_apply:
+        banner = (f"<div style='padding:14px 16px;border-radius:10px;font-weight:600;margin-bottom:16px;"
+                  f"background:#fffbeb;border:1px solid #fde68a;color:#92400e'>Preview only — append "
+                  f"<b>&amp;code=NNNNNN</b> to write.</div>")
+    else:
+        banner = ""
+
+    tr = ["<tr><th>id</th><th>user</th><th>bonus_earnings</th><th>in ledger</th><th>gap to write</th></tr>"]
+    for r in rows:
+        gcol = "#16a34a" if r["gap"] > 0.01 else "#94a3b8"
+        tr.append(f"<tr><td>{r['id']}</td><td>{esc(r['u'])}</td><td>${r['counter']:.2f}</td>"
+                  f"<td>${r['existing']:.2f}</td>"
+                  f"<td style='color:{gcol};font-weight:700'>${r['gap']:.2f}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Rebuild Bonus Ledger</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.chips{{display:flex;gap:10px;margin-bottom:16px}}
+.chip{{flex:1;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase}} .chip .v{{font-size:20px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:left;padding:8px 10px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase}}
+</style></head><body>
+<h1>Rebuild Bonus Ledger — {'applied' if written else 'dry-run'}</h1>
+<div class="sub">grid_completion_bonus gap (counter − existing) · {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+{banner}
+<div class="chips">
+<div class="chip"><div class="l">Owners</div><div class="v">{len(rows)}</div></div>
+<div class="chip"><div class="l">Σ gap to write</div><div class="v">${sum_gap:.2f}</div></div>
+</div>
+{tbl}
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
