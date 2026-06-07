@@ -9829,6 +9829,93 @@ def admin_api_nowpayments_enrich(
     })
 
 
+@app.get("/admin/api/tier-grid-restore")
+def admin_api_tier_grid_restore(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    pairs: str = "",
+    apply: int = 0,
+    code: str = "",
+):
+    """Restore wiped campaign-tier grids from VERIFIED paid purchases (Stripe +
+    NOWPayments). pairs = comma-separated user:tier (e.g. '264:1,264:2'). Uses
+    get_or_create_active_grid, which creates ONLY the Grid row (active-tier
+    state) and NEVER fires commissions — process_tier_purchase is the one that
+    pays upline, and those commissions were already earned and rebuilt, so
+    re-firing would double-pay. Dry-run by default; ?apply=1&code=2FA writes.
+    Idempotent (skips a tier the member already has an active grid for)."""
+    _require_admin(user)
+    from .grid import get_or_create_active_grid
+    from .database import Grid, User as _User, GRID_PACKAGES as _PKG
+    import pyotp
+
+    items = []
+    for tok in (pairs or "").split(","):
+        tok = tok.strip()
+        if not tok or ":" not in tok:
+            continue
+        u, t = tok.split(":", 1)
+        try:
+            items.append((int(u), int(t)))
+        except ValueError:
+            continue
+    if not items:
+        return JSONResponse({"error": "pass ?pairs=user:tier,user:tier"}, status_code=400)
+    items = sorted(set(items), key=lambda x: (x[0], x[1]))  # tier asc per user
+
+    plan = []
+    for uid, tier in items:
+        if tier not in _PKG:
+            plan.append({"user_id": uid, "tier": tier, "action": "skip_invalid_tier"})
+            continue
+        u = db.query(_User.id, _User.username, _User.is_active).filter(_User.id == uid).first()
+        if not u:
+            plan.append({"user_id": uid, "tier": tier, "action": "skip_user_gone"})
+            continue
+        exists = db.query(Grid).filter(Grid.owner_id == uid, Grid.package_tier == tier,
+                                       Grid.is_complete == False).first()
+        plan.append({"user_id": uid, "username": u.username, "tier": tier,
+                     "is_active": bool(u.is_active),
+                     "action": "already_has_grid" if exists else "will_create"})
+
+    to_create = [p for p in plan if p["action"] == "will_create"]
+
+    if not apply:
+        return JSONResponse({
+            "mode": "dry_run", "pairs_in": len(items),
+            "will_create": len(to_create),
+            "already_has_grid": sum(1 for p in plan if p["action"] == "already_has_grid"),
+            "skipped": sum(1 for p in plan if str(p["action"]).startswith("skip")),
+            "plan": plan,
+            "note": ("Dry-run — nothing written. ?apply=1&code=YOUR_2FA to create. "
+                     "Grid rows only; no commissions fired."),
+        })
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?code=NNNNNN"},
+                            status_code=403)
+
+    created = []
+    for p in to_create:
+        try:
+            g = get_or_create_active_grid(db, p["user_id"], p["tier"])
+            created.append({"user_id": p["user_id"], "username": p.get("username"),
+                            "tier": p["tier"], "grid_id": g.id})
+        except Exception as e:
+            created.append({"user_id": p["user_id"], "tier": p["tier"],
+                            "error": f"{type(e).__name__}: {str(e)[:120]}"})
+    return JSONResponse({
+        "mode": "applied",
+        "created": len([c for c in created if c.get("grid_id")]),
+        "errors": len([c for c in created if c.get("error")]),
+        "results": created,
+        "note": ("Active grids restored (no commissions fired). Tier reads active; "
+                 "downline active-network counts recompute on next read (60s cache)."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
