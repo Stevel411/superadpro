@@ -33720,6 +33720,124 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;let
 {tbl}
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/earnings-decompose")
+def admin_earnings_decompose(
+    user: User = Depends(get_current_user),
+    limit: int = 60,
+    db: Session = Depends(get_db),
+):
+    """
+    Read-only. Decompose every earner's total_earned against ALL counter
+    fields, then reconstruct the membership stream from real sponsor→
+    active-paid-referral data ($10 monthly / $100 annual per the locked
+    FLAT_SPONSOR_COMMISSION). Surfaces, per user:
+
+        total_earned  vs  (grid+level+bonus+upline+course+marketplace)
+        => membership_implied (the residual the counters can't explain)
+        vs membership_reconstructed (real referrals × locked share)
+        => divergence  (implied − reconstructed; large +ve = turnover/inflation)
+
+    Sorted by |divergence| so the founder-account turnover surfaces first.
+    No writes.
+    """
+    _require_admin(user)
+    import html as _h
+
+    earners = db.query(User).filter(User.total_earned > 0).all()
+
+    rows = []
+    tot_te = tot_acc = tot_impl = tot_recon = 0.0
+    for u in earners:
+        te = float(u.total_earned or 0)
+        grid = float(u.grid_earnings or 0)
+        level = float(u.level_earnings or 0)
+        bonus = float(u.bonus_earnings or 0)
+        upline = float(u.upline_earnings or 0)
+        course = float(u.course_earnings or 0)
+        mkt = float(u.marketplace_earnings or 0)
+        accounted = grid + level + bonus + upline + course + mkt
+        implied = round(te - accounted, 2)
+
+        # reconstruct membership from real referral activations
+        refs = db.query(User).filter(
+            User.sponsor_id == u.id,
+            User.is_active == True,  # noqa: E712
+            User.membership_tier != "free",
+        ).all()
+        n_month = sum(1 for r in refs if (r.membership_billing or "monthly") != "annual")
+        n_annual = sum(1 for r in refs if (r.membership_billing or "monthly") == "annual")
+        recon = round(10.0 * n_month + 100.0 * n_annual, 2)
+
+        divergence = round(implied - recon, 2)
+        bal = float(u.balance or 0)
+        wd = float(u.total_withdrawn or 0)
+
+        rows.append({
+            "id": u.id, "u": u.username or "", "te": te, "grid": grid, "level": level,
+            "bonus": bonus, "upline": upline, "course": course, "mkt": mkt,
+            "impl": implied, "nref": len(refs), "recon": recon, "div": divergence,
+            "bal": bal, "wd": wd,
+        })
+        tot_te += te
+        tot_acc += accounted
+        tot_impl += implied
+        tot_recon += recon
+
+    rows.sort(key=lambda r: abs(r["div"]), reverse=True)
+    shown = rows[:max(1, limit)]
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    def fmt(v):
+        return f"${v:.2f}" if v else "·"
+
+    tr = ["<tr><th>id</th><th>user</th><th>total_earned</th><th>grid</th><th>level</th>"
+          "<th>bonus</th><th>upline</th><th>course</th><th>mkt</th><th>mem_implied</th>"
+          "<th>refs</th><th>mem_recon</th><th>divergence</th><th>aff_bal</th><th>withdrawn</th></tr>"]
+    for r in shown:
+        dcol = "#dc2626" if abs(r["div"]) >= 20 else ("#d97706" if abs(r["div"]) >= 5 else "#16a34a")
+        tr.append(
+            f"<tr><td>{r['id']}</td><td>{esc(r['u'])}</td><td><b>{fmt(r['te'])}</b></td>"
+            f"<td>{fmt(r['grid'])}</td><td>{fmt(r['level'])}</td><td>{fmt(r['bonus'])}</td>"
+            f"<td>{fmt(r['upline'])}</td><td>{fmt(r['course'])}</td><td>{fmt(r['mkt'])}</td>"
+            f"<td>{fmt(r['impl'])}</td><td>{r['nref']}</td><td>{fmt(r['recon'])}</td>"
+            f"<td style='color:{dcol};font-weight:700'>{r['div']:+.2f}</td>"
+            f"<td>{fmt(r['bal'])}</td><td>{fmt(r['wd'])}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Earnings Decompose</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.chips{{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}}
+.chip{{flex:1;min-width:130px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}}
+.chip .v{{font-size:20px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:right;padding:6px 8px;border-bottom:1px solid #eef1f5;white-space:nowrap}}
+th:nth-child(2),td:nth-child(2){{text-align:left}}
+th{{background:#f8fafc;color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.3px}}
+.note{{font-size:13px;color:#64748b;margin:12px 0;line-height:1.5}}
+.wrap{{overflow-x:auto}}
+</style></head><body>
+<h1>Earnings Decompose — read-only</h1>
+<div class="sub">total_earned vs all counters → membership implied vs reconstructed · {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+<div class="chips">
+<div class="chip"><div class="l">Earners</div><div class="v">{len(rows)}</div></div>
+<div class="chip"><div class="l">Σ total_earned</div><div class="v">${tot_te:.2f}</div></div>
+<div class="chip"><div class="l">Σ counter-accounted</div><div class="v">${tot_acc:.2f}</div></div>
+<div class="chip"><div class="l">Σ mem_implied</div><div class="v">${tot_impl:.2f}</div></div>
+<div class="chip"><div class="l">Σ mem_reconstructed</div><div class="v">${tot_recon:.2f}</div></div>
+<div class="chip"><div class="l">Σ divergence</div><div class="v">${tot_impl-tot_recon:.2f}</div></div>
+</div>
+<p class="note"><b>mem_implied</b> = total_earned − (grid+level+bonus+upline+course+marketplace). <b>mem_recon</b> = $10×monthly + $100×annual active paid direct referrals. <b>divergence</b> = implied − recon: green ≈ matches (real), amber small gap, <span style="color:#dc2626">red ≥ $20</span> = unexplained inflation/turnover. Sorted by |divergence|.</p>
+<div class="wrap">{tbl}</div>
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
