@@ -7007,7 +7007,7 @@ def admin_api_sponsor_recovery_notifications(
 
 
 @app.get("/admin/api/brevo-team-recovery")
-async def admin_api_brevo_team_recovery(
+def admin_api_brevo_team_recovery(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     max_pages: int = 6,
@@ -7046,19 +7046,27 @@ async def admin_api_brevo_team_recovery(
     import time as _time
     _t0 = _time.time()
     collected, total_seen, oldest, newest, hit_cap = [], 0, None, None, False
+    first_status, first_sample = None, None
     offset, limit = 0, max(10, min(per, 500))
     try:
-        async with _httpx.AsyncClient(timeout=20) as client:
+        with _httpx.Client(timeout=15) as client:
             for _pg in range(max_pages):
-                if _time.time() - _t0 > 45:
+                if _time.time() - _t0 > 40:
                     hit_cap = True
                     break
-                r = await client.get(base, headers=headers,
-                                     params={"limit": limit, "offset": offset, "sort": "desc"})
+                r = client.get(base, headers=headers,
+                               params={"limit": limit, "offset": offset, "sort": "desc"})
+                if first_status is None:
+                    first_status = r.status_code
                 if r.status_code != 200:
-                    return JSONResponse({"error": f"Brevo API {r.status_code}",
-                                         "body": r.text[:300]}, status_code=502)
-                emails = (r.json() or {}).get("transactionalEmails", []) or []
+                    return JSONResponse({"brevo_error_status": r.status_code,
+                                         "brevo_body": r.text[:400]}, status_code=200)
+                payload = r.json() or {}
+                emails = payload.get("transactionalEmails", []) or []
+                if first_sample is None and emails:
+                    _s = emails[0]
+                    first_sample = {"email": _s.get("email"), "subject": _s.get("subject"),
+                                    "date": _s.get("date"), "keys": list(_s.keys())}
                 if not emails:
                     break
                 for e in emails:
@@ -7073,7 +7081,8 @@ async def admin_api_brevo_team_recovery(
                     break
                 offset += limit
     except Exception as e:
-        return JSONResponse({"error": f"Brevo fetch failed: {str(e)[:200]}"}, status_code=502)
+        return JSONResponse({"brevo_fetch_failed": f"{type(e).__name__}: {str(e)[:200]}",
+                             "first_status": first_status}, status_code=200)
 
     null_users = db.query(User.id, User.first_name, User.username, User.created_at, User.is_active).filter(
         User.sponsor_id.is_(None), User.id != 1).all()
@@ -7117,6 +7126,8 @@ async def admin_api_brevo_team_recovery(
     return JSONResponse({
         "transactional_emails_scanned": total_seen,
         "hit_page_or_time_cap": hit_cap,
+        "brevo_first_status": first_status,
+        "brevo_first_item_sample": first_sample,
         "brevo_log_date_range": {"oldest": oldest, "newest": newest},
         "team_join_emails_found": len(collected),
         "recovered_from_brevo": len(resolved),
