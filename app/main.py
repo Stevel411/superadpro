@@ -9791,21 +9791,21 @@ def _old_pay_membership_DISABLED_1(request=None):
 @app.post("/verify-membership")
 def verify_membership(
     request: Request,
-    tx_hash: str = Form(),
+    tx_hash: str = Form(default=""),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/?login=1", status_code=302)
-    result = process_membership_payment(db, user.id, tx_hash)
-    if result.get("success"):
-        initialise_renewal_record(db, user.id, source="referral")
-    if result["success"]:
-        # Check if sponsor was auto-activated by this payment
-        redirect_url = "/dashboard?activated=true"
-        if result.get("sponsor_auto_activated"):
-            redirect_url = "/dashboard?auto_activated=true"
-        return RedirectResponse(url=redirect_url, status_code=303)
-    return JSONResponse({"error": result["error"]}, status_code=400)
+    # RETIRED 7 Jun 2026 — fails closed. This push-based endpoint had the
+    # client submit a tx_hash that we "verified" via verify_transaction(),
+    # which checked neither the emitting token contract nor the sender — a
+    # fake-token Transfer to the treasury minted real sponsor commission
+    # (consistent with the 3 Jun breach). Inbound USDT is now confirmed
+    # automatically by the BSC scanner; no client-submitted tx_hash is trusted.
+    return JSONResponse(
+        {"error": "This confirmation method is no longer supported. Membership "
+                  "payments are confirmed automatically once received."},
+        status_code=410,
+    )
 
 
 # ── Activate-from-balance (Option B membership offer) ──
@@ -12002,10 +12002,21 @@ async def crypto_order_status(order_id: int, request: Request,
 @app.post("/api/crypto/verify-payment")
 async def crypto_verify_payment(request: Request, db: Session = Depends(get_db),
                                  user: User = Depends(get_current_user)):
+    """RETIRED 7 Jun 2026 — fails closed.
+
+    Legacy push path: client submitted a tx_hash, backend "verified" it on
+    Polygon via crypto_payments.check_usdt_transfer and activated a product.
+    Same unsafe shape as /verify-membership and tied to the dormant Polygon
+    rail. Inbound USDT is now confirmed by the BSC scanner; only the dead
+    CryptoCheckout.jsx ever called this. Returns 410 so any direct POST is
+    inert. The body below is unreachable and is removed with the Polygon
+    inbound cluster.
     """
-    Member submits their tx_hash after sending USDT.
-    Backend verifies the transaction on Polygon and activates the product.
-    """
+    return JSONResponse(
+        {"error": "This confirmation method is no longer supported. "
+                  "Payments are confirmed automatically once received."},
+        status_code=410,
+    )
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 

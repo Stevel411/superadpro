@@ -98,22 +98,32 @@ def wei_to_usdt(amount: int) -> float:
 # ── Blockchain verification ───────────────────────────────────
 
 def verify_transaction(tx_hash: str, expected_to: str, expected_amount: float) -> bool:
-    """Verify a USDT transfer on Base Chain."""
-    try:
-        receipt = w3.eth.get_transaction_receipt(tx_hash)
-        if not receipt or receipt.status != 1:
-            return False
-        contract = get_usdt_contract()
-        logs = contract.events.Transfer().process_receipt(receipt)
-        for log in logs:
-            to_addr = log['args']['to'].lower()
-            amount  = wei_to_usdt(log['args']['value'])
-            if to_addr == expected_to.lower() and abs(amount - expected_amount) < 0.01:
-                return True
-        return False
-    except Exception as e:
-        print(f"TX verification error: {e}")
-        return False
+    """DISABLED 7 Jun 2026 — permanently returns False.
+
+    This was a push-based verifier: a client submitted a tx_hash and we
+    checked the receipt for a Transfer to the treasury. It had two fatal
+    flaws:
+      1. It never verified the EMITTING contract. process_receipt decodes
+         ANY log with the Transfer signature, so a worthless token emitting
+         Transfer(to=treasury, value=20e18) passed verification — minting
+         real sponsor commission from a zero-cost fake deposit.
+      2. It never verified the SENDER, so any genuine treasury-bound
+         tx_hash could be claimed by a different account.
+    Both are consistent with the 3 Jun 2026 synthetic-balance breach.
+
+    All inbound USDT is now confirmed by the pull-based BSC scanner
+    (app/walletconnect_payments.py): it reads logs filtered to the real
+    USDT contract address, matches each payment to a specific order by a
+    unique amount, is idempotent on tx_hash, and records the sender. The
+    client-submitted push path is retired. This stub remains only so its
+    (now dead) callers fail closed instead of minting value.
+    """
+    logger.warning(
+        "verify_transaction() is permanently disabled; inbound payments are "
+        "confirmed by the BSC scanner. Ignored tx=%s to=%s amount=%s",
+        tx_hash, expected_to, expected_amount,
+    )
+    return False
 
 
 # ── Membership payment ────────────────────────────────────────
