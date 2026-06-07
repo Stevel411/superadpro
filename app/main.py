@@ -28757,15 +28757,28 @@ def run_security_watch(db, dry=False):
 
     # 5) Treasury USDT drain (BSC live rail). Funds leaving the treasury with
     # no 'paid' withdrawal to account for them = a direct on-chain drain, the
-    # one egress no app lock can stop. Best-effort on-chain read; a failed RPC
-    # read skips this cycle rather than false-alarming or wiping the baseline.
+    # one egress no app lock can stop. Best-effort on-chain read; a failed OR
+    # SLOW RPC read skips this cycle rather than false-alarming or wiping the
+    # baseline. The read is hard-bounded to 8s in a worker thread: health_check
+    # makes 4 sequential BSC RPC calls (15s timeout each), so on a slow free-tier
+    # moment it could otherwise burn 30-60s — and because the alert mailer fires
+    # AFTER this check, an unbounded read here delays every withdrawal alert by
+    # exactly that long. The bound caps the whole cycle; a missed tick's treasury
+    # read is recovered by the next responsive tick (drain persists in balance).
+    cur_treasury = None
     try:
         from .walletconnect_payments import health_check as _bsc_health
-        cur_treasury = _bsc_health().get("treasury_usdt")
+        import concurrent.futures as _cf
+        _tex = _cf.ThreadPoolExecutor(max_workers=1)
+        _tfut = _tex.submit(lambda: _bsc_health().get("treasury_usdt"))
+        try:
+            cur_treasury = _tfut.result(timeout=8)
+        finally:
+            _tex.shutdown(wait=False)  # never block on a hung RPC thread
     except Exception as _te:
         cur_treasury = None
         try:
-            logging.error(f"[secwatch] treasury read failed: {_te}")
+            logging.error(f"[secwatch] treasury read skipped (failed/slow): {_te}")
         except Exception:
             pass
     cur_paid_wd_total = float(
