@@ -34358,6 +34358,64 @@ def admin_restore_backup(
         })
 
     return JSONResponse(restore_table(file, table, do_apply=do_apply))
+
+
+@app.get("/admin/restamp-rebuild-rows")
+def admin_restamp_rebuild_rows(
+    user: User = Depends(get_current_user),
+    apply: int = 0,
+    code: str = "",
+    db: Session = Depends(get_db),
+):
+    """
+    Backdate tonight's reconstructed commission rows (source_event_id LIKE
+    'ledger_rebuild_20260607%') from 'now' to the 31-May known-good date.
+    They were stamped at insertion time, which makes lifetime-aggregate
+    historical earnings look like today's activity — tripping the 24h
+    unqualified-commission and financial_sanity windows. Sets created_at and
+    paid_at to 2026-05-31 so the ledger reflects when the earnings actually
+    belong. Earnings totals are unaffected (compute_user_earnings filters by
+    status, not date). Dry-run default; 2FA-gated apply.
+    """
+    _require_admin(user)
+    from datetime import datetime as _dt
+
+    want_apply = bool(apply)
+    do_apply = want_apply and bool((code or "").strip())
+    if do_apply:
+        _require_admin_2fa(user, code)
+
+    target = _dt(2026, 5, 31, 0, 0, 0)
+    rows = (db.query(Commission)
+            .filter(Commission.source_event_id.like("ledger_rebuild_20260607%"))
+            .all())
+
+    n = len(rows)
+    total = round(sum(float(r.amount_usdt or 0) for r in rows), 2)
+    by_type = {}
+    for r in rows:
+        by_type[r.commission_type] = by_type.get(r.commission_type, 0) + 1
+
+    updated = 0
+    if do_apply:
+        for r in rows:
+            r.created_at = target
+            r.paid_at = target
+            updated += 1
+        db.commit()
+
+    return JSONResponse({
+        "matched": n,
+        "total_usd": total,
+        "by_type": by_type,
+        "target_date": target.isoformat(),
+        "applied": bool(do_apply),
+        "updated": updated,
+        "note": ("Dry-run — append &apply=1&code=NNNNNN to backdate."
+                 if not do_apply else
+                 "Reconstructed rows backdated to 2026-05-31. Re-run "
+                 "/admin/unqualified-commissions or financial_sanity to confirm clear."),
+    })
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
