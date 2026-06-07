@@ -7534,15 +7534,24 @@ def admin_api_sponsor_residual_nulls(
     _require_admin(user)
     rows = (db.query(User.id, User.username, User.email, User.first_name,
                      User.created_at, User.is_active, User.total_team,
-                     User.personal_referrals, User.founding_spot_number)
+                     User.personal_referrals, User.founding_spot_number,
+                     User.pass_up_sponsor_id)
             .filter(User.sponsor_id.is_(None), User.id != 1)
             .order_by(User.created_at.asc()).all())
+    # Resolve pass-up lead usernames in one batch.
+    pu_ids = [r.pass_up_sponsor_id for r in rows if r.pass_up_sponsor_id]
+    pu_names = {}
+    if pu_ids:
+        pu_names = {u.id: u.username for u in
+                    db.query(User.id, User.username).filter(User.id.in_(pu_ids)).all()}
     out = [{
         "user_id": r.id, "username": r.username, "first_name": r.first_name,
         "email": r.email, "is_active": bool(r.is_active),
         "created_at": r.created_at.isoformat() if r.created_at else None,
         "founding_spot": r.founding_spot_number,
         "total_team": r.total_team, "personal_referrals": r.personal_referrals,
+        "passup_lead_id": r.pass_up_sponsor_id,
+        "passup_lead_username": pu_names.get(r.pass_up_sponsor_id),
     } for r in rows]
     return JSONResponse({
         "residual_null_count": len(out),
