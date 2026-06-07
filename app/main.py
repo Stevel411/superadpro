@@ -33376,6 +33376,137 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;let
 <h2>commissions — by type &amp; status</h2>{tbl}
 </body></html>"""
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/grid-commission-rebuild")
+def admin_grid_commission_rebuild(
+    user: User = Depends(get_current_user),
+    limit: int = 40,
+    db: Session = Depends(get_db),
+):
+    """
+    READ-ONLY reconstruction preview for the missing grid commission rows.
+
+    Replays the locked comp plan over every real GridPosition fill:
+      buyer = position.member_id, price = GRID_PACKAGES[grid.package_tier]
+      direct 40% -> buyer's sponsor
+      uni-level 6.25% -> each of 8 uplines in the buyer's sponsor chain
+    Then compares the reconstructed per-user totals against the stored
+    counters (grid_earnings = direct, level_earnings = uni) AND against the
+    campaign wallet (the real money). If reconstruction ≈ counters ≈ wallet,
+    the rebuild is trustworthy. No writes — this only previews.
+
+    Note: ignores time-of-purchase qualification/escrow, so reconstruction is
+    the GROSS comp-plan ideal; actuals (counters) may be lower where an upline
+    was unqualified and the slot escrowed/expired. The gap is informative.
+    """
+    _require_admin(user)
+    import html as _h
+    from .database import GRID_PACKAGES, DIRECT_PCT, PER_LEVEL_PCT, UNILEVEL_DEPTH
+
+    # Prefetch: grid tier by id, and user sponsor/counter maps (avoid N+1).
+    grid_tier = {g.id: g.package_tier for g in db.query(Grid.id, Grid.package_tier).all()}
+    sponsor_of = {}
+    counters = {}
+    for u in db.query(User.id, User.sponsor_id, User.username, User.grid_earnings,
+                      User.level_earnings, User.campaign_balance).all():
+        sponsor_of[u.id] = u.sponsor_id
+        counters[u.id] = {
+            "username": u.username or "",
+            "grid": float(u.grid_earnings or 0),
+            "level": float(u.level_earnings or 0),
+            "campaign": float(u.campaign_balance or 0),
+        }
+
+    recon_direct = {}
+    recon_uni = {}
+    positions = 0
+    for gp in db.query(GridPosition.member_id, GridPosition.grid_id).all():
+        tier = grid_tier.get(gp.grid_id)
+        if tier is None:
+            continue
+        price = float(GRID_PACKAGES.get(tier, 0) or 0)
+        if price <= 0:
+            continue
+        positions += 1
+        buyer = gp.member_id
+        # direct 40% -> buyer's sponsor
+        sp = sponsor_of.get(buyer)
+        if sp:
+            recon_direct[sp] = recon_direct.get(sp, 0.0) + round(price * DIRECT_PCT, 2)
+        # uni-level 6.25% up the buyer's sponsor chain, 8 levels
+        per_level = round(price * PER_LEVEL_PCT, 2)
+        cur = buyer
+        seen = {buyer}
+        for _lvl in range(UNILEVEL_DEPTH):
+            up = sponsor_of.get(cur)
+            if not up or up in seen:
+                break
+            recon_uni[up] = recon_uni.get(up, 0.0) + per_level
+            seen.add(up)
+            cur = up
+
+    # Per-user comparison
+    uids = set(recon_direct) | set(recon_uni) | {uid for uid, c in counters.items()
+                                                 if c["grid"] > 0 or c["level"] > 0}
+    rows = []
+    sums = {"rd": 0.0, "ru": 0.0, "cg": 0.0, "cl": 0.0, "cw": 0.0}
+    for uid in uids:
+        c = counters.get(uid, {"username": "", "grid": 0, "level": 0, "campaign": 0})
+        rd = round(recon_direct.get(uid, 0.0), 2)
+        ru = round(recon_uni.get(uid, 0.0), 2)
+        rows.append({
+            "id": uid, "username": c["username"],
+            "rd": rd, "cg": c["grid"], "ru": ru, "cl": c["level"],
+            "rtot": round(rd + ru, 2), "cw": c["campaign"],
+        })
+        sums["rd"] += rd; sums["ru"] += ru
+        sums["cg"] += c["grid"]; sums["cl"] += c["level"]; sums["cw"] += c["campaign"]
+
+    rows.sort(key=lambda r: r["rtot"] + r["cg"] + r["cl"], reverse=True)
+    shown = rows[:max(1, limit)]
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    tr = ["<tr><th>id</th><th>user</th><th>recon direct</th><th>counter grid</th>"
+          "<th>recon uni</th><th>counter level</th><th>recon total</th><th>campaign wallet</th></tr>"]
+    for r in shown:
+        dmark = "" if abs(r["rd"] - r["cg"]) <= 0.5 else " style='background:#fffbeb'"
+        tr.append(f"<tr><td>{r['id']}</td><td>{esc(r['username'])}</td>"
+                  f"<td{dmark}>${r['rd']:.2f}</td><td>${r['cg']:.2f}</td>"
+                  f"<td>${r['ru']:.2f}</td><td>${r['cl']:.2f}</td>"
+                  f"<td><b>${r['rtot']:.2f}</b></td><td>${r['cw']:.2f}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Grid Commission Rebuild (preview)</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.chips{{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}}
+.chip{{flex:1;min-width:120px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}}
+.chip .v{{font-size:18px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:left;padding:8px 10px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.4px}}
+.note{{font-size:13px;color:#64748b;margin:12px 0}}
+</style></head><body>
+<h1>Grid Commission Rebuild — reconstruction preview (read-only)</h1>
+<div class="sub">Comp-plan replay over {positions} grid fills · {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+<div class="chips">
+<div class="chip"><div class="l">Σ recon direct</div><div class="v">${sums['rd']:.2f}</div></div>
+<div class="chip"><div class="l">Σ counter grid</div><div class="v">${sums['cg']:.2f}</div></div>
+<div class="chip"><div class="l">Σ recon uni</div><div class="v">${sums['ru']:.2f}</div></div>
+<div class="chip"><div class="l">Σ counter level</div><div class="v">${sums['cl']:.2f}</div></div>
+<div class="chip"><div class="l">Σ recon (d+u)</div><div class="v">${sums['rd']+sums['ru']:.2f}</div></div>
+<div class="chip"><div class="l">Σ campaign wallets</div><div class="v">${sums['cw']:.2f}</div></div>
+</div>
+<p class="note">If <b>Σ recon (d+u) ≈ Σ counters (grid+level) ≈ Σ campaign wallets</b>, the three sources agree and the rebuild is trustworthy. Amber direct cells = reconstruction differs from the counter by &gt;$0.50 (likely qualification/escrow at purchase time). Showing top {len(shown)}.</p>
+{tbl}
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
