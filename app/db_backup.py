@@ -60,15 +60,20 @@ def run_backup() -> dict:
         row_counts = {}
         total_rows = 0
 
-        with engine.connect() as conn:
+        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
             for table in Base.metadata.sorted_tables:
                 name = table.name
                 try:
                     result = conn.execute(text(f'SELECT * FROM "{name}"'))
                     rows = [dict(m) for m in result.mappings()]
                 except Exception as te:
-                    # A table in metadata that doesn't exist in the DB yet
-                    # (pending migration) shouldn't sink the whole backup.
+                    # AUTOCOMMIT means a failed SELECT (e.g. a metadata table
+                    # not yet migrated) can't poison subsequent reads. Defensive
+                    # rollback in case the driver still needs it.
+                    try:
+                        conn.rollback()
+                    except Exception:
+                        pass
                     tables_data[name] = {"_error": str(te)[:300]}
                     row_counts[name] = -1
                     continue
