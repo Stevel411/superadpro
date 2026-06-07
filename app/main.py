@@ -833,13 +833,16 @@ app.add_middleware(SecurityHeadersMiddleware)
 # be smaller than the compression overhead.
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# ── Maintenance / offline mode (2026-06-03 security pause) ─────
-# When MAINTENANCE_MODE is on (DEFAULT), every public/member route
-# serves a holding page. Only /health (Railway healthcheck), /admin/
-# (owner cleanup + diagnostics), and /static/ pass through. Withdrawals
-# are independently frozen. To bring the platform back online, set
-# MAINTENANCE_MODE=off in Railway. Added last => runs outermost.
-MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "on").strip().lower() not in ("off", "false", "0", "no")
+# ── Maintenance / offline mode ─────────────────────────────────
+# Default is OFF (platform live) as of the 2026-06-07 reopen. When
+# MAINTENANCE_MODE is on, every public/member route serves a holding
+# page; only /health (Railway healthcheck), /admin/ (owner cleanup +
+# diagnostics), and /static/ pass through. Withdrawals are independently
+# frozen via WITHDRAWALS_ENABLED. KILL SWITCH: to take the platform dark
+# during an incident, set MAINTENANCE_MODE=on in Railway (out-of-band,
+# overrides everything; the dashboard Panic button pauses money flows but
+# does not dark the public marketing site). Added last => runs outermost.
+MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "off").strip().lower() not in ("off", "false", "0", "no")
 MAINTENANCE_HTML = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
