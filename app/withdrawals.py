@@ -19,6 +19,8 @@ Security guardrails:
 """
 
 import os
+import hmac
+import hashlib
 import logging
 from decimal import Decimal
 from datetime import datetime, timedelta
@@ -116,6 +118,29 @@ def check_daily_withdrawal_total(db, user_id):
         Withdrawal.requested_at >= today_start,
     ).all()
     return sum(Decimal(str(w.amount_usdt or 0)) for w in withdrawals_today)
+
+
+def compute_approval_signature(withdrawal_id, amount, wallet_address):
+    """HMAC-SHA256 binding a withdrawal approval to a secret held ONLY in
+    Railway env (WITHDRAWAL_APPROVAL_SECRET), never in the database.
+
+    Returns the hex digest, or None if the secret is unset — in which case
+    the caller MUST fail closed. This makes the approval row tamper-evident:
+    a DB-write attacker (SQLi, leaked Postgres URL) can INSERT a
+    withdrawal_approvals row, but cannot produce a valid signature without
+    the env secret, so the send gate rejects it. The canonical message binds
+    the withdrawal id, amount (6dp), and destination (lowercased); changing
+    any of them invalidates the signature.
+    """
+    secret = os.environ.get("WITHDRAWAL_APPROVAL_SECRET", "")
+    if not secret:
+        return None
+    try:
+        amt = Decimal(str(amount or 0))
+    except Exception:
+        amt = Decimal("0")
+    msg = f"{int(withdrawal_id)}|{amt:.6f}|{(wallet_address or '').strip().lower()}"
+    return hmac.new(secret.encode("utf-8"), msg.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
 def validate_withdrawal(db, user, amount):
@@ -678,6 +703,24 @@ def process_withdrawal(db, withdrawal_id):
         logger.error(f"Withdrawal #{withdrawal_id}: amount/destination no longer "
                      f"matches the recorded approval — blocking send (fail-closed).")
         return {"success": False, "error": "Withdrawal changed since approval — send blocked. Reject and re-request.", "permanent": False}
+    # Cryptographic binding: the approval row must carry a valid HMAC signed
+    # with WITHDRAWAL_APPROVAL_SECRET (env only, never in the DB). This is what
+    # stops a DB-write attacker from forging an approval row to drain the
+    # treasury — without the env secret they cannot produce a valid signature.
+    # Fails closed if the secret is unset or the signature is missing/wrong.
+    expected_sig = compute_approval_signature(
+        appr.withdrawal_id, appr_amt, appr.approved_wallet_address)
+    if not expected_sig:
+        logger.error(f"Withdrawal #{withdrawal_id}: WITHDRAWAL_APPROVAL_SECRET not "
+                     f"set — cannot verify approval integrity, blocking send "
+                     f"(fail-closed). Set it in Railway before releasing withdrawals.")
+        return {"success": False, "error": "Approval signing secret not configured — send blocked.", "permanent": False}
+    stored_sig = getattr(appr, "signature", None) or ""
+    if not hmac.compare_digest(stored_sig, expected_sig):
+        logger.error(f"Withdrawal #{withdrawal_id}: approval signature missing or "
+                     f"invalid — possible forged approval row. Blocking send "
+                     f"(fail-closed).")
+        return {"success": False, "error": "Approval signature invalid — send blocked.", "permanent": False}
     # ── end approval gate ──
 
     user = db.query(User).filter(User.id == withdrawal.user_id).first()

@@ -652,6 +652,10 @@ class WithdrawalApproval(Base):
     approved_amount_usdt    = Column(Money, nullable=True)
     approved_wallet_address = Column(String, nullable=True)
     approved_at             = Column(DateTime, default=datetime.utcnow)
+    # HMAC-SHA256 over (withdrawal_id, amount, wallet) keyed by an env-only
+    # secret (WITHDRAWAL_APPROVAL_SECRET). The send gate refuses to broadcast
+    # unless this verifies — so a forged/injected approval row is rejected.
+    signature               = Column(String, nullable=True)
 
 
 class PurchaseConsent(Base):
@@ -2012,6 +2016,9 @@ def run_migrations():
         # status='pending' alone can never move funds. UNIQUE(withdrawal_id)
         # makes re-approval idempotent. First brick of the audit log.
         "CREATE TABLE IF NOT EXISTS withdrawal_approvals (id SERIAL PRIMARY KEY, withdrawal_id INTEGER NOT NULL UNIQUE REFERENCES withdrawals(id), approved_by_user_id INTEGER REFERENCES users(id), approved_by_username VARCHAR, approved_amount_usdt NUMERIC(18,6), approved_wallet_address VARCHAR, approved_at TIMESTAMP DEFAULT NOW())",
+        # HMAC signature binding (3 Jun-breach hardening): forged/injected
+        # approval rows are rejected by the send gate unless this verifies.
+        "ALTER TABLE withdrawal_approvals ADD COLUMN IF NOT EXISTS signature VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_activated_by_referral BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS low_balance_warned BOOLEAN DEFAULT FALSE",
         # ── Explainer/pipeline refund-proof billing (29 May 2026) ──

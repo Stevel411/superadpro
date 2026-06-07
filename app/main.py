@@ -23429,6 +23429,15 @@ async def admin_withdrawal_approve(
     # status flips. Snapshot the amount + destination so the send path can
     # detect any post-approval mutation. If the table is missing (migration
     # not yet run), fail loud and leave the row awaiting_approval — never send.
+    # Sign the approval with the env-only secret so the send gate can verify
+    # this row was written here (TOTP-gated) and not forged/injected into the
+    # DB. Fail closed if the secret isn't configured — an unsigned approval is
+    # rejected at send time anyway, so refuse here with a clear message.
+    from app.withdrawals import compute_approval_signature
+    appr_sig = compute_approval_signature(
+        withdrawal.id, withdrawal.amount_usdt, withdrawal.wallet_address)
+    if not appr_sig:
+        return JSONResponse({"success": False, "error": "WITHDRAWAL_APPROVAL_SECRET is not set in Railway. Set it before approving withdrawals — approvals must be cryptographically signed."}, status_code=500)
     try:
         from app.database import WithdrawalApproval
         if not db.query(WithdrawalApproval).filter(
@@ -23440,6 +23449,7 @@ async def admin_withdrawal_approve(
                 approved_amount_usdt=withdrawal.amount_usdt,
                 approved_wallet_address=withdrawal.wallet_address,
                 approved_at=datetime.utcnow(),
+                signature=appr_sig,
             ))
             db.flush()
     except Exception as e:
