@@ -33878,16 +33878,24 @@ def admin_withdrawal_reconcile(
             continue
         counter = float(u.total_withdrawn or 0)
         te = float(u.total_earned or 0)
-        paid = float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
-            Withdrawal.user_id == uid, Withdrawal.status == "paid").scalar() or 0)
-        pending = float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
-            Withdrawal.user_id == uid,
-            Withdrawal.status.in_(["pending", "processing", "awaiting_approval"])).scalar() or 0)
+        # full status breakdown so 'completed' (legacy success) and failed/
+        # refunded rows are all visible — no blind spot.
+        srows = db.query(
+            Withdrawal.status, func.count(Withdrawal.id),
+            func.coalesce(func.sum(Withdrawal.amount_usdt), 0),
+        ).filter(Withdrawal.user_id == uid).group_by(Withdrawal.status).all()
+        smap = {(s or "?"): (int(c), float(a or 0)) for s, c, a in srows}
+        real_out = sum(a for s, (c, a) in smap.items() if s in ("paid", "completed"))
+        pending = sum(a for s, (c, a) in smap.items()
+                      if s in ("pending", "processing", "awaiting_approval"))
+        status_str = "; ".join(f"{s}×{c} ${a:.2f}" for s, (c, a) in sorted(smap.items())) or "—"
+        paid = real_out
         drift = round(counter - paid, 2)
         overdraw = round(paid - te, 2)
         rows.append({
             "id": uid, "u": u.username or "", "te": te, "counter": counter,
             "paid": paid, "pending": pending, "drift": drift, "over": overdraw,
+            "status": status_str,
         })
         tot_counter += counter
         tot_paid += paid
@@ -33905,7 +33913,8 @@ def admin_withdrawal_reconcile(
         return f"${v:.2f}" if v else "·"
 
     tr = ["<tr><th>id</th><th>user</th><th>total_earned</th><th>counter (total_withdrawn)</th>"
-          "<th>paid_actual</th><th>pending</th><th>counter_drift</th><th>real_overdraw</th></tr>"]
+          "<th>real_out (paid+completed)</th><th>pending</th><th>counter_drift</th>"
+          "<th>real_overdraw</th><th>withdrawal rows by status</th></tr>"]
     for r in shown:
         ocol = "#dc2626" if r["over"] > 0.5 else "#94a3b8"
         dcol = "#d97706" if abs(r["drift"]) > 0.5 else "#94a3b8"
@@ -33913,7 +33922,8 @@ def admin_withdrawal_reconcile(
             f"<tr><td>{r['id']}</td><td>{esc(r['u'])}</td><td>{fmt(r['te'])}</td>"
             f"<td>{fmt(r['counter'])}</td><td><b>{fmt(r['paid'])}</b></td><td>{fmt(r['pending'])}</td>"
             f"<td style='color:{dcol}'>{r['drift']:+.2f}</td>"
-            f"<td style='color:{ocol};font-weight:700'>{r['over']:+.2f}</td></tr>")
+            f"<td style='color:{ocol};font-weight:700'>{r['over']:+.2f}</td>"
+            f"<td style='text-align:left;font-size:11px;color:#475569'>{esc(r['status'])}</td></tr>")
     tbl = "<table>" + "".join(tr) + "</table>"
 
     html_out = f"""<!doctype html><html><head><meta charset="utf-8">
