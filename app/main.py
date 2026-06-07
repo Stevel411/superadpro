@@ -6824,6 +6824,65 @@ def admin_api_user_downline(
     })
 
 
+@app.get("/admin/api/sponsor-audit")
+def admin_api_sponsor_audit(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Sponsor-link integrity audit. The signup path ALWAYS sets sponsor_id
+    (referrer, else company fallback to SuperAdPro), so sponsor_id IS NULL is
+    abnormal — a corruption signature. This reports:
+      - the target user's sponsor fields + team counters vs actual direct count
+        (counter >> actual = his downline links were lost), and
+      - platform-wide scope: how many users have null sponsor_id, and of those
+        how many still carry pass_up_sponsor_id (the recoverable source).
+    """
+    _require_admin(user)
+    from sqlalchemy import func as _func
+    t = db.query(User).filter(User.id == user_id).first()
+    if not t:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+
+    actual_directs = db.query(_func.count(User.id)).filter(User.sponsor_id == user_id).scalar() or 0
+    target = {
+        "id": t.id, "username": t.username, "is_active": bool(t.is_active),
+        "sponsor_id": t.sponsor_id,
+        "pass_up_sponsor_id": t.pass_up_sponsor_id,
+        "personal_referrals_counter": t.personal_referrals,
+        "total_team_counter": getattr(t, "total_team", None),
+        "actual_direct_count_in_db": actual_directs,
+        "team_links_lost": (getattr(t, "total_team", 0) or 0) > actual_directs,
+    }
+
+    total_users = db.query(_func.count(User.id)).scalar() or 0
+    null_sponsor = db.query(_func.count(User.id)).filter(User.sponsor_id.is_(None)).scalar() or 0
+    null_sponsor_recoverable = db.query(_func.count(User.id)).filter(
+        User.sponsor_id.is_(None), User.pass_up_sponsor_id.isnot(None)).scalar() or 0
+    null_both = db.query(_func.count(User.id)).filter(
+        User.sponsor_id.is_(None), User.pass_up_sponsor_id.is_(None)).scalar() or 0
+
+    sample = [{
+        "id": u.id, "username": u.username, "is_active": bool(u.is_active),
+        "pass_up_sponsor_id": u.pass_up_sponsor_id,
+        "created_at": u.created_at.isoformat() if u.created_at else None,
+    } for u in db.query(User).filter(User.sponsor_id.is_(None)).order_by(User.id.asc()).limit(20).all()]
+
+    return JSONResponse({
+        "target": target,
+        "platform_scope": {
+            "total_users": total_users,
+            "null_sponsor_id": null_sponsor,
+            "null_sponsor_but_has_passup_recoverable": null_sponsor_recoverable,
+            "null_sponsor_and_null_passup_unrecoverable": null_both,
+        },
+        "null_sponsor_sample": sample,
+        "note": ("sponsor_id should never be null (signup falls back to company). "
+                 "null_sponsor_but_has_passup = rebuildable from pass_up_sponsor_id; "
+                 "team_links_lost on target = his downline's sponsor_id was nulled."),
+    })
+
+
 @app.get("/api/command-centre/grid-team")
 def api_command_centre_grid_team(
     request: Request,
