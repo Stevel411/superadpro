@@ -33158,6 +33158,94 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;let
 </body></html>"""
 
     return HTMLResponse(html_out)
+
+
+@app.get("/admin/earnings-reconcile")
+def admin_earnings_reconcile(
+    user: User = Depends(get_current_user),
+    limit: int = 40,
+    db: Session = Depends(get_db),
+):
+    """
+    READ-ONLY dry-run: compares every user's denormalised earnings counters
+    (total_earned / grid_earnings / level_earnings) against the live ledger
+    via compute_user_earnings(). Shows the platform-wide drift before any
+    write so we can see the blast radius. No writes here — the apply pass is
+    a separate, 2FA-gated action added after this is reviewed.
+    Usage: /admin/earnings-reconcile?limit=40
+    """
+    _require_admin(user)
+    import html as _h
+
+    users = db.query(User).filter(
+        (User.total_earned > 0) | (User.grid_earnings > 0) | (User.level_earnings > 0)
+    ).all()
+
+    rows = []
+    n_drift = 0
+    sum_counter = 0.0
+    sum_ledger = 0.0
+    for u in users:
+        led = compute_user_earnings(db, u.id)
+        c_tot = float(u.total_earned or 0)
+        l_tot = float(led["total_earned"])
+        c_grid = float(u.grid_earnings or 0)
+        l_grid = float(led["grid_earnings"])
+        sum_counter += c_tot
+        sum_ledger += l_tot
+        drift = c_tot - l_tot
+        if abs(drift) > 0.01 or abs(c_grid - l_grid) > 0.01:
+            n_drift += 1
+            rows.append({
+                "id": u.id, "username": u.username or "",
+                "c_tot": c_tot, "l_tot": l_tot, "drift": drift,
+                "c_grid": c_grid, "l_grid": l_grid,
+            })
+
+    rows.sort(key=lambda r: abs(r["drift"]), reverse=True)
+    shown = rows[:max(1, limit)]
+    total_drift = sum_counter - sum_ledger
+
+    def esc(x):
+        return _h.escape(str(x))
+
+    tr = ["<tr><th>id</th><th>user</th><th>counter total</th><th>ledger total</th><th>drift</th>"
+          "<th>counter grid</th><th>ledger grid</th></tr>"]
+    for r in shown:
+        hl = " style='background:#fffbeb'" if abs(r["drift"]) > 0.01 else ""
+        tr.append(f"<tr{hl}><td>{r['id']}</td><td>{esc(r['username'])}</td>"
+                  f"<td>${r['c_tot']:.2f}</td><td>${r['l_tot']:.2f}</td>"
+                  f"<td><b>{'+' if r['drift']>=0 else ''}{r['drift']:.2f}</b></td>"
+                  f"<td>${r['c_grid']:.2f}</td><td>${r['l_grid']:.2f}</td></tr>")
+    tbl = "<table>" + "".join(tr) + "</table>" if shown else "<p style='color:#15803d'>No drift found — counters already match the ledger.</p>"
+
+    html_out = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Earnings Reconcile (dry-run)</title>
+<style>
+body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding:18px;background:#f4f5f7;color:#0f172a}}
+h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#64748b;font-size:13px;margin-bottom:16px}}
+.chips{{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}}
+.chip{{flex:1;min-width:130px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px}}
+.chip .l{{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}}
+.chip .v{{font-size:20px;font-weight:700;color:#0c4a6e}}
+table{{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden}}
+th,td{{text-align:left;padding:8px 10px;border-bottom:1px solid #eef1f5}}
+th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.4px}}
+.note{{font-size:13px;color:#64748b;margin-top:12px}}
+</style></head><body>
+<h1>Earnings Reconcile — dry-run (read-only)</h1>
+<div class="sub">Counter vs live ledger (compute_user_earnings) · generated {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</div>
+<div class="chips">
+<div class="chip"><div class="l">Users w/ counters &gt; 0</div><div class="v">{len(users)}</div></div>
+<div class="chip"><div class="l">Users with drift</div><div class="v">{n_drift}</div></div>
+<div class="chip"><div class="l">Σ counters</div><div class="v">${sum_counter:.2f}</div></div>
+<div class="chip"><div class="l">Σ ledger</div><div class="v">${sum_ledger:.2f}</div></div>
+<div class="chip"><div class="l">Σ drift</div><div class="v">${total_drift:.2f}</div></div>
+</div>
+<p class="note">Positive drift = counter overstates the ledger (the stale-counter pattern). Showing top {len(shown)} by drift size.</p>
+{tbl}
+</body></html>"""
+    return HTMLResponse(html_out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
