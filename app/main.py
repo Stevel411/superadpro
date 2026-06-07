@@ -34413,6 +34413,46 @@ def admin_restamp_rebuild_rows(
                  "Reconstructed rows backdated to 2026-05-31. Re-run "
                  "/admin/unqualified-commissions or financial_sanity to confirm clear."),
     })
+
+
+@app.get("/admin/secwatch-status")
+def admin_secwatch_status(
+    user: User = Depends(get_current_user),
+    test: int = 0,
+    db: Session = Depends(get_db),
+):
+    """
+    Session-authed health check for the security watchdog (no CRON_SECRET
+    needed). Shows whether the watchdog is keeping up with reality and whether
+    the alert email channel works:
+      - baseline (secwatch_last_withdrawal_id) vs current max Withdrawal id:
+        if baseline < max, the watchdog has NOT processed the latest
+        withdrawal (daemon not ticking, or last cycle failed to advance).
+      - dry-run of run_security_watch: what events are currently pending.
+      - ?test=1 fires a real test alert through _secwatch_send_alert to prove
+        the email channel end-to-end.
+    """
+    _require_admin(user)
+    baseline = int(_secwatch_get(db, "secwatch_last_withdrawal_id", "0") or "0")
+    cur_max = int(db.query(func.max(Withdrawal.id)).scalar() or 0)
+    res = run_security_watch(db, dry=True)
+    out = {
+        "baseline_last_withdrawal_id": baseline,
+        "current_max_withdrawal_id": cur_max,
+        "watchdog_behind": cur_max > baseline,
+        "dry_run_pending_events": res.get("events"),
+        "pending_detail": res.get("detail"),
+        "treasury_read_ok": res.get("treasury_usdt") is not None,
+        "treasury_usdt": res.get("treasury_usdt"),
+        "inproc_enabled": os.environ.get("SECWATCH_INPROC_ENABLED", "true").lower() == "true",
+    }
+    if test:
+        ok = _secwatch_send_alert([
+            "<strong>TEST ALERT</strong> — manual /admin/secwatch-status?test=1 "
+            "channel check. If you received this, watchdog email delivery works."
+        ])
+        out["test_email_sent_ok"] = bool(ok)
+    return JSONResponse(out)
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
