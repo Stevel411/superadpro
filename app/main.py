@@ -10099,7 +10099,7 @@ def admin_api_grid_position_replay(
     TIER_BUYERS = {154:[1],157:[1,2],158:[1],177:[1],183:[1,2,3],191:[1],194:[1],
         202:[1],211:[1],219:[1],224:[1],264:[1,2],268:[1],287:[1],307:[1],323:[1],
         329:[1],343:[1,2],367:[1],382:[1],385:[1],393:[1],408:[1],432:[1],469:[1],
-        491:[1],522:[1],532:[1]}
+        491:[1],522:[1],532:[1],451:[1]}
     # NOWPayments earliest-paid timestamps per (user,tier), from the CSV export.
     NP_TS = {(154,1):"2026-05-16T21:17:00",(157,1):"2026-05-11T01:35:00",
         (157,2):"2026-05-11T02:12:00",(158,1):"2026-05-20T14:45:00",
@@ -10177,13 +10177,22 @@ def admin_api_grid_position_replay(
         recon_rev = _Dec(str(_PKG.get(tier, 0))) * recon_seats
         surv = surviving_rev.get((owner, tier), _Dec(0))
         if surv > 0 or recon_seats > 0:
-            status = "match" if recon_rev == surv else ("surviving_only_no_buyers" if recon_seats == 0
-                     else ("reconstructed_exceeds_surviving" if recon_rev > surv else "reconstructed_below_surviving"))
+            if recon_rev == surv:
+                status = "match"
+            elif recon_seats == 0:
+                status = "surviving_only_no_buyers"
+            elif surv == 0:
+                status = "no_surviving_baseline"
+            elif recon_rev > surv:
+                status = "reconstructed_exceeds_surviving"
+            else:
+                status = "reconstructed_below_surviving"
             checks.append({"owner_id": owner, "username": uname_of.get(owner), "tier": tier,
                            "reconstructed_seats": recon_seats,
                            "reconstructed_revenue": float(recon_rev),
                            "surviving_revenue": float(surv), "status": status})
     mismatches = [c for c in checks if c["status"] in ("reconstructed_below_surviving", "reconstructed_exceeds_surviving")]
+    no_baseline = [c for c in checks if c["status"] == "no_surviving_baseline"]
 
     fill_summary = sorted(
         [{"owner_id": o, "username": uname_of.get(o), "tier": t, "seats": n}
@@ -10197,7 +10206,8 @@ def admin_api_grid_position_replay(
             "distinct_grids_filled": len(fill),
             "own_grids_flagged_purchased": len(own_grids),
             "overfull_grids_need_advance_review": sorted([f"{o}:{t}" for o, t in overfull]),
-            "checksum": {"compared": len(checks), "mismatches": len(mismatches),
+            "checksum": {"compared": len(checks), "real_mismatches": len(mismatches),
+                         "no_surviving_baseline_benign": len(no_baseline),
                          "mismatch_detail": mismatches[:40]},
             "fill_summary_top": fill_summary[:40],
             "ordering_note": "NOWPayments rows use real paid timestamps; Stripe-rail buyers ordered by signup time (cosmetic only — fill counts are order-independent).",
