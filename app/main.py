@@ -709,6 +709,13 @@ async def startup_event():
                         if got:
                             try:
                                 res = run_security_watch(db)
+                                # Heartbeat: stamp every live (lock-held) tick so
+                                # /admin/secwatch-status can prove the daemon is
+                                # actually ticking, not just alive on paper.
+                                try:
+                                    _secwatch_set(db, "secwatch_last_tick_ts", str(_time.time()))
+                                except Exception:
+                                    pass
                                 if isinstance(res, dict) and res.get("events"):
                                     print(f"[secwatch tick {wtick}] {res.get('events')} "
                                           f"event(s) alerted={res.get('alerted')}", flush=True)
@@ -34435,11 +34442,22 @@ def admin_secwatch_status(
     _require_admin(user)
     baseline = int(_secwatch_get(db, "secwatch_last_withdrawal_id", "0") or "0")
     cur_max = int(db.query(func.max(Withdrawal.id)).scalar() or 0)
+    # Heartbeat: how long since the daemon last completed a lock-held tick.
+    import time as _time
+    last_tick_raw = _secwatch_get(db, "secwatch_last_tick_ts", "")
+    secs_since_tick = None
+    if last_tick_raw:
+        try:
+            secs_since_tick = round(_time.time() - float(last_tick_raw), 1)
+        except (ValueError, TypeError):
+            secs_since_tick = None
     res = run_security_watch(db, dry=True)
     out = {
         "baseline_last_withdrawal_id": baseline,
         "current_max_withdrawal_id": cur_max,
         "watchdog_behind": cur_max > baseline,
+        "seconds_since_last_tick": secs_since_tick,
+        "daemon_alive": (secs_since_tick is not None and secs_since_tick < 150),
         "dry_run_pending_events": res.get("events"),
         "pending_detail": res.get("detail"),
         "treasury_read_ok": res.get("treasury_usdt") is not None,
