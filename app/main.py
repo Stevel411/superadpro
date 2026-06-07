@@ -7159,6 +7159,284 @@ def admin_api_brevo_team_recovery(
     })
 
 
+# ── Sponsor-tree mass recovery (batched Brevo sweep) ─────────────────────────
+# /admin/api/brevo-team-recovery proves one sponsor's downline can be rebuilt
+# from the team-join emails THEY received. This sweep runs that across every
+# member who actually recruited (total_team>0 — a counter that SURVIVED the
+# wipe), staging each unambiguous null->sponsor link into AppConfig so progress
+# accumulates across taps. Dry by default; a separate 2FA apply writes the
+# links, and ONLY where sponsor_id is currently NULL (never overwrites).
+_SPONSOR_STAGE_KEY = "sponsor_recovery_staged"
+
+
+def _sponsor_parse_dt(s):
+    from datetime import datetime as _dt, timezone as _tz
+    if not s:
+        return None
+    try:
+        d = _dt.fromisoformat(s.replace("Z", "+00:00"))
+        if d.tzinfo is not None:
+            d = d.astimezone(_tz.utc).replace(tzinfo=None)
+        return d
+    except Exception:
+        try:
+            return _dt.strptime(s[:19], "%Y-%m-%dT%H:%M:%S")
+        except Exception:
+            return None
+
+
+@app.get("/admin/api/sponsor-sweep")
+def admin_api_sponsor_sweep(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    offset: int = 0,
+    batch: int = 40,
+    full: int = 0,
+    reset: int = 0,
+):
+    """Batched dry-run sweep. Walks candidate sponsors (members with a downline,
+    or ALL members if ?full=1), queries each one's Brevo inbox, and stages every
+    unambiguous recoverable null->sponsor link into AppConfig. Resumable via
+    ?offset=next_offset; returns next_offset until the list is exhausted. Writes
+    NOTHING to member records — staging only. ?reset=1 clears the staged set."""
+    _require_admin(user)
+    import os as _os, httpx as _httpx, json as _json, time as _time
+    from collections import defaultdict as _dd
+
+    if reset:
+        _secwatch_set(db, _SPONSOR_STAGE_KEY, "{}")
+        db.commit()
+
+    api_key = _os.environ.get("BREVO_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "BREVO_API_KEY not configured in env"}, status_code=400)
+    headers = {"api-key": api_key, "accept": "application/json"}
+    base = "https://api.brevo.com/v3/smtp/emails"
+
+    # Candidate sponsors: members who actually recruited (total_team>0 or
+    # personal_referrals>0 — both counters survived the wipe). ?full=1 widens to
+    # every member with an email for a final completeness pass.
+    q = db.query(User.id, User.username, User.email).filter(
+        User.email.isnot(None), User.email != "")
+    if not full:
+        q = q.filter((User.total_team > 0) | (User.personal_referrals > 0))
+    candidates = q.order_by(User.id.asc()).all()
+    total_candidates = len(candidates)
+    window = candidates[offset:offset + max(1, batch)]
+
+    # Name index over ALL users for matching referred first-names.
+    all_users = db.query(User.id, User.first_name, User.username, User.created_at,
+                         User.is_active, User.sponsor_id).all()
+    by_fn = _dd(list)
+    for u in all_users:
+        if u.first_name:
+            by_fn[u.first_name.strip().lower()].append(u)
+
+    try:
+        staged = _json.loads(_secwatch_get(db, _SPONSOR_STAGE_KEY, "{}") or "{}")
+    except Exception:
+        staged = {}
+
+    _t0 = _time.time()
+    processed, sponsors_with_links, new_links, stopped_early = 0, 0, 0, False
+    next_offset = offset
+    per_sponsor = []
+    try:
+        with _httpx.Client(timeout=12) as client:
+            for idx, cand in enumerate(window):
+                if _time.time() - _t0 > 35:   # stay well under gateway timeout
+                    stopped_early = True
+                    break
+                cemail = (cand.email or "").strip()
+                if not cemail:
+                    processed += 1
+                    next_offset = offset + idx + 1
+                    continue
+                collected, off2, limit = [], 0, 500
+                try:
+                    for _pg in range(4):
+                        r = client.get(base, headers=headers, params={
+                            "email": cemail, "limit": limit, "offset": off2, "sort": "desc"})
+                        if r.status_code != 200:
+                            break
+                        emails = (r.json() or {}).get("transactionalEmails", []) or []
+                        if not emails:
+                            break
+                        for e in emails:
+                            if "joined your SuperAdPro team" in (e.get("subject") or ""):
+                                collected.append((e.get("subject") or "", e.get("date") or ""))
+                        if len(emails) < limit:
+                            break
+                        off2 += limit
+                except Exception:
+                    pass
+
+                links_here = 0
+                for subj, dt in collected:
+                    fn = subj.replace("\U0001f389", "").strip().split(" just joined")[0].strip().lower()
+                    cands_fn = by_fn.get(fn, [])
+                    edt = _sponsor_parse_dt(dt)
+                    near = [c for c in cands_fn if c.created_at and edt
+                            and abs((c.created_at - edt).total_seconds()) <= 1800]
+                    pool = near or cands_fn
+                    if len(pool) != 1:
+                        continue   # ambiguous -> leave for member-confirmation
+                    ref = pool[0]
+                    if ref.id == cand.id or ref.sponsor_id is not None:
+                        continue   # skip self + anything already linked
+                    key = str(ref.id)
+                    if key not in staged:
+                        staged[key] = {
+                            "sponsor_id": cand.id,
+                            "sponsor_username": cand.username,
+                            "referred_username": ref.username,
+                            "is_active": bool(ref.is_active),
+                            "brevo_date": dt,
+                            "applied": False,
+                        }
+                        new_links += 1
+                        links_here += 1
+                if links_here:
+                    sponsors_with_links += 1
+                    per_sponsor.append({"sponsor_id": cand.id,
+                                        "sponsor_username": cand.username,
+                                        "recovered": links_here})
+                processed += 1
+                next_offset = offset + idx + 1
+    except Exception as e:
+        return JSONResponse({"sweep_failed": f"{type(e).__name__}: {str(e)[:200]}"},
+                            status_code=200)
+
+    _secwatch_set(db, _SPONSOR_STAGE_KEY, _json.dumps(staged))
+    db.commit()
+
+    done = (next_offset >= total_candidates) and not stopped_early
+    return JSONResponse({
+        "candidate_pool": total_candidates,
+        "candidate_mode": "all_members" if full else "recruiters_only(total_team>0)",
+        "processed_this_batch": processed,
+        "stopped_early_time_budget": stopped_early,
+        "sponsors_with_recoverable_links_this_batch": sponsors_with_links,
+        "new_links_staged_this_batch": new_links,
+        "per_sponsor_this_batch": per_sponsor[:40],
+        "cumulative_staged_total": len(staged),
+        "cumulative_staged_active": sum(1 for v in staged.values() if v.get("is_active")),
+        "next_offset": (None if done else next_offset),
+        "sweep_complete": done,
+        "note": ("Re-tap with ?offset=next_offset until sweep_complete=true. Then "
+                 "review /admin/api/sponsor-sweep-review and apply with "
+                 "/admin/api/sponsor-sweep-apply?code=YOUR_2FA. Nothing is written "
+                 "to member records until you apply."),
+    })
+
+
+@app.get("/admin/api/sponsor-sweep-review")
+def admin_api_sponsor_sweep_review(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    limit: int = 100,
+):
+    """Read-only view of everything staged, with a live sanity cross-check:
+    how many staged targets are still NULL (will apply) vs already linked
+    (will skip)."""
+    _require_admin(user)
+    import json as _json
+    try:
+        staged = _json.loads(_secwatch_get(db, _SPONSOR_STAGE_KEY, "{}") or "{}")
+    except Exception:
+        staged = {}
+    if not staged:
+        return JSONResponse({"staged_total": 0,
+                             "note": "Nothing staged yet — run /admin/api/sponsor-sweep first."})
+    ids = [int(k) for k in staged.keys()]
+    cur = {u.id: u.sponsor_id for u in
+           db.query(User.id, User.sponsor_id).filter(User.id.in_(ids)).all()}
+    will_apply = sum(1 for k in staged if cur.get(int(k)) is None)
+    by_sponsor = {}
+    for v in staged.values():
+        by_sponsor[v["sponsor_username"]] = by_sponsor.get(v["sponsor_username"], 0) + 1
+    rows = sorted(staged.items(), key=lambda kv: kv[1]["sponsor_id"])
+    sample = [{"referred_user_id": int(k), "referred_username": v["referred_username"],
+               "sponsor_id": v["sponsor_id"], "sponsor_username": v["sponsor_username"],
+               "is_active": v["is_active"],
+               "state": ("NULL->will_apply" if cur.get(int(k)) is None else "already_linked->skip")}
+              for k, v in rows][:limit]
+    return JSONResponse({
+        "staged_total": len(staged),
+        "staged_active": sum(1 for v in staged.values() if v.get("is_active")),
+        "will_apply_currently_null": will_apply,
+        "will_skip_already_linked": len(staged) - will_apply,
+        "sponsors_count": len(by_sponsor),
+        "top_sponsors_by_recovered": sorted(by_sponsor.items(), key=lambda x: -x[1])[:25],
+        "sample": sample,
+    })
+
+
+@app.get("/admin/api/sponsor-sweep-apply")
+def admin_api_sponsor_sweep_apply(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    code: str = "",
+    active_only: int = 0,
+):
+    """2FA-gated write. Sets User.sponsor_id from the staged set, ONLY where the
+    member's sponsor_id is currently NULL (never overwrites an existing link).
+    ?active_only=1 restricts to active members (commission-routing priority).
+    Idempotent — applied entries are flagged and skipped on re-run."""
+    _require_admin(user)
+    import pyotp, json as _json
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?code=NNNNNN"},
+                            status_code=403)
+    try:
+        staged = _json.loads(_secwatch_get(db, _SPONSOR_STAGE_KEY, "{}") or "{}")
+    except Exception:
+        staged = {}
+    if not staged:
+        return JSONResponse({"error": "Nothing staged"}, status_code=400)
+
+    applied, skipped_already, skipped_gone, skipped_inactive = 0, 0, 0, 0
+    applied_sample = []
+    for k, v in staged.items():
+        if v.get("applied"):
+            skipped_already += 1
+            continue
+        if active_only and not v.get("is_active"):
+            skipped_inactive += 1
+            continue
+        ref = db.query(User).filter(User.id == int(k)).first()
+        if not ref:
+            skipped_gone += 1
+            continue
+        if ref.sponsor_id is not None:
+            v["applied"] = True
+            skipped_already += 1
+            continue
+        ref.sponsor_id = int(v["sponsor_id"])
+        v["applied"] = True
+        applied += 1
+        if len(applied_sample) < 30:
+            applied_sample.append({"referred_user_id": ref.id,
+                                   "referred_username": ref.username,
+                                   "sponsor_id": ref.sponsor_id,
+                                   "sponsor_username": v["sponsor_username"]})
+    _secwatch_set(db, _SPONSOR_STAGE_KEY, _json.dumps(staged))
+    db.commit()
+    return JSONResponse({
+        "applied": applied,
+        "skipped_already_linked_or_done": skipped_already,
+        "skipped_user_gone": skipped_gone,
+        "skipped_inactive": skipped_inactive,
+        "active_only": bool(active_only),
+        "applied_sample": applied_sample,
+        "note": ("sponsor_id restored only where it was NULL. Surviving total_team/"
+                 "personal_referrals counters left untouched (they're truth). "
+                 "Re-run is safe — applied entries are skipped."),
+    })
+
+
 @app.get("/api/command-centre/grid-team")
 def api_command_centre_grid_team(
     request: Request,
