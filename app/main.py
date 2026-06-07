@@ -9661,7 +9661,7 @@ def admin_api_stripe_tier_credit_recovery(
                 except Exception:
                     continue
                 charges_read += 1
-                md = dict(ch.metadata or {})
+                md = (ch.metadata.to_dict() if getattr(ch, "metadata", None) else {})
                 pk = md.get("product_kind") or "unknown"
                 paid = bool(getattr(ch, "paid", False)) and getattr(ch, "status", "") == "succeeded"
                 refunded = bool(getattr(ch, "refunded", False))
