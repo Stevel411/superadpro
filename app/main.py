@@ -3679,18 +3679,19 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     direct_fills = 0
     unilevel_fills = 0
 
-    # Per-tier commission breakdown.
+    # Cumulative grid commission breakdown — ALL tiers, lifetime.
     #
-    # NOTE on filter choice (21 May 2026): the Commission.grid_id column
-    # exists on the model but _record_commission in grid.py never
-    # populates it — so every existing Commission row has grid_id=NULL
-    # and a strict grid_id filter matches zero rows. We filter by
-    # package_tier instead, which means these values represent total
-    # earnings AT THIS TIER (across all grid advances ever), not per
-    # individual grid. The card subtitle has been updated to "At this
-    # tier" to match. Strict per-grid attribution is a future
-    # enhancement that needs a Commission.grid_id backfill + writer
-    # change — tracked as follow-up.
+    # NOTE (7 Jun 2026): previously filtered by package_tier to show
+    # "earnings at this tier". After the 3-June detail loss, the per-event
+    # commission rows (which carried package_tier) were gone; the rebuilt
+    # rows are reconstructed from lifetime counters and are tier-agnostic
+    # (package_tier NULL). A per-tier filter therefore matched zero and the
+    # card showed $0 even for members with real earnings across completed
+    # grids. We now sum direct_sponsor + uni_level across ALL tiers for this
+    # user — the cumulative, carry-over figure that mirrors
+    # compute_user_earnings and never resets when a new grid advance starts.
+    # (grid_id was never populated either, so strict per-grid attribution
+    # remains a future enhancement needing a backfill + writer change.)
     if grid_record or completed > 0:
         direct_row = db.query(
             _func.coalesce(_func.sum(Commission.amount_usdt), 0),
@@ -3698,7 +3699,6 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         ).filter(
             Commission.to_user_id == user.id,
             Commission.commission_type == "direct_sponsor",
-            Commission.package_tier == tier,
         ).first()
         if direct_row:
             direct_earned = float(direct_row[0] or 0)
@@ -3710,7 +3710,6 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         ).filter(
             Commission.to_user_id == user.id,
             Commission.commission_type == "uni_level",
-            Commission.package_tier == tier,
         ).first()
         if unilevel_row:
             unilevel_earned = float(unilevel_row[0] or 0)
@@ -5486,7 +5485,6 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
         ).filter(
             Commission.to_user_id == user.id,
             Commission.commission_type == "direct_sponsor",
-            Commission.package_tier == tier,
         ).first()
         if direct_row:
             direct_earned = float(direct_row[0] or 0)
@@ -5498,7 +5496,6 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
         ).filter(
             Commission.to_user_id == user.id,
             Commission.commission_type == "uni_level",
-            Commission.package_tier == tier,
         ).first()
         if unilevel_row:
             unilevel_earned = float(unilevel_row[0] or 0)

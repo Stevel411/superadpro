@@ -202,7 +202,7 @@ export default function LabsGridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Direct referrals</div>
-                    <div style={{ color:'#94a3b8', fontSize:10, fontWeight:500, marginTop:2 }}>{directFills} × ${directPerFill.toFixed(2)} (40%)</div>
+                    <div style={{ color:'#94a3b8', fontSize:10, fontWeight:500, marginTop:2 }}>40% direct sponsor</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, letterSpacing:'-0.3px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
                     ${directEarned.toFixed(2)}
@@ -212,7 +212,7 @@ export default function LabsGridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Uni-level fills</div>
-                    <div style={{ color:'#94a3b8', fontSize:10, fontWeight:500, marginTop:2 }}>{unilevelFills} × ${unilevelPerFill.toFixed(2)} (6.25%)</div>
+                    <div style={{ color:'#94a3b8', fontSize:10, fontWeight:500, marginTop:2 }}>6.25% × 8 levels</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0891b2', letterSpacing:'-0.3px' }}>
                     ${unilevelEarned.toFixed(2)}
@@ -220,7 +220,7 @@ export default function LabsGridVisualiser() {
                 </div>
                 {/* Total */}
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0' }}>
-                  <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Total earned this grid</div>
+                  <div style={{ fontSize:11.5, color:'#64748b', fontWeight:600 }}>Total earned · all grids</div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0a1438', letterSpacing:'-0.3px' }}>
                     ${totalEarned.toFixed(2)}
                   </div>

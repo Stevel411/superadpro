@@ -267,7 +267,7 @@ export default function GridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Direct referrals</div>
-                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{directFills} × ${directPerFill.toFixed(2)} · 40%</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>40% direct sponsor</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, letterSpacing:'-0.4px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
                     ${directEarned.toFixed(2)}
@@ -277,7 +277,7 @@ export default function GridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Uni-level fills</div>
-                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{unilevelFills} × ${unilevelPerFill.toFixed(2)} · 6.25%</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>6.25% × 8 levels</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#0891b2', letterSpacing:'-0.4px' }}>
                     ${unilevelEarned.toFixed(2)}
@@ -285,7 +285,7 @@ export default function GridVisualiser() {
                 </div>
                 {/* Total */}
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0' }}>
-                  <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Total earned this grid</div>
+                  <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Total earned · all grids</div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#0a1438', letterSpacing:'-0.4px' }}>
                     ${totalEarned.toFixed(2)}
                   </div>
