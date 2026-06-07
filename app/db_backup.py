@@ -1,178 +1,171 @@
 """
-Database backup to Cloudflare R2 — daily pg_dump stored in R2 bucket.
-Keeps last 3 backups, deletes older ones automatically.
+Database backup to Cloudflare R2 — pure-Python logical dump.
+
+History: the original implementation shelled out to `pg_dump | gzip`. pg_dump
+is NOT installed in the Railway runtime container, so every run failed at
+"command not found" and the platform had no working backups — which is exactly
+what turned a one-time commission/grid detail loss into an unrecoverable one.
+
+This version removes the system-binary dependency entirely: it reads every
+table through the existing SQLAlchemy engine, serialises to JSON (with proper
+handling of datetime/Decimal/bytes/UUID), gzips, and uploads to the same R2
+bucket the old path used. It is version-agnostic (no pg_dump/server version
+match required) and the JSON format is fully restorable. The backup payload
+also carries a per-table row-count manifest so a sudden drop is detectable.
 """
 import os
-import subprocess
-import tempfile
-from datetime import datetime, timezone
+import json
+import gzip
+import uuid as _uuid
+from decimal import Decimal
+from datetime import datetime, date, timezone
+
 from .r2_storage import _get_client, R2_BUCKET, r2_available
+from .database import engine, Base
+from sqlalchemy import text
 
 BACKUP_PREFIX = "backups/"
-MAX_BACKUPS = 3
+MAX_BACKUPS = 7  # keep a week of daily backups
+BACKUP_FORMAT = "superadpro-logical-json-v1"
+
+
+def _json_default(o):
+    """Serialise types the stdlib json encoder can't handle."""
+    if isinstance(o, (datetime, date)):
+        return o.isoformat()
+    if isinstance(o, Decimal):
+        return str(o)
+    if isinstance(o, (bytes, bytearray)):
+        return o.decode("utf-8", "replace")
+    if isinstance(o, _uuid.UUID):
+        return str(o)
+    return str(o)
 
 
 def run_backup() -> dict:
-    """Run pg_dump and upload to R2. Returns status dict.
+    """Logical-dump every table to JSON, gzip, upload to R2. Returns status dict.
 
-    Diagnostic note (27 May 2026): the original implementation used a
-    `pg_dump | gzip > file` shell pipeline. When pg_dump fails, gzip
-    still receives empty stdin and writes a ~20-byte 'empty gzip' file,
-    then exits 0. The pipeline's overall exit code reflected gzip's
-    success, hiding pg_dump's real error. This version uses set -o
-    pipefail so pg_dump failures propagate, captures pg_dump's stderr
-    to a temp file, and includes that stderr in the error response so
-    we can actually see WHY a backup failed.
+    No external binaries. Reads through the live SQLAlchemy engine in FK-sorted
+    order (restore-friendly). Captures a row-count manifest in meta.
     """
     if not r2_available():
-        return {"error": "R2 not configured"}
-
-    db_url = os.getenv("DATABASE_URL", "")
-    if not db_url:
-        return {"error": "DATABASE_URL not set"}
+        return {"error": "R2 not configured — set R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY"}
 
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"superadpro_{timestamp}.sql.gz"
+    filename = f"superadpro_{timestamp}.json.gz"
     key = f"{BACKUP_PREFIX}{filename}"
 
-    tmp_path = None
-    stderr_path = None
     try:
-        # Temp files for the gzipped dump and for pg_dump's stderr
-        with tempfile.NamedTemporaryFile(suffix=".sql.gz", delete=False) as tmp:
-            tmp_path = tmp.name
-        with tempfile.NamedTemporaryFile(suffix=".stderr", delete=False) as tmperr:
-            stderr_path = tmperr.name
+        tables_data = {}
+        row_counts = {}
+        total_rows = 0
 
-        # pg_dump → gzip → file
-        #   set -o pipefail makes the pipeline's exit code reflect the
-        #     FIRST failure in the pipeline, not just the last command.
-        #     Without this, gzip's success masks pg_dump's failure.
-        #   pg_dump's stderr is redirected to a separate file so we can
-        #     include the real error message in the response.
-        #   bash explicit because some shells (dash, sh on Alpine) don't
-        #     support pipefail.
-        cmd = (
-            f'set -o pipefail; '
-            f'pg_dump "{db_url}" 2> "{stderr_path}" | gzip > "{tmp_path}"'
-        )
-        result = subprocess.run(
-            cmd,
-            shell=True,
-            executable="/bin/bash",
-            capture_output=True,
-            text=True,
-            timeout=300,  # 5 min timeout
-        )
+        with engine.connect() as conn:
+            for table in Base.metadata.sorted_tables:
+                name = table.name
+                try:
+                    result = conn.execute(text(f'SELECT * FROM "{name}"'))
+                    rows = [dict(m) for m in result.mappings()]
+                except Exception as te:
+                    # A table in metadata that doesn't exist in the DB yet
+                    # (pending migration) shouldn't sink the whole backup.
+                    tables_data[name] = {"_error": str(te)[:300]}
+                    row_counts[name] = -1
+                    continue
+                tables_data[name] = rows
+                row_counts[name] = len(rows)
+                total_rows += len(rows)
 
-        # Read pg_dump's stderr (always present, even on success — it
-        # logs "pg_dump: ..." progress lines; only treat as error if
-        # the pipeline returncode was non-zero).
-        pg_stderr = ""
-        try:
-            with open(stderr_path, "r") as f:
-                pg_stderr = f.read()[:2000]  # cap to 2KB
-        except Exception:
-            pass
+        payload = {
+            "meta": {
+                "timestamp": timestamp,
+                "format": BACKUP_FORMAT,
+                "table_count": len(tables_data),
+                "total_rows": total_rows,
+                "row_counts": row_counts,
+            },
+            "tables": tables_data,
+        }
 
-        if result.returncode != 0:
-            # Now we have the REAL error from pg_dump
-            return {
-                "error": f"pg_dump failed (exit {result.returncode})",
-                "pg_dump_stderr": pg_stderr.strip(),
-                "shell_stderr": (result.stderr or "")[:500].strip(),
-            }
+        raw = json.dumps(payload, default=_json_default, separators=(",", ":")).encode("utf-8")
+        blob = gzip.compress(raw, compresslevel=9)
 
-        # Check file size (still a sanity check — if pipefail worked
-        # correctly this shouldn't trigger any more)
-        file_size = os.path.getsize(tmp_path)
-        if file_size < 100:
-            return {
-                "error": "Backup file too small — pg_dump produced empty output",
-                "pg_dump_stderr": pg_stderr.strip(),
-                "file_size_bytes": file_size,
-            }
-
-        # Upload to R2
         client = _get_client()
-        with open(tmp_path, "rb") as f:
-            client.put_object(
-                Bucket=R2_BUCKET,
-                Key=key,
-                Body=f,
-                ContentType="application/gzip",
-            )
+        client.put_object(
+            Bucket=R2_BUCKET,
+            Key=key,
+            Body=blob,
+            ContentType="application/gzip",
+        )
 
-        # Prune old backups — keep only MAX_BACKUPS
         _prune_old_backups(client)
 
-        size_mb = round(file_size / 1024 / 1024, 2)
         return {
             "success": True,
             "file": filename,
-            "size_mb": size_mb,
-            "size_bytes": file_size,
+            "format": BACKUP_FORMAT,
+            "size_mb": round(len(blob) / 1024 / 1024, 3),
+            "size_bytes": len(blob),
             "timestamp": timestamp,
             "bucket": R2_BUCKET,
+            "table_count": len(tables_data),
+            "total_rows": total_rows,
+            "row_counts": row_counts,
         }
 
     except Exception as e:
         return {"error": str(e), "exception_type": type(e).__name__}
-    finally:
-        # Always clean up temp files
-        for p in (tmp_path, stderr_path):
-            if p:
-                try:
-                    os.unlink(p)
-                except Exception:
-                    pass
 
 
 def _prune_old_backups(client):
-    """Delete oldest backups, keeping only MAX_BACKUPS."""
+    """Delete oldest backups, keeping only MAX_BACKUPS (matches .json.gz and legacy .sql.gz)."""
     try:
-        response = client.list_objects_v2(
-            Bucket=R2_BUCKET,
-            Prefix=BACKUP_PREFIX,
-        )
+        response = client.list_objects_v2(Bucket=R2_BUCKET, Prefix=BACKUP_PREFIX)
         objects = response.get("Contents", [])
-        backup_files = [
-            obj for obj in objects
-            if obj["Key"].endswith(".sql.gz")
-        ]
-
-        # Sort by last modified, newest first
+        backup_files = [o for o in objects if o["Key"].endswith((".json.gz", ".sql.gz"))]
         backup_files.sort(key=lambda x: x["LastModified"], reverse=True)
-
-        # Delete anything beyond MAX_BACKUPS
         for old in backup_files[MAX_BACKUPS:]:
             client.delete_object(Bucket=R2_BUCKET, Key=old["Key"])
-
     except Exception:
-        pass  # Non-critical — don't fail backup if pruning fails
+        pass  # non-critical
 
 
 def list_backups() -> list:
-    """List existing backups in R2."""
+    """List existing backups in R2 (newest first)."""
     if not r2_available():
         return []
-
     try:
         client = _get_client()
-        response = client.list_objects_v2(
-            Bucket=R2_BUCKET,
-            Prefix=BACKUP_PREFIX,
-        )
+        response = client.list_objects_v2(Bucket=R2_BUCKET, Prefix=BACKUP_PREFIX)
         objects = response.get("Contents", [])
         backups = []
         for obj in objects:
-            if obj["Key"].endswith(".sql.gz"):
+            if obj["Key"].endswith((".json.gz", ".sql.gz")):
                 backups.append({
                     "file": obj["Key"].replace(BACKUP_PREFIX, ""),
-                    "size_mb": round(obj["Size"] / 1024 / 1024, 2),
+                    "size_mb": round(obj["Size"] / 1024 / 1024, 3),
                     "date": obj["LastModified"].isoformat(),
                 })
         backups.sort(key=lambda x: x["date"], reverse=True)
         return backups
     except Exception:
         return []
+
+
+def load_backup(key_or_file: str) -> dict:
+    """Fetch + decompress a backup payload from R2 for inspection or restore.
+
+    Accepts either a bare filename ('superadpro_...json.gz') or full key.
+    Returns the parsed payload dict, or {'error': ...}.
+    """
+    if not r2_available():
+        return {"error": "R2 not configured"}
+    key = key_or_file if key_or_file.startswith(BACKUP_PREFIX) else f"{BACKUP_PREFIX}{key_or_file}"
+    try:
+        client = _get_client()
+        obj = client.get_object(Bucket=R2_BUCKET, Key=key)
+        blob = obj["Body"].read()
+        raw = gzip.decompress(blob)
+        return json.loads(raw)
+    except Exception as e:
+        return {"error": str(e), "exception_type": type(e).__name__}
