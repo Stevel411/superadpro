@@ -40,6 +40,15 @@ export default function AdminDashboard() {
       window.location.href = '/admin/health';
       return;
     }
+    // Withdrawals approvals live on the hardened server-rendered release
+    // queue at /admin/withdrawals-queue (2FA approve/reject, risk signals,
+    // fail-closed send). The old inline WithdrawalsTab only listed legacy
+    // 'pending' rows read-only and can't approve — so the tab navigates to
+    // the real queue instead of rendering it.
+    if (key === 'withdrawals') {
+      window.location.href = '/admin/withdrawals-queue';
+      return;
+    }
     setTab(key);
   }
 
