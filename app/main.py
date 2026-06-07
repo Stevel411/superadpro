@@ -6941,6 +6941,71 @@ def admin_api_sponsor_recovery_scan(
     })
 
 
+@app.get("/admin/api/sponsor-recovery-notifications")
+def admin_api_sponsor_recovery_notifications(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Recover the wiped sponsor tree from surviving 'team' join-notifications.
+
+    On signup the platform notifies the sponsor: Notification(user_id=sponsor,
+    type='team', title='<first_name> joined your team!', created_at≈signup time).
+    If those rows survived, each maps sponsor -> joiner. We match the joiner back
+    to a currently null-sponsor account by first name AND signup-timestamp
+    proximity (the notification fires in the same request as the signup). A match
+    is accepted only when it resolves to exactly one sponsor (no ambiguity).
+    Read-only — reports coverage + sample. No writes.
+    """
+    _require_admin(user)
+    from .database import Notification
+    notifs = db.query(Notification.user_id, Notification.title, Notification.created_at).filter(
+        Notification.type == "team").all()
+    total_team_notifs = len(notifs)
+    parsed = []
+    for sponsor_uid, title, cat in notifs:
+        nm = (title or "").split(" joined your team")[0].strip()
+        if nm and cat:
+            parsed.append((sponsor_uid, nm.lower(), cat))
+
+    null_users = db.query(
+        User.id, User.first_name, User.username, User.created_at, User.is_active
+    ).filter(User.sponsor_id.is_(None), User.id != 1).all()
+
+    WINDOW = 600  # seconds (10 min) — signup and its notification are near-simultaneous
+    resolved, ambiguous_ids, no_name, active_resolved = {}, [], 0, 0
+    for u in null_users:
+        fn = (u.first_name or "").strip().lower()
+        if not fn or not u.created_at:
+            no_name += 1
+            continue
+        sponsors = set()
+        for sp_uid, nm, cat in parsed:
+            if nm == fn and abs((cat - u.created_at).total_seconds()) <= WINDOW:
+                sponsors.add(sp_uid)
+        if len(sponsors) == 1:
+            sp = next(iter(sponsors))
+            if sp != u.id:  # never self-sponsor
+                resolved[u.id] = {"username": u.username, "first_name": u.first_name,
+                                  "recovered_sponsor_id": sp, "is_active": bool(u.is_active)}
+                if u.is_active:
+                    active_resolved += 1
+        elif len(sponsors) > 1:
+            ambiguous_ids.append(u.id)
+
+    return JSONResponse({
+        "total_team_notifications_found": total_team_notifs,
+        "null_sponsor_users": len(null_users),
+        "recovered_via_notifications": len(resolved),
+        "of_which_active": active_resolved,
+        "ambiguous_multiple_candidates": len(ambiguous_ids),
+        "null_users_without_first_name": no_name,
+        "sample_recovered": list(resolved.values())[:20],
+        "note": ("If total_team_notifications_found is ~0, the notifications were "
+                 "wiped too and this source is dead. Otherwise these are name+time "
+                 "matched sponsor links, accepted only when unambiguous."),
+    })
+
+
 @app.get("/api/command-centre/grid-team")
 def api_command_centre_grid_team(
     request: Request,
