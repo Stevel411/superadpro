@@ -9545,6 +9545,131 @@ def admin_api_user_fulfillment(
     })
 
 
+@app.get("/admin/api/member-entitlement")
+def admin_api_member_entitlement(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    user_id: int = 0,
+):
+    """Wipe-recovery foundation: for one member, read every PAYMENT-TRUTH source
+    that lives OUTSIDE the wiped Payment/Grid/credit tables — Stripe charges,
+    WalletConnect (BSC) orders, NOWPayments orders — and compare against their
+    current entitlement state (grids, credits). Tells us exactly what a member
+    PAID FOR vs what they currently HAVE, which is the basis for restoring
+    campaign tiers and creator credits without inventing value.
+
+    Read-only. Each source is wrapped independently so a missing/wiped table
+    degrades gracefully instead of failing the whole report."""
+    _require_admin(user)
+    from .database import (StripeCharge, WalletConnectPaymentOrder, NowPaymentsOrder,
+                           Grid, GridPosition, SuperSceneCredit, User as _User)
+    target = db.query(_User).filter(_User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"User {user_id} not found"}, status_code=404)
+
+    out = {"user_id": user_id, "username": target.username,
+           "is_active": bool(target.is_active),
+           "membership_tier": getattr(target, "membership_tier", None),
+           "is_founding_member": bool(getattr(target, "is_founding_member", False)),
+           "founding_spot": getattr(target, "founding_spot_number", None),
+           "wallet_address": getattr(target, "wallet_address", None),
+           "created_at": target.created_at.isoformat() if target.created_at else None}
+
+    # ── PAID TRUTH (survives outside the wiped tables) ──
+    try:
+        sc = db.query(StripeCharge).filter(StripeCharge.user_id == user_id).order_by(
+            StripeCharge.created_at.asc()).all()
+        out["stripe_charges"] = [{
+            "product": c.product, "kind": c.kind,
+            "amount_usd": round((c.amount_cents or 0) / 100.0, 2),
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        } for c in sc]
+    except Exception as e:
+        out["stripe_charges"] = f"ERR {type(e).__name__}"
+
+    try:
+        wc = db.query(WalletConnectPaymentOrder).filter(
+            WalletConnectPaymentOrder.user_id == user_id).order_by(
+            WalletConnectPaymentOrder.created_at.asc()).all()
+        out["walletconnect_orders"] = [{
+            "product_type": o.product_type, "product_key": o.product_key,
+            "amount_usd": float(o.base_amount or 0), "status": o.status,
+            "tx_hash": o.tx_hash,
+            "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None,
+            "created_at": o.created_at.isoformat() if o.created_at else None,
+        } for o in wc]
+    except Exception as e:
+        out["walletconnect_orders"] = f"ERR {type(e).__name__}"
+
+    try:
+        npo = db.query(NowPaymentsOrder).filter(
+            NowPaymentsOrder.user_id == user_id).order_by(
+            NowPaymentsOrder.created_at.asc()).all()
+        out["nowpayments_orders"] = [{
+            "product_type": o.product_type, "product_key": o.product_key,
+            "amount_usd": float(o.price_usd or 0), "status": o.status,
+            "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None,
+            "created_at": o.created_at.isoformat() if o.created_at else None,
+        } for o in npo]
+    except Exception as e:
+        out["nowpayments_orders"] = f"ERR {type(e).__name__}"
+
+    # ── CURRENT STATE (what they have now, post-wipe) ──
+    try:
+        out["grids_owned"] = db.query(Grid).filter(Grid.owner_id == user_id).count()
+        out["grids_incomplete"] = db.query(Grid).filter(
+            Grid.owner_id == user_id, Grid.is_complete == False).count()
+        out["grid_positions_held"] = db.query(GridPosition).filter(
+            GridPosition.member_id == user_id).count()
+    except Exception as e:
+        out["grid_state"] = f"ERR {type(e).__name__}"
+    try:
+        ssc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user_id).first()
+        out["creator_credit_balance"] = int(ssc.balance) if ssc else 0
+    except Exception as e:
+        out["creator_credit_balance"] = f"ERR {type(e).__name__}"
+    out["campaign_balance"] = float(getattr(target, "campaign_balance", 0) or 0)
+    out["grid_earnings"] = float(getattr(target, "grid_earnings", 0) or 0)
+    out["total_earned"] = float(getattr(target, "total_earned", 0) or 0)
+
+    # ── ENTITLEMENT DERIVATION (what paid truth says they should have) ──
+    def _confirmed(rows):
+        if not isinstance(rows, list):
+            return []
+        return rows
+    paid_tier, paid_credits, paid_nexus = [], [], []
+    for o in _confirmed(out.get("walletconnect_orders")) + _confirmed(out.get("nowpayments_orders")):
+        if o.get("status") in ("confirmed", "finished"):
+            pt = (o.get("product_type") or "").lower()
+            if pt == "grid":
+                paid_tier.append(o)
+            elif pt == "superscene":
+                paid_credits.append(o)
+            elif pt == "nexus":
+                paid_nexus.append(o)
+    for c in _confirmed(out.get("stripe_charges")):
+        if c.get("kind") == "charge":
+            p = (c.get("product") or "").lower()
+            if p == "campaign_tier":
+                paid_tier.append(c)
+            elif p == "creative_credits":
+                paid_credits.append(c)
+            elif p == "nexus_pack":
+                paid_nexus.append(c)
+    out["entitlement_summary"] = {
+        "paid_for_campaign_tier": len(paid_tier) > 0,
+        "campaign_tier_purchases": paid_tier,
+        "credit_pack_purchases": paid_credits,
+        "nexus_pack_purchases": paid_nexus,
+        "has_active_grid_now": out.get("grids_incomplete", 0) > 0 if isinstance(out.get("grids_incomplete"), int) else None,
+        "credit_balance_now": out.get("creator_credit_balance"),
+    }
+    out["note"] = ("Paid truth = stripe_charges + confirmed walletconnect/nowpayments "
+                   "orders (these live outside the wiped Payment/Grid/credit tables). "
+                   "Gap between entitlement_summary and current state = what to restore.")
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/stripe-reconciliation")
 def admin_api_stripe_reconciliation(
     request: Request,
