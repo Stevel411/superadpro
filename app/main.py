@@ -7010,7 +7010,8 @@ def admin_api_sponsor_recovery_notifications(
 async def admin_api_brevo_team_recovery(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    max_pages: int = 40,
+    max_pages: int = 6,
+    per: int = 100,
 ):
     """Rebuild the sponsor tree from Brevo's transactional email logs (external,
     survived the wipe). On signup we email the sponsor "<first_name> just joined
@@ -7042,11 +7043,16 @@ async def admin_api_brevo_team_recovery(
             except Exception:
                 return None
 
-    collected, total_seen, oldest, newest = [], 0, None, None
-    offset, limit = 0, 1000
+    import time as _time
+    _t0 = _time.time()
+    collected, total_seen, oldest, newest, hit_cap = [], 0, None, None, False
+    offset, limit = 0, max(10, min(per, 500))
     try:
-        async with _httpx.AsyncClient(timeout=30) as client:
-            for _ in range(max_pages):
+        async with _httpx.AsyncClient(timeout=20) as client:
+            for _pg in range(max_pages):
+                if _time.time() - _t0 > 45:
+                    hit_cap = True
+                    break
                 r = await client.get(base, headers=headers,
                                      params={"limit": limit, "offset": offset, "sort": "desc"})
                 if r.status_code != 200:
@@ -7076,9 +7082,18 @@ async def admin_api_brevo_team_recovery(
         if u.first_name:
             by_fn[u.first_name.strip().lower()].append(u)
 
+    # batch sponsor lookup by recipient email (one query, not one per email)
+    rec_emails = {r.strip().lower() for r, _, _ in collected if r}
+    sponsor_by_email = {}
+    if rec_emails:
+        for su in db.query(User.id, User.username, User.email).filter(
+                _func.lower(User.email).in_(rec_emails)).all():
+            if su.email:
+                sponsor_by_email[su.email.strip().lower()] = su
+
     resolved, active_resolved, ambiguous, sponsor_not_found = {}, 0, 0, 0
     for recipient_email, subj, dt in collected:
-        sponsor = db.query(User).filter(_func.lower(User.email) == recipient_email.strip().lower()).first()
+        sponsor = sponsor_by_email.get(recipient_email.strip().lower())
         if not sponsor:
             sponsor_not_found += 1
             continue
@@ -7101,6 +7116,7 @@ async def admin_api_brevo_team_recovery(
 
     return JSONResponse({
         "transactional_emails_scanned": total_seen,
+        "hit_page_or_time_cap": hit_cap,
         "brevo_log_date_range": {"oldest": oldest, "newest": newest},
         "team_join_emails_found": len(collected),
         "recovered_from_brevo": len(resolved),
