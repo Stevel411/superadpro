@@ -10046,6 +10046,243 @@ def admin_api_stripe_charge_inspect(
     })
 
 
+@app.get("/admin/api/grid-position-replay")
+def admin_api_grid_position_replay(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+    depth_cap: int = 0,
+):
+    """Reconstruct the wiped GridPosition matrix by DETERMINISTIC REPLAY.
+
+    Grid placement is deterministic: when a member buys a tier, _spillover_fill
+    seats them in EVERY upline grid at that tier (sponsor chain), and _next_slot
+    fills levels 1..6, six per level, lowest open level first. The ONLY input
+    that decides the matrix is the ORDER members were placed = purchase order.
+    With genealogy restored (sponsor_id) and purchase timestamps known (Stripe +
+    NOWPayments), replaying the verified tier purchases in chronological order
+    through the same rules rebuilds positions exactly.
+
+    A grid's FILL COUNT (progress toward bonus) is order-independent — it is just
+    the count of downline tier-buyers seated — so progress rebuilds exactly even
+    where a timestamp is approximate; order only affects cosmetic slot layout.
+
+    Payouts/commissions/notifications are SUPPRESSED (already earned + rebuilt).
+    With only 33 tier-buyers and GRID_TOTAL=36 no grid completes, so there are no
+    advances or completion bonuses to fire here; a >=36 fill is flagged, not
+    auto-advanced.
+
+    Reset-in-place: deletes GridPosition rows and zeroes grid fill counters but
+    PRESERVES owner_purchased on surviving grids; reuses existing grids, creates
+    spillover grids as needed. Sets owner_purchased=True on real buyers' own
+    grids (also corrects the flag left False by tier-grid-restore).
+
+    Checksum: each seat adds the tier price to revenue_total, a counter that
+    SURVIVED the wipe; reconstructed (filled*price) must equal surviving
+    revenue_total. Mismatches (reconstructed < surviving) flag missing
+    placements (e.g. admin-comped downline not in payment records).
+
+    Dry-run by default; ?apply=1&code=YOUR_2FA writes. ?depth_cap=N bounds the
+    upline walk (0 = unbounded, mirrors live _spillover_fill)."""
+    _require_admin(user)
+    from .database import (Grid, GridPosition, User as _User, Commission,
+                           GRID_PACKAGES as _PKG, GRID_TOTAL as _TOTAL,
+                           GRID_WIDTH as _W, BONUS_POOL_PCT as _BPCT)
+    from .grid import _policy_bonus_target
+    from datetime import datetime as _dt
+    from decimal import Decimal as _Dec
+    from collections import defaultdict as _dd
+    import pyotp
+
+    # ── Verified tier buyers (Stripe + NOWPayments; confirmed prior session) ──
+    TIER_BUYERS = {154:[1],157:[1,2],158:[1],177:[1],183:[1,2,3],191:[1],194:[1],
+        202:[1],211:[1],219:[1],224:[1],264:[1,2],268:[1],287:[1],307:[1],323:[1],
+        329:[1],343:[1,2],367:[1],382:[1],385:[1],393:[1],408:[1],432:[1],469:[1],
+        491:[1],522:[1],532:[1]}
+    # NOWPayments earliest-paid timestamps per (user,tier), from the CSV export.
+    NP_TS = {(154,1):"2026-05-16T21:17:00",(157,1):"2026-05-11T01:35:00",
+        (157,2):"2026-05-11T02:12:00",(158,1):"2026-05-20T14:45:00",
+        (177,1):"2026-05-11T23:08:00",(194,1):"2026-05-12T12:22:00",
+        (202,1):"2026-05-12T14:46:00",(211,1):"2026-05-17T20:37:00",
+        (224,1):"2026-05-18T08:22:00",(264,1):"2026-05-15T16:10:00",
+        (264,2):"2026-05-26T06:36:00",(307,1):"2026-05-20T04:32:00",
+        (329,1):"2026-05-27T06:56:00",(343,1):"2026-05-22T22:22:00",
+        (343,2):"2026-05-26T06:42:00",(367,1):"2026-05-24T11:00:00",
+        (382,1):"2026-05-25T09:23:00",(385,1):"2026-05-25T11:31:00",
+        (393,1):"2026-05-25T21:58:00",(491,1):"2026-05-28T21:07:00",
+        (522,1):"2026-05-28T08:39:00"}
+
+    # ── Load genealogy + signup times once ──
+    urows = db.query(_User.id, _User.sponsor_id, _User.created_at, _User.username).all()
+    sponsor_of = {r.id: r.sponsor_id for r in urows}
+    created_of = {r.id: r.created_at for r in urows}
+    uname_of   = {r.id: r.username for r in urows}
+
+    def _order_key(buyer, tier):
+        iso = NP_TS.get((buyer, tier))
+        if iso:
+            try: return _dt.fromisoformat(iso)
+            except Exception: pass
+        c = created_of.get(buyer)
+        return c or _dt(2099, 1, 1)
+
+    # ── Build the ordered placement list ──
+    events = []
+    ts_source = {}
+    for buyer, tiers in TIER_BUYERS.items():
+        for tier in tiers:
+            events.append((buyer, tier))
+            ts_source[(buyer, tier)] = "nowpayments" if (buyer, tier) in NP_TS else "signup_time(approx)"
+    events.sort(key=lambda bt: (_order_key(*bt), bt[1]))
+
+    # ── In-memory deterministic replay (no DB writes here) ──
+    fill   = _dd(int)                 # (owner,tier) -> seats filled
+    seats  = []                       # placement specs
+    seated = set()                    # (owner,tier,member) dedup
+    own_grids = set(events)           # real buyers' own (owner,tier)
+    overfull = set()
+    for buyer, tier in events:
+        price = _PKG.get(tier)
+        if not price:
+            continue
+        cur, seen, steps = buyer, set(), 0
+        while True:
+            anc = sponsor_of.get(cur)
+            if not anc or anc in seen:
+                break
+            seen.add(anc)
+            if anc != buyer and (anc, tier, buyer) not in seated:
+                idx = fill[(anc, tier)]
+                if idx >= _TOTAL:
+                    overfull.add((anc, tier))
+                else:
+                    seats.append({"owner_id": anc, "tier": tier, "member_id": buyer,
+                                  "grid_level": idx // _W + 1, "position_num": idx % _W + 1})
+                    fill[(anc, tier)] += 1
+                    seated.add((anc, tier, buyer))
+            cur = anc
+            steps += 1
+            if depth_cap and steps >= depth_cap:
+                break
+
+    # ── Checksum vs surviving revenue_total (captured from current grids) ──
+    surviving_rev = _dd(_Dec)
+    for g in db.query(Grid.owner_id, Grid.package_tier, Grid.revenue_total).all():
+        surviving_rev[(g.owner_id, g.package_tier)] += _Dec(str(g.revenue_total or 0))
+    checks = []
+    owners_tiers = set(fill.keys()) | set(surviving_rev.keys()) | own_grids
+    for (owner, tier) in sorted(owners_tiers):
+        recon_seats = fill.get((owner, tier), 0)
+        recon_rev = _Dec(str(_PKG.get(tier, 0))) * recon_seats
+        surv = surviving_rev.get((owner, tier), _Dec(0))
+        if surv > 0 or recon_seats > 0:
+            status = "match" if recon_rev == surv else ("surviving_only_no_buyers" if recon_seats == 0
+                     else ("reconstructed_exceeds_surviving" if recon_rev > surv else "reconstructed_below_surviving"))
+            checks.append({"owner_id": owner, "username": uname_of.get(owner), "tier": tier,
+                           "reconstructed_seats": recon_seats,
+                           "reconstructed_revenue": float(recon_rev),
+                           "surviving_revenue": float(surv), "status": status})
+    mismatches = [c for c in checks if c["status"] in ("reconstructed_below_surviving", "reconstructed_exceeds_surviving")]
+
+    fill_summary = sorted(
+        [{"owner_id": o, "username": uname_of.get(o), "tier": t, "seats": n}
+         for (o, t), n in fill.items()], key=lambda x: (-x["seats"], x["owner_id"]))
+
+    if not apply:
+        return JSONResponse({
+            "mode": "dry_run",
+            "placement_events": len(events),
+            "total_positions_to_create": len(seats),
+            "distinct_grids_filled": len(fill),
+            "own_grids_flagged_purchased": len(own_grids),
+            "overfull_grids_need_advance_review": sorted([f"{o}:{t}" for o, t in overfull]),
+            "checksum": {"compared": len(checks), "mismatches": len(mismatches),
+                         "mismatch_detail": mismatches[:40]},
+            "fill_summary_top": fill_summary[:40],
+            "ordering_note": "NOWPayments rows use real paid timestamps; Stripe-rail buyers ordered by signup time (cosmetic only — fill counts are order-independent).",
+            "ts_source_sample": {f"{k[0]}:{k[1]}": v for k, v in list(ts_source.items())[:6]},
+            "note": ("Dry-run — nothing written. Verify checksum mismatches == 0 (or understood) "
+                     "then ?apply=1&code=YOUR_2FA. Reset-in-place: positions wiped + counters "
+                     "zeroed (owner_purchased preserved), then rebuilt. No commissions/bonuses/emails."),
+        })
+
+    # ── APPLY (2FA-gated) ──
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?code=NNNNNN"}, status_code=403)
+
+    # 1. wipe positions
+    db.query(GridPosition).delete(synchronize_session=False)
+    # 2. reset fill counters on all grids (preserve owner_purchased)
+    for g in db.query(Grid).all():
+        g.positions_filled = 0
+        g.revenue_total = 0
+        g.bonus_pool_accrued = 0
+        g.is_complete = False
+        g.completed_at = None
+        g.bonus_paid = False
+        g.bonus_rolled_over = False
+        g.owner_paid = False
+    db.flush()
+
+    # 3. resolve / create one active grid per (owner,tier); set owner_purchased on buyers
+    grid_id_of = {}
+    def _grid_for(owner, tier):
+        key = (owner, tier)
+        if key in grid_id_of:
+            return grid_id_of[key]
+        g = (db.query(Grid).filter(Grid.owner_id == owner, Grid.package_tier == tier)
+             .order_by(Grid.advance_number.asc(), Grid.id.asc()).first())
+        if not g:
+            g = Grid(owner_id=owner, package_tier=tier, package_price=_PKG.get(tier, 0),
+                     advance_number=1, positions_filled=0, revenue_total=0,
+                     bonus_pool_accrued=0, is_complete=False, owner_purchased=False)
+            db.add(g); db.flush()
+        grid_id_of[key] = g.id
+        return g.id
+
+    for (owner, tier) in (set(fill.keys()) | own_grids):
+        gid = _grid_for(owner, tier)
+        if (owner, tier) in own_grids:
+            gobj = db.query(Grid).filter(Grid.id == gid).first()
+            if gobj and not gobj.owner_purchased:
+                gobj.owner_purchased = True
+
+    # 4. write positions + roll up counters
+    per_grid = _dd(lambda: {"filled": 0})
+    for s in seats:
+        gid = _grid_for(s["owner_id"], s["tier"])
+        db.add(GridPosition(grid_id=gid, member_id=s["member_id"],
+                            grid_level=s["grid_level"], position_num=s["position_num"],
+                            is_overspill=True))
+        per_grid[gid]["filled"] += 1
+    for (owner, tier), n in fill.items():
+        gid = grid_id_of[(owner, tier)]
+        gobj = db.query(Grid).filter(Grid.id == gid).first()
+        if gobj:
+            price = _Dec(str(_PKG.get(tier, 0)))
+            gobj.positions_filled = n
+            gobj.revenue_total = price * n
+            target = _Dec(str(_policy_bonus_target(tier)))
+            accrued = (price * n) * _Dec(str(_BPCT))
+            gobj.bonus_pool_accrued = min(target, accrued) if target > 0 else accrued
+    db.commit()
+
+    return JSONResponse({
+        "mode": "applied",
+        "positions_created": len(seats),
+        "grids_filled": len(fill),
+        "own_grids_marked_purchased": len(own_grids),
+        "checksum_mismatches": len(mismatches),
+        "mismatch_detail": mismatches[:40],
+        "note": ("Grid matrix reconstructed. Members' grid fill / progress is restored. "
+                 "No commissions, bonuses, or emails fired. Active-network counts recompute "
+                 "on next read (60s cache)."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
