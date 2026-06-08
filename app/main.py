@@ -10046,6 +10046,138 @@ def admin_api_stripe_charge_inspect(
     })
 
 
+@app.get("/admin/api/grid-backcredit")
+def admin_api_grid_backcredit(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+    min_credit: float = 1.0,
+):
+    """Restore the grid/unilevel commissions the recovered buyers owed their
+    uplines but that were never credited (the prior earnings reconstruction
+    only knew 28 of the ~63 buyers). Uses the SAME expected computation as
+    /admin/api/earnings-reconciliation (mirrors grid.py: 0.40 direct to the
+    direct sponsor, 0.0625 to each of 8 unilevel levels incl. the direct
+    sponsor, qualified = owns purchased tier>=t or admin).
+
+    Credit per member = max(0, expected - actual) for the grid stream and the
+    level stream independently — CAPPED at the matrix-implied amount, so a
+    member can never be pushed above what the rebuilt positions justify
+    (no double-pay on the original 28 buyers' already-credited commissions).
+    Admin/company (user 1) is excluded (its deltas are company-absorb, not
+    owed). Members already at/above expected (e.g. a commission from a since-
+    deleted downline buyer) are left untouched.
+
+    On apply: credits campaign_balance + total_earned + grid_earnings/
+    level_earnings, and writes one audit Commission row per stream
+    (type grid_reconstruction_backcredit, status paid). No email, no bonus.
+    Dry-run default; ?apply=1&code=YOUR_2FA writes.
+    """
+    _require_admin(user)
+    from .database import (User as _User, Grid, Commission,
+                           GRID_PACKAGES as _PKG,
+                           DIRECT_PCT as _D, PER_LEVEL_PCT as _L,
+                           UNILEVEL_DEPTH as _DEPTH)
+    from collections import defaultdict as _dd
+    from decimal import Decimal as _Dec
+    from datetime import datetime as _dt
+    import pyotp
+
+    urows = db.query(_User.id, _User.sponsor_id, _User.username, _User.is_admin).all()
+    sponsor_of = {r.id: r.sponsor_id for r in urows}
+    is_admin = {r.id: bool(r.is_admin) for r in urows}
+    uname = {r.id: r.username for r in urows}
+
+    buyer_tiers = _dd(set); owns_max = _dd(int)
+    for g in db.query(Grid).filter(Grid.owner_purchased == True).all():  # noqa: E712
+        buyer_tiers[g.owner_id].add(g.package_tier)
+        if g.package_tier > owns_max[g.owner_id]:
+            owns_max[g.owner_id] = g.package_tier
+
+    def qualified(x, t):
+        return is_admin.get(x, False) or owns_max.get(x, 0) >= t
+
+    exp_grid = _dd(float); exp_level = _dd(float)
+    for B, tiers in buyer_tiers.items():
+        for t in tiers:
+            price = float(_PKG.get(t, 0))
+            cur = B; seen = set()
+            for lvl in range(1, _DEPTH + 1):
+                sp = sponsor_of.get(cur)
+                if not sp or sp in seen: break
+                seen.add(sp)
+                if qualified(sp, t):
+                    exp_level[sp] += round(price * _L, 2)
+                    if lvl == 1:
+                        exp_grid[sp] += round(price * _D, 2)
+                cur = sp
+
+    will_apply = False
+    if apply == 1:
+        sec = getattr(user, "totp_secret", None)
+        if not sec or not code or not pyotp.TOTP(sec).verify(code, valid_window=1):
+            return JSONResponse({"error": "2FA required/invalid for apply"}, status_code=403)
+        will_apply = True
+
+    rows = []
+    tot_grid = tot_level = 0.0
+    targets = set(list(exp_grid.keys()) + list(exp_level.keys()))
+    for x in sorted(targets):
+        if is_admin.get(x, False):
+            continue  # company root excluded
+        u = db.query(_User).filter(_User.id == x).first()
+        if not u:
+            continue
+        ag = float(getattr(u, "grid_earnings", 0) or 0)
+        al = float(getattr(u, "level_earnings", 0) or 0)
+        owe_g = round(max(0.0, round(exp_grid[x], 2) - ag), 2)
+        owe_l = round(max(0.0, round(exp_level[x], 2) - al), 2)
+        if (owe_g + owe_l) < min_credit:
+            continue
+        tot_grid += owe_g; tot_level += owe_l
+        rows.append({"user_id": x, "username": uname.get(x),
+                     "grid_owed": owe_g, "level_owed": owe_l,
+                     "total_owed": round(owe_g + owe_l, 2),
+                     "grid_before": round(ag, 2), "level_before": round(al, 2)})
+        if will_apply:
+            credit = _Dec(str(owe_g + owe_l))
+            u.campaign_balance = _Dec(str(u.campaign_balance or 0)) + credit
+            u.total_earned     = _Dec(str(u.total_earned or 0)) + credit
+            if owe_g > 0:
+                u.grid_earnings = _Dec(str(u.grid_earnings or 0)) + _Dec(str(owe_g))
+                db.add(Commission(from_user_id=None, to_user_id=x, amount_usdt=owe_g,
+                                  commission_type="grid_reconstruction_backcredit",
+                                  status="paid", paid_at=_dt.utcnow(),
+                                  notes="Back-credit: direct-sponsor commissions from recovered buyers (post-wipe reconstruction)"))
+            if owe_l > 0:
+                u.level_earnings = _Dec(str(u.level_earnings or 0)) + _Dec(str(owe_l))
+                db.add(Commission(from_user_id=None, to_user_id=x, amount_usdt=owe_l,
+                                  commission_type="grid_reconstruction_backcredit",
+                                  status="paid", paid_at=_dt.utcnow(),
+                                  notes="Back-credit: unilevel commissions from recovered buyers (post-wipe reconstruction)"))
+            db.flush()
+    if will_apply:
+        db.commit()
+
+    rows.sort(key=lambda r: -r["total_owed"])
+    return JSONResponse({
+        "mode": "APPLIED" if will_apply else "dry_run",
+        "members_credited" if will_apply else "members_to_credit": len(rows),
+        "total_grid_owed": round(tot_grid, 2),
+        "total_level_owed": round(tot_level, 2),
+        "total_owed": round(tot_grid + tot_level, 2),
+        "min_credit": min_credit,
+        "credits": rows,
+        "note": ("Credits campaign_balance + total_earned + grid/level_earnings by "
+                 "max(0, expected-actual) per stream — capped at the matrix-implied "
+                 "amount so the original 28 buyers' commissions are never double-paid. "
+                 "Company root (user 1) excluded. Audit Commission rows written per "
+                 "stream. ?apply=1&code=YOUR_2FA. This increases recorded member "
+                 "liability by total_owed — restores true pre-hack earnings."),
+    })
+
+
 @app.get("/admin/api/earnings-reconciliation")
 def admin_api_earnings_reconciliation(
     user: User = Depends(get_current_user),
