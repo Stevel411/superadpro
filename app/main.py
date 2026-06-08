@@ -10046,6 +10046,110 @@ def admin_api_stripe_charge_inspect(
     })
 
 
+@app.get("/admin/api/earnings-reconciliation")
+def admin_api_earnings_reconciliation(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    min_delta: float = 1.0,
+):
+    """Read-only cross-validation of the SURVIVING per-user earnings counters
+    against what the now-rebuilt grid positions + genealogy imply under the
+    locked comp plan. The counters (grid_earnings / level_earnings /
+    bonus_earnings) are User columns that survived the relational wipe; this
+    confirms the rebuilt matrix is consistent with them.
+
+    Mirrors grid.py exactly:
+      direct   = price * DIRECT_PCT (0.40) to the buyer's DIRECT sponsor, if qualified
+      unilevel = price * PER_LEVEL_PCT (0.0625) to each of UNILEVEL_DEPTH (8)
+                 sponsor-chain levels (level 1 = the direct sponsor as well), if qualified
+      bonus    = price * GRID_TOTAL * BONUS_POOL_PCT per COMPLETED grid owned
+      qualified(X,t) = X owns a purchased grid at tier >= t (or is admin)
+
+    Buyer set + completions read from live grids (post-rebuild); genealogy from
+    users.sponsor_id. Expected is the fully-qualified steady-state figure; real
+    escrow/grace, time-ordered qualification, repurchases and the deleted-buyer
+    gap produce small deltas, so only |delta| >= min_delta (default $1) is
+    flagged. Admin/company (user 1) follows different absorb rules and is
+    expected to diverge. No writes."""
+    _require_admin(user)
+    from .database import (User as _User, Grid,
+                           GRID_PACKAGES as _PKG, GRID_TOTAL as _TOTAL,
+                           DIRECT_PCT as _D, PER_LEVEL_PCT as _L,
+                           UNILEVEL_DEPTH as _DEPTH, BONUS_POOL_PCT as _BP)
+    from collections import defaultdict as _dd
+
+    urows = db.query(_User.id, _User.sponsor_id, _User.username, _User.is_admin,
+                     _User.grid_earnings, _User.level_earnings, _User.bonus_earnings).all()
+    sponsor_of = {r.id: r.sponsor_id for r in urows}
+    is_admin = {r.id: bool(r.is_admin) for r in urows}
+    uname = {r.id: r.username for r in urows}
+    act = {r.id: {"grid": float(r.grid_earnings or 0), "level": float(r.level_earnings or 0),
+                  "bonus": float(r.bonus_earnings or 0)} for r in urows}
+
+    buyer_tiers = _dd(set); owns_max = _dd(int)
+    for g in db.query(Grid).filter(Grid.owner_purchased == True).all():  # noqa: E712
+        buyer_tiers[g.owner_id].add(g.package_tier)
+        if g.package_tier > owns_max[g.owner_id]:
+            owns_max[g.owner_id] = g.package_tier
+
+    def qualified(x, t):
+        return is_admin.get(x, False) or owns_max.get(x, 0) >= t
+
+    exp_grid = _dd(float); exp_level = _dd(float)
+    for B, tiers in buyer_tiers.items():
+        for t in tiers:
+            price = float(_PKG.get(t, 0))
+            cur = B; seen = set()
+            for lvl in range(1, _DEPTH + 1):
+                sp = sponsor_of.get(cur)
+                if not sp or sp in seen: break
+                seen.add(sp)
+                if qualified(sp, t):
+                    exp_level[sp] += round(price * _L, 2)
+                    if lvl == 1:
+                        exp_grid[sp] += round(price * _D, 2)
+                cur = sp
+
+    exp_bonus = _dd(float)
+    for g in db.query(Grid).filter(Grid.is_complete == True).all():  # noqa: E712
+        exp_bonus[g.owner_id] += round(float(_PKG.get(g.package_tier, 0)) * _TOTAL * _BP, 2)
+
+    owners = set(list(exp_grid) + list(exp_level) + list(exp_bonus) +
+                 [u for u, v in act.items() if v["grid"] or v["level"] or v["bonus"]])
+    tot = {"eg": 0.0, "ag": 0.0, "el": 0.0, "al": 0.0, "eb": 0.0, "ab": 0.0}
+    rows = []
+    for x in owners:
+        eg, el, eb = round(exp_grid[x], 2), round(exp_level[x], 2), round(exp_bonus[x], 2)
+        ag, al, ab = round(act.get(x, {}).get("grid", 0.0), 2), round(act.get(x, {}).get("level", 0.0), 2), round(act.get(x, {}).get("bonus", 0.0), 2)
+        tot["eg"] += eg; tot["ag"] += ag; tot["el"] += el; tot["al"] += al; tot["eb"] += eb; tot["ab"] += ab
+        dg, dl, dbn = round(ag - eg, 2), round(al - el, 2), round(ab - eb, 2)
+        if max(abs(dg), abs(dl), abs(dbn)) >= min_delta:
+            rows.append({"user_id": x, "username": uname.get(x), "is_admin": is_admin.get(x, False),
+                         "grid_expected": eg, "grid_actual": ag, "grid_delta": dg,
+                         "level_expected": el, "level_actual": al, "level_delta": dl,
+                         "bonus_expected": eb, "bonus_actual": ab, "bonus_delta": dbn})
+    rows.sort(key=lambda r: -(abs(r["grid_delta"]) + abs(r["level_delta"]) + abs(r["bonus_delta"])))
+
+    return JSONResponse({
+        "mode": "read_only",
+        "comp_plan": {"direct_pct": _D, "per_level_pct": _L, "unilevel_depth": _DEPTH, "bonus_pool_pct": _BP},
+        "totals": {
+            "grid_expected": round(tot["eg"], 2), "grid_actual": round(tot["ag"], 2), "grid_delta": round(tot["ag"] - tot["eg"], 2),
+            "level_expected": round(tot["el"], 2), "level_actual": round(tot["al"], 2), "level_delta": round(tot["al"] - tot["el"], 2),
+            "bonus_expected": round(tot["eb"], 2), "bonus_actual": round(tot["ab"], 2), "bonus_delta": round(tot["ab"] - tot["eb"], 2),
+        },
+        "flagged_count": len(rows),
+        "min_delta": min_delta,
+        "flagged_owners": rows,
+        "note": ("delta = actual(survived counter) - expected(from rebuilt positions). "
+                 "Near-zero across the board = positions and earnings agree. Positive "
+                 "deltas can be legit (membership/Nexus/course streams don't touch these "
+                 "grid counters; escrow later claimed). Negative deltas = counter below "
+                 "what the matrix implies (possible under-credit to investigate). user 1 "
+                 "(admin/company) diverges by design."),
+    })
+
+
 @app.get("/admin/api/grid-full-rebuild")
 def admin_api_grid_full_rebuild(
     user: User = Depends(get_current_user),
