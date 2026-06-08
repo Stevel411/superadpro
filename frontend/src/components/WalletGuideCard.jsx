@@ -81,7 +81,7 @@ export default function WalletGuideCard({ compact }) {
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{t('walletHelp.switchPolygon')}</div>
               </div>
               <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, marginBottom: 10 }}>
-                SuperAdPro uses Polygon because transactions cost <strong style={{ color: '#0f172a' }}>{t('walletHelp.lessThanCent')}</strong> (vs $5-15 on Ethereum). In MetaMask, tap the network dropdown at the top and select <strong style={{ color: '#0f172a' }}>{t('walletHelp.polygonMainnet')}</strong>. It's usually pre-loaded — just select it.
+                SuperAdPro uses the BNB Smart Chain because transactions cost <strong style={{ color: '#0f172a' }}>{t('walletHelp.lessThanCent')}</strong> (vs $5-15 on Ethereum). In MetaMask, tap the network dropdown at the top and select <strong style={{ color: '#0f172a' }}>{t('walletHelp.polygonMainnet')}</strong>. It's usually pre-loaded — just select it.
               </p>
               <div style={{ display: 'flex', gap: 12 }}>
                 <div style={{ flex: 1, background: '#fef2f2', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: '#991b1b' }}>
@@ -103,7 +103,7 @@ export default function WalletGuideCard({ compact }) {
                 Buy USDT or USDC on any exchange (Binance, Kraken, etc.), then withdraw to your MetaMask address. <strong style={{ color: '#dc2626' }}>{t('walletHelp.selectPolygon')}</strong> — wrong network means lost funds.
               </p>
               <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>
-                You'll also need ~$0.50 of POL for gas fees. That's enough for hundreds of transactions.
+                You'll also need ~$0.50 of BNB for gas fees. That's enough for hundreds of transactions.
               </p>
             </div>
 
