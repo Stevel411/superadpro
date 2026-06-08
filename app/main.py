@@ -11498,6 +11498,7 @@ def admin_api_seat_member(
     tier: int = 1,
     apply: int = 0,
     code: str = "",
+    include_root: int = 0,
 ):
     """Seat one member into their upline grids for a tier they bought — the
     placement the live flow should have made but didn't.
@@ -11530,6 +11531,7 @@ def admin_api_seat_member(
 
     sponsor_of = {r.id: r.sponsor_id for r in db.query(_User.id, _User.sponsor_id).all()}
     uname_of   = {r.id: r.username for r in db.query(_User.id, _User.username).all()}
+    is_admin_of = {r.id: bool(r.is_admin) for r in db.query(_User.id, _User.is_admin).all()}
 
     def _active_grid(owner):
         return (db.query(Grid).filter(Grid.owner_id == owner, Grid.package_tier == tier,
@@ -11545,6 +11547,12 @@ def admin_api_seat_member(
         seen.add(anc)
         chain.append(anc)
         cur = anc
+
+    # The company/admin root grid is managed separately (grid-root-restore) and
+    # was deliberately excluded from buyer seating in the full rebuild. Stay
+    # consistent: don't seat into an admin root unless explicitly asked.
+    if not include_root:
+        chain = [a for a in chain if not is_admin_of.get(a, False)]
 
     plan = []
     for anc in chain:
