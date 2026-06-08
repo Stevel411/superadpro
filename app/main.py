@@ -10173,6 +10173,116 @@ def admin_api_reroute_purchase_commission(
     })
 
 
+@app.get("/admin/api/grid-owner-status")
+def admin_api_grid_owner_status(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only health check for two things:
+      1. Every grid owner's active/qualified status (via the live
+         _user_is_qualified engine function) — surfaces any owner who
+         bought a tier but isn't showing qualified to earn (e.g. all grids
+         completed and the next advance never spawned).
+      2. The watch-to-earn engine — active campaigns, whether watches are
+         being recorded, and the daily-quota / commissions-paused state.
+    """
+    _require_admin(user)
+    from .database import (User as _U, Grid, VideoCampaign, VideoWatch, WatchQuota)
+    from .grid import _user_is_qualified
+    from sqlalchemy import func as _f
+    from datetime import datetime as _dt, timedelta as _td
+
+    now = _dt.utcnow()
+
+    # ── Grid owners (anyone who owns a purchased grid) ──
+    owner_rows = db.query(Grid.owner_id, _f.max(Grid.package_tier)).filter(
+        Grid.owner_purchased == True).group_by(Grid.owner_id).all()  # noqa: E712
+    uname = {r.id: r.username for r in db.query(_U.id, _U.username).all()}
+    is_active = {r.id: bool(r.is_active) for r in db.query(_U.id, _U.is_active).all()}
+    is_admin = {r.id: bool(r.is_admin) for r in db.query(_U.id, _U.is_admin).all()}
+
+    # active (incomplete) grid count per owner
+    active_grid_owners = {r[0] for r in db.query(Grid.owner_id).filter(
+        Grid.is_complete == False).distinct().all()}  # noqa: E712
+    # active/grace campaign owners
+    camp_owners = {r[0] for r in db.query(VideoCampaign.user_id).filter(
+        VideoCampaign.status.in_(["active", "paused"]),
+        VideoCampaign.is_completed == False).distinct().all()}  # noqa: E712
+    quotas = {q.user_id: q for q in db.query(WatchQuota).all()}
+
+    owners = []
+    not_qualified = []
+    paused = []
+    for oid, max_tier in owner_rows:
+        if oid not in uname:
+            continue
+        qualified = _user_is_qualified(db, oid, 1)
+        q = quotas.get(oid)
+        rec = {
+            "user_id": oid, "username": uname.get(oid),
+            "membership_active": is_active.get(oid, False),
+            "owns_tier": int(max_tier or 0),
+            "qualified_to_earn": bool(qualified),
+            "has_active_grid": oid in active_grid_owners,
+            "has_active_campaign": oid in camp_owners,
+            "commissions_paused": (bool(q.commissions_paused) if q else None),
+            "today_watched": (int(q.today_watched or 0) if q else None),
+            "daily_required": (int(q.daily_required or 0) if q else None),
+            "consecutive_missed": (int(q.consecutive_missed or 0) if q else None),
+        }
+        owners.append(rec)
+        if is_active.get(oid) and (max_tier or 0) > 0 and not qualified:
+            not_qualified.append({"user_id": oid, "username": uname.get(oid),
+                                  "owns_tier": int(max_tier or 0),
+                                  "has_active_grid": oid in active_grid_owners,
+                                  "has_active_campaign": oid in camp_owners})
+        if q and q.commissions_paused:
+            paused.append({"user_id": oid, "username": uname.get(oid),
+                           "consecutive_missed": int(q.consecutive_missed or 0)})
+
+    owners.sort(key=lambda r: (-r["owns_tier"], r["user_id"]))
+
+    # ── Watch-to-earn engine health ──
+    watches_24h = db.query(_f.count(VideoWatch.id)).filter(
+        VideoWatch.is_complete == True, VideoWatch.watched_at >= now - _td(hours=24)).scalar()  # noqa: E712
+    watches_7d = db.query(_f.count(VideoWatch.id)).filter(
+        VideoWatch.is_complete == True, VideoWatch.watched_at >= now - _td(days=7)).scalar()  # noqa: E712
+    active_campaigns = db.query(_f.count(VideoCampaign.id)).filter(
+        VideoCampaign.status == "active", VideoCampaign.is_completed == False).scalar()  # noqa: E712
+    completed_campaigns = db.query(_f.count(VideoCampaign.id)).filter(
+        VideoCampaign.is_completed == True).scalar()
+    in_grace = db.query(_f.count(VideoCampaign.id)).filter(
+        VideoCampaign.is_completed == True, VideoCampaign.grace_expires_at != None,
+        VideoCampaign.grace_expires_at > now).scalar()  # noqa: E711
+    total_quotas = db.query(_f.count(WatchQuota.id)).scalar()
+    paused_quotas = db.query(_f.count(WatchQuota.id)).filter(
+        WatchQuota.commissions_paused == True).scalar()  # noqa: E712
+
+    return JSONResponse({
+        "grid_owners": {
+            "total": len(owners),
+            "qualified": sum(1 for o in owners if o["qualified_to_earn"]),
+            "not_qualified_but_owns_tier": not_qualified,
+            "commissions_paused": paused,
+            "detail": owners,
+        },
+        "watch_to_earn": {
+            "active_campaigns": int(active_campaigns or 0),
+            "completed_campaigns": int(completed_campaigns or 0),
+            "campaigns_in_grace": int(in_grace or 0),
+            "watches_completed_last_24h": int(watches_24h or 0),
+            "watches_completed_last_7d": int(watches_7d or 0),
+            "watch_quota_rows": int(total_quotas or 0),
+            "members_with_commissions_paused": int(paused_quotas or 0),
+        },
+        "note": ("qualified_to_earn uses the live _user_is_qualified engine fn "
+                 "(active grid at tier>=1, OR active/grace campaign, OR admin). "
+                 "not_qualified_but_owns_tier flags any active member who bought a "
+                 "tier but isn't currently qualified — the thing to fix. Low watch "
+                 "counts are expected if the platform has been in maintenance."),
+    })
+
+
 @app.get("/admin/api/solvency-snapshot")
 def admin_api_solvency_snapshot(
     user: User = Depends(get_current_user),
