@@ -950,12 +950,13 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
 
 def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: int, source_event_id: str = None):
     """6.25% to each of 8 sponsor chain levels above the buyer.
-    Each level checked individually — if unqualified at this tier,
-    the slot is escrowed for 3 days (grace period to upgrade).
+    Each level checked individually — if unqualified at this tier, that
+    slot passes up to the company (recipient of last resort), no escrow.
 
     25 May 2026: uses UNILEVEL_DEPTH (=8), decoupled from GRID_LEVELS (=6).
     Grid visualises 6 levels; commissions still walk 8 levels of sponsor chain.
-    26 May 2026: unqualified slots escrow instead of company-absorb.
+    8 Jun 2026 (Steve): reverted the 26-May escrow divergence — unqualified
+    uni-level slots are company-absorbed, matching the spec + the direct line.
     """
     per_level = round(float(price) * PER_LEVEL_PCT, 2)
     current_id = buyer.id
@@ -983,18 +984,11 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
                                f"Uni-level {lvl} — 6.25% of ${price}",
                                package_tier, source_event_id=source_event_id)
         elif upline:
-            # Unqualified at this tier — escrow for 3 days. Upline can
-            # claim by upgrading to package_tier within the grace window.
-            _escrow_pending_commission(
-                db,
-                recipient_id    = upline.id,
-                trigger_id      = buyer.id,
-                amount          = per_level,
-                commission_type = "uni_level",
-                package_tier    = package_tier,
-                notes           = (f"Uni-level {lvl} (6.25% of ${price}) — "
-                                   f"escrowed pending upgrade to tier {package_tier}"),
-            )
+            # Unqualified at this tier — the 6.25% passes up to the company
+            # (recipient of last resort). No escrow (Steve, 8 Jun 2026).
+            _record_commission(db, buyer.id, None, per_level, "uni_level",
+                               f"Uni-level {lvl} — upline {upline_id} unqualified at tier {package_tier}, company absorb",
+                               package_tier, source_event_id=source_event_id)
         else:
             # Upline record missing (defensive). No escrow possible.
             _record_commission(db, buyer.id, None, per_level, "uni_level",
