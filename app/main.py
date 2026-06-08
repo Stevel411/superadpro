@@ -10130,6 +10130,12 @@ def admin_api_grid_full_rebuild(
     for ts, uid, tier in events:
         for owner in chain(uid):
             if owner not in exists: continue
+            if owner == 1: continue   # company root: already restored at counter
+            #                           level (2 completed tier-1 advances + bonuses
+            #                           via grid-root-restore). Row-seating it would
+            #                           stack onto those counters AND can't reach a
+            #                           clean 72 anyway (6 deleted accounts + repurchases),
+            #                           so it is intentionally preserved as-is.
             key = (owner, tier, uid)
             if key in existing: continue
             existing.add(key)
@@ -10205,17 +10211,18 @@ def admin_api_grid_full_rebuild(
         "total_seats_to_add": len(to_add),
         "owners_touched": len(set(o for o, _, _ in to_add)),
         "completions_during_rebuild": completions if will_apply else "n/a (dry-run)",
-        "reconciliation": {
-            "user1_tier1_current": u1[0], "user1_tier1_added": u1[1],
-            "user1_tier1_projected": u1[2], "survived_target": 72,
-            "user1_tier1_completed_advances": u1[3], "user1_tier1_partial": u1[4],
-            "user1_tier2_projected": proj(1, 2)[2], "tier2_survived_target": 7,
-        },
+        "owner_1_root_grid": ("EXCLUDED / preserved as restored — your 2 completed "
+                              "tier-1 advances (72 seats, bonuses already paid) and "
+                              "tier-2 stand at the counter level. Not row-seated: "
+                              "6 deleted accounts + repurchases make a clean 72 "
+                              "unrecoverable from existing members, and seating would "
+                              "double-count the restored advances."),
         "owners_changed": report_owners,
-        "note": ("Dry-run mutates nothing. Apply seats every missing existing "
-                 "buyer additively in purchase order, silently completing grids "
-                 "(no bonus/commission/email), and flags completions for audit. "
-                 "?apply=1&code=YOUR_2FA"),
+        "note": ("Dry-run mutates nothing. Apply seats every missing existing buyer "
+                 "(EXCLUDING company root owner 1) additively in purchase order, "
+                 "silently completing grids (pool=target + bonus_paid=True so the boot "
+                 "top-up migration cannot re-pay; no bonus/commission/email), and flags "
+                 "completions for audit. ?apply=1&code=YOUR_2FA"),
     })
 
 
