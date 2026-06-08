@@ -10476,6 +10476,132 @@ def admin_api_grid_root_audit(
     })
 
 
+@app.get("/admin/api/grid-topup-reversal")
+def admin_api_grid_topup_reversal(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    since_iso: str = "2026-06-07T22:00:00",
+    apply: int = 0,
+    code: str = "",
+):
+    """Reverse erroneous grid_completion_bonus_topup credits caused this session.
+
+    grid-position-replay recomputed bonus_pool_accrued from actual (wiped) rows,
+    zeroing every COMPLETED grid's pool. The boot migration migrate_grid_bonus_pools
+    (Pass 2) then read those as '$0 paid vs target' and credited owners the
+    'shortfall' (campaign_balance + total_earned + bonus_earnings) plus a
+    grid_completion_bonus_topup commission — a double-pay, since those bonuses were
+    already paid historically.
+
+    This reverses every grid_completion_bonus_topup created at/after since_iso
+    (the session window — the legitimate pre-session May topup is excluded):
+    deducts the amount from the recipient's three credited fields and marks the
+    commission status='reversed' (row kept so the migration's notes-LIKE
+    idempotency guard still blocks a re-fire). It ALSO restores every completed
+    grid's bonus_pool_accrued to its policy target so no future deploy re-triggers
+    Pass 2. Dry-run by default; ?apply=1&code=YOUR_2FA writes."""
+    _require_admin(user)
+    from .database import Commission, User as _User, Grid
+    from datetime import datetime as _dt
+    from decimal import Decimal as _Dec
+    import pyotp
+
+    TARGETS = {1: 72.0, 2: 180.0, 3: 360.0, 4: 720.0,
+               5: 1440.0, 6: 2160.0, 7: 2880.0, 8: 3600.0}
+    try:
+        since = _dt.fromisoformat(since_iso)
+    except Exception:
+        return JSONResponse({"error": f"bad since_iso: {since_iso}"}, status_code=400)
+
+    topups = (db.query(Commission)
+              .filter(Commission.commission_type == "grid_completion_bonus_topup",
+                      Commission.created_at >= since,
+                      Commission.status != "reversed")
+              .order_by(Commission.created_at.asc()).all())
+
+    rev_plan = []
+    for c in topups:
+        u = db.query(_User).filter(_User.id == c.to_user_id).first()
+        cur_cb = float(getattr(u, "campaign_balance", 0) or 0) if u else None
+        amt = float(c.amount_usdt or 0)
+        rev_plan.append({
+            "commission_id": c.id, "user_id": c.to_user_id,
+            "username": u.username if u else None, "amount": amt,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+            "current_campaign_balance": cur_cb,
+            "campaign_balance_after": (round(cur_cb - amt, 2) if cur_cb is not None else None),
+            "would_go_negative": (cur_cb is not None and cur_cb - amt < 0),
+            "notes": (c.notes or "")[:90],
+        })
+
+    completed = db.query(Grid).filter(Grid.is_complete == True).all()
+    pool_fixes = []
+    for g in completed:
+        target = TARGETS.get(int(g.package_tier))
+        if target is None:
+            continue
+        if float(g.bonus_pool_accrued or 0) < target - 0.01:
+            pool_fixes.append({"grid_id": g.id, "owner_id": g.owner_id, "tier": g.package_tier,
+                               "advance": g.advance_number,
+                               "pool_now": float(g.bonus_pool_accrued or 0), "restore_to": target})
+
+    if not apply:
+        return JSONResponse({
+            "mode": "dry_run", "since_iso": since_iso,
+            "erroneous_topups_found": len(rev_plan),
+            "total_to_reverse_usd": round(sum(r["amount"] for r in rev_plan), 2),
+            "any_would_go_negative": any(r["would_go_negative"] for r in rev_plan),
+            "reversals": rev_plan,
+            "completed_grids_pool_to_restore": len(pool_fixes),
+            "pool_restore_detail": pool_fixes,
+            "note": ("Dry-run — nothing written. Apply deducts each topup from the "
+                     "recipient's campaign_balance/total_earned/bonus_earnings, marks the "
+                     "commission reversed (row kept for idempotency), and restores completed "
+                     "grids' pools to target so no future deploy re-triggers this. "
+                     "?apply=1&code=YOUR_2FA. Verify the topup set is only this session's "
+                     "(the legit May topup must NOT appear)."),
+        })
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?code=NNNNNN"}, status_code=403)
+
+    reversed_n, reversed_usd = 0, 0.0
+    for c in topups:
+        u = db.query(_User).filter(_User.id == c.to_user_id).first()
+        if not u:
+            continue
+        amt = _Dec(str(c.amount_usdt or 0))
+        u.campaign_balance = _Dec(str(u.campaign_balance or 0)) - amt
+        u.total_earned     = _Dec(str(u.total_earned or 0))     - amt
+        u.bonus_earnings   = _Dec(str(u.bonus_earnings or 0))   - amt
+        c.status = "reversed"
+        c.notes = (c.notes or "") + " | REVERSED: erroneous session topup from replay-zeroed pool."
+        reversed_n += 1
+        reversed_usd += float(amt)
+
+    restored = 0
+    for g in completed:
+        target = TARGETS.get(int(g.package_tier))
+        if target is None:
+            continue
+        if float(g.bonus_pool_accrued or 0) < target - 0.01:
+            g.bonus_pool_accrued = _Dec(str(target))
+            restored += 1
+    db.commit()
+
+    return JSONResponse({
+        "mode": "applied", "topups_reversed": reversed_n,
+        "total_reversed_usd": round(reversed_usd, 2),
+        "completed_grid_pools_restored": restored,
+        "note": ("Erroneous session topups reversed (campaign_balance/total_earned/"
+                 "bonus_earnings restored); commission rows kept as 'reversed' for "
+                 "idempotency; completed-grid pools restored to target. No legitimate "
+                 "historical topup touched."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
