@@ -1202,6 +1202,35 @@ def set_secure_cookie(response, user_id):
 def validate_username(u): return bool(re.match(r'^[a-zA-Z0-9_]{3,30}$', u))
 def validate_email(e):    return bool(re.match(r'^[^\@\s]+@[^\@\s]+\.[^\@\s]+$', e))
 
+# Disposable / throwaway / RFC-2606-reserved email domains rejected at SIGNUP.
+# Tripwire against junk registrations and the test.com pattern seen in the
+# Jun 2026 breach probes — NOT a security boundary (a determined actor uses a
+# real-looking domain). Applied at registration only; password-reset paths
+# must still accept these so an already-registered member can recover.
+DISPOSABLE_EMAIL_DOMAINS = {
+    # RFC 2606 reserved — never deliverable
+    'test.com', 'example.com', 'example.org', 'example.net', 'invalid',
+    'localhost', 'test', 'test.test',
+    # Common disposable / throwaway providers
+    'mailinator.com', 'guerrillamail.com', 'guerrillamailblock.com',
+    'tempmail.com', 'temp-mail.org', 'throwaway.email', 'yopmail.com',
+    'sharklasers.com', 'grr.la', 'dispostable.com', 'trashmail.com',
+    'fakeinbox.com', 'mailnesia.com', 'maildrop.cc', 'discard.email',
+    'tmpmail.net', '10minutemail.com', 'getnada.com', 'mailcatch.com',
+    'mohmal.com', 'emailondeck.com', 'spam4.me', 'tempr.email',
+}
+
+def is_disposable_email(e):
+    """True if the email's domain (or a parent of it) is a known disposable/
+    throwaway/reserved-test domain. Registration-time filter only."""
+    try:
+        domain = e.strip().lower().rsplit('@', 1)[1]
+    except (IndexError, AttributeError):
+        return False
+    return any(domain == d or domain.endswith('.' + d)
+               for d in DISPOSABLE_EMAIL_DOMAINS)
+
+
 # Network-specific wallet validation. EVM (BSC, formerly Polygon) uses
 # 0x-prefixed 20-byte hex addresses. Tron uses base58check addresses
 # starting with T, 34 chars total. The base58 alphabet excludes 0/O/I/l
@@ -6154,6 +6183,8 @@ def register_process(
         return err("Username must be 3–30 characters, letters, numbers and underscores only.")
     if not validate_email(email):
         return err("Please enter a valid email address.")
+    if is_disposable_email(email):
+        return err("Please register with a permanent email address — disposable or test addresses aren't accepted.")
     if len(password) < 8:
         return err("Password must be at least 8 characters.")
     if len(password.encode("utf-8")) > 72:
@@ -31231,6 +31262,8 @@ async def api_register(
             return JSONResponse({"error": "Username must be 3-30 characters, letters, numbers and underscores only."}, status_code=400)
         if not validate_email(email):
             return JSONResponse({"error": "Please enter a valid email address."}, status_code=400)
+        if is_disposable_email(email):
+            return JSONResponse({"error": "Please register with a permanent email address — disposable or test addresses aren't accepted."}, status_code=400)
         if len(password) < 8:
             return JSONResponse({"error": "Password must be at least 8 characters."}, status_code=400)
         if len(password.encode("utf-8")) > 72:
