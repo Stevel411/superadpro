@@ -26824,9 +26824,10 @@ def admin_withdrawals_queue_page(
 </style></head><body>
   <div class="topbar"><a class="back" href="/admin">← Back to Admin</a></div>
   <h1>Withdrawal Release Queue</h1>
-  <div class="sub">{len(rows)} awaiting your release · per-tx cap ${float(cap):.0f}</div>
+  <div class="sub"><span id="qcount">{len(rows)}</span> awaiting your release · per-tx cap ${float(cap):.0f}</div>
   {banner}
-  {body_cards}
+  <div id="flash"></div>
+  <div id="cards">{body_cards}</div>
   <div class="foot">Each release needs a fresh 6-digit code from your authenticator app — the same one you use for admin login. Money does not move without it.</div>
 <script>
 async function post(url, code) {{
@@ -26841,11 +26842,12 @@ async function release(id) {{
   res.className='result'; res.textContent='Releasing…';
   const {{ok, d}} = await post('/admin/api/withdrawals/'+id+'/approve', code);
   if (ok && d.success) {{
-    res.className='result ok';
-    var link = d.tx_hash ? '<br><a href="https://bscscan.com/tx/'+d.tx_hash+'" target="_blank" rel="noopener">View transaction on BSCScan ↗</a>' : '';
-    res.innerHTML = '✓ '+(d.message||'Released')+' — broadcast on-chain.'+link;
+    var link = d.tx_hash ? ' <a href="https://bscscan.com/tx/'+d.tx_hash+'" target="_blank" rel="noopener">View on BSCScan ↗</a>' : '';
+    var flash=document.getElementById('flash');
+    if(flash){{ flash.innerHTML='<div class="result ok">✓ '+(d.message||'Released')+'.'+link+'</div>'; }}
     var c=document.getElementById('wd-'+id);
-    if(c){{ c.style.opacity=.7; var el=c.querySelectorAll('button,input'); for(var i=0;i<el.length;i++){{ el[i].disabled=true; }} }}
+    if(c){{ c.style.transition='opacity .3s'; c.style.opacity='0'; setTimeout(function(){{ c.remove(); afterRelease(); }}, 300); }}
+    else {{ afterRelease(); }}
   }}
   else {{ res.className='result bad'; res.innerHTML='✗ '+((d&&d.error)||'Failed'); }}
 }}
@@ -26855,8 +26857,19 @@ async function reject(id) {{
   res.className='result'; res.textContent='Rejecting…';
   const r = await fetch('/admin/api/withdrawals/'+id+'/refund', {{ method:'POST', headers:{{'Content-Type':'application/json'}}, body: JSON.stringify({{reason:'Rejected at release queue'}}) }});
   let d={{}}; try {{ d = await r.json(); }} catch(e) {{}}
-  if (r.ok && !d.error) {{ res.className='result ok'; res.textContent='✓ Refunded'; const c=document.getElementById('wd-'+id); if(c) c.style.opacity=.45; }}
+  if (r.ok && !d.error) {{
+    var flash=document.getElementById('flash');
+    if(flash){{ flash.innerHTML='<div class="result ok">✓ Withdrawal #'+id+' rejected and refunded to the member.</div>'; }}
+    var c=document.getElementById('wd-'+id);
+    if(c){{ c.style.transition='opacity .3s'; c.style.opacity='0'; setTimeout(function(){{ c.remove(); afterRelease(); }}, 300); }} else {{ afterRelease(); }}
+  }}
   else {{ res.className='result bad'; res.textContent='✗ '+((d&&d.error)||'Failed'); }}
+}}
+function afterRelease(){{
+  var cards=document.getElementById('cards');
+  var remaining=cards?cards.querySelectorAll('.card').length:0;
+  var qc=document.getElementById('qcount'); if(qc) qc.textContent=remaining;
+  if(remaining===0 && cards){{ cards.innerHTML='<div class="empty">No withdrawals awaiting release.</div>'; }}
 }}
 </script></body></html>"""
     return HTMLResponse(html)
@@ -26962,7 +26975,9 @@ async def admin_withdrawal_approve(
 
     db.refresh(withdrawal)
     if result.get("success"):
-        return JSONResponse({"success": True, "message": f"Released — ${float(withdrawal.amount_usdt or 0):.2f} sent", "tx_hash": withdrawal.tx_hash or "", "status": withdrawal.status})
+        _gross = float(withdrawal.amount_usdt or 0)
+        _net = max(0.0, _gross - 1.0)
+        return JSONResponse({"success": True, "message": f"Released — ${_net:.2f} sent on-chain (net of $1 fee)", "net_amount": _net, "gross_amount": _gross, "tx_hash": withdrawal.tx_hash or "", "status": withdrawal.status})
     return JSONResponse({"success": False, "error": result.get("error", "Send failed"), "status": withdrawal.status}, status_code=400)
 
 
