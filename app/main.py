@@ -10602,6 +10602,83 @@ def admin_api_grid_topup_reversal(
     })
 
 
+@app.get("/admin/api/withdrawal-drain-audit")
+def admin_api_withdrawal_drain_audit(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only diagnosis of the TREASURY DRAIN SIGNAL watchdog alert.
+
+    The alert fires on unexplained = (baseline_treasury - current_treasury)
+    - (current_paid_wd_total - baseline_paid_wd_total). A treasury that fell $0
+    with a NEGATIVE newly_paid (paid-withdrawal total dropped) produces a phantom
+    'drain' equal to that drop — no USDT actually left. This dumps the secwatch
+    baselines, the live treasury read, the current paid-withdrawal total, and
+    every withdrawal row with its timestamps, so the drop can be traced to the
+    exact records and time. No writes."""
+    _require_admin(user)
+    from .database import Withdrawal
+    from sqlalchemy import func as _f
+
+    base_treasury = _secwatch_get(db, "secwatch_treasury_usdt", "")
+    base_paid_wd  = _secwatch_get(db, "secwatch_paid_wd_total", "")
+    last_tick     = _secwatch_get(db, "secwatch_last_tick_ts", "")
+
+    cur_paid_total = float(db.query(_f.coalesce(_f.sum(Withdrawal.amount_usdt), 0))
+                           .filter(Withdrawal.status == "paid").scalar() or 0)
+    cur_paid_count = db.query(Withdrawal).filter(Withdrawal.status == "paid").count()
+
+    cur_treasury = None
+    try:
+        from .walletconnect_payments import health_check as _bsc_health
+        cur_treasury = _bsc_health().get("treasury_usdt")
+    except Exception as e:
+        cur_treasury = f"read_failed: {e}"
+
+    by_status = dict(db.query(Withdrawal.status, _f.count(Withdrawal.id))
+                     .group_by(Withdrawal.status).all())
+
+    rows = (db.query(Withdrawal)
+            .order_by(Withdrawal.processed_at.desc().nullslast(),
+                      Withdrawal.requested_at.desc()).limit(60).all())
+    wd = [{
+        "id": w.id, "user_id": w.user_id, "amount_usdt": float(w.amount_usdt or 0),
+        "status": w.status, "network": w.network, "wallet_type": w.wallet_type,
+        "tx_hash": (w.tx_hash or "")[:24],
+        "requested_at": w.requested_at.isoformat() if w.requested_at else None,
+        "processed_at": w.processed_at.isoformat() if w.processed_at else None,
+        "notes": (w.notes or "")[:80],
+    } for w in rows]
+
+    baseline_minus_current = None
+    try:
+        baseline_minus_current = round(float(base_paid_wd) - cur_paid_total, 2)
+    except Exception:
+        pass
+
+    return JSONResponse({
+        "secwatch_baselines": {
+            "treasury_usdt": base_treasury, "paid_wd_total": base_paid_wd,
+            "last_tick_ts": last_tick,
+        },
+        "live_now": {
+            "treasury_usdt": cur_treasury,
+            "paid_withdrawal_total": round(cur_paid_total, 2),
+            "paid_withdrawal_count": cur_paid_count,
+        },
+        "baseline_paid_wd_minus_current": baseline_minus_current,
+        "withdrawals_by_status": {k: v for k, v in by_status.items()},
+        "recent_withdrawals": wd,
+        "note": ("If baseline_paid_wd_minus_current is positive, the paid-withdrawal "
+                 "total dropped by that amount since the baseline (records removed / "
+                 "status-changed / amounts reduced) — which is what the watchdog read as "
+                 "a 'drain' even though treasury_usdt did not fall. The watchdog "
+                 "re-baselines each successful tick, so the alert is one-time, not "
+                 "ongoing. Cross-check withdrawal processed_at timestamps against the "
+                 "alert time (2026-06-07T19:08:43Z) to identify the cause."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
@@ -30915,8 +30992,17 @@ def run_security_watch(db, dry=False):
             try:
                 drop        = float(base_treasury_raw) - float(cur_treasury)
                 newly_paid  = cur_paid_wd_total - float(base_paid_wd_raw)
-                unexplained = drop - newly_paid
-                if unexplained > _SECWATCH_TREASURY_DROP_USDT:
+                # A drain requires the treasury to actually FALL on-chain. A drop
+                # in the paid-withdrawal total (newly_paid < 0 — records voided,
+                # deleted, status-changed, or a stale re-baseline) is a bookkeeping
+                # change, NOT egress; clamp it to 0 so it can't inflate a phantom
+                # drain when no USDT left. And require drop>threshold so a tick
+                # where the treasury did not fall never alarms. A real on-chain
+                # drain still makes drop>0 and fires. (Fixes the 7-Jun false
+                # TREASURY DRAIN SIGNAL: treasury fell $0 but paid-wd total fell
+                # $687, yielding a phantom $687 "drain".)
+                unexplained = drop - max(0.0, newly_paid)
+                if drop > _SECWATCH_TREASURY_DROP_USDT and unexplained > _SECWATCH_TREASURY_DROP_USDT:
                     events.append(
                         f"<strong>TREASURY DRAIN SIGNAL</strong> \u2014 BSC treasury "
                         f"USDT fell ${drop:,.2f}; approved/paid withdrawals only "
