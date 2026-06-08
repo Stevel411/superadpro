@@ -10046,6 +10046,67 @@ def admin_api_stripe_charge_inspect(
     })
 
 
+@app.get("/admin/api/solvency-snapshot")
+def admin_api_solvency_snapshot(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only solvency picture: total member withdrawable liability
+    (affiliate balance + campaign_balance) vs treasury. Attacker accounts
+    (670,673,674) excluded. Company root (user 1) broken out separately so
+    'what we owe members' is clean. Treasury on-chain balance is reported
+    separately (fetched off-server) — this endpoint is the liability side.
+    """
+    _require_admin(user)
+    from .database import User as _U
+    from decimal import Decimal as _D
+
+    ATTACKERS = {670, 673, 674}
+    rows = db.query(_U.id, _U.username, _U.balance, _U.campaign_balance,
+                    _U.total_earned, _U.is_admin, _U.is_active).all()
+
+    def f(x): return float(x or 0)
+
+    member_bal = member_camp = 0.0
+    admin_bal = admin_camp = 0.0
+    holders = []
+    for r in rows:
+        if r.id in ATTACKERS:
+            continue
+        b = f(r.balance); c = f(r.campaign_balance)
+        if r.is_admin or r.id == 1:
+            admin_bal += b; admin_camp += c
+            continue
+        member_bal += b; member_camp += c
+        if (b + c) > 0:
+            holders.append({"user_id": r.id, "username": r.username,
+                            "balance": round(b, 2), "campaign_balance": round(c, 2),
+                            "withdrawable": round(b + c, 2)})
+
+    holders.sort(key=lambda h: -h["withdrawable"])
+    member_liability = round(member_bal + member_camp, 2)
+
+    return JSONResponse({
+        "member_withdrawable_liability": member_liability,
+        "_breakdown": {
+            "affiliate_balance_total": round(member_bal, 2),
+            "campaign_balance_total": round(member_camp, 2),
+        },
+        "company_root_user1": {
+            "balance": round(admin_bal, 2),
+            "campaign_balance": round(admin_camp, 2),
+            "total": round(admin_bal + admin_camp, 2),
+            "note": "Company's own retained share — not a liability to members.",
+        },
+        "members_with_positive_balance": len(holders),
+        "top_holders": holders[:25],
+        "attackers_excluded": sorted(ATTACKERS),
+        "note": ("Liability = what the platform owes members if all withdrew. "
+                 "Compare against treasury on-chain USDT + cold storage to size "
+                 "the float needed before lifting the withdrawal freeze."),
+    })
+
+
 @app.get("/admin/api/qualification-timing-check")
 def admin_api_qualification_timing_check(
     user: User = Depends(get_current_user),
