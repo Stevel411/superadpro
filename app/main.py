@@ -10046,6 +10046,179 @@ def admin_api_stripe_charge_inspect(
     })
 
 
+@app.get("/admin/api/grid-full-rebuild")
+def admin_api_grid_full_rebuild(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+):
+    """Authoritative grid-position rebuild from the FULL Stripe+NOWPayments
+    verified buyer set (69 tier-1, 6 tier-2, 1 tier-3), reconstructed from
+    Steve's own processor exports after the post-breach relational wipe.
+
+    Additive + silent + idempotent:
+      - seats each EXISTING buyer in every upline's grid at the tier, in
+        purchase-time order, ONLY where not already seated (preserves live and
+        previously-reconstructed positions; safe to re-run)
+      - composes the real engine primitives (get_or_create_active_grid +
+        _next_slot) so advance roll-over and slot order match live exactly
+      - when a grid reaches GRID_TOTAL it is completed SILENTLY: is_complete=True,
+        bonus_pool_accrued set to policy target, bonus_paid=True (so the boot
+        top-up migration can NEVER re-pay it). NO completion bonus, NO commission,
+        NO email -- historical bonuses were already paid/restored. Completions are
+        listed for separate audit.
+      - buyers whose user record no longer exists (deleted early test/churn
+        accounts) are skipped and reported
+      - sets owner_purchased=True on each real buyer's own grid
+    Dry-run default; ?apply=1&code=YOUR_2FA writes.
+    """
+    _require_admin(user)
+    from .database import (Grid, GridPosition, User as _User,
+                           GRID_PACKAGES as _PKG, GRID_TOTAL as _TOTAL)
+    from .grid import get_or_create_active_grid as _goc, _next_slot, _policy_bonus_target
+    from datetime import datetime as _dt
+    from decimal import Decimal as _Dec
+    from collections import defaultdict as _dd
+    import pyotp
+
+    BUYERS = {451: [1], 527: [1], 440: [1], 287: [1], 319: [1], 627: [1], 151: [1, 2], 449: [1], 504: [1], 285: [1], 550: [1], 183: [1, 2, 3], 252: [1], 521: [1], 378: [1], 517: [1], 532: [1], 510: [1], 355: [1], 469: [1], 219: [1], 492: [1], 489: [1], 482: [1], 354: [1], 473: [1], 424: [1], 455: [1], 324: [1], 432: [1], 189: [1], 420: [1], 268: [1], 191: [1], 349: [1, 2], 427: [1], 412: [1], 408: [1], 398: [1], 397: [1], 350: [1], 386: [1], 389: [1], 323: [1], 224: [1], 491: [1], 329: [1], 522: [1], 343: [1, 2], 264: [1, 2], 393: [1], 385: [1], 382: [1], 367: [1], 158: [1], 307: [1], 211: [1], 154: [1], 202: [1], 204: [1], 194: [1], 177: [1], 157: [1, 2], 166: [1], 165: [1], 163: [1], 161: [1], 160: [1], 159: [1]}
+    TS = {'451_1': '2026-06-07T19:00:58', '527_1': '2026-06-03T04:25:22', '440_1': '2026-06-02T19:56:01', '287_1': '2026-06-02T18:35:36', '319_1': '2026-06-01T19:36:40', '627_1': '2026-06-01T17:51:02', '151_2': '2026-05-31T06:37:06', '151_1': '2026-05-30T21:43:45', '449_1': '2026-05-31T00:05:36', '504_1': '2026-05-30T21:27:25', '285_1': '2026-05-29T00:03:41', '550_1': '2026-05-28T23:40:10', '183_2': '2026-05-28T18:54:46', '183_1': '2026-05-28T18:43:45', '252_1': '2026-05-28T18:36:22', '521_1': '2026-05-28T14:48:30', '378_1': '2026-05-28T14:35:14', '517_1': '2026-05-28T12:53:04', '532_1': '2026-05-28T09:58:31', '510_1': '2026-05-28T00:38:12', '355_1': '2026-05-27T21:56:45', '469_1': '2026-05-27T18:43:03', '219_1': '2026-05-27T16:45:41', '492_1': '2026-05-27T16:37:15', '489_1': '2026-05-27T16:03:51', '482_1': '2026-05-27T12:41:49', '354_1': '2026-05-27T08:30:57', '473_1': '2026-05-27T07:30:24', '424_1': '2026-05-26T22:33:02', '455_1': '2026-05-26T22:11:30', '324_1': '2026-05-26T19:57:14', '432_1': '2026-05-26T13:29:58', '189_1': '2026-05-26T13:14:07', '420_1': '2026-05-26T10:35:57', '268_1': '2026-05-26T09:37:42', '191_1': '2026-05-26T06:48:24', '349_2': '2026-05-26T06:14:04', '349_1': '2026-05-25T12:54:10', '427_1': '2026-05-26T04:27:43', '412_1': '2026-05-25T22:28:52', '408_1': '2026-05-25T21:30:39', '398_1': '2026-05-25T18:39:06', '397_1': '2026-05-25T18:22:56', '350_1': '2026-05-25T16:52:15', '386_1': '2026-05-25T14:59:46', '389_1': '2026-05-25T14:39:45', '323_1': '2026-05-24T14:03:19', '224_1': '2026-05-18T08:22:00', '491_1': '2026-05-28T21:07:00', '329_1': '2026-05-27T06:56:00', '522_1': '2026-05-28T08:39:00', '343_2': '2026-05-26T06:42:00', '343_1': '2026-05-22T22:22:00', '264_2': '2026-05-26T06:36:00', '264_1': '2026-05-15T16:10:00', '393_1': '2026-05-25T21:58:00', '385_1': '2026-05-25T11:31:00', '382_1': '2026-05-25T09:23:00', '367_1': '2026-05-24T11:00:00', '158_1': '2026-05-20T14:45:00', '307_1': '2026-05-20T04:32:00', '211_1': '2026-05-17T20:37:00', '154_1': '2026-05-16T21:17:00', '202_1': '2026-05-12T14:46:00', '204_1': '2026-05-12T13:33:00', '194_1': '2026-05-12T12:22:00', '177_1': '2026-05-11T23:08:00', '157_2': '2026-05-11T02:12:00', '157_1': '2026-05-11T01:35:00', '166_1': '2026-05-06T14:13:00', '165_1': '2026-05-06T13:24:00', '163_1': '2026-04-29T15:09:00', '161_1': '2026-04-28T16:17:00', '160_1': '2026-04-28T13:51:00', '159_1': '2026-04-28T13:17:00', '183_3': '2026-05-28T18:54:46'}
+
+    urows = db.query(_User.id, _User.sponsor_id, _User.created_at).all()
+    sponsor_of = {r.id: r.sponsor_id for r in urows}
+    created_of = {r.id: r.created_at for r in urows}
+    exists = set(sponsor_of.keys())
+
+    def ev_ts(uid, tier):
+        k = "%s_%s" % (uid, tier)
+        if k in TS:
+            try: return _dt.fromisoformat(TS[k])
+            except Exception: pass
+        return created_of.get(uid) or _dt(2026, 5, 15)
+
+    # ordered purchase events; skip buyers whose user record is gone
+    events = []
+    skipped = []
+    for uid, tiers in BUYERS.items():
+        if uid not in exists:
+            skipped.append(uid); continue
+        for t in tiers:
+            events.append((ev_ts(uid, t), uid, t))
+    events.sort(key=lambda x: x[0])
+
+    def chain(uid):
+        out = []; cur = uid; seen = set()
+        while True:
+            sp = sponsor_of.get(cur)
+            if not sp or sp in seen: break
+            seen.add(sp)
+            if sp != uid: out.append(sp)
+            cur = sp
+        return out
+
+    # existing seating snapshot: (owner_id, tier, buyer_id)
+    existing = set()
+    cur_owner_fill = _dd(lambda: _dd(int))   # owner -> tier -> current seat count
+    for gp, g in (db.query(GridPosition, Grid)
+                  .join(Grid, GridPosition.grid_id == Grid.id).all()):
+        existing.add((g.owner_id, g.package_tier, gp.member_id))
+        cur_owner_fill[g.owner_id][g.package_tier] += 1
+
+    add_fill = _dd(lambda: _dd(int))         # owner -> tier -> seats this rebuild adds
+    to_add = []                               # (owner, tier, buyer) ordered
+    for ts, uid, tier in events:
+        for owner in chain(uid):
+            if owner not in exists: continue
+            key = (owner, tier, uid)
+            if key in existing: continue
+            existing.add(key)
+            add_fill[owner][tier] += 1
+            to_add.append((owner, tier, uid))
+
+    # projection per owner+tier
+    owners = sorted(set(list(add_fill.keys()) + [o for o in cur_owner_fill]))
+    def proj(owner, tier):
+        cur = cur_owner_fill[owner][tier]; add = add_fill[owner][tier]
+        tot = cur + add
+        return cur, add, tot, (tot // _TOTAL), (tot % _TOTAL)
+
+    # ---- APPLY gate ----
+    will_apply = False
+    if apply == 1:
+        sec = getattr(user, "totp_secret", None)
+        if not sec or not code or not pyotp.TOTP(sec).verify(code, valid_window=1):
+            return JSONResponse({"error": "2FA required/invalid for apply"}, status_code=403)
+        will_apply = True
+
+    completions = []
+    if will_apply:
+        # set owner_purchased on each existing buyer's own grid
+        for uid, tiers in BUYERS.items():
+            if uid not in exists: continue
+            for t in tiers:
+                og = _goc(db, uid, t)
+                if not og.owner_purchased:
+                    og.owner_purchased = True
+        db.flush()
+        # seat additions in order, composing real primitives, silent completion
+        for owner, tier, buyer in to_add:
+            grid = _goc(db, owner, tier)
+            lvl, pos = _next_slot(db, grid)
+            if lvl is None:
+                grid.is_complete = True
+                grid.bonus_pool_accrued = _Dec(str(_policy_bonus_target(tier)))
+                grid.bonus_paid = True
+                completions.append({"owner": owner, "tier": tier, "grid_id": grid.id})
+                db.flush()
+                grid = _goc(db, owner, tier)
+                lvl, pos = _next_slot(db, grid)
+            db.add(GridPosition(grid_id=grid.id, member_id=buyer,
+                                grid_level=lvl, position_num=pos, is_overspill=True))
+            grid.positions_filled = (grid.positions_filled or 0) + 1
+            grid.revenue_total = _Dec(str(grid.revenue_total or 0)) + _Dec(str(_PKG[tier]))
+            if grid.positions_filled >= _TOTAL and not grid.is_complete:
+                grid.is_complete = True
+                grid.bonus_pool_accrued = _Dec(str(_policy_bonus_target(tier)))
+                grid.bonus_paid = True
+                completions.append({"owner": owner, "tier": tier, "grid_id": grid.id})
+            db.flush()
+        db.commit()
+
+    # ---- report ----
+    u1 = proj(1, 1)
+    report_owners = []
+    for owner in owners:
+        for tier in (1, 2, 3):
+            if add_fill[owner][tier] or cur_owner_fill[owner][tier]:
+                cur, add, tot, adv, part = proj(owner, tier)
+                if add:  # only show owners we change
+                    report_owners.append({"owner": owner, "tier": tier,
+                        "current_seats": cur, "added": add, "projected_total": tot,
+                        "completed_advances": adv, "partial_fill": part})
+    report_owners.sort(key=lambda r: -r["added"])
+
+    return JSONResponse({
+        "mode": "APPLIED" if will_apply else "dry_run",
+        "buyers_in_set": len(BUYERS),
+        "skipped_nonexistent_buyers": sorted(skipped),
+        "total_seats_to_add": len(to_add),
+        "owners_touched": len(set(o for o, _, _ in to_add)),
+        "completions_during_rebuild": completions if will_apply else "n/a (dry-run)",
+        "reconciliation": {
+            "user1_tier1_current": u1[0], "user1_tier1_added": u1[1],
+            "user1_tier1_projected": u1[2], "survived_target": 72,
+            "user1_tier1_completed_advances": u1[3], "user1_tier1_partial": u1[4],
+            "user1_tier2_projected": proj(1, 2)[2], "tier2_survived_target": 7,
+        },
+        "owners_changed": report_owners,
+        "note": ("Dry-run mutates nothing. Apply seats every missing existing "
+                 "buyer additively in purchase order, silently completing grids "
+                 "(no bonus/commission/email), and flags completions for audit. "
+                 "?apply=1&code=YOUR_2FA"),
+    })
+
+
 @app.get("/admin/api/grid-position-replay")
 def admin_api_grid_position_replay(
     user: User = Depends(get_current_user),
