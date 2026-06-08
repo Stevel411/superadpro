@@ -4607,6 +4607,119 @@ def admin_member_liability(user: User = Depends(get_current_user), db: Session =
     }
 
 
+@app.get("/admin/api/user-billing-history")
+def admin_user_billing_history(user_id: int, request: Request,
+                                user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
+    """Complete billing/payment history for one member — the gap that
+    lookup_user and user-fulfillment leave open.
+
+    Those two read only the legacy Payment table, which is blind to Stripe
+    (card memberships/tiers write StripeCharge rows, not Payment rows) and to
+    the comp/gift activation flags. This aggregates every billing surface so a
+    'how did this member actually pay?' question has one authoritative read:
+      - membership snapshot incl. payment_method, founding/gift/first-payment
+        flags, Stripe customer/subscription linkage
+      - StripeCharge rows (the real card charges + refunds/chargebacks)
+      - WalletConnect (BSC) and NOWPayments crypto orders
+      - legacy Payment rows
+
+    Note: StripeCharge is the platform's MIRROR of Stripe, written by webhook.
+    If the webhook ever missed an event the mirror can lag — Stripe itself
+    (dashboard, by email) remains the ultimate source of truth. stripe_*_id
+    fields here let you cross-check there.
+    """
+    _require_admin(user)
+    from .database import (User as _U, StripeCharge as _SC,
+                           WalletConnectPaymentOrder as _WC,
+                           NowPaymentsOrder as _NP, Payment as _P)
+    m = db.query(_U).filter(_U.id == user_id).first()
+    if not m:
+        return JSONResponse({"error": "user not found", "user_id": user_id}, status_code=404)
+
+    def _iso(d):
+        return d.isoformat() if d else None
+
+    charges = db.query(_SC).filter(_SC.user_id == user_id).order_by(_SC.created_at.desc()).all()
+    wc = db.query(_WC).filter(_WC.user_id == user_id).order_by(_WC.created_at.desc()).all()
+    np = db.query(_NP).filter(_NP.user_id == user_id).order_by(_NP.created_at.desc()).all()
+    pays = db.query(_P).filter(_P.from_user_id == user_id).order_by(_P.created_at.desc()).all()
+
+    stripe_charge_total_cents = sum((c.amount_cents or 0) for c in charges if c.kind == "charge")
+
+    # Plain-language verdict on how the membership came to be active.
+    if m.membership_activated_by_referral:
+        how = "first month GIFTED via referral (sponsor's gift) — not a self-payment"
+    elif charges:
+        how = "paid via Stripe (card) — see stripe_charges below"
+    elif any(o.status in ("confirmed", "finished") for o in wc):
+        how = "paid via WalletConnect/BSC crypto — see walletconnect_orders"
+    elif any(o.status in ("confirmed", "finished") for o in np):
+        how = "paid via NOWPayments crypto — see nowpayments_orders"
+    elif m.is_founding_member:
+        how = ("no payment record on any rail despite founding status — almost "
+               "certainly an admin-comped founding spot (verify against Stripe "
+               "dashboard by email to be 100% sure)")
+    else:
+        how = "no payment record found on any rail"
+
+    return {
+        "user_id": m.id,
+        "username": m.username,
+        "email": m.email,
+        "how_membership_was_paid": how,
+        "membership": {
+            "tier": m.membership_tier,
+            "is_active": bool(m.is_active),
+            "is_founding_member": bool(m.is_founding_member),
+            "founding_spot_number": m.founding_spot_number,
+            "price_locked_usd": float(m.membership_price_locked) if m.membership_price_locked is not None else None,
+            "billing": m.membership_billing,
+            "payment_method": m.payment_method,
+            "membership_activated_by_referral_gift": bool(m.membership_activated_by_referral),
+            "first_payment_to_company": bool(getattr(m, "first_payment_to_company", False)),
+            "activated_at": _iso(m.activated_at),
+            "membership_expires_at": _iso(m.membership_expires_at),
+            "stripe_customer_id": m.stripe_customer_id,
+            "stripe_subscription_id": m.stripe_subscription_id,
+            "stripe_refund_eligible_until": _iso(m.stripe_refund_eligible_until),
+        },
+        "stripe_charges": [{
+            "id": c.id, "kind": c.kind, "product": c.product,
+            "amount_usd": round((c.amount_cents or 0) / 100.0, 2),
+            "currency": c.currency, "created_at": _iso(c.created_at),
+            "stripe_charge_id": c.stripe_charge_id,
+            "stripe_payment_intent_id": c.stripe_payment_intent_id,
+            "stripe_subscription_id": c.stripe_subscription_id,
+            "description": c.description,
+        } for c in charges],
+        "stripe_charge_net_usd": round(stripe_charge_total_cents / 100.0, 2),
+        "walletconnect_orders": [{
+            "id": o.id, "product_key": o.product_key, "status": o.status,
+            "base_amount": float(o.base_amount), "unique_amount": float(o.unique_amount),
+            "tx_hash": o.tx_hash, "confirmed_at": _iso(o.confirmed_at), "created_at": _iso(o.created_at),
+        } for o in wc],
+        "nowpayments_orders": [{
+            "id": o.id, "product_key": o.product_key, "status": o.status,
+            "price_usd": float(o.price_usd) if o.price_usd is not None else None,
+            "pay_currency": o.pay_currency,
+            "actually_paid": float(o.actually_paid) if o.actually_paid is not None else None,
+            "confirmed_at": _iso(o.confirmed_at), "created_at": _iso(o.created_at),
+        } for o in np],
+        "legacy_payments": [{
+            "id": p.id, "type": p.payment_type, "status": p.status,
+            "amount_usdt": float(p.amount_usdt) if p.amount_usdt is not None else None,
+            "tx_hash": p.tx_hash, "created_at": _iso(p.created_at),
+        } for p in pays],
+        "counts": {
+            "stripe_charges": len(charges),
+            "walletconnect_orders": len(wc),
+            "nowpayments_orders": len(np),
+            "legacy_payments": len(pays),
+        },
+    }
+
+
 @app.get("/admin/finances", response_class=HTMLResponse)
 def admin_finances_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Human-readable finance dashboard for Steve.
