@@ -10398,6 +10398,120 @@ def admin_api_grid_root_restore(
     })
 
 
+@app.get("/admin/api/tier-buyer-census")
+def admin_api_tier_buyer_census(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only census of every surviving data source that records a
+    campaign-grid (tier) purchase. After the relational-layer wipe we need to
+    know which source can rebuild the FULL buyer set — the surviving user-1
+    grid counter says ~72 tier-1 buyers existed but only 28 were rebuilt from
+    Stripe+NOWPayments, so the WalletConnect/BSC self-custody buyers are
+    missing. This dump tells us whether their canonical records (confirmed WC
+    grid orders) survived, or whether we must reconstruct from on-chain
+    treasury inflows. Aggregate counts + histograms + date ranges only. No PII,
+    no writes."""
+    _require_admin(user)
+    from .database import (Payment, VideoCampaign, Grid,
+                           WalletConnectPaymentOrder, OnchainOrphanTransfer,
+                           StripeCharge, User as _User)
+    from sqlalchemy import func as _f
+    out = {}
+
+    # --- WalletConnect self-custody orders (the suspected-wiped crypto rail) ---
+    wc_total = db.query(WalletConnectPaymentOrder).count()
+    wc_by = (db.query(WalletConnectPaymentOrder.status,
+                      WalletConnectPaymentOrder.product_type,
+                      _f.count(WalletConnectPaymentOrder.id))
+             .group_by(WalletConnectPaymentOrder.status,
+                       WalletConnectPaymentOrder.product_type).all())
+    wc_grid_confirmed = (db.query(WalletConnectPaymentOrder)
+                         .filter(WalletConnectPaymentOrder.status == "confirmed",
+                                 WalletConnectPaymentOrder.product_type == "grid")
+                         .order_by(WalletConnectPaymentOrder.confirmed_at.asc()).all())
+    wc_dates = db.query(_f.min(WalletConnectPaymentOrder.created_at),
+                        _f.max(WalletConnectPaymentOrder.created_at)).first()
+    out["walletconnect_orders"] = {
+        "total": wc_total,
+        "by_status_product": [{"status": s, "product_type": p, "count": c} for (s, p, c) in wc_by],
+        "confirmed_grid_count": len(wc_grid_confirmed),
+        "confirmed_grid_orders": [
+            {"user_id": o.user_id, "product_key": o.product_key,
+             "base_amount": float(o.base_amount or 0),
+             "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None}
+            for o in wc_grid_confirmed],
+        "created_at_min": wc_dates[0].isoformat() if wc_dates and wc_dates[0] else None,
+        "created_at_max": wc_dates[1].isoformat() if wc_dates and wc_dates[1] else None,
+    }
+
+    # --- Orphan treasury transfers (unmatched on-chain inflows) ---
+    orph_total = db.query(OnchainOrphanTransfer).count()
+    orph_unresolved = db.query(OnchainOrphanTransfer).filter(OnchainOrphanTransfer.resolved == False).count()
+    orph_dates = db.query(_f.min(OnchainOrphanTransfer.seen_at), _f.max(OnchainOrphanTransfer.seen_at)).first()
+    out["orphan_transfers"] = {
+        "total": orph_total, "unresolved": orph_unresolved,
+        "seen_at_min": orph_dates[0].isoformat() if orph_dates and orph_dates[0] else None,
+        "seen_at_max": orph_dates[1].isoformat() if orph_dates and orph_dates[1] else None,
+    }
+
+    # --- VideoCampaign rows (rail-independent tier-ownership signal) ---
+    vc_total = db.query(VideoCampaign).count()
+    vc_distinct_users = db.query(VideoCampaign.user_id).distinct().count()
+    vc_by_tier = (db.query(VideoCampaign.campaign_tier, _f.count(VideoCampaign.id))
+                  .group_by(VideoCampaign.campaign_tier).order_by(VideoCampaign.campaign_tier).all())
+    vc_dates = db.query(_f.min(VideoCampaign.created_at), _f.max(VideoCampaign.created_at)).first()
+    out["video_campaigns"] = {
+        "total": vc_total, "distinct_users": vc_distinct_users,
+        "by_campaign_tier": [{"tier": t, "count": c} for (t, c) in vc_by_tier],
+        "created_at_min": vc_dates[0].isoformat() if vc_dates and vc_dates[0] else None,
+        "created_at_max": vc_dates[1].isoformat() if vc_dates and vc_dates[1] else None,
+    }
+
+    # --- payments table (generic incoming) ---
+    pay_total = db.query(Payment).count()
+    pay_by = (db.query(Payment.payment_type, Payment.status, _f.count(Payment.id))
+              .group_by(Payment.payment_type, Payment.status).all())
+    out["payments"] = {
+        "total": pay_total,
+        "by_type_status": [{"payment_type": pt, "status": st, "count": c} for (pt, st, c) in pay_by],
+    }
+
+    # --- stripe_charges (campaign_tier = the Stripe-rail tier buys we DID capture) ---
+    sc_total = db.query(StripeCharge).count()
+    sc_tier = (db.query(StripeCharge.kind, _f.count(StripeCharge.id))
+               .filter(StripeCharge.product == "campaign_tier")
+               .group_by(StripeCharge.kind).all())
+    out["stripe_charges"] = {
+        "total": sc_total,
+        "campaign_tier_by_kind": [{"kind": k, "count": c} for (k, c) in sc_tier],
+    }
+
+    # --- users with a stored wallet_address (needed for on-chain attribution) ---
+    users_total = db.query(_User).count()
+    users_with_wallet = db.query(_User).filter(_User.wallet_address.isnot(None),
+                                               _User.wallet_address != "").count()
+    out["users"] = {"total": users_total, "with_wallet_address": users_with_wallet}
+
+    # --- grids actually present (owner_purchased = real tier owners after rebuild) ---
+    grids_total = db.query(Grid).count()
+    grid_owner_purchased = (db.query(Grid.package_tier, _f.count(Grid.id))
+                            .filter(Grid.owner_purchased == True)
+                            .group_by(Grid.package_tier).order_by(Grid.package_tier).all())
+    out["grids"] = {
+        "total": grids_total,
+        "owner_purchased_by_tier": [{"tier": t, "count": c} for (t, c) in grid_owner_purchased],
+    }
+
+    out["_note"] = ("Decision key: if walletconnect_orders.confirmed_grid_count is "
+                    "substantial, those rows ARE the missing crypto tier buyers "
+                    "(user_id + tier, directly). If ~0, the WC grid rows were wiped and we "
+                    "reconstruct from orphan_transfers + on-chain treasury scan, "
+                    "attributing via users.with_wallet_address.")
+
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/grid-root-audit")
 def admin_api_grid_root_audit(
     user: User = Depends(get_current_user),
