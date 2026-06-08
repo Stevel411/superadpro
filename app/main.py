@@ -10398,6 +10398,100 @@ def admin_api_grid_root_restore(
     })
 
 
+@app.get("/admin/api/missing-tier-owners")
+def admin_api_missing_tier_owners(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only. Identify wiped campaign-tier (grid) buyers by the one signal
+    the wipe could not touch and that no other product can forge: survived
+    per-user grid earnings.
+
+    Verified in grid.py: User.grid_earnings and User.level_earnings are
+    incremented ONLY inside the grid commission functions (_pay_direct_sponsor,
+    _pay_unilevel_chain, spillover fill, completion bonus). Membership, Nexus
+    credit_matrix, PIF and course commissions credit different counters. And
+    per _user_is_qualified, a member can only RECEIVE a grid/level commission if
+    they own an active (purchased) Grid at that tier. Therefore:
+        grid_earnings>0 OR level_earnings>0 OR bonus_earnings>0
+        => the member owned a grid tier, regardless of payment rail.
+
+    This lists such members who currently have NO owner_purchased Grid — i.e.
+    real tier buyers whose Grid row was wiped (overwhelmingly the BSC/
+    WalletConnect rail, whose order records are gone). Earnings only catch
+    buyers who earned (had a downline purchase); pure leaf buyers who never
+    earned are surfaced as a reconciliation residual, not named here.
+    No writes."""
+    _require_admin(user)
+    from .database import User as _User, Grid, GridPosition, VideoCampaign
+    from sqlalchemy import or_ as _or
+
+    def _f2(v):
+        try: return float(v or 0)
+        except Exception: return 0.0
+
+    # current real owners (owner_purchased), by tier
+    owned = {}
+    for g in db.query(Grid).filter(Grid.owner_purchased == True).all():  # noqa: E712
+        owned.setdefault(g.owner_id, set()).add(g.package_tier)
+
+    # video campaign tier per user (independent qualification + tier hint)
+    vc_tier = {}
+    for vc in db.query(VideoCampaign).all():
+        vc_tier[vc.user_id] = max(vc_tier.get(vc.user_id, 0), vc.campaign_tier or 1)
+
+    earners = db.query(_User).filter(
+        _User.is_admin == False,  # noqa: E712
+        _or(_User.grid_earnings > 0, _User.level_earnings > 0, _User.bonus_earnings > 0),
+    ).all()
+
+    missing, already = [], []
+    for u in earners:
+        rec = {
+            "user_id": u.id, "username": u.username,
+            "grid_earnings": _f2(getattr(u, "grid_earnings", 0)),
+            "level_earnings": _f2(getattr(u, "level_earnings", 0)),
+            "bonus_earnings": _f2(getattr(u, "bonus_earnings", 0)),
+            "total_earned": _f2(getattr(u, "total_earned", 0)),
+            "sponsor_id": getattr(u, "sponsor_id", None),
+            "has_video_campaign": u.id in vc_tier,
+            "vc_tier": vc_tier.get(u.id),
+            "has_wallet": bool((getattr(u, "wallet_address", None) or "").strip()),
+            "seated_positions": db.query(GridPosition).filter(GridPosition.member_id == u.id).count(),
+        }
+        if u.id in owned:
+            rec["owns_tiers"] = sorted(owned[u.id])
+            already.append(rec)
+        else:
+            rec["inferred_tier"] = vc_tier.get(u.id, 1)
+            missing.append(rec)
+
+    missing.sort(key=lambda r: -(r["grid_earnings"] + r["level_earnings"] + r["bonus_earnings"]))
+
+    miss_by_tier = {}
+    for r in missing:
+        miss_by_tier[r["inferred_tier"]] = miss_by_tier.get(r["inferred_tier"], 0) + 1
+    cur_t1 = sum(1 for ts in owned.values() if 1 in ts)
+    cur_t2 = sum(1 for ts in owned.values() if 2 in ts)
+    cur_t3 = sum(1 for ts in owned.values() if 3 in ts)
+
+    return JSONResponse({
+        "earners_total": len(earners),
+        "already_owner_purchased": len(already),
+        "missing_owner_count": len(missing),
+        "missing_by_inferred_tier": miss_by_tier,
+        "current_owner_purchased": {"tier1": cur_t1, "tier2": cur_t2, "tier3": cur_t3},
+        "reconciliation": {
+            "survived_user1_tier1_seats": 72,
+            "current_t1_owners_plus_missing_t1": cur_t1 + miss_by_tier.get(1, 0),
+            "note": ("If current_t1_owners_plus_missing_t1 lands at/near 72, the named "
+                     "missing owners ARE the wiped tier-1 buyers. A residual below 72 = "
+                     "leaf buyers who earned nothing (close via member self-ID)."),
+        },
+        "missing_owners": missing,
+    })
+
+
 @app.get("/admin/api/tier-buyer-census")
 def admin_api_tier_buyer_census(
     user: User = Depends(get_current_user),
