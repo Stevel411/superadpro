@@ -10679,6 +10679,152 @@ def admin_api_withdrawal_drain_audit(
     })
 
 
+@app.get("/admin/api/seat-member")
+def admin_api_seat_member(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    member_id: int = 451,
+    tier: int = 1,
+    apply: int = 0,
+    code: str = "",
+):
+    """Seat one member into their upline grids for a tier they bought — the
+    placement the live flow should have made but didn't.
+
+    Use case: 451 (stevenh) bought tier 1 post-reopen while his sponsor_id was
+    still null (mid sponsor-recovery), so _spillover_fill walked an empty chain
+    and seated him nowhere. With the tree now restored (451 -> 432 -> 349 -> ...),
+    this walks his sponsor chain and seats him in each ancestor's ACTIVE grid at
+    the tier, at the next open slot, idempotently (skips any grid where he is
+    already seated). It marks the member's OWN grid owner_purchased=True.
+
+    Surgical and safe: positions only — NO commissions fire (his were already
+    paid at purchase). It recomputes positions_filled/revenue_total/bonus_pool
+    ONLY for the active grids it touches, and NEVER touches a completed grid's
+    bonus pool (the mistake that triggered the retroactive-topup cascade).
+    Dry-run by default; ?apply=1&code=YOUR_2FA writes."""
+    _require_admin(user)
+    from .database import (Grid, GridPosition, User as _User,
+                           GRID_PACKAGES as _PKG, GRID_TOTAL as _TOTAL,
+                           GRID_WIDTH as _W, BONUS_POOL_PCT as _BPCT)
+    from .grid import _policy_bonus_target
+    from decimal import Decimal as _Dec
+    import pyotp
+
+    if tier not in _PKG:
+        return JSONResponse({"error": f"unknown tier {tier}"}, status_code=400)
+    m = db.query(_User).filter(_User.id == member_id).first()
+    if not m:
+        return JSONResponse({"error": f"member {member_id} not found"}, status_code=404)
+
+    sponsor_of = {r.id: r.sponsor_id for r in db.query(_User.id, _User.sponsor_id).all()}
+    uname_of   = {r.id: r.username for r in db.query(_User.id, _User.username).all()}
+
+    def _active_grid(owner):
+        return (db.query(Grid).filter(Grid.owner_id == owner, Grid.package_tier == tier,
+                                      Grid.is_complete == False)
+                .order_by(Grid.advance_number.asc(), Grid.id.asc()).first())
+
+    # walk the member's upline chain
+    chain, seen, cur = [], set(), member_id
+    while True:
+        anc = sponsor_of.get(cur)
+        if not anc or anc in seen:
+            break
+        seen.add(anc)
+        chain.append(anc)
+        cur = anc
+
+    plan = []
+    for anc in chain:
+        g = _active_grid(anc)
+        already = False
+        slot_idx = 0
+        if g:
+            already = db.query(GridPosition).filter(
+                GridPosition.grid_id == g.id, GridPosition.member_id == member_id).count() > 0
+            slot_idx = db.query(GridPosition).filter(GridPosition.grid_id == g.id).count()
+        plan.append({
+            "upline_id": anc, "username": uname_of.get(anc),
+            "grid_id": g.id if g else None,
+            "grid_will_be_created": g is None,
+            "already_seated": already,
+            "seat_at_level": (slot_idx // _W + 1) if not already else None,
+            "seat_at_position": (slot_idx % _W + 1) if not already else None,
+        })
+    to_seat = [p for p in plan if not p["already_seated"]]
+
+    own = _active_grid(member_id)
+    own_state = {"grid_id": own.id if own else None,
+                 "owner_purchased_now": bool(own.owner_purchased) if own else None,
+                 "will_set_owner_purchased": bool(own and not own.owner_purchased)}
+
+    if not apply:
+        return JSONResponse({
+            "mode": "dry_run", "member_id": member_id,
+            "member_username": uname_of.get(member_id), "tier": tier,
+            "upline_chain": [{"id": a, "username": uname_of.get(a)} for a in chain],
+            "seats_to_add": len(to_seat),
+            "placement_plan": plan,
+            "own_grid": own_state,
+            "note": ("Dry-run — nothing written. Apply seats the member in each upline's "
+                     "active grid (skipping any where already seated), sets the member's own "
+                     "grid owner_purchased=True, and recomputes ONLY the touched active grids' "
+                     "counters from actual rows. No commissions fire. Completed grids are "
+                     "never touched. ?apply=1&code=YOUR_2FA."),
+        })
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?code=NNNNNN"}, status_code=403)
+
+    touched_grids = set()
+    seated = 0
+    for anc in chain:
+        g = _active_grid(anc)
+        if not g:
+            g = Grid(owner_id=anc, package_tier=tier, package_price=_PKG.get(tier, 0),
+                     advance_number=1, positions_filled=0, revenue_total=0,
+                     bonus_pool_accrued=0, is_complete=False, owner_purchased=False)
+            db.add(g); db.flush()
+        if db.query(GridPosition).filter(GridPosition.grid_id == g.id,
+                                         GridPosition.member_id == member_id).count() == 0:
+            idx = db.query(GridPosition).filter(GridPosition.grid_id == g.id).count()
+            db.add(GridPosition(grid_id=g.id, member_id=member_id,
+                                grid_level=idx // _W + 1, position_num=idx % _W + 1,
+                                is_overspill=True))
+            seated += 1
+        touched_grids.add(g.id)
+
+    own = _active_grid(member_id)
+    if own and not own.owner_purchased:
+        own.owner_purchased = True
+        touched_grids.add(own.id)
+    db.flush()
+
+    # recompute ONLY the touched ACTIVE grids from actual rows (never completed)
+    for gid in touched_grids:
+        g = db.query(Grid).filter(Grid.id == gid).first()
+        if not g or g.is_complete:
+            continue
+        cnt = db.query(GridPosition).filter(GridPosition.grid_id == gid).count()
+        price = _Dec(str(_PKG.get(g.package_tier, 0)))
+        g.positions_filled = cnt
+        g.revenue_total = price * cnt
+        target = _Dec(str(_policy_bonus_target(g.package_tier)))
+        accrued = (price * cnt) * _Dec(str(_BPCT))
+        g.bonus_pool_accrued = min(target, accrued) if target > 0 else accrued
+    db.commit()
+
+    return JSONResponse({
+        "mode": "applied", "member_id": member_id, "tier": tier,
+        "seats_added": seated, "grids_touched": len(touched_grids),
+        "note": ("Member seated into upline grids; own grid marked purchased. No "
+                 "commissions fired; no completed grid touched."),
+    })
+
+
 @app.get("/admin/api/member-entitlement")
 def admin_api_member_entitlement(
     user: User = Depends(get_current_user),
