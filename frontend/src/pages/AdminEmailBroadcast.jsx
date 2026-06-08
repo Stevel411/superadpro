@@ -263,6 +263,7 @@ function ComposeTab() {
   var [showPreview, setShowPreview] = useState(false);
   var [sending, setSending] = useState(false);
   var [result, setResult] = useState(null);
+  var [pollTick, setPollTick] = useState(0);
   var [confirmText, setConfirmText] = useState('');
 
   // Resolve audience count whenever filter changes
@@ -312,9 +313,12 @@ function ComposeTab() {
       test_only: !!testOnly,
     })
       .then(function(d) {
+        // Send now runs in the background and returns instantly with
+        // status:"sending". The poll effect below tracks live progress via
+        // /admin/api/broadcast/{id} until status is completed/failed.
         setResult({ ok: true, ...d });
         if (!testOnly) {
-          // Clear the composer on successful real send
+          // Clear the composer — the send is committed and queued server-side.
           setSubject('');
           setBody('');
           setConfirmText('');
@@ -325,6 +329,32 @@ function ComposeTab() {
       })
       .finally(function() { setSending(false); });
   }
+
+  // Live progress: while a backgrounded broadcast is sending, poll its row
+  // every 3s and fold sent/failed/status into result. pollTick in the deps +
+  // the finally bump keep the loop alive through transient poll errors; the
+  // status guard stops it once the row is completed/failed.
+  useEffect(function() {
+    if (!result || !result.ok || !result.broadcast_id || result.status !== 'sending') return;
+    var t = setTimeout(function() {
+      apiGet('/admin/api/broadcast/' + result.broadcast_id)
+        .then(function(d) {
+          setResult(function(prev) {
+            if (!prev) return prev;
+            return Object.assign({}, prev, {
+              sent: d.sent_count,
+              failed: d.failed_count,
+              recipient_count: d.recipient_count,
+              status: d.status,
+              error: d.error_message || prev.error,
+            });
+          });
+        })
+        .catch(function() { /* transient — re-tick below */ })
+        .finally(function() { setPollTick(function(n) { return n + 1; }); });
+    }, 3000);
+    return function() { clearTimeout(t); };
+  }, [result, pollTick]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
@@ -420,33 +450,56 @@ function ComposeTab() {
           {sending ? `Sending to ${audienceCount || '…'} members…` : `Send to ${audienceCount == null ? '…' : audienceCount} members`}
         </button>
 
-        {result && (
+        {result && (() => {
+          var st = result.ok ? (result.status || 'completed') : 'error';
+          var tone = (st === 'completed') ? { bg: '#dcfce7', bd: '#86efac' }
+                   : (st === 'sending')   ? { bg: '#e0f2fe', bd: '#7dd3fc' }
+                   :                          { bg: '#fee2e2', bd: '#fca5a5' };
+          return (
           <div style={{
             marginTop: 20, padding: 16, borderRadius: 10,
-            background: result.ok ? '#dcfce7' : '#fee2e2',
-            border: '1px solid ' + (result.ok ? '#86efac' : '#fca5a5'),
+            background: tone.bg, border: '1px solid ' + tone.bd,
           }}>
-            {result.ok ? (
+            {st === 'completed' && (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, color: '#166534', marginBottom: 4 }}>
-                  <CheckCircle2 size={18} /> Broadcast sent
+                  <CheckCircle2 size={18} /> Broadcast complete
                 </div>
                 <div style={{ fontSize: 13, color: '#15803d' }}>
-                  Sent {result.sent} / {result.recipient_count} emails.
+                  Sent {result.sent != null ? result.sent : '—'} / {result.recipient_count} emails.
                   {result.failed > 0 && ' ' + result.failed + ' failed.'}
                   {result.test_only && ' (Test mode — only you received it.)'}
                 </div>
               </>
-            ) : (
+            )}
+            {st === 'sending' && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, color: '#0369a1', marginBottom: 4 }}>
+                  <Clock size={18} /> Sending in the background…
+                </div>
+                <div style={{ fontSize: 13, color: '#0c4a6e' }}>
+                  {(result.sent || 0)} / {result.recipient_count} sent so far.
+                  {result.failed > 0 && ' ' + result.failed + ' failed.'}
+                  {result.test_only && ' (Test mode — only you.)'}
+                  {' '}Safe to leave this page — sending continues server-side. Don’t resend.
+                </div>
+              </>
+            )}
+            {(st === 'failed' || st === 'error') && (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, color: '#991b1b', marginBottom: 4 }}>
-                  <AlertCircle size={18} /> Send failed
+                  <AlertCircle size={18} /> {st === 'failed' ? 'Broadcast stopped' : 'Send failed'}
                 </div>
-                <div style={{ fontSize: 13, color: '#b91c1c' }}>{result.error}</div>
+                <div style={{ fontSize: 13, color: '#b91c1c' }}>
+                  {result.error || 'Send failed.'}
+                  {st === 'failed' && result.recipient_count != null &&
+                    ' Sent ' + (result.sent || 0) + ' / ' + result.recipient_count + ' before stopping.'}
+                </div>
               </>
             )}
           </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* Audience sidebar */}

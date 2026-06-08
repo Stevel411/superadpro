@@ -55113,6 +55113,111 @@ def admin_api_members_emails(
     }
 
 
+# Advisory-lock id for the admin broadcast sender. Distinct from the BSC
+# scanner (…291) and security watchdog (…292) locks so a running broadcast
+# can't collide with those daemons. Held by the worker's own DB connection
+# for the lifetime of one send; auto-released if the connection dies, so a
+# crashed worker never leaves a stuck lock.
+BROADCAST_LOCK_ID = 1885347293
+BROADCAST_INFLIGHT_STALE_MIN = 30   # a 'sending' row older than this is treated as crashed, not in-flight
+
+
+def _run_admin_broadcast(broadcast_id: int, recipient_ids, base_url: str):
+    """Background worker: send one admin broadcast off the request thread.
+
+    Runs in a daemon thread with its OWN DB session (the request session is
+    long gone by the time this executes). A Postgres advisory lock guarantees
+    only one broadcast send runs at a time platform-wide, so a duplicate
+    trigger (double-click, retry after the instant 200) can't spawn a second
+    concurrent loop and double-mail recipients. Progress is persisted to the
+    AdminBroadcast row every batch, so /admin/api/broadcast/{id} reflects live
+    sent/failed counts while this runs.
+    """
+    import time as _t
+    from .database import SessionLocal, User as _User
+    from .email_utils import send_email as _send
+    db = SessionLocal()
+    locked = False
+    try:
+        locked = bool(db.execute(
+            text("SELECT pg_try_advisory_lock(:k)"), {"k": BROADCAST_LOCK_ID}
+        ).scalar())
+        b = db.query(AdminBroadcast).filter(AdminBroadcast.id == broadcast_id).first()
+        if not b:
+            logger.error(f"broadcast worker: row {broadcast_id} vanished before send")
+            return
+        if not locked:
+            # Another broadcast is mid-flight. Fail closed rather than run a
+            # second concurrent loop against the same audience.
+            b.status = "failed"
+            b.error_message = "Another broadcast was already sending; this one was not started to avoid double-mailing."
+            b.completed_at = datetime.utcnow()
+            db.commit()
+            logger.warning(f"broadcast {broadcast_id}: lock held — refused concurrent send")
+            return
+
+        recipients = db.query(_User).filter(_User.id.in_(recipient_ids)).all() if recipient_ids else []
+        sent = 0
+        failed = 0
+        try:
+            for i, recipient in enumerate(recipients):
+                try:
+                    token = _ensure_unsubscribe_token(db, recipient)
+                    unsub_url = f"{base_url}/unsubscribe?token={token}"
+                    first = recipient.first_name or recipient.username or "there"
+                    personalised_html = b.body_html.replace("{{first_name}}", first).replace("{{username}}", recipient.username or "")
+                    personalised_text = (b.body_text or "").replace("{{first_name}}", first).replace("{{username}}", recipient.username or "")
+                    full_html = personalised_html + _build_broadcast_footer(unsub_url)
+                    ok = _send(
+                        to_email=recipient.email,
+                        subject=b.subject,
+                        html_body=full_html,
+                        text_body=personalised_text,
+                    )
+                    if ok:
+                        sent += 1
+                    else:
+                        failed += 1
+                except Exception as exc:
+                    failed += 1
+                    logger.warning(f"Broadcast {broadcast_id} send to {recipient.email} failed: {exc}")
+
+                if (i + 1) % BROADCAST_BATCH_SIZE == 0:
+                    b.sent_count = sent
+                    b.failed_count = failed
+                    db.commit()
+                    _t.sleep(BROADCAST_BATCH_SLEEP)
+
+            b.sent_count = sent
+            b.failed_count = failed
+            b.status = "completed"
+            b.completed_at = datetime.utcnow()
+            db.commit()
+            logger.warning(f"ADMIN_BROADCAST: {broadcast_id} completed sent={sent} failed={failed}")
+        except Exception as exc:
+            b.status = "failed"
+            b.error_message = str(exc)[:1000]
+            b.sent_count = sent
+            b.failed_count = failed
+            b.completed_at = datetime.utcnow()
+            db.commit()
+            logger.error(f"Broadcast {broadcast_id} crashed mid-send: {exc}")
+    except Exception:
+        logger.exception(f"broadcast worker {broadcast_id}: fatal")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+    finally:
+        if locked:
+            try:
+                db.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": BROADCAST_LOCK_ID})
+                db.commit()
+            except Exception:
+                pass
+        db.close()
+
+
 @app.post("/admin/api/broadcast/send")
 async def admin_api_broadcast_send(
     request: Request,
@@ -55154,15 +55259,39 @@ async def admin_api_broadcast_send(
     # already-rendered HTML.
     body_html = _normalise_broadcast_body(body_html)
 
-    # Resolve audience
+    # Resolve audience now (fast User query) so we can return an accurate
+    # recipient count instantly. The slow part — per-recipient Brevo sends —
+    # runs off-thread in _run_admin_broadcast.
     if test_only:
         # Test send goes only to the admin (so they can preview deliverability)
         recipients = [user]
     else:
         recipients = _resolve_broadcast_recipients(db, audience)
+    recipient_ids = [r.id for r in recipients]
 
     import json as _j_brc
-    # Create broadcast row up-front so it's tracked even if the send dies midway
+    from datetime import timedelta as _td_brc
+
+    # Concurrency guard: refuse to start a second broadcast while one is in
+    # flight, so a double-click or a retry after the instant 200 can't spawn a
+    # parallel send. Only a 'sending' row that STARTED within the staleness
+    # window counts as in-flight — an older one is a crashed send and must not
+    # block new broadcasts forever (the advisory lock is the hard race guard).
+    cutoff = datetime.utcnow() - _td_brc(minutes=BROADCAST_INFLIGHT_STALE_MIN)
+    inflight = db.query(AdminBroadcast).filter(
+        AdminBroadcast.status == "sending",
+        AdminBroadcast.started_at != None,  # noqa: E711
+        AdminBroadcast.started_at >= cutoff,
+    ).first()
+    if inflight:
+        return JSONResponse({
+            "error": "A broadcast is already sending. Wait for it to finish before starting another.",
+            "in_progress_broadcast_id": inflight.id,
+            "poll_url": f"/admin/api/broadcast/{inflight.id}",
+        }, status_code=409)
+
+    # Create the tracking row up-front (status='sending') so it shows in
+    # history immediately and the worker can update sent/failed as it goes.
     broadcast = AdminBroadcast(
         subject=subject,
         body_html=body_html,
@@ -55179,66 +55308,28 @@ async def admin_api_broadcast_send(
     db.commit()
     db.refresh(broadcast)
 
-    # Send loop — synchronous batched
-    import time as _time_brc
-    from .email_utils import send_email as _send_email_brc
-
-    sent = 0
-    failed = 0
+    # Hand the send to a background daemon thread and return instantly. This
+    # is the fix for the Cloudflare ~100s edge timeout: large lists used to
+    # block the request past the limit and surface a false 502 while the send
+    # kept running server-side, tempting a resend that double-mailed everyone.
     base_url = (request.url.scheme + "://" + request.url.netloc).rstrip("/")
-    try:
-        for i, recipient in enumerate(recipients):
-            try:
-                token = _ensure_unsubscribe_token(db, recipient)
-                unsub_url = f"{base_url}/unsubscribe?token={token}"
-                # Personalisation: simple {{first_name}} replacement
-                first = recipient.first_name or recipient.username or "there"
-                personalised_html = body_html.replace("{{first_name}}", first).replace("{{username}}", recipient.username or "")
-                personalised_text = (body_text or "").replace("{{first_name}}", first).replace("{{username}}", recipient.username or "")
-                full_html = personalised_html + _build_broadcast_footer(unsub_url)
-                ok = _send_email_brc(
-                    to_email=recipient.email,
-                    subject=subject,
-                    html_body=full_html,
-                    text_body=personalised_text,
-                )
-                if ok:
-                    sent += 1
-                else:
-                    failed += 1
-            except Exception as exc:
-                failed += 1
-                logger.warning(f"Broadcast send to {recipient.email} failed: {exc}")
-
-            # Persist progress every batch + small SMTP-friendly pause
-            if (i + 1) % BROADCAST_BATCH_SIZE == 0:
-                broadcast.sent_count = sent
-                broadcast.failed_count = failed
-                db.commit()
-                _time_brc.sleep(BROADCAST_BATCH_SLEEP)
-
-        broadcast.sent_count = sent
-        broadcast.failed_count = failed
-        broadcast.status = "completed"
-        broadcast.completed_at = datetime.utcnow()
-        db.commit()
-    except Exception as exc:
-        broadcast.status = "failed"
-        broadcast.error_message = str(exc)[:1000]
-        broadcast.sent_count = sent
-        broadcast.failed_count = failed
-        broadcast.completed_at = datetime.utcnow()
-        db.commit()
-        logger.error(f"Broadcast {broadcast.id} crashed: {exc}")
-        return JSONResponse({"error": str(exc), "broadcast_id": broadcast.id,
-                             "sent": sent, "failed": failed}, status_code=500)
+    import threading as _thr_brc
+    _thr_brc.Thread(
+        target=_run_admin_broadcast,
+        args=(broadcast.id, recipient_ids, base_url),
+        daemon=True,
+        name=f"admin-broadcast-{broadcast.id}",
+    ).start()
 
     return {
         "broadcast_id": broadcast.id,
+        "status": "sending",
         "recipient_count": len(recipients),
-        "sent": sent,
-        "failed": failed,
         "test_only": test_only,
+        "poll_url": f"/admin/api/broadcast/{broadcast.id}",
+        "note": ("Sending started in the background — this response returns "
+                 "immediately. Poll poll_url for live sent/failed counts. "
+                 "Do NOT resend; a second send is blocked until this finishes."),
     }
 
 
