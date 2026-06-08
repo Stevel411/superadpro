@@ -17,12 +17,12 @@ var HELP_SECTIONS = [
     category: 'Withdrawals',
     color: 'var(--sap-accent)',
     items: [
-      { title: 'How do I withdraw from my Affiliate Wallet?', desc: 'Go to your Wallet page, find the green Affiliate Wallet card, enter the amount you want to withdraw (minimum $10), enter your 2FA code, and click Withdraw. The USDT is sent automatically to your Polygon wallet address.' },
+      { title: 'How do I withdraw from my Affiliate Wallet?', desc: 'Go to your Wallet page, find the green Affiliate Wallet card, enter the amount you want to withdraw (minimum $10), enter your 2FA code, and click Withdraw. Once your withdrawal is reviewed and approved, your USDT is sent on the BNB Smart Chain (BEP-20) to the wallet address saved in your Account settings.' },
       { title: 'How do I withdraw from my Campaign Wallet?', desc: 'Same process, but using the purple Campaign Wallet card. You must have an active Campaign Tier and be meeting your daily Watch-to-Earn video quota. If either requirement is not met, you will see a clear error message explaining what to do.' },
       { title: 'What are the withdrawal requirements?', desc: 'For both wallets: KYC identity verification must be approved, 2FA must be enabled, minimum withdrawal is $10, there is a $1 flat fee per withdrawal, and the maximum is $500 per day.' },
       { title: 'What additional requirements does the Campaign Wallet have?', desc: 'You must have at least one active (non-complete) Campaign Tier grid, and your Watch-to-Earn daily video quota must not be paused. If you miss your quota for 5 or more consecutive days, campaign withdrawals are temporarily blocked until you resume watching.' },
-      { title: 'Where does my withdrawal go?', desc: 'Withdrawals are sent as USDT on the Polygon network to the wallet address you have saved in your Account settings. Make sure your wallet supports Polygon (MetaMask, Trust Wallet, Coinbase Wallet all do). Sending to the wrong network will result in lost funds.' },
-      { title: 'How long does a withdrawal take?', desc: 'Withdrawals are processed automatically and typically arrive within 1-2 minutes. In rare cases, if the treasury needs a top-up, withdrawals are queued and processed within 24 hours.' },
+      { title: 'Where does my withdrawal go?', desc: 'Withdrawals are sent as USDT on the BNB Smart Chain (BEP-20 / BSC) to the wallet address you have saved in your Account settings. Make sure your wallet is set to the BNB Smart Chain network (MetaMask, Trust Wallet, Coinbase Wallet all support it). Sending to the wrong network will result in lost funds.' },
+      { title: 'How long does a withdrawal take?', desc: 'Every withdrawal is manually reviewed and approved for security before it is sent on-chain. Please allow up to 5 days for your withdrawal to be processed and arrive in your wallet. Your USDT is sent to your saved wallet address once it has been released.' },
     ],
   },
   {
@@ -39,7 +39,7 @@ var HELP_SECTIONS = [
     category: 'Fees & Limits',
     color: 'var(--sap-amber)',
     items: [
-      { title: 'What fees are there?', desc: 'A flat $1 fee is deducted from every withdrawal to cover Polygon network gas costs. There are no percentage-based fees. What you see in your wallet is what you earn — the $1 is only taken at withdrawal.' },
+      { title: 'What fees are there?', desc: 'A flat $1 fee is deducted from every withdrawal to cover BNB Smart Chain (BSC) network gas costs. There are no percentage-based fees. What you see in your wallet is what you earn — the $1 is only taken at withdrawal.' },
       { title: 'What is the minimum withdrawal?', desc: '$10 minimum per withdrawal (before the $1 fee, so you receive $9 minimum). This applies to both wallets.' },
       { title: 'Is there a daily limit?', desc: 'Yes — maximum $500 per day across both wallets combined. This is a security measure to protect your account.' },
     ],
@@ -50,7 +50,7 @@ var HELP_SECTIONS = [
     items: [
       { title: 'What is KYC?', desc: 'Know Your Customer — identity verification required before withdrawals. Upload a government-issued photo ID in your Account settings. This is reviewed within 24-48 hours and is a one-time process.' },
       { title: 'What is 2FA?', desc: 'Two-Factor Authentication adds an extra security layer. You need an authenticator app (Google Authenticator, Authy) that generates a 6-digit code. Enable it in Account settings. Every withdrawal requires this code.' },
-      { title: 'Is my money safe?', desc: 'Yes. Your balances are stored in our secure database and all withdrawals are processed on the Polygon blockchain — fully transparent and verifiable. The dual wallet system ensures commission integrity, and 2FA + KYC protect against unauthorised access.' },
+      { title: 'Is my money safe?', desc: 'Yes. Your balances are stored in our secure database and all withdrawals are processed on the BNB Smart Chain (BSC) — fully transparent and verifiable on BscScan. The dual wallet system ensures commission integrity, and 2FA + KYC protect against unauthorised access.' },
     ],
   },
 ];
