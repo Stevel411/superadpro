@@ -242,16 +242,27 @@ def member_composition(db):
     # ═══════════════════════════════════════════════════════════════════════
 
     # Users who have at least one confirmed payment of any kind — this is the
-    # "paid real money" set. We treat any of three rails as evidence:
+    # "paid real money" set. We treat any of FOUR rails as evidence:
+    #   - stripe_charges with kind='charge' AND amount_cents > 0 (the live card rail)
     #   - payments table with status indicating success
     #   - nowpayments_orders with status='finished' (the IPN-confirmed terminal state)
     #   - walletconnect_payment_orders with status='confirmed'
+    # NOTE: Stripe is the live card rail (re-integrated 23 May 2026) and writes
+    # to stripe_charges, NOT to payments/membership_renewals. Omitting it
+    # mis-classifies every card payer as "comped". This matches the codebase's
+    # own definition: "Paid truth = stripe_charges + confirmed walletconnect/nowpayments".
     paid_real_money_count = db.execute(text("""
         SELECT COUNT(DISTINCT u.id)
         FROM users u
         WHERE u.is_active = TRUE
           AND (
             EXISTS (
+              SELECT 1 FROM stripe_charges sc
+              WHERE sc.user_id = u.id
+                AND sc.kind = 'charge'
+                AND sc.amount_cents > 0
+            )
+            OR EXISTS (
               SELECT 1 FROM payments p
               WHERE p.from_user_id = u.id
                 AND p.status IN ('paid', 'confirmed', 'finished', 'completed')
@@ -279,6 +290,14 @@ def member_composition(db):
         WHERE u.is_active = TRUE
           AND (
             EXISTS (
+              SELECT 1 FROM stripe_charges sc
+              WHERE sc.user_id = u.id
+                AND sc.kind = 'charge'
+                AND sc.amount_cents > 0
+                AND sc.product IN ('founder_signup', 'membership_signup',
+                                   'founder_renewal', 'membership_renewal')
+            )
+            OR EXISTS (
               SELECT 1 FROM nowpayments_orders npo
               WHERE npo.user_id = u.id
                 AND npo.product_type = 'membership'
@@ -531,9 +550,14 @@ def member_composition(db):
             "referral_gift_total": gifted_total_count,
             "referral_gift_only_no_subsequent_payment": gifted_only_count,
             "note": (
-                "paid_real_money + comped_active_members = active_count. "
-                "manual_activation_no_payment and no_renewal_row_admin_flipped "
-                "are diagnostic subsets of comped_active_members. "
+                "paid_real_money + comped_active_members = active_count "
+                "(paid_real_money now includes the Stripe card rail). "
+                "WARNING: manual_activation_no_payment and "
+                "no_renewal_row_admin_flipped are raw membership_renewals-table "
+                "diagnostics and do NOT account for Stripe. Card payers write to "
+                "stripe_charges, not membership_renewals, so they appear in "
+                "no_renewal_row_admin_flipped despite being real payers. Treat "
+                "those two fields as upper bounds, not the comped count. "
                 "referral_gift_only excludes members who paid after their gift."
             ),
         },
