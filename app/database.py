@@ -147,7 +147,7 @@ BONUS_POOL_PCT = 0.10  # 10% → Grid completion bonus pool (was 5%, +5% from pl
 OWNER_PCT     = DIRECT_PCT    # 0.40
 UPLINE_PCT    = UNILEVEL_PCT  # 0.50
 LEVEL_PCT     = PER_LEVEL_PCT # 0.0625
-COMPANY_PCT   = PLATFORM_PCT  # 0.05
+COMPANY_PCT   = PLATFORM_PCT  # 0.00 (platform share reallocated to bonus pool 21 May 2026)
 
 # Package prices
 GRID_PACKAGES = {
@@ -213,7 +213,7 @@ CAMPAIGN_VIEW_TARGETS = {
 }
 
 # Grace period (days) after campaign expires before losing tier qualification
-CAMPAIGN_GRACE_DAYS = 14
+CAMPAIGN_GRACE_DAYS = 7   # Steve, 8 Jun 2026 (was 14)
 
 # ── Campaign Tier Features ────────────────────────────────────
 # Controls what each grid tier unlocks for video campaigns

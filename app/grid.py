@@ -117,8 +117,8 @@ def process_tier_purchase(
     """
     Main entry point for a tier purchase (new or repurchase).
     
-    1. Pay commissions (40% direct, 50% uni-level, 5% platform)
-       — the 5% bonus pool accrues on each grid during spillover fill
+    1. Pay commissions (40% direct, 50% uni-level, 0% platform)
+       — the 10% bonus pool accrues on each grid during spillover fill
     2. Fill one seat in every upline grid at this tier (spillover)
     
     The buyer's sponsor_id is used for commission payments.
@@ -908,8 +908,14 @@ def _send_release_email(db: Session, buyer: User, released: list) -> None:
 
 
 def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: int, source_event_id: str = None):
-    """40% to the buyer's personal sponsor — or escrowed for 3 days if
-    the sponsor isn't qualified at this tier (grace period to upgrade).
+    """40% to the buyer's personal sponsor — or absorbed by the company if
+    the sponsor isn't qualified at this tier.
+
+    8 Jun 2026 (Steve): an unqualified direct sponsor's 40% is absorbed by the
+    company (recipient of last resort), NOT escrowed. This reverts the 26-May
+    escrow divergence on the direct line back to the documented spec rule
+    (commission-spec.md §"Tier qualification rule"): qualify at the tier or the
+    slot passes up to the company. No grace claim on the direct 40%.
     """
     amount = round(float(price) * DIRECT_PCT, 2)
 
@@ -931,25 +937,15 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
         _record_commission(db, buyer.id, sponsor.id, amount, "direct_sponsor",
                            f"Direct sponsor 40% — buyer {buyer.id} on ${price} package",
                            package_tier, source_event_id=source_event_id)
-    elif sponsor:
-        # Sponsor unqualified — escrow for 3 days, sponsor can claim by
-        # upgrading to this tier within the grace window.
-        _escrow_pending_commission(
-            db,
-            recipient_id    = sponsor.id,
-            trigger_id      = buyer.id,
-            amount          = amount,
-            commission_type = "direct_sponsor",
-            package_tier    = package_tier,
-            notes           = (f"40% direct on ${price} from buyer {buyer.id} — "
-                               f"escrowed pending upgrade to tier {package_tier}"),
-        )
     else:
-        # Sponsor record missing (shouldn't happen, but defensive). No
-        # escrow possible — company absorbs.
+        # Sponsor unqualified at this tier (or record missing) — the 40%
+        # passes up to the company as recipient of last resort. No escrow:
+        # the direct line does not hold a grace claim (Steve, 8 Jun 2026).
+        _note = (f"Sponsor {buyer.sponsor_id} unqualified at tier {package_tier} "
+                 f"— 40% company absorb on ${price}") if sponsor else \
+                (f"Sponsor {buyer.sponsor_id} not found — 40% company absorb")
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
-                           f"Sponsor {buyer.sponsor_id} not found — 40% company absorb",
-                           package_tier, source_event_id=source_event_id)
+                           _note, package_tier, source_event_id=source_event_id)
 
 
 def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: int, source_event_id: str = None):
