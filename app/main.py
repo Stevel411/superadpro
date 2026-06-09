@@ -9802,28 +9802,51 @@ def admin_api_gateway_forensics(
         return JSONResponse({"error": "user_ids must be comma-separated integers"}, status_code=400)
 
     # ── NOWPayments live sweep (once, bucketed by uid) ──
+    # The list-payments endpoint is PRIVATE: it needs a JWT bearer token from
+    # POST /v1/auth (dashboard email+password), NOT the x-api-key. So we JWT
+    # if NOWPAYMENTS_EMAIL/PASSWORD are present, else fall back to the key and
+    # surface whatever status the API returns (never silently report zero).
+    import os as _os
     np_by_uid, np_uids_seen, np_total, np_pages, np_err = {}, set(), 0, 0, None
+    np_auth_mode = "none"
     try:
         from . import nowpayments_service as _nps
         if not _nps.is_configured():
             np_err = "nowpayments not configured in env"
         else:
             base = _nps.NOWPAYMENTS_API_BASE
-            headers = _nps._api_headers()
+            auth_headers = dict(_nps._api_headers())  # x-api-key
+            np_auth_mode = "x-api-key"
+            np_email = _os.environ.get("NOWPAYMENTS_EMAIL", "")
+            np_pass = _os.environ.get("NOWPAYMENTS_PASSWORD", "")
+            if np_email and np_pass:
+                try:
+                    ar = _httpx.post(f"{base}/auth",
+                                     json={"email": np_email, "password": np_pass}, timeout=15)
+                    if ar.status_code == 200 and (ar.json() or {}).get("token"):
+                        auth_headers["Authorization"] = f"Bearer {ar.json()['token']}"
+                        np_auth_mode = "jwt"
+                    else:
+                        np_err = f"auth http {ar.status_code}: {str(ar.text)[:100]}"
+                except Exception as e:
+                    np_err = f"auth exception {type(e).__name__}: {str(e)[:80]}"
             date_from = (_dt.utcnow() - _td(days=np_days)).strftime("%Y-%m-%d")
             date_to = (_dt.utcnow() + _td(days=1)).strftime("%Y-%m-%d")
             page = 0
             _t0 = _time.time()
-            while True:
+            while np_err is None:
                 if _time.time() - _t0 > max_seconds:
                     np_err = "time_budget_hit_partial_sweep"
                     break
                 r = _httpx.get(
                     f"{base}/payment/?limit=500&page={page}"
                     f"&dateFrom={date_from}&dateTo={date_to}&sortBy=created_at&orderBy=asc",
-                    headers=headers, timeout=20,
+                    headers=auth_headers, timeout=20,
                 )
-                j = r.json() if r.status_code == 200 else {}
+                if r.status_code != 200:
+                    np_err = f"list http {r.status_code} (auth={np_auth_mode}): {str(r.text)[:120]}"
+                    break
+                j = r.json()
                 rows = j.get("data") or []
                 if not rows:
                     break
@@ -9934,6 +9957,7 @@ def admin_api_gateway_forensics(
         "np_sweep": {
             "payments_seen": np_total,
             "pages_read": np_pages,
+            "auth_mode": np_auth_mode,
             "distinct_uids_seen": sorted(np_uids_seen),
             "error": np_err,
         },
