@@ -11638,32 +11638,14 @@ def admin_api_campaign_tier_restore(
     except Exception as e:
         stripe_note = f"Stripe walk error: {type(e).__name__}: {str(e)[:160]}"
 
-    # ── Candidates: paid a tier but have NO active grid (= the blocked cohort) ──
-    candidates = []
+    # ── Build target set: paid-tier buyers (auto) + operator grants (manual) ──
+    targets = {}      # uid -> {"tier", "source", "evidence"}
     for uid, tier in paid_tier.items():
-        if db.query(Grid).filter(Grid.owner_id == uid, Grid.is_complete == False).count() > 0:
-            continue  # already has an active grid -> can create campaigns
-        u = db.query(_U.id, _U.username, _U.is_active).filter(_U.id == uid).first()
-        if not u:
-            continue
-        paused = db.query(VideoCampaign.id, VideoCampaign.title).filter(
-            VideoCampaign.user_id == uid,
-            VideoCampaign.status == "paused_no_tier").all()
-        candidates.append({
-            "user_id": uid, "username": u.username, "is_active": bool(u.is_active),
-            "restore_tier": tier, "tier_price": float((_PKG or {}).get(tier, 0)),
-            "evidence": evidence.get(uid, [])[:6],
-            "campaigns_to_unpause": [{"id": c.id, "title": c.title} for c in paused],
-        })
-    for c in candidates:
-        c["source"] = "auto_settled_money"
+        targets[uid] = {"tier": tier, "source": "auto_settled_money",
+                        "evidence": evidence.get(uid, [])[:6]}
 
-    # ── Operator manual grants (grant="uid:tier,uid:tier") ──
-    # For wiped buyers with NO surviving machine record — only the operator can
-    # vouch they paid. Same safe creation path; 2FA still required to apply.
     manual_errors = []
     if grant:
-        seen_uids = {c["user_id"] for c in candidates}
         for pair in grant.split(","):
             pair = pair.strip()
             if not pair:
@@ -11677,50 +11659,74 @@ def admin_api_campaign_tier_restore(
             if gtier not in (_PKG or {}):
                 manual_errors.append(f"user {guid}: invalid tier {gtier} (must be 1-8)")
                 continue
-            if guid in seen_uids:
+            if guid in targets:
                 continue  # already covered by auto-detection
-            gu = db.query(_U.id, _U.username, _U.is_active).filter(_U.id == guid).first()
-            if not gu:
-                manual_errors.append(f"user {guid}: not found")
-                continue
-            if db.query(Grid).filter(Grid.owner_id == guid, Grid.is_complete == False).count() > 0:
-                manual_errors.append(f"user {guid} ({gu.username}): already has an active grid — not blocked, skipped")
-                continue
-            gpaused = db.query(VideoCampaign.id, VideoCampaign.title).filter(
-                VideoCampaign.user_id == guid,
-                VideoCampaign.status == "paused_no_tier").all()
-            candidates.append({
-                "user_id": guid, "username": gu.username, "is_active": bool(gu.is_active),
-                "restore_tier": gtier, "tier_price": float((_PKG or {}).get(gtier, 0)),
-                "evidence": ["operator-confirmed (no surviving machine record)"],
-                "campaigns_to_unpause": [{"id": c.id, "title": c.title} for c in gpaused],
-                "source": "manual_operator",
-            })
-            seen_uids.add(guid)
+            targets[guid] = {"tier": gtier, "source": "manual_operator",
+                             "evidence": ["operator-confirmed (no surviving machine record)"]}
 
+    # ── Assess what each target needs: create grid / mark purchased / reactivate ──
+    def _assess(uid):
+        u = db.query(_U.id, _U.username, _U.is_active).filter(_U.id == uid).first()
+        if not u:
+            return None
+        grid = (db.query(Grid).filter(Grid.owner_id == uid, Grid.is_complete == False)
+                .order_by(Grid.package_tier.desc(), Grid.id.asc()).first())
+        paused = db.query(VideoCampaign.id, VideoCampaign.title).filter(
+            VideoCampaign.user_id == uid,
+            VideoCampaign.status == "paused_no_tier").all()
+        actions = []
+        if grid is None:
+            actions.append("create_grid")
+        elif not grid.owner_purchased:
+            actions.append("mark_owner_purchased")
+        if paused:
+            actions.append("reactivate_campaigns")
+        return {
+            "username": u.username, "is_active": bool(u.is_active),
+            "current_grid": (None if grid is None else
+                             {"tier": grid.package_tier, "owner_purchased": bool(grid.owner_purchased)}),
+            "paused_campaigns": [{"id": c.id, "title": c.title} for c in paused],
+            "actions": actions,
+        }
+
+    candidates = []
+    for uid, meta in targets.items():
+        st = _assess(uid)
+        if st is None:
+            if meta["source"] == "manual_operator":
+                manual_errors.append(f"user {uid}: not found")
+            continue
+        if not st["actions"]:
+            continue  # already fully fine — nothing to do
+        candidates.append({
+            "user_id": uid, "username": st["username"], "is_active": st["is_active"],
+            "restore_tier": meta["tier"], "tier_price": float((_PKG or {}).get(meta["tier"], 0)),
+            "source": meta["source"], "evidence": meta["evidence"],
+            "current_grid": st["current_grid"], "actions": st["actions"],
+            "campaigns_to_reactivate": st["paused_campaigns"],
+        })
     candidates.sort(key=lambda c: (-c["restore_tier"], c["user_id"]))
 
     base = {
         "generated_at": _dt.utcnow().isoformat(),
         "stripe_note": stripe_note,
         "paid_tier_buyers_found": len(paid_tier),
-        "candidates_needing_grid_restore": len(candidates),
+        "members_needing_fix": len(candidates),
         "manual_grant_errors": manual_errors,
-        "campaigns_that_would_unpause": sum(len(c["campaigns_to_unpause"]) for c in candidates),
+        "campaigns_that_would_reactivate": sum(len(c["campaigns_to_reactivate"]) for c in candidates),
         "candidates": candidates,
     }
 
     if not apply:
         base["mode"] = "dry_run"
-        base["note"] = ("READ-ONLY preview — nothing written. Each candidate paid for a "
-                        "Campaign Tier (see evidence) but has no active grid, which is why "
-                        "campaign creation is blocked for them. Re-run with apply=1&code=NNNNNN "
-                        "(2FA) to create their grids and reactivate their campaigns. No "
-                        "commissions fire — already paid at purchase. Orphan-paid (unmatched "
-                        "on-chain) tier buyers are NOT here yet — resolve orphans first.")
+        base["note"] = ("READ-ONLY preview — nothing written. Per member, the planned actions: "
+                        "create_grid (no grid at all), mark_owner_purchased (grid exists but "
+                        "isn't flagged as a genuine purchase), reactivate_campaigns (campaigns "
+                        "stuck in paused_no_tier despite a valid grid — the 'No Tier' badge). "
+                        "Re-run with apply=1&code=NNNNNN (2FA) to apply. NO commissions/bonuses fire.")
         return JSONResponse(base)
 
-    # ── APPLY (2FA-gated, mirrors grid-root-restore) ──
+    # ── APPLY (2FA-gated) ──
     if not getattr(user, "totp_secret", None):
         return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
     import pyotp
@@ -11728,36 +11734,45 @@ def admin_api_campaign_tier_restore(
         return JSONResponse({"error": "Invalid or missing 2FA code — pass ?apply=1&code=NNNNNN"}, status_code=403)
 
     grids_created = 0
-    campaigns_unpaused = 0
+    grids_marked_purchased = 0
+    campaigns_reactivated = 0
     details = []
     for c in candidates:
         uid = c["user_id"]
         tier = c["restore_tier"]
-        if db.query(Grid).filter(Grid.owner_id == uid, Grid.is_complete == False).count() > 0:
-            continue  # idempotency — grid appeared since dry run
-        g = Grid(owner_id=uid, package_tier=tier, package_price=(_PKG or {}).get(tier, 0),
-                 advance_number=1, positions_filled=0, revenue_total=0,
-                 bonus_pool_accrued=0, is_complete=False, owner_purchased=True)
-        db.add(g)
-        db.flush()
-        grids_created += 1
+        did = []
+        grid = (db.query(Grid).filter(Grid.owner_id == uid, Grid.is_complete == False)
+                .order_by(Grid.package_tier.desc(), Grid.id.asc()).first())
+        if grid is None:
+            grid = Grid(owner_id=uid, package_tier=tier, package_price=(_PKG or {}).get(tier, 0),
+                        advance_number=1, positions_filled=0, revenue_total=0,
+                        bonus_pool_accrued=0, is_complete=False, owner_purchased=True)
+            db.add(grid)
+            db.flush()
+            grids_created += 1
+            did.append(f"created Tier-{tier} grid")
+        elif not grid.owner_purchased:
+            grid.owner_purchased = True
+            grids_marked_purchased += 1
+            did.append(f"marked existing Tier-{grid.package_tier} grid as purchased")
         n = db.query(VideoCampaign).filter(
             VideoCampaign.user_id == uid,
             VideoCampaign.status == "paused_no_tier").update(
             {VideoCampaign.status: "active"}, synchronize_session=False)
-        campaigns_unpaused += int(n or 0)
-        details.append({"user_id": uid, "username": c["username"],
-                        "grid_tier_created": tier, "campaigns_reactivated": int(n or 0)})
+        if n:
+            campaigns_reactivated += int(n)
+            did.append(f"reactivated {int(n)} campaign(s)")
+        details.append({"user_id": uid, "username": c["username"], "did": did})
     db.commit()
     base.update({
         "mode": "applied",
         "grids_created": grids_created,
-        "campaigns_unpaused": campaigns_unpaused,
+        "grids_marked_purchased": grids_marked_purchased,
+        "campaigns_reactivated": campaigns_reactivated,
         "applied_detail": details,
-        "note": ("Active owner grids created at each member's paid tier; paused_no_tier "
-                 "campaigns reactivated. No commissions/bonuses fired. These members can "
-                 "now create campaigns. Grid seat-history (downline) is a separate concern "
-                 "handled by the full grid reconciliation."),
+        "note": ("Done. Grids created where missing, existing grids flagged as genuine "
+                 "purchases, paused_no_tier campaigns reactivated. No commissions/bonuses "
+                 "fired. Affected members' campaigns are live again and the 'No Tier' badge clears."),
     })
     return JSONResponse(base)
 
