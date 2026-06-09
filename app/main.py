@@ -12369,6 +12369,232 @@ def admin_api_orphan_attribution(
     return JSONResponse(base)
 
 
+@app.get("/admin/api/onchain-historical-reconcile")
+def admin_api_onchain_historical_reconcile(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+    user_ids: str = "196,181,290,205,325,365,374,352,228,351",
+    pre_min: int = 30,
+    post_min: int = 5,
+    amount_tol: float = 1.0,
+    max_seconds: int = 90,
+):
+    """Reconstruct breach-wiped direct-WalletConnect membership payments by reading
+    the treasury's on-chain USDT inbound history around each member's activation.
+
+    The 3-Jun breach wiped the WalletConnectPaymentOrder rows (tx_hash + from_address)
+    for members who paid by direct WC, so those members show ZERO record on any rail
+    despite being active payers. Their payment is still permanently on-chain: a USDT
+    transfer to the treasury landing seconds-to-minutes before their activation. For
+    each target member this scans treasury inbound USDT in a tight window around
+    activated_at, drops anything already attributed (Payment / WC order / orphan), and
+    matches the unattributed transfer closest in time before activation whose amount
+    ~= the membership price the member pays (founders pay $15).
+
+    RECORD-ONLY: writes a Payment(status=confirmed, payment_type=onchain_membership)
+    with the REAL tx_hash. Fires NO commissions, grants NO entitlements (members
+    already hold their membership), touches NO balances. Idempotent (Payment.tx_hash
+    is unique + we re-check before insert).
+
+    Reads BSC via BSC_RPC_URL (the Alchemy endpoint already in Railway) with an
+    adaptive getLogs span that backs off on 'limit exceeded'. apply=0 (default) =
+    READ-ONLY dry run; apply=1 requires ?code=NNNNNN (2FA). If time_capped, re-run
+    with the remaining ids in user_ids (dry run is idempotent; apply dedups by tx)."""
+    _require_admin(user)
+    from .database import (Payment as _P, WalletConnectPaymentOrder as _WC,
+                           OnchainOrphanTransfer as _O, User as _U)
+    from datetime import datetime as _dt, timezone as _tz
+    import time as _time
+    try:
+        from .walletconnect_payments import _get_treasury_transfers_single_provider as _scan
+        from .withdrawals import BSC_RPC_URL
+        from web3 import Web3
+    except Exception as e:
+        return JSONResponse({"error": f"bsc init failed: {type(e).__name__}: {e}"}, status_code=200)
+
+    try:
+        ids = [int(x) for x in user_ids.split(",") if x.strip()]
+    except ValueError:
+        return JSONResponse({"error": "user_ids must be comma-separated integers"}, status_code=200)
+
+    try:
+        w3 = Web3(Web3.HTTPProvider(BSC_RPC_URL, request_kwargs={"timeout": 20}))
+        head = int(w3.eth.block_number)
+    except Exception as e:
+        return JSONResponse({"error": f"BSC RPC unreachable via BSC_RPC_URL: {type(e).__name__}"}, status_code=200)
+
+    # already-attributed tx hashes across every rail that records one
+    attributed = set()
+    for (h,) in db.query(_P.tx_hash).filter(_P.tx_hash.isnot(None)).all():
+        attributed.add(str(h).lower())
+    for (h,) in db.query(_WC.tx_hash).filter(_WC.tx_hash.isnot(None)).all():
+        attributed.add(str(h).lower())
+    for (h,) in db.query(_O.tx_hash).filter(_O.tx_hash.isnot(None)).all():
+        attributed.add(str(h).lower())
+
+    # memoised block-timestamp lookups (BSC has no native ts->block)
+    _bts = {}
+    def blk_ts(n):
+        n = int(n)
+        if n not in _bts:
+            _bts[n] = int(w3.eth.get_block(n)["timestamp"])
+        return _bts[n]
+
+    head_ts = blk_ts(head)
+    _samp = max(1, head - 5_000_000)
+    avg_bt = max(0.1, (head_ts - blk_ts(_samp)) / max(1, (head - _samp)))
+
+    def block_at(ts_target):
+        est = int(head - (head_ts - ts_target) / avg_bt)
+        lo = max(1, est - 150_000)
+        hi = min(head, est + 150_000)
+        guard = 0
+        while lo > 1 and blk_ts(lo) > ts_target and guard < 60:
+            lo = max(1, lo - 150_000); guard += 1
+        while hi < head and blk_ts(hi) < ts_target and guard < 120:
+            hi = min(head, hi + 150_000); guard += 1
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if blk_ts(mid) < ts_target:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo
+
+    # adaptive getLogs over a block range; learns the max span this RPC serves
+    span_state = {"span": 1000}
+    def scan_range(b0, b1):
+        out, cur, guard = [], int(b0), 0
+        b1 = int(b1)
+        while cur <= b1 and guard < 5000:
+            guard += 1
+            span = span_state["span"]
+            top = min(cur + span, b1)
+            try:
+                out.extend(_scan(BSC_RPC_URL, cur, top))
+                cur = top + 1
+            except Exception as ex:
+                msg = str(ex).lower()
+                if span > 5 and any(k in msg for k in ("limit", "range", "many", "exceed", "too large")):
+                    span_state["span"] = max(5, span // 2)
+                    continue
+                if span <= 5:
+                    cur += 1  # smallest span still failing — skip one block, keep going
+                    continue
+                raise
+        return out
+
+    results, unresolved, processed = [], [], []
+    t0 = _time.time()
+    for uid in ids:
+        if _time.time() - t0 > max_seconds:
+            break
+        u = db.query(_U).filter(_U.id == uid).first()
+        if not u:
+            unresolved.append({"user_id": uid, "reason": "user not found"}); continue
+        if not u.activated_at:
+            unresolved.append({"user_id": uid, "username": u.username, "reason": "no activated_at"}); continue
+        processed.append(uid)
+        try:
+            price = float(u.membership_price_locked) if u.membership_price_locked else (15.0 if u.is_founding_member else 20.0)
+        except (TypeError, ValueError):
+            price = 15.0 if u.is_founding_member else 20.0
+        act = u.activated_at
+        act_ts = int(act.replace(tzinfo=_tz.utc).timestamp()) if act.tzinfo is None else int(act.timestamp())
+        try:
+            b_lo = block_at(act_ts - pre_min * 60)
+            b_hi = block_at(act_ts + post_min * 60)
+            transfers = scan_range(b_lo, b_hi)
+        except Exception as ex:
+            unresolved.append({"user_id": uid, "username": u.username, "reason": f"scan failed: {type(ex).__name__}: {str(ex)[:80]}"})
+            continue
+        cands = []
+        for t in transfers:
+            th = str(t["tx_hash"]).lower()
+            if th in attributed:
+                continue
+            amt = float(t["amount_usdt"])
+            if abs(amt - price) > amount_tol:
+                continue
+            try:
+                bts = blk_ts(int(t["block_number"]))
+            except Exception:
+                bts = act_ts
+            cands.append({"tx_hash": t["tx_hash"], "from_address": t["from_address"],
+                          "amount_usdt": amt, "block_number": int(t["block_number"]),
+                          "block_ts": bts, "secs_before_activation": act_ts - bts})
+        cands.sort(key=lambda c: abs(c["secs_before_activation"]))
+        if not cands:
+            unresolved.append({"user_id": uid, "username": u.username, "price": price,
+                               "scanned_blocks": [b_lo, b_hi],
+                               "reason": "no unattributed ~price transfer in window"})
+            continue
+        best = cands[0]
+        attributed.add(str(best["tx_hash"]).lower())  # prevent double-assign within this run
+        results.append({
+            "user_id": uid, "username": u.username, "price": price,
+            "tx_hash": best["tx_hash"], "from_address": best["from_address"],
+            "amount_usdt": round(best["amount_usdt"], 4),
+            "block_number": best["block_number"],
+            "paid_at": _dt.utcfromtimestamp(best["block_ts"]).isoformat(),
+            "paid_ts": best["block_ts"],
+            "secs_before_activation": best["secs_before_activation"],
+            "product": "onchain_membership",
+            "other_candidates_in_window": len(cands) - 1,
+        })
+
+    base = {
+        "generated_at": _dt.utcnow().isoformat(),
+        "targets": ids,
+        "processed": processed,
+        "time_capped": (_time.time() - t0 > max_seconds),
+        "matched": len(results),
+        "unresolved": len(unresolved),
+        "getlogs_span_used": span_state["span"],
+        "to_write": results,
+        "unresolved_detail": unresolved,
+    }
+
+    if not apply:
+        base["mode"] = "dry_run"
+        base["note"] = ("READ-ONLY. Reads the treasury's on-chain USDT inbound around each "
+                        "member's activation via BSC_RPC_URL. to_write = an unattributed transfer "
+                        "(~membership price) landing just before activation -> the breach-wiped "
+                        "direct-WC payment. unresolved = no matching transfer found in window "
+                        "(widen pre_min / amount_tol, or the member was genuinely comped). "
+                        "RECORD-ONLY on apply: writes Payment(status=confirmed) with the real "
+                        "tx_hash; NO commissions/entitlements/balances. apply=1&code=NNNNNN to "
+                        "write. If time_capped, re-run with the remaining user_ids.")
+        return JSONResponse(base)
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    import pyotp
+    if not code or not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?apply=1&code=NNNNNN"}, status_code=403)
+
+    written = 0
+    for r in results:
+        if db.query(_P).filter(_P.tx_hash == r["tx_hash"]).first():
+            continue
+        db.add(_P(from_user_id=r["user_id"], to_user_id=None,
+                  amount_usdt=r["amount_usdt"], payment_type=r["product"],
+                  tx_hash=r["tx_hash"], status="confirmed",
+                  created_at=_dt.utcfromtimestamp(r["paid_ts"])))
+        written += 1
+    db.commit()
+    base.update({
+        "mode": "applied",
+        "payments_written": written,
+        "note": ("Done. Record-only Payment rows written with real on-chain tx hashes. No "
+                 "commissions/entitlements/balances touched. Re-run the dry run to confirm "
+                 "matched transfers now show as attributed (they'll drop out)."),
+    })
+    return JSONResponse(base)
+
+
 @app.get("/admin/api/nowpayments-backfill")
 def admin_api_nowpayments_backfill(
     user: User = Depends(get_current_user),
