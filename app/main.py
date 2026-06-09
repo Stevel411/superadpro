@@ -12201,6 +12201,163 @@ def admin_api_stripe_charge_backfill(
     return JSONResponse(base)
 
 
+@app.get("/admin/api/orphan-attribution")
+def admin_api_orphan_attribution(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+    grant: str = "",   # operator manual: "txhash:user_id,txhash:user_id"
+):
+    """Attribute unmatched on-chain treasury transfers (OnchainOrphanTransfer) to
+    members and record them — the crypto-rail half of the recovery.
+
+    These are real USDT receipts to the treasury that arrived without matching a
+    live WalletConnect order (sent directly / after the order expired / a wiped
+    order). The inflow is already on record (the orphan row); this resolves WHO
+    sent it and writes a Payment so the books attribute it.
+
+    Auto-match (high confidence): orphan amount == a WalletConnect order's
+    unique_amount (cent-unique by design) -> that order's user + product.
+    Everything else is a worklist grouped by sender wallet with a product guess,
+    for manual attribution via grant="txhash:uid,..." (e.g. after asking the
+    member which wallet they paid from).
+
+    RECORD-ONLY: writes a Payment row + marks the orphan resolved. Fires NO
+    commissions, grants NO entitlements (members already hold them from the
+    rebuild), touches NO balances. Idempotent (Payment.tx_hash unique + resolved
+    flag). apply=0 dry run; apply=1 requires ?code=NNNNNN (2FA)."""
+    _require_admin(user)
+    from .database import (OnchainOrphanTransfer as _O, WalletConnectPaymentOrder as _WC,
+                           Payment as _P, User as _U)
+    from datetime import datetime as _dt
+    from collections import defaultdict
+
+    orphans = db.query(_O).filter(_O.resolved == False).all()  # noqa: E712
+
+    # index WC orders by cent-rounded unique_amount -> users (high-confidence key)
+    amt_index = defaultdict(list)
+    for o in db.query(_WC.id, _WC.user_id, _WC.product_type, _WC.product_key,
+                      _WC.unique_amount, _WC.status).all():
+        if o.unique_amount is None:
+            continue
+        amt_index[round(float(o.unique_amount), 2)].append(
+            {"user_id": o.user_id, "product_type": o.product_type,
+             "product_key": o.product_key, "order_id": o.id, "status": o.status})
+
+    def _product_guess(usd):
+        u = round(usd)
+        return {15: "membership (founder $15)", 20: "membership ($20) or campaign tier 1",
+                50: "campaign tier 2", 100: "tier 3 / nexus pack", 200: "campaign tier 4",
+                400: "campaign tier 5", 600: "campaign tier 6", 800: "campaign tier 7",
+                1000: "campaign tier 8"}.get(u, "unknown")
+
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+
+    manual = {}
+    for pair in (grant or "").split(","):
+        pair = pair.strip()
+        if not pair:
+            continue
+        try:
+            tx, uid = pair.rsplit(":", 1)
+            manual[tx.strip()] = int(uid)
+        except (ValueError, TypeError):
+            pass
+
+    high, worklist = [], []
+    for orp in orphans:
+        usd = float(orp.amount_usdt or 0)
+        row = {"tx_hash": orp.tx_hash, "from_address": orp.from_address,
+               "usd": round(usd, 2), "seen_at": orp.seen_at.isoformat() if orp.seen_at else None}
+        matched_uid, matched = None, None
+        if orp.tx_hash in manual:
+            matched_uid, matched = manual[orp.tx_hash], {"via": "operator_grant"}
+        else:
+            cands = amt_index.get(round(usd, 2), [])
+            uids = {c["user_id"] for c in cands}
+            if len(uids) == 1:
+                c = cands[0]
+                matched_uid = c["user_id"]
+                matched = {"via": f"wc_order#{c['order_id']} ({c['status']})",
+                           "product_type": c["product_type"], "product_key": c["product_key"]}
+        if matched_uid:
+            row.update({"user_id": matched_uid, "username": uname.get(matched_uid), "match": matched})
+            high.append(row)
+        else:
+            row["product_guess"] = _product_guess(usd)
+            worklist.append(row)
+
+    by_addr = defaultdict(lambda: {"count": 0, "usd": 0.0, "txs": []})
+    for w in worklist:
+        g = by_addr[w["from_address"]]
+        g["count"] += 1
+        g["usd"] = round(g["usd"] + w["usd"], 2)
+        g["txs"].append({"tx_hash": w["tx_hash"], "usd": w["usd"],
+                         "seen_at": w["seen_at"], "product_guess": w["product_guess"]})
+    worklist_by_sender = sorted(({"from_address": a, **v} for a, v in by_addr.items()),
+                                key=lambda x: -x["usd"])
+
+    base = {
+        "generated_at": _dt.utcnow().isoformat(),
+        "unresolved_orphans": len(orphans),
+        "auto_matched": len(high),
+        "auto_matched_usd": round(sum(h["usd"] for h in high), 2),
+        "needs_manual": len(worklist),
+        "needs_manual_usd": round(sum(w["usd"] for w in worklist), 2),
+        "to_attribute": high,
+        "worklist_by_sender": worklist_by_sender,
+    }
+
+    if not apply:
+        base["mode"] = "dry_run"
+        base["note"] = ("READ-ONLY. to_attribute = orphan amount matched a WalletConnect order's "
+                        "unique_amount (or your grant) -> recorded to that user on apply. "
+                        "worklist_by_sender = no order match; grouped by sender wallet with a "
+                        "product guess, for manual attribution via grant=\"txhash:userid,...\" "
+                        "(ask the member which wallet they paid from). RECORD-ONLY: writes a "
+                        "Payment + marks the orphan resolved; no commissions/entitlements/balances. "
+                        "apply=1&code=NNNNNN to write.")
+        return JSONResponse(base)
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    import pyotp
+    if not code or not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?apply=1&code=NNNNNN"}, status_code=403)
+
+    written = 0
+    for h in high:
+        orp = db.query(_O).filter(_O.tx_hash == h["tx_hash"], _O.resolved == False).first()  # noqa: E712
+        if not orp:
+            continue
+        mt = h.get("match") or {}
+        if db.query(_P).filter(_P.tx_hash == h["tx_hash"]).first():
+            orp.resolved = True
+            orp.resolution_note = "Payment already existed for tx; marked resolved (recovery)"
+            orp.resolved_at = _dt.utcnow()
+            orp.resolved_by_user_id = h["user_id"]
+            continue
+        ptype = f"onchain_{mt['product_type']}" if mt.get("product_type") else "onchain_attributed"
+        db.add(_P(from_user_id=h["user_id"], to_user_id=None, amount_usdt=h["usd"],
+                  payment_type=ptype, tx_hash=h["tx_hash"], status="confirmed",
+                  created_at=orp.seen_at or _dt.utcnow()))
+        orp.resolved = True
+        orp.resolution_note = f"Attributed to user {h['user_id']} via {mt.get('via', 'match')} (recovery backfill)"
+        orp.resolved_at = _dt.utcnow()
+        orp.resolved_by_user_id = h["user_id"]
+        written += 1
+    db.commit()
+    base.update({
+        "mode": "applied",
+        "payments_written": written,
+        "note": ("Done. Record-only Payment rows written for attributed orphans + those orphans "
+                 "marked resolved. No commissions/entitlements/balances. Re-run dry run; "
+                 "worklist_by_sender shows what still needs grant=txhash:uid."),
+    })
+    return JSONResponse(base)
+
+
 @app.get("/admin/api/grid-root-restore")
 def admin_api_grid_root_restore(
     user: User = Depends(get_current_user),
