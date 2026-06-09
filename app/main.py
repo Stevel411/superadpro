@@ -11530,8 +11530,13 @@ def admin_api_campaign_tier_restore(
     apply: int = 0,
     code: str = "",
     max_seconds: int = 55,
+    grant: str = "",
 ):
     """Fix 'tier active but can't create a video campaign'.
+
+    grant="158:1,205:2" lets the operator restore members they personally
+    confirm paid but whose purchase left NO machine record (wiped order, not in
+    Stripe, no grid-earnings signal). Format is user_id:tier. Still 2FA-gated.
 
     Campaign creation is gated by get_user_highest_tier() = the member's highest
     ACTIVE (incomplete) grid. The breach wiped grids; recovery could only rebuild
@@ -11650,6 +11655,49 @@ def admin_api_campaign_tier_restore(
             "evidence": evidence.get(uid, [])[:6],
             "campaigns_to_unpause": [{"id": c.id, "title": c.title} for c in paused],
         })
+    for c in candidates:
+        c["source"] = "auto_settled_money"
+
+    # ── Operator manual grants (grant="uid:tier,uid:tier") ──
+    # For wiped buyers with NO surviving machine record — only the operator can
+    # vouch they paid. Same safe creation path; 2FA still required to apply.
+    manual_errors = []
+    if grant:
+        seen_uids = {c["user_id"] for c in candidates}
+        for pair in grant.split(","):
+            pair = pair.strip()
+            if not pair:
+                continue
+            try:
+                uid_s, tier_s = pair.split(":")
+                guid, gtier = int(uid_s), int(tier_s)
+            except (ValueError, TypeError):
+                manual_errors.append(f"bad pair '{pair}' — use user_id:tier")
+                continue
+            if gtier not in (_PKG or {}):
+                manual_errors.append(f"user {guid}: invalid tier {gtier} (must be 1-8)")
+                continue
+            if guid in seen_uids:
+                continue  # already covered by auto-detection
+            gu = db.query(_U.id, _U.username, _U.is_active).filter(_U.id == guid).first()
+            if not gu:
+                manual_errors.append(f"user {guid}: not found")
+                continue
+            if db.query(Grid).filter(Grid.owner_id == guid, Grid.is_complete == False).count() > 0:
+                manual_errors.append(f"user {guid} ({gu.username}): already has an active grid — not blocked, skipped")
+                continue
+            gpaused = db.query(VideoCampaign.id, VideoCampaign.title).filter(
+                VideoCampaign.user_id == guid,
+                VideoCampaign.status == "paused_no_tier").all()
+            candidates.append({
+                "user_id": guid, "username": gu.username, "is_active": bool(gu.is_active),
+                "restore_tier": gtier, "tier_price": float((_PKG or {}).get(gtier, 0)),
+                "evidence": ["operator-confirmed (no surviving machine record)"],
+                "campaigns_to_unpause": [{"id": c.id, "title": c.title} for c in gpaused],
+                "source": "manual_operator",
+            })
+            seen_uids.add(guid)
+
     candidates.sort(key=lambda c: (-c["restore_tier"], c["user_id"]))
 
     base = {
@@ -11657,6 +11705,7 @@ def admin_api_campaign_tier_restore(
         "stripe_note": stripe_note,
         "paid_tier_buyers_found": len(paid_tier),
         "candidates_needing_grid_restore": len(candidates),
+        "manual_grant_errors": manual_errors,
         "campaigns_that_would_unpause": sum(len(c["campaigns_to_unpause"]) for c in candidates),
         "candidates": candidates,
     }
