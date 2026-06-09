@@ -11777,6 +11777,111 @@ def admin_api_campaign_tier_restore(
     return JSONResponse(base)
 
 
+@app.get("/admin/api/reactivate-stuck-campaigns")
+def admin_api_reactivate_stuck_campaigns(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+):
+    """One-shot sweep: reactivate every campaign frozen at paused_no_tier whose
+    owner currently holds a genuine (owner_purchased) active grid.
+
+    Root cause: the boot cleanup only ever PAUSES campaigns (active -> paused_no_tier)
+    for owners with no active grid; it never un-pauses. After the breach wiped grids
+    and they were later restored, those campaigns stayed frozen showing the 'No Tier'
+    badge. This clears the whole backlog in one pass while respecting each member's
+    tier campaign-limit (won't push anyone over their cap). Campaigns whose owner has
+    NO genuine grid are left paused and reported under still_blocked (restore their
+    tier first via /admin/api/campaign-tier-restore). NO commissions/bonuses fire.
+
+    apply=0 (default) = READ-ONLY dry run. apply=1 requires ?code=NNNNNN (2FA)."""
+    _require_admin(user)
+    from .database import (Grid, VideoCampaign, User as _U,
+                           CAMPAIGN_TIER_FEATURES as _FEAT)
+    from datetime import datetime as _dt
+    from collections import defaultdict
+
+    # genuine active tier owners -> their highest purchased, still-incomplete tier
+    owner_tier = {}
+    for oid, ptier in db.query(Grid.owner_id, Grid.package_tier).filter(
+            Grid.owner_purchased == True, Grid.is_complete == False).all():  # noqa: E712
+        owner_tier[oid] = max(owner_tier.get(oid, 0), ptier or 0)
+
+    paused = db.query(VideoCampaign.id, VideoCampaign.title, VideoCampaign.user_id).filter(
+        VideoCampaign.status == "paused_no_tier").order_by(VideoCampaign.id.asc()).all()
+
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).filter(
+        _U.id.in_([c.user_id for c in paused] or [0])).all()}
+
+    by_owner = defaultdict(list)
+    for c in paused:
+        by_owner[c.user_id].append(c)
+
+    to_fix, still_blocked, capped = [], [], []
+    for uid, camps in by_owner.items():
+        tier = owner_tier.get(uid, 0)
+        base_row = lambda c: {"campaign_id": c.id, "title": c.title,
+                              "user_id": uid, "username": uname.get(uid)}
+        if tier <= 0:
+            still_blocked.extend(base_row(c) for c in camps)
+            continue
+        maxc = _FEAT.get(tier, _FEAT[1])["max_campaigns"]
+        active_now = db.query(VideoCampaign).filter(
+            VideoCampaign.user_id == uid, VideoCampaign.status == "active").count()
+        slots = max(0, maxc - active_now)
+        for i, c in enumerate(camps):
+            if i < slots:
+                to_fix.append(base_row(c))
+            else:
+                capped.append({**base_row(c), "tier": tier, "max_campaigns": maxc,
+                               "already_active": active_now})
+
+    base = {
+        "generated_at": _dt.utcnow().isoformat(),
+        "paused_no_tier_total": len(paused),
+        "would_reactivate": len(to_fix),
+        "still_blocked_need_grid": len(still_blocked),
+        "capped_by_tier_limit": len(capped),
+        "to_reactivate": to_fix,
+        "still_blocked": still_blocked,
+        "capped": capped,
+    }
+
+    if not apply:
+        base["mode"] = "dry_run"
+        base["note"] = ("READ-ONLY. to_reactivate = owner has a genuine purchased grid and a "
+                        "free campaign slot; these flip to active on apply. still_blocked = "
+                        "owner has no purchased grid (restore tier first via "
+                        "/admin/api/campaign-tier-restore?grant=UID:TIER). capped = owner is "
+                        "already at their tier's active-campaign limit; they must upgrade or "
+                        "pause another. Re-run with apply=1&code=NNNNNN (2FA). NO commissions fire.")
+        return JSONResponse(base)
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    import pyotp
+    if not code or not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?apply=1&code=NNNNNN"}, status_code=403)
+
+    ids = [r["campaign_id"] for r in to_fix]
+    n = 0
+    if ids:
+        n = db.query(VideoCampaign).filter(
+            VideoCampaign.id.in_(ids),
+            VideoCampaign.status == "paused_no_tier").update(
+            {VideoCampaign.status: "active"}, synchronize_session=False)
+        db.commit()
+    base.update({
+        "mode": "applied",
+        "campaigns_reactivated": int(n or 0),
+        "note": ("Done. Every eligible paused_no_tier campaign is active again; the 'No Tier' "
+                 "badge clears on refresh. still_blocked members still need their tier restored; "
+                 "capped members are at their limit. No commissions fired."),
+    })
+    return JSONResponse(base)
+
+
 @app.get("/admin/api/grid-root-restore")
 def admin_api_grid_root_restore(
     user: User = Depends(get_current_user),
