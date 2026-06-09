@@ -12358,6 +12358,165 @@ def admin_api_orphan_attribution(
     return JSONResponse(base)
 
 
+@app.get("/admin/api/nowpayments-backfill")
+def admin_api_nowpayments_backfill(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    ids: str = "",
+    apply: int = 0,
+    code: str = "",
+    max_seconds: int = 50,
+):
+    """Backfill the NOWPayments rail from settled dashboard payments, and resolve
+    the matching on-chain treasury orphans in the same pass.
+
+    NOWPayments forwards each member's crypto payment to the treasury, so a
+    settled NOWPayments payment shows up on-chain as an unmatched OnchainOrphan
+    transfer (the scanner can't tie a NOWPayments payout to a WC order). The
+    dashboard Order ID encodes the member (SAP-<uid>-<n>) and the API gives the
+    product + settled outcome amount. So per settled payment id we:
+      - write the canonical NowPaymentsOrder record (user + product + amount), and
+      - mark the orphan whose amount matches the outcome as resolved + attributed
+        to that member (no separate Payment row -> no double counting).
+
+    Pass ?ids=<comma-separated settled payment ids> (from the dashboard export).
+    RECORD-ONLY: writes order rows + resolves orphans. NO commissions,
+    entitlements, or balances. Idempotent (skips orders already present by
+    np_payment_id; skips already-resolved orphans). Re-run to continue if
+    time-capped. apply=0 dry run; apply=1 requires ?code=NNNNNN (2FA)."""
+    _require_admin(user)
+    import re as _re, time as _time
+    from datetime import datetime as _dt
+    from .database import NowPaymentsOrder as _NP, OnchainOrphanTransfer as _O, User as _U
+    try:
+        from . import nowpayments_service as _np
+        if not _np.is_configured():
+            return JSONResponse({"error": "nowpayments not configured in env"}, status_code=200)
+    except Exception as e:
+        return JSONResponse({"error": f"np init failed: {type(e).__name__}"}, status_code=200)
+
+    id_list = [i.strip() for i in (ids or "").split(",") if i.strip()]
+    if not id_list:
+        return JSONResponse({"error": "pass ?ids=comma,separated,payment_ids"}, status_code=400)
+
+    def _product(desc, price):
+        d = (desc or "").lower(); p = round(price or 0)
+        if "campaign tier" in d or "grid" in d or ("tier" in d and "credit" not in d and "nexus" not in d):
+            tier = {20: 1, 50: 2, 100: 3, 200: 4, 400: 5, 600: 6, 800: 7, 1000: 8}.get(p)
+            return ("grid", f"grid_{tier}" if tier else "grid")
+        if "nexus" in d or "credit pack" in d or "credit matrix" in d:
+            return ("nexus", "nexus_pack")
+        if "superscene" in d or "creative" in d or "studio" in d:
+            return ("superscene", "superscene")
+        if "founder" in d or p == 15:
+            return ("membership", "founder")
+        if "partner" in d or "membership" in d or p == 20:
+            return ("membership", "partner")
+        return ("unknown", "unknown")
+
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+    existing_np = {r[0] for r in db.query(_NP.np_payment_id).filter(_NP.np_payment_id.isnot(None)).all()}
+
+    plan, errors = [], []
+    _t0 = _time.time()
+    for pid in id_list:
+        if _time.time() - _t0 > max_seconds:
+            errors.append({"payment_id": pid, "error": "time_budget_hit_remaining_skipped"})
+            break
+        try:
+            data = _np.get_payment_status(int(pid))
+        except Exception as e:
+            errors.append({"payment_id": pid, "error": type(e).__name__}); continue
+        if not isinstance(data, dict) or data.get("error"):
+            errors.append({"payment_id": pid, "error": str(data)[:80]}); continue
+        oid = data.get("order_id") or ""
+        m = _re.match(r"SAP-(\d+)-", oid)
+        uid = int(m.group(1)) if m else 0
+        status = (data.get("payment_status") or "").lower()
+        price = float(data.get("price_amount") or 0)
+        outcome = float(data.get("outcome_amount") or data.get("actually_paid") or 0)
+        ptype, pkey = _product(data.get("order_description"), price)
+        already = int(pid) in existing_np
+        # find a matching unresolved orphan by settled amount
+        orphan = None
+        if outcome > 0:
+            cands = db.query(_O).filter(_O.resolved == False).all()  # noqa: E712
+            best, bestd = None, 0.05
+            for o in cands:
+                d = abs(float(o.amount_usdt or 0) - outcome)
+                if d < bestd:
+                    best, bestd = o, d
+            orphan = best
+        plan.append({
+            "payment_id": pid, "user_id": uid, "username": uname.get(uid),
+            "product_type": ptype, "product_key": pkey, "price_usd": price,
+            "outcome_usdt": round(outcome, 6), "status": status,
+            "order_action": "skip_exists" if already else "write_np_order",
+            "orphan_match": (orphan.tx_hash if orphan else None),
+            "orphan_usd": (round(float(orphan.amount_usdt), 2) if orphan else None),
+            "_orphan_id": (orphan.id if orphan else None),
+            "_valid_user": bool(uid and uname.get(uid)),
+        })
+
+    base = {
+        "generated_at": _dt.utcnow().isoformat(),
+        "ids_requested": len(id_list),
+        "processed": len(plan),
+        "np_orders_to_write": sum(1 for p in plan if p["order_action"] == "write_np_order" and p["_valid_user"]),
+        "orphans_to_resolve": sum(1 for p in plan if p["orphan_match"] and p["_valid_user"]),
+        "errors": errors,
+        "plan": plan,
+    }
+
+    if not apply:
+        base["mode"] = "dry_run"
+        base["note"] = ("READ-ONLY. Per settled NOWPayments payment: write_np_order records the "
+                        "canonical NowPaymentsOrder (user from Order ID, product from description); "
+                        "orphan_match is the treasury transfer whose amount equals the settled "
+                        "outcome — it gets marked resolved + attributed on apply. RECORD-ONLY: no "
+                        "commissions/entitlements/balances. Re-run with apply=1&code=NNNNNN; "
+                        "re-run again to continue if time-capped (idempotent).")
+        return JSONResponse(base)
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    import pyotp
+    if not code or not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?apply=1&code=NNNNNN"}, status_code=403)
+
+    np_written = orphans_resolved = 0
+    for p in plan:
+        if not p["_valid_user"]:
+            continue
+        if p["order_action"] == "write_np_order":
+            db.add(_NP(user_id=p["user_id"], product_type=p["product_type"], product_key=p["product_key"],
+                       price_usd=p["price_usd"], np_payment_id=int(p["payment_id"]),
+                       internal_order_id=f"SAP-{p['user_id']}", outcome_amount=p["outcome_usdt"],
+                       outcome_currency="usdtbsc", pay_currency="usdtbsc",
+                       status=("confirmed" if p["status"] in ("finished", "confirmed") else p["status"]),
+                       confirmed_at=_dt.utcnow()))
+            np_written += 1
+        if p["_orphan_id"]:
+            orp = db.query(_O).filter(_O.id == p["_orphan_id"], _O.resolved == False).first()  # noqa: E712
+            if orp:
+                orp.resolved = True
+                orp.resolved_by_user_id = p["user_id"]
+                orp.resolved_at = _dt.utcnow()
+                orp.resolution_note = (f"NOWPayments payment {p['payment_id']} for user {p['user_id']} "
+                                       f"({p['product_type']}/{p['product_key']}, ${p['price_usd']:.0f}) — recovery backfill")
+                orphans_resolved += 1
+    db.commit()
+    base.update({
+        "mode": "applied",
+        "np_orders_written": np_written,
+        "orphans_resolved": orphans_resolved,
+        "note": ("Done. NOWPayments order records written + matching treasury orphans resolved and "
+                 "attributed. No commissions/entitlements/balances. Re-run dry run to confirm; "
+                 "re-run apply if it was time-capped (idempotent)."),
+    })
+    return JSONResponse(base)
+
+
 @app.get("/admin/api/grid-root-restore")
 def admin_api_grid_root_restore(
     user: User = Depends(get_current_user),
