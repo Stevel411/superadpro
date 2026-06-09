@@ -25,8 +25,16 @@ from .database import engine, Base
 from sqlalchemy import text
 
 BACKUP_PREFIX = "backups/"
-MAX_BACKUPS = 7  # keep a week of daily backups
 BACKUP_FORMAT = "superadpro-logical-json-v1"
+# ── Tiered, time-based retention ──────────────────────────────────────────
+# Replaces the old count-based MAX_BACKUPS=7, which let a high-deploy day prune
+# the ENTIRE history: the boot daemon backed up 60s after every restart, so ~7
+# redeploys filled all 7 slots and evicted every older backup (incl. pre-breach).
+# Now retention is by AGE, so same-day backups can never evict the ladder:
+RETENTION_KEEP_ALL_DAYS = 14    # keep EVERY backup newer than this
+RETENTION_WEEKLY_DAYS   = 90    # 14–90d old: keep newest-per-ISO-week
+RETENTION_MONTHLY_DAYS  = 730   # 90–730d old: keep newest-per-calendar-month
+MIN_KEEP = 7                    # absolute floor — never prune below the 7 newest
 
 
 def _json_default(o):
@@ -42,14 +50,27 @@ def _json_default(o):
     return str(o)
 
 
-def run_backup() -> dict:
+def run_backup(skip_if_recent_hours: int = 0) -> dict:
     """Logical-dump every table to JSON, gzip, upload to R2. Returns status dict.
 
     No external binaries. Reads through the live SQLAlchemy engine in FK-sorted
     order (restore-friendly). Captures a row-count manifest in meta.
+
+    skip_if_recent_hours>0: if a backup already exists within that window, skip
+    (returns {"skipped": True}). The boot daemon passes 20 so frequent restarts
+    don't spam backups (which is what pruned history); manual/cron triggers pass
+    0 = always run.
     """
     if not r2_available():
         return {"error": "R2 not configured — set R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY"}
+
+    if skip_if_recent_hours > 0:
+        try:
+            if _recent_backup_within(_get_client(), skip_if_recent_hours):
+                return {"skipped": True,
+                        "reason": f"a backup already exists within the last {skip_if_recent_hours}h"}
+        except Exception:
+            pass  # check failed — fall through and back up (safer than skipping)
 
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"superadpro_{timestamp}.json.gz"
@@ -125,15 +146,59 @@ def run_backup() -> dict:
         return {"error": str(e), "exception_type": type(e).__name__}
 
 
-def _prune_old_backups(client):
-    """Delete oldest backups, keeping only MAX_BACKUPS (matches .json.gz and legacy .sql.gz)."""
+def _recent_backup_within(client, hours: int) -> bool:
+    """True if any backup exists in R2 newer than `hours` ago."""
     try:
-        response = client.list_objects_v2(Bucket=R2_BUCKET, Prefix=BACKUP_PREFIX)
-        objects = response.get("Contents", [])
-        backup_files = [o for o in objects if o["Key"].endswith((".json.gz", ".sql.gz"))]
-        backup_files.sort(key=lambda x: x["LastModified"], reverse=True)
-        for old in backup_files[MAX_BACKUPS:]:
-            client.delete_object(Bucket=R2_BUCKET, Key=old["Key"])
+        resp = client.list_objects_v2(Bucket=R2_BUCKET, Prefix=BACKUP_PREFIX)
+        files = [o for o in resp.get("Contents", []) if o["Key"].endswith((".json.gz", ".sql.gz"))]
+        if not files:
+            return False
+        newest = max(o["LastModified"] for o in files)
+        if newest.tzinfo is None:
+            newest = newest.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - newest).total_seconds() < hours * 3600
+    except Exception:
+        return False
+
+
+def _prune_old_backups(client):
+    """Tiered, time-based retention. Keeps a deep ladder so a busy deploy day can
+    never evict the archive:
+      - every backup from the last RETENTION_KEEP_ALL_DAYS days
+      - newest-per-ISO-week from there to RETENTION_WEEKLY_DAYS
+      - newest-per-calendar-month to RETENTION_MONTHLY_DAYS
+      - older than that: deleted
+    Plus a hard floor of MIN_KEEP most-recent files, always kept.
+    """
+    try:
+        resp = client.list_objects_v2(Bucket=R2_BUCKET, Prefix=BACKUP_PREFIX)
+        files = [o for o in resp.get("Contents", []) if o["Key"].endswith((".json.gz", ".sql.gz"))]
+        if not files:
+            return
+        files.sort(key=lambda x: x["LastModified"], reverse=True)  # newest first
+        now = datetime.now(timezone.utc)
+        keep, seen_week, seen_month = set(), set(), set()
+        for o in files:
+            lm = o["LastModified"]
+            if lm.tzinfo is None:
+                lm = lm.replace(tzinfo=timezone.utc)
+            age_days = (now - lm).total_seconds() / 86400.0
+            if age_days <= RETENTION_KEEP_ALL_DAYS:
+                keep.add(o["Key"])
+            elif age_days <= RETENTION_WEEKLY_DAYS:
+                wk = lm.isocalendar()[:2]  # (iso_year, iso_week)
+                if wk not in seen_week:
+                    seen_week.add(wk); keep.add(o["Key"])
+            elif age_days <= RETENTION_MONTHLY_DAYS:
+                mo = (lm.year, lm.month)
+                if mo not in seen_month:
+                    seen_month.add(mo); keep.add(o["Key"])
+            # older than RETENTION_MONTHLY_DAYS -> not kept
+        for o in files[:MIN_KEEP]:           # hard floor
+            keep.add(o["Key"])
+        for o in files:
+            if o["Key"] not in keep:
+                client.delete_object(Bucket=R2_BUCKET, Key=o["Key"])
     except Exception:
         pass  # non-critical
 

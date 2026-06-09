@@ -576,7 +576,7 @@ async def startup_event():
         while True:
             try:
                 from .db_backup import run_backup
-                result = run_backup()
+                result = run_backup(skip_if_recent_hours=20)
                 if result.get("success"):
                     print(f"✅ Daily backup: {result['file']} ({result['size_mb']}MB)")
                 else:
