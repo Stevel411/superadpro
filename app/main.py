@@ -9760,6 +9760,186 @@ def admin_api_gift_activation_check(
     return JSONResponse({"results": out})
 
 
+@app.get("/admin/api/gateway-forensics")
+def admin_api_gateway_forensics(
+    request: Request,
+    user_ids: str,
+    np_days: int = 90,
+    max_seconds: int = 70,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Wipe-recovery: find a member's payment in the GATEWAYS' OWN live APIs.
+
+    Our mirror tables (stripe_charges, nowpayments_orders, walletconnect_*)
+    were wiped 3 Jun; the gateways' APIs are the source of truth that
+    survived. For each user_id this reports, side by side:
+      db_mirror:   what our tables currently hold (StripeCharge / NowPayments /
+                   WalletConnect / Payment rows for that user)
+      stripe_live: Stripe Customer.list(email) -> Charge.list per customer
+                   (catches card payments even if the wiped mirror lost them
+                   or the charge wasn't attributed to the uid)
+      nowpayments_live: payments whose order_id is SAP-<uid>, found by a full
+                   paginated sweep of GET /v1/payment over the last np_days
+                   (the backfill only processed hand-supplied ids, so any-coin
+                   / mis-exported payments — like the worksmarter ETH case —
+                   were never seen). Coin-agnostic, status-agnostic.
+
+    Also returns np_sweep: every distinct SAP uid seen in the NOWPayments
+    sweep, so other gap members who paid via NOWPayments surface in one pass.
+
+    READ-ONLY. No writes, no 2FA. Pure forensic read of live APIs + our DB.
+    """
+    _require_admin(user)
+    import re as _re, time as _time, httpx as _httpx
+    from datetime import datetime as _dt, timedelta as _td
+    from .database import (StripeCharge as _SC, NowPaymentsOrder as _NP,
+                           WalletConnectPaymentOrder as _WC, Payment as _P, User as _U)
+
+    try:
+        ids = [int(x) for x in user_ids.split(",") if x.strip()]
+    except ValueError:
+        return JSONResponse({"error": "user_ids must be comma-separated integers"}, status_code=400)
+
+    # ── NOWPayments live sweep (once, bucketed by uid) ──
+    np_by_uid, np_uids_seen, np_total, np_pages, np_err = {}, set(), 0, 0, None
+    try:
+        from . import nowpayments_service as _nps
+        if not _nps.is_configured():
+            np_err = "nowpayments not configured in env"
+        else:
+            base = _nps.NOWPAYMENTS_API_BASE
+            headers = _nps._api_headers()
+            date_from = (_dt.utcnow() - _td(days=np_days)).strftime("%Y-%m-%d")
+            date_to = (_dt.utcnow() + _td(days=1)).strftime("%Y-%m-%d")
+            page = 0
+            _t0 = _time.time()
+            while True:
+                if _time.time() - _t0 > max_seconds:
+                    np_err = "time_budget_hit_partial_sweep"
+                    break
+                r = _httpx.get(
+                    f"{base}/payment/?limit=500&page={page}"
+                    f"&dateFrom={date_from}&dateTo={date_to}&sortBy=created_at&orderBy=asc",
+                    headers=headers, timeout=20,
+                )
+                j = r.json() if r.status_code == 200 else {}
+                rows = j.get("data") or []
+                if not rows:
+                    break
+                np_pages += 1
+                for p in rows:
+                    np_total += 1
+                    oid = str(p.get("order_id") or "")
+                    m = _re.match(r"SAP-(\d+)", oid)
+                    if not m:
+                        continue
+                    uid = int(m.group(1))
+                    np_uids_seen.add(uid)
+                    if uid in ids:
+                        np_by_uid.setdefault(uid, []).append({
+                            "payment_id": p.get("payment_id"),
+                            "status": p.get("payment_status"),
+                            "order_id": oid,
+                            "order_description": p.get("order_description"),
+                            "price_amount": p.get("price_amount"),
+                            "price_currency": p.get("price_currency"),
+                            "pay_currency": p.get("pay_currency"),
+                            "actually_paid": p.get("actually_paid"),
+                            "outcome_amount": p.get("outcome_amount"),
+                            "created_at": p.get("created_at"),
+                        })
+                pages_count = j.get("pagesCount") or j.get("pages_count") or 1
+                page += 1
+                if page >= int(pages_count):
+                    break
+    except Exception as e:
+        np_err = f"{type(e).__name__}: {str(e)[:80]}"
+
+    # ── Per-user report ──
+    out = {}
+    for uid in ids:
+        t = db.query(_U).filter(_U.id == uid).first()
+        if not t:
+            out[uid] = {"error": "user not found"}
+            continue
+
+        # our mirror tables
+        sc = db.query(_SC).filter(_SC.user_id == uid).all()
+        npo = db.query(_NP).filter(_NP.user_id == uid).all()
+        wc = db.query(_WC).filter(_WC.user_id == uid).all()
+        pay = db.query(_P).filter(_P.from_user_id == uid).all()
+        db_mirror = {
+            "stripe_charges": [{"charge_id": r.stripe_charge_id, "product": r.product,
+                                "amount_cents": r.amount_cents, "kind": r.kind,
+                                "created_at": r.created_at.isoformat() if r.created_at else None}
+                               for r in sc],
+            "nowpayments_orders": [{"id": r.id, "np_payment_id": r.np_payment_id,
+                                    "product_key": r.product_key, "price_usd": float(r.price_usd or 0),
+                                    "pay_currency": r.pay_currency, "status": r.status,
+                                    "internal_order_id": r.internal_order_id} for r in npo],
+            "walletconnect_orders": [{"id": r.id, "product_key": r.product_key,
+                                      "unique_amount": float(r.unique_amount or 0), "status": r.status,
+                                      "tx_hash": r.tx_hash} for r in wc],
+            "payments": [{"id": r.id, "type": getattr(r, "payment_type", None),
+                          "amount": float(getattr(r, "amount_usdt", 0) or 0),
+                          "status": r.status, "tx_hash": getattr(r, "tx_hash", None)} for r in pay],
+        }
+
+        # stripe live by email
+        stripe_live, stripe_err = [], None
+        try:
+            from . import stripe_service as _ss
+            if not _ss.is_configured():
+                stripe_err = "stripe not configured in env"
+            else:
+                _ss._ensure_sdk()
+                import stripe as _stripe
+                custs = _stripe.Customer.list(email=t.email, limit=10)
+                for c in custs.data:
+                    chs = _stripe.Charge.list(customer=c.id, limit=25)
+                    for ch in chs.data:
+                        stripe_live.append({
+                            "charge_id": ch.id,
+                            "customer_id": c.id,
+                            "amount": (ch.amount or 0) / 100.0,
+                            "currency": ch.currency,
+                            "paid": bool(getattr(ch, "paid", False)),
+                            "status": getattr(ch, "status", None),
+                            "refunded": bool(getattr(ch, "refunded", False)),
+                            "description": getattr(ch, "description", None),
+                            "created": _dt.utcfromtimestamp(ch.created).isoformat() if getattr(ch, "created", None) else None,
+                        })
+        except Exception as e:
+            stripe_err = f"{type(e).__name__}: {str(e)[:80]}"
+
+        out[uid] = {
+            "username": t.username,
+            "email": t.email,
+            "activated_at": t.activated_at.isoformat() if getattr(t, "activated_at", None) else None,
+            "price_locked": float(t.membership_price_locked) if getattr(t, "membership_price_locked", None) else None,
+            "db_mirror": db_mirror,
+            "stripe_live": stripe_live,
+            "stripe_error": stripe_err,
+            "nowpayments_live": np_by_uid.get(uid, []),
+            "verdict": (
+                "STRIPE" if stripe_live else
+                "NOWPAYMENTS" if np_by_uid.get(uid) else
+                "no gateway record found (live)"
+            ),
+        }
+
+    return JSONResponse({
+        "results": out,
+        "np_sweep": {
+            "payments_seen": np_total,
+            "pages_read": np_pages,
+            "distinct_uids_seen": sorted(np_uids_seen),
+            "error": np_err,
+        },
+    })
+
+
 @app.get("/admin/api/purchase-source-census")
 def admin_api_purchase_source_census(
     user: User = Depends(get_current_user),
