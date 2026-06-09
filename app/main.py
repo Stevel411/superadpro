@@ -13146,6 +13146,80 @@ def admin_api_treasury_scan(
     })
 
 
+@app.get("/admin/api/activations-near")
+def admin_api_activations_near(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    ts: str = "",
+    back_min: int = 5,
+    fwd_min: int = 30,
+):
+    """READ-ONLY. List members whose activated_at falls in [ts - back_min, ts + fwd_min],
+    checking EVERY payment rail (Payment / StripeCharge / NowPaymentsOrder) so the one
+    with no surviving record stands out.
+
+    Purpose: map an UNATTRIBUTED on-chain treasury transfer (surfaced by treasury-scan)
+    back to the member who sent it. A breach-wiped direct-WalletConnect payer activates
+    seconds-to-minutes AFTER their USDT lands, so the member activating just after the
+    transfer's timestamp with no payment on any rail is the owner. Feed that user_id to
+    /admin/api/onchain-historical-reconcile to record the wiped payment. Also reusable
+    for breach-wiped campaign-tier payments (anchor on GridPosition.created_at)."""
+    _require_admin(user)
+    from .database import (Payment as _P, StripeCharge as _SC,
+                           NowPaymentsOrder as _NP, User as _U)
+    from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+    if not ts:
+        return JSONResponse({"error": "ts required (ISO, e.g. 2026-05-15T16:08:30Z)"}, status_code=200)
+    try:
+        anchor = _dt.fromisoformat(ts.replace("Z", "+00:00")).astimezone(_tz.utc).replace(tzinfo=None)
+    except ValueError:
+        return JSONResponse({"error": "ts not ISO-parseable (use e.g. 2026-05-15T16:08:30Z)"}, status_code=200)
+    lo = anchor - _td(minutes=back_min)
+    hi = anchor + _td(minutes=fwd_min)
+    members = (db.query(_U)
+               .filter(_U.activated_at.isnot(None),
+                       _U.activated_at >= lo, _U.activated_at <= hi)
+               .order_by(_U.activated_at.asc()).all())
+    out = []
+    for m in members:
+        try:
+            price = float(m.membership_price_locked) if m.membership_price_locked else (15.0 if m.is_founding_member else 20.0)
+        except (TypeError, ValueError):
+            price = 15.0 if m.is_founding_member else 20.0
+        pays = db.query(_P).filter(_P.from_user_id == m.id).all()
+        pay_types = [p.payment_type for p in pays]
+        stripe_n = db.query(_SC).filter(_SC.user_id == m.id).count()
+        # NOWPayments: only count orders that actually settled (order existence != payment)
+        np_paid = (db.query(_NP)
+                   .filter(_NP.user_id == m.id,
+                           _NP.status.in_(["confirmed", "finished", "partially_paid"]))
+                   .count())
+        has_any_rail = bool(pays) or stripe_n > 0 or np_paid > 0
+        out.append({
+            "user_id": m.id,
+            "username": m.username,
+            "is_founding_member": bool(m.is_founding_member),
+            "price": price,
+            "activated_at": m.activated_at.isoformat(),
+            "secs_after_anchor": int((m.activated_at - anchor).total_seconds()),
+            "payment_rows": len(pays),
+            "payment_types": pay_types,
+            "stripe_charges": stripe_n,
+            "nowpayments_settled": np_paid,
+            "has_any_rail_record": has_any_rail,
+        })
+    return JSONResponse({
+        "anchor_ts": anchor.isoformat(),
+        "window": [lo.isoformat(), hi.isoformat()],
+        "member_count": len(out),
+        "members": out,
+        "note": ("READ-ONLY. Members activated in the window, with payment presence on every "
+                 "rail. has_any_rail_record=false activating just after an UNATTRIBUTED treasury "
+                 "transfer = the breach-wiped direct-WC payer who owns it. Feed that user_id to "
+                 "/admin/api/onchain-historical-reconcile to record it."),
+    })
+
+
 @app.get("/admin/api/nowpayments-backfill")
 def admin_api_nowpayments_backfill(
     user: User = Depends(get_current_user),
