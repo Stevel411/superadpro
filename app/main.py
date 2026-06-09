@@ -9940,6 +9940,108 @@ def admin_api_gateway_forensics(
     })
 
 
+@app.get("/admin/api/record-offrail-payment")
+def admin_api_record_offrail_payment(
+    request: Request,
+    entries: str,
+    apply: int = 0,
+    code: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Record-only audit rows for members who paid through a channel our rails
+    don't auto-capture (bank transfer, off-coin NOWPayments) and were manually
+    activated. Writes a Payment row tagged with the channel so the books read
+    PAID, not comped.
+
+    NO commissions, NO balances, NO entitlements — purely a ledger record of
+    money that already arrived off-rail. Idempotent: each row gets a
+    deterministic synthetic tx_hash OFFRAIL-<CHANNEL>-<uid>, so re-running
+    skips anything already written.
+
+    entries: comma-separated  uid:amount:channel[:date]
+      e.g. 179:15:bank_transfer:2026-05-13,228:15:bank_transfer:2026-05-16
+      date optional — falls back to the member's activated_at.
+
+    apply=0 dry run (default). apply=1 requires ?code=NNNNNN (2FA).
+    """
+    _require_admin(user)
+    import pyotp
+    from datetime import datetime as _dt
+    from .database import Payment as _P, User as _U
+
+    parsed, errors = [], []
+    for raw in (entries or "").split(","):
+        raw = raw.strip()
+        if not raw:
+            continue
+        parts = raw.split(":")
+        if len(parts) < 3:
+            errors.append({"entry": raw, "error": "expected uid:amount:channel[:date]"}); continue
+        try:
+            uid = int(parts[0]); amount = float(parts[1])
+        except ValueError:
+            errors.append({"entry": raw, "error": "uid/amount not numeric"}); continue
+        channel = parts[2].strip().lower()
+        date_str = parts[3].strip() if len(parts) >= 4 and parts[3].strip() else None
+        parsed.append((uid, amount, channel, date_str, raw))
+
+    will_apply = False
+    if apply == 1:
+        sec = getattr(user, "totp_secret", None)
+        if not sec or not code or not pyotp.TOTP(sec).verify(code, valid_window=1):
+            return JSONResponse({"error": "2FA required/invalid for apply"}, status_code=403)
+        will_apply = True
+
+    plan, written = [], 0
+    for (uid, amount, channel, date_str, raw) in parsed:
+        t = db.query(_U).filter(_U.id == uid).first()
+        if not t:
+            errors.append({"entry": raw, "error": "user not found"}); continue
+        created = None
+        if date_str:
+            for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"):
+                try:
+                    created = _dt.strptime(date_str, fmt); break
+                except ValueError:
+                    pass
+            if created is None:
+                errors.append({"entry": raw, "error": f"bad date '{date_str}'"}); continue
+        else:
+            created = getattr(t, "activated_at", None) or _dt.utcnow()
+
+        tx = f"OFFRAIL-{channel.upper()}-{uid}"
+        existing = db.query(_P).filter(_P.tx_hash == tx).first()
+        any_pay = db.query(_P).filter(_P.from_user_id == uid).count()
+        row = {
+            "user_id": uid, "username": t.username, "amount": amount,
+            "channel": channel, "tx_hash": tx, "created_at": created.isoformat(),
+            "already_recorded": existing is not None,
+            "user_existing_payment_rows": any_pay,
+        }
+        if existing is not None:
+            row["action"] = "skip (already present)"
+        elif will_apply:
+            db.add(_P(from_user_id=uid, to_user_id=None, amount_usdt=amount,
+                      payment_type=channel, tx_hash=tx, status="confirmed",
+                      created_at=created))
+            written += 1
+            row["action"] = "WRITTEN"
+        else:
+            row["action"] = "would write (dry run)"
+        plan.append(row)
+
+    if will_apply and written:
+        db.commit()
+
+    return JSONResponse({
+        "mode": "APPLIED" if will_apply else "dry_run",
+        "rows_written": written if will_apply else 0,
+        "plan": plan,
+        "errors": errors,
+    })
+
+
 @app.get("/admin/api/purchase-source-census")
 def admin_api_purchase_source_census(
     user: User = Depends(get_current_user),
