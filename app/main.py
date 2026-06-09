@@ -12020,6 +12020,187 @@ def admin_api_ownership_snapshot(
     return JSONResponse(summary)
 
 
+@app.get("/admin/api/stripe-charge-backfill")
+def admin_api_stripe_charge_backfill(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+    max_seconds: int = 45,
+    charge_cursor: str = "",
+):
+    """Rebuild the stripe_charges audit trail from Stripe's live ledger — the
+    record-only backfill for the webhook-miss recording leak.
+
+    Walks every settled, non-refunded Stripe charge (same proven BalanceTransaction
+    walk as stripe-tier-credit-recovery), resolves the buyer — metadata
+    superadpro_user_id first, then charge.customer -> User.stripe_customer_id for
+    the membership invoice charges that carry no charge-level metadata — and the
+    product, then writes the missing StripeCharge rows with their REAL ch_/pi_ ids
+    so the books match settled money and future reconcile diffs work.
+
+    RECORD-ONLY: writes audit rows only. Fires NO commissions, grants NO
+    entitlements, touches NO balances. Idempotent — skips any charge already in
+    stripe_charges by charge_id. Never writes a row it can't attribute to a user.
+
+    apply=0 (default) = READ-ONLY dry run. apply=1 requires ?code=NNNNNN (2FA).
+    If time_capped, re-run with ?charge_cursor=<resume_cursor> to continue."""
+    _require_admin(user)
+    from .database import StripeCharge, User as _U
+    from datetime import datetime as _dt
+    try:
+        from . import stripe_service as _ss
+        if not _ss.is_configured():
+            return JSONResponse({"error": "stripe not configured in env"}, status_code=200)
+        _ss._ensure_sdk()
+        import stripe as _stripe
+        import time as _time
+    except Exception as e:
+        return JSONResponse({"error": f"stripe init failed: {type(e).__name__}"}, status_code=200)
+
+    existing_ids = {r[0] for r in db.query(StripeCharge.stripe_charge_id)
+                    .filter(StripeCharge.stripe_charge_id.isnot(None)).all()}
+
+    def _resolve_product(pk, u):
+        if pk and pk != "unknown":
+            return pk
+        if u is not None and getattr(u, "stripe_subscription_id", None):
+            return "founder_renewal" if getattr(u, "is_founding_member", False) else "membership_renewal"
+        if u is not None:
+            return "membership"
+        return "unknown"
+
+    to_write, skipped_exists, unattributed = [], [], []
+    scanned = charges_read = 0
+    hit_cap = False
+    resume_cursor = ""
+    _t0 = _time.time()
+    params = {"limit": 100, "type": "charge"}
+    if charge_cursor:
+        params["starting_after"] = charge_cursor
+    try:
+        while True:
+            if _time.time() - _t0 > max_seconds:
+                hit_cap = True
+                break
+            page = _stripe.BalanceTransaction.list(**params)
+            for bt in page.data:
+                scanned += 1
+                src = getattr(bt, "source", None)
+                if not src or not str(src).startswith("ch_"):
+                    continue
+                try:
+                    ch = _stripe.Charge.retrieve(src)
+                except Exception:
+                    continue
+                charges_read += 1
+                paid = bool(getattr(ch, "paid", False)) and getattr(ch, "status", "") == "succeeded"
+                refunded = bool(getattr(ch, "refunded", False))
+                if not paid or refunded:
+                    continue
+                if ch.id in existing_ids:
+                    skipped_exists.append(ch.id)
+                    continue
+                md = (ch.metadata.to_dict() if getattr(ch, "metadata", None) else {})
+                pk = md.get("product_kind") or "unknown"
+                try:
+                    uid = int(md.get("superadpro_user_id") or 0)
+                except (TypeError, ValueError):
+                    uid = 0
+                u = db.query(_U).filter(_U.id == uid).first() if uid else None
+                if u is None:
+                    cust = getattr(ch, "customer", None)
+                    if cust:
+                        u = db.query(_U).filter(_U.stripe_customer_id == str(cust)).first()
+                amt_cents = int(ch.amount or 0)
+                if u is None:
+                    unattributed.append({"charge_id": ch.id, "usd": amt_cents / 100.0,
+                                         "customer": str(getattr(ch, "customer", "") or ""),
+                                         "metadata_product": pk})
+                    continue
+                product = _resolve_product(pk, u)
+                to_write.append({
+                    "charge_id": ch.id,
+                    "payment_intent": getattr(ch, "payment_intent", None),
+                    "user_id": u.id, "username": u.username,
+                    "product": product, "usd": amt_cents / 100.0, "amount_cents": amt_cents,
+                    "currency": getattr(ch, "currency", "usd") or "usd",
+                    "created_ts": int(getattr(ch, "created", 0) or 0),
+                    "sub_id": (getattr(u, "stripe_subscription_id", None)
+                               if product in ("membership", "membership_renewal", "founder_renewal") else None),
+                })
+            if getattr(page, "has_more", False) and page.data:
+                params["starting_after"] = page.data[-1].id
+                resume_cursor = page.data[-1].id
+            else:
+                break
+    except Exception as e:
+        return JSONResponse({"stripe_enum_error": f"{type(e).__name__}: {str(e)[:200]}",
+                             "balance_txns_scanned": scanned, "charges_read": charges_read},
+                            status_code=200)
+
+    base = {
+        "generated_at": _dt.utcnow().isoformat(),
+        "balance_txns_scanned": scanned,
+        "charges_read": charges_read,
+        "time_capped": hit_cap,
+        "resume_cursor": resume_cursor if hit_cap else "",
+        "rows_to_write": len(to_write),
+        "already_present": len(skipped_exists),
+        "unattributed": len(unattributed),
+        "to_write": to_write,
+        "unattributed_sample": unattributed[:30],
+    }
+
+    if not apply:
+        base["mode"] = "dry_run"
+        base["note"] = ("READ-ONLY. to_write = settled Stripe charges absent from stripe_charges, "
+                        "resolved to a user (by metadata or stripe_customer_id) — written as "
+                        "record-only audit rows with their real ch_/pi_ ids. already_present = "
+                        "skipped (idempotent). unattributed = couldn't map to a user — NOT written, "
+                        "needs manual attribution. RECORD-ONLY: no commissions, entitlements, or "
+                        "balances. Re-run with apply=1&code=NNNNNN to write; if time_capped, re-run "
+                        "with charge_cursor=resume_cursor.")
+        return JSONResponse(base)
+
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    import pyotp
+    if not code or not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?apply=1&code=NNNNNN"}, status_code=403)
+
+    written = 0
+    for r in to_write:
+        try:
+            cshare, refundable = _ss.calculate_refundable(r["product"], r["amount_cents"])
+        except Exception:
+            cshare, refundable = 0, 0
+        db.add(StripeCharge(
+            user_id=r["user_id"],
+            stripe_charge_id=r["charge_id"],
+            stripe_payment_intent_id=r["payment_intent"],
+            stripe_subscription_id=r["sub_id"],
+            kind="charge",
+            product=r["product"],
+            amount_cents=r["amount_cents"],
+            currency=r["currency"],
+            company_share_cents=cshare,
+            refundable_cents=refundable,
+            description=f"Backfilled from Stripe live API {_dt.utcnow().date().isoformat()} (webhook-miss recovery)",
+            created_at=(_dt.utcfromtimestamp(r["created_ts"]) if r["created_ts"] else _dt.utcnow()),
+        ))
+        written += 1
+    db.commit()
+    base.update({
+        "mode": "applied",
+        "rows_written": written,
+        "note": ("Done. Record-only audit rows written with real charge ids. No commissions, "
+                 "entitlements, or balances touched. Re-run the dry run to confirm rows_to_write "
+                 "drops to 0 (use charge_cursor if it was time_capped)."),
+    })
+    return JSONResponse(base)
+
+
 @app.get("/admin/api/grid-root-restore")
 def admin_api_grid_root_restore(
     user: User = Depends(get_current_user),
