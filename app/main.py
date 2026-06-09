@@ -13220,6 +13220,154 @@ def admin_api_activations_near(
     })
 
 
+@app.get("/admin/api/wallet-trace")
+def admin_api_wallet_trace(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    address: str = "",
+    days: int = 180,
+    from_block: int = 0,
+    max_seconds: int = 60,
+):
+    """READ-ONLY. Trace every USDT payment a given wallet sent to the treasury, and
+    name the member behind it.
+
+    Used to attribute an UNATTRIBUTED treasury transfer whose sender we know but
+    whose owner we don't (e.g. a breach-wiped RENEWAL — no fresh activation to match
+    on time, so activations-near can't find them). A member usually pays from the
+    same wallet every time, so if ANY transfer from this wallet is already attributed
+    (Payment / WalletConnect order / resolved orphan), that record names the wallet's
+    owner — and therefore the owner of the unattributed transfer too.
+
+    Topic-filtered eth_getLogs (Transfer, from=address, to=treasury) — doubly indexed,
+    so it returns only this wallet's payments and stays cheap over a wide range.
+    Reads BSC via BSC_RPC_URL. apply has no meaning here (pure read)."""
+    _require_admin(user)
+    from .database import (Payment as _P, WalletConnectPaymentOrder as _WC,
+                           OnchainOrphanTransfer as _O, User as _U)
+    from datetime import datetime as _dt
+    import time as _time, urllib.request as _urlreq, json as _json
+    try:
+        from .walletconnect_payments import (TRANSFER_EVENT_TOPIC, USDT_CONTRACT_BSC,
+                                              TREASURY_ADDRESS_BSC, raw_to_usdt_bsc)
+        from .withdrawals import BSC_RPC_URL
+    except Exception as e:
+        return JSONResponse({"error": f"bsc init failed: {type(e).__name__}: {e}"}, status_code=200)
+
+    addr = (address or "").strip().lower()
+    if not (addr.startswith("0x") and len(addr) == 42):
+        return JSONResponse({"error": "address required (0x + 40 hex)"}, status_code=200)
+
+    def _rpc(method, params, timeout=25):
+        body = _json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": params}).encode()
+        req = _urlreq.Request(BSC_RPC_URL, data=body, headers={"Content-Type": "application/json"})
+        with _urlreq.urlopen(req, timeout=timeout) as r:
+            out = _json.loads(r.read())
+        if "result" not in out:
+            raise RuntimeError(f"rpc {method} error: {str(out.get('error'))[:120]}")
+        return out["result"]
+
+    try:
+        head = int(_rpc("eth_blockNumber", []), 16)
+    except Exception as e:
+        return JSONResponse({"error": f"BSC RPC unreachable: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
+
+    # BSC ~0.75s/block -> ~115200 blocks/day. Floor the scan unless caller pins from_block.
+    lo = int(from_block) if from_block else max(1, head - int(days * 115200))
+
+    # tx_hash -> attribution, across every rail that stores one
+    attrib = {}
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+    for p in db.query(_P.tx_hash, _P.from_user_id, _P.payment_type).filter(_P.tx_hash.isnot(None)).all():
+        attrib[str(p.tx_hash).lower()] = {"via": "payment", "user_id": p.from_user_id,
+                                          "username": uname.get(p.from_user_id), "detail": p.payment_type}
+    for w in db.query(_WC.tx_hash, _WC.user_id, _WC.product_type).filter(_WC.tx_hash.isnot(None)).all():
+        attrib.setdefault(str(w.tx_hash).lower(), {"via": "wc_order", "user_id": w.user_id,
+                                                   "username": uname.get(w.user_id), "detail": w.product_type})
+    for o in db.query(_O.tx_hash, _O.resolved_by_user_id, _O.resolved).filter(_O.tx_hash.isnot(None)).all():
+        attrib.setdefault(str(o.tx_hash).lower(), {"via": "orphan",
+                                                   "user_id": o.resolved_by_user_id,
+                                                   "username": uname.get(o.resolved_by_user_id),
+                                                   "detail": f"resolved={bool(o.resolved)}"})
+
+    from_padded = "0x" + addr[2:].zfill(64)
+    treasury_padded = "0x" + TREASURY_ADDRESS_BSC[2:].lower().zfill(64)
+    usdt = USDT_CONTRACT_BSC if USDT_CONTRACT_BSC.startswith("0x") else "0x" + USDT_CONTRACT_BSC
+
+    span = 500_000  # doubly-indexed filter returns near-zero rows -> wide span is fine
+    cur, t0 = lo, _time.time()
+    raw_logs, capped = [], False
+    while cur <= head:
+        if _time.time() - t0 > max_seconds:
+            capped = True
+            break
+        top = min(cur + span, head)
+        try:
+            logs = _rpc("eth_getLogs", [{
+                "fromBlock": hex(cur), "toBlock": hex(top), "address": usdt,
+                "topics": [TRANSFER_EVENT_TOPIC, from_padded, treasury_padded],
+            }])
+            raw_logs.extend(logs)
+            cur = top + 1
+        except Exception as ex:
+            msg = str(ex).lower()
+            if span > 2000 and any(k in msg for k in ("limit", "range", "many", "exceed", "large", "response")):
+                span = max(2000, span // 2)
+                continue
+            return JSONResponse({"error": f"getLogs failed: {type(ex).__name__}: {str(ex)[:120]}",
+                                 "at_block": cur, "span": span}, status_code=200)
+
+    _bts = {}
+    def blk_ts(n):
+        n = int(n)
+        if n not in _bts:
+            try:
+                _bts[n] = int(_rpc("eth_getBlockByNumber", [hex(n), False])["timestamp"], 16)
+            except Exception:
+                _bts[n] = 0
+        return _bts[n]
+
+    transfers, attributed_users = [], {}
+    for lg in raw_logs:
+        try:
+            txh = lg.get("transactionHash")
+            txh = (txh.hex() if hasattr(txh, "hex") else str(txh)).lower()
+            if not txh.startswith("0x"):
+                txh = "0x" + txh
+            bn = int(lg.get("blockNumber"), 16) if isinstance(lg.get("blockNumber"), str) else int(lg.get("blockNumber"))
+            data = lg.get("data", "0x0")
+            amt = float(raw_to_usdt_bsc(int(data, 16)))
+            a = attrib.get(txh)
+            ts = blk_ts(bn)
+            row = {"tx_hash": txh, "amount_usdt": round(amt, 4), "block_number": bn,
+                   "ts": _dt.utcfromtimestamp(ts).isoformat() if ts else None,
+                   "attributed": a or "UNATTRIBUTED"}
+            transfers.append(row)
+            if a and a.get("user_id"):
+                k = a["user_id"]
+                attributed_users.setdefault(k, {"user_id": k, "username": a.get("username"), "count": 0})
+                attributed_users[k]["count"] += 1
+        except Exception:
+            continue
+    transfers.sort(key=lambda r: r["block_number"])
+
+    return JSONResponse({
+        "wallet": addr,
+        "scanned_blocks": [lo, head],
+        "time_capped": capped,
+        "getlogs_span_used": span,
+        "transfers_found": len(transfers),
+        "transfers": transfers,
+        "attributed_owners": list(attributed_users.values()),
+        "note": ("READ-ONLY. transfers = every USDT payment this wallet sent the treasury in range. "
+                 "attributed_owners = members an already-recorded transfer from this wallet points to "
+                 "— the wallet's owner, hence the owner of any UNATTRIBUTED transfer from it. If empty "
+                 "and time_capped, re-run with &from_block= an earlier block to scan further back. "
+                 "If empty and not capped, this wallet has no other recorded treasury payment "
+                 "(can't be named from chain alone)."),
+    })
+
+
 @app.get("/admin/api/nowpayments-backfill")
 def admin_api_nowpayments_backfill(
     user: User = Depends(get_current_user),
