@@ -11523,6 +11523,196 @@ def admin_api_grid_position_replay(
     })
 
 
+@app.get("/admin/api/campaign-tier-restore")
+def admin_api_campaign_tier_restore(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+    max_seconds: int = 55,
+):
+    """Fix 'tier active but can't create a video campaign'.
+
+    Campaign creation is gated by get_user_highest_tier() = the member's highest
+    ACTIVE (incomplete) grid. The breach wiped grids; recovery could only rebuild
+    them for purchases recorded in the DB — and most weren't (Stripe never wrote
+    stripe_charges; crypto fell to orphans). So members who really paid for a
+    tier have no grid -> tier resolves to 0 -> campaign creation blocked, and the
+    boot cleanup paused the campaigns they already had.
+
+    This determines each member's paid tier from settled-money truth (Stripe
+    campaign_tier charges + confirmed WalletConnect grid orders), finds those
+    with NO active grid, and (on apply) creates their owner grid at that tier and
+    reactivates their paused_no_tier campaigns. NO commissions/bonuses fire —
+    those already paid at original purchase. Mirrors the grid-root-restore
+    direct-creation pattern.
+
+    apply=0 (default) = READ-ONLY dry run. apply=1 requires ?code=NNNNNN (2FA)."""
+    _require_admin(user)
+    from .database import (Grid, VideoCampaign, User as _U,
+                           GRID_PACKAGES as _PKG, WalletConnectPaymentOrder)
+    from datetime import datetime as _dt
+    import time as _time, re as _re
+
+    _price_to_tier = {}
+    for _t, _p in (_PKG or {}).items():
+        try:
+            _price_to_tier[round(float(_p), 2)] = _t
+        except Exception:
+            pass
+
+    paid_tier = {}   # uid -> highest paid campaign tier
+    evidence = {}    # uid -> evidence strings
+
+    def _bump(uid, tier, ev):
+        if not uid or not tier:
+            return
+        if tier > paid_tier.get(uid, 0):
+            paid_tier[uid] = tier
+        evidence.setdefault(uid, []).append(ev)
+
+    # ── Crypto: confirmed WalletConnect grid orders ──
+    try:
+        for o in db.query(WalletConnectPaymentOrder).filter(
+                WalletConnectPaymentOrder.status == "confirmed",
+                WalletConnectPaymentOrder.product_type == "grid").all():
+            m = _re.search(r"(\d+)", o.product_key or "")
+            tier = int(m.group(1)) if m else _price_to_tier.get(round(float(o.base_amount or 0), 2), 0)
+            _bump(o.user_id, tier, f"WC #{o.id} {o.product_key} (${float(o.base_amount or 0):.2f})")
+    except Exception:
+        pass
+
+    # ── Stripe: campaign_tier charges (live API truth) ──
+    stripe_note = None
+    try:
+        from . import stripe_service as _ss
+        if _ss.is_configured():
+            _ss._ensure_sdk()
+            import stripe as _stripe
+            cparams = {"limit": 100, "type": "charge"}
+            t0 = _time.time(); capped = False
+            while True:
+                if _time.time() - t0 > max_seconds:
+                    capped = True
+                    break
+                page = _stripe.BalanceTransaction.list(**cparams)
+                for bt in page.data:
+                    src = getattr(bt, "source", None)
+                    if not src or not str(src).startswith("ch_"):
+                        continue
+                    try:
+                        ch = _stripe.Charge.retrieve(src)
+                    except Exception:
+                        continue
+                    if not (bool(getattr(ch, "paid", False)) and getattr(ch, "status", "") == "succeeded"):
+                        continue
+                    if bool(getattr(ch, "refunded", False)):
+                        continue
+                    md = (ch.metadata.to_dict() if getattr(ch, "metadata", None) else {})
+                    if (md.get("product_kind") or "") != "campaign_tier":
+                        continue
+                    try:
+                        uid = int(md.get("superadpro_user_id") or 0)
+                    except (TypeError, ValueError):
+                        uid = 0
+                    try:
+                        tier = int(md.get("campaign_tier_id") or 0)
+                    except (TypeError, ValueError):
+                        tier = 0
+                    if not tier:
+                        tier = _price_to_tier.get(round((ch.amount or 0) / 100.0, 2), 0)
+                    _bump(uid, tier, f"Stripe {ch.id} tier {tier} (${(ch.amount or 0)/100.0:.2f})")
+                if getattr(page, "has_more", False) and page.data:
+                    cparams["starting_after"] = page.data[-1].id
+                else:
+                    break
+            if capped:
+                stripe_note = "Stripe charge walk hit the time cap — re-run; some tier buyers may be missing."
+        else:
+            stripe_note = "Stripe not configured in this environment (can't read card-paid tiers here)."
+    except Exception as e:
+        stripe_note = f"Stripe walk error: {type(e).__name__}: {str(e)[:160]}"
+
+    # ── Candidates: paid a tier but have NO active grid (= the blocked cohort) ──
+    candidates = []
+    for uid, tier in paid_tier.items():
+        if db.query(Grid).filter(Grid.owner_id == uid, Grid.is_complete == False).count() > 0:
+            continue  # already has an active grid -> can create campaigns
+        u = db.query(_U.id, _U.username, _U.is_active).filter(_U.id == uid).first()
+        if not u:
+            continue
+        paused = db.query(VideoCampaign.id, VideoCampaign.title).filter(
+            VideoCampaign.user_id == uid,
+            VideoCampaign.status == "paused_no_tier").all()
+        candidates.append({
+            "user_id": uid, "username": u.username, "is_active": bool(u.is_active),
+            "restore_tier": tier, "tier_price": float((_PKG or {}).get(tier, 0)),
+            "evidence": evidence.get(uid, [])[:6],
+            "campaigns_to_unpause": [{"id": c.id, "title": c.title} for c in paused],
+        })
+    candidates.sort(key=lambda c: (-c["restore_tier"], c["user_id"]))
+
+    base = {
+        "generated_at": _dt.utcnow().isoformat(),
+        "stripe_note": stripe_note,
+        "paid_tier_buyers_found": len(paid_tier),
+        "candidates_needing_grid_restore": len(candidates),
+        "campaigns_that_would_unpause": sum(len(c["campaigns_to_unpause"]) for c in candidates),
+        "candidates": candidates,
+    }
+
+    if not apply:
+        base["mode"] = "dry_run"
+        base["note"] = ("READ-ONLY preview — nothing written. Each candidate paid for a "
+                        "Campaign Tier (see evidence) but has no active grid, which is why "
+                        "campaign creation is blocked for them. Re-run with apply=1&code=NNNNNN "
+                        "(2FA) to create their grids and reactivate their campaigns. No "
+                        "commissions fire — already paid at purchase. Orphan-paid (unmatched "
+                        "on-chain) tier buyers are NOT here yet — resolve orphans first.")
+        return JSONResponse(base)
+
+    # ── APPLY (2FA-gated, mirrors grid-root-restore) ──
+    if not getattr(user, "totp_secret", None):
+        return JSONResponse({"error": "Admin has no 2FA configured"}, status_code=400)
+    import pyotp
+    if not code or not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        return JSONResponse({"error": "Invalid or missing 2FA code — pass ?apply=1&code=NNNNNN"}, status_code=403)
+
+    grids_created = 0
+    campaigns_unpaused = 0
+    details = []
+    for c in candidates:
+        uid = c["user_id"]
+        tier = c["restore_tier"]
+        if db.query(Grid).filter(Grid.owner_id == uid, Grid.is_complete == False).count() > 0:
+            continue  # idempotency — grid appeared since dry run
+        g = Grid(owner_id=uid, package_tier=tier, package_price=(_PKG or {}).get(tier, 0),
+                 advance_number=1, positions_filled=0, revenue_total=0,
+                 bonus_pool_accrued=0, is_complete=False, owner_purchased=True)
+        db.add(g)
+        db.flush()
+        grids_created += 1
+        n = db.query(VideoCampaign).filter(
+            VideoCampaign.user_id == uid,
+            VideoCampaign.status == "paused_no_tier").update(
+            {VideoCampaign.status: "active"}, synchronize_session=False)
+        campaigns_unpaused += int(n or 0)
+        details.append({"user_id": uid, "username": c["username"],
+                        "grid_tier_created": tier, "campaigns_reactivated": int(n or 0)})
+    db.commit()
+    base.update({
+        "mode": "applied",
+        "grids_created": grids_created,
+        "campaigns_unpaused": campaigns_unpaused,
+        "applied_detail": details,
+        "note": ("Active owner grids created at each member's paid tier; paused_no_tier "
+                 "campaigns reactivated. No commissions/bonuses fired. These members can "
+                 "now create campaigns. Grid seat-history (downline) is a separate concern "
+                 "handled by the full grid reconciliation."),
+    })
+    return JSONResponse(base)
+
+
 @app.get("/admin/api/grid-root-restore")
 def admin_api_grid_root_restore(
     user: User = Depends(get_current_user),
