@@ -12112,6 +12112,24 @@ def admin_api_stripe_charge_backfill(
                     cust = getattr(ch, "customer", None)
                     if cust:
                         u = db.query(_U).filter(_U.stripe_customer_id == str(cust)).first()
+                if u is None:
+                    # Subscription-renewal charges often carry no charge-level
+                    # metadata, and the 3-Jun breach wiped many stripe_customer_id
+                    # values — so the two paths above miss them. The live truth we
+                    # DO still hold is User.stripe_subscription_id, so bridge the
+                    # charge -> invoice -> subscription -> user. This is what
+                    # recovers the active Stripe subscribers (has_stripe_sub=true)
+                    # that showed zero stripe rail records.
+                    inv_id = getattr(ch, "invoice", None)
+                    if inv_id:
+                        try:
+                            _inv = _stripe.Invoice.retrieve(str(inv_id))
+                            _sub = getattr(_inv, "subscription", None)
+                            if _sub:
+                                u = db.query(_U).filter(
+                                    _U.stripe_subscription_id == str(_sub)).first()
+                        except Exception:
+                            pass
                 amt_cents = int(ch.amount or 0)
                 if u is None:
                     unattributed.append({"charge_id": ch.id, "usd": amt_cents / 100.0,
