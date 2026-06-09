@@ -12075,7 +12075,7 @@ def admin_api_stripe_charge_backfill(
     hit_cap = False
     resume_cursor = ""
     _t0 = _time.time()
-    params = {"limit": 100, "type": "charge"}
+    params = {"limit": 100}
     if charge_cursor:
         params["starting_after"] = charge_cursor
     try:
@@ -12083,16 +12083,9 @@ def admin_api_stripe_charge_backfill(
             if _time.time() - _t0 > max_seconds:
                 hit_cap = True
                 break
-            page = _stripe.BalanceTransaction.list(**params)
-            for bt in page.data:
+            page = _stripe.Charge.list(**params)
+            for ch in page.data:
                 scanned += 1
-                src = getattr(bt, "source", None)
-                if not src or not str(src).startswith("ch_"):
-                    continue
-                try:
-                    ch = _stripe.Charge.retrieve(src)
-                except Exception:
-                    continue
                 charges_read += 1
                 paid = bool(getattr(ch, "paid", False)) and getattr(ch, "status", "") == "succeeded"
                 refunded = bool(getattr(ch, "refunded", False))
