@@ -9689,6 +9689,77 @@ def admin_api_user_fulfillment(
     })
 
 
+@app.get("/admin/api/gift-activation-check")
+def admin_api_gift_activation_check(
+    request: Request,
+    user_ids: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Wipe-recovery: was a member activated via a CLAIMED gift voucher?
+
+    The Free Gifting (Pay It Forward) system is the one off-rail activation
+    route that IS recorded in our own DB — a GiftVoucher row with
+    claimed_by_user_id set. lookup_user and user-fulfillment are both blind
+    to gifts a member RECEIVED (they only see what a member bought/owns), so
+    this endpoint closes that gap directly.
+
+    For each user_id, returns every gift_voucher CLAIMED BY that user, with
+    who gifted it, what it was (membership/tier), its dollar value, whether
+    the gift was free (is_free_voucher) or paid-for (payment_method), and
+    when it was claimed. An empty list RULES OUT the gift route for that
+    member (so the remaining explanation is bank transfer / off-coin
+    NOWPayments / genuine comp). Read-only.
+    """
+    _require_admin(user)
+    from .database import GiftVoucher, User as _User
+
+    try:
+        ids = [int(x) for x in user_ids.split(",") if x.strip()]
+    except ValueError:
+        return JSONResponse({"error": "user_ids must be comma-separated integers"}, status_code=400)
+
+    out = {}
+    for uid in ids:
+        target = db.query(_User).filter(_User.id == uid).first()
+        if not target:
+            out[uid] = {"error": "user not found"}
+            continue
+        vouchers = (
+            db.query(GiftVoucher)
+            .filter(GiftVoucher.claimed_by_user_id == uid)
+            .order_by(GiftVoucher.claimed_at.desc())
+            .all()
+        )
+        rows = []
+        for v in vouchers:
+            gifter = db.query(_User).filter(_User.id == v.gifter_user_id).first()
+            rows.append({
+                "voucher_id": v.id,
+                "voucher_code": v.voucher_code,
+                "gifter_user_id": v.gifter_user_id,
+                "gifter_username": gifter.username if gifter else None,
+                "gift_type": v.gift_type,
+                "gift_value": float(v.gift_value) if v.gift_value is not None else None,
+                "tier_num": v.tier_num,
+                "is_free_voucher": bool(v.is_free_voucher),
+                "payment_method": v.payment_method,
+                "payment_ref": v.payment_ref,
+                "status": v.status,
+                "claimed_at": v.claimed_at.isoformat() if v.claimed_at else None,
+                "created_at": v.created_at.isoformat() if v.created_at else None,
+            })
+        out[uid] = {
+            "username": target.username,
+            "email": target.email,
+            "activated_at": target.activated_at.isoformat() if getattr(target, "activated_at", None) else None,
+            "gift_activated": len(rows) > 0,
+            "claimed_vouchers": rows,
+        }
+
+    return JSONResponse({"results": out})
+
+
 @app.get("/admin/api/purchase-source-census")
 def admin_api_purchase_source_census(
     user: User = Depends(get_current_user),
