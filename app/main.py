@@ -11882,6 +11882,144 @@ def admin_api_reactivate_stuck_campaigns(
     return JSONResponse(base)
 
 
+@app.get("/admin/api/ownership-snapshot")
+def admin_api_ownership_snapshot(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    fmt: str = "summary",   # summary | full | csv
+):
+    """Master record: every registered member, what they own, and who sponsored
+    them. Assembled from the live source tables (User.sponsor_id, Grid,
+    CreditPackPurchase, membership flags) and cross-checked against all three
+    payment rails (Stripe, NOWPayments, WalletConnect). Read-only.
+
+    fmt=summary (default): headline counts + provability gaps (members who own a
+        product but have NO payment-rail record) + members with no sponsor.
+    fmt=full: full per-member JSON array.
+    fmt=csv: downloadable CSV, one row per member — the off-platform backup you
+        keep (open in Sheets/Excel)."""
+    _require_admin(user)
+    from .database import (User as _U, Grid, CreditPackPurchase, StripeCharge,
+                           WalletConnectPaymentOrder, NowPaymentsOrder, Payment)
+    from sqlalchemy import func as _f
+    from datetime import datetime as _dt
+    from collections import defaultdict
+
+    users = db.query(
+        _U.id, _U.username, _U.email, _U.sponsor_id, _U.pass_up_sponsor_id,
+        _U.is_active, _U.is_founding_member, _U.membership_tier,
+        _U.membership_price_locked, _U.membership_expires_at,
+        _U.membership_billing, _U.stripe_subscription_id, _U.payment_method,
+    ).all()
+    uname = {u.id: u.username for u in users}
+
+    grids_by_owner = defaultdict(list)
+    for g in db.query(Grid.owner_id, Grid.package_tier, Grid.owner_purchased,
+                      Grid.is_complete).all():
+        grids_by_owner[g.owner_id].append(
+            {"tier": g.package_tier, "owner_purchased": bool(g.owner_purchased),
+             "is_complete": bool(g.is_complete)})
+
+    packs_by_user = defaultdict(list)
+    for p in db.query(CreditPackPurchase.user_id, CreditPackPurchase.pack_key,
+                      CreditPackPurchase.credits_awarded, CreditPackPurchase.status).all():
+        packs_by_user[p.user_id].append(
+            {"pack": p.pack_key, "credits": p.credits_awarded, "status": p.status})
+
+    def _cmap(rows):
+        return {r[0]: r[1] for r in rows}
+    sc_cnt = _cmap(db.query(StripeCharge.user_id, _f.count(StripeCharge.id))
+                   .group_by(StripeCharge.user_id).all())
+    wc_cnt = _cmap(db.query(WalletConnectPaymentOrder.user_id, _f.count(WalletConnectPaymentOrder.id))
+                   .filter(WalletConnectPaymentOrder.status == "confirmed")
+                   .group_by(WalletConnectPaymentOrder.user_id).all())
+    np_cnt = _cmap(db.query(NowPaymentsOrder.user_id, _f.count(NowPaymentsOrder.id))
+                   .filter(NowPaymentsOrder.status.in_(["confirmed", "finished"]))
+                   .group_by(NowPaymentsOrder.user_id).all())
+    pay_cnt = _cmap(db.query(Payment.from_user_id, _f.count(Payment.id))
+                    .filter(Payment.status == "confirmed")
+                    .group_by(Payment.from_user_id).all())
+
+    members = []
+    for u in users:
+        grids = grids_by_owner.get(u.id, [])
+        owned_tiers = sorted({g["tier"] for g in grids if g["owner_purchased"]})
+        packs = packs_by_user.get(u.id, [])
+        rail = {"stripe": sc_cnt.get(u.id, 0), "nowpayments": np_cnt.get(u.id, 0),
+                "walletconnect": wc_cnt.get(u.id, 0), "payments_tbl": pay_cnt.get(u.id, 0)}
+        owns_product = bool(owned_tiers) or bool(packs) or bool(u.is_active)
+        has_rail = any(rail.values())
+        members.append({
+            "user_id": u.id, "username": u.username, "email": u.email,
+            "sponsor_id": u.sponsor_id, "sponsor_username": uname.get(u.sponsor_id),
+            "pass_up_sponsor_id": u.pass_up_sponsor_id,
+            "is_active": bool(u.is_active), "is_founding_member": bool(u.is_founding_member),
+            "membership_tier": u.membership_tier,
+            "price_locked": (float(u.membership_price_locked)
+                             if u.membership_price_locked is not None else None),
+            "membership_expires_at": (u.membership_expires_at.isoformat()
+                                      if u.membership_expires_at else None),
+            "membership_billing": u.membership_billing,
+            "has_stripe_sub": bool(u.stripe_subscription_id),
+            "payment_method": u.payment_method,
+            "tiers_owned": owned_tiers, "credit_packs": packs, "rail_records": rail,
+            "owns_product": owns_product,
+            "payment_record_present": (has_rail if owns_product else None),
+        })
+
+    if fmt == "csv":
+        import csv, io
+        buf = io.StringIO()
+        w = csv.writer(buf)
+        w.writerow(["user_id", "username", "email", "sponsor_id", "sponsor_username",
+                    "pass_up_sponsor_id", "is_active", "is_founding_member", "membership_tier",
+                    "price_locked", "membership_expires_at", "membership_billing", "has_stripe_sub",
+                    "payment_method", "tiers_owned", "credit_packs", "stripe_recs",
+                    "nowpayments_recs", "walletconnect_recs", "payments_tbl_recs",
+                    "owns_product", "payment_record_present"])
+        for m in members:
+            w.writerow([
+                m["user_id"], m["username"], m["email"], m["sponsor_id"], m["sponsor_username"] or "",
+                m["pass_up_sponsor_id"] or "", m["is_active"], m["is_founding_member"],
+                m["membership_tier"], "" if m["price_locked"] is None else m["price_locked"],
+                m["membership_expires_at"] or "", m["membership_billing"] or "", m["has_stripe_sub"],
+                m["payment_method"] or "", ";".join(str(t) for t in m["tiers_owned"]),
+                ";".join(f'{p["pack"]}({p["credits"]},{p["status"]})' for p in m["credit_packs"]),
+                m["rail_records"]["stripe"], m["rail_records"]["nowpayments"],
+                m["rail_records"]["walletconnect"], m["rail_records"]["payments_tbl"],
+                m["owns_product"], "" if m["payment_record_present"] is None else m["payment_record_present"],
+            ])
+        from fastapi.responses import Response as _Resp
+        return _Resp(content=buf.getvalue(), media_type="text/csv",
+                     headers={"Content-Disposition": "attachment; filename=ownership-snapshot.csv"})
+
+    no_sponsor = [{"user_id": m["user_id"], "username": m["username"]}
+                  for m in members if not m["sponsor_id"]]
+    gaps = [{"user_id": m["user_id"], "username": m["username"], "tiers_owned": m["tiers_owned"],
+             "is_active": m["is_active"], "credit_packs": [p["pack"] for p in m["credit_packs"]]}
+            for m in members if m["owns_product"] and not any(m["rail_records"].values())]
+
+    summary = {
+        "generated_at": _dt.utcnow().isoformat(),
+        "members_total": len(members),
+        "members_active": sum(1 for m in members if m["is_active"]),
+        "tier_owners": sum(1 for m in members if m["tiers_owned"]),
+        "credit_pack_owners": sum(1 for m in members if m["credit_packs"]),
+        "members_without_sponsor": len(no_sponsor),
+        "provability_gaps_count": len(gaps),
+        "note": ("provability_gaps = members who OWN a product (active membership, a purchased "
+                 "tier, or a credit pack) but have ZERO record on any of the three payment rails "
+                 "— holdings whose money-in record was wiped and needs backfilling. Load "
+                 "?fmt=csv for the full downloadable master record (one row per member: ownership "
+                 "+ sponsor) — that file is your off-platform backup. ?fmt=full for JSON."),
+        "members_without_sponsor_sample": no_sponsor[:50],
+        "provability_gaps_sample": gaps[:50],
+    }
+    if fmt == "full":
+        summary["members"] = members
+    return JSONResponse(summary)
+
+
 @app.get("/admin/api/grid-root-restore")
 def admin_api_grid_root_restore(
     user: User = Depends(get_current_user),
