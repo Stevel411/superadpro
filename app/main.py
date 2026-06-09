@@ -12410,7 +12410,7 @@ def admin_api_onchain_historical_reconcile(
     try:
         from .walletconnect_payments import _get_treasury_transfers_single_provider as _scan
         from .withdrawals import BSC_RPC_URL
-        from web3 import Web3
+        import urllib.request as _urlreq, json as _json
     except Exception as e:
         return JSONResponse({"error": f"bsc init failed: {type(e).__name__}: {e}"}, status_code=200)
 
@@ -12419,11 +12419,23 @@ def admin_api_onchain_historical_reconcile(
     except ValueError:
         return JSONResponse({"error": "user_ids must be comma-separated integers"}, status_code=200)
 
+    # Raw JSON-RPC for block lookups — bypasses web3's PoA extraData header
+    # validation (BSC is proof-of-authority; web3.eth.get_block raises
+    # ExtraDataLengthError without the PoA middleware). getLogs goes through the
+    # scanner's _scan, which doesn't parse headers, so it's unaffected.
+    def _rpc(method, params, timeout=20):
+        body = _json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": params}).encode()
+        req = _urlreq.Request(BSC_RPC_URL, data=body, headers={"Content-Type": "application/json"})
+        with _urlreq.urlopen(req, timeout=timeout) as r:
+            out = _json.loads(r.read())
+        if "result" not in out:
+            raise RuntimeError(f"rpc {method} error: {str(out.get('error'))[:120]}")
+        return out["result"]
+
     try:
-        w3 = Web3(Web3.HTTPProvider(BSC_RPC_URL, request_kwargs={"timeout": 20}))
-        head = int(w3.eth.block_number)
+        head = int(_rpc("eth_blockNumber", []), 16)
     except Exception as e:
-        return JSONResponse({"error": f"BSC RPC unreachable via BSC_RPC_URL: {type(e).__name__}"}, status_code=200)
+        return JSONResponse({"error": f"BSC RPC unreachable via BSC_RPC_URL: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
 
     # already-attributed tx hashes across every rail that records one
     attributed = set()
@@ -12439,12 +12451,15 @@ def admin_api_onchain_historical_reconcile(
     def blk_ts(n):
         n = int(n)
         if n not in _bts:
-            _bts[n] = int(w3.eth.get_block(n)["timestamp"])
+            _bts[n] = int(_rpc("eth_getBlockByNumber", [hex(n), False])["timestamp"], 16)
         return _bts[n]
 
-    head_ts = blk_ts(head)
-    _samp = max(1, head - 5_000_000)
-    avg_bt = max(0.1, (head_ts - blk_ts(_samp)) / max(1, (head - _samp)))
+    try:
+        head_ts = blk_ts(head)
+        _samp = max(1, head - 5_000_000)
+        avg_bt = max(0.1, (head_ts - blk_ts(_samp)) / max(1, (head - _samp)))
+    except Exception as e:
+        return JSONResponse({"error": f"block calibration failed: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
 
     def block_at(ts_target):
         est = int(head - (head_ts - ts_target) / avg_bt)
