@@ -9868,6 +9868,254 @@ def admin_api_stripe_tier_credit_recovery(
     })
 
 
+def _run_reconciliation(db, max_seconds: int = 55, charge_cursor: str = ""):
+    """Core cross-rail reconciliation. Settled-money truth (Stripe API +
+    confirmed crypto orders + on-chain orphans) vs the internal DB mirror.
+    Read-only — performs NO writes. Returns a dict. Factored out so a cron
+    can reuse it. See /admin/api/reconcile for the HTTP surface."""
+    from .database import (User as _U, StripeCharge, WalletConnectPaymentOrder,
+                           NowPaymentsOrder, OnchainOrphanTransfer)
+    from sqlalchemy import func as _f
+    from datetime import datetime as _dt
+    import time as _time
+
+    rep = {"generated_at": _dt.utcnow().isoformat(), "read_only": True}
+
+    # ── A. Internal mirror snapshot (what the DB currently believes) ──
+    local_charge_ids = {r[0] for r in db.query(StripeCharge.stripe_charge_id)
+                        .filter(StripeCharge.kind == "charge",
+                                StripeCharge.stripe_charge_id.isnot(None)).all()}
+    rep["internal_mirror"] = {
+        "stripe_charge_rows": len(local_charge_ids),
+        "wc_confirmed_rows": db.query(_f.count(WalletConnectPaymentOrder.id))
+            .filter(WalletConnectPaymentOrder.status == "confirmed").scalar() or 0,
+        "np_confirmed_rows": db.query(_f.count(NowPaymentsOrder.id))
+            .filter(NowPaymentsOrder.status.in_(["confirmed", "finished"])).scalar() or 0,
+    }
+
+    # ── B. Crypto truth (confirmed orders, straight from DB) ──
+    def _order_summary(rows, amount_attr):
+        total = 0.0
+        users = set()
+        by_product = {}
+        for r in rows:
+            amt = float(getattr(r, amount_attr, 0) or 0)
+            total += amt
+            if r.user_id:
+                users.add(r.user_id)
+            pk = getattr(r, "product_type", None) or "unknown"
+            by_product[pk] = round(by_product.get(pk, 0.0) + amt, 2)
+        return {"count": len(rows), "usd": round(total, 2),
+                "distinct_users": len(users), "by_product": by_product}
+
+    rep["walletconnect"] = _order_summary(
+        db.query(WalletConnectPaymentOrder).filter(
+            WalletConnectPaymentOrder.status == "confirmed").all(), "base_amount")
+    rep["nowpayments"] = _order_summary(
+        db.query(NowPaymentsOrder).filter(
+            NowPaymentsOrder.status.in_(["confirmed", "finished"])).all(), "price_usd")
+
+    # ── C. On-chain orphans (USDT that arrived but matched no order) ──
+    orphans = db.query(OnchainOrphanTransfer).filter(
+        OnchainOrphanTransfer.resolved == False).all()  # noqa: E712
+    rep["orphan_transfers"] = {
+        "unresolved_count": len(orphans),
+        "unresolved_usd": round(sum(float(o.amount_usdt or 0) for o in orphans), 2),
+        "sample": [{"tx_hash": o.tx_hash, "from_address": o.from_address,
+                    "usd": float(o.amount_usdt or 0),
+                    "likely_rounded": bool(o.likely_rounded_amount)}
+                   for o in orphans[:15]],
+    }
+
+    # ── D. Stripe truth (LIVE API — catches webhook-missed charges) ──
+    stripe_rep = {"configured": False}
+    try:
+        from . import stripe_service as _ss
+        if not _ss.is_configured():
+            stripe_rep = {"configured": False,
+                          "note": ("Stripe not configured in this environment "
+                                   "(STRIPE_SECRET_KEY / price IDs missing). Run from a "
+                                   "deploy that holds the key — the live app does.")}
+        else:
+            _ss._ensure_sdk()
+            import stripe as _stripe
+
+            # D1. Subscriptions = recurring paying members (fast, authoritative)
+            sub_total = 0
+            sub_by_status = {}
+            sub_by_price = {}
+            active_customers = set()
+            sub_capped = False
+            sparams = {"status": "all", "limit": 100}
+            t_sub = _time.time()
+            while True:
+                if _time.time() - t_sub > 20:
+                    sub_capped = True
+                    break
+                spage = _stripe.Subscription.list(**sparams)
+                for s in spage.data:
+                    sub_total += 1
+                    st = getattr(s, "status", "unknown")
+                    sub_by_status[st] = sub_by_status.get(st, 0) + 1
+                    if st in ("active", "trialing", "past_due"):
+                        cust = getattr(s, "customer", None)
+                        if cust:
+                            active_customers.add(cust)
+                        try:
+                            items = getattr(s, "items", None)
+                            pid = items.data[0].price.id if (items and items.data) else "unknown"
+                        except Exception:
+                            pid = "unknown"
+                        sub_by_price[pid] = sub_by_price.get(pid, 0) + 1
+                if getattr(spage, "has_more", False) and spage.data:
+                    sparams["starting_after"] = spage.data[-1].id
+                else:
+                    break
+            matched_sub_users = 0
+            if active_customers:
+                matched_sub_users = db.query(_f.count(_U.id)).filter(
+                    _U.stripe_customer_id.in_(list(active_customers))).scalar() or 0
+
+            # D2. Walk charges → revenue by product, distinct buyers, recording gap
+            by_kind = {}
+            rev_by_kind = {}
+            paying_users = set()
+            scanned = charges_read = 0
+            missing_sample = []
+            missing_usd = 0.0
+            cap_hit = False
+            resume = ""
+            walk_err = None
+            cparams = {"limit": 100, "type": "charge"}
+            if charge_cursor:
+                cparams["starting_after"] = charge_cursor
+            t_ch = _time.time()
+            try:
+                while True:
+                    if _time.time() - t_ch > max_seconds:
+                        cap_hit = True
+                        break
+                    page = _stripe.BalanceTransaction.list(**cparams)
+                    for bt in page.data:
+                        scanned += 1
+                        src = getattr(bt, "source", None)
+                        if not src or not str(src).startswith("ch_"):
+                            continue
+                        try:
+                            ch = _stripe.Charge.retrieve(src)
+                        except Exception:
+                            continue
+                        charges_read += 1
+                        paid = bool(getattr(ch, "paid", False)) and getattr(ch, "status", "") == "succeeded"
+                        if not paid or bool(getattr(ch, "refunded", False)):
+                            continue
+                        md = (ch.metadata.to_dict() if getattr(ch, "metadata", None) else {})
+                        pk = md.get("product_kind") or "unknown"
+                        amt = (ch.amount or 0) / 100.0
+                        by_kind[pk] = by_kind.get(pk, 0) + 1
+                        rev_by_kind[pk] = round(rev_by_kind.get(pk, 0.0) + amt, 2)
+                        try:
+                            uid = int(md.get("superadpro_user_id") or 0)
+                        except (TypeError, ValueError):
+                            uid = 0
+                        if uid:
+                            paying_users.add(uid)
+                        if ch.id not in local_charge_ids:
+                            missing_usd += amt
+                            if len(missing_sample) < 25:
+                                missing_sample.append({"charge_id": ch.id, "user_id": uid,
+                                                       "product": pk, "usd": round(amt, 2)})
+                    if getattr(page, "has_more", False) and page.data:
+                        resume = page.data[-1].id
+                        cparams["starting_after"] = resume
+                    else:
+                        resume = ""
+                        break
+            except Exception as e:
+                walk_err = f"{type(e).__name__}: {str(e)[:200]}"
+
+            stripe_rep = {
+                "configured": True,
+                "active_subscriptions": {
+                    "total_subscriptions_seen": sub_total,
+                    "by_status": sub_by_status,
+                    "active_or_billing": sum(sub_by_status.get(k, 0)
+                                             for k in ("active", "trialing", "past_due")),
+                    "distinct_paying_customers": len(active_customers),
+                    "matched_to_local_users": int(matched_sub_users),
+                    "by_price_id": sub_by_price,
+                    "scan_capped": sub_capped,
+                },
+                "one_time_charges": {
+                    "balance_txns_scanned": scanned,
+                    "charges_read": charges_read,
+                    "by_product_kind": by_kind,
+                    "revenue_usd_by_product": rev_by_kind,
+                    "total_paid_usd": round(sum(rev_by_kind.values()), 2),
+                    "distinct_paying_users": len(paying_users),
+                    "time_capped": cap_hit,
+                    "resume_cursor": resume if cap_hit else "",
+                    "walk_error": walk_err,
+                },
+                "recording_gap": {
+                    "paid_charges_missing_from_mirror": len(missing_sample),
+                    "missing_usd_seen_so_far": round(missing_usd, 2),
+                    "complete": (not cap_hit and walk_err is None),
+                    "sample": missing_sample,
+                    "note": ("Charges present in Stripe but absent from the local "
+                             "stripe_charges table = the webhook-miss recording leak. "
+                             "These are what a backfill would write. If time_capped, "
+                             "re-run with charge_cursor=resume_cursor to continue."),
+                },
+            }
+    except Exception as e:
+        stripe_rep = {"configured": False, "error": f"{type(e).__name__}: {str(e)[:200]}"}
+    rep["stripe"] = stripe_rep
+
+    # ── E. Headline summary ──
+    s_subs = (stripe_rep.get("active_subscriptions") or {}) if stripe_rep.get("configured") else {}
+    s_charges = (stripe_rep.get("one_time_charges") or {}) if stripe_rep.get("configured") else {}
+    rep["summary"] = {
+        "stripe_active_paying_members": s_subs.get("active_or_billing") if stripe_rep.get("configured") else None,
+        "stripe_one_time_revenue_usd": s_charges.get("total_paid_usd") if stripe_rep.get("configured") else None,
+        "crypto_confirmed_revenue_usd": round(rep["walletconnect"]["usd"] + rep["nowpayments"]["usd"], 2),
+        "crypto_confirmed_buyers": rep["walletconnect"]["distinct_users"] + rep["nowpayments"]["distinct_users"],
+        "stripe_charges_missing_from_db_usd": (stripe_rep.get("recording_gap") or {}).get("missing_usd_seen_so_far") if stripe_rep.get("configured") else None,
+        "orphan_unmatched_usd": rep["orphan_transfers"]["unresolved_usd"],
+        "verdict": ("Real paying base = Stripe active_or_billing subscriptions + distinct "
+                    "crypto buyers (rails may overlap; treat as upper bound until de-duped by "
+                    "user_id). Recording leak = stripe_charges_missing + orphan transfers. "
+                    "Crypto buyer counts are per-rail distinct, not yet de-duped across rails."),
+    }
+    return rep
+
+
+@app.get("/admin/api/reconcile")
+def admin_api_reconcile(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    max_seconds: int = 55,
+    charge_cursor: str = "",
+):
+    """Authoritative cross-rail reconciliation (READ-ONLY, no mutations).
+
+    Settled-money truth — Stripe live API (subscriptions + charges), confirmed
+    WalletConnect/NOWPayments orders, and on-chain orphan transfers — diffed
+    against the internal DB mirror. Answers, in one pass:
+      • how many REAL paying members / how much REAL revenue exists, and
+      • where the DB disagrees (Stripe charges that never reached stripe_charges
+        = the webhook-miss leak; on-chain transfers that matched no order).
+
+    Stripe charge-walk is time-capped (per-charge API reads are slow). If
+    time_capped=true, re-run with charge_cursor=<resume_cursor> to continue.
+    Nothing is written — backfill is a separate, dry-run-gated step."""
+    _require_admin(user)
+    try:
+        return JSONResponse(_run_reconciliation(db, max_seconds=max_seconds, charge_cursor=charge_cursor))
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:300]}"}, status_code=200)
+
+
 @app.get("/admin/api/nowpayments-enrich")
 def admin_api_nowpayments_enrich(
     user: User = Depends(get_current_user),
