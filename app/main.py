@@ -12987,6 +12987,165 @@ def admin_api_onchain_historical_reconcile(
     return JSONResponse(base)
 
 
+@app.get("/admin/api/treasury-scan")
+def admin_api_treasury_scan(
+    request: Request,
+    after: str,
+    before: str,
+    max_seconds: int = 70,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY forensic: list every USDT inbound to the treasury between two
+    timestamps, flagging which are already attributed and which are orphaned.
+
+    Used to recover breach-wiped direct payments whose order row no longer
+    exists: scan a tight window around a member's signup/activation and look
+    for an UNATTRIBUTED ~price transfer — that's their lost payment. Keep the
+    window tight (a few hours) so the getLogs scan stays cheap.
+
+    after / before: ISO timestamps (e.g. 2026-05-25T04:00:00). No writes.
+    """
+    _require_admin(user)
+    from .database import (Payment as _P, WalletConnectPaymentOrder as _WC,
+                           OnchainOrphanTransfer as _O)
+    from datetime import datetime as _dt, timezone as _tz
+    import time as _time
+    try:
+        from .walletconnect_payments import _get_treasury_transfers_single_provider as _scan
+        from .withdrawals import BSC_RPC_URL
+        import urllib.request as _urlreq, json as _json
+    except Exception as e:
+        return JSONResponse({"error": f"bsc init failed: {type(e).__name__}: {e}"}, status_code=200)
+
+    def _parse(ts):
+        ts = ts.strip().replace("Z", "")
+        for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+            try:
+                return int(_dt.strptime(ts, fmt).replace(tzinfo=_tz.utc).timestamp())
+            except ValueError:
+                pass
+        return None
+    ts_after, ts_before = _parse(after), _parse(before)
+    if ts_after is None or ts_before is None:
+        return JSONResponse({"error": "after/before must be ISO e.g. 2026-05-25T04:00:00"}, status_code=400)
+    if ts_before <= ts_after:
+        return JSONResponse({"error": "before must be after after"}, status_code=400)
+
+    def _rpc(method, params, timeout=20):
+        body = _json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": params}).encode()
+        req = _urlreq.Request(BSC_RPC_URL, data=body, headers={"Content-Type": "application/json"})
+        with _urlreq.urlopen(req, timeout=timeout) as r:
+            out = _json.loads(r.read())
+        if "result" not in out:
+            raise RuntimeError(f"rpc {method} error: {str(out.get('error'))[:120]}")
+        return out["result"]
+
+    try:
+        head = int(_rpc("eth_blockNumber", []), 16)
+    except Exception as e:
+        return JSONResponse({"error": f"BSC RPC unreachable: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
+
+    _bts = {}
+    def blk_ts(n):
+        n = int(n)
+        if n not in _bts:
+            _bts[n] = int(_rpc("eth_getBlockByNumber", [hex(n), False])["timestamp"], 16)
+        return _bts[n]
+
+    try:
+        head_ts = blk_ts(head)
+        _samp = max(1, head - 5_000_000)
+        avg_bt = max(0.1, (head_ts - blk_ts(_samp)) / max(1, (head - _samp)))
+    except Exception as e:
+        return JSONResponse({"error": f"block calibration failed: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
+
+    def block_at(ts_target):
+        est = int(head - (head_ts - ts_target) / avg_bt)
+        lo = max(1, est - 150_000); hi = min(head, est + 150_000); guard = 0
+        while lo > 1 and blk_ts(lo) > ts_target and guard < 60:
+            lo = max(1, lo - 150_000); guard += 1
+        while hi < head and blk_ts(hi) < ts_target and guard < 120:
+            hi = min(head, hi + 150_000); guard += 1
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if blk_ts(mid) < ts_target:
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo
+
+    span_state = {"span": 1000}
+    def scan_range(b0, b1):
+        out, cur, guard = [], int(b0), 0
+        b1 = int(b1)
+        while cur <= b1 and guard < 5000:
+            guard += 1
+            span = span_state["span"]
+            top = min(cur + span, b1)
+            try:
+                out.extend(_scan(BSC_RPC_URL, cur, top)); cur = top + 1
+            except Exception as ex:
+                msg = str(ex).lower()
+                if span > 5 and any(k in msg for k in ("limit", "range", "many", "exceed", "too large")):
+                    span_state["span"] = max(5, span // 2); continue
+                if span <= 5:
+                    cur += 1; continue
+                raise
+        return out
+
+    # attribution maps
+    pay_tx = {str(h).lower(): (pt or "payment") for (h, pt) in
+              db.query(_P.tx_hash, _P.payment_type).filter(_P.tx_hash.isnot(None)).all()}
+    wc_tx = {str(h).lower(): uid for (h, uid) in
+             db.query(_WC.tx_hash, _WC.user_id).filter(_WC.tx_hash.isnot(None)).all()}
+    orph_tx = {str(r.tx_hash).lower(): r for r in
+               db.query(_O).filter(_O.tx_hash.isnot(None)).all()}
+
+    t0 = _time.time()
+    try:
+        b_lo = block_at(ts_after); b_hi = block_at(ts_before)
+        transfers = scan_range(b_lo, b_hi)
+    except Exception as ex:
+        return JSONResponse({"error": f"scan failed: {type(ex).__name__}: {str(ex)[:120]}"}, status_code=200)
+
+    rows, unattributed = [], 0
+    for t in transfers:
+        th = str(t["tx_hash"]).lower()
+        try:
+            bts = blk_ts(int(t["block_number"]))
+        except Exception:
+            bts = None
+        if th in pay_tx:
+            attr = f"payment:{pay_tx[th]}"
+        elif th in wc_tx:
+            attr = f"wc_order:user_{wc_tx[th]}"
+        elif th in orph_tx:
+            o = orph_tx[th]
+            attr = f"orphan:{'resolved' if o.resolved else 'unresolved'}" + (
+                f":user_{o.resolved_by_user_id}" if o.resolved_by_user_id else "")
+        else:
+            attr = "UNATTRIBUTED"; unattributed += 1
+        rows.append({
+            "tx_hash": t["tx_hash"], "from_address": t["from_address"],
+            "amount_usdt": round(float(t["amount_usdt"]), 4),
+            "block_number": int(t["block_number"]),
+            "ts": _dt.utcfromtimestamp(bts).isoformat() if bts else None,
+            "attributed": attr,
+        })
+    rows.sort(key=lambda r: r["ts"] or "")
+
+    return JSONResponse({
+        "window": {"after": after, "before": before},
+        "blocks_scanned": [b_lo, b_hi],
+        "getlogs_span_used": span_state["span"],
+        "time_capped": (_time.time() - t0 > max_seconds),
+        "transfers_found": len(rows),
+        "unattributed_count": unattributed,
+        "transfers": rows,
+    })
+
+
 @app.get("/admin/api/nowpayments-backfill")
 def admin_api_nowpayments_backfill(
     user: User = Depends(get_current_user),
