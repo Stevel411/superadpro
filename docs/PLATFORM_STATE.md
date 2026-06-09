@@ -4,7 +4,7 @@
 >
 > **For Steve:** Update at the END of every session. Replace, don't append. The narrative of what happened lives in `LAUNCH_LOG.md`. This file answers "what is true right now."
 
-**Last updated:** 2026-05-27 (evening, after commits `6558518` + `a3b2a23` + `c2acc6c` + `7c57426` + `3ccb6a1`)
+**Last updated:** 2026-06-09 (Mon/Tue night, after payment-data-recovery session — HEAD `a812f3c`; see `handover-2026-06-09.md`)
 
 ---
 
@@ -34,6 +34,39 @@
 | **Polygon** | ❌ Retired | Old wallet `0x7174...` dormant. Don't use. |
 | **Stripe legacy field** | ❌ Dead | `User.stripe_subscription_id` is the NEW field (live); a different legacy `User.stripe_subscription_id` reference in old code is dead. |
 | **Airwallex** | ❌ Never wired | Mentioned in old docs, never went live. Ignore. |
+
+---
+
+## Payment-data recovery — current truth (post-3-Jun breach, updated 2026-06-09)
+
+The breach wiped order/mirror rows (`payments`, `stripe_charges`, `nowpayments_orders`, `walletconnect_payment_orders`). The payments themselves are permanent in the gateways' live APIs (Stripe, NOWPayments) and on-chain. **Never treat the mirror tables as source of truth.** Orphan queue = **0**.
+
+| Recovery item | State |
+|---|---|
+| Stripe charges | ✅ Recovered — 92 record-only `StripeCharge` rows written via `Charge.list()` (the old `BalanceTransaction.list(type="charge")` + `ch_` filter missed `payment`-typed `py_` charges). |
+| Off-rail payers (bank / off-coin) | ✅ itsamazing 179 (bank), bestonthenetinfo 228 (bank), worksmarter 181 (nowpayments_eth) — record-only `Payment` rows written, channel-tagged. |
+| connect 365 | ✅ Explained — real NOWPayments `partially_paid` (~$14.72 of $15); order in DB. |
+| 6 BSC-direct membership payers (196,205,290,352,374,303) | ⚠️ **VERIFIED, NOT YET WRITTEN** — apply `onchain-historical-reconcile` (do-first). |
+| verokins 325, cryptobase26 351 | ⏸ PARKED — founding $15, no provable payment post-wipe (WC unique-amount link destroyed). Watch for renewal. Do not guess-assign. |
+| mattfeast 152 Tier 1 (~$20) | ⏳ Breach-wiped tier payment, recoverable via on-chain technique around its `GridPosition.created_at`. |
+
+**`member_composition` caveat:** its "comped" count = "no surviving payment record," NOT deliberate free accounts. Cross-check with ground truth.
+
+**NOWPayments:** list-payments (`GET /v1/payment`) is JWT-only — needs `NOWPAYMENTS_EMAIL`/`NOWPAYMENTS_PASSWORD` (now in Railway env; deletable post-recovery). `get_payment_status(id)` works with the `x-api-key`. Forwarding hot wallet (pools member payments → treasury): `0xa96be652a08d9905f15b7fbe2255708709becd09`.
+
+**WC unique amounts:** `base ± up to 50¢` (`UNIQUE_RANGE_CENTS=50`), deterministic from `(user_id, order_id)`. Founding band $14.50–$15.50. Order_id wiped → exact recompute impossible → post-wipe direct payments cannot be provably attributed.
+
+**Forensic toolkit (admin GETs, Steve loads from browser; write endpoints = dry-run default + 2FA on `&apply=1&code=`):**
+- `gateway-forensics?user_ids=` — DB mirror + live Stripe + live NOWPayments per user (read-only)
+- `treasury-scan?after=ISO&before=ISO` — treasury USDT inbound + attribution flags (read-only; tight windows)
+- `gift-activation-check?user_ids=` — GiftVoucher claimed-by (read-only)
+- `onchain-historical-reconcile?user_ids=` — match wiped direct-WC payments to treasury inbound (WRITE)
+- `record-offrail-payment?entries=uid:amount:channel[:date]` — channel-tagged record-only Payment (WRITE)
+- `stripe-charge-backfill` — `Charge.list()` recovery, resumable (WRITE)
+
+**Polygon (re-confirmed closed 2026-06-09):** gateway 410-gated; `WalletConnect.jsx` forces BSC. The only stale "switch to Polygon" copy was in dead `WalletGuideCard.jsx` (now deleted). No live misdirection exists.
+
+**Attacker accounts 670/673/674:** DELETED by Steve (the LAUNCH_LOG "do not delete — evidence" note is stale).
 
 ---
 

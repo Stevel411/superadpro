@@ -8,6 +8,39 @@
 
 ---
 
+## Status as of 2026-06-09 (Mon/Tue night) — POST-BREACH PAYMENT-DATA RECOVERY + FORENSIC TOOLKIT
+
+Long session reconstructing who paid (and via which rail) for memberships/tiers whose order rows the 3-Jun breach wiped. HEAD = `a812f3c`. Full detail in `handover-2026-06-09.md`.
+
+### Outcome
+- **Stripe gap recovered:** root cause was enumerating `BalanceTransaction.list(type="charge")` + `ch_` filter, which misses `payment`-typed `py_` Checkout/sub charges. Switched to `Charge.list()`; applied → **92 record-only `StripeCharge` rows** written.
+- **3 off-rail payers recorded** (record-only `Payment`, channel-tagged): itsamazing 179 (bank), bestonthenetinfo 228 (bank), worksmarter 181 (nowpayments_eth — created USDT-BSC orders, sent ETH, manual activation).
+- **connect 365 explained:** real NOWPayments `partially_paid` (~$14.72 of $15), order in DB. Not a comp.
+- **verokins 325 + cryptobase26 351 PARKED:** founding $15, no provable payment post-wipe (WC order rows held the unique-amount wallet↔member link; wipe destroyed it). Watching for renewal this month. Do NOT guess-assign.
+- **6 BSC-direct membership payers (196,205,290,352,374,303) VERIFIED but NOT YET WRITTEN** — apply via `onchain-historical-reconcile` is the do-first for next session.
+- **digitalnan 352:** no active tier, two abandoned Tier 1 BSC checkouts today, no funds lost.
+- **Correction logged:** no live Polygon misdirection exists — gateway closed, `WalletConnect.jsx` forces BSC. Removed the one dead file (`WalletGuideCard.jsx`) that still carried stale "switch to Polygon" copy.
+
+### Commits
+- `a812f3c` Remove dead WalletGuideCard.jsx (stale Polygon copy, never bundled, no importers)
+- `b79ddd3` Add `/admin/api/treasury-scan` (treasury USDT inbound in a window + attribution flags)
+- `365c358` `gateway-forensics`: JWT auth (NOWPayments list needs `/v1/auth` token, not x-api-key) + error surfacing (no more silent zero)
+- `fbe25a0` Add `/admin/api/record-offrail-payment` (channel-tagged record-only Payment writer, 2FA on apply)
+- `a866a7b` Add `/admin/api/gateway-forensics` (live Stripe + NOWPayments lookup per user)
+- `7c02dc3` Add `/admin/api/gift-activation-check` (GiftVoucher claimed-by route)
+- (earlier in recovery) `247d6b8`/`f54ad0d` onchain-historical-reconcile + PoA fix; `66a7480b2` Stripe `Charge.list` fix
+
+### Learnings
+- NOWPayments list API needs JWT (`NOWPAYMENTS_EMAIL`/`PASSWORD` now in Railway env — deletable after recovery). Forwarding hot wallet `0xa96be652…becd09`.
+- WC unique amount = base ±50¢, deterministic from `(user_id, order_id)`; founding band $14.50–$15.50. Order_id wiped → post-wipe direct payments unprovable.
+- `member_composition` "comped" = "no surviving payment record," not a real comp.
+- BSC is PoA: use raw `eth_getBlockByNumber` JSON-RPC for ts→block (web3 `get_block` raises ExtraDataLengthError).
+
+### Env note
+`NOWPAYMENTS_EMAIL` + `NOWPAYMENTS_PASSWORD` added to Railway (for NOWPayments list API). Removable now recovery is done — live payments use the API key.
+
+---
+
 ## Status as of 2026-06-05 (Friday) — Session 2: SYNTHETIC-BALANCE SURFACE CLOSED + SECRET-IN-URL CLASS ELIMINATED
 
 Continuation of the same day. Platform still **OFFLINE** + withdrawals **FROZEN**. This session closed the breach class end-to-end and built the detection layer that didn't previously exist. HEAD = `3acdca1a0`.
