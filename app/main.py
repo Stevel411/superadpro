@@ -14059,6 +14059,92 @@ def admin_api_spawn_missing_advances(
     return JSONResponse(report)
 
 
+@app.get("/admin/api/grid-occupants-reconstruct")
+def admin_api_grid_occupants_reconstruct(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    owner_id: int = 1,
+    tier: int = 1,
+    depth_cap: int = 0,
+):
+    """READ-ONLY reconstruction of who occupies an owner's grid at a tier, derived
+    from tier PURCHASES + the sponsor chain (not the wiped GridPosition rows).
+
+    Placement is deterministic: a tier buyer seats in EVERY upline grid at that
+    tier, in purchase-time order. So the occupants of owner_id's grid = every
+    verified tier buyer (a member who owns an owner_purchased grid at this tier)
+    whose sponsor chain reaches owner_id, ordered by their purchase time, mapped
+    36-per-advance. This rebuilds the company-root board (grids the reconstruction
+    pass left at counter level) from surviving data.
+
+    Honest about gaps: identifiable_occupants vs counter_seats_claimed. A positive
+    unmapped_gap = seats the surviving counter claims that can't be tied to a
+    current member — deleted accounts (removed in the breach), repurchases, or a
+    counter that was itself reconstructed. Writes nothing."""
+    _require_admin(user)
+    from .database import Grid as _G, GridPosition as _GP, User as _U, GRID_TOTAL as _TOTAL
+    from datetime import datetime as _dt
+
+    urows = db.query(_U.id, _U.sponsor_id, _U.username, _U.created_at).all()
+    sponsor_of = {r.id: r.sponsor_id for r in urows}
+    uname = {r.id: r.username for r in urows}
+    ucreated = {r.id: r.created_at for r in urows}
+
+    def _reaches(b):
+        cur, seen, steps = b, set(), 0
+        while True:
+            anc = sponsor_of.get(cur)
+            if anc is None or anc in seen:
+                return False
+            seen.add(anc)
+            if anc == owner_id:
+                return True
+            cur = anc
+            steps += 1
+            if depth_cap and steps >= depth_cap:
+                return False
+
+    # Verified tier buyers = owners of an owner_purchased grid at this tier.
+    buyer_grids = db.query(_G).filter(_G.package_tier == tier, _G.owner_purchased == True).all()
+    occ = []
+    for g in buyer_grids:
+        b = g.owner_id
+        if b == owner_id:
+            continue
+        if _reaches(b):
+            ts = g.created_at or ucreated.get(b)
+            occ.append({"member_id": b, "sap_id": "SAP-" + str(b).zfill(5),
+                        "username": uname.get(b),
+                        "purchase_ts": ts.isoformat() if ts else None, "_ts": ts})
+    occ.sort(key=lambda o: o["_ts"] or _dt(2099, 1, 1))
+    for i, o in enumerate(occ):
+        o["advance"] = i // _TOTAL + 1
+        o["seat"] = i % _TOTAL + 1
+        o.pop("_ts", None)
+
+    owner_grids = db.query(_G).filter(_G.owner_id == owner_id, _G.package_tier == tier).order_by(_G.advance_number).all()
+    counter_seats = sum(int(g.positions_filled or 0) for g in owner_grids)
+    completed_adv = sum(1 for g in owner_grids if g.is_complete)
+    live_rows = (db.query(_GP).join(_G, _GP.grid_id == _G.id)
+                 .filter(_G.owner_id == owner_id, _G.package_tier == tier).count())
+
+    return JSONResponse({
+        "owner_id": owner_id, "owner_username": uname.get(owner_id), "tier": tier,
+        "counter_seats_claimed": counter_seats,
+        "completed_advances_claimed": completed_adv,
+        "live_seat_rows_present": live_rows,
+        "identifiable_occupants": len(occ),
+        "unmapped_gap": max(0, counter_seats - len(occ)),
+        "occupants": occ,
+        "note": ("READ-ONLY. occupants = verified tier buyers whose sponsor chain reaches "
+                 "this owner, in purchase order, mapped 36/advance. identifiable_occupants vs "
+                 "counter_seats_claimed: a positive unmapped_gap = seats the counter claims "
+                 "that no current member backs (deleted accounts, repurchases, or a counter "
+                 "that was itself reconstructed). live_seat_rows_present = surviving "
+                 "GridPosition rows (0 for the breach-wiped company root)."),
+    })
+
+
 @app.get("/admin/api/grid-integrity-audit")
 def admin_api_grid_integrity_audit(
     user: User = Depends(get_current_user),
