@@ -118,6 +118,7 @@ export default function GridVisualiser() {
   var [activeTier, setActiveTier] = useState(1);
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
+  var [viewAdvance, setViewAdvance] = useState(null); // null = current filling grid; else a completed advance #
 
   useEffect(function() {
     setLoading(true);
@@ -125,6 +126,9 @@ export default function GridVisualiser() {
       .then(function(d) { setData(d); setLoading(false); })
       .catch(function() { setLoading(false); });
   }, [activeTier]);
+
+  // When tier changes, snap the board view back to the current grid.
+  useEffect(function() { setViewAdvance(null); }, [activeTier]);
 
   var tier = TIERS[activeTier - 1];
   var filled = data ? data.filled : 0;
@@ -143,6 +147,18 @@ export default function GridVisualiser() {
   var directCount = data ? data.direct_count : 0;
   var completedAdvances = data ? data.completed_advances : 0;
   var seatsToUnlock = Math.max(0, TOTAL_SEATS - filled);
+  var completedGrids = data && data.completed_grids ? data.completed_grids : [];
+  var completionBonusPaid = data ? (data.completion_bonus_paid || 0) : 0;
+  var completionBonusCount = data ? (data.completion_bonus_count || 0) : 0;
+
+  // Board the member is viewing: the live filling grid (default) or a completed
+  // advance they tapped. Only the LEFT board card swaps; right-hand stats stay live.
+  var viewedCompleted = viewAdvance !== null ? completedGrids.find(function(g){ return g.advance === viewAdvance; }) : null;
+  var boardSeats = viewedCompleted ? viewedCompleted.seats : seats;
+  var boardFilled = viewedCompleted ? (viewedCompleted.filled || TOTAL_SEATS) : filled;
+  var boardPct = Math.round(boardFilled / TOTAL_SEATS * 100);
+  var boardSeatsToUnlock = Math.max(0, TOTAL_SEATS - boardFilled);
+  var currentAdvanceNum = data ? data.advance : (completedAdvances + 1);
 
   return (
     <AppLayout title="Profit Grid" subtitle="Your 6×6 spillover grid — bonus at seat 36">
@@ -192,18 +208,38 @@ export default function GridVisualiser() {
           {/* Grid card */}
           <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, overflow:'hidden', boxShadow:'0 4px 20px rgba(10,20,56,0.04)' }}>
             <div style={{ background:COBALT_HEADER, padding:'16px 22px', display:'flex', justifyContent:'space-between', alignItems:'center', position:'relative', overflow:'hidden' }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, color:'#fff', letterSpacing:'-0.3px', position:'relative', zIndex:1 }}>T{tier.t} {tier.name} — ${tier.price}</div>
-              <div style={{ fontSize:12.5, color:'rgba(255,255,255,0.85)', fontWeight:600, fontFamily:'JetBrains Mono,monospace', position:'relative', zIndex:1 }}>{filled} of {TOTAL_SEATS} · {pct}%</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, color:'#fff', letterSpacing:'-0.3px', position:'relative', zIndex:1 }}>T{tier.t} {tier.name} — ${tier.price}{viewedCompleted ? <span style={{ fontSize:12, fontWeight:700, color:'#a7f3d0', marginLeft:8 }}>· Grid {viewedCompleted.advance} ✓ complete</span> : null}</div>
+              <div style={{ fontSize:12.5, color:'rgba(255,255,255,0.85)', fontWeight:600, fontFamily:'JetBrains Mono,monospace', position:'relative', zIndex:1 }}>{boardFilled} of {TOTAL_SEATS} · {boardPct}%</div>
               <div style={{ position:'absolute', top:'-50%', right:'-10%', width:280, height:'200%', background:'radial-gradient(circle,rgba(56,189,248,0.15),transparent 65%)', pointerEvents:'none' }}/>
             </div>
             <div style={{ padding:'18px 22px' }}>
+              {/* Grid selector — appears once the member has completed grids, so a
+                  fresh advance doesn't look like an empty/lost board. Tap a chip to
+                  view that completed grid's full 36 seats; "now" returns to live. */}
+              {completedGrids.length > 0 ? (
+                <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:16 }}>
+                  {completedGrids.map(function(cg) {
+                    var active = viewAdvance === cg.advance;
+                    return (
+                      <button key={'cg'+cg.advance} onClick={function(){ setViewAdvance(cg.advance); }}
+                        style={{ cursor:'pointer', border:'1px solid '+(active?'#10b981':'#cbd5e1'), background:active?'#ecfdf5':'#fff', color:active?'#047857':'#475569', borderRadius:8, padding:'6px 12px', fontFamily:'DM Sans,sans-serif', fontSize:12.5, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
+                        <span style={{ color:'#10b981' }}>✓</span> Grid {cg.advance} · 36/36{cg.bonus_paid ? ' · $'+cg.bonus_paid.toFixed(0) : ''}
+                      </button>
+                    );
+                  })}
+                  <button onClick={function(){ setViewAdvance(null); }}
+                    style={{ cursor:'pointer', border:'1px solid '+(viewAdvance===null?'#0891b2':'#cbd5e1'), background:viewAdvance===null?'#ecfeff':'#fff', color:viewAdvance===null?'#0e7490':'#475569', borderRadius:8, padding:'6px 12px', fontFamily:'DM Sans,sans-serif', fontSize:12.5, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
+                    <span style={{ width:7, height:7, borderRadius:'50%', background:'#0891b2', display:'inline-block' }}/> Grid {currentAdvanceNum} · now ({filled}/36)
+                  </button>
+                </div>
+              ) : null}
               {/* Progress row with countdown */}
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, fontSize:14 }}>
                 <div style={{ color:'#475569', fontWeight:700 }}>Progress to bonus</div>
-                <div style={{ color:'#0891b2', fontWeight:700, fontFamily:'JetBrains Mono,monospace' }}>{seatsToUnlock} seats to ♛</div>
+                <div style={{ color: viewedCompleted ? '#10b981' : '#0891b2', fontWeight:700, fontFamily:'JetBrains Mono,monospace' }}>{viewedCompleted ? 'Complete ✓' : (boardSeatsToUnlock + ' seats to ♛')}</div>
               </div>
               <div style={{ height:8, background:'#f1f5f9', borderRadius:4, overflow:'hidden', marginBottom:18 }}>
-                <div className="lgv-progress-fill" style={{ height:'100%', width:pct+'%', background:CYAN_PROGRESS, borderRadius:4, transition:'width .6s ease' }}/>
+                <div className="lgv-progress-fill" style={{ height:'100%', width:boardPct+'%', background:CYAN_PROGRESS, borderRadius:4, transition:'width .6s ease' }}/>
               </div>
               {/* Legend */}
               <div style={{ display:'flex', gap:18, justifyContent:'center', marginBottom:18, fontSize:13, color:'#475569', fontWeight:600, flexWrap:'wrap' }}>
@@ -216,7 +252,7 @@ export default function GridVisualiser() {
               <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
                 {Array.from({length:TOTAL_SEATS}, function(_,i) {
                   var pos = i + 1;
-                  var seat = seats.find(function(s){ return s.position === pos; });
+                  var seat = boardSeats.find(function(s){ return s.position === pos; });
                   var isCompletionSeat = pos === TOTAL_SEATS;
                   if (seat) {
                     var isDirect = seat.is_direct;
@@ -283,6 +319,19 @@ export default function GridVisualiser() {
                     ${unilevelEarned.toFixed(2)}
                   </div>
                 </div>
+                {/* Completion bonuses paid — the third stream, previously missing
+                    entirely from this card so members had no record of bonuses earned */}
+                {completionBonusPaid > 0 ? (
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
+                    <div>
+                      <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Completion bonuses</div>
+                      <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#6d28d9', background:'#f5f3ff', border:'1px solid #e9d5ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{completionBonusCount} grid{completionBonusCount===1?'':'s'} · 10% bonus</div>
+                    </div>
+                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, background:BONUS_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', letterSpacing:'-0.4px' }}>
+                      ${completionBonusPaid.toFixed(2)}
+                    </div>
+                  </div>
+                ) : null}
                 {/* Total */}
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0' }}>
                   <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Total earned · all grids</div>

@@ -3739,6 +3739,8 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     unilevel_earned = 0.0
     direct_fills = 0
     unilevel_fills = 0
+    completion_bonus_paid = 0.0
+    completion_bonus_count = 0
 
     # Cumulative grid commission breakdown — ALL tiers, lifetime.
     #
@@ -3776,12 +3778,59 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             unilevel_earned = float(unilevel_row[0] or 0)
             unilevel_fills = int(unilevel_row[1] or 0)
 
-    total_earned = direct_earned + unilevel_earned
+        # Grid completion bonuses PAID to this user — the third earning stream
+        # (10% × 36 × tier price per completed advance). Lifetime, tier-agnostic
+        # (post-breach reconstructed rows carry NULL package_tier), mirroring the
+        # direct/unilevel sums above. Previously omitted from total_earned, so a
+        # member who completed a grid saw their paid bonus nowhere on the page.
+        bonus_row = db.query(
+            _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+            _func.count(Commission.id),
+        ).filter(
+            Commission.to_user_id == user.id,
+            Commission.commission_type.in_(["grid_completion_bonus", "grid_completion_bonus_topup"]),
+        ).first()
+        if bonus_row:
+            completion_bonus_paid = float(bonus_row[0] or 0)
+            completion_bonus_count = int(bonus_row[1] or 0)
+
+    total_earned = direct_earned + unilevel_earned + completion_bonus_paid
 
     # Direct sponsor count — members where sponsor_id is this user. Used
     # by the new visualiser's "Directs" stat tile. Same value the old
     # page was computing client-side from /api/me.
     direct_count = db.query(User).filter(User.sponsor_id == user.id).count()
+
+    # Completed grids at this tier, WITH their seats — so the page can show a
+    # "Grid 1 ✓ 36/36 · $bonus paid" summary and let the member tap to view the
+    # full completed board (instead of staring at the empty current advance).
+    completed_grids_detail = []
+    completed_grid_rows = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.package_tier == tier,
+        Grid.is_complete == True,
+    ).order_by(Grid.advance_number.asc()).all()
+    for cg in completed_grid_rows:
+        cg_positions = db.query(GridPosition).filter(
+            GridPosition.grid_id == cg.id
+        ).order_by(GridPosition.grid_level.asc(), GridPosition.position_num.asc()).all()
+        cg_seats = []
+        for j, gp in enumerate(cg_positions[:GRID_TOTAL]):
+            m = db.query(User).filter(User.id == gp.member_id).first()
+            if not m:
+                continue
+            cg_seats.append({
+                "position": j + 1, "username": m.username, "depth": gp.grid_level,
+                "id": m.id, "member_id": "SAP-" + str(m.id).zfill(5),
+                "is_direct": (m.sponsor_id == user.id),
+            })
+        completed_grids_detail.append({
+            "advance": cg.advance_number,
+            "completed_at": cg.completed_at.isoformat() if cg.completed_at else None,
+            "filled": len(cg_seats),
+            "bonus_paid": (bonus_max if cg.bonus_paid else 0.0),
+            "seats": cg_seats,
+        })
 
     return JSONResponse({
         "seats": grid_seats,
@@ -3797,12 +3846,15 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         # Commission breakdown for the redesigned visualiser
         "direct_earned": round(direct_earned, 2),
         "unilevel_earned": round(unilevel_earned, 2),
+        "completion_bonus_paid": round(completion_bonus_paid, 2),
+        "completion_bonus_count": completion_bonus_count,
         "total_earned": round(total_earned, 2),
         "direct_fills": direct_fills,
         "unilevel_fills": unilevel_fills,
         "direct_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.40, 2),
         "unilevel_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.0625, 2),
         "direct_count": direct_count,
+        "completed_grids": completed_grids_detail,
     })
 
 
