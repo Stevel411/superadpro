@@ -117,6 +117,15 @@ GRID_LEVELS     = 6      # visible grid rows
 GRID_TOTAL      = 36     # 36 positions in the visualised grid
 UNILEVEL_DEPTH  = 8      # sponsor-chain depth for 6.25% commissions (unchanged)
 
+# ── New-model grid geometry (Option 2 cycler, 4×4) ───────────
+# GRID_TOTAL / GRID_WIDTH above remain the LEGACY default — existing
+# 36-seat grids finish on their original rules. New grids are stamped
+# with NEW_GRID_SEATS at creation and read Grid.total_seats for
+# completion + bonus. The migration is per-grid, never a global flip,
+# so an in-flight 36-grid is never told it's suddenly complete.
+NEW_GRID_SEATS  = 16     # 4×4 — seats for grids created under the new model
+NEW_GRID_WIDTH  = 4      # positions per row
+
 # ── Commission split (Stream 2 — Profit Engine Grid) ─────────
 # 21 May 2026 — Steve's commercial decision: reallocate the 5%
 # platform share to double the completion bonus from 5% to 10%.
@@ -190,6 +199,14 @@ GRID_COMPLETION_BONUS = {
     7: 2880.0,    # 36 × $800  × 0.10 = $2,880
     8: 3600.0,    # 36 × $1000 × 0.10 = $3,600
 }
+
+def completion_bonus_for(total_seats, price) -> float:
+    """Completion bonus for a grid = seats × price × bonus-pool %.
+    Computed per-grid so it is correct for BOTH legacy 36-seat grids and
+    new 16-seat grids — supersedes the hardcoded GRID_COMPLETION_BONUS
+    table (which assumed 36 seats). The table remains only as a legacy
+    fallback for tier-level displays that have no grid in scope."""
+    return float(total_seats) * float(price) * float(BONUS_POOL_PCT)
 
 # ── Campaign View Targets per Tier ───────────────────────────
 # Views delivered per campaign purchase/repurchase cycle
@@ -395,6 +412,7 @@ class Grid(Base):
     package_price   = Column(Money)                        # $20-$1000
     advance_number    = Column(Integer, default=1)           # which advance (1,2,3...)
     positions_filled = Column(Integer, default=0)          # 0-64
+    total_seats     = Column(Integer, default=36)          # seats to fill THIS grid. Legacy grids = 36; new 4×4 grids stamped 16 at creation. Completion + bonus read this, NOT the global GRID_TOTAL.
     is_complete     = Column(Boolean, default=False)       # True when 64 filled
     owner_paid      = Column(Boolean, default=False)       # owner payout sent
     owner_purchased = Column(Boolean, default=False)       # True ONLY if the owner genuinely bought this tier (set in process_tier_purchase). False = grid auto-created by downline spillover (get_or_create_active_grid). Drives the real "tier ACTIVE" signal so spillover-created grids don't falsely show as owned. Added 30 May 2026.
@@ -2026,6 +2044,9 @@ def run_migrations():
         # what it cost, exactly once. aspect lets the wizard's 9:16 / 1:1
         # reach the renderer (orchestrator previously hard-coded 16:9).
         "ALTER TABLE superscene_pipeline_scenes ADD COLUMN IF NOT EXISTS credits_charged INTEGER DEFAULT 0",
+        # New-model grid geometry: per-grid seat target. Existing grids backfill to 36 (legacy);
+        # new 4×4 grids are stamped 16 at creation. Drives completion + bonus per-grid.
+        "ALTER TABLE grids ADD COLUMN IF NOT EXISTS total_seats INTEGER DEFAULT 36",
         "ALTER TABLE superscene_pipeline_scenes ADD COLUMN IF NOT EXISTS credits_refunded INTEGER DEFAULT 0",
         "ALTER TABLE superscene_pipelines ADD COLUMN IF NOT EXISTS aspect VARCHAR(10) DEFAULT '16:9'",
         # ── Brand Kit (per-user branding for Creative Studio output, 29 May 2026) ──
