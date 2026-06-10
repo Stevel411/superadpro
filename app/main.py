@@ -24981,6 +24981,152 @@ def admin_diagnostic_manual_grid_activation(
     }
 
 
+@app.get("/admin/api/tier-grant-preview")
+def admin_api_tier_grant_preview(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    user_id: int = 0,
+    tier: int = 1,
+):
+    """READ-ONLY preview of a manual tier grant. Runs the REAL
+    grid.process_tier_purchase for (user_id, tier) with the session's commit
+    monkeypatched to flush and all three grid email side-effects stubbed, captures
+    every Commission / Grid / GridPosition row + balance delta it WOULD write, then
+    rolls the transaction back so nothing persists and no email is sent.
+
+    Exercises the exact cascade (40% direct, 6.25%/level uni-level with per-recipient
+    qualification + company-absorb, 10% bonus-pool accrual, spillover, platform fee)
+    that /admin/diagnostic/manual-grid-activation/{uid}/{tier} applies for real — no
+    hand-rolled commission logic. Verify a breach-wiped grant before applying."""
+    _require_admin(user)
+    from . import grid as _grid
+    from .database import (Commission as _C, Grid as _G, GridPosition as _GP,
+                           User as _U, GRID_PACKAGES as _PK)
+    import time as _t
+
+    buyer = db.query(_U).filter(_U.id == user_id).first()
+    if not buyer:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=200)
+    price = _PK.get(tier)
+    if not price:
+        return JSONResponse({"error": f"invalid tier {tier} (valid: {sorted(_PK)})"}, status_code=200)
+
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+
+    chain, seen, cur = [], {user_id}, buyer
+    while cur and getattr(cur, "sponsor_id", None) and cur.sponsor_id not in seen and len(chain) < 12:
+        seen.add(cur.sponsor_id); chain.append(cur.sponsor_id)
+        cur = db.query(_U).filter(_U.id == cur.sponsor_id).first()
+    watch = list(dict.fromkeys([user_id] + chain + [1]))
+
+    def _snap():
+        s = {}
+        for uid in watch:
+            u = db.query(_U).filter(_U.id == uid).first()
+            if u:
+                s[uid] = (float(u.balance or 0), float(getattr(u, "campaign_balance", 0) or 0),
+                          float(getattr(u, "total_earned", 0) or 0))
+        return s
+
+    pre_c = {r[0] for r in db.query(_C.id).all()}
+    pre_g = {r[0] for r in db.query(_G.id).all()}
+    pre_p = {r[0] for r in db.query(_GP.id).all()}
+    pre_bal = _snap()
+
+    orig_commit = getattr(db, "commit")
+    stubs = {fn: getattr(_grid, fn, None) for fn in
+             ("_send_grace_escrow_emails", "_send_grid_entry_emails", "_send_release_email")}
+    err = result = None
+    payload = {}
+    try:
+        db.commit = db.flush  # internal commits become flushes inside the open txn
+        for fn in stubs:
+            if stubs[fn] is not None:
+                setattr(_grid, fn, (lambda *a, **k: None))
+        result = _grid.process_tier_purchase(
+            db, user_id, tier, bypass_repurchase_guard=True,
+            source_event_id=f"DRYRUN-{user_id}-t{tier}-{int(_t.time())}",
+        )
+        db.flush()
+
+        def _new(model, preset):
+            q = db.query(model)
+            return (q.filter(~model.id.in_(preset)) if preset else q).all()
+
+        commissions = [{
+            "type": c.commission_type, "amount": round(float(c.amount_usdt or 0), 4),
+            "from_user": c.from_user_id, "to_user": c.to_user_id,
+            "to_username": uname.get(c.to_user_id) if c.to_user_id else None,
+            "package_tier": getattr(c, "package_tier", None),
+            "grid_id": getattr(c, "grid_id", None), "status": c.status,
+            "notes": (c.notes or "")[:160],
+        } for c in _new(_C, pre_c)]
+        commissions.sort(key=lambda x: (x["type"], -x["amount"]))
+
+        grids_created = [{
+            "grid_id": g.id, "owner_id": g.owner_id, "owner_username": uname.get(g.owner_id),
+            "tier": g.package_tier, "advance": g.advance_number,
+            "owner_purchased": bool(getattr(g, "owner_purchased", False)),
+        } for g in _new(_G, pre_g)]
+
+        seats = [{"grid_id": gp.grid_id,
+                  "grid_owner": uname.get(db.query(_G.owner_id).filter(_G.id == gp.grid_id).scalar()),
+                  "seated_member": gp.member_id} for gp in _new(_GP, pre_p)]
+
+        post_bal = _snap()
+        deltas = []
+        for uid in watch:
+            if uid in pre_bal and uid in post_bal:
+                d = tuple(round(post_bal[uid][i] - pre_bal[uid][i], 4) for i in range(3))
+                if any(abs(x) > 0.0001 for x in d):
+                    deltas.append({"user_id": uid, "username": uname.get(uid),
+                                   "balance_delta": d[0], "campaign_balance_delta": d[1],
+                                   "total_earned_delta": d[2]})
+
+        to_members = round(sum(x["amount"] for x in commissions if x["to_user"] and x["to_user"] != 1), 4)
+        to_company = round(sum(x["amount"] for x in commissions if (not x["to_user"]) or x["to_user"] == 1), 4)
+        payload = {"commissions": commissions, "grids_created": grids_created, "seats": seats,
+                   "deltas": deltas, "to_members": to_members, "to_company": to_company}
+    except Exception as e:
+        err = f"{type(e).__name__}: {str(e)[:200]}"
+    finally:
+        db.rollback()
+        try:
+            del db.commit
+        except Exception:
+            try: db.commit = orig_commit
+            except Exception: pass
+        for fn, orig in stubs.items():
+            if orig is not None:
+                setattr(_grid, fn, orig)
+
+    if err:
+        return JSONResponse({"dry_run": True, "error": err, "buyer": buyer.username, "tier": tier}, status_code=200)
+    if not result or not result.get("success"):
+        return JSONResponse({"dry_run": True, "buyer": buyer.username, "tier": tier, "price": price,
+                             "process_result": result,
+                             "note": "process_tier_purchase did NOT succeed in preview — nothing would be granted."}, status_code=200)
+
+    return JSONResponse({
+        "dry_run": True,
+        "buyer": {"user_id": user_id, "username": buyer.username,
+                  "sponsor_chain": [{"user_id": u, "username": uname.get(u)} for u in chain]},
+        "tier": tier, "price": price,
+        "commissions_would_write": payload["commissions"],
+        "commission_totals": {"to_members": payload["to_members"],
+                              "to_company_or_absorbed": payload["to_company"],
+                              "count": len(payload["commissions"])},
+        "grids_would_create": payload["grids_created"],
+        "seats_would_fill": payload["seats"],
+        "balance_deltas": payload["deltas"],
+        "spillover_grids_filled": result.get("grids_filled"),
+        "note": ("READ-ONLY. Ran the real process_tier_purchase with commit intercepted + emails "
+                 "stubbed, captured the writes, rolled back — nothing persisted, no email sent. "
+                 "to_company_or_absorbed = rows to user 1 / no qualified recipient (company-absorb). "
+                 f"Apply for real via /admin/diagnostic/manual-grid-activation/{user_id}/{tier}."),
+    })
+
+
 @app.get("/admin/api/convert-nexus-to-tier/preview")
 def admin_convert_nexus_to_tier_preview(
     user_id: int,
