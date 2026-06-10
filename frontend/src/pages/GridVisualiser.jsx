@@ -248,7 +248,18 @@ export default function GridVisualiser() {
                 <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:BONUS_GRAD }}/> Bonus seat</span>
                 <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:'#fafbff', border:'2px dashed #cbd5e1' }}/> Empty</span>
               </div>
-              {/* 6×6 tile grid */}
+              {/* 6×6 tile grid — or, for a completed grid whose seat records were
+                  lost in the 3 June reset (0 surviving rows), an explanatory state
+                  instead of a misleading empty board under a "complete" header. */}
+              {viewedCompleted && boardSeats.length === 0 ? (
+                <div style={{ background:'#ecfdf5', border:'1px solid #a7f3d0', borderRadius:12, padding:'28px 24px', textAlign:'center' }}>
+                  <div style={{ fontSize:34, lineHeight:1, marginBottom:10, color:'#10b981' }}>✓</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#047857', marginBottom:8 }}>Grid {viewedCompleted.advance} completed — all 36 seats filled</div>
+                  <div style={{ fontSize:13.5, color:'#475569', fontWeight:600, lineHeight:1.5, maxWidth:460, margin:'0 auto' }}>
+                    This grid completed and {viewedCompleted.bonus_paid ? ('its $' + viewedCompleted.bonus_paid.toFixed(0) + ' completion bonus was paid') : 'its completion bonus was processed'}. The individual seat records for this advance predate the 3 June reset and aren&rsquo;t available to display — the completion and bonus remain intact in your earnings.
+                  </div>
+                </div>
+              ) : (
               <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
                 {Array.from({length:TOTAL_SEATS}, function(_,i) {
                   var pos = i + 1;
@@ -287,6 +298,7 @@ export default function GridVisualiser() {
                   );
                 })}
               </div>
+              )}
             </div>
           </div>
 
