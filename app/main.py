@@ -20,7 +20,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from .database import (
     SessionLocal, User, Payment, Commission, Withdrawal,
-    Grid, GridPosition, PasswordResetToken, VIPSignup, GRID_PACKAGES, GRID_TOTAL,
+    Grid, GridPosition, PasswordResetToken, VIPSignup, GRID_PACKAGES, GRID_TOTAL, NEW_GRID_SEATS, completion_bonus_for,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT,
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
@@ -1550,7 +1550,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "course_sale_count": course_sale_count,
         "marketplace_earnings": float(user.marketplace_earnings or 0),
         "GRID_PACKAGES":     GRID_PACKAGES,
-        "GRID_TOTAL":        GRID_TOTAL,
+        "GRID_TOTAL":        NEW_GRID_SEATS,
         "OWNER_PCT":         OWNER_PCT,
         "UPLINE_PCT":        UPLINE_PCT,
         "LEVEL_PCT":         LEVEL_PCT,
@@ -1737,10 +1737,10 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
     if active_grid:
         filled = active_grid.positions_filled or 0
         from .database import GRID_COMPLETION_BONUS, GRID_TIER_NAMES, GRID_TOTAL
-        total = GRID_TOTAL
+        total = active_grid.total_seats
         remaining = total - filled
         pct = min(100, int(filled / total * 100))
-        bonus = GRID_COMPLETION_BONUS.get(active_grid.package_tier, 0)
+        bonus = completion_bonus_for(active_grid.total_seats, active_grid.package_price)
         tier_name = GRID_TIER_NAMES.get(active_grid.package_tier, f"Tier {active_grid.package_tier}")
         goals.append({
             "type": "grid", "color": "#8b5cf6", "bg": "#f5f3ff",
@@ -3568,7 +3568,7 @@ def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_c
     ctx = {
         "request": request,
         "GRID_PACKAGES": GRID_PACKAGES,
-        "GRID_TOTAL": GRID_TOTAL,
+        "GRID_TOTAL": NEW_GRID_SEATS,
         "OWNER_PCT": OWNER_PCT,
         "UPLINE_PCT": UPLINE_PCT,
         "LEVEL_PCT": LEVEL_PCT,
@@ -3684,7 +3684,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             GridPosition.grid_id == grid_record.id
         ).order_by(GridPosition.grid_level.asc(), GridPosition.position_num.asc()).all()
 
-        for i, gp in enumerate(positions[:GRID_TOTAL]):
+        for i, gp in enumerate(positions[:grid_record.total_seats]):
             member = db.query(User).filter(User.id == gp.member_id).first()
             if not member:
                 continue
@@ -3815,7 +3815,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             GridPosition.grid_id == cg.id
         ).order_by(GridPosition.grid_level.asc(), GridPosition.position_num.asc()).all()
         cg_seats = []
-        for j, gp in enumerate(cg_positions[:GRID_TOTAL]):
+        for j, gp in enumerate(cg_positions[:cg.total_seats]):
             m = db.query(User).filter(User.id == gp.member_id).first()
             if not m:
                 continue
@@ -3835,7 +3835,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
-        "total": GRID_TOTAL,
+        "total": grid_record.total_seats,
         "tier": tier,
         "price": GRID_PACKAGES.get(tier, 0),
         "advance": grid_record.advance_number if grid_record else completed + 1,
@@ -5681,7 +5681,7 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
             GridPosition.grid_id == grid_record.id
         ).order_by(GridPosition.grid_level.asc(), GridPosition.position_num.asc()).all()
 
-        for i, gp in enumerate(positions[:GRID_TOTAL]):
+        for i, gp in enumerate(positions[:grid_record.total_seats]):
             member = db.query(User).filter(User.id == gp.member_id).first()
             if not member:
                 continue
@@ -5766,7 +5766,7 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
-        "total": GRID_TOTAL,
+        "total": grid_record.total_seats,
         "tier": tier,
         "price": GRID_PACKAGES.get(tier, 0),
         "advance": grid_record.advance_number if grid_record else completed + 1,
@@ -6273,7 +6273,7 @@ def fomo_stats_api(db: Session = Depends(get_db)):
             "name": f"{(u.first_name or u.username or 'Member')[:1]}. {(u.last_name or '')[:1]}." if u.first_name else f"Member {u.id}",
             "type": "joined",
             "tier": "$100",
-            "pos": random.randint(1, GRID_TOTAL),
+            "pos": random.randint(1, NEW_GRID_SEATS),
             "time": time_str
         })
 
@@ -8064,7 +8064,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         "tier": g.package_tier,
         "price": float(g.package_price),
         "filled": g.positions_filled,
-        "total": GRID_TOTAL,
+        "total": g.total_seats,
         "advance": g.advance_number,
         "bonus_pool": float(g.bonus_pool_accrued or 0),
     } for g in active_grids]
@@ -11489,7 +11489,7 @@ def admin_api_earnings_reconciliation(
 
     exp_bonus = _dd(float)
     for g in db.query(Grid).filter(Grid.is_complete == True).all():  # noqa: E712
-        exp_bonus[g.owner_id] += round(float(_PKG.get(g.package_tier, 0)) * _TOTAL * _BP, 2)
+        exp_bonus[g.owner_id] += round(float(_PKG.get(g.package_tier, 0)) * g.total_seats * _BP, 2)
 
     owners = set(list(exp_grid) + list(exp_level) + list(exp_bonus) +
                  [u for u, v in act.items() if v["grid"] or v["level"] or v["bonus"]])
@@ -11664,9 +11664,9 @@ def admin_api_grid_full_rebuild(
                                 grid_level=lvl, position_num=pos, is_overspill=True))
             grid.positions_filled = (grid.positions_filled or 0) + 1
             grid.revenue_total = _Dec(str(grid.revenue_total or 0)) + _Dec(str(_PKG[tier]))
-            if grid.positions_filled >= _TOTAL and not grid.is_complete:
+            if grid.positions_filled >= grid.total_seats and not grid.is_complete:
                 grid.is_complete = True
-                grid.bonus_pool_accrued = _Dec(str(_policy_bonus_target(tier)))
+                grid.bonus_pool_accrued = _Dec(str(_policy_bonus_target(tier, grid.total_seats)))
                 grid.bonus_paid = True
                 completions.append({"owner": owner, "tier": tier, "grid_id": grid.id})
             db.flush()
@@ -13667,9 +13667,9 @@ def admin_api_grid_root_restore(
             continue
         price = _Dec(str(_PKG.get(g.package_tier, 0)))
         if g.is_complete:
-            g.positions_filled = _TOTAL
-            g.revenue_total = price * _TOTAL
-            g.bonus_pool_accrued = _Dec(str(_policy_bonus_target(g.package_tier)))
+            g.positions_filled = g.total_seats
+            g.revenue_total = price * g.total_seats
+            g.bonus_pool_accrued = _Dec(str(_policy_bonus_target(g.package_tier, g.total_seats)))
             g.bonus_paid = True
         else:
             g.positions_filled = 0
@@ -14288,7 +14288,7 @@ def admin_api_grid_integrity_audit(
             orphaned.append(rec)
         if counter != actual:
             drift.append(rec)
-        if (g.is_complete and actual < _TOTAL) or ((not g.is_complete) and actual >= _TOTAL):
+        if (g.is_complete and actual < g.total_seats) or ((not g.is_complete) and actual >= g.total_seats):
             completion_mismatch.append(rec)
         if (g.is_complete
                 and (g.owner_id, g.package_tier, g.advance_number + 1) not in existing_adv
@@ -29729,7 +29729,7 @@ def admin_api_health(
 
     # Check for grids that should have advanced (filled >= 64 but not complete)
     stuck_grids = db.query(Grid).filter(
-        Grid.positions_filled >= GRID_TOTAL,
+        Grid.positions_filled >= Grid.total_seats,
         Grid.is_complete == False
     ).all()
     if stuck_grids:
@@ -29790,7 +29790,7 @@ def admin_api_fix(
 
     elif issue_type == "stuck_grids":
         stuck = db.query(Grid).filter(
-            Grid.positions_filled >= GRID_TOTAL, Grid.is_complete == False
+            Grid.positions_filled >= Grid.total_seats, Grid.is_complete == False
         ).all()
         for g in stuck:
             _complete_grid(db, g)
@@ -46959,7 +46959,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     for g in active_grids:
         grid_by_tier[g.package_tier] = {
             "filled": g.positions_filled or 0,
-            "pct": round((g.positions_filled or 0) / GRID_TOTAL * 100),
+            "pct": round((g.positions_filled or 0) / g.total_seats * 100),
             "advance": g.advance_number or 1,
         }
 
@@ -46972,7 +46972,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
         price = GRID_PACKAGES.get(tier_num, 0)
         direct_comm = round(price * 0.40, 2)
         uni_level_per_member = round(price * 0.0625, 2)
-        bonus = GRID_COMPLETION_BONUS.get(tier_num, 0)
+        bonus = completion_bonus_for(NEW_GRID_SEATS, price)
         views = CAMPAIGN_VIEW_TARGETS.get(tier_num, 0)
         is_active = is_admin or (tier_num in active_campaign_tiers) or (tier_num in grid_by_tier) or (tier_num in completed_tier_set)
         grid_info = grid_by_tier.get(tier_num)
@@ -49645,13 +49645,13 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
         if remaining <= 10 and remaining > 0:
             feed.append({
                 "type": "grid_progress", "emoji": "📊",
-                "text": f"Your {tier_name} grid is {remaining} members from completion! ({filled}/{GRID_TOTAL})",
+                "text": f"Your {tier_name} grid is {remaining} members from completion! ({filled}/{g.total_seats})",
                 "time": now.isoformat()
             })
         elif remaining == 0:
             feed.append({
                 "type": "grid_complete", "emoji": "🏆",
-                "text": f"Your {tier_name} grid is COMPLETE! Bonus: ${GRID_COMPLETION_BONUS.get(g.package_tier, 0)}",
+                "text": f"Your {tier_name} grid is COMPLETE! Bonus: ${completion_bonus_for(g.total_seats, g.package_price):.0f}",
                 "time": now.isoformat()
             })
 
@@ -49703,7 +49703,7 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
 
             grids = db.query(Grid).filter(Grid.owner_id == u.id, Grid.is_active == True).all()
             grid_filled = sum(g.positions_filled or 0 for g in grids)
-            grid_total = sum(GRID_TOTAL for _ in grids) if grids else 0
+            grid_total = sum(g.total_seats for g in grids) if grids else 0
 
             total_balance = float(u.balance or 0)
             campaign_balance = float(u.campaign_balance or 0)
