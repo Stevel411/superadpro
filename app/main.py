@@ -13920,6 +13920,93 @@ def admin_api_grid_root_audit(
     })
 
 
+@app.get("/admin/api/spawn-missing-advances")
+def admin_api_spawn_missing_advances(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    apply: int = 0,
+    code: str = "",
+):
+    """Repair: spawn the next-advance grid for every COMPLETED grid that has no
+    successor at the same (owner, tier).
+
+    Root cause: breach-recovery reconstructed grid completions from surviving
+    counters WITHOUT running _complete_grid(), the only path that auto-spawns the
+    next advance. Result: completed grids with no successor, so /api/grid-visualiser
+    (which loads only is_complete=False) renders that tier EMPTY even though seats
+    and bonus are intact (e.g. user 264 'success' tier 1).
+
+    Recreates ONLY the missing successor Grid row, mirroring _complete_grid:
+    advance_number+1; carry bonus_pool_accrued solely when the completed grid
+    rolled its bonus over unpaid. Writes NO balances and NO commissions — bonuses
+    are already paid/reconstructed. Pure additive + idempotent (skips a (owner,tier)
+    that still has any incomplete grid, or where the successor already exists).
+    Dry-run default; apply=1&code=NNNNNN to write."""
+    _require_admin(user)
+    from .database import Grid as _G, User as _U
+    from decimal import Decimal as _Dec
+
+    do_apply = bool(apply) and bool((code or "").strip())
+    if do_apply:
+        _require_admin_2fa(user, code)
+
+    grids = db.query(_G).all()
+    existing_adv = {(g.owner_id, g.package_tier, g.advance_number) for g in grids}
+    by_key = {}
+    for g in grids:
+        by_key.setdefault((g.owner_id, g.package_tier), []).append(g)
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+
+    to_spawn = []
+    for (owner_id, tier), gl in by_key.items():
+        # If this (owner,tier) has ANY incomplete grid, the visualiser already
+        # has something to show — no missing successor.
+        if any(not g.is_complete for g in gl):
+            continue
+        top = max(gl, key=lambda g: g.advance_number)
+        if (owner_id, tier, top.advance_number + 1) in existing_adv:
+            continue
+        rolled = bool(getattr(top, "bonus_rolled_over", False)) and not bool(getattr(top, "bonus_paid", False))
+        to_spawn.append({
+            "owner_id": owner_id, "username": uname.get(owner_id), "tier": tier,
+            "completed_advance": top.advance_number, "completed_grid_id": top.id,
+            "new_advance_number": top.advance_number + 1,
+            "carry_bonus_pool": (float(top.bonus_pool_accrued or 0) if rolled else 0.0),
+            "completed_bonus_paid": bool(getattr(top, "bonus_paid", False)),
+        })
+    to_spawn.sort(key=lambda s: (s["tier"], s["owner_id"]))
+
+    report = {
+        "dry_run": not do_apply,
+        "completed_tiers_missing_successor": len(to_spawn),
+        "to_spawn": to_spawn,
+    }
+    if not do_apply:
+        report["note"] = ("READ-ONLY. Each entry = a (member, tier) whose grids are ALL complete with "
+                          "no next advance, so the grid page renders that tier empty. Apply spawns the "
+                          "missing successor grid (advance+1) ONLY — no balances, commissions, or bonuses. "
+                          "Idempotent. Add &apply=1&code=NNNNNN to write.")
+        return JSONResponse(report)
+
+    spawned = 0
+    for s in to_spawn:
+        if db.query(_G).filter(_G.owner_id == s["owner_id"], _G.package_tier == s["tier"],
+                               _G.advance_number == s["new_advance_number"]).first():
+            continue
+        done = db.query(_G).filter(_G.id == s["completed_grid_id"]).first()
+        ng = _G(owner_id=s["owner_id"], package_tier=s["tier"],
+                package_price=(done.package_price if done else None),
+                advance_number=s["new_advance_number"])
+        if s["carry_bonus_pool"] > 0:
+            ng.bonus_pool_accrued = _Dec(str(s["carry_bonus_pool"]))
+        db.add(ng)
+        spawned += 1
+    db.commit()
+    report["spawned"] = spawned
+    report["note"] = f"Applied. Spawned {spawned} missing advance grid(s). No balances/commissions touched."
+    return JSONResponse(report)
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
