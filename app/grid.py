@@ -37,7 +37,7 @@ from decimal import Decimal
 from .database import (
     User, Grid, GridPosition, Commission, VideoCampaign,
     CourseCommission, CreditMatrixCommission,
-    GRID_WIDTH, GRID_LEVELS, GRID_TOTAL, UNILEVEL_DEPTH,
+    GRID_WIDTH, GRID_LEVELS, GRID_TOTAL, NEW_GRID_SEATS, UNILEVEL_DEPTH,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT, BONUS_POOL_PCT,
     GRID_PACKAGES, GRID_COMPLETION_BONUS, CAMPAIGN_GRACE_DAYS
 )
@@ -57,6 +57,7 @@ def get_or_create_active_grid(db: Session, owner_id: int, package_tier: int) -> 
             package_tier  = package_tier,
             package_price = GRID_PACKAGES[package_tier],
             advance_number  = _next_advance_number(db, owner_id, package_tier),
+            total_seats   = NEW_GRID_SEATS,   # new tier lines fill 16 (4×4); legacy grids keep their stored 36
         )
         db.add(grid)
         db.commit()
@@ -73,7 +74,7 @@ def _next_advance_number(db: Session, owner_id: int, package_tier: int) -> int:
     return completed + 1
 
 
-def _policy_bonus_target(package_tier: int) -> float:
+def _policy_bonus_target(package_tier: int, total_seats: int = GRID_TOTAL) -> float:
     """Returns the policy-target completion bonus for a tier under the
     current 10%/36-seat rules: tier_price × GRID_TOTAL × BONUS_POOL_PCT.
 
@@ -84,7 +85,7 @@ def _policy_bonus_target(package_tier: int) -> float:
     full advertised bonus. The pool is what gets PAID, but the target is
     what gets PROMISED, and the promise wins.
     """
-    return float(GRID_PACKAGES.get(package_tier, 0)) * float(GRID_TOTAL) * float(BONUS_POOL_PCT)
+    return float(GRID_PACKAGES.get(package_tier, 0)) * float(total_seats) * float(BONUS_POOL_PCT)
 
 
 def _accrue_to_pool(grid: Grid, raw_accrual: float) -> Decimal:
@@ -100,7 +101,7 @@ def _accrue_to_pool(grid: Grid, raw_accrual: float) -> Decimal:
     Pre-cap behaviour preserved for grids still below target — they keep
     accruing normally.
     """
-    target = Decimal(str(_policy_bonus_target(grid.package_tier)))
+    target = Decimal(str(_policy_bonus_target(grid.package_tier, grid.total_seats)))
     current = Decimal(str(grid.bonus_pool_accrued or 0))
     proposed = current + Decimal(str(raw_accrual))
     grid.bonus_pool_accrued = min(proposed, target)
@@ -371,11 +372,12 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                     "level": level,
                     "position": position,
                     "filled": grid.positions_filled,
+                    "total_seats": grid.total_seats,
                     "complete": False,
                 }
 
                 # Check for grid completion
-                if grid.positions_filled >= GRID_TOTAL:
+                if grid.positions_filled >= grid.total_seats:
                     _complete_grid(db, grid)
                     entry["complete"] = True
                     # Carry the bonus outcome so the completion email can state
@@ -443,7 +445,7 @@ def place_member_in_grid(
     # NOTE: legacy code used to do `owner.total_team += 1` here.
     # Removed 1 May 2026 — see compute_descendant_counts() in app/main.py.
 
-    complete = grid.positions_filled >= GRID_TOTAL
+    complete = grid.positions_filled >= grid.total_seats
     if complete:
         _complete_grid(db, grid)
 
@@ -763,7 +765,8 @@ def _send_grid_entry_emails(db: Session, buyer: User, grids_filled: list,
             continue
         first_name = owner.first_name or owner.username or "there"
         filled = e.get("filled") or 0
-        remaining = max(GRID_TOTAL - filled, 0)
+        seats = e.get("total_seats") or GRID_TOTAL
+        remaining = max(seats - filled, 0)
         is_complete = bool(e.get("complete"))
         bonus_amount = float(e.get("bonus_amount") or 0)
         bonus_paid = bool(e.get("bonus_paid"))
@@ -784,7 +787,7 @@ def _send_grid_entry_emails(db: Session, buyer: User, grids_filled: list,
                     f'Your {tier_name} grid is full, {first_name}!</p>'
                     f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
                     f'<strong>{buyer_name}</strong> just took the final seat in your {tier_name} grid '
-                    f'&mdash; that\'s all {GRID_TOTAL} positions filled.{money_line}</p>')
+                    f'&mdash; that\'s all {seats} positions filled.{money_line}</p>')
         else:
             head = (f'<div style="font-size:48px;margin-bottom:14px">&#128229;</div>'
                     f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f1d3a;line-height:1.25">'
@@ -815,7 +818,7 @@ def _send_grid_entry_emails(db: Session, buyer: User, grids_filled: list,
             f'<p style="margin:0 0 6px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);'
             f'text-transform:uppercase;letter-spacing:1px">{tier_name} grid progress</p>'
             f'<p style="margin:0 0 8px;font-size:38px;font-weight:900;color:#22d3ee;'
-            f'font-family:\'Sora\',sans-serif">{filled} / {GRID_TOTAL}</p>'
+            f'font-family:\'Sora\',sans-serif">{filled} / {seats}</p>'
             f'<p style="margin:0;font-size:13px;color:rgba(255,255,255,0.7);font-weight:600">'
             + ("Grid complete &mdash; nice work!" if is_complete
                else f"{remaining} seat{'s' if remaining != 1 else ''} to go")
@@ -828,22 +831,22 @@ def _send_grid_entry_emails(db: Session, buyer: User, grids_filled: list,
             if bonus_paid and bonus_amount > 0:
                 subject = f"\U0001F3C6 Grid complete + ${bonus_amount:,.2f} bonus, {first_name}!"
                 text = (f"Hi {first_name}, {buyer_name} just took the final seat in your {tier_name} grid "
-                        f"({filled}/{GRID_TOTAL} filled). Your ${bonus_amount:,.2f} completion bonus has been "
+                        f"({filled}/{seats} filled). Your ${bonus_amount:,.2f} completion bonus has been "
                         f"added to your Campaign Wallet. View your grid: {SITE_URL}/grid-visualiser")
             elif bonus_rolled_over and bonus_amount > 0:
                 subject = f"\U0001F3C6 Your {tier_name} grid is full, {first_name}!"
                 text = (f"Hi {first_name}, {buyer_name} just took the final seat in your {tier_name} grid "
-                        f"({filled}/{GRID_TOTAL} filled). Your ${bonus_amount:,.2f} completion bonus rolled "
+                        f"({filled}/{seats} filled). Your ${bonus_amount:,.2f} completion bonus rolled "
                         f"over to your next advance — activate a {tier_name} campaign to claim it next time. "
                         f"View your grid: {SITE_URL}/grid-visualiser")
             else:
                 subject = f"\U0001F3C6 Your {tier_name} grid just filled, {first_name}!"
                 text = (f"Hi {first_name}, {buyer_name} just took the final seat in your {tier_name} grid "
-                        f"({filled}/{GRID_TOTAL} filled). View your grid: {SITE_URL}/grid-visualiser")
+                        f"({filled}/{seats} filled). View your grid: {SITE_URL}/grid-visualiser")
         else:
             subject = f"New entry in your {tier_name} grid"
             text = (f"Hi {first_name}, {buyer_name} just entered your {tier_name} grid "
-                    f"({filled}/{GRID_TOTAL} filled, {remaining} to go). "
+                    f"({filled}/{seats} filled, {remaining} to go). "
                     f"View your grid: {SITE_URL}/grid-visualiser")
 
         try:
@@ -1043,7 +1046,7 @@ def _complete_grid(db: Session, grid: Grid):
     # bonus is what gets paid. Forward grids cap at the target via
     # _accrue_to_pool, so actual_accrued == target for those.
     actual_accrued = float(grid.bonus_pool_accrued or 0)
-    policy_target = _policy_bonus_target(grid.package_tier)
+    policy_target = _policy_bonus_target(grid.package_tier, grid.total_seats)
     bonus_amount = max(actual_accrued, policy_target)
     # Persist the topped-up value so the grid record matches what was paid.
     if bonus_amount > actual_accrued:
@@ -1072,6 +1075,7 @@ def _complete_grid(db: Session, grid: Grid):
         package_tier  = grid.package_tier,
         package_price = grid.package_price,
         advance_number  = grid.advance_number + 1,
+        total_seats   = grid.total_seats,   # advance continues this line's size (legacy 36 stays 36; new 16 stays 16)
     )
     # If bonus rolled over, carry it into the new grid's pool
     if grid.bonus_rolled_over:
@@ -1088,12 +1092,12 @@ def _complete_grid(db: Session, grid: Grid):
             # Bonus paid out — celebratory notification with amount
             notif_title = f"🎉 Grid Tier {grid.package_tier} complete!"
             notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
-                         f"all {GRID_TOTAL} seats. ${bonus_amount:.2f} completion bonus added to your Campaign Wallet. "
+                         f"all {grid.total_seats} seats. ${bonus_amount:.2f} completion bonus added to your Campaign Wallet. "
                          f"Advance {grid.advance_number + 1} is now open and ready for new spillover.")
         elif owner and grid.bonus_rolled_over:
             # Bonus rolled over because not qualified
             notif_title = f"🔄 Grid Tier {grid.package_tier} complete — bonus rolled over"
-            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all {GRID_TOTAL} seats. "
+            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all {grid.total_seats} seats. "
                          f"Because qualification wasn't active, the ${bonus_amount:.2f} bonus rolled into "
                          f"advance {grid.advance_number + 1}. Get qualified to claim it on the next completion.")
         else:
@@ -1367,7 +1371,7 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
                 "price":           g.package_price,
                 "advance":           g.advance_number,
                 "filled":          g.positions_filled,
-                "pct":             round(float(g.positions_filled or 0) / float(GRID_TOTAL) * 100),
+                "pct":             round(float(g.positions_filled or 0) / float(g.total_seats) * 100),
                 "revenue":         g.revenue_total,
                 "bonus_pool":      float(g.bonus_pool_accrued or 0),
                 "owner_potential": float(g.revenue_total or 0) * float(PER_LEVEL_PCT),
