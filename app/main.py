@@ -14007,6 +14007,93 @@ def admin_api_spawn_missing_advances(
     return JSONResponse(report)
 
 
+@app.get("/admin/api/grid-integrity-audit")
+def admin_api_grid_integrity_audit(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY full-platform grid + seat integrity scan across EVERY grid.
+
+    Commission scans (commission_anomalies / unqualified_commissions) are blind to
+    display defects because those defects move no money. This surfaces exactly the
+    failure modes the breach recovery could have left:
+
+      - orphaned_seat_grids: a GridPosition.member_id points to a user row that no
+        longer exists (e.g. a member deleted in the breach). /api/grid-visualiser
+        does `if not member: continue`, so the seat is SKIPPED and the grid renders
+        short/empty -> the 'Tier 2 shows no one / inactive' symptom.
+      - counter_drift_grids: grid.positions_filled disagrees with the real
+        GridPosition row count.
+      - completion_mismatch_grids: is_complete=True on a grid with < GRID_TOTAL real
+        rows (a reconstructed completion), or is_complete=False with >= GRID_TOTAL.
+      - completed_no_successor_grids: a completed grid with no next-advance grid at
+        the same (owner, tier) and no other incomplete grid there -> tier renders
+        empty (the spawn-missing-advances set).
+
+    No writes. This is the true blast radius across all grids."""
+    _require_admin(user)
+    from .database import Grid as _G, GridPosition as _GP, User as _U, GRID_TOTAL as _TOTAL
+    from collections import defaultdict as _dd
+
+    user_ids = {r[0] for r in db.query(_U.id).all()}
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+
+    grids = db.query(_G).all()
+    existing_adv = {(g.owner_id, g.package_tier, g.advance_number) for g in grids}
+    has_incomplete = _dd(bool)
+    for g in grids:
+        if not g.is_complete:
+            has_incomplete[(g.owner_id, g.package_tier)] = True
+
+    pos = db.query(_GP.grid_id, _GP.member_id).all()
+    by_grid = _dd(list)
+    for gid, mid in pos:
+        by_grid[gid].append(mid)
+
+    orphaned, drift, completion_mismatch, missing_succ = [], [], [], []
+    for g in grids:
+        members = by_grid.get(g.id, [])
+        actual = len(members)
+        resolvable = sum(1 for m in members if m in user_ids)
+        orphans = actual - resolvable
+        counter = int(g.positions_filled or 0)
+        rec = {
+            "grid_id": g.id, "owner_id": g.owner_id, "username": uname.get(g.owner_id),
+            "tier": g.package_tier, "advance": g.advance_number,
+            "is_complete": bool(g.is_complete),
+            "counter_filled": counter, "actual_rows": actual,
+            "resolvable_rows": resolvable, "orphaned_rows": orphans,
+        }
+        if orphans > 0:
+            orphaned.append(rec)
+        if counter != actual:
+            drift.append(rec)
+        if (g.is_complete and actual < _TOTAL) or ((not g.is_complete) and actual >= _TOTAL):
+            completion_mismatch.append(rec)
+        if (g.is_complete
+                and (g.owner_id, g.package_tier, g.advance_number + 1) not in existing_adv
+                and not has_incomplete[(g.owner_id, g.package_tier)]):
+            missing_succ.append(rec)
+
+    affected_grid_ids = {r["grid_id"] for r in (orphaned + drift + completion_mismatch + missing_succ)}
+    return JSONResponse({
+        "grids_total": len(grids),
+        "positions_total": len(pos),
+        "grid_total_seats": _TOTAL,
+        "affected_grids_count": len(affected_grid_ids),
+        "orphaned_seat_grids": {"count": len(orphaned), "detail": orphaned},
+        "counter_drift_grids": {"count": len(drift), "detail": drift},
+        "completion_mismatch_grids": {"count": len(completion_mismatch), "detail": completion_mismatch},
+        "completed_no_successor_grids": {"count": len(missing_succ), "detail": missing_succ},
+        "note": ("READ-ONLY. orphaned_seat_grids => seats whose member_id points to a deleted "
+                 "user; the visualiser skips them so the grid shows short/empty (the Tier-2 "
+                 "'no one / inactive' symptom). counter_drift => positions_filled disagrees with "
+                 "real rows. completion_mismatch => is_complete inconsistent with real row count. "
+                 "completed_no_successor => the missing-advance set. affected_grids_count is the "
+                 "true display blast radius; commissions are separately verified clean."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
