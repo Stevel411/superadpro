@@ -14145,6 +14145,88 @@ def admin_api_grid_occupants_reconstruct(
     })
 
 
+@app.get("/admin/api/missed-commission-audit")
+def admin_api_missed_commission_audit(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    user_id: int = 0,
+    since: str = "",
+):
+    """READ-ONLY. Quantify campaign-tier commissions a member MISSED while
+    unqualified — e.g. a breach-wiped tier purchase left them with no active tier,
+    so their 40%/6.25% on downline tier purchases was company-absorbed.
+
+    _pay_direct_sponsor / _pay_unilevel_chain stamp every absorb row with a note
+    naming the skipped recipient ('Sponsor {id} unqualified' / 'upline {id}
+    unqualified … company absorb'). This sums those for `user_id` since `since` —
+    what they'd have earned had they been live from that date. Also reports downline
+    size so a possible missed grid completion can be judged. No writes.
+
+    Caveat: only events PROCESSED live carry the naming note; pre-3-June rows
+    reconstructed from counters may not, so treat the figure as a verified floor."""
+    _require_admin(user)
+    from .database import Commission as _C, User as _U
+    from datetime import datetime as _dt
+    from sqlalchemy import or_ as _or
+
+    target = db.query(_U).filter(_U.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=200)
+    try:
+        since_dt = _dt.fromisoformat(since) if since else _dt(2026, 5, 25)
+    except Exception:
+        return JSONResponse({"error": f"bad since '{since}' (use YYYY-MM-DD)"}, status_code=200)
+
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+
+    rows = (db.query(_C)
+            .filter(_C.to_user_id.is_(None),
+                    _C.created_at >= since_dt,
+                    _or(_C.notes.like(f"%upline {user_id} unqualified%"),
+                        _C.notes.like(f"%Sponsor {user_id} unqualified%")))
+            .order_by(_C.created_at.asc()).all())
+    missed, total_direct, total_uni = [], 0.0, 0.0
+    for c in rows:
+        amt = float(c.amount_usdt or 0)
+        if c.commission_type == "direct_sponsor":
+            total_direct += amt
+        else:
+            total_uni += amt
+        missed.append({
+            "commission_id": c.id, "type": c.commission_type, "amount": round(amt, 4),
+            "from_buyer": c.from_user_id, "buyer_username": uname.get(c.from_user_id),
+            "package_tier": getattr(c, "package_tier", None),
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+            "note": (c.notes or "")[:160],
+        })
+
+    direct_dl = db.query(_U.id).filter(_U.sponsor_id == user_id).count()
+    level_ids, frontier, depth, total_dl = {user_id}, [user_id], 0, 0
+    while frontier and depth < 8:
+        kids = [r[0] for r in db.query(_U.id).filter(_U.sponsor_id.in_(frontier)).all() if r[0] not in level_ids]
+        for k in kids:
+            level_ids.add(k)
+        total_dl += len(kids)
+        frontier, depth = kids, depth + 1
+
+    return JSONResponse({
+        "user_id": user_id, "username": target.username, "since": since_dt.isoformat(),
+        "missed_commission_count": len(missed),
+        "missed_direct_40pct": round(total_direct, 2),
+        "missed_unilevel_625pct": round(total_uni, 2),
+        "missed_total": round(total_direct + total_uni, 2),
+        "direct_downline": direct_dl,
+        "downline_within_8_levels": total_dl,
+        "missed_detail": missed,
+        "note": ("READ-ONLY. missed_total = campaign-tier commissions company-absorbed because "
+                 "this member was unqualified when a downline member bought a tier — what they'd "
+                 "have earned had they been live from `since`. Only live-processed events carry the "
+                 "naming note, so treat as a verified floor (pre-3-June reconstructed rows may lack "
+                 "detail). A missed grid COMPLETION bonus is only possible if 36+ tier buyers fell "
+                 "in their downline — judge via the downline counts."),
+    })
+
+
 @app.get("/admin/api/grid-integrity-audit")
 def admin_api_grid_integrity_audit(
     user: User = Depends(get_current_user),
