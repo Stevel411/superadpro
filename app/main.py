@@ -21026,6 +21026,20 @@ def _nowpayments_activate_product(db, user, order, meta):
         if not result["success"]:
             logger.error(f"NOWPayments grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
         else:
+            # ── Launchpad entry (tier 0) ───────────────────────────────────
+            # A free (non-member) user who buys the $10 Launchpad enters the
+            # comp plan at the 'launchpad' rung: can_earn() becomes True
+            # (refer / earn / withdraw) while is_pro() stays False (tools and
+            # tiers 1-8 locked) until they upgrade to full membership. Set
+            # ONLY on a genuine free->launchpad transition — never downgrade
+            # an active member who happens to buy tier 0, and idempotent if
+            # they re-enter at tier 0. Follows the fast_start pattern below:
+            # db.add, no commit here — the BSC-scan caller commits (verified
+            # at cron_scan_bsc_payments, db.commit() right after this call).
+            if package_tier == 0 and not user.is_active and getattr(user, "membership_tier", None) != "launchpad":
+                user.membership_tier = "launchpad"
+                db.add(user)
+                logger.info(f"Launchpad activated: user {user.id} -> membership_tier='launchpad'")
             # Fast Start hero — once the user activates Grid Tier 1 the hero
             # has done its job and should never reappear. Set hidden_at so
             # the dashboard React surface stops rendering it. (Higher tiers

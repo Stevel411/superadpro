@@ -110,7 +110,13 @@ PRODUCT_PRICES = {
     "membership_pro":             Decimal("20.00"),
     "membership_basic_annual":    Decimal("200.00"),
     "membership_pro_annual":      Decimal("200.00"),
-    # Campaign Grid (Stream 02) — 95/5 split
+    # Campaign Grid (Stream 02)
+    # grid_0 = $10 Launchpad — the comp-plan entry rung. Purchasable by
+    # FREE (non-member) users; tiers 1-8 still require active membership.
+    # Confirmation tags the buyer membership_tier='launchpad' (can_earn
+    # True, is_pro False) so they can refer/earn/withdraw without unlocking
+    # tools or higher tiers. Split percentages live in grid.py, not here.
+    "grid_0":   Decimal("10.00"),
     "grid_1":   Decimal("20.00"),
     "grid_2":   Decimal("50.00"),
     "grid_3":   Decimal("100.00"),
@@ -820,11 +826,13 @@ def create_payment_intent(db, user_id: int, product_type: str, product_key: str,
         buyer = db.query(_User).filter(_User.id == user_id).first()
         if not buyer:
             return {"error": "unknown_product"}
-        # Gate 1: active membership required
-        if not buyer.is_active:
+        # Gate 1: active membership required — EXCEPT tier 0 (Launchpad).
+        # The $10 Launchpad (grid_0) is the comp-plan entry rung, open to
+        # free (non-member) users. Tiers 1-8 still require full membership.
+        if tier_num != 0 and not buyer.is_active:
             logger.info(
                 f"create_payment_intent: refused grid intent for user {user_id} — "
-                f"inactive membership"
+                f"inactive membership (tier {tier_num})"
             )
             return {"error": "membership_required"}
         # Gate 2: sequential tier (Tier N requires owning Tier N-1)
