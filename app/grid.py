@@ -2,10 +2,10 @@
 # SuperAdPro — 6×6 Profit Grid (Spillover Model)
 #
 # Commission Architecture (Stream 2) — updated 25 May 2026:
-#   40% → Direct Sponsor   (person who personally referred the entrant)
+#   30% → Direct Sponsor   (person who personally referred the entrant)
 #   50% → Uni-Level Pool   (6.25% × 8 levels in the entrant's upline chain)
 #    0% → Platform Fee     (reallocated to bonus pool 21 May 2026)
-#   10% → Grid Completion Bonus Pool (accrues per seat, pays at seat 36)
+#   20% → Grid Completion Bonus Pool (accrues per seat, pays at seat 16)
 #
 # Grid shape (25 May 2026): 6 wide × 6 deep = 36 positions.
 # Completion bonus pays when seat 36 fills. UNILEVEL_DEPTH stays at 8
@@ -19,7 +19,7 @@
 # Qualification Rule:
 #   To earn commissions at a tier, the recipient must have an active
 #   (or in-grace) campaign at that SAME tier or HIGHER.
-#   If unqualified, the 40% direct goes to company (does NOT walk up).
+#   If unqualified, the 30% direct goes to company (does NOT walk up).
 #   Uni-level: each level checked individually — unqualified = company absorb.
 #
 # Spillover Model:
@@ -118,8 +118,8 @@ def process_tier_purchase(
     """
     Main entry point for a tier purchase (new or repurchase).
     
-    1. Pay commissions (40% direct, 50% uni-level, 0% platform)
-       — the 10% bonus pool accrues on each grid during spillover fill
+    1. Pay commissions (30% direct, 50% uni-level, 0% platform)
+       — the 20% bonus pool accrues on each grid during spillover fill
     2. Fill one seat in every upline grid at this tier (spillover)
     
     The buyer's sponsor_id is used for commission payments.
@@ -353,7 +353,7 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                 grid.positions_filled += 1
                 grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
-                # Accrue 10% bonus pool on this grid, capped at policy target.
+                # Accrue 20% bonus pool on this grid, capped at policy target.
                 # The cap matters because retroactive top-ups (26 May 2026) may
                 # have already set this grid's pool to the full target — further
                 # accrual must not push past the advertised $72/$180/etc.
@@ -438,7 +438,7 @@ def place_member_in_grid(
     grid.positions_filled += 1
     grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
-    # Accrue 10% bonus pool, capped at policy target (see _accrue_to_pool).
+    # Accrue 20% bonus pool, capped at policy target (see _accrue_to_pool).
     bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
     _accrue_to_pool(grid, bonus_amount)
 
@@ -911,14 +911,14 @@ def _send_release_email(db: Session, buyer: User, released: list) -> None:
 
 
 def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: int, source_event_id: str = None):
-    """40% to the buyer's personal sponsor — or absorbed by the company if
+    """30% to the buyer's personal sponsor — or absorbed by the company if
     the sponsor isn't qualified at this tier.
 
-    8 Jun 2026 (Steve): an unqualified direct sponsor's 40% is absorbed by the
+    8 Jun 2026 (Steve): an unqualified direct sponsor's 30% is absorbed by the
     company (recipient of last resort), NOT escrowed. This reverts the 26-May
     escrow divergence on the direct line back to the documented spec rule
     (commission-spec.md §"Tier qualification rule"): qualify at the tier or the
-    slot passes up to the company. No grace claim on the direct 40%.
+    slot passes up to the company. No grace claim on the direct 30%.
     """
     amount = round(float(price) * DIRECT_PCT, 2)
 
@@ -926,7 +926,7 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
         # No sponsor at all — money goes to company directly, no escrow.
         # There's nobody who could "catch up" to claim it.
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
-                           f"No sponsor — 40% company absorb on ${price}",
+                           f"No sponsor — {int(DIRECT_PCT*100)}% company absorb on ${price}",
                            package_tier, source_event_id=source_event_id)
         return
 
@@ -938,15 +938,15 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
         sponsor.total_earned  = Decimal(str(sponsor.total_earned or 0)) + Decimal(str(amount))
         sponsor.grid_earnings = Decimal(str(sponsor.grid_earnings or 0)) + Decimal(str(amount))
         _record_commission(db, buyer.id, sponsor.id, amount, "direct_sponsor",
-                           f"Direct sponsor 40% — buyer {buyer.id} on ${price} package",
+                           f"Direct sponsor {int(DIRECT_PCT*100)}% — buyer {buyer.id} on ${price} package",
                            package_tier, source_event_id=source_event_id)
     else:
         # Sponsor unqualified at this tier (or record missing) — the 40%
         # passes up to the company as recipient of last resort. No escrow:
         # the direct line does not hold a grace claim (Steve, 8 Jun 2026).
         _note = (f"Sponsor {buyer.sponsor_id} unqualified at tier {package_tier} "
-                 f"— 40% company absorb on ${price}") if sponsor else \
-                (f"Sponsor {buyer.sponsor_id} not found — 40% company absorb")
+                 f"— {int(DIRECT_PCT*100)}% company absorb on ${price}") if sponsor else \
+                (f"Sponsor {buyer.sponsor_id} not found — {int(DIRECT_PCT*100)}% company absorb")
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
                            _note, package_tier, source_event_id=source_event_id)
 

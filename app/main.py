@@ -3727,7 +3727,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     # Bonus pool
     bonus_accrued = float(grid_record.bonus_pool_accrued or 0) if grid_record else 0
     from .database import GRID_COMPLETION_BONUS
-    bonus_max = float(GRID_COMPLETION_BONUS.get(tier, 0))
+    bonus_max = (completion_bonus_for(grid_record.total_seats, GRID_PACKAGES.get(tier, 0)) if grid_record else 0.0)
 
     # Per-grid commission breakdown (added 21 May 2026 for the redesigned
     # visualiser). Live ledger reads — sum Commission rows where grid_id
@@ -3851,7 +3851,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         "total_earned": round(total_earned, 2),
         "direct_fills": direct_fills,
         "unilevel_fills": unilevel_fills,
-        "direct_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.40, 2),
+        "direct_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.30, 2),
         "unilevel_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.0625, 2),
         "direct_count": direct_count,
         "completed_grids": completed_grids_detail,
@@ -3957,7 +3957,7 @@ def admin_grid_earnings_verification(request: Request, user: User = Depends(get_
             "direct_referral": {
                 "earned": round(d_amount, 2),
                 "fills": d_count,
-                "per_fill_expected": round(GRID_PACKAGES.get(tier, 0) * 0.40, 2),
+                "per_fill_expected": round(GRID_PACKAGES.get(tier, 0) * 0.30, 2),
             },
             "uni_level": {
                 "earned": round(u_amount, 2),
@@ -3967,7 +3967,7 @@ def admin_grid_earnings_verification(request: Request, user: User = Depends(get_
             "completion_bonus": {
                 "earned": round(b_amount, 2),
                 "advances_completed": b_count,
-                "per_advance_expected": float(GRID_COMPLETION_BONUS.get(tier, 0)),
+                "per_advance_expected": completion_bonus_for(NEW_GRID_SEATS, GRID_PACKAGES.get(tier, 0)),
             },
             "tier_total": tier_total,
             "active_grid": {
@@ -5761,7 +5761,7 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
 
     bonus_accrued = float(grid_record.bonus_pool_accrued or 0) if grid_record else 0
     from .database import GRID_COMPLETION_BONUS
-    bonus_max = float(GRID_COMPLETION_BONUS.get(tier, 0))
+    bonus_max = (completion_bonus_for(grid_record.total_seats, GRID_PACKAGES.get(tier, 0)) if grid_record else 0.0)
 
     return JSONResponse({
         "seats": grid_seats,
@@ -5781,7 +5781,7 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
         "total_earned": round(total_earned, 2),
         "direct_fills": direct_fills,
         "unilevel_fills": unilevel_fills,
-        "direct_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.40, 2),
+        "direct_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.30, 2),
         "unilevel_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.0625, 2),
     })
 
@@ -25519,9 +25519,9 @@ def admin_convert_nexus_to_tier(
     tier_price = _GP.get(target_tier)
     plan["tier_activation"] = {
         "tier": target_tier, "name": _GTN.get(target_tier), "price": float(tier_price),
-        "direct_sponsor_40pct": round(tier_price * 0.40, 2),
+        "direct_sponsor_30pct": round(tier_price * 0.30, 2),
         "uni_level_50pct": round(tier_price * 0.50, 2),
-        "bonus_pool_10pct": round(tier_price * 0.10, 2),
+        "bonus_pool_20pct": round(tier_price * 0.20, 2),
         "buyer_sponsor_id": target.sponsor_id,
     }
 
@@ -46970,7 +46970,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     tiers = []
     for tier_num in range(1, 9):
         price = GRID_PACKAGES.get(tier_num, 0)
-        direct_comm = round(price * 0.40, 2)
+        direct_comm = round(price * 0.30, 2)
         uni_level_per_member = round(price * 0.0625, 2)
         bonus = completion_bonus_for(NEW_GRID_SEATS, price)
         views = CAMPAIGN_VIEW_TARGETS.get(tier_num, 0)

@@ -140,20 +140,20 @@ NEW_GRID_WIDTH  = 4      # positions per row
 # deploy onwards.
 #
 # Previous split (until 20 May 2026):
-#   DIRECT_PCT     = 0.40   (unchanged)
+#   DIRECT_PCT     = 0.30   (8 Jun 2026: 0.40 → 0.30)
 #   UNILEVEL_PCT   = 0.50   (unchanged)
 #   PER_LEVEL_PCT  = 0.0625 (unchanged)
 #   PLATFORM_PCT   = 0.05   → now 0.00
-#   BONUS_POOL_PCT = 0.05   → now 0.10
-DIRECT_PCT    = 0.40   # 40% → to the person who personally referred the entrant
+#   BONUS_POOL_PCT = 0.10   → now 0.20 (8 Jun 2026)
+DIRECT_PCT    = 0.30   # 30% → to the person who personally referred the entrant
 UNILEVEL_PCT  = 0.50   # 50% → split across 8 uni-level positions (6.25% each)
 PER_LEVEL_PCT = 0.0625 # 6.25% → each of 8 levels in the upline chain
 PLATFORM_PCT  = 0.00   # 0%  → reallocated to bonus pool (21 May 2026)
-BONUS_POOL_PCT = 0.10  # 10% → Grid completion bonus pool (was 5%, +5% from platform)
+BONUS_POOL_PCT = 0.20  # 20% → Grid completion bonus pool (8 Jun 2026: +10%, direct 40→30, company stays 0)
 
 
 # Legacy aliases
-OWNER_PCT     = DIRECT_PCT    # 0.40
+OWNER_PCT     = DIRECT_PCT    # 0.30
 UPLINE_PCT    = UNILEVEL_PCT  # 0.50
 LEVEL_PCT     = PER_LEVEL_PCT # 0.0625
 COMPANY_PCT   = PLATFORM_PCT  # 0.00 (platform share reallocated to bonus pool 21 May 2026)
