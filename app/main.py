@@ -17096,8 +17096,8 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # cohort their recruit lands in).
     STANDARD_PARTNER_PRICE   = Decimal("20.00")
     FOUNDING_PARTNER_PRICE   = Decimal("15.00")
-    STANDARD_ANNUAL_PRICE    = Decimal("200.00")
-    FOUNDING_ANNUAL_PRICE    = Decimal("150.00")
+    STANDARD_ANNUAL_PRICE    = Decimal("50.00")   # flat one-time annual (repriced from $200, 11 Jun 2026)
+    FOUNDING_ANNUAL_PRICE    = Decimal("50.00")   # no founding discount on annual — $50 flat for all
     FLAT_SPONSOR_COMMISSION  = Decimal("10.00")
 
     # Determine fee. If the user has a locked price (founders, grandfathered
@@ -17250,8 +17250,9 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
 
     locked_price = getattr(user, "membership_price_locked", None)
     if locked_price is not None:
-        # Founding partner: monthly = locked price, annual = locked × 10
-        fee = (Decimal(str(locked_price)) * Decimal("10")) if is_annual else Decimal(str(locked_price))
+        # Founding/locked partner: monthly = locked price; annual = flat $50
+        # (no founding discount on annual — repriced 11 Jun 2026, Steve).
+        fee = STANDARD_ANNUAL_PRICE if is_annual else Decimal(str(locked_price))
     else:
         fee = STANDARD_ANNUAL_PRICE if is_annual else STANDARD_PARTNER_PRICE
 
@@ -17346,27 +17347,21 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Replaces the old `not is_upgrade` check, which was vulnerable to
     # callers passing the wrong flag.
     sponsor_share = Decimal("0.00")  # default: no sponsor commission paid
-    if user.sponsor_id and pays_sponsor_commission:
+    if user.sponsor_id and pays_sponsor_commission and not is_annual:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
             sponsor_tier = getattr(sponsor, "membership_tier", "free") or "free"
-            # Flat $10 sponsor commission on every membership payment, regardless
-            # of buyer's tier or billing cycle. Locked in 15 May 2026 alongside
-            # flat partner pricing:
+            # MONTHLY membership pays a flat $10 sponsor commission, regardless
+            # of the buyer's tier:
             #   - founding partner ($15/mo) → sponsor gets $10 (66% of fee)
             #   - standard partner ($20/mo) → sponsor gets $10 (50% of fee)
-            #   - annual founding ($150/yr) → sponsor gets $100 (10× monthly)
-            #   - annual standard ($200/yr) → sponsor gets $100
-            # The annual commission is 10× monthly so annual recruits aren't
-            # disadvantaged for sponsors (matches old "2 months free" ratio).
-            # Behaviour for free sponsors is unchanged: they accrue commission
-            # to their balance and the cascade notification below prompts them
-            # to activate to access it (Option B — never auto-consume without
-            # consent).
-            if is_annual:
-                sponsor_share = Decimal("100.00")
-            else:
-                sponsor_share = FLAT_SPONSOR_COMMISSION
+            # ANNUAL ($50/yr one-time) pays NO sponsor commission — the company
+            # keeps the full $50. Annual is excluded at the guard above
+            # (`and not is_annual`). Repriced + zeroed 11 Jun 2026 (Steve).
+            # Free sponsors are unchanged: they accrue commission to balance and
+            # the cascade notification below prompts them to activate to access
+            # it (Option B — never auto-consume without consent).
+            sponsor_share = FLAT_SPONSOR_COMMISSION
 
             sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
             sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
@@ -17635,11 +17630,11 @@ async def api_founding_members_status(db: Session = Depends(get_db)):
         "closed_by": closed_by,
         "now_utc": datetime.utcnow().isoformat() + "Z",
         "current_price_monthly": "15.00" if is_open else "20.00",
-        "current_price_annual": "150.00" if is_open else "200.00",
+        "current_price_annual": "50.00",
         "standard_price_monthly": "20.00",
-        "standard_price_annual": "200.00",
+        "standard_price_annual": "50.00",
         "founding_price_monthly": "15.00",
-        "founding_price_annual": "150.00",
+        "founding_price_annual": "50.00",
     }
 
 
@@ -17897,9 +17892,9 @@ async def api_switch_to_annual(request: Request, db: Session = Depends(get_db),
         pass
     payment_method = (body.get("payment_method") or "balance").strip().lower()
 
-    # Annual fee honours locked price (founders pay $150) else standard $200
-    locked_price = getattr(user, "membership_price_locked", None)
-    annual_fee = (decimal.Decimal(str(locked_price)) * decimal.Decimal("10")) if locked_price is not None else decimal.Decimal("200.00")
+    # Annual fee is a flat $50 one-time for everyone (no founding discount on
+    # annual; repriced from $200/$150, 11 Jun 2026, Steve). Pays no commission.
+    annual_fee = decimal.Decimal("50.00")
 
     if payment_method != "balance":
         # Crypto and wallet rails route through their own endpoints.
@@ -20517,7 +20512,8 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
                     "SELECT COUNT(*) FROM users WHERE is_founding_member = TRUE"
                 )).scalar() or 0
                 if founding_count < 100:
-                    price_usd = Decimal("150.00") if is_annual else Decimal("15.00")
+                    # Annual flat $50 (no founding discount); founding monthly $15.
+                    price_usd = Decimal("50.00") if is_annual else Decimal("15.00")
                     logger.info(
                         f"NOWPayments: founding price ${price_usd} quoted to "
                         f"user {user.id} (spot #{founding_count + 1} reservable)"

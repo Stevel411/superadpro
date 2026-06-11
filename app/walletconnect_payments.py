@@ -103,13 +103,13 @@ PRODUCT_PRICES = {
     # 'basic'/'pro' keys retained for backward compatibility with cached
     # checkout pages but now resolve to the standard partner price.
     "membership_partner":         Decimal("20.00"),
-    "membership_partner_annual":  Decimal("200.00"),
+    "membership_partner_annual":  Decimal("50.00"),   # flat $50 one-time (repriced from $200, 11 Jun 2026)
     # Legacy keys — both now resolve to standard partner price. They'll be
     # removed in a future cleanup sprint once no active flow references them.
     "membership_basic":           Decimal("20.00"),
     "membership_pro":             Decimal("20.00"),
-    "membership_basic_annual":    Decimal("200.00"),
-    "membership_pro_annual":      Decimal("200.00"),
+    "membership_basic_annual":    Decimal("50.00"),
+    "membership_pro_annual":      Decimal("50.00"),
     # Campaign Grid (Stream 02)
     # grid_0 = $10 Launchpad — the comp-plan entry rung. Purchasable by
     # FREE (non-member) users; tiers 1-8 still require active membership.
@@ -883,7 +883,9 @@ def create_payment_intent(db, user_id: int, product_type: str, product_key: str,
                 )).scalar() or 0
                 if founding_count < 100:
                     is_annual_key = product_key.endswith("_annual")
-                    base_price = Decimal("150.00") if is_annual_key else Decimal("15.00")
+                    # Annual is flat $50 for everyone (no founding discount);
+                    # founding monthly is still $15. Repriced 11 Jun 2026.
+                    base_price = Decimal("50.00") if is_annual_key else Decimal("15.00")
                     logger.info(
                         f"Founding price quoted to user {user_id}: ${base_price} "
                         f"(spot #{founding_count + 1} reservable, "
