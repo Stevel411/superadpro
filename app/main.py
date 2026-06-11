@@ -15934,12 +15934,18 @@ def api_membership_balance_offer(
 
 @app.post("/api/membership/activate-from-balance")
 def api_membership_activate_from_balance(
+    billing: str = "monthly",
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
-    Activate Basic membership using $20 from the user's commission balance.
-    Only free members with balance >= MEMBERSHIP_FEE may call this.
+    Activate membership using the user's commission balance.
+    billing='monthly' -> $20 ($15 founding), 50/50 sponsor split, +31 days.
+    billing='annual'  -> flat $50 one-time, NO commission (company keeps all),
+                         no founding claim, +365 days.
+    Only free members (incl. Launchpad) with balance >= fee may call this —
+    this is the self-funded bridge from Launchpad to full membership that
+    unlocks tier 1.
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
@@ -15950,6 +15956,8 @@ def api_membership_activate_from_balance(
     ok, err = require_fresh_consent(db, user.id, purpose="membership_activate_from_balance")
     if not ok:
         return JSONResponse({"error": err}, status_code=403)
+
+    is_annual = (billing or "monthly").strip().lower() in ("annual", "yearly", "year")
 
     # ── Founding partner spot allocation (15 May 2026) ─────────────────
     # If founding spots remain, this user pays $15 and claims a spot.
@@ -15969,7 +15977,7 @@ def api_membership_activate_from_balance(
         founding_count = founding_count_row.cnt if founding_count_row else 0
         # Deadline check (added 27 May 2026) — see _founder_offer_still_open.
         deadline_open = _founder_offer_still_open(db)
-        if founding_count < 100 and deadline_open:
+        if (not is_annual) and founding_count < 100 and deadline_open:
             fee = decimal.Decimal("15.00")
             founding_spot_claimed = founding_count + 1
             logger.info(
@@ -15981,6 +15989,11 @@ def api_membership_activate_from_balance(
             f"Founding spot check failed for user {user.id} (balance "
             f"activation): {e} — proceeding with standard pricing"
         )
+
+    # Annual one-time overrides any monthly/founding fee with the flat $50.
+    if is_annual:
+        fee = decimal.Decimal("50.00")
+        founding_spot_claimed = None  # no founding claim on annual
 
     balance = decimal.Decimal(str(user.balance or 0))
     if balance < fee:
@@ -16006,7 +16019,8 @@ def api_membership_activate_from_balance(
     else:
         user.membership_tier = "partner"
     user.activated_at = user.activated_at or datetime.utcnow()
-    user.membership_expires_at = (user.membership_expires_at or datetime.utcnow()) + timedelta(days=31)
+    user.membership_billing = "annual" if is_annual else "monthly"
+    user.membership_expires_at = (user.membership_expires_at or datetime.utcnow()) + timedelta(days=365 if is_annual else 31)
 
     # Mark any pending membership_offer notification as read so it
     # disappears from the user's inbox (they've acted on it).
@@ -16041,11 +16055,13 @@ def api_membership_activate_from_balance(
         logger.warning(f"Renewal record creation failed for user {user.id} after balance activation: {exc}")
 
     db.commit()
-    logger.info(f"Member {user.username} activated as Partner via balance redemption (${MEMBERSHIP_FEE} consumed).")
+    _cadence = "annual" if is_annual else "monthly"
+    logger.info(f"Member {user.username} activated as Partner ({_cadence}) via balance redemption (${fee} consumed).")
 
     return {
         "success": True,
         "tier": "partner",
+        "billing": _cadence,
         "remaining_balance": float(user.balance),
     }
 
