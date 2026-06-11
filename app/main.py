@@ -1189,6 +1189,30 @@ def is_pro(user):
         return True
     return bool(getattr(user, "is_active", False))
 
+
+def can_earn(user):
+    """Comp-plan access: can refer, build a team, earn commissions, and
+    withdraw. True for full paid members (via is_pro) AND $10 Launchpad
+    members (membership_tier == 'launchpad') — who have bought into the
+    comp plan but have NOT unlocked the tools or tiers 1-8.
+
+    The three-rung access ladder:
+        free signup    -> membership_tier 'free',      is_active False -> can_earn False
+        $10 Launchpad  -> membership_tier 'launchpad',  is_active False -> can_earn True
+        full member    -> is_active True                                -> can_earn True
+
+    Gate comp-plan / earning surfaces (referral link, dashboard earnings,
+    tier-0 grid, withdrawals) with can_earn(). Gate tool / higher-tier
+    surfaces (SuperPages, Creative Studio, Lead Finder, tiers 1-8, the full
+    Profit Grid accelerator) with is_pro() — Launchpad must NOT pass those.
+    """
+    if user is None:
+        return False
+    if is_pro(user):
+        return True
+    return getattr(user, "membership_tier", None) == "launchpad"
+
+
 def set_secure_cookie(response, user_id):
     """Create an HMAC-signed session token. Cannot be forged without SESSION_SECRET."""
     token = session_serializer.dumps(user_id)
