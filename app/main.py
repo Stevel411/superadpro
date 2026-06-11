@@ -19167,6 +19167,53 @@ async def stripe_checkout_campaign_tier(
         return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
 
 
+@app.post("/api/stripe/checkout/launchpad")
+async def stripe_checkout_launchpad(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create a one-time $10 Stripe Checkout session for the Launchpad
+    (grid tier 0) — the entry rung for FREE (non-member) users.
+
+    Unlike campaign tiers (active-member only), Launchpad sits BEFORE
+    membership: a free user pays $10, gets the tier-0 grid + comp-plan
+    qualification (can_earn True), but NO tools and NO tiers 1-8 until they
+    activate full membership. One-time payment mode. Price is sourced from
+    GRID_PACKAGES[0] so it stays single-source with every other rail.
+
+    Returns: { checkout_url, session_id }
+    """
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    if not user:
+        return JSONResponse({"error": "auth_required"}, status_code=401)
+    # Full members already have tier access — Launchpad is the free-user ramp.
+    if user.is_active:
+        return JSONResponse({"error": "already_active", "detail": "You already have full membership — Launchpad is the free-user entry rung."}, status_code=400)
+    # Already on Launchpad — don't sell a second tier-0 entry.
+    if (getattr(user, "membership_tier", None) or "free") == "launchpad":
+        return JSONResponse({"error": "already_launchpad", "detail": "You're already on Launchpad."}, status_code=400)
+
+    price_usd = GRID_PACKAGES.get(0)
+    if not price_usd:
+        return JSONResponse({"error": "launchpad_unavailable"}, status_code=503)
+    amount_cents = int(round(float(price_usd) * 100))
+    try:
+        result = _stripe.create_checkout_session(
+            user=user,
+            db_session=db,
+            product_kind="launchpad",
+            amount_cents=amount_cents,
+            success_path="/dashboard?launchpad=activated",
+            cancel_path="/dashboard",
+        )
+        return result
+    except Exception as e:
+        logger.exception(f"stripe_checkout_launchpad failed for user {user.id}")
+        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
+
+
 @app.post("/api/stripe/checkout/nexus-pack")
 async def stripe_checkout_nexus_pack(
     request: Request,
@@ -19736,6 +19783,69 @@ def _stripe_handle_checkout_completed(db, session, event):
                 )
             except Exception as e:
                 logger.exception(f"pif_voucher activation crashed for user {user.id}")
+
+        elif product_kind == "launchpad":
+            # $10 Launchpad = grid tier 0 for a FREE (non-member) user. Grants
+            # the tier-0 grid + comp-plan qualification through the SAME engine
+            # the crypto rail uses (process_tier_purchase, tier 0), and tags
+            # membership_tier='launchpad' so can_earn() flips True while
+            # is_pro() stays False (tools + tiers 1-8 stay locked until full
+            # membership). Mirrors the WalletConnect/BSC rail's
+            # _nowpayments_activate_product launchpad logic exactly.
+            try:
+                from .grid import process_tier_purchase
+                result = process_tier_purchase(
+                    db=db, buyer_id=user.id, package_tier=0,
+                    source_event_id=f"stripe_{session.get('id')}",
+                )
+                if result.get("success"):
+                    # Promote a free user UP to launchpad — idempotent, and
+                    # never downgrades an active member or an existing
+                    # launchpad/founding/partner tier.
+                    if not user.is_active and (getattr(user, "membership_tier", None) or "free") == "free":
+                        user.membership_tier = "launchpad"
+                        db.add(user)
+                        logger.info(f"Stripe Launchpad: user={user.id} tagged membership_tier='launchpad'")
+                    # Trusted confirmed Payment row — written PAST the
+                    # paid+livemode guard, exactly parallel to the campaign_tier
+                    # rail, so the reconciliation engine sees real settled money
+                    # for tier 0. tx_hash is unique per session => idempotent on
+                    # webhook re-delivery; commission side is replay-guarded by
+                    # source_event_id inside process_tier_purchase.
+                    try:
+                        _lp_tx = f"stripe_grid_{session.get('id')}"
+                        if not db.query(Payment).filter(Payment.tx_hash == _lp_tx).first():
+                            db.add(Payment(
+                                from_user_id=user.id,
+                                to_user_id=None,
+                                amount_usdt=round(amount_cents / 100.0, 2),
+                                payment_type="stripe_grid_0",
+                                tx_hash=_lp_tx,
+                                status="confirmed",
+                            ))
+                            db.flush()
+                            logger.info(
+                                f"Stripe Launchpad Payment row written: user={user.id} "
+                                f"tx={_lp_tx} amount=${amount_cents/100:.2f}"
+                            )
+                    except Exception:
+                        logger.exception(
+                            f"Failed to write Stripe Launchpad Payment row for user "
+                            f"{user.id} — activation succeeded, engine will fall back "
+                            f"to live StripeCharge verification."
+                        )
+                    # Hide fast-start hero on grid activation (mirror crypto rail)
+                    try:
+                        if user.fast_start_hidden_at is None:
+                            user.fast_start_hidden_at = datetime.utcnow()
+                            db.add(user)
+                    except Exception:
+                        pass
+                    logger.info(f"Stripe Launchpad activated: user={user.id} tier=0")
+                else:
+                    logger.error(f"Stripe Launchpad activation failed: user={user.id} err={result.get('error')}")
+            except Exception:
+                logger.exception(f"launchpad activation crashed for user {user.id}")
 
         # Other one-time products (custom_domain etc.) ship later — log only.
 

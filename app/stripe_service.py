@@ -241,6 +241,7 @@ def _humanise_product(product_kind: str) -> str:
         "nexus_pack": "Credit Nexus Pack",
         "course": "Course Purchase",
         "creative_credits": "Creative Studio Credits",
+        "launchpad": "SuperAdPro Launchpad",
     }.get(product_kind, product_kind.replace("_", " ").title())
 
 # ─── Webhook handling ────────────────────────────────────────────────────────
