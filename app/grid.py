@@ -1052,18 +1052,38 @@ def _complete_grid(db: Session, grid: Grid):
     if bonus_amount > actual_accrued:
         grid.bonus_pool_accrued = Decimal(str(bonus_amount))
 
+    # New-model (16-seat) grids run Advancement Inertia: the completion bonus
+    # splits into withdrawable stake-back + a held recycle balance. Legacy
+    # 36-seat grids finish on their original rules (full bonus to campaign
+    # ad-credit, no split) so in-flight members' economics never change.
+    is_cycler = (grid.total_seats == NEW_GRID_SEATS)
+    cash_amount = recycle_amount = 0.0   # populated below for cycler grids; used by the completion notification
+
     if has_active_campaign and owner and bonus_amount > 0:
-        # Pay the completion bonus
-        owner.campaign_balance = Decimal(str(owner.campaign_balance or 0)) + Decimal(str(bonus_amount))
+        if is_cycler:
+            # Stake back (tier price) → affiliate balance (withdrawable);
+            # remainder (bonus − price) → recycle wallet (held). $20 → $20 + $12.
+            stake_price    = float(grid.package_price or 0)
+            cash_amount    = min(stake_price, bonus_amount)
+            recycle_amount = max(bonus_amount - cash_amount, 0.0)
+            owner.balance         = Decimal(str(owner.balance or 0)) + Decimal(str(cash_amount))
+            owner.recycle_balance = Decimal(str(owner.recycle_balance or 0)) + Decimal(str(recycle_amount))
+            bonus_note = (f"Grid completion bonus tier {grid.package_tier} advance {grid.advance_number} "
+                          f"(${cash_amount:.2f} cash + ${recycle_amount:.2f} recycle)")
+        else:
+            # Legacy 36-seat grid — full bonus to the campaign (ad-credit) wallet.
+            owner.campaign_balance = Decimal(str(owner.campaign_balance or 0)) + Decimal(str(bonus_amount))
+            bonus_note = f"Grid completion bonus tier {grid.package_tier} advance {grid.advance_number}"
+
+        # Full bonus is earned in both cases; only the destination differs, so
+        # the earnings ledger and the balance<=total_earned invariant hold.
         owner.total_earned   = Decimal(str(owner.total_earned or 0)) + Decimal(str(bonus_amount))
         owner.bonus_earnings = Decimal(str(owner.bonus_earnings or 0)) + Decimal(str(bonus_amount))
         grid.bonus_paid      = True
         grid.owner_paid      = True
 
         _record_commission(db, grid.owner_id, grid.owner_id, bonus_amount,
-                           "grid_completion_bonus",
-                           f"Grid completion bonus tier {grid.package_tier} advance {grid.advance_number}",
-                           grid.package_tier)
+                           "grid_completion_bonus", bonus_note, grid.package_tier)
     else:
         # No active qualification — roll bonus into next advance
         grid.bonus_rolled_over = True
@@ -1091,9 +1111,15 @@ def _complete_grid(db: Session, grid: Grid):
         if owner and grid.bonus_paid:
             # Bonus paid out — celebratory notification with amount
             notif_title = f"🎉 Grid Tier {grid.package_tier} complete!"
-            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
-                         f"all {grid.total_seats} seats. ${bonus_amount:.2f} completion bonus added to your Campaign Wallet. "
-                         f"Advance {grid.advance_number + 1} is now open and ready for new spillover.")
+            if is_cycler:
+                notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
+                             f"all {grid.total_seats} seats. ${bonus_amount:.2f} bonus: ${cash_amount:.2f} paid to your "
+                             f"withdrawable balance, ${recycle_amount:.2f} held in your recycle wallet. "
+                             f"Advance {grid.advance_number + 1} is now open and ready for new spillover.")
+            else:
+                notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
+                             f"all {grid.total_seats} seats. ${bonus_amount:.2f} completion bonus added to your Campaign Wallet. "
+                             f"Advance {grid.advance_number + 1} is now open and ready for new spillover.")
         elif owner and grid.bonus_rolled_over:
             # Bonus rolled over because not qualified
             notif_title = f"🔄 Grid Tier {grid.package_tier} complete — bonus rolled over"
