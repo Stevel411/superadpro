@@ -9641,6 +9641,95 @@ def admin_api_activation_funnel(
     })
 
 
+@app.get("/admin/api/grid-distribution")
+def admin_api_grid_distribution(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only transition diagnostic: how many grids are open and how many
+    members sit in each, bucketed by fill level and tier.
+
+    Grounds the 36 -> 16 seat transition decision in exact numbers.
+    positions_filled is the operative seat count (it drives completion).
+    A grid at >= 16 would complete immediately if converted to 16-seat;
+    >16 carries (positions_filled - 16) overflow seats. Pure read — no
+    mutation, no model change.
+    """
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from .database import Grid, GridPosition, GRID_TIER_NAMES, GRID_PACKAGES
+    NEW_SEATS = 16
+
+    grids = db.query(Grid).all()
+    open_grids = [g for g in grids if not g.is_complete]
+    complete_grids = [g for g in grids if g.is_complete]
+
+    def bucket(n):
+        if n < NEW_SEATS:  return "under_16"
+        if n == NEW_SEATS: return "at_16"
+        if n < 36:         return "over_16_to_35"
+        return "36_or_more_anomaly"
+
+    by_tier = {}
+    past16 = []
+    total_accrued_past16 = 0.0
+    total_overflow_seats = 0
+    for g in open_grids:
+        pf = int(g.positions_filled or 0)
+        tier = g.package_tier
+        t = by_tier.setdefault(tier, {
+            "tier": tier, "name": GRID_TIER_NAMES.get(tier, "?"),
+            "price": float(GRID_PACKAGES.get(tier, 0)),
+            "open_grids": 0, "members_placed": 0,
+            "buckets": {"under_16": 0, "at_16": 0, "over_16_to_35": 0, "36_or_more_anomaly": 0},
+            "grids_at_or_past_16": 0, "accrued_in_those": 0.0,
+        })
+        t["open_grids"] += 1
+        t["members_placed"] += pf
+        t["buckets"][bucket(pf)] += 1
+        if pf >= NEW_SEATS:
+            acc = float(g.bonus_pool_accrued or 0)
+            t["grids_at_or_past_16"] += 1
+            t["accrued_in_those"] += acc
+            total_accrued_past16 += acc
+            total_overflow_seats += max(0, pf - NEW_SEATS)
+            past16.append({
+                "grid_id": g.id, "owner_id": g.owner_id, "tier": tier,
+                "advance": g.advance_number, "positions_filled": pf,
+                "overflow_over_16": max(0, pf - NEW_SEATS),
+                "accrued": round(acc, 2),
+            })
+
+    for t in by_tier.values():
+        t["accrued_in_those"] = round(t["accrued_in_those"], 2)
+
+    open_fills = [int(g.positions_filled or 0) for g in open_grids]
+    counter_sum = sum(int(g.positions_filled or 0) for g in grids)
+    actual_positions = db.query(GridPosition).count()
+
+    return JSONResponse({
+        "summary": {
+            "total_grids": len(grids),
+            "open_grids": len(open_grids),
+            "complete_grids": len(complete_grids),
+            "open_grids_at_or_past_16": len(past16),
+            "total_overflow_seats_over_16": total_overflow_seats,
+            "total_accrued_in_past16_grids": round(total_accrued_past16, 2),
+            "avg_members_per_open_grid": round(sum(open_fills) / len(open_fills), 1) if open_fills else 0,
+            "max_members_in_an_open_grid": max(open_fills) if open_fills else 0,
+            "counter_integrity": {
+                "sum_positions_filled": counter_sum,
+                "actual_gridposition_rows": int(actual_positions),
+                "drift": counter_sum - int(actual_positions),
+            },
+        },
+        "by_tier": sorted(by_tier.values(), key=lambda x: x["tier"]),
+        "grids_at_or_past_16": sorted(past16, key=lambda x: (-x["positions_filled"], x["tier"])),
+    })
+
+
 @app.get("/admin/api/user-fulfillment")
 def admin_api_user_fulfillment(
     request: Request,
