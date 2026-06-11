@@ -160,6 +160,7 @@ COMPANY_PCT   = PLATFORM_PCT  # 0.00 (platform share reallocated to bonus pool 2
 
 # Package prices
 GRID_PACKAGES = {
+    0: 10.0,    # Launchpad — $10 entry tier (below Starter)
     1: 20.0,
     2: 50.0,
     3: 100.0,
@@ -171,6 +172,7 @@ GRID_PACKAGES = {
 }
 
 GRID_TIER_NAMES = {
+    0: "Launchpad",
     1: "Starter",
     2: "Builder",
     3: "Pro",
@@ -219,6 +221,7 @@ def completion_bonus_for(total_seats, price) -> float:
 # tiers buy longer "your campaign is live" runways, so members aren't on a
 # rebuy treadmill. Set 1 May 2026 — Option B from product discussion.
 CAMPAIGN_VIEW_TARGETS = {
+    0: 1000,     # ~2 weeks — Launchpad $10
     1: 2000,     # ~1 month — Starter $20
     2: 4000,     # ~2 months — Builder $50
     3: 8000,     # ~2 months — Pro $100
@@ -235,6 +238,7 @@ CAMPAIGN_GRACE_DAYS = 7   # Steve, 8 Jun 2026 (was 14)
 # ── Campaign Tier Features ────────────────────────────────────
 # Controls what each grid tier unlocks for video campaigns
 CAMPAIGN_TIER_FEATURES = {
+    0: {"max_campaigns": 1,  "monthly_views": 250,    "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "category"},
     1: {"max_campaigns": 1,  "monthly_views": 500,    "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "category"},
     2: {"max_campaigns": 3,  "monthly_views": 1500,   "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "category"},
     3: {"max_campaigns": 5,  "monthly_views": 5000,   "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "extended"},

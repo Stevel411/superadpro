@@ -3895,7 +3895,7 @@ def admin_grid_earnings_verification(request: Request, user: User = Depends(get_
     grand_direct_fills = 0
     grand_unilevel_fills = 0
 
-    for tier in range(1, 9):
+    for tier in range(0, 9):
         # Direct-sponsor commissions at this tier
         d_row = db.query(
             _func.coalesce(_func.sum(Commission.amount_usdt), 0),
@@ -13726,7 +13726,7 @@ def admin_api_missing_tier_owners(
     # video campaign tier per user (independent qualification + tier hint)
     vc_tier = {}
     for vc in db.query(VideoCampaign).all():
-        vc_tier[vc.user_id] = max(vc_tier.get(vc.user_id, 0), vc.campaign_tier or 1)
+        vc_tier[vc.user_id] = max(vc_tier.get(vc.user_id, 0), (vc.campaign_tier if vc.campaign_tier is not None else 1))
 
     earners = db.query(_User).filter(
         _User.is_admin == False,  # noqa: E712
@@ -15739,7 +15739,7 @@ def upload_video_post(
     category    = sanitize(category)[:50]
     video_url   = video_url.strip()
 
-    user_tier = get_user_highest_tier(db, user.id) or 0
+    user_tier = get_user_highest_tier(db, user.id)
     from .database import CAMPAIGN_TIER_FEATURES, GRID_TIER_NAMES
 
     # ── Money-flow gate (Apr 2026) ──
@@ -15750,7 +15750,7 @@ def upload_video_post(
     # then enter the watch rotation alongside paying members' campaigns,
     # diluting the pool. Admin users bypass this gate (get_user_highest_tier
     # returns 8 for is_admin=true).
-    if user_tier <= 0:
+    if user_tier < 0:
         return err(
             "You need an active Campaign Tier to create a campaign. "
             "Purchase a Campaign Tier from /campaign-tiers to get started."
@@ -21607,7 +21607,7 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
         # Tier-0 campaign slipped through (legacy data, edge case), it
         # won't appear in the watch rotation. get_user_highest_tier
         # returns 0 for users with no active tier, 8 for admins.
-        if get_user_highest_tier(db, owner.id) <= 0:
+        if get_user_highest_tier(db, owner.id) < 0:
             continue
         # Check grace period hasn't expired for completed campaigns
         if c.grace_expires_at and c.grace_expires_at < datetime.utcnow():
@@ -21657,7 +21657,7 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
         # Defensive: campaigns without an owner_tier set should never reach
         # this point (owner-tier filter earlier filters them out) but if
         # they somehow did, skip rather than silently fall back to Tier 1.
-        if not c.owner_tier or c.owner_tier <= 0:
+        if c.owner_tier is None or c.owner_tier < 0:
             continue
         tier_features = CAMPAIGN_TIER_FEATURES.get(c.owner_tier, CAMPAIGN_TIER_FEATURES[1])
         monthly_cap = tier_features.get("monthly_views", 500)
@@ -25051,8 +25051,8 @@ def admin_diagnostic_manual_grid_activation(
     if not getattr(user, "is_admin", False):
         return JSONResponse({"error": "Admin only"}, status_code=403)
 
-    if package_tier not in (1, 2, 3, 4, 5, 6, 7, 8):
-        return JSONResponse({"error": "Invalid tier (must be 1-8)"}, status_code=400)
+    if package_tier not in (0, 1, 2, 3, 4, 5, 6, 7, 8):
+        return JSONResponse({"error": "Invalid tier (must be 0-8)"}, status_code=400)
 
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
@@ -25442,8 +25442,8 @@ def admin_convert_nexus_to_tier(
     )
     from .grid import process_tier_purchase as _ptp
 
-    if target_tier not in (1, 2, 3, 4, 5, 6, 7, 8):
-        return JSONResponse({"error": "target_tier must be 1-8"}, status_code=400)
+    if target_tier not in (0, 1, 2, 3, 4, 5, 6, 7, 8):
+        return JSONResponse({"error": "target_tier must be 0-8"}, status_code=400)
 
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
@@ -29969,7 +29969,7 @@ DAILY_LIMITS = {
 
 # Tier-based multipliers — higher tiers get more AI uses per day
 TIER_AI_MULTIPLIERS = {
-    0: 0.25,  # No grid: 2/day per tool
+    0: 0.25,  # Launchpad $10: 2/day per tool (no-tier = -1 -> 0.2 default)
     1: 0.375, # Starter $20: 3/day
     2: 0.375, # Builder $50: 3/day
     3: 0.5,   # Pro $100: 4/day
@@ -30197,14 +30197,14 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
 
 
 def get_user_highest_tier(db: Session, user_id: int) -> int:
-    """Return the user's highest active grid tier (0 if none). Admin = all tiers."""
+    """Return the user's highest active grid tier (-1 if none). Admin = all tiers."""
     user = db.query(User).filter(User.id == user_id).first()
     if user and user.is_admin:
         return 8  # Master affiliate — qualified for all tiers
     highest = db.query(Grid).filter(
         Grid.owner_id == user_id, Grid.is_complete == False
     ).order_by(Grid.package_tier.desc()).first()
-    return highest.package_tier if highest else 0
+    return highest.package_tier if highest else -1
 
 def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
     """Check daily limit based on user's tier. If within limit, increment and return allowed=True."""
@@ -46931,8 +46931,8 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     # gate for repurchasing the tier per product rule).
     progress_by_tier = {}
     for c in active_campaigns:
-        tier = c.campaign_tier or 0
-        if tier <= 0:
+        tier = (c.campaign_tier if c.campaign_tier is not None else -1)
+        if tier < 0:
             continue
         agg = progress_by_tier.setdefault(tier, {"views_delivered": 0, "views_target": 0})
         agg["views_delivered"] += int(c.views_delivered or 0)
@@ -46968,7 +46968,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
 
     # Build tier data
     tiers = []
-    for tier_num in range(1, 9):
+    for tier_num in range(0, 9):
         price = GRID_PACKAGES.get(tier_num, 0)
         direct_comm = round(price * 0.30, 2)
         uni_level_per_member = round(price * 0.0625, 2)
@@ -47024,7 +47024,7 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
     # Without an active tier there's no campaign in the system to earn from,
     # so basic-only members can't access this endpoint. Admin users bypass
     # via get_user_highest_tier returning 8 for is_admin=true.
-    if get_user_highest_tier(db, user.id) <= 0:
+    if get_user_highest_tier(db, user.id) < 0:
         return JSONResponse({
             "error": "tier_required",
             "message": "Watch-to-Earn unlocks when you activate a Campaign Tier. Visit /campaign-tiers to get started.",
@@ -47144,7 +47144,7 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
         # appropriate CTAs depending on whether the user is already a paying
         # campaign owner or needs to buy a tier first. get_user_highest_tier
         # returns 0 for unpaid users, 8 for admins.
-        user_has_tier = get_user_highest_tier(db, user.id) > 0
+        user_has_tier = get_user_highest_tier(db, user.id) >= 0
 
         return {
             "watched_today": watched_today,
@@ -47152,7 +47152,7 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
             "daily_required": daily_limit,
             "is_exempt": is_exempt,
             "quota_reached": quota_reached,
-            "tier": quota.package_tier or 1,
+            "tier": (quota.package_tier if quota.package_tier is not None else 1),
             "has_campaign_tier": user_has_tier,
             "streak_days": getattr(quota, 'streak_days', 0) or 0,
             "total_watched": getattr(quota, 'total_watched', 0) or 0,
@@ -47492,7 +47492,7 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
     """Mark a video as watched, update quota, and return the next video via smart rotation."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if get_user_highest_tier(db, user.id) <= 0:
+    if get_user_highest_tier(db, user.id) < 0:
         return JSONResponse({"error": "tier_required", "redirect": "/campaign-tiers"}, status_code=403)
     try:
         from datetime import date
@@ -56821,7 +56821,7 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
             "platform": c.platform,
             "category": c.category or "General",
             "status": c.status,
-            "tier": c.campaign_tier or 1,
+            "tier": (c.campaign_tier if c.campaign_tier is not None else 1),
             "views_delivered": c.views_delivered or 0,
             "views_target": c.views_target or 0,
             "completion_pct": min(completion_pct, 100),
@@ -56954,7 +56954,7 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
             "views_delivered": campaign.views_delivered or 0,
             "views_target": campaign.views_target or 0,
             "status": campaign.status,
-            "tier": campaign.campaign_tier or 1,
+            "tier": (campaign.campaign_tier if campaign.campaign_tier is not None else 1),
         },
         "daily": days,
         "recent_watches": watch_log,

@@ -524,8 +524,8 @@ def _release_pending_for_user(db: Session, user_id: int, just_acquired_tier: int
             Grid.owner_purchased == True,  # noqa: E712
         ).all()
     }
-    max_purchased_tier = max(purchased_tiers) if purchased_tiers else 0
-    if max_purchased_tier <= 0:
+    max_purchased_tier = max(purchased_tiers) if purchased_tiers else -1
+    if max_purchased_tier < 0:
         # No genuinely purchased tier — nothing may be released. Leave the
         # pending rows untouched (they stay escrowed until a real purchase or
         # until they expire on their own grace deadline).
