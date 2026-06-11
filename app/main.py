@@ -9672,40 +9672,63 @@ def admin_api_grid_distribution(
         if n < 36:         return "over_16_to_35"
         return "36_or_more_anomaly"
 
+    # Live ledger truth per grid. positions_filled is a denormalised counter
+    # and can drift above reality (e.g. a deleted account's GridPosition rows
+    # are gone but the increments it made on upline grids were never rolled
+    # back). Base the real analysis on actual placement rows; report the
+    # counter + drift alongside so we can see the bug's footprint.
+    from sqlalchemy import func as _f
+    pos_counts = dict(
+        db.query(GridPosition.grid_id, _f.count(GridPosition.id))
+          .group_by(GridPosition.grid_id).all()
+    )
+
     by_tier = {}
-    past16 = []
+    past16 = []                # REAL placements >= 16 (the truth that matters)
+    past16_by_counter = 0      # counter alone says >= 16 (for contrast)
     total_accrued_past16 = 0.0
     total_overflow_seats = 0
+    drift_open = 0
     for g in open_grids:
         pf = int(g.positions_filled or 0)
+        actual = int(pos_counts.get(g.id, 0))
+        drift_open += (pf - actual)
         tier = g.package_tier
         t = by_tier.setdefault(tier, {
             "tier": tier, "name": GRID_TIER_NAMES.get(tier, "?"),
             "price": float(GRID_PACKAGES.get(tier, 0)),
-            "open_grids": 0, "members_placed": 0,
-            "buckets": {"under_16": 0, "at_16": 0, "over_16_to_35": 0, "36_or_more_anomaly": 0},
-            "grids_at_or_past_16": 0, "accrued_in_those": 0.0,
+            "open_grids": 0,
+            "members_placed_actual": 0, "members_placed_counter": 0,
+            "buckets_by_actual": {"under_16": 0, "at_16": 0, "over_16_to_35": 0, "36_or_more_anomaly": 0},
+            "grids_really_past_16": 0, "accrued_in_those": 0.0,
         })
         t["open_grids"] += 1
-        t["members_placed"] += pf
-        t["buckets"][bucket(pf)] += 1
+        t["members_placed_actual"] += actual
+        t["members_placed_counter"] += pf
+        t["buckets_by_actual"][bucket(actual)] += 1
         if pf >= NEW_SEATS:
+            past16_by_counter += 1
+        if actual >= NEW_SEATS:
             acc = float(g.bonus_pool_accrued or 0)
-            t["grids_at_or_past_16"] += 1
+            t["grids_really_past_16"] += 1
             t["accrued_in_those"] += acc
             total_accrued_past16 += acc
-            total_overflow_seats += max(0, pf - NEW_SEATS)
+            total_overflow_seats += max(0, actual - NEW_SEATS)
             past16.append({
                 "grid_id": g.id, "owner_id": g.owner_id, "tier": tier,
-                "advance": g.advance_number, "positions_filled": pf,
-                "overflow_over_16": max(0, pf - NEW_SEATS),
+                "advance": g.advance_number,
+                "positions_filled_counter": pf,
+                "actual_placements": actual,
+                "counter_drift": pf - actual,
+                "overflow_over_16_real": max(0, actual - NEW_SEATS),
                 "accrued": round(acc, 2),
             })
 
     for t in by_tier.values():
         t["accrued_in_those"] = round(t["accrued_in_those"], 2)
 
-    open_fills = [int(g.positions_filled or 0) for g in open_grids]
+    drift_complete = sum(int(g.positions_filled or 0) - int(pos_counts.get(g.id, 0)) for g in complete_grids)
+    open_actual = [int(pos_counts.get(g.id, 0)) for g in open_grids]
     counter_sum = sum(int(g.positions_filled or 0) for g in grids)
     actual_positions = db.query(GridPosition).count()
 
@@ -9714,19 +9737,22 @@ def admin_api_grid_distribution(
             "total_grids": len(grids),
             "open_grids": len(open_grids),
             "complete_grids": len(complete_grids),
-            "open_grids_at_or_past_16": len(past16),
-            "total_overflow_seats_over_16": total_overflow_seats,
-            "total_accrued_in_past16_grids": round(total_accrued_past16, 2),
-            "avg_members_per_open_grid": round(sum(open_fills) / len(open_fills), 1) if open_fills else 0,
-            "max_members_in_an_open_grid": max(open_fills) if open_fills else 0,
+            "grids_REALLY_past_16_by_actual_placements": len(past16),
+            "grids_past_16_by_counter_only": past16_by_counter,
+            "total_overflow_seats_over_16_real": total_overflow_seats,
+            "total_accrued_in_real_past16_grids": round(total_accrued_past16, 2),
+            "avg_real_members_per_open_grid": round(sum(open_actual) / len(open_actual), 1) if open_actual else 0,
+            "max_real_members_in_an_open_grid": max(open_actual) if open_actual else 0,
             "counter_integrity": {
                 "sum_positions_filled": counter_sum,
                 "actual_gridposition_rows": int(actual_positions),
-                "drift": counter_sum - int(actual_positions),
+                "total_drift": counter_sum - int(actual_positions),
+                "drift_in_open_grids": drift_open,
+                "drift_in_complete_grids": drift_complete,
             },
         },
         "by_tier": sorted(by_tier.values(), key=lambda x: x["tier"]),
-        "grids_at_or_past_16": sorted(past16, key=lambda x: (-x["positions_filled"], x["tier"])),
+        "grids_really_past_16": sorted(past16, key=lambda x: (-x["actual_placements"], x["tier"])),
     })
 
 
