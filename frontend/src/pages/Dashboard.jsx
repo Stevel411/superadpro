@@ -18,6 +18,10 @@ export default function Dashboard() {
   var { t } = useTranslation();
   const { user, setUser } = useAuth();
 
+  // Free-user view override for review: /dashboard?launchpad=preview shows
+  // the free-user door labels (e.g. "Business Launch") on an active account.
+  const previewFree = (function () { try { return new URLSearchParams(window.location.search).get('launchpad') === 'preview'; } catch (e) { return false; } })();
+
   // Onboarding wizard redirect REMOVED 10 May 2026 (launch day).
   // New users were being bounced to a full-page wizard before they
   // could see their dashboard. Steve flagged: 'this needs to come
@@ -622,8 +626,12 @@ export default function Dashboard() {
           <div className="dc-doors">
             <Link to="/business-hub" className="dc-door">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#1e3a8a,#0ea5e9)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg></div>
-              <h4>{t('dashboard.doorBusiness', { defaultValue: 'My Business' })}</h4>
-              <p>{t('dashboard.doorBusinessDesc', { defaultValue: 'Your income, team, commissions and stats.' })}</p>
+              <h4>{(!d.is_active || previewFree)
+                ? t('dashboard.doorBusinessLaunch', { defaultValue: 'Business Launch' })
+                : t('dashboard.doorBusiness', { defaultValue: 'My Business' })}</h4>
+              <p>{(!d.is_active || previewFree)
+                ? t('dashboard.doorBusinessLaunchDesc', { defaultValue: 'Start earning — your first step is inside.' })
+                : t('dashboard.doorBusinessDesc', { defaultValue: 'Your income, team, commissions and stats.' })}</p>
               <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
             </Link>
 
