@@ -23224,6 +23224,134 @@ def _reconcile_grid_payment(db, grid, owner, models):
     }
 
 
+@app.get("/admin/api/reconcile-wc-order")
+def admin_reconcile_wc_order(
+    order_id: int,
+    tx_hash: str,
+    apply: int = 0,
+    code: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Reconcile a WalletConnect order whose on-chain payment the scanner never
+    matched (scanner outage -> order expired with funds already in the
+    treasury). Verifies the tx ON-CHAIN (USDT -> treasury, amount ==
+    order.unique_amount, via the SAME redundant treasury parser the scanner
+    uses), then runs the IDENTICAL activation the scanner runs on a match:
+    idempotent confirmed Payment row + the canonical _nowpayments_activate_
+    product handler (grid placement, up-chain commissions, completion pool).
+
+    Safety:
+      - Session-authed admin only (_require_admin). No secret in the URL.
+      - apply=0 (default) = READ-ONLY dry run: mutates nothing, reports the
+        plan and the on-chain verification result.
+      - apply=1 requires ?code=NNNNNN (admin TOTP).
+      - Idempotent: Payment.tx_hash=wc_{tx} dedup + the order is flipped to
+        status='confirmed' so a recovered scanner can't re-match it. A second
+        apply is a no-op.
+
+    Built 12 Jun 2026 after a scanner outage stranded a verified $50 grid_2
+    payment (SAP-00352) -- the standing tool for any payment the scanner missed.
+    """
+    _require_admin(user)
+    from .database import (WalletConnectPaymentOrder as _WC, Payment as _P,
+                           User as _U)
+    from .withdrawals import call_bsc_rpc_with_failover
+    from .walletconnect_payments import get_treasury_transfers_in_range_redundant
+    import json as _json, pyotp
+
+    tx_hash = (tx_hash or "").strip().lower()
+    if not (tx_hash.startswith("0x") and len(tx_hash) == 66):
+        return JSONResponse({"error": "bad_tx_hash", "detail": "expected 0x + 64 hex"}, status_code=200)
+
+    order = db.query(_WC).filter(_WC.id == order_id).first()
+    if not order:
+        return JSONResponse({"error": "order_not_found", "order_id": order_id}, status_code=200)
+    buyer = db.query(_U).filter(_U.id == order.user_id).first()
+    if not buyer:
+        return JSONResponse({"error": "buyer_missing", "user_id": order.user_id}, status_code=200)
+
+    # ── On-chain verification (reuses the scanner's own treasury parser) ──
+    try:
+        tx = call_bsc_rpc_with_failover("eth.get_transaction", tx_hash)
+    except Exception as e:
+        return JSONResponse({"error": f"rpc_get_transaction_failed: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
+    if not tx or tx.get("blockNumber") is None:
+        return JSONResponse({"error": "tx_not_found_or_pending", "tx_hash": tx_hash}, status_code=200)
+    blk = int(tx["blockNumber"])
+    try:
+        transfers, providers_ok, last_err = get_treasury_transfers_in_range_redundant(blk, blk)
+    except Exception as e:
+        return JSONResponse({"error": f"treasury_scan_failed: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
+    if providers_ok == 0:
+        return JSONResponse({"error": "no_rpc_provider_succeeded", "detail": str(last_err)[:160] if last_err else None}, status_code=200)
+    match = next((t for t in transfers if (t.get("tx_hash") or "").lower() == tx_hash), None)
+    if not match:
+        return JSONResponse({"error": "tx_is_not_a_treasury_usdt_transfer", "block": blk}, status_code=200)
+
+    verified_amount = float(match.get("amount_usdt") or 0)
+    sender = match.get("from_address")
+    expected = float(order.unique_amount or 0)
+    amount_ok = abs(verified_amount - expected) <= 0.01
+    tx_ref = f"wc_{tx_hash}"
+    already = db.query(_P).filter(_P.tx_hash.in_([tx_ref, tx_hash])).first()
+
+    plan = {
+        "order_id": order.id, "user_id": buyer.id, "username": buyer.username,
+        "product": f"{order.product_type}/{order.product_key}",
+        "order_status": order.status, "expected_amount": expected,
+        "verified_onchain_amount": verified_amount, "amount_match": amount_ok,
+        "sender": sender, "block": blk, "already_attributed": bool(already),
+        "apply": int(apply),
+    }
+
+    if not amount_ok:
+        plan["error"] = "amount_mismatch — refusing to activate"
+        return JSONResponse(plan, status_code=200)
+    if apply != 1:
+        plan["dry_run"] = True
+        plan["note"] = "Verified. Re-run with &apply=1&code=NNNNNN (admin TOTP) to activate."
+        return JSONResponse(plan, status_code=200)
+
+    # ── APPLY (2FA-gated) ──
+    if not getattr(user, "totp_secret", None) or not pyotp.TOTP(user.totp_secret).verify((code or "").strip(), valid_window=1):
+        return JSONResponse({"error": "invalid_2fa_code"}, status_code=200)
+    if already:
+        plan["applied"] = False
+        plan["note"] = "Already attributed — no-op (idempotent)."
+        return JSONResponse(plan, status_code=200)
+
+    try:
+        order.tx_hash = tx_hash
+        db.add(_P(
+            from_user_id=buyer.id, to_user_id=None,
+            amount_usdt=order.unique_amount,
+            payment_type=f"walletconnect_{order.product_type}",
+            tx_hash=tx_ref, status="confirmed",
+        ))
+        db.flush()
+        # _nowpayments_activate_product reads order.price_usd on some rails;
+        # alias base_amount onto the instance exactly as the scanner does.
+        if getattr(order, "price_usd", None) is None:
+            try:
+                order.price_usd = order.base_amount
+            except Exception:
+                object.__setattr__(order, "price_usd", order.base_amount)
+        meta = _json.loads(order.product_meta) if order.product_meta else {}
+        _nowpayments_activate_product(db, buyer, order, meta)
+        order.status = "confirmed"
+        db.add(order)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.exception(f"reconcile-wc-order apply failed for order {order_id}")
+        return JSONResponse({"error": f"activation_failed: {type(e).__name__}: {str(e)[:160]}", "plan": plan}, status_code=200)
+
+    plan["applied"] = True
+    plan["note"] = "Activated via the canonical handler — grid placed, commissions + completion pool paid."
+    return JSONResponse(plan, status_code=200)
+
+
 @app.get("/admin/api/grid-payment-audit")
 def admin_grid_payment_audit(
     only_flagged: bool = False,
