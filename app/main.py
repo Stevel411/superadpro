@@ -23710,6 +23710,60 @@ def admin_grid_seat_census(
     return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/settlement-estimate")
+def admin_settlement_estimate(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY cut-off settlement cost on a FRESH path with no-store headers.
+
+    Cloudflare has been serving a stale /health {status:ok} on the
+    grid-seat-census path regardless of query-string busters. This is a
+    never-before-requested path (no cache entry to serve) and explicitly
+    sets Cache-Control: no-store so CF can't cache it going forward.
+
+    Sums accrued 10% bonus across all incomplete grids = the one-time amount
+    the "settle it" cut-off would add to member wallets. Gross upper bound
+    (assumes every owner qualified; unqualified owners company-absorb).
+    No writes. Built 12 Jun 2026.
+    """
+    _require_admin(user)
+    from .database import Grid
+    from sqlalchemy import func as _func
+
+    out = {"generated_at": datetime.utcnow().isoformat()}
+    try:
+        rows = (db.query(Grid.package_tier,
+                         _func.count(Grid.id),
+                         _func.coalesce(_func.sum(Grid.bonus_pool_accrued), 0))
+                .filter(Grid.is_complete == False)
+                .group_by(Grid.package_tier).all())
+        by_tier = [{"tier": t,
+                    "incomplete_grids": int(n or 0),
+                    "accrued_bonus_usd": round(float(a or 0), 2)} for t, n, a in rows]
+        by_tier.sort(key=lambda r: (r["tier"] is None, r["tier"] if r["tier"] is not None else -1))
+        members = int(db.query(_func.count(_func.distinct(Grid.owner_id)))
+                      .filter(Grid.is_complete == False).scalar() or 0)
+        out["cutoff_settlement"] = {
+            "incomplete_grids": sum(r["incomplete_grids"] for r in by_tier),
+            "distinct_members": members,
+            "total_accrued_bonus_usd": round(sum(r["accrued_bonus_usd"] for r in by_tier), 2),
+            "by_tier": by_tier,
+            "note": ("Gross upper bound — assumes every grid owner is qualified. "
+                     "Unqualified owners company-absorb at completion, so the real "
+                     "settle cost is this or lower."),
+        }
+    except Exception as e:
+        db.rollback()
+        out["error"] = f"{type(e).__name__}: {e}"
+
+    return JSONResponse(
+        out, status_code=200,
+        headers={"Cache-Control": "no-store, no-cache, max-age=0, must-revalidate",
+                 "Pragma": "no-cache"},
+    )
+
+
 @app.get("/admin/api/grid-payment-audit")
 def admin_grid_payment_audit(
     only_flagged: bool = False,
