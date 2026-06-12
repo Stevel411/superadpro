@@ -336,7 +336,6 @@ class User(Base):
     course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
     bonus_earnings          = Column(Money, default=0.0)               # lifetime grid completion bonus earnings
     marketplace_earnings    = Column(Money, default=0.0)               # lifetime earnings from course marketplace (creator + sponsor)
-    recycle_balance         = Column(Money, default=0.0)               # cycler held wallet — completion-bonus remainder (bonus − stake), funds re-entry. NOT withdrawable.
     # ── KYC fields ──
     kyc_status              = Column(String, default="none")               # none, pending, approved, rejected
     kyc_dob                 = Column(String, nullable=True)                # date of birth YYYY-MM-DD
@@ -2063,7 +2062,6 @@ def run_migrations():
         "ALTER TABLE withdrawal_approvals ADD COLUMN IF NOT EXISTS signature VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_activated_by_referral BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS low_balance_warned BOOLEAN DEFAULT FALSE",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS recycle_balance NUMERIC(18,6) DEFAULT 0",
         # ── Explainer/pipeline refund-proof billing (29 May 2026) ──
         # Per-scene credit accounting: a failed scene is refunded exactly
         # what it cost, exactly once. aspect lets the wizard's 9:16 / 1:1

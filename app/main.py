@@ -23839,9 +23839,7 @@ def admin_grid_seat_census(
     whether the owner genuinely bought the tier vs a spillover-created grid.
 
     Also reports any climb_pending flags (will read column_not_present_yet
-    until the branch merges — that itself confirms the engine isn't deployed)
-    and the recycle_balance exposure (the wallet the new completion path stops
-    writing to — tells us whether retiring it would strand real money).
+    until the branch merges — that itself confirms the engine isn't deployed).
 
     No writes. Built 12 Jun 2026.
     """
@@ -23912,16 +23910,7 @@ def admin_grid_seat_census(
         db.rollback()
         out["climb_pending_count"] = "column_not_present_yet"
 
-    # 4. recycle_balance exposure — what retiring the recycle wallet would touch.
-    try:
-        rc_users = int(db.query(_func.count(_User.id)).filter(_User.recycle_balance > 0).scalar() or 0)
-        rc_total = float(db.query(_func.coalesce(_func.sum(_User.recycle_balance), 0)).scalar() or 0)
-        out["recycle_wallet"] = {"users_with_balance": rc_users, "total_held": rc_total}
-    except Exception as e:
-        db.rollback()
-        out["recycle_wallet"] = {"error": f"{type(e).__name__}: {e}"}
-
-    # 5. Plain-English verdict for the merge decision.
+    # 4. Plain-English verdict for the merge decision.
     if total_live16 == 0:
         out["verdict"] = (
             "No live 16-seat grids. Deploying the climb engine is INERT — it "
