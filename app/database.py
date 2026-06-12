@@ -4951,7 +4951,14 @@ def migrate_grid_bonus_pools_one_shot():
 
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
-    migrate_grid_bonus_pools_one_shot()
+    # RETIRED 12 Jun 2026 — DO NOT RE-ENABLE. migrate_grid_bonus_pools_one_shot
+    # tops every completed grid up to the FULL 36-seat target ($72/T1 ...)
+    # regardless of how many seats actually filled, overpaying partial grids.
+    # It caused the 7 Jun topup cascade and again the 12 Jun one (after the
+    # 16-seat cut-off marked partial legacy grids complete) -- $13,876 of
+    # erroneous credits. Bonus owed = ACTUAL filled seats x rate, never the
+    # full target. The live grid engine pays correctly; this backfill is obsolete.
+    print("migrate_grid_bonus_pools_one_shot RETIRED (overpaid partial grids) - not run")
 except Exception as e:
     print(f"⚠️ migrate_grid_bonus_pools_one_shot skipped: {e}")
 

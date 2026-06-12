@@ -14576,6 +14576,7 @@ def admin_api_grid_topup_reversal(
     since_iso: str = "2026-06-07T22:00:00",
     apply: int = 0,
     code: str = "",
+    restore_pools: int = 0,
 ):
     """Reverse erroneous grid_completion_bonus_topup credits caused this session.
 
@@ -14627,7 +14628,7 @@ def admin_api_grid_topup_reversal(
             "notes": (c.notes or "")[:90],
         })
 
-    completed = db.query(Grid).filter(Grid.is_complete == True).all()
+    completed = db.query(Grid).filter(Grid.is_complete == True).all() if restore_pools else []
     pool_fixes = []
     for g in completed:
         target = TARGETS.get(int(g.package_tier))
