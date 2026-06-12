@@ -86,7 +86,7 @@ const CONFIG_CSS = `
 .ct-actions{display:flex;align-items:center;gap:16px;margin-top:28px;flex-wrap:wrap}
 .ct-btn{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#fff;text-decoration:none;background:linear-gradient(92deg,#1e3a8a,#0ea5e9);padding:14px 26px;border-radius:12px;box-shadow:0 22px 50px -26px rgba(14,165,233,.55);transition:.18s;display:inline-block}
 .ct-btn:hover{transform:translateY(-2px)}
-.ct-active{display:inline-flex;align-items:center;gap:7px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;color:#0d9488;background:#ccfbf1;border:1px solid #99f6e4;padding:13px 22px;border-radius:12px}
+.ct-active{display:inline-flex;align-items:center;gap:7px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;color:#fff;background:linear-gradient(92deg,#059669,#10b981);border:1px solid transparent;padding:13px 22px;border-radius:12px;box-shadow:0 12px 26px -10px rgba(16,185,129,.6)}
 .ct-share{font-family:'JetBrains Mono',monospace;font-size:12px;color:#1e3a8a}
 .ct-share b{color:var(--sap-text-primary)}
 .ct-disc{font-size:12px;color:var(--sap-text-muted);line-height:1.55;margin-top:22px;max-width:780px}
