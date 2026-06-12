@@ -21119,9 +21119,17 @@ def _nowpayments_activate_product(db, user, order, meta):
     elif order.product_type == "grid":
         package_tier = int(product_key.split("_")[1])
         from .grid import process_tier_purchase
-        # Idempotency: key on the NOWPayments order id so a re-fired IPN
-        # callback can't double-pay the grid commission chain (28 May 2026).
-        _np_event = order.internal_order_id or (f"np_{order.np_payment_id}" if order.np_payment_id else None)
+        # Idempotency: key on the order id so a re-fired callback can't
+        # double-pay the grid commission chain (28 May 2026). internal_order_id
+        # and np_payment_id exist on NOWPayments orders but NOT on
+        # WalletConnectPaymentOrder, which the BSC scanner ALSO routes through
+        # this shared activator -- bare attribute access threw AttributeError and
+        # silently failed EVERY WalletConnect grid activation (surfaced by the
+        # reconcile endpoint on SAP-00352 grid_2). getattr-guard both and fall
+        # back to a stable per-order key so WC grids still get a replay guard.
+        _np_event = (getattr(order, "internal_order_id", None)
+                     or (f"np_{order.np_payment_id}" if getattr(order, "np_payment_id", None) else None)
+                     or f"wcorder_{order.id}")
         result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier,
                                        source_event_id=_np_event)
         if not result["success"]:
