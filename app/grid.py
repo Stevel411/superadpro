@@ -114,6 +114,7 @@ def process_tier_purchase(
     package_tier: int,
     bypass_repurchase_guard: bool = False,
     source_event_id: str = None,
+    _drain_climbs: bool = True,
 ) -> dict:
     """
     Main entry point for a tier purchase (new or repurchase).
@@ -293,6 +294,23 @@ def process_tier_purchase(
                 f"Release-confirmation email failed for buyer {buyer_id}: {e}"
             )
 
+    # ── Grid Accelerator climb drain (top level only) ──
+    # Spillover during this purchase may have completed qualified tier 1-4 grids
+    # and flagged them climb_pending. Drain them now — AFTER this purchase has
+    # committed — so each climb's own process_tier_purchase runs in a clean,
+    # non-re-entrant transaction. Nested climb calls pass _drain_climbs=False so
+    # only the outermost purchase drives the loop. The drain scans the whole
+    # queue (not just grids from this purchase), so any stuck climb self-heals
+    # on the next purchase anywhere on the platform.
+    if _drain_climbs:
+        try:
+            _drain_pending_climbs(db)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(
+                f"Climb drain failed after tier {package_tier} purchase by {buyer_id}: {e}"
+            )
+
     return {
         "success": True,
         "buyer_id": buyer_id,
@@ -301,6 +319,104 @@ def process_tier_purchase(
         "grids_filled": grids_filled,
         "released_pending": released,
     }
+
+
+def _drain_pending_climbs(db: Session, max_iterations: int = 200):
+    """Post-commit drain of the Grid Accelerator climb queue.
+
+    A completing QUALIFIED 16-seat tier 1-4 grid sets climb_pending=True instead
+    of climbing inline (the climb calls process_tier_purchase, whose spillover
+    can complete MORE grids — inline re-entrant commits would corrupt state).
+    This runs at the top level AFTER the triggering purchase has committed.
+
+    For each flagged grid:
+      1. Buy the next tier (the climb) via process_tier_purchase — fires the
+         normal commission cascade (30% direct / 50% uni-level / 20% pool to the
+         owner's UPLINE) and opens the N+1 grid. Idempotency-keyed climb_{id}.
+      2. Pay the owner the REMAINDER only (bonus − next-tier price) into their
+         withdrawable balance, and clear the flag — transactionally.
+
+    Accounting: the bonus is fully distributed with no double-count — next-tier
+    price → upline (step 1), remainder → owner (step 2). The owner's earnings
+    ledger moves by the remainder only; the price portion is the upline's
+    earning, not the owner's.
+
+    Idempotent: step 1 is replay-guarded (every climb writes a direct_sponsor
+    row carrying source_event_id). The flag is cleared only when step 2 commits,
+    so a crash between steps re-runs safely — step 1 no-ops on the replay and
+    step 2 credits the remainder exactly once. Loops until the queue is empty
+    (climbs can cascade tier→tier), bounded by max_iterations as a safety net.
+    """
+    import logging
+    log = logging.getLogger(__name__)
+    iterations = 0
+    while iterations < max_iterations:
+        iterations += 1
+        pending = (
+            db.query(Grid)
+            .filter(Grid.climb_pending == True)  # noqa: E712
+            .order_by(Grid.package_tier.asc(), Grid.id.asc())
+            .limit(50)
+            .all()
+        )
+        if not pending:
+            break
+        for g in pending:
+            tier = g.package_tier
+            next_tier = tier + 1
+            owner = db.query(User).filter(User.id == g.owner_id).first()
+
+            # Defensive: only tiers 1-4 climb; anything else clears the flag.
+            if not (1 <= tier <= 4) or not owner:
+                g.climb_pending = False
+                db.add(g)
+                db.commit()
+                continue
+
+            bonus      = float(g.bonus_pool_accrued or 0)
+            next_price = float(GRID_PACKAGES.get(next_tier, 0))
+            remainder  = max(bonus - next_price, 0.0)
+
+            # 1. Climb purchase — cascade + open N+1 grid. Idempotent, no nested drain.
+            try:
+                res = process_tier_purchase(
+                    db, owner.id, next_tier,
+                    bypass_repurchase_guard=True,
+                    source_event_id=f"climb_{g.id}",
+                    _drain_climbs=False,
+                )
+            except Exception as e:
+                db.rollback()
+                log.error(f"Climb grid {g.id}: tier {next_tier} purchase raised: {e} "
+                          f"— leaving climb_pending for retry.")
+                continue
+            if not res.get("success"):
+                db.rollback()
+                log.error(f"Climb grid {g.id}: tier {next_tier} purchase returned "
+                          f"{res.get('error')} — leaving climb_pending for retry.")
+                continue
+
+            # 2. Pay the owner the remainder + clear the flag (transactional).
+            owner.balance        = Decimal(str(owner.balance or 0)) + Decimal(str(remainder))
+            owner.total_earned   = Decimal(str(owner.total_earned or 0)) + Decimal(str(remainder))
+            owner.bonus_earnings = Decimal(str(owner.bonus_earnings or 0)) + Decimal(str(remainder))
+            g.climb_pending = False
+            g.bonus_paid    = True
+            g.owner_paid    = True
+            _record_commission(
+                db, g.owner_id, g.owner_id, remainder, "grid_completion_bonus",
+                f"Tier {tier} climb: ${bonus:.2f} bonus -> Tier {next_tier} entry "
+                f"(${next_price:.2f}) + ${remainder:.2f} remainder to withdrawable balance",
+                tier,
+            )
+            db.add(owner)
+            db.add(g)
+            db.commit()
+            log.info(f"Climb grid {g.id}: owner {owner.id} Tier {tier}->{next_tier}, "
+                     f"${remainder:.2f} remainder paid.")
+    if iterations >= max_iterations:
+        log.error(f"_drain_pending_climbs hit max_iterations={max_iterations} — "
+                  f"some grids may remain climb_pending; will drain on next purchase.")
 
 
 def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
@@ -1052,82 +1168,136 @@ def _complete_grid(db: Session, grid: Grid):
     if bonus_amount > actual_accrued:
         grid.bonus_pool_accrued = Decimal(str(bonus_amount))
 
-    # New-model (16-seat) grids run Advancement Inertia: the completion bonus
-    # splits into withdrawable stake-back + a held recycle balance. Legacy
-    # 36-seat grids finish on their original rules (full bonus to campaign
-    # ad-credit, no split) so in-flight members' economics never change.
+    # 16-seat grids run the Grid Accelerator (forced progression / "climb").
+    # Legacy 36-seat grids finish on their original rules (full bonus to the
+    # campaign ad-credit wallet + same-tier respawn) so in-flight members'
+    # economics never change.
     is_cycler = (grid.total_seats == NEW_GRID_SEATS)
-    cash_amount = recycle_amount = 0.0   # populated below for cycler grids; used by the completion notification
+    tier = grid.package_tier
+
+    do_climb        = False   # tier 1-4 qualified cycler → defer the climb to the post-commit drain
+    do_respawn_same = True    # default: open the next same-tier advance
+    cash_out_amount = 0.0     # populated for cycler cash-out tiers (0/5/6-8); used by the notification
 
     if has_active_campaign and owner and bonus_amount > 0:
-        if is_cycler:
-            # Stake back (tier price) → affiliate balance (withdrawable);
-            # remainder (bonus − price) → recycle wallet (held). $20 → $20 + $12.
-            stake_price    = float(grid.package_price or 0)
-            cash_amount    = min(stake_price, bonus_amount)
-            recycle_amount = max(bonus_amount - cash_amount, 0.0)
-            owner.balance         = Decimal(str(owner.balance or 0)) + Decimal(str(cash_amount))
-            owner.recycle_balance = Decimal(str(owner.recycle_balance or 0)) + Decimal(str(recycle_amount))
-            bonus_note = (f"Grid completion bonus tier {grid.package_tier} advance {grid.advance_number} "
-                          f"(${cash_amount:.2f} cash + ${recycle_amount:.2f} recycle)")
+        if is_cycler and 1 <= tier <= 4:
+            # ── FORCED CLIMB (tiers 1→4) ──
+            # The bonus funds the next tier; the remainder goes to the member's
+            # withdrawable wallet. BOTH happen in the post-commit drain loop —
+            # process_tier_purchase can't run re-entrantly here (its spillover
+            # can complete more grids mid-flow). Flag the grid + defer.
+            grid.climb_pending = True
+            do_climb = True
+            do_respawn_same = False    # the climb opens the N+1 grid, not a same-tier advance
+        elif is_cycler:
+            # ── CASH-OUT (tier 0 Launchpad, tier 5 top, tiers 6-8 manual) ──
+            # Full bonus to the withdrawable affiliate wallet.
+            cash_out_amount = bonus_amount
+            owner.balance        = Decimal(str(owner.balance or 0)) + Decimal(str(bonus_amount))
+            owner.total_earned   = Decimal(str(owner.total_earned or 0)) + Decimal(str(bonus_amount))
+            owner.bonus_earnings = Decimal(str(owner.bonus_earnings or 0)) + Decimal(str(bonus_amount))
+            grid.bonus_paid = True
+            grid.owner_paid = True
+            _record_commission(db, grid.owner_id, grid.owner_id, bonus_amount,
+                               "grid_completion_bonus",
+                               f"Grid completion bonus tier {tier} advance {grid.advance_number} (${bonus_amount:.2f} cash-out)",
+                               tier)
+            # Tier 5 is the top of forced progression — do NOT auto-open another
+            # grid. Tier 0 (Launchpad) and 6-8 keep cycling so the member can
+            # keep earning toward (re)activation / at their chosen high tier.
+            if tier == 5:
+                do_respawn_same = False
         else:
-            # Legacy 36-seat grid — full bonus to the campaign (ad-credit) wallet.
+            # ── LEGACY 36-seat (unchanged) ── full bonus to the campaign wallet.
             owner.campaign_balance = Decimal(str(owner.campaign_balance or 0)) + Decimal(str(bonus_amount))
-            bonus_note = f"Grid completion bonus tier {grid.package_tier} advance {grid.advance_number}"
-
-        # Full bonus is earned in both cases; only the destination differs, so
-        # the earnings ledger and the balance<=total_earned invariant hold.
-        owner.total_earned   = Decimal(str(owner.total_earned or 0)) + Decimal(str(bonus_amount))
-        owner.bonus_earnings = Decimal(str(owner.bonus_earnings or 0)) + Decimal(str(bonus_amount))
-        grid.bonus_paid      = True
-        grid.owner_paid      = True
-
-        _record_commission(db, grid.owner_id, grid.owner_id, bonus_amount,
-                           "grid_completion_bonus", bonus_note, grid.package_tier)
+            owner.total_earned     = Decimal(str(owner.total_earned or 0)) + Decimal(str(bonus_amount))
+            owner.bonus_earnings   = Decimal(str(owner.bonus_earnings or 0)) + Decimal(str(bonus_amount))
+            grid.bonus_paid = True
+            grid.owner_paid = True
+            _record_commission(db, grid.owner_id, grid.owner_id, bonus_amount,
+                               "grid_completion_bonus",
+                               f"Grid completion bonus tier {tier} advance {grid.advance_number}", tier)
     else:
-        # No active qualification — roll bonus into next advance
-        grid.bonus_rolled_over = True
-        grid.owner_paid = False
+        # ── Unqualified at completion ──
+        if is_cycler:
+            # Grid Accelerator policy (12 Jun 2026): company-absorb, consistent
+            # with the 8 Jun unqualified-commission rule (direct 30% + uni-level
+            # already absorb). No indefinite rollover — the 7-day
+            # CAMPAIGN_GRACE_DAYS already gave the member their buffer; past it
+            # the bonus is company money. They still get a same-tier RETRY grid,
+            # so re-qualifying puts them straight back on the climb.
+            grid.owner_paid = False
+            if bonus_amount > 0:
+                _record_commission(db, grid.owner_id, None, bonus_amount,
+                                   "grid_completion_bonus",
+                                   f"Tier {tier} advance {grid.advance_number} completion bonus — owner unqualified, "
+                                   f"${bonus_amount:.2f} company absorb",
+                                   tier)
+        else:
+            # Legacy 36-seat unqualified — preserve the historical rollover so
+            # in-flight legacy grids' economics never change.
+            grid.bonus_rolled_over = True
+            grid.owner_paid = False
 
-    # Auto-spawn next advance
-    new_grid = Grid(
-        owner_id      = grid.owner_id,
-        package_tier  = grid.package_tier,
-        package_price = grid.package_price,
-        advance_number  = grid.advance_number + 1,
-        total_seats   = grid.total_seats,   # advance continues this line's size (legacy 36 stays 36; new 16 stays 16)
-    )
-    # If bonus rolled over, carry it into the new grid's pool
-    if grid.bonus_rolled_over:
-        new_grid.bonus_pool_accrued = bonus_amount
-    db.add(new_grid)
-    db.flush()
+    # ── Open the next grid ──
+    # Climb (tier 1-4 qualified cycler) and tier-5 cash-out do NOT respawn here:
+    # the climb opens the N+1 grid via the drain, and tier 5 is the top of the
+    # forced-progression line.
+    if do_respawn_same:
+        new_grid = Grid(
+            owner_id      = grid.owner_id,
+            package_tier  = grid.package_tier,
+            package_price = grid.package_price,
+            advance_number  = grid.advance_number + 1,
+            total_seats   = grid.total_seats,   # advance continues this line's size (legacy 36 stays 36; new 16 stays 16)
+        )
+        # Legacy rollover carries the bonus pool into the new grid's pool.
+        if grid.bonus_rolled_over:
+            new_grid.bonus_pool_accrued = bonus_amount
+        db.add(new_grid)
+        db.flush()
 
     # ── Completion notification ──
     # Best-effort, never breaks the parent transaction (mirrors the pattern
     # in main.py for tier-purchase notifications). Log on failure, no rollback.
     try:
         from .database import Notification
-        if owner and grid.bonus_paid:
-            # Bonus paid out — celebratory notification with amount
+        if owner and grid.climb_pending:
+            # Forced climb — bonus funds the next tier; remainder paid in the drain.
+            notif_title = f"🚀 Grid Tier {grid.package_tier} complete — climbing to Tier {grid.package_tier + 1}!"
+            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all "
+                         f"{grid.total_seats} seats. Your ${bonus_amount:.2f} bonus is advancing you into a "
+                         f"Tier {grid.package_tier + 1} grid, with the remainder paid to your withdrawable balance. "
+                         f"Your climb is being processed now.")
+        elif owner and grid.bonus_paid:
+            # Bonus paid out (cash-out tiers, or legacy campaign wallet).
             notif_title = f"🎉 Grid Tier {grid.package_tier} complete!"
             if is_cycler:
+                _opened = (" You've reached the top of the forced progression — outstanding!"
+                           if grid.package_tier == 5
+                           else f" Advance {grid.advance_number + 1} is now open and ready for new spillover.")
                 notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
-                             f"all {grid.total_seats} seats. ${bonus_amount:.2f} bonus: ${cash_amount:.2f} paid to your "
-                             f"withdrawable balance, ${recycle_amount:.2f} held in your recycle wallet. "
-                             f"Advance {grid.advance_number + 1} is now open and ready for new spillover.")
+                             f"all {grid.total_seats} seats. ${cash_out_amount:.2f} completion bonus paid to your "
+                             f"withdrawable balance.{_opened}")
             else:
                 notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
                              f"all {grid.total_seats} seats. ${bonus_amount:.2f} completion bonus added to your Campaign Wallet. "
                              f"Advance {grid.advance_number + 1} is now open and ready for new spillover.")
+        elif owner and is_cycler and not grid.bonus_rolled_over:
+            # Cycler, unqualified — bonus company-absorbed; member gets a retry grid.
+            notif_title = f"🔄 Grid Tier {grid.package_tier} complete — qualify to earn"
+            notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all "
+                         f"{grid.total_seats} seats, but qualification wasn't active so the ${bonus_amount:.2f} "
+                         f"bonus couldn't be paid. Advance {grid.advance_number + 1} is open — run an active "
+                         f"campaign at this tier and your next completion climbs you up.")
         elif owner and grid.bonus_rolled_over:
-            # Bonus rolled over because not qualified
+            # Legacy 36-seat rollover (unqualified).
             notif_title = f"🔄 Grid Tier {grid.package_tier} complete — bonus rolled over"
             notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all {grid.total_seats} seats. "
                          f"Because qualification wasn't active, the ${bonus_amount:.2f} bonus rolled into "
                          f"advance {grid.advance_number + 1}. Get qualified to claim it on the next completion.")
         else:
-            # Edge: no bonus accrued and no rollover — still notify completion
+            # Edge: no bonus accrued — still notify completion.
             notif_title = f"🎉 Grid Tier {grid.package_tier} complete!"
             notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled. "
                          f"Advance {grid.advance_number + 1} is now open.")
@@ -1135,7 +1305,7 @@ def _complete_grid(db: Session, grid: Grid):
             db.add(Notification(
                 user_id=grid.owner_id,
                 type="commission",
-                icon="🎉" if grid.bonus_paid else "🔄",
+                icon="🚀" if grid.climb_pending else ("🎉" if grid.bonus_paid else "🔄"),
                 title=notif_title,
                 message=notif_msg,
                 link="/grid-visualiser",
@@ -1153,7 +1323,7 @@ def _complete_grid(db: Session, grid: Grid):
         # Updated on each subsequent completion to reflect the LATEST and
         # HIGHEST grid bonus the member has earned (so the badge stays
         # impressive as members progress up the tier ladder).
-        if owner and grid.bonus_paid:
+        if owner and (grid.bonus_paid or grid.climb_pending):
             import json as _json
             from .database import Achievement, BADGES
             already_has = db.query(Achievement).filter(

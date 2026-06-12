@@ -425,6 +425,7 @@ class Grid(Base):
     bonus_pool_accrued = Column(Money, default=0.0)        # 5% bonus pool accumulator
     bonus_paid      = Column(Boolean, default=False)       # True if completion bonus paid
     bonus_rolled_over = Column(Boolean, default=False)     # True if bonus rolled to next advance (no active campaign)
+    climb_pending     = Column(Boolean, default=False, index=True)  # Grid Accelerator (12 Jun 2026): set True when a QUALIFIED 16-seat tier 1-4 grid completes. The post-commit drain loop in process_tier_purchase reads this, buys the next tier (the climb) + pays the bonus remainder, then clears it. Deferred (not inline) because the climb's spillover can complete more grids — inline re-entrant commits would corrupt state. Legacy 36-seat grids never set this.
     created_at      = Column(DateTime, default=datetime.utcnow)
     completed_at    = Column(DateTime, nullable=True)
 
@@ -3652,6 +3653,22 @@ try:
         conn.commit()
 except Exception as e:
     print(f"⚠️ fast_start_* un-gated column add failed: {e}")
+
+# UN-GATED column add for the Grid Accelerator climb queue — runs regardless of
+# SKIP_MIGRATIONS (IF NOT EXISTS = safe no-op once present). A qualified 16-seat
+# tier 1-4 grid completion flags itself here for the post-commit drain loop;
+# without the column the new completion path would 500 on every cycler grid.
+try:
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("SET lock_timeout = '5s'"))
+            conn.execute(text("SET statement_timeout = '15s'"))
+        except Exception:
+            pass
+        conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS climb_pending BOOLEAN DEFAULT FALSE"))
+        conn.commit()
+except Exception as e:
+    print(f"⚠️ grids.climb_pending un-gated column add failed: {e}")
 
 # ── Partial-payment auto-recovery audit fields (added 12 May 2026) ──
 # When a NOWPayments partial payment is within 5% tolerance of the
