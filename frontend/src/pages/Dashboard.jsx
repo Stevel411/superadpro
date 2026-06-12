@@ -167,36 +167,9 @@ export default function Dashboard() {
     } catch(e) {}
   }
 
-  // ── Launchpad checkout (free-user $10 entry) ─────────────────────────
-  // Free members buy Launchpad (grid tier 0) via the dedicated free-user
-  // Stripe checkout. It grants comp-plan access (earn & withdraw) while
-  // tools and tiers 1-8 stay locked until full membership. Card-only; the
-  // endpoint rejects active members (already_active), so this is only ever
-  // reached from the free-user dashboard block below.
-  const [lpLoading, setLpLoading] = useState(false);
-  const [lpError, setLpError] = useState('');
-  // Preview override: /dashboard?launchpad=preview lets an admin/active
-  // account see the free-user Launchpad card for review. Harmless to real
-  // users — they never carry the param, so normal gating (free-only) holds.
-  const lpPreview = (function () { try { return new URLSearchParams(window.location.search).get('launchpad') === 'preview'; } catch (e) { return false; } })();
-  async function getLaunchpad() {
-    if (lpLoading) return;
-    setLpError('');
-    setLpLoading(true);
-    try {
-      const res = await fetch('/api/stripe/checkout/launchpad', { method: 'POST', credentials: 'include' });
-      const data = await res.json().catch(function() { return {}; });
-      if (res.ok && data.checkout_url) {
-        window.location.href = data.checkout_url;
-        return;
-      }
-      setLpLoading(false);
-      setLpError(data.detail || data.error || 'Could not start Launchpad checkout. Please try again.');
-    } catch (e) {
-      setLpLoading(false);
-      setLpError('Connection error. Please try again.');
-    }
-  }
+  // Launchpad checkout handler + free-user card moved to BusinessHub
+  // (My Business page) on 12 Jun 2026 — the free-user Launchpad intro
+  // now lives there, keeping the dashboard clean.
 
   // ── Onboarding banner ────────────────────────────────────────────────
   // Replaces the full-page wizard redirect that used to fire on first
@@ -451,90 +424,8 @@ export default function Dashboard() {
           Added 26 May 2026. */}
       <PendingCommissionsCard />
 
-      {/* ── Free member activation banner ──
-          Moved up here on 24 May 2026 — was previously below the data cards
-          and missed by Free users (82% of registered users never paying as
-          of 23 May). Tools-first copy aligns with the brand positioning rule:
-          we sell the toolkit, not the income claim. The "Get my referral
-          link" secondary CTA stays so members who want to refer can. */}
-      {(!d.is_active || lpPreview) && (
-        <div className="lpc">
-          <style>{`
-            .lpc{position:relative;border-radius:18px;overflow:hidden;margin-bottom:20px;
-              background:linear-gradient(135deg,#0a1438 0%,#16245e 55%,#1e3a8a 100%);
-              box-shadow:0 22px 50px -30px rgba(12,26,56,.55)}
-            .lpc::after{content:"";position:absolute;width:400px;height:400px;right:-120px;top:-150px;border-radius:50%;
-              background:radial-gradient(circle,rgba(34,211,238,.16),transparent 65%);pointer-events:none}
-            .lpc-gbg{position:absolute;inset:0;opacity:.06;pointer-events:none;
-              background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px);
-              background-size:30px 30px}
-            .lpc-in{position:relative;display:grid;grid-template-columns:1fr auto;gap:28px;padding:28px 30px;align-items:center}
-            .lpc-badge{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
-              letter-spacing:.05em;color:#04121f;background:linear-gradient(90deg,#0ea5e9,#22d3ee);padding:5px 12px;border-radius:999px;margin-bottom:12px}
-            .lpc h2{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(21px,2.8vw,27px);color:#fff;line-height:1.12;letter-spacing:-.02em;margin:0}
-            .lpc h2 .g{background:linear-gradient(90deg,#22d3ee,#fbbf24);-webkit-background-clip:text;background-clip:text;color:transparent}
-            .lpc .sub{font-size:14px;color:rgba(255,255,255,.74);line-height:1.55;margin:10px 0 16px;max-width:430px}
-            .lpc-steps{display:flex;flex-direction:column;gap:9px;margin-bottom:20px}
-            .lpc-step{display:flex;align-items:flex-start;gap:11px;font-size:13.5px;color:rgba(255,255,255,.9)}
-            .lpc-step .n{flex:none;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;
-              font-size:10.5px;font-weight:700;color:#04121f;background:linear-gradient(135deg,#0ea5e9,#22d3ee);margin-top:1px}
-            .lpc-step b{color:#fff;font-weight:700}
-            .lpc-cta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-            .lpc-cta{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#04121f;border:none;cursor:pointer;
-              background:linear-gradient(92deg,#0ea5e9,#22d3ee);padding:13px 25px;border-radius:11px;
-              box-shadow:0 16px 36px -16px rgba(34,211,238,.7);transition:.18s}
-            .lpc-cta:hover{transform:translateY(-2px)}
-            .lpc-cta:disabled{opacity:.6;cursor:default;transform:none}
-            .lpc-pnote{font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,.6)}
-            .lpc-pnote b{color:#fff}
-            .lpc-second{font-size:13px;color:rgba(34,211,238,.92);text-decoration:none;font-weight:600}
-            .lpc-second:hover{color:#fff}
-            .lpc-err{font-size:12.5px;color:#fda4af;margin-top:10px}
-            .lpc-viz{display:flex;flex-direction:column;align-items:center;gap:11px}
-            .lpc-seats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:138px}
-            .lpc-seat{aspect-ratio:1;border-radius:6px}
-            .lpc-seat.d{background:linear-gradient(135deg,#0ea5e9,#22d3ee);box-shadow:0 4px 12px -6px rgba(34,211,238,.8)}
-            .lpc-seat.i{background:linear-gradient(135deg,#f59e0b,#fbbf24);box-shadow:0 4px 12px -6px rgba(245,158,11,.6)}
-            .lpc-vcap{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.04em;text-align:center}
-            .lpc-locked{position:relative;display:flex;gap:8px 16px;flex-wrap:wrap;padding:12px 30px;background:rgba(255,255,255,.05);border-top:1px solid rgba(255,255,255,.1)}
-            .lpc-locked .li{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.68)}
-            @media(max-width:680px){.lpc-in{grid-template-columns:1fr;gap:20px}.lpc-viz{order:-1;flex-direction:row}}
-          `}</style>
-          <div className="lpc-gbg" />
-          <div className="lpc-in">
-            <div>
-              <span className="lpc-badge">⚡ Free members · start here</span>
-              <h2>Earn your way in with <span className="g">Launchpad</span>.</h2>
-              <p className="sub">No membership needed yet. For a one-time $10, Launchpad drops you straight into the Profit Grid so you start earning real commissions today — then use what you earn to unlock the full thing.</p>
-              <div className="lpc-steps">
-                <div className="lpc-step"><span className="n">1</span><div>Join the <b>16-seat Profit Grid</b> at tier 0 — earn 30% on direct referrals, 6.25% per level on your team.</div></div>
-                <div className="lpc-step"><span className="n">2</span><div>Build <b>real earnings</b> as a free member — refer, earn, withdraw.</div></div>
-                <div className="lpc-step"><span className="n">3</span><div>Go <b>full member</b> — unlock every tool and campaign tiers 1–8.</div></div>
-              </div>
-              <div className="lpc-cta-row">
-                <button className="lpc-cta" onClick={getLaunchpad} disabled={lpLoading}>{lpLoading ? 'Starting…' : 'Get Launchpad — $10 →'}</button>
-                <span className="lpc-pnote">one-time · <b>no subscription</b></span>
-                <a className="lpc-second" href="/upgrade">or go full member →</a>
-              </div>
-              {lpError && <div className="lpc-err">{lpError}</div>}
-            </div>
-            <div className="lpc-viz">
-              <div className="lpc-seats">
-                <div className="lpc-seat d" /><div className="lpc-seat i" /><div className="lpc-seat d" /><div className="lpc-seat i" />
-                <div className="lpc-seat i" /><div className="lpc-seat i" /><div className="lpc-seat i" /><div className="lpc-seat d" />
-                <div className="lpc-seat i" /><div className="lpc-seat d" /><div className="lpc-seat i" /><div className="lpc-seat i" />
-                <div className="lpc-seat d" /><div className="lpc-seat i" /><div className="lpc-seat i" /><div className="lpc-seat i" />
-              </div>
-              <div className="lpc-vcap">your tier-0 grid · earn as it fills</div>
-            </div>
-          </div>
-          <div className="lpc-locked">
-            <div className="li">🔓 Earn &amp; withdraw commissions</div>
-            <div className="li">🔒 Tools unlock at full membership</div>
-            <div className="li">🔒 Tiers 1–8 unlock at full membership</div>
-          </div>
-        </div>
-      )}
+      {/* Free-user Launchpad card removed 12 Jun 2026 — Launchpad now
+          lives on the My Business page (/business-hub). */}
 
       {/* ── Fast Start hero (added 17 May 2026) ──
           Drives Grid Tier 1 activation. Component handles its own
