@@ -54,27 +54,25 @@ MEMBERSHIP_FEE = 20.0
 MEMBERSHIP_SPONSOR_SHARE = 10.0   # 50% to sponsor
 MEMBERSHIP_COMPANY_SHARE = 10.0   # 50% to company treasury at $20, 33% at $15
 
-# Annual pricing — flat $50 one-time, repriced 11 Jun 2026 (Steve).
-# Annual pays NO affiliate commission: the company keeps the full $50.
-# (Monthly is unchanged: $20 standard / $15 founding, flat $10 sponsor.)
-# NOTE: these dicts are currently unused — the renewal/activation paths read
-# MEMBERSHIP_FEE + membership_price_locked. Kept correct so any future caller
-# can't reintroduce the old $200/$100 economics. Annual RENEWAL still needs a
-# dedicated branch in process_auto_renewals (tracked) before year-1 lapses.
+# Annual pricing — flat partner model 15 May 2026.
+# Standard partner $200/yr. Founding partner $150/yr (10× monthly locked rate).
+# Sponsor commission: flat $100 on annual (10× the monthly $10) regardless
+# of buyer's price. Legacy 'basic'/'pro' keys retained but resolve identically
+# to standard partner — there is no longer a Pro tier to charge differently for.
 ANNUAL_PRICES = {
-    "partner": 50.0,
-    "basic":   50.0,  # legacy alias
-    "pro":     50.0,  # legacy alias
+    "partner": 200.0,
+    "basic":   200.0,  # legacy alias
+    "pro":     200.0,  # legacy alias (no longer $350)
 }
 ANNUAL_SPONSOR_SHARE = {
-    "partner": 0.0,
-    "basic":   0.0,
-    "pro":     0.0,  # annual pays no sponsor commission
+    "partner": 100.0,
+    "basic":   100.0,
+    "pro":     100.0,  # flat — no longer tier-based
 }
 ANNUAL_COMPANY_SHARE = {
-    "partner": 50.0,
-    "basic":   50.0,
-    "pro":     50.0,  # full $50 to company
+    "partner": 100.0,
+    "basic":   100.0,
+    "pro":     100.0,
 }
 # Legacy constants — retained as imports for callers that haven't migrated
 # but now reflect flat partner economics. PRO_MONTHLY_FEE is the same as
