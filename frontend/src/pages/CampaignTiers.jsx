@@ -2,410 +2,249 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import ProductExplainer from '../components/ProductExplainer';
 import { apiGet } from '../utils/api';
-import { Check, X } from 'lucide-react';
-import { formatMoney } from '../utils/money';
+import { Check } from 'lucide-react';
 
-/* ─────────────────────────────────────────────
-   Campaign Tiers — Cyan-blue cards + modal popup
-   ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Campaign Tiers — Configurator (16-seat model, 12 Jun 2026)
 
-var TIER_ACCENTS = {
-  1: { color:'var(--sap-green-mid)', dark:'var(--sap-green-dark)', bg:'var(--sap-green-bg)', border:'#bbf7d0', grad:'linear-gradient(135deg,#059669,#10b981)', cardGrad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
-  2: { color:'#3b82f6', dark:'#2563eb', bg:'#eff6ff', border:'#bfdbfe', grad:'linear-gradient(135deg,#2563eb,#3b82f6)', cardGrad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)' },
-  3: { color:'var(--sap-purple)', dark:'var(--sap-violet)', bg:'var(--sap-purple-pale)', border:'#c4b5fd', grad:'linear-gradient(135deg,#7c3aed,#8b5cf6)', cardGrad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)' },
-  4: { color:'var(--sap-pink)', dark:'#db2777', bg:'#fce7f3', border:'#f9a8d4', grad:'linear-gradient(135deg,#db2777,#ec4899)', cardGrad:'linear-gradient(135deg,#831843,#be185d,#ec4899)' },
-  5: { color:'#14b8a6', dark:'#0d9488', bg:'#ccfbf1', border:'#99f6e4', grad:'linear-gradient(135deg,#0d9488,#14b8a6)', cardGrad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)' },
-  6: { color:'#9ca3af', dark:'#6b7280', bg:'#f3f4f6', border:'#d1d5db', grad:'linear-gradient(135deg,#6b7280,#9ca3af)', cardGrad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)', darkText:true },
-  7: { color:'var(--sap-amber)', dark:'#b45309', bg:'var(--sap-amber-bg)', border:'#fde68a', grad:'linear-gradient(135deg,#b45309,#f59e0b)', cardGrad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)' },
-  8: { color:'var(--sap-red-bright)', dark:'var(--sap-red)', bg:'var(--sap-red-bg)', border:'var(--sap-red-bg-mid)', grad:'linear-gradient(135deg,#dc2626,#ef4444)', cardGrad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)' },
-};
+   Tap a tier → see the views you're buying (hero), the price,
+   the 16-seat Profit Grid (cyan = direct referral / amber =
+   indirect referral — the Grid's own identity colours), and the
+   commission breakdown. Tools-first: views are the headline, the
+   comp plan is secondary.
 
-var FEATURES_BY_TIER = {
-  1: ['1 campaign', '6×6 grid (36 members)', '40% direct commission', '6.25% per grid member'],
-  2: ['3 campaigns', '6×6 grid (36 members)', '40% direct commission', '6.25% per grid member'],
-  3: ['5 campaigns', 'Extended reach', '6×6 grid (36 members)', '40% direct commission', '6.25% per grid member'],
-  4: ['10 campaigns', 'Targeting', '6×6 grid (36 members)', '40% direct commission', '6.25% per grid member'],
-  5: ['20 campaigns', 'Priority queue', '6×6 grid (36 members)', '40% direct commission', '6.25% per grid member'],
-  6: ['30 campaigns', 'Featured placement', '6×6 grid (36 members)', '40% direct commission', '6.25% per grid member'],
-  7: ['50 campaigns', 'Spotlight', '6×6 grid (36 members)', '40% direct commission', '6.25% per grid member'],
-  8: ['Unlimited campaigns', 'All features', '6×6 grid (36 members)', '40% direct commission', '6.25% per grid member'],
-};
+   Data binds straight to /api/campaign-tiers (authoritative —
+   price, views_target, direct_commission, uni_level_per_member,
+   completion_bonus, is_active, grid, campaign_progress). No
+   hardcoded tier economics here (the old page hardcoded stale
+   6×6/36-seat/40% values).
 
-var BONUSES = { 1:64, 2:160, 3:320, 4:640, 5:1280, 6:1920, 7:2560, 8:3200 };
+   Buying hands off to /activate/{tier} — the existing activation
+   screen that already carries every live gateway (Stripe card,
+   crypto/WalletConnect, NOWPayments). This page does NOT
+   re-implement payment; it routes into the proven flow.
+   ───────────────────────────────────────────────────────────── */
+
+const money = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: (Number(n) % 1 ? 2 : 0), maximumFractionDigits: 2 });
+const num = (n) => Number(n || 0).toLocaleString('en-US');
+
+// Illustrative split of the 16 seats into direct vs indirect. The real
+// mix per grid depends on who the member personally refers vs who arrives
+// via team spillover, so this is labelled "example fill" in the UI.
+const DIRECT_SEATS = new Set([0, 2, 7, 9, 12]);
+
+const CONFIG_CSS = `
+.ctcfg{max-width:1000px;margin:0 auto;font-family:'DM Sans',sans-serif}
+.ct-toast{display:flex;align-items:center;gap:8px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-weight:600;font-size:14px;padding:12px 16px;border-radius:12px;margin-bottom:18px}
+.ct-head{margin-bottom:20px}
+.ct-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#0ea5e9;font-weight:600}
+.ct-head h1{font-family:'Sora',sans-serif;font-size:clamp(26px,4.5vw,34px);font-weight:800;color:var(--sap-text-primary);margin:8px 0;letter-spacing:-.02em}
+.ct-head p{font-size:15px;color:var(--sap-text-secondary);max-width:560px;line-height:1.55}
+.ct-pills{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 12px}
+.ct-pill{font-family:'Sora',sans-serif;font-weight:600;font-size:13px;color:#1e3a8a;padding:9px 15px;border-radius:999px;border:1px solid rgba(12,26,56,.1);background:#fff;cursor:pointer;transition:.18s;box-shadow:0 2px 10px -4px rgba(12,26,56,.14);display:inline-flex;align-items:center;gap:6px}
+.ct-pill:hover{border-color:rgba(14,165,233,.5);transform:translateY(-1px)}
+.ct-pill.on{color:#fff;background:linear-gradient(90deg,#1e3a8a,#0ea5e9);border-color:transparent;box-shadow:0 10px 22px -10px rgba(14,165,233,.7)}
+.ct-owned{font-size:11px;opacity:.9}
+.ct-ladder{display:flex;gap:5px;margin:6px 0 24px}
+.ct-ladder i{height:5px;flex:1;border-radius:3px;background:rgba(12,26,56,.1);transition:.25s}
+.ct-ladder i.fill{background:linear-gradient(90deg,#1e3a8a,#22d3ee)}
+.ct-card{background:#fff;border:1px solid rgba(12,26,56,.09);border-radius:24px;box-shadow:0 18px 44px -22px rgba(12,26,56,.3);padding:32px;position:relative;overflow:hidden}
+.ct-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,#1e3a8a,#0ea5e9,#22d3ee)}
+.ct-top{display:flex;justify-content:space-between;align-items:flex-start;gap:22px;flex-wrap:wrap}
+.ct-name{font-family:'Sora',sans-serif;font-weight:700;font-size:22px;color:var(--sap-text-primary)}
+.ct-price{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(38px,6.5vw,50px);color:var(--sap-text-primary);line-height:1;margin-top:8px}
+.ct-priceunit{font-size:12.5px;color:var(--sap-text-muted);font-weight:600;margin-top:6px}
+.ct-viewbox{text-align:right;min-width:180px}
+.ct-views{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(40px,8vw,60px);line-height:1;background:linear-gradient(92deg,#0ea5e9,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ct-viewlbl{font-size:13px;color:var(--sap-text-muted);margin-top:4px;font-weight:600}
+.ct-body{display:grid;grid-template-columns:auto 1fr;gap:36px;margin-top:30px;align-items:center}
+.ct-gridwrap{text-align:center}
+.ct-seats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:184px}
+.ct-seat{aspect-ratio:1;border-radius:8px;animation:ctpop .4s backwards}
+.ct-seat.direct{background:linear-gradient(135deg,#0ea5e9,#22d3ee);box-shadow:0 6px 16px -6px rgba(34,211,238,.85)}
+.ct-seat.indirect{background:linear-gradient(135deg,#f59e0b,#fbbf24);box-shadow:0 6px 16px -6px rgba(245,158,11,.55)}
+@keyframes ctpop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.ct-gridlbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sap-text-muted);margin-top:12px;letter-spacing:.05em}
+.ct-legend{display:flex;gap:8px 18px;justify-content:center;flex-wrap:wrap;margin-top:13px}
+.ct-leg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--sap-text-secondary)}
+.ct-leg .sw{width:13px;height:13px;border-radius:4px;flex:none}
+.ct-leg .sw.d{background:linear-gradient(135deg,#0ea5e9,#22d3ee)}
+.ct-leg .sw.i{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.ct-comp{display:flex;flex-direction:column}
+.ct-crow{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid rgba(12,26,56,.06)}
+.ct-crow:last-child{border-bottom:none}
+.ct-clbl{font-size:14px;color:var(--sap-text-primary);font-weight:600}
+.ct-clbl small{display:block;color:var(--sap-text-muted);font-size:11.5px;font-weight:500;margin-top:3px}
+.ct-camt{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:var(--sap-text-primary);white-space:nowrap}
+.ct-camt.cyan{color:#0ea5e9}
+.ct-camt.amber{color:#d97706}
+.ct-prog{margin-top:24px;padding-top:20px;border-top:1px solid rgba(12,26,56,.08)}
+.ct-prog-top{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--sap-text-secondary);margin-bottom:7px}
+.ct-prog-bar{height:8px;background:rgba(12,26,56,.07);border-radius:5px;overflow:hidden}
+.ct-prog-bar>div{height:100%;background:linear-gradient(90deg,#0ea5e9,#22d3ee);border-radius:5px;transition:width .5s}
+.ct-actions{display:flex;align-items:center;gap:16px;margin-top:28px;flex-wrap:wrap}
+.ct-btn{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#fff;text-decoration:none;background:linear-gradient(92deg,#1e3a8a,#0ea5e9);padding:14px 26px;border-radius:12px;box-shadow:0 22px 50px -26px rgba(14,165,233,.55);transition:.18s;display:inline-block}
+.ct-btn:hover{transform:translateY(-2px)}
+.ct-active{display:inline-flex;align-items:center;gap:7px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;color:#0d9488;background:#ccfbf1;border:1px solid #99f6e4;padding:13px 22px;border-radius:12px}
+.ct-share{font-family:'JetBrains Mono',monospace;font-size:12px;color:#1e3a8a}
+.ct-share b{color:var(--sap-text-primary)}
+.ct-disc{font-size:12px;color:var(--sap-text-muted);line-height:1.55;margin-top:22px;max-width:780px}
+@media(max-width:620px){
+  .ct-body{grid-template-columns:1fr;gap:26px}
+  .ct-gridwrap{order:2}
+  .ct-seats{margin:0 auto}
+  .ct-viewbox{text-align:left;min-width:0}
+  .ct-top{flex-direction:column;gap:14px}
+}
+`;
 
 export default function CampaignTiers() {
-  var { t } = useTranslation();
-  var [tiers, setTiers] = useState([]);
+  const { t } = useTranslation();
+  const [tiers, setTiers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sel, setSel] = useState(3);
+  const [activatedTier, setActivatedTier] = useState(null);
 
-  var FEATURES_BY_TIER_T = {
-    1: [t('campaignTiers.feat1Campaign'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
-    2: [t('campaignTiers.feat3Campaigns'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
-    3: [t('campaignTiers.feat5Campaigns'), t('campaignTiers.featExtendedReach'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
-    4: [t('campaignTiers.feat10Campaigns'), t('campaignTiers.featTargeting'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
-    5: [t('campaignTiers.feat20Campaigns'), t('campaignTiers.featPriorityQueue'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
-    6: [t('campaignTiers.feat30Campaigns'), t('campaignTiers.featFeaturedPlacement'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
-    7: [t('campaignTiers.feat50Campaigns'), t('campaignTiers.featSpotlight'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
-    8: [t('campaignTiers.featUnlimitedCampaigns'), t('campaignTiers.featAllFeatures'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
-  };
-  var [loading, setLoading] = useState(true);
-  var [selected, setSelected] = useState(null);
-  // 23 May 2026: shows a brief success banner when redirected from
-  // Stripe Checkout after a successful tier purchase. The URL will
-  // look like /campaign-tiers?activated=tier_1 — read tier from the
-  // query string and show "Tier X activated!" toast.
-  var [activatedTier, setActivatedTier] = useState(null);
-
-  useEffect(function() {
-    var params = new URLSearchParams(window.location.search);
-    var activated = params.get('activated') || '';
-    var m = activated.match(/^tier_(\d+)$/);
+  // Success banner after a Stripe/crypto redirect: /campaign-tiers?activated=tier_N
+  useEffect(function () {
+    const m = (new URLSearchParams(window.location.search).get('activated') || '').match(/^tier_(\d+)$/);
     if (m) {
       setActivatedTier(parseInt(m[1]));
-      // Clean the URL so the banner doesn't reappear on refresh
-      try {
-        var clean = window.location.pathname;
-        window.history.replaceState({}, '', clean);
-      } catch (e) { /* ignore */ }
-      // Auto-dismiss after 8 seconds
-      setTimeout(function() { setActivatedTier(null); }, 8000);
+      try { window.history.replaceState({}, '', window.location.pathname); } catch (e) { /* ignore */ }
+      setTimeout(function () { setActivatedTier(null); }, 8000);
     }
   }, []);
 
-  useEffect(function() {
-    apiGet('/api/campaign-tiers').then(function(d) {
-      setTiers(d.tiers || []);
+  useEffect(function () {
+    apiGet('/api/campaign-tiers').then(function (d) {
+      const list = d.tiers || [];
+      setTiers(list);
+      const firstUnowned = list.find(function (x) { return !x.is_active; });
+      if (firstUnowned) setSel(firstUnowned.tier);
+      else if (list.length) setSel(list[0].tier);
       setLoading(false);
-    }).catch(function() { setLoading(false); });
+    }).catch(function () { setLoading(false); });
   }, []);
-
-  /* Lock body scroll when modal is open */
-  useEffect(function() {
-    if (selected !== null) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return function() { document.body.style.overflow = ''; };
-  }, [selected]);
 
   if (loading) return (
-    <AppLayout title={t("campaignTiers.title")}>
-      <div style={{ display:'flex', justifyContent:'center', padding:80 }}>
-        <div style={{ width:40, height:40, border:'3px solid #e5e7eb', borderTopColor:'var(--sap-accent)', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
+    <AppLayout title={t('campaignTiers.title')}>
+      <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}>
+        <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: 'var(--sap-accent)', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
       </div>
     </AppLayout>
   );
 
-  function calcTotal(tierNum, price) {
-    var personals = 5;
-    var spillover = 59;
-    var directEarn = personals * price * 0.4;
-    var spilloverEarn = spillover * price * 0.0625;
-    var bonus = BONUSES[tierNum] || 0;
-    return Math.round(directEarn + spilloverEarn + bonus);
-  }
+  const tier = tiers.find(function (x) { return x.tier === sel; }) || tiers[0];
+  if (!tier) return (
+    <AppLayout title={t('campaignTiers.title')}>
+      <div style={{ padding: 40, textAlign: 'center', color: 'var(--sap-text-muted)' }}>No campaign tiers available right now.</div>
+    </AppLayout>
+  );
 
-  /* Modal data */
-  var modalTier = selected !== null ? tiers.find(function(x) { return x.tier === selected; }) : null;
-  var modalAccent = modalTier ? (TIER_ACCENTS[modalTier.tier] || TIER_ACCENTS[1]) : null;
-  var modalFeats = modalTier ? (FEATURES_BY_TIER_T[modalTier.tier] || []) : [];
-  var modalTotal = modalTier ? calcTotal(modalTier.tier, modalTier.price) : 0;
+  const grid = tier.grid;
 
   return (
-    <AppLayout title={t("campaignTiers.title")} subtitle={t("campaignTiers.subtitle")}>
+    <AppLayout title={t('campaignTiers.title')}>
+      <style>{CONFIG_CSS}</style>
+      <div className="ctcfg">
 
-      {/* 23 May 2026: Stripe activation success banner */}
-      {activatedTier && (
-        <div style={{
-          maxWidth: 1100, margin: '0 auto 16px auto', padding: '14px 20px',
-          background: 'linear-gradient(135deg, #064e3b, #047857, #10b981)',
-          color: '#fff', borderRadius: 12, fontWeight: 700, fontSize: 15,
-          display: 'flex', alignItems: 'center', gap: 12,
-          boxShadow: '0 6px 20px rgba(16,185,129,0.25)',
-        }}>
-          <Check size={20} />
-          <span>Tier {activatedTier} activated successfully — campaign is live and your grid placement has been recorded.</span>
-          <button onClick={function() { setActivatedTier(null); }}
-            style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', cursor: 'pointer', width: 24, height: 24, borderRadius: 6, fontSize: 14 }}>
-            ×
-          </button>
+        {activatedTier !== null && (
+          <div className="ct-toast">
+            <Check size={16} /> Tier {activatedTier} activated — your campaign is live.
+          </div>
+        )}
+
+        <div className="ct-head">
+          <span className="ct-eyebrow">My Business · Campaign Tiers</span>
+          <h1>Choose your campaign.</h1>
+          <p>Each tier runs an AI advertising campaign that delivers guaranteed views to your offer. The Profit Grid is built in if you want to earn — but the views are yours either way.</p>
         </div>
-      )}
 
-      <style>{[
-        '@keyframes spin{to{transform:rotate(360deg)}}',
-        '@keyframes fadeIn{from{opacity:0}to{opacity:1}}',
-        '@keyframes slideUp{from{opacity:0;transform:translateY(30px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}',
-        '.ct-card{transition:transform .15s,box-shadow .15s;cursor:pointer}',
-        '.ct-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,.12)!important}',
-        '.ct-btn{transition:transform .1s!important}',
-        '.ct-btn:hover{transform:translateY(-1px)!important}',
-        '.ct-btn:active{transform:translateY(1px)!important}',
-        '.ct-overlay{animation:fadeIn .2s ease-out}',
-        '.ct-modal{animation:slideUp .25s ease-out}',
-        '@media(max-width:767px){',
-        '  .ct-grid{grid-template-columns:1fr 1fr!important}',
-        '  .ct-detail-stats{grid-template-columns:1fr 1fr!important}',
-        '  .ct-modal-inner{padding:24px 20px!important}',
-        '  .ct-modal-header{flex-direction:column!important;gap:12px!important}',
-        '  .ct-modal-price{text-align:left!important}',
-        '}',
-        '@media(max-width:480px){',
-        '  .ct-grid{grid-template-columns:1fr!important}',
-        '}',
-      ].join('\n')}</style>
-
-      {/* ── Header Banner ── */}
-      <div style={{
-        background:'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
-        borderRadius:18, padding:'22px 36px', marginBottom:20,
-        textAlign:'center', position:'relative', overflow:'hidden',
-        boxShadow:'0 8px 32px rgba(30,58,138,0.35)',
-      }}>
-        <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
-        <div style={{ position:'absolute', bottom:-40, left:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
-        <div style={{ position:'relative' }}>
-          <div style={{ fontSize:12, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.5)', marginBottom:6 }}>{t('campaignTiers.gridSystem')}</div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#fff', marginBottom:2, lineHeight:1.2 }}>
-            {t('campaignTiers.activateTiers')}
-          </div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'var(--sap-amber-bright)', marginBottom:8, lineHeight:1.2 }}>
-            {t('campaignTiers.growYourGrid')}
-          </div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,.75)', lineHeight:1.5, maxWidth:520, margin:'0 auto' }}>
-            {t('campaignTiers.heroDesc')}
-          </div>
+        <div className="ct-pills">
+          {tiers.map(function (x) {
+            return (
+              <button key={x.tier} className={'ct-pill' + (x.tier === sel ? ' on' : '')} onClick={function () { setSel(x.tier); }}>
+                {x.name}{x.is_active && <span className="ct-owned">✓</span>}
+              </button>
+            );
+          })}
         </div>
-      </div>
-
-      {/* ── Product explainer — "What am I actually buying?" ── */}
-      <ProductExplainer t={t} tNamespace="gridStream" variant="grid" defaultOpen={false} />
-
-      {/* ── Tier Cards — 4-column grid ── */}
-      {[0, 4].map(function(start) {
-        var row = tiers.slice(start, start + 4);
-        if (row.length === 0) return null;
-        return (
-          <div key={start} className="ct-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:12 }}>
-            {row.map(function(tier) {
-              var a = TIER_ACCENTS[tier.tier] || TIER_ACCENTS[1];
-              var active = tier.is_active;
-
-              return (
-                <div key={tier.tier} className="ct-card" onClick={function() { setSelected(tier.tier); }}
-                  style={{
-                    background:a.cardGrad,
-                    borderRadius:14, padding:20,
-                    display:'flex', flexDirection:'column', gap:10,
-                    position:'relative', textAlign:'center', overflow:'hidden',
-                    // Halo ring + soft glow on active tier card. Uses tier accent
-                    // for both ring (2px solid) and outer glow (5px low-opacity).
-                    boxShadow: active
-                      ? ('0 0 0 2px ' + a.color + ', 0 0 0 5px ' + a.color + '40, 0 2px 8px rgba(0,0,0,.1)')
-                      : '0 2px 8px rgba(0,0,0,.1)',
-                  }}>
-
-                  {/* Decorative circle */}
-                  <div style={{ position:'absolute', top:-30, right:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
-
-                  {/* ── Active corner ribbon (Hybrid v1: tucked into top-right) ── */}
-                  {/* Sits ABOVE Popular/Max badges in z-order so it wins the corner. */}
-                  {/* pointerEvents:none keeps the whole card clickable through the ribbon. */}
-                  {active && (
-                    <span style={{
-                      position:'absolute', top:0, right:0,
-                      background: a.darkText ? '#1f2937' : '#fff',
-                      color: a.darkText ? '#fff' : a.dark,
-                      fontSize:11, fontWeight:700,
-                      padding:'5px 10px',
-                      borderRadius:'0 14px 0 8px',
-                      letterSpacing:'0.4px',
-                      pointerEvents:'none',
-                      display:'inline-flex', alignItems:'center', gap:4,
-                      zIndex:2,
-                    }}>
-                      <span style={{ width:6, height:6, borderRadius:'50%', background: a.darkText ? '#fff' : a.dark }}/>
-                      {(t('campaignTiers.active') || 'Active').toUpperCase()}
-                    </span>
-                  )}
-
-
-                  <div style={{ fontSize:16, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>{tier.name}</div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>${tier.price.toLocaleString()}</div>
-                  <div style={{ fontSize:14, color: a.darkText ? 'rgba(0,0,0,.55)' : 'rgba(255,255,255,.7)', position:'relative' }}>{tier.views_target.toLocaleString()} views</div>
-
-                  {active ? (
-                    /* ── Active card bottom: progress bar (replaces the old "Active" pill) ── */
-                    /* Shows campaign progress when tier.campaign_progress is set.
-                       When unavailable (admin sees all tiers active with no real campaign,
-                       or member's tier is qualified-via-grid but no campaign created yet),
-                       the bar shows 0% — honest visual reflecting "not started yet". */
-                    (function() {
-                      var prog = tier.campaign_progress;
-                      var delivered = (prog && prog.views_delivered) || 0;
-                      var target = (prog && prog.views_target) || tier.views_target || 0;
-                      var pct = target > 0 ? Math.min(100, Math.round((delivered / target) * 100)) : 0;
-                      // White elements on dark gradients; dark elements on the silver tier
-                      var trackBg = a.darkText ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.2)';
-                      var fillBg  = a.darkText ? '#1f2937' : '#fff';
-                      var labelColor = a.darkText ? 'rgba(0,0,0,.65)' : 'rgba(255,255,255,.85)';
-                      return (
-                        <div style={{ marginTop:'auto', position:'relative', paddingTop:4 }}>
-                          <div style={{ display:'flex', justifyContent:'space-between', fontSize:10, color: labelColor, marginBottom:4, fontWeight:600 }}>
-                            <span>{delivered.toLocaleString()} / {target.toLocaleString()}</span>
-                            <span>{pct}%</span>
-                          </div>
-                          <div style={{ height:6, background: trackBg, borderRadius:999, overflow:'hidden' }}>
-                            <div style={{ width: pct + '%', height:'100%', background: fillBg, transition:'width 0.4s ease' }}/>
-                          </div>
-                        </div>
-                      );
-                    })()
-                  ) : (
-                    <div style={{ padding:9, borderRadius:8, background: a.darkText ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.1)', border:'1px solid ' + (a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.12)'), color: a.darkText ? '#1f2937' : 'rgba(255,255,255,.8)', fontSize:12, fontWeight:600, marginTop:'auto', position:'relative' }}>
-                      View Details
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        );
-      })}
-
-      {/* How it works + Renewal info */}
-      <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px', marginTop:4, marginBottom:16 }}>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:10 }}>{t('campaignTiers.howItWorks')}</div>
-        <div style={{ fontSize:15, color:'var(--sap-text-muted)', lineHeight:1.8 }}>
-          Each tier gives your videos real views through the Watch & Earn network. When you activate a tier, you are placed into a 6×6 grid with 36 member positions. You earn <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.directCommission')}</span> on every referral who activates the same tier, plus <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.gridMemberComm')}</span> as positions fill, plus a <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.completionBonus')}</span> when the grid is full.
+        <div className="ct-ladder">
+          {tiers.map(function (x) { return <i key={x.tier} className={x.tier <= sel ? 'fill' : ''} />; })}
         </div>
-        <div style={{ borderTop:'1px solid #f1f5f9', marginTop:14, paddingTop:14, display:'flex', alignItems:'flex-start', gap:10 }}>
-          <div style={{ width:20, height:20, borderRadius:6, background:'var(--sap-amber-bg)', border:'1px solid #fde68a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
-            <span style={{ fontSize:13, color:'var(--sap-amber-dark)', fontWeight:800 }}>!</span>
-          </div>
-          <div style={{ fontSize:15, color:'var(--sap-text-muted)', lineHeight:1.7 }}>
-            <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.renewalLabel')}</span> Tiers expire once all allocated views have been delivered. To continue receiving views and earning grid commissions, simply re-activate the tier. All one-time USDT payments — no subscriptions or recurring charges.
-          </div>
-        </div>
-      </div>
 
-      {/* ── Modal Overlay ── */}
-      {modalTier && (
-        <div className="ct-overlay"
-          onClick={function() { setSelected(null); }}
-          style={{
-            position:'fixed', top:0, left:0, right:0, bottom:0, zIndex:9999,
-            background:'rgba(0,0,0,.55)', backdropFilter:'blur(4px)', WebkitBackdropFilter:'blur(4px)',
-            display:'flex', alignItems:'center', justifyContent:'center',
-            padding:20,
-          }}>
-          <div className="ct-modal"
-            onClick={function(e) { e.stopPropagation(); }}
-            style={{ width:'100%', maxWidth:580, maxHeight:'90vh', overflowY:'auto' }}>
-            <div className="ct-modal-inner" style={{
-              background:'#fff', borderRadius:18, padding:'32px 36px',
-              boxShadow:'0 20px 60px rgba(0,0,0,.2)',
-              borderTop:'4px solid ' + modalAccent.color,
-            }}>
-
-              {/* Header */}
-              <div className="ct-modal-header" style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
-                <div>
-                  <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-                    <span style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'var(--sap-text-primary)' }}>{modalTier.name}</span>
-                    <span style={{ fontSize:13, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Tier {modalTier.tier}</span>
-                    {modalTier.tier === 3 && <span style={{ fontSize:13, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.popular')}</span>}
-                    {modalTier.tier === 8 && <span style={{ fontSize:13, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.maxEarnings')}</span>}
-                  </div>
-                  <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>
-                    {t('campaignTiers.videoViewsAcross', {count: modalTier.views_target.toLocaleString()})}
-                  </div>
-                </div>
-                <div style={{ display:'flex', alignItems:'flex-start', gap:16 }}>
-                  <div className="ct-modal-price" style={{ textAlign:'right' }}>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'var(--sap-text-primary)' }}>${modalTier.price.toLocaleString()}</div>
-                    <div style={{ fontSize:14, color:'var(--sap-text-muted)' }}>{t('campaignTiers.oneTimeUSDT')}</div>
-                  </div>
-                  <div onClick={function() { setSelected(null); }}
-                    style={{ width:32, height:32, borderRadius:8, border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
-                    <X size={16} color="var(--sap-text-muted)"/>
-                  </div>
-                </div>
-              </div>
-
-              {/* Earnings stats */}
-              <div className="ct-detail-stats" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
-                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.direct_commission)}</div>
-                  <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.directEarn')}</div>
-                </div>
-                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.uni_level_per_member)}</div>
-                  <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.perMember')}</div>
-                </div>
-                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTier.completion_bonus.toLocaleString()}</div>
-                  <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.gridBonus')}</div>
-                </div>
-                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:modalAccent.bg, border:'1px solid ' + modalAccent.border }}>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTotal.toLocaleString()}</div>
-                  <div style={{ fontSize:14, color:modalAccent.dark, marginTop:3, fontWeight:600 }}>{t('campaignTiers.estEarnings')}</div>
-                </div>
-              </div>
-
-              <div style={{ fontSize:15, color:'var(--sap-text-muted)', fontStyle:'italic', marginBottom:20 }}>
-                {t('campaignTiers.earningsDisclaimer')}
-              </div>
-
-              {/* Feature tags */}
-              <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:20 }}>
-                {modalFeats.map(function(f) {
-                  return (
-                    <span key={f} style={{ fontSize:12, fontWeight:600, padding:'5px 14px', borderRadius:8, background:'var(--sap-bg-elevated)', border:'1px solid #e2e8f0', color:'var(--sap-text-secondary)' }}>{f}</span>
-                  );
-                })}
-              </div>
-
-              {/* Grid progress if active */}
-              {modalTier.is_active && modalTier.grid && (
-                <div style={{ marginBottom:20 }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-                    <span style={{ fontSize:12, fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.gridProgress')}</span>
-                    <span style={{ fontSize:12, color:'var(--sap-text-muted)' }}>{modalTier.grid.filled}/36 members · Grid #{modalTier.grid.advance}</span>
-                  </div>
-                  <div style={{ height:6, background:'var(--sap-bg-page)', borderRadius:4 }}>
-                    <div style={{ height:'100%', width:modalTier.grid.pct+'%', background:modalAccent.grad, borderRadius:4, transition:'width .5s' }}/>
-                  </div>
-                </div>
-              )}
-
-              {/* Action button */}
-              {modalTier.is_active ? (
-                <div style={{
-                  textAlign:'center', padding:14, borderRadius:10,
-                  background:modalAccent.bg, border:'1px solid ' + modalAccent.border,
-                }}>
-                  <span style={{ display:'inline-flex', alignItems:'center', gap:5, color:modalAccent.dark, fontSize:14, fontWeight:700 }}>
-                    <Check size={14}/> {t('campaignTiers.tierIsActive')}
-                  </span>
-                </div>
-              ) : (
-                <Link to={'/activate/' + modalTier.tier} className="ct-btn" style={{
-                  display:'block', textAlign:'center', padding:14, borderRadius:10,
-                  background:modalAccent.grad, textDecoration:'none',
-                }}>
-                  <span style={{ color:'#fff', fontWeight:700, fontSize:15 }}>{t('campaignTiers.activate', {name: modalTier.name, price: modalTier.price.toLocaleString()})}</span>
-                </Link>
-              )}
-
+        <div className="ct-card">
+          <div className="ct-top">
+            <div>
+              <div className="ct-name">{tier.name}</div>
+              <div className="ct-price">{money(tier.price)}</div>
+              <div className="ct-priceunit">one-time · what you pay</div>
+            </div>
+            <div className="ct-viewbox">
+              <div className="ct-views">{num(tier.views_target)}</div>
+              <div className="ct-viewlbl">ad views · what you get</div>
             </div>
           </div>
-        </div>
-      )}
 
+          <div className="ct-body">
+            <div className="ct-gridwrap">
+              <div className="ct-seats">
+                {Array.from({ length: 16 }).map(function (_, i) {
+                  return <div key={i} className={'ct-seat ' + (DIRECT_SEATS.has(i) ? 'direct' : 'indirect')} style={{ animationDelay: (i * 18) + 'ms' }} />;
+                })}
+              </div>
+              <div className="ct-gridlbl">16-seat Profit Grid · example fill</div>
+              <div className="ct-legend">
+                <div className="ct-leg"><span className="sw d" /> Direct referral — you earn 30%</div>
+                <div className="ct-leg"><span className="sw i" /> Indirect referral — 6.25% / level</div>
+              </div>
+            </div>
+
+            <div className="ct-comp">
+              <div className="ct-crow">
+                <div className="ct-clbl">Direct commission<small>per member you personally refer</small></div>
+                <div className="ct-camt cyan">{money(tier.direct_commission)}</div>
+              </div>
+              <div className="ct-crow">
+                <div className="ct-clbl">Indirect commission<small>per fill, 8 levels deep · 6.25% each</small></div>
+                <div className="ct-camt amber">{money(tier.uni_level_per_member)}</div>
+              </div>
+              <div className="ct-crow">
+                <div className="ct-clbl">Grid completion bonus<small>paid when your 16 seats fill</small></div>
+                <div className="ct-camt cyan">{money(tier.completion_bonus)}</div>
+              </div>
+            </div>
+          </div>
+
+          {tier.is_active && grid && (
+            <div className="ct-prog">
+              <div className="ct-prog-top">
+                <span>Your grid</span>
+                <span>{grid.filled} filled · Grid #{grid.advance}</span>
+              </div>
+              <div className="ct-prog-bar"><div style={{ width: (grid.pct || 0) + '%' }} /></div>
+            </div>
+          )}
+
+          <div className="ct-actions">
+            {tier.is_active ? (
+              <div className="ct-active"><Check size={15} /> {tier.name} is active</div>
+            ) : (
+              <Link to={'/activate/' + tier.tier} className="ct-btn">
+                Run this campaign — {money(tier.price)} →
+              </Link>
+            )}
+            <span className="ct-share">⚡ <b>100%</b> of campaign revenue shared across the grid</span>
+          </div>
+        </div>
+
+        <p className="ct-disc">
+          Commission figures are the maximums defined by the Profit Grid and depend entirely on your own referral activity — they are not income guarantees, and many members simply use the advertising without referring anyone. Direct = 30% of tier price · indirect = 6.25% per level across 8 levels · completion bonus = the 20% grid pool. Company retains 0% of campaign revenue. All tiers are one-time payments — no subscriptions.
+        </p>
+
+      </div>
     </AppLayout>
   );
 }
