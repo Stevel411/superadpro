@@ -1643,6 +1643,14 @@ def get_user_commission_history(db: Session, user_id: int, limit: int = 50) -> l
         Commission.to_user_id == user_id
     ).order_by(Commission.created_at.desc()).limit(limit).all()
     for c in base_commissions:
+        # Hide reversed/voided commissions from the member-facing feed (e.g. the
+        # 12 Jun erroneous grid_completion_bonus_topup credits that were clawed
+        # back) so members don't see a credit-then-reversal in their wallet. The
+        # rows stay in the DB as reversed tombstones; balances/earnings already
+        # exclude reversed via compute_user_earnings (status='paid' only), so
+        # totals are unaffected by this display filter.
+        if (c.status or "paid") == "reversed":
+            continue
         rows.append({
             "created_at": c.created_at.isoformat() if c.created_at else None,
             "commission_type": c.commission_type or "unknown",
