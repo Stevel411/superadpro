@@ -143,6 +143,23 @@ export default function ActivateTier() {
     }
   };
 
+  // Launchpad (tier 0) — and any tier not in the hardcoded TIERS map — lands
+  // here. The activate screen + NOWPayments/crypto rails were only ever wired
+  // for tiers 1-8; rendering tier.name on an undefined tier white-screened the
+  // page ("Cannot read properties of undefined (reading 'name')"). Fail safe
+  // with a graceful message until the tier is fully wired end-to-end.
+  if (!tier) {
+    return (
+      <AppLayout title="Activate Campaign Tier" subtitle="">
+        <div style={{ maxWidth: 560, margin: '40px auto', textAlign: 'center', padding: '32px 24px', background: '#fff', border: '1px solid rgba(12,26,56,.1)', borderRadius: 16 }}>
+          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 8 }}>This tier isn&apos;t available to activate yet</div>
+          <div style={{ fontSize: 14, color: 'var(--sap-text-secondary)', marginBottom: 20 }}>Please choose another campaign tier.</div>
+          <Link to="/campaign-tiers" style={{ display: 'inline-block', fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 14, color: '#fff', background: 'linear-gradient(92deg,#1e3a8a,#0ea5e9)', padding: '12px 22px', borderRadius: 10, textDecoration: 'none' }}>Back to tiers</Link>
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <Suspense fallback={
       <AppLayout title={`Activate ${tier.name}`} subtitle={t('campaignTiers.reviewTier')}>
