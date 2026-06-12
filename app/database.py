@@ -150,6 +150,20 @@ UNILEVEL_PCT  = 0.50   # 50% → split across 8 uni-level positions (6.25% each)
 PER_LEVEL_PCT = 0.0625 # 6.25% → each of 8 levels in the upline chain
 PLATFORM_PCT  = 0.00   # 0%  → reallocated to bonus pool (21 May 2026)
 BONUS_POOL_PCT = 0.20  # 20% → Grid completion bonus pool (8 Jun 2026: +10%, direct 40→30, company stays 0)
+LEGACY_BONUS_POOL_PCT = 0.10  # 36-seat grandfathered grids keep the old 10% rate (12 Jun 2026 cut-off)
+
+
+def bonus_pct_for(total_seats) -> float:
+    """Seat-aware completion-bonus rate. New 16-seat grids earn the 20% pool;
+    legacy 36-seat (grandfathered) grids keep 10%. Keying the rate off the
+    grid's own seat count means a 36-seat grid can NEVER pay the 20% rate even
+    if one somehow survives the cut-off — the rate follows the grid, not a
+    global flag, so the old doubling bug can't recur. (12 Jun 2026, Steve:
+    clean cut-off to fresh 16-seat grids @ 20%, legacy grids stay @ 10%.)"""
+    try:
+        return BONUS_POOL_PCT if int(total_seats or 0) == NEW_GRID_SEATS else LEGACY_BONUS_POOL_PCT
+    except (TypeError, ValueError):
+        return LEGACY_BONUS_POOL_PCT
 
 
 # Legacy aliases
@@ -207,8 +221,11 @@ def completion_bonus_for(total_seats, price) -> float:
     Computed per-grid so it is correct for BOTH legacy 36-seat grids and
     new 16-seat grids — supersedes the hardcoded GRID_COMPLETION_BONUS
     table (which assumed 36 seats). The table remains only as a legacy
-    fallback for tier-level displays that have no grid in scope."""
-    return float(total_seats) * float(price) * float(BONUS_POOL_PCT)
+    fallback for tier-level displays that have no grid in scope.
+
+    12 Jun 2026: rate is now seat-aware via bonus_pct_for — 16-seat grids 20%,
+    legacy 36-seat grids 10%."""
+    return float(total_seats) * float(price) * float(bonus_pct_for(total_seats))
 
 # ── Campaign View Targets per Tier ───────────────────────────
 # Views delivered per campaign purchase/repurchase cycle

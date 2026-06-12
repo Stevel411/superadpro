@@ -39,6 +39,7 @@ from .database import (
     CourseCommission, CreditMatrixCommission,
     GRID_WIDTH, GRID_LEVELS, GRID_TOTAL, NEW_GRID_SEATS, UNILEVEL_DEPTH,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT, BONUS_POOL_PCT,
+    bonus_pct_for,
     GRID_PACKAGES, GRID_COMPLETION_BONUS, CAMPAIGN_GRACE_DAYS
 )
 from datetime import datetime, timedelta
@@ -85,7 +86,7 @@ def _policy_bonus_target(package_tier: int, total_seats: int = GRID_TOTAL) -> fl
     full advertised bonus. The pool is what gets PAID, but the target is
     what gets PROMISED, and the promise wins.
     """
-    return float(GRID_PACKAGES.get(package_tier, 0)) * float(total_seats) * float(BONUS_POOL_PCT)
+    return float(GRID_PACKAGES.get(package_tier, 0)) * float(total_seats) * float(bonus_pct_for(total_seats))
 
 
 def _accrue_to_pool(grid: Grid, raw_accrual: float) -> Decimal:
@@ -469,11 +470,12 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                 grid.positions_filled += 1
                 grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
-                # Accrue 20% bonus pool on this grid, capped at policy target.
-                # The cap matters because retroactive top-ups (26 May 2026) may
-                # have already set this grid's pool to the full target — further
-                # accrual must not push past the advertised $72/$180/etc.
-                bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
+                # Accrue the bonus pool on this grid at its SEAT-AWARE rate
+                # (16-seat grids 20%, legacy 36-seat grids 10%), capped at the
+                # policy target. The cap matters because retroactive top-ups
+                # (26 May 2026) may have already set this grid's pool to the full
+                # target — further accrual must not push past it.
+                bonus_amount = round(float(price) * bonus_pct_for(grid.total_seats), 2)
                 _accrue_to_pool(grid, bonus_amount)
 
                 # NOTE: legacy code used to do `owner.total_team += 1` here.
@@ -554,8 +556,9 @@ def place_member_in_grid(
     grid.positions_filled += 1
     grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
-    # Accrue 20% bonus pool, capped at policy target (see _accrue_to_pool).
-    bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
+    # Accrue the bonus pool at the grid's seat-aware rate (16→20%, 36→10%),
+    # capped at policy target (see _accrue_to_pool).
+    bonus_amount = round(float(price) * bonus_pct_for(grid.total_seats), 2)
     _accrue_to_pool(grid, bonus_amount)
 
     # NOTE: legacy code used to do `owner.total_team += 1` here.

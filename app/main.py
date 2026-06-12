@@ -11476,7 +11476,8 @@ def admin_api_earnings_reconciliation(
     from .database import (User as _User, Grid,
                            GRID_PACKAGES as _PKG, GRID_TOTAL as _TOTAL,
                            DIRECT_PCT as _D, PER_LEVEL_PCT as _L,
-                           UNILEVEL_DEPTH as _DEPTH, BONUS_POOL_PCT as _BP)
+                           UNILEVEL_DEPTH as _DEPTH, BONUS_POOL_PCT as _BP,
+                           bonus_pct_for as _bpf)
     from collections import defaultdict as _dd
 
     urows = db.query(_User.id, _User.sponsor_id, _User.username, _User.is_admin,
@@ -11513,7 +11514,7 @@ def admin_api_earnings_reconciliation(
 
     exp_bonus = _dd(float)
     for g in db.query(Grid).filter(Grid.is_complete == True).all():  # noqa: E712
-        exp_bonus[g.owner_id] += round(float(_PKG.get(g.package_tier, 0)) * g.total_seats * _BP, 2)
+        exp_bonus[g.owner_id] += round(float(_PKG.get(g.package_tier, 0)) * g.total_seats * _bpf(g.total_seats), 2)
 
     owners = set(list(exp_grid) + list(exp_level) + list(exp_bonus) +
                  [u for u, v in act.items() if v["grid"] or v["level"] or v["bonus"]])
@@ -11773,7 +11774,8 @@ def admin_api_grid_position_replay(
     _require_admin(user)
     from .database import (Grid, GridPosition, User as _User,
                            GRID_PACKAGES as _PKG, GRID_TOTAL as _TOTAL,
-                           GRID_WIDTH as _W, BONUS_POOL_PCT as _BPCT)
+                           GRID_WIDTH as _W, BONUS_POOL_PCT as _BPCT,
+                           bonus_pct_for as _bpf)
     from .grid import _policy_bonus_target
     from datetime import datetime as _dt
     from decimal import Decimal as _Dec
@@ -11957,8 +11959,8 @@ def admin_api_grid_position_replay(
         price = _Dec(str(_PKG.get(g.package_tier, 0)))
         g.positions_filled = cnt
         g.revenue_total = price * cnt
-        target = _Dec(str(_policy_bonus_target(g.package_tier)))
-        accrued = (price * cnt) * _Dec(str(_BPCT))
+        target = _Dec(str(_policy_bonus_target(g.package_tier, g.total_seats)))
+        accrued = (price * cnt) * _Dec(str(_bpf(g.total_seats)))
         g.bonus_pool_accrued = min(target, accrued) if target > 0 else accrued
         recomputed += 1
     db.commit()
@@ -14569,7 +14571,8 @@ def admin_api_seat_member(
     _require_admin(user)
     from .database import (Grid, GridPosition, User as _User,
                            GRID_PACKAGES as _PKG, GRID_TOTAL as _TOTAL,
-                           GRID_WIDTH as _W, BONUS_POOL_PCT as _BPCT)
+                           GRID_WIDTH as _W, BONUS_POOL_PCT as _BPCT,
+                           bonus_pct_for as _bpf)
     from .grid import _policy_bonus_target
     from decimal import Decimal as _Dec
     import pyotp
@@ -14682,8 +14685,8 @@ def admin_api_seat_member(
         price = _Dec(str(_PKG.get(g.package_tier, 0)))
         g.positions_filled = cnt
         g.revenue_total = price * cnt
-        target = _Dec(str(_policy_bonus_target(g.package_tier)))
-        accrued = (price * cnt) * _Dec(str(_BPCT))
+        target = _Dec(str(_policy_bonus_target(g.package_tier, g.total_seats)))
+        accrued = (price * cnt) * _Dec(str(_bpf(g.total_seats)))
         g.bonus_pool_accrued = min(target, accrued) if target > 0 else accrued
     db.commit()
 
