@@ -23673,6 +23673,40 @@ def admin_grid_seat_census(
             "DB and pick a window before merge."
         )
 
+    # 6. CUT-OFF SETTLEMENT COST — the "settle it" financial impact.
+    #    Sum of accrued 10% bonus across all incomplete grids = what would be
+    #    added to member wallets if we pay out accrued bonus at the cut-off.
+    #    bonus_pool_accrued exists on prod (unlike total_seats), and on prod
+    #    every grid is effectively 36-seat, so this is the full settlement figure.
+    try:
+        rows = (db.query(Grid.package_tier,
+                         _func.count(Grid.id),
+                         _func.coalesce(_func.sum(Grid.bonus_pool_accrued), 0))
+                .filter(Grid.is_complete == False)
+                .group_by(Grid.package_tier).all())
+        by_tier = []
+        for tier, n, accrued in rows:
+            by_tier.append({
+                "tier": tier,
+                "incomplete_grids": int(n or 0),
+                "accrued_bonus_usd": round(float(accrued or 0), 2),
+            })
+        by_tier.sort(key=lambda r: (r["tier"] is None, r["tier"] if r["tier"] is not None else -1))
+        members = int(db.query(_func.count(_func.distinct(Grid.owner_id)))
+                      .filter(Grid.is_complete == False).scalar() or 0)
+        out["cutoff_settlement"] = {
+            "incomplete_grids": sum(r["incomplete_grids"] for r in by_tier),
+            "distinct_members": members,
+            "total_accrued_bonus_usd": round(sum(r["accrued_bonus_usd"] for r in by_tier), 2),
+            "by_tier": by_tier,
+            "note": ("Gross upper bound — assumes every grid owner is qualified. "
+                     "Unqualified owners would company-absorb at completion, so the "
+                     "real settle cost is this or lower."),
+        }
+    except Exception as e:
+        db.rollback()
+        out["cutoff_settlement"] = {"error": f"{type(e).__name__}: {e}"}
+
     return JSONResponse(out, status_code=200)
 
 
