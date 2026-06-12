@@ -23728,30 +23728,44 @@ def admin_settlement_estimate(
     No writes. Built 12 Jun 2026.
     """
     _require_admin(user)
-    from .database import Grid
+    from .database import Grid, GRID_PACKAGES
     from sqlalchemy import func as _func
 
     out = {"generated_at": datetime.utcnow().isoformat()}
     try:
         rows = (db.query(Grid.package_tier,
                          _func.count(Grid.id),
+                         _func.coalesce(_func.sum(Grid.positions_filled), 0),
                          _func.coalesce(_func.sum(Grid.bonus_pool_accrued), 0))
                 .filter(Grid.is_complete == False)
                 .group_by(Grid.package_tier).all())
-        by_tier = [{"tier": t,
-                    "incomplete_grids": int(n or 0),
-                    "accrued_bonus_usd": round(float(a or 0), 2)} for t, n, a in rows]
+        by_tier = []
+        for t, n, seats, accrued in rows:
+            n = int(n or 0)
+            seats = int(seats or 0)
+            price = float(GRID_PACKAGES.get(t, 0))
+            by_tier.append({
+                "tier": t,
+                "incomplete_grids": n,
+                "seats_filled_total": seats,
+                "avg_seats_filled": round(seats / n, 1) if n else 0,
+                "settle_topped_usd": round(float(accrued or 0), 2),   # full target (26-May top-up)
+                "settle_earned_usd": round(seats * price * 0.10, 2),  # real: seats x price x 10%
+            })
         by_tier.sort(key=lambda r: (r["tier"] is None, r["tier"] if r["tier"] is not None else -1))
         members = int(db.query(_func.count(_func.distinct(Grid.owner_id)))
                       .filter(Grid.is_complete == False).scalar() or 0)
         out["cutoff_settlement"] = {
             "incomplete_grids": sum(r["incomplete_grids"] for r in by_tier),
             "distinct_members": members,
-            "total_accrued_bonus_usd": round(sum(r["accrued_bonus_usd"] for r in by_tier), 2),
+            "settle_topped_total_usd": round(sum(r["settle_topped_usd"] for r in by_tier), 2),
+            "settle_earned_total_usd": round(sum(r["settle_earned_usd"] for r in by_tier), 2),
             "by_tier": by_tier,
-            "note": ("Gross upper bound — assumes every grid owner is qualified. "
-                     "Unqualified owners company-absorb at completion, so the real "
-                     "settle cost is this or lower."),
+            "note": ("settle_topped = bonus_pool_accrued, which a 26-May retroactive op set to "
+                     "each grid's FULL target bonus regardless of seats filled (pays full "
+                     "bonuses on incomplete grids). settle_earned = seats actually filled x "
+                     "price x 10% = what members genuinely earned so far. Both gross of owner "
+                     "qualification (unqualified would absorb, lowering either figure)."),
         }
     except Exception as e:
         db.rollback()
