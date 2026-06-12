@@ -175,6 +175,10 @@ export default function Dashboard() {
   // reached from the free-user dashboard block below.
   const [lpLoading, setLpLoading] = useState(false);
   const [lpError, setLpError] = useState('');
+  // Preview override: /dashboard?launchpad=preview lets an admin/active
+  // account see the free-user Launchpad card for review. Harmless to real
+  // users — they never carry the param, so normal gating (free-only) holds.
+  const lpPreview = (function () { try { return new URLSearchParams(window.location.search).get('launchpad') === 'preview'; } catch (e) { return false; } })();
   async function getLaunchpad() {
     if (lpLoading) return;
     setLpError('');
@@ -453,7 +457,7 @@ export default function Dashboard() {
           of 23 May). Tools-first copy aligns with the brand positioning rule:
           we sell the toolkit, not the income claim. The "Get my referral
           link" secondary CTA stays so members who want to refer can. */}
-      {!d.is_active && (
+      {(!d.is_active || lpPreview) && (
         <div className="lpc">
           <style>{`
             .lpc{position:relative;border-radius:18px;overflow:hidden;margin-bottom:20px;
