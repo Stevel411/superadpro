@@ -118,7 +118,11 @@ export default function CampaignTiers() {
 
   useEffect(function () {
     apiGet('/api/campaign-tiers').then(function (d) {
-      const list = d.tiers || [];
+      // Launchpad (tier 0) is the free-user onboarding rung — the $10 ramp
+      // that lets a free user earn toward full membership. It's sold on the
+      // dashboard, not here. This members-only page (RequireTier basic) shows
+      // only the buyable campaign tiers, 1-8.
+      const list = (d.tiers || []).filter(function (x) { return x.tier !== 0; });
       setTiers(list);
       const firstUnowned = list.find(function (x) { return !x.is_active; });
       if (firstUnowned) setSel(firstUnowned.tier);
