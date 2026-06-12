@@ -23586,48 +23586,56 @@ def admin_grid_seat_census(
     from sqlalchemy import func as _func
 
     out = {"generated_at": datetime.utcnow().isoformat()}
+    import traceback as _tb
+    total_live16 = 0
 
-    # 1. Grids grouped by seat size (16 = new cycler, 36 = legacy, other = stray).
-    totals = dict(
-        db.query(Grid.total_seats, _func.count(Grid.id)).group_by(Grid.total_seats).all()
-    )
-    completes = dict(
-        db.query(Grid.total_seats, _func.count(Grid.id))
-        .filter(Grid.is_complete == True)
-        .group_by(Grid.total_seats).all()
-    )
-    by_seats = {}
-    for seats, total in totals.items():
-        key = str(seats if seats is not None else "null")
-        t = int(total or 0)
-        c = int(completes.get(seats, 0) or 0)
-        by_seats[key] = {"total": t, "complete": c, "incomplete": t - c}
-    out["grids_by_seats"] = by_seats
+    try:
+        # 1. Grids grouped by seat size (16 = new cycler, 36 = legacy, other = stray).
+        totals = {r[0]: r[1] for r in
+                  db.query(Grid.total_seats, _func.count(Grid.id))
+                  .group_by(Grid.total_seats).all()}
+        completes = {r[0]: r[1] for r in
+                     db.query(Grid.total_seats, _func.count(Grid.id))
+                     .filter(Grid.is_complete == True)
+                     .group_by(Grid.total_seats).all()}
+        by_seats = {}
+        for seats, total in totals.items():
+            key = str(seats if seats is not None else "null")
+            t = int(total or 0)
+            c = int(completes.get(seats, 0) or 0)
+            by_seats[key] = {"total": t, "complete": c, "incomplete": t - c}
+        out["grids_by_seats"] = by_seats
 
-    # 2. The actionable bit: LIVE (incomplete) 16-seat grids by tier.
-    n_by_tier = dict(
-        db.query(Grid.package_tier, _func.count(Grid.id))
-        .filter(Grid.total_seats == 16, Grid.is_complete == False)
-        .group_by(Grid.package_tier).all()
-    )
-    owned_by_tier = dict(
-        db.query(Grid.package_tier, _func.count(Grid.id))
-        .filter(Grid.total_seats == 16, Grid.is_complete == False, Grid.owner_purchased == True)
-        .group_by(Grid.package_tier).all()
-    )
-    live_rows = []
-    for tier in sorted(n_by_tier.keys(), key=lambda x: (x is None, x)):
-        n = int(n_by_tier.get(tier, 0) or 0)
-        owned = int(owned_by_tier.get(tier, 0) or 0)
-        live_rows.append({
-            "tier": tier,
-            "grids": n,
-            "owner_purchased": owned,
-            "spillover_created": n - owned,
-        })
-    out["live_16_seat_incomplete_by_tier"] = live_rows
-    total_live16 = sum(r["grids"] for r in live_rows)
-    out["live_16_seat_incomplete_total"] = total_live16
+        # 2. The actionable bit: LIVE (incomplete) 16-seat grids by tier.
+        n_by_tier = {r[0]: r[1] for r in
+                     db.query(Grid.package_tier, _func.count(Grid.id))
+                     .filter(Grid.total_seats == 16, Grid.is_complete == False)
+                     .group_by(Grid.package_tier).all()}
+        owned_by_tier = {r[0]: r[1] for r in
+                         db.query(Grid.package_tier, _func.count(Grid.id))
+                         .filter(Grid.total_seats == 16, Grid.is_complete == False,
+                                 Grid.owner_purchased == True)
+                         .group_by(Grid.package_tier).all()}
+        live_rows = []
+        for tier in sorted(n_by_tier.keys(), key=lambda x: (x is None, x if x is not None else -1)):
+            n = int(n_by_tier.get(tier, 0) or 0)
+            owned = int(owned_by_tier.get(tier, 0) or 0)
+            live_rows.append({
+                "tier": tier,
+                "grids": n,
+                "owner_purchased": owned,
+                "spillover_created": n - owned,
+            })
+        out["live_16_seat_incomplete_by_tier"] = live_rows
+        total_live16 = sum(r["grids"] for r in live_rows)
+        out["live_16_seat_incomplete_total"] = total_live16
+    except Exception as e:
+        db.rollback()
+        out["seat_census_error"] = {
+            "type": type(e).__name__,
+            "detail": str(e),
+            "trace_tail": _tb.format_exc().splitlines()[-6:],
+        }
 
     # 3. climb_pending sanity. On main (pre-merge) the column/attr doesn't exist,
     #    so this reads column_not_present_yet — which itself confirms the climb
@@ -23637,6 +23645,7 @@ def admin_grid_seat_census(
             db.query(_func.count(Grid.id)).filter(Grid.climb_pending == True).scalar() or 0
         )
     except Exception:
+        db.rollback()
         out["climb_pending_count"] = "column_not_present_yet"
 
     # 4. recycle_balance exposure — what retiring the recycle wallet would touch.
@@ -23645,7 +23654,8 @@ def admin_grid_seat_census(
         rc_total = float(db.query(_func.coalesce(_func.sum(_User.recycle_balance), 0)).scalar() or 0)
         out["recycle_wallet"] = {"users_with_balance": rc_users, "total_held": rc_total}
     except Exception as e:
-        out["recycle_wallet"] = {"error": str(e)}
+        db.rollback()
+        out["recycle_wallet"] = {"error": f"{type(e).__name__}: {e}"}
 
     # 5. Plain-English verdict for the merge decision.
     if total_live16 == 0:
