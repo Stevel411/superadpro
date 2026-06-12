@@ -24,6 +24,81 @@ const TIERS = {
   8: { name:'Champion',    price:1000, views:'120,000',   monthly:'50,000', bonus:3200, grad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)' },
 };
 
+// Illustrative 16-seat fill for the summary grid (cyan = direct, amber = team).
+const SEATS = ['d','i','i','d','i','d','i','i','i','i','d','i','d','i','i','i'];
+
+// Shared style for the WalletConnect rail buttons so they sit as equal-weight
+// outline siblings next to the card + NOWPayments options. restShadow/
+// hoverShadow are passed to the Gate so its hover doesn't flip to the
+// component-default orange (added as optional props, orange stays default
+// for every other page).
+const WALLET_BTN_STYLE = {
+  width: '100%', minHeight: 64, padding: '14px 22px', borderRadius: 14,
+  background: '#fff', color: '#0a1438', border: '1.5px solid #e2e8f0',
+  fontFamily: 'Sora, sans-serif', fontSize: 15, fontWeight: 700,
+  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+  boxShadow: '0 8px 20px -14px rgba(12,26,56,.3)', marginBottom: 11,
+};
+
+const AT_CSS = `
+.at-wrap{max-width:680px;margin:0 auto;font-family:'DM Sans',sans-serif}
+.at-card{background:#fff;border:1px solid rgba(12,26,56,.09);border-radius:24px;box-shadow:0 18px 44px -22px rgba(12,26,56,.3);position:relative;overflow:hidden}
+.at-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,#1e3a8a,#0ea5e9,#22d3ee)}
+.at-sum{padding:30px 32px 26px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.at-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#0ea5e9;font-weight:600}
+.at-name{font-family:'Sora',sans-serif;font-weight:700;font-size:23px;color:#0a1438;margin-top:6px}
+.at-price{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(40px,7vw,52px);color:#0a1438;line-height:1;margin-top:4px}
+.at-sub{font-size:13.5px;color:#64748b;margin-top:8px;font-weight:500}
+.at-facts{display:flex;gap:22px;margin-top:16px;flex-wrap:wrap}
+.at-fact .l{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8;font-weight:600}
+.at-fact .v{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#1e3a8a;margin-top:2px}
+.at-viz{display:flex;flex-direction:column;align-items:center;gap:9px}
+.at-seats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;width:120px}
+.at-seat{aspect-ratio:1;border-radius:5px}
+.at-seat.d{background:linear-gradient(135deg,#0ea5e9,#22d3ee);box-shadow:0 5px 14px -7px rgba(34,211,238,.85)}
+.at-seat.i{background:linear-gradient(135deg,#f59e0b,#fbbf24);box-shadow:0 5px 14px -7px rgba(245,158,11,.55)}
+.at-viz-cap{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#94a3b8;letter-spacing:.04em;text-align:center;line-height:1.5}
+.at-pay{padding:26px 32px 30px}
+.at-pay-h{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:#0a1438;margin-bottom:16px}
+.at-btn{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:14px 22px;border-radius:14px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:left;transition:transform .15s,box-shadow .15s;margin-bottom:11px}
+.at-btn:hover{transform:translateY(-2px)}
+.at-btn:disabled{cursor:wait;opacity:.85}
+.at-btn.busy{justify-content:center}
+.at-btn .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none;font-size:19px}
+.at-btn .tx{display:flex;flex-direction:column;line-height:1.25}
+.at-btn .tx b{font-family:'Sora',sans-serif;font-weight:700;font-size:16px}
+.at-btn .tx span{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-top:2px;opacity:.8}
+.at-btn-card{background:linear-gradient(92deg,#1e3a8a,#0ea5e9);color:#fff;box-shadow:0 18px 40px -20px rgba(14,165,233,.65)}
+.at-btn-card .ic{background:rgba(255,255,255,.18)}
+.at-btn-card .at-spin{border-color:rgba(255,255,255,.4);border-top-color:#fff}
+.at-btn-crypto{background:#fff;color:#0a1438;border:1.5px solid #e2e8f0;box-shadow:0 8px 20px -14px rgba(12,26,56,.3)}
+.at-btn-crypto:hover{border-color:#22d3ee;box-shadow:0 12px 26px -14px rgba(34,211,238,.45)}
+.at-btn-crypto .ic{background:#ecfeff;color:#0891b2}
+.at-btn-crypto .tx span{color:#64748b}
+.at-divider{display:flex;align-items:center;gap:12px;margin:16px 0 14px}
+.at-divider::before,.at-divider::after{content:"";flex:1;height:1px;background:#e2e8f0}
+.at-divider span{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8;font-weight:600}
+.at-trust{text-align:center;font-size:12.5px;color:#64748b;line-height:1.7;margin-top:14px}
+.at-err{padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;margin-bottom:14px;font-size:13px;font-weight:600;color:#b91c1c;text-align:center}
+.at-refund{padding:11px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;margin:18px 0 16px;font-size:12px;color:#92400e;line-height:1.55;text-align:center}
+.at-refund a{color:#92400e}
+.at-back{text-align:center;display:block;margin-bottom:16px}
+.at-back a{font-size:13px;color:#64748b;text-decoration:none}
+.at-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:34px;color:#64748b;font-size:14px}
+.at-spin{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(12,26,56,.15);border-top-color:#0ea5e9;border-radius:50%;animation:at-spin .8s linear infinite;flex:none}
+.at-inflight{padding:26px 32px 28px}
+.at-if-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#0ea5e9;font-weight:600;margin-bottom:8px}
+.at-if-h{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#0a1438;margin-bottom:14px;line-height:1.3}
+.at-if-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;font-size:13px;color:#475569;font-weight:600}
+.at-if-pct{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#0ea5e9}
+.at-if-bar{height:8px;background:#e8eef7;border-radius:99px;overflow:hidden}
+.at-if-bar>div{height:100%;background:linear-gradient(90deg,#0ea5e9,#22d3ee);border-radius:99px;transition:width .5s}
+.at-if-note{font-size:13px;color:#64748b;line-height:1.6;margin-top:14px}
+.at-if-link{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border-radius:14px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;text-decoration:none;background:linear-gradient(92deg,#1e3a8a,#0ea5e9);color:#fff;margin-top:16px;box-shadow:0 18px 40px -20px rgba(14,165,233,.6)}
+@keyframes at-spin{to{transform:rotate(360deg)}}
+@media(max-width:560px){.at-sum{grid-template-columns:1fr}.at-viz{order:-1;flex-direction:row;justify-content:flex-start}}
+`;
+
 export default function ActivateTier() {
   var { t } = useTranslation();
   const { tierId } = useParams();
@@ -171,224 +246,102 @@ export default function ActivateTier() {
       title={`Activate ${tier.name}`}
       subtitle={t('campaignTiers.reviewTier')}
     >
-      <div style={{maxWidth:700,margin:'0 auto'}}>
+      <style>{AT_CSS}</style>
+      <div className="at-wrap">
 
-        {/* Tier hero — dark theme with animations */}
-        <div style={{
-          background:tier.grad,
-          borderRadius:8, padding:'32px 36px', marginBottom:20,
-          position:'relative', overflow:'hidden',
-          boxShadow:'0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15)',
-        }}>
-          <div style={{position:'absolute',top:-30,right:-30,width:120,height:120,borderRadius:'50%',background:'rgba(255,255,255,.08)',pointerEvents:'none'}}/>
-
-          <div style={{position:'relative',zIndex:1,textAlign:'center'}}>
-            <div style={{fontSize:12,fontWeight:700,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.6)',textTransform:'uppercase',letterSpacing:1.5,marginBottom:8}}>{t('campaignTiers.campaignTierLabel')}</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:n===6?'#1f2937':'#fff',marginBottom:4}}>{tier.name}</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:900,color:n===6?'#1f2937':'#fff',lineHeight:1,marginBottom:8}}>${tier.price.toLocaleString()}</div>
-            <div style={{fontSize:13,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.5)'}}>One-time activation · Up to {t.views} views</div>
+        {/* ── Tier summary ── */}
+        <div className="at-card" style={{ marginBottom: 18 }}>
+          <div className="at-sum">
+            <div>
+              <div className="at-eyebrow">{t('campaignTiers.campaignTierLabel')}</div>
+              <div className="at-name">{tier.name}</div>
+              <div className="at-price">${tier.price.toLocaleString()}</div>
+              <div className="at-sub">One-time activation · up to {tier.views} views</div>
+              <div className="at-facts">
+                <div className="at-fact"><div className="l">Completion bonus</div><div className="v">${tier.bonus.toLocaleString()}</div></div>
+                <div className="at-fact"><div className="l">Monthly views</div><div className="v">{tier.monthly}</div></div>
+                <div className="at-fact"><div className="l">Grid</div><div className="v">16 seats</div></div>
+              </div>
+            </div>
+            <div className="at-viz">
+              <div className="at-seats">{SEATS.map(function (s, i) { return <div key={i} className={'at-seat ' + s}></div>; })}</div>
+              <div className="at-viz-cap">YOUR GRID<br />cyan direct · amber team</div>
+            </div>
           </div>
         </div>
 
-        {/* PAY BUTTONS */}
-        {error && (
-          <div style={{padding:'12px 16px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:12,fontSize:13,fontWeight:600,color:'var(--sap-red)'}}>{error}</div>
-        )}
+        {error && <div className="at-err">{error}</div>}
 
         {!stateLoaded ? (
-          // Brief loading skeleton while we check campaign state. Avoids flash
-          // of the buy button before we know whether the user already has an
-          // in-flight campaign at this tier.
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:30, marginBottom:20, color:'var(--sap-text-muted)', fontSize:14 }}>
-            <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(0,0,0,.15)', borderTopColor:'var(--sap-accent)', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite', marginRight:10 }}/>
-            Checking your campaign status…
-            <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
+          <div className="at-card">
+            <div className="at-loading"><span className="at-spin" /> Checking your campaign status…</div>
           </div>
         ) : inFlight ? (
-          // ── In-flight campaign at this tier — repurchase blocked ──
-          // The member already paid for this tier and views are still being
-          // delivered. Showing them progress (rather than a flat refusal)
-          // gives them a clear sense of how close they are to being able to
-          // purchase again.
-          <div style={{ marginBottom:20 }}>
-            <div style={{
-              padding:'24px 24px 22px',
-              background:'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
-              borderRadius:14,
-              color:'#fff',
-              boxShadow:'0 8px 32px rgba(30,58,138,0.35)',
-              marginBottom:14,
-            }}>
-              <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.55)', marginBottom:6 }}>
-                Already Active · Tier {n}
+          <div className="at-card">
+            <div className="at-inflight">
+              <div className="at-if-eyebrow">Already active · Tier {n}</div>
+              <div className="at-if-h">Your {tier.name} campaign is delivering views</div>
+              <div className="at-if-row">
+                <span>{(inFlight.views_delivered || 0).toLocaleString()} / {(inFlight.views_target || 0).toLocaleString()} views delivered</span>
+                <span className="at-if-pct">{Math.round((inFlight.views_delivered / inFlight.views_target) * 100)}%</span>
               </div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#fff', marginBottom:12, lineHeight:1.3 }}>
-                Your {tier.name} campaign is delivering views
-              </div>
-
-              {/* Progress bar */}
-              <div style={{ marginBottom:10 }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:6 }}>
-                  <span style={{ fontSize:13, color:'rgba(255,255,255,0.85)', fontWeight:600 }}>
-                    {(inFlight.views_delivered || 0).toLocaleString()} / {(inFlight.views_target || 0).toLocaleString()} views delivered
-                  </span>
-                  <span style={{ fontSize:14, fontWeight:800, color:'var(--sap-amber-bright)' }}>
-                    {Math.round((inFlight.views_delivered / inFlight.views_target) * 100)}%
-                  </span>
-                </div>
-                <div style={{ height:8, background:'rgba(255,255,255,0.12)', borderRadius:99, overflow:'hidden' }}>
-                  <div style={{
-                    height:'100%',
-                    width: Math.min(100, Math.round((inFlight.views_delivered / inFlight.views_target) * 100)) + '%',
-                    background:'linear-gradient(90deg, var(--sap-amber-bright), #fbbf24)',
-                    transition:'width 0.4s ease',
-                  }}/>
-                </div>
-              </div>
-
-              <div style={{ fontSize:13, color:'rgba(255,255,255,0.75)', lineHeight:1.6, marginTop:14 }}>
-                Once your campaign delivers all {(inFlight.views_target || 0).toLocaleString()} views, you'll be able to purchase Tier {n} again.
-              </div>
+              <div className="at-if-bar"><div style={{ width: Math.min(100, Math.round((inFlight.views_delivered / inFlight.views_target) * 100)) + '%' }} /></div>
+              <div className="at-if-note">Once your campaign delivers all {(inFlight.views_target || 0).toLocaleString()} views, you'll be able to purchase Tier {n} again.</div>
+              <Link to="/video-library" className="at-if-link">View My Campaigns →</Link>
             </div>
-
-            <Link to="/video-library" style={{
-              display:'flex', alignItems:'center', justifyContent:'center', gap:8,
-              width:'100%', padding:'14px 18px', borderRadius:12,
-              fontSize:14, fontWeight:700, textDecoration:'none',
-              background:'#fff', color:'var(--sap-accent)',
-              border:'1.5px solid #e2e8f0',
-              transition:'all 0.2s',
-            }}
-              onMouseOver={function(e){ e.currentTarget.style.borderColor='var(--sap-accent)'; }}
-              onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; }}
-            >
-              View My Campaigns →
-            </Link>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-            {/* 23 May 2026: Pay with card — Stripe Checkout. Positioned
-                first because it's the most familiar option for prospects.
-                Hidden when Stripe isn't configured. */}
-            {stripeReady && (
-              <button onClick={handleStripeCard} disabled={paying} style={{
-                display:'flex',alignItems:'center',justifyContent:'center',gap:12,
-                width:'100%', padding:'22px 20px', borderRadius:14,
-                fontSize:18, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
-                fontFamily:'inherit',
-                background: paying
-                  ? 'linear-gradient(135deg,#7dd3fc,#38bdf8,#0ea5e9)'
-                  : 'linear-gradient(135deg,#38bdf8,#0ea5e9,#0284c7)',
-                color:'#fff',
-                boxShadow: paying ? '0 4px 0 #075985,0 6px 20px rgba(14,165,233,.2)' : '0 4px 0 #075985,0 6px 24px rgba(14,165,233,.4)',
-                letterSpacing:0.3, transition:'all 0.2s',
-                opacity: paying ? 0.85 : 1,
-              }}>
+          <div className="at-card">
+            <div className="at-pay">
+              <div className="at-pay-h">Choose how to pay</div>
+
+              {stripeReady && (
+                <button className={'at-btn at-btn-card' + (paying ? ' busy' : '')} onClick={handleStripeCard} disabled={paying}>
+                  {paying ? (
+                    <><span className="at-spin" /><span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700 }}>Redirecting to secure checkout…</span></>
+                  ) : (
+                    <><div className="ic">💳</div><div className="tx"><b>{`Pay $${tier.price.toLocaleString()}`}</b><span>Debit or credit card</span></div></>
+                  )}
+                </button>
+              )}
+
+              {stripeReady && <div className="at-divider"><span>or pay with crypto</span></div>}
+
+              <Suspense fallback={null}>
+                <WalletConnectGate
+                  hideWhenConnected
+                  label={`Connect wallet — $${tier.price.toLocaleString()}`}
+                  restShadow="0 8px 20px -14px rgba(12,26,56,.3)"
+                  hoverShadow="0 12px 26px -14px rgba(34,211,238,.45)"
+                  style={WALLET_BTN_STYLE}
+                />
+                <WalletPayLink
+                  productType="grid"
+                  productKey={'grid_' + n}
+                  label={`Pay $${tier.price.toLocaleString()} from your wallet`}
+                  style={WALLET_BTN_STYLE}
+                />
+              </Suspense>
+
+              <button className={'at-btn at-btn-crypto' + (paying ? ' busy' : '')} onClick={handleNowPayments} disabled={paying}>
                 {paying ? (
-                  <>
-                    <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(255,255,255,.5)', borderTopColor:'#fff', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
-                    <span>Redirecting to secure checkout…</span>
-                  </>
+                  <><span className="at-spin" /><span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700 }}>Creating your secure invoice…</span></>
                 ) : (
-                  <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                    <span style={{fontSize:22}}>💳</span>
-                    <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.2 }}>
-                      <span>{`Pay $${tier.price.toLocaleString()}`}</span>
-                      <span style={{ fontSize:11, fontWeight:600, opacity:0.85, letterSpacing:0.5, textTransform:'uppercase', marginTop:2 }}>with debit or credit card</span>
-                    </div>
-                  </div>
+                  <><div className="ic"><Globe size={19} /></div><div className="tx"><b>{`Pay $${tier.price.toLocaleString()} with crypto`}</b><span>350+ coins · USDT, BTC, ETH</span></div></>
                 )}
               </button>
-            )}
 
-            {stripeReady && (
-              <div style={{ position:'relative', margin:'8px 0', textAlign:'center' }}>
-                <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
-                <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or pay with crypto</span>
-              </div>
-            )}
-
-            {/* Self-custody BSC pay rail.
-                Two components, mutually exclusive:
-                  - WalletConnectGate (hideWhenConnected): orange Connect
-                    button when disconnected, returns null when connected.
-                  - WalletPayLink: null when disconnected, Pay button
-                    when connected.
-                Pattern matches PartnerPayment / PayItForward / GridActivate
-                so the wallet rail is self-contained in every payment page
-                (topbar Connect button removed 24 May 2026 — members were
-                missing it). */}
-            <Suspense fallback={null}>
-              <WalletConnectGate
-                hideWhenConnected
-                label={`Connect Wallet — $${tier.price.toLocaleString()}`}
-                style={{
-                  width: '100%', padding: '12px 16px', borderRadius: 10,
-                  border: 'none', fontSize: 14, fontWeight: 800, color: '#fff',
-                  background: 'linear-gradient(135deg,#ea580c,#f97316)',
-                  boxShadow: '0 4px 14px rgba(249,115,22,.35)',
-                  fontFamily: 'Sora, sans-serif',
-                }}
-              />
-              <WalletPayLink
-                productType="grid"
-                productKey={'grid_' + n}
-                label={'Pay $' + tier.price + ' from wallet'}
-                style={{ padding: '12px 16px', fontSize: 14, borderRadius: 10 }}
-              />
-            </Suspense>
-
-            {/* "or" divider */}
-            <div style={{ position:'relative', margin:'8px 0', textAlign:'center' }}>
-              <div style={{ height:1, background:'#e2e8f0', position:'absolute', left:0, right:0, top:'50%' }}/>
-              <span style={{ position:'relative', background:'#fff', padding:'0 12px', fontSize:11, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, fontWeight:600 }}>or</span>
-            </div>
-
-            {/* NOWPayments primary — accepts 350+ cryptos including USDT-TRC20, easiest for new users */}
-            <button onClick={handleNowPayments} disabled={paying} style={{
-              display:'flex',alignItems:'center',justifyContent:'center',gap:12,
-              width:'100%', padding:'22px 20px', borderRadius:14,
-              fontSize:18, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
-              fontFamily:'inherit',
-              background: paying
-                ? 'linear-gradient(135deg,#a78bfa,#8b5cf6,#7c3aed)'
-                : 'linear-gradient(135deg,#8b5cf6,#7c3aed,#6d28d9)',
-              color:'#fff',
-              boxShadow: paying ? '0 4px 0 #5b21b6,0 6px 20px rgba(124,58,237,.2)' : '0 4px 0 #5b21b6,0 6px 24px rgba(124,58,237,.4)',
-              letterSpacing:0.3, transition:'all 0.2s',
-              opacity: paying ? 0.85 : 1,
-            }}>
-              {paying ? (
-                <>
-                  <span style={{ display:'inline-block', width:18, height:18, border:'2.5px solid rgba(255,255,255,.5)', borderTopColor:'#fff', borderRadius:'50%', animation:'sap-spin 0.8s linear infinite' }}/>
-                  <span>Creating your secure invoice…</span>
-                </>
-              ) : (
-                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                  <Globe size={22} />
-                  <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.2 }}>
-                    <span>{`Pay $${tier.price.toLocaleString()}`}</span>
-                    <span style={{ fontSize:11, fontWeight:600, opacity:0.8, letterSpacing:0.5, textTransform:'uppercase', marginTop:2 }}>via NOWPayments</span>
-                  </div>
-                </div>
-              )}
-            </button>
-            <style>{'@keyframes sap-spin{to{transform:rotate(360deg)}}'}</style>
-
-            <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>
-              {"\uD83D\uDD12"} Secure checkout · 350+ cryptos accepted (USDT, BTC, ETH, more)
-              <br/>
-              {"\u26A1"} Instant activation once payment confirms
+              <div className="at-trust">🔒 Secure checkout · instant activation once payment confirms</div>
             </div>
           </div>
         )}
 
-        <div style={{padding:'10px 14px',background:'var(--sap-amber-bg, #fef3c7)',border:'1px solid #fde68a',borderRadius:10,marginBottom:24,fontSize:12,color:'#92400e',lineHeight:1.5,textAlign:'center'}}>
-          <strong>Refunds:</strong> Commissions are paid instantly to other members on purchase. Card payments can be partially refunded within 7 days (the 5% company portion only). Crypto payments are final. See <a href="/refund-policy" target="_blank" style={{color:'#92400e',textDecoration:'underline'}}>refund policy</a> for details.
+        <div className="at-refund">
+          <strong>Refunds:</strong> Commissions are paid instantly to other members on purchase. Card payments can be partially refunded within 7 days (the 5% company portion only). Crypto payments are final. See <a href="/refund-policy" target="_blank" rel="noreferrer">refund policy</a> for details.
         </div>
 
-        <div style={{textAlign:'center',marginBottom:16}}>
-          <Link to="/campaign-tiers" style={{fontSize:13,color:'var(--sap-text-muted)',textDecoration:'none'}}>{t('campaignTiers.backToTiers')}</Link>
+        <div className="at-back">
+          <Link to="/campaign-tiers">{t('campaignTiers.backToTiers')}</Link>
         </div>
       </div>
       {consentModal}

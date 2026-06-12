@@ -650,15 +650,15 @@ export function WalletConnectGate(props) {
           // (Updated 9 May 2026.)
           background: 'linear-gradient(135deg,#ea580c,#f97316)',
           color: '#fff',
-          boxShadow: '0 4px 14px rgba(249,115,22,.35)',
+          boxShadow: props.restShadow || '0 4px 14px rgba(249,115,22,.35)',
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           gap: 8,
           letterSpacing: '.2px',
           transition: 'transform .15s, box-shadow .25s',
         }, props.style || {})}
-        onMouseOver={function(e) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(249,115,22,.45)'; }}
-        onMouseOut={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(249,115,22,.35)'; }}>
+        onMouseOver={function(e) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = props.hoverShadow || '0 6px 20px rgba(249,115,22,.45)'; }}
+        onMouseOut={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = props.restShadow || '0 4px 14px rgba(249,115,22,.35)'; }}>
         <span aria-hidden="true" style={{ fontSize: 18 }}>⛓</span>
         <span>{label}</span>
       </button>
