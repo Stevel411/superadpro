@@ -1184,35 +1184,9 @@ export default function Dashboard() {
           on 24 May 2026 — was previously buried below the data cards and
           getting missed by Free users. */}
 
-      {/* Active member but no Campaign Tier yet — nudge to buy first tier so
-          they can unlock Watch-to-Earn + Create Campaign + commission earning.
-          Only shown when user.is_active = true (membership paid) AND they have
-          no active Grid (highest_tier <= 0 or null). */}
-      {d.is_active && !(user?.highest_tier && user.highest_tier > 0) && (
-        <div style={{
-          background: 'linear-gradient(135deg,#dbeafe,#bfdbfe)', border: '1px solid #93c5fd',
-          borderRadius: 12, padding: '20px 24px', marginBottom: 20,
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
-        }}>
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <div style={{...TYPE.cardTitleBold, color: '#1e3a8a', marginBottom: 6}}>
-              ⚡ {t('dashboard.tierNudgeTitle', { defaultValue: 'Activate a Campaign Tier to start earning' })}
-            </div>
-            <p style={{...TYPE.bodyLarge, color: '#1e40af', margin: 0}}>
-              {t('dashboard.tierNudgeBody', { defaultValue: 'Your membership is active — now activate a Campaign Tier to unlock Watch-to-Earn, create your own video campaigns, and earn commissions on every downline tier purchase.' })}
-            </p>
-          </div>
-          <Link to="/campaign-tiers" style={{
-            fontSize: 14, fontWeight: 700, color: '#fff',
-            background: 'linear-gradient(135deg,#1e40af,#2563eb)',
-            padding: '11px 22px', borderRadius: 9, textDecoration: 'none',
-            boxShadow: '0 4px 14px rgba(30,64,175,0.35)', flexShrink: 0,
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-          }}>
-            {t('dashboard.tierNudgeCta', { defaultValue: 'View Campaign Tiers' })} →
-          </Link>
-        </div>
-      )}
+      {/* Active-member "Activate a Campaign Tier" nudge panel removed
+          12 Jun 2026 (Steve) — kept the dashboard clean. Campaign Tiers
+          remain reachable from My Business → Profit Grid and the sidebar. */}
 
       {/* Story prompt nudge — only shown to members with ≥1 paid commission who
           haven't submitted a story yet. Server-gated via /api/member/story/prompt-check.
