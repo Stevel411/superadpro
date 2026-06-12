@@ -3785,6 +3785,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             _func.count(Commission.id),
         ).filter(
             Commission.to_user_id == user.id,
+            Commission.status == "paid",  # exclude reversed (e.g. 12-Jun topup claw-back)
             Commission.commission_type == "direct_sponsor",
         ).first()
         if direct_row:
@@ -3796,23 +3797,28 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             _func.count(Commission.id),
         ).filter(
             Commission.to_user_id == user.id,
+            Commission.status == "paid",  # exclude reversed
             Commission.commission_type == "uni_level",
         ).first()
         if unilevel_row:
             unilevel_earned = float(unilevel_row[0] or 0)
             unilevel_fills = int(unilevel_row[1] or 0)
 
-        # Grid completion bonuses PAID to this user — the third earning stream
-        # (10% × 36 × tier price per completed advance). Lifetime, tier-agnostic
-        # (post-breach reconstructed rows carry NULL package_tier), mirroring the
-        # direct/unilevel sums above. Previously omitted from total_earned, so a
-        # member who completed a grid saw their paid bonus nowhere on the page.
+        # Grid completion bonuses PAID to this user — the third earning stream.
+        # status='paid' ONLY, and 'grid_completion_bonus' ONLY (NOT the topup type):
+        # the 12-Jun grid_completion_bonus_topup rows were the erroneous migration
+        # double-pays we clawed back (now status='reversed'). Counting them — which
+        # this query previously did — inflated both the completion total and the
+        # "N grids" count here vs the Analytics page (which already filters paid).
+        # Mirrors the direct/unilevel sums above. Lifetime, tier-agnostic (post-breach
+        # reconstructed rows carry NULL package_tier).
         bonus_row = db.query(
             _func.coalesce(_func.sum(Commission.amount_usdt), 0),
             _func.count(Commission.id),
         ).filter(
             Commission.to_user_id == user.id,
-            Commission.commission_type.in_(["grid_completion_bonus", "grid_completion_bonus_topup"]),
+            Commission.status == "paid",
+            Commission.commission_type == "grid_completion_bonus",
         ).first()
         if bonus_row:
             completion_bonus_paid = float(bonus_row[0] or 0)
