@@ -18454,8 +18454,18 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
     # 2. Compute scan floor from persisted cursor (changed 7 May 2026 from
     #    "oldest pending order age" — see estimate_scan_floor_block docstring).
     try:
-        w3 = _get_web3_bsc()
-        latest_block = w3.eth.block_number
+        # Floor-calc latest-block read MUST fail over on rate-limit, not only on
+        # connection failure. _get_web3_bsc() fails over only when the primary is
+        # UNREACHABLE; a connected-but-throttled Alchemy free tier returns a w3
+        # whose .eth.block_number then throws 429 / quota — which aborted the
+        # WHOLE cron at the 503 below, before the (already redundant) transfer
+        # scan ever ran. Net effect: full crypto-rail stall — zero confirmations,
+        # valid on-time payments left completely unseen (e.g. a $50 grid_2 paid
+        # 14s after order creation, never matched, order then expired). The fix:
+        # call_bsc_rpc_with_failover retries the block read across the public BSC
+        # dataseed fallbacks, so a throttled primary can no longer blind the cron.
+        from .withdrawals import call_bsc_rpc_with_failover
+        latest_block = call_bsc_rpc_with_failover("eth.block_number")
         scan_floor = estimate_scan_floor_block(db, latest_block)
         stats["latest_block"] = latest_block
         stats["scan_floor"] = scan_floor
