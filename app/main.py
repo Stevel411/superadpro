@@ -18329,6 +18329,99 @@ async def onchain_order_status(order_id: int,
     }
 
 
+# ── Self-healing scan-gap recovery (12 Jun 2026) ──────────────────────
+# When the scan floor is forced to skip ahead of the cursor — the cursor fell
+# more than MAX_SCAN_BLOCKS_PER_RUN behind the chain head (an extended lag or
+# wedge) — the skipped blocks were previously dropped SILENTLY: never scanned,
+# never orphaned, any payment in them lost until a manual on-chain reconcile.
+# That is what stranded SAP-00352's $50 grid_2. These helpers turn that silent
+# loss into self-healing recovery: the skipped range is enqueued into the
+# failed-chunk retry queue the scanner already re-scans every run (so any
+# payments get matched/orphaned automatically, often the same tick), and an
+# alert email fires. Bounded so a very long outage can't flood the retry table.
+GAP_AUTORECOVER_MAX_BLOCKS = 10000  # ~75 min at ~0.45s/block; older = alert only
+
+
+def _send_scan_gap_alert(gap_lo, gap_hi, recover_lo, total_blocks, older_unrecovered, chunks_enqueued):
+    """Best-effort email when the scanner skipped a gap (floor cap exceeded).
+    Never raises into the scan loop — caller wraps in try/except."""
+    from .email_utils import send_email
+    older_note = (
+        f"<div style='margin-top:8px;color:#b45309;'><strong>Older portion:</strong> "
+        f"{older_unrecovered} block(s) below {recover_lo} are beyond the auto-recover "
+        f"window — run <code>/admin/api/treasury-scan</code> over that range and "
+        f"reconcile any unattributed transfers via <code>/admin/api/reconcile-wc-order</code>.</div>"
+        if older_unrecovered > 0 else ""
+    )
+    subject = f"BSC scanner skipped a gap — {total_blocks} blocks [{gap_lo}-{gap_hi}]"
+    html_body = f"""
+    <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+      <h2 style="color:#dc2626;margin:0 0 16px;">BSC scanner skipped a block gap</h2>
+      <p style="font-size:14px;line-height:1.6;color:#334155;">
+        The scan cursor fell more than the catch-up cap behind the chain head, so the
+        scanner had to skip a range of blocks. Any payment that landed in this range
+        would otherwise have been missed. The recent portion has been queued for
+        automatic re-scan and recovery — activations should land over the next few
+        minutes with no action needed.
+      </p>
+      <div style="background:#f1f5f9;border-radius:10px;padding:16px;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:13px;">
+        <div><strong>Skipped range:</strong> {gap_lo} &rarr; {gap_hi} ({total_blocks} blocks)</div>
+        <div><strong>Auto-recovering:</strong> {recover_lo} &rarr; {gap_hi} ({chunks_enqueued} chunks queued for retry)</div>
+        {older_note}
+      </div>
+      <p style="font-size:13px;color:#475569;line-height:1.6;">
+        The failed-chunk retry pass re-scans the queued range every run and
+        matches/orphans any transfers found. No manual step is needed for the
+        auto-recovering portion.
+      </p>
+    </div>
+    """
+    send_email(to_email="stevelawsonmarketing@gmail.com", subject=subject, html_body=html_body)
+
+
+def _enqueue_skipped_gap(db, gap_lo, gap_hi):
+    """The scan floor skipped [gap_lo, gap_hi] because the cursor fell past the
+    catch-up cap. Enqueue the most-recent slice into the failed-chunk retry
+    queue in GETLOGS_WINDOW_BLOCKS-sized chunks so the existing retry pass
+    recovers any payments, then alert. Bounded by GAP_AUTORECOVER_MAX_BLOCKS so
+    a long outage can't flood the table; the older remainder is alert-only.
+
+    Idempotent: record_failed_chunk upserts on (from_block, to_block), so a
+    re-run over the same gap won't duplicate rows. Returns the chunk count.
+    """
+    from .walletconnect_payments import record_failed_chunk, GETLOGS_WINDOW_BLOCKS
+    if gap_hi < gap_lo:
+        return 0
+    total = gap_hi - gap_lo + 1
+    recover_lo = max(gap_lo, gap_hi - GAP_AUTORECOVER_MAX_BLOCKS + 1)
+    chunks_enqueued = 0
+    b = recover_lo
+    while b <= gap_hi:
+        chunk_hi = min(b + GETLOGS_WINDOW_BLOCKS - 1, gap_hi)
+        try:
+            record_failed_chunk(db, b, chunk_hi, "skipped_gap_cap_exceeded")
+            chunks_enqueued += 1
+        except Exception as e:
+            logger.error(f"_enqueue_skipped_gap: record_failed_chunk {b}-{chunk_hi} failed: {e}")
+        b = chunk_hi + 1
+    try:
+        db.commit()
+    except Exception as e:
+        logger.error(f"_enqueue_skipped_gap: commit failed: {e}")
+        db.rollback()
+    older_unrecovered = recover_lo - gap_lo
+    logger.warning(
+        f"inproc_bsc_scan: SCAN GAP {total} blocks [{gap_lo}-{gap_hi}] skipped by floor "
+        f"cap; queued {chunks_enqueued} chunk(s) from {recover_lo} for retry; "
+        f"{older_unrecovered} older block(s) need manual treasury-scan"
+    )
+    try:
+        _send_scan_gap_alert(gap_lo, gap_hi, recover_lo, total, older_unrecovered, chunks_enqueued)
+    except Exception as e:
+        logger.error(f"_enqueue_skipped_gap: alert failed: {e}")
+    return chunks_enqueued
+
+
 def _send_bsc_scan_failure_alert(from_block, to_block, attempt_count, first_seen_at, last_error):
     """Fire an email alert when a BSC scan chunk has failed ESCALATE_AT_ATTEMPTS
     times in a row. Sent once per chunk (alerted_at gate in caller prevents
@@ -18863,6 +18956,22 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
             stats["latest_block"] = latest_block
             stats["scan_floor"] = scan_floor
             stats["scanned_blocks"] = max(latest_block - scan_floor + 1, 0)
+            # GAP GUARD (12 Jun 2026): if the floor was forced ahead of the
+            # cursor (cursor fell > MAX_SCAN_BLOCKS_PER_RUN behind head), the
+            # skipped blocks would be SILENTLY lost — never scanned, never
+            # orphaned. Enqueue them into the failed-chunk retry queue (re-scanned
+            # this same tick and after) so any payments in them recover
+            # automatically, and alert. Only fires on a >cap lag, so a normal
+            # deploy restart (well under the cap) never trips it.
+            _prior_cursor = get_scan_cursor(db)
+            if _prior_cursor is not None and (_prior_cursor + 1) < scan_floor:
+                try:
+                    _queued = _enqueue_skipped_gap(db, _prior_cursor + 1, scan_floor - 1)
+                    stats["gap_blocks_skipped"] = scan_floor - 1 - _prior_cursor
+                    stats["gap_chunks_queued"] = _queued
+                except Exception as _ge:
+                    logger.error(f"inproc_bsc_scan: gap enqueue failed: {_ge}")
+                    stats["errors"].append(f"gap_enqueue: {_ge}")
         except Exception as e:
             logger.error(f"inproc_bsc_scan: floor calc failed: {e}")
             return {"error": f"BSC RPC unavailable: {e}", "stats": stats}
@@ -23418,8 +23527,18 @@ def admin_scanner_status(
     out["chain_head"] = head
     out["rpc_ok"] = rpc_ok
     if head is not None and cursor_block is not None:
-        out["blocks_behind"] = head - cursor_block
-        out["approx_minutes_behind"] = round((head - cursor_block) * 3 / 60, 1)  # ~3s/block
+        behind = head - cursor_block
+        out["blocks_behind"] = behind
+        out["approx_minutes_behind"] = round(behind * 0.45 / 60, 1)  # BSC ~0.45s/block
+        # Silent-skip cap: if the cursor falls > MAX_SCAN_BLOCKS_PER_RUN behind
+        # head the floor caps and the excess is now self-healed via the retry
+        # queue, but surface proximity to that threshold as an early warning.
+        try:
+            from .walletconnect_payments import MAX_SCAN_BLOCKS_PER_RUN as _CAP
+            out["silent_skip_cap_blocks"] = _CAP
+            out["near_skip_cap"] = behind > int(_CAP * 0.7)
+        except Exception:
+            pass
 
     # 3. Daemon thread liveness (THIS replica only)
     names = [t.name for t in _thr.enumerate()]
