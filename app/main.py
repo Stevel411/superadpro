@@ -3751,7 +3751,7 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     # Bonus pool
     bonus_accrued = float(grid_record.bonus_pool_accrued or 0) if grid_record else 0
     from .database import GRID_COMPLETION_BONUS
-    bonus_max = (completion_bonus_for(grid_record.total_seats, GRID_PACKAGES.get(tier, 0)) if grid_record else 0.0)
+    bonus_max = (completion_bonus_for(grid_record.total_seats, GRID_PACKAGES.get(tier, 0)) if grid_record else completion_bonus_for(16, GRID_PACKAGES.get(tier, 0)))
 
     # Per-grid commission breakdown (added 21 May 2026 for the redesigned
     # visualiser). Live ledger reads — sum Commission rows where grid_id
@@ -3852,14 +3852,15 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             "advance": cg.advance_number,
             "completed_at": cg.completed_at.isoformat() if cg.completed_at else None,
             "filled": len(cg_seats),
-            "bonus_paid": (bonus_max if cg.bonus_paid else 0.0),
+            "total_seats": (cg.total_seats or 36),
+            "bonus_paid": (round(float(cg.bonus_pool_accrued or 0), 2) if cg.bonus_paid else 0.0),
             "seats": cg_seats,
         })
 
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
-        "total": grid_record.total_seats,
+        "total": ((grid_record.total_seats if grid_record else None) or 16),
         "tier": tier,
         "price": GRID_PACKAGES.get(tier, 0),
         "advance": grid_record.advance_number if grid_record else completed + 1,
@@ -5785,12 +5786,12 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
 
     bonus_accrued = float(grid_record.bonus_pool_accrued or 0) if grid_record else 0
     from .database import GRID_COMPLETION_BONUS
-    bonus_max = (completion_bonus_for(grid_record.total_seats, GRID_PACKAGES.get(tier, 0)) if grid_record else 0.0)
+    bonus_max = (completion_bonus_for(grid_record.total_seats, GRID_PACKAGES.get(tier, 0)) if grid_record else completion_bonus_for(16, GRID_PACKAGES.get(tier, 0)))
 
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
-        "total": grid_record.total_seats,
+        "total": ((grid_record.total_seats if grid_record else None) or 16),
         "tier": tier,
         "price": GRID_PACKAGES.get(tier, 0),
         "advance": grid_record.advance_number if grid_record else completed + 1,

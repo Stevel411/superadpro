@@ -3,7 +3,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 
 /*
- * Profit Grid Visualiser — 6×6 / 36-seat model (25 May 2026).
+ * Profit Grid Visualiser — 4×4 / 16-seat model (12 Jun 2026).
  *
  * Steve cut the grid from 8×8/64 to 6×6/36. Uni-level commission depth
  * stays at 8 (unchanged) — the grid is now a visualisation of a slice
@@ -20,17 +20,17 @@ import { apiGet } from '../utils/api';
  */
 
 var TIERS = [
-  { t:1, name:'Starter',   price:20,   bonus:72   },
-  { t:2, name:'Builder',   price:50,   bonus:180  },
-  { t:3, name:'Pro',       price:100,  bonus:360  },
-  { t:4, name:'Advanced',  price:200,  bonus:720  },
-  { t:5, name:'Premium',   price:400,  bonus:1440 },
-  { t:6, name:'Elite',     price:600,  bonus:2160 },
-  { t:7, name:'Master',    price:800,  bonus:2880 },
-  { t:8, name:'Champion',  price:1000, bonus:3600 },
+  { t:1, name:'Starter',   price:20,   bonus:64   },
+  { t:2, name:'Builder',   price:50,   bonus:160  },
+  { t:3, name:'Pro',       price:100,  bonus:320  },
+  { t:4, name:'Advanced',  price:200,  bonus:640  },
+  { t:5, name:'Premium',   price:400,  bonus:1280 },
+  { t:6, name:'Elite',     price:600,  bonus:1920 },
+  { t:7, name:'Master',    price:800,  bonus:2560 },
+  { t:8, name:'Champion',  price:1000, bonus:3200 },
 ];
 
-var TOTAL_SEATS = 36;
+var DEFAULT_SEATS = 16;
 
 var DIRECT_GRAD = 'linear-gradient(135deg,#b45309 0%,#d97706 30%,#fbbf24 65%,#fde047 100%)';
 var SPILLOVER_GRAD = 'linear-gradient(135deg,#0891b2 0%,#06b6d4 50%,#22d3ee 100%)';
@@ -131,8 +131,9 @@ export default function GridVisualiser() {
   useEffect(function() { setViewAdvance(null); }, [activeTier]);
 
   var tier = TIERS[activeTier - 1];
+  var liveSeats = (data && data.total) ? data.total : DEFAULT_SEATS;
   var filled = data ? data.filled : 0;
-  var pct = Math.round(filled / TOTAL_SEATS * 100);
+  var pct = Math.round(filled / liveSeats * 100);
   var seats = data ? data.seats : [];
   var bonusAccrued = data ? data.bonus_accrued : 0;
   var bonusMax = data ? data.bonus_max : tier.bonus;
@@ -142,11 +143,11 @@ export default function GridVisualiser() {
   var totalEarned = data ? data.total_earned : 0;
   var directFills = data ? data.direct_fills : 0;
   var unilevelFills = data ? data.unilevel_fills : 0;
-  var directPerFill = data ? data.direct_per_fill : tier.price * 0.40;
+  var directPerFill = data ? data.direct_per_fill : tier.price * 0.30;
   var unilevelPerFill = data ? data.unilevel_per_fill : tier.price * 0.0625;
   var directCount = data ? data.direct_count : 0;
   var completedAdvances = data ? data.completed_advances : 0;
-  var seatsToUnlock = Math.max(0, TOTAL_SEATS - filled);
+  var seatsToUnlock = Math.max(0, liveSeats - filled);
   var completedGrids = data && data.completed_grids ? data.completed_grids : [];
   var completionBonusPaid = data ? (data.completion_bonus_paid || 0) : 0;
   var completionBonusCount = data ? (data.completion_bonus_count || 0) : 0;
@@ -155,13 +156,16 @@ export default function GridVisualiser() {
   // advance they tapped. Only the LEFT board card swaps; right-hand stats stay live.
   var viewedCompleted = viewAdvance !== null ? completedGrids.find(function(g){ return g.advance === viewAdvance; }) : null;
   var boardSeats = viewedCompleted ? viewedCompleted.seats : seats;
-  var boardFilled = viewedCompleted ? (viewedCompleted.filled || TOTAL_SEATS) : filled;
-  var boardPct = Math.round(boardFilled / TOTAL_SEATS * 100);
-  var boardSeatsToUnlock = Math.max(0, TOTAL_SEATS - boardFilled);
+  var boardTotal = viewedCompleted ? ((viewedCompleted.total_seats || viewedCompleted.filled) || liveSeats) : liveSeats;
+  var boardCols = Math.max(1, Math.round(Math.sqrt(boardTotal)));
+  var boardBonus = viewedCompleted ? (viewedCompleted.bonus_paid || bonusMax) : bonusMax;
+  var boardFilled = viewedCompleted ? (viewedCompleted.filled || boardTotal) : filled;
+  var boardPct = Math.round(boardFilled / boardTotal * 100);
+  var boardSeatsToUnlock = Math.max(0, boardTotal - boardFilled);
   var currentAdvanceNum = data ? data.advance : (completedAdvances + 1);
 
   return (
-    <AppLayout title="Profit Grid" subtitle="Your 6×6 spillover grid — bonus at seat 36">
+    <AppLayout title="Profit Grid" subtitle={'Your ' + Math.round(Math.sqrt(liveSeats)) + '×' + Math.round(Math.sqrt(liveSeats)) + ' spillover grid — bonus at seat ' + liveSeats}>
       <style>{css}</style>
       <div style={{ maxWidth:1180, margin:'0 auto' }}>
 
@@ -169,7 +173,7 @@ export default function GridVisualiser() {
             Scoped to Campaign Tiers / Profit Grid with the proof breakdown. */}
         <div className="lgv-claim">
           <span className="big">SuperAdPro shares <b>100% of Campaign Tier revenue</b> back to the community</span>
-          <span className="split">100% of Profit Grid commissions go to affiliates — 40% direct · 50% across the 8-level uni-level · 10% completion bonus · 0% to the company</span>
+          <span className="split">100% of Profit Grid commissions go to affiliates — 30% direct · 50% across the 8-level uni-level · 20% completion bonus · 0% to the company</span>
         </div>
 
         {/* Enlarged tier cards — two rows of four, each showing all three ways
@@ -177,7 +181,7 @@ export default function GridVisualiser() {
         <div className="lgv-tiers-grid">
           {TIERS.map(function(t) {
             var isActive = activeTier === t.t;
-            var direct = t.price * 0.40;
+            var direct = t.price * 0.30;
             var spill = t.price * 0.0625;
             return (
               <div key={t.t} className={'lgv-tcard' + (isActive ? ' active' : '')}
@@ -209,7 +213,7 @@ export default function GridVisualiser() {
           <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, overflow:'hidden', boxShadow:'0 4px 20px rgba(10,20,56,0.04)' }}>
             <div style={{ background:COBALT_HEADER, padding:'16px 22px', display:'flex', justifyContent:'space-between', alignItems:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, color:'#fff', letterSpacing:'-0.3px', position:'relative', zIndex:1 }}>T{tier.t} {tier.name} — ${tier.price}{viewedCompleted ? <span style={{ fontSize:12, fontWeight:700, color:'#a7f3d0', marginLeft:8 }}>· Grid {viewedCompleted.advance} ✓ complete</span> : null}</div>
-              <div style={{ fontSize:12.5, color:'rgba(255,255,255,0.85)', fontWeight:600, fontFamily:'JetBrains Mono,monospace', position:'relative', zIndex:1 }}>{boardFilled} of {TOTAL_SEATS} · {boardPct}%</div>
+              <div style={{ fontSize:12.5, color:'rgba(255,255,255,0.85)', fontWeight:600, fontFamily:'JetBrains Mono,monospace', position:'relative', zIndex:1 }}>{boardFilled} of {boardTotal} · {boardPct}%</div>
               <div style={{ position:'absolute', top:'-50%', right:'-10%', width:280, height:'200%', background:'radial-gradient(circle,rgba(56,189,248,0.15),transparent 65%)', pointerEvents:'none' }}/>
             </div>
             <div style={{ padding:'18px 22px' }}>
@@ -223,13 +227,13 @@ export default function GridVisualiser() {
                     return (
                       <button key={'cg'+cg.advance} onClick={function(){ setViewAdvance(cg.advance); }}
                         style={{ cursor:'pointer', border:'1px solid '+(active?'#10b981':'#cbd5e1'), background:active?'#ecfdf5':'#fff', color:active?'#047857':'#475569', borderRadius:8, padding:'6px 12px', fontFamily:'DM Sans,sans-serif', fontSize:12.5, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
-                        <span style={{ color:'#10b981' }}>✓</span> Grid {cg.advance} · 36/36{cg.bonus_paid ? ' · $'+cg.bonus_paid.toFixed(0) : ''}
+                        <span style={{ color:'#10b981' }}>✓</span> Grid {cg.advance} · {cg.total_seats}/{cg.total_seats}{cg.bonus_paid ? ' · $'+cg.bonus_paid.toFixed(0) : ''}
                       </button>
                     );
                   })}
                   <button onClick={function(){ setViewAdvance(null); }}
                     style={{ cursor:'pointer', border:'1px solid '+(viewAdvance===null?'#0891b2':'#cbd5e1'), background:viewAdvance===null?'#ecfeff':'#fff', color:viewAdvance===null?'#0e7490':'#475569', borderRadius:8, padding:'6px 12px', fontFamily:'DM Sans,sans-serif', fontSize:12.5, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
-                    <span style={{ width:7, height:7, borderRadius:'50%', background:'#0891b2', display:'inline-block' }}/> Grid {currentAdvanceNum} · now ({filled}/36)
+                    <span style={{ width:7, height:7, borderRadius:'50%', background:'#0891b2', display:'inline-block' }}/> Grid {currentAdvanceNum} · now ({filled}/{liveSeats})
                   </button>
                 </div>
               ) : null}
@@ -254,22 +258,22 @@ export default function GridVisualiser() {
               {viewedCompleted && boardSeats.length === 0 ? (
                 <div style={{ background:'#ecfdf5', border:'1px solid #a7f3d0', borderRadius:12, padding:'28px 24px', textAlign:'center' }}>
                   <div style={{ fontSize:34, lineHeight:1, marginBottom:10, color:'#10b981' }}>✓</div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#047857', marginBottom:8 }}>Grid {viewedCompleted.advance} completed — all 36 seats filled</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#047857', marginBottom:8 }}>Grid {viewedCompleted.advance} completed — all {viewedCompleted.total_seats} seats filled</div>
                   <div style={{ fontSize:13.5, color:'#475569', fontWeight:600, lineHeight:1.5, maxWidth:460, margin:'0 auto' }}>
                     This grid completed and {viewedCompleted.bonus_paid ? ('its $' + viewedCompleted.bonus_paid.toFixed(0) + ' completion bonus was paid') : 'its completion bonus was processed'}. The individual seat records for this advance predate the 3 June reset and aren&rsquo;t available to display — the completion and bonus remain intact in your earnings.
                   </div>
                 </div>
               ) : (
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
-                {Array.from({length:TOTAL_SEATS}, function(_,i) {
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(' + boardCols + ',1fr)', gap:10, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
+                {Array.from({length:boardTotal}, function(_,i) {
                   var pos = i + 1;
                   var seat = boardSeats.find(function(s){ return s.position === pos; });
-                  var isCompletionSeat = pos === TOTAL_SEATS;
+                  var isCompletionSeat = pos === boardTotal;
                   if (seat) {
                     var isDirect = seat.is_direct;
                     var bg = isCompletionSeat ? BONUS_GRAD : (isDirect ? DIRECT_GRAD : SPILLOVER_GRAD);
                     var tileClass = 'lgv-tile ' + (isCompletionSeat ? 'completion-filled' : (isDirect ? 'direct' : 'spillover'));
-                    var seatMoney = isCompletionSeat ? bonusMax : (isDirect ? directPerFill : unilevelPerFill);
+                    var seatMoney = isCompletionSeat ? boardBonus : (isDirect ? directPerFill : unilevelPerFill);
                     return (
                       <div key={i} className={tileClass} style={{ background:bg }}
                            title={seat.username + ' · ' + (isDirect ? 'Direct' : 'Spillover') + ' · ' + seat.member_id + (isCompletionSeat ? ' · Completion seat' : '')}>
@@ -283,11 +287,11 @@ export default function GridVisualiser() {
                   if (isCompletionSeat) {
                     return (
                       <div key={i} className="lgv-tile completion-empty" style={{ background:BONUS_GRAD }}
-                           title={'Position ' + TOTAL_SEATS + ' — fill this to unlock the completion bonus'}>
+                           title={'Position ' + boardTotal + ' — fill this to unlock the completion bonus'}>
                         <div className="lgv-pos" style={{ color:'rgba(255,255,255,0.7)', fontWeight:800 }}>{pos}</div>
                         <div style={{ fontSize:30, lineHeight:1, color:'#fff', textShadow:'0 2px 6px rgba(76,29,149,0.4)', marginBottom:4 }}>♛</div>
                         <div style={{ fontFamily:'Sora,sans-serif', fontSize:9, fontWeight:800, color:'#fff', textTransform:'uppercase', letterSpacing:'1px', textAlign:'center', lineHeight:1.2, textShadow:'0 1px 2px rgba(76,29,149,0.3)' }}>Bonus<br/>seat</div>
-                        <div className="lgv-money">+${bonusMax.toFixed(2)}</div>
+                        <div className="lgv-money">+${boardBonus.toFixed(2)}</div>
                       </div>
                     );
                   }
@@ -315,7 +319,7 @@ export default function GridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Direct referrals</div>
-                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>40% direct sponsor</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>30% direct sponsor</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, letterSpacing:'-0.4px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
                     ${directEarned.toFixed(2)}
@@ -337,7 +341,7 @@ export default function GridVisualiser() {
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                     <div>
                       <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Completion bonuses</div>
-                      <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#6d28d9', background:'#f5f3ff', border:'1px solid #e9d5ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{completionBonusCount} grid{completionBonusCount===1?'':'s'} · 10% bonus</div>
+                      <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#6d28d9', background:'#f5f3ff', border:'1px solid #e9d5ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{completionBonusCount} grid{completionBonusCount===1?'':'s'} · 20% bonus</div>
                     </div>
                     <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, background:BONUS_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', letterSpacing:'-0.4px' }}>
                       ${completionBonusPaid.toFixed(2)}
@@ -365,7 +369,7 @@ export default function GridVisualiser() {
                   ${bonusMax.toFixed(2)}
                 </div>
                 <div style={{ fontSize:13, color:'#475569', fontWeight:600, marginBottom:11 }}>
-                  10% × {TOTAL_SEATS} seats × ${tier.price} tier
+                  20% × {liveSeats} seats × ${tier.price} tier
                 </div>
                 <div style={{ display:'inline-block', background:'linear-gradient(135deg,#7c3aed 0%,#a78bfa 100%)', color:'#fff', fontSize:12, fontWeight:800, padding:'6px 14px', borderRadius:99, marginTop:4, fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.4px', boxShadow:'0 3px 10px rgba(124,58,237,0.3)' }}>
                   {seatsToUnlock} seats to unlock
@@ -388,7 +392,7 @@ export default function GridVisualiser() {
                 <div>
                   <div style={{ fontSize:12.5, color:'#0891b2', fontWeight:700, letterSpacing:'0.4px', textTransform:'uppercase', marginBottom:6 }}>Positions</div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:25, fontWeight:800, color:'#0a1438', lineHeight:1, letterSpacing:'-0.5px' }}>
-                    {filled}<span style={{ fontSize:14, color:'#94a3b8', fontWeight:600 }}>/{TOTAL_SEATS}</span>
+                    {filled}<span style={{ fontSize:14, color:'#94a3b8', fontWeight:600 }}>/{liveSeats}</span>
                   </div>
                   <div style={{ fontSize:12.5, color:'#475569', fontWeight:600, marginTop:5 }}>{pct}% to bonus</div>
                 </div>
