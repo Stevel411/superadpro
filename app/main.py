@@ -23360,6 +23360,88 @@ def admin_reconcile_wc_order(
     return JSONResponse(plan, status_code=200)
 
 
+@app.get("/admin/api/scanner-status")
+def admin_scanner_status(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY health check for the in-process BSC scanner.
+
+    Reports, in one tap:
+      - the scan cursor and how long since it last advanced. This is the
+        AUTHORITATIVE cross-replica signal: the cursor lives in shared DB
+        (AppConfig 'wc_scan_cursor', updated_at stamped on every advance),
+        so if it's stale the scanner has stalled regardless of which replica
+        answers.
+      - chain head + how far behind the cursor is (also proves RPC works via
+        the same failover path the scanner uses).
+      - whether the bsc-scanner daemon thread is alive in THIS replica.
+      - pending failed scan chunks.
+
+    No writes. Built 12 Jun 2026 to triage a scanner stall without digging
+    Railway logs from mobile.
+    """
+    _require_admin(user)
+    from .database import AppConfig
+    from .walletconnect_payments import get_pending_failed_chunks
+    from .withdrawals import call_bsc_rpc_with_failover
+    from datetime import datetime as _dt
+    import threading as _thr
+
+    out = {}
+
+    # 1. Scan cursor + last advance (authoritative, shared DB)
+    row = db.query(AppConfig).filter(AppConfig.key == "wc_scan_cursor").first()
+    cursor_block, secs_since = None, None
+    if row:
+        try:
+            cursor_block = int(row.value)
+        except Exception:
+            cursor_block = None
+        out["cursor_last_advanced"] = row.updated_at.isoformat() if row.updated_at else None
+        if row.updated_at:
+            secs_since = int((_dt.utcnow() - row.updated_at).total_seconds())
+    else:
+        out["cursor_last_advanced"] = None
+        out["note_cursor"] = "no wc_scan_cursor row — scanner may never have run"
+    out["cursor_block"] = cursor_block
+    out["seconds_since_cursor_advanced"] = secs_since
+    out["minutes_since_cursor_advanced"] = round(secs_since / 60, 1) if secs_since is not None else None
+
+    # 2. Chain head + gap (also proves the failover RPC path works)
+    head, rpc_ok = None, False
+    try:
+        head = int(call_bsc_rpc_with_failover("eth.block_number"))
+        rpc_ok = True
+    except Exception as e:
+        out["rpc_error"] = f"{type(e).__name__}: {str(e)[:140]}"
+    out["chain_head"] = head
+    out["rpc_ok"] = rpc_ok
+    if head is not None and cursor_block is not None:
+        out["blocks_behind"] = head - cursor_block
+        out["approx_minutes_behind"] = round((head - cursor_block) * 3 / 60, 1)  # ~3s/block
+
+    # 3. Daemon thread liveness (THIS replica only)
+    names = [t.name for t in _thr.enumerate()]
+    out["bsc_scanner_thread_alive"] = "bsc-scanner" in names
+    out["security_watch_thread_alive"] = "security-watch" in names
+
+    # 4. Failed chunks
+    try:
+        out["pending_failed_chunks"] = len(get_pending_failed_chunks(db, limit=500))
+    except Exception as e:
+        out["pending_failed_chunks_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+
+    # 5. Verdict
+    if secs_since is None:
+        out["verdict"] = "UNKNOWN — no cursor timestamp"
+    elif secs_since > 300:
+        out["verdict"] = f"STALLED — cursor idle {round(secs_since/60,1)} min (healthy is under ~2 min)"
+    else:
+        out["verdict"] = "HEALTHY — cursor advancing"
+    return JSONResponse(out, status_code=200)
+
+
 @app.get("/admin/api/grid-payment-audit")
 def admin_grid_payment_audit(
     only_flagged: bool = False,
