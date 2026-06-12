@@ -16,19 +16,19 @@ var TIERS = [
 // Mirror production GridVisualiser exactly (frontend/src/pages/GridVisualiser.jsx
 // lines 35-40). When a member uses the calculator, they should see the same
 // visual story they'll get on their real grid — gold tiles for direct
-// referrals, cyan tiles for spillover, purple bonus seat at position 36.
+// referrals, cyan tiles for spillover, purple bonus seat at position 16.
 var DIRECT_GRAD    = 'linear-gradient(135deg,#b45309 0%,#d97706 30%,#fbbf24 65%,#fde047 100%)';
 var SPILLOVER_GRAD = 'linear-gradient(135deg,#0891b2 0%,#06b6d4 50%,#22d3ee 100%)';
 var BONUS_GRAD     = 'linear-gradient(135deg,#4c1d95 0%,#7c3aed 50%,#c4b5fd 100%)';
 var COBALT_HEADER  = 'linear-gradient(135deg,#172554 0%,#1e3a8a 100%)';
 var CYAN_PROGRESS  = 'linear-gradient(90deg,#0891b2,#06b6d4,#22d3ee)';
 
-// 25 May 2026 — grid reshaped from 8×8/64 to 6×6/36; bonus stays at 10%.
-// Position 36 is the BONUS SEAT — purple gradient, unlocks the completion
+// 12 Jun 2026 — grid reshaped to 4×4/16; completion bonus 20%.
+// Position 16 is the BONUS SEAT — purple gradient, unlocks the completion
 // bonus when filled. Matches production grid layout 1:1.
-var TOTAL_SEATS = 36;
-var BONUS_SEAT_INDEX = 35;  // 0-indexed (position 36)
-var BONUS_PCT = 0.10;
+var TOTAL_SEATS = 16;
+var BONUS_SEAT_INDEX = 15;  // 0-indexed (position 16)
+var BONUS_PCT = 0.20;
 
 var consonants = 'BCDFGHJKLMNPRSTV';
 var vowels = 'AEIOU';
@@ -55,7 +55,7 @@ export default function GridCalculator() {
 
   var tier = TIERS[activeTier - 1];
   var price = tier.price;
-  var directRate = 0.40;
+  var directRate = 0.30;
   var uniRate = 0.0625;
   var bonusTotal = price * BONUS_PCT * TOTAL_SEATS;
   var spillCount = TOTAL_SEATS - personalCount;
@@ -113,7 +113,7 @@ export default function GridCalculator() {
 
       var entry = {
         type: commType, name: seat.name, isPersonal: seat.isPersonal, amount: commAmount,
-        text: seat.name + (seat.isPersonal ? ' (Personal) — $' + commAmount.toFixed(2) + ' direct 40%' : ' (Spillover) — $' + commAmount.toFixed(2) + ' uni-level 6.25%')
+        text: seat.name + (seat.isPersonal ? ' (Personal) — $' + commAmount.toFixed(2) + ' direct 30%' : ' (Spillover) — $' + commAmount.toFixed(2) + ' uni-level 6.25%')
       };
       feedRef.current = [entry].concat(feedRef.current).slice(0, 30);
       setFeed(feedRef.current.slice());
@@ -150,7 +150,7 @@ export default function GridCalculator() {
   var complete = filled >= TOTAL_SEATS;
 
   return (
-    <AppLayout title={t('gridCalc.pageTitle')} subtitle="See how your 6×6 profit grid fills and earns">
+    <AppLayout title={t('gridCalc.pageTitle')} subtitle="See how your 4×4 profit grid fills and earns">
       <style>{`
         @keyframes gc-popIn { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.12)} 100%{transform:scale(1);opacity:1} }
         @keyframes gc-glowGold { 0%,100%{box-shadow:0 4px 14px rgba(217,119,6,0.4), 0 0 0 0 rgba(251,191,36,0.45)} 50%{box-shadow:0 6px 20px rgba(217,119,6,0.55), 0 0 0 6px rgba(251,191,36,0)} }
