@@ -443,6 +443,7 @@ class Grid(Base):
     bonus_paid      = Column(Boolean, default=False)       # True if completion bonus paid
     bonus_rolled_over = Column(Boolean, default=False)     # True if bonus rolled to next advance (no active campaign)
     climb_pending     = Column(Boolean, default=False, index=True)  # Grid Accelerator (12 Jun 2026): set True when a QUALIFIED 16-seat tier 1-4 grid completes. The post-commit drain loop in process_tier_purchase reads this, buys the next tier (the climb) + pays the bonus remainder, then clears it. Deferred (not inline) because the climb's spillover can complete more grids — inline re-entrant commits would corrupt state. Legacy 36-seat grids never set this.
+    retired_at        = Column(DateTime, nullable=True, index=True)  # Cut-off (12 Jun 2026): set together with is_complete=True when a legacy 36-seat grid is retired so spillover stops filling it and get_or_create_active_grid mints a fresh 16-seat grid on next activity. Selection logic keys off is_complete (so no query changes needed); retired_at only distinguishes a retired grid from a genuinely completed one for display/audit.
     created_at      = Column(DateTime, default=datetime.utcnow)
     completed_at    = Column(DateTime, nullable=True)
 
@@ -3683,6 +3684,7 @@ try:
         except Exception:
             pass
         conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS climb_pending BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS retired_at TIMESTAMP"))
         conn.commit()
 except Exception as e:
     print(f"⚠️ grids.climb_pending un-gated column add failed: {e}")

@@ -14253,6 +14253,119 @@ def admin_api_missed_commission_audit(
     })
 
 
+@app.get("/admin/api/grid-cutoff")
+def admin_grid_cutoff(
+    apply: int = 0,
+    code: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Cut-off: settle + retire every legacy 36-seat grid in one controlled op.
+
+    DRY-RUN by default (apply=0): shows exactly what would be settled/retired,
+    no writes. APPLY (apply=1 + TOTP ?code=NNNNNN) settles each legacy
+    incomplete grid's GENUINELY-EARNED bonus = positions_filled x tier price x
+    10% (NOT the 26-May topped-up bonus_pool_accrued), credits the owner's
+    withdrawable balance, then marks the grid is_complete=True + retired_at=now
+    so spillover stops filling it and get_or_create_active_grid mints a fresh
+    16-seat grid on the owner's next activity.
+
+    Money mutation -> 2FA-gated apply (dry-run doctrine). Idempotent: only
+    grids with retired_at IS NULL are processed, so a re-run never
+    double-settles. One commit at the end -> all-or-nothing. 12 Jun 2026.
+    """
+    _require_admin(user)
+    from .database import (Grid, User as _User, NEW_GRID_SEATS,
+                           LEGACY_BONUS_POOL_PCT, GRID_PACKAGES)
+    from .grid import _record_commission
+    from sqlalchemy import func as _func
+    from datetime import datetime as _dt
+
+    RATE = float(LEGACY_BONUS_POOL_PCT)  # 0.10 — legacy grids keep the old rate
+
+    grids = (db.query(Grid)
+             .filter(Grid.is_complete == False,
+                     _func.coalesce(Grid.total_seats, 36) != NEW_GRID_SEATS,
+                     Grid.retired_at == None)
+             .all())
+
+    plan = []          # (grid, earned, seats)
+    per_tier = {}
+    for g in grids:
+        seats = int(g.positions_filled or 0)
+        price = float(GRID_PACKAGES.get(g.package_tier, float(g.package_price or 0)))
+        earned = round(seats * price * RATE, 2)
+        plan.append((g, earned, seats))
+        pt = per_tier.setdefault(g.package_tier,
+                                 {"tier": g.package_tier, "grids": 0,
+                                  "seats_filled": 0, "settle_usd": 0.0})
+        pt["grids"] += 1
+        pt["seats_filled"] += seats
+        pt["settle_usd"] = round(pt["settle_usd"] + earned, 2)
+
+    total_settle = round(sum(e for _, e, _ in plan), 2)
+    members = len({g.owner_id for g, _, _ in plan})
+
+    out = {
+        "mode": "APPLY" if apply == 1 else "DRY-RUN",
+        "legacy_grids_to_retire": len(plan),
+        "distinct_members": members,
+        "total_settle_usd": total_settle,
+        "settle_wallet": "balance (withdrawable affiliate wallet)",
+        "rate": RATE,
+        "by_tier": sorted(per_tier.values(),
+                          key=lambda r: (r["tier"] is None,
+                                         r["tier"] if r["tier"] is not None else -1)),
+        "note": ("Settle = positions_filled x tier price x 10% (genuinely earned from real "
+                 "seat-fills; NOT the 26-May topped bonus_pool_accrued). Credits owner "
+                 "withdrawable balance, then retires the grid (is_complete=True + retired_at) "
+                 "so a fresh 16-seat grid is minted on next activity. Qualification waived "
+                 "given trivial per-member amounts."),
+    }
+
+    if apply != 1:
+        out["next"] = "Review the figures, then re-call with &apply=1&code=YOUR_TOTP to execute."
+        return JSONResponse(out, status_code=200,
+                            headers={"Cache-Control": "no-store, no-cache, max-age=0"})
+
+    # ---- APPLY (2FA-gated) ----
+    _require_admin_2fa(user, code)
+
+    now = _dt.utcnow()
+    retired = 0
+    settled_usd = 0.0
+    for g, earned, seats in plan:
+        owner = db.query(_User).filter(_User.id == g.owner_id).first()
+        if owner and earned > 0:
+            owner.balance        = decimal.Decimal(str(owner.balance or 0)) + decimal.Decimal(str(earned))
+            owner.total_earned   = decimal.Decimal(str(owner.total_earned or 0)) + decimal.Decimal(str(earned))
+            owner.bonus_earnings = decimal.Decimal(str(owner.bonus_earnings or 0)) + decimal.Decimal(str(earned))
+            _record_commission(
+                db, g.owner_id, g.owner_id, earned, "grid_completion_bonus",
+                f"Cut-off settle: {seats} filled seats x tier {g.package_tier} price x 10% "
+                f"= ${earned:.2f} (legacy 36-seat grid retired)",
+                g.package_tier,
+            )
+            db.add(owner)
+        # Make the stored pool honest, then retire (paid so no sweeper re-pays it).
+        g.bonus_pool_accrued = decimal.Decimal(str(earned))
+        g.is_complete = True
+        g.bonus_paid  = True
+        g.owner_paid  = True
+        g.retired_at  = now
+        db.add(g)
+        retired += 1
+        settled_usd = round(settled_usd + earned, 2)
+
+    db.commit()
+
+    out["mode"] = "APPLIED"
+    out["grids_retired"] = retired
+    out["total_settled_usd"] = settled_usd
+    return JSONResponse(out, status_code=200,
+                        headers={"Cache-Control": "no-store, no-cache, max-age=0"})
+
+
 @app.get("/admin/api/grid-integrity-audit")
 def admin_api_grid_integrity_audit(
     user: User = Depends(get_current_user),
