@@ -9665,6 +9665,121 @@ def admin_api_activation_funnel(
     })
 
 
+@app.get("/admin/api/grid-distribution")
+def admin_api_grid_distribution(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only transition diagnostic: how many grids are open and how many
+    members sit in each, bucketed by fill level and tier.
+
+    Grounds the 36 -> 16 seat transition decision in exact numbers.
+    positions_filled is the operative seat count (it drives completion).
+    A grid at >= 16 would complete immediately if converted to 16-seat;
+    >16 carries (positions_filled - 16) overflow seats. Pure read — no
+    mutation, no model change.
+    """
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from .database import Grid, GridPosition, GRID_TIER_NAMES, GRID_PACKAGES
+    NEW_SEATS = 16
+
+    grids = db.query(Grid).all()
+    open_grids = [g for g in grids if not g.is_complete]
+    complete_grids = [g for g in grids if g.is_complete]
+
+    def bucket(n):
+        if n < NEW_SEATS:  return "under_16"
+        if n == NEW_SEATS: return "at_16"
+        if n < 36:         return "over_16_to_35"
+        return "36_or_more_anomaly"
+
+    # Live ledger truth per grid. positions_filled is a denormalised counter
+    # and can drift above reality (e.g. a deleted account's GridPosition rows
+    # are gone but the increments it made on upline grids were never rolled
+    # back). Base the real analysis on actual placement rows; report the
+    # counter + drift alongside so we can see the bug's footprint.
+    from sqlalchemy import func as _f
+    pos_counts = dict(
+        db.query(GridPosition.grid_id, _f.count(GridPosition.id))
+          .group_by(GridPosition.grid_id).all()
+    )
+
+    by_tier = {}
+    past16 = []                # REAL placements >= 16 (the truth that matters)
+    past16_by_counter = 0      # counter alone says >= 16 (for contrast)
+    total_accrued_past16 = 0.0
+    total_overflow_seats = 0
+    drift_open = 0
+    for g in open_grids:
+        pf = int(g.positions_filled or 0)
+        actual = int(pos_counts.get(g.id, 0))
+        drift_open += (pf - actual)
+        tier = g.package_tier
+        t = by_tier.setdefault(tier, {
+            "tier": tier, "name": GRID_TIER_NAMES.get(tier, "?"),
+            "price": float(GRID_PACKAGES.get(tier, 0)),
+            "open_grids": 0,
+            "members_placed_actual": 0, "members_placed_counter": 0,
+            "buckets_by_actual": {"under_16": 0, "at_16": 0, "over_16_to_35": 0, "36_or_more_anomaly": 0},
+            "grids_really_past_16": 0, "accrued_in_those": 0.0,
+        })
+        t["open_grids"] += 1
+        t["members_placed_actual"] += actual
+        t["members_placed_counter"] += pf
+        t["buckets_by_actual"][bucket(actual)] += 1
+        if pf >= NEW_SEATS:
+            past16_by_counter += 1
+        if actual >= NEW_SEATS:
+            acc = float(g.bonus_pool_accrued or 0)
+            t["grids_really_past_16"] += 1
+            t["accrued_in_those"] += acc
+            total_accrued_past16 += acc
+            total_overflow_seats += max(0, actual - NEW_SEATS)
+            past16.append({
+                "grid_id": g.id, "owner_id": g.owner_id, "tier": tier,
+                "advance": g.advance_number,
+                "positions_filled_counter": pf,
+                "actual_placements": actual,
+                "counter_drift": pf - actual,
+                "overflow_over_16_real": max(0, actual - NEW_SEATS),
+                "accrued": round(acc, 2),
+            })
+
+    for t in by_tier.values():
+        t["accrued_in_those"] = round(t["accrued_in_those"], 2)
+
+    drift_complete = sum(int(g.positions_filled or 0) - int(pos_counts.get(g.id, 0)) for g in complete_grids)
+    open_actual = [int(pos_counts.get(g.id, 0)) for g in open_grids]
+    counter_sum = sum(int(g.positions_filled or 0) for g in grids)
+    actual_positions = db.query(GridPosition).count()
+
+    return JSONResponse({
+        "summary": {
+            "total_grids": len(grids),
+            "open_grids": len(open_grids),
+            "complete_grids": len(complete_grids),
+            "grids_REALLY_past_16_by_actual_placements": len(past16),
+            "grids_past_16_by_counter_only": past16_by_counter,
+            "total_overflow_seats_over_16_real": total_overflow_seats,
+            "total_accrued_in_real_past16_grids": round(total_accrued_past16, 2),
+            "avg_real_members_per_open_grid": round(sum(open_actual) / len(open_actual), 1) if open_actual else 0,
+            "max_real_members_in_an_open_grid": max(open_actual) if open_actual else 0,
+            "counter_integrity": {
+                "sum_positions_filled": counter_sum,
+                "actual_gridposition_rows": int(actual_positions),
+                "total_drift": counter_sum - int(actual_positions),
+                "drift_in_open_grids": drift_open,
+                "drift_in_complete_grids": drift_complete,
+            },
+        },
+        "by_tier": sorted(by_tier.values(), key=lambda x: x["tier"]),
+        "grids_really_past_16": sorted(past16, key=lambda x: (-x["actual_placements"], x["tier"])),
+    })
+
+
 @app.get("/admin/api/user-fulfillment")
 def admin_api_user_fulfillment(
     request: Request,
@@ -18354,6 +18469,99 @@ async def onchain_order_status(order_id: int,
     }
 
 
+# ── Self-healing scan-gap recovery (12 Jun 2026) ──────────────────────
+# When the scan floor is forced to skip ahead of the cursor — the cursor fell
+# more than MAX_SCAN_BLOCKS_PER_RUN behind the chain head (an extended lag or
+# wedge) — the skipped blocks were previously dropped SILENTLY: never scanned,
+# never orphaned, any payment in them lost until a manual on-chain reconcile.
+# That is what stranded SAP-00352's $50 grid_2. These helpers turn that silent
+# loss into self-healing recovery: the skipped range is enqueued into the
+# failed-chunk retry queue the scanner already re-scans every run (so any
+# payments get matched/orphaned automatically, often the same tick), and an
+# alert email fires. Bounded so a very long outage can't flood the retry table.
+GAP_AUTORECOVER_MAX_BLOCKS = 10000  # ~75 min at ~0.45s/block; older = alert only
+
+
+def _send_scan_gap_alert(gap_lo, gap_hi, recover_lo, total_blocks, older_unrecovered, chunks_enqueued):
+    """Best-effort email when the scanner skipped a gap (floor cap exceeded).
+    Never raises into the scan loop — caller wraps in try/except."""
+    from .email_utils import send_email
+    older_note = (
+        f"<div style='margin-top:8px;color:#b45309;'><strong>Older portion:</strong> "
+        f"{older_unrecovered} block(s) below {recover_lo} are beyond the auto-recover "
+        f"window — run <code>/admin/api/treasury-scan</code> over that range and "
+        f"reconcile any unattributed transfers via <code>/admin/api/reconcile-wc-order</code>.</div>"
+        if older_unrecovered > 0 else ""
+    )
+    subject = f"BSC scanner skipped a gap — {total_blocks} blocks [{gap_lo}-{gap_hi}]"
+    html_body = f"""
+    <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+      <h2 style="color:#dc2626;margin:0 0 16px;">BSC scanner skipped a block gap</h2>
+      <p style="font-size:14px;line-height:1.6;color:#334155;">
+        The scan cursor fell more than the catch-up cap behind the chain head, so the
+        scanner had to skip a range of blocks. Any payment that landed in this range
+        would otherwise have been missed. The recent portion has been queued for
+        automatic re-scan and recovery — activations should land over the next few
+        minutes with no action needed.
+      </p>
+      <div style="background:#f1f5f9;border-radius:10px;padding:16px;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:13px;">
+        <div><strong>Skipped range:</strong> {gap_lo} &rarr; {gap_hi} ({total_blocks} blocks)</div>
+        <div><strong>Auto-recovering:</strong> {recover_lo} &rarr; {gap_hi} ({chunks_enqueued} chunks queued for retry)</div>
+        {older_note}
+      </div>
+      <p style="font-size:13px;color:#475569;line-height:1.6;">
+        The failed-chunk retry pass re-scans the queued range every run and
+        matches/orphans any transfers found. No manual step is needed for the
+        auto-recovering portion.
+      </p>
+    </div>
+    """
+    send_email(to_email="stevelawsonmarketing@gmail.com", subject=subject, html_body=html_body)
+
+
+def _enqueue_skipped_gap(db, gap_lo, gap_hi):
+    """The scan floor skipped [gap_lo, gap_hi] because the cursor fell past the
+    catch-up cap. Enqueue the most-recent slice into the failed-chunk retry
+    queue in GETLOGS_WINDOW_BLOCKS-sized chunks so the existing retry pass
+    recovers any payments, then alert. Bounded by GAP_AUTORECOVER_MAX_BLOCKS so
+    a long outage can't flood the table; the older remainder is alert-only.
+
+    Idempotent: record_failed_chunk upserts on (from_block, to_block), so a
+    re-run over the same gap won't duplicate rows. Returns the chunk count.
+    """
+    from .walletconnect_payments import record_failed_chunk, GETLOGS_WINDOW_BLOCKS
+    if gap_hi < gap_lo:
+        return 0
+    total = gap_hi - gap_lo + 1
+    recover_lo = max(gap_lo, gap_hi - GAP_AUTORECOVER_MAX_BLOCKS + 1)
+    chunks_enqueued = 0
+    b = recover_lo
+    while b <= gap_hi:
+        chunk_hi = min(b + GETLOGS_WINDOW_BLOCKS - 1, gap_hi)
+        try:
+            record_failed_chunk(db, b, chunk_hi, "skipped_gap_cap_exceeded")
+            chunks_enqueued += 1
+        except Exception as e:
+            logger.error(f"_enqueue_skipped_gap: record_failed_chunk {b}-{chunk_hi} failed: {e}")
+        b = chunk_hi + 1
+    try:
+        db.commit()
+    except Exception as e:
+        logger.error(f"_enqueue_skipped_gap: commit failed: {e}")
+        db.rollback()
+    older_unrecovered = recover_lo - gap_lo
+    logger.warning(
+        f"inproc_bsc_scan: SCAN GAP {total} blocks [{gap_lo}-{gap_hi}] skipped by floor "
+        f"cap; queued {chunks_enqueued} chunk(s) from {recover_lo} for retry; "
+        f"{older_unrecovered} older block(s) need manual treasury-scan"
+    )
+    try:
+        _send_scan_gap_alert(gap_lo, gap_hi, recover_lo, total, older_unrecovered, chunks_enqueued)
+    except Exception as e:
+        logger.error(f"_enqueue_skipped_gap: alert failed: {e}")
+    return chunks_enqueued
+
+
 def _send_bsc_scan_failure_alert(from_block, to_block, attempt_count, first_seen_at, last_error):
     """Fire an email alert when a BSC scan chunk has failed ESCALATE_AT_ATTEMPTS
     times in a row. Sent once per chunk (alerted_at gate in caller prevents
@@ -18479,8 +18687,18 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
     # 2. Compute scan floor from persisted cursor (changed 7 May 2026 from
     #    "oldest pending order age" — see estimate_scan_floor_block docstring).
     try:
-        w3 = _get_web3_bsc()
-        latest_block = w3.eth.block_number
+        # Floor-calc latest-block read MUST fail over on rate-limit, not only on
+        # connection failure. _get_web3_bsc() fails over only when the primary is
+        # UNREACHABLE; a connected-but-throttled Alchemy free tier returns a w3
+        # whose .eth.block_number then throws 429 / quota — which aborted the
+        # WHOLE cron at the 503 below, before the (already redundant) transfer
+        # scan ever ran. Net effect: full crypto-rail stall — zero confirmations,
+        # valid on-time payments left completely unseen (e.g. a $50 grid_2 paid
+        # 14s after order creation, never matched, order then expired). The fix:
+        # call_bsc_rpc_with_failover retries the block read across the public BSC
+        # dataseed fallbacks, so a throttled primary can no longer blind the cron.
+        from .withdrawals import call_bsc_rpc_with_failover
+        latest_block = call_bsc_rpc_with_failover("eth.block_number")
         scan_floor = estimate_scan_floor_block(db, latest_block)
         stats["latest_block"] = latest_block
         stats["scan_floor"] = scan_floor
@@ -18878,6 +19096,22 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
             stats["latest_block"] = latest_block
             stats["scan_floor"] = scan_floor
             stats["scanned_blocks"] = max(latest_block - scan_floor + 1, 0)
+            # GAP GUARD (12 Jun 2026): if the floor was forced ahead of the
+            # cursor (cursor fell > MAX_SCAN_BLOCKS_PER_RUN behind head), the
+            # skipped blocks would be SILENTLY lost — never scanned, never
+            # orphaned. Enqueue them into the failed-chunk retry queue (re-scanned
+            # this same tick and after) so any payments in them recover
+            # automatically, and alert. Only fires on a >cap lag, so a normal
+            # deploy restart (well under the cap) never trips it.
+            _prior_cursor = get_scan_cursor(db)
+            if _prior_cursor is not None and (_prior_cursor + 1) < scan_floor:
+                try:
+                    _queued = _enqueue_skipped_gap(db, _prior_cursor + 1, scan_floor - 1)
+                    stats["gap_blocks_skipped"] = scan_floor - 1 - _prior_cursor
+                    stats["gap_chunks_queued"] = _queued
+                except Exception as _ge:
+                    logger.error(f"inproc_bsc_scan: gap enqueue failed: {_ge}")
+                    stats["errors"].append(f"gap_enqueue: {_ge}")
         except Exception as e:
             logger.error(f"inproc_bsc_scan: floor calc failed: {e}")
             return {"error": f"BSC RPC unavailable: {e}", "stats": stats}
@@ -21244,9 +21478,17 @@ def _nowpayments_activate_product(db, user, order, meta):
     elif order.product_type == "grid":
         package_tier = int(product_key.split("_")[1])
         from .grid import process_tier_purchase
-        # Idempotency: key on the NOWPayments order id so a re-fired IPN
-        # callback can't double-pay the grid commission chain (28 May 2026).
-        _np_event = order.internal_order_id or (f"np_{order.np_payment_id}" if order.np_payment_id else None)
+        # Idempotency: key on the order id so a re-fired callback can't
+        # double-pay the grid commission chain (28 May 2026). internal_order_id
+        # and np_payment_id exist on NOWPayments orders but NOT on
+        # WalletConnectPaymentOrder, which the BSC scanner ALSO routes through
+        # this shared activator -- bare attribute access threw AttributeError and
+        # silently failed EVERY WalletConnect grid activation (surfaced by the
+        # reconcile endpoint on SAP-00352 grid_2). getattr-guard both and fall
+        # back to a stable per-order key so WC grids still get a replay guard.
+        _np_event = (getattr(order, "internal_order_id", None)
+                     or (f"np_{order.np_payment_id}" if getattr(order, "np_payment_id", None) else None)
+                     or f"wcorder_{order.id}")
         result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier,
                                        source_event_id=_np_event)
         if not result["success"]:
@@ -23361,6 +23603,443 @@ def _reconcile_grid_payment(db, grid, owner, models):
         "completion_bonus_rows": [(c.id, float(c.amount_usdt or 0)) for c in bonus_rows],
         "completion_bonus_paid": round(sum(float(c.amount_usdt or 0) for c in bonus_rows), 2),
     }
+
+
+@app.get("/admin/api/reconcile-wc-order")
+def admin_reconcile_wc_order(
+    order_id: int,
+    tx_hash: str,
+    apply: int = 0,
+    code: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Reconcile a WalletConnect order whose on-chain payment the scanner never
+    matched (scanner outage -> order expired with funds already in the
+    treasury). Verifies the tx ON-CHAIN (USDT -> treasury, amount ==
+    order.unique_amount, via the SAME redundant treasury parser the scanner
+    uses), then runs the IDENTICAL activation the scanner runs on a match:
+    idempotent confirmed Payment row + the canonical _nowpayments_activate_
+    product handler (grid placement, up-chain commissions, completion pool).
+
+    Safety:
+      - Session-authed admin only (_require_admin). No secret in the URL.
+      - apply=0 (default) = READ-ONLY dry run: mutates nothing, reports the
+        plan and the on-chain verification result.
+      - apply=1 requires ?code=NNNNNN (admin TOTP).
+      - Idempotent: Payment.tx_hash=wc_{tx} dedup + the order is flipped to
+        status='confirmed' so a recovered scanner can't re-match it. A second
+        apply is a no-op.
+
+    Built 12 Jun 2026 after a scanner outage stranded a verified $50 grid_2
+    payment (SAP-00352) -- the standing tool for any payment the scanner missed.
+    """
+    _require_admin(user)
+    from .database import (WalletConnectPaymentOrder as _WC, Payment as _P,
+                           User as _U)
+    from .withdrawals import call_bsc_rpc_with_failover
+    from .walletconnect_payments import get_treasury_transfers_in_range_redundant
+    import json as _json, pyotp
+
+    tx_hash = (tx_hash or "").strip().lower()
+    if not (tx_hash.startswith("0x") and len(tx_hash) == 66):
+        return JSONResponse({"error": "bad_tx_hash", "detail": "expected 0x + 64 hex"}, status_code=200)
+
+    order = db.query(_WC).filter(_WC.id == order_id).first()
+    if not order:
+        return JSONResponse({"error": "order_not_found", "order_id": order_id}, status_code=200)
+    buyer = db.query(_U).filter(_U.id == order.user_id).first()
+    if not buyer:
+        return JSONResponse({"error": "buyer_missing", "user_id": order.user_id}, status_code=200)
+
+    # ── On-chain verification (reuses the scanner's own treasury parser) ──
+    try:
+        tx = call_bsc_rpc_with_failover("eth.get_transaction", tx_hash)
+    except Exception as e:
+        return JSONResponse({"error": f"rpc_get_transaction_failed: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
+    if not tx or tx.get("blockNumber") is None:
+        return JSONResponse({"error": "tx_not_found_or_pending", "tx_hash": tx_hash}, status_code=200)
+    blk = int(tx["blockNumber"])
+    try:
+        transfers, providers_ok, last_err = get_treasury_transfers_in_range_redundant(blk, blk)
+    except Exception as e:
+        return JSONResponse({"error": f"treasury_scan_failed: {type(e).__name__}: {str(e)[:120]}"}, status_code=200)
+    if providers_ok == 0:
+        return JSONResponse({"error": "no_rpc_provider_succeeded", "detail": str(last_err)[:160] if last_err else None}, status_code=200)
+    match = next((t for t in transfers if (t.get("tx_hash") or "").lower() == tx_hash), None)
+    if not match:
+        return JSONResponse({"error": "tx_is_not_a_treasury_usdt_transfer", "block": blk}, status_code=200)
+
+    verified_amount = float(match.get("amount_usdt") or 0)
+    sender = match.get("from_address")
+    expected = float(order.unique_amount or 0)
+    amount_ok = abs(verified_amount - expected) <= 0.01
+    tx_ref = f"wc_{tx_hash}"
+    already = db.query(_P).filter(_P.tx_hash.in_([tx_ref, tx_hash])).first()
+
+    plan = {
+        "order_id": order.id, "user_id": buyer.id, "username": buyer.username,
+        "product": f"{order.product_type}/{order.product_key}",
+        "order_status": order.status, "expected_amount": expected,
+        "verified_onchain_amount": verified_amount, "amount_match": amount_ok,
+        "sender": sender, "block": blk, "already_attributed": bool(already),
+        "apply": int(apply),
+    }
+
+    if not amount_ok:
+        plan["error"] = "amount_mismatch — refusing to activate"
+        return JSONResponse(plan, status_code=200)
+    if apply != 1:
+        plan["dry_run"] = True
+        plan["note"] = "Verified. Re-run with &apply=1&code=NNNNNN (admin TOTP) to activate."
+        return JSONResponse(plan, status_code=200)
+
+    # ── APPLY (2FA-gated) ──
+    if not getattr(user, "totp_secret", None) or not pyotp.TOTP(user.totp_secret).verify((code or "").strip(), valid_window=1):
+        return JSONResponse({"error": "invalid_2fa_code"}, status_code=200)
+    if already:
+        plan["applied"] = False
+        plan["note"] = "Already attributed — no-op (idempotent)."
+        return JSONResponse(plan, status_code=200)
+
+    try:
+        order.tx_hash = tx_hash
+        db.add(_P(
+            from_user_id=buyer.id, to_user_id=None,
+            amount_usdt=order.unique_amount,
+            payment_type=f"walletconnect_{order.product_type}",
+            tx_hash=tx_ref, status="confirmed",
+        ))
+        db.flush()
+        # _nowpayments_activate_product reads order.price_usd on some rails;
+        # alias base_amount onto the instance exactly as the scanner does.
+        if getattr(order, "price_usd", None) is None:
+            try:
+                order.price_usd = order.base_amount
+            except Exception:
+                object.__setattr__(order, "price_usd", order.base_amount)
+        meta = _json.loads(order.product_meta) if order.product_meta else {}
+        _nowpayments_activate_product(db, buyer, order, meta)
+        order.status = "confirmed"
+        db.add(order)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.exception(f"reconcile-wc-order apply failed for order {order_id}")
+        return JSONResponse({"error": f"activation_failed: {type(e).__name__}: {str(e)[:160]}", "plan": plan}, status_code=200)
+
+    plan["applied"] = True
+    plan["note"] = "Activated via the canonical handler — grid placed, commissions + completion pool paid."
+    return JSONResponse(plan, status_code=200)
+
+
+@app.get("/admin/api/scanner-status")
+def admin_scanner_status(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY health check for the in-process BSC scanner.
+
+    Reports, in one tap:
+      - the scan cursor and how long since it last advanced. This is the
+        AUTHORITATIVE cross-replica signal: the cursor lives in shared DB
+        (AppConfig 'wc_scan_cursor', updated_at stamped on every advance),
+        so if it's stale the scanner has stalled regardless of which replica
+        answers.
+      - chain head + how far behind the cursor is (also proves RPC works via
+        the same failover path the scanner uses).
+      - whether the bsc-scanner daemon thread is alive in THIS replica.
+      - pending failed scan chunks.
+
+    No writes. Built 12 Jun 2026 to triage a scanner stall without digging
+    Railway logs from mobile.
+    """
+    _require_admin(user)
+    from .database import AppConfig
+    from .walletconnect_payments import get_pending_failed_chunks
+    from .withdrawals import call_bsc_rpc_with_failover
+    from datetime import datetime as _dt
+    import threading as _thr
+
+    out = {}
+
+    # 1. Scan cursor + last advance (authoritative, shared DB)
+    row = db.query(AppConfig).filter(AppConfig.key == "wc_scan_cursor").first()
+    cursor_block, secs_since = None, None
+    if row:
+        try:
+            cursor_block = int(row.value)
+        except Exception:
+            cursor_block = None
+        out["cursor_last_advanced"] = row.updated_at.isoformat() if row.updated_at else None
+        if row.updated_at:
+            secs_since = int((_dt.utcnow() - row.updated_at).total_seconds())
+    else:
+        out["cursor_last_advanced"] = None
+        out["note_cursor"] = "no wc_scan_cursor row — scanner may never have run"
+    out["cursor_block"] = cursor_block
+    out["seconds_since_cursor_advanced"] = secs_since
+    out["minutes_since_cursor_advanced"] = round(secs_since / 60, 1) if secs_since is not None else None
+
+    # 2. Chain head + gap (also proves the failover RPC path works)
+    head, rpc_ok = None, False
+    try:
+        head = int(call_bsc_rpc_with_failover("eth.block_number"))
+        rpc_ok = True
+    except Exception as e:
+        out["rpc_error"] = f"{type(e).__name__}: {str(e)[:140]}"
+    out["chain_head"] = head
+    out["rpc_ok"] = rpc_ok
+    if head is not None and cursor_block is not None:
+        behind = head - cursor_block
+        out["blocks_behind"] = behind
+        out["approx_minutes_behind"] = round(behind * 0.45 / 60, 1)  # BSC ~0.45s/block
+        # Silent-skip cap: if the cursor falls > MAX_SCAN_BLOCKS_PER_RUN behind
+        # head the floor caps and the excess is now self-healed via the retry
+        # queue, but surface proximity to that threshold as an early warning.
+        try:
+            from .walletconnect_payments import MAX_SCAN_BLOCKS_PER_RUN as _CAP
+            out["silent_skip_cap_blocks"] = _CAP
+            out["near_skip_cap"] = behind > int(_CAP * 0.7)
+        except Exception:
+            pass
+
+    # 3. Daemon thread liveness (THIS replica only)
+    names = [t.name for t in _thr.enumerate()]
+    out["bsc_scanner_thread_alive"] = "bsc-scanner" in names
+    out["security_watch_thread_alive"] = "security-watch" in names
+
+    # 4. Failed chunks
+    try:
+        out["pending_failed_chunks"] = len(get_pending_failed_chunks(db, limit=500))
+    except Exception as e:
+        out["pending_failed_chunks_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+
+    # 5. Verdict
+    if secs_since is None:
+        out["verdict"] = "UNKNOWN — no cursor timestamp"
+    elif secs_since > 300:
+        out["verdict"] = f"STALLED — cursor idle {round(secs_since/60,1)} min (healthy is under ~2 min)"
+    else:
+        out["verdict"] = "HEALTHY — cursor advancing"
+    return JSONResponse(out, status_code=200)
+
+
+@app.get("/admin/api/grid-seat-census")
+def admin_grid_seat_census(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY census of grids by seat size — gates the Grid Accelerator merge.
+
+    The climb engine (feature/16-seat-cycler) only changes behaviour for
+    16-seat grids; legacy 36-seat grids are untouched. This answers in one tap:
+    how many 16-seat grids are live right now (so we know whether deploying the
+    climb goes active immediately or sits inert), broken down by tier and by
+    whether the owner genuinely bought the tier vs a spillover-created grid.
+
+    Also reports any climb_pending flags (will read column_not_present_yet
+    until the branch merges — that itself confirms the engine isn't deployed)
+    and the recycle_balance exposure (the wallet the new completion path stops
+    writing to — tells us whether retiring it would strand real money).
+
+    No writes. Built 12 Jun 2026.
+    """
+    _require_admin(user)
+    from .database import Grid, User as _User
+    from sqlalchemy import func as _func
+
+    out = {"generated_at": datetime.utcnow().isoformat()}
+    import traceback as _tb
+    total_live16 = 0
+
+    try:
+        # 1. Grids grouped by seat size (16 = new cycler, 36 = legacy, other = stray).
+        totals = {r[0]: r[1] for r in
+                  db.query(Grid.total_seats, _func.count(Grid.id))
+                  .group_by(Grid.total_seats).all()}
+        completes = {r[0]: r[1] for r in
+                     db.query(Grid.total_seats, _func.count(Grid.id))
+                     .filter(Grid.is_complete == True)
+                     .group_by(Grid.total_seats).all()}
+        by_seats = {}
+        for seats, total in totals.items():
+            key = str(seats if seats is not None else "null")
+            t = int(total or 0)
+            c = int(completes.get(seats, 0) or 0)
+            by_seats[key] = {"total": t, "complete": c, "incomplete": t - c}
+        out["grids_by_seats"] = by_seats
+
+        # 2. The actionable bit: LIVE (incomplete) 16-seat grids by tier.
+        n_by_tier = {r[0]: r[1] for r in
+                     db.query(Grid.package_tier, _func.count(Grid.id))
+                     .filter(Grid.total_seats == 16, Grid.is_complete == False)
+                     .group_by(Grid.package_tier).all()}
+        owned_by_tier = {r[0]: r[1] for r in
+                         db.query(Grid.package_tier, _func.count(Grid.id))
+                         .filter(Grid.total_seats == 16, Grid.is_complete == False,
+                                 Grid.owner_purchased == True)
+                         .group_by(Grid.package_tier).all()}
+        live_rows = []
+        for tier in sorted(n_by_tier.keys(), key=lambda x: (x is None, x if x is not None else -1)):
+            n = int(n_by_tier.get(tier, 0) or 0)
+            owned = int(owned_by_tier.get(tier, 0) or 0)
+            live_rows.append({
+                "tier": tier,
+                "grids": n,
+                "owner_purchased": owned,
+                "spillover_created": n - owned,
+            })
+        out["live_16_seat_incomplete_by_tier"] = live_rows
+        total_live16 = sum(r["grids"] for r in live_rows)
+        out["live_16_seat_incomplete_total"] = total_live16
+    except Exception as e:
+        db.rollback()
+        out["seat_census_error"] = {
+            "type": type(e).__name__,
+            "detail": str(e),
+            "trace_tail": _tb.format_exc().splitlines()[-6:],
+        }
+
+    # 3. climb_pending sanity. On main (pre-merge) the column/attr doesn't exist,
+    #    so this reads column_not_present_yet — which itself confirms the climb
+    #    engine isn't deployed. Post-merge it returns the live pending count.
+    try:
+        out["climb_pending_count"] = int(
+            db.query(_func.count(Grid.id)).filter(Grid.climb_pending == True).scalar() or 0
+        )
+    except Exception:
+        db.rollback()
+        out["climb_pending_count"] = "column_not_present_yet"
+
+    # 4. recycle_balance exposure — what retiring the recycle wallet would touch.
+    try:
+        rc_users = int(db.query(_func.count(_User.id)).filter(_User.recycle_balance > 0).scalar() or 0)
+        rc_total = float(db.query(_func.coalesce(_func.sum(_User.recycle_balance), 0)).scalar() or 0)
+        out["recycle_wallet"] = {"users_with_balance": rc_users, "total_held": rc_total}
+    except Exception as e:
+        db.rollback()
+        out["recycle_wallet"] = {"error": f"{type(e).__name__}: {e}"}
+
+    # 5. Plain-English verdict for the merge decision.
+    if total_live16 == 0:
+        out["verdict"] = (
+            "No live 16-seat grids. Deploying the climb engine is INERT — it "
+            "changes nothing until 16-seat grids exist (seat migration or "
+            "new-grid creation stamping 16). Safe to merge/deploy first, then "
+            "migrate seats deliberately."
+        )
+    else:
+        out["verdict"] = (
+            f"{total_live16} live 16-seat grid(s) exist. The climb engine goes "
+            "ACTIVE for these on deploy — their next completion runs the "
+            "climb/cash-out/absorb path, not the old recycle split. Snapshot the "
+            "DB and pick a window before merge."
+        )
+
+    # 6. CUT-OFF SETTLEMENT COST — the "settle it" financial impact.
+    #    Sum of accrued 10% bonus across all incomplete grids = what would be
+    #    added to member wallets if we pay out accrued bonus at the cut-off.
+    #    bonus_pool_accrued exists on prod (unlike total_seats), and on prod
+    #    every grid is effectively 36-seat, so this is the full settlement figure.
+    try:
+        rows = (db.query(Grid.package_tier,
+                         _func.count(Grid.id),
+                         _func.coalesce(_func.sum(Grid.bonus_pool_accrued), 0))
+                .filter(Grid.is_complete == False)
+                .group_by(Grid.package_tier).all())
+        by_tier = []
+        for tier, n, accrued in rows:
+            by_tier.append({
+                "tier": tier,
+                "incomplete_grids": int(n or 0),
+                "accrued_bonus_usd": round(float(accrued or 0), 2),
+            })
+        by_tier.sort(key=lambda r: (r["tier"] is None, r["tier"] if r["tier"] is not None else -1))
+        members = int(db.query(_func.count(_func.distinct(Grid.owner_id)))
+                      .filter(Grid.is_complete == False).scalar() or 0)
+        out["cutoff_settlement"] = {
+            "incomplete_grids": sum(r["incomplete_grids"] for r in by_tier),
+            "distinct_members": members,
+            "total_accrued_bonus_usd": round(sum(r["accrued_bonus_usd"] for r in by_tier), 2),
+            "by_tier": by_tier,
+            "note": ("Gross upper bound — assumes every grid owner is qualified. "
+                     "Unqualified owners would company-absorb at completion, so the "
+                     "real settle cost is this or lower."),
+        }
+    except Exception as e:
+        db.rollback()
+        out["cutoff_settlement"] = {"error": f"{type(e).__name__}: {e}"}
+
+    return JSONResponse(out, status_code=200)
+
+
+@app.get("/admin/api/settlement-estimate")
+def admin_settlement_estimate(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY cut-off settlement cost on a FRESH path with no-store headers.
+
+    Cloudflare has been serving a stale /health {status:ok} on the
+    grid-seat-census path regardless of query-string busters. This is a
+    never-before-requested path (no cache entry to serve) and explicitly
+    sets Cache-Control: no-store so CF can't cache it going forward.
+
+    Sums accrued 10% bonus across all incomplete grids = the one-time amount
+    the "settle it" cut-off would add to member wallets. Gross upper bound
+    (assumes every owner qualified; unqualified owners company-absorb).
+    No writes. Built 12 Jun 2026.
+    """
+    _require_admin(user)
+    from .database import Grid, GRID_PACKAGES
+    from sqlalchemy import func as _func
+
+    out = {"generated_at": datetime.utcnow().isoformat()}
+    try:
+        rows = (db.query(Grid.package_tier,
+                         _func.count(Grid.id),
+                         _func.coalesce(_func.sum(Grid.positions_filled), 0),
+                         _func.coalesce(_func.sum(Grid.bonus_pool_accrued), 0))
+                .filter(Grid.is_complete == False)
+                .group_by(Grid.package_tier).all())
+        by_tier = []
+        for t, n, seats, accrued in rows:
+            n = int(n or 0)
+            seats = int(seats or 0)
+            price = float(GRID_PACKAGES.get(t, 0))
+            by_tier.append({
+                "tier": t,
+                "incomplete_grids": n,
+                "seats_filled_total": seats,
+                "avg_seats_filled": round(seats / n, 1) if n else 0,
+                "settle_topped_usd": round(float(accrued or 0), 2),   # full target (26-May top-up)
+                "settle_earned_usd": round(seats * price * 0.10, 2),  # real: seats x price x 10%
+            })
+        by_tier.sort(key=lambda r: (r["tier"] is None, r["tier"] if r["tier"] is not None else -1))
+        members = int(db.query(_func.count(_func.distinct(Grid.owner_id)))
+                      .filter(Grid.is_complete == False).scalar() or 0)
+        out["cutoff_settlement"] = {
+            "incomplete_grids": sum(r["incomplete_grids"] for r in by_tier),
+            "distinct_members": members,
+            "settle_topped_total_usd": round(sum(r["settle_topped_usd"] for r in by_tier), 2),
+            "settle_earned_total_usd": round(sum(r["settle_earned_usd"] for r in by_tier), 2),
+            "by_tier": by_tier,
+            "note": ("settle_topped = bonus_pool_accrued, which a 26-May retroactive op set to "
+                     "each grid's FULL target bonus regardless of seats filled (pays full "
+                     "bonuses on incomplete grids). settle_earned = seats actually filled x "
+                     "price x 10% = what members genuinely earned so far. Both gross of owner "
+                     "qualification (unqualified would absorb, lowering either figure)."),
+        }
+    except Exception as e:
+        db.rollback()
+        out["error"] = f"{type(e).__name__}: {e}"
+
+    return JSONResponse(
+        out, status_code=200,
+        headers={"Cache-Control": "no-store, no-cache, max-age=0, must-revalidate",
+                 "Pragma": "no-cache"},
+    )
 
 
 @app.get("/admin/api/grid-payment-audit")
