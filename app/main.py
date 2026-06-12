@@ -23561,6 +23561,111 @@ def admin_scanner_status(
     return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/grid-seat-census")
+def admin_grid_seat_census(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY census of grids by seat size — gates the Grid Accelerator merge.
+
+    The climb engine (feature/16-seat-cycler) only changes behaviour for
+    16-seat grids; legacy 36-seat grids are untouched. This answers in one tap:
+    how many 16-seat grids are live right now (so we know whether deploying the
+    climb goes active immediately or sits inert), broken down by tier and by
+    whether the owner genuinely bought the tier vs a spillover-created grid.
+
+    Also reports any climb_pending flags (will read column_not_present_yet
+    until the branch merges — that itself confirms the engine isn't deployed)
+    and the recycle_balance exposure (the wallet the new completion path stops
+    writing to — tells us whether retiring it would strand real money).
+
+    No writes. Built 12 Jun 2026.
+    """
+    _require_admin(user)
+    from .database import Grid, User as _User
+    from sqlalchemy import func as _func
+
+    out = {"generated_at": datetime.utcnow().isoformat()}
+
+    # 1. Grids grouped by seat size (16 = new cycler, 36 = legacy, other = stray).
+    totals = dict(
+        db.query(Grid.total_seats, _func.count(Grid.id)).group_by(Grid.total_seats).all()
+    )
+    completes = dict(
+        db.query(Grid.total_seats, _func.count(Grid.id))
+        .filter(Grid.is_complete == True)
+        .group_by(Grid.total_seats).all()
+    )
+    by_seats = {}
+    for seats, total in totals.items():
+        key = str(seats if seats is not None else "null")
+        t = int(total or 0)
+        c = int(completes.get(seats, 0) or 0)
+        by_seats[key] = {"total": t, "complete": c, "incomplete": t - c}
+    out["grids_by_seats"] = by_seats
+
+    # 2. The actionable bit: LIVE (incomplete) 16-seat grids by tier.
+    n_by_tier = dict(
+        db.query(Grid.package_tier, _func.count(Grid.id))
+        .filter(Grid.total_seats == 16, Grid.is_complete == False)
+        .group_by(Grid.package_tier).all()
+    )
+    owned_by_tier = dict(
+        db.query(Grid.package_tier, _func.count(Grid.id))
+        .filter(Grid.total_seats == 16, Grid.is_complete == False, Grid.owner_purchased == True)
+        .group_by(Grid.package_tier).all()
+    )
+    live_rows = []
+    for tier in sorted(n_by_tier.keys(), key=lambda x: (x is None, x)):
+        n = int(n_by_tier.get(tier, 0) or 0)
+        owned = int(owned_by_tier.get(tier, 0) or 0)
+        live_rows.append({
+            "tier": tier,
+            "grids": n,
+            "owner_purchased": owned,
+            "spillover_created": n - owned,
+        })
+    out["live_16_seat_incomplete_by_tier"] = live_rows
+    total_live16 = sum(r["grids"] for r in live_rows)
+    out["live_16_seat_incomplete_total"] = total_live16
+
+    # 3. climb_pending sanity. On main (pre-merge) the column/attr doesn't exist,
+    #    so this reads column_not_present_yet — which itself confirms the climb
+    #    engine isn't deployed. Post-merge it returns the live pending count.
+    try:
+        out["climb_pending_count"] = int(
+            db.query(_func.count(Grid.id)).filter(Grid.climb_pending == True).scalar() or 0
+        )
+    except Exception:
+        out["climb_pending_count"] = "column_not_present_yet"
+
+    # 4. recycle_balance exposure — what retiring the recycle wallet would touch.
+    try:
+        rc_users = int(db.query(_func.count(_User.id)).filter(_User.recycle_balance > 0).scalar() or 0)
+        rc_total = float(db.query(_func.coalesce(_func.sum(_User.recycle_balance), 0)).scalar() or 0)
+        out["recycle_wallet"] = {"users_with_balance": rc_users, "total_held": rc_total}
+    except Exception as e:
+        out["recycle_wallet"] = {"error": str(e)}
+
+    # 5. Plain-English verdict for the merge decision.
+    if total_live16 == 0:
+        out["verdict"] = (
+            "No live 16-seat grids. Deploying the climb engine is INERT — it "
+            "changes nothing until 16-seat grids exist (seat migration or "
+            "new-grid creation stamping 16). Safe to merge/deploy first, then "
+            "migrate seats deliberately."
+        )
+    else:
+        out["verdict"] = (
+            f"{total_live16} live 16-seat grid(s) exist. The climb engine goes "
+            "ACTIVE for these on deploy — their next completion runs the "
+            "climb/cash-out/absorb path, not the old recycle split. Snapshot the "
+            "DB and pick a window before merge."
+        )
+
+    return JSONResponse(out, status_code=200)
+
+
 @app.get("/admin/api/grid-payment-audit")
 def admin_grid_payment_audit(
     only_flagged: bool = False,
