@@ -1191,7 +1191,13 @@ def _complete_grid(db: Session, grid: Grid):
             # can complete more grids mid-flow). Flag the grid + defer.
             grid.climb_pending = True
             do_climb = True
-            do_respawn_same = False    # the climb opens the N+1 grid, not a same-tier advance
+            do_respawn_same = True     # KEEP + CLIMB: the member's tier stays active
+                                       # (a fresh same-tier grid respawns so they keep
+                                       # earning here while this tier's video views run)
+                                       # AND the bonus steps them up to N+1 via the drain.
+                                       # Tier lifespan is governed by views, not by grid
+                                       # completion — so completing a grid never closes
+                                       # the tier; it just funds the climb.
         elif is_cycler:
             # ── CASH-OUT (tier 0 Launchpad, tier 5 top, tiers 6-8 manual) ──
             # Full bonus to the withdrawable affiliate wallet.
@@ -1205,11 +1211,11 @@ def _complete_grid(db: Session, grid: Grid):
                                "grid_completion_bonus",
                                f"Grid completion bonus tier {tier} advance {grid.advance_number} (${bonus_amount:.2f} cash-out)",
                                tier)
-            # Tier 5 is the top of forced progression — do NOT auto-open another
-            # grid. Tier 0 (Launchpad) and 6-8 keep cycling so the member can
-            # keep earning toward (re)activation / at their chosen high tier.
-            if tier == 5:
-                do_respawn_same = False
+            # Tier 5 is the top of the forced-climb line — no auto-climb beyond it
+            # (tiers 6-8 are entered manually). But like every other tier it stays
+            # active until its video views expire, so it DOES respawn: the member
+            # keeps earning at tier 5 while their tier-5 campaign is running.
+            # (do_respawn_same stays True for tiers 0/5/6-8.)
         else:
             # ── LEGACY 36-seat (unchanged) ── full bonus to the campaign wallet.
             owner.campaign_balance = Decimal(str(owner.campaign_balance or 0)) + Decimal(str(bonus_amount))
@@ -1242,10 +1248,12 @@ def _complete_grid(db: Session, grid: Grid):
             grid.bonus_rolled_over = True
             grid.owner_paid = False
 
-    # ── Open the next grid ──
-    # Climb (tier 1-4 qualified cycler) and tier-5 cash-out do NOT respawn here:
-    # the climb opens the N+1 grid via the drain, and tier 5 is the top of the
-    # forced-progression line.
+    # ── Open the next grid (keep) ──
+    # Every tier respawns a fresh same-tier grid on completion so the member
+    # keeps earning there until that tier's video views expire. The tier-1-4
+    # climb ALSO opens the N+1 grid via the post-commit drain — that's the
+    # "+ climb" on top of the "keep". Legacy 36-seat grids respawn too, carrying
+    # any rolled-over bonus pool into the new advance (unchanged behaviour).
     if do_respawn_same:
         new_grid = Grid(
             owner_id      = grid.owner_id,
@@ -1266,17 +1274,22 @@ def _complete_grid(db: Session, grid: Grid):
     try:
         from .database import Notification
         if owner and grid.climb_pending:
-            # Forced climb — bonus funds the next tier; remainder paid in the drain.
-            notif_title = f"🚀 Grid Tier {grid.package_tier} complete — climbing to Tier {grid.package_tier + 1}!"
+            # Keep + climb — tier stays active (fresh same-tier grid respawns),
+            # bonus funds the step-up; remainder paid in the drain.
+            notif_title = f"🚀 Grid Tier {grid.package_tier} complete — stepped up to Tier {grid.package_tier + 1}!"
             notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all "
-                         f"{grid.total_seats} seats. Your ${bonus_amount:.2f} bonus is advancing you into a "
+                         f"{grid.total_seats} seats. Your ${bonus_amount:.2f} bonus is stepping you up into a "
                          f"Tier {grid.package_tier + 1} grid, with the remainder paid to your withdrawable balance. "
-                         f"Your climb is being processed now.")
+                         f"Your Tier {grid.package_tier} stays active too — a fresh Tier {grid.package_tier} grid "
+                         f"(advance {grid.advance_number + 1}) is open and keeps earning while your Tier "
+                         f"{grid.package_tier} video views are still running.")
         elif owner and grid.bonus_paid:
             # Bonus paid out (cash-out tiers, or legacy campaign wallet).
             notif_title = f"🎉 Grid Tier {grid.package_tier} complete!"
             if is_cycler:
-                _opened = (" You've reached the top of the forced progression — outstanding!"
+                _opened = (f" You're at the top tier — a fresh Tier 5 grid (advance "
+                           f"{grid.advance_number + 1}) is open and keeps earning while your "
+                           f"Tier 5 video views are running."
                            if grid.package_tier == 5
                            else f" Advance {grid.advance_number + 1} is now open and ready for new spillover.")
                 notif_msg = (f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) just filled "
