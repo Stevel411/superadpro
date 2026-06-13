@@ -15536,6 +15536,45 @@ def admin_sponsor_set(
     })
 
 
+@app.get("/admin/api/null-sponsor-list")
+def admin_null_sponsor_list(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only: list every account with sponsor_id IS NULL — the genuinely-invalid
+    state (a no-referrer signup defaults to root/1, never NULL), so these were
+    orphaned when related accounts were deleted. Full identifying detail for
+    review. No writes."""
+    _require_admin(user)
+    from .database import User as _U
+    from sqlalchemy import func as _func
+    child_counts = dict(db.query(_U.sponsor_id, _func.count(_U.id))
+                        .group_by(_U.sponsor_id).all())
+    rows = (db.query(_U).filter(_U.id != 1, _U.is_admin == False,  # noqa: E712
+                                _U.sponsor_id.is_(None))
+            .order_by(_U.created_at.asc()).all())
+    out = []
+    for u in rows:
+        out.append({
+            "id": u.id, "username": u.username, "email": u.email,
+            "first_name": u.first_name,
+            "joined": u.created_at.strftime("%Y-%m-%d") if u.created_at else None,
+            "active": bool(u.is_active),
+            "founding": bool(u.is_founding_member),
+            "founder_spot": u.founding_spot_number,
+            "direct_children": child_counts.get(u.id, 0),
+        })
+    return JSONResponse({
+        "read_only": True,
+        "count": len(out),
+        "members": out,
+        "note": ("sponsor_id IS NULL = invalid (signup always defaults to root/1). These "
+                 "were orphaned by the attacker-account deletions. Recognise any as a real "
+                 "sponsor's referral? Send member:sponsor pairs for /admin/api/sponsor-set. "
+                 "Anything unrecognised -> set sponsor_id=1 to restore the invariant."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
