@@ -14922,6 +14922,95 @@ def admin_sponsor_integrity(
     })
 
 
+@app.get("/admin/api/sponsor-relink")
+def admin_sponsor_relink(
+    apply: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Restore the true sponsor for members whose sponsor_id was reset to NULL or
+    to 1 (root). Reconstructs the real sponsor from the surviving Commission
+    ledger: a member's sponsor-relationship commissions (membership_sponsor,
+    direct_sponsor, etc.) fire from_user=member -> to_user=sponsor, so the
+    recipient names the real sponsor even though sponsor_id was later corrupted.
+
+    Only relinks where the ledger unambiguously names a different, valid,
+    non-root sponsor. Members whose sponsor commissions genuinely went to user 1,
+    or who have no sponsor commission at all (true direct signups), are left
+    untouched. Dry-run by default; ?apply=yes writes sponsor_id only (the
+    personal_referrals counters are broken platform-wide and need a separate
+    recompute, so they are deliberately not touched here)."""
+    _require_admin(user)
+    from .database import User as _U, Commission as _C
+    do_apply = apply.lower() in ("yes", "1", "true")
+    SPONSOR_TYPES = ["membership_sponsor", "gift_membership_sponsor",
+                     "membership_renewal", "direct_sponsor",
+                     "direct_referral", "direct_sale"]
+
+    valid_ids = {r.id for r in db.query(_U.id).all()}
+    unames = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+
+    candidates = (db.query(_U)
+                  .filter(_U.id != 1, _U.is_admin == False,  # noqa: E712
+                          (_U.sponsor_id.is_(None)) | (_U.sponsor_id == 1))
+                  .all())
+
+    rows = []
+    n_relink = applied = 0
+    for u in candidates:
+        comms = (db.query(_C)
+                 .filter(_C.from_user_id == u.id,
+                         _C.commission_type.in_(SPONSOR_TYPES),
+                         _C.to_user_id.isnot(None), _C.to_user_id != 1)
+                 .order_by(_C.created_at.asc()).all())
+        recipients = []
+        for c in comms:
+            if c.to_user_id not in recipients:
+                recipients.append(c.to_user_id)
+        orig = recipients[0] if recipients else None
+        evidence = (f"{comms[0].commission_type} #{comms[0].id}" if comms else None)
+        determinable = (orig is not None and orig in valid_ids and orig != u.id)
+        needs = determinable and orig != u.sponsor_id
+        action = ("RELINK" if needs else
+                  ("already_correct" if (determinable and orig == u.sponsor_id)
+                   else "undetermined_leave"))
+        row = {
+            "user_id": u.id, "username": u.username,
+            "current_sponsor_id": u.sponsor_id,
+            "reconstructed_sponsor_id": orig,
+            "reconstructed_sponsor": unames.get(orig) if orig else None,
+            "evidence": evidence,
+            "recipient_conflict": recipients if len(recipients) > 1 else None,
+            "action": action,
+        }
+        if needs:
+            n_relink += 1
+            if do_apply:
+                u.sponsor_id = orig
+                applied += 1
+                row["applied"] = True
+        if action != "already_correct":
+            rows.append(row)
+    if do_apply:
+        db.commit()
+
+    rows.sort(key=lambda r: (r["action"] != "RELINK", r["user_id"] or 0))
+    return JSONResponse({
+        "read_only": not do_apply,
+        "mode": "APPLIED" if do_apply else "dry-run",
+        "candidates_scanned": len(candidates),
+        "relink_needed": n_relink,
+        "relinked": applied if do_apply else 0,
+        "detail": rows,
+        "note": ("reconstructed_sponsor = recipient of the member's sponsor-relationship "
+                 "commissions (from_user=member -> to_user=sponsor), which survived the "
+                 "breach. RELINK = sponsor_id is NULL/1 but the ledger names a different "
+                 "valid sponsor. undetermined_leave = no sponsor commission (true direct "
+                 "signup or unrecoverable), left untouched. recipient_conflict flags the "
+                 "rare >1-named-sponsor case. ?apply=yes writes sponsor_id only."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
