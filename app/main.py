@@ -14839,6 +14839,89 @@ def admin_wte_successor_mint(
     })
 
 
+@app.get("/admin/api/sponsor-integrity")
+def admin_sponsor_integrity(
+    focus_ids: str = "177,157",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY sponsor-chain integrity trace.
+
+    admin_delete_user hard-deletes a user and NULLs sponsor_id on every downline
+    member who had them as sponsor; a NULL sponsor renders in the referral UI as
+    'under SuperAdPro' (root). This surfaces the damage:
+      - orphaned_accounts: live non-admin users with sponsor_id NULL (the
+        'now under you' victims of a deleted sponsor), with founding/active/
+        created so legitimate paying members stand out from organic free signups.
+      - counter_drift: users whose personal_referrals counter != real count of
+        direct children (delta>0 = a child was deleted out from under them).
+      - focus: the current direct downline of each focus_id vs its counter.
+    No writes."""
+    _require_admin(user)
+    from .database import User as _U
+    from sqlalchemy import func as _func
+
+    child_counts = dict(
+        db.query(_U.sponsor_id, _func.count(_U.id))
+        .filter(_U.sponsor_id.isnot(None))
+        .group_by(_U.sponsor_id).all()
+    )
+
+    def _u(u):
+        return {"id": u.id, "username": u.username, "is_active": bool(u.is_active),
+                "is_founding": bool(getattr(u, "is_founding_member", False)),
+                "sponsor_id": u.sponsor_id,
+                "pass_up_sponsor_id": getattr(u, "pass_up_sponsor_id", None),
+                "personal_referrals": u.personal_referrals or 0,
+                "actual_children": child_counts.get(u.id, 0),
+                "created_at": u.created_at.isoformat() if getattr(u, "created_at", None) else None}
+
+    orphans = (db.query(_U)
+               .filter(_U.sponsor_id.is_(None), _U.id != 1, _U.is_admin == False)  # noqa: E711,E712
+               .all())
+    # founding/active first (most likely real victims), then by recency
+    orphans.sort(key=lambda u: (not bool(getattr(u, "is_founding_member", False)),
+                                not bool(u.is_active),
+                                -(u.id or 0)))
+
+    drift = []
+    for u in db.query(_U).filter(_U.is_admin == False).all():  # noqa: E712
+        actual = child_counts.get(u.id, 0)
+        counter = u.personal_referrals or 0
+        if actual != counter:
+            drift.append({"id": u.id, "username": u.username,
+                          "personal_referrals_counter": counter,
+                          "actual_children": actual, "delta": counter - actual})
+
+    focus = {}
+    for fid in [int(x) for x in focus_ids.split(",") if x.strip().isdigit()]:
+        owner = db.query(_U).filter(_U.id == fid).first()
+        if not owner:
+            focus[fid] = {"error": "not found"}
+            continue
+        kids = db.query(_U).filter(_U.sponsor_id == fid).order_by(_U.created_at.asc()).all()
+        focus[fid] = {
+            "username": owner.username, "sponsor_id": owner.sponsor_id,
+            "personal_referrals_counter": owner.personal_referrals or 0,
+            "actual_direct_children": len(kids),
+            "children": [_u(k) for k in kids],
+        }
+
+    return JSONResponse({
+        "read_only": True,
+        "orphaned_count": len(orphans),
+        "orphaned_founding_active_count": sum(
+            1 for o in orphans if getattr(o, "is_founding_member", False) and o.is_active),
+        "orphaned_accounts": [_u(o) for o in orphans],
+        "counter_drift_count": len(drift),
+        "counter_drift": sorted(drift, key=lambda d: d["delta"], reverse=True),
+        "focus": focus,
+        "note": ("orphaned = sponsor_id NULL (renders as 'under SuperAdPro'); founding+active "
+                 "orphans are the likely real victims of a deleted upline. counter_drift delta>0 "
+                 "= personal_referrals exceeds real children (a child was deleted). READ-ONLY."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
