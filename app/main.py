@@ -14384,40 +14384,79 @@ def admin_grid_cutoff(
 ):
     """Cut-off: settle + retire every legacy 36-seat grid in one controlled op.
 
-    DRY-RUN by default (apply=0): shows exactly what would be settled/retired,
-    no writes. APPLY (apply=1 + TOTP ?code=NNNNNN) settles each legacy
-    incomplete grid's GENUINELY-EARNED bonus = positions_filled x tier price x
-    10% (NOT the 26-May topped-up bonus_pool_accrued), credits the owner's
-    withdrawable balance, then marks the grid is_complete=True + retired_at=now
-    so spillover stops filling it and get_or_create_active_grid mints a fresh
-    16-seat grid on the owner's next activity.
+    Catches BOTH genuinely-incomplete legacy grids AND grids an earlier
+    migration force-flipped to is_complete=True without real fills (the
+    Kurt/Katarina phantom-completion set that stranded owners out of
+    Watch-to-Earn via get_user_highest_tier). Selection gates on REAL
+    GridPosition rows < total_seats, so a falsely-completed grid is included
+    and a genuinely-full grid (real rows >= total_seats) is excluded.
+
+    DRY-RUN by default (apply=0): returns per-grid detail (real seats, real
+    revenue, current vs honest pool) + totals, no writes. APPLY (apply=1 + TOTP
+    ?code=NNNNNN) settles each grid's GENUINELY-EARNED bonus = REAL rows x tier
+    price x 10% (NOT positions_filled, which can be drifted; NOT the 26-May
+    topped bonus_pool_accrued), credits the owner's withdrawable balance, heals
+    the stored pool + counter to honest values, retires the grid
+    (is_complete=True + retired_at=now), then EAGERLY mints the fresh 16-seat
+    replacement so Watch-to-Earn access returns immediately.
 
     Money mutation -> 2FA-gated apply (dry-run doctrine). Idempotent: only
     grids with retired_at IS NULL are processed, so a re-run never
-    double-settles. One commit at the end -> all-or-nothing. 12 Jun 2026.
+    double-settles. Settle+retire is one commit -> all-or-nothing; the eager
+    re-grid runs after and is itself idempotent. 12 Jun 2026 (extended 13 Jun).
     """
     _require_admin(user)
-    from .database import (Grid, User as _User, NEW_GRID_SEATS,
+    from .database import (Grid, GridPosition as _GP, User as _User, NEW_GRID_SEATS,
                            LEGACY_BONUS_POOL_PCT, GRID_PACKAGES)
-    from .grid import _record_commission
+    from .grid import _record_commission, get_or_create_active_grid
     from sqlalchemy import func as _func
     from datetime import datetime as _dt
 
     RATE = float(LEGACY_BONUS_POOL_PCT)  # 0.10 — legacy grids keep the old rate
 
-    grids = (db.query(Grid)
-             .filter(Grid.is_complete == False,
-                     _func.coalesce(Grid.total_seats, 36) != NEW_GRID_SEATS,
+    # Candidate legacy (non-16-seat), not-yet-retired grids. We deliberately do
+    # NOT filter on is_complete: an earlier migration force-flipped grids to
+    # is_complete=True without real fills, which the old is_complete==False
+    # filter skipped -> owners stranded (Watch-to-Earn locked, phantom $72 pool).
+    # Gate on ACTUAL GridPosition rows instead: a falsely-completed grid is
+    # caught, a genuinely-full grid (rows >= total_seats) is correctly excluded.
+    candidate_grids = (db.query(Grid)
+             .filter(_func.coalesce(Grid.total_seats, 36) != NEW_GRID_SEATS,
                      Grid.retired_at == None)
              .all())
+    cand_ids = [g.id for g in candidate_grids]
+    row_counts = {}
+    if cand_ids:
+        for gid, cnt in (db.query(_GP.grid_id, _func.count(_GP.id))
+                           .filter(_GP.grid_id.in_(cand_ids))
+                           .group_by(_GP.grid_id).all()):
+            row_counts[gid] = int(cnt)
+    grids = [g for g in candidate_grids
+             if row_counts.get(g.id, 0) < int(g.total_seats or 36)]
 
-    plan = []          # (grid, earned, seats)
+    owner_ids = list({g.owner_id for g in grids}) or [0]
+    uname = {u.id: u.username for u in
+             db.query(_User).filter(_User.id.in_(owner_ids)).all()}
+
+    plan = []          # (grid, earned, seats)  -- seats = REAL rows
     per_tier = {}
+    detail = []
     for g in grids:
-        seats = int(g.positions_filled or 0)
+        seats = int(row_counts.get(g.id, 0))   # REAL GridPosition rows -- drift-proof
         price = float(GRID_PACKAGES.get(g.package_tier, float(g.package_price or 0)))
         earned = round(seats * price * RATE, 2)
         plan.append((g, earned, seats))
+        detail.append({
+            "grid_id": g.id, "owner_id": g.owner_id,
+            "username": uname.get(g.owner_id),
+            "tier": g.package_tier, "advance": g.advance_number,
+            "real_seats": seats,
+            "real_revenue": round(seats * price, 2),
+            "current_pool": float(g.bonus_pool_accrued or 0),
+            "honest_settle": earned,
+            "was_falsely_complete": bool(g.is_complete),
+            "counter_was": int(g.positions_filled or 0),
+        })
         pt = per_tier.setdefault(g.package_tier,
                                  {"tier": g.package_tier, "grids": 0,
                                   "seats_filled": 0, "settle_usd": 0.0})
@@ -14428,9 +14467,11 @@ def admin_grid_cutoff(
     total_settle = round(sum(e for _, e, _ in plan), 2)
     members = len({g.owner_id for g, _, _ in plan})
 
+    falsely_complete = sum(1 for d in detail if d["was_falsely_complete"])
     out = {
         "mode": "APPLY" if apply == 1 else "DRY-RUN",
         "legacy_grids_to_retire": len(plan),
+        "falsely_complete_included": falsely_complete,
         "distinct_members": members,
         "total_settle_usd": total_settle,
         "settle_wallet": "balance (withdrawable affiliate wallet)",
@@ -14438,15 +14479,18 @@ def admin_grid_cutoff(
         "by_tier": sorted(per_tier.values(),
                           key=lambda r: (r["tier"] is None,
                                          r["tier"] if r["tier"] is not None else -1)),
-        "note": ("Settle = positions_filled x tier price x 10% (genuinely earned from real "
-                 "seat-fills; NOT the 26-May topped bonus_pool_accrued). Credits owner "
-                 "withdrawable balance, then retires the grid (is_complete=True + retired_at) "
-                 "so a fresh 16-seat grid is minted on next activity. Qualification waived "
-                 "given trivial per-member amounts."),
+        "detail": sorted(detail, key=lambda d: (-d["real_seats"], d["grid_id"])),
+        "note": ("Settle = REAL GridPosition rows x tier price x 10% (genuinely earned from "
+                 "actual seat-fills; NOT positions_filled, which can be drifted; NOT the "
+                 "26-May topped bonus_pool_accrued). Credits owner withdrawable balance, heals "
+                 "the stored pool + counter to honest values, retires the grid "
+                 "(is_complete=True + retired_at), then EAGERLY mints the fresh 16-seat "
+                 "replacement so Watch-to-Earn returns immediately. Idempotent on "
+                 "retired_at IS NULL. Qualification waived given trivial per-member amounts."),
     }
 
     if apply != 1:
-        out["next"] = "Review the figures, then re-call with &apply=1&code=YOUR_TOTP to execute."
+        out["next"] = "Review the per-grid detail + total, then re-call with &apply=1&code=YOUR_TOTP to execute."
         return JSONResponse(out, status_code=200,
                             headers={"Cache-Control": "no-store, no-cache, max-age=0"})
 
@@ -14456,6 +14500,7 @@ def admin_grid_cutoff(
     now = _dt.utcnow()
     retired = 0
     settled_usd = 0.0
+    retire_targets = set()   # (owner_id, package_tier) to re-grid after commit
     for g, earned, seats in plan:
         owner = db.query(_User).filter(_User.id == g.owner_id).first()
         if owner and earned > 0:
@@ -14464,26 +14509,43 @@ def admin_grid_cutoff(
             owner.bonus_earnings = decimal.Decimal(str(owner.bonus_earnings or 0)) + decimal.Decimal(str(earned))
             _record_commission(
                 db, g.owner_id, g.owner_id, earned, "grid_completion_bonus",
-                f"Cut-off settle: {seats} filled seats x tier {g.package_tier} price x 10% "
+                f"Cut-off settle: {seats} REAL filled seats x tier {g.package_tier} price x 10% "
                 f"= ${earned:.2f} (legacy 36-seat grid retired)",
                 g.package_tier,
             )
             db.add(owner)
-        # Make the stored pool honest, then retire (paid so no sweeper re-pays it).
+        # Heal stored pool + counter to honest values, then retire (paid so no
+        # sweeper re-pays). positions_filled is reset to REAL rows so any drift
+        # (e.g. counter=36 / rows=0) cannot mis-settle on a re-run.
         g.bonus_pool_accrued = decimal.Decimal(str(earned))
+        g.positions_filled   = seats
         g.is_complete = True
         g.bonus_paid  = True
         g.owner_paid  = True
         g.retired_at  = now
         db.add(g)
+        retire_targets.add((g.owner_id, g.package_tier))
         retired += 1
         settled_usd = round(settled_usd + earned, 2)
 
-    db.commit()
+    db.commit()   # all-or-nothing settle + retire
+
+    # Eager re-grid: mint the fresh 16-seat replacement so owners aren't left
+    # gridless (and Watch-to-Earn-locked) waiting for 'next activity'. Idempotent:
+    # only mints where the owner has no incomplete grid at that tier.
+    minted = 0
+    for owner_id, tier in retire_targets:
+        has_incomplete = db.query(Grid).filter(
+            Grid.owner_id == owner_id, Grid.package_tier == tier,
+            Grid.is_complete == False).count()
+        if has_incomplete == 0:
+            get_or_create_active_grid(db, owner_id, tier)
+            minted += 1
 
     out["mode"] = "APPLIED"
     out["grids_retired"] = retired
     out["total_settled_usd"] = settled_usd
+    out["replacement_grids_minted"] = minted
     return JSONResponse(out, status_code=200,
                         headers={"Cache-Control": "no-store, no-cache, max-age=0"})
 
