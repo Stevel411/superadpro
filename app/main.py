@@ -15575,6 +15575,79 @@ def admin_null_sponsor_list(
     })
 
 
+@app.get("/admin/api/sponsor-reconcile")
+def admin_sponsor_reconcile(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only: reconcile the currently sponsor-corrupted cohort (sponsor_id
+    1/NULL) against Steve's Gmail 'joined your team' welcome emails — his complete,
+    breach-proof list of genuine direct referrals (extracted 13 Jun, back to 22
+    Apr, which is the earliest corrupted-cohort signup). A corrupted account whose
+    username is NOT among those welcome emails did NOT join under root; it joined
+    under a real member and was reset onto root by the breach = a genuine misplaced
+    victim. Gmail can't name WHICH member (that email is in the member's inbox),
+    but it definitively flags who is not Steve's direct. No writes."""
+    _require_admin(user)
+    from .database import User as _U
+    from sqlalchemy import func as _func
+    STEVE_DIRECTS = {
+        "steveuserawdt48", "hackerpwn2026", "hackerpwnpgey6a", "hackerpwnb2901d",
+        "maxtein", "gordi4", "pato123", "test7", "krille", "pitmax391", "derek",
+        "spartakus", "test1", "kestola", "earnwithratan", "ilikemoney", "battini",
+        "mani10", "robroy123", "amandafox", "test30", "realwealth4me", "hildas",
+        "gdpassive", "test200", "test14", "test13", "khancrypto", "menjah",
+        "mrydberg", "wealthcreationwithmarc", "test12", "test11", "ladyl", "7fans",
+        "solholt", "ruevonne", "trafficmasteruk", "workwithdan", "btckingberto187",
+        "superadproeurope", "fabian", "matias", "tony", "stiforp", "yourbestlife",
+        "lewis", "buddybee13", "cryptokingtrading", "cryptokonrad", "tonyw",
+        "markdale", "richardandjohn", "superadpros", "sylviapro", "nicka",
+        "brunogama", "bestonthenetinfo", "phill_007", "momentumhub", "chrisbrown",
+        "koena", "rashigirl", "audreyb", "musketeers", "djole696", "thailand",
+        "test20", "sin6669", "essaboy", "tradevoice", "netbiz02", "kundiflo_1",
+        "missmigrou", "bossinternational69", "cryptoguy", "supereamo", "lackytomas",
+        "isaiahp87213", "bigbull", "supermlm", "hannahkate93x", "sniperr", "boss70",
+        "jham", "max07", "lynnehaynes", "arilta786", "winwithlee", "mrthibo98",
+        "iainj1963", "sarahtaylor1297", "mvucic14", "gkestas", "cryptoles",
+        "breakthrough1", "financialsunrise", "lilsam1", "worksmarter", "selabuyai",
+        "itsamazing", "leannehollinshead", "test15", "test10", "test9", "test3",
+        "superadspro", "info", "test2", "thomasgrant", "cynniam", "interprofits",
+        "tbillion", "runshi", "mattfeast", "richard1980", "blazinglion",
+    }
+    child_counts = dict(db.query(_U.sponsor_id, _func.count(_U.id))
+                        .group_by(_U.sponsor_id).all())
+    rows = (db.query(_U).filter(_U.id != 1, _U.is_admin == False,  # noqa: E712
+                                (_U.sponsor_id.is_(None)) | (_U.sponsor_id == 1))
+            .order_by(_U.created_at.asc()).all())
+    victims, confirmed_direct = [], 0
+    for u in rows:
+        if (u.username or "").lower() in STEVE_DIRECTS:
+            confirmed_direct += 1
+            continue
+        victims.append({
+            "id": u.id, "username": u.username, "email": u.email,
+            "first_name": u.first_name,
+            "joined": u.created_at.strftime("%Y-%m-%d") if u.created_at else None,
+            "current_sponsor_id": u.sponsor_id,
+            "active": bool(u.is_active),
+            "founding": bool(u.is_founding_member),
+            "direct_children": child_counts.get(u.id, 0),
+        })
+    return JSONResponse({
+        "read_only": True,
+        "corrupted_cohort": len(rows),
+        "confirmed_your_direct_via_gmail": confirmed_direct,
+        "misplaced_victims": len(victims),
+        "victims": victims,
+        "note": ("Victims = currently at root/NULL but NOT among your Gmail welcome "
+                 "emails, so they joined under a real member and were reset onto root by "
+                 "the breach. Gmail can't name which member (that email is in the member's "
+                 "inbox), but these are provably not your directs. confirmed_your_direct = "
+                 "corrupted accounts whose welcome email IS in your inbox (genuine directs, "
+                 "correct at root)."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
