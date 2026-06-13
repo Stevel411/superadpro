@@ -15128,6 +15128,132 @@ def admin_backup_inspect(
     })
 
 
+@app.get("/admin/api/brevo-downline-proof")
+def admin_api_brevo_downline_proof(
+    sponsor_user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    email: str = "",
+    max_pages: int = 10,
+    per: int = 500,
+):
+    """Read-only PROOF table from Brevo's external email logs (survived the wipe):
+    for one sponsor, list every member Brevo says joined THEIR team
+    ('<name> just joined your SuperAdPro team!', recipient=sponsor), matched to a
+    current user by first name + signup-time proximity, with that user's CURRENT
+    sponsor_id and a corruption verdict. Surfaces reset-to-1 victims BY NAME
+    (which brevo-team-recovery hides as 'conflict'), so a broken sponsor link can
+    be proven from an external record before any write. No writes."""
+    _require_admin(user)
+    import os as _os, httpx as _httpx, time as _time
+    from collections import defaultdict as _dd
+    target = db.query(User).filter(User.id == sponsor_user_id).first()
+    if not target:
+        return JSONResponse({"error": f"sponsor_user_id {sponsor_user_id} not found"},
+                            status_code=200)
+    target_email = (email or target.email or "").strip()
+    if not target_email:
+        return JSONResponse({"error": f"no email on user {sponsor_user_id}; pass ?email="},
+                            status_code=200)
+    api_key = _os.environ.get("BREVO_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "BREVO_API_KEY not configured"}, status_code=400)
+    headers = {"api-key": api_key, "accept": "application/json"}
+    base = "https://api.brevo.com/v3/smtp/emails"
+
+    collected, oldest, newest, first_status, hit_cap = [], None, None, None, False
+    offset, limit = 0, max(10, min(per, 500))
+    _t0 = _time.time()
+    try:
+        with _httpx.Client(timeout=15) as client:
+            for _pg in range(max_pages):
+                if _time.time() - _t0 > 40:
+                    hit_cap = True
+                    break
+                r = client.get(base, headers=headers, params={
+                    "email": target_email, "limit": limit, "offset": offset, "sort": "desc"})
+                if first_status is None:
+                    first_status = r.status_code
+                if r.status_code != 200:
+                    return JSONResponse({"brevo_error_status": r.status_code,
+                                         "brevo_body": r.text[:400]}, status_code=200)
+                emails = (r.json() or {}).get("transactionalEmails", []) or []
+                if not emails:
+                    break
+                for e in emails:
+                    dt = e.get("date") or ""
+                    if dt:
+                        if oldest is None or dt < oldest:
+                            oldest = dt
+                        if newest is None or dt > newest:
+                            newest = dt
+                    if "joined your SuperAdPro team" in (e.get("subject") or ""):
+                        collected.append((e.get("subject") or "", dt))
+                if len(emails) < limit:
+                    break
+                offset += limit
+    except Exception as e:
+        return JSONResponse({"brevo_fetch_failed": f"{type(e).__name__}: {str(e)[:200]}"},
+                            status_code=200)
+
+    all_users = db.query(User.id, User.first_name, User.username,
+                         User.created_at, User.sponsor_id).all()
+    by_fn = _dd(list)
+    for u in all_users:
+        if u.first_name:
+            by_fn[u.first_name.strip().lower()].append(u)
+
+    rows = []
+    for subj, dt in collected:
+        nm = subj.split(" just joined")[0].replace("\U0001f389", "").strip()
+        fn = nm.lower()
+        edt = _sponsor_parse_dt(dt)
+        cands = by_fn.get(fn, [])
+        near = [c for c in cands if c.created_at and edt
+                and abs((c.created_at - edt).total_seconds()) <= 1800]
+        pool = near or cands
+        if len(pool) == 1:
+            ref = pool[0]
+            cur = ref.sponsor_id
+            if ref.id == target.id:
+                verdict = "self_skip"
+            elif cur == target.id:
+                verdict = "intact"
+            elif cur == 1:
+                verdict = "RESET_TO_1 (recoverable)"
+            elif cur is None:
+                verdict = "RESET_TO_NULL (recoverable)"
+            else:
+                verdict = f"different_sponsor_{cur}"
+            rows.append({"referred_first_name": nm, "brevo_email_date": dt,
+                         "matched_user_id": ref.id, "matched_username": ref.username,
+                         "current_sponsor_id": cur, "verdict": verdict})
+        elif len(pool) > 1:
+            rows.append({"referred_first_name": nm, "brevo_email_date": dt,
+                         "verdict": "ambiguous_same_name",
+                         "candidate_ids": [c.id for c in pool]})
+        else:
+            rows.append({"referred_first_name": nm, "brevo_email_date": dt,
+                         "verdict": "not_found_in_db"})
+
+    recoverable = sum(1 for r in rows if "recoverable" in r.get("verdict", ""))
+    return JSONResponse({
+        "read_only": True,
+        "sponsor": {"user_id": target.id, "username": target.username, "email": target_email},
+        "brevo_first_status": first_status,
+        "brevo_log_date_range": {"oldest": oldest, "newest": newest},
+        "hit_page_or_time_cap": hit_cap,
+        "team_join_emails_found": len(collected),
+        "recoverable_reset_links": recoverable,
+        "downline_per_brevo": rows,
+        "note": ("Each row = an external Brevo 'joined your team' email this sponsor "
+                 "received = proof that person joined under them. verdict shows whether "
+                 "live sponsor_id still reflects it. RESET_TO_1/NULL = corruption provable "
+                 "from this external record. oldest = Brevo retention edge; joins before "
+                 "it aren't in the logs."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
