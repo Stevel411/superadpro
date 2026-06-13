@@ -15011,6 +15011,54 @@ def admin_sponsor_relink(
     })
 
 
+@app.get("/admin/api/sponsor-signals")
+def admin_sponsor_signals(
+    ids: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only forensic dump of every surviving sponsor signal for specific
+    members, so we can see what the breach left behind before attempting any
+    relink. For each id: current sponsor_id, pass_up_sponsor_id (the permanent
+    pass-up chain), and the commission-ledger linkage both ways (rows authored
+    BY this member name their sponsor in to_user_id; rows naming this member as
+    recipient give context). Post-breach rebuilt commission rows carry
+    from_user_id NULL, so a zero comm_from_count means the per-member linkage
+    was lost in the rebuild and the ledger cannot name this member's sponsor."""
+    _require_admin(user)
+    from .database import User as _U, Commission as _C
+    try:
+        id_list = [int(x) for x in ids.split(",") if x.strip()]
+    except ValueError:
+        return JSONResponse({"error": "ids must be comma-separated integers"},
+                            status_code=400)
+    unames = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+    out = []
+    for uid in id_list:
+        u = db.query(_U).filter(_U.id == uid).first()
+        if not u:
+            out.append({"user_id": uid, "error": "not found"})
+            continue
+        from_rows = (db.query(_C.commission_type, _C.to_user_id)
+                     .filter(_C.from_user_id == uid).all())
+        sponsor_named = {}
+        for ct, to in from_rows:
+            if to and to != 1:
+                sponsor_named.setdefault(to, set()).add(ct)
+        to_count = db.query(_C).filter(_C.to_user_id == uid).count()
+        out.append({
+            "user_id": uid, "username": u.username,
+            "sponsor_id": u.sponsor_id,
+            "pass_up_sponsor_id": u.pass_up_sponsor_id,
+            "pass_up_username": unames.get(u.pass_up_sponsor_id),
+            "comm_from_count": len(from_rows),
+            "sponsor_named_by_ledger": {
+                f"{k} ({unames.get(k)})": sorted(v) for k, v in sponsor_named.items()},
+            "comm_to_count": to_count,
+        })
+    return JSONResponse({"read_only": True, "detail": out})
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
