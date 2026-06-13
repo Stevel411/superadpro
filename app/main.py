@@ -14642,6 +14642,125 @@ def admin_api_grid_integrity_audit(
     })
 
 
+@app.get("/admin/api/grid-settlement-truth")
+def admin_grid_settlement_truth(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY truth reconciliation of the 12-Jun legacy grid cut-off.
+
+    For every legacy grid owner, per tier: the HONEST completion bonus owed
+    (real GridPosition rows x tier price x 10%) set against what was actually
+    PAID (Commission grid_completion_bonus, status=paid), plus the status of
+    the phantom top-ups, owner_purchased, and whether an active successor grid
+    exists. Proves who was settled correctly, whether any phantom money is
+    still live, and who is genuinely missing a successor grid (the WTE lockout).
+    No writes."""
+    _require_admin(user)
+    from .database import (Grid, GridPosition as _GP, User as _User, Commission,
+                           GRID_PACKAGES, NEW_GRID_SEATS, LEGACY_BONUS_POOL_PCT)
+    from sqlalchemy import func as _func
+    RATE = float(LEGACY_BONUS_POOL_PCT)
+
+    # Completed legacy grids = the settled set we reconcile.
+    grids = (db.query(Grid)
+             .filter(_func.coalesce(Grid.total_seats, 36) != NEW_GRID_SEATS,
+                     Grid.is_complete == True)  # noqa: E712
+             .all())
+    gids = [g.id for g in grids]
+    rows = {}
+    if gids:
+        for gid, cnt in (db.query(_GP.grid_id, _func.count(_GP.id))
+                         .filter(_GP.grid_id.in_(gids))
+                         .group_by(_GP.grid_id).all()):
+            rows[gid] = int(cnt)
+
+    # Active (incomplete) grids per (owner,tier) = a live successor exists.
+    active = set()
+    for oid, tier in (db.query(Grid.owner_id, Grid.package_tier)
+                      .filter(Grid.is_complete == False).all()):  # noqa: E712
+        active.add((oid, tier))
+
+    # Completion commissions grouped by (recipient, tier, type, status).
+    comm = {}
+    for to_uid, tier, ctype, status, total in (
+        db.query(Commission.to_user_id, Commission.package_tier,
+                 Commission.commission_type, Commission.status,
+                 _func.coalesce(_func.sum(Commission.amount_usdt), 0))
+        .filter(Commission.commission_type.in_(
+            ["grid_completion_bonus", "grid_completion_bonus_topup"]))
+        .group_by(Commission.to_user_id, Commission.package_tier,
+                  Commission.commission_type, Commission.status).all()):
+        comm[(to_uid, tier, ctype, status)] = float(total or 0)
+
+    unames = {u.id: u.username for u in db.query(_User.id, _User.username).all()}
+
+    groups = {}
+    for g in grids:
+        key = (g.owner_id, g.package_tier)
+        gp = groups.setdefault(key, {"grids": [], "seats": 0, "owner_purchased": False})
+        gp["grids"].append({
+            "grid_id": g.id, "advance": g.advance_number,
+            "real_seats": rows.get(g.id, 0),
+            "retired_at": g.retired_at.isoformat() if g.retired_at else None,
+            "owner_purchased": bool(g.owner_purchased),
+            "bonus_pool_stored": float(g.bonus_pool_accrued or 0),
+        })
+        gp["seats"] += rows.get(g.id, 0)
+        if g.owner_purchased:
+            gp["owner_purchased"] = True
+
+    out_rows = []
+    tot_expected = tot_paid = tot_topup_live = 0.0
+    n_correct = n_under = n_over = n_need_succ = 0
+    for (owner, tier), gp in groups.items():
+        price = float(GRID_PACKAGES.get(tier, 0))
+        expected = round(gp["seats"] * price * RATE, 2)
+        paid = comm.get((owner, tier, "grid_completion_bonus", "paid"), 0.0)
+        topup_reversed = comm.get((owner, tier, "grid_completion_bonus_topup", "reversed"), 0.0)
+        topup_live = comm.get((owner, tier, "grid_completion_bonus_topup", "paid"), 0.0)
+        delta = round(paid - expected, 2)
+        has_succ = (owner, tier) in active
+        needs_succ = gp["owner_purchased"] and not has_succ
+        settlement = ("correct" if abs(delta) < 0.01 else
+                      ("UNDERPAID" if delta < 0 else "OVERPAID"))
+        tot_expected += expected; tot_paid += paid; tot_topup_live += topup_live
+        if settlement == "correct": n_correct += 1
+        elif settlement == "UNDERPAID": n_under += 1
+        else: n_over += 1
+        if needs_succ: n_need_succ += 1
+        out_rows.append({
+            "owner_id": owner, "username": unames.get(owner), "tier": tier,
+            "real_seats": gp["seats"], "owner_purchased": gp["owner_purchased"],
+            "honest_expected_usd": expected, "actually_paid_usd": round(paid, 2),
+            "delta_usd": delta, "settlement": settlement,
+            "phantom_topup_reversed_usd": round(topup_reversed, 2),
+            "phantom_topup_STILL_LIVE_usd": round(topup_live, 2),
+            "has_active_successor": has_succ, "needs_successor": needs_succ,
+            "grids": gp["grids"],
+        })
+
+    out_rows.sort(key=lambda r: (r["settlement"] == "correct", -r["real_seats"]))
+    return JSONResponse({
+        "read_only": True, "rate": RATE,
+        "owner_tier_groups": len(out_rows),
+        "settled_correct": n_correct, "underpaid": n_under, "overpaid": n_over,
+        "need_successor_grid": n_need_succ,
+        "totals": {
+            "honest_expected_usd": round(tot_expected, 2),
+            "actually_paid_usd": round(tot_paid, 2),
+            "net_delta_usd": round(tot_paid - tot_expected, 2),
+            "phantom_topup_still_live_usd": round(tot_topup_live, 2),
+        },
+        "detail": out_rows,
+        "note": ("honest_expected = real GridPosition rows x tier price x 10%. "
+                 "actually_paid = paid grid_completion_bonus for owner+tier. delta ~0 = "
+                 "settled correctly. phantom_topup_STILL_LIVE must be 0 (all reversed). "
+                 "needs_successor = owner_purchased grid, completed, no active grid at that "
+                 "tier = the Watch-to-Earn lockout. READ-ONLY, no writes."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
