@@ -18749,10 +18749,17 @@ def _enqueue_skipped_gap(db, gap_lo, gap_hi):
         f"cap; queued {chunks_enqueued} chunk(s) from {recover_lo} for retry; "
         f"{older_unrecovered} older block(s) need manual treasury-scan"
     )
-    try:
-        _send_scan_gap_alert(gap_lo, gap_hi, recover_lo, total, older_unrecovered, chunks_enqueued)
-    except Exception as e:
-        logger.error(f"_enqueue_skipped_gap: alert failed: {e}")
+    # Only email when part of the gap is OLDER than the auto-recover window and
+    # so genuinely needs manual action (treasury-scan + reconcile). Routine
+    # within-window gaps are fully self-healing — the retry pass re-scans them
+    # and matches/orphans any payment automatically — so they are logged above
+    # (full visibility in logs) but NOT emailed. This stops the every-few-minutes
+    # inbox flood while preserving the alert for the rare case that needs a human.
+    if older_unrecovered > 0:
+        try:
+            _send_scan_gap_alert(gap_lo, gap_hi, recover_lo, total, older_unrecovered, chunks_enqueued)
+        except Exception as e:
+            logger.error(f"_enqueue_skipped_gap: alert failed: {e}")
     return chunks_enqueued
 
 
