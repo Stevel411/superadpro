@@ -27933,6 +27933,32 @@ def admin_convert_nexus_to_tier(
         return JSONResponse({"error": f"conversion failed, rolled back: {e}"}, status_code=500)
 
 
+@app.get("/admin/api/refresh-user-cache")
+def admin_refresh_user_cache(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Invalidate a single member's per-user stats cache (dashboard / wallet /
+    earnings / tier badges). Safe and idempotent — forces the next read to
+    recompute from live data. Use when a member reports stale state (e.g. a
+    tier showing inactive that is active server-side). No data change."""
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    cleared = True
+    try:
+        from .stats_cache import cache_invalidate_user
+        cache_invalidate_user(user_id)
+    except Exception as e:
+        cleared = False
+        return JSONResponse({"error": f"cache invalidate failed: {e}"}, status_code=500)
+    return {"ok": cleared, "user_id": user_id, "username": target.username,
+            "note": "Per-user cache invalidated. Member should also hard-refresh / re-login "
+                    "since the Campaign Tiers page itself reads live (any stale view is client-side)."}
+
+
 @app.get("/admin/api/user-tier-status")
 def admin_user_tier_status(
     user_id: int,
