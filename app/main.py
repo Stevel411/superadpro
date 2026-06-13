@@ -14997,13 +14997,13 @@ def admin_grid_seat_carry(
         owner.balance        = _dec.Decimal(str(owner.balance or 0))        - _dec.Decimal(str(actual_reversed))
         owner.total_earned   = _dec.Decimal(str(owner.total_earned or 0))   - _dec.Decimal(str(actual_reversed))
         owner.bonus_earnings = _dec.Decimal(str(owner.bonus_earnings or 0)) - _dec.Decimal(str(actual_reversed))
-        _record_commission(
-            db, owner.id, owner.id, -actual_reversed, "grid_completion_bonus_reversal",
-            f"Carry-across: {n} seat(s) moved grid {src_grid_id}->{dst_grid_id}; "
-            f"reversed ${actual_reversed:.2f} completion bonus (owner consented).",
-            src.package_tier,
-        )
         db.add(owner)
+        # The reversal is fully captured by (a) flipping the original
+        # grid_completion_bonus row(s) to status='reversed' above with an
+        # explanatory note, and (b) this balance deduction. We deliberately do
+        # NOT write a separate negative-amount commission row: negative amounts
+        # trip the commission-anomaly detector (negative_grid_commission), and
+        # the reversed original row is the correct, convention-compliant audit trail.
 
     db.commit()
     return JSONResponse({
@@ -27931,6 +27931,55 @@ def admin_convert_nexus_to_tier(
         db.rollback()
         logger.exception(f"convert-nexus-to-tier FAILED user={user_id} tier={target_tier}")
         return JSONResponse({"error": f"conversion failed, rolled back: {e}"}, status_code=500)
+
+
+@app.get("/admin/api/commission-void")
+def admin_commission_void(
+    commission_id: int,
+    confirm: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Preview / confirm-to-void a single commission row.
+
+    Sets amount_usdt=0 and status='void' on a redundant or anomalous commission
+    WITHOUT touching any balance. Use ONLY when the balance impact is already
+    correctly reflected elsewhere (e.g. a redundant reversal marker whose effect
+    is captured by a flipped original row + a prior balance deduction). Preview
+    by default; &confirm=yes writes. Idempotent.
+    """
+    _require_admin(user)
+    from .database import Commission
+    import decimal as _dec
+    c = db.query(Commission).filter(Commission.id == commission_id).first()
+    if not c:
+        return JSONResponse({"error": "commission not found"}, status_code=404)
+    info = {
+        "id": c.id, "from_user_id": c.from_user_id, "to_user_id": c.to_user_id,
+        "type": c.commission_type, "amount_usdt": float(c.amount_usdt or 0),
+        "status": c.status, "package_tier": c.package_tier,
+        "notes": (c.notes or "")[:160],
+    }
+    if c.status == "void":
+        return {"read_only": True, "mode": "noop", "already_void": True, "commission": info}
+    if confirm != "yes":
+        return JSONResponse({
+            "read_only": True, "mode": "preview", "commission": info,
+            "note": ("Confirm sets amount_usdt=0 and status='void'. Does NOT touch any "
+                     "balance — only use when the balance is already correct and this row "
+                     "is a redundant/anomalous marker. Add &confirm=yes to write."),
+        }, status_code=200, headers={"Cache-Control": "no-store"})
+    before_amount = float(c.amount_usdt or 0)
+    c.amount_usdt = _dec.Decimal("0")
+    c.status = "void"
+    c.notes = (c.notes or "") + " | VOIDED: redundant/anomalous marker, balance unaffected."
+    db.add(c)
+    db.commit()
+    return JSONResponse({
+        "mode": "VOIDED", "commission_id": c.id,
+        "amount_before": before_amount, "amount_after": 0.0, "status": "void",
+        "note": "Balance untouched. Anomaly cleared.",
+    }, status_code=200, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/admin/api/nowpayments-settle")
