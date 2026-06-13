@@ -15336,6 +15336,73 @@ def admin_teammessage_sponsor_recovery(
     })
 
 
+@app.get("/admin/api/corrupted-cohort-breakdown")
+def admin_corrupted_cohort_breakdown(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only: split the sponsor-corrupted cohort (sponsor_id 1/NULL) by signup
+    date around Brevo's 14 May retention edge, crossed with the internal welcome-DM
+    source, to quantify how many members are 'presumed missing' before 14 May
+    (beyond Brevo's reach) and how many of those the welcome DMs can still recover.
+    No writes."""
+    _require_admin(user)
+    from .database import User as _U, TeamMessage as _TM
+    from datetime import datetime as _dt
+    EDGE = _dt(2026, 5, 14)  # Brevo retention edge; prior = unreachable via Brevo
+    MARK = "Welcome to SuperAdPro! I'm"
+
+    joiner_sponsor = {}
+    for to_uid, from_uid in (db.query(_TM.to_user_id, _TM.from_user_id)
+                             .filter(_TM.is_broadcast == False,  # noqa: E712
+                                     _TM.message.like(f"%{MARK}%"))
+                             .order_by(_TM.created_at.asc()).all()):
+        if to_uid and from_uid and to_uid not in joiner_sponsor:
+            joiner_sponsor[to_uid] = from_uid
+    valid_ids = {r.id for r in db.query(_U.id).all()}
+
+    corrupted = (db.query(_U.id, _U.sponsor_id, _U.created_at)
+                 .filter(_U.id != 1, _U.is_admin == False,  # noqa: E712
+                         (_U.sponsor_id.is_(None)) | (_U.sponsor_id == 1))
+                 .all())
+
+    def _bucket():
+        return {"count": 0, "welcome_names_real_sponsor": 0,
+                "no_welcome": 0, "no_date": 0}
+    pre, post = _bucket(), _bucket()
+    for cu in corrupted:
+        if cu.created_at is None:
+            b = pre
+            b["no_date"] += 1
+        elif cu.created_at < EDGE:
+            b = pre
+        else:
+            b = post
+        b["count"] += 1
+        sp = joiner_sponsor.get(cu.id)
+        provable = (sp and sp in valid_ids and sp != cu.id
+                    and sp != 1 and sp != cu.sponsor_id)
+        if provable:
+            b["welcome_names_real_sponsor"] += 1
+        else:
+            b["no_welcome"] += 1
+
+    return JSONResponse({
+        "read_only": True,
+        "brevo_edge": "2026-05-14 (precise earliest email 14 May 16:32 UTC)",
+        "total_corrupted_cohort": len(corrupted),
+        "prior_to_14may": pre,
+        "on_or_after_14may": post,
+        "welcome_dm_source_alive": len(joiner_sponsor) > 0,
+        "total_welcome_dms_found": len(joiner_sponsor),
+        "note": ("prior_to_14may.count = corrupted members who joined before Brevo's edge "
+                 "= UPPER BOUND on 'presumed missing' there (includes genuine direct signups "
+                 "we cannot distinguish). welcome_names_real_sponsor = of those, how many the "
+                 "surviving internal welcome DMs still provably recover; no_welcome = no "
+                 "welcome DM exists (genuine direct OR unrecoverable victim)."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
