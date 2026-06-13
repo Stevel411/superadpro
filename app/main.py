@@ -14606,6 +14606,11 @@ def admin_api_grid_integrity_audit(
             "is_complete": bool(g.is_complete),
             "counter_filled": counter, "actual_rows": actual,
             "resolvable_rows": resolvable, "orphaned_rows": orphans,
+            "total_seats": int(g.total_seats or 0),
+            "retired_at": g.retired_at.isoformat() if g.retired_at else None,
+            "bonus_paid": bool(g.bonus_paid),
+            "bonus_pool": float(g.bonus_pool_accrued or 0),
+            "owner_purchased": bool(g.owner_purchased),
         }
         if orphans > 0:
             orphaned.append(rec)
