@@ -15460,6 +15460,82 @@ def admin_corrupted_list(
     })
 
 
+@app.get("/admin/api/sponsor-set")
+def admin_sponsor_set(
+    pairs: str = "",
+    apply: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Explicit, attestation-based sponsor relink. pairs = 'member:sponsor' csv
+    (e.g. '330:177,178:177'). Sets sponsor_id AND pass_up_sponsor_id (mirroring
+    signup: pass_up = sponsor.pass_up_sponsor_id or sponsor.id) for ONLY the named
+    members. This is a manual correction on admin attestation, NOT data recovery —
+    used where a sponsor was confirmed by a human but no data signal survived.
+    Dry-run by default; ?apply=yes writes. Referral tree + commission routing
+    follow sponsor_id and recompute live, so no counter write is needed."""
+    _require_admin(user)
+    from .database import User as _U
+    do_apply = apply.lower() in ("yes", "1", "true")
+    parsed, errors = [], []
+    for tok in pairs.split(","):
+        tok = tok.strip()
+        if not tok:
+            continue
+        if ":" not in tok:
+            errors.append(f"bad pair '{tok}' (need member:sponsor)")
+            continue
+        a, b = tok.split(":", 1)
+        try:
+            parsed.append((int(a), int(b)))
+        except ValueError:
+            errors.append(f"bad pair '{tok}' (non-integer)")
+    unames = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+    valid_ids = set(unames.keys())
+
+    rows, applied = [], 0
+    for mid, sid in parsed:
+        if mid not in valid_ids:
+            rows.append({"member_id": mid, "error": "member not found"})
+            continue
+        if sid not in valid_ids:
+            rows.append({"member_id": mid, "sponsor_id": sid, "error": "sponsor not found"})
+            continue
+        if mid == sid:
+            rows.append({"member_id": mid, "error": "member == sponsor"})
+            continue
+        m = db.query(_U).filter(_U.id == mid).first()
+        s = db.query(_U).filter(_U.id == sid).first()
+        new_passup = s.pass_up_sponsor_id or s.id
+        row = {
+            "member_id": mid, "member": unames.get(mid),
+            "current_sponsor_id": m.sponsor_id,
+            "new_sponsor_id": sid, "new_sponsor": unames.get(sid),
+            "new_pass_up_sponsor_id": new_passup,
+        }
+        if do_apply:
+            m.sponsor_id = sid
+            m.pass_up_sponsor_id = new_passup
+            applied += 1
+            row["applied"] = True
+        rows.append(row)
+    if do_apply and applied:
+        db.commit()
+
+    return JSONResponse({
+        "read_only": not do_apply,
+        "mode": "APPLIED" if do_apply else "dry-run",
+        "pairs_requested": len(parsed),
+        "applied": applied if do_apply else 0,
+        "parse_errors": errors,
+        "detail": rows,
+        "note": ("Attestation-based manual relink (admin-confirmed sponsor, no surviving "
+                 "data signal). Sets sponsor_id + pass_up_sponsor_id for the named members "
+                 "only. Tree + commission routing follow sponsor_id and take effect "
+                 "immediately on apply. ?apply=yes writes."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
