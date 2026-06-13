@@ -14761,6 +14761,84 @@ def admin_grid_settlement_truth(
     })
 
 
+@app.get("/admin/api/wte-successor-mint")
+def admin_wte_successor_mint(
+    apply: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Members who genuinely purchased a campaign tier (owner_purchased grid)
+    but have NO active (incomplete) grid at that tier are locked out of
+    Watch-to-Earn: get_user_highest_tier returns -1, so /api/watch returns
+    locked. The 12-Jun cut-off retired their legacy grids without minting the
+    16-seat successor. This mints the missing successor per purchased tier so
+    the member's tier is active again and WTE unlocks.
+
+    Empty 16-seat grids only — NO money, NO commissions. Idempotent:
+    get_or_create_active_grid returns an existing active grid rather than
+    duplicating. Dry-run by default; pass ?apply=yes to mint.
+    """
+    _require_admin(user)
+    from .database import Grid, User as _User
+    from .grid import get_or_create_active_grid
+    do_apply = apply.lower() in ("yes", "1", "true")
+
+    by_owner = {}
+    for g in db.query(Grid).all():
+        by_owner.setdefault(g.owner_id, []).append(g)
+    unames = {u.id: u.username for u in db.query(_User.id, _User.username).all()}
+
+    rows, minted_rows = [], []
+    n_locked = total_need = minted_count = 0
+    for owner_id, gl in by_owner.items():
+        purchased = sorted({g.package_tier for g in gl if g.owner_purchased})
+        if not purchased:
+            continue  # never genuinely bought a tier
+        active = sorted({g.package_tier for g in gl if not g.is_complete})
+        highest_active = max(active) if active else -1
+        wte_locked = highest_active < 0
+        need = [t for t in purchased if t not in active]
+        if wte_locked:
+            n_locked += 1
+        total_need += len(need)
+        row = {
+            "user_id": owner_id, "username": unames.get(owner_id),
+            "purchased_tiers": purchased, "active_tiers": active,
+            "highest_active_tier": highest_active, "wte_locked": wte_locked,
+            "tiers_needing_successor": need,
+        }
+        if do_apply and need:
+            made = []
+            for t in need:
+                try:
+                    g = get_or_create_active_grid(db, owner_id, t)
+                    made.append({"tier": t, "grid_id": g.id,
+                                 "advance": g.advance_number, "total_seats": g.total_seats})
+                    minted_count += 1
+                except Exception as e:
+                    made.append({"tier": t, "error": str(e)})
+            row["minted"] = made
+            minted_rows.append({"user_id": owner_id, "username": unames.get(owner_id), "made": made})
+        if need or wte_locked:
+            rows.append(row)
+
+    rows.sort(key=lambda r: (not r["wte_locked"], r["user_id"]))
+    return JSONResponse({
+        "read_only": not do_apply,
+        "mode": "APPLIED" if do_apply else "dry-run",
+        "paid_tier_members_needing_fix": len(rows),
+        "wte_locked_count": n_locked,
+        "successor_grids_needed": total_need,
+        "minted_count": minted_count if do_apply else 0,
+        "detail": rows,
+        "note": ("wte_locked = no active grid at any tier -> /api/watch locked. "
+                 "tiers_needing_successor = a purchased tier with no active grid. "
+                 "Apply mints one empty 16-seat successor per needed tier "
+                 "(get_or_create_active_grid, idempotent). No money, no commissions. "
+                 "Pass ?apply=yes to execute."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
