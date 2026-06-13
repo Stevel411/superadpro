@@ -15403,6 +15403,63 @@ def admin_corrupted_cohort_breakdown(
     })
 
 
+@app.get("/admin/api/corrupted-list")
+def admin_corrupted_list(
+    before: str = "2026-05-14",
+    after: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only: list sponsor-corrupted accounts (sponsor_id 1/NULL) in a signup-
+    date window, with identifying detail for manual review. Default lists those who
+    joined BEFORE 14 May (the 69 beyond Brevo's reach). Oldest first. No writes."""
+    _require_admin(user)
+    from .database import User as _U
+    from datetime import datetime as _dt
+    from sqlalchemy import func as _func
+
+    def _parse(s):
+        try:
+            return _dt.fromisoformat(s) if s else None
+        except ValueError:
+            return None
+    before_dt, after_dt = _parse(before), _parse(after)
+
+    child_counts = dict(db.query(_U.sponsor_id, _func.count(_U.id))
+                        .group_by(_U.sponsor_id).all())
+
+    rows = (db.query(_U).filter(_U.id != 1, _U.is_admin == False,  # noqa: E712
+                                (_U.sponsor_id.is_(None)) | (_U.sponsor_id == 1)).all())
+    out = []
+    for u in rows:
+        cat = u.created_at
+        if before_dt and cat and cat >= before_dt:
+            continue
+        if after_dt and cat and cat < after_dt:
+            continue
+        out.append({
+            "id": u.id, "username": u.username, "email": u.email,
+            "first_name": u.first_name,
+            "joined": cat.strftime("%Y-%m-%d") if cat else None,
+            "sponsor_id": u.sponsor_id,
+            "active": bool(u.is_active),
+            "founding": bool(u.is_founding_member),
+            "founder_spot": u.founding_spot_number,
+            "direct_children": child_counts.get(u.id, 0),
+        })
+    out.sort(key=lambda r: (r["joined"] or "", r["id"]))
+    return JSONResponse({
+        "read_only": True,
+        "window": {"before": before or None, "after": after or None},
+        "count": len(out),
+        "members": out,
+        "note": ("Corrupted = sponsor_id is 1 (root) or NULL. These joined in the given "
+                 "window. Review which are genuinely direct-under-you vs which belong to a "
+                 "real sponsor; send me the member->sponsor pairs and I relink only those, "
+                 "flagged as your attestation. direct_children = how many sit under them now."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
