@@ -15059,6 +15059,75 @@ def admin_sponsor_signals(
     return JSONResponse({"read_only": True, "detail": out})
 
 
+@app.get("/admin/api/backup-inspect")
+def admin_backup_inspect(
+    file: str = "",
+    ids: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only: load a specific R2 backup and report the sponsor tree AS STORED
+    IN THAT BACKUP, to find whether any surviving backup predates the sponsor
+    corruption. Reports an aggregate health signal (how many users in the backup
+    have a real, non-root sponsor) vs live, plus exact sponsor_id /
+    pass_up_sponsor_id for specific ids. Compare the earliest vs latest backup to
+    pinpoint when sponsor_id flipped to 1. No writes."""
+    _require_admin(user)
+    from .db_backup import load_backup, list_backups
+    from .database import User as _U
+    if not file:
+        return JSONResponse({"error": "pass ?file=<name> (see /admin/api/backups)",
+                             "available": list_backups()})
+    payload = load_backup(file)
+    if "error" in payload:
+        return JSONResponse(payload, status_code=400)
+    users = payload.get("tables", {}).get("users", [])
+    if isinstance(users, dict) and "_error" in users:
+        return JSONResponse({"error": f"users table not captured: {users['_error']}"},
+                            status_code=400)
+    total = len(users)
+    real = sum(1 for u in users if u.get("sponsor_id") not in (None, 1))
+    root = sum(1 for u in users if u.get("sponsor_id") == 1)
+    nul = sum(1 for u in users if u.get("sponsor_id") is None)
+    by_id = {u.get("id"): u for u in users}
+
+    try:
+        id_list = [int(x) for x in ids.split(",") if x.strip()]
+    except ValueError:
+        id_list = []
+    detail = []
+    for uid in id_list:
+        bu = by_id.get(uid)
+        if not bu:
+            detail.append({"user_id": uid, "in_backup": False})
+            continue
+        detail.append({
+            "user_id": uid, "username": bu.get("username"),
+            "backup_sponsor_id": bu.get("sponsor_id"),
+            "backup_pass_up_sponsor_id": bu.get("pass_up_sponsor_id"),
+        })
+
+    live_total = db.query(_U).count()
+    live_real = db.query(_U).filter(_U.sponsor_id.isnot(None), _U.sponsor_id != 1).count()
+    live_root = db.query(_U).filter(_U.sponsor_id == 1).count()
+    live_nul = db.query(_U).filter(_U.sponsor_id.is_(None)).count()
+
+    return JSONResponse({
+        "read_only": True,
+        "backup_file": file,
+        "backup_timestamp": payload.get("meta", {}).get("timestamp"),
+        "backup_users_total": total,
+        "backup_sponsor_breakdown": {"real_non_root": real, "root_1": root, "null": nul},
+        "live_sponsor_breakdown": {"total": live_total, "real_non_root": live_real,
+                                   "root_1": live_root, "null": live_nul},
+        "ids_detail": detail,
+        "note": ("If backup real_non_root is much HIGHER than live real_non_root, this "
+                 "backup predates the corruption and the true tree is recoverable from it. "
+                 "If ids show backup_sponsor_id = the real sponsor (e.g. 330->177) while "
+                 "live is 1, this backup holds the truth."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
