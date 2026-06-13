@@ -1499,67 +1499,25 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "nexus_team_count": max(0, db.query(CreditMatrixPosition.user_id).join(
             CreditMatrix, CreditMatrixPosition.matrix_id == CreditMatrix.id
         ).filter(CreditMatrix.owner_id == user.id).distinct().count() - 1),
-        # Earnings this calendar month (commissions paid TO this user).
-        # Used as the headline number on Command Centre's outcome card.
-        # Sums across all three commission tables: Commission (grid +
-        # membership), CreditMatrixCommission (Credit Nexus), and
-        # CourseCommission (Course Academy). Bug fixed 7 May 2026:
-        # previously summed only Commission, undercounting members who
-        # earned via Credit Nexus or Courses this month.
-        "earnings_this_month": (
-            float(
-                db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
-                .filter(
-                    Commission.to_user_id == user.id,
-                    Commission.amount_usdt > 0,
-                    Commission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                ).scalar() or 0
-            ) + float(
-                db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0))
-                .filter(
-                    CreditMatrixCommission.earner_id == user.id,
-                    CreditMatrixCommission.status == 'paid',
-                    CreditMatrixCommission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                ).scalar() or 0
-            ) + float(
-                db.query(func.coalesce(func.sum(CourseCommission.amount), 0))
-                .filter(
-                    CourseCommission.earner_id == user.id,
-                    CourseCommission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                ).scalar() or 0
-            )
-        ),
-        # Earnings LAST calendar month — used to compute a +/- delta on
-        # the Command Centre outcome card so members can see momentum.
-        # First-of-this-month minus 1 day = some day in last month → use
-        # that month's first day as the lower bound.
-        # Same 3-table aggregation as earnings_this_month.
-        "earnings_last_month": (
-            float(
-                db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
-                .filter(
-                    Commission.to_user_id == user.id,
-                    Commission.amount_usdt > 0,
-                    Commission.created_at >= (datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                    Commission.created_at < datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                ).scalar() or 0
-            ) + float(
-                db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0))
-                .filter(
-                    CreditMatrixCommission.earner_id == user.id,
-                    CreditMatrixCommission.status == 'paid',
-                    CreditMatrixCommission.created_at >= (datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                    CreditMatrixCommission.created_at < datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                ).scalar() or 0
-            ) + float(
-                db.query(func.coalesce(func.sum(CourseCommission.amount), 0))
-                .filter(
-                    CourseCommission.earner_id == user.id,
-                    CourseCommission.created_at >= (datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                    CourseCommission.created_at < datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
-                ).scalar() or 0
-            )
-        ),
+        # Earnings this calendar month — a strict subset of ALL TIME by
+        # construction: compute_user_earnings() with a created_at >= month-start
+        # window, the SAME paid-only / topup-excluded filter set as the lifetime
+        # total. Cannot exceed ALL TIME, and inherits the topup/phantom exclusion
+        # automatically. (Was a hand-rolled 3-table sum with NO status and NO
+        # commission_type filter — it counted reversed rows, admin_adjustments,
+        # and phantom grid_completion_bonus_topup rows, so it over-reported and
+        # could exceed ALL TIME. Fixed by routing through the one helper.)
+        "earnings_this_month": compute_user_earnings(
+            db, user.id,
+            since=datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+        )["total_earned"],
+        # Earnings LAST calendar month — same helper, [last-month-start, this-
+        # month-start) window. Used for the +/- momentum delta on the card.
+        "earnings_last_month": compute_user_earnings(
+            db, user.id,
+            since=(datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+            until=datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+        )["total_earned"],
         "grid_stats":        stats,
         "active_grids":      active_grids,
         "recent_commissions":commissions,
@@ -15017,6 +14975,99 @@ def admin_grid_seat_carry(
                            "revenue_total": float(src.revenue_total or 0)},
         "dst_grid_after": {"positions_filled": dst.positions_filled,
                            "revenue_total": float(dst.revenue_total or 0)},
+    }, status_code=200, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/admin/api/earnings-tile-check")
+def admin_earnings_tile_check(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY verification for the dashboard THIS MONTH tile fix.
+
+    For one user, computes side by side:
+      - all_time_NEW   : compute_user_earnings (topup excluded) lifetime
+      - all_time_OLD   : what ALL TIME was BEFORE the fix (i.e. + paid topups)
+      - this_month_OLD : the old hand-rolled tile (no status/type filter)
+      - this_month_NEW : compute_user_earnings windowed to this month
+      - last_month_NEW : compute_user_earnings windowed to last month
+      - topup_paid_usd / topup_reversed_usd : the phantom-bonus split that
+        explains the gap and whether ALL TIME moved.
+      - invariant_ok   : this_month_NEW <= all_time_NEW (must be True)
+
+    No writes. Tap for the affected user and for an admin account.
+    """
+    _require_admin(user)
+    from .database import Commission, User as _User
+    if not db.query(_User).filter(_User.id == user_id).first():
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    last_month_start = (month_start - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    def _topup(status):
+        return float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == user_id,
+            Commission.commission_type == 'grid_completion_bonus_topup',
+            Commission.status == status,
+        ).scalar() or 0)
+
+    def _topup_window(status, since, until=None):
+        q = db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == user_id,
+            Commission.commission_type == 'grid_completion_bonus_topup',
+            Commission.status == status,
+            Commission.created_at >= since,
+        )
+        if until is not None:
+            q = q.filter(Commission.created_at < until)
+        return float(q.scalar() or 0)
+
+    # OLD this-month tile: the exact pre-fix formula (no status, no type filter).
+    old_this_month = (
+        float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == user_id,
+            Commission.amount_usdt > 0,
+            Commission.created_at >= month_start,
+        ).scalar() or 0)
+        + float(db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0)).filter(
+            CreditMatrixCommission.earner_id == user_id,
+            CreditMatrixCommission.status == 'paid',
+            CreditMatrixCommission.created_at >= month_start,
+        ).scalar() or 0)
+        + float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
+            CourseCommission.earner_id == user_id,
+            CourseCommission.created_at >= month_start,
+        ).scalar() or 0)
+    )
+
+    new_all_time = compute_user_earnings(db, user_id)["total_earned"]
+    new_this_month = compute_user_earnings(db, user_id, since=month_start)["total_earned"]
+    new_last_month = compute_user_earnings(db, user_id, since=last_month_start, until=month_start)["total_earned"]
+
+    topup_paid = _topup('paid')
+    topup_reversed = _topup('reversed')
+    # ALL TIME before the fix included paid topups of every age.
+    old_all_time = round(new_all_time + topup_paid, 2)
+
+    return JSONResponse({
+        "read_only": True,
+        "user_id": user_id,
+        "all_time_OLD_with_topup": old_all_time,
+        "all_time_NEW": round(new_all_time, 2),
+        "all_time_moved_by": round(new_all_time - old_all_time, 2),
+        "this_month_OLD_buggy": round(old_this_month, 2),
+        "this_month_NEW": round(new_this_month, 2),
+        "last_month_NEW": round(new_last_month, 2),
+        "topup_paid_usd_total": round(topup_paid, 2),
+        "topup_reversed_usd_total": round(topup_reversed, 2),
+        "topup_paid_this_month": round(_topup_window('paid', month_start), 2),
+        "topup_reversed_this_month": round(_topup_window('reversed', month_start), 2),
+        "invariant_ok_month_le_alltime": new_this_month <= new_all_time + 0.01,
+        "note": ("all_time_moved_by != 0 means paid (phantom) topups WERE "
+                 "inflating ALL TIME too; the fix removed them. invariant must "
+                 "be True. No writes performed."),
     }, status_code=200, headers={"Cache-Control": "no-store"})
 
 
@@ -32777,10 +32828,29 @@ def compute_total_withdrawn(db: Session, user_id: int) -> float:
     return result
 
 
-def compute_user_earnings(db: Session, user_id: int) -> dict:
+def compute_user_earnings(db: Session, user_id: int, since=None, until=None) -> dict:
     """
-    Compute a user's lifetime earnings live from the ledger, broken down by
-    income stream. Returns:
+    Compute a user's earnings live from the ledger, broken down by income
+    stream.
+
+    Optional since/until (datetime) restrict EVERY slice to a created_at
+    window [since, until). When both are None this returns lifetime totals
+    (the ALL TIME figure, cached 60s). A windowed call is, by construction,
+    the SAME paid-only / topup-excluded filter set as the lifetime total
+    plus a created_at bound — so the dashboard "this month" tile is a strict
+    subset of ALL TIME and can never exceed it. Windowed calls are not cached
+    (the month boundary makes the lifetime cache key unsafe to share).
+
+    NOTE on grid_completion_bonus_topup: deliberately NOT counted. Those rows
+    are never a legitimate earning — they are either reversed (clawed-back
+    migration double-pays) or phantom-still-live errors that grid-settlement-
+    truth flags as "must be 0". Same exclusion the grid visualiser query
+    already makes (see the grid_completion_bonus-only bonus_row above). A
+    bare status=='paid' filter is NOT enough because phantom topups carry
+    status=='paid'; the TYPE is excluded here so neither ALL TIME nor the
+    month tiles ever inherit phantom bonus money.
+
+    Returns:
         {
           "total_earned": float,       # sum of all paid commissions + course commissions
           "grid_earnings": float,      # direct_sponsor + uni_level + grid_completion_bonus
@@ -32802,22 +32872,32 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
 
     Cached 60s per-user.
     """
-    cache_key = f"earnings:{user_id}"
-    cached = cache_get(cache_key)
-    if cached is not None:
-        return cached
+    windowed = (since is not None) or (until is not None)
+    cache_key = None if windowed else f"earnings:{user_id}"
+    if cache_key is not None:
+        cached = cache_get(cache_key)
+        if cached is not None:
+            return cached
 
-    grid = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+    def _win(q, col):
+        # Apply the optional [since, until) created_at window to a query.
+        if since is not None:
+            q = q.filter(col >= since)
+        if until is not None:
+            q = q.filter(col < until)
+        return q
+
+    grid = float(_win(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user_id,
         Commission.status == 'paid',
-        Commission.commission_type.in_(['direct_sponsor', 'uni_level', 'grid_completion_bonus', 'grid_completion_bonus_topup'])
-    ).scalar() or 0)
+        Commission.commission_type.in_(['direct_sponsor', 'uni_level', 'grid_completion_bonus'])
+    ), Commission.created_at).scalar() or 0)
 
-    membership = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+    membership = float(_win(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user_id,
         Commission.status == 'paid',
         Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor', 'gift_membership_sponsor'])
-    ).scalar() or 0)
+    ), Commission.created_at).scalar() or 0)
 
     # Nexus earnings come from TWO tables:
     #   1. Commission rows tagged with legacy nexus_*/matrix_* types (very few,
@@ -32829,22 +32909,22 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
     #      test3's Starter pack purchase. Same root cause as the activity-feed
     #      bug fixed earlier — when Credit Nexus shipped its own table, this
     #      aggregator was never updated to read from it.)
-    nexus_legacy = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+    nexus_legacy = float(_win(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user_id,
         Commission.status == 'paid',
         Commission.commission_type.in_(['matrix_level', 'matrix_completion', 'nexus_sponsor', 'nexus_level', 'nexus_completion'])
-    ).scalar() or 0)
+    ), Commission.created_at).scalar() or 0)
 
-    nexus_matrix = float(db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0)).filter(
+    nexus_matrix = float(_win(db.query(func.coalesce(func.sum(CreditMatrixCommission.amount), 0)).filter(
         CreditMatrixCommission.earner_id == user_id,
         CreditMatrixCommission.status == 'paid',
-    ).scalar() or 0)
+    ), CreditMatrixCommission.created_at).scalar() or 0)
 
     nexus = nexus_legacy + nexus_matrix
 
-    course = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
+    course = float(_win(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
         CourseCommission.earner_id == user_id,
-    ).scalar() or 0)
+    ), CourseCommission.created_at).scalar() or 0)
 
     direct_refs = db.query(User).filter(User.sponsor_id == user_id).count()
 
@@ -32882,7 +32962,8 @@ def compute_user_earnings(db: Session, user_id: int) -> dict:
     #   and-braces value is no longer warranted. Balance still feels
     #   live because cache_invalidate_user() fires synchronously on
     #   every relevant write.
-    cache_set(cache_key, result, ttl=60)
+    if cache_key is not None:
+        cache_set(cache_key, result, ttl=60)
     return result
 
 
