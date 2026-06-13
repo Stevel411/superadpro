@@ -17873,6 +17873,54 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/admin/api/delete-user")
+def admin_delete_user_get(user_id: int, confirm: str = "",
+                          user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Tappable GET wrapper around admin_delete_user.
+
+    Browser address bars only issue GET, so the canonical DELETE handler
+    above can't be triggered by tapping a URL. This wrapper shows a
+    preview by default and only performs the (permanent) delete when
+    ?confirm=yes is passed. The actual deletion reuses the exact same
+    battle-tested cascade in admin_delete_user — no duplicated logic.
+    """
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    children = db.query(User).filter(User.sponsor_id == user_id).count()
+    preview = {
+        "id": target.id,
+        "username": target.username,
+        "email": target.email,
+        "first_name": target.first_name,
+        "is_active": target.is_active,
+        "is_admin": target.is_admin,
+        "balance_usd": float(target.balance or 0),
+        "sponsor_id": target.sponsor_id,
+        "direct_children": children,
+        "created_at": target.created_at.isoformat() if target.created_at else None,
+    }
+
+    if confirm != "yes":
+        return {
+            "read_only": True,
+            "mode": "preview",
+            "would_delete": preview,
+            "note": ("Permanent delete. Reuses the full cascade: sponsor counters "
+                     "decremented, any downline's sponsor_id/pass_up nulled (not deleted), "
+                     "all FK references cleared. Blocks if balance > 0 or account is admin. "
+                     "Add &confirm=yes to execute."),
+        }
+
+    result = admin_delete_user(user_id=user_id, user=user, db=db)
+    if isinstance(result, dict) and result.get("ok"):
+        result["deleted_snapshot"] = preview
+    return result
 # ═══════════════════════════════════════════════════════════════
 #  AI CO-PILOT — Pro Only
 # ═══════════════════════════════════════════════════════════════
