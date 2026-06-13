@@ -27933,6 +27933,139 @@ def admin_convert_nexus_to_tier(
         return JSONResponse({"error": f"conversion failed, rolled back: {e}"}, status_code=500)
 
 
+@app.get("/admin/api/nowpayments-settle")
+async def admin_nowpayments_settle_get(
+    order_ids: str,
+    confirm: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Record-only settlement for NOWPayments orders whose product was ALREADY
+    delivered (grids exist, commissions fired) but which have no Payment row
+    and are stuck partially_paid.
+
+    Unlike /nowpayments-recover, this deliberately does NOT call
+    _nowpayments_activate_product / process_tier_purchase — so it cannot
+    re-fire the commission chain or mint a duplicate grid advance. It only:
+      1. Verifies the payment is real with NOWPayments (accepts
+         finished/confirmed/partially_paid).
+      2. Writes a Payment row (tx_hash = np_<np_payment_id>, status=confirmed,
+         amount = order.price_usd) so the ledger reflects what was paid.
+      3. Marks the order finished + confirmed_at.
+
+    Writing tx_hash = np_<np_payment_id> also arms the recover endpoint's
+    double-activation guard, so nobody can later accidentally re-activate
+    (double-grant) this order. Idempotent: skips orders that already have a
+    Payment row or are already finished. Preview by default; &confirm=yes writes.
+    """
+    _require_admin(user)
+    from .database import NowPaymentsOrder, Payment
+    from . import nowpayments_service as nps
+    from datetime import datetime
+
+    try:
+        ids = [int(x) for x in order_ids.split(",") if x.strip()]
+    except ValueError:
+        return JSONResponse({"error": f"bad order_ids: {order_ids}"}, status_code=400)
+    if not ids:
+        return JSONResponse({"error": "no order_ids given"}, status_code=400)
+
+    plan = []
+    for oid in ids:
+        order = db.query(NowPaymentsOrder).filter(NowPaymentsOrder.id == oid).first()
+        if not order:
+            plan.append({"order_id": oid, "action": "skip", "reason": "order not found"})
+            continue
+        target = db.query(User).filter(User.id == order.user_id).first()
+        np_tx = f"np_{order.np_payment_id}" if order.np_payment_id else None
+        existing = db.query(Payment).filter(Payment.tx_hash == np_tx).first() if np_tx else None
+        if existing:
+            plan.append({"order_id": oid, "action": "skip", "reason": "Payment row already exists",
+                         "existing_payment_id": existing.id})
+            continue
+        if order.status in ("finished", "confirmed"):
+            plan.append({"order_id": oid, "action": "skip", "reason": f"order already {order.status}"})
+            continue
+        if not order.np_payment_id:
+            plan.append({"order_id": oid, "action": "skip", "reason": "no np_payment_id to verify"})
+            continue
+        # Verify with NOWPayments
+        np_status = None
+        np_actually_paid = None
+        try:
+            r = nps.get_payment_status(int(order.np_payment_id)) or {}
+            np_status = str(r.get("payment_status") or r.get("status") or "").lower()
+            np_actually_paid = r.get("actually_paid")
+        except Exception as e:
+            plan.append({"order_id": oid, "action": "skip", "reason": f"could not verify with NOWPayments: {e}"})
+            continue
+        if np_status not in ("finished", "confirmed", "partially_paid"):
+            plan.append({"order_id": oid, "action": "skip",
+                         "reason": f"NOWPayments status '{np_status}' not safe to settle"})
+            continue
+        plan.append({
+            "order_id": oid, "action": "settle",
+            "user_id": order.user_id, "username": target.username if target else None,
+            "product": f"{order.product_type}/{order.product_key}",
+            "price_usd": float(order.price_usd or 0),
+            "local_status": order.status, "nowpayments_status": np_status,
+            "nowpayments_actually_paid": np_actually_paid,
+            "will_write_payment": {"tx_hash": np_tx, "amount_usdt": float(order.price_usd or 0),
+                                   "status": "confirmed", "activation": "NONE (record-only)"},
+        })
+
+    settle_count = sum(1 for p in plan if p["action"] == "settle")
+
+    if confirm != "yes":
+        return JSONResponse({
+            "read_only": True, "mode": "preview",
+            "orders_to_settle": settle_count,
+            "plan": plan,
+            "note": ("Record-only. Confirm writes a Payment row (np_<id>, confirmed, "
+                     "= order price) and marks each order finished. NO grid activation, "
+                     "NO commissions, NO balance change. Idempotent. Add &confirm=yes to write."),
+        }, status_code=200, headers={"Cache-Control": "no-store, no-cache, max-age=0"})
+
+    # ---- WRITE ----
+    settled = []
+    now = datetime.utcnow()
+    for p in plan:
+        if p["action"] != "settle":
+            continue
+        oid = p["order_id"]
+        order = db.query(NowPaymentsOrder).filter(NowPaymentsOrder.id == oid).first()
+        target = db.query(User).filter(User.id == order.user_id).first()
+        np_tx = f"np_{order.np_payment_id}"
+        payment = Payment(
+            from_user_id=target.id if target else None, to_user_id=None,
+            amount_usdt=order.price_usd,
+            payment_type=f"nowpayments_{order.product_type}",
+            tx_hash=np_tx,
+            status="confirmed",
+        )
+        db.add(payment)
+        order.status = "finished"
+        order.confirmed_at = now
+        try:
+            r = nps.get_payment_status(int(order.np_payment_id)) or {}
+            order.actually_paid = r.get("actually_paid") or order.actually_paid
+        except Exception:
+            pass
+        db.add(order)
+        db.flush()
+        settled.append({"order_id": oid, "payment_id": payment.id,
+                        "amount_usd": float(order.price_usd or 0),
+                        "username": target.username if target else None})
+    db.commit()
+
+    logger.warning(f"ADMIN NOWPAYMENTS SETTLE (record-only): admin={user.username} "
+                   f"orders={[s['order_id'] for s in settled]} (no activation)")
+    return JSONResponse({
+        "mode": "SETTLED", "orders_settled": len(settled), "detail": settled,
+        "note": "Payment rows written + orders marked finished. No activation/commissions/balance change.",
+    }, status_code=200, headers={"Cache-Control": "no-store"})
+
+
 @app.get("/admin/api/nowpayments-recover")
 async def admin_nowpayments_recover_get(
     order_id: int,
