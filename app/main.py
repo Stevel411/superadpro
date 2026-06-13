@@ -27933,6 +27933,71 @@ def admin_convert_nexus_to_tier(
         return JSONResponse({"error": f"conversion failed, rolled back: {e}"}, status_code=500)
 
 
+@app.get("/admin/api/nowpayments-recover")
+async def admin_nowpayments_recover_get(
+    order_id: int,
+    confirm: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Tappable GET wrapper around the POST recover endpoint.
+
+    Browser address bars only issue GET, so the canonical POST recover can't
+    be triggered by tapping. Preview by default (shows the order + what
+    NOWPayments reports, no writes); &confirm=yes runs the real recovery,
+    which re-verifies with NOWPayments and activates the product. The
+    underlying recover is idempotent and refuses double-activation, so this
+    is safe; the preview is just a look-before-leap on a money action.
+    """
+    _require_admin(user)
+    from .database import NowPaymentsOrder, Payment
+    from . import nowpayments_service as nps
+
+    order = db.query(NowPaymentsOrder).filter(NowPaymentsOrder.id == order_id).first()
+    if not order:
+        return JSONResponse({"error": "Order not found"}, status_code=404)
+    target = db.query(User).filter(User.id == order.user_id).first()
+
+    # Already-activated guard surfaced in the preview too
+    already_payment = None
+    if order.np_payment_id:
+        ep = db.query(Payment).filter(Payment.tx_hash == f"np_{order.np_payment_id}").first()
+        already_payment = ep.id if ep else None
+
+    if confirm != "yes":
+        np_view = {}
+        try:
+            if order.np_payment_id:
+                r = nps.get_payment_status(int(order.np_payment_id))
+                np_view = {
+                    "np_payment_status": (r or {}).get("payment_status") or (r or {}).get("status"),
+                    "pay_amount": (r or {}).get("pay_amount"),
+                    "actually_paid": (r or {}).get("actually_paid"),
+                }
+        except Exception as e:
+            np_view = {"error": f"could not reach NOWPayments: {e}"}
+        return {
+            "read_only": True,
+            "mode": "preview",
+            "order": {
+                "id": order.id, "user_id": order.user_id,
+                "username": target.username if target else None,
+                "product_type": order.product_type, "product_key": order.product_key,
+                "price_usd": float(order.price_usd or 0),
+                "local_status": order.status, "np_payment_id": order.np_payment_id,
+            },
+            "nowpayments_says": np_view,
+            "already_activated_payment_id": already_payment,
+            "note": ("Confirm will re-verify with NOWPayments and, if the payment is "
+                     "finished/confirmed/partially_paid, activate the product (writes a "
+                     "Payment row + runs the tier/grid purchase). Idempotent — refuses if "
+                     "already activated. Add &confirm=yes to execute."),
+        }
+
+    # confirm=yes → run the real recovery (re-verifies with NOWPayments + activates)
+    return await admin_api_recover_nowpayments_order(order_id=order_id, user=user, db=db)
+
+
 @app.post("/admin/api/nowpayments-order/{order_id}/recover")
 async def admin_api_recover_nowpayments_order(
     order_id: int,
