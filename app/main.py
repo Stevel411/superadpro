@@ -14832,6 +14832,194 @@ def admin_user_bonus_ledger(
     }
 
 
+@app.get("/admin/api/grid-seat-carry")
+def admin_grid_seat_carry(
+    src_grid_id: int,
+    dst_grid_id: int,
+    member_ids: str,
+    apply: int = 0,
+    code: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Carry named occupants from one grid to another (same owner + tier) and
+    reverse the source grid's completion bonus for the moved seats.
+
+    Built for a deliberate, admin-approved goodwill carry-across (e.g. moving a
+    member's occupants from a retired legacy grid into their fresh 16-seat grid).
+    NOT part of normal grid mechanics — seats normally fill only via real tier
+    purchases / spillover. This is a manual override, so it is dry-run by default
+    and the apply is 2FA-gated.
+
+    What it does on apply:
+      1. Re-parents the GridPosition rows for the given members from src -> dst.
+      2. Rebalances positions_filled / revenue_total / bonus_pool_accrued on BOTH
+         grids (src loses the seats' value, dst gains it at dst's own rate).
+      3. Reverses the source owner's completion bonus for the moved seats
+         (moved_seats x src tier price x src seat-rate): flips the matching paid
+         grid_completion_bonus row(s) to 'reversed' and deducts the amount from
+         the owner's balance / total_earned / bonus_earnings.
+
+    It does NOT touch purchase-time direct/uni-level commissions — those were
+    earned when the seated members bought their tier and partly flow to other
+    uplines; they are not tied to which grid-cycle records the seat.
+
+    Idempotent: only rows still in src are moved, and the bonus is reversed only
+    when seats are actually moved this run, so a re-run is a no-op.
+    """
+    _require_admin(user)
+    from .database import (Grid, GridPosition as _GP, User as _User, Commission,
+                           GRID_PACKAGES, bonus_pct_for)
+    from .grid import _record_commission
+
+    try:
+        want = [int(x) for x in member_ids.split(",") if x.strip()]
+    except ValueError:
+        return JSONResponse({"error": f"bad member_ids: {member_ids}"}, status_code=400)
+    if not want:
+        return JSONResponse({"error": "no member_ids given"}, status_code=400)
+
+    src = db.query(Grid).filter(Grid.id == src_grid_id).first()
+    dst = db.query(Grid).filter(Grid.id == dst_grid_id).first()
+    if not src or not dst:
+        return JSONResponse({"error": "src or dst grid not found"}, status_code=404)
+    if src.owner_id != dst.owner_id:
+        return JSONResponse({"error": f"different owners (src {src.owner_id} / dst {dst.owner_id})"}, status_code=400)
+    if src.package_tier != dst.package_tier:
+        return JSONResponse({"error": f"different tiers (src t{src.package_tier} / dst t{dst.package_tier}) — cannot carry across tiers"}, status_code=400)
+
+    owner = db.query(_User).filter(_User.id == src.owner_id).first()
+    price = float(GRID_PACKAGES.get(src.package_tier, float(src.package_price or 0)))
+    src_rate = bonus_pct_for(src.total_seats)
+    dst_rate = bonus_pct_for(dst.total_seats)
+
+    # Rows still in src for the requested members.
+    rows = (db.query(_GP)
+            .filter(_GP.grid_id == src_grid_id, _GP.member_id.in_(want))
+            .all())
+    moved_members = []
+    for r in rows:
+        m = db.query(_User).filter(_User.id == r.member_id).first()
+        moved_members.append({"position_id": r.id, "member_id": r.member_id,
+                              "member_username": m.username if m else None,
+                              "member_first_name": m.first_name if m else None})
+    n = len(rows)
+    reverse_amt = round(n * price * src_rate, 2)
+
+    # Completion-bonus rows on the src owner for this tier (the reversal target).
+    comp_rows = (db.query(Commission)
+                 .filter(Commission.to_user_id == src.owner_id,
+                         Commission.commission_type == "grid_completion_bonus",
+                         Commission.package_tier == src.package_tier,
+                         Commission.status == "paid")
+                 .order_by(Commission.created_at.desc()).all())
+    comp_avail = round(sum(float(c.amount_usdt or 0) for c in comp_rows), 2)
+
+    preview = {
+        "src_grid": {"id": src.id, "tier": src.package_tier, "seats": src.total_seats,
+                     "rate": src_rate, "positions_filled": src.positions_filled,
+                     "revenue_total": float(src.revenue_total or 0),
+                     "bonus_pool_accrued": float(src.bonus_pool_accrued or 0)},
+        "dst_grid": {"id": dst.id, "tier": dst.package_tier, "seats": dst.total_seats,
+                     "rate": dst_rate, "positions_filled": dst.positions_filled,
+                     "revenue_total": float(dst.revenue_total or 0),
+                     "bonus_pool_accrued": float(dst.bonus_pool_accrued or 0)},
+        "members_to_move": moved_members,
+        "seats_moving": n,
+        "completion_bonus_to_reverse_usd": reverse_amt,
+        "completion_bonus_available_to_reverse_usd": comp_avail,
+        "reversal_fully_covered": comp_avail + 0.001 >= reverse_amt,
+        "owner": {"id": owner.id if owner else None,
+                  "username": owner.username if owner else None,
+                  "balance_now": float(owner.balance or 0) if owner else None,
+                  "balance_after": round(float(owner.balance or 0) - reverse_amt, 2) if owner else None},
+        "after": {
+            "src_positions_filled": max(0, (src.positions_filled or 0) - n),
+            "src_revenue_total": round(float(src.revenue_total or 0) - n * price, 2),
+            "dst_positions_filled": (dst.positions_filled or 0) + n,
+            "dst_revenue_total": round(float(dst.revenue_total or 0) + n * price, 2),
+        },
+    }
+
+    if apply != 1:
+        return JSONResponse({
+            "read_only": True, "mode": "DRY-RUN",
+            "plan": preview,
+            "note": ("Moves the named seats src->dst, rebalances both grids' counters "
+                     "(dst pool accrues at dst rate), and reverses the source completion "
+                     "bonus for the moved seats (flips matching paid grid_completion_bonus "
+                     "row(s) to reversed + deducts owner balance/total_earned/bonus_earnings). "
+                     "Purchase-time direct/uni-level commissions are NOT touched. "
+                     "Re-call with &apply=1&code=YOUR_TOTP to execute."),
+        }, status_code=200, headers={"Cache-Control": "no-store, no-cache, max-age=0"})
+
+    # ---- APPLY (2FA-gated) ----
+    _require_admin_2fa(user, code)
+    if n == 0:
+        return JSONResponse({"mode": "APPLIED", "seats_moved": 0,
+                             "note": "No matching rows still in src grid — nothing to do (idempotent no-op)."},
+                            status_code=200, headers={"Cache-Control": "no-store"})
+
+    import decimal as _dec
+    # 1) Re-parent rows
+    for r in rows:
+        r.grid_id = dst_grid_id
+        db.add(r)
+    # 2) Rebalance counters
+    src.positions_filled = max(0, (src.positions_filled or 0) - n)
+    src.revenue_total = _dec.Decimal(str(src.revenue_total or 0)) - _dec.Decimal(str(n * price))
+    src.bonus_pool_accrued = _dec.Decimal(str(src.bonus_pool_accrued or 0)) - _dec.Decimal(str(round(n * price * src_rate, 2)))
+    if float(src.bonus_pool_accrued) < 0:
+        src.bonus_pool_accrued = _dec.Decimal("0")
+    dst.positions_filled = (dst.positions_filled or 0) + n
+    dst.revenue_total = _dec.Decimal(str(dst.revenue_total or 0)) + _dec.Decimal(str(n * price))
+    dst.bonus_pool_accrued = _dec.Decimal(str(dst.bonus_pool_accrued or 0)) + _dec.Decimal(str(round(n * price * dst_rate, 2)))
+    db.add(src); db.add(dst)
+    # 3) Reverse the source completion bonus for the moved seats
+    remaining = reverse_amt
+    reversed_ids = []
+    for c in comp_rows:
+        if remaining <= 0.001:
+            break
+        amt = float(c.amount_usdt or 0)
+        take = min(amt, remaining)
+        if take >= amt - 0.001:
+            c.status = "reversed"
+            c.notes = (c.notes or "") + f" | REVERSED: {n} seat(s) carried to grid {dst_grid_id} (admin goodwill, owner consented)."
+        else:
+            c.amount_usdt = _dec.Decimal(str(round(amt - take, 2)))
+            c.notes = (c.notes or "") + f" | PARTIAL REVERSE ${take:.2f}: seat(s) carried to grid {dst_grid_id}."
+        db.add(c)
+        reversed_ids.append(c.id)
+        remaining = round(remaining - take, 2)
+    actual_reversed = round(reverse_amt - max(0.0, remaining), 2)
+    if owner and actual_reversed > 0:
+        owner.balance        = _dec.Decimal(str(owner.balance or 0))        - _dec.Decimal(str(actual_reversed))
+        owner.total_earned   = _dec.Decimal(str(owner.total_earned or 0))   - _dec.Decimal(str(actual_reversed))
+        owner.bonus_earnings = _dec.Decimal(str(owner.bonus_earnings or 0)) - _dec.Decimal(str(actual_reversed))
+        _record_commission(
+            db, owner.id, owner.id, -actual_reversed, "grid_completion_bonus_reversal",
+            f"Carry-across: {n} seat(s) moved grid {src_grid_id}->{dst_grid_id}; "
+            f"reversed ${actual_reversed:.2f} completion bonus (owner consented).",
+            src.package_tier,
+        )
+        db.add(owner)
+
+    db.commit()
+    return JSONResponse({
+        "mode": "APPLIED",
+        "seats_moved": n,
+        "moved_members": moved_members,
+        "completion_bonus_reversed_usd": actual_reversed,
+        "reversed_commission_ids": reversed_ids,
+        "owner_balance_after": float(owner.balance or 0) if owner else None,
+        "src_grid_after": {"positions_filled": src.positions_filled,
+                           "revenue_total": float(src.revenue_total or 0)},
+        "dst_grid_after": {"positions_filled": dst.positions_filled,
+                           "revenue_total": float(dst.revenue_total or 0)},
+    }, status_code=200, headers={"Cache-Control": "no-store"})
+
+
 @app.get("/admin/api/wte-successor-mint")
 def admin_wte_successor_mint(
     apply: str = "",
