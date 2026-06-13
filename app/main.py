@@ -14761,6 +14761,77 @@ def admin_grid_settlement_truth(
     })
 
 
+@app.get("/admin/api/user-bonus-ledger")
+def admin_user_bonus_ledger(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY: full grid-completion-bonus history for one user.
+
+    Answers the only question that matters before paying an 'underpaid'
+    member: was their completion bonus ALREADY paid (historically or via
+    any mechanism), or are they genuinely owed? grid-settlement-truth only
+    counts commission_type='grid_completion_bonus' as paid, so a member made
+    whole through a different path shows as a false 'UNDERPAID'. This lists
+    every grid_completion_bonus + _topup row (ALL statuses) with dates/notes,
+    a by-type/status summary of ALL their commissions, and the live earnings
+    fields the reversal decremented. No writes.
+    """
+    _require_admin(user)
+    from .database import Commission, User as _User
+    target = db.query(_User).filter(_User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    BONUS_TYPES = ("grid_completion_bonus", "grid_completion_bonus_topup")
+    rows = (db.query(Commission)
+            .filter(Commission.to_user_id == user_id)
+            .order_by(Commission.created_at.asc()).all())
+
+    ledger = []
+    summary = {}
+    paid_bonus = 0.0
+    reversed_bonus = 0.0
+    for c in rows:
+        ct = c.commission_type or ""
+        st = c.status or ""
+        amt = float(c.amount_usdt or 0)
+        s = summary.setdefault((ct, st), {"type": ct, "status": st, "count": 0, "total": 0.0})
+        s["count"] += 1
+        s["total"] = round(s["total"] + amt, 2)
+        if ct in BONUS_TYPES:
+            ledger.append({
+                "id": c.id, "type": ct, "amount": amt, "status": st,
+                "grid_id": c.grid_id, "tier": c.package_tier,
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+                "notes": (c.notes or "")[:140],
+            })
+            if st == "paid":
+                paid_bonus += amt
+            elif st == "reversed":
+                reversed_bonus += amt
+
+    return {
+        "read_only": True,
+        "user_id": user_id,
+        "username": target.username,
+        "balance_usd": float(target.balance or 0),
+        "total_earned": float(getattr(target, "total_earned", 0) or 0),
+        "bonus_earnings": float(getattr(target, "bonus_earnings", 0) or 0),
+        "campaign_balance": float(getattr(target, "campaign_balance", 0) or 0),
+        "completion_bonus_paid_retained_usd": round(paid_bonus, 2),
+        "completion_bonus_reversed_usd": round(reversed_bonus, 2),
+        "completion_bonus_ledger": ledger,
+        "all_commission_summary": sorted(summary.values(), key=lambda r: (r["type"], r["status"])),
+        "note": ("completion_bonus_paid_retained = sum of status=paid completion-bonus rows "
+                 "(what they actually keep). reversed = clawed-back double-pays. Compare "
+                 "paid_retained to honest-earned (real seats x tier price x 10%): if >= earned, "
+                 "they are WHOLE (do not pay); if < earned with no offsetting credit, genuinely "
+                 "owed the difference. bonus_earnings reflects post-reversal state."),
+    }
+
+
 @app.get("/admin/api/wte-successor-mint")
 def admin_wte_successor_mint(
     apply: str = "",
