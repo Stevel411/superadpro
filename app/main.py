@@ -24251,19 +24251,30 @@ def admin_user_grid_state(
                 "id": p.id,
                 "member_id": p.member_id,
                 "member_username": member.username if member else None,
+                "member_first_name": member.first_name if member else None,
+                "member_active": bool(member.is_active) if member else None,
                 "grid_level": p.grid_level,
                 "position_num": p.position_num,
                 "is_overspill": bool(p.is_overspill),
             })
+        _seats = g.total_seats or 36
         grid_data.append({
             "id": g.id,
             "owner_id": g.owner_id,
             "package_tier": g.package_tier,
+            "package_price": float(g.package_price or 0),
             "advance_number": g.advance_number,
+            "total_seats": _seats,
+            "seat_model": "legacy_36" if _seats == 36 else f"{_seats}_seat",
             "positions_filled": g.positions_filled,
+            "seats_remaining": max(0, _seats - (g.positions_filled or 0)),
             "is_complete": bool(g.is_complete),
+            "retired_at": g.retired_at.isoformat() if g.retired_at else None,
+            "owner_purchased": bool(g.owner_purchased),
             "revenue_total": float(g.revenue_total or 0),
             "bonus_pool_accrued": float(g.bonus_pool_accrued or 0),
+            "bonus_paid": bool(g.bonus_paid),
+            "created_at": g.created_at.isoformat() if g.created_at else None,
             "positions": position_data,
         })
 
