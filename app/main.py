@@ -27933,6 +27933,85 @@ def admin_convert_nexus_to_tier(
         return JSONResponse({"error": f"conversion failed, rolled back: {e}"}, status_code=500)
 
 
+@app.get("/admin/api/user-tier-status")
+def admin_user_tier_status(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY: replicate exactly what /api/campaign-tiers computes for a
+    given user, so we can see what their Campaign Tiers page actually shows
+    (is_active per tier) and which component drives it — without guessing.
+
+    Mirrors api_campaign_tiers: a tier is active if the user has an active
+    video campaign at it, OR an owner_purchased live grid, OR an
+    owner_purchased completed grid. Also dumps every grid (with flags) and
+    every video campaign so we can see the raw inputs.
+    """
+    _require_admin(user)
+    from .database import Grid, VideoCampaign, GRID_TIER_NAMES
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+
+    active_campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user_id,
+        VideoCampaign.status == "active",
+        VideoCampaign.is_completed == False,  # noqa: E712
+    ).all()
+    active_campaign_tiers = sorted({c.campaign_tier for c in active_campaigns})
+
+    active_grids = db.query(Grid).filter(
+        Grid.owner_id == user_id, Grid.is_complete == False,
+        Grid.owner_purchased == True,  # noqa: E712
+    ).all()
+    completed_grids = db.query(Grid).filter(
+        Grid.owner_id == user_id, Grid.is_complete == True,
+        Grid.owner_purchased == True,  # noqa: E712
+    ).all()
+    grid_by_tier = {g.package_tier for g in active_grids}
+    completed_tier_set = {g.package_tier for g in completed_grids}
+
+    tiers = []
+    for t in range(0, 9):
+        is_active = bool(target.is_admin) or (t in active_campaign_tiers) or (t in grid_by_tier) or (t in completed_tier_set)
+        if t in {gt.package_tier for gt in active_grids} or t in completed_tier_set or t in active_campaign_tiers:
+            why = []
+            if t in active_campaign_tiers: why.append("active_video_campaign")
+            if t in grid_by_tier: why.append("owner_purchased_live_grid")
+            if t in completed_tier_set: why.append("owner_purchased_completed_grid")
+            tiers.append({"tier": t, "name": GRID_TIER_NAMES.get(t), "is_active": is_active, "active_because": why})
+
+    all_grids = db.query(Grid).filter(Grid.owner_id == user_id).all()
+    return {
+        "read_only": True,
+        "user_id": user_id, "username": target.username, "is_admin": bool(target.is_admin),
+        "campaign_tiers_page_would_show": {
+            "active_tiers": sorted([t["tier"] for t in tiers if t["is_active"]]),
+            "detail": tiers,
+        },
+        "components": {
+            "active_video_campaign_tiers": active_campaign_tiers,
+            "owner_purchased_live_grid_tiers": sorted(grid_by_tier),
+            "owner_purchased_completed_grid_tiers": sorted(completed_tier_set),
+        },
+        "video_campaigns": [
+            {"id": c.id, "tier": c.campaign_tier, "status": c.status,
+             "is_completed": bool(c.is_completed),
+             "views": f"{c.views_delivered or 0}/{c.views_target or 0}",
+             "title": (c.title or "")[:60]} for c in db.query(VideoCampaign).filter(VideoCampaign.user_id == user_id).all()
+        ],
+        "all_grids": [
+            {"id": g.id, "tier": g.package_tier, "advance": g.advance_number,
+             "seats": g.total_seats, "is_complete": bool(g.is_complete),
+             "owner_purchased": bool(g.owner_purchased)} for g in all_grids
+        ],
+        "note": ("Mirrors /api/campaign-tiers exactly. If a tier is_active here but the "
+                 "member sees inactive, suspect a stale per-user cache. If is_active is "
+                 "False, 'active_because' shows nothing and the components explain why."),
+    }
+
+
 @app.get("/admin/api/commission-void")
 def admin_commission_void(
     commission_id: int,
