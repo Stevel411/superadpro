@@ -15254,6 +15254,88 @@ def admin_api_brevo_downline_proof(
     })
 
 
+@app.get("/admin/api/teammessage-sponsor-recovery")
+def admin_teammessage_sponsor_recovery(
+    ids: str = "330,178",
+    sample: int = 25,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only: recover original sponsors from the auto 'welcome' Team Messenger
+    message sent on every sponsored signup (from_user_id=sponsor -> to_user_id=
+    joiner, body 'Welcome to SuperAdPro! I'm <sponsor>, your sponsor.'). These are
+    INTERNAL rows written since 25 Mar, so if they survived the wipe they name the
+    real sponsor reaching back PAST Brevo's 14 May edge. Reports survival (count +
+    date range), how many corrupted (sponsor_id 1/NULL) members are recoverable, a
+    sample, and specific ids. No writes — validate the source before any apply."""
+    _require_admin(user)
+    from .database import User as _U, TeamMessage as _TM
+    MARK = "Welcome to SuperAdPro! I'm"
+    wmsgs = (db.query(_TM.to_user_id, _TM.from_user_id, _TM.created_at)
+             .filter(_TM.is_broadcast == False,  # noqa: E712
+                     _TM.message.like(f"%{MARK}%"))
+             .order_by(_TM.created_at.asc()).all())
+    total_welcome = len(wmsgs)
+    oldest = wmsgs[0].created_at.isoformat() if wmsgs and wmsgs[0].created_at else None
+    newest = wmsgs[-1].created_at.isoformat() if wmsgs and wmsgs[-1].created_at else None
+    joiner_sponsor = {}
+    for to_uid, from_uid, _cat in wmsgs:
+        if to_uid and from_uid and to_uid not in joiner_sponsor:
+            joiner_sponsor[to_uid] = from_uid
+
+    valid_ids = {r.id for r in db.query(_U.id).all()}
+    unames = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+
+    corrupted = (db.query(_U.id, _U.username, _U.sponsor_id)
+                 .filter(_U.id != 1, _U.is_admin == False,  # noqa: E712
+                         (_U.sponsor_id.is_(None)) | (_U.sponsor_id == 1))
+                 .all())
+    recoverable, sample_rows = 0, []
+    for cu in corrupted:
+        sp = joiner_sponsor.get(cu.id)
+        if sp and sp in valid_ids and sp != cu.id and sp != 1 and sp != cu.sponsor_id:
+            recoverable += 1
+            if len(sample_rows) < sample:
+                sample_rows.append({
+                    "user_id": cu.id, "username": cu.username,
+                    "current_sponsor_id": cu.sponsor_id,
+                    "recovered_sponsor_id": sp,
+                    "recovered_sponsor": unames.get(sp),
+                })
+
+    try:
+        id_list = [int(x) for x in ids.split(",") if x.strip()]
+    except ValueError:
+        id_list = []
+    spot = []
+    for uid in id_list:
+        sp = joiner_sponsor.get(uid)
+        cur = db.query(_U.sponsor_id).filter(_U.id == uid).scalar()
+        spot.append({
+            "user_id": uid, "username": unames.get(uid),
+            "current_sponsor_id": cur,
+            "welcome_from_sponsor_id": sp,
+            "welcome_from_sponsor": unames.get(sp) if sp else None,
+            "has_welcome_message": sp is not None,
+        })
+
+    return JSONResponse({
+        "read_only": True,
+        "total_welcome_messages_found": total_welcome,
+        "welcome_date_range": {"oldest": oldest, "newest": newest},
+        "distinct_joiners_with_welcome": len(joiner_sponsor),
+        "corrupted_cohort_size": len(corrupted),
+        "recoverable_via_welcome": recoverable,
+        "sample_recoverable": sample_rows,
+        "spot_check_ids": spot,
+        "note": ("If total_welcome_messages_found is ~0, the team_messages welcome rows "
+                 "were wiped too and this source is dead. Otherwise welcome_from_sponsor_id "
+                 "= the sponsor at signup (internal, survives past Brevo's edge). "
+                 "recoverable = corrupted members whose welcome names a different valid "
+                 "non-root sponsor."),
+    })
+
+
 @app.get("/admin/api/grid-topup-reversal")
 def admin_api_grid_topup_reversal(
     user: User = Depends(get_current_user),
