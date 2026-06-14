@@ -12747,6 +12747,74 @@ def admin_api_stripe_charge_backfill(
     return JSONResponse(base)
 
 
+@app.get("/admin/api/late-match-preview")
+def admin_api_late_match_preview(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """DRY-RUN (read-only): preview the expiry-race late-match fix.
+
+    For every unresolved orphan transfer, checks whether its exact amount maps
+    to a single recently-expired WalletConnect order — i.e. a member who paid
+    the exact unique amount but whose order expired before the scan caught it.
+    Those are the members the live late-matcher would auto-credit + activate.
+
+    Mutates NOTHING. Use this to verify behaviour before setting
+    WC_LATE_MATCH_ENABLED=true in Railway (dry-run before financial mutation).
+    """
+    _require_admin(user)
+    from .database import (OnchainOrphanTransfer as _O,
+                           WalletConnectPaymentOrder as _WC, User as _U)
+    from .walletconnect_payments import (
+        find_late_expired_candidate, late_match_enabled, LATE_MATCH_GRACE_SECONDS,
+    )
+
+    grace_floor = datetime.utcnow() - timedelta(seconds=LATE_MATCH_GRACE_SECONDS)
+    recently_expired = db.query(_WC).filter(
+        _WC.status == "expired",
+        _WC.expires_at >= grace_floor,
+    ).count()
+
+    orphans = db.query(_O).filter(_O.resolved == False).all()  # noqa: E712
+    uname = {u.id: u.username for u in db.query(_U.id, _U.username).all()}
+
+    would_credit, no_match = [], []
+    for orp in orphans:
+        cand = find_late_expired_candidate(db, orp.amount_usdt)
+        row = {
+            "orphan_tx": orp.tx_hash,
+            "amount_usdt": float(orp.amount_usdt or 0),
+            "seen_at": orp.seen_at.isoformat() if orp.seen_at else None,
+        }
+        if cand is not None:
+            row.update({
+                "would_credit_user_id": cand.user_id,
+                "username": uname.get(cand.user_id),
+                "order_id": cand.id,
+                "product": f"{cand.product_type}/{cand.product_key}",
+                "order_unique_amount": float(cand.unique_amount),
+                "order_expired_at": cand.expires_at.isoformat() if cand.expires_at else None,
+            })
+            would_credit.append(row)
+        else:
+            no_match.append(row)
+
+    return JSONResponse({
+        "flag_WC_LATE_MATCH_ENABLED": late_match_enabled(),
+        "grace_window_hours": LATE_MATCH_GRACE_SECONDS // 3600,
+        "recently_expired_orders_in_window": recently_expired,
+        "unresolved_orphans": len(orphans),
+        "would_auto_credit_count": len(would_credit),
+        "would_auto_credit_now": would_credit,
+        "no_expired_match": no_match,
+        "note": ("would_auto_credit_now = uncredited members whose exact payment "
+                 "maps to one recently-expired order. The live flag protects "
+                 "FUTURE payments automatically; these existing orphans need a "
+                 "one-time heal. no_expired_match = orphans with no exact-amount "
+                 "order (wrong/rounded amount or external send) — never auto-credited."),
+    })
+
+
 @app.get("/admin/api/orphan-attribution")
 def admin_api_orphan_attribution(
     user: User = Depends(get_current_user),
@@ -20232,6 +20300,16 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
     for tx in transfers:
         try:
             matched_order = match_incoming_transfer(db, tx)
+            if not matched_order:
+                # Expiry-race fallback (root-cause fix, 14 Jun 2026): a payment
+                # that confirmed after its order's expiry window can no longer
+                # match a pending order. Credit it against a single unambiguous
+                # recently-expired order. Gated by WC_LATE_MATCH_ENABLED.
+                from .walletconnect_payments import (
+                    match_late_expired_transfer, late_match_enabled,
+                )
+                if late_match_enabled():
+                    matched_order = match_late_expired_transfer(db, tx)
         except Exception as e:
             logger.error(f"cron_scan_bsc_payments: match failed for tx {tx.get('tx_hash')}: {e}")
             stats["errors"].append(f"match {tx.get('tx_hash','?')[:12]}: {e}")
@@ -20601,6 +20679,14 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
         for tx in transfers:
             try:
                 matched_order = match_incoming_transfer(db, tx)
+                if not matched_order:
+                    # Expiry-race fallback (root-cause fix, 14 Jun 2026) — same
+                    # safe single-candidate late-match as the HTTP cron path.
+                    from .walletconnect_payments import (
+                        match_late_expired_transfer, late_match_enabled,
+                    )
+                    if late_match_enabled():
+                        matched_order = match_late_expired_transfer(db, tx)
             except Exception as e:
                 logger.error(f"inproc_bsc_scan: match failed for tx {tx.get('tx_hash')}: {e}")
                 stats["errors"].append(f"match {tx.get('tx_hash','?')[:12]}: {e}")

@@ -1195,3 +1195,105 @@ def reconcile_stuck_orders(db, latest_block: int) -> dict:
             logger.error(f"reconcile_stuck_orders: per-order check failed for order {order.id}: {e}")
 
     return stats
+
+
+# ── Late-match against recently-expired orders (added 14 Jun 2026) ─────────
+#
+# ROOT-CAUSE FIX for the expiry race. A member sends the exact unique amount,
+# but BSC confirmation + Alchemy-free-tier scan lag pushes the on-chain match
+# past the order's expiry window. expire_stale_orders() flips the order to
+# 'expired' BEFORE the scanner sees the transfer, so match_incoming_transfer
+# (which is pending-only, expires_at > now) misses it and the payment orphans —
+# the member is left uncredited and needs a manual recovery. There was no code
+# path that credited a payment arriving after expiry; this adds one, safely.
+#
+# Safe-by-construction: it only ever confirms an EXPIRED order when EXACTLY ONE
+# order has that exact unique_amount within a bounded grace window. On any
+# ambiguity it declines and leaves the transfer to orphan/manual attribution —
+# it never guesses between members.
+
+# How long after expiry an order can still be auto-claimed by its matching
+# transfer. Covers BSC confirmation + scan lag + reasonable member delay while
+# keeping the unique_amount collision surface among expired orders small
+# (cent-level uniqueness is only DB-enforced among PENDING orders).
+LATE_MATCH_GRACE_SECONDS = 48 * 3600  # 48h
+
+
+def late_match_enabled() -> bool:
+    """Gate for the late-match auto-credit. Default OFF so the behaviour is
+    reviewed via the dry-run preview before it credits real money (the
+    'dry-run before every financial mutation' rule). Set WC_LATE_MATCH_ENABLED
+    = 'true' in Railway to activate."""
+    return os.getenv("WC_LATE_MATCH_ENABLED", "false").strip().lower() == "true"
+
+
+def find_late_expired_candidate(db, amount):
+    """Read-only: return the single recently-expired order that an inbound
+    `amount` unambiguously belongs to, or None. Shared by the live matcher and
+    the dry-run preview so they can never diverge.
+
+    Returns the order on a unique match; None if zero candidates or if the
+    amount is ambiguous across multiple recently-expired orders.
+    """
+    from app.database import WalletConnectPaymentOrder
+    if amount is None:
+        return None
+    grace_floor = datetime.utcnow() - timedelta(seconds=LATE_MATCH_GRACE_SECONDS)
+    candidates = db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.status == "expired",
+        WalletConnectPaymentOrder.unique_amount == amount,
+        WalletConnectPaymentOrder.expires_at >= grace_floor,
+    ).order_by(WalletConnectPaymentOrder.created_at.asc()).all()
+    if len(candidates) != 1:
+        if len(candidates) > 1:
+            logger.warning(
+                f"find_late_expired_candidate: AMBIGUOUS — {len(candidates)} "
+                f"recently-expired orders share unique_amount={amount} "
+                f"(ids={[c.id for c in candidates]}); declining auto-credit"
+            )
+        return None
+    return candidates[0]
+
+
+def match_late_expired_transfer(db, transfer: dict):
+    """Match a transfer to a recently-expired order and confirm it.
+
+    Called by the scanner ONLY when match_incoming_transfer found no live
+    pending order, and only when late_match_enabled() is true. Confirms the
+    order exactly like match_incoming_transfer (status/tx_hash/from_address/
+    block_number/confirmed_at) and returns it, so the caller's existing
+    activation path credits + fulfils the member with no special-casing.
+    Returns None when there is no unambiguous expired match.
+    """
+    from app.database import WalletConnectPaymentOrder
+
+    tx_hash = transfer.get("tx_hash")
+    if not tx_hash:
+        return None
+
+    # Idempotency — never double-process a tx_hash already on any order.
+    if db.query(WalletConnectPaymentOrder).filter(
+        WalletConnectPaymentOrder.tx_hash == tx_hash
+    ).first():
+        return None
+
+    order = find_late_expired_candidate(db, transfer.get("amount_usdt"))
+    if order is None:
+        return None
+
+    now = datetime.utcnow()
+    order.status = "confirmed"
+    order.tx_hash = tx_hash
+    order.from_address = (transfer.get("from_address") or "").lower() or None
+    order.block_number = transfer.get("block_number")
+    order.confirmed_at = now
+    db.flush()
+
+    logger.warning(
+        f"match_late_expired_transfer: LATE-MATCHED expired order {order.id} "
+        f"user={order.user_id} {order.product_type}/{order.product_key} "
+        f"amount=${transfer.get('amount_usdt')} tx={tx_hash[:10]}... — order "
+        f"expired {((now - order.expires_at).total_seconds()/60):.0f} min before "
+        f"the payment was scanned; auto-crediting (single unambiguous candidate)"
+    )
+    return order
