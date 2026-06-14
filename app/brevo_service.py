@@ -44,6 +44,20 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
     recipient (admin) should be able to reply directly to the member who
     submitted the ticket. Brevo supports this via the replyTo field.
     """
+    # Provider fork: when EMAIL_PROVIDER=ses, deliver via Amazon SES (SMTP).
+    # ses_send is blocking smtplib, so run it off the event loop. Brevo path
+    # below is unchanged and stays the default.
+    from . import mailer
+    if mailer.provider() == "ses":
+        r = await asyncio.to_thread(
+            mailer.ses_send,
+            to_email, subject, html_content, None,
+            sender_email, sender_name, reply_to_email, reply_to_name,
+        )
+        if r["ok"]:
+            return {"ok": True, "message_id": r["message_id"] or ""}
+        return {"ok": False, "error": r.get("error")}
+
     if not BREVO_API_KEY:
         print("[Brevo] No API key — email not sent")
         return {"ok": False, "error": "No Brevo API key configured"}
@@ -120,6 +134,19 @@ async def send_batch_emails(messages: list):
     """Send multiple emails via Brevo batch API.
     messages: list of {to_email, to_name, subject, html_content}
     """
+    from . import mailer
+    if mailer.provider() == "ses":
+        sent = 0
+        for m in messages:
+            r = await asyncio.to_thread(
+                mailer.ses_send,
+                m["to_email"], m.get("subject", ""), m.get("html_content", ""),
+                m.get("text_content"),
+            )
+            if r["ok"]:
+                sent += 1
+        return {"ok": sent > 0, "sent": sent, "total": len(messages)}
+
     if not BREVO_API_KEY:
         return {"ok": False, "error": "No Brevo API key"}
 

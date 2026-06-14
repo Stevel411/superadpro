@@ -24,8 +24,21 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
     different address than the sender.
 
     Returns True/False by default. Pass return_message_id=True to get
-    a (success, brevo_message_id) tuple for audit logging.
+    a (success, message_id) tuple for audit logging.
     """
+    # Provider fork: when EMAIL_PROVIDER=ses, deliver via Amazon SES (SMTP)
+    # instead of Brevo. Brevo path below is untouched and remains the default.
+    from . import mailer
+    if mailer.provider() == "ses":
+        r = mailer.ses_send(
+            to_email, subject, html_body, text_body or "",
+            from_email=from_email, from_name=from_name,
+            reply_to_email=reply_to_email, reply_to_name=reply_to_name,
+        )
+        if not r["ok"]:
+            logger.error(f"SES send failed to {to_email}: {r.get('error')}")
+        return (r["ok"], r["message_id"]) if return_message_id else r["ok"]
+
     if not BREVO_API_KEY:
         logger.error("BREVO_API_KEY not set")
         return (False, None) if return_message_id else False
