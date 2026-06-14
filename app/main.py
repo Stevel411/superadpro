@@ -19636,50 +19636,13 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
     # ~140 lines of dead tier-upgrade payment / Stripe subscription /
     # commission logic that no longer applies under flat-pricing.
 # ═══════════════════════════════════════════════════════════════
-#  CRYPTO PAYMENTS — USDT on Polygon via Alchemy
+#  Creative Studio credit helpers (LIVE — used by the NOWPayments rail)
+#  The legacy Polygon/USDT inbound rail and all its endpoints were
+#  removed 14 Jun 2026 (dead rail, no live callers). Only these two
+#  shared helpers remain; they are consumed by the live NOWPayments
+#  credit-purchase flow (/api/nowpayments/create-invoice).
 # ═══════════════════════════════════════════════════════════════
 
-@app.post("/api/crypto/create-checkout")
-async def crypto_create_checkout(request: Request, db: Session = Depends(get_db),
-                                  user: User = Depends(get_current_user)):
-    """Create a crypto payment order. Matches by sender wallet address + approximate amount."""
-    # ── LEGACY POLYGON INBOUND — HIDDEN 8 Jun 2026 ──
-    # Dormant Polygon rail (treasury 0x7174…, chainId 137). No live UI calls
-    # this; inbound USDT is BSC-only now (/api/onchain/*). Fails closed before
-    # any DB write or on-chain call so it can't route a payer to the dead
-    # wallet or be probed. Body below is unreachable; removed with the cluster.
-    return JSONResponse(
-        {"error": "This payment method is no longer available.", "code": "rail_retired"},
-        status_code=410,
-    )
-@app.get("/api/crypto/order/{order_id}")
-async def crypto_order_status(order_id: int, request: Request,
-                               db: Session = Depends(get_db),
-                               user: User = Depends(get_current_user)):
-    """Check the status of a crypto payment order."""
-    # ── LEGACY POLYGON INBOUND — HIDDEN 8 Jun 2026 (see create-checkout) ──
-    return JSONResponse(
-        {"error": "This payment method is no longer available.", "code": "rail_retired"},
-        status_code=410,
-    )
-@app.post("/api/crypto/verify-payment")
-async def crypto_verify_payment(request: Request, db: Session = Depends(get_db),
-                                 user: User = Depends(get_current_user)):
-    """RETIRED 7 Jun 2026 — fails closed.
-
-    Legacy push path: client submitted a tx_hash, backend "verified" it on
-    Polygon via crypto_payments.check_usdt_transfer and activated a product.
-    Same unsafe shape as /verify-membership and tied to the dormant Polygon
-    rail. Inbound USDT is now confirmed by the BSC scanner; only the dead
-    CryptoCheckout.jsx ever called this. Returns 410 so any direct POST is
-    inert. The body below is unreachable and is removed with the Polygon
-    inbound cluster.
-    """
-    return JSONResponse(
-        {"error": "This confirmation method is no longer supported. "
-                  "Payments are confirmed automatically once received."},
-        status_code=410,
-    )
 def _resolve_superscene_credits(product_key: str) -> int:
     """Resolve how many SuperScene credits a product_key represents.
     Handles both preset packs and custom amounts (superscene_custom_XXX)."""
@@ -19700,26 +19663,6 @@ def _resolve_superscene_credits(product_key: str) -> int:
             pass
     return 0
 SUPERSCENE_CREDIT_RATE = decimal.Decimal("0.22")  # price per credit for custom packs
-@app.post("/api/crypto/poll-payments")
-async def crypto_poll_payments(request: Request, db: Session = Depends(get_db)):
-    """
-    Cron endpoint — polls Alchemy for recent USDT transfers to treasury
-    and auto-confirms matching pending orders.
-    Protected by CRON_SECRET bearer token.
-    """
-    # ── LEGACY POLYGON INBOUND — HIDDEN 8 Jun 2026 (see create-checkout) ──
-    return JSONResponse(
-        {"error": "This payment method is no longer available.", "code": "rail_retired"},
-        status_code=410,
-    )
-@app.get("/api/crypto/treasury-balance")
-async def crypto_treasury_balance(request: Request, user: User = Depends(get_current_user)):
-    """Admin-only: check treasury USDT balance."""
-    # ── LEGACY POLYGON INBOUND — HIDDEN 8 Jun 2026 (see create-checkout) ──
-    return JSONResponse(
-        {"error": "This payment method is no longer available.", "code": "rail_retired"},
-        status_code=410,
-    )
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -22201,14 +22144,6 @@ async def admin_walletconnect_health(user: User = Depends(get_current_user)):
         )
 
 
-@app.get("/admin/debug-transfers")
-def debug_transfers(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """TEMPORARY debug — shows raw Alchemy transfer data."""
-    # ── LEGACY POLYGON INBOUND — HIDDEN 8 Jun 2026 (see create-checkout) ──
-    return JSONResponse(
-        {"error": "This payment method is no longer available.", "code": "rail_retired"},
-        status_code=410,
-    )
 @app.post("/admin/reset-test-data")
 @app.get("/admin/reset-test-data")
 def admin_reset_test_data(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -39986,15 +39921,6 @@ async def api_command_centre_nudge_lapsed(
     }
 
 
-@app.get("/cron/poll-payments")
-def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
-    """GET version of crypto poll — auth via ?secret= query param for cron-job.org."""
-    from fastapi.responses import JSONResponse
-    # ── LEGACY POLYGON INBOUND — HIDDEN 8 Jun 2026 (see create-checkout) ──
-    return JSONResponse(
-        {"error": "This payment method is no longer available.", "code": "rail_retired"},
-        status_code=410,
-    )
 # ═══════════════════════════════════════════════════════════════
 #  NICHE FINDER
 # ═══════════════════════════════════════════════════════════════
@@ -53813,16 +53739,6 @@ async def sc_buy_stripe(request: Request, db: Session = Depends(get_db)):
     """DISABLED — use NOWPayments or direct crypto."""
     return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
-@app.post("/api/superscene/buy/crypto")
-async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
-    # ── LEGACY POLYGON INBOUND — HIDDEN 8 Jun 2026 (see create-checkout) ──
-    # Creative Studio credit buys now go through /api/onchain/* (BSC) and
-    # /api/nowpayments/create-invoice. This Polygon order-creator is dead UI
-    # wise; fails closed so it can't mint a Polygon order to the dead wallet.
-    return JSONResponse(
-        {"error": "This payment method is no longer available.", "code": "rail_retired"},
-        status_code=410,
-    )
 # ── SuperScene — Stripe Webhook ─────────────────────────────────
 
 @app.post("/webhooks/superscene/stripe")
