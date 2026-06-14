@@ -46335,10 +46335,6 @@ async def api_superseller_lead_capture(campaign_id: int, request: Request,
 def _send_superseller_email(to_email: str, to_name: str, email_data: dict,
                              campaign, db):
     """Send a SuperSeller sequence email via Brevo transactional API."""
-    brevo_key = os.getenv("BREVO_API_KEY", "")
-    if not brevo_key:
-        return
-
     subject = email_data.get("subject", "Welcome")
     body = email_data.get("body", email_data.get("content", ""))
 
@@ -46347,20 +46343,17 @@ def _send_superseller_email(to_email: str, to_name: str, email_data: dict,
         body = body.replace("{{funnel_url}}", campaign.funnel_url)
         body = body.replace("{funnel_url}", campaign.funnel_url)
 
+    # Route through the provider switch (Brevo or SES per EMAIL_PROVIDER)
+    # instead of a direct Brevo call, so this send follows the cutover.
     try:
-        payload = json.dumps({
-            "sender": {"name": "SuperAdPro", "email": os.getenv("BREVO_SENDER_EMAIL", "hello@superadpro.com")},
-            "to": [{"email": to_email, "name": to_name}],
-            "subject": subject,
-            "htmlContent": body,
-        }).encode("utf-8")
-        req = urllib.request.Request(
-            "https://api.brevo.com/v3/smtp/email",
-            data=payload,
-            headers={"accept": "application/json", "api-key": brevo_key, "content-type": "application/json"},
-            method="POST",
+        from .email_utils import send_email as _provider_send
+        ok = _provider_send(
+            to_email, subject, body,
+            from_email=os.getenv("BREVO_SENDER_EMAIL", "hello@superadpro.com"),
+            from_name="SuperAdPro",
         )
-        urllib.request.urlopen(req, timeout=15)
+        if not ok:
+            logger.error(f"SuperSeller email send failed to {to_email}")
     except Exception as e:
         logger.error(f"SuperSeller email send failed: {e}")
 # ═══════════════════════════════════════════════════════════════
@@ -58404,11 +58397,7 @@ async def api_early_bird(request: Request):
         # Send welcome email
         try:
             from_email = os.getenv("FROM_EMAIL", "noreply@superadpro.com")
-            email_payload = json.dumps({
-                "sender": {"name": "SuperAdPro", "email": from_email},
-                "to": [{"email": email}],
-                "subject": "You're on the list — SuperAdPro is coming soon",
-                "htmlContent": """<div style="font-family:'DM Sans',Arial,sans-serif;max-width:560px;margin:0 auto;padding:40px 24px;color:#1a1a2e">
+            _welcome_html = ("""<div style="font-family:'DM Sans',Arial,sans-serif;max-width:560px;margin:0 auto;padding:40px 24px;color:#1a1a2e">
 <div style="text-align:center;margin-bottom:32px">
 <div style="display:inline-flex;align-items:center;gap:10px">
 <div style="width:36px;height:36px;border-radius:10px;background:#0ea5e9;display:flex;align-items:center;justify-content:center">
@@ -58433,15 +58422,12 @@ async def api_early_bird(request: Request):
 <span style="display:inline-block;padding:12px 32px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;text-decoration:none">Your Creativity Pays</span>
 </div>
 <p style="font-size:13px;color:#94a3b8;text-align:center">SuperAdPro — AI-Powered Marketing Tools for Everyone</p>
-</div>""",
-            }).encode("utf-8")
-            req2 = urllib.request.Request(
-                "https://api.brevo.com/v3/smtp/email",
-                data=email_payload,
-                headers={"accept": "application/json", "api-key": brevo_key, "content-type": "application/json"},
-                method="POST",
+</div>""")
+            from .email_utils import send_email as _provider_send
+            _provider_send(
+                email, "You're on the list — SuperAdPro is coming soon", _welcome_html,
+                from_email=from_email, from_name="SuperAdPro",
             )
-            urllib.request.urlopen(req2, timeout=10)
         except Exception as e:
             logger.error(f"Early bird welcome email failed: {e}")
 
