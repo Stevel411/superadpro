@@ -333,6 +333,7 @@ class User(Base):
     # password reset, etc.) ignore this flag and always send.
     email_opt_out          = Column(Boolean, default=False, index=True)
     email_unsubscribe_token = Column(String(64), nullable=True, index=True)  # opaque token for one-click unsubscribe link
+    email_sending_paused   = Column(Boolean, default=False)                  # member send paused after an attributed SES complaint
     course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
     bonus_earnings          = Column(Money, default=0.0)               # lifetime grid completion bonus earnings
     marketplace_earnings    = Column(Money, default=0.0)               # lifetime earnings from course marketplace (creator + sponsor)
@@ -2021,6 +2022,28 @@ except Exception as e:
     print(f"⚠️ create_all skipped: {e}")
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
+class EmailSuppression(Base):
+    """Addresses we must not email (or must not market to).
+
+    Populated by SES bounce/complaint SNS notifications, the one-click
+    unsubscribe flow, and manual admin action. Consulted on every send via
+    app.suppression.is_suppressed(). Keyed by lowercased email so it covers
+    both members (users) and member-captured leads — a bounce or complaint can
+    come from either and must stop all future sends to that address.
+
+    reason: 'bounce' | 'complaint' | 'unsubscribe' | 'manual'
+      bounce / complaint / manual  -> block all mail incl. transactional
+      unsubscribe                  -> block marketing only
+    """
+    __tablename__ = "email_suppression"
+    id         = Column(Integer, primary_key=True)
+    email      = Column(String(320), unique=True, nullable=False, index=True)
+    reason     = Column(String(20), nullable=False, default="manual")
+    source     = Column(String(64), nullable=True)   # 'ses-sns' | 'unsubscribe' | 'admin'
+    detail     = Column(Text, nullable=True)         # bounce subtype / complaint id / note
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 def run_migrations():
     """Add any new columns that don't exist yet in the live DB."""
     migrations = [
@@ -2123,6 +2146,18 @@ def run_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_unsubscribe_token VARCHAR(64)",
         "CREATE INDEX IF NOT EXISTS idx_users_email_unsub_token ON users(email_unsubscribe_token)",
         "CREATE INDEX IF NOT EXISTS idx_users_email_opt_out ON users(email_opt_out)",
+        # ── Email suppression list (14 Jun 2026, SES cutover hygiene) ──
+        # Authoritative do-not-send store. SES bounce/complaint SNS
+        # notifications, the one-click unsubscribe flow, and manual admin
+        # action all write here; every send path checks
+        # app.suppression.is_suppressed(). bounce/complaint/manual block all
+        # mail incl. transactional; unsubscribe blocks marketing only.
+        "CREATE TABLE IF NOT EXISTS email_suppression (id SERIAL PRIMARY KEY, email VARCHAR(320) UNIQUE NOT NULL, reason VARCHAR(20) NOT NULL DEFAULT 'manual', source VARCHAR(64), detail TEXT, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS idx_email_suppression_email ON email_suppression(email)",
+        # Member send auto-pause: set when an SES complaint is attributed to a
+        # member's sending. Checked by member-facing send paths (logic lands
+        # with the SES SNS webhook). Schema added here so it's live first.
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_sending_paused BOOLEAN DEFAULT FALSE",
         (
             "CREATE TABLE IF NOT EXISTS admin_broadcasts ("
             "id SERIAL PRIMARY KEY, "

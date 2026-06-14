@@ -15,7 +15,8 @@ FROM_DISPLAY  = "SuperAdPro"
 def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
                from_email: str = None, from_name: str = None,
                reply_to_email: str = None, reply_to_name: str = None,
-               return_message_id: bool = False):
+               return_message_id: bool = False,
+               category: str = "transactional", list_unsubscribe: str = None):
     """Send a transactional email via Brevo.
 
     By default uses the platform's noreply sender. For broadcasts that
@@ -23,9 +24,25 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
     and from_name='Steve Lawson'. reply_to_email lets replies go to a
     different address than the sender.
 
+    category: 'transactional' (default) or 'marketing'. Marketing sends are
+    additionally blocked for unsubscribed addresses. bounce/complaint/manual
+    suppression blocks both categories.
+
+    list_unsubscribe: URL for the List-Unsubscribe / one-click header. Pass on
+    marketing sends so mail clients render a native unsubscribe button (and so
+    SES reputation is protected). Omit for transactional mail.
+
     Returns True/False by default. Pass return_message_id=True to get
     a (success, message_id) tuple for audit logging.
     """
+    # Suppression gate — never send to a bounced/complained/manually-suppressed
+    # address, nor a marketing send to an unsubscribed one. Checked first so it
+    # applies to BOTH the SES and Brevo paths below.
+    from . import suppression
+    if suppression.is_suppressed(to_email, category):
+        logger.info(f"[suppressed/{category}] skip send to {to_email}")
+        return (False, None) if return_message_id else False
+
     # Provider fork: when EMAIL_PROVIDER=ses, deliver via Amazon SES (SMTP)
     # instead of Brevo. Brevo path below is untouched and remains the default.
     from . import mailer
@@ -34,6 +51,7 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
             to_email, subject, html_body, text_body or "",
             from_email=from_email, from_name=from_name,
             reply_to_email=reply_to_email, reply_to_name=reply_to_name,
+            list_unsubscribe=list_unsubscribe,
         )
         if not r["ok"]:
             logger.error(f"SES send failed to {to_email}: {r.get('error')}")
@@ -56,6 +74,12 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
         payload_dict["replyTo"] = {
             "email": reply_to_email,
             "name": reply_to_name or from_name or FROM_DISPLAY,
+        }
+    if list_unsubscribe:
+        # RFC 2369 / RFC 8058 one-click. Brevo forwards custom headers.
+        payload_dict["headers"] = {
+            "List-Unsubscribe": f"<{list_unsubscribe}>",
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         }
     payload = json.dumps(payload_dict).encode("utf-8")
     req = urllib.request.Request(
@@ -359,7 +383,7 @@ def send_nurture_email(to_email, first_name, email_num):
         subj = f"This is our last email to you, {first_name} &mdash; we mean it"
         hbg = "linear-gradient(135deg,#fef2f2,#fee2e2)"
 
-    return send_email(to_email, subj, _nurture_shell(f"Email {email_num} of 5", hbg, hero, body))
+    return send_email(to_email, subj, _nurture_shell(f"Email {email_num} of 5", hbg, hero, body), category="marketing")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -522,6 +546,7 @@ def send_founder_offer_broadcast_one(to_email: str, first_name: str,
         reply_to_email="steve@superadpro.com",
         reply_to_name="Steve Lawson",
         return_message_id=True,
+        category="marketing",
     )
 
 
@@ -669,4 +694,5 @@ def send_reengagement_broadcast_one(to_email: str, first_name: str,
         reply_to_email="steve@superadpro.com",
         reply_to_name="Steve Lawson",
         return_message_id=True,
+        category="marketing",
     )

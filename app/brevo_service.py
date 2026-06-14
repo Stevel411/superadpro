@@ -25,7 +25,8 @@ def _headers():
 
 async def send_email(to_email: str, to_name: str, subject: str, html_content: str,
                      sender_name: str = None, sender_email: str = None,
-                     reply_to_email: str = None, reply_to_name: str = None):
+                     reply_to_email: str = None, reply_to_name: str = None,
+                     category: str = "transactional", list_unsubscribe: str = None):
     """Send a single transactional email via Brevo API.
 
     Retries with exponential backoff on transient failures (429 rate limit,
@@ -48,11 +49,17 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
     # ses_send is blocking smtplib, so run it off the event loop. Brevo path
     # below is unchanged and stays the default.
     from . import mailer
+    from . import suppression
+    # Suppression gate — bounce/complaint/manual block all; unsubscribe blocks
+    # marketing. Applies to both SES and Brevo paths.
+    if suppression.is_suppressed(to_email, category):
+        return {"ok": False, "error": "suppressed", "suppressed": True}
     if mailer.provider() == "ses":
         r = await asyncio.to_thread(
             mailer.ses_send,
             to_email, subject, html_content, None,
             sender_email, sender_name, reply_to_email, reply_to_name,
+            list_unsubscribe,
         )
         if r["ok"]:
             return {"ok": True, "message_id": r["message_id"] or ""}
@@ -75,6 +82,11 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
         payload["replyTo"] = {
             "email": reply_to_email,
             "name": reply_to_name or reply_to_email,
+        }
+    if list_unsubscribe:
+        payload["headers"] = {
+            "List-Unsubscribe": f"<{list_unsubscribe}>",
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         }
 
     # Retry config: 3 attempts total, exponential backoff 1s → 2s → 4s
@@ -133,8 +145,17 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
 async def send_batch_emails(messages: list):
     """Send multiple emails via Brevo batch API.
     messages: list of {to_email, to_name, subject, html_content}
+    Each message may carry a 'category' (default 'marketing' for batches).
     """
     from . import mailer
+    from . import suppression
+    # Drop suppressed recipients up front (batches are marketing by default).
+    messages = [
+        m for m in messages
+        if not suppression.is_suppressed(m.get("to_email", ""), m.get("category", "marketing"))
+    ]
+    if not messages:
+        return {"ok": True, "sent": 0, "total": 0}
     if mailer.provider() == "ses":
         sent = 0
         for m in messages:
@@ -142,6 +163,8 @@ async def send_batch_emails(messages: list):
                 mailer.ses_send,
                 m["to_email"], m.get("subject", ""), m.get("html_content", ""),
                 m.get("text_content"),
+                None, None, None, None,
+                m.get("list_unsubscribe"),
             )
             if r["ok"]:
                 sent += 1

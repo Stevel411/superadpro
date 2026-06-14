@@ -60134,7 +60134,14 @@ def _resolve_broadcast_recipients(db, audience_filter: dict):
     country = (audience_filter or {}).get("country")
     if country:
         q = q.filter(User.country == country)
-    return q.order_by(User.id.asc()).all()
+    rows = q.order_by(User.id.asc()).all()
+    # Belt-and-braces: also drop anyone on the suppression list (hard bounce,
+    # complaint, or manual) so they're never attempted and counts stay honest.
+    # email_opt_out is already excluded above; this catches bounce/complaint
+    # addresses that aren't opt-outs.
+    from .suppression import suppressed_set
+    blocked = suppressed_set("marketing")
+    return [u for u in rows if (u.email or "").strip().lower() not in blocked]
 
 
 @app.get("/admin/api/members-emails")
@@ -60246,6 +60253,8 @@ def _run_admin_broadcast(broadcast_id: int, recipient_ids, base_url: str):
                         subject=b.subject,
                         html_body=full_html,
                         text_body=personalised_text,
+                        category="marketing",
+                        list_unsubscribe=unsub_url,
                     )
                     if ok:
                         sent += 1
@@ -60480,15 +60489,60 @@ def unsubscribe_landing(request: Request, token: str = "", db: Session = Depends
     member = db.query(User).filter(User.email_unsubscribe_token == token).first()
     if not member:
         return HTMLResponse(_unsub_page("Invalid or expired unsubscribe link", error=True), status_code=404)
-    if not member.email_opt_out:
-        member.email_opt_out = True
-        db.commit()
+    _apply_unsubscribe(db, member)
     return HTMLResponse(_unsub_page(
         f"You've been unsubscribed from SuperAdPro broadcast emails. "
         f"You'll still receive transactional emails (password resets, commission notifications). "
         f"Changed your mind? Log in and re-enable broadcasts in your account settings.",
         error=False
     ))
+
+
+@app.post("/unsubscribe")
+async def unsubscribe_oneclick(request: Request, token: str = "", db: Session = Depends(get_db)):
+    """RFC 8058 one-click unsubscribe target.
+
+    Mail clients (Gmail, Apple Mail) POST here when the user taps the native
+    'Unsubscribe' button surfaced by the List-Unsubscribe-Post header. Must act
+    without further interaction and return 200. Token arrives in the query
+    string (we put it in the List-Unsubscribe URL); some clients also form-post
+    'List-Unsubscribe=One-Click' — we ignore the body and use the token.
+    """
+    from fastapi.responses import PlainTextResponse
+    if not token:
+        try:
+            form = await request.form()
+            token = (form.get("token") or "").strip()
+        except Exception:
+            token = ""
+    if not token:
+        return PlainTextResponse("Missing token", status_code=400)
+    member = db.query(User).filter(User.email_unsubscribe_token == token).first()
+    if not member:
+        # Return 200 anyway — a one-click endpoint must not leak token validity
+        # and clients treat non-2xx as a failed unsubscribe.
+        return PlainTextResponse("OK", status_code=200)
+    _apply_unsubscribe(db, member)
+    return PlainTextResponse("Unsubscribed", status_code=200)
+
+
+def _apply_unsubscribe(db, member) -> None:
+    """Opt a member out of marketing mail and add them to the suppression list.
+
+    Sets User.email_opt_out (broadcast resolver checks it) AND writes an
+    'unsubscribe' row to the suppression list (the unified send-time gate),
+    so every marketing path honours it — not just the admin broadcast.
+    Idempotent.
+    """
+    if not member.email_opt_out:
+        member.email_opt_out = True
+        db.commit()
+    try:
+        from .suppression import suppress as _suppress
+        if member.email:
+            _suppress(member.email, "unsubscribe", source="unsubscribe")
+    except Exception as e:
+        logger.warning(f"unsubscribe suppression write failed for user {member.id}: {e}")
 
 
 def _unsub_page(message: str, error: bool = False) -> str:
