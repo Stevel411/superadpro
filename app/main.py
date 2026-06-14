@@ -28428,6 +28428,93 @@ async def admin_nowpayments_recover_get(
     return await admin_api_recover_nowpayments_order(order_id=order_id, user=user, db=db)
 
 
+def _np_auto_recover_enabled() -> bool:
+    """Gate for automatic NOWPayments missed-IPN recovery. Default OFF so the
+    abandoned-order sweep's `real_payments_flagged` count can be reviewed
+    (dry-run) before it auto-activates. Set NP_AUTO_RECOVER_ENABLED='true' in
+    Railway to activate."""
+    return os.getenv("NP_AUTO_RECOVER_ENABLED", "false").strip().lower() == "true"
+
+
+def _recover_nowpayments_order(db, order, np_resp, source: str = "auto"):
+    """Activate a NowPaymentsOrder whose payment NOWPayments confirms as
+    finished but which was never activated locally (missed/failed IPN).
+
+    Canonical recovery path — shared by the manual admin recover endpoint and
+    the automatic abandoned-order sweep so activation is identical (no simplified
+    duplicate). The CALLER must have already polled NOWPayments and confirmed
+    np_resp shows a finished/confirmed/partially_paid status.
+
+    Idempotent: refuses if the order is already finished/confirmed, or if a
+    Payment row already exists for this np_payment_id (defends against an
+    out-of-order IPN having corrupted order.status after a real activation).
+    Commits on success; rolls back only its own work on failure. Returns a
+    result dict: {success, code, ...detail}.
+    """
+    from .database import NowPaymentsOrder, Payment
+    import json as _json, uuid
+    from datetime import datetime as _dt
+
+    if order.status in ("finished", "confirmed"):
+        return {"success": False, "code": "already_activated", "current_status": order.status}
+
+    if order.np_payment_id:
+        existing_payment = db.query(Payment).filter(
+            Payment.tx_hash == f"np_{order.np_payment_id}"
+        ).first()
+        if existing_payment:
+            logger.error(
+                f"NOWPAYMENTS RECOVERY REFUSED ({source}): order {order.id} "
+                f"status={order.status} BUT Payment {existing_payment.id} already "
+                f"exists for np_payment_id={order.np_payment_id}. Refusing to "
+                f"double-activate (status likely corrupted by a late/out-of-order IPN)."
+            )
+            return {"success": False, "code": "already_activated_payment_exists",
+                    "existing_payment_id": existing_payment.id,
+                    "current_status": order.status}
+
+    target = db.query(User).filter(User.id == order.user_id).first()
+    if not target:
+        return {"success": False, "code": "target_user_not_found", "user_id": order.user_id}
+
+    try:
+        order.status = "finished"
+        order.confirmed_at = _dt.utcnow()
+        order.actually_paid = (np_resp or {}).get("actually_paid") or order.actually_paid
+        order.outcome_amount = (np_resp or {}).get("outcome_amount") or order.outcome_amount
+        order.outcome_currency = (np_resp or {}).get("outcome_currency") or order.outcome_currency
+        db.flush()
+
+        meta = _json.loads(order.product_meta) if order.product_meta else {}
+        payment = Payment(
+            from_user_id=target.id, to_user_id=None,
+            amount_usdt=order.price_usd,
+            payment_type=f"nowpayments_{order.product_type}",
+            tx_hash=f"np_recover_{order.np_payment_id or uuid.uuid4().hex[:12]}",
+            status="confirmed",
+        )
+        db.add(payment)
+        db.flush()
+
+        _nowpayments_activate_product(db, target, order, meta)
+        db.commit()
+
+        logger.warning(
+            f"NOWPAYMENTS RECOVERY ({source}): order={order.id} user={target.username} "
+            f"product={order.product_type}/{order.product_key} price=${order.price_usd} "
+            f"np_payment_id={order.np_payment_id}"
+        )
+        return {"success": True, "code": "recovered", "order_id": order.id,
+                "user_id": target.id, "username": target.username,
+                "product_type": order.product_type, "product_key": order.product_key,
+                "price_usd": float(order.price_usd or 0)}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"NOWPAYMENTS RECOVERY FAILED ({source}): order={order.id} error={e}",
+                     exc_info=True)
+        return {"success": False, "code": "activation_failed", "error": str(e)}
+
+
 @app.post("/admin/api/nowpayments-order/{order_id}/recover")
 async def admin_api_recover_nowpayments_order(
     order_id: int,
@@ -28497,52 +28584,27 @@ async def admin_api_recover_nowpayments_order(
             status_code=400,
         )
 
-    # Run the same activation block the IPN handler would have run
-    target = db.query(User).filter(User.id == order.user_id).first()
-    if not target:
-        return JSONResponse({"success": False, "error": f"Target user {order.user_id} not found"}, status_code=404)
-
-    try:
-        order.status = "finished"
-        order.confirmed_at = datetime.utcnow()
-        order.actually_paid = (np_resp or {}).get("actually_paid") or order.actually_paid
-        order.outcome_amount = (np_resp or {}).get("outcome_amount") or order.outcome_amount
-        order.outcome_currency = (np_resp or {}).get("outcome_currency") or order.outcome_currency
-        db.flush()
-
-        meta = _json.loads(order.product_meta) if order.product_meta else {}
-
-        payment = Payment(
-            from_user_id=target.id, to_user_id=None,
-            amount_usdt=order.price_usd,
-            payment_type=f"nowpayments_{order.product_type}",
-            tx_hash=f"np_recover_{order.np_payment_id or uuid.uuid4().hex[:12]}",
-            status="confirmed",
-        )
-        db.add(payment)
-        db.flush()
-
-        _nowpayments_activate_product(db, target, order, meta)
-        db.commit()
-
-        logger.warning(
-            f"ADMIN ORDER RECOVERY: admin={user.username} order_id={order.id} "
-            f"target={target.username} product={order.product_type}/{order.product_key} "
-            f"price=${order.price_usd} np_payment_id={order.np_payment_id}"
-        )
+    # Delegate to the shared recovery helper — the exact same activation path
+    # the automatic abandoned-order sweep uses (single source of truth).
+    result = _recover_nowpayments_order(db, order, np_resp, source=f"admin:{user.username}")
+    if result.get("success"):
         return {
             "success": True,
-            "order_id": order.id,
-            "user_id": target.id,
-            "username": target.username,
-            "product_type": order.product_type,
-            "product_key": order.product_key,
-            "price_usd": float(order.price_usd or 0),
+            "order_id": result["order_id"],
+            "user_id": result["user_id"],
+            "username": result["username"],
+            "product_type": result["product_type"],
+            "product_key": result["product_key"],
+            "price_usd": result["price_usd"],
         }
-    except Exception as e:
-        db.rollback()
-        logger.error(f"ADMIN ORDER RECOVERY FAILED: order_id={order.id} error={e}", exc_info=True)
-        return JSONResponse({"success": False, "error": f"Activation failed: {e}"}, status_code=500)
+    if result.get("code") == "target_user_not_found":
+        return JSONResponse({"success": False, "error": f"Target user {order.user_id} not found"}, status_code=404)
+    if result.get("code") in ("already_activated", "already_activated_payment_exists"):
+        return {"success": False, "error": "Order already activated",
+                "code": result.get("code"),
+                "current_status": result.get("current_status"),
+                "existing_payment_id": result.get("existing_payment_id")}
+    return JSONResponse({"success": False, "error": result.get("error", "Activation failed")}, status_code=500)
 
 
 # ── /admin/orphans (Step 5, 7 May 2026) ──────────────────────────────
@@ -37834,6 +37896,7 @@ def _cleanup_abandoned_orders(db: Session) -> dict:
         "marked_abandoned": 0,
         "still_open_under_48h": 0,
         "real_payments_flagged": 0,
+        "auto_recovered": 0,
         "no_payment_id": 0,
         "errors": 0,
     }
@@ -37858,15 +37921,42 @@ def _cleanup_abandoned_orders(db: Session) -> dict:
                 logger.warning(f"[ABANDON] order {order.id} np_payment_id={order.np_payment_id}: NP status check returned no status, skipping. Resp: {np_resp}")
                 continue
             np_status = str(np_status).lower()
-            # Real payment we missed — DO NOT abandon. Log loudly for manual review.
+            # Real payment we missed — DO NOT abandon.
             if np_status in ("confirming", "confirmed", "sending", "partially_paid", "finished"):
-                counts["real_payments_flagged"] += 1
-                logger.error(
-                    f"[ABANDON-MANUAL-REVIEW] order {order.id} user={order.user_id} "
-                    f"product={order.product_key} price=${order.price_usd} "
-                    f"np_payment_id={order.np_payment_id} np_status={np_status} — "
-                    f"DB shows {order.status} but NOWPayments shows {np_status}. IPN may have failed."
-                )
+                # Only terminal-success states are safe to activate; confirming/
+                # sending are still in flight, so they're flagged, never recovered.
+                terminal_paid = np_status in ("confirmed", "partially_paid", "finished")
+                if terminal_paid and _np_auto_recover_enabled():
+                    # Checkpoint any pending abandon-marks before the helper's
+                    # per-order commit, so a helper rollback can't lose them.
+                    try:
+                        db.commit()
+                    except Exception:
+                        db.rollback()
+                    res = _recover_nowpayments_order(db, order, np_resp, source="auto-sweep")
+                    if res.get("success"):
+                        counts["auto_recovered"] += 1
+                        logger.error(
+                            f"[ABANDON-AUTO-RECOVERED] order {order.id} user={order.user_id} "
+                            f"product={order.product_key} price=${order.price_usd} "
+                            f"np_payment_id={order.np_payment_id} np_status={np_status} — "
+                            f"missed IPN auto-recovered and activated."
+                        )
+                    else:
+                        counts["real_payments_flagged"] += 1
+                        logger.error(
+                            f"[ABANDON-MANUAL-REVIEW] order {order.id} user={order.user_id} "
+                            f"np_payment_id={order.np_payment_id} np_status={np_status} — "
+                            f"auto-recover declined ({res.get('code')}); needs manual review."
+                        )
+                else:
+                    counts["real_payments_flagged"] += 1
+                    logger.error(
+                        f"[ABANDON-MANUAL-REVIEW] order {order.id} user={order.user_id} "
+                        f"product={order.product_key} price=${order.price_usd} "
+                        f"np_payment_id={order.np_payment_id} np_status={np_status} — "
+                        f"DB shows {order.status} but NOWPayments shows {np_status}. IPN may have failed."
+                    )
                 continue
             # NP-side terminal failures — safe to mark abandoned
             if np_status in ("failed", "expired", "refunded"):
