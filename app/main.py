@@ -31685,17 +31685,28 @@ def admin_api_superscene_analytics(
         SuperSceneVideo.created_at >= month_ago
     ).group_by(SuperSceneVideo.model_key).order_by(func.sum(SuperSceneVideo.credits_used).desc()).all()
 
-    # ── Estimated costs per credit ──
-    # Provider cost: fal.ai ~$0.03-0.08, EvoLink ~$0.05-0.15, avg ~$0.08
-    # Sponsor commission: $0.025 per credit used
+    # ── Provider cost (estimate) + REAL sponsor commissions ──
+    # Provider cost: fal.ai ~$0.03-0.08, EvoLink ~$0.05-0.15, avg ~$0.08.
+    # This stays a per-credit estimate (per-credit AI provider spend).
     ESTIMATED_PROVIDER_COST = 0.08
-    SPONSOR_COMMISSION_RATE = 0.025
-    TOTAL_COST_PER_CREDIT = ESTIMATED_PROVIDER_COST + SPONSOR_COMMISSION_RATE
-
     estimated_provider_cost_month = int(credits_month or 0) * ESTIMATED_PROVIDER_COST
-    sponsor_commissions_month = int(credits_month or 0) * SPONSOR_COMMISSION_RATE
-    total_cost_month = int(credits_month or 0) * TOTAL_COST_PER_CREDIT
+
+    # Sponsor commission is NOT per-credit. Since 30 May 2026 the matrix is
+    # retired: each credit-PACK purchase pays a flat 20% of the pack price to the
+    # buyer's direct sponsor. Read the ACTUAL paid amounts for the month from
+    # credit_matrix_commissions instead of estimating $/credit (which over- or
+    # under-stated margin depending on pack mix).
+    from .database import CreditMatrixCommission as _CMC
+    sponsor_commissions_month = float(
+        db.query(func.coalesce(func.sum(_CMC.amount), 0))
+          .filter(_CMC.status == "paid", _CMC.created_at >= month_ago)
+          .scalar() or 0
+    )
+    total_cost_month = estimated_provider_cost_month + sponsor_commissions_month
     margin = revenue_month - total_cost_month if revenue_month > 0 else 0
+    # Effective sponsor cost per credit this month (real $ / credits used) — for
+    # display continuity only; the real model is 20% of pack price, not per credit.
+    effective_sponsor_per_credit = round(sponsor_commissions_month / credits_month, 4) if credits_month else 0.0
 
     # ── Top users (this month) ──
     top_users = db.query(
@@ -31766,8 +31777,8 @@ def admin_api_superscene_analytics(
             "estimated_margin": round(margin, 2),
             "margin_pct": round((margin / revenue_month * 100) if revenue_month > 0 else 0, 1),
             "provider_cost_per_credit": ESTIMATED_PROVIDER_COST,
-            "sponsor_rate_per_credit": SPONSOR_COMMISSION_RATE,
-            "total_cost_per_credit": TOTAL_COST_PER_CREDIT,
+            "sponsor_rate_per_credit": effective_sponsor_per_credit,
+            "total_cost_per_credit": round(ESTIMATED_PROVIDER_COST + effective_sponsor_per_credit, 4),
         },
         "model_usage": [{
             "model": model_names.get(m, m), "key": m,
@@ -41256,14 +41267,11 @@ You explain the SuperAdPro compensation plan clearly and enthusiastically. You h
 - To qualify for commissions, members watch campaign videos daily (Watch To Earn)
 - Watching delivers real views to campaign holders while qualifying you for your grid commissions
 
-## INCOME STREAM 3: CREATIVE STUDIO CREDIT MATRIX
-- When any member in your network buys a Creative Studio credit pack, they enter your Profit Nexus
-- The matrix has 3 levels with 9 total positions (1 + 3 + 9 = 13 including you)
-- Level 1 (3 positions): you earn a commission on each credit pack purchase
-- Level 2 (9 positions): you earn a smaller commission on each
-- When a matrix completes (all 9 positions filled), you earn a completion bonus and a new matrix advance starts
-- Members keep buying credits to create videos, images, music — so your matrix keeps cycling and paying
-- This is a genuine recurring income stream tied to real product usage
+## INCOME STREAM 3: CREATIVE STUDIO CREDIT COMMISSIONS
+- When someone you directly refer buys a Creative Studio credit pack, you earn a flat 20% of the pack price
+- This is a single-level commission — it pays to the direct sponsor only, with no matrix, levels, spillover, or completion bonus
+- Members keep buying credit packs to create videos, images, music — so every pack a referral buys pays you 20%
+- A genuine recurring income stream tied to real product usage
 
 ## INCOME STREAM 4: COURSE MARKETPLACE (Coming Soon)
 - Sell digital courses and earn 100% commission
@@ -41290,7 +41298,7 @@ You explain the SuperAdPro compensation plan clearly and enthusiastically. You h
 When a member asks "how much could I earn with X referrals", calculate it clearly:
 - Each active referral = $10/month recurring
 - Campaign tier earnings depend on tier level and grid depth
-- Profit Nexus earnings depend on how many credit packs your network purchases
+- Creative Studio credit commissions depend on how many credit packs the members you refer purchase (you earn 20% of each pack price)
 
 ## STRICT RULES — NEVER VIOLATE THESE
 - NEVER reveal platform costs, margins, markups, or what SuperAdPro pays for services
@@ -52194,8 +52202,9 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
             "   recurring for as long as they stay active.\n"
             "2. 6×6 Profit Grid (Campaign Tiers $20 to $1,000): 30% direct + 50% across "
             "   8 uni-level (6.25% each). Requires owning the tier to earn at that tier.\n"
-            "3. Credit Nexus (3×3 matrix, packs $20 to $1,000): 15% direct, 10% spillover, "
-            "   10% completion bonus. No tier ownership required.\n"
+            "3. Creative Studio Credit Commissions (packs $20 to $1,000): a flat 20% "
+            "   of the pack price paid to the direct sponsor when a referral buys a credit "
+            "   pack. Single level — no matrix, spillover, or completion bonus. No tier ownership required.\n"
             "4. Course Academy: pass-up structure, requires owning the course tier.\n\n"
             "WHAT YOU MUST NEVER DO\n"
             "- NEVER invent prices, percentages, or income figures not listed above\n"
@@ -57934,7 +57943,7 @@ REFERRAL LINK: Every member gets a unique link (superadpro.com/ref/username). Sh
 COMPENSATION PLAN — 5 INCOME STREAMS:
 1. Membership Commissions: Earn $10/month for every active member you refer, recurring every month they stay active.
 2. 6×6 Profit Grid: When you or your referrals activate a Campaign Tier, it creates a 6×6 grid (36 positions). You earn 30% direct commission, plus 6.25% on each of 8 uni-level positions in your upline chain (50% across the chain), plus a completion bonus when all 36 seats fill. 8 tiers from $20 (T1) to $1,000 (T8).
-3. Creative Studio Sponsor Earnings: You earn $0.025 for every credit your referrals use in Creative Studio. Passive income from their creative activity.
+3. Creative Studio Credit Commissions: When someone you refer buys a Creative Studio credit pack, you earn a flat 20% of the pack price as their direct sponsor — a single-level commission, paid each time they buy a pack.
 4. Course Academy: Earn commissions when your referrals purchase courses.
 5. Pay It Forward: Gift a $20 membership to someone — you become their sponsor and earn on their activity. Creates a viral growth chain.
 
