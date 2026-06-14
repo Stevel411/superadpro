@@ -132,7 +132,12 @@ def _check(*items):
     return f'<table width="100%" cellpadding="0" cellspacing="0">{rows}</table>'
 
 
-def _shell(tag, hero_bg, hero, body):
+def _shell(tag, hero_bg, hero, body, unsubscribe_url=None):
+    # unsubscribe_url is only passed for marketing sends (founder/re-engagement
+    # broadcasts). Transactional emails (welcome, receipts, password resets)
+    # call _shell without it, so no unsubscribe link appears on them.
+    unsub = (f'<br><a href="{unsubscribe_url}" style="color:#cbd5e1;text-decoration:none">Unsubscribe</a>'
+             if unsubscribe_url else '')
     return f'''<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#e8edf5;font-family:Arial,Helvetica,sans-serif">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#e8edf5;padding:36px 16px"><tr><td align="center">
@@ -141,11 +146,12 @@ def _shell(tag, hero_bg, hero, body):
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:linear-gradient(135deg,#0f1d3a,#172554);padding:22px 32px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td>{_logo()}</td><td align="right" style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);vertical-align:middle">{tag}</td></tr></table></td></tr></table>
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:{hero_bg};padding:36px 36px 32px">{hero}</td></tr></table>
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:32px 36px">{body}</td></tr></table>
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 36px;text-align:center">{_footer_logo()}<div style="font-size:12px;color:#94a3b8;line-height:1.8">AI Marketing &amp; Advertising Platform<br><a href="{SITE_URL}" style="color:#0ea5e9;text-decoration:none">www.superadpro.com</a></div></td></tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 36px;text-align:center">{_footer_logo()}<div style="font-size:12px;color:#94a3b8;line-height:1.8">AI Marketing &amp; Advertising Platform<br><a href="{SITE_URL}" style="color:#0ea5e9;text-decoration:none">www.superadpro.com</a>{unsub}</div></td></tr></table>
 </td></tr></table></td></tr></table></body></html>'''
 
 
-def _nurture_shell(tag, hero_bg, hero, body):
+def _nurture_shell(tag, hero_bg, hero, body, unsubscribe_url=None):
+    unsub_url = unsubscribe_url or f"{SITE_URL}/unsubscribe"
     return f'''<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#e8edf5;font-family:Arial,Helvetica,sans-serif">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#e8edf5;padding:36px 16px"><tr><td align="center">
@@ -154,7 +160,7 @@ def _nurture_shell(tag, hero_bg, hero, body):
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:linear-gradient(135deg,#0f1d3a,#172554);padding:22px 32px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td>{_logo()}</td><td align="right" style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);vertical-align:middle">{tag}</td></tr></table></td></tr></table>
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:{hero_bg};padding:36px 36px 32px">{hero}</td></tr></table>
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:32px 36px">{body}</td></tr></table>
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 36px;text-align:center">{_footer_logo()}<div style="font-size:12px;color:#94a3b8;line-height:1.8">AI Marketing &amp; Advertising Platform &middot; <a href="{SITE_URL}" style="color:#0ea5e9;text-decoration:none">superadpro.com</a><br>You're receiving this because you have a SuperAdPro account.<br><a href="{SITE_URL}/unsubscribe" style="color:#cbd5e1;text-decoration:none">Unsubscribe from these emails</a></div></td></tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 36px;text-align:center">{_footer_logo()}<div style="font-size:12px;color:#94a3b8;line-height:1.8">AI Marketing &amp; Advertising Platform &middot; <a href="{SITE_URL}" style="color:#0ea5e9;text-decoration:none">superadpro.com</a><br>You're receiving this because you have a SuperAdPro account.<br><a href="{unsub_url}" style="color:#cbd5e1;text-decoration:none">Unsubscribe from these emails</a></div></td></tr></table>
 </td></tr></table></td></tr></table></body></html>'''
 
 
@@ -307,7 +313,7 @@ def send_renewal_reminder_email(to_email, first_name, days_left):
 # NURTURE SEQUENCE — 5 emails for members who haven't activated
 # ═══════════════════════════════════════════════════════════════
 
-def send_nurture_email(to_email, first_name, email_num):
+def send_nurture_email(to_email, first_name, email_num, unsubscribe_url=None):
     a = f"{SITE_URL}/pay-membership"
 
     if email_num == 1:
@@ -383,13 +389,13 @@ def send_nurture_email(to_email, first_name, email_num):
         subj = f"This is our last email to you, {first_name} &mdash; we mean it"
         hbg = "linear-gradient(135deg,#fef2f2,#fee2e2)"
 
-    return send_email(to_email, subj, _nurture_shell(f"Email {email_num} of 5", hbg, hero, body), category="marketing")
+    return send_email(to_email, subj, _nurture_shell(f"Email {email_num} of 5", hbg, hero, body, unsubscribe_url=unsubscribe_url), category="marketing", list_unsubscribe=unsubscribe_url)
 
 
 # ═══════════════════════════════════════════════════════════════
 # FOUNDING PARTNER BROADCAST — 16 May 2026
 # ═══════════════════════════════════════════════════════════════
-def render_founder_offer_email(first_name: str, spots_remaining: int = 82) -> dict:
+def render_founder_offer_email(first_name: str, spots_remaining: int = 82, unsubscribe_url: str = None) -> dict:
     """Render the Founding Partner pricing broadcast for one recipient.
 
     Returns {'subject', 'html', 'text'} so callers can either send
@@ -498,6 +504,7 @@ def render_founder_offer_email(first_name: str, spots_remaining: int = 82) -> di
         "linear-gradient(135deg,#ffffff,#f1f5f9)",
         hero,
         body,
+        unsubscribe_url=unsubscribe_url,
     )
 
     # Plain-text fallback for mail clients that don't render HTML
@@ -529,13 +536,14 @@ def render_founder_offer_email(first_name: str, spots_remaining: int = 82) -> di
 
 
 def send_founder_offer_broadcast_one(to_email: str, first_name: str,
-                                     spots_remaining: int = 82):
+                                     spots_remaining: int = 82,
+                                     unsubscribe_url: str = None):
     """Send the founder-offer broadcast to a single recipient.
 
     Used by the admin batch endpoint. Returns (success, brevo_message_id).
     From address is steve@superadpro.com so replies route to Steve's inbox.
     """
-    rendered = render_founder_offer_email(first_name, spots_remaining)
+    rendered = render_founder_offer_email(first_name, spots_remaining, unsubscribe_url=unsubscribe_url)
     return send_email(
         to_email,
         rendered["subject"],
@@ -547,10 +555,11 @@ def send_founder_offer_broadcast_one(to_email: str, first_name: str,
         reply_to_name="Steve Lawson",
         return_message_id=True,
         category="marketing",
+        list_unsubscribe=unsubscribe_url,
     )
 
 
-def render_reengagement_email(first_name: str, spots_remaining: int = 82) -> dict:
+def render_reengagement_email(first_name: str, spots_remaining: int = 82, unsubscribe_url: str = None) -> dict:
     """Render the soft-tone re-engagement broadcast for recent inactive signups.
 
     Returns {'subject', 'html', 'text'}. Sent on 16 May 2026 to the cohort
@@ -648,6 +657,7 @@ def render_reengagement_email(first_name: str, spots_remaining: int = 82) -> dic
         "linear-gradient(135deg,#ffffff,#f1f5f9)",
         hero,
         body,
+        unsubscribe_url=unsubscribe_url,
     )
 
     text = (
@@ -676,14 +686,15 @@ def render_reengagement_email(first_name: str, spots_remaining: int = 82) -> dic
 
 
 def send_reengagement_broadcast_one(to_email: str, first_name: str,
-                                    spots_remaining: int = 82):
+                                    spots_remaining: int = 82,
+                                    unsubscribe_url: str = None):
     """Send the re-engagement broadcast to a single recipient.
 
     Wrapper around send_email that matches the founder_offer broadcast
     sender pattern: from steve@superadpro.com, reply-to steve. Returns
     (success, brevo_message_id) for the admin batch endpoint to log.
     """
-    rendered = render_reengagement_email(first_name, spots_remaining)
+    rendered = render_reengagement_email(first_name, spots_remaining, unsubscribe_url=unsubscribe_url)
     return send_email(
         to_email,
         rendered["subject"],
@@ -695,4 +706,5 @@ def send_reengagement_broadcast_one(to_email: str, first_name: str,
         reply_to_name="Steve Lawson",
         return_message_id=True,
         category="marketing",
+        list_unsubscribe=unsubscribe_url,
     )

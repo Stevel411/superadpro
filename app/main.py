@@ -29448,6 +29448,7 @@ def admin_broadcast_founder_offer(
                     u.email,
                     u.first_name or u.username,
                     spots_remaining,
+                    unsubscribe_url=f"https://www.superadpro.com/unsubscribe?token={_ensure_unsubscribe_token(db, u)}",
                 )
                 if ok:
                     db.execute(text("""
@@ -29690,6 +29691,7 @@ def admin_broadcast_reengagement(
                     u.email,
                     u.first_name or u.username,
                     spots_remaining,
+                    unsubscribe_url=f"https://www.superadpro.com/unsubscribe?token={_ensure_unsubscribe_token(db, u)}",
                 )
                 if ok:
                     db.execute(text("""
@@ -40041,7 +40043,9 @@ def cron_process_nurture(request: Request, db: Session = Depends(get_db)):
                     continue
 
                 first_name = user.first_name or user.username
-                ok = send_nurture_email(user.email, first_name, seq.next_email)
+                _unsub_token = _ensure_unsubscribe_token(db, user)
+                _unsub_url = f"https://www.superadpro.com/unsubscribe?token={_unsub_token}"
+                ok = send_nurture_email(user.email, first_name, seq.next_email, unsubscribe_url=_unsub_url)
 
                 if ok:
                     sent.append({"user_id": user.id, "email_num": seq.next_email})
