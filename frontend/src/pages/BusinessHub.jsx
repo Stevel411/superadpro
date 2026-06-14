@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import {
-  Briefcase, Gauge, Users, Target, Layers, Zap, LayoutGrid, LineChart,
+  Briefcase, Gauge, Users, Target, Layers, Zap, LayoutGrid, LineChart, Rocket,
 } from 'lucide-react';
 
 // ── Business Hub ────────────────────────────────────────────────────
@@ -159,6 +159,23 @@ export default function BusinessHub() {
           </div>
         )}
 
+        {showLaunchpad && (
+          <div className="bp" role="button" tabIndex={0}
+               onClick={go('/upgrade')}
+               onKeyDown={function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/upgrade'); } }}>
+            <div className="bp-l">
+              <span className="bp-badge">★ {t('businessHub.bpBadge', { defaultValue: 'BECOME A PARTNER' })}</span>
+              <h3>{t('businessHub.bpTitle', { defaultValue: 'The full toolkit — $20/month.' })}</h3>
+              <p>{t('businessHub.bpDesc', { defaultValue: 'Unlock the entire SuperAdPro platform — Creative Studio, the Brand Poster Generator, MyLeads CRM, the page & funnel builder, AI marketing tools and the affiliate platform. Run your business, and share in the upside as your team grows. Cancel anytime.' })}</p>
+              <div className="bp-cta-row">
+                <span className="bp-cta">{t('businessHub.bpCta', { defaultValue: 'Become a Partner' })} →</span>
+                <span className="bp-note">{t('businessHub.bpNote', { defaultValue: '$20/month · cancel anytime' })}</span>
+              </div>
+            </div>
+            <div className="bp-r"><Rocket size={66} /></div>
+          </div>
+        )}
+
         {sections.map(function (sec) {
           return (
             <div key={sec.heading}>
@@ -235,6 +252,26 @@ var css = `
   .lp-locked{position:relative;display:flex;gap:8px 16px;flex-wrap:wrap;padding:12px 30px;background:rgba(255,255,255,.05);border-top:1px solid rgba(255,255,255,.1)}
   .lp-locked .li{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.68)}
   @media(max-width:680px){.lp-in{grid-template-columns:1fr;gap:20px}.lp-viz{order:-1;flex-direction:row}}
+
+  /* Become a Partner card (free-user upgrade CTA → /upgrade) */
+  .bp{position:relative;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;cursor:pointer;
+      border-radius:16px;overflow:hidden;margin-bottom:24px;padding:24px 28px;
+      background:radial-gradient(130% 130% at 90% 10%,#1e3a8a 0%,#0f2350 46%,#0a1740 100%);
+      border:1px solid rgba(34,211,238,.22);box-shadow:0 16px 40px -20px rgba(6,18,46,.8);
+      transition:transform .15s ease, box-shadow .15s ease}
+  .bp:hover{transform:translateY(-3px);box-shadow:0 22px 50px -22px rgba(6,18,46,.9)}
+  .bp:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(34,211,238,.4)}
+  .bp-badge{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+      color:#7dd3fc;background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.30);padding:5px 11px;border-radius:999px;letter-spacing:.06em;margin-bottom:12px}
+  .bp h3{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(19px,2.4vw,23px);color:#fff;margin:0 0 9px;letter-spacing:-.02em;line-height:1.15}
+  .bp p{font-size:13.5px;color:rgba(255,255,255,.76);line-height:1.55;margin:0 0 17px;max-width:560px;font-weight:500}
+  .bp-cta-row{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+  .bp-cta{font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px;color:#04121f;
+      background:linear-gradient(135deg,#22d3ee,#0ea5e9);padding:11px 22px;border-radius:11px;
+      box-shadow:0 10px 26px -8px rgba(34,211,238,.6)}
+  .bp-note{font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,.6)}
+  .bp-r{color:rgba(56,189,248,.16);flex:none}
+  @media(max-width:680px){.bp{grid-template-columns:1fr;gap:14px}.bp-r{display:none}}
 
   .bh-sect{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.06em;margin:20px 2px 12px;display:flex;align-items:center;gap:9px}
   .bh-lockpill{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;padding:2px 8px;border-radius:999px;text-transform:none;letter-spacing:0}
