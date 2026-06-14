@@ -897,7 +897,7 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         # gated by CRON_SECRET + the X-Origin-Verify origin lock. The money
         # crons (renewals, BSC scan, withdrawal processing) stay WALLED on
         # purpose while frozen.
-        if path == "/health" or path == "/admin" or path.startswith("/admin/") or path.startswith("/static/") or path == "/cron/security-watch" or path == "/cron/daily-briefing":
+        if path == "/health" or path == "/admin" or path.startswith("/admin/") or path.startswith("/static/") or path == "/cron/security-watch" or path == "/cron/daily-briefing" or path == "/webhooks/ses/notifications":
             return await call_next(request)
         # Authenticated admins bypass maintenance entirely. The React admin
         # dashboard at /admin boots, then calls /api/* to load — those are not
@@ -51111,6 +51111,16 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
     leaving no audit trail for broadcast support cases.
     """
     if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    # Account-wide send pause: set automatically when a spam complaint is
+    # attributed to this member's lead sending (SES SNS webhook). One bad
+    # sender must not be able to damage platform-wide deliverability. Lifted
+    # by an admin via /admin/api/member-unpause after review.
+    if getattr(user, "email_sending_paused", False):
+        return JSONResponse({
+            "error": "Email sending is paused on your account following a spam "
+                     "complaint from one of your contacts. Please contact support "
+                     "to review and re-enable sending."
+        }, status_code=403)
     body = await request.json()
     subject = (body.get("subject") or "").strip()
     html_content = body.get("html_content") or ""
@@ -60574,6 +60584,187 @@ def _unsub_page(message: str, error: bool = False) -> str:
 </div>
 </body>
 </html>"""
+
+
+# ──────────────────────────────────────────────────────────────────────
+#  SES bounce/complaint webhook (Amazon SNS) — 14 Jun 2026
+#  Public endpoint (SNS posts here). EVERY message is signature-verified via
+#  app.sns.verify_sns_message before we act — without that a forged POST could
+#  suppress addresses and pause members at will.
+#    Bounce (Permanent) -> suppress the address (do-not-send)
+#    Complaint          -> suppress + pause the member whose lead send drew the
+#                          complaint (only if attributable to a member send)
+# ──────────────────────────────────────────────────────────────────────
+@app.post("/webhooks/ses/notifications")
+async def ses_sns_webhook(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import PlainTextResponse
+    import json as _json
+    from . import sns as _sns
+    from . import suppression as _supp
+    try:
+        raw = await request.body()
+        msg = _json.loads(raw.decode("utf-8"))
+    except Exception:
+        return PlainTextResponse("bad request", status_code=400)
+
+    # Signature is the only thing standing between us and forged suppression.
+    if not _sns.verify_sns_message(msg):
+        logger.warning("[ses-webhook] rejected: invalid SNS signature")
+        return PlainTextResponse("forbidden", status_code=403)
+
+    # Optional second guard: pin to one topic if SES_SNS_TOPIC_ARN is set.
+    expected_topic = os.getenv("SES_SNS_TOPIC_ARN", "").strip()
+    if expected_topic and msg.get("TopicArn") != expected_topic:
+        logger.warning(f"[ses-webhook] topic mismatch: {msg.get('TopicArn')}")
+        return PlainTextResponse("forbidden", status_code=403)
+
+    mtype = msg.get("Type")
+    if mtype in ("SubscriptionConfirmation", "UnsubscribeConfirmation"):
+        _sns.confirm_subscription(msg)
+        return PlainTextResponse("ok", status_code=200)
+    if mtype != "Notification":
+        return PlainTextResponse("ignored", status_code=200)
+
+    try:
+        payload = _json.loads(msg.get("Message") or "{}")
+    except Exception:
+        return PlainTextResponse("ok", status_code=200)
+    ntype = payload.get("notificationType") or payload.get("eventType") or ""
+
+    try:
+        if ntype == "Bounce":
+            bounce = payload.get("bounce", {})
+            # Only PERMANENT (hard) bounces suppress. Transient/soft bounces
+            # (full mailbox, throttling) are temporary and must NOT be killed.
+            if bounce.get("bounceType") == "Permanent":
+                subtype = bounce.get("bounceSubType", "")
+                for r in bounce.get("bouncedRecipients", []):
+                    addr = r.get("emailAddress")
+                    if addr:
+                        _supp.suppress(addr, "bounce", source="ses-sns", detail=subtype)
+                        logger.warning(f"[ses-webhook] hard bounce suppressed: {addr} ({subtype})")
+        elif ntype == "Complaint":
+            comp = payload.get("complaint", {})
+            fid = comp.get("feedbackId", "")
+            for r in comp.get("complainedRecipients", []):
+                addr = r.get("emailAddress")
+                if not addr:
+                    continue
+                _supp.suppress(addr, "complaint", source="ses-sns", detail=fid)
+                logger.warning(f"[ses-webhook] complaint suppressed: {addr}")
+                _pause_member_for_complaint(db, addr)
+    except Exception as e:
+        logger.error(f"[ses-webhook] processing error: {e}")
+    # Always 200 on a verified message so SNS doesn't retry-storm us.
+    return PlainTextResponse("ok", status_code=200)
+
+
+def _pause_member_for_complaint(db, email: str):
+    """If a complained address is a lead a member emailed, pause that member's
+    sending so one bad sender can't tank account-wide deliverability. We never
+    pause for a complaint against platform/admin mail — only member sends.
+    """
+    try:
+        from .database import MemberLead
+        e = (email or "").strip().lower()
+        lead = (db.query(MemberLead)
+                  .filter(func.lower(MemberLead.email) == e)
+                  .order_by(MemberLead.id.desc()).first())
+        if not lead or not lead.user_id:
+            return
+        owner = db.query(User).filter(User.id == lead.user_id).first()
+        if owner and not owner.email_sending_paused:
+            owner.email_sending_paused = True
+            db.commit()
+            logger.warning(f"[ses-webhook] paused member {owner.id} ({owner.username}) after complaint on {e}")
+            try:
+                _alert_admin_member_paused(owner, e)
+            except Exception:
+                pass
+    except Exception as ex:
+        logger.error(f"[ses-webhook] pause attribution failed for {email}: {ex}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
+
+def _alert_admin_member_paused(owner, complained_email: str):
+    """Email Steve when a member is auto-paused for a spam complaint."""
+    from .email_utils import send_email as _send
+    admin_to = os.getenv("ADMIN_ALERT_EMAIL", "stevelawsonmarketing@gmail.com")
+    html = (
+        f"<p>Member <strong>{owner.username}</strong> (id {owner.id}) was automatically "
+        f"<strong>paused from sending</strong> after a spam complaint.</p>"
+        f"<p>Complained address: {complained_email}</p>"
+        f"<p>Account-wide email sending is halted for them. To re-enable after review:<br>"
+        f"https://www.superadpro.com/admin/api/member-unpause?user_id={owner.id}</p>"
+    )
+    _send(admin_to, f"[SuperAdPro] Member {owner.username} paused — spam complaint",
+          html, category="transactional")
+
+
+# ── Admin email-hygiene controls (tappable GET, admin-authed) ──────────
+@app.get("/admin/api/email-suppression")
+def admin_email_suppression_list(request: Request, limit: int = 100,
+                                 user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """Recent suppression rows (bounce/complaint/unsubscribe/manual)."""
+    _require_admin(user)
+    from .database import EmailSuppression
+    rows = (db.query(EmailSuppression)
+              .order_by(EmailSuppression.created_at.desc())
+              .limit(min(max(limit, 1), 500)).all())
+    return {"count": len(rows), "items": [
+        {"email": r.email, "reason": r.reason, "source": r.source,
+         "detail": r.detail,
+         "created_at": r.created_at.isoformat() if r.created_at else None}
+        for r in rows]}
+
+
+@app.get("/admin/api/email-unsuppress")
+def admin_email_unsuppress(request: Request, email: str = "",
+                           user: User = Depends(get_current_user),
+                           db: Session = Depends(get_db)):
+    """Remove an address from suppression and clear any member opt-out."""
+    _require_admin(user)
+    if not email:
+        return JSONResponse({"error": "email required"}, status_code=400)
+    from .suppression import unsuppress
+    ok = unsuppress(email)
+    m = db.query(User).filter(func.lower(User.email) == email.strip().lower()).first()
+    if m and m.email_opt_out:
+        m.email_opt_out = False
+        db.commit()
+    return {"ok": bool(ok), "email": email.strip().lower()}
+
+
+@app.get("/admin/api/member-unpause")
+def admin_member_unpause(request: Request, user_id: int = 0,
+                         user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """Re-enable a member's email sending after a complaint pause."""
+    _require_admin(user)
+    m = db.query(User).filter(User.id == user_id).first()
+    if not m:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    m.email_sending_paused = False
+    db.commit()
+    return {"ok": True, "user_id": user_id, "email_sending_paused": False}
+
+
+@app.get("/admin/api/member-pause")
+def admin_member_pause(request: Request, user_id: int = 0,
+                       user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Manually pause a member's email sending."""
+    _require_admin(user)
+    m = db.query(User).filter(User.id == user_id).first()
+    if not m:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    m.email_sending_paused = True
+    db.commit()
+    return {"ok": True, "user_id": user_id, "email_sending_paused": True}
 
 
 # React SPA mount points for the admin broadcast page
