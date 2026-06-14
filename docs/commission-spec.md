@@ -2,7 +2,9 @@
 
 **Status:** Locked ground truth — AI assistants must read this before making any claims about commission rates, tier prices, or payout mechanics. Do not fabricate numbers. If a rule is not documented here or contradicts here, ask Steve.
 
-**Last confirmed:** 30 May 2026 (Creator Credits confirmed live as flat 20% direct, matrix retired — verified against credit_matrix.py FLAT_REFERRAL_RATE. Prior session misread dead 15%/10% matrix constants as live; corrected.)
+**Last confirmed:** 14 Jun 2026 (Grid section updated to the live constants: direct cut 40%→30% on 8 Jun, completion-bonus pool now seat-aware — new 4×4 16-seat grids @ 20%, legacy 6×6 36-seat grids grandfathered @ 10% per `database.py::bonus_pct_for`. Verified against `app/database.py` constants + `app/grid.py`. Membership and Creator-Credits sections were already current.)
+
+**Prior confirmation:** 30 May 2026 (Creator Credits confirmed live as flat 20% direct, matrix retired — verified against credit_matrix.py FLAT_REFERRAL_RATE.)
 
 **Legend:**
 - ✅ Confirmed by Steve in-session
@@ -72,9 +74,11 @@ If you encounter any of these in code, copy, templates, or AI prompts, flag for 
 
 ## 2. Campaign Grid (Stream 02) ✅
 
-**Last updated:** 25 May 2026 — Steve cut the grid from 8×8 (64 seats) to 6×6 (36 seats). Bonus pool stays at 10%. Total lifetime $/year unchanged because uni-level still pays at every level (relationship-based, decoupled from grid shape) — but cycles now complete ~1.78× more often, delivering bonuses in tighter loops. Visual redesign: gold direct tiles, cyan spillover tiles, purple completion seat at position 36.
+**Last updated:** 12 Jun 2026 — two changes since the 25-May 6×6 cut:
+- **8 Jun 2026:** direct commission cut **40% → 30%**; the freed 10% moved into the completion-bonus pool (**10% → 20%**). Company share stays 0%. Total is still 100% to affiliates.
+- **12 Jun 2026:** a new grid geometry went live. **New grids are 4×4 = 16 seats** (`NEW_GRID_SEATS`), stamped per-grid at creation via `Grid.total_seats`. **Existing 6×6 36-seat grids are grandfathered** and finish on the old rules. The completion-bonus rate is **seat-aware** (`database.py::bonus_pct_for`): a 16-seat grid earns the 20% pool; a 36-seat grid keeps 10%. Keying the rate to the grid's own seat count (not a global flag) prevents the old retroactive-doubling bug from recurring.
 
-**Previous update (21 May 2026):** Steve reallocated the 5% platform share to double the completion bonus from 5% to 10%. **100% of every Grid commission flows to affiliates. Zero dedicated company share.** Marketing line: *"100% of Profit Grid commissions go to affiliates. We don't take a cent."*
+**Earlier (25 May 2026):** Steve cut the grid from 8×8 (64 seats) to 6×6 (36 seats). **Earlier (21 May 2026):** the 5% platform share was reallocated into the completion bonus. **100% of every Grid commission flows to affiliates. Zero dedicated company share.** Marketing line: *"100% of Profit Grid commissions go to affiliates. We don't take a cent."*
 
 ### Tier ladder ✅
 
@@ -95,28 +99,52 @@ Tier names are live in production UI (visualiser, /grid/activate page, member da
 
 ### Grid shape ✅
 
-- **6 wide × 6 deep = 36 positions** per grid (was 8×8 = 64 pre-25-May-2026).
-- Position 36 is the **completion-bonus seat** — filling it triggers the 10% bonus payout and opens a new grid for the owner.
-- Uni-level depth **stays at 8 levels** — the grid is now a visualisation of a slice of uni-level activity, not the full chain. When the active grid completes at seat 36, the next two levels of uni-level activity populate the newly-opened grid.
+Two grid geometries are live at once (per-grid, never a global flip):
 
-**Why the change:** completion cadence is the dopamine event in any matrix plan. Faster cycles = more "I just earned a bonus" moments per member per year, which drives retention. Lifetime $/year is unchanged — same money, tighter loops.
+| Model | Shape | Seats | Completion seat | Bonus pool | Applies to |
+|---|---|---|---|---|---|
+| **New (current)** | 4×4 | **16** | seat 16 | **20%** | grids created from 12 Jun 2026 |
+| **Legacy (grandfathered)** | 6×6 | **36** | seat 36 | **10%** | grids created before 12 Jun 2026 |
+
+- Each grid is stamped with its seat count at creation (`Grid.total_seats`) and reads that for completion + bonus. The bonus rate follows the grid (`database.py::bonus_pct_for(total_seats)`), so a legacy 36-seat grid can never accidentally pay the 20% rate.
+- Filling the final seat triggers the completion-bonus payout and opens a new grid for the owner.
+- Uni-level depth **stays at 8 levels** for both models — the grid is a visualisation of a slice of uni-level activity, not the full chain. Uni-level commission math (`PER_LEVEL_PCT × 8 = 50%`) is unchanged regardless of grid shape.
+
+**Why 16-seat:** even faster completion cadence than 36 — more "I just earned a bonus" moments per member, which drives retention. Lifetime $/year is governed by uni-level (relationship-based, decoupled from grid shape); the grid shape only changes how tightly the completion bonuses loop.
 
 ### Per-entry payout at Tier N ✅
 
 | Component | Rate | Notes |
 |---|---|---|
-| Direct (to sponsor) | 40% | Once per entry |
-| Uni-level (up the chain) | 6.25% × 8 levels = 50% total | One payout per level up to 8 — **unchanged**, still pays full chain regardless of grid shape |
-| Bonus pool | 10% | Accumulates toward completion bonus, pays at seat 36 |
-| Platform | 0% | Reallocated to bonus pool 21 May 2026 |
+| Direct (to sponsor) | **30%** | Once per entry. Cut from 40% on 8 Jun 2026; `DIRECT_PCT = 0.30`. |
+| Uni-level (up the chain) | 6.25% × 8 levels = 50% total | One payout per level up to 8 — **unchanged**, still pays full chain regardless of grid shape. `PER_LEVEL_PCT = 0.0625`. |
+| Bonus pool | **20%** new (16-seat) / **10%** legacy (36-seat) | Seat-aware via `bonus_pct_for`. Accumulates toward the completion bonus, pays at the final seat. |
+| Platform | 0% | Reallocated to bonus pool 21 May 2026; `PLATFORM_PCT = 0.00`. |
 
-**Total: 100% to affiliates.**
+**Important — what's global vs seat-aware:** `DIRECT_PCT` (30%), `PER_LEVEL_PCT` (6.25%), and `PLATFORM_PCT` (0%) are **global** — they apply to every grid regardless of age. Only the **completion-bonus pool rate is seat-aware**. So:
+- **New 16-seat grid:** 30 + 50 + 20 = **100% to affiliates.**
+- **Legacy 36-seat grid:** 30 + 50 + 10 = **90% to affiliates** — because the direct cut (40→30) is global but the legacy bonus pool stayed at 10%, the extra 10% is no longer paid out on legacy grids. 🟡 **Flag for Steve:** the public "100% of Profit Grid commissions go to affiliates" line is exact for new grids but overstates legacy 36-seat grids by 10% until those grids cycle out. Confirm whether the claim should be qualified or legacy grids topped to 100%.
 
-**Income stream framing:** Campaign Tiers contribute 100% to affiliates. The company makes its money on Membership ($10 flat per activation), not Grid.
+**Income stream framing:** Campaign Tiers contribute ~100% to affiliates (exactly 100% on new grids). The company makes its money on Membership ($10 flat per activation), not Grid.
 
 ### Completion bonuses ✅
 
-Per-tier total accrued at full grid (36 seats × tier_price × 10%):
+Completion bonus = `seats × tier_price × bonus_rate` (exact — this is how `bonus_pct_for` + the payout work).
+
+**New 4×4 16-seat grids @ 20%** (current, from 12 Jun 2026):
+
+| Tier | Price | Bonus per grid cycle |
+|---|---|---|
+| 1 Starter | $20 | **$64** |
+| 2 Builder | $50 | **$160** |
+| 3 Pro | $100 | **$320** |
+| 4 Advanced | $200 | **$640** |
+| 5 Premium | $400 | **$1,280** |
+| 6 Elite | $600 | **$1,920** |
+| 7 Master | $800 | **$2,560** |
+| 8 Champion | $1,000 | **$3,200** |
+
+**Legacy 6×6 36-seat grids @ 10%** (grandfathered, created before 12 Jun 2026):
 
 | Tier | Price | Bonus per grid cycle |
 |---|---|---|
@@ -129,28 +157,28 @@ Per-tier total accrued at full grid (36 seats × tier_price × 10%):
 | 7 Master | $800 | **$2,880** |
 | 8 Champion | $1,000 | **$3,600** |
 
-Previous values (pre-25-May-2026, 64-grid at 10%): $128 / $320 / $640 / $1,280 / $2,560 / $3,840 / $5,120 / $6,400. Earlier still (pre-21-May-2026, 64-grid at 5%): $64 / $160 / $320 / $640 / $1,280 / $1,920 / $2,560 / $3,200.
+Historical (pre-25-May-2026, 64-grid at 10%): $128 / $320 / $640 / $1,280 / $2,560 / $3,840 / $5,120 / $6,400.
 
-### Per-cycle economics ✅
+### Per-cycle economics 🟡
 
-Total earned by the grid owner per completed cycle (uni-level + completion bonus, excludes the 40% direct on their personal referrals):
+Illustrative owner earnings per completed cycle for the **new 16-seat model**, using the doc's per-seat uni-level approximation (uni-level = `seats × tier_price × 6.25%`; for 16 seats that equals one tier price exactly). Realised uni-level depends on the member's actual downline depth, so treat the uni-level column as a model estimate, not a guarantee — confirm with Steve before any customer-facing use.
 
-| Tier | Uni-level (6.25% × 36) | Completion Bonus | **Total per Grid** |
+| Tier | Uni-level (6.25% × 16) | Completion Bonus (20%) | **Total per Grid** |
 |---|---|---|---|
-| 1 Starter | $45 | $72 | **$117** |
-| 2 Builder | $112.50 | $180 | **$292.50** |
-| 3 Pro | $225 | $360 | **$585** |
-| 4 Advanced | $450 | $720 | **$1,170** |
-| 5 Premium | $900 | $1,440 | **$2,340** |
-| 6 Elite | $1,350 | $2,160 | **$3,510** |
-| 7 Master | $1,800 | $2,880 | **$4,680** |
-| 8 Champion | $2,250 | $3,600 | **$5,850** |
+| 1 Starter | $20 | $64 | **$84** |
+| 2 Builder | $50 | $160 | **$210** |
+| 3 Pro | $100 | $320 | **$420** |
+| 4 Advanced | $200 | $640 | **$840** |
+| 5 Premium | $400 | $1,280 | **$1,680** |
+| 6 Elite | $600 | $1,920 | **$2,520** |
+| 7 Master | $800 | $2,560 | **$3,360** |
+| 8 Champion | $1,000 | $3,200 | **$4,200** |
 
-Per-cycle is 43.75% smaller than the old 64-grid, but cycles fire ~1.78× more often. Total bonus pool generated per dollar of tier sales is unchanged — payouts simply land in tighter loops.
+Smaller per cycle than the 36-seat model, but cycles complete faster. Total bonus generated per dollar of tier sales is governed by the pool rate, not the grid size.
 
 ### Tier qualification rule ✅
 
-Found in `app/grid.py::_user_is_qualified` — must have an **active (or in-grace) campaign at the same tier or above** to earn commissions. Unqualified sponsor → 40% direct absorbed by platform as recipient of last resort. Uni-level: each level checked independently.
+Found in `app/grid.py::_user_is_qualified` — must have an **active (or in-grace) campaign at the same tier or above** to earn commissions. Unqualified sponsor → 30% direct absorbed by platform as recipient of last resort. Uni-level: each level checked independently.
 
 **Customer-facing note on "100% to affiliates" claim:** the dedicated platform-fee line is $0. When chains are short or uplines are unqualified, those slots are absorbed by the platform as the qualifying recipient of last resort — this is qualification-gate behaviour, not a separate revenue line. Honest answer if asked: *"All Grid commissions are paid out to qualifying affiliates. The rate to qualifying members is unchanged."*
 
@@ -245,7 +273,7 @@ Every withdrawal pays the company $1 (admin fee). The rest goes to the member's 
 |---|---|---|---|
 | Membership (Partner) | 50% ($10/mo) | 50% ($10/mo) | ✅ Yes — primary recurring |
 | Membership (Founding) | $10/mo flat | $5/mo flat | ✅ Yes — first 100 only |
-| Campaign Tiers | 95% | 5% (admin only) | ❌ No |
+| Campaign Tiers | 100% | 0% (platform share reallocated to bonus pool) | ❌ No |
 | Creator Credits | flat 20% to direct sponsor | 80% (or 100% if no referrer) | ✅ Yes (no tier needed) |
 | Courses | 100% | 0% | ❌ No |
 | Withdrawals | — | $1/withdrawal | ❌ No (offset only) |
@@ -258,7 +286,7 @@ Every withdrawal pays the company $1 (admin fee). The rest goes to the member's 
 
 Per Steve's request: **do not publicly mention that capped/unqualified commissions revert to the company.** Use member-facing language that emphasises qualifying to earn, not what happens to the excess.
 
-Under flat-pricing this is mostly a Grid/Course concern (unqualified upline → company keeps the 40%/100% pass-up). It does NOT apply to membership commissions any more, because there is no cap and no per-tier rate split.
+Under flat-pricing this is mostly a Grid/Course concern (unqualified upline → company keeps the 30%/100% pass-up). It does NOT apply to membership commissions any more, because there is no cap and no per-tier rate split.
 
 ### Tier qualification — general principle 🟡
 
