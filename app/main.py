@@ -1682,7 +1682,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
         if refs == 0:
             goal_key = "shareLink"
             title = "Share your referral link to earn your first commission"
-            desc = f"Every Basic referral earns you ${base_commission}/month. Just {refs_needed} referrals and your ${membership_cost} membership pays for itself."
+            desc = f"Every referral earns you ${base_commission}/month. Just {refs_needed} referrals and your ${membership_cost} membership pays for itself."
         elif remaining == 1:
             goal_key = "1more"
             title = "1 more referral and your membership pays for itself"
@@ -2362,7 +2362,7 @@ def api_member_story_prompt_check(request: Request, db: Session = Depends(get_db
     to share their story? Returns show=True only if they've received at least
     one paid commission AND haven't submitted a story yet. Also returns the
     amount of their first paid commission and the milestone date, which the
-    banner uses to personalise the headline ('You earned your first $17.50 —
+    banner uses to personalise the headline ('You earned your first $10 —
     share your story')."""
     user = get_current_user(request, db)
     if not user:
@@ -18716,9 +18716,9 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
 
     Commission rules (unchanged, just enforced consistently now):
     - Sponsor commission paid on fresh activation and reactivation
-    - Sponsor commission NOT paid on tier upgrades (Basic→Pro)
     - Sponsor commission NOT paid on cadence switches (Monthly→Annual)
-    - Commission capped at sponsor's own tier ($10/$17.50 monthly, $100/$175 annual)
+    - Flat pricing: a single Partner tier, so sponsor commission is a flat
+      $10/month ($100/year annual) per active referral — no tier cap applies
     """
     from datetime import datetime, timedelta
     from decimal import Decimal
@@ -35387,7 +35387,7 @@ ABOUT SUPERADPRO (the platform):
 - SuperAdPro is a video advertising platform with a built-in affiliate income opportunity
 - Membership costs $20/month in USDT (crypto) on Base Chain
 - Members get: AI Campaign Studio, Funnel Builder with AI chatbot, Niche Finder, Swipe File, Campaign Analytics
-- Members earn by: watching daily videos (Watch & Earn), referring others (40% direct commission), and the 6×6 Profit Grid (uni-level commissions)
+- Members earn by: watching daily videos (Watch & Earn), referring others ($10/month per active referral), and the 6×6 Profit Grid (30% direct + 6.25% uni-level across 8 levels)
 - There are 8 campaign tiers from $20 to $1,000 for advertisers who want engaged video views
 - All payments are in USDT on Base Chain (crypto) — fast, transparent, no chargebacks
 - The platform is real with genuine marketing tools, not just a compensation plan
@@ -35700,7 +35700,7 @@ MEMBER'S BRIEF:
 - Tone of voice: {tone}
 - Unique selling point: {usp if usp else "exclusive membership with multiple income streams"}
 
-CONTEXT: SuperAdPro is an AI marketing tools platform with a built-in affiliate income opportunity. Membership is $20/month for Basic (core tools + Campaign Tiers) or $35/month for Pro (adds SuperSeller, SuperPages, Lead Finder, Autoresponder, Creative Studio access). Payments are in USDT on Polygon. Members are typically people looking to use AI marketing tools for their own business, earn online income, or build a side hustle.
+CONTEXT: SuperAdPro is an AI marketing tools platform with a built-in affiliate income opportunity. Membership is a single Partner tier at $20/month (the original 100 Founders are locked at $15/month for life; those spots are now all claimed). Everything is included in the one tier — all AI tools, Creative Studio, SuperPages, Lead Finder, Autoresponder, and Campaign Tiers. Payments are by card via Stripe, or in USDT crypto on BNB Smart Chain (BSC) / NOWPayments. Members are typically people looking to use AI marketing tools for their own business, earn online income, or build a side hustle.
 
 YOUR TASK:
 Generate all of the following marketing assets. Each section should be complete, specific, and immediately usable — not generic templates. Use the member's exact niche, tone and offer throughout.
@@ -36732,7 +36732,7 @@ async def api_register(
                 icon="👋",
                 title="Welcome to SuperAdPro!",
                 message=(f"Hey {first_name}, welcome aboard! Your account is set up. "
-                         f"To unlock the AI tools and start earning, activate a Basic membership. "
+                         f"To unlock the AI tools and start earning, activate your membership. "
                          f"Then activate a Campaign Tier to enable Watch-to-Earn and start earning commissions."),
                 link="/upgrade",
             )
@@ -40114,7 +40114,7 @@ MEMBER PROFILE:
 - Time available: {hours}
 - Main goal: {goal}
 - Preferred platform: {platform}
-- Platform context: They are a member of SuperAdPro — an AI marketing tools platform ($20/month Basic, $35/month Pro) with Watch-to-Earn commissions, AI-generated funnels, video creation, and a suite of marketing tools for any niche.
+- Platform context: They are a member of SuperAdPro — an AI marketing tools platform ($20/month Partner membership, everything included) with Watch-to-Earn commissions, AI-generated funnels, video creation, and a suite of marketing tools for any niche.
 
 YOUR TASK:
 Recommend exactly 3 niches perfectly matched to this person's profile. Return ONLY valid JSON in this exact format with no other text:
@@ -41155,8 +41155,8 @@ Higher tiers unlock larger ad campaigns and greater earning potential.
 
 ## COMPENSATION PLAN
 1. **Referral Commission**: $10/month recurring for every direct member you refer (50% of the $20 base membership)
-2. **Direct Grid Commission**: 40% of the membership fee when someone joins in your direct position
-3. **Uni-Level Commission**: 6.875% across 8 levels of your downline team
+2. **Direct Grid Commission**: 30% of the campaign tier amount when someone joins in your direct position
+3. **Uni-Level Commission**: 6.25% on each of 8 levels of your downline team (50% across the chain)
 4. **Platform fee**: 5% on transactions
 5. **Course Sales**: 100% commission on course sales with 5 pass-ups (2nd, 4th, 6th, 8th, 10th sales pass up to your sponsor)
 
@@ -41171,8 +41171,8 @@ Higher tiers unlock larger ad campaigns and greater earning potential.
 ## WITHDRAWALS
 - Minimum withdrawal: $10
 - Fee: $1 per withdrawal
-- Payment method: USDT on Polygon network (crypto)
-- Compatible wallets: MetaMask, Coinbase Wallet, Trust Wallet (any Polygon-compatible wallet)
+- Paid in USDT crypto on BNB Smart Chain (BSC)
+- Compatible wallets: MetaMask, Coinbase Wallet, Trust Wallet (any BSC/USDT-compatible wallet)
 
 ## ACCOUNT & SECURITY
 - Two-Factor Authentication (2FA) available via Google Authenticator or Authy
@@ -41181,7 +41181,7 @@ Higher tiers unlock larger ad campaigns and greater earning potential.
 
 ## GETTING STARTED
 1. Register at www.superadpro.com
-2. Choose a membership tier starting at $20
+2. Activate your Partner membership ($20/month, everything included)
 3. Complete your profile
 4. Launch your first ad campaign from Campaign Studio
 5. Share your referral link to start earning commissions
@@ -41240,20 +41240,19 @@ COMP_PLAN_CHAT_SYSTEM = """You are the SuperAdPro Compensation Plan expert — a
 You explain the SuperAdPro compensation plan clearly and enthusiastically. You help members understand their earning potential and motivate them to take action. You can calculate earnings scenarios when asked.
 
 ## MEMBERSHIP
-- Basic: $20/month — access to all basic tools + earning system
-- Pro: $35/month — everything in Basic plus SuperPages, SuperDeck, AutoResponder, and SuperSeller AI
+- Partner: $20/month — the full platform, everything included (all AI tools, Creative Studio, SuperPages, SuperDeck, AutoResponder, and the earning system). One tier, no locked features.
+- Founder: $15/month locked for life — the first 100 members only; all founding spots are now claimed, so new memberships are Partner at $20/month.
 
 ## INCOME STREAM 1: MEMBERSHIP REFERRAL COMMISSIONS
-- Earn $10 for every Basic member you refer (50% commission, recurring monthly)
-- Earn $17.50 for every Pro member you refer (50% commission, recurring monthly)
-- These are direct referral commissions — someone signs up using your link, you earn every month they stay active
-- Example: 10 Basic referrals = $100/month recurring. 10 Pro referrals = $175/month recurring.
+- Earn $10/month for every active member you refer, recurring for as long as they stay active
+- This is a direct referral commission — someone signs up using your link and activates a membership, and you earn $10 every month they stay active
+- Example: 10 active referrals = $100/month recurring. 25 active referrals = $250/month recurring.
 
 ## INCOME STREAM 2: CAMPAIGN TIERS (Watch To Earn + Grid)
 - Members can activate Campaign Tiers to promote their video content and earn grid commissions
 - There are 8 tiers from $20 to $1,000/month
 - When you activate a tier, you're placed into your sponsor's 6×6 grid
-- Grid commissions pay 40% direct + 6.875% across 8 uni-levels
+- Grid commissions pay 30% direct + 6.25% on each of 8 uni-levels (50% across the chain)
 - To qualify for commissions, members watch campaign videos daily (Watch To Earn)
 - Watching delivers real views to campaign holders while qualifying you for your grid commissions
 
@@ -41277,10 +41276,9 @@ You explain the SuperAdPro compensation plan clearly and enthusiastically. You h
 - LinkHub: link-in-bio page builder
 - Link Tools: link tracking, rotators, QR codes, analytics
 - Content Creator: AI social posts, captions, hashtags
-- SuperPages (Pro): drag-and-drop landing page builder
-- SuperDeck (Pro): AI presentation builder
-- AutoResponder (Pro): email autoresponder with Pay It Forward
-- SuperSeller (Pro): AI sales pipeline generator
+- SuperPages: drag-and-drop landing page builder
+- SuperDeck: AI presentation builder
+- AutoResponder: email autoresponder with Pay It Forward
 
 ## WITHDRAWALS
 - Minimum: $10
@@ -41290,8 +41288,7 @@ You explain the SuperAdPro compensation plan clearly and enthusiastically. You h
 
 ## CALCULATING SCENARIOS
 When a member asks "how much could I earn with X referrals", calculate it clearly:
-- Each Basic referral = $10/month recurring
-- Each Pro referral = $17.50/month recurring
+- Each active referral = $10/month recurring
 - Campaign tier earnings depend on tier level and grid depth
 - Profit Nexus earnings depend on how many credit packs your network purchases
 
@@ -43717,7 +43714,7 @@ async def api_proseller_generate(request: Request, db: Session = Depends(get_db)
     # Build the prompt
     system_prompt = """You are ProSeller, an AI sales coach for SuperAdPro affiliates. SuperAdPro is a video advertising platform where:
 - Members watch real video ads and earn daily
-- 4 income streams: Membership ($20/mo, 50% to sponsor), 6×6 Profit Grid (8 tiers $20-$1000, 40% direct + 50% uni-level across 8 levels), and Courses
+- 4 income streams: Membership ($20/mo, $10 to sponsor per active referral), 6×6 Profit Grid (8 tiers $20-$1000, 30% direct + 50% uni-level across 8 levels), and Courses
 - 95% of every dollar is paid out to the network
 - Real advertising utility — advertisers pay for genuine video views from real people
 - AI-powered marketing tools built into the dashboard
@@ -46693,9 +46690,9 @@ ABOUT SUPERADPRO:
 - Members get: video ad campaigns (8 tiers, $20-$1,000), AI marketing tools (Campaign Studio,
   Social Post Generator, Video Script Writer, Niche Finder, Email Swipes), SuperPages landing
   page builder, LinkHub link-in-bio tool, Link Tools, Course Academy
-- Basic plan: $20/month — all core tools
-- Pro plan: $35/month — adds SuperSeller AI autopilot, SuperPages, ProSeller AI, custom AI agents
-- Affiliate commissions: 50% recurring on membership, 40% direct on grid tiers,
+- Partner plan: $20/month — the full platform, everything included (all AI tools, Creative Studio, SuperPages, page builder, autoresponder, lead tools)
+- Founder: $15/month locked for life — first 100 members only, now all claimed
+- Affiliate commissions: $10/month per active referral, 30% direct on grid tiers,
   6.25% uni-level across 8 levels, 100% on course sales (pass-up model)
 
 CAMPAIGN CONTEXT:
@@ -52188,15 +52185,15 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
             "Studio, MyLeads) to build their own marketing funnels for any business "
             "they choose. The compensation plan is OPTIONAL — many members use the "
             "tools without ever referring anyone.\n\n"
-            "MEMBERSHIP TIERS\n"
-            "- Basic: $20/month or $200/year (saves 2 months)\n"
-            "- Pro: $35/month or $350/year (saves 2 months)\n"
-            "- There is NO other pricing. Never invent prices like $27, $47, $97 etc.\n\n"
+            "MEMBERSHIP\n"
+            "- Partner: $20/month or $200/year (saves about 2 months)\n"
+            "- Founder: $15/month locked for life — first 100 members only, now all claimed\n"
+            "- There is NO other pricing. Never invent prices like $27, $35, $47, $97 etc.\n\n"
             "FOUR INCOME STREAMS (only describe these — do not invent others)\n"
-            "1. Membership commissions: sponsor earns 50% of referral's membership fee, "
-            "   capped at sponsor's own tier (Basic sponsor = max $10/mo or $100/yr).\n"
-            "2. 6×6 Profit Grid (Campaign Tiers $20 to $1,000): 40% direct + 50% across "
-            "   8 uni-level. Requires owning the tier to earn at that tier.\n"
+            "1. Membership commissions: sponsor earns $10/month for every active referral, "
+            "   recurring for as long as they stay active.\n"
+            "2. 6×6 Profit Grid (Campaign Tiers $20 to $1,000): 30% direct + 50% across "
+            "   8 uni-level (6.25% each). Requires owning the tier to earn at that tier.\n"
             "3. Credit Nexus (3×3 matrix, packs $20 to $1,000): 15% direct, 10% spillover, "
             "   10% completion bonus. No tier ownership required.\n"
             "4. Course Academy: pass-up structure, requires owning the course tier.\n\n"
@@ -57932,19 +57929,19 @@ PLATFORM KNOWLEDGE:
 
 DASHBOARD: The home page showing 3 income stream cards (Membership, Income Grid, Campaigns), a referral link with copy button, and 6 Quick Action cards that guide members to key areas.
 
-REFERRAL LINK: Every member gets a unique link (superadpro.com/ref/username). Share it anywhere — when someone signs up through your link, you earn 50% of their membership fee every month. Basic referral earns $10/month, Pro referral earns $17.50/month.
+REFERRAL LINK: Every member gets a unique link (superadpro.com/ref/username). Share it anywhere — when someone signs up through your link and activates a membership, you earn $10/month for as long as they stay active.
 
 COMPENSATION PLAN — 5 INCOME STREAMS:
-1. Membership Commissions: 50% recurring on every referral. Refer someone to Basic ($20/mo), earn $10/mo. Refer to Pro ($35/mo), earn $17.50/mo. Paid every month they stay active.
-2. 6×6 Profit Grid: When you or your referrals activate a Campaign Tier, it creates a 6×6 grid (36 positions). You earn 40% direct commission, 6.25% from 8 levels of uni-level commissions, plus a completion bonus when all 36 seats fill. 8 tiers from $20 (T1) to $1,000 (T8).
-3. SuperScene Sponsor Earnings: You earn $0.025 for every credit your referrals use in SuperScene. Passive income from their creative activity.
+1. Membership Commissions: Earn $10/month for every active member you refer, recurring every month they stay active.
+2. 6×6 Profit Grid: When you or your referrals activate a Campaign Tier, it creates a 6×6 grid (36 positions). You earn 30% direct commission, plus 6.25% on each of 8 uni-level positions in your upline chain (50% across the chain), plus a completion bonus when all 36 seats fill. 8 tiers from $20 (T1) to $1,000 (T8).
+3. Creative Studio Sponsor Earnings: You earn $0.025 for every credit your referrals use in Creative Studio. Passive income from their creative activity.
 4. Course Academy: Earn commissions when your referrals purchase courses.
 5. Pay It Forward: Gift a $20 membership to someone — you become their sponsor and earn on their activity. Creates a viral growth chain.
 
-MEMBERSHIP TIERS:
-- Basic ($20/month or $200/year): Affiliate commissions, Income Grid, Watch to Earn, Course Academy, LinkHub, basic support.
-- Pro ($35/month or $350/year): Everything in Basic plus SuperSeller AI, AI Funnel Generator, Email Autoresponder and CRM, Campaign Studio, Niche Finder AI, Social Post Generator, Video Script Generator, Email Swipes, Lead dashboard, priority support.
-- Annual billing saves 2 months free on both tiers.
+MEMBERSHIP:
+- Partner ($20/month or $200/year): the full platform, everything included — all AI tools, Creative Studio, LinkHub, SuperPages, Social Share, Income Grid, Watch to Earn, Course Academy, AI funnel and content tools, lead tools, and recurring affiliate commissions. One tier, no locked features.
+- Founder ($15/month, locked for life): the first 100 members locked in $15/month permanently. All 100 founding spots have been claimed, so new memberships are Partner at $20/month.
+- Annual billing saves about 2 months versus paying monthly.
 
 LINKHUB: A personal link-in-bio page similar to Linktree. Add your photo, bio, social links, and custom buttons. Share one link that sends people to everything you offer. Drag and drop to reorder, choose themes.
 
@@ -57954,13 +57951,13 @@ CAMPAIGN TIERS: 8 tiers from T1 ($20) to T8 ($1,000). Each tier activates a 6×6
 
 WATCH TO EARN: Members watch short campaign videos daily (30-60 seconds each) to stay qualified for Campaign Wallet withdrawals. Think of it as a daily check-in that keeps your earning status active.
 
-SUPERSCENE: All-in-one AI creative studio with 10 tabs — Create (video), Studio, Images, Captions, Music, Voiceover, Editor, Gallery, Packs, AI Builder. Generate videos, images, music, voiceovers using the latest AI models. Credits never expire. Buy credit packs from $8 to $99.
+CREATIVE STUDIO: All-in-one AI creative studio with 10 tabs — Create (video), Studio, Images, Captions, Music, Voiceover, Editor, Gallery, Packs, AI Builder. Generate videos, images, music, voiceovers using the latest AI models. Credits never expire. Buy credit packs from $8 to $99.
 
 WALLET: Two wallets. Affiliate Wallet holds membership and sponsor commissions — withdraw anytime with no conditions. Campaign Wallet holds grid commissions — requires active campaign tier and daily watch quota to withdraw.
 
-PAY IT FORWARD: Gift a Basic membership for $20 (from wallet or crypto). You become their sponsor. When they earn $20+, they are prompted to gift someone else — creating a viral growth chain.
+PAY IT FORWARD: Gift a Partner membership for $20 (from wallet or crypto). You become their sponsor. When they earn $20+, they are prompted to gift someone else — creating a viral growth chain.
 
-CRYPTO GUIDE: Step-by-step guide under Account menu for setting up MetaMask wallet on Polygon network and buying USDT for payments.
+CRYPTO GUIDE: Step-by-step guide under the Account menu for setting up a MetaMask or compatible wallet on BNB Smart Chain (BSC) and buying USDT for payments. Members can also pay by card via Stripe.
 
 RULES YOU MUST FOLLOW:
 - ONLY discuss platform features, tools, compensation plan, and how things work
