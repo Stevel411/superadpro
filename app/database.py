@@ -1839,11 +1839,20 @@ class WalletConnectPaymentOrder(Base):
     # Status
     status          = Column(String(20), default="pending", index=True)  # pending / confirmed / expired / cancelled
     tx_hash         = Column(String(80), nullable=True, index=True)  # 0x + 64 hex
-    from_address    = Column(String(50), nullable=True)
+    from_address    = Column(String(50), nullable=True)  # confirmed on-chain sender (set on match)
     block_number    = Column(BigInteger, nullable=True)
     confirmed_at    = Column(DateTime, nullable=True)
     expires_at      = Column(DateTime, nullable=False, index=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
+    # ── Attempt tracking (added 14 Jun 2026) ──────────────────────────
+    # The wallet the member was connected with when they created the intent,
+    # captured at create-intent time (the frontend already sends it). Unlike
+    # from_address (only set on a confirmed match), this is recorded even when
+    # the order later expires or the member sends a wrong/rounded amount — so
+    # an unmatched inbound transfer from this wallet can be traced back to the
+    # member. attempt_from_address is the connected wallet; attempt_at is when.
+    attempt_from_address = Column(String(50), nullable=True, index=True)
+    attempt_at           = Column(DateTime, nullable=True)
 
 
 class OnchainOrphanTransfer(Base):
@@ -2517,6 +2526,16 @@ def run_migrations():
         # amount with future pending orders) don't trigger the constraint.
         "CREATE UNIQUE INDEX IF NOT EXISTS idx_wcpo_unique_amount_pending "
         "ON walletconnect_payment_orders(unique_amount) WHERE status = 'pending'",
+        # ── Attempt-tracking columns (added 14 Jun 2026) ──
+        # Capture the connected wallet at create-intent time so an unmatched
+        # inbound transfer (expired order / wrong amount) can still be traced
+        # to the member who attempted the payment. Idempotent ADD COLUMN.
+        "ALTER TABLE walletconnect_payment_orders "
+        "ADD COLUMN IF NOT EXISTS attempt_from_address VARCHAR(50)",
+        "ALTER TABLE walletconnect_payment_orders "
+        "ADD COLUMN IF NOT EXISTS attempt_at TIMESTAMP",
+        "CREATE INDEX IF NOT EXISTS idx_wcpo_attempt_from_address "
+        "ON walletconnect_payment_orders(attempt_from_address)",
         # ── Onchain orphan transfers (Stage 2, 6 May 2026) ──
         # USDT transfers to treasury that didn't match any pending order.
         # Persisted for support reconciliation when members report

@@ -12747,6 +12747,58 @@ def admin_api_stripe_charge_backfill(
     return JSONResponse(base)
 
 
+@app.get("/admin/api/attempts-by-wallet")
+def admin_api_attempts_by_wallet(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    wallet: str = "",
+):
+    """Trace which member(s) attempted a WalletConnect payment from a given
+    wallet. Uses attempt_from_address (recorded at create-intent time), so it
+    resolves the payer even for orders that expired or never matched — the gap
+    that left orphan transfers unattributable. Read-only. Tappable:
+    /admin/api/attempts-by-wallet?wallet=0x...
+    """
+    _require_admin(user)
+    from .database import WalletConnectPaymentOrder as _WC, User as _U
+    w = (wallet or "").strip().lower()
+    if not w:
+        return JSONResponse({"error": "pass ?wallet=0x..."}, status_code=400)
+
+    orders = db.query(_WC).filter(
+        _WC.attempt_from_address == w
+    ).order_by(_WC.created_at.desc()).all()
+
+    uname = {u.id: (u.username, u.email)
+             for u in db.query(_U.id, _U.username, _U.email).all()}
+
+    attempts = []
+    for o in orders:
+        un, em = uname.get(o.user_id, (None, None))
+        attempts.append({
+            "order_id": o.id,
+            "user_id": o.user_id,
+            "username": un,
+            "email": em,
+            "product": f"{o.product_type}/{o.product_key}",
+            "unique_amount": float(o.unique_amount) if o.unique_amount is not None else None,
+            "status": o.status,
+            "tx_hash": o.tx_hash,
+            "attempt_at": o.attempt_at.isoformat() if o.attempt_at else None,
+            "created_at": o.created_at.isoformat() if o.created_at else None,
+        })
+
+    return JSONResponse({
+        "wallet": w,
+        "attempt_count": len(attempts),
+        "distinct_user_ids": sorted({o.user_id for o in orders}),
+        "attempts": attempts,
+        "note": ("Members who attempted a WalletConnect payment from this wallet "
+                 "(recorded from 14 Jun 2026 onward). Empty = no recorded attempt "
+                 "(paid before tracking existed, or an external/unrelated sender)."),
+    })
+
+
 @app.get("/admin/api/late-match-preview")
 def admin_api_late_match_preview(
     user: User = Depends(get_current_user),
@@ -19869,6 +19921,25 @@ async def onchain_create_intent(request: Request,
 
     # Success — `result` is a WalletConnectPaymentOrder
     order = result
+
+    # Record who attempted this payment. The frontend already supplies the
+    # connected wallet (for the self-pay guard above); persist it so an
+    # unmatched inbound transfer from this wallet can be traced back to this
+    # member even if the order later expires or a wrong amount is sent.
+    # Best-effort and in its own transaction (the order is already committed) —
+    # never block order creation on this.
+    if from_address:
+        try:
+            order.attempt_from_address = from_address
+            order.attempt_at = datetime.utcnow()
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            logger.warning(
+                f"onchain_create_intent: could not record attempt wallet for "
+                f"order {order.id}: {e}"
+            )
+
     return {
         "order_id": order.id,
         "product_type": order.product_type,
