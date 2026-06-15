@@ -32183,38 +32183,41 @@ def admin_withdrawals_queue_page(
     html = f"""<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Withdrawal Release Queue — SuperAdPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {{ --cobalt:#0a1438; --royal:#1e3a8a; --sky:#0ea5e9; --cyan:#06b6d4; --electric:#22d3ee; }}
   * {{ box-sizing:border-box; }}
-  body {{ margin:0; font-family:'DM Sans',-apple-system,system-ui,sans-serif; background:#eef2f9; color:#0f172a; padding:16px; }}
-  .topbar {{ display:flex; align-items:center; margin-bottom:10px; }}
-  .back {{ display:inline-flex; align-items:center; gap:6px; text-decoration:none; background:#fff; border:1px solid #d8e0ee; color:#1e3a8a; font-weight:600; font-size:13px; padding:8px 12px; border-radius:10px; }}
-  h1 {{ font-family:'Sora',sans-serif; font-size:20px; margin:4px 0 2px; color:#0a1438; }}
-  .sub {{ color:#64748b; font-size:13px; margin-bottom:14px; }}
-  .banner {{ padding:10px 12px; border-radius:10px; font-size:13px; margin-bottom:12px; line-height:1.4; }}
+  body {{ margin:0; font-family:'DM Sans',-apple-system,system-ui,sans-serif; background:#eef2f9; color:#0f172a; padding:28px 16px; }}
+  .wrap {{ max-width:640px; margin:0 auto; }}
+  .topbar {{ display:flex; align-items:center; margin-bottom:14px; }}
+  .back {{ display:inline-flex; align-items:center; gap:6px; text-decoration:none; background:#fff; border:1px solid #d8e0ee; color:#1e3a8a; font-weight:700; font-size:14px; padding:9px 14px; border-radius:10px; }}
+  h1 {{ font-family:'Sora',sans-serif; font-size:28px; font-weight:800; letter-spacing:-0.02em; margin:8px 0 4px; color:#0a1438; }}
+  .sub {{ color:#64748b; font-size:15px; font-weight:500; margin-bottom:20px; }}
+  .banner {{ padding:12px 14px; border-radius:10px; font-size:14px; margin-bottom:14px; line-height:1.45; }}
   .banner.err {{ background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; }}
   .banner.info {{ background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }}
-  .card {{ background:#fff; border:1px solid #e2e8f3; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 3px rgba(15,23,42,.05); }}
-  .row {{ display:flex; justify-content:space-between; gap:12px; padding:5px 0; font-size:14px; align-items:flex-start; border-bottom:1px solid #f1f5f9; }}
+  .card {{ background:#fff; border:1px solid #e2e8f3; border-radius:18px; padding:24px 26px; margin-bottom:16px; box-shadow:0 6px 22px rgba(15,23,42,.07); }}
+  .row {{ display:flex; justify-content:space-between; gap:18px; padding:11px 0; font-size:16px; align-items:baseline; border-bottom:1px solid #eef2f9; }}
   .row:last-of-type {{ border-bottom:0; }}
-  .lbl {{ color:#64748b; flex:0 0 auto; }}
-  .val {{ text-align:right; word-break:break-word; color:#0f172a; font-weight:500; }}
-  .muted {{ color:#94a3b8; font-size:12px; font-weight:400; }}
-  .mono {{ font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; }}
-  .warn {{ background:#fffbeb; color:#92400e; border:1px solid #fde68a; border-radius:8px; padding:7px 9px; font-size:12.5px; margin-top:8px; }}
-  .actions {{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; }}
-  .code {{ flex:1 1 110px; min-width:100px; padding:11px; border-radius:10px; border:1px solid #cbd5e1; background:#fff; color:#0f172a; font-size:16px; letter-spacing:2px; text-align:center; }}
-  button {{ border:0; border-radius:10px; padding:11px 14px; font-weight:700; font-size:14px; cursor:pointer; }}
+  .lbl {{ color:#475569; font-weight:600; flex:0 0 auto; }}
+  .val {{ text-align:right; word-break:break-word; color:#0a1438; font-weight:700; }}
+  .muted {{ color:#94a3b8; font-size:13px; font-weight:500; }}
+  .mono {{ font-family:'JetBrains Mono',ui-monospace,monospace; font-size:13px; font-weight:600; }}
+  .warn {{ background:#fffbeb; color:#92400e; border:1px solid #fde68a; border-radius:8px; padding:9px 11px; font-size:13.5px; margin-top:10px; line-height:1.4; }}
+  .actions {{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; align-items:center; }}
+  .code {{ flex:1 1 120px; min-width:110px; padding:13px; border-radius:11px; border:1px solid #cbd5e1; background:#fff; color:#0f172a; font-size:17px; letter-spacing:2px; text-align:center; }}
+  button {{ border:0; border-radius:11px; padding:13px 18px; font-weight:700; font-size:15px; cursor:pointer; }}
   button:disabled {{ opacity:.5; cursor:default; }}
   .approve {{ background:linear-gradient(90deg,#0ea5e9,#06b6d4); color:#fff; }}
   .reject {{ background:#f1f5f9; color:#b91c1c; border:1px solid #e2e8f3; }}
-  .result {{ margin-top:10px; font-size:13px; min-height:0; }}
-  .result.ok {{ background:#f0fdf4; border:1px solid #86efac; color:#15803d; padding:12px 14px; border-radius:10px; font-weight:600; line-height:1.5; }}
-  .result.bad {{ background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:10px 12px; border-radius:10px; font-weight:600; }}
+  .result {{ margin-top:12px; font-size:14px; min-height:0; }}
+  .result.ok {{ background:#f0fdf4; border:1px solid #86efac; color:#15803d; padding:13px 15px; border-radius:10px; font-weight:600; line-height:1.5; }}
+  .result.bad {{ background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:11px 13px; border-radius:10px; font-weight:600; }}
   .result a {{ color:#0369a1; font-weight:700; }}
-  .empty {{ color:#64748b; text-align:center; padding:40px 0; }}
-  .foot {{ color:#94a3b8; font-size:11.5px; margin-top:18px; line-height:1.5; }}
+  .empty {{ color:#64748b; text-align:center; padding:48px 0; font-size:15px; }}
+  .foot {{ color:#94a3b8; font-size:12.5px; margin-top:22px; line-height:1.5; }}
 </style></head><body>
+  <div class="wrap">
   <div class="topbar"><a class="back" href="/admin">← Back to Admin</a></div>
   <h1>Withdrawal Release Queue</h1>
   <div class="sub"><span id="qcount">{len(rows)}</span> awaiting your release · per-tx cap ${float(cap):.0f}</div>
@@ -32222,6 +32225,7 @@ def admin_withdrawals_queue_page(
   <div id="flash"></div>
   <div id="cards">{body_cards}</div>
   <div class="foot">Each release needs a fresh 6-digit code from your authenticator app — the same one you use for admin login. Money does not move without it.</div>
+  </div>
 <script>
 async function post(url, code) {{
   const r = await fetch(url, {{ method:'POST', headers:{{'Content-Type':'application/json'}}, body: JSON.stringify(code ? {{totp_code: code}} : {{}}) }});
