@@ -61259,7 +61259,8 @@ function submitCourse(){
 def course_page(username: str, db: Session = Depends(get_db)):
     """Public per-member course lead-magnet page. Auto-provisions the member's
     funnel on first view, then renders the opt-in. Posts to /api/capture/."""
-    owner = db.query(User).filter(User.username == username).first()
+    uname = (username or "").strip().lstrip("@")
+    owner = db.query(User).filter(func.lower(User.username) == uname.lower()).first()
     if not owner:
         return RedirectResponse(url="https://www.superadpro.com", status_code=302)
     try:
