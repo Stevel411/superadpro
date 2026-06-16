@@ -25,8 +25,9 @@ var LANGUAGES = [
   { code: 'SW', flag: '🇰🇪', name: 'Kiswahili' },
 ];
 
-var SLIDE_NAMES = ['Intro — 4 Income Streams', 'Membership Referrals', 'Annual vs Monthly', 'Campaign Grid', 'Grid Math', 'Credit Nexus', 'Credit Repurchase', 'Course Academy', 'Pass-Up System'];
-var SLIDE_COLORS = ['#172554', '#0ea5e9', '#0ea5e9', '#22c55e', '#22c55e', '#8b5cf6', '#8b5cf6', '#ef4444', '#ef4444'];
+var SLIDE_NAMES = ['3 Income Streams', 'The $10 Launchpad', 'Membership Referrals', 'Annual Upfront', 'Campaign Grid', 'One Full Grid Cycle', 'Creator Credits', 'Repurchase Engine'];
+var SLIDE_COLORS = ['#172554', '#16a34a', '#0ea5e9', '#0ea5e9', '#06b6d4', '#06b6d4', '#8b5cf6', '#8b5cf6'];
+var SLIDE_EMOJIS = ['📊', '⚡', '💰', '💵', '🎯', '📈', '✨', '♻️'];
 
 export default function MarketingMaterials() {
   var { t, i18n } = useTranslation();
@@ -52,7 +53,7 @@ export default function MarketingMaterials() {
   }, []);
 
   var selected = LANGUAGES.find(function(l) { return l.code === selectedLang; }) || LANGUAGES[0];
-  var downloadUrl = '/static/downloads/income-streams/SuperAdPro-4-Income-Streams-' + selectedLang + '.pptx';
+  var downloadUrl = '/static/downloads/income-streams/SuperAdPro-3-Income-Streams-EN.pptx';
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.origin + downloadUrl);
@@ -67,7 +68,7 @@ export default function MarketingMaterials() {
       {/* Page header */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 26, fontWeight: 800, color: '#0f172a', margin: 0 }}>{t('marketingMaterials.pageTitle')}</h1>
-        <p style={{ fontSize: 14, color: '#475569', marginTop: 6, lineHeight: 1.6 }}>Download ready-made presentations to share with prospects. Available in 20 languages.</p>
+        <p style={{ fontSize: 14, color: '#475569', marginTop: 6, lineHeight: 1.6 }}>Download ready-made presentations to share with prospects.</p>
       </div>
 
       {/* Language selector — premium dropdown */}
@@ -114,7 +115,7 @@ export default function MarketingMaterials() {
 
         {/* Slide preview strip */}
         <div style={{ padding: '16px 20px 6px' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.5, color: '#7a8899', textTransform: 'uppercase', marginBottom: 10 }}>Preview — 9 Slides</div>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.5, color: '#7a8899', textTransform: 'uppercase', marginBottom: 10 }}>Preview — 8 Slides</div>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
             {SLIDE_NAMES.map(function(name, i) {
               return <div key={i} style={{
@@ -123,7 +124,7 @@ export default function MarketingMaterials() {
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 padding: 8, border: '1px solid #e2e8f0'
               }}>
-                <div style={{ fontSize: 18, marginBottom: 4 }}>{['📊', '💰', '💵', '🎯', '📈', '🌀', '♻️', '🎓', '⬆️'][i]}</div>
+                <div style={{ fontSize: 18, marginBottom: 4 }}>{SLIDE_EMOJIS[i]}</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.3 }}>{name}</div>
               </div>;
             })}
@@ -133,16 +134,16 @@ export default function MarketingMaterials() {
         {/* Card body */}
         <div style={{ padding: '12px 20px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#0f172a' }}>4 Income Streams Presentation</div>
-            <div style={{ fontSize: 13, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>✓ 20 Languages</div>
+            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#0f172a' }}>3 Income Streams Presentation</div>
+            <div style={{ fontSize: 13, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>✓ English</div>
           </div>
           <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginBottom: 14 }}>
-            Professional presentation covering all four SuperAdPro income streams — Membership Referrals, Campaign Grid, Credit Nexus, and Course Academy. Perfect for prospect meetings, team calls, or sharing online.
+            Professional presentation covering all three SuperAdPro income streams — Membership Referrals, Campaign Grid, and Creator Credits — plus the $10 Launchpad on-ramp. Perfect for prospect meetings, team calls, or sharing online.
           </p>
 
           {/* Meta */}
           <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-            {[['📊', '5 slides'], ['📁', 'PowerPoint (.pptx)'], ['📐', '16:9 widescreen'], ['💾', '~4 MB']].map(function(m, i) {
+            {[['📊', '8 slides'], ['📁', 'PowerPoint (.pptx)'], ['📐', '16:9 widescreen'], ['💾', '~250 KB']].map(function(m, i) {
               return <div key={i} style={{ fontSize: 12, color: '#7a8899', display: 'flex', alignItems: 'center', gap: 4 }}>{m[0]} {m[1]}</div>;
             })}
           </div>
@@ -150,7 +151,7 @@ export default function MarketingMaterials() {
           {/* Download selected language */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: 14 }}>
             <span style={{ fontSize: 20 }}>{selected.flag}</span>
-            <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#334155' }}>Downloading in: <span style={{ color: '#7c3aed' }}>{selected.name}</span></span>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#334155' }}>{selectedLang === 'EN' ? <span>Downloading in: <span style={{ color: '#7c3aed' }}>English</span></span> : <span>Download is in <span style={{ color: '#7c3aed' }}>English</span> — {selected.name} coming soon</span>}</span>
           </div>
 
           {/* Action buttons */}
