@@ -61176,8 +61176,10 @@ _COURSE_PAGE_TMPL = """<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:radial-gradient(125% 90% at 82% 4%,#163a66 0%,#0c224b 42%,#06122e 100%);min-height:100vh;color:#fff}
-.wrap{max-width:600px;margin:0 auto;padding:22px 22px 44px}
+body{font-family:'DM Sans',sans-serif;background:#06122e;min-height:100vh;color:#fff}
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:url('/static/img/course-bg.jpg') center center/cover no-repeat}
+body::after{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(6,18,46,.42) 0%,rgba(6,18,46,.28) 40%,rgba(6,18,46,.60) 100%)}
+.wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:22px 22px 44px}
 h1{font-family:'Sora';font-weight:900;font-size:34px;line-height:1.04;margin:12px 0 0;color:#fff}
 .hl{background:linear-gradient(92deg,#22d3ee,#7dd3fc);-webkit-background-clip:text;background-clip:text;color:transparent}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
