@@ -79,6 +79,7 @@ If you encounter any of these in code, copy, templates, or AI prompts, flag for 
 Changes that led here:
 - **8 Jun 2026:** direct commission cut **40% → 30%**; the freed 10% moved into the completion-bonus pool (**10% → 20%**). Company share stays 0%.
 - **12 Jun 2026:** new **4×4 = 16-seat** grid geometry went live (`NEW_GRID_SEATS=16`). The old 36-seat grids were grandfathered to finish on their original rules; **they have since all cycled out.** `database.py::bonus_pct_for` still exists as a per-grid safety guard, but with no 36-seat grids remaining it always returns the 20% rate in practice.
+- **16 Jun 2026:** documented the **$10 Launchpad (grid tier 0)** — the paid on-ramp that switches on the comp plan for free users (see *Launchpad — Grid Tier 0* below). $3 direct / $32 tier-0 completion bonus, derived from the standard split at the $10 tier-0 price.
 
 **Current live split: 30% direct / 50% uni-level (6.25%×8) / 20% completion bonus / 0% platform = 100% to affiliates.**
 
@@ -100,6 +101,38 @@ Changes that led here:
 | 8 | Champion | $1,000 |
 
 Tier names are live in production UI (visualiser, /grid/activate page, member dashboards). Confirmed against `app/database.py::GRID_TIER_NAMES` 25 May 2026.
+
+### Launchpad — Grid Tier 0 ✅
+
+**Added 16 Jun 2026.** The Launchpad is a one-time **$10** entry that sits *below* Starter as **grid tier 0** (`GRID_PACKAGES[0] = 10.0`, `GRID_TIER_NAMES[0] = "Launchpad"`). It is the paid on-ramp for free users: a single $10 buy-in switches on the comp plan without granting full membership.
+
+**Access ladder:** Free → **$10 Launchpad** → Full Member.
+
+| State | `can_earn()` | `is_active` | `is_pro()` | Gets |
+|---|---|---|---|---|
+| Free signup | ❌ | ❌ | ❌ | Browse only |
+| **$10 Launchpad** | ✅ | ❌ | ❌ | Refer, build a team, earn, withdraw, tier-0 grid |
+| Full member ($20 Partner / $15 Founding) | ✅ | ✅ | ✅ | Above + tools + grid tiers 1–8 |
+
+Launchpad flips `can_earn()` true while leaving `is_active` / `is_pro()` false, so the tools (SuperPages, Creative Studio, Lead Finder) and grid tiers 1–8 stay locked until the member upgrades to full membership.
+
+**Commission — standard grid split applied at tier 0 (price $10).** Launchpad purchases run through `process_tier_purchase(package_tier=0)`, the same engine as tiers 1–8:
+
+| Component | Rate | On a $10 Launchpad |
+|---|---|---|
+| Direct (to sponsor) | 30% | **$3** per Launchpad referral |
+| Uni-level (× 8) | 6.25% × 8 | $0.625 / level |
+| Completion bonus | 20% | tier-0 grid = `16 × $10 × 0.20` = **$32** |
+| Platform | 0% | — |
+
+The **$3** and **$32** figures are exact for the $10 tier-0 price under the live 30% / 20% split (consistent with *Per-entry payout* and *Completion bonuses* below).
+
+**Customer-facing framing:** *"Start earning for just $10 — the Launchpad turns on the comp plan (refer, earn, withdraw) plus a tier-0 grid. Tools and tiers 1–8 unlock at full membership."* Live on the marketing deck and the `/compensation-plan` page (16 Jun 2026).
+
+**Code references:**
+- `app/database.py` — `GRID_PACKAGES[0] = 10.0`, `GRID_TIER_NAMES[0] = "Launchpad"`
+- `app/main.py` — `can_earn()` (Launchpad earns; ~line 1195), Stripe checkout (~21055), tier-0 activation (~21672)
+- `app/grid.py::process_tier_purchase(package_tier=0)` — standard 30 / 6.25×8 / 20 / 0 split
 
 ### Grid shape ✅
 
