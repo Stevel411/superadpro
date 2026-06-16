@@ -45540,7 +45540,12 @@ def _create_brevo_contact(email: str, name: str, member_id: int) -> str:
 # link in autoresponder emails to /e/{token}, and stamp the click on redirect.
 # The data lives in EmailSendLog.clicked_at in our own DB and works on ANY
 # provider — this is the SES-equivalent of Brevo's click dashboard.
-email_link_serializer = URLSafeTimedSerializer(SESSION_SECRET, salt="superadpro-email-link")
+# Dedicated signing secret for email links — isolates them from session auth so
+# a compromise of one can never be used to forge the other, and either can be
+# rotated independently. Falls back to SESSION_SECRET until EMAIL_LINK_SECRET is
+# set in Railway, so this deploys with zero coordination and no link breakage.
+EMAIL_LINK_SECRET = os.getenv("EMAIL_LINK_SECRET") or SESSION_SECRET
+email_link_serializer = URLSafeTimedSerializer(EMAIL_LINK_SECRET, salt="superadpro-email-link")
 _EMAIL_LINK_MAX_AGE = 60 * 60 * 24 * 730  # signed links valid ~2 years
 
 def _sign_email_link(lead_id, sequence_id, email_index, url):
