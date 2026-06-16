@@ -346,6 +346,18 @@ function UsersTab() {
   var [adjustCode, setAdjustCode] = useState('');
   var [msg, setMsg] = useState('');
 
+  // Mobile detection — the user list + detail panel render as a 2-column
+  // grid on desktop, but on a phone that forces the member list to a sliver:
+  // grid items default to min-width:auto, so the detail panel's tables refuse
+  // to shrink and blow the layout out horizontally, hiding the list. Below
+  // 768px we stack to a single column (list on top, detail below) instead.
+  var [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(function() {
+    function onResize() { setIsMobile(window.innerWidth < 768); }
+    window.addEventListener('resize', onResize);
+    return function() { window.removeEventListener('resize', onResize); };
+  }, []);
+
   // Debounce search input so we don't fire an API call on every keystroke.
   // 300ms feels responsive without being chatty.
   useEffect(function() {
@@ -456,9 +468,9 @@ function UsersTab() {
   }
 
   return (
-    <div style={{display:'grid',gridTemplateColumns:selected?'1fr 1fr':'1fr',gap:16}}>
+    <div style={{display:'grid',gridTemplateColumns:(selected && !isMobile)?'1fr 1fr':'1fr',gap:16}}>
       {/* User list */}
-      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',minWidth:0}}>
         <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>
             Members ({total})
@@ -560,7 +572,7 @@ function UsersTab() {
 
       {/* User detail */}
       {selected && detail && (
-        <div style={{display:'flex',flexDirection:'column',gap:14}}>
+        <div style={{display:'flex',flexDirection:'column',gap:14,minWidth:0}}>
           {msg && (function() {
             // Success is the default; red only when the message is actually
             // an error. Previous logic keyword-matched "adjust"/"toggle" for
