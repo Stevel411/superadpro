@@ -1,12 +1,4 @@
-import AppLayout from '../components/layout/AppLayout';
-
-// Light-theme "3 Income Streams" compensation plan — a web rendering of the
-// marketing deck (replaces the old 4-stream/Nexus/Courses tabbed page,
-// 16 Jun 2026). Static content; all numbers reconciled to commission-spec +
-// live grid engine. Styles are scoped under .cproot and cp-prefixed so they
-// cannot collide with the rest of the app. English-first; localized copy
-// follows the deck translation pass.
-var CP_HTML = `
+import{j as t}from"./vendor-CXoh5z_D.js";import{A as e}from"./index-BlFDO987.js";import"./vendor-charts-sutgcRna.js";var d=`
 <style>
 .cproot{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
 .cproot .cpsora{font-family:'Sora',sans-serif}
@@ -204,12 +196,4 @@ var CP_HTML = `
   </div>
   <div style="text-align:center;margin-top:18px"><span style="display:inline-block;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 26px;font-size:15px;font-weight:700;color:#334155">$200 pack = <span style="color:#16a34a">$40 to you</span> &middot; every purchase</span></div>
 </div>
-`;
-
-export default function CompensationPlan() {
-  return (
-    <AppLayout title="Compensation Plan" subtitle="The 3 ways to earn with SuperAdPro">
-      <div className="cproot" dangerouslySetInnerHTML={{ __html: CP_HTML }} />
-    </AppLayout>
-  );
-}
+`;function a(){return t.jsx(e,{title:"Compensation Plan",subtitle:"The 3 ways to earn with SuperAdPro",children:t.jsx("div",{className:"cproot",dangerouslySetInnerHTML:{__html:d}})})}export{a as default};
