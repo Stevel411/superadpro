@@ -45532,6 +45532,104 @@ def _create_brevo_contact(email: str, name: str, member_id: int) -> str:
         logger.error(f"Brevo contact creation failed: {e}")
         return ""
 # ── Helper: send a sequence email to a lead ──
+# ── Email click tracking (provider-independent) ──────────────────────────────
+# Under Brevo, click events arrived via the Brevo webhook (matched by
+# brevo_message_id). Amazon SES (SMTP) does not deliver click events that way —
+# its SNS feed is bounce/complaint only. So we track clicks ourselves: sign a
+# compact token (lead, sequence, email index, destination URL), rewrite every
+# link in autoresponder emails to /e/{token}, and stamp the click on redirect.
+# The data lives in EmailSendLog.clicked_at in our own DB and works on ANY
+# provider — this is the SES-equivalent of Brevo's click dashboard.
+email_link_serializer = URLSafeTimedSerializer(SESSION_SECRET, salt="superadpro-email-link")
+_EMAIL_LINK_MAX_AGE = 60 * 60 * 24 * 730  # signed links valid ~2 years
+
+def _sign_email_link(lead_id, sequence_id, email_index, url):
+    return email_link_serializer.dumps({"l": lead_id, "s": sequence_id, "i": email_index, "u": url})
+
+def _rewrite_email_links(html, lead_id, sequence_id, email_index, site_url):
+    """Route http(s) links through /e/{token} for click tracking. Skips
+    unsubscribe / mailto / tel / anchor links and already-wrapped links.
+    FAIL-SAFE: on ANY error returns the original HTML so the email still sends
+    with working links — a tracking bug must never break delivery."""
+    try:
+        import re as _re
+        base = (site_url or "https://www.superadpro.com").rstrip("/")
+        def _sub(m):
+            q = m.group(1); href = m.group(2); low = href.lower()
+            if (not low.startswith("http")) or "/unsubscribe" in low or (base + "/e/") in href \
+               or low.startswith("mailto:") or low.startswith("tel:"):
+                return m.group(0)
+            tok = _sign_email_link(lead_id, sequence_id, email_index, href)
+            return "href=" + q + base + "/e/" + tok + q
+        return _re.sub(r'href=(["\'])(.*?)\1', _sub, html)
+    except Exception as e:
+        logger.warning(f"email link rewrite skipped for lead {lead_id}: {e}")
+        return html
+
+@app.get("/e/{token}")
+def email_link_redirect(token: str, db: Session = Depends(get_db)):
+    """Click-tracking redirect for autoresponder email links. Verifies the
+    signed token (tamper-proof — destination came from us, so no open-redirect),
+    stamps the click on the matching EmailSendLog row, then 302s to the real URL."""
+    home = os.getenv("SITE_URL", "https://www.superadpro.com")
+    try:
+        data = email_link_serializer.loads(token, max_age=_EMAIL_LINK_MAX_AGE)
+    except Exception:
+        return RedirectResponse(url=home, status_code=302)
+    dest = data.get("u") or home
+    try:
+        from .database import EmailSendLog
+        log = (db.query(EmailSendLog)
+               .filter(EmailSendLog.lead_id == data.get("l"),
+                       EmailSendLog.sequence_id == data.get("s"),
+                       EmailSendLog.email_index == data.get("i"))
+               .order_by(EmailSendLog.id.desc()).first())
+        if log:
+            if not log.clicked_at:
+                log.clicked_at = datetime.utcnow()
+            log.status = "clicked"
+            db.commit()
+    except Exception as e:
+        logger.warning(f"email click log failed: {e}")
+    return RedirectResponse(url=dest, status_code=302)
+
+@app.get("/admin/email-clicks", response_class=HTMLResponse)
+def admin_email_clicks(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """GET-tappable readout of autoresponder click tracking — the SES-era
+    replacement for the Brevo click dashboard. Admin session only."""
+    if not user or not is_admin(user):
+        raise HTTPException(status_code=403, detail="Access denied")
+    from .database import EmailSendLog
+    total_sent = db.query(EmailSendLog).count()
+    total_clicked = db.query(EmailSendLog).filter(EmailSendLog.clicked_at.isnot(None)).count()
+    rate = (total_clicked / total_sent * 100) if total_sent else 0.0
+    recent = (db.query(EmailSendLog).filter(EmailSendLog.clicked_at.isnot(None))
+              .order_by(EmailSendLog.clicked_at.desc()).limit(50).all())
+    cell = "padding:6px 10px;border-bottom:1px solid #eef2f8"
+    rows = "".join(
+        "<tr><td style='" + cell + "'>lead " + str(l.lead_id) + "</td><td style='" + cell + "'>seq "
+        + str(l.sequence_id) + " &middot; email #" + str((l.email_index or 0) + 1) + "</td><td style='"
+        + cell + ";font-family:monospace'>" + (l.clicked_at.strftime("%Y-%m-%d %H:%M") if l.clicked_at else "")
+        + "</td></tr>" for l in recent
+    ) or ("<tr><td colspan='3' style='padding:16px;color:#64748b'>No clicks recorded yet "
+          "(send a sequence email and click a link to test).</td></tr>")
+    html = (
+        "<html><head><meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<style>body{font-family:-apple-system,Segoe UI,sans-serif;background:#f6f8fb;color:#0a1438;margin:0;padding:24px}"
+        ".card{max-width:680px;margin:0 auto;background:#fff;border:1px solid #e8ecf2;border-radius:14px;padding:22px}"
+        ".n{font-size:30px;font-weight:800;color:#0e84b0;line-height:1}.l{font-size:12px;color:#64748b}"
+        "table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}"
+        "th{text-align:left;padding:6px 10px;color:#64748b;font-size:11px;letter-spacing:.04em}</style></head>"
+        "<body><div class='card'><h2 style='margin:0 0 2px'>Autoresponder click tracking</h2>"
+        "<p class='l' style='margin:0 0 18px'>App-owned &middot; identical data on Brevo or Amazon SES</p>"
+        "<div style='display:flex;gap:26px'>"
+        "<div><div class='n'>" + str(total_sent) + "</div><div class='l'>emails sent</div></div>"
+        "<div><div class='n'>" + str(total_clicked) + "</div><div class='l'>unique clicks</div></div>"
+        "<div><div class='n'>" + f"{rate:.1f}%" + "</div><div class='l'>click rate</div></div></div>"
+        "<table><tr><th>LEAD</th><th>EMAIL</th><th>CLICKED (UTC)</th></tr>" + rows + "</table></div></body></html>"
+    )
+    return HTMLResponse(html)
+
 def _send_sequence_email(db, lead, email_index: int):
     """Send a specific email from the lead's assigned sequence."""
     from .database import EmailSequence, EmailSendLog
@@ -45594,6 +45692,11 @@ def _send_sequence_email(db, lead, email_index: int):
     # to this EmailSendLog row. Without this, autoresponder-driven opens
     # and clicks silently undercount because the webhook lookup by
     # brevo_message_id finds nothing and no-ops. Fixed 18 May 2026.
+    # Click tracking — rewrite links through /e/{token} so clicks are logged in
+    # our own DB (provider-independent; this is what replaces Brevo's click
+    # webhook now that delivery runs through Amazon SES). Fail-safe inside.
+    body_html = _rewrite_email_links(body_html, lead.id, lead.email_sequence_id, email_index, site_url)
+
     from .email_utils import send_email
     send_result = send_email(lead.email, subject, body_html, return_message_id=True)
     if isinstance(send_result, tuple):
