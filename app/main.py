@@ -45643,6 +45643,10 @@ def _send_sequence_email(db, lead, email_index: int):
     if not lead.email_sequence_id:
         return
 
+    # Never email a lead who unsubscribed (app-owned unsubscribe under SES).
+    if getattr(lead, "status", None) == "unsubscribed":
+        return
+
     sequence = db.query(EmailSequence).filter(EmailSequence.id == lead.email_sequence_id).first()
     if not sequence or not sequence.emails_json:
         return
@@ -45676,12 +45680,17 @@ def _send_sequence_email(db, lead, email_index: int):
     if lead.name:
         body_html = body_html.replace("{{lead_name}}", lead.name)
         body_html = body_html.replace("{{name}}", lead.name)
+    # Graceful fallback so a missing name never shows a raw {{lead_name}} token.
+    body_html = body_html.replace("{{lead_name}}", "there").replace("{{name}}", "there")
 
     # Wrap in template if it's not already a full HTML doc
     if not body_html.strip().lower().startswith("<!doctype") and not body_html.strip().lower().startswith("<html"):
         from .brevo_service import wrap_email_html
         owner_name = (owner.first_name or owner.username) if owner else "SuperAdPro"
         body_html = wrap_email_html(body_html, owner_name)
+
+    # Fill the per-lead unsubscribe link the wrapper injects (app-owned, SES-safe).
+    body_html = body_html.replace("{{unsubscribe_url}}", f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}")
 
     # ── Quota enforcement — daily free limit + boost credits ──
     # Prevents a member with a large lead list from silently blowing through
@@ -61060,3 +61069,244 @@ def admin_email_broadcast_page(request: Request):
         return HTMLResponse(_get_react_index_html() or "")
     return RedirectResponse(url="/admin", status_code=302)
 
+
+
+# ============================================================================
+#  COURSE LEAD-MAGNET FUNNEL  (added 16 Jun 2026)
+#  Every member gets a per-member capture page for "The Complete Traffic
+#  Course". A lead opts in -> lands in THAT member's list -> the member's
+#  course autoresponder runs -> follow-ups carry the member's referral link.
+#  Reuses the existing /api/capture/{username}/{slug} enrollment path; the
+#  page below just renders the approved design and posts to it.
+# ============================================================================
+
+# Per-member course funnel content. {{lead_name}} / {{member_name}} /
+# {{referral_link}} are filled at send time by _send_sequence_email. The PDF is
+# the shared course on R2/static; per-member PDF personalisation is a follow-up.
+_COURSE_PDF_URL = "https://www.superadpro.com/static/downloads/traffic-course.pdf"
+
+def _course_btn(url, label):
+    return ('<p style="text-align:center;margin:26px 0"><a href="' + url +
+            '" style="background:#0ea5e9;color:#ffffff;font-weight:700;text-decoration:none;'
+            'padding:14px 30px;border-radius:10px;display:inline-block;font-size:16px">' + label + '</a></p>')
+
+COURSE_SEQUENCE_EMAILS = [
+    {"subject": "Your Traffic Course is here",
+     "send_delay_days": 0,
+     "body_html": "<p>Hi {{lead_name}}, your copy of <strong>The Complete Traffic Course</strong> is ready.</p>"
+        + _course_btn(_COURSE_PDF_URL, "Download the course →")
+        + "<p>Inside: the free and paid channels that actually drive traffic in 2026, how to get cited by AI "
+          "search, a directory of real traffic-source websites, and a 90-day plan you can start this week.</p>"
+        + "<p>Enjoy — I’ll send a few of my favourite traffic ideas over the next few days.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "The traffic mistake almost everyone makes",
+     "send_delay_days": 2,
+     "body_html": "<p>Quick one, {{lead_name}}.</p>"
+        + "<p>Most people fire traffic straight at an offer and lose everyone who wasn’t ready that day. "
+          "The fix — Rule Zero in the course — is to capture before you drive. That’s the difference "
+          "between traffic as an <em>event</em> and traffic as an <em>asset</em>.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "Getting found by ChatGPT",
+     "send_delay_days": 4,
+     "body_html": "<p>{{lead_name}} — search is changing fast.</p>"
+        + "<p>People ask ChatGPT, Perplexity and Gemini now, and the answer cites just a few sources. The course "
+          "covers how to be one of them. Worth the read if you’ve got a site you want found.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "You just used SuperAdPro",
+     "send_delay_days": 6,
+     "body_html": "<p>Quick reveal, {{lead_name}}.</p>"
+        + "<p>The page you signed up on, this email, the course you downloaded — all of it runs on one "
+          "platform: <strong>SuperAdPro</strong>. It’s the toolkit I use to build a list: capture pages, an "
+          "email autoresponder (yes, this), a link-in-bio hub, plus AI content and image tools — all in one "
+          "place for $20/month instead of juggling five subscriptions.</p>"
+        + _course_btn("{{referral_link}}", "See SuperAdPro →")
+        + "<p>{{member_name}}</p>"},
+    {"subject": "Get your own free lead magnet, like this one",
+     "send_delay_days": 9,
+     "body_html": "<p>{{lead_name}}, the simplest way to put the course into practice is to do exactly what you "
+          "just experienced: get your own free lead magnet, put it behind a capture page, and let an "
+          "autoresponder build your list — all with SuperAdPro, alongside me.</p>"
+        + "<p>No hype, no income promises — just the tools and a plan.</p>"
+        + _course_btn("{{referral_link}}", "Build your list with SuperAdPro →")
+        + "<p>{{member_name}}</p>"},
+]
+
+
+def _provision_course_funnel(db, user):
+    """Idempotently create the member's course funnel (list + sequence + page)
+    and return the public page URL. Safe to call on every page view."""
+    from .database import LeadList, EmailSequence, FunnelPage
+    import json as _jc
+    slug = f"{user.username}/traffic-course"
+    page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
+    if page and page.capture_sequence_id and page.default_list_id:
+        return f"https://www.superadpro.com/course/{user.username}"
+
+    lst = db.query(LeadList).filter(LeadList.user_id == user.id,
+                                    LeadList.name == "Traffic Course leads").first()
+    if not lst:
+        lst = LeadList(user_id=user.id, name="Traffic Course leads",
+                       description="Leads from your free Traffic Course page", color="#0ea5e9")
+        db.add(lst); db.flush()
+
+    seq = db.query(EmailSequence).filter(EmailSequence.user_id == user.id,
+                                         EmailSequence.title == "The Traffic Course — Welcome").first()
+    if not seq:
+        seq = EmailSequence(user_id=user.id, title="The Traffic Course — Welcome",
+                            niche="traffic", tone="straight-talking",
+                            num_emails=len(COURSE_SEQUENCE_EMAILS),
+                            emails_json=_jc.dumps(COURSE_SEQUENCE_EMAILS), is_active=True)
+        db.add(seq); db.flush()
+    lst.sequence_id = seq.id
+
+    if not page:
+        page = FunnelPage(user_id=user.id, slug=slug, title="The Complete Traffic Course",
+                          template_type="optin", status="published")
+        db.add(page)
+    page.capture_sequence_id = seq.id
+    page.default_list_id = lst.id
+    page.status = "published"
+    db.commit()
+    return f"https://www.superadpro.com/course/{user.username}"
+
+
+_COURSE_PAGE_TMPL = """<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Complete Traffic Course — free</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:radial-gradient(125% 90% at 82% 4%,#163a66 0%,#0c224b 42%,#06122e 100%);min-height:100vh;color:#fff}
+.wrap{max-width:600px;margin:0 auto;padding:22px 22px 44px}
+h1{font-family:'Sora';font-weight:900;font-size:34px;line-height:1.04;margin:12px 0 0;color:#fff}
+.hl{background:linear-gradient(92deg,#22d3ee,#7dd3fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.brand{font-family:'Sora';font-weight:800;font-size:16px;display:flex;align-items:center;gap:9px}
+.brand .mk{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#22d3ee,#0ea5e9)}
+.shared{font-family:'JetBrains Mono';font-size:11px;color:#9fd9ee;background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.30);padding:6px 12px;border-radius:999px}
+.eyebrow{font-family:'JetBrains Mono';font-size:12px;font-weight:600;letter-spacing:.14em;color:#7dd3fc;text-transform:uppercase}
+.sub{font-size:18px;color:rgba(255,255,255,.82);line-height:1.5;margin-top:16px;font-weight:500}
+.cover{margin:26px auto 0;width:230px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#163a66,#0a1f47);border:1px solid rgba(125,211,238,.22)}
+.cover img{width:100%;height:118px;object-fit:cover;display:block;opacity:.92}
+.cover .cc{padding:13px 15px 16px}
+.cover .cpill{font-family:'JetBrains Mono';font-size:9px;letter-spacing:.1em;color:#9ff0ff;background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.32);padding:3px 8px;border-radius:999px}
+.cover .ct{font-family:'Sora';font-weight:900;font-size:19px;line-height:1.05;margin-top:9px}
+.formcard{background:#fff;border-radius:16px;padding:22px 22px 20px;margin-top:30px}
+.fh{font-family:'Sora';font-weight:800;font-size:19px;color:#0a1438;text-align:center}
+.fhs{font-size:13px;color:#64748b;text-align:center;margin-top:4px;margin-bottom:16px}
+.field{width:100%;border:1.5px solid #dbe3ee;border-radius:10px;padding:13px 14px;font-family:'DM Sans';font-size:15px;color:#0a1438;margin-bottom:10px;background:#fbfcfe}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;cursor:pointer}
+.consent input{width:19px;height:19px;flex:none;margin-top:2px;accent-color:#0ea5e9}
+.consent span{font-size:12px;color:#5a6b82;line-height:1.4}
+.cta{width:100%;border:none;border-radius:11px;padding:15px;font-family:'Sora';font-weight:800;font-size:17px;color:#04121f;background:linear-gradient(135deg,#22d3ee,#0ea5e9);text-align:center;cursor:pointer}
+.micro{text-align:center;font-size:11px;color:#90a0b5;margin-top:11px;font-family:'JetBrains Mono'}
+.msg{text-align:center;font-size:13px;margin-top:10px;min-height:16px}
+.inside{background:#fff;border-radius:16px;padding:22px;margin-top:18px}
+.inside h3{font-family:'Sora';font-weight:800;font-size:17px;color:#0a1438;margin-bottom:14px}
+.row{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.row:last-child{margin-bottom:0}
+.tick{width:24px;height:24px;border-radius:7px;flex:none;background:#e3f8fc;display:flex;align-items:center;justify-content:center;color:#0891b2;font-weight:800}
+.row span{font-size:14px;color:#334155;line-height:1.4}
+.row b{color:#0a1438}
+.why{text-align:center;font-size:14px;color:rgba(255,255,255,.7);line-height:1.55;margin:24px auto 0;max-width:440px}
+.why b{color:#9fe6ff}
+.foot{margin-top:26px;text-align:center;font-size:11px;color:rgba(255,255,255,.5);line-height:1.7;border-top:1px solid rgba(255,255,255,.12);padding-top:16px}
+.foot a{color:rgba(159,217,238,.85)}
+.pw{font-family:'JetBrains Mono';font-size:10px;color:rgba(255,255,255,.4);margin-top:8px}
+</style></head><body><div class="wrap">
+<div class="top"><div class="brand"><span class="mk"></span> SuperAdPro</div><div class="shared">shared by __MEMBER__</div></div>
+<div class="eyebrow">Free 27-page course</div>
+<h1>Get real traffic to <span class="hl">any website.</span></h1>
+<div class="sub">The Complete Traffic Course — every realistic way to get visitors in 2026, free and paid. Yours in one click.</div>
+<div class="cover"><img src="/static/img/course-cover.jpg" alt=""><div class="cc"><span class="cpill">THE COMPLETE COURSE</span><div class="ct">The Traffic<br><span class="hl">Course.</span></div></div></div>
+<div class="formcard" id="formwrap">
+<div class="fh">Send me the free course</div>
+<div class="fhs">Instant access — straight to your inbox.</div>
+<input class="field" id="nm" type="text" placeholder="First name" autocomplete="given-name">
+<input class="field" id="em" type="email" placeholder="Your best email" autocomplete="email">
+<label class="consent"><input type="checkbox" id="cs"><span>Yes — email me the free course and the occasional traffic tip. I can unsubscribe anytime.</span></label>
+<button class="cta" id="btn" onclick="submitCourse()">Send me the free course →</button>
+<div class="msg" id="msg"></div>
+<div class="micro">27-PAGE PDF · INSTANT ACCESS · NO SPAM</div>
+</div>
+<div class="inside"><h3>What's inside</h3>
+<div class="row"><span class="tick">✓</span><span><b>The free + paid channels</b> that actually drive traffic in 2026</span></div>
+<div class="row"><span class="tick">✓</span><span><b>How to get cited by AI search</b> — ChatGPT, Perplexity, Gemini</span></div>
+<div class="row"><span class="tick">✓</span><span><b>A directory of real traffic-source websites</b> you can use today</span></div>
+<div class="row"><span class="tick">✓</span><span><b>A 90-day plan</b> you can start this week</span></div>
+</div>
+<div class="why">No hype and <b>no income claims</b> — just a practical playbook you can use on any site you’re building.</div>
+<div class="foot">You’re joining __MEMBER__’s email list. We respect your privacy — unsubscribe in one click, anytime.<br>© SuperAdPro · The Traffic Course<div class="pw">Powered by SuperAdPro</div></div>
+</div>
+<script>
+function submitCourse(){
+ var em=document.getElementById('em').value.trim();
+ var nm=document.getElementById('nm').value.trim();
+ var cs=document.getElementById('cs').checked;
+ var msg=document.getElementById('msg');
+ if(!em||em.indexOf('@')<1){msg.textContent='Please enter a valid email.';msg.style.color='#e11d48';return;}
+ if(!cs){msg.textContent='Please tick the box to continue.';msg.style.color='#e11d48';return;}
+ var btn=document.getElementById('btn');btn.textContent='Sending…';btn.style.pointerEvents='none';msg.textContent='';
+ fetch('/api/capture/__USERNAME__/traffic-course',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,name:nm,consent:true})})
+ .then(function(r){return r.json()}).then(function(d){
+   document.getElementById('formwrap').innerHTML='<div style="text-align:center;padding:26px 6px"><div style="font-family:Sora;font-weight:800;font-size:20px;color:#0a1438">Check your inbox.</div><p style="color:#475569;margin-top:8px;font-size:14px">Your course is on its way to '+em+'.<br>(Peek in spam if it\\'s not there in a minute.)</p></div>';
+ }).catch(function(){msg.textContent='Something went wrong — please try again.';msg.style.color='#e11d48';btn.textContent='Send me the free course →';btn.style.pointerEvents='auto';});
+}
+</script></body></html>"""
+
+
+@app.get("/course/{username}")
+def course_page(username: str, db: Session = Depends(get_db)):
+    """Public per-member course lead-magnet page. Auto-provisions the member's
+    funnel on first view, then renders the opt-in. Posts to /api/capture/."""
+    owner = db.query(User).filter(User.username == username).first()
+    if not owner:
+        return RedirectResponse(url="https://www.superadpro.com", status_code=302)
+    try:
+        _provision_course_funnel(db, owner)
+    except Exception as e:
+        logger.warning(f"course funnel provision failed for {username}: {e}")
+    member_name = owner.first_name or owner.username
+    html = _COURSE_PAGE_TMPL.replace("__MEMBER__", member_name).replace("__USERNAME__", owner.username)
+    return HTMLResponse(html)
+
+
+@app.get("/api/my-course-page")
+def api_my_course_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member-facing: provision + return this member's shareable course page URL."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    url = _provision_course_funnel(db, user)
+    return {"ok": True, "url": url, "share_url": url}
+
+
+# ── Lead unsubscribe (app-owned — the Brevo unsubscribe webhook is dead on SES) ──
+lead_unsub_serializer = URLSafeTimedSerializer(EMAIL_LINK_SECRET, salt="superadpro-lead-unsub")
+
+def _sign_lead_unsub(lead_id):
+    return lead_unsub_serializer.dumps({"l": lead_id})
+
+@app.get("/lead-unsubscribe", response_class=HTMLResponse)
+def lead_unsubscribe(t: str = "", db: Session = Depends(get_db)):
+    """One-click unsubscribe for autoresponder leads. Marks the lead
+    unsubscribed so no further sequence emails send (CAN-SPAM / SES compliant)."""
+    from .database import MemberLead
+    ok = False
+    try:
+        data = lead_unsub_serializer.loads(t, max_age=60 * 60 * 24 * 1825)
+        lead = db.query(MemberLead).filter(MemberLead.id == data.get("l")).first()
+        if lead:
+            lead.status = "unsubscribed"
+            db.commit()
+            ok = True
+    except Exception as e:
+        logger.warning(f"lead unsubscribe failed: {e}")
+    body = ("You’ve been unsubscribed. You won’t receive any more emails from this list."
+            if ok else "This unsubscribe link is invalid or has expired.")
+    return HTMLResponse(
+        "<html><head><meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<style>body{font-family:-apple-system,Segoe UI,sans-serif;background:#f6f8fb;color:#0a1438;"
+        "display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center}"
+        ".c{max-width:420px}</style></head><body><div class='c'>"
+        "<h2 style='font-weight:800;margin-bottom:8px'>" + ("Unsubscribed" if ok else "Hmm") + "</h2>"
+        "<p style='color:#475569'>" + body + "</p></div></body></html>")
