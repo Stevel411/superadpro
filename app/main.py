@@ -61188,11 +61188,11 @@ h1{font-family:'Sora';font-weight:900;font-size:34px;line-height:1.04;margin:12p
 .shared{font-family:'JetBrains Mono';font-size:11px;color:#9fd9ee;background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.30);padding:6px 12px;border-radius:999px}
 .eyebrow{font-family:'JetBrains Mono';font-size:12px;font-weight:600;letter-spacing:.14em;color:#7dd3fc;text-transform:uppercase}
 .sub{font-size:18px;color:rgba(255,255,255,.82);line-height:1.5;margin-top:16px;font-weight:500}
-.cover{margin:26px auto 0;width:230px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#163a66,#0a1f47);border:1px solid rgba(125,211,238,.22)}
-.cover img{width:100%;height:118px;object-fit:cover;display:block;opacity:.92}
+.cover{margin:26px auto 0;width:100%;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#163a66,#0a1f47);border:1px solid rgba(125,211,238,.22)}
+.cover img{width:100%;height:215px;object-fit:cover;display:block;opacity:.92}
 .cover .cc{padding:13px 15px 16px}
 .cover .cpill{font-family:'JetBrains Mono';font-size:9px;letter-spacing:.1em;color:#9ff0ff;background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.32);padding:3px 8px;border-radius:999px}
-.cover .ct{font-family:'Sora';font-weight:900;font-size:19px;line-height:1.05;margin-top:9px}
+.cover .ct{font-family:'Sora';font-weight:900;font-size:22px;line-height:1.05;margin-top:9px}
 .formcard{background:#fff;border-radius:16px;padding:22px 22px 20px;margin-top:30px}
 .fh{font-family:'Sora';font-weight:800;font-size:19px;color:#0a1438;text-align:center}
 .fhs{font-size:13px;color:#64748b;text-align:center;margin-top:4px;margin-bottom:16px}
