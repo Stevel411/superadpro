@@ -2099,6 +2099,8 @@ def run_migrations():
         # what it cost, exactly once. aspect lets the wizard's 9:16 / 1:1
         # reach the renderer (orchestrator previously hard-coded 16:9).
         "ALTER TABLE superscene_pipeline_scenes ADD COLUMN IF NOT EXISTS credits_charged INTEGER DEFAULT 0",
+        "ALTER TABLE superscene_videos ADD COLUMN IF NOT EXISTS client_token VARCHAR(64)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS uniq_superscene_video_client_token ON superscene_videos(user_id, client_token) WHERE client_token IS NOT NULL",
         # New-model grid geometry: per-grid seat target. Existing grids backfill to 36 (legacy);
         # new 4×4 grids are stamped 16 at creation. Drives completion + bonus per-grid.
         "ALTER TABLE grids ADD COLUMN IF NOT EXISTS total_seats INTEGER DEFAULT 36",
@@ -5044,6 +5046,7 @@ class SuperSceneVideo(Base):
     status        = Column(String(20), default="pending")   # pending|processing|completed|failed
     video_url     = Column(Text)
     credits_used  = Column(Integer, nullable=False, default=0)
+    client_token  = Column(String(64), nullable=True, index=True)  # idempotency key (per generate attempt)
     created_at    = Column(DateTime, default=datetime.utcnow)
     completed_at  = Column(DateTime)
 

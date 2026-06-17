@@ -53891,6 +53891,34 @@ async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Not authenticated")
     row = _get_or_create_sc_credits(user.id, db)
     return {"balance": row.balance}
+# ── Creative Studio generate hardening (Option A) ──────────────────────────
+# Max seconds to wait for a provider to ACCEPT a job (return a task_id).
+# Providers normally ACK in 1-5s; this ceiling stops a momentarily-slow
+# provider from hanging the request past Cloudflare's ~100s edge timeout, which
+# would otherwise reach the member as a non-JSON "Network error".
+_SC_SUBMIT_TIMEOUT_S = 45
+
+# superscene_videos.client_token backs generate idempotency. On production
+# SKIP_MIGRATIONS=true means the column lands only after the one-shot
+# /admin/api/apply-superscene-idempotency endpoint is tapped. Until then we
+# degrade to the old (non-idempotent) behaviour instead of 500-ing. Latches
+# True once the column is confirmed present; re-probes cheaply while False so it
+# self-activates the moment the column appears (no app restart needed).
+_SC_CLIENT_TOKEN_OK = False
+def _sc_idempotency_ready(db) -> bool:
+    global _SC_CLIENT_TOKEN_OK
+    if _SC_CLIENT_TOKEN_OK:
+        return True
+    try:
+        from sqlalchemy import text as _t
+        db.execute(_t("SELECT client_token FROM superscene_videos LIMIT 1"))
+        _SC_CLIENT_TOKEN_OK = True
+    except Exception:
+        db.rollback()
+        _SC_CLIENT_TOKEN_OK = False
+    return _SC_CLIENT_TOKEN_OK
+
+
 @app.post("/api/superscene/generate")
 async def sc_generate(request: Request, db: Session = Depends(get_db)):
     """
@@ -53932,6 +53960,42 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
 
     credits_needed = calc_credits(model_key, duration, with_audio=gen_audio)
 
+    # ── Idempotency: reuse a prior result for the same client attempt ──
+    # The frontend sends a stable client_token per generate attempt and reuses
+    # it when the member manually retries after a dropped connection. If we
+    # already have a row for (user, token), return it WITHOUT charging again.
+    client_token = (body.get("client_token") or "").strip() or None
+    idem_ready = _sc_idempotency_ready(db) if client_token else False
+    if client_token and idem_ready:
+        prior = (
+            db.query(SuperSceneVideo)
+              .filter(SuperSceneVideo.user_id == user.id,
+                      SuperSceneVideo.client_token == client_token)
+              .first()
+        )
+        if prior is not None:
+            bal = _get_or_create_sc_credits(user.id, db).balance
+            if prior.status == "failed":
+                # Definitive prior failure (already refunded). Tell the client;
+                # it mints a fresh token for a genuine new attempt.
+                return {
+                    "success": False,
+                    "idempotent": True,
+                    "status": "failed",
+                    "detail": "The previous attempt failed and your credits were refunded. Please try again.",
+                    "credits_remaining": bal,
+                }
+            return {
+                "success": True,
+                "idempotent": True,
+                "task_id": prior.task_id,
+                "video_id": prior.id,
+                "mode": "image-to-video" if image_urls else "text-to-video",
+                "credits_used": prior.credits_used,
+                "credits_remaining": bal,
+                "status": prior.status,
+            }
+
     # Check balance
     credit_row = _get_or_create_sc_credits(user.id, db)
     if credit_row.balance < credits_needed:
@@ -53941,20 +54005,43 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     credit_row.balance -= credits_needed
     db.commit()
 
-    # Submit to provider — route based on model
+    # Submit to provider — route based on model, with a hard ceiling so a slow
+    # provider ACK can't hang past Cloudflare's edge timeout (which would reach
+    # the member as a non-JSON "Network error"). On timeout/error we refund and
+    # return a clean, retryable JSON message.
     # Priority: Grok direct (for grok-video) → fal.ai (cheaper) → EvoLink (fallback)
     from .fal_provider import is_available as fal_available, generate_video as fal_generate
     from .grok_imagine import is_available as grok_available, generate_video as grok_generate
 
-    result = await _route_generate_video(
-        model_key, prompt, duration, ratio,
-        image_urls=image_urls if image_urls else None,
-        style_refs=style_refs if style_refs else None,
-        generate_audio=gen_audio,
-        resolution=resolution,
-        negative_prompt=neg_prompt if neg_prompt else None,
-        seed=seed,
-    )
+    try:
+        result = await asyncio.wait_for(
+            _route_generate_video(
+                model_key, prompt, duration, ratio,
+                image_urls=image_urls if image_urls else None,
+                style_refs=style_refs if style_refs else None,
+                generate_audio=gen_audio,
+                resolution=resolution,
+                negative_prompt=neg_prompt if neg_prompt else None,
+                seed=seed,
+            ),
+            timeout=_SC_SUBMIT_TIMEOUT_S,
+        )
+    except asyncio.TimeoutError:
+        credit_row.balance += credits_needed
+        db.commit()
+        raise HTTPException(
+            status_code=504,
+            detail="The video service is taking longer than usual to respond. Your credits have not been charged — please try again in a moment.",
+        )
+    except HTTPException:
+        raise
+    except Exception:
+        credit_row.balance += credits_needed
+        db.commit()
+        raise HTTPException(
+            status_code=502,
+            detail="Video generation could not be started. Your credits have not been charged — please try again.",
+        )
 
     if not result["success"]:
         # Refund on failure
@@ -53989,6 +54076,8 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         status="pending",
         credits_used=credits_needed,
     )
+    if client_token and idem_ready:
+        video.client_token = client_token
     db.add(video)
 
     # ── Credit commissions are handled by the Credit Matrix ──
@@ -53996,7 +54085,34 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     # Matrix pays level commissions + completion bonuses
     # No per-usage commission here — that would duplicate the matrix
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Concurrent retry with the same client_token lost the unique-index
+        # race. Refund THIS request and return the row that won — never double
+        # charge, never duplicate the record.
+        db.rollback()
+        credit_row = _get_or_create_sc_credits(user.id, db)
+        credit_row.balance += credits_needed
+        db.commit()
+        winner = (
+            db.query(SuperSceneVideo)
+              .filter(SuperSceneVideo.user_id == user.id,
+                      SuperSceneVideo.client_token == client_token)
+              .first()
+        )
+        if winner is not None:
+            return {
+                "success": True,
+                "idempotent": True,
+                "task_id": winner.task_id,
+                "video_id": winner.id,
+                "mode": mode,
+                "credits_used": winner.credits_used,
+                "credits_remaining": credit_row.balance,
+                "status": winner.status,
+            }
+        raise HTTPException(status_code=409, detail="Duplicate request. Please refresh and try again.")
     db.refresh(video)
 
     return {
@@ -54007,6 +54123,73 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         "credits_used": credits_needed,
         "credits_remaining": credit_row.balance,
     }
+@app.get("/admin/api/apply-superscene-idempotency")
+def admin_apply_superscene_idempotency(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: add superscene_videos.client_token + the partial unique index
+    that backs Creative Studio generate idempotency. Needed because
+    SKIP_MIGRATIONS=true on production means run_migrations() doesn't apply it on
+    deploy. Idempotent (ADD COLUMN / CREATE INDEX IF NOT EXISTS). Admin-only,
+    GET (phone-friendly). Tap once after the deploy lands.
+    """
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    results = {}
+
+    # 1) Add the column (safe / idempotent).
+    try:
+        db.execute(_text(
+            "ALTER TABLE superscene_videos ADD COLUMN IF NOT EXISTS client_token VARCHAR(64)"
+        ))
+        db.commit()
+        results["column"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["column"] = f"error: {e}"
+        return JSONResponse({"ok": False, "results": results}, status_code=500)
+
+    # 2) Interlock: a unique index would fail if duplicate non-null pairs exist.
+    #    Brand-new column ⇒ all NULL, so this is normally zero; check anyway.
+    dup = db.execute(_text(
+        "SELECT COUNT(*) AS n FROM ("
+        "  SELECT user_id, client_token FROM superscene_videos "
+        "  WHERE client_token IS NOT NULL "
+        "  GROUP BY user_id, client_token HAVING COUNT(*) > 1"
+        ") d"
+    )).fetchone()
+    if dup and dup.n:
+        results["index"] = f"refused — {dup.n} duplicate (user, token) pair(s) exist"
+        return JSONResponse({"ok": False, "results": results}, status_code=409)
+
+    # 3) Create the partial unique index.
+    try:
+        db.execute(_text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS uniq_superscene_video_client_token "
+            "ON superscene_videos(user_id, client_token) WHERE client_token IS NOT NULL"
+        ))
+        db.commit()
+        results["index"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["index"] = f"error: {e}"
+        return JSONResponse({"ok": False, "results": results}, status_code=500)
+
+    global _SC_CLIENT_TOKEN_OK
+    _SC_CLIENT_TOKEN_OK = True
+    return JSONResponse({
+        "ok": True,
+        "results": results,
+        "note": "Creative Studio generate idempotency is now active.",
+    })
+
+
 @app.post("/api/superscene/upload-image")
 async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
     """Upload an image for image-to-video generation. Stores in R2, returns public URL."""

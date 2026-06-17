@@ -138,6 +138,7 @@ export default function CreativeStudio() {
   var [genProgress, setGenProgress] = useState(0);
   var pollRef = useRef(null);
   var fakeProgRef = useRef(null);
+  var genTokenRef = useRef(null);   // idempotency token for the current generate attempt
 
   // Credits & gallery
   var [credits, setCredits] = useState(0);
@@ -508,21 +509,36 @@ export default function CreativeStudio() {
     if (mode === 'image' && imageUrl) payload.image_urls = [imageUrl];
     if (seedLocked && seedValue !== null) payload.seed = seedValue;
 
+    // Stable idempotency token for THIS attempt. Reused on a manual retry after
+    // a dropped connection so the server never double-charges; minted fresh once
+    // the server gives a definitive answer (success or a clean failure).
+    if (!genTokenRef.current) {
+      genTokenRef.current = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : ('t-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+    }
+    payload.client_token = genTokenRef.current;
+
     fetch('/api/superscene/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     }).then(function(r) { return r.json(); }).then(function(data) {
       if (data.task_id) {
+        genTokenRef.current = null;   // attempt resolved — fresh token next time
         setTaskId(data.task_id);
         setCredits(data.credits_remaining);
         startPolling(data.task_id);
       } else {
+        genTokenRef.current = null;   // clean server-side failure — fresh attempt next
+        if (typeof data.credits_remaining === 'number') setCredits(data.credits_remaining);
         alert(data.detail || data.error || 'Generation failed');
         setGenerating(false);
         clearInterval(fakeProgRef.current);
       }
     }).catch(function() {
+      // No definitive server answer: keep genTokenRef so a manual retry is
+      // idempotent (the same token can never be charged twice).
       alert('Network error — please try again');
       setGenerating(false);
       clearInterval(fakeProgRef.current);
