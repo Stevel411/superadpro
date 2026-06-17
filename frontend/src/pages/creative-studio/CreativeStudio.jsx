@@ -523,11 +523,35 @@ export default function CreativeStudio() {
     }
     payload.client_token = genTokenRef.current;
 
+    // Read the RAW response (status + body) before parsing, so a non-JSON
+    // reply from the edge/gateway surfaces its real status + body instead of a
+    // blind "Network error". Distinguishes an edge error page (we got an HTTP
+    // response, just not JSON) from a true connection drop (fetch rejected).
     fetch('/api/superscene/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-    }).then(function(r) { return r.json(); }).then(function(data) {
+    }).then(function(r) {
+      var ctype = r.headers.get('content-type') || '';
+      return r.text().then(function(bodyText) {
+        return { status: r.status, ctype: ctype, body: bodyText };
+      });
+    }).then(function(res) {
+      var data = null;
+      try { data = JSON.parse(res.body); } catch (e) { data = null; }
+
+      if (data === null) {
+        // We received an HTTP response, but it wasn't JSON — i.e. an edge /
+        // gateway error page (timeout, block, 5xx) the backend never produced.
+        // Surface exactly what came back so the real failure is visible.
+        genTokenRef.current = null;
+        alert('Create failed — HTTP ' + res.status + ' [' + (res.ctype || 'no content-type') + ']\n\n'
+              + (res.body ? res.body.slice(0, 400) : '(empty body)'));
+        setGenerating(false);
+        clearInterval(fakeProgRef.current);
+        return;
+      }
+
       if (data.task_id) {
         genTokenRef.current = null;   // attempt resolved — fresh token next time
         setTaskId(data.task_id);
@@ -536,14 +560,17 @@ export default function CreativeStudio() {
       } else {
         genTokenRef.current = null;   // clean server-side failure — fresh attempt next
         if (typeof data.credits_remaining === 'number') setCredits(data.credits_remaining);
-        alert(data.detail || data.error || 'Generation failed');
+        alert(data.detail || data.error || ('Generation failed (HTTP ' + res.status + ')'));
         setGenerating(false);
         clearInterval(fakeProgRef.current);
       }
-    }).catch(function() {
-      // No definitive server answer: keep genTokenRef so a manual retry is
-      // idempotent (the same token can never be charged twice).
-      alert('Network error — please try again');
+    }).catch(function(err) {
+      // fetch() itself rejected — a true connection-level drop (DNS/TLS/reset/
+      // no response). Keep genTokenRef so a manual retry stays idempotent (the
+      // same token can never be charged twice).
+      alert('Connection dropped before any response arrived ('
+            + ((err && err.message) ? err.message : 'fetch failed')
+            + ') — this is a network-level drop, not a server error. Tap Create Video again to retry safely.');
       setGenerating(false);
       clearInterval(fakeProgRef.current);
     });
