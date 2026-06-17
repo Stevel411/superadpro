@@ -217,7 +217,7 @@ export default function GridCalculator() {
         </div>
 
         {/* Main layout */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:20, alignItems:'start' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:20, alignItems:'stretch' }}>
           {/* LEFT */}
           <div>
             {/* Grid card — mirrors GridVisualiser layout 1:1 */}
@@ -379,9 +379,10 @@ export default function GridCalculator() {
               </div>
             </div>
 
-            <div style={{ background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', overflow:'hidden', flex:1, minHeight:200 }}>
+            <div style={{ background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', overflow:'hidden', flex:1, minHeight:0, display:'flex', flexDirection:'column' }}>
               <div style={{ padding:'12px 16px', borderBottom:'1px solid #f1f5f9', fontSize:12, fontWeight:700, color:'#475569' }}>{t('gridCalc.liveCommissionFeed')}</div>
-              <div style={{ maxHeight:300, overflowY:'auto', padding:'6px 10px' }}>
+              <div style={{ flex:1, minHeight:0, position:'relative' }}>
+                <div style={{ position:'absolute', inset:0, overflowY:'auto', padding:'6px 10px' }}>
                 {feed.length === 0 && <div style={{ textAlign:'center', padding:24, fontSize:13, color:'#7a8899' }}>{t('gridCalc.pressStart')}</div>}
                 {feed.map(function(entry, i) {
                   var isBonus = entry.type === 'bonus';
@@ -399,6 +400,7 @@ export default function GridCalculator() {
                     <div style={{ fontSize:12, fontWeight:800, color: isBonus ? '#7c3aed' : isPersonal ? '#b45309' : '#0e7490', flexShrink:0 }}>${entry.amount.toFixed(2)}</div>
                   </div>;
                 })}
+                </div>
               </div>
             </div>
 
