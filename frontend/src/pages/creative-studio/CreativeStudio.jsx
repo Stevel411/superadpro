@@ -462,7 +462,11 @@ export default function CreativeStudio() {
     fd.append('file', file);
     fetch('/api/superscene/upload-image', { method: 'POST', body: fd })
       .then(function(r) { return r.json(); })
-      .then(function(d) { setImageUrl(d.url || d.image_url); setUploading(false); })
+      .then(function(d) {
+        if (d.success && d.file_url) { setImageUrl(d.file_url); }
+        else { alert(d.detail || 'Upload failed'); setImageFile(null); setImagePreview(null); }
+        setUploading(false);
+      })
       .catch(function() { setUploading(false); alert('Upload failed'); });
   }
 
