@@ -12090,7 +12090,8 @@ def admin_api_campaign_tier_restore(
     apply=0 (default) = READ-ONLY dry run. apply=1 requires ?code=NNNNNN (2FA)."""
     _require_admin(user)
     from .database import (Grid, VideoCampaign, User as _U,
-                           GRID_PACKAGES as _PKG, WalletConnectPaymentOrder)
+                           GRID_PACKAGES as _PKG, WalletConnectPaymentOrder,
+                           StripeCharge, NowPaymentsOrder)
     from datetime import datetime as _dt
     import time as _time, re as _re
 
@@ -12172,6 +12173,44 @@ def admin_api_campaign_tier_restore(
             stripe_note = "Stripe not configured in this environment (can't read card-paid tiers here)."
     except Exception as e:
         stripe_note = f"Stripe walk error: {type(e).__name__}: {str(e)[:160]}"
+
+    # ── Stripe: campaign_tier charges from the StripeCharge mirror table ──
+    # The live-API walk above attributes charges by metadata (superadpro_user_id),
+    # which some charges lack — they fall to uid 0 and silently vanish from the
+    # result (this is how user 449's real $20 Starter charge went missing). The
+    # StripeCharge table is keyed by a genuine user_id FK, so it catches every
+    # campaign_tier buyer the metadata walk drops. Skip anyone with a campaign_tier
+    # refund/chargeback so we never restore a tier the member got their money back on.
+    try:
+        _refunded_uids = {sc.user_id for sc in db.query(StripeCharge).filter(
+            StripeCharge.product == "campaign_tier",
+            StripeCharge.kind.in_(["refund", "chargeback", "chargeback_lost"])).all()}
+        for sc in db.query(StripeCharge).filter(
+                StripeCharge.product == "campaign_tier",
+                StripeCharge.kind == "charge").all():
+            if sc.user_id in _refunded_uids:
+                continue
+            amt = float(sc.amount_cents or 0) / 100.0
+            if amt <= 0:
+                continue
+            tier = _price_to_tier.get(round(amt, 2), 0)
+            _bump(sc.user_id, tier, f"StripeCharge #{sc.id} campaign_tier (${amt:.2f})")
+    except Exception as e:
+        stripe_note = ((stripe_note + " | ") if stripe_note else "") + \
+            f"StripeCharge table scan error: {type(e).__name__}: {str(e)[:120]}"
+
+    # ── NOWPayments: confirmed/finished grid orders (rail the walk above skips) ──
+    # The restore never scanned NOWPayments at all, so any crypto-via-NP grid buyer
+    # was invisible. Confirmed/finished grid orders are settled-money truth.
+    try:
+        for o in db.query(NowPaymentsOrder).filter(
+                NowPaymentsOrder.product_type == "grid",
+                NowPaymentsOrder.status.in_(["confirmed", "finished"])).all():
+            m = _re.search(r"(\d+)", o.product_key or "")
+            tier = int(m.group(1)) if m else _price_to_tier.get(round(float(o.price_usd or 0), 2), 0)
+            _bump(o.user_id, tier, f"NP #{o.id} {o.product_key} (${float(o.price_usd or 0):.2f})")
+    except Exception:
+        pass
 
     # ── Build target set: paid-tier buyers (auto) + operator grants (manual) ──
     targets = {}      # uid -> {"tier", "source", "evidence"}
