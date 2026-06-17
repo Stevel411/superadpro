@@ -20,7 +20,7 @@
 //   - Custom video player (no native HTML5 controls) so the controls
 //     bar lives in a separate dark band BELOW the video frame, never
 //     overlaying Steve's webcam in the bottom-right of the recording
-//   - Profit Grid section uses a custom SVG showing the actual 6×6
+//   - Profit Grid section uses a custom SVG showing the actual 4×4
 //     grid structure (40% direct, 6.25%×8 uni-level, $3,200 completion
 //     bonus). All numbers verified against app/grid.py — the spec doc
 //     is out of date.
@@ -319,15 +319,15 @@ function ProfitGridSection() {
             </h2>
             <p className="rv-pg-subhead">
               Every member you refer becomes a seat in your Profit Grid —
-              a <strong>6 × 6 grid</strong> of 36 positions that fills as
+              a <strong>4 × 4 grid</strong> of 16 positions that fills as
               your team buys campaigns. Earn <strong>40% direct</strong>
               on every entry, plus <strong>6.25% across 8 uni-level
               levels</strong> as commissions walk up the chain.
             </p>
             <div className="rv-pg-bullets">
-              <PgBullet dot="gold" title="Gold seats — your directs" body="40% commission on every campaign entry from anyone you personally refer."/>
+              <PgBullet dot="gold" title="Gold seats — your directs" body="30% commission on every campaign entry from anyone you personally refer."/>
               <PgBullet dot="cyan" title="Cyan seats — your uni-level" body="6.25% from every entry across 8 levels deep — 50% in total uni-level commission."/>
-              <PgBullet dot="pulse" title="Completion bonus — seat 36" body={<>When the final seat fills, the bonus pool pays out — up to <strong>$3,200</strong>. Then the grid cycles again.</>}/>
+              <PgBullet dot="pulse" title="Completion bonus — seat 16" body={<>When the final seat fills, the bonus pool pays out — up to <strong>$3,200</strong>. Then the grid cycles again.</>}/>
             </div>
             <div className="rv-pg-footer-pill">
               <span className="rv-pg-footer-dot"/>
@@ -361,7 +361,7 @@ function PgBullet({ dot, title, body }) {
 }
 
 // ── ProfitGridSVG ──
-// 6×6 grid (36 seats) + YOU node + uni-level depth annotation. All
+// 4×4 grid (16 seats) + YOU node + uni-level depth annotation. All
 // numbers + structure verified against app/grid.py. Same SVG as the
 // locked mockup — re-rendered via React with the same paths.
 function ProfitGridSVG() {
@@ -410,47 +410,47 @@ function ProfitGridSVG() {
         <circle cx="240" cy="50" r="28" fill="none" stroke="#fde047" strokeWidth="2" opacity="0.85"/>
         <text x="240" y="55" textAnchor="middle" fontFamily="Sora, sans-serif" fontWeight="800" fontSize="12" fill="#451a03">YOU</text>
       </g>
-      <line x1="240" y1="78" x2="65" y2="150" stroke="url(#rvLineGold)" strokeWidth="2"/>
-      <line x1="240" y1="78" x2="135" y2="150" stroke="url(#rvLineGold)" strokeWidth="2"/>
-      <line x1="240" y1="78" x2="205" y2="150" stroke="url(#rvLineGold)" strokeWidth="2"/>
-      <line x1="240" y1="78" x2="275" y2="150" stroke="url(#rvLineGold)" strokeWidth="2"/>
-      <line x1="240" y1="78" x2="345" y2="150" stroke="url(#rvLineGold)" strokeWidth="2"/>
-      <line x1="240" y1="78" x2="415" y2="150" stroke="url(#rvLineGold)" strokeWidth="2"/>
-      <rect x="20" y="120" width="440" height="380" rx="14" fill="rgba(255,255,255,0.4)" stroke="rgba(10,20,56,0.08)" strokeWidth="1"/>
+      {/* YOU → 4 direct seats (row 1) */}
+      <line x1="240" y1="78" x2="108" y2="175" stroke="url(#rvLineGold)" strokeWidth="2"/>
+      <line x1="240" y1="78" x2="196" y2="175" stroke="url(#rvLineGold)" strokeWidth="2"/>
+      <line x1="240" y1="78" x2="284" y2="175" stroke="url(#rvLineGold)" strokeWidth="2"/>
+      <line x1="240" y1="78" x2="372" y2="175" stroke="url(#rvLineGold)" strokeWidth="2"/>
+      <rect x="48" y="140" width="384" height="345" rx="14" fill="rgba(255,255,255,0.4)" stroke="rgba(10,20,56,0.08)" strokeWidth="1"/>
       <g fontFamily="JetBrains Mono, monospace" fontSize="9.5" fontWeight="700" fill="#94a3b8" textAnchor="end">
-        <text x="14" y="154">L1</text>
-        <text x="14" y="214">L2</text>
-        <text x="14" y="274">L3</text>
-        <text x="14" y="334">L4</text>
-        <text x="14" y="394">L5</text>
-        <text x="14" y="454">L6</text>
+        <text x="40" y="179">L1</text>
+        <text x="40" y="269">L2</text>
+        <text x="40" y="359">L3</text>
+        <text x="40" y="449">L4</text>
       </g>
+      {/* Row 1 — gold direct referrals (4) */}
       <g filter="url(#rvGlowGold)">
-        {[65, 135, 205, 275, 345, 415].map(cx => (
-          <circle key={cx} cx={cx} cy="150" r="18" fill="url(#rvGold)"/>
+        {[108, 196, 284, 372].map(cx => (
+          <circle key={cx} cx={cx} cy="175" r="22" fill="url(#rvGold)"/>
         ))}
       </g>
+      {/* Rows 2–4 — cyan spillover (last seat of row 4 is the completion seat) */}
       <g filter="url(#rvGlowCyan)">
-        {[210, 270, 330, 390].flatMap(cy =>
-          [65, 135, 205, 275, 345, 415].map(cx => (
-            <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="14" fill="url(#rvCyan)"/>
+        {[265, 355].flatMap(cy =>
+          [108, 196, 284, 372].map(cx => (
+            <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="18" fill="url(#rvCyan)"/>
           ))
         )}
-        {[65, 135, 205, 275, 345].map(cx => (
-          <circle key={`r6-${cx}`} cx={cx} cy="450" r="14" fill="url(#rvCyan)"/>
+        {[108, 196, 284].map(cx => (
+          <circle key={`r4-${cx}`} cx={cx} cy="445" r="18" fill="url(#rvCyan)"/>
         ))}
       </g>
-      <circle cx="415" cy="450" r="14" fill="none" stroke="#fde047" strokeWidth="2" opacity="0.6">
-        <animate attributeName="r" values="14;26;14" dur="2.2s" repeatCount="indefinite"/>
+      {/* Completion seat — position 16, bottom-right */}
+      <circle cx="372" cy="445" r="20" fill="none" stroke="#fde047" strokeWidth="2" opacity="0.6">
+        <animate attributeName="r" values="20;32;20" dur="2.2s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0.6;0;0.6" dur="2.2s" repeatCount="indefinite"/>
       </circle>
       <g filter="url(#rvGlowGold)">
-        <circle cx="415" cy="450" r="16" fill="url(#rvComplete)"/>
-        <circle cx="415" cy="450" r="16" fill="none" stroke="#fde047" strokeWidth="1.5" opacity="0.8"/>
-        <text x="415" y="454" textAnchor="middle" fontFamily="Sora, sans-serif" fontWeight="800" fontSize="9" fill="#451a03">36</text>
+        <circle cx="372" cy="445" r="22" fill="url(#rvComplete)"/>
+        <circle cx="372" cy="445" r="22" fill="none" stroke="#fde047" strokeWidth="1.5" opacity="0.8"/>
+        <text x="372" y="450" textAnchor="middle" fontFamily="Sora, sans-serif" fontWeight="800" fontSize="11" fill="#451a03">16</text>
       </g>
-      <text x="240" y="510" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="11" fontWeight="700" fill="#0a1438" letterSpacing="0.4">6 WIDE × 6 DEEP = 36 SEATS</text>
-      <text x="240" y="528" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="9" fontWeight="700" fill="#64748b" letterSpacing="0.3">commissions pay 8 levels deep ↓</text>
+      <text x="240" y="512" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="11" fontWeight="700" fill="#0a1438" letterSpacing="0.4">4 WIDE × 4 DEEP = 16 SEATS</text>
+      <text x="240" y="530" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="9" fontWeight="700" fill="#64748b" letterSpacing="0.3">commissions pay 8 levels deep ↓</text>
     </svg>
   );
 }
