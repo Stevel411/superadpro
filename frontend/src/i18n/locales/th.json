@@ -4188,7 +4188,7 @@
     "neverPaidDirectsLabel": "ไม่เคยชำระ",
     "neverPaidDirectsSublabel": "สมัครแต่ยังไม่เปิดใช้งาน",
     "gridTeamLabel": "ใน Grid ของคุณ",
-    "gridTeamSublabel": "คนในโครงสร้าง 8×8 ของคุณ",
+    "gridTeamSublabel": "คนในโครงสร้าง 4×4 ของคุณ",
     "nexusTeamLabel": "ใน Nexus ของคุณ",
     "nexusTeamSublabel": "คนในเมทริกซ์ 3×3 ของคุณ",
     "earningsThisMonth": "รายได้เดือนนี้",
