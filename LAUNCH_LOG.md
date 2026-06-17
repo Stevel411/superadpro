@@ -8,6 +8,37 @@
 
 ---
 
+## Status as of 2026-06-17 — CREATIVE STUDIO RELIABILITY PASS + GRID 4×4/16 TRUTH SWEEP
+
+HEAD = `992a74f`. Full detail in `handover-2026-06-17.md`.
+
+### Creative Studio (main outcome — verified live)
+The generate→provider path had been silently dead since **31 Mar** (~2.5 months). Diagnosed and fixed end-to-end. Video gen **confirmed working**.
+- `029a7b8` — fail-fast generate (`asyncio.wait_for`, 45s, auto-refund) + **idempotency** (`superscene_videos.client_token` + partial unique index `(user_id, client_token)`). Frontend sends a stable token per attempt, reuses on manual retry, mints fresh on a definitive answer. **Double-charge now structurally impossible.** Schema applied live via one-shot `GET /admin/api/apply-superscene-idempotency` (tapped, returned ok — active).
+- `c17e431` — JSON-guard on `sc_generate`: crashes now return JSON `{error}` + log a traceback instead of a non-JSON 500 (which surfaced as "Network error"). Logic moved to `_sc_generate_impl`. Left in place (legible failures).
+- `992a74f` — image-to-video upload field mismatch: endpoint returns `file_url`, handler read `url`/`image_url` → `imageUrl` undefined → generate button stayed permanently disabled. Image-to-video was unusable from launch. Now reads `file_url`. Awaiting Steve's post-deploy confirmation.
+- `502aba8` — `GET /admin/api/superscene-status?user_id=N` per-user diagnostic (credits + tasks + orphans). Used to bisect the live issue.
+
+### Grid 4×4/16 truth sweep (earlier this session)
+Replaced stale 6×6/36 & 8×8/64 geometry with the only live grid (**4×4/16**) and corrected commission **rates** to spec.
+- `64cf2d504` — EN copy sweep + rates: direct 40%→30%, completion 10%→20%, removed the "5%+5% platform" contradiction (now 100% to affiliates), `$3,600`→`$3,200`, `$72`→`$64`.
+- `0717dbb97` (grid card, 20 locales), `e9b34b496` (AI prompts), `cafb0fb74` (public ReferralVideo SVG 4×4), `cedf51fa1` + `60f4b79ae` (Grid Calculator: 4×4 render, balanced layout, contained feed scroll).
+
+### Truths reconfirmed
+- Grid = 4×4/16; split 30% / 6.25%×8 / 20% / 0% = 100% to affiliates; completion = `16 × tier_price × 0.20` (T1 $20→$64 … T8 $1000→$3,200).
+- "Network error" = non-JSON response (a 500 or a real connection drop), not a normal failure — all backend failures now return JSON.
+- Upload endpoints return `file_url` (canonical).
+- `SKIP_MIGRATIONS=true` → schema lands via one-shot admin GET endpoints.
+- Creative Studio internal `superscene` name left as-is (member-invisible; rename = risk > reward).
+
+### Open / watch
+- **Send Jason** (@success/264) the drafted reassurance msg — credits verified safe (100, zero charges); error was his dropped LTE connection.
+- Confirm image-to-video post-`992a74f`. Decide whether to strip the `sc_generate` guard.
+- Jason membership expired 16 Jun despite a 9 Jun NOWPayments batch — uninvestigated.
+- Non-EN locales still carry stale grid rates/numerals (geometry done). `PassupVisualiser.jsx` still hard-codes 36. SuperLink "$5,850/cycle" unverifiable. Tiers 5–8 step-up + Nexus 15%-vs-20% conflict open. Course Academy referenced in ~17 files (retired).
+
+---
+
 ## Status as of 2026-06-09 (Mon/Tue night) — POST-BREACH PAYMENT-DATA RECOVERY + FORENSIC TOOLKIT
 
 Long session reconstructing who paid (and via which rail) for memberships/tiers whose order rows the 3-Jun breach wiped. HEAD = `a812f3c`. Full detail in `handover-2026-06-09.md`.
