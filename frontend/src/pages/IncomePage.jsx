@@ -251,13 +251,13 @@ export default function IncomePage() {
             tone="cyan"
             icon={Target}
             title={t('income.stream.grid', { defaultValue: 'Campaign Tier Grid' })}
-            subtitle={t('income.stream.gridSub', { defaultValue: '6×6 Profit Grid · advertise + earn' })}
+            subtitle={t('income.stream.gridSub', { defaultValue: '4×4 Profit Grid · advertise + earn' })}
             tag={gridActive ? { label: t('income.tag.tier', { defaultValue: 'Active' }), tone: 'tier' } : { label: t('income.tag.available', { defaultValue: 'Available' }), tone: 'dormant' }}
             stats={gridActive ? [
               { label: t('income.stat.team', { defaultValue: 'In your grid' }), value: data?.grid_team_count || 0 },
               { label: t('income.stat.earnedAllTime', { defaultValue: 'Earned all time' }), value: formatMoney(data?.grid_earned || 0) },
             ] : null}
-            statusLine={!gridActive ? t('income.stream.gridDormant', { defaultValue: 'Buy a Grid tier to advertise AND earn from the 6×6 Profit Grid spillover.' }) : null}
+            statusLine={!gridActive ? t('income.stream.gridDormant', { defaultValue: 'Buy a Grid tier to advertise AND earn from the 4×4 Profit Grid spillover.' }) : null}
             actions={[
               { label: t('income.action.myGrid', { defaultValue: 'My Grid' }), to: '/grid-visualiser' },
               { label: t('income.action.watchAds', { defaultValue: 'Watch ads' }), to: '/watch' },

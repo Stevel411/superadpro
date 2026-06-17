@@ -102,7 +102,7 @@ export default function LabsGridVisualiser() {
   var seatsToUnlock = Math.max(0, TOTAL_SEATS - filled);
 
   return (
-    <AppLayout title="Profit Grid (Labs)" subtitle="Your 6×6 spillover grid — bonus at seat 36">
+    <AppLayout title="Profit Grid (Labs)" subtitle="Your 4×4 spillover grid — bonus at seat 16">
       <style>{css}</style>
       <div style={{ maxWidth:1180, margin:'0 auto' }}>
 

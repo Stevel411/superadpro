@@ -106,7 +106,7 @@ function getTools(t) {
 }
 var STREAMS = [
   { name:'Membership Commissions', rate:'$10 recurring', rc:'#34d399', desc:'Earn $10 per active member every month — for as long as they stay. Flat partner pricing means simple, predictable income on every signup.', ac:'var(--sap-green-mid)' },
-  { name:'6×6 Profit Grid', rate:'Up to $5,850 per cycle', rc:'#818cf8', desc:'8 campaign tiers from $20 to $1,000. Your grid has 36 positions — each one pays you 6.25%. Grids auto-renew on completion.', ac:'var(--sap-indigo)' },
+  { name:'4×4 Profit Grid', rate:'Up to $5,850 per cycle', rc:'#818cf8', desc:'8 campaign tiers from $20 to $1,000. Your grid has 16 positions — each one pays you 6.25%. Grids auto-renew on completion.', ac:'var(--sap-indigo)' },
   { name:'Course Academy', rate:'100% commissions', rc:'var(--sap-amber-bright)', desc:"Keep 100% of every sale. Sales 2, 4, 6, 8 pass up — cascading infinitely deep. Income from people you've never met.", ac:'var(--sap-amber)' },
 ];
 
@@ -178,7 +178,7 @@ export default function SuperLinkPage() {
           </div>
           {/* Pricing — single Partner membership */}
           <div style={{maxWidth:380,margin:'48px auto 0'}}>
-            <R><div style={{padding:'40px 28px',borderRadius:24,textAlign:'center',background:T.card,border:'1px solid '+T.cardBorder}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:T.textDim,marginBottom:6}}>Partner</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:52,fontWeight:900,color:T.heading,lineHeight:1}}>$20<span style={{fontSize:16,color:T.textDim,fontWeight:600}}>{t('superLink.perMonth')}</span></div><div style={{fontSize:13,color:T.textDim,margin:'6px 0 4px',fontWeight:700}}>Full platform access</div><div style={{fontSize:12,color:T.textFaint,marginBottom:20}}>Cancel anytime · No hidden fees</div>{['The full SuperAdPro platform','Recurring referral commissions','6×6 Profit Grid','Creative Studio + Brand Posters','MyLeads CRM','Campaign Studio','Course Academy','AI-powered tools'].map(function(f,i){return<div key={i} style={{fontSize:13,color:T.textMuted,padding:'7px 0',textAlign:'left',borderBottom:'1px solid '+T.featBorder}}><span style={{color:T.check,fontWeight:800}}>✓</span> {f}</div>})}</div></R>
+            <R><div style={{padding:'40px 28px',borderRadius:24,textAlign:'center',background:T.card,border:'1px solid '+T.cardBorder}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:T.textDim,marginBottom:6}}>Partner</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:52,fontWeight:900,color:T.heading,lineHeight:1}}>$20<span style={{fontSize:16,color:T.textDim,fontWeight:600}}>{t('superLink.perMonth')}</span></div><div style={{fontSize:13,color:T.textDim,margin:'6px 0 4px',fontWeight:700}}>Full platform access</div><div style={{fontSize:12,color:T.textFaint,marginBottom:20}}>Cancel anytime · No hidden fees</div>{['The full SuperAdPro platform','Recurring referral commissions','4×4 Profit Grid','Creative Studio + Brand Posters','MyLeads CRM','Campaign Studio','Course Academy','AI-powered tools'].map(function(f,i){return<div key={i} style={{fontSize:13,color:T.textMuted,padding:'7px 0',textAlign:'left',borderBottom:'1px solid '+T.featBorder}}><span style={{color:T.check,fontWeight:800}}>✓</span> {f}</div>})}</div></R>
           </div>
         </div>
       </section>
