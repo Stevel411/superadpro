@@ -53921,6 +53921,28 @@ def _sc_idempotency_ready(db) -> bool:
 
 @app.post("/api/superscene/generate")
 async def sc_generate(request: Request, db: Session = Depends(get_db)):
+    """Thin guard so any crash returns JSON (never a non-JSON 'Network error')
+    and surfaces the exception for diagnosis. Real logic in _sc_generate_impl."""
+    try:
+        return await _sc_generate_impl(request, db)
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        logger.error("sc_generate crashed: %s\n%s", e, traceback.format_exc())
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "error": f"{type(e).__name__}: {e}",
+            "where": "sc_generate",
+        })
+
+
+async def _sc_generate_impl(request: Request, db: Session):
     """
     Submit a video generation task.
     Body: {model_key, prompt, duration, ratio, image_urls?, generate_audio?}
