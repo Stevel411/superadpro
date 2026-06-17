@@ -31835,6 +31835,60 @@ def admin_api_email_analytics(
             "total_boost_credits": int(total_boost_credits_outstanding),
         },
     }
+@app.get("/admin/api/superscene-status")
+def admin_api_superscene_status(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Per-user Creative Studio diagnostic: credit balance + recent generation tasks.
+    Built 17 Jun 2026 to triage 'Network error' generation tickets — shows whether a
+    member's credits are intact and whether any generation orphaned (took credits but
+    never returned a video because the member's connection dropped at the gateway)."""
+    _require_admin(user)
+    from .database import SuperSceneCredit, SuperSceneVideo
+    from datetime import datetime
+    from collections import Counter
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"No user with id {user_id}"}, status_code=404)
+
+    credit = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user_id).first()
+    balance = int(credit.balance) if credit else 0
+
+    vids = (db.query(SuperSceneVideo)
+              .filter(SuperSceneVideo.user_id == user_id)
+              .order_by(SuperSceneVideo.created_at.desc())
+              .limit(15).all())
+
+    now = datetime.utcnow()
+    tasks, orphans = [], []
+    for v in vids:
+        age_min = round((now - v.created_at).total_seconds() / 60, 1) if v.created_at else None
+        is_orphan = (v.status in ("pending", "processing")) and (not v.video_url) and (age_min is not None and age_min > 20)
+        row = {
+            "id": v.id, "task_id": v.task_id, "model": v.model_name or v.model_key,
+            "status": v.status, "credits_used": int(v.credits_used or 0),
+            "has_video": bool(v.video_url),
+            "created_at": v.created_at.isoformat() if v.created_at else None,
+            "age_min": age_min, "possible_orphan": is_orphan,
+        }
+        tasks.append(row)
+        if is_orphan:
+            orphans.append(row)
+
+    return {
+        "user_id": user_id, "username": target.username,
+        "credit_balance": balance,
+        "recent_task_count": len(vids),
+        "by_status": dict(Counter(v.status for v in vids)),
+        "possible_orphans": orphans,
+        "tasks": tasks,
+        "note": "possible_orphan = pending/processing >20min, credits_used but no video_url — request reached origin but member never got the task_id.",
+    }
+
+
 @app.get("/admin/api/superscene-analytics")
 def admin_api_superscene_analytics(
     user: User = Depends(get_current_user),
