@@ -275,7 +275,7 @@ export default function GridCalculator() {
               <div style={{ background:COBALT_HEADER, padding:'20px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
                 <div>
                   <div style={{ fontFamily:"'Sora',sans-serif", fontSize:18, fontWeight:800, color:'#fff' }}>T{tier.t} {tier.name} — ${price}</div>
-                  <div style={{ fontSize:12, color:'rgba(255,255,255,.5)', marginTop:2 }}>6×6 Profit Grid · 36 positions · bonus at seat 36</div>
+                  <div style={{ fontSize:12, color:'rgba(255,255,255,.5)', marginTop:2 }}>4×4 Profit Grid · 16 positions · bonus at seat 16</div>
                 </div>
                 {/* Legend — same gold/cyan/purple/dashed swatches the real grid uses */}
                 <div style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
@@ -300,8 +300,8 @@ export default function GridCalculator() {
               </div>
 
               <div style={{ padding:18 }}>
-                {/* 6×6 layout matching production GridVisualiser exactly */}
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10 }}>
+                {/* 4×4 layout matching production GridVisualiser exactly */}
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10 }}>
                   {Array.from({ length:TOTAL_SEATS }).map(function(_, idx) {
                     var pos = idx + 1;
                     var isBonusSeat = idx === BONUS_SEAT_INDEX;
@@ -310,7 +310,7 @@ export default function GridCalculator() {
                     var seat = seats[idx];
                     var isPersonal = seat ? seat.isPersonal : idx < personalCount;
 
-                    // BONUS SEAT — position 36
+                    // BONUS SEAT — position 16
                     if (isBonusSeat) {
                       if (!isFilled) {
                         // Empty bonus seat: purple gradient with pulse + ♛
@@ -378,9 +378,9 @@ export default function GridCalculator() {
                 <div style={{ fontSize:15, fontWeight:800, background:BONUS_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', marginBottom:10 }}>♛ Grid Complete! Bonus Unlocked!</div>
                 <div style={{ display:'flex', justifyContent:'center', gap:24, flexWrap:'wrap' }}>
                   {[
-                    { label:'DIRECT (40%)', val:'$'+earnings.direct.toFixed(0), color:'#b45309' },
+                    { label:'DIRECT (30%)', val:'$'+earnings.direct.toFixed(0), color:'#b45309' },
                     { label:'UNI-LEVEL (6.25%)', val:'$'+earnings.uni.toFixed(0), color:'#0e7490' },
-                    { label:'BONUS (10%)', val:'$'+earnings.bonus.toFixed(0), color:'#7c3aed' },
+                    { label:'BONUS (20%)', val:'$'+earnings.bonus.toFixed(0), color:'#7c3aed' },
                     { label:'TOTAL', val:'$'+total.toFixed(0), color:'#0a1438' },
                   ].map(function(s, i) {
                     return <div key={i}>
@@ -406,7 +406,7 @@ export default function GridCalculator() {
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
               {/* Direct — gold */}
               <div style={{ background:'linear-gradient(135deg,rgba(251,191,36,.06),rgba(180,131,9,.04))', borderRadius:12, padding:16, border:'1px solid rgba(251,191,36,.15)', textAlign:'center' }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'#b45309', textTransform:'uppercase', letterSpacing:.5 }}>Direct (40%)</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#b45309', textTransform:'uppercase', letterSpacing:.5 }}>Direct (30%)</div>
                 <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color:'#b45309', marginTop:4 }}>${earnings.direct.toFixed(0)}</div>
                 <div style={{ fontSize:13, color:'#b4530988', marginTop:2 }}>{Math.min(filled,personalCount)} × ${(price*directRate).toFixed(0)}</div>
               </div>
@@ -418,7 +418,7 @@ export default function GridCalculator() {
               </div>
               {/* Bonus — purple (matches the ♛ bonus seat) */}
               <div style={{ background: complete ? 'linear-gradient(135deg,rgba(167,139,250,.08),rgba(124,58,237,.05))' : '#fff', borderRadius:12, padding:16, border: complete ? '1px solid rgba(124,58,237,.2)' : '1px solid #e2e8f0', textAlign:'center' }}>
-                <div style={{ fontSize:13, fontWeight:700, color: complete ? '#7c3aed' : '#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>Bonus (10%)</div>
+                <div style={{ fontSize:13, fontWeight:700, color: complete ? '#7c3aed' : '#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>Bonus (20%)</div>
                 <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color: complete ? '#7c3aed' : '#cbd5e1', marginTop:4 }}>{complete ? '$'+earnings.bonus.toFixed(0) : '♛'}</div>
                 <div style={{ fontSize:13, color: complete ? '#7c3aed99' : '#7a8899', marginTop:2 }}>{complete ? 'Unlocked!' : 'Fills at '+TOTAL_SEATS+'/'+TOTAL_SEATS}</div>
               </div>
