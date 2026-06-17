@@ -216,60 +216,10 @@ export default function GridCalculator() {
           })}
         </div>
 
-        {/* Personal/Spillover slider — mirrors the Direct/Spillover legend on the real grid */}
-        <div style={{ display:'flex', alignItems:'center', gap:16, padding:'14px 20px', background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', marginBottom:16 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ width:14, height:14, borderRadius:4, background:DIRECT_GRAD, flexShrink:0 }}/>
-            <span style={{ fontSize:12, fontWeight:700, color:'#7c2d12', whiteSpace:'nowrap' }}>Personal: {personalCount}</span>
-          </div>
-          <input type="range" className="gc-slider" min={1} max={TOTAL_SEATS} value={personalCount} disabled={running}
-            onChange={function(e) { setPersonalCount(parseInt(e.target.value)); resetSim(); }}
-            style={{ flex:1, height:6, borderRadius:3, appearance:'none', WebkitAppearance:'none',
-              background:'linear-gradient(90deg, #fbbf24 ' + (personalCount/TOTAL_SEATS*100) + '%, #06b6d4 ' + (personalCount/TOTAL_SEATS*100) + '%)',
-              opacity: running ? 0.5 : 1 }}/>
-          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ width:14, height:14, borderRadius:4, background:SPILLOVER_GRAD, flexShrink:0 }}/>
-            <span style={{ fontSize:12, fontWeight:700, color:'#0e7490', whiteSpace:'nowrap' }}>Spillover: {spillCount}</span>
-          </div>
-        </div>
-
         {/* Main layout */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:20, alignItems:'start' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:20, alignItems:'start' }}>
           {/* LEFT */}
           <div>
-            {/* Controls — Start / Stop / Reset / Speed
-                · Start    : shown when filled === 0 (no run in progress)
-                · Resume   : shown when filled > 0 && !running && !complete
-                · Replay   : shown when complete && !running
-                · Stop     : shown only while running — pauses without losing state
-                · Reset    : always shown when filled > 0, regardless of running state
-                            so the user can wipe and start over mid-run if they want
-            */}
-            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16, padding:'14px 18px', background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', flexWrap:'wrap' }}>
-              {!running && <button onClick={startSim}
-                style={{ padding:'10px 20px', borderRadius:10, fontSize:13, fontWeight:700, border:'none', cursor:'pointer',
-                  background:'linear-gradient(135deg,#172554,#1e3a8a)', color:'#fff', fontFamily:'inherit',
-                  transition:'all .2s', display:'flex', alignItems:'center', gap:6 }}>
-                {filled === 0 ? '▶ Start Simulation' : complete ? '▶ Replay' : '▶ Resume'}
-              </button>}
-              {running && <button onClick={stopSim}
-                style={{ padding:'10px 20px', borderRadius:10, fontSize:13, fontWeight:700, border:'none', cursor:'pointer',
-                  background:'linear-gradient(135deg,#7f1d1d,#dc2626)', color:'#fff', fontFamily:'inherit',
-                  transition:'all .2s', display:'flex', alignItems:'center', gap:6 }}>
-                ⏸ Stop
-              </button>}
-              {filled > 0 && <button onClick={resetSim}
-                style={{ padding:'10px 16px', borderRadius:10, fontSize:13, fontWeight:600, border:'1px solid #e2e8f0',
-                  background:'#fff', color:'#475569', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:6 }}>
-                ↺ Reset Grid Calculator
-              </button>}
-              <div style={{ flex:1 }}/>
-              <span style={{ fontSize:13, fontWeight:700, color:'#7a8899' }}>Speed:</span>
-              <input type="range" className="gc-slider" min={50} max={800} value={800 - speed + 50}
-                onChange={function(e) { setSpeed(800 - parseInt(e.target.value) + 50); }}
-                style={{ width:80, height:4, borderRadius:2, appearance:'none', WebkitAppearance:'none', background:'linear-gradient(90deg,#172554 ' + ((800-speed)/750*100) + '%,#e2e8f0 ' + ((800-speed)/750*100) + '%)' }}/>
-            </div>
-
             {/* Grid card — mirrors GridVisualiser layout 1:1 */}
             <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', overflow:'hidden' }}>
               <div style={{ background:COBALT_HEADER, padding:'20px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
@@ -454,6 +404,56 @@ export default function GridCalculator() {
 
             <div style={{ fontSize:13, color:'#7a8899', textAlign:'center', lineHeight:1.5 }}>
               This is a simulator for illustration purposes only. Actual earnings depend on your referral activity and network growth. Income is not guaranteed.
+            </div>
+
+        {/* Personal/Spillover selector (moved into right rail for balanced layout) */}
+        <div style={{ display:'flex', alignItems:'center', gap:16, padding:'14px 20px', background:'#fff', borderRadius:14, border:'1px solid #e2e8f0' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <div style={{ width:14, height:14, borderRadius:4, background:DIRECT_GRAD, flexShrink:0 }}/>
+            <span style={{ fontSize:12, fontWeight:700, color:'#7c2d12', whiteSpace:'nowrap' }}>Personal: {personalCount}</span>
+          </div>
+          <input type="range" className="gc-slider" min={1} max={TOTAL_SEATS} value={personalCount} disabled={running}
+            onChange={function(e) { setPersonalCount(parseInt(e.target.value)); resetSim(); }}
+            style={{ flex:1, height:6, borderRadius:3, appearance:'none', WebkitAppearance:'none',
+              background:'linear-gradient(90deg, #fbbf24 ' + (personalCount/TOTAL_SEATS*100) + '%, #06b6d4 ' + (personalCount/TOTAL_SEATS*100) + '%)',
+              opacity: running ? 0.5 : 1 }}/>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <div style={{ width:14, height:14, borderRadius:4, background:SPILLOVER_GRAD, flexShrink:0 }}/>
+            <span style={{ fontSize:12, fontWeight:700, color:'#0e7490', whiteSpace:'nowrap' }}>Spillover: {spillCount}</span>
+          </div>
+        </div>
+
+            {/* Controls — Start / Stop / Reset / Speed
+                · Start    : shown when filled === 0 (no run in progress)
+                · Resume   : shown when filled > 0 && !running && !complete
+                · Replay   : shown when complete && !running
+                · Stop     : shown only while running — pauses without losing state
+                · Reset    : always shown when filled > 0, regardless of running state
+                            so the user can wipe and start over mid-run if they want
+            */}
+            <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 18px', background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', flexWrap:'wrap' }}>
+              {!running && <button onClick={startSim}
+                style={{ padding:'10px 20px', borderRadius:10, fontSize:13, fontWeight:700, border:'none', cursor:'pointer',
+                  background:'linear-gradient(135deg,#172554,#1e3a8a)', color:'#fff', fontFamily:'inherit',
+                  transition:'all .2s', display:'flex', alignItems:'center', gap:6 }}>
+                {filled === 0 ? '▶ Start Simulation' : complete ? '▶ Replay' : '▶ Resume'}
+              </button>}
+              {running && <button onClick={stopSim}
+                style={{ padding:'10px 20px', borderRadius:10, fontSize:13, fontWeight:700, border:'none', cursor:'pointer',
+                  background:'linear-gradient(135deg,#7f1d1d,#dc2626)', color:'#fff', fontFamily:'inherit',
+                  transition:'all .2s', display:'flex', alignItems:'center', gap:6 }}>
+                ⏸ Stop
+              </button>}
+              {filled > 0 && <button onClick={resetSim}
+                style={{ padding:'10px 16px', borderRadius:10, fontSize:13, fontWeight:600, border:'1px solid #e2e8f0',
+                  background:'#fff', color:'#475569', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:6 }}>
+                ↺ Reset Grid Calculator
+              </button>}
+              <div style={{ flex:1 }}/>
+              <span style={{ fontSize:13, fontWeight:700, color:'#7a8899' }}>Speed:</span>
+              <input type="range" className="gc-slider" min={50} max={800} value={800 - speed + 50}
+                onChange={function(e) { setSpeed(800 - parseInt(e.target.value) + 50); }}
+                style={{ width:80, height:4, borderRadius:2, appearance:'none', WebkitAppearance:'none', background:'linear-gradient(90deg,#172554 ' + ((800-speed)/750*100) + '%,#e2e8f0 ' + ((800-speed)/750*100) + '%)' }}/>
             </div>
           </div>
         </div>
