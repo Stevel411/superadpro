@@ -35595,7 +35595,7 @@ ABOUT SUPERADPRO (the platform):
 - SuperAdPro is a video advertising platform with a built-in affiliate income opportunity
 - Membership costs $20/month in USDT (crypto) on Base Chain
 - Members get: AI Campaign Studio, Funnel Builder with AI chatbot, Niche Finder, Swipe File, Campaign Analytics
-- Members earn by: watching daily videos (Watch & Earn), referring others ($10/month per active referral), and the 6×6 Profit Grid (30% direct + 6.25% uni-level across 8 levels)
+- Members earn by: watching daily videos (Watch & Earn), referring others ($10/month per active referral), and the 4×4 Profit Grid (30% direct + 6.25% uni-level across 8 levels)
 - There are 8 campaign tiers from $20 to $1,000 for advertisers who want engaged video views
 - All payments are in USDT on Base Chain (crypto) — fast, transparent, no chargebacks
 - The platform is real with genuine marketing tools, not just a compensation plan
@@ -35632,7 +35632,7 @@ YOUR PERSONALITY & RULES:
         elif any(w in msg_lower for w in ["scam", "legit", "real", "trust", "ponzi"]):
             reply = f"I totally understand the caution — there's a lot of rubbish out there. SuperAdPro is a real platform with genuine marketing tools (AI campaign studio, funnel builder, analytics). The income comes from real video advertising, not just recruitment. The $20 membership gives you tools worth way more than that on their own."
         elif any(w in msg_lower for w in ["earn", "money", "income", "commission"]):
-            reply = f"There are multiple ways to earn: direct referral commissions (40%), uni-level commissions through the 6×6 grid system, and you can use the marketing tools to promote any affiliate offer you like. Results vary based on effort and team building — I won't make any unrealistic promises."
+            reply = f"There are multiple ways to earn: direct referral commissions (30%), uni-level commissions through the 4×4 grid system, and you can use the marketing tools to promote any affiliate offer you like. Results vary based on effort and team building — I won't make any unrealistic promises."
         elif any(w in msg_lower for w in ["join", "sign up", "start", "register", "link"]):
             reply = f"Great to hear you're interested! You can sign up through {owner_name}'s referral link. Membership is $20/month in USDT on Base Chain. You'll get instant access to all the AI tools and can start building straight away. 🚀"
         elif any(w in msg_lower for w in ["hello", "hi", "hey", "sup"]):
@@ -40389,7 +40389,7 @@ IMPORTANT:
                     "How I earn income watching videos for $20/month",
                     "5 membership sites that actually pay you to be a member",
                     "My honest SuperAdPro income report — month 1",
-                    "How the 6×6 grid system works and why it's genius"
+                    "How the 4×4 grid system works and why it's genius"
                 ],
                 "starter_hook": "What if I told you there's a $20/month membership where you literally get paid to watch videos? I've been a member for 30 days and here's exactly what happened..."
             },
@@ -40682,7 +40682,7 @@ async def generate_swipes(request: Request, user: User = Depends(get_current_use
 
     prompt = f"""Generate exactly 4 unique {cat_desc} for promoting SuperAdPro in the "{niche}" niche.
 
-SuperAdPro is a video advertising platform with 3 income streams, 95% payouts, an 6×6 Profit Grid, and AI marketing tools. Members earn by watching video ads and referring others.
+SuperAdPro is a video advertising platform with 3 income streams, 95% payouts, a 4×4 Profit Grid, and AI marketing tools. Members earn by watching video ads and referring others.
 
 For each swipe, output this exact JSON format (no markdown, no code fences, just raw JSON array):
 [
@@ -41478,7 +41478,7 @@ You explain the SuperAdPro compensation plan clearly and enthusiastically. You h
 ## INCOME STREAM 2: CAMPAIGN TIERS (Watch To Earn + Grid)
 - Members can activate Campaign Tiers to promote their video content and earn grid commissions
 - There are 8 tiers from $20 to $1,000/month
-- When you activate a tier, you're placed into your sponsor's 6×6 grid
+- When you activate a tier, you're placed into your sponsor's 4×4 grid
 - Grid commissions pay 30% direct + 6.25% on each of 8 uni-levels (50% across the chain)
 - To qualify for commissions, members watch campaign videos daily (Watch To Earn)
 - Watching delivers real views to campaign holders while qualifying you for your grid commissions
@@ -43938,7 +43938,7 @@ async def api_proseller_generate(request: Request, db: Session = Depends(get_db)
     # Build the prompt
     system_prompt = """You are ProSeller, an AI sales coach for SuperAdPro affiliates. SuperAdPro is a video advertising platform where:
 - Members watch real video ads and earn daily
-- 4 income streams: Membership ($20/mo, $10 to sponsor per active referral), 6×6 Profit Grid (8 tiers $20-$1000, 30% direct + 50% uni-level across 8 levels), and Courses
+- 4 income streams: Membership ($20/mo, $10 to sponsor per active referral), 4×4 Profit Grid (8 tiers $20-$1000, 30% direct + 50% uni-level across 8 levels), and Courses
 - 95% of every dollar is paid out to the network
 - Real advertising utility — advertisers pay for genuine video views from real people
 - AI-powered marketing tools built into the dashboard
@@ -52533,7 +52533,7 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
             "FOUR INCOME STREAMS (only describe these — do not invent others)\n"
             "1. Membership commissions: sponsor earns $10/month for every active referral, "
             "   recurring for as long as they stay active.\n"
-            "2. 6×6 Profit Grid (Campaign Tiers $20 to $1,000): 30% direct + 50% across "
+            "2. 4×4 Profit Grid (Campaign Tiers $20 to $1,000): 30% direct + 50% across "
             "   8 uni-level (6.25% each). Requires owning the tier to earn at that tier.\n"
             "3. Creative Studio Credit Commissions (packs $20 to $1,000): a flat 20% "
             "   of the pack price paid to the direct sponsor when a referral buys a credit "
@@ -58265,7 +58265,7 @@ REFERRAL LINK: Every member gets a unique link (superadpro.com/ref/username). Sh
 
 COMPENSATION PLAN — 5 INCOME STREAMS:
 1. Membership Commissions: Earn $10/month for every active member you refer, recurring every month they stay active.
-2. 6×6 Profit Grid: When you or your referrals activate a Campaign Tier, it creates a 6×6 grid (36 positions). You earn 30% direct commission, plus 6.25% on each of 8 uni-level positions in your upline chain (50% across the chain), plus a completion bonus when all 36 seats fill. 8 tiers from $20 (T1) to $1,000 (T8).
+2. 4×4 Profit Grid: When you or your referrals activate a Campaign Tier, it creates a 4×4 grid (16 positions). You earn 30% direct commission, plus 6.25% on each of 8 uni-level positions in your upline chain (50% across the chain), plus a completion bonus when all 16 seats fill. 8 tiers from $20 (T1) to $1,000 (T8).
 3. Creative Studio Credit Commissions: When someone you refer buys a Creative Studio credit pack, you earn a flat 20% of the pack price as their direct sponsor — a single-level commission, paid each time they buy a pack.
 4. Course Academy: Earn commissions when your referrals purchase courses.
 5. Pay It Forward: Gift a $20 membership to someone — you become their sponsor and earn on their activity. Creates a viral growth chain.
@@ -58279,7 +58279,7 @@ LINKHUB: A personal link-in-bio page similar to Linktree. Add your photo, bio, s
 
 SOCIAL SHARE: AI-powered tool that generates platform-specific posts for Facebook, X, Instagram, LinkedIn, TikTok, and more. Choose a platform, pick a tone (Professional, Casual, Hype, Story, Educational), and the AI writes a ready-to-post message with your referral link.
 
-CAMPAIGN TIERS: 8 tiers from T1 ($20) to T8 ($1,000). Each tier activates a 6×6 grid. Higher tiers mean bigger commissions. Grid commissions go to your Campaign Wallet. You need to maintain your Watch to Earn quota to withdraw from Campaign Wallet.
+CAMPAIGN TIERS: 8 tiers from T1 ($20) to T8 ($1,000). Each tier activates a 4×4 grid. Higher tiers mean bigger commissions. Grid commissions go to your Campaign Wallet. You need to maintain your Watch to Earn quota to withdraw from Campaign Wallet.
 
 WATCH TO EARN: Members watch short campaign videos daily (30-60 seconds each) to stay qualified for Campaign Wallet withdrawals. Think of it as a daily check-in that keeps your earning status active.
 
