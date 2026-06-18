@@ -54020,6 +54020,56 @@ def admin_gen_diag(
     })
 
 
+@app.get("/admin/api/grok-video-test")
+async def admin_grok_video_test(
+    request: Request,
+    prompt: str = "a red sports car driving along a coastal road at sunset",
+    image_url: str = "",
+    poll: str = "",
+    db: Session = Depends(get_db),
+):
+    """TEMP: empirically confirm xAI Grok Imagine video works with our live key
+    BEFORE rerouting all generation to Grok. Admin-only, GET (tappable on mobile).
+
+    Submit:  /admin/api/grok-video-test?prompt=...            (text-to-video)
+             /admin/api/grok-video-test?prompt=...&image_url=  (image-to-video)
+    Poll:    /admin/api/grok-video-test?poll=grok:REQUEST_ID   (check status + URL)
+    """
+    from fastapi.responses import JSONResponse
+    from . import grok_imagine
+    user = get_current_user(request, db)
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    # Poll mode: check an in-flight job and return the finished video URL.
+    if poll:
+        try:
+            res = await grok_imagine.poll_video_status(poll)
+            return JSONResponse({"ok": True, "mode": "poll", "result": res})
+        except Exception as e:
+            return JSONResponse({"ok": False, "mode": "poll", "error": f"{type(e).__name__}: {e}"})
+
+    # Submit mode: fire a real generation at xAI.
+    image_urls = [image_url] if image_url.strip() else None
+    try:
+        res = await grok_imagine.generate_video(
+            model_key="grok-video",
+            prompt=prompt,
+            duration=5,
+            ratio="16:9",
+            image_urls=image_urls,
+            resolution="720p",
+        )
+        note = ("SUCCESS — Grok accepted the job. Copy task_id and poll it: "
+                "/admin/api/grok-video-test?poll=<task_id>") if res.get("success") else \
+               ("FAILED — this is the real reason Grok video won't run with our "
+                "account (usually: video billing not enabled/funded on the xAI key).")
+        return JSONResponse({"ok": True, "mode": "image-to-video" if image_urls else "text-to-video",
+                             "result": res, "note": note})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": f"{type(e).__name__}: {e}"})
+
+
 @app.post("/api/superscene/generate")
 async def sc_generate(request: Request, db: Session = Depends(get_db)):
     """Thin guard so any crash returns JSON (never a non-JSON 'Network error')
