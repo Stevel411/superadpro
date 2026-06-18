@@ -53835,6 +53835,13 @@ async def creative_studio_page(request: Request):
     if _idx.exists():
         return HTMLResponse(_idx.read_text())
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
+@app.get("/studio")
+async def studio_page(request: Request):
+    """Serve the new full-page Studio (cobalt) — handled by React router client-side."""
+    _idx = pathlib.Path("static/app/index.html")
+    if _idx.exists():
+        return HTMLResponse(_idx.read_text())
+    return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 @app.get("/superscene")
 async def superscene_page(request: Request):
     """Serve the SuperScene page — handled by React router client-side."""
