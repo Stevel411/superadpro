@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './studio.css';
 
+/* studio shell — build bump 2 (fresh content hash to sidestep a CF-cached 404) */
 const THEME_KEY = 'sap-studio-theme';
 
 /* Small inline icon set (stroke-based, inherit currentColor) */
@@ -59,7 +60,7 @@ export default function StudioShell() {
   const fmt = (n) => (n == null ? '—' : n.toLocaleString());
 
   return (
-    <div className="studio-shell" data-theme={theme}>
+    <div className="studio-shell" data-theme={theme} data-build="s1b">
 
       {/* ── TOP BAR ── */}
       <header className="topbar">
