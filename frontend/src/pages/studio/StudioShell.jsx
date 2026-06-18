@@ -40,6 +40,13 @@ const MOTION_PHRASE = {
 const COST_PER_SEG = 4;
 const segCount = (len) => Math.max(1, Math.ceil(parseInt(len, 10) / 5));
 
+// Aspect ratios labelled by the social formats they suit (all Grok-supported).
+const FORMATS = [
+  { ratio: '9:16', title: 'Reels & Stories', platforms: 'TikTok · Reels · Stories · Shorts', ar: '9 / 16', num: 0.5625, shape: 'sp-v' },
+  { ratio: '1:1',  title: 'Square post',     platforms: 'Instagram · Facebook feed',         ar: '1 / 1',  num: 1,      shape: 'sp-s' },
+  { ratio: '16:9', title: 'Landscape',       platforms: 'YouTube · X · LinkedIn',            ar: '16 / 9', num: 1.7778, shape: 'sp-h' },
+];
+
 export default function StudioShell() {
   const navigate = useNavigate();
 
@@ -56,6 +63,7 @@ export default function StudioShell() {
   const [prompt, setPrompt] = useState('');
   const [motion, setMotion] = useState('Tracking');
   const [aspect, setAspect] = useState('9:16');
+  const [clipAspect, setClipAspect] = useState('9:16');
   const [length, setLength] = useState('10s');
   const [res, setRes]       = useState('720p');
   const [audio, setAudio]   = useState(true);
@@ -89,6 +97,8 @@ export default function StudioShell() {
 
   const fmt = (n) => (n == null ? '—' : n.toLocaleString());
   const cost = segCount(length) * COST_PER_SEG;
+  const activeAspect = videoUrl ? clipAspect : aspect;
+  const stageFmt = FORMATS.find(f => f.ratio === activeAspect) || FORMATS[2];
 
   const finishError = useCallback((msg) => {
     if (fakeProgRef.current) clearInterval(fakeProgRef.current);
@@ -150,6 +160,7 @@ export default function StudioShell() {
     }
 
     setGenerating(true); setVideoUrl(null); setErrMsg(null); setGenStatus('pending'); setGenProgress(0);
+    setClipAspect(aspect);
     if (fakeProgRef.current) clearInterval(fakeProgRef.current);
     fakeProgRef.current = setInterval(() => {
       setGenProgress(pr => (pr >= 90 ? pr : pr + Math.random() * 2 + 0.6));
@@ -293,25 +304,31 @@ export default function StudioShell() {
               </div>
             </div>
 
-            <div className="row2">
-              <div className="mini">
-                <label>Aspect</label>
-                <div className="pillset">
-                  {['9:16','1:1','16:9'].map(a => <button key={a} className={aspect === a ? 'on' : ''} onClick={() => setAspect(a)}>{a}</button>)}
-                </div>
+            <div className="field">
+              <label>Format</label>
+              <div className="formatlist">
+                {FORMATS.map(f => (
+                  <button key={f.ratio} className={'fmt' + (aspect === f.ratio ? ' on' : '')} onClick={() => setAspect(f.ratio)}>
+                    <span className={'fmt-shape ' + f.shape} />
+                    <span className="fmt-txt"><b>{f.title}</b><i>{f.platforms}</i></span>
+                    <span className="fmt-ar">{f.ratio}</span>
+                  </button>
+                ))}
               </div>
+            </div>
+
+            <div className="row2">
               <div className="mini">
                 <label>Length</label>
                 <div className="pillset">
                   {['5s','10s','15s'].map(l => <button key={l} className={length === l ? 'on' : ''} onClick={() => setLength(l)}>{l}</button>)}
                 </div>
               </div>
-            </div>
-
-            <div className="mini">
-              <label>Resolution</label>
-              <div className="pillset" style={{ maxWidth: 170 }}>
-                {['480p','720p'].map(r => <button key={r} className={res === r ? 'on' : ''} onClick={() => setRes(r)}>{r}</button>)}
+              <div className="mini">
+                <label>Resolution</label>
+                <div className="pillset">
+                  {['480p','720p'].map(r => <button key={r} className={res === r ? 'on' : ''} onClick={() => setRes(r)}>{r}</button>)}
+                </div>
               </div>
             </div>
 
@@ -330,7 +347,7 @@ export default function StudioShell() {
           <section className="canvas">
             <div className="stagewrap">
               <div className="eyebrow"><span className="lbl">Latest generation</span><span className="line" /></div>
-              <div className="stage">
+              <div className="stage" style={{ aspectRatio: stageFmt.ar, maxWidth: 'calc((100vh - 240px) * ' + stageFmt.num + ')', maxHeight: 'calc(100vh - 240px)' }}>
                 {videoUrl ? (
                   <video className="vid" src={videoUrl} controls autoPlay loop playsInline />
                 ) : generating ? (
