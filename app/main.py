@@ -53969,6 +53969,20 @@ def admin_gen_diag(
         db.commit()
     except Exception:
         db.rollback()
+    # SELF-TEST the writer: call _gen_crumb for a sentinel user, then read it
+    # back. If this round-trips, _gen_crumb works and a missing real-user crumb
+    # genuinely means the request died before reaching any crumb. If it does NOT
+    # round-trip, the breadcrumb instrument itself is broken (and prior "no
+    # breadcrumb" reads prove nothing).
+    crumb_works = None
+    try:
+        _gen_crumb(-777, "reader_selftest", "ping")
+        chk = db.execute(_t("SELECT step FROM gen_diag WHERE user_id = -777")).fetchone()
+        crumb_works = bool(chk and chk.step == "reader_selftest")
+    except Exception:
+        db.rollback()
+        crumb_works = None
+
     try:
         row = db.execute(_t(
             "SELECT step, detail, at, "
@@ -53977,13 +53991,16 @@ def admin_gen_diag(
         ), {"u": user_id}).fetchone()
     except Exception as e:
         db.rollback()
-        return JSONResponse({"ok": True, "found": False,
+        return JSONResponse({"ok": True, "found": False, "crumb_works": crumb_works,
                              "note": f"query error ({type(e).__name__})"})
     if not row:
-        return JSONResponse({"ok": True, "found": False,
-                             "note": "table exists but no breadcrumb for this user — if you just reproduced, the request died before the first step (auth_ok), i.e. in middleware / before the handler body"})
+        return JSONResponse({"ok": True, "found": False, "crumb_works": crumb_works,
+                             "note": ("writer OK — request died before any breadcrumb (before the tier-gate handoff)"
+                                      if crumb_works else
+                                      "WRITER BROKEN — _gen_crumb never persists; prior 'no breadcrumb' reads are meaningless")})
     return JSONResponse({
-        "ok": True, "found": True, "step": row.step, "detail": row.detail,
+        "ok": True, "found": True, "crumb_works": crumb_works,
+        "step": row.step, "detail": row.detail,
         "at": str(row.at),
         "age_seconds": round(float(row.age_s), 1) if row.age_s is not None else None,
     })
