@@ -54157,26 +54157,45 @@ async def _sc_generate_impl(request: Request, db: Session):
     except asyncio.TimeoutError:
         credit_row.balance += credits_needed
         db.commit()
-        raise HTTPException(
-            status_code=504,
-            detail="The video service is taking longer than usual to respond. Your credits have not been charged — please try again in a moment.",
-        )
+        _gen_crumb(user.id, "provider_done", "timeout")
+        # NB: a 5xx here gets replaced by the edge (Cloudflare/Railway) with an
+        # opaque HTML error page, hiding the reason from the member. Return 200
+        # with success:false so our JSON actually reaches the frontend (which
+        # treats "200 + no task_id" as a clean failure and shows .error).
+        return JSONResponse(status_code=200, content={
+            "success": False,
+            "error": "The video service is taking longer than usual to respond. Your credits have not been charged — please try again in a moment.",
+            "credits_remaining": credit_row.balance,
+        })
     except HTTPException:
         raise
-    except Exception:
+    except Exception as _provider_exc:
         credit_row.balance += credits_needed
         db.commit()
-        raise HTTPException(
-            status_code=502,
-            detail="Video generation could not be started. Your credits have not been charged — please try again.",
-        )
+        _gen_crumb(user.id, "provider_done", f"exception={type(_provider_exc).__name__}")
+        return JSONResponse(status_code=200, content={
+            "success": False,
+            "error": "Video generation could not be started. Your credits have not been charged — please try again.",
+            "credits_remaining": credit_row.balance,
+        })
 
     if not result["success"]:
         # Refund on failure
-        _gen_crumb(user.id, "provider_done", f"success=False err={str(result.get('error'))[:80]}")
+        real_err = str(result.get("error") or "Video generation failed")
+        _gen_crumb(user.id, "provider_done", f"success=False err={real_err[:80]}")
         credit_row.balance += credits_needed
         db.commit()
-        raise HTTPException(status_code=502, detail=result.get("error", "Video generation failed"))
+        # The raw provider error (e.g. an upstream account-quota message) is for
+        # admins/diagnostics only — members get a clean message. Return 200 so the
+        # edge can't replace our JSON with a blank 502 page.
+        member_msg = ("Video generation is temporarily unavailable right now. "
+                      "Your credits have not been charged — please try again later.")
+        shown = real_err if getattr(user, "is_admin", False) else member_msg
+        return JSONResponse(status_code=200, content={
+            "success": False,
+            "error": shown,
+            "credits_remaining": credit_row.balance,
+        })
 
     task_id = result["task_id"]
     mode = result.get("mode", "text-to-video")
