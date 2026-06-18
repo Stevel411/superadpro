@@ -85,7 +85,7 @@
 .studio-shell .vdiv{width:1px;height:26px;background:var(--line)}
 .studio-shell .brand{display:flex;align-items:center;gap:10px;cursor:pointer}
 .studio-shell .brand .mark{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
-  background:#0ea5e9;box-shadow:0 0 18px rgba(14,165,233,.5)}
+  background:#0ea5e9}
 .studio-shell .brand .mark svg{width:14px;height:14px;color:#fff;margin-left:2px}
 .studio-shell .brand .wm{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;letter-spacing:0;color:var(--ink);display:flex;align-items:baseline}
 .studio-shell .brand .wm b{color:#38bdf8;font-weight:800} .studio-shell .brand .wm span{color:var(--muted-2);font-weight:600;font-size:12.5px;margin-left:8px;letter-spacing:.05em}
@@ -95,14 +95,14 @@
   font-family:inherit;font-size:13.5px;font-weight:600;color:var(--muted);border:1px solid transparent;background:transparent;transition:.18s}
 .studio-shell .tool svg{width:16px;height:16px;opacity:.85}
 .studio-shell .tool:hover{color:var(--ink);background:rgba(70,110,220,.12)}
-.studio-shell .tool.on{color:#06163f;font-weight:600;background:linear-gradient(180deg,var(--cyan),var(--cyan-2));box-shadow:0 8px 20px -7px rgba(42,212,238,.75)}
+.studio-shell .tool.on{color:#06163f;font-weight:600;background:linear-gradient(180deg,var(--cyan),var(--cyan-2))}
 .studio-shell .tool.on svg{opacity:1}
 
 .studio-shell .rightbar{display:flex;align-items:center;gap:11px;flex:0 0 auto}
 .studio-shell .credits{display:flex;align-items:center;gap:9px;padding:7px 13px 7px 11px;border-radius:11px;cursor:pointer;
   border:1px solid rgba(42,212,238,.3);background:rgba(42,212,238,.09);transition:.16s}
 .studio-shell .credits:hover{border-color:rgba(42,212,238,.55);background:rgba(42,212,238,.14)}
-.studio-shell .credits .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.studio-shell .credits .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan)}
 .studio-shell .credits b{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13.5px;color:var(--ink)}
 .studio-shell .credits span{font-size:11px;color:var(--muted-2);font-weight:500}
 .studio-shell .credits .plus{margin-left:2px;color:var(--cyan);font-weight:700;font-size:15px;line-height:1}
@@ -125,18 +125,18 @@
 .studio-shell .toolhead p{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:3px}
 .studio-shell .engine{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:9px;border:1px solid rgba(42,212,238,.3);background:rgba(42,212,238,.09);
   font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--cyan);width:fit-content}
-.studio-shell .engine .pulse{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:sps-pulse 2s infinite}
+.studio-shell .engine .pulse{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:sps-pulse 2s infinite}
 @keyframes sps-pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
 .studio-shell .seg{display:flex;gap:5px;padding:5px;border-radius:13px;background:var(--inset-2);border:1px solid var(--line)}
 .studio-shell .seg button{flex:1;padding:11px 8px;border:0;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--muted);background:transparent;transition:.18s;display:flex;align-items:center;justify-content:center;gap:7px}
 .studio-shell .seg button svg{width:15px;height:15px}
-.studio-shell .seg button.on{color:var(--seg-on-ink);background:var(--seg-on);box-shadow:0 5px 14px -5px rgba(42,212,238,.5)}
+.studio-shell .seg button.on{color:var(--seg-on-ink);background:var(--seg-on)}
 
 .studio-shell .field label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted-2);margin-bottom:9px}
 .studio-shell .field label .opt{text-transform:none;letter-spacing:0;font-weight:500;opacity:.75}
 .studio-shell textarea{width:100%;min-height:98px;resize:none;padding:13px 14px;color:var(--ink);background:var(--inset);border:1px solid var(--line);border-radius:13px;font-family:inherit;font-size:14px;line-height:1.5;transition:.18s}
-.studio-shell textarea:focus{outline:0;border-color:rgba(42,212,238,.55);box-shadow:0 0 0 3px rgba(42,212,238,.14)}
+.studio-shell textarea:focus{outline:0;border-color:rgba(42,212,238,.55);box-shadow:0 0 0 2px rgba(42,212,238,.3)}
 .studio-shell textarea::placeholder{color:var(--muted-2)}
 
 .studio-shell .chips{display:flex;flex-wrap:wrap;gap:7px}
@@ -153,14 +153,14 @@
 
 .studio-shell .toggle{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:13px;border:1px solid var(--line);background:var(--inset-2)}
 .studio-shell .toggle .tl{font-size:13.5px;font-weight:600}.studio-shell .toggle .ts{font-size:11.5px;color:var(--muted-2);margin-top:2px}
-.studio-shell .sw{width:44px;height:25px;border-radius:30px;background:linear-gradient(90deg,var(--cyan-deep),var(--cyan));position:relative;flex:0 0 auto;box-shadow:0 0 14px rgba(42,212,238,.45);cursor:pointer}
+.studio-shell .sw{width:44px;height:25px;border-radius:30px;background:linear-gradient(90deg,var(--cyan-deep),var(--cyan));position:relative;flex:0 0 auto;cursor:pointer}
 .studio-shell .sw::after{content:"";position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.16s}
 .studio-shell .sw.off{background:rgba(120,160,255,.25);box-shadow:none}
 .studio-shell .sw.off::after{right:auto;left:3px}
 
 .studio-shell .gen{margin-top:2px;width:100%;padding:16px;border:0;border-radius:14px;cursor:pointer;font-family:'Sora',sans-serif;font-weight:700;font-size:15.5px;color:#06163f;letter-spacing:.01em;
-  background:linear-gradient(135deg,#8af6ff,var(--cyan) 42%,var(--cyan-2));box-shadow:0 16px 34px -12px rgba(42,212,238,.85);transition:.18s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative}
-.studio-shell .gen:hover{transform:translateY(-1px);box-shadow:0 22px 42px -12px rgba(42,212,238,1)}
+  background:linear-gradient(135deg,#8af6ff,var(--cyan) 42%,var(--cyan-2));transition:.18s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative}
+.studio-shell .gen:hover{transform:translateY(-1px)}
 .studio-shell .gen:disabled{cursor:default;opacity:.55;filter:saturate(.6);box-shadow:none;transform:none}
 .studio-shell .gen svg{width:18px;height:18px}
 .studio-shell .gen .cost{position:absolute;right:15px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;opacity:.82}
@@ -174,14 +174,10 @@
 .studio-shell .eyebrow .line{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
 
 .studio-shell .stagewrap{position:relative}
-.studio-shell .stagewrap::after{content:"";position:absolute;inset:-30px -10px 10px;z-index:-1;border-radius:40px;
-  background:radial-gradient(60% 60% at 70% 30%,rgba(42,212,238,.16),transparent 70%);filter:blur(20px)}
-.studio-shell .stage{position:relative;aspect-ratio:16/9;border-radius:22px;overflow:hidden;border:1px solid rgba(42,212,238,.26);
-  background:radial-gradient(120% 90% at 50% 0%, rgba(42,212,238,.07), transparent 55%), #04060d;
-  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.06);display:grid;place-items:center;transition:box-shadow .4s}
-.studio-shell .stage::before{content:"";position:absolute;inset:0;opacity:.45;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none}
+.studio-shell .stage{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;border:1px solid rgba(15,30,70,.16);
+  background:#05070e;display:grid;place-items:center}
 .studio-shell .stage .empty{text-align:center;color:#bcd0ff;z-index:1;padding:20px}
-.studio-shell .stage .empty .ei{width:54px;height:54px;border-radius:14px;margin:0 auto 14px;display:grid;place-items:center;background:rgba(8,20,60,.5);border:1px solid rgba(42,212,238,.4);box-shadow:0 0 30px rgba(42,212,238,.35)}
+.studio-shell .stage .empty .ei{width:54px;height:54px;border-radius:14px;margin:0 auto 14px;display:grid;place-items:center;background:rgba(8,20,60,.5);border:1px solid rgba(42,212,238,.4)}
 .studio-shell .stage .empty .ei svg{width:24px;height:24px;color:var(--cyan)}
 .studio-shell .stage .empty h4{font-family:'Sora',sans-serif;font-weight:700;font-size:15.5px;color:#f3f8ff}
 .studio-shell .stage .empty p{font-size:12.5px;font-weight:500;color:#c3d6ff;margin-top:5px}
