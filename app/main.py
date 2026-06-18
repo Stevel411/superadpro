@@ -53983,6 +53983,19 @@ def admin_gen_diag(
         db.rollback()
         crumb_works = None
 
+    # Also read the tiergate_enter sentinel (keyed -1): did the request reach the
+    # top of the tier-gate at all?
+    edge = None
+    try:
+        er = db.execute(_t(
+            "SELECT step, EXTRACT(EPOCH FROM ((now() AT TIME ZONE 'utc') - at)) AS age_s "
+            "FROM gen_diag WHERE user_id = -1"
+        )).fetchone()
+        if er:
+            edge = {"step": er.step, "age_seconds": round(float(er.age_s), 1) if er.age_s is not None else None}
+    except Exception:
+        db.rollback()
+
     try:
         row = db.execute(_t(
             "SELECT step, detail, at, "
@@ -53992,14 +54005,15 @@ def admin_gen_diag(
     except Exception as e:
         db.rollback()
         return JSONResponse({"ok": True, "found": False, "crumb_works": crumb_works,
-                             "note": f"query error ({type(e).__name__})"})
+                             "tiergate_enter": edge, "note": f"query error ({type(e).__name__})"})
     if not row:
         return JSONResponse({"ok": True, "found": False, "crumb_works": crumb_works,
-                             "note": ("writer OK — request died before any breadcrumb (before the tier-gate handoff)"
-                                      if crumb_works else
-                                      "WRITER BROKEN — _gen_crumb never persists; prior 'no breadcrumb' reads are meaningless")})
+                             "tiergate_enter": edge,
+                             "note": ("reached tier-gate but died in its DB user-lookup"
+                                      if (edge and edge.get("age_seconds") is not None and edge["age_seconds"] < 120)
+                                      else "request died before even the tier-gate (earlier middleware / never reached app)")})
     return JSONResponse({
-        "ok": True, "found": True, "crumb_works": crumb_works,
+        "ok": True, "found": True, "crumb_works": crumb_works, "tiergate_enter": edge,
         "step": row.step, "detail": row.detail,
         "at": str(row.at),
         "age_seconds": round(float(row.age_s), 1) if row.age_s is not None else None,

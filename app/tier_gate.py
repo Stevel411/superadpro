@@ -117,6 +117,18 @@ class TierGateMiddleware(BaseHTTPMiddleware):
         if not _requires_paid_membership(path):
             return await call_next(request)
 
+        # TEMP 502 diagnostic: mark that the generate request reached the top of
+        # the tier-gate, BEFORE the synchronous DB user-lookup below. Keyed to a
+        # fixed sentinel (-1) since the user isn't resolved yet. If this fires
+        # but 'tiergate_pass' (after the lookup) does not, the request dies IN the
+        # tier-gate's DB user-lookup.
+        if path == "/api/superscene/generate":
+            try:
+                from .main import _gen_crumb
+                _gen_crumb(-1, "tiergate_enter", path)
+            except Exception:
+                pass
+
         # We need the user. Manually look up the session cookie like
         # get_current_user does, but without FastAPI's Depends machinery.
         # We can't import get_current_user at module-import time without
