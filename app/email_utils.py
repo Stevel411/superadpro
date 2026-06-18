@@ -16,7 +16,8 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
                from_email: str = None, from_name: str = None,
                reply_to_email: str = None, reply_to_name: str = None,
                return_message_id: bool = False,
-               category: str = "transactional", list_unsubscribe: str = None):
+               category: str = "transactional", list_unsubscribe: str = None,
+               member_bulk: bool = False):
     """Send a transactional email via Brevo.
 
     By default uses the platform's noreply sender. For broadcasts that
@@ -46,7 +47,8 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
     # Provider fork: when EMAIL_PROVIDER=ses, deliver via Amazon SES (SMTP)
     # instead of Brevo. Brevo path below is untouched and remains the default.
     from . import mailer
-    if mailer.provider() == "ses":
+    chosen = mailer.member_bulk_provider() if member_bulk else mailer.provider()
+    if chosen == "ses":
         r = mailer.ses_send(
             to_email, subject, html_body, text_body or "",
             from_email=from_email, from_name=from_name,

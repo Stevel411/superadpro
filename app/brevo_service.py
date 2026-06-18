@@ -26,7 +26,8 @@ def _headers():
 async def send_email(to_email: str, to_name: str, subject: str, html_content: str,
                      sender_name: str = None, sender_email: str = None,
                      reply_to_email: str = None, reply_to_name: str = None,
-                     category: str = "transactional", list_unsubscribe: str = None):
+                     category: str = "transactional", list_unsubscribe: str = None,
+                     member_bulk: bool = False):
     """Send a single transactional email via Brevo API.
 
     Retries with exponential backoff on transient failures (429 rate limit,
@@ -54,7 +55,8 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
     # marketing. Applies to both SES and Brevo paths.
     if suppression.is_suppressed(to_email, category):
         return {"ok": False, "error": "suppressed", "suppressed": True}
-    if mailer.provider() == "ses":
+    chosen = mailer.member_bulk_provider() if member_bulk else mailer.provider()
+    if chosen == "ses":
         r = await asyncio.to_thread(
             mailer.ses_send,
             to_email, subject, html_content, None,

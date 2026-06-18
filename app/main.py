@@ -45805,7 +45805,7 @@ def _send_sequence_email(db, lead, email_index: int):
     body_html = _rewrite_email_links(body_html, lead.id, lead.email_sequence_id, email_index, site_url)
 
     from .email_utils import send_email
-    send_result = send_email(lead.email, subject, body_html, return_message_id=True)
+    send_result = send_email(lead.email, subject, body_html, return_message_id=True, member_bulk=True)
     if isinstance(send_result, tuple):
         success, brevo_msg_id = send_result
     else:
@@ -51489,7 +51489,7 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
         member_name = user.first_name or user.username or "SuperAdPro Member"
         wrapped = wrap_email_html(body_html, member_name)
 
-        result = await send_email(lead.email, lead.name or "", subject, wrapped)
+        result = await send_email(lead.email, lead.name or "", subject, wrapped, member_bulk=True)
         if result.get("ok"):
             lead.emails_sent = (lead.emails_sent or 0) + 1
             log = EmailSendLog(
@@ -51564,7 +51564,7 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
     failure_reasons = {}  # member-safe summary — counter of reason buckets
 
     for lead in leads:
-        result = await send_email(lead.email, lead.name or "", subject, wrapped)
+        result = await send_email(lead.email, lead.name or "", subject, wrapped, member_bulk=True)
         if result.get("ok"):
             sent += 1
             # Log to EmailSendLog so broadcast history is auditable.

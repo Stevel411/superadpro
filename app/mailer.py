@@ -43,6 +43,16 @@ logger = logging.getLogger(__name__)
 def provider() -> str:
     return os.getenv("EMAIL_PROVIDER", "brevo").strip().lower()
 
+def member_bulk_provider() -> str:
+    """Provider for MEMBER-owned bulk sends (autoresponder drips + member
+    broadcasts to their own leads), independent of the platform-wide
+    EMAIL_PROVIDER. Lets member bulk run on a SEPARATE Amazon SES account (its
+    own reputation/IP pool) while SuperAdPro's own transactional mail stays on
+    the global provider — so one member's bad list can never get the account
+    that sends password resets/receipts suspended. Default 'brevo' (no-op until
+    flipped to 'ses' once the members SES account is out of sandbox)."""
+    return os.getenv("MEMBER_BULK_PROVIDER", "brevo").strip().lower()
+
 # Back-compat module-level flag (most call sites read mailer.EMAIL_PROVIDER).
 EMAIL_PROVIDER = provider()
 
