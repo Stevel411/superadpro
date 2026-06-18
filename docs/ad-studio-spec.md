@@ -142,7 +142,7 @@ Each step is independently shippable; dry-run/verify before anything touches mem
 ## 10. Build status
 
 - [x] Step 1 — `AdAsset` model + `GET /admin/api/apply-ad-studio-schema` one-shot migration.
-- [ ] Step 2 — asset-persist-on-completion (provider URL → R2).
+- [~] Step 2 — `persist_remote_asset_to_r2()` shipped (download → R2). Verify on prod via `GET /admin/api/ad-studio-persist-test?url=…`, then mark done.
 - [ ] Steps 3–9 per §8.
 
 > Engine note: the live image/video generate path is currently failing ("Network error", nothing generated since 31 Mar). Diagnostic shipped (`d7ba6d9`). That path becomes Ad Studio's engine, so it must be fixed before Step 3 is end-to-end testable.

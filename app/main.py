@@ -54285,6 +54285,27 @@ def admin_apply_ad_studio_schema(
     })
 
 
+@app.get("/admin/api/ad-studio-persist-test")
+def admin_ad_studio_persist_test(
+    url: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Step-2 verification on prod: download a given public asset URL and copy it
+    to R2, returning our permanent URL. Admin-only, GET (phone-friendly).
+    e.g. ?url=https://picsum.photos/600 — then open the returned url to confirm it
+    serves from our bucket. Writes under ad-assets/_test (safe to leave)."""
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .r2_storage import persist_remote_asset_to_r2
+    try:
+        res = persist_remote_asset_to_r2(url, folder="ad-assets/_test")
+        return JSONResponse({"ok": True, **res})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": f"{type(e).__name__}: {e}"}, status_code=502)
+
+
 @app.post("/api/superscene/upload-image")
 async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
     """Upload an image for image-to-video generation. Stores in R2, returns public URL."""

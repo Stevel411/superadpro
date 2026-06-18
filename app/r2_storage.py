@@ -101,3 +101,82 @@ def is_base64_data(value: str) -> bool:
 def r2_available() -> bool:
     """Check if R2 is configured."""
     return bool(R2_ACCOUNT_ID and R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY and R2_PUBLIC_URL)
+
+
+# ── Ad Studio asset persistence (Step 2) ─────────────────────────
+# Provider result URLs (EvoLink / fal / etc.) are TEMPORARY — they expire within
+# hours. The 30-day gallery, re-download, QR and HTML5 export all depend on us
+# copying the finished asset into our own bucket on completion. This is the spine.
+
+_EXT_TO_CTYPE = {
+    "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",
+    "webp": "image/webp", "gif": "image/gif",
+    "mp4": "video/mp4", "webm": "video/webm", "mov": "video/quicktime",
+    "mp3": "audio/mpeg", "m4a": "audio/mp4", "wav": "audio/wav",
+}
+_CTYPE_TO_EXT = {
+    "image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png",
+    "image/webp": "webp", "image/gif": "gif",
+    "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov",
+    "audio/mpeg": "mp3", "audio/mp4": "m4a", "audio/wav": "wav",
+}
+
+
+def _ext_and_ctype(ctype: str, url: str):
+    """Resolve (ext, content_type) from a response content-type, falling back to
+    the URL path extension, then to a safe binary default."""
+    ctype = (ctype or "").split(";")[0].strip().lower()
+    if ctype in _CTYPE_TO_EXT:
+        ext = _CTYPE_TO_EXT[ctype]
+        return ext, ctype
+    # fall back to the URL's file extension
+    from urllib.parse import urlparse
+    import os as _os
+    path = urlparse(url).path
+    ext = _os.path.splitext(path)[1].lstrip(".").lower()
+    if ext == "jpeg":
+        ext = "jpg"
+    if ext in _EXT_TO_CTYPE:
+        return ext, (ctype or _EXT_TO_CTYPE[ext])
+    return "bin", (ctype or "application/octet-stream")
+
+
+def persist_remote_asset_to_r2(url: str, folder: str = "ad-assets",
+                               max_bytes: int = 60 * 1024 * 1024,
+                               timeout: float = 60.0) -> dict:
+    """Download a remote asset (a provider's temporary result URL) and store a
+    permanent copy in R2. Returns {url, content_type, bytes, ext}.
+
+    SYNC (httpx + boto3). Call from async handlers via
+    ``await asyncio.to_thread(persist_remote_asset_to_r2, url)`` so it never
+    blocks the event loop.
+
+    Raises on failure — callers MUST handle it so a persist failure never
+    silently loses a member's asset (leave the row pending / flag and retry).
+    """
+    import httpx
+
+    if not url:
+        raise ValueError("persist_remote_asset_to_r2: empty url")
+    if not r2_available():
+        raise RuntimeError("R2 not configured — cannot persist asset")
+
+    total = 0
+    chunks = []
+    with httpx.Client(timeout=timeout, follow_redirects=True) as client:
+        with client.stream("GET", url) as resp:
+            resp.raise_for_status()
+            resp_ctype = resp.headers.get("content-type", "")
+            for chunk in resp.iter_bytes():
+                total += len(chunk)
+                if total > max_bytes:
+                    raise ValueError(f"asset exceeds max size ({max_bytes} bytes)")
+                chunks.append(chunk)
+
+    data = b"".join(chunks)
+    if not data:
+        raise ValueError("downloaded asset was empty")
+
+    ext, ctype = _ext_and_ctype(resp_ctype, url)
+    r2_url = upload_image(data, folder, ext=ext, content_type=ctype)
+    return {"url": r2_url, "content_type": ctype, "bytes": total, "ext": ext}
