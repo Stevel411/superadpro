@@ -53958,6 +53958,17 @@ def admin_gen_diag(
     from sqlalchemy import text as _t
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
+    # Ensure the table exists so a missing ROW is unambiguous: it then means the
+    # request died before the first breadcrumb (auth_ok), not that the table was
+    # never created.
+    try:
+        db.execute(_t(
+            "CREATE TABLE IF NOT EXISTS gen_diag (user_id INTEGER PRIMARY KEY, "
+            "step TEXT, detail TEXT, at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'))"
+        ))
+        db.commit()
+    except Exception:
+        db.rollback()
     try:
         row = db.execute(_t(
             "SELECT step, detail, at, "
@@ -53965,10 +53976,12 @@ def admin_gen_diag(
             "FROM gen_diag WHERE user_id = :u"
         ), {"u": user_id}).fetchone()
     except Exception as e:
+        db.rollback()
         return JSONResponse({"ok": True, "found": False,
-                             "note": f"no gen_diag yet ({type(e).__name__}) — reproduce a generate first"})
+                             "note": f"query error ({type(e).__name__})"})
     if not row:
-        return JSONResponse({"ok": True, "found": False, "note": "no breadcrumb yet for this user"})
+        return JSONResponse({"ok": True, "found": False,
+                             "note": "table exists but no breadcrumb for this user — if you just reproduced, the request died before the first step (auth_ok), i.e. in middleware / before the handler body"})
     return JSONResponse({
         "ok": True, "found": True, "step": row.step, "detail": row.detail,
         "at": str(row.at),
