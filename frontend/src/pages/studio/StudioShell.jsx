@@ -11,6 +11,7 @@ const I = {
   grid:   <svg className="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>,
   bolt:   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
   play:   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>,
+  plus:   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>,
   video:  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>,
   image:  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>,
   gallery:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>,
@@ -57,6 +58,7 @@ export default function StudioShell() {
   }, []);
 
   const goDashboard = useCallback(() => navigate('/dashboard'), [navigate]);
+  const goBuy = useCallback(() => navigate('/my-credits'), [navigate]);
 
   const fmt = (n) => (n == null ? '—' : n.toLocaleString());
 
@@ -85,9 +87,10 @@ export default function StudioShell() {
         </nav>
 
         <div className="rightbar">
-          <div className="credits" title="Credit balance — top-up page coming next">
-            <span className="dot" /><b>{fmt(credits)}</b><span>credits</span><span className="plus">+</span>
-          </div>
+          <button className="credits" onClick={goBuy} title="Buy credits">
+            <span className="dot" /><b>{fmt(credits)}</b><span>credits</span>
+            <span className="buy">{I.plus}Buy</span>
+          </button>
           <div className="ttoggle" role="group" aria-label="Theme">
             <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')} title="Dark">{I.moon}</button>
             <button className={theme === 'light' ? 'on' : ''} onClick={() => setTheme('light')} title="Light">{I.sun}</button>

@@ -99,13 +99,16 @@
 .studio-shell .tool.on svg{opacity:1}
 
 .studio-shell .rightbar{display:flex;align-items:center;gap:11px;flex:0 0 auto}
-.studio-shell .credits{display:flex;align-items:center;gap:9px;padding:7px 13px 7px 11px;border-radius:11px;cursor:pointer;
+.studio-shell .credits{display:flex;align-items:center;gap:9px;padding:6px 7px 6px 12px;border-radius:11px;cursor:pointer;font-family:inherit;
   border:1px solid rgba(42,212,238,.3);background:rgba(42,212,238,.09);transition:.16s}
 .studio-shell .credits:hover{border-color:rgba(42,212,238,.55);background:rgba(42,212,238,.14)}
 .studio-shell .credits .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan)}
 .studio-shell .credits b{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13.5px;color:var(--ink)}
 .studio-shell .credits span{font-size:11px;color:var(--muted-2);font-weight:500}
-.studio-shell .credits .plus{margin-left:2px;color:var(--cyan);font-weight:700;font-size:15px;line-height:1}
+.studio-shell .credits .buy{display:inline-flex;align-items:center;gap:3px;margin-left:4px;padding:5px 10px;border-radius:8px;
+  background:linear-gradient(180deg,var(--cyan),var(--cyan-2));color:#06163f;font-weight:700;font-size:11.5px;letter-spacing:.01em}
+.studio-shell .credits .buy svg{width:12px;height:12px}
+.studio-shell .credits:hover .buy{filter:brightness(1.06)}
 .studio-shell .ttoggle{display:flex;padding:4px;gap:3px;border-radius:11px;border:1px solid var(--line);background:var(--inset-2)}
 .studio-shell .ttoggle button{width:32px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--muted-2);cursor:pointer;display:grid;place-items:center;transition:.16s}
 .studio-shell .ttoggle button svg{width:16px;height:16px}
