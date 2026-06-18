@@ -54186,9 +54186,7 @@ async def _sc_generate_impl(request: Request, db: Session):
     # provider ACK can't hang past Cloudflare's edge timeout (which would reach
     # the member as a non-JSON "Network error"). On timeout/error we refund and
     # return a clean, retryable JSON message.
-    # Priority: Grok direct (for grok-video) → fal.ai (cheaper) → EvoLink (fallback)
-    from .fal_provider import is_available as fal_available, generate_video as fal_generate
-    from .grok_imagine import is_available as grok_available, generate_video as grok_generate
+    # All video generation routes to Grok Imagine (xAI) — see _route_generate_video.
 
     _gen_crumb(user.id, "provider_start", f"model={model_key}")
     try:
@@ -58307,38 +58305,30 @@ def bpg_admin_ui(request: Request, db: Session = Depends(get_db)):
 async def _route_generate_video(model_key, prompt, duration, ratio, image_urls=None,
                                 style_refs=None, generate_audio=False, resolution=None,
                                 negative_prompt=None, seed=None):
-    """Submit a video generation through the platform's provider chain:
-    Grok Imagine (direct xAI) -> fal.ai (cheaper) -> EvoLink (fallback).
-    Single source of truth used by both Video Clips and the Explainer pipeline.
-    Returns the provider result dict ({success, task_id, mode} or {success, error});
-    task_id carries a provider prefix (grok:/fal:) so polling can route correctly."""
-    from .fal_provider import is_available as fal_available, generate_video as fal_generate
-    from .grok_imagine import is_available as grok_available, generate_video as grok_generate
-    from .superscene_evolink import generate_video as evolink_generate
-    result = None
-    if grok_available(model_key):
-        logger.info(f"Routing {model_key} to Grok Imagine (direct xAI)")
-        result = await grok_generate(model_key, prompt, duration, ratio,
-            image_urls=image_urls if image_urls else None, generate_audio=generate_audio,
-            resolution=resolution, negative_prompt=negative_prompt if negative_prompt else None, seed=seed)
-        if not result.get("success"):
-            logger.warning(f"Grok Imagine failed for {model_key}, falling back: {result.get('error')}")
-            result = None
-    if result is None and fal_available(model_key) and not style_refs:
-        logger.info(f"Routing {model_key} to fal.ai (cheaper provider)")
-        result = await fal_generate(model_key, prompt, duration, ratio,
-            image_urls=image_urls if image_urls else None, generate_audio=generate_audio,
-            resolution=resolution, negative_prompt=negative_prompt if negative_prompt else None, seed=seed)
-        if not result.get("success"):
-            logger.warning(f"fal.ai failed for {model_key}, falling back to EvoLink: {result.get('error')}")
-            result = None
-    if result is None:
-        logger.info(f"Routing {model_key} to EvoLink")
-        result = await evolink_generate(model_key, prompt, duration, ratio,
-            image_urls=image_urls if image_urls else None, style_refs=style_refs if style_refs else None,
-            generate_audio=generate_audio, resolution=resolution,
-            negative_prompt=negative_prompt if negative_prompt else None, seed=seed)
-    return result
+    """All member video generation routes to Grok Imagine (xAI) — single provider.
+
+    Grok Imagine handles text-to-video and image-to-video natively (1–15s, 480p/720p,
+    native synchronized audio) and is the same xAI account we already fund for every
+    text feature. EvoLink and fal are no longer in the member path (consolidated onto
+    one provider / one bill, 18 Jun 2026). Grok internally caps duration to 15s and
+    resolution to 720p, so any legacy 1080p/30s selection degrades gracefully rather
+    than failing. task_id carries a 'grok:' prefix so polling routes correctly via
+    _route_poll_status.
+
+    NOTE: style_refs (reference-to-video) isn't wired into the Grok provider yet —
+    Grok DOES support up to 7 reference images, so this can be added later; for now
+    reference images are ignored rather than silently routed to a retired provider."""
+    from .grok_imagine import generate_video as grok_generate
+    logger.info(f"Routing video gen to Grok Imagine (model_key={model_key}, "
+                f"i2v={bool(image_urls)}, audio={generate_audio})")
+    return await grok_generate(
+        model_key, prompt, duration, ratio,
+        image_urls=image_urls if image_urls else None,
+        generate_audio=generate_audio,
+        resolution=resolution,
+        negative_prompt=negative_prompt if negative_prompt else None,
+        seed=seed,
+    )
 
 
 async def _route_poll_status(task_id):
