@@ -53919,6 +53919,63 @@ def _sc_idempotency_ready(db) -> bool:
     return _SC_CLIENT_TOKEN_OK
 
 
+def _gen_crumb(user_id, step, detail=""):
+    """TEMP 502 diagnostic: persist the last generate step reached per user in an
+    isolated short-lived session that COMMITS immediately — so a 502 where the
+    worker is killed / the edge gives up (no Python exception we can catch) still
+    records exactly how far the request got. Never raises into generate."""
+    try:
+        from .database import SessionLocal
+        from sqlalchemy import text as _t
+        s = SessionLocal()
+        try:
+            s.execute(_t(
+                "CREATE TABLE IF NOT EXISTS gen_diag (user_id INTEGER PRIMARY KEY, "
+                "step TEXT, detail TEXT, at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'))"
+            ))
+            s.execute(_t(
+                "INSERT INTO gen_diag (user_id, step, detail, at) "
+                "VALUES (:u, :s, :d, now() AT TIME ZONE 'utc') "
+                "ON CONFLICT (user_id) DO UPDATE SET step=:s, detail=:d, at=now() AT TIME ZONE 'utc'"
+            ), {"u": int(user_id or 0), "s": step, "d": (detail or "")[:200]})
+            s.commit()
+        finally:
+            s.close()
+    except Exception:
+        pass
+
+
+@app.get("/admin/api/gen-diag")
+def admin_gen_diag(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read the last generate breadcrumb for a user (TEMP 502 diagnostic). The
+    'step' is the furthest point reached before the worker died; 'age_seconds'
+    confirms it's fresh from a just-now reproduce. Admin-only, GET."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _t
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    try:
+        row = db.execute(_t(
+            "SELECT step, detail, at, "
+            "EXTRACT(EPOCH FROM ((now() AT TIME ZONE 'utc') - at)) AS age_s "
+            "FROM gen_diag WHERE user_id = :u"
+        ), {"u": user_id}).fetchone()
+    except Exception as e:
+        return JSONResponse({"ok": True, "found": False,
+                             "note": f"no gen_diag yet ({type(e).__name__}) — reproduce a generate first"})
+    if not row:
+        return JSONResponse({"ok": True, "found": False, "note": "no breadcrumb yet for this user"})
+    return JSONResponse({
+        "ok": True, "found": True, "step": row.step, "detail": row.detail,
+        "at": str(row.at),
+        "age_seconds": round(float(row.age_s), 1) if row.age_s is not None else None,
+    })
+
+
 @app.post("/api/superscene/generate")
 async def sc_generate(request: Request, db: Session = Depends(get_db)):
     """Thin guard so any crash returns JSON (never a non-JSON 'Network error')
@@ -53953,8 +54010,10 @@ async def _sc_generate_impl(request: Request, db: Session):
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
+    _gen_crumb(user.id, "auth_ok")
 
     body = await request.json()
+    _gen_crumb(user.id, "body_parsed")
     model_key      = body.get("model_key", "kling3")
     prompt         = (body.get("prompt") or "").strip()
     duration       = int(body.get("duration", 10))
@@ -54024,8 +54083,10 @@ async def _sc_generate_impl(request: Request, db: Session):
         raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
 
     # Deduct credits optimistically
+    _gen_crumb(user.id, "balance_ok", f"need={credits_needed} have={credit_row.balance} model={model_key} i2v={bool(image_urls)}")
     credit_row.balance -= credits_needed
     db.commit()
+    _gen_crumb(user.id, "deducted")
 
     # Submit to provider — route based on model, with a hard ceiling so a slow
     # provider ACK can't hang past Cloudflare's edge timeout (which would reach
@@ -54035,6 +54096,7 @@ async def _sc_generate_impl(request: Request, db: Session):
     from .fal_provider import is_available as fal_available, generate_video as fal_generate
     from .grok_imagine import is_available as grok_available, generate_video as grok_generate
 
+    _gen_crumb(user.id, "provider_start", f"model={model_key}")
     try:
         result = await asyncio.wait_for(
             _route_generate_video(
@@ -54067,12 +54129,14 @@ async def _sc_generate_impl(request: Request, db: Session):
 
     if not result["success"]:
         # Refund on failure
+        _gen_crumb(user.id, "provider_done", f"success=False err={str(result.get('error'))[:80]}")
         credit_row.balance += credits_needed
         db.commit()
         raise HTTPException(status_code=502, detail=result.get("error", "Video generation failed"))
 
     task_id = result["task_id"]
     mode = result.get("mode", "text-to-video")
+    _gen_crumb(user.id, "provider_ok", f"task={str(task_id)[:60]}")
 
     # Model name map for display
     model_names = {
