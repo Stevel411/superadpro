@@ -138,6 +138,18 @@ class TierGateMiddleware(BaseHTTPMiddleware):
             except (BadSignature, SignatureExpired, ValueError, TypeError):
                 user = None
 
+        # TEMP 502 diagnostic: record that the request passed the tier-gate
+        # (resolved the user, about to hand off to the handler). If this crumb
+        # is the furthest one, the request dies in get_db / get_current_user /
+        # the handler entry — not in the gate itself.
+        if path == "/api/superscene/generate":
+            try:
+                from .main import _gen_crumb
+                _gen_crumb(user.id if user else 0, "tiergate_pass",
+                           f"admin={bool(user and getattr(user,'is_admin',False))}")
+            except Exception:
+                pass
+
         # Admin bypass — full access regardless of tier
         if user and getattr(user, "is_admin", False):
             return await call_next(request)
