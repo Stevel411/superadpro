@@ -53841,23 +53841,20 @@ def _get_or_create_sc_credits(user_id: int, db) -> "SuperSceneCredit":
 @app.get("/creative-studio")
 async def creative_studio_page(request: Request):
     """Serve the Creative Studio page — handled by React router client-side."""
-    _idx = pathlib.Path("static/app/index.html")
-    if _idx.exists():
-        return HTMLResponse(_idx.read_text())
+    if _get_react_index_html() is not None:
+        return _spa_shell()
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 @app.get("/studio")
 async def studio_page(request: Request):
     """Serve the new full-page Studio (cobalt) — handled by React router client-side."""
-    _idx = pathlib.Path("static/app/index.html")
-    if _idx.exists():
-        return HTMLResponse(_idx.read_text())
+    if _get_react_index_html() is not None:
+        return _spa_shell()
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 @app.get("/superscene")
 async def superscene_page(request: Request):
     """Serve the SuperScene page — handled by React router client-side."""
-    _idx = pathlib.Path("static/app/index.html")
-    if _idx.exists():
-        return HTMLResponse(_idx.read_text())
+    if _get_react_index_html() is not None:
+        return _spa_shell()
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 @app.get("/supercut")
 async def supercut_redirect():
@@ -58596,9 +58593,8 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
 async def content_creator_page(request: Request):
     """Serve the React Content Creator page."""
     import pathlib
-    _idx = pathlib.Path("static/app/index.html")
-    if _idx.exists():
-        return HTMLResponse(_idx.read_text())
+    if _get_react_index_html() is not None:
+        return _spa_shell()
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 @app.post("/api/content-creator/generate")
 async def content_creator_generate(request: Request, db: Session = Depends(get_db)):
