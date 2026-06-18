@@ -20,7 +20,7 @@
   --ink:#eaf1ff; --muted:#c5d4f7; --muted-2:#8ea2d4;
   --cyan:#2ad4ee; --cyan-2:#22a8e6; --cyan-deep:#0bb6d6;
   --cobalt-lite:#3f63e6;
-  --seg-on:linear-gradient(180deg,#eafaff,#bfeefc); --seg-on-ink:#06163f;
+  --seg-on:#eef4fc; --seg-on-ink:#06163f;
   --card:rgba(70,110,220,.06);
   --stage:
     radial-gradient(120% 130% at 72% 16%, rgba(42,212,238,.28), transparent 52%),
