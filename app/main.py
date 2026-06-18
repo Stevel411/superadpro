@@ -54212,6 +54212,79 @@ def admin_apply_superscene_idempotency(
     })
 
 
+@app.get("/admin/api/apply-ad-studio-schema")
+def admin_apply_ad_studio_schema(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: create the ad_assets table that backs Ad Studio (the Creative
+    Studio repositioning). Needed because SKIP_MIGRATIONS=true on production
+    means SQLAlchemy create_all()/run_migrations() don't build it on deploy.
+    Idempotent (CREATE TABLE / INDEX IF NOT EXISTS). Admin-only, GET
+    (phone-friendly). Tap once after the deploy lands."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    results = {}
+
+    # 1) The table.
+    try:
+        db.execute(_text("""
+            CREATE TABLE IF NOT EXISTS ad_assets (
+                id               SERIAL PRIMARY KEY,
+                user_id          INTEGER NOT NULL REFERENCES users(id),
+                kind             VARCHAR(10) NOT NULL DEFAULT 'image',
+                style            VARCHAR(30),
+                asset_url        TEXT,
+                thumb_url        TEXT,
+                destination_type VARCHAR(20) NOT NULL DEFAULT 'capture',
+                destination_url  TEXT,
+                capture_page_id  INTEGER,
+                ad_tag           VARCHAR(40),
+                has_qr           BOOLEAN NOT NULL DEFAULT FALSE,
+                html5_export_url TEXT,
+                client_token     VARCHAR(64),
+                status           VARCHAR(20) DEFAULT 'pending',
+                credits_used     INTEGER NOT NULL DEFAULT 0,
+                created_at       TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'),
+                expires_at       TIMESTAMP,
+                completed_at     TIMESTAMP
+            )
+        """))
+        db.commit()
+        results["table"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["table"] = f"error: {e}"
+        return JSONResponse({"ok": False, "results": results}, status_code=500)
+
+    # 2) Indexes: per-user gallery listing, expiry sweep, idempotency.
+    for ddl in (
+        "CREATE INDEX IF NOT EXISTS idx_ad_assets_user ON ad_assets(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_ad_assets_expires ON ad_assets(expires_at)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS uniq_ad_assets_client_token "
+        "ON ad_assets(user_id, client_token) WHERE client_token IS NOT NULL",
+    ):
+        try:
+            db.execute(_text(ddl))
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            results["index"] = f"error: {e}"
+            return JSONResponse({"ok": False, "results": results}, status_code=500)
+    results["index"] = "ok"
+
+    return JSONResponse({
+        "ok": True,
+        "results": results,
+        "note": "Ad Studio ad_assets table is ready.",
+    })
+
+
 @app.post("/api/superscene/upload-image")
 async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
     """Upload an image for image-to-video generation. Stores in R2, returns public URL."""

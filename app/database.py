@@ -5070,6 +5070,39 @@ class SuperSceneOrder(Base):
     user = relationship("User", foreign_keys=[user_id])
 
 
+class AdAsset(Base):
+    """Ad Studio — one row per generated/saved ad (the Creative Studio
+    repositioning). Image now, video in Phase 2.
+
+    asset_url is OUR R2 copy, never the provider's temporary URL (those expire
+    within hours; the 30-day gallery, re-download, QR and HTML5 export all
+    depend on us persisting the asset on completion). expires_at = created_at +
+    30 days; a daily sweep deletes the R2 object + this row past expiry.
+    capture_page_id references funnel_pages.id logically (no hard FK so a
+    SuperPage delete never cascades a member's ad history)."""
+    __tablename__ = "ad_assets"
+    id               = Column(Integer, primary_key=True, index=True)
+    user_id          = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    kind             = Column(String(10), nullable=False, default="image")   # image|video
+    style            = Column(String(30))                                    # dm|hero|before_after|testimonial|problem_solution|bold
+    asset_url        = Column(Text)                                          # our R2 URL
+    thumb_url        = Column(Text)
+    destination_type = Column(String(20), nullable=False, default="capture") # signup|capture|linkhub|custom
+    destination_url  = Column(Text)                                          # resolved URL incl. ?ad= tag
+    capture_page_id  = Column(Integer, nullable=True)                        # -> funnel_pages.id (logical)
+    ad_tag           = Column(String(40))                                    # tracking slug e.g. dm-03
+    has_qr           = Column(Boolean, nullable=False, default=False)
+    html5_export_url = Column(Text)                                          # R2 URL of clickable-banner export
+    client_token     = Column(String(64), nullable=True, index=True)        # idempotency (per generate attempt)
+    status           = Column(String(20), default="pending")                # pending|ready|failed
+    credits_used     = Column(Integer, nullable=False, default=0)
+    created_at       = Column(DateTime, default=datetime.utcnow)
+    expires_at       = Column(DateTime, index=True)                         # created_at + 30d
+    completed_at     = Column(DateTime)
+
+    user = relationship("User", foreign_keys=[user_id])
+
+
 class SuperScenePipeline(Base):
     """Long-form video pipeline — script to scenes to voiceover to video to assembly."""
     __tablename__ = "superscene_pipelines"
