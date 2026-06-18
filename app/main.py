@@ -54440,7 +54440,13 @@ async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Image must be under 10MB")
 
     try:
-        file_url = r2_upload(data, "superscene", ext=ext_map[ct], content_type=ct)
+        # boto3 put_object is synchronous; on a single-worker async app a direct
+        # call freezes the entire event loop for the upload's duration, stalling
+        # every other request (incl. generate) and triggering edge 502s. Offload
+        # to a worker thread so the loop stays free.
+        file_url = await asyncio.to_thread(
+            r2_upload, data, "superscene", ext_map[ct], ct
+        )
         return {"success": True, "file_url": file_url}
     except Exception as e:
         logger.exception("SuperScene image upload failed")
