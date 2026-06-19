@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
-import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle } from 'lucide-react';
+import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle, Info } from 'lucide-react';
 import CustomSelect from '../components/ui/CustomSelect';
 import MyLeadsHelp from './MyLeadsHelp';
 import { TYPE } from '../styles/typography';
@@ -155,6 +155,8 @@ export default function MyLeads() {
         })}
       </div>
 
+      <AllowanceBar emailStats={emailStats} switchTab={setTab}/>
+
       {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='sequences' && <SeqTab sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash} switchTab={setTab}/>}
@@ -270,6 +272,42 @@ function SeqTab({sequences,refresh,flash}) {
         {!last&&<div style={{flex:1,height:2,background:'var(--sap-border)',margin:'0 4px',marginBottom:24}}/>}
       </div>;})}</div>}
     </div>;}):<div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e2e8f0'}}><Zap size={32} color="var(--sap-text-ghost)" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)'}}>{t('myLeads.noSequences')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)',marginTop:4}}>{t('myLeads.noSequencesDesc')}</div></div>}
+  </div>;
+}
+
+function AllowanceBar({emailStats, switchTab}) {
+  var es = emailStats || {};
+  var dailyLimit = (es.daily_limit != null) ? es.daily_limit : 100;
+  var sentToday = es.sent_today || 0;
+  var freeRemaining = (es.free_remaining != null) ? es.free_remaining : Math.max(0, dailyLimit - sentToday);
+  var credits = es.boost_credits || 0;
+  var totalAvail = (es.total_available != null) ? es.total_available : (freeRemaining + credits);
+  var usedPct = dailyLimit > 0 ? Math.min(100, Math.round((sentToday / dailyLimit) * 100)) : 0;
+  return <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'18px 22px',marginBottom:22,boxShadow:'0 2px 8px rgba(23,37,84,.04)'}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
+      <div style={{display:'flex',alignItems:'center',gap:18,flexWrap:'wrap'}}>
+        <div>
+          <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#64748b',marginBottom:3,letterSpacing:.2}}><Mail size={14}/> Emails you can send right now</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#0f172a',letterSpacing:-.5,lineHeight:1}}>{totalAvail.toLocaleString()}</div>
+        </div>
+        <div style={{width:1,height:46,background:'#e8ecf2'}}/>
+        <div>
+          <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:4}}>Free today</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#16a34a'}}>{freeRemaining}<span style={{fontSize:12,color:'#94a3b8',fontWeight:600}}> / {dailyLimit}</span></div>
+          <div style={{width:100,height:5,background:'#e7f6ec',borderRadius:3,marginTop:6,overflow:'hidden'}}><div style={{height:'100%',width:usedPct+'%',background:'#16a34a',borderRadius:3,transition:'width .3s'}}/></div>
+        </div>
+        <div>
+          <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:4}}>Purchased credits</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#7c3aed'}}>{credits.toLocaleString()}</div>
+          <div style={{fontSize:11,color:'#94a3b8',marginTop:6}}>Never expire</div>
+        </div>
+      </div>
+      <button onClick={function(){if(switchTab)switchTab('boost');}} style={{display:'flex',alignItems:'center',gap:6,padding:'11px 20px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',flexShrink:0}}><Rocket size={14}/> Buy email credits</button>
+    </div>
+    <div style={{display:'flex',alignItems:'flex-start',gap:6,marginTop:14,paddingTop:12,borderTop:'1px solid #f1f5f9',fontSize:12,color:'#64748b',lineHeight:1.5}}>
+      <Info size={14} style={{marginTop:1,flexShrink:0}}/>
+      <span>Your {dailyLimit}/day free allowance refills every day. Autoresponder drips and broadcasts both draw from this same balance — top up with credits (they never expire) for bigger sends.</span>
+    </div>
   </div>;
 }
 
@@ -494,14 +532,14 @@ function BoostTab({emailStats,refresh,flash}) {
     var consented = await ensureConsent();
     if (!consented) return;
     setBuying(pid);
-    apiPost('/api/leads/buy-boost',{pack_id:pid}).then(function(r){setBuying('');flash('+'+(r.credits_added||0)+' email credits added');refresh();}).catch(function(e){setBuying('');flash(e.message,'err');});
+    apiPost('/api/leads/buy-boost',{pack_id:pid}).then(function(r){setBuying('');flash('+'+(r.credits_added||0).toLocaleString()+' credits added — you now have '+(r.total_credits||0).toLocaleString()+' credits');refresh();}).catch(function(e){setBuying('');flash(e.message,'err');});
   }
 
   return <div>
     <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:16}}>
       <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:12}}>{t('myLeads.emailCredits')}</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
-        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.freeToday')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-green)'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:13,color:'var(--sap-text-muted)'}}>of {emailStats.daily_limit||200}</div></div>
+        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.freeToday')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-green)'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:13,color:'var(--sap-text-muted)'}}>of {emailStats.daily_limit||100}</div></div>
         <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.boostCredits')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-purple)'}}>{(emailStats.boost_credits||0).toLocaleString()}</div></div>
         <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.totalAvailable')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-accent)'}}>{(emailStats.total_available||0).toLocaleString()}</div></div>
       </div>
