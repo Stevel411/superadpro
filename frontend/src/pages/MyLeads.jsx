@@ -488,6 +488,7 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
   ];
   var [sel,setSel]=useState('boost_5k');
   var [busy,setBusy]=useState('');
+  var [err,setErr]=useState('');
   if(!show) return null;
   var balance=(emailStats&&emailStats.wallet_balance)||0;
   var pack=packs.filter(function(p){return p.id===sel;})[0]||packs[0];
@@ -496,33 +497,34 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
   var insufficient=balance<price;
 
   async function payWallet(){
-    var ok=await ensureConsent(); if(!ok) return;
+    setErr(''); var ok=await ensureConsent(); if(!ok) return;
     setBusy('wallet');
     apiPost('/api/leads/buy-boost',{pack_id:sel}).then(function(r){
       setBusy('');
       flash('+'+(r.credits_added||0).toLocaleString()+' credits added — you now have '+(r.total_credits||0).toLocaleString()+' credits');
       if(refresh)refresh();
       if(onClose)onClose();
-    }).catch(function(e){setBusy('');flash(e.message,'err');});
+    }).catch(function(e){setBusy('');setErr(e.message||'Could not complete the purchase.');});
   }
   async function payCard(){
-    var ok=await ensureConsent(); if(!ok) return;
+    setErr(''); var ok=await ensureConsent(); if(!ok) return;
     setBusy('card');
     apiPost('/api/stripe/checkout/email-boost',{pack_id:sel}).then(function(d){
       if(d&&d.checkout_url){window.location.href=d.checkout_url;}
-      else{setBusy('');flash((d&&d.error)||'Could not start card checkout','err');}
-    }).catch(function(e){setBusy('');flash(e.message,'err');});
+      else{setBusy('');setErr((d&&d.error)||'Could not start card checkout.');}
+    }).catch(function(e){setBusy('');setErr(e.message||'Card checkout failed.');});
   }
   async function payCrypto(){
-    var ok=await ensureConsent(); if(!ok) return;
+    setErr(''); var ok=await ensureConsent(); if(!ok) return;
     setBusy('crypto');
     apiPost('/api/nowpayments/create-invoice',{product_key:'email_boost_'+credits}).then(function(d){
       if(d&&d.invoice_url){window.location.href=d.invoice_url;}
-      else{setBusy('');flash((d&&d.error)||'Could not start crypto checkout','err');}
-    }).catch(function(e){setBusy('');flash(e.message,'err');});
+      else{setBusy('');setErr((d&&d.error)||'Could not start crypto checkout.');}
+    }).catch(function(e){setBusy('');setErr(e.message||'Crypto checkout failed.');});
   }
 
-  return <div onClick={function(e){if(e.target===e.currentTarget&&!busy&&onClose)onClose();}} style={{position:'fixed',inset:0,zIndex:1000,background:'rgba(15,23,42,.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+  return <>
+    <div onClick={function(e){if(e.target===e.currentTarget&&!busy&&onClose)onClose();}} style={{position:'fixed',inset:0,zIndex:900,background:'rgba(15,23,42,.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
     <div style={{width:'100%',maxWidth:440,background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',padding:'22px 22px 24px',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(15,23,42,.3)'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:2}}>
         <div style={{display:'flex',alignItems:'center',gap:8}}><Rocket size={18} color="#1e3a8a"/><span style={{fontFamily:'Sora,sans-serif',fontSize:17,fontWeight:800,color:'#0f172a'}}>Buy email credits</span></div>
@@ -540,6 +542,7 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
 
       <div style={{borderTop:'1px solid #f1f5f9',paddingTop:14}}>
         <div style={{fontSize:12,color:'#64748b',marginBottom:10}}>Pay ${price} for {credits.toLocaleString()} credits with</div>
+        {err && <div style={{fontSize:12,fontWeight:700,color:'#dc2626',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:8,padding:'8px 12px',marginBottom:10}}>{err}</div>}
 
         <button onClick={payWallet} disabled={!!busy||insufficient} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'12px 14px',borderRadius:10,border:'none',background:(busy||insufficient)?'#cbd5e1':'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:14,fontWeight:700,cursor:(busy||insufficient)?'default':'pointer',fontFamily:'inherit',marginBottom:8}}>
           <span style={{display:'flex',alignItems:'center',gap:8}}><Wallet size={16}/> {busy==='wallet'?'Processing...':'Pay from wallet balance'}</span>
@@ -558,6 +561,7 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
         <div style={{fontSize:11,color:'#94a3b8',marginTop:12,textAlign:'center'}}>Card &amp; crypto open a secure checkout &middot; wallet is instant</div>
       </div>
     </div>
+    </div>
     {consentModal}
-  </div>;
+  </>;
 }
