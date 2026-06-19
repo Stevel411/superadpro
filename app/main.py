@@ -21229,7 +21229,7 @@ async def stripe_checkout_email_boost(
         return result
     except Exception as e:
         logger.exception(f"stripe_checkout_email_boost failed for user {user.id} pack {pack_id}")
-        return JSONResponse({"error": f"checkout_create_failed: {str(e)[:400]}", "detail": str(e)}, status_code=500)
+        return JSONResponse({"error": "We couldn't start card checkout. Please try again or use another method.", "detail": str(e)}, status_code=500)
 
 
 @app.post("/api/stripe/checkout/pif-voucher")
