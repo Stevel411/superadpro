@@ -51884,6 +51884,7 @@ def api_email_stats(request: Request, user: User = Depends(get_current_user), db
         "free_remaining": max(0, DAILY_EMAIL_LIMIT - sent_today),
         "boost_credits": user.email_credits or 0,
         "total_available": max(0, DAILY_EMAIL_LIMIT - sent_today) + (user.email_credits or 0),
+        "wallet_balance": float(user.balance or 0),
         "boost_packs": EMAIL_BOOST_PACKS,
     }
 @app.post("/api/leads/buy-boost")

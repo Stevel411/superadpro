@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
-import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle, Info } from 'lucide-react';
+import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle, Info, X, Wallet, CreditCard, Coins } from 'lucide-react';
 import CustomSelect from '../components/ui/CustomSelect';
 import MyLeadsHelp from './MyLeadsHelp';
 import { TYPE } from '../styles/typography';
@@ -15,7 +15,6 @@ var TAB_CONFIG = [
   { key:'sequences', icon:Zap,      labelKey:'tabSequences' },
   { key:'broadcast', icon:Send,     labelKey:'tabBroadcast' },
   { key:'import',    icon:Upload,   labelKey:'tabImport' },
-  { key:'boost',     icon:Rocket,   labelKey:'tabBoost' },
 ];
 
 // Status style palette — labels come from t() at render time.
@@ -53,6 +52,7 @@ export default function MyLeads() {
   var [msg, setMsg] = useState('');
   var [msgType, setMsgType] = useState('ok');
   var [showHelp, setShowHelp] = useState(false);
+  var [showBuy, setShowBuy] = useState(false);
 
   function flash(t, ty) { setMsg(t); setMsgType(ty || 'ok'); setTimeout(function() { setMsg(''); }, 4000); }
 
@@ -155,13 +155,14 @@ export default function MyLeads() {
         })}
       </div>
 
-      <AllowanceBar emailStats={emailStats} switchTab={setTab} tab={tab}/>
+      <AllowanceBar emailStats={emailStats} onBuy={function(){setShowBuy(true);}}/>
 
       {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='sequences' && <SeqTab sequences={sequences} refresh={refresh} flash={flash}/>}
-      {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash} switchTab={setTab}/>}
+      {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash} refresh={refresh}/>}
       {tab==='import' && <ImpTab stats={stats} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
-      {tab==='boost' && <BoostTab emailStats={emailStats} refresh={refresh} flash={flash}/>}
+
+      <BuyCreditsModal show={showBuy} onClose={function(){setShowBuy(false);}} emailStats={emailStats} refresh={refresh} flash={flash}/>
 
       {/* Help panel — slides in from the right as an overlay */}
       <MyLeadsHelp visible={showHelp} onClose={function(){setShowHelp(false);}}/>
@@ -275,7 +276,7 @@ function SeqTab({sequences,refresh,flash}) {
   </div>;
 }
 
-function AllowanceBar({emailStats, switchTab, tab}) {
+function AllowanceBar({emailStats, onBuy}) {
   var es = emailStats || {};
   var dailyLimit = (es.daily_limit != null) ? es.daily_limit : 100;
   var sentToday = es.sent_today || 0;
@@ -302,7 +303,7 @@ function AllowanceBar({emailStats, switchTab, tab}) {
           <div style={{fontSize:11,color:'#94a3b8',marginTop:6}}>Never expire</div>
         </div>
       </div>
-      {tab!=='boost' && <button onClick={function(){if(switchTab)switchTab('boost');}} style={{display:'flex',alignItems:'center',gap:6,padding:'11px 20px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',flexShrink:0}}><Rocket size={14}/> Buy email credits</button>}
+      <button onClick={function(){if(onBuy)onBuy();}} style={{display:'flex',alignItems:'center',gap:6,padding:'11px 20px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',flexShrink:0}}><Rocket size={14}/> Buy email credits</button>
     </div>
     <div style={{display:'flex',alignItems:'flex-start',gap:6,marginTop:14,paddingTop:12,borderTop:'1px solid #f1f5f9',fontSize:12,color:'#64748b',lineHeight:1.5}}>
       <Info size={14} style={{marginTop:1,flexShrink:0}}/>
@@ -311,17 +312,10 @@ function AllowanceBar({emailStats, switchTab, tab}) {
   </div>;
 }
 
-function BcastTab({leads,lists,flash,switchTab}) {
+function BcastTab({leads,lists,flash,refresh}) {
 
   var { t } = useTranslation();
   var [sub,setSub]=useState('');var [html,setHtml]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');var [s,setS]=useState(false);var [sent,setSent]=useState(null);var [prog,setProg]=useState(null);
-  // Email allowance — fetched on mount + refetched after each send so the
-  // counter reflects what just happened.
-  var [allowance, setAllowance] = useState(null);
-  function loadAllowance() {
-    apiGet('/api/leads/email-stats').then(function(r) { setAllowance(r); }).catch(function() {});
-  }
-  useEffect(function() { loadAllowance(); }, []);
   var ct=leads.filter(function(l){if(l.status==='unsubscribed')return false;if(fL&&l.list_id!==parseInt(fL))return false;if(fS!=='all'){if(fS==='hot')return l.is_hot;return l.status===fS;}return true;}).length;
   function send(){
     if(!sub.trim()){flash('Subject required','err');return;}
@@ -344,7 +338,7 @@ function BcastTab({leads,lists,flash,switchTab}) {
         setSent(sentN);
         var msg='Sent to '+sentN+' of '+totalN+' leads';
         if(failedN>0){var reasons=j.failure_summary||{};var parts=[];Object.keys(reasons).forEach(function(k){parts.push(reasons[k]+' '+k);});if(parts.length)msg=msg+' ('+parts.join(', ')+')';}
-        flash(msg,sentN>0?'ok':'err');loadAllowance();return;
+        flash(msg,sentN>0?'ok':'err');if(refresh)refresh();return;
       }
       setTimeout(function(){pollBroadcast(jobId,0);},2000);
     }).catch(function(){
@@ -355,46 +349,9 @@ function BcastTab({leads,lists,flash,switchTab}) {
     });
   }
 
-  // Banner tone: green if comfortable headroom, amber if close, red if <ct.
-  // Members see exactly what's about to happen before they click Send.
-  var bannerColor='#16a34a'; var bannerBg='#f0fdf4'; var bannerBorder='#bbf7d0';
-  if (allowance) {
-    var totalAvail = (allowance.free_remaining || 0) + (allowance.boost_credits || 0);
-    if (totalAvail < ct) { bannerColor='#dc2626'; bannerBg='#fef2f2'; bannerBorder='#fecaca'; }
-    else if (allowance.free_remaining < 25) { bannerColor='#b45309'; bannerBg='#fffbeb'; bannerBorder='#fde68a'; }
-  }
-
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>{t('myLeads.broadcastTitle')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('myLeads.broadcastDesc')}</div></div>
     <div style={{padding:'20px 24px'}}>
-      {/* Email allowance banner — Partner membership covers a free daily quota.
-          Boost packs add credits that never expire for bigger sends. */}
-      {allowance && (
-        <div style={{
-          display:'flex', alignItems:'center', gap:12, marginBottom:16,
-          padding:'10px 14px', background:bannerBg,
-          border:'1px solid '+bannerBorder, borderRadius:10,
-          fontSize:13, color:bannerColor,
-        }}>
-          <div style={{flex:1}}>
-            <span style={{fontWeight:700}}>{allowance.free_remaining} of {allowance.daily_limit} free emails left today</span>
-            {allowance.boost_credits > 0 && (
-              <span style={{color:'var(--sap-text-muted)', marginLeft:8}}>
-                + {allowance.boost_credits} boost credits
-              </span>
-            )}
-            <div style={{fontSize:11, color:'var(--sap-text-muted)', marginTop:2}}>
-              Your membership includes {allowance.daily_limit}/day. Boost packs from $5 add credits that never expire.
-            </div>
-          </div>
-          <a href="#boost" onClick={function(e){e.preventDefault();if(switchTab)switchTab('boost');}} style={{
-            display:'inline-block', padding:'6px 12px',
-            background:'#fff', border:'1px solid '+bannerBorder,
-            borderRadius:8, color:bannerColor, fontWeight:700,
-            textDecoration:'none', fontSize:12, whiteSpace:'nowrap',
-          }}>Top up</a>
-        </div>
-      )}
       <div style={{display:'flex',gap:10,marginBottom:16}}>
         <div style={{flex:1}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.listLabel')}</label><CustomSelect value={fL} onChange={setFL} options={[{value:'',label:t('myLeads.allLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
         <div style={{flex:1}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.statusLabel')}</label><CustomSelect value={fS} onChange={setFS} options={[{value:'all',label:'All'},{value:'new',label:'New'},{value:'nurturing',label:t('myLeads.nurturing')},{value:'hot',label:'Hot'}]}/></div>
@@ -521,41 +478,86 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
     </div></div>;
 }
 
-function BoostTab({emailStats,refresh,flash}) {
-
-  var { t } = useTranslation();
-  var [buying,setBuying]=useState('');
-  // Purchase consent gate — see app/purchase_consent.py
+function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
   var { ensureConsent, consentModal } = useConsentGate();
-  var packs=emailStats.boost_packs||[{id:'boost_1k',credits:1000,price:5,label:'1,000 Emails',desc:t('myLeads.boost.targeted')},{id:'boost_5k',credits:5000,price:19,label:'5,000 Emails',desc:t('myLeads.boost.multiple')},{id:'boost_10k',credits:10000,price:29,label:'10,000 Emails',desc:t('myLeads.boost.scale')},{id:'boost_50k',credits:50000,price:99,label:'50,000 Emails',desc:t('myLeads.boost.enterprise')}];
-  async function buy(pid){
-    var consented = await ensureConsent();
-    if (!consented) return;
-    setBuying(pid);
-    apiPost('/api/leads/buy-boost',{pack_id:pid}).then(function(r){setBuying('');flash('+'+(r.credits_added||0).toLocaleString()+' credits added — you now have '+(r.total_credits||0).toLocaleString()+' credits');refresh();}).catch(function(e){setBuying('');flash(e.message,'err');});
+  var packs = (emailStats && emailStats.boost_packs) || [
+    {id:'boost_1k',credits:1000,price:5},
+    {id:'boost_5k',credits:5000,price:19},
+    {id:'boost_10k',credits:10000,price:29},
+    {id:'boost_50k',credits:50000,price:99},
+  ];
+  var [sel,setSel]=useState('boost_5k');
+  var [busy,setBusy]=useState('');
+  if(!show) return null;
+  var balance=(emailStats&&emailStats.wallet_balance)||0;
+  var pack=packs.filter(function(p){return p.id===sel;})[0]||packs[0];
+  var price=pack?pack.price:0;
+  var credits=pack?pack.credits:0;
+  var insufficient=balance<price;
+
+  async function payWallet(){
+    var ok=await ensureConsent(); if(!ok) return;
+    setBusy('wallet');
+    apiPost('/api/leads/buy-boost',{pack_id:sel}).then(function(r){
+      setBusy('');
+      flash('+'+(r.credits_added||0).toLocaleString()+' credits added — you now have '+(r.total_credits||0).toLocaleString()+' credits');
+      if(refresh)refresh();
+      if(onClose)onClose();
+    }).catch(function(e){setBusy('');flash(e.message,'err');});
+  }
+  async function payCard(){
+    var ok=await ensureConsent(); if(!ok) return;
+    setBusy('card');
+    apiPost('/api/stripe/checkout/email-boost',{pack_id:sel}).then(function(d){
+      if(d&&d.checkout_url){window.location.href=d.checkout_url;}
+      else{setBusy('');flash((d&&d.error)||'Could not start card checkout','err');}
+    }).catch(function(e){setBusy('');flash(e.message,'err');});
+  }
+  async function payCrypto(){
+    var ok=await ensureConsent(); if(!ok) return;
+    setBusy('crypto');
+    apiPost('/api/nowpayments/create-invoice',{product_key:'email_boost_'+credits}).then(function(d){
+      if(d&&d.invoice_url){window.location.href=d.invoice_url;}
+      else{setBusy('');flash((d&&d.error)||'Could not start crypto checkout','err');}
+    }).catch(function(e){setBusy('');flash(e.message,'err');});
   }
 
-  return <div>
-    <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:16}}>
-      <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:12}}>{t('myLeads.emailCredits')}</div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
-        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.freeToday')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-green)'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:13,color:'var(--sap-text-muted)'}}>of {emailStats.daily_limit||100}</div></div>
-        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.boostCredits')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-purple)'}}>{(emailStats.boost_credits||0).toLocaleString()}</div></div>
-        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.totalAvailable')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-accent)'}}>{(emailStats.total_available||0).toLocaleString()}</div></div>
+  return <div onClick={function(e){if(e.target===e.currentTarget&&!busy&&onClose)onClose();}} style={{position:'fixed',inset:0,zIndex:1000,background:'rgba(15,23,42,.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+    <div style={{width:'100%',maxWidth:440,background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',padding:'22px 22px 24px',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(15,23,42,.3)'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:2}}>
+        <div style={{display:'flex',alignItems:'center',gap:8}}><Rocket size={18} color="#1e3a8a"/><span style={{fontFamily:'Sora,sans-serif',fontSize:17,fontWeight:800,color:'#0f172a'}}>Buy email credits</span></div>
+        <button onClick={function(){if(!busy&&onClose)onClose();}} disabled={!!busy} style={{background:'none',border:'none',cursor:busy?'default':'pointer',color:'#94a3b8',padding:4,display:'flex'}}><X size={18}/></button>
+      </div>
+      <div style={{fontSize:12,color:'#64748b',marginBottom:16}}>Credits never expire</div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:18}}>
+        {packs.map(function(p){var on=p.id===sel;return <div key={p.id} onClick={function(){if(!busy)setSel(p.id);}} style={{cursor:busy?'default':'pointer',border:on?'2px solid #2563eb':'1px solid #e2e8f0',background:on?'#eff6ff':'#fff',borderRadius:10,padding:'10px 14px'}}>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:on?'#1e3a8a':'#0f172a'}}>{(p.credits||0).toLocaleString()}</div>
+          <div style={{fontSize:11,color:'#64748b',marginBottom:4}}>emails</div>
+          <div style={{fontSize:14,fontWeight:700,color:on?'#1e3a8a':'#2563eb'}}>${p.price}</div>
+        </div>;})}
+      </div>
+
+      <div style={{borderTop:'1px solid #f1f5f9',paddingTop:14}}>
+        <div style={{fontSize:12,color:'#64748b',marginBottom:10}}>Pay ${price} for {credits.toLocaleString()} credits with</div>
+
+        <button onClick={payWallet} disabled={!!busy||insufficient} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'12px 14px',borderRadius:10,border:'none',background:(busy||insufficient)?'#cbd5e1':'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:14,fontWeight:700,cursor:(busy||insufficient)?'default':'pointer',fontFamily:'inherit',marginBottom:8}}>
+          <span style={{display:'flex',alignItems:'center',gap:8}}><Wallet size={16}/> {busy==='wallet'?'Processing...':'Pay from wallet balance'}</span>
+          <span style={{fontSize:11,opacity:.85}}>{insufficient?'Low balance':('$'+balance.toFixed(2))}</span>
+        </button>
+
+        <button onClick={payCard} disabled={!!busy} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'12px 14px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#fff',color:'#0f172a',fontSize:14,fontWeight:700,cursor:busy?'default':'pointer',fontFamily:'inherit',marginBottom:8}}>
+          <CreditCard size={16}/> {busy==='card'?'Redirecting...':'Pay by card'}<span style={{marginLeft:'auto',fontSize:11,color:'#94a3b8'}}>via Stripe</span>
+        </button>
+
+        <button onClick={payCrypto} disabled={!!busy} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'12px 14px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#fff',color:'#0f172a',fontSize:14,fontWeight:700,cursor:busy?'default':'pointer',fontFamily:'inherit'}}>
+          <Coins size={16}/> {busy==='crypto'?'Redirecting...':'Pay with crypto'}<span style={{marginLeft:'auto',fontSize:11,color:'#94a3b8'}}>USDT / BNB</span>
+        </button>
+
+        {insufficient && <div style={{fontSize:11,color:'#b45309',marginTop:10,textAlign:'center'}}>Wallet balance is below ${price} — pay by card or crypto instead.</div>}
+        <div style={{fontSize:11,color:'#94a3b8',marginTop:12,textAlign:'center'}}>Card &amp; crypto open a secure checkout &middot; wallet is instant</div>
       </div>
     </div>
-    <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,marginBottom:12}}>{t('myLeads.buyBoostPacks')}</div>
-    <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:10}}>
-      {packs.map(function(pk){var ib=buying===pk.id;return <div key={pk.id} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'18px 20px',display:'flex',flexDirection:'column'}}>
-        <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:2}}>{(pk.label||'').replace(/[^\w\s,]/g,'')}</div>
-        <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:12,flex:1}}>{pk.desc}</div>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-text-primary)'}}>${pk.price}</div>
-          <button onClick={function(){buy(pk.id);}} disabled={ib} style={{padding:'8px 16px',borderRadius:8,border:'none',background:ib?'var(--sap-text-ghost)':'linear-gradient(135deg,#059669,#10b981)',color:'#fff',fontSize:13,fontWeight:700,cursor:ib?'wait':'pointer',fontFamily:'inherit',boxShadow:ib?'none':'0 4px 12px rgba(16,185,129,.3)'}}>{ib?'Buying...':'Buy'}</button>
-        </div>
-      </div>;})}
-    </div>
-    <div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:12,textAlign:'center'}}>{t('myLeads.boostCreditsDesc')}</div>
     {consentModal}
   </div>;
 }
