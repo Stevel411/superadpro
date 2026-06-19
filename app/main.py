@@ -51508,21 +51508,168 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
     _deduct_email_send(user, db, sent_count)
     db.commit()
     return {"ok": True, "sent": sent_count, "total_leads": len(leads)}
+# ── Member broadcast: throttled background job ─────────────────────────────
+# Large member broadcasts used to send synchronously inside the request. On a
+# big list that blew past Cloudflare's ~100s timeout: the client got a 502
+# while the origin kept sending, so a retry double-emailed everyone. It could
+# also burst past Amazon SES's 14 msg/sec production cap. Now the request
+# enqueues a paced background task and returns immediately with a job_id;
+# progress is polled via /api/leads/broadcast-status. Single uvicorn worker
+# (start.py) means this in-process registry is authoritative and shared across
+# all requests — no DB table required (also sidesteps SKIP_MIGRATIONS).
+import uuid as _uuid
+
+_BROADCAST_JOBS = {}      # job_id -> progress dict
+_BROADCAST_ACTIVE = {}    # user_id -> job_id (at most one live broadcast per member)
+_SES_MAX_PER_SEC = 10     # deliberate headroom under the SES 14/sec cap
+
+
+def _broadcast_job_public(job):
+    return {
+        "job_id": job["job_id"], "status": job["status"],
+        "total": job["total"], "sent": job["sent"], "failed": job["failed"],
+        "failure_summary": job["failure_summary"],
+        "started_at": job["started_at"], "finished_at": job["finished_at"],
+        "error": job["error"],
+    }
+
+
+def _prune_broadcast_jobs():
+    """Drop finished jobs older than an hour so the registry can't grow without
+    bound on a long-lived process."""
+    cutoff = datetime.utcnow() - timedelta(hours=1)
+    for jid in [j for j, v in list(_BROADCAST_JOBS.items())
+                if v.get("finished_at") and v["status"] in ("done", "error")]:
+        try:
+            if datetime.fromisoformat(_BROADCAST_JOBS[jid]["finished_at"]) < cutoff:
+                _BROADCAST_JOBS.pop(jid, None)
+        except Exception:
+            pass
+
+
+async def _run_broadcast_job(job_id, user_id, subject, html_content,
+                             filter_status, filter_list_id):
+    """Deliver a member broadcast off-request, paced under the SES rate cap.
+
+    Opens its OWN DB session — the request-scoped session is already closed by
+    the time this task runs. Always clears the per-user active guard on exit so
+    a crash can never wedge a member out of ever broadcasting again.
+    """
+    import time as _time
+    from .database import SessionLocal, MemberLead, EmailSendLog
+    from .brevo_service import send_email, wrap_email_html
+    job = _BROADCAST_JOBS[job_id]
+    db = SessionLocal()
+    try:
+        owner = db.query(User).filter(User.id == user_id).first()
+        if not owner:
+            job["status"] = "error"; job["error"] = "user not found"; return
+        member_name = owner.first_name or owner.username or "SuperAdPro Member"
+        wrapped = wrap_email_html(html_content, member_name)
+        sender_email = (os.getenv("MEMBER_FROM_EMAIL", "").strip() or None)
+
+        q = db.query(MemberLead).filter(MemberLead.user_id == user_id,
+                                        MemberLead.status != "unsubscribed")
+        if filter_list_id:
+            q = q.filter(MemberLead.list_id == filter_list_id)
+        if filter_status and filter_status != "all":
+            if filter_status == "hot":
+                q = q.filter(MemberLead.is_hot == True)
+            else:
+                q = q.filter(MemberLead.status == filter_status)
+        leads = q.all()
+        job["total"] = len(leads)
+        job["status"] = "sending"
+
+        min_interval = 1.0 / float(_SES_MAX_PER_SEC)
+        sent = 0
+        for lead in leads:
+            t0 = _time.monotonic()
+            try:
+                _unsub_url = f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}"
+                wrapped_lead = wrapped.replace("{{unsubscribe_url}}", _unsub_url)
+                result = await send_email(
+                    lead.email, lead.name or "", subject, wrapped_lead,
+                    member_bulk=True, category="marketing",
+                    list_unsubscribe=_unsub_url, sender_email=sender_email)
+            except Exception as e:
+                result = {"ok": False, "error": f"send exception: {e}"}
+
+            if result.get("ok"):
+                sent += 1
+                job["sent"] = sent
+                try:
+                    db.add(EmailSendLog(lead_id=lead.id, sequence_id=None,
+                                        email_index=None,
+                                        brevo_message_id=result.get("message_id", ""),
+                                        status="sent"))
+                    lead.emails_sent = (lead.emails_sent or 0) + 1
+                except Exception as e:
+                    print(f"[broadcast/{job_id}] EmailSendLog write failed lead {lead.id}: {e}")
+            else:
+                job["failed"] += 1
+                err = (result.get("error") or "unknown error").lower()
+                if "block" in err or "unsubscribe" in err:
+                    bucket = "blocked or unsubscribed"
+                elif "bounce" in err or "does not exist" in err:
+                    bucket = "invalid email address"
+                elif "quota" in err or "credit" in err or "limit" in err:
+                    bucket = "send quota reached"
+                elif "key" in err or "auth" in err:
+                    bucket = "email service configuration"
+                else:
+                    bucket = "other"
+                job["failure_summary"][bucket] = job["failure_summary"].get(bucket, 0) + 1
+
+            # Periodic commit so the audit trail survives a mid-run restart.
+            if (sent + job["failed"]) % 25 == 0:
+                try:
+                    db.commit()
+                except Exception:
+                    db.rollback()
+
+            # Pace under the SES cap (each ses_send opens its own SMTP
+            # connection so this is already gentle, but the floor guarantees it).
+            elapsed = _time.monotonic() - t0
+            if elapsed < min_interval:
+                await asyncio.sleep(min_interval - elapsed)
+
+        try:
+            _deduct_email_send(owner, db, sent)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            print(f"[broadcast/{job_id}] final commit failed: {e}")
+        job["status"] = "done"
+    except Exception as e:
+        job["status"] = "error"
+        job["error"] = str(e)
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        print(f"[broadcast/{job_id}] FATAL: {e}")
+    finally:
+        job["finished_at"] = datetime.utcnow().isoformat()
+        db.close()
+        _BROADCAST_ACTIVE.pop(user_id, None)
+
+
 @app.post("/api/leads/broadcast")
 async def api_broadcast_email(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Send a one-off broadcast email to all leads or a filtered set.
+    """Enqueue a one-off broadcast to all leads or a filtered set.
 
-    Each send is logged to EmailSendLog (sequence_id=NULL, email_index=NULL)
-    so broadcast history is queryable. Per-recipient failures are captured
-    in the response 'failures' array and (when debug=1) returned with full
-    error detail so support can diagnose 'sent: 0' reports without guessing.
+    Returns immediately with a job_id; the actual sending runs in a paced
+    background task (<= SES 14/sec cap) and progress is polled via
+    /api/leads/broadcast-status. This removes the old synchronous send that
+    timed out behind Cloudflare on big lists and double-sent on retry.
 
-    Updated 14 May 2026 after David Smith (SAP-00179) reported 'sent: 0'
-    despite Brevo logs confirming successful delivery. Prior version
-    silently dropped error messages and wrote nothing to EmailSendLog,
-    leaving no audit trail for broadcast support cases.
+    At most one live broadcast per member: a second request while one is in
+    flight returns the SAME job_id (already_running) rather than starting a
+    duplicate — the structural guard against double-emailing a list.
     """
-    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
     # Account-wide send pause: set automatically when a spam complaint is
     # attributed to this member's lead sending (SES SNS webhook). One bad
     # sender must not be able to damage platform-wide deliverability. Lifted
@@ -51533,22 +51680,30 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
                      "complaint from one of your contacts. Please contact support "
                      "to review and re-enable sending."
         }, status_code=403)
+
+    # Already broadcasting? Hand back the live job so the client just attaches
+    # to it — never spin up a second concurrent send to the same list.
+    existing_id = _BROADCAST_ACTIVE.get(user.id)
+    if existing_id and existing_id in _BROADCAST_JOBS:
+        j = _BROADCAST_JOBS[existing_id]
+        if j["status"] in ("queued", "sending"):
+            out = {"ok": True, "already_running": True}
+            out.update(_broadcast_job_public(j))
+            return out
+
     body = await request.json()
     subject = (body.get("subject") or "").strip()
     html_content = body.get("html_content") or ""
-    filter_status = body.get("filter_status", "all")  # all, new, nurturing, hot
-    filter_list_id = body.get("list_id")  # optional — broadcast to specific list only
-    if not subject: return JSONResponse({"error": "Subject required"}, status_code=400)
-    if not html_content: return JSONResponse({"error": "Email content required"}, status_code=400)
+    filter_status = body.get("filter_status", "all")
+    filter_list_id = body.get("list_id")
+    if not subject:
+        return JSONResponse({"error": "Subject required"}, status_code=400)
+    if not html_content:
+        return JSONResponse({"error": "Email content required"}, status_code=400)
 
-    # Optional debug flag — only honoured for admins. Returns the full per-
-    # recipient error list with reasons. Members get a sanitised summary.
-    debug = (request.query_params.get("debug") == "1") and bool(getattr(user, "is_admin", False))
-
-    from .database import MemberLead, EmailSendLog
-    from .brevo_service import send_email, wrap_email_html
-
-    q = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.status != "unsubscribed")
+    from .database import MemberLead
+    q = db.query(MemberLead).filter(MemberLead.user_id == user.id,
+                                    MemberLead.status != "unsubscribed")
     if filter_list_id:
         q = q.filter(MemberLead.list_id == filter_list_id)
     if filter_status != "all":
@@ -51556,76 +51711,39 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
             q = q.filter(MemberLead.is_hot == True)
         else:
             q = q.filter(MemberLead.status == filter_status)
-    leads = q.all()
+    total = q.count()
+    if total == 0:
+        return JSONResponse({"error": "No recipients match that filter"}, status_code=400)
 
-    # Rate limit check
-    allowed, reason = _check_email_allowance(user, db, len(leads))
+    # Reserve the whole send against the member's daily allowance up front so a
+    # huge list can't blow the platform's email quota mid-run.
+    allowed, reason = _check_email_allowance(user, db, total)
     if not allowed:
         return JSONResponse({"error": reason}, status_code=429)
 
-    member_name = user.first_name or user.username or "SuperAdPro Member"
-    wrapped = wrap_email_html(html_content, member_name)
-    sent = 0
-    failures = []   # admin/debug payload — per-recipient error detail
-    failure_reasons = {}  # member-safe summary — counter of reason buckets
-
-    for lead in leads:
-        _unsub_url = f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}"
-        wrapped_lead = wrapped.replace("{{unsubscribe_url}}", _unsub_url)
-        result = await send_email(lead.email, lead.name or "", subject, wrapped_lead, member_bulk=True,
-                                  category="marketing", list_unsubscribe=_unsub_url,
-                                  sender_email=(os.getenv("MEMBER_FROM_EMAIL", "").strip() or None))
-        if result.get("ok"):
-            sent += 1
-            # Log to EmailSendLog so broadcast history is auditable.
-            # sequence_id=None, email_index=None distinguishes broadcasts
-            # from sequence sends — recent_email_sends queries can filter
-            # on those columns to separate broadcast vs autoresponder.
-            try:
-                log = EmailSendLog(
-                    lead_id=lead.id,
-                    sequence_id=None,
-                    email_index=None,
-                    brevo_message_id=result.get("message_id", ""),
-                    status="sent",
-                )
-                db.add(log)
-                lead.emails_sent = (lead.emails_sent or 0) + 1
-            except Exception as e:
-                # Logging failure must NOT cause us to undercount sends.
-                # The email DID go out — surface it but keep the count.
-                print(f"[broadcast] EmailSendLog write failed for lead {lead.id}: {e}")
-        else:
-            # Capture failure with full detail for admin debug, summary for member
-            err = result.get("error", "unknown error")
-            failures.append({"lead_id": lead.id, "email": lead.email, "error": err})
-            # Bucket: blocked / bounced / quota / config / other
-            err_low = err.lower()
-            if "block" in err_low or "unsubscribe" in err_low:
-                bucket = "blocked or unsubscribed"
-            elif "bounce" in err_low or "does not exist" in err_low:
-                bucket = "invalid email address"
-            elif "quota" in err_low or "credit" in err_low or "limit" in err_low:
-                bucket = "send quota reached"
-            elif "key" in err_low or "auth" in err_low:
-                bucket = "email service configuration"
-            else:
-                bucket = "other"
-            failure_reasons[bucket] = failure_reasons.get(bucket, 0) + 1
-
-    _deduct_email_send(user, db, sent)
-    db.commit()
-
-    response = {
-        "ok": True,
-        "sent": sent,
-        "total": len(leads),
-        "failed": len(failures),
-        "failure_summary": failure_reasons,  # safe to show members
+    _prune_broadcast_jobs()
+    job_id = _uuid.uuid4().hex
+    _BROADCAST_JOBS[job_id] = {
+        "job_id": job_id, "user_id": user.id, "status": "queued",
+        "total": total, "sent": 0, "failed": 0, "failure_summary": {},
+        "started_at": datetime.utcnow().isoformat(), "finished_at": None,
+        "error": None,
     }
-    if debug:
-        response["failures"] = failures  # admin-only full detail
-    return response
+    _BROADCAST_ACTIVE[user.id] = job_id
+    asyncio.create_task(_run_broadcast_job(
+        job_id, user.id, subject, html_content, filter_status, filter_list_id))
+    return {"ok": True, "job_id": job_id, "total": total, "status": "queued"}
+
+
+@app.get("/api/leads/broadcast-status")
+def api_broadcast_status(job_id: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Progress for a broadcast job started by the current member."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    job = _BROADCAST_JOBS.get(job_id)
+    if not job or job.get("user_id") != user.id:
+        return JSONResponse({"error": "Job not found"}, status_code=404)
+    return _broadcast_job_public(job)
 
 @app.delete("/api/leads/{lead_id}")
 def api_delete_lead(lead_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):

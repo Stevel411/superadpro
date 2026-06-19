@@ -276,7 +276,7 @@ function SeqTab({sequences,refresh,flash}) {
 function BcastTab({leads,lists,flash,switchTab}) {
 
   var { t } = useTranslation();
-  var [sub,setSub]=useState('');var [html,setHtml]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');var [s,setS]=useState(false);var [sent,setSent]=useState(null);
+  var [sub,setSub]=useState('');var [html,setHtml]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');var [s,setS]=useState(false);var [sent,setSent]=useState(null);var [prog,setProg]=useState(null);
   // Email allowance — fetched on mount + refetched after each send so the
   // counter reflects what just happened.
   var [allowance, setAllowance] = useState(null);
@@ -285,7 +285,37 @@ function BcastTab({leads,lists,flash,switchTab}) {
   }
   useEffect(function() { loadAllowance(); }, []);
   var ct=leads.filter(function(l){if(l.status==='unsubscribed')return false;if(fL&&l.list_id!==parseInt(fL))return false;if(fS!=='all'){if(fS==='hot')return l.is_hot;return l.status===fS;}return true;}).length;
-  function send(){if(!sub.trim()){flash('Subject required','err');return;}setS(true);apiPost('/api/leads/broadcast',{subject:sub,html_content:html,filter_status:fS,list_id:fL?parseInt(fL):null}).then(function(r){setS(false);setSent(r.sent||0);var sentN=r.sent||0;var totalN=r.total||0;var failedN=r.failed||0;var msg='Sent to '+sentN+' of '+totalN+' leads';if(failedN>0){var reasons=r.failure_summary||{};var parts=[];Object.keys(reasons).forEach(function(k){parts.push(reasons[k]+' '+k);});if(parts.length)msg=msg+' ('+parts.join(', ')+')';}flash(msg,sentN>0?'ok':'err');loadAllowance();}).catch(function(e){setS(false);flash(e.message,'err');});}
+  function send(){
+    if(!sub.trim()){flash('Subject required','err');return;}
+    setS(true);setSent(null);setProg(null);
+    apiPost('/api/leads/broadcast',{subject:sub,html_content:html,filter_status:fS,list_id:fL?parseInt(fL):null}).then(function(r){
+      if(!r||!r.job_id){setS(false);flash((r&&r.error)||'Could not start broadcast','err');return;}
+      if(r.already_running)flash('A broadcast is already sending — showing its progress','ok');
+      setProg({sent:r.sent||0,total:r.total||0,failed:r.failed||0,status:r.status||'queued'});
+      pollBroadcast(r.job_id,0);
+    }).catch(function(e){setS(false);flash(e.message,'err');});
+  }
+  function pollBroadcast(jobId,fails){
+    fails=fails||0;
+    apiGet('/api/leads/broadcast-status?job_id='+encodeURIComponent(jobId)).then(function(j){
+      setProg({sent:j.sent||0,total:j.total||0,failed:j.failed||0,status:j.status});
+      if(j.status==='done'||j.status==='error'){
+        setS(false);setProg(null);
+        if(j.status==='error'){flash(j.error||'Broadcast failed','err');return;}
+        var sentN=j.sent||0,totalN=j.total||0,failedN=j.failed||0;
+        setSent(sentN);
+        var msg='Sent to '+sentN+' of '+totalN+' leads';
+        if(failedN>0){var reasons=j.failure_summary||{};var parts=[];Object.keys(reasons).forEach(function(k){parts.push(reasons[k]+' '+k);});if(parts.length)msg=msg+' ('+parts.join(', ')+')';}
+        flash(msg,sentN>0?'ok':'err');loadAllowance();return;
+      }
+      setTimeout(function(){pollBroadcast(jobId,0);},2000);
+    }).catch(function(){
+      // Transient blip — retry a few times before giving up so a momentary
+      // network hiccup doesn't abandon a send that's still running server-side.
+      if(fails>=4){setS(false);setProg(null);flash('Lost track of the broadcast — it may still be sending. Check back shortly.','err');return;}
+      setTimeout(function(){pollBroadcast(jobId,fails+1);},3000);
+    });
+  }
 
   // Banner tone: green if comfortable headroom, amber if close, red if <ct.
   // Members see exactly what's about to happen before they click Send.
@@ -334,7 +364,8 @@ function BcastTab({leads,lists,flash,switchTab}) {
       </div>
       <div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.subjectLabel')}</label><input value={sub} onChange={function(e){setSub(e.target.value);}} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
       <div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.contentLabel')}</label><RichTextEditor content={html} onChange={setHtml} placeholder={t("myLeads.broadcastBodyPlaceholder")}/></div>
-      <button onClick={send} disabled={s} style={{display:'flex',alignItems:'center',gap:6,padding:'12px 24px',borderRadius:10,border:'none',background:s?'var(--sap-text-ghost)':'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',fontSize:13,fontWeight:800,cursor:s?'default':'pointer',fontFamily:'Sora,sans-serif'}}><Send size={14}/>{s?'Sending...':'Send to '+ct}</button>
+      <button onClick={send} disabled={s} style={{display:'flex',alignItems:'center',gap:6,padding:'12px 24px',borderRadius:10,border:'none',background:s?'var(--sap-text-ghost)':'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',fontSize:13,fontWeight:800,cursor:s?'default':'pointer',fontFamily:'Sora,sans-serif'}}><Send size={14}/>{s?(prog&&prog.total?('Sending '+prog.sent+'/'+prog.total):'Starting…'):'Send to '+ct}</button>
+      {s&&<div style={{marginTop:10,fontSize:12,fontWeight:700,color:'var(--sap-text-muted)'}}>{prog&&prog.total?('Sending in the background — '+prog.sent+' of '+prog.total+' sent'+(prog.failed?(' · '+prog.failed+' failed'):'')+'. You can leave this page.'):'Starting broadcast…'}</div>}
       {sent!==null&&<div style={{marginTop:10,fontSize:12,fontWeight:700,color:'var(--sap-green)'}}>{t('myLeads.sentToLeads')} {sent} {t('myLeads.leads')}</div>}
     </div></div>;
 }
