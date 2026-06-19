@@ -107,6 +107,7 @@ REFUND_SHARES = {
     "founder_renewal":     0.33,
     "campaign_tier":       0.05,   # 5% admin only
     "nexus_pack":          0.15,   # 15% company / 85% affiliates
+    "email_boost":         1.00,   # email credits: pure company revenue, no commission split
     "custom_domain":       1.00,   # one-time fee, no commission split — fully refundable
     # 23 May 2026: 'course' and 'creative_credits' removed — those products
     # are no longer applicable on the platform per Steve's call.

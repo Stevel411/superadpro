@@ -21185,6 +21185,53 @@ async def stripe_checkout_nexus_pack(
         return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
 
 
+@app.post("/api/stripe/checkout/email-boost")
+async def stripe_checkout_email_boost(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create a one-time Stripe Checkout session for an Email Boost credit pack.
+
+    Body (JSON): { pack_id: 'boost_1k' | 'boost_5k' | 'boost_10k' | 'boost_50k' }
+
+    Active members only (matches the wallet + crypto + BSC rails). On payment,
+    _stripe_handle_checkout_completed credits user.email_credits from the
+    session metadata — single source of fulfilment, idempotent on session id.
+
+    Returns: { checkout_url, session_id }
+    """
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
+    if not user:
+        return JSONResponse({"error": "auth_required"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({"error": "membership_required", "detail": "Email credits are available to active members only."}, status_code=403)
+
+    body = await request.json()
+    pack_id = (body.get("pack_id") or body.get("pack_key") or "").strip()
+    pack = next((p for p in EMAIL_BOOST_PACKS if p["id"] == pack_id), None)
+    if not pack:
+        return JSONResponse({"error": "invalid_pack", "detail": f"Unknown pack '{pack_id}'. Valid: {[p['id'] for p in EMAIL_BOOST_PACKS]}"}, status_code=400)
+
+    amount_cents = int(round(float(pack["price"]) * 100))
+    credits = int(pack["credits"])
+    try:
+        result = _stripe.create_checkout_session(
+            user=user,
+            db_session=db,
+            product_kind="email_boost",
+            amount_cents=amount_cents,
+            success_path="/pro/leads?credits=success",
+            cancel_path="/pro/leads",
+            extra_metadata={"email_boost_credits": str(credits), "email_boost_pack": pack_id},
+        )
+        return result
+    except Exception as e:
+        logger.exception(f"stripe_checkout_email_boost failed for user {user.id} pack {pack_id}")
+        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
+
+
 @app.post("/api/stripe/checkout/pif-voucher")
 async def stripe_checkout_pif_voucher(
     request: Request,
@@ -21649,6 +21696,36 @@ def _stripe_handle_checkout_completed(db, session, event):
                     logger.error(f"Stripe Nexus pack failed: user={user.id} pack={pack_key} err={result.get('error')}")
             except Exception as e:
                 logger.exception(f"nexus_pack activation crashed for user {user.id}")
+
+        elif product_kind == "email_boost":
+            # Email Boost credits — add the purchased credits to the member's
+            # non-expiring email_credits balance. Mirrors the wallet
+            # (/api/leads/buy-boost) and crypto/BSC (_nowpayments_activate_product
+            # email_boost) rails: same flat grant, no commission split. The credit
+            # count rides in metadata from checkout creation so the webhook is the
+            # single source of fulfilment.
+            #
+            # Idempotency: stripe_session_id is NOT unique on stripe_charges, so a
+            # re-delivered checkout.session.completed would otherwise double-credit.
+            # Guard on a PRIOR email_boost charge row for this same session (the
+            # row written above this dispatch is excluded by id).
+            try:
+                credits = int(metadata.get("email_boost_credits", 0) or 0)
+                prior = db.query(StripeCharge).filter(
+                    StripeCharge.stripe_session_id == session.get("id"),
+                    StripeCharge.product == "email_boost",
+                    StripeCharge.id != charge.id,
+                ).first()
+                if prior:
+                    logger.info(f"Stripe email_boost re-delivery for session {session.get('id')} — credits already granted, skipping")
+                elif credits > 0:
+                    user.email_credits = (user.email_credits or 0) + credits
+                    db.add(user)
+                    logger.info(f"Stripe Email Boost: user={user.id} +{credits} credits (session {session.get('id')})")
+                else:
+                    logger.error(f"Stripe email_boost with no credits in metadata: user={user.id} session={session.get('id')}")
+            except Exception as e:
+                logger.exception(f"email_boost activation crashed for user {user.id}")
 
         elif product_kind == "pif_voucher":
             # Pay It Forward gift voucher — creates a GiftVoucher row in
