@@ -45783,7 +45783,8 @@ def _send_sequence_email(db, lead, email_index: int):
         body_html = wrap_email_html(body_html, owner_name)
 
     # Fill the per-lead unsubscribe link the wrapper injects (app-owned, SES-safe).
-    body_html = body_html.replace("{{unsubscribe_url}}", f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}")
+    _unsub_url = f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}"
+    body_html = body_html.replace("{{unsubscribe_url}}", _unsub_url)
 
     # ── Quota enforcement — daily free limit + boost credits ──
     # Prevents a member with a large lead list from silently blowing through
@@ -45805,7 +45806,9 @@ def _send_sequence_email(db, lead, email_index: int):
     body_html = _rewrite_email_links(body_html, lead.id, lead.email_sequence_id, email_index, site_url)
 
     from .email_utils import send_email
-    send_result = send_email(lead.email, subject, body_html, return_message_id=True, member_bulk=True)
+    send_result = send_email(lead.email, subject, body_html, return_message_id=True,
+                             member_bulk=True, category="marketing", list_unsubscribe=_unsub_url,
+                             from_email=(os.getenv("MEMBER_FROM_EMAIL", "").strip() or None))
     if isinstance(send_result, tuple):
         success, brevo_msg_id = send_result
     else:
@@ -51487,9 +51490,12 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
         subject = email_data.get("subject", f"Email {email_idx + 1}")
         body_html = email_data.get("body_html", "")
         member_name = user.first_name or user.username or "SuperAdPro Member"
-        wrapped = wrap_email_html(body_html, member_name)
+        _unsub_url = f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}"
+        wrapped = wrap_email_html(body_html, member_name).replace("{{unsubscribe_url}}", _unsub_url)
 
-        result = await send_email(lead.email, lead.name or "", subject, wrapped, member_bulk=True)
+        result = await send_email(lead.email, lead.name or "", subject, wrapped, member_bulk=True,
+                                  category="marketing", list_unsubscribe=_unsub_url,
+                                  sender_email=(os.getenv("MEMBER_FROM_EMAIL", "").strip() or None))
         if result.get("ok"):
             lead.emails_sent = (lead.emails_sent or 0) + 1
             log = EmailSendLog(
@@ -51564,7 +51570,11 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
     failure_reasons = {}  # member-safe summary — counter of reason buckets
 
     for lead in leads:
-        result = await send_email(lead.email, lead.name or "", subject, wrapped, member_bulk=True)
+        _unsub_url = f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}"
+        wrapped_lead = wrapped.replace("{{unsubscribe_url}}", _unsub_url)
+        result = await send_email(lead.email, lead.name or "", subject, wrapped_lead, member_bulk=True,
+                                  category="marketing", list_unsubscribe=_unsub_url,
+                                  sender_email=(os.getenv("MEMBER_FROM_EMAIL", "").strip() or None))
         if result.get("ok"):
             sent += 1
             # Log to EmailSendLog so broadcast history is auditable.
