@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
@@ -8,6 +8,14 @@ import CustomSelect from '../components/ui/CustomSelect';
 import MyLeadsHelp from './MyLeadsHelp';
 import { TYPE } from '../styles/typography';
 import { useConsentGate } from '../components/PurchaseConsentModal';
+
+// Self-custody (BSC) rail components are heavy (wagmi/viem ~150kB) — lazy-load
+// them so they're only fetched if a member actually picks the wallet rail.
+var _wcModule = null;
+function _loadWC() { if (!_wcModule) _wcModule = import('../components/WalletConnect'); return _wcModule; }
+var WalletConnectProvider = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletConnectProvider }; }); });
+var WalletConnectGate = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletConnectGate }; }); });
+var WalletPayLink = lazy(function() { return _loadWC().then(function(m) { return { default: m.WalletPayLink }; }); });
 
 // Tab configuration — keys + icons only. Labels come from t() inside component.
 var TAB_CONFIG = [
@@ -489,6 +497,8 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
   var [sel,setSel]=useState('boost_5k');
   var [busy,setBusy]=useState('');
   var [err,setErr]=useState('');
+  var [showWallet,setShowWallet]=useState(false);
+  useEffect(function(){ if(!show){ setShowWallet(false); setErr(''); } },[show]);
   if(!show) return null;
   var balance=(emailStats&&emailStats.wallet_balance)||0;
   var pack=packs.filter(function(p){return p.id===sel;})[0]||packs[0];
@@ -522,6 +532,11 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
       else{setBusy('');setErr((d&&d.error)||'Could not start crypto checkout.');}
     }).catch(function(e){setBusy('');setErr(e.message||'Crypto checkout failed.');});
   }
+  function onWalletPaid(){
+    flash('+'+credits.toLocaleString()+' credits added — payment confirmed on-chain');
+    if(refresh)refresh();
+    if(onClose)onClose();
+  }
 
   return <>
     <div onClick={function(e){if(e.target===e.currentTarget&&!busy&&onClose)onClose();}} style={{position:'fixed',inset:0,zIndex:900,background:'rgba(15,23,42,.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
@@ -554,8 +569,27 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
         </button>
 
         <button onClick={payCrypto} disabled={!!busy} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'12px 14px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#fff',color:'#0f172a',fontSize:14,fontWeight:700,cursor:busy?'default':'pointer',fontFamily:'inherit'}}>
-          <Coins size={16}/> {busy==='crypto'?'Redirecting...':'Pay with crypto'}<span style={{marginLeft:'auto',fontSize:11,color:'#94a3b8'}}>USDT / BNB</span>
+          <Coins size={16}/> {busy==='crypto'?'Redirecting...':'Pay with crypto'}<span style={{marginLeft:'auto',fontSize:11,color:'#94a3b8'}}>hosted checkout</span>
         </button>
+
+        {!showWallet ? (
+          <button onClick={function(){if(!busy){setErr('');setShowWallet(true);}}} disabled={!!busy} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'12px 14px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#fff',color:'#0f172a',fontSize:14,fontWeight:700,cursor:busy?'default':'pointer',fontFamily:'inherit',marginTop:8}}>
+            <Wallet size={16}/> Pay direct from your wallet<span style={{marginLeft:'auto',fontSize:11,color:'#94a3b8'}}>BSC &middot; self-custody</span>
+          </button>
+        ) : (
+          <div style={{marginTop:8,border:'1.5px solid #e2e8f0',borderRadius:10,padding:'12px 14px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+              <span style={{fontSize:12,color:'#64748b'}}>USDT on BNB Chain &mdash; keep the fee savings</span>
+              <button onClick={function(){setShowWallet(false);}} style={{background:'none',border:'none',color:'#94a3b8',cursor:'pointer',fontSize:11,fontWeight:700}}>Cancel</button>
+            </div>
+            <Suspense fallback={<div style={{fontSize:12,color:'#94a3b8',textAlign:'center',padding:'10px 0'}}>Loading wallet&hellip;</div>}>
+              <WalletConnectProvider onBeforeClick={ensureConsent}>
+                <WalletConnectGate hideWhenConnected label={'Connect wallet to pay $'+price} style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'none',fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#ea580c,#f97316)',fontFamily:'inherit',cursor:'pointer'}}/>
+                <WalletPayLink productType="email_boost" productKey={'email_boost_'+credits} onSuccess={onWalletPaid} label={'Pay $'+price+' with wallet'} style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'none',fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#1e3a8a,#2563eb)',fontFamily:'inherit',cursor:'pointer',marginTop:8}}/>
+              </WalletConnectProvider>
+            </Suspense>
+          </div>
+        )}
 
         {insufficient && <div style={{fontSize:11,color:'#b45309',marginTop:10,textAlign:'center'}}>Wallet balance is below ${price} — pay by card or crypto instead.</div>}
         <div style={{fontSize:11,color:'#94a3b8',marginTop:12,textAlign:'center'}}>Card &amp; crypto open a secure checkout &middot; wallet is instant</div>
