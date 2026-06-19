@@ -505,6 +505,29 @@ async def startup_event():
     except Exception as e:
         print(f"⚠️ Migrations skipped: {e}")
 
+    # ── SES governor: reconcile today's send count from the durable log ──
+    # The daily soft cap lives in mailer module state (single worker). A mid-day
+    # restart would otherwise reset it to zero and allow up to a second full cap
+    # before midnight. Seed it from EmailSendLog (one row per member send today)
+    # so the cap survives deploys. Best-effort — never blocks startup.
+    try:
+        from .database import SessionLocal, EmailSendLog
+        from sqlalchemy import func
+        from . import mailer as _mailer
+        _today_utc = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        _s = SessionLocal()
+        try:
+            _n = _s.query(func.count(EmailSendLog.id)).filter(
+                EmailSendLog.sent_at >= _today_utc,
+                EmailSendLog.status == "sent",
+            ).scalar() or 0
+        finally:
+            _s.close()
+        _mailer.reconcile_daily_count(int(_n))
+        print(f"✅ SES daily counter reconciled ({_n} sent today)")
+    except Exception as e:
+        print(f"⚠️ SES counter reconcile skipped: {e}")
+
     # ── One-time cleanup (Apr 2026): pause Tier-0 campaigns ──
     # Before today, the create-campaign endpoint had a `or 1` fallback that
     # let users with no Campaign Tier purchase silently create campaigns
@@ -61897,6 +61920,31 @@ def admin_ses_test_send(request: Request, to: str = "",
         "smtp_user_set": bool(os.getenv("SES_SMTP_USER", "").strip()),
         "smtp_pass_set": bool(os.getenv("SES_SMTP_PASS", "").strip()),
     }
+
+
+@app.get("/admin/api/ses-capacity")
+def admin_ses_capacity(request: Request,
+                       user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Live view of the global SES governor — how close the platform is to the
+    daily soft cap, and the configured per-second floor. Tappable from an admin
+    session: /admin/api/ses-capacity
+
+    Use this to (a) see real daily volume against your AWS quota, and (b) confirm
+    SES_DAILY_SOFT_CAP / SES_MAX_PER_SEC are set sensibly below the live AWS
+    account limits. The 'sent_today' figure is the authoritative in-process count
+    (reconciled from EmailSendLog on the last restart, then incremented live)."""
+    _require_admin(user)
+    from . import mailer
+    snap = mailer.ses_capacity_snapshot()
+    cap = snap.get("soft_cap") or 0
+    sent = snap.get("sent_today") or 0
+    snap["pct_used"] = round(100.0 * sent / cap, 1) if cap else None
+    snap["member_bulk_provider"] = mailer.member_bulk_provider()
+    snap["note"] = ("Set SES_DAILY_SOFT_CAP and SES_MAX_PER_SEC in Railway just "
+                    "below your live AWS SES account quota (SES console → Account "
+                    "dashboard → Sending statistics).")
+    return snap
 
 
 @app.get("/admin/api/member-unpause")

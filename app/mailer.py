@@ -32,11 +32,94 @@ import ssl
 import time
 import smtplib
 import logging
+import threading
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr, make_msgid
 
 logger = logging.getLogger(__name__)
+
+# ── Global SES send governor ──────────────────────────────────────────────────
+# A single uvicorn worker runs the app, so module-level state is the authoritative
+# account-wide view of SES usage. Two protections, both enforced at the universal
+# ses_send() chokepoint so every member-bulk path (autoresponder drips, member
+# broadcasts) is covered automatically:
+#   1. A per-second floor across ALL concurrent sends. Each broadcast job paces
+#      itself, but two members broadcasting at once could still sum over the SES
+#      account rate cap and trigger throttling errors.
+#   2. A daily soft cap set just below the AWS account quota, so the platform
+#      degrades gracefully with a clear message instead of SES bouncing mail and
+#      burning shared sender reputation.
+# On boot the daily count is reconciled from EmailSendLog (reconcile_daily_count)
+# so a mid-day restart doesn't reset the cap to zero.
+#
+# Tunables (Railway env, picked up on next deploy):
+#   SES_DAILY_SOFT_CAP  default 45000  — keep below the live AWS daily quota
+#   SES_MAX_PER_SEC     default 12     — keep below the live AWS per-second rate
+_SES_GOV_LOCK = threading.Lock()
+_SES_LAST_SEND_MONO = 0.0
+_SES_DAY = None            # 'YYYY-MM-DD' (UTC)
+_SES_DAY_COUNT = 0
+
+def _ses_daily_soft_cap() -> int:
+    try:
+        return int(os.getenv("SES_DAILY_SOFT_CAP", "45000"))
+    except ValueError:
+        return 45000
+
+def _ses_min_interval() -> float:
+    try:
+        rate = float(os.getenv("SES_MAX_PER_SEC", "12"))
+    except ValueError:
+        rate = 12.0
+    return (1.0 / rate) if rate > 0 else 0.0
+
+def reconcile_daily_count(n: int) -> None:
+    """Seed today's SES counter from a durable source (EmailSendLog) on boot, so a
+    restart mid-day doesn't reset the daily cap. Called once from app startup."""
+    global _SES_DAY, _SES_DAY_COUNT
+    with _SES_GOV_LOCK:
+        _SES_DAY = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        _SES_DAY_COUNT = max(0, int(n or 0))
+        logger.info(f"[mailer/ses] daily counter reconciled to {_SES_DAY_COUNT} for {_SES_DAY}")
+
+def ses_capacity_snapshot() -> dict:
+    """Read-only view of the SES governor for admin diagnostics."""
+    with _SES_GOV_LOCK:
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        count = _SES_DAY_COUNT if _SES_DAY == today else 0
+    cap = _ses_daily_soft_cap()
+    interval = _ses_min_interval()
+    return {
+        "utc_date": today,
+        "sent_today": count,
+        "soft_cap": cap,
+        "remaining": max(0, cap - count),
+        "max_per_sec": round(1.0 / interval, 2) if interval > 0 else None,
+    }
+
+def _ses_reserve_slot():
+    """Reserve one global send slot. Enforces the daily soft cap, then the
+    per-second floor (sleeping if needed). Returns (ok: bool, reason: str).
+    Counts attempts, not just successes — conservative for a reputation cap."""
+    global _SES_LAST_SEND_MONO, _SES_DAY, _SES_DAY_COUNT
+    cap = _ses_daily_soft_cap()
+    interval = _ses_min_interval()
+    with _SES_GOV_LOCK:
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        if _SES_DAY != today:
+            _SES_DAY = today
+            _SES_DAY_COUNT = 0
+        if _SES_DAY_COUNT >= cap:
+            return False, "daily_cap"
+        if interval > 0:
+            wait = interval - (time.monotonic() - _SES_LAST_SEND_MONO)
+            if wait > 0:
+                time.sleep(wait)
+        _SES_LAST_SEND_MONO = time.monotonic()
+        _SES_DAY_COUNT += 1
+        return True, ""
 
 # Read fresh each call (cheap) so a Railway env change is picked up on the next
 # send without a process restart being strictly required for the flag itself.
@@ -110,6 +193,15 @@ def ses_send(to_email: str, subject: str, html: str, text: str = None,
     if not (host and smtp_user and smtp_pass):
         logger.error("[mailer/ses] SES_SMTP_HOST/USER/PASS not configured")
         return {"ok": False, "message_id": None, "error": "SES SMTP not configured"}
+
+    # Global account-wide governor: daily soft cap + per-second rate floor across
+    # all concurrent sends. Rejects gracefully when the daily cap is hit rather
+    # than letting SES bounce mail and harm shared sender reputation.
+    _ok, _reason = _ses_reserve_slot()
+    if not _ok:
+        logger.warning(f"[mailer/ses] send rejected by governor ({_reason}); to={to_email}")
+        return {"ok": False, "message_id": None,
+                "error": "Daily email sending capacity reached — please try again shortly."}
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
