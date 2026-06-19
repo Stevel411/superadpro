@@ -155,7 +155,7 @@ export default function MyLeads() {
         })}
       </div>
 
-      <AllowanceBar emailStats={emailStats} switchTab={setTab}/>
+      <AllowanceBar emailStats={emailStats} switchTab={setTab} tab={tab}/>
 
       {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='sequences' && <SeqTab sequences={sequences} refresh={refresh} flash={flash}/>}
@@ -275,7 +275,7 @@ function SeqTab({sequences,refresh,flash}) {
   </div>;
 }
 
-function AllowanceBar({emailStats, switchTab}) {
+function AllowanceBar({emailStats, switchTab, tab}) {
   var es = emailStats || {};
   var dailyLimit = (es.daily_limit != null) ? es.daily_limit : 100;
   var sentToday = es.sent_today || 0;
@@ -302,7 +302,7 @@ function AllowanceBar({emailStats, switchTab}) {
           <div style={{fontSize:11,color:'#94a3b8',marginTop:6}}>Never expire</div>
         </div>
       </div>
-      <button onClick={function(){if(switchTab)switchTab('boost');}} style={{display:'flex',alignItems:'center',gap:6,padding:'11px 20px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',flexShrink:0}}><Rocket size={14}/> Buy email credits</button>
+      {tab!=='boost' && <button onClick={function(){if(switchTab)switchTab('boost');}} style={{display:'flex',alignItems:'center',gap:6,padding:'11px 20px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',flexShrink:0}}><Rocket size={14}/> Buy email credits</button>}
     </div>
     <div style={{display:'flex',alignItems:'flex-start',gap:6,marginTop:14,paddingTop:12,borderTop:'1px solid #f1f5f9',fontSize:12,color:'#64748b',lineHeight:1.5}}>
       <Info size={14} style={{marginTop:1,flexShrink:0}}/>
