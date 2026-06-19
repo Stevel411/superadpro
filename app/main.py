@@ -51317,13 +51317,40 @@ async def api_update_sequence(seq_id: int, request: Request, user: User = Depend
     return {"ok": True}
 @app.delete("/api/leads/sequences/{seq_id}")
 def api_delete_sequence(seq_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Delete an email sequence."""
+    """Delete an email sequence.
+
+    Four tables hold an FK to email_sequences.id — member_leads.email_sequence_id,
+    lead_lists.sequence_id, email_send_logs.sequence_id and
+    funnel_pages.capture_sequence_id — none with ON DELETE cascade. A raw delete
+    therefore 500s the moment the sequence has any leads enrolled, send history,
+    a list default, or a capture page pointing at it. We DETACH every reference
+    (set NULL) first: the member keeps their leads, lists, send history and pages
+    — only the link to the now-gone sequence is cleared. Leads are un-enrolled,
+    never deleted. Whole thing is one transaction so a partial failure can't
+    leave a half-detached state.
+    """
     if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    from .database import EmailSequence
+    from .database import EmailSequence, MemberLead, EmailSendLog, LeadList, FunnelPage
     seq = db.query(EmailSequence).filter(EmailSequence.id == seq_id, EmailSequence.user_id == user.id).first()
     if not seq: return JSONResponse({"error": "Not found"}, status_code=404)
-    db.delete(seq)
-    db.commit()
+    try:
+        db.query(MemberLead).filter(MemberLead.user_id == user.id,
+                                    MemberLead.email_sequence_id == seq_id).update(
+            {MemberLead.email_sequence_id: None}, synchronize_session=False)
+        db.query(LeadList).filter(LeadList.user_id == user.id,
+                                  LeadList.sequence_id == seq_id).update(
+            {LeadList.sequence_id: None}, synchronize_session=False)
+        db.query(EmailSendLog).filter(EmailSendLog.sequence_id == seq_id).update(
+            {EmailSendLog.sequence_id: None}, synchronize_session=False)
+        db.query(FunnelPage).filter(FunnelPage.user_id == user.id,
+                                    FunnelPage.capture_sequence_id == seq_id).update(
+            {FunnelPage.capture_sequence_id: None}, synchronize_session=False)
+        db.delete(seq)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"[delete-sequence] failed for seq {seq_id} user {user.id}: {e}")
+        return JSONResponse({"error": "Could not delete sequence"}, status_code=500)
     return {"ok": True}
 @app.post("/api/leads/upload-csv")
 async def api_upload_leads_csv(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
