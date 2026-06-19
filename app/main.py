@@ -61663,6 +61663,8 @@ def admin_ses_test_send(request: Request, to: str = "",
     return {
         "ok": bool(r.get("ok")),
         "provider": "ses (forced for test)",
+        "member_bulk_provider": mailer.member_bulk_provider(),
+        "global_provider": mailer.provider(),
         "from": from_email,
         "to": to,
         "message_id": r.get("message_id"),
