@@ -130,15 +130,30 @@ def calculate_refundable(product_kind: str, amount_cents: int) -> Tuple[int, int
 
 def get_or_create_customer(user, db_session) -> Optional[str]:
     """
-    Returns the stripe_customer_id for this user. Creates a Stripe Customer
-    if the user doesn't have one yet and persists the id to user.stripe_customer_id.
+    Returns a Stripe customer id valid in the CURRENT Stripe mode.
 
-    Safe to call repeatedly — returns existing id without a Stripe API call
-    on the second invocation.
+    Validates any stored id against Stripe before reusing it. A stored id Stripe
+    can't find in the current mode — e.g. created under a test key, then the
+    platform switched to a live key (or vice versa) — is discarded and a fresh
+    customer created and persisted. This self-heals the test/live mismatch
+    ("No such customer ... a similar object exists in test mode") that otherwise
+    breaks every one-time card checkout for affected members.
     """
-    if user.stripe_customer_id:
-        return user.stripe_customer_id
     _ensure_sdk()
+    existing = user.stripe_customer_id
+    if existing:
+        try:
+            cust = stripe.Customer.retrieve(existing)
+            if not getattr(cust, "deleted", False):
+                return existing
+            log.warning(f"Stripe customer {existing} is deleted for user {user.id}; recreating")
+        except stripe.error.InvalidRequestError as e:
+            # Not found in the current mode (test/live mismatch) — recreate.
+            log.warning(f"Stripe customer {existing} invalid in current mode for user {user.id} ({e}); recreating")
+        except Exception as e:
+            # Any other retrieve failure — fall through to recreate rather than
+            # hard-fail the checkout on a transient/edge error.
+            log.warning(f"Stripe customer retrieve failed for {existing} (user {user.id}): {e}; recreating")
     customer = stripe.Customer.create(
         email=user.email,
         name=user.username or user.email,
