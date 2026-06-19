@@ -61621,6 +61621,59 @@ def admin_email_unsuppress(request: Request, email: str = "",
     return {"ok": bool(ok), "email": email.strip().lower()}
 
 
+@app.get("/admin/api/ses-test-send")
+def admin_ses_test_send(request: Request, to: str = "",
+                        user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """One-off controlled test of the Amazon SES member-bulk rail.
+
+    FORCES the SES provider regardless of MEMBER_BULK_PROVIDER so we can prove
+    the SMTP credentials + verified from-address actually deliver BEFORE the
+    live switch is flipped. Tappable from an admin session:
+        /admin/api/ses-test-send?to=you@example.com
+    Returns the raw ses_send result (ok / error) plus whether the env vars are
+    populated, so a misconfiguration surfaces explicitly instead of silently.
+    """
+    _require_admin(user)
+    to = (to or "").strip()
+    if "@" not in to:
+        return JSONResponse({"ok": False, "error": "pass ?to=you@example.com"}, status_code=400)
+    from . import mailer
+    from_email = (os.getenv("MEMBER_FROM_EMAIL", "").strip()
+                  or os.getenv("FROM_EMAIL", "noreply@superadpro.com"))
+    html = (
+        "<div style=\"font-family:Arial,sans-serif;max-width:520px;margin:0 auto;"
+        "padding:28px;color:#0f172a\">"
+        "<h2 style=\"color:#0ea5e9;margin:0 0 12px\">SES test send \u2713</h2>"
+        "<p style=\"font-size:15px;line-height:1.6\">If you're reading this in your inbox, "
+        "Amazon SES delivered it over SMTP using your new credentials \u2014 the member-bulk "
+        "email rail is live and working.</p>"
+        "<p style=\"font-size:13px;color:#64748b\">Sent from <b>" + from_email + "</b> via "
+        "email-smtp.eu-west-1.amazonaws.com. One-off engineering test.</p>"
+        "<p style=\"font-size:12px;color:#94a3b8\">Check your mail client shows a native "
+        "\u201cUnsubscribe\u201d control near the sender \u2014 that confirms the "
+        "List-Unsubscribe header is intact.</p>"
+        "</div>"
+    )
+    r = mailer.ses_send(
+        to, "SuperAdPro \u2014 SES test send", html,
+        from_email=from_email, from_name="SuperAdPro",
+        list_unsubscribe="https://www.superadpro.com/lead-unsubscribe?t=test",
+    )
+    return {
+        "ok": bool(r.get("ok")),
+        "provider": "ses (forced for test)",
+        "from": from_email,
+        "to": to,
+        "message_id": r.get("message_id"),
+        "error": r.get("error"),
+        "smtp_host": os.getenv("SES_SMTP_HOST", ""),
+        "smtp_port": os.getenv("SES_SMTP_PORT", "587"),
+        "smtp_user_set": bool(os.getenv("SES_SMTP_USER", "").strip()),
+        "smtp_pass_set": bool(os.getenv("SES_SMTP_PASS", "").strip()),
+    }
+
+
 @app.get("/admin/api/member-unpause")
 def admin_member_unpause(request: Request, user_id: int = 0,
                          user: User = Depends(get_current_user),
