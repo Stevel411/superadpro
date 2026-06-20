@@ -102,6 +102,8 @@ const CSS = `
 .nd .earned{margin-top:18px;z-index:1;}
 .nd .earned .big{font-family:'Sora';font-weight:800;font-size:clamp(34px,5vw,44px);line-height:1;color:var(--cyanb);letter-spacing:-1px;}
 .nd .earned .sub{font-size:13px;color:#bcd0f0;margin-top:6px;}
+.nd a.earned .sub b{color:var(--cyanb);font-weight:700;}
+.nd a.earned:hover .sub b{text-decoration:underline;}
 .nd .earned .sub b{color:#fff;}
 .nd .gridbar{margin-top:20px;z-index:1;}
 .nd .gridbar .gl{display:flex;justify-content:space-between;font-size:12px;color:#cfe0fb;margin-bottom:7px;}
@@ -286,7 +288,7 @@ export default function NewDashboard() {
 
           <div className="door income">
             <div className="d-head"><div><div className="eyebrow">Income</div></div><div className="d-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="2.2" strokeLinecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div></div>
-            <div className="earned"><div className="big">{formatMoney(balance)}</div><div className="sub">current wallet balance &middot; <b>available to withdraw</b></div></div>
+            <Link className="earned" to="/wallet" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}><div className="big">{formatMoney(balance)}</div><div className="sub">current wallet balance &middot; <b>open wallet &amp; withdraw &rarr;</b></div></Link>
             <div className="gridbar"><div className="gl"><span>Profit Grid</span><b>{filled} / {total} seats</b></div><div className="track"><div className="fill" style={{ width: pct + '%' }}></div></div></div>
             <div className="metrics">
               <div className="metric"><div className="mn">{team}</div><div className="ml">Team</div></div>
