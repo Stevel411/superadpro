@@ -45,11 +45,15 @@ Because of this, the **campaign side is core product, not trim**: Create Campaig
 
 Dashboard treatment: full-width featured card, the brightest thing on the page. Pulsing "watch today" affordance (the daily heartbeat), streak, and active-wallet status.
 
+*Sub-pages:* today's watch · my campaigns (`/create-campaign`) · video library (`/video-library`).
+
 ### Door 2 — Income
 
 The money the member is qualifying for. Contains the Profit Grid (the new comp plan), team, earnings, wallet/withdrawals, and **campaign-tier activation — the hinge** between Watch-to-Earn ("buy your ad views") and Income ("qualify for the Grid"), surfaced as a prominent action, never buried.
 
 Dashboard treatment: deep cobalt "money" card — large earnings figure, Grid fill toward next bonus, team/milestone metrics, and a **prominent full-width "Open Profit Grid" button**.
+
+*Sub-pages:* Profit Grid · My Team · **Pay It Forward** (gift a tier) · **Leaderboard** · earnings · Wallet · campaign-tier activation.
 
 ### Door 3 — Tools *(exactly four)*
 
@@ -58,7 +62,9 @@ Dashboard treatment: deep cobalt "money" card — large earnings figure, Grid fi
 - **Content creator** — Creative Studio (`/creative-studio`)
 - **Ad creator** — Ad Studio (see `ad-studio-spec.md`)
 
-Dashboard treatment: clean white card, four tappable tiles with depth (border + resting shadow + corner chevron). Nothing more than the four.
+Dashboard treatment: clean white card, four tappable tiles with depth (border + resting shadow + corner chevron). The four tiles stay the headline.
+
+*Sub-pages:* the four tools, plus **ProSeller** (pro-gated seller tool) as its own sub-page within the section — reachable from Tools, **not** a fifth headline tile.
 
 ---
 
@@ -93,16 +99,21 @@ Grounded in the live `frontend/src/components/layout/Sidebar.jsx`.
 
 ### CUT (remove, with redirects)
 - **Lead Finder** (`/lead-finder`) — no clear job for this audience.
+- **Share Your Story** (`/share-story`) — cut.
 - **Campaign Analytics + the bulk of Analytics** (`/campaign-analytics`, `/analytics`) — vanity. Keep only a simple earnings scoreboard inside the Income door.
 - **Blog** — do not launch.
 - **Courses** — already retired; purge the ~17 file remnants.
-- **Learn group demoted** from a pillar to a small tucked Help corner: Training, Crypto Guide, Tour, Leaderboard. Help stays reachable; it is not a top-level door.
+- **Learn group demoted** from a pillar to a small tucked Help corner: Training, Crypto Guide, Tour. Help stays reachable; it is not a top-level door.
 
-### OPEN — Steve's taste calls (decide before build)
-- **Pay It Forward** (`/pay-it-forward`) — keep or cut?
-- **Share Your Story** (`/share-story`) — keep or cut?
-- **Leaderboard** (`/leaderboard`) — keep (motivational, fold into Income) or cut?
-- **ProSeller** (`/proseller`) — fold into Ad creator or cut?
+### RESOLVED — taste calls (Steve, 19 Jun 2026)
+Kept items become **sub-pages inside their door**, never top-level nav:
+- **Pay It Forward** (`/pay-it-forward`) — **KEEP** → Income sub-page. Membership-gifting mechanic (a member gifts a tier; the recipient sees "gifted by …"). Sits with the opportunity/team flow.
+- **Leaderboard** (`/leaderboard`) — **KEEP** → Income sub-page. Earner/recruiter ranking; motivational, money-adjacent.
+- **ProSeller** (`/proseller`) — **KEEP** → Tools sub-page (pro-gated seller tool). Kept as its own sub-page, **not** folded into Ad creator and **not** a fifth headline tile.
+- **Share Your Story** (`/share-story`) — **CUT.**
+
+### Account & utility (tucked — not a door)
+**Consolidate Account + Profile into one page.** Today these are split across `Account.jsx` (`/account`), `AccountPurchases.jsx` (`/account/purchases`), and the internal FAQ (`/account/faq`), with "My Profile" also pointing at `/account`. Merge into a **single, cleaner Account page** with the dashboard's visual language — profile/identity, billing & purchases, and settings as sections (or tabs) on one screen. Reached from a profile menu in the top bar, never a main door.
 
 ---
 
@@ -166,7 +177,6 @@ Each backend route still needs its matching `@app.get` React-shell handler; redi
 ## 8. Decisions to lock before build
 
 - **Entry tier:** $10 Launchpad vs $20 Starter as the front door (lean $10 for a cold restart).
-- **Four taste calls** in §4 (Pay It Forward, Share Your Story, Leaderboard, ProSeller).
 - **Comp-plan build decisions** that intersect the Income door (unilevel shape, what "activation" releases the locked wallet, whether step-up ships in build one) — see the Profit Grid comp plan.
 - **Tools door:** four tiles only, or add a single "Open toolkit" action.
 - **Watch door:** how much campaign/views data to surface on the dashboard vs inside the door.
