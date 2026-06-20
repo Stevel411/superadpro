@@ -39,8 +39,9 @@ const CSS = `
 .nd .chip b{font-family:'Sora';font-weight:700;color:var(--ink);}
 .nd .chip.tier b{color:var(--cyan);}
 .nd .acct{position:relative;}
-.nd .avatar-btn{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#1e3a8a,#06b6d4);border:2px solid #fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:15px;color:#fff;cursor:pointer;transition:transform .2s,box-shadow .2s;}
-.nd .avatar-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);}
+.nd .avatar-btn{width:48px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s;}
+.nd .avatar-btn:hover{border-color:var(--cyanb);box-shadow:var(--shadow-lg);}
+.nd .avatar-btn.open{border-color:var(--cyanb);background:#f4fbff;}
 .nd .menu{position:absolute;right:0;top:54px;width:216px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);padding:8px;z-index:50;}
 .nd .menu .mhead{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:6px;}
 .nd .menu .mhead b{font-family:'Sora';font-size:14px;color:var(--ink);display:block;}
@@ -213,7 +214,11 @@ export default function NewDashboard() {
         <div className="top">
           <div className="brand"><span className="dot"></span>SuperAdPro</div>
           <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
-            <button className="avatar-btn" onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu">{initials}</button>
+            <button className={'avatar-btn' + (menuOpen ? ' open' : '')} onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu" aria-expanded={menuOpen}>
+              {menuOpen
+                ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>}
+            </button>
             {menuOpen && (
               <div className="menu">
                 <div className="mhead"><b>{name}</b><span>@{user?.username || ''}</span></div>
