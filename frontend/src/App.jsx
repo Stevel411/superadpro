@@ -12,6 +12,7 @@ import { Component, Suspense } from 'react';
 // feel instant. Everything else is lazy-loaded to keep main bundle small.) ──
 import Dashboard from './pages/Dashboard';
 import NewDashboard from './pages/NewDashboard';
+import ToolKitPage from './pages/ToolKitPage';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
 import AccountPurchases from './pages/AccountPurchases';
@@ -316,6 +317,7 @@ function AppRoutes() {
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
+      <Route path="/toolkit" element={<ProtectedRoute><ToolKitPage /></ProtectedRoute>} />
       <Route path="/command-centre" element={<ProtectedRoute><CommandCentre /></ProtectedRoute>} />
       <Route path="/command-centre/directs/active" element={<ProtectedRoute><BucketList bucketKey="directs-active" /></ProtectedRoute>} />
       <Route path="/command-centre/directs/lapsed" element={<ProtectedRoute><BucketList bucketKey="directs-lapsed" /></ProtectedRoute>} />

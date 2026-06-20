@@ -3506,6 +3506,13 @@ def home_preview(request: Request):
         return _spa_shell()
     return RedirectResponse(url="/dashboard", status_code=302)
 
+@app.get("/toolkit")
+def toolkit_page(request: Request):
+    """Serve React SPA for the Tool Kit category page (no-sidebar preview)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/tools", status_code=302)
+
 @app.get("/income-disclaimer")
 def income_disclaimer(request: Request):
     """Serve React SPA."""
