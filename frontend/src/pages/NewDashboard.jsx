@@ -38,6 +38,19 @@ const CSS = `
 .nd .chip .lbl{font-family:'JetBrains Mono';font-size:10px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;}
 .nd .chip b{font-family:'Sora';font-weight:700;color:var(--ink);}
 .nd .chip.tier b{color:var(--cyan);}
+.nd .acct{position:relative;}
+.nd .avatar-btn{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#1e3a8a,#06b6d4);border:2px solid #fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:15px;color:#fff;cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.nd .avatar-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);}
+.nd .menu{position:absolute;right:0;top:54px;width:216px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);padding:8px;z-index:50;}
+.nd .menu .mhead{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:6px;}
+.nd .menu .mhead b{font-family:'Sora';font-size:14px;color:var(--ink);display:block;}
+.nd .menu .mhead span{font-family:'JetBrains Mono';font-size:11px;color:var(--muted);}
+.nd .menu a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;font-size:13.5px;font-weight:600;color:#334155;text-decoration:none;}
+.nd .menu a:hover{background:#f4f8fd;}
+.nd .menu a svg{color:#94a3b8;flex:0 0 auto;}
+.nd .menu .sep{height:1px;background:var(--line);margin:6px 0;}
+.nd .menu a.out{color:#b91c1c;}
+.nd .menu a.out svg{color:#b91c1c;}
 .nd /* greeting */
 .greet{margin-bottom:22px;}
 .nd .greet h1{font-size:clamp(22px,3.4vw,30px);font-weight:800;color:var(--ink);letter-spacing:-.5px;}
@@ -154,6 +167,7 @@ export default function NewDashboard() {
   const [watch, setWatch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(function () {
     let alive = true;
@@ -169,6 +183,7 @@ export default function NewDashboard() {
   const d = dash || {};
   const w = watch || {};
   const name = d.display_name || user?.first_name || user?.username || 'there';
+  const initials = ((user?.first_name || name || 'M').charAt(0) + (user?.last_name ? user.last_name.charAt(0) : '')).toUpperCase();
   const tierRaw = (user?.membership_tier || d.membership_tier || '').toString();
   const tierLabel = tierRaw ? tierRaw.charAt(0).toUpperCase() + tierRaw.slice(1) : null;
   const balance = Number(d.balance != null ? d.balance : (user?.balance || 0));
@@ -191,15 +206,26 @@ export default function NewDashboard() {
   if (loading) return (<div className="nd"><style>{CSS}</style><div style={{maxWidth:1120,margin:'60px auto',textAlign:'center',color:'#64748b'}}>Loading your dashboard…</div></div>);
 
   return (
-    <div className="nd">
+    <div className="nd" onClick={function () { if (menuOpen) setMenuOpen(false); }}>
       <style>{CSS}</style>
       <div className="wrap">
 
         <div className="top">
           <div className="brand"><span className="dot"></span>SuperAdPro</div>
-          <div className="chips">
-            {tierLabel && <div className="chip tier"><span className="lbl">Tier</span><b>{tierLabel}</b></div>}
-            <div className="chip"><span className="lbl">Wallet</span><b>{formatMoney(balance)}</b></div>
+          <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
+            <button className="avatar-btn" onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu">{initials}</button>
+            {menuOpen && (
+              <div className="menu">
+                <div className="mhead"><b>{name}</b><span>@{user?.username || ''}</span></div>
+                <Link to="/account"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>Profile</Link>
+                <Link to="/account"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Membership &amp; billing</Link>
+                <Link to="/account"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Security</Link>
+                <Link to="/account"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>Payouts</Link>
+                <Link to="/account"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg>Verification</Link>
+                <div className="sep"></div>
+                <a className="out" href="/logout"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign out</a>
+              </div>
+            )}
           </div>
         </div>
 
