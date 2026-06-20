@@ -31,8 +31,10 @@ const CSS = `
 .nd .wrap{max-width:1120px;margin:0 auto;}
 .nd /* top bar */
 .top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:26px;}
-.nd .brand{font-family:'Sora';font-weight:800;font-size:20px;color:var(--ink);letter-spacing:-.3px;display:flex;align-items:center;gap:9px;}
-.nd .brand .dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--cyanb));box-shadow:0 0 0 4px rgba(34,211,238,.18);}
+.nd .brand{display:flex;align-items:center;gap:10px;}
+.nd .brand .logomark{width:30px;height:30px;border-radius:50%;background:#0ea5e9;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 4px 12px rgba(14,165,233,.35);}
+.nd .brand .wordmark{font-family:'Sora';font-weight:800;font-size:20px;color:var(--ink);letter-spacing:-.3px;line-height:1;}
+.nd .brand .wordmark .pro{color:#0ea5e9;}
 .nd .chips{display:flex;gap:10px;align-items:center;}
 .nd .chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);font-size:13px;font-weight:600;}
 .nd .chip .lbl{font-family:'JetBrains Mono';font-size:10px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;}
@@ -212,7 +214,10 @@ export default function NewDashboard() {
       <div className="wrap">
 
         <div className="top">
-          <div className="brand"><span className="dot"></span>SuperAdPro</div>
+          <div className="brand">
+            <span className="logomark"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style={{ marginLeft: 2 }}><path d="M8 5v14l11-7z"/></svg></span>
+            <span className="wordmark">SuperAd<span className="pro">Pro</span></span>
+          </div>
           <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
             <button className={'avatar-btn' + (menuOpen ? ' open' : '')} onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu" aria-expanded={menuOpen}>
               {menuOpen
