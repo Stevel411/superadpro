@@ -102,8 +102,7 @@ const CSS = `
 .nd .earned{margin-top:18px;z-index:1;}
 .nd .earned .big{font-family:'Sora';font-weight:800;font-size:clamp(34px,5vw,44px);line-height:1;color:var(--cyanb);letter-spacing:-1px;}
 .nd .earned .sub{font-size:13px;color:#bcd0f0;margin-top:6px;}
-.nd a.earned .sub b{color:var(--cyanb);font-weight:700;}
-.nd a.earned:hover .sub b{text-decoration:underline;}
+.nd .d-cta-spacer{}
 .nd .earned .sub b{color:#fff;}
 .nd .gridbar{margin-top:20px;z-index:1;}
 .nd .gridbar .gl{display:flex;justify-content:space-between;font-size:12px;color:#cfe0fb;margin-bottom:7px;}
@@ -115,8 +114,11 @@ const CSS = `
 .nd .metric{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(103,232,249,.18);border-radius:12px;padding:11px 13px;}
 .nd .metric .mn{font-family:'Sora';font-weight:800;font-size:18px;}
 .nd .metric .ml{font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:#9fb6e0;margin-top:2px;}
-.nd .d-cta{margin-top:auto;padding-top:20px;z-index:1;}
-.nd .grid-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#22d3ee,#06b6d4);color:#0a1438;font-family:'Sora';font-weight:800;font-size:15.5px;padding:16px 22px;border:none;border-radius:13px;cursor:pointer;box-shadow:0 12px 26px rgba(6,182,212,.42);transition:transform .2s,box-shadow .2s;}
+.nd .d-cta{margin-top:auto;padding-top:20px;z-index:1;display:flex;gap:10px;}
+.nd .wallet-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(103,232,249,.4);color:#fff;font-family:'Sora';font-weight:700;font-size:14.5px;padding:16px 16px;border-radius:13px;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;}
+.nd .wallet-btn:hover{background:rgba(103,232,249,.16);border-color:var(--cyanb);transform:translateY(-2px);}
+.nd .wallet-btn:focus-visible{outline:3px solid #fff;outline-offset:3px;}
+.nd .grid-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#22d3ee,#06b6d4);color:#0a1438;font-family:'Sora';font-weight:800;font-size:15.5px;padding:16px 18px;border:none;border-radius:13px;cursor:pointer;box-shadow:0 12px 26px rgba(6,182,212,.42);transition:transform .2s,box-shadow .2s;}
 .nd .grid-btn:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(6,182,212,.55);}
 .nd .grid-btn:focus-visible{outline:3px solid #fff;outline-offset:3px;}
 .nd .grid-btn svg{transition:transform .2s;}
@@ -288,14 +290,17 @@ export default function NewDashboard() {
 
           <div className="door income">
             <div className="d-head"><div><div className="eyebrow">Income</div></div><div className="d-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="2.2" strokeLinecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div></div>
-            <Link className="earned" to="/wallet" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}><div className="big">{formatMoney(balance)}</div><div className="sub">current wallet balance &middot; <b>open wallet &amp; withdraw &rarr;</b></div></Link>
+            <div className="earned"><div className="big">{formatMoney(balance)}</div><div className="sub">current wallet balance &middot; available to withdraw</div></div>
             <div className="gridbar"><div className="gl"><span>Profit Grid</span><b>{filled} / {total} seats</b></div><div className="track"><div className="fill" style={{ width: pct + '%' }}></div></div></div>
             <div className="metrics">
               <div className="metric"><div className="mn">{team}</div><div className="ml">Team</div></div>
               <div className="metric"><div className="mn">{activeTeam}</div><div className="ml">Active</div></div>
               <div className="metric"><div className="mn">{toMilestone}</div><div className="ml">To bonus</div></div>
             </div>
-            <div className="d-cta"><Link className="grid-btn" to="/grid-visualiser" style={{ textDecoration: 'none' }}>Open my Profit Grid <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0a1438" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></Link></div>
+            <div className="d-cta">
+              <Link className="wallet-btn" to="/wallet" style={{ textDecoration: 'none' }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>Open wallet</Link>
+              <Link className="grid-btn" to="/grid-visualiser" style={{ textDecoration: 'none' }}>Open grid <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0a1438" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></Link>
+            </div>
           </div>
 
           <div className="door tools">
