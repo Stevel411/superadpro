@@ -53,7 +53,7 @@ The money the member is qualifying for. Contains the Profit Grid (the new comp p
 
 Dashboard treatment: deep cobalt "money" card — large earnings figure, Grid fill toward next bonus, team/milestone metrics, and a **prominent full-width "Open Profit Grid" button**.
 
-*Sub-pages:* Profit Grid · My Team · **Pay It Forward** (gift a tier) · **Leaderboard** · earnings · Wallet · campaign-tier activation.
+*Sub-pages:* Profit Grid · My Team · **Pay It Forward** (gift a tier) · **Leaderboard** · earnings scoreboard · **Wallet** (balance is also a top-bar chip on every screen; full transactions + withdrawals live here, gated by daily watch + KYC) · **How the Grid pays** — the compensation-plan explainer (the comp-plan doc) · **campaign-tier activation** (the hinge).
 
 ### Door 3 — Tools *(exactly four)*
 
@@ -113,7 +113,11 @@ Kept items become **sub-pages inside their door**, never top-level nav:
 - **Share Your Story** (`/share-story`) — **CUT.**
 
 ### Account & utility (tucked — not a door)
-**Consolidate Account + Profile into one page.** Today these are split across `Account.jsx` (`/account`), `AccountPurchases.jsx` (`/account/purchases`), and the internal FAQ (`/account/faq`), with "My Profile" also pointing at `/account`. Merge into a **single, cleaner Account page** with the dashboard's visual language — profile/identity, billing & purchases, and settings as sections (or tabs) on one screen. Reached from a profile menu in the top bar, never a main door.
+**Consolidate Account + Profile into one page.** Today these are split across `Account.jsx` (`/account`), `AccountPurchases.jsx` (`/account/purchases`), and the internal FAQ (`/account/faq`), with "My Profile" also pointing at `/account`. Merge into a **single, cleaner Account page** with the dashboard's visual language — profile/identity, billing & purchases, and settings as sections (or tabs) on one screen. Reached from a profile menu in the top bar, never a main door. 
+
+**Tabs:** Profile · Billing · Security · Payouts · Verification. The **Billing** tab is where the **monthly membership subscription** is managed (plan, renewal date, payment method, manage/cancel) *and* where purchase history lives (campaign tiers, credit packs). Visual reference: [`account-mockup.html`](./platform-assets/account-mockup.html).
+
+**Two money flows — keep them distinct in the copy.** (1) The recurring **membership** (Partner $20/mo, Founder $15/mo) = platform access → managed in Account → Billing; a dashboard banner prompts renewal if it lapses. (2) **Campaign tiers** ($10/$20/$50) = the money-making product (buy ad views → Grid entry) → surfaced as the activate CTA on the dashboard and inside the Income door. Members confuse these easily; the UI must label them plainly: *membership = access, tiers = your advertising and Grid.*
 
 ---
 

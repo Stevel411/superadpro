@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuperAdPro — Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a1438;--ink2:#15275f;--cobalt:#1e3a8a;
+  --cyan:#06b6d4;--cyanb:#22d3ee;--cyans:#67e8f9;
+  --bg:#eaf0fa;--card:#fff;--line:#e4eaf3;--muted:#64748b;--text:#0f172a;
+  --shadow:0 10px 30px rgba(10,20,56,.08);--shadow-lg:0 20px 46px rgba(10,20,56,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);
+  background:radial-gradient(900px 460px at 10% -10%,rgba(34,211,238,.14),transparent 60%),
+    radial-gradient(760px 480px at 98% 2%,rgba(30,58,138,.14),transparent 55%),var(--bg);
+  min-height:100vh;padding:20px clamp(14px,4vw,40px) 56px;}
+h1,h2,h3,.disp{font-family:'Sora',sans-serif;}
+.mono{font-family:'JetBrains Mono',monospace;}
+.wrap{max-width:1040px;margin:0 auto;}
+
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.brand{font-family:'Sora';font-weight:800;font-size:19px;color:var(--ink);display:flex;align-items:center;gap:9px;}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--cyanb));box-shadow:0 0 0 4px rgba(34,211,238,.18);}
+.back{font-size:13px;font-weight:600;color:var(--cobalt);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.back:hover{gap:9px;}
+
+/* profile header */
+.phead{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:18px;}
+.banner{height:84px;background:linear-gradient(120deg,#0a1438,#15275f 55%,#0e7490 130%);position:relative;}
+.banner::after{content:'';position:absolute;right:-40px;top:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.22),transparent 65%);}
+.phead-body{display:flex;align-items:flex-end;gap:18px;padding:0 26px 20px;margin-top:-40px;position:relative;flex-wrap:wrap;}
+.avatar{width:88px;height:88px;border-radius:22px;background:linear-gradient(135deg,#1e3a8a,#06b6d4);border:4px solid #fff;box-shadow:0 8px 20px rgba(10,20,56,.18);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:30px;color:#fff;flex:0 0 auto;}
+.id{flex:1;min-width:200px;padding-bottom:2px;}
+.id h1{font-size:23px;font-weight:800;color:var(--ink);letter-spacing:-.4px;}
+.id .u{font-family:'JetBrains Mono';font-size:13px;color:var(--muted);margin-top:3px;}
+.hchips{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:4px;}
+.hchip{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#f8fbff;}
+.hchip.tier{border-color:#a5f3fc;background:#ecfeff;color:#0e7490;}
+.hchip.tier b{font-family:'Sora';}
+.hchip.ok{border-color:#bbf7d0;background:#f0fdf4;color:#15803d;}
+.hchip .vd{width:7px;height:7px;border-radius:50%;background:#22c55e;}
+.hchip.muted{color:var(--muted);}
+
+/* layout */
+.cols{display:grid;grid-template-columns:230px 1fr;gap:18px;align-items:start;}
+.rail{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:var(--shadow);position:sticky;top:14px;}
+.tab{width:100%;display:flex;align-items:center;gap:11px;padding:12px 13px;border:none;background:none;border-radius:12px;cursor:pointer;font-family:'DM Sans';font-size:14.5px;font-weight:600;color:#475569;text-align:left;transition:background .18s,color .18s;}
+.tab svg{flex:0 0 18px;color:#94a3b8;transition:color .18s;}
+.tab:hover{background:#f4f8fd;}
+.tab.active{background:linear-gradient(135deg,#0a1438,#1e3a8a);color:#fff;box-shadow:0 8px 18px rgba(13,26,68,.22);}
+.tab.active svg{color:var(--cyanb);}
+.tab:focus-visible{outline:2px solid var(--cyanb);outline-offset:2px;}
+
+.panel{display:none;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 28px;box-shadow:var(--shadow);}
+.panel.show{display:block;animation:fade .3s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.ph{margin-bottom:20px;}
+.ph h2{font-size:18px;font-weight:700;color:var(--ink);}
+.ph p{font-size:13px;color:var(--muted);margin-top:3px;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.field{margin-bottom:16px;}
+.field label,.flabel{display:block;font-family:'JetBrains Mono';font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.inp{width:100%;border:1px solid var(--line);background:#f8fafc;border-radius:11px;padding:12px 14px;font-family:'DM Sans';font-size:14.5px;color:var(--text);transition:border-color .18s,background .18s,box-shadow .18s;}
+.inp:focus{outline:none;border-color:var(--cyanb);background:#fff;box-shadow:0 0 0 4px rgba(34,211,238,.13);}
+.inp[readonly]{background:#eef2f8;color:#475569;cursor:default;}
+select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.4'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
+.tags{display:flex;gap:8px;flex-wrap:wrap;}
+.tagchip{font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;background:#ecfeff;color:#0e7490;border:1px solid #a5f3fc;}
+.tagchip.add{background:#f8fafc;color:var(--muted);border:1px dashed #cbd5e1;cursor:pointer;}
+.hint{font-size:12px;color:var(--muted);margin-top:7px;}
+.save{margin-top:8px;display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,#0a1438,#1e3a8a);color:#fff;font-family:'Sora';font-weight:700;font-size:14px;padding:13px 24px;border:none;border-radius:12px;cursor:pointer;box-shadow:0 10px 22px rgba(13,26,68,.22);transition:transform .2s,box-shadow .2s;}
+.save:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(13,26,68,.3);}
+.save.cyan{background:linear-gradient(135deg,#22d3ee,#06b6d4);color:#0a1438;box-shadow:0 10px 22px rgba(6,182,212,.32);}
+
+.subcard{border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px;background:#fcfdff;}
+.subcard .sh{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px;}
+.subcard .sh h3{font-family:'Sora';font-size:14.5px;font-weight:700;color:var(--ink);}
+.subcard .sd{font-size:12.5px;color:var(--muted);margin-bottom:14px;}
+.pill{font-family:'JetBrains Mono';font-size:11px;font-weight:600;padding:5px 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;}
+.pill.on{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
+.pill.net{background:#ecfeff;color:#0e7490;border:1px solid #a5f3fc;}
+.btn-ghost{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 16px;font-family:'Sora';font-weight:600;font-size:13px;color:var(--ink);cursor:pointer;}
+.btn-ghost:hover{border-color:var(--cyanb);}
+
+.verbanner{display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:13px;padding:14px 18px;margin-bottom:18px;}
+.verbanner .vi{width:34px;height:34px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.verbanner b{font-family:'Sora';color:#15803d;}.verbanner span{font-size:12.5px;color:#3f6212;}
+
+/* purchases table */
+.ptable{width:100%;border-collapse:collapse;}
+.ptable th{text-align:left;font-family:'JetBrains Mono';font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0 12px 10px;border-bottom:1px solid var(--line);}
+.ptable td{padding:14px 12px;border-bottom:1px solid #eef2f7;font-size:14px;}
+.ptable tr:last-child td{border-bottom:none;}
+.ptable .it{font-weight:600;color:var(--ink);}
+.ptable .amt{font-family:'Sora';font-weight:700;}
+.ptable .st{font-family:'JetBrains Mono';font-size:11px;color:#15803d;background:#f0fdf4;border:1px solid #bbf7d0;padding:4px 9px;border-radius:999px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.planbig{font-family:'Sora';font-weight:800;font-size:22px;color:var(--ink);margin-top:5px;}
+.planbig span{font-size:13px;color:var(--muted);font-weight:600;}
+.planval{font-family:'Sora';font-weight:700;font-size:15px;color:var(--ink);margin-top:7px;}
+
+@media (max-width:780px){
+  .cols{grid-template-columns:1fr;}
+  .phead-body{flex-direction:column;align-items:flex-start;gap:12px;}
+  .id{padding-bottom:0;}
+  .rail{position:static;display:flex;gap:6px;overflow-x:auto;padding:8px;}
+  .tab{flex:0 0 auto;white-space:nowrap;padding:10px 14px;}
+  .grid2{grid-template-columns:1fr;}
+  .grid3{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand"><span class="dot"></span>SuperAdPro</div>
+    <a class="back" href="#">&larr; Dashboard</a>
+  </div>
+
+  <!-- PROFILE HEADER -->
+  <div class="phead">
+    <div class="banner"></div>
+    <div class="phead-body">
+      <div class="avatar">JR</div>
+      <div class="id">
+        <h1>Jordan Reeves</h1>
+        <div class="u">@jordanr &middot; jordan@email.com</div>
+      </div>
+      <div class="hchips">
+        <div class="hchip tier"><b>Builder</b> tier</div>
+        <div class="hchip ok"><span class="vd"></span>Verified</div>
+        <div class="hchip muted">Member since Mar 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <!-- TAB RAIL -->
+    <div class="rail" role="tablist">
+      <button class="tab active" data-p="profile" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg><span>Profile</span></button>
+      <button class="tab" data-p="billing" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg><span>Billing</span></button>
+      <button class="tab" data-p="security" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg><span>Security</span></button>
+      <button class="tab" data-p="payouts" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg><span>Payouts</span></button>
+      <button class="tab" data-p="verify" role="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Verification</span></button>
+    </div>
+
+    <!-- PANELS -->
+    <div>
+      <!-- PROFILE -->
+      <div class="panel show" id="profile">
+        <div class="ph"><h2>Profile</h2><p>Your details and the avatar shown across the platform.</p></div>
+        <div class="field"><span class="flabel">Profile photo</span>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="avatar" style="width:60px;height:60px;border-radius:16px;font-size:21px;border-width:2px;box-shadow:none;">JR</div>
+            <button class="btn-ghost">Change photo</button>
+            <button class="btn-ghost" style="color:#b91c1c;border-color:#fecaca;">Remove</button>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>First name</label><input class="inp" value="Jordan"></div>
+          <div class="field"><label>Last name</label><input class="inp" value="Reeves"></div>
+          <div class="field"><label>Username</label><input class="inp" value="@jordanr" readonly></div>
+          <div class="field"><label>Email</label><input class="inp" value="jordan@email.com" readonly></div>
+          <div class="field"><label>Country</label><select class="inp"><option>United Kingdom</option></select></div>
+          <div class="field"><label>Date of birth</label><input class="inp" value="14 / 03 / 1989"></div>
+          <div class="field"><label>Gender</label><select class="inp"><option>Prefer not to say</option></select></div>
+          <div class="field"><label>Age range</label><select class="inp"><option>35 – 44</option></select></div>
+        </div>
+        <div class="field"><span class="flabel">Interests</span>
+          <div class="tags"><span class="tagchip">Affiliate marketing</span><span class="tagchip">Crypto</span><span class="tagchip">Paid ads</span><span class="tagchip add">+ Add</span></div>
+        </div>
+        <button class="save">Save changes</button>
+      </div>
+
+      <!-- SECURITY -->
+      <div class="panel" id="security">
+        <div class="ph"><h2>Security</h2><p>Keep your account protected.</p></div>
+        <div class="subcard">
+          <div class="sh"><h3>Change password</h3></div>
+          <div class="grid2">
+            <div class="field"><label>Current password</label><input class="inp" type="password" value="········"></div>
+            <div></div>
+            <div class="field"><label>New password</label><input class="inp" type="password" placeholder="••••••••"></div>
+            <div class="field"><label>Confirm new</label><input class="inp" type="password" placeholder="••••••••"></div>
+          </div>
+          <button class="save">Update password</button>
+        </div>
+        <div class="subcard">
+          <div class="sh"><h3>Two-factor authentication</h3><span class="pill on"><span style="width:7px;height:7px;border-radius:50%;background:#22c55e;"></span>Enabled</span></div>
+          <div class="sd">An authenticator code is required at sign-in. Recommended for accounts that withdraw.</div>
+          <button class="btn-ghost">Manage 2FA</button>
+        </div>
+      </div>
+
+      <!-- PAYOUTS -->
+      <div class="panel" id="payouts">
+        <div class="ph"><h2>Payouts</h2><p>Where your withdrawals are sent.</p></div>
+        <div class="subcard">
+          <div class="sh"><h3>Withdrawal wallet</h3><span class="pill net">USDT &middot; BEP-20 / BSC</span></div>
+          <div class="sd">USDT on BNB Smart Chain (BEP-20) is the only withdrawal network.</div>
+          <div class="field"><label>Wallet address</label><input class="inp mono" value="0xb2Cc…9b2554D" style="font-size:13.5px;"></div>
+          <button class="save cyan">Save wallet</button>
+        </div>
+      </div>
+
+      <!-- VERIFICATION -->
+      <div class="panel" id="verify">
+        <div class="ph"><h2>Verification</h2><p>Identity check required before withdrawals.</p></div>
+        <div class="verbanner">
+          <div class="vi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg></div>
+          <div><b>Verified</b><br><span>Your identity was confirmed on 2 June 2026. Withdrawals are enabled.</span></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>ID type</label><input class="inp" value="Passport" readonly></div>
+          <div class="field"><label>Date of birth</label><input class="inp" value="14 / 03 / 1989" readonly></div>
+        </div>
+        <button class="btn-ghost">Re-submit documents</button>
+      </div>
+
+      <!-- BILLING -->
+      <div class="panel" id="billing">
+        <div class="ph"><h2>Membership &amp; billing</h2><p>Your monthly membership and your purchase history.</p></div>
+        <div class="subcard">
+          <div class="sh"><h3>Partner membership</h3><span class="pill on"><span style="width:7px;height:7px;border-radius:50%;background:#22c55e;"></span>Active</span></div>
+          <div class="sd">Your monthly membership keeps your platform access and tools switched on. Campaign tiers &mdash; your advertising and Profit Grid &mdash; are purchased separately and listed below.</div>
+          <div class="grid3">
+            <div><span class="flabel">Plan</span><div class="planbig">$20 <span>/ month</span></div></div>
+            <div><span class="flabel">Renews</span><div class="planval">12 July 2026</div></div>
+            <div><span class="flabel">Payment method</span><div class="planval">Visa &bull;&bull;&bull;&bull; 4242</div></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
+            <button class="btn-ghost">Update card</button>
+            <button class="btn-ghost">Manage plan</button>
+          </div>
+        </div>
+        <div class="subcard">
+          <div class="sh"><h3>Purchase history</h3></div>
+          <div class="sd">Campaign tiers, credit packs and renewals.</div>
+          <table class="ptable">
+            <thead><tr><th>Date</th><th>Item</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">12 Jun 2026</td><td class="it">Builder tier &mdash; $50</td><td class="amt">$50.00</td><td><span class="st">Paid</span></td></tr>
+              <tr><td class="mono">08 Jun 2026</td><td class="it">Email credits &mdash; 10,000</td><td class="amt">$29.00</td><td><span class="st">Paid</span></td></tr>
+              <tr><td class="mono">01 Jun 2026</td><td class="it">Starter tier &mdash; $20</td><td class="amt">$20.00</td><td><span class="st">Paid</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('show');});
+    t.classList.add('active');
+    document.getElementById(t.dataset.p).classList.add('show');
+  });
+});
+</script>
+</body>
+</html>
