@@ -130,11 +130,11 @@ const CSS = `
 .nd .tools .d-head h3{font-size:19px;font-weight:700;color:var(--ink);margin-top:3px;}
 .nd .tools .d-icon{background:#ecfeff;}
 .nd .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;flex:1;}
-.nd .tile{position:relative;border:1px solid #d4ddea;border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:9px;background:#fff;cursor:pointer;box-shadow:0 1px 2px rgba(10,20,56,.05),0 6px 16px rgba(10,20,56,.08);transition:border-color .2s,transform .2s,box-shadow .2s;}
-.nd .tile:hover{border-color:var(--cyanb);transform:translateY(-4px);box-shadow:0 16px 30px rgba(6,182,212,.2);}
+.nd .tile{position:relative;border:1px solid #d4ddea;border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:9px;background:#fff;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 6px rgba(10,20,56,.09),0 20px 44px rgba(10,20,56,.18);transition:border-color .2s,box-shadow .2s;}
+.nd .tile:hover{border-color:var(--cyanb);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 6px rgba(10,20,56,.09),0 20px 44px rgba(10,20,56,.18);}
 .nd .tile:active{transform:translateY(-1px);box-shadow:0 6px 14px rgba(6,182,212,.16);}
 .nd .tile .go{position:absolute;top:13px;right:13px;color:#c2cddd;display:flex;transition:color .2s,transform .2s;}
-.nd .tile:hover .go{color:var(--cyan);transform:translateX(3px);}
+.nd .tile:hover .go{color:var(--cyan);}
 .nd .ti{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;}
 .nd .ti.t1{background:linear-gradient(135deg,#1e3a8a,#3b82f6);}
 .nd .ti.t2{background:linear-gradient(135deg,#0891b2,#22d3ee);}
