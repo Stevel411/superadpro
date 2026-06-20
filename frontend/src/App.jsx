@@ -11,6 +11,7 @@ import { Component, Suspense } from 'react';
 // Wallet + Account are most-visited internal pages, kept eager so they
 // feel instant. Everything else is lazy-loaded to keep main bundle small.) ──
 import Dashboard from './pages/Dashboard';
+import NewDashboard from './pages/NewDashboard';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
 import AccountPurchases from './pages/AccountPurchases';
@@ -314,6 +315,7 @@ function AppRoutes() {
       {/* Fully migrated pages */}
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       <Route path="/command-centre" element={<ProtectedRoute><CommandCentre /></ProtectedRoute>} />
       <Route path="/command-centre/directs/active" element={<ProtectedRoute><BucketList bucketKey="directs-active" /></ProtectedRoute>} />
       <Route path="/command-centre/directs/lapsed" element={<ProtectedRoute><BucketList bucketKey="directs-lapsed" /></ProtectedRoute>} />
