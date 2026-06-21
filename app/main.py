@@ -9803,6 +9803,108 @@ def admin_api_grid_distribution(
     })
 
 
+@app.get("/admin/api/wallet-reconciliation")
+def admin_api_wallet_reconciliation(
+    request: Request,
+    threshold: float = 5.0,
+    limit: int = 40,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: PLATFORM-WIDE wallet-vs-commission reconciliation.
+
+    Read-only. For every user computes:
+        surplus = affiliate_balance + campaign_balance + withdrawn_paid
+                  - lifetime_commissions_received_paid
+
+    surplus > 0  => wallets hold/withdrew MORE than recorded commissions back
+                    (welcome-bonus self-credits explain a SMALL surplus; large
+                    or lumpy surpluses are manual over-credits or a credit-path bug).
+    surplus <= 0 => normal (money was spent on ads / membership-from-balance).
+
+    Use this to tell whether an over-credit (e.g. #343) is an isolated manual
+    one-off or a systemic leak. Drill into any flagged user with
+    /admin/api/user-ledger?user_id=N.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from sqlalchemy import func as _func
+
+    # Commissions RECEIVED per user (paid only)
+    comm_map = {}
+    for uid, csum in db.query(
+        Commission.to_user_id,
+        _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+    ).filter(Commission.status == "paid").group_by(Commission.to_user_id).all():
+        comm_map[uid] = float(csum or 0)
+
+    # Withdrawn (paid) per user
+    wd_map = {}
+    for uid, wsum in db.query(
+        Withdrawal.user_id,
+        _func.coalesce(_func.sum(Withdrawal.amount_usdt), 0),
+    ).filter(Withdrawal.status == "paid").group_by(Withdrawal.user_id).all():
+        wd_map[uid] = float(wsum or 0)
+
+    rows = db.query(
+        User.id, User.username, User.balance, User.campaign_balance,
+    ).all()
+
+    over = []
+    buckets = {"gt_5": 0, "gt_20": 0, "gt_50": 0, "gt_100": 0}
+    total_surplus = 0.0
+    surplus_users = 0
+    reconciled_or_spent = 0
+    scanned = 0
+
+    for uid, uname, bal, camp in rows:
+        scanned += 1
+        received = comm_map.get(uid, 0.0)
+        withdrawn = wd_map.get(uid, 0.0)
+        affiliate = float(bal or 0)
+        campaign = float(camp or 0)
+        surplus = round(affiliate + campaign + withdrawn - received, 2)
+        if surplus > 0.005:
+            surplus_users += 1
+            total_surplus += surplus
+            if surplus > 5:   buckets["gt_5"] += 1
+            if surplus > 20:  buckets["gt_20"] += 1
+            if surplus > 50:  buckets["gt_50"] += 1
+            if surplus > 100: buckets["gt_100"] += 1
+            if surplus > threshold:
+                over.append({
+                    "user_id": uid, "username": uname,
+                    "affiliate_balance_usd": round(affiliate, 2),
+                    "campaign_balance_usd": round(campaign, 2),
+                    "withdrawn_paid_usd": round(withdrawn, 2),
+                    "commissions_received_usd": round(received, 2),
+                    "surplus_usd": surplus,
+                })
+        else:
+            reconciled_or_spent += 1
+
+    over.sort(key=lambda r: r["surplus_usd"], reverse=True)
+    truncated = len(over) > limit
+
+    return JSONResponse({
+        "summary": {
+            "users_scanned": scanned,
+            "users_with_positive_surplus": surplus_users,
+            "users_over_threshold": len(over),
+            "total_unbacked_surplus_usd": round(total_surplus, 2),
+            "surplus_buckets": buckets,
+            "users_reconciled_or_spent_down": reconciled_or_spent,
+            "threshold_usd": threshold,
+        },
+        "top_over_credited": over[:limit],
+        "truncated": truncated,
+        "note": "A SMALL positive surplus is expected per user (15% welcome-bonus self-credit on their own tier purchases posts to the wallet without a commission row). The signal is LARGE/lumpy surpluses or a wide spread of mid-size ones. Few large outliers => manual one-offs (contained). Many proportional surpluses => a credit-path leak. Drill into any user with /admin/api/user-ledger?user_id=N.",
+    })
+
+
 @app.get("/admin/api/user-ledger")
 def admin_api_user_ledger(
     request: Request,
