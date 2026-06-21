@@ -163,9 +163,9 @@ const chev = <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke=
 
 const BIZ = [
   { to:'/toolkit', cls:'t1', name:'Tool Kit', desc:'Pages, email, content & ads', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.3 2.3-2.7-.7-.7-2.7z"/></svg> },
-  { to:'/affiliate', cls:'t2', name:'Marketing', desc:'Your link & promo materials', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l18-5v12L3 13zM11.5 12.5V19"/></svg> },
-  { to:'/campaign-tiers', cls:'t3', name:'Campaign Tiers', desc:'Buy & create your ads', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg> },
-  { to:'/command-centre', cls:'t4', name:'Team', desc:'Your network & earnings', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M16 5.5a3 3 0 010 5.5M21 20a6 6 0 00-4-5.7"/></svg> },
+  { to:'/marketing', cls:'t2', name:'Marketing', desc:'Your link & promo materials', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l18-5v12L3 13zM11.5 12.5V19"/></svg> },
+  { to:'/campaigns', cls:'t3', name:'Campaign Tiers', desc:'Buy & create your ads', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg> },
+  { to:'/team', cls:'t4', name:'Team', desc:'Your network & earnings', icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M16 5.5a3 3 0 010 5.5M21 20a6 6 0 00-4-5.7"/></svg> },
 ];
 
 export default function NewDashboard() {

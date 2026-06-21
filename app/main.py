@@ -3513,6 +3513,27 @@ def toolkit_page(request: Request):
         return _spa_shell()
     return RedirectResponse(url="/tools", status_code=302)
 
+@app.get("/marketing")
+def marketing_page(request: Request):
+    """Serve React SPA for the Marketing category page (no-sidebar preview)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/social-share", status_code=302)
+
+@app.get("/campaigns")
+def campaigns_page(request: Request):
+    """Serve React SPA for the Campaign Tiers category page (no-sidebar preview)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/campaign-tiers", status_code=302)
+
+@app.get("/team")
+def team_page(request: Request):
+    """Serve React SPA for the Team category page (no-sidebar preview)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/command-centre", status_code=302)
+
 @app.get("/income-disclaimer")
 def income_disclaimer(request: Request):
     """Serve React SPA."""
