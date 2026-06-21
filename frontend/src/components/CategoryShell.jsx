@@ -15,7 +15,7 @@ const SHELL_CSS = `
 .cat *{margin:0;padding:0;box-sizing:border-box;}
 .cat h1,.cat h2,.cat h3,.cat h4{font-family:'Sora','DM Sans',sans-serif;}
 .cat .mono{font-family:'JetBrains Mono',monospace;}
-.cat .wrap{max-width:1120px;margin:0 auto;}
+.cat .wrap{width:100%;}
 .cat .topwrap{margin-bottom:22px;}
 .cat .phead{margin-bottom:18px;}
 .cat .phead .eb{font-family:'JetBrains Mono';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#0e7490;}
