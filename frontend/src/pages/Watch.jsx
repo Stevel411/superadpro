@@ -262,7 +262,7 @@ export default function Watch() {
   };
 
   if (loading) return (
-    <AppLayout title={t('watch.title')}>
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
       <div style={{display:'flex',justifyContent:'center',padding:80}}>
         <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -274,7 +274,7 @@ export default function Watch() {
   // Admins and existing tier holders bypass; everyone else gets a clear CTA
   // straight to /campaign-tiers rather than a broken / empty video player.
   if (user && !user.is_admin && !(user.highest_tier && user.highest_tier > 0)) return (
-    <AppLayout title={t('watch.title')}>
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
       <div style={{maxWidth:520,margin:'80px auto',textAlign:'center',padding:'48px 32px',background:'#fff',borderRadius:20,border:'1px solid #e2e8f0',boxShadow:'0 8px 32px rgba(0,0,0,0.06)'}}>
         <div style={{fontSize:64,marginBottom:16,lineHeight:1}}>🔒</div>
         <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,marginBottom:12,color:'var(--sap-text-primary)'}}>
@@ -296,7 +296,7 @@ export default function Watch() {
   );
 
   if (!data) return (
-    <AppLayout title={t('watch.title')}>
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
       <div style={{textAlign:'center',padding:80,color:'var(--sap-text-muted)'}}>{t('watch.unableToLoad')}</div>
     </AppLayout>
   );
@@ -387,7 +387,7 @@ export default function Watch() {
   // ── ALL AVAILABLE VIDEOS WATCHED BUT QUOTA NOT MET ──
   if (allWatched && !quotaComplete) {
     return (
-      <AppLayout title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}>
+      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
@@ -415,7 +415,7 @@ export default function Watch() {
     const done = limit;  // On completion, show the full quota as done
     const actualWatched = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
-      <AppLayout title={t('watch.title')} subtitle={t('watch.quotaComplete')}
+      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.quotaComplete')}
         bgStyle={{padding:0,margin:0,display:'flex',flexDirection:'column',minHeight:'calc(100dvh - 72px)'}}>
         <style>{CSS}</style>
         <style>{`
@@ -515,7 +515,7 @@ export default function Watch() {
   if (videos.length === 0 && !quotaComplete) {
     const userHasTier = d?.has_campaign_tier;
     return (
-      <AppLayout title={t('watch.title')} subtitle={t('watch.noActiveCampaigns')}>
+      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.noActiveCampaigns')}>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
@@ -545,7 +545,7 @@ export default function Watch() {
     const doneRingR = 38;
     const doneRingC = 2 * Math.PI * doneRingR;
     return (
-      <AppLayout title={t('watch.title')} subtitle={t('watch.quotaComplete') + '!'}
+      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.quotaComplete') + '!'}
         topbarActions={<>
           <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,padding:'6px 14px',borderRadius:8,background:'rgba(22,163,74,.1)',border:'1px solid rgba(22,163,74,.2)',color:'var(--sap-green-bright)'}}>
             <span style={{width:7,height:7,borderRadius:'50%',background:'var(--sap-green-bright)'}}/>{t('watch.qualified')}
@@ -593,7 +593,7 @@ export default function Watch() {
 
   // ── MAIN WATCH SESSION ──
   return (
-    <AppLayout title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}
       bgStyle={window.innerWidth < 768 ? {padding: 0, paddingBottom: 80} : {}}
       topbarActions={<>
         <div style={{background:'rgba(14,165,233,.12)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,padding:'6px 14px',textAlign:'center'}}>
