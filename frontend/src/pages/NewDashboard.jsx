@@ -42,6 +42,19 @@ const CSS = `
 .nd .avatar-btn{width:48px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s;}
 .nd .avatar-btn:hover{border-color:var(--cyanb);box-shadow:var(--shadow-lg);}
 .nd .avatar-btn.open{border-color:var(--cyanb);background:#f4fbff;}
+.nd .rt{display:flex;align-items:center;gap:10px;}
+.nd .bal{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 15px 6px 12px;text-decoration:none;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s;}
+.nd .bal:hover{border-color:var(--cyanb);box-shadow:var(--shadow-lg);}
+.nd .bal .ico{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--cyan),#0ea5e9);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.nd .bal .txt{display:flex;flex-direction:column;line-height:1.05;}
+.nd .bal .l{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);}
+.nd .bal .a{font-family:'Sora';font-size:15px;font-weight:800;color:var(--ink);}
+@media(max-width:560px){
+  .nd .bal{padding:6px 12px 6px 10px;gap:7px;}
+  .nd .bal .ico{width:26px;height:26px;}
+  .nd .bal .l{display:none;}
+  .nd .bal .a{font-size:13.5px;}
+}
 .nd .menu{position:absolute;right:0;top:54px;width:216px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);padding:8px;z-index:50;}
 .nd .menu .mhead{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:6px;}
 .nd .menu .mhead b{font-family:'Sora';font-size:14px;color:var(--ink);display:block;}
@@ -218,7 +231,12 @@ export default function NewDashboard() {
             <span className="logomark"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style={{ marginLeft: 2 }}><path d="M8 5v14l11-7z"/></svg></span>
             <span className="wordmark">SuperAd<span className="pro">Pro</span></span>
           </div>
-          <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
+          <div className="rt">
+            <Link className="bal" to="/wallet" aria-label="Wallet — available balance">
+              <span className="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 14h2"/></svg></span>
+              <span className="txt"><span className="l">Available</span><span className="a">${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
+            </Link>
+            <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
             <button className={'avatar-btn' + (menuOpen ? ' open' : '')} onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu" aria-expanded={menuOpen}>
               {menuOpen
                 ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -236,6 +254,7 @@ export default function NewDashboard() {
                 <a className="out" href="/logout"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign out</a>
               </div>
             )}
+          </div>
           </div>
         </div>
 

@@ -19,6 +19,13 @@ const CSS = `
 .ctb .brand .wm .pro{color:#0ea5e9;}
 .ctb .back{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #e4eaf3;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;color:#1e3a8a;box-shadow:0 10px 30px rgba(10,20,56,.08);text-decoration:none;transition:gap .2s,border-color .2s;}
 .ctb .back:hover{gap:9px;border-color:#22d3ee;}
+.ctb .rt{display:flex;align-items:center;gap:10px;}
+.ctb .bal{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #e4eaf3;border-radius:999px;padding:6px 15px 6px 12px;text-decoration:none;box-shadow:0 10px 30px rgba(10,20,56,.08);transition:border-color .2s,box-shadow .2s;}
+.ctb .bal:hover{border-color:#22d3ee;box-shadow:0 22px 50px rgba(10,20,56,.16);}
+.ctb .bal .ico{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.ctb .bal .txt{display:flex;flex-direction:column;line-height:1.05;}
+.ctb .bal .l{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#64748b;}
+.ctb .bal .a{font-family:'Sora','DM Sans',sans-serif;font-size:15px;font-weight:800;color:#0a1438;}
 .ctb .acct{position:relative;}
 .ctb .burger{width:48px;height:44px;border-radius:12px;background:#fff;border:1px solid #e4eaf3;box-shadow:0 10px 30px rgba(10,20,56,.08);display:flex;align-items:center;justify-content:center;color:#0a1438;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s;}
 .ctb .burger:hover{border-color:#22d3ee;box-shadow:0 22px 50px rgba(10,20,56,.16);}
@@ -33,6 +40,14 @@ const CSS = `
 .ctb .menu .sep{height:1px;background:#e4eaf3;margin:6px 0;}
 .ctb .menu a.out{color:#b91c1c;}
 .ctb .menu a.out svg{color:#b91c1c;}
+@media(max-width:560px){
+  .ctb .back{padding:8px 11px;}
+  .ctb .back .bl{display:none;}
+  .ctb .bal{padding:6px 12px 6px 10px;gap:7px;}
+  .ctb .bal .ico{width:26px;height:26px;}
+  .ctb .bal .l{display:none;}
+  .ctb .bal .a{font-size:13.5px;}
+}
 `;
 
 export default function CategoryTopBar({ backTo = '/home-preview', backLabel = 'Dashboard' }) {
@@ -40,6 +55,7 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
   const [menuOpen, setMenuOpen] = useState(false);
   const acctRef = useRef(null);
   const name = (user && (user.first_name || user.username)) || 'there';
+  const bal = Number((user && user.balance) || 0);
 
   useEffect(function () {
     if (!menuOpen) return undefined;
@@ -58,9 +74,14 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
           <span className="lm"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style={{ marginLeft: 2 }}><path d="M8 5v14l11-7z"/></svg></span>
           <span className="wm">SuperAd<span className="pro">Pro</span></span>
         </Link>
-        <Link className="back" to={backTo}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>{backLabel}</Link>
+        <Link className="back" to={backTo}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span className="bl">{backLabel}</span></Link>
       </div>
-      <div className="acct" ref={acctRef}>
+      <div className="rt">
+        <Link className="bal" to="/wallet" aria-label="Wallet — available balance">
+          <span className="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 14h2"/></svg></span>
+          <span className="txt"><span className="l">Available</span><span className="a">${bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
+        </Link>
+        <div className="acct" ref={acctRef}>
         <button className={'burger' + (menuOpen ? ' open' : '')} onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu" aria-expanded={menuOpen}>
           {menuOpen
             ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -78,6 +99,7 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
             <a className="out" href="/logout"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign out</a>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

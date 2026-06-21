@@ -191,17 +191,9 @@ export default function GridVisualiser() {
       <style>{css}</style>
       <div style={{ maxWidth:1180, margin:'0 auto' }}>
 
-        {/* 100% revenue-share claim — accurate now the company share is 0%.
-            Scoped to Campaign Tiers / Profit Grid with the proof breakdown. */}
-        <div className="lgv-claim">
-          <span className="big">SuperAdPro shares <b>100% of Campaign Tier revenue</b> back to the community</span>
-          <span className="split">{planV2
-            ? '100% of Profit Grid commissions go to affiliates — 40% direct · 20% across 4 uni-levels · 15% welcome bonus · 25% bonus pool · 0% to the company'
-            : '100% of Profit Grid commissions go to affiliates — 30% direct · 50% across the 8-level uni-level · 20% completion bonus · 0% to the company'}</span>
-        </div>
-
         {/* Enlarged tier cards — two rows of four, each showing all three ways
-            the tier pays. Replaces the small text tabs. */}
+            the tier pays. Replaces the small text tabs. Lead the page (21 Jun:
+            revenue-share banner moved below the grid). */}
         <div className="lgv-tiers-grid">
           {TIERS.map(function(t) {
             var isActive = activeTier === t.t;
@@ -520,6 +512,16 @@ export default function GridVisualiser() {
             </div>
 
           </div>
+        </div>
+
+        {/* 100% revenue-share claim — moved below the grid (21 Jun) so the tier
+            cards lead the page. Accurate now company share is 0%; scoped to
+            Campaign Tiers / Profit Grid with the proof breakdown. */}
+        <div className="lgv-claim" style={{ marginTop:18 }}>
+          <span className="big">SuperAdPro shares <b>100% of Campaign Tier revenue</b> back to the community</span>
+          <span className="split">{planV2
+            ? '100% of Profit Grid commissions go to affiliates — 40% direct · 20% across 4 uni-levels · 15% welcome bonus · 25% bonus pool · 0% to the company'
+            : '100% of Profit Grid commissions go to affiliates — 30% direct · 50% across the 8-level uni-level · 20% completion bonus · 0% to the company'}</span>
         </div>
       </div>
     </AppLayout>
