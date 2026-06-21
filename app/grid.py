@@ -393,6 +393,16 @@ def process_tier_purchase(
             logging.getLogger(__name__).error(
                 f"Climb drain failed after tier {package_tier} purchase by {buyer_id}: {e}"
             )
+        # v2 step-up auto-climbs — when a member's step-up wallet reaches the
+        # next tier's price, open that tier. Top-level only, post-commit, gated.
+        if v2_live():
+            try:
+                _drain_step_up_climbs(db)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(
+                    f"Step-up climb drain failed after tier {package_tier} by {buyer_id}: {e}"
+                )
 
     return {
         "success": True,
@@ -500,6 +510,114 @@ def _drain_pending_climbs(db: Session, max_iterations: int = 200):
     if iterations >= max_iterations:
         log.error(f"_drain_pending_climbs hit max_iterations={max_iterations} — "
                   f"some grids may remain climb_pending; will drain on next purchase.")
+
+
+def _v2_next_climb_tier(db: Session, user: User):
+    """v2 step-up climb target: the next sequential tier the member should open,
+    = highest tier they genuinely own (owner_purchased grid) + 1. Capped at tier
+    6 — step-up is only generated at tiers ≤ $400 (tier 5's step-up funds tier 6),
+    so the auto-climb chain tops out at opening tier 6; tiers 7-8 are manual
+    (Steve, 21 Jun). Returns None if there's nothing to climb to."""
+    from sqlalchemy import func as _func
+    highest = db.query(_func.max(Grid.package_tier)).filter(
+        Grid.owner_id == user.id,
+        Grid.owner_purchased == True,  # noqa: E712
+    ).scalar()
+    if highest is None:
+        return None
+    nxt = int(highest) + 1
+    if nxt > 6:
+        return None
+    if float(GRID_PACKAGES.get(nxt, 0)) <= 0:
+        return None
+    return nxt
+
+
+def _drain_step_up_climbs(db: Session, max_iterations: int = 200):
+    """Post-commit drain of v2 step-up auto-climbs (New Profit Grid plan).
+
+    When a member's step-up wallet reaches the next tier's price, spend that
+    price to open the next tier's grid. Mirrors _drain_pending_climbs' crash-safe
+    two-step shape:
+
+      step 1 (one commit): debit the step-up wallet by the next-tier price AND
+        write a 'stepup_climb' marker commission keyed stepup_{user}_t{N}. The
+        marker is the durable record that the debit happened.
+      step 2: process_tier_purchase(event_id=stepup_{user}_t{N}) opens tier N.
+        Idempotent — the purchase replay guard only matches direct_sponsor /
+        uni_level rows, so the marker never trips it, and a genuine re-run no-ops.
+
+    Crash between the two re-runs safely: next_tier is still N (grid N not open
+    yet → highest owned is still N-1), the marker already exists so step 1 is
+    skipped (no double debit), and step 2 opens the grid exactly once. Loops for
+    cascades — one large step-up balance can climb several tiers in sequence —
+    bounded by max_iterations. Runs at the top level only (never re-entrant);
+    the climb purchase passes _drain_climbs=False. v2-only."""
+    import logging
+    log = logging.getLogger(__name__)
+    iterations = 0
+    while iterations < max_iterations:
+        iterations += 1
+        rows = (db.query(StepUpBalance)
+                  .filter(StepUpBalance.amount > 0)
+                  .order_by(StepUpBalance.amount.desc())
+                  .limit(50).all())
+        did_climb = False
+        for row in rows:
+            user = db.query(User).filter(User.id == row.user_id).first()
+            if not user:
+                continue
+            nxt = _v2_next_climb_tier(db, user)
+            if nxt is None:
+                continue
+            price = float(GRID_PACKAGES.get(nxt, 0))
+            event_id = f"stepup_{user.id}_t{nxt}"
+
+            marked = db.query(Commission).filter(
+                Commission.source_event_id  == event_id,
+                Commission.commission_type  == "stepup_climb",
+            ).first()
+
+            if not marked:
+                # Not yet debited. Only climb if the wallet can fully fund it.
+                if float(row.amount or 0) < price:
+                    continue
+                # step 1 — debit + durable marker, single commit.
+                row.amount = Decimal(str(row.amount)) - Decimal(str(price))
+                db.add(row)
+                _record_commission(
+                    db, user.id, user.id, round(price, 2), "stepup_climb",
+                    f"Step-up climb: ${price:.2f} from step-up wallet funds Tier {nxt} entry",
+                    nxt, source_event_id=event_id,
+                )
+                db.commit()
+
+            # step 2 — open the next-tier grid (idempotent on event_id).
+            try:
+                res = process_tier_purchase(
+                    db, user.id, nxt,
+                    bypass_repurchase_guard=True,
+                    source_event_id=event_id,
+                    _drain_climbs=False,
+                )
+            except Exception as e:
+                db.rollback()
+                log.error(f"Step-up climb user {user.id} -> tier {nxt}: purchase raised {e} "
+                          f"— marker persists, will retry on next purchase.")
+                continue
+            if not res.get("success"):
+                db.rollback()
+                log.error(f"Step-up climb user {user.id} -> tier {nxt}: purchase returned "
+                          f"{res.get('error')} — marker persists, will retry.")
+                continue
+            db.commit()
+            did_climb = True
+            log.info(f"Step-up climb: user {user.id} opened Tier {nxt} (${price:.2f} from step-up).")
+        if not did_climb:
+            break
+    if iterations >= max_iterations:
+        log.error(f"_drain_step_up_climbs hit max_iterations={max_iterations} — "
+                  f"some climbs may remain; will drain on next purchase.")
 
 
 def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
