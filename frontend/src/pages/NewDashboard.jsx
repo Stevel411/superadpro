@@ -52,10 +52,8 @@ const CSS = `
 .nd .menu .sep{height:1px;background:var(--line);margin:6px 0;}
 .nd .menu a.out{color:#b91c1c;}
 .nd .menu a.out svg{color:#b91c1c;}
-.nd /* greeting */
-.greet{margin-bottom:22px;}
-.nd .greet h1{font-size:clamp(22px,3.4vw,30px);font-weight:800;color:var(--ink);letter-spacing:-.5px;}
-.nd .greet p{color:var(--muted);font-size:15px;margin-top:5px;max-width:560px;}
+.nd /* greeting — now lives inside the watch banner */
+.nd .w-copy .greet-line{font-family:'DM Sans';font-weight:600;font-size:15px;color:var(--cyans);margin-bottom:2px;letter-spacing:.2px;}
 .nd /* layout */
 .doors{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 .nd .door{position:relative;border-radius:22px;overflow:hidden;opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;cursor:pointer;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s;}
@@ -77,7 +75,7 @@ const CSS = `
 .nd .play{position:absolute;inset:0;margin:auto;width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#22d3ee,#06b6d4);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(6,182,212,.5);}
 .nd .play svg{margin-left:5px;}
 .nd .w-copy .eyebrow{font-family:'JetBrains Mono';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyans);}
-.nd .w-copy h2{font-size:clamp(22px,3vw,30px);font-weight:800;margin:5px 0 6px;letter-spacing:-.4px;}
+.nd .w-copy h2{font-size:clamp(22px,3vw,30px);font-weight:800;margin:2px 0 6px;letter-spacing:-.4px;}
 .nd .w-copy p{color:#cfe0fb;font-size:14.5px;max-width:420px;line-height:1.5;}
 .nd .w-cta{margin-top:16px;display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--ink);font-family:'Sora';font-weight:700;font-size:14.5px;padding:12px 22px;border-radius:12px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 22px rgba(0,0,0,.22);}
 .nd .w-cta:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.3);}
@@ -241,13 +239,6 @@ export default function NewDashboard() {
           </div>
         </div>
 
-        <div className="greet">
-          <h1>Welcome back, {name}</h1>
-          <p>{watchedToday
-            ? "You're active today — your wallet's switched on and your grid is earning."
-            : "Watch today's video to keep your wallet active and your Profit Grid earning."}</p>
-        </div>
-
         <div className="doors">
 
           <Link className="door watch" to="/watch" style={{ textDecoration: 'none' }}>
@@ -261,7 +252,7 @@ export default function NewDashboard() {
                 </span>
               </div>
               <div className="w-copy">
-                <div className="eyebrow">Watch to Earn</div>
+                <div className="greet-line">Welcome back, {name}</div>
                 <h2>{watchedToday ? "Today's watch — done" : "Today's video is ready"}</h2>
                 <p>{watchedToday
                   ? "You're qualified to earn and withdraw today. Come back tomorrow to keep your streak alive."
