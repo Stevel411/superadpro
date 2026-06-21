@@ -28,7 +28,7 @@ export default function VideoLibrary() {
     setDeleting(null);
   }
 
-  if (loading) return <AppLayout title={t("videos.title")}><Spin/></AppLayout>;
+  if (loading) return <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t("videos.title")}><Spin/></AppLayout>;
 
   var d = data || {};
   var campaigns = d.campaigns || [];
@@ -61,7 +61,7 @@ export default function VideoLibrary() {
   }
 
   return (
-    <AppLayout title={t("videos.title")} subtitle={t("videos.subtitle")}>
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t("videos.title")} subtitle={t("videos.subtitle")}>
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
         {[

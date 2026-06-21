@@ -211,7 +211,7 @@ export default function PayItForward() {
   }
 
   if (loading) return (
-    <AppLayout title={t('payItForward.title')}>
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('payItForward.title')}>
       <div style={{ display:'flex', justifyContent:'center', padding:80 }}>
         <div style={{ width:40, height:40, border:'3px solid #e5e7eb', borderTopColor:'var(--sap-pink)', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -225,12 +225,13 @@ export default function PayItForward() {
 
   return (
     <Suspense fallback={
-      <AppLayout title={t("payItForward.title")} subtitle={t("payItForward.subtitle")}>
+      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t("payItForward.title")} subtitle={t("payItForward.subtitle")}>
         <div style={{ padding:80, textAlign:'center' }}>{t('common.loading') || 'Loading…'}</div>
       </AppLayout>
     }>
     <WalletConnectProvider onBeforeClick={async function() { return await consentGate.ensureConsent(); }}>
     <AppLayout
+      categoryBack={{ to: '/home-preview', label: 'Dashboard' }}
       title={t("payItForward.title")}
       subtitle={t("payItForward.subtitle")}
     >

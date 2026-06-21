@@ -39,7 +39,7 @@ export default function ProSeller() {
   var hasMessages=messages.length>0;
 
   return(
-    <AppLayout title={t('proSeller.title')} subtitle={t('proSeller.aiSalesAssistant')}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('proSeller.title')} subtitle={t('proSeller.aiSalesAssistant')}>
       <div style={{maxWidth:900,margin:'0 auto',display:'flex',flexDirection:'column',height:'calc(100vh - 180px)'}}>
 
         {/* Chat area */}

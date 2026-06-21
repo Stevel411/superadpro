@@ -66,7 +66,7 @@ export default function Affiliate() {
   }
 
   return (
-    <AppLayout title={t('socialShare.title')}>
+    <AppLayout categoryBack={{ to: '/marketing', label: 'Marketing' }} title={t('socialShare.title')}>
     <div style={{ fontFamily: "'DM Sans','Rethink Sans',sans-serif" }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #172554, #172554)', padding: '20px 24px 16px' }}>
