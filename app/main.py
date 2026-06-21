@@ -9803,6 +9803,157 @@ def admin_api_grid_distribution(
     })
 
 
+@app.get("/admin/api/user-ledger")
+def admin_api_user_ledger(
+    request: Request,
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: full per-user MONEY reconciliation across BOTH wallets.
+
+    Read-only. Resolves the recurring blind spot where lookup_user shows only the
+    affiliate wallet. Exposes both wallet balances, every commission RECEIVED
+    grouped by type (so phantom grid_completion_bonus_topup is explicit), and all
+    withdrawals grouped by wallet_type + status.
+
+    Key rule: grid commissions (direct_sponsor, uni_level, grid_completion_bonus
+    AND grid_completion_bonus_topup) credit campaign_balance. The account-card
+    "total earned" EXCLUDES topup. So when campaign money has been withdrawn, the
+    gap between what reached the campaign wallet and clean earnings == phantom
+    topup that should never have been spendable.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    from sqlalchemy import func as _func
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"User {user_id} not found"}, status_code=404)
+
+    affiliate_balance = float(target.balance or 0)
+    campaign_balance = float(target.campaign_balance or 0)
+
+    # Commissions RECEIVED, grouped by type (paid only)
+    comm_rows = db.query(
+        Commission.commission_type,
+        _func.coalesce(_func.sum(Commission.amount_usdt), 0),
+        _func.count(Commission.id),
+    ).filter(
+        Commission.to_user_id == user_id,
+        Commission.status == "paid",
+    ).group_by(Commission.commission_type).all()
+
+    by_type = {}
+    lifetime_received_paid = 0.0
+    for ctype, csum, ccount in comm_rows:
+        amt = float(csum or 0)
+        by_type[ctype or "unknown"] = {"total_usd": round(amt, 2), "count": int(ccount or 0)}
+        lifetime_received_paid += amt
+
+    GRID_LEGIT = ("direct_sponsor", "uni_level", "grid_completion_bonus")
+    grid_legit_total = round(sum(by_type.get(t, {}).get("total_usd", 0.0) for t in GRID_LEGIT), 2)
+    phantom_topup_total = round(float(by_type.get("grid_completion_bonus_topup", {}).get("total_usd", 0.0)), 2)
+    clean_total_earned = round(lifetime_received_paid - phantom_topup_total, 2)
+
+    # Withdrawals grouped by wallet_type + status
+    wd_rows = db.query(
+        Withdrawal.wallet_type,
+        Withdrawal.status,
+        _func.coalesce(_func.sum(Withdrawal.amount_usdt), 0),
+        _func.count(Withdrawal.id),
+    ).filter(
+        Withdrawal.user_id == user_id,
+    ).group_by(Withdrawal.wallet_type, Withdrawal.status).all()
+
+    withdrawals_breakdown = []
+    total_withdrawn_paid = 0.0
+    campaign_withdrawn_paid = 0.0
+    for wtype, wstatus, wsum, wcount in wd_rows:
+        amt = float(wsum or 0)
+        wt = wtype or "affiliate"
+        withdrawals_breakdown.append({
+            "wallet_type": wt, "status": wstatus,
+            "total_usd": round(amt, 2), "count": int(wcount or 0),
+        })
+        if wstatus == "paid":
+            total_withdrawn_paid += amt
+            if wt == "campaign":
+                campaign_withdrawn_paid += amt
+
+    recent_wds = db.query(Withdrawal).filter(
+        Withdrawal.user_id == user_id,
+    ).order_by(Withdrawal.requested_at.desc()).limit(12).all()
+    recent = [{
+        "id": w.id, "amount_usd": float(w.amount_usdt or 0),
+        "wallet_type": w.wallet_type or "affiliate", "status": w.status,
+        "network": w.network,
+        "requested_at": w.requested_at.isoformat() if w.requested_at else None,
+        "tx_hash": w.tx_hash,
+    } for w in recent_wds]
+
+    try:
+        card = compute_user_earnings(db, user_id)
+        card_total_earned = round(float(card.get("total_earned") or 0), 2)
+    except Exception:
+        card_total_earned = None
+
+    accounted = round(affiliate_balance + campaign_balance + total_withdrawn_paid, 2)
+    # How much campaign money (still held + already withdrawn) exceeds the LEGIT
+    # grid earnings — i.e. phantom money that reached the spendable wallet.
+    campaign_over_legit = round((campaign_balance + campaign_withdrawn_paid) - grid_legit_total, 2)
+
+    if phantom_topup_total > 0.005:
+        verdict = (
+            f"Campaign wallet was inflated by ${phantom_topup_total} of phantom "
+            f"grid_completion_bonus_topup credits (excluded from clean earnings but "
+            f"credited to the spendable campaign wallet). Legit grid earnings = "
+            f"${grid_legit_total}; campaign withdrawn = ${round(campaign_withdrawn_paid,2)} + "
+            f"still held ${round(campaign_balance,2)}. This topup money is the discrepancy."
+        )
+    else:
+        verdict = (
+            "No phantom grid_completion_bonus_topup credits found for this user. "
+            "Campaign balance is backed by legitimate grid commissions; any perceived "
+            "discrepancy is the affiliate-vs-campaign wallet split, not inflation."
+        )
+
+    return JSONResponse({
+        "user": {
+            "id": target.id, "username": target.username,
+            "email": target.email, "membership_tier": target.membership_tier,
+        },
+        "wallets": {
+            "affiliate_balance_usd": round(affiliate_balance, 2),
+            "campaign_balance_usd": round(campaign_balance, 2),
+        },
+        "commissions_received_by_type": by_type,
+        "earnings": {
+            "lifetime_received_paid_usd": round(lifetime_received_paid, 2),
+            "grid_legit_total_usd": grid_legit_total,
+            "phantom_topup_total_usd": phantom_topup_total,
+            "clean_total_earned_usd": clean_total_earned,
+            "account_card_total_earned_usd": card_total_earned,
+        },
+        "withdrawals": {
+            "by_wallet_and_status": withdrawals_breakdown,
+            "total_withdrawn_paid_usd": round(total_withdrawn_paid, 2),
+            "campaign_withdrawn_paid_usd": round(campaign_withdrawn_paid, 2),
+            "recent": recent,
+        },
+        "reconciliation": {
+            "affiliate_plus_campaign_plus_withdrawn_usd": accounted,
+            "lifetime_received_paid_usd": round(lifetime_received_paid, 2),
+            "campaign_held_plus_withdrawn_minus_legit_grid_usd": campaign_over_legit,
+            "verdict": verdict,
+            "note": "Grid stream (direct_sponsor + uni_level + grid_completion_bonus, EXCLUDING topup) feeds the campaign wallet. If campaign_held + campaign_withdrawn exceeds legit grid earnings, the excess is phantom topup money that became spendable.",
+        },
+    })
+
+
 @app.get("/admin/api/user-fulfillment")
 def admin_api_user_fulfillment(
     request: Request,
