@@ -162,7 +162,7 @@ LEGACY_BONUS_POOL_PCT = 0.10  # 36-seat grandfathered grids keep the old 10% rat
 # returns False and no v2 constant is read anywhere. GO-LIVE = set it True.
 # Split: 40 direct / 20 uni-level (5%×4) / 15 locked welcome bonus / 25 bonus
 # pool (half cash, half step-up credit) / 0 company = 100% to members.
-GRID_V2_LIVE = False           # GO-LIVE = set True. False = v2 subsystem inert.
+GRID_V2_LIVE = True            # LIVE 21 Jun 2026. Flip to False = instant rollback to v1.
 
 V2_DIRECT_PCT      = 0.40      # 40% → direct sponsor
 V2_UNILEVEL_PCT    = 0.20      # 20% total → split across 4 levels (5% each)
