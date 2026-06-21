@@ -165,7 +165,7 @@ export default function GridVisualiser() {
   var currentAdvanceNum = data ? data.advance : (completedAdvances + 1);
 
   return (
-    <AppLayout title="Profit Grid" subtitle={'Your ' + Math.round(Math.sqrt(liveSeats)) + '×' + Math.round(Math.sqrt(liveSeats)) + ' spillover grid — bonus at seat ' + liveSeats}>
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title="Profit Grid" subtitle={'Your ' + Math.round(Math.sqrt(liveSeats)) + '×' + Math.round(Math.sqrt(liveSeats)) + ' spillover grid — bonus at seat ' + liveSeats}>
       <style>{css}</style>
       <div style={{ maxWidth:1180, margin:'0 auto' }}>
 

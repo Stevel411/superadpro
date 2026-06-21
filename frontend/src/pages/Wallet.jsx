@@ -194,16 +194,16 @@ export default function Wallet() {
     setWithdrawing(false);
   };
 
-  if (loading) return <AppLayout title={t('wallet.title')}><LoadingSpinner /></AppLayout>;
-  if (!data) return <AppLayout title={t('wallet.title')}><div style={{ textAlign: 'center', padding: 80, color: 'var(--sap-text-faint)' }}>{t('wallet.unableToLoad')}</div></AppLayout>;
-  if (showHelp) return <AppLayout title={t('wallet.title')}><WalletHelp onBack={function() { setShowHelp(false); }}/></AppLayout>;
+  if (loading) return <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('wallet.title')}><LoadingSpinner /></AppLayout>;
+  if (!data) return <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('wallet.title')}><div style={{ textAlign: 'center', padding: 80, color: 'var(--sap-text-faint)' }}>{t('wallet.unableToLoad')}</div></AppLayout>;
+  if (showHelp) return <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('wallet.title')}><WalletHelp onBack={function() { setShowHelp(false); }}/></AppLayout>;
 
   const d = data;
   const memberId = user?.is_admin ? 'SAP-00001' : `SAP-${String(user?.id || 0).padStart(5, '0')}`;
   const renewal = d.renewal || {};
 
   return (
-    <AppLayout title={t('wallet.title')} subtitle={t('wallet.subtitle')}
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('wallet.title')} subtitle={t('wallet.subtitle')}
     >
       {/* 4 Stat Pills */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
