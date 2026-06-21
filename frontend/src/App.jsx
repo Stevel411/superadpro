@@ -336,7 +336,7 @@ function AppRoutes() {
       <Route path="/my-team" element={<ProtectedRoute><MyTeam /></ProtectedRoute>} />
       <Route path="/upgrade-from-balance" element={<ProtectedRoute><UpgradeFromBalance /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-      <Route path="/account/purchases" element={<ProtectedRoute><AccountPurchases /></ProtectedRoute>} />
+      <Route path="/account/purchases" element={<Navigate to="/account?tab=billing" replace />} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><RequireTier tier="basic"><Courses /></RequireTier></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
