@@ -3880,6 +3880,53 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             "seats": cg_seats,
         })
 
+    # ── Plan-aware economics (v1 live / v2 New Profit Grid) ──────────────────
+    # The page renders whatever plan is ACTUALLY live. v2 numbers only surface
+    # once GRID_V2_LIVE flips — OR for an admin passing ?preview_v2=1, so the
+    # live page can be eyeballed in v2 mode before the global flip (members never
+    # see the preview path). Additive: the v1 page ignores the new keys.
+    from .grid import v2_live as _v2_live
+    _price = GRID_PACKAGES.get(tier, 0)
+    _is_admin = bool(getattr(user, "is_admin", False))
+    _preview_v2 = _is_admin and (request.query_params.get("preview_v2") in ("1", "true", "yes"))
+    plan_version = 2 if (_v2_live() or _preview_v2) else 1
+
+    if plan_version == 2:
+        v2_direct_per_fill   = round(_price * 0.40, 2)
+        v2_unilevel_per_fill = round(_price * 0.05, 2)
+        v2_unilevel_levels   = 4
+        v2_welcome_per_fill  = round(_price * 0.15, 2)
+        v2_bonus_positions   = [4, 8, 12, 16]
+        v2_bonus_per_pos     = round(_price, 2)                 # one tier-price per starred seat
+        if _price <= 400:
+            v2_bonus_cash   = round(_price * 0.5, 2)
+            v2_bonus_stepup = round(_price - v2_bonus_cash, 2)
+        else:
+            v2_bonus_cash   = round(_price, 2)                  # >$400: full cash, no step-up
+            v2_bonus_stepup = 0.0
+        v2_bonus_pool_total = round(_price * 4, 2)              # 25% × 16 seats = 4 × price
+        # Step-up wallet balance (guard: table may not exist before the schema
+        # endpoint is tapped; never break the page on its absence).
+        v2_step_up_balance = 0.0
+        try:
+            from .database import StepUpBalance
+            _su = db.query(StepUpBalance).filter(StepUpBalance.user_id == user.id).first()
+            if _su:
+                v2_step_up_balance = round(float(_su.amount or 0), 2)
+        except Exception:
+            v2_step_up_balance = 0.0
+    else:
+        v2_direct_per_fill   = round(_price * 0.30, 2)
+        v2_unilevel_per_fill = round(_price * 0.0625, 2)
+        v2_unilevel_levels   = 8
+        v2_welcome_per_fill  = 0.0
+        v2_bonus_positions   = [16]
+        v2_bonus_per_pos     = bonus_max
+        v2_bonus_cash        = bonus_max
+        v2_bonus_stepup      = 0.0
+        v2_bonus_pool_total  = bonus_max
+        v2_step_up_balance   = 0.0
+
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
@@ -3899,10 +3946,20 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         "total_earned": round(total_earned, 2),
         "direct_fills": direct_fills,
         "unilevel_fills": unilevel_fills,
-        "direct_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.30, 2),
-        "unilevel_per_fill": round(GRID_PACKAGES.get(tier, 0) * 0.0625, 2),
+        "direct_per_fill": v2_direct_per_fill,
+        "unilevel_per_fill": v2_unilevel_per_fill,
         "direct_count": direct_count,
         "completed_grids": completed_grids_detail,
+        # ── Plan-aware fields (v1 page ignores these; v2 page reads them) ──
+        "plan_version": plan_version,
+        "unilevel_levels": v2_unilevel_levels,
+        "welcome_per_fill": v2_welcome_per_fill,
+        "bonus_positions": v2_bonus_positions,
+        "bonus_per_position": v2_bonus_per_pos,
+        "bonus_cash_per_position": v2_bonus_cash,
+        "bonus_stepup_per_position": v2_bonus_stepup,
+        "bonus_pool_total": v2_bonus_pool_total,
+        "step_up_balance": v2_step_up_balance,
     })
 
 
