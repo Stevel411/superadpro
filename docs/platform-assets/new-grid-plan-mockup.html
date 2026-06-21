@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --ink:#0a1438; --ink2:#15275f; --cobalt:#1e3a8a;
+    --cyan:#06b6d4; --cyanb:#22d3ee;
+    --gold:#f59e0b; --goldb:#fbbf24;
+    --violet:#7c3aed; --violetb:#8b5cf6;
+    --line:#e4eaf3; --muted:#64748b; --bg:#ffffff;
+  }
+  body{ font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); width:1440px; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+  .sora{ font-family:'Sora',sans-serif; }
+  .card{ background:#fff; border:1px solid var(--line); border-radius:18px;
+         box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 2px 6px rgba(10,20,56,.09), 0 20px 44px rgba(10,20,56,.10); }
+
+  /* top bar */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 28px;
+           background:linear-gradient(120deg,#0a1438,#15275f); }
+  .logo{ display:flex; align-items:center; gap:11px; }
+  .logo .dot{ width:38px;height:38px;border-radius:50%;background:#0ea5e9;display:flex;align-items:center;justify-content:center;}
+  .logo .wm{ font-family:'Sora';font-weight:800;font-size:22px;color:#fff;}
+  .logo .wm span{ color:#7dd3fc;}
+  .ttl{ color:#fff;}
+  .ttl h1{ font-family:'Sora';font-weight:800;font-size:26px;}
+  .ttl p{ color:#9fb2e6; font-size:13.5px; margin-top:2px;}
+  .badge{ font-family:'JetBrains Mono';font-size:11px;font-weight:700;letter-spacing:1px;color:#c4b5fd;
+          background:rgba(124,58,237,.25);border:1px solid rgba(167,139,250,.5);border-radius:999px;padding:5px 12px;}
+  .bal{ background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:9px 16px;color:#fff;}
+  .bal b{ font-family:'Sora';color:#34d399;font-weight:800;}
+
+  .wrap{ display:grid; grid-template-columns: 1fr 470px; gap:22px; padding:26px 28px; }
+
+  /* tier header */
+  .tierhead{ display:flex; align-items:center; justify-content:space-between; padding:16px 22px;
+             background:linear-gradient(120deg,#0a1438,#1e3a8a); border-radius:16px 16px 0 0; color:#fff;}
+  .tierhead .t{ font-family:'Sora';font-weight:800;font-size:19px;}
+  .tierhead .p{ font-family:'JetBrains Mono';font-size:13px;color:#9fb2e6;}
+
+  .gridcard{ border-radius:16px; overflow:hidden; }
+  .gridbody{ background:#fff; border:1px solid var(--line); border-top:none; border-radius:0 0 16px 16px; padding:20px 22px 24px;}
+
+  .tabs{ display:flex; gap:9px; margin-bottom:18px; flex-wrap:wrap;}
+  .tab{ font-size:13px; padding:8px 14px; border-radius:9px; border:1px solid var(--line); color:var(--muted); font-weight:600;}
+  .tab.done{ color:#059669; border-color:#a7f3d0; background:#f0fdf4;}
+  .tab.now{ color:var(--cyan); border-color:#a5f3fc; background:#ecfeff; font-weight:700;}
+
+  .prog{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
+  .prog .l{ font-family:'Sora'; font-weight:700; font-size:15px;}
+  .prog .r{ font-size:13.5px; color:var(--violet); font-weight:700;}
+  .bar{ height:8px; border-radius:6px; background:#eef2f9; overflow:hidden; margin-bottom:18px;}
+  .bar > div{ height:100%; width:38%; background:linear-gradient(90deg,var(--cyan),var(--violet)); border-radius:6px;}
+
+  .legend{ display:flex; gap:18px; margin-bottom:16px; flex-wrap:wrap;}
+  .legend span{ display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--ink);}
+  .sw{ width:15px;height:15px;border-radius:4px;}
+
+  .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:11px;}
+  .seat{ position:relative; border-radius:13px; min-height:118px; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; text-align:center; padding:10px;}
+  .seat .n{ position:absolute; top:8px; left:11px; font-family:'JetBrains Mono'; font-size:11px; font-weight:700; opacity:.55;}
+  .seat.empty{ border:2px dashed #cdd7ea; background:#f8fafc; color:#aab6cc;}
+  .seat.empty .big{ font-family:'Sora'; font-size:22px; font-weight:800;}
+  .ava{ width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.24);display:flex;align-items:center;justify-content:center;
+        font-family:'Sora';font-weight:800;font-size:13px;color:#fff;margin-bottom:6px;}
+  .seat .nm{ font-family:'Sora'; font-weight:700; font-size:13px; color:#fff; line-height:1.1;}
+  .seat .role{ font-family:'JetBrains Mono'; font-size:9.5px; font-weight:700; letter-spacing:.6px; color:rgba(255,255,255,.9); margin-top:3px;}
+  .seat .amt{ font-family:'Sora'; font-weight:800; font-size:13px; color:#fff; margin-top:4px;}
+  .seat.direct{ background:linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow:0 6px 16px rgba(245,158,11,.25);}
+  .seat.spill{ background:linear-gradient(135deg,#22d3ee,#06b6d4); box-shadow:0 6px 16px rgba(6,182,212,.22);}
+  .seat.bonuspaid{ background:linear-gradient(135deg,#7c3aed,#6d28d9); box-shadow:0 8px 20px rgba(124,58,237,.30);}
+  .seat.bonuspaid .star{ position:absolute; top:7px; right:9px; color:#fff; font-size:14px;}
+  .seat.bonuspaid .split{ font-family:'JetBrains Mono'; font-size:8.5px; color:rgba(255,255,255,.85); margin-top:2px;}
+  .seat.bonusempty{ border:2px dashed var(--violetb); background:rgba(124,58,237,.07); color:var(--violet);}
+  .seat.bonusempty .star{ font-size:18px; margin:2px 0;}
+  .seat.bonusempty .b1{ font-family:'Sora'; font-size:17px; font-weight:800;}
+  .seat.bonusempty .b2{ font-family:'JetBrains Mono'; font-size:9px; font-weight:700; margin-top:3px;}
+
+  /* analytics */
+  .panhead{ display:flex; align-items:center; gap:9px; padding:15px 20px; background:linear-gradient(120deg,#0a1438,#15275f);
+            border-radius:16px 16px 0 0; color:#fff;}
+  .panhead .t{ font-family:'Sora'; font-weight:800; font-size:15px; letter-spacing:.4px;}
+  .panbody{ background:#fff; border:1px solid var(--line); border-top:none; border-radius:0 0 16px 16px; padding:6px 20px 18px;}
+  .row{ display:flex; align-items:flex-start; justify-content:space-between; padding:15px 0; border-bottom:1px solid var(--line);}
+  .row .lab{ font-family:'Sora'; font-weight:700; font-size:14.5px; color:var(--ink);}
+  .chip{ display:inline-block; font-family:'JetBrains Mono'; font-size:11px; font-weight:700; padding:3px 9px; border-radius:7px; margin-top:6px;}
+  .chip.g{ background:#fef3c7; color:#92400e;}
+  .chip.c{ background:#cffafe; color:#0e7490;}
+  .chip.v{ background:#ede9fe; color:#6d28d9;}
+  .val{ font-family:'Sora'; font-weight:800; font-size:18px; white-space:nowrap;}
+  .val.g{ color:var(--gold);} .val.c{ color:var(--cyan);} .val.v{ color:var(--violet);}
+  .split2{ display:flex; gap:7px; margin-top:8px;}
+  .split2 .s{ flex:1; border:1px solid #ddd6fe; background:#faf5ff; border-radius:9px; padding:7px 10px;}
+  .split2 .s .k{ font-family:'JetBrains Mono'; font-size:10px; font-weight:700; color:var(--violet);}
+  .split2 .s .v{ font-family:'Sora'; font-weight:800; font-size:15px; color:var(--ink);}
+  .split2 .s .d{ font-size:10.5px; color:var(--muted);}
+  .totalrow{ display:flex; align-items:center; justify-content:space-between; padding:15px 0 4px;}
+  .totalrow .lab{ font-family:'Sora'; font-weight:700; font-size:15px;}
+  .totalrow .val{ font-size:22px; color:var(--ink);}
+
+  .nextbonus{ margin-top:18px; border:1.5px solid #ddd6fe; border-radius:16px; padding:18px 20px; background:linear-gradient(135deg,#faf5ff,#fff);}
+  .nextbonus .h{ display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono'; font-size:12px; font-weight:700; letter-spacing:1px; color:var(--violet);}
+  .nextbonus .big{ font-family:'Sora'; font-weight:800; font-size:34px; color:var(--ink); margin:8px 0 2px;}
+  .nextbonus .sub{ font-size:13px; color:var(--muted);}
+  .nextbonus .pill{ display:inline-block; margin-top:10px; background:#ede9fe; color:#6d28d9; font-family:'JetBrains Mono'; font-size:11px; font-weight:700; padding:6px 12px; border-radius:999px;}
+  .nextbonus .acc{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid #ece7fb; font-size:13px;}
+  .welcome{ margin-top:14px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--line); border-radius:14px; padding:14px 18px; background:#fbfcfe;}
+  .welcome .l{ display:flex; align-items:center; gap:10px;}
+  .lockbadge{ width:34px;height:34px;border-radius:10px;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;}
+
+  /* detail band */
+  .detail{ margin:8px 28px 34px; background:linear-gradient(135deg,#faf5ff,#f5f3ff); border:1px solid #e9e3fb; border-radius:20px; padding:26px 28px;}
+  .detail h2{ font-family:'Sora'; font-weight:800; font-size:20px; color:var(--ink); margin-bottom:4px;}
+  .detail .sub{ font-size:13.5px; color:var(--muted); margin-bottom:20px;}
+  .states{ display:grid; grid-template-columns:1fr 1fr 1.3fr; gap:18px; align-items:stretch;}
+  .statebox{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; display:flex; flex-direction:column; align-items:center;}
+  .statebox .cap{ font-family:'JetBrains Mono'; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--muted); margin-bottom:14px;}
+  .bignode{ width:150px; min-height:150px; border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:12px;}
+  .bignode.empty{ border:2.5px dashed var(--violetb); background:rgba(124,58,237,.06); color:var(--violet);}
+  .bignode.empty .s{ font-size:30px;}
+  .bignode.empty .a{ font-family:'Sora'; font-weight:800; font-size:24px;}
+  .bignode.empty .l{ font-family:'JetBrains Mono'; font-size:10px; font-weight:700; margin-top:5px;}
+  .bignode.full{ background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; box-shadow:0 10px 26px rgba(124,58,237,.30); position:relative;}
+  .bignode.full .badge2{ position:absolute; top:9px; right:11px; font-size:16px;}
+  .bignode.full .ava{ width:42px;height:42px; font-size:14px; margin-bottom:6px;}
+  .bignode.full .nm{ font-family:'Sora'; font-weight:800; font-size:14px;}
+  .bignode.full .paid{ font-family:'JetBrains Mono'; font-size:10px; font-weight:700; color:#ddd6fe; margin-top:4px;}
+  .bignode.full .a{ font-family:'Sora'; font-weight:800; font-size:20px; margin-top:6px;}
+  .bignode.full .sp{ font-family:'JetBrains Mono'; font-size:9px; color:rgba(255,255,255,.85); margin-top:2px;}
+  .stateexp{ font-size:12.5px; color:var(--muted); margin-top:14px; line-height:1.5; text-align:center;}
+
+  .anbox{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; display:flex; flex-direction:column;}
+  .anbox .cap{ font-family:'JetBrains Mono'; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--muted); margin-bottom:14px;}
+  .anline{ display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line);}
+  .anline:last-child{ border-bottom:none;}
+  .anline .ic{ width:34px;height:34px;border-radius:9px;background:#ede9fe;color:var(--violet);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+  .anline .tx{ flex:1;}
+  .anline .tx b{ font-family:'Sora'; font-size:13.5px; color:var(--ink);}
+  .anline .tx .d{ font-size:11.5px; color:var(--muted);}
+  .anline .vv{ font-family:'Sora'; font-weight:800; font-size:15px; color:var(--violet); white-space:nowrap;}
+  .arrow{ color:#0e7490;} .arrowv{ color:#6d28d9;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:24px;">
+    <div class="logo">
+      <span class="dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z" transform="translate(1,0)"/></svg></span>
+      <span class="wm">SuperAd<span>Pro</span></span>
+    </div>
+    <div class="ttl">
+      <h1>Profit Grid</h1>
+      <p>Your 4×4 grid — bonuses at seats 4, 8, 12 &amp; 16</p>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <span class="badge">PROPOSED · NEW PLAN</span>
+    <div class="bal">Balance &nbsp;<b>$359.73</b></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- LEFT: grid -->
+  <div>
+    <div class="gridcard">
+      <div class="tierhead">
+        <span class="t">T1 Starter — $20</span>
+        <span class="p">6 of 16 · 38%</span>
+      </div>
+      <div class="gridbody">
+        <div class="tabs">
+          <span class="tab done">✓ Grid 1 · 16/16</span>
+          <span class="tab done">✓ Grid 2 · 16/16</span>
+          <span class="tab now">● Grid 3 · now (6/16)</span>
+        </div>
+
+        <div class="prog">
+          <span class="l">Progress to next bonus</span>
+          <span class="r">2 seats to seat 8 ★</span>
+        </div>
+        <div class="bar"><div></div></div>
+
+        <div class="legend">
+          <span><span class="sw" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)"></span>Direct referral</span>
+          <span><span class="sw" style="background:linear-gradient(135deg,#22d3ee,#06b6d4)"></span>Spillover</span>
+          <span><span class="sw" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)"></span>Bonus seat — $20</span>
+          <span><span class="sw" style="border:2px dashed #cdd7ea;background:#f8fafc"></span>Empty</span>
+        </div>
+
+        <div class="grid">
+          <div class="seat direct"><span class="n">01</span><span class="ava">M</span><span class="nm">Maria K</span><span class="role">DIRECT</span><span class="amt">+$8.00</span></div>
+          <div class="seat spill"><span class="n">02</span><span class="ava">JT</span><span class="nm">James T</span><span class="role">SPILLOVER</span><span class="amt">+$1.00</span></div>
+          <div class="seat spill"><span class="n">03</span><span class="ava">AR</span><span class="nm">Aisha R</span><span class="role">SPILLOVER</span><span class="amt">+$1.00</span></div>
+          <div class="seat bonuspaid"><span class="n">04</span><span class="star">★</span><span class="ava">DL</span><span class="nm">Devon L</span><span class="amt">$20 PAID</span><span class="split">$10 cash · $10 step-up</span></div>
+
+          <div class="seat spill"><span class="n">05</span><span class="ava">SM</span><span class="nm">Sofia M</span><span class="role">SPILLOVER</span><span class="amt">+$1.00</span></div>
+          <div class="seat spill"><span class="n">06</span><span class="ava">TB</span><span class="nm">Tariq B</span><span class="role">SPILLOVER</span><span class="amt">+$1.00</span></div>
+          <div class="seat empty"><span class="n">07</span><span class="big">07</span></div>
+          <div class="seat bonusempty"><span class="n">08</span><span class="star">★</span><span class="b1">$20</span><span class="b2">SEAT 8 · BONUS</span></div>
+
+          <div class="seat empty"><span class="n">09</span><span class="big">09</span></div>
+          <div class="seat empty"><span class="n">10</span><span class="big">10</span></div>
+          <div class="seat empty"><span class="n">11</span><span class="big">11</span></div>
+          <div class="seat bonusempty"><span class="n">12</span><span class="star">★</span><span class="b1">$20</span><span class="b2">SEAT 12 · BONUS</span></div>
+
+          <div class="seat empty"><span class="n">13</span><span class="big">13</span></div>
+          <div class="seat empty"><span class="n">14</span><span class="big">14</span></div>
+          <div class="seat empty"><span class="n">15</span><span class="big">15</span></div>
+          <div class="seat bonusempty"><span class="n">16</span><span class="star">★</span><span class="b1">$20</span><span class="b2">SEAT 16 · BONUS</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: analytics -->
+  <div>
+    <div>
+      <div class="panhead"><span style="color:#7dd3fc;font-size:15px;">◆</span><span class="t">COMMISSIONS EARNED</span></div>
+      <div class="panbody">
+        <div class="row">
+          <div><div class="lab">Direct referrals</div><span class="chip g">40% direct sponsor</span></div>
+          <div class="val g">$264.00</div>
+        </div>
+        <div class="row">
+          <div><div class="lab">Uni-level fills</div><span class="chip c">5% × 4 levels</span></div>
+          <div class="val c">$88.00</div>
+        </div>
+        <div class="row" style="border-bottom:none;">
+          <div style="flex:1;">
+            <div class="lab">Grid bonuses</div><span class="chip v">25% · every 4 seats</span>
+            <div class="split2">
+              <div class="s"><div class="k">CASH</div><div class="v">$60.00</div><div class="d">withdrawable</div></div>
+              <div class="s"><div class="k">STEP-UP</div><div class="v">$60.00</div><div class="d">toward next tier</div></div>
+            </div>
+          </div>
+          <div class="val v" style="margin-left:12px;">$120.00</div>
+        </div>
+        <div style="border-top:2px solid var(--line);margin-top:4px;">
+          <div class="totalrow"><span class="lab">Total earned · all grids</span><span class="val">$472.00</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nextbonus">
+      <div class="h">♛ NEXT BONUS SEAT</div>
+      <div class="big">$20.00</div>
+      <div class="sub">Seat 8 · $10 cash + $10 step-up credit</div>
+      <span class="pill">2 seats to unlock</span>
+      <div class="acc"><span style="color:var(--muted);">Accrued this grid</span><span class="mono" style="color:var(--violet);font-weight:700;">$20.00 / $80 (25%)</span></div>
+    </div>
+
+    <div class="welcome">
+      <div class="l">
+        <span class="lockbadge">🔒</span>
+        <div><div class="sora" style="font-weight:700;font-size:13.5px;">Locked welcome bonus</div><div style="font-size:11.5px;color:var(--muted);">15% · unlocks when you activate</div></div>
+      </div>
+      <div class="sora" style="font-weight:800;font-size:16px;color:var(--ink);">$3.00</div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL BAND -->
+<div class="detail">
+  <h2>Bonus seats — every 4th seat pays</h2>
+  <div class="sub">Seats 4, 8, 12 &amp; 16 each pay one tier-price ($20 on Starter), split half cash / half step-up credit. Here's how a bonus node looks before and after it fills, and how it lands in your analytics.</div>
+
+  <div class="states">
+    <div class="statebox">
+      <div class="cap">EMPTY STATE — PENDING</div>
+      <div class="bignode empty"><span class="s">★</span><span class="a">$20</span><span class="l">SEAT 8 · BONUS</span></div>
+      <div class="stateexp">Shown dashed in violet while the seat is open — a visible reward waiting to be unlocked as the grid fills.</div>
+    </div>
+    <div class="statebox">
+      <div class="cap">FULL STATE — PAID</div>
+      <div class="bignode full"><span class="badge2">★</span><span class="ava">DL</span><span class="nm">Devon L</span><span class="paid">SEAT 4 · BONUS PAID</span><span class="a">+$20.00</span><span class="sp">$10 cash · $10 step-up</span></div>
+      <div class="stateexp">When a member lands on the seat it pays instantly — solid violet, member shown, the cash/step-up split confirmed.</div>
+    </div>
+    <div class="anbox">
+      <div class="cap">HOW A BONUS READS IN ANALYTICS</div>
+      <div class="anline"><span class="ic">★</span><div class="tx"><b>Seat 4 bonus paid</b><div class="d">T1 Starter grid · just now</div></div><div class="vv">+$20.00</div></div>
+      <div class="anline"><span class="ic" style="background:#cffafe;color:#0e7490;">↓</span><div class="tx"><b>Cash to wallet</b><div class="d">withdrawable immediately</div></div><div class="vv arrow">$10.00</div></div>
+      <div class="anline"><span class="ic">↗</span><div class="tx"><b>Step-up credit</b><div class="d">auto-applies to the next tier up</div></div><div class="vv arrowv">$10.00</div></div>
+      <div style="margin-top:12px;padding:11px 13px;background:#faf5ff;border:1px solid #e9e3fb;border-radius:10px;font-size:12px;color:#6d28d9;line-height:1.5;">
+        Each bonus rolls into the <b>Grid bonuses</b> line above — the running total splits live into a withdrawable cash figure and a step-up credit figure.
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
