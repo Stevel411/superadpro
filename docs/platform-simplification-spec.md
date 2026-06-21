@@ -101,7 +101,7 @@ Grounded in the live `frontend/src/components/layout/Sidebar.jsx`.
 - **Lead Finder** (`/lead-finder`) — no clear job for this audience.
 - **Share Your Story** (`/share-story`) — cut.
 - **Campaign Analytics + the bulk of Analytics** (`/campaign-analytics`, `/analytics`) — vanity. Keep only a simple earnings scoreboard inside the Income door.
-- **Blog** — do not launch.
+- ~~**Blog** — do not launch.~~ **REVERSED 21 Jun 2026 (Steve, official).** Blog is back IN as an approved **flagship** member product — built per [`blog-system-spec.md`](./blog-system-spec.md). Rationale changed the answer: the original cut was about nav clutter; the reinstatement is about **retention + distribution** — a member invested in a blog stays, and every published post carries the non-removable "Powered by SuperAdPro" referral footer, making each blog an inbound advertising surface. Gated to paid (Partner/Founder, `is_pro()`); free + $10 Launchpad excluded. Door/positioning (5th Tools tile vs standalone flagship) = OPEN, Steve's call. Build sequenced AFTER the new-design cutover (net-new, nothing to retire, so it doesn't gate sidebar removal).
 - **Courses** — already retired; purge the ~17 file remnants.
 - **Learn group demoted** from a pillar to a small tucked Help corner: Training, Crypto Guide, Tour. Help stays reachable; it is not a top-level door.
 
