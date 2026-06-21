@@ -35,6 +35,9 @@ var DEFAULT_SEATS = 16;
 var DIRECT_GRAD = 'linear-gradient(135deg,#b45309 0%,#d97706 30%,#fbbf24 65%,#fde047 100%)';
 var SPILLOVER_GRAD = 'linear-gradient(135deg,#0891b2 0%,#06b6d4 50%,#22d3ee 100%)';
 var BONUS_GRAD = 'linear-gradient(135deg,#4c1d95 0%,#7c3aed 50%,#c4b5fd 100%)';
+var BONUS_GRAD_V2 = 'linear-gradient(135deg,#7c3aed,#6d28d9)';
+var VIOLET = '#7c3aed';
+var VIOLET_B = '#8b5cf6';
 var COBALT_HEADER = 'linear-gradient(135deg,#172554 0%,#1e3a8a 100%)';
 var CYAN_PROGRESS = 'linear-gradient(90deg,#0891b2,#06b6d4,#22d3ee)';
 var TIER_ACTIVE_GRAD = 'linear-gradient(135deg,#1e3a8a,#0891b2)';
@@ -119,10 +122,11 @@ export default function GridVisualiser() {
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [viewAdvance, setViewAdvance] = useState(null); // null = current filling grid; else a completed advance #
+  var previewV2 = (typeof window !== 'undefined') && /[?&]preview_v2=1/.test(window.location.search);
 
   useEffect(function() {
     setLoading(true);
-    apiGet('/api/grid-visualiser?tier=' + activeTier)
+    apiGet('/api/grid-visualiser?tier=' + activeTier + (previewV2 ? '&preview_v2=1' : ''))
       .then(function(d) { setData(d); setLoading(false); })
       .catch(function() { setLoading(false); });
   }, [activeTier]);
@@ -152,6 +156,19 @@ export default function GridVisualiser() {
   var completionBonusPaid = data ? (data.completion_bonus_paid || 0) : 0;
   var completionBonusCount = data ? (data.completion_bonus_count || 0) : 0;
 
+  // ── Plan-aware (v1 live / v2 New Profit Grid) ──
+  var planV2 = data ? (data.plan_version === 2) : false;
+  var welcomePerFill   = data ? (data.welcome_per_fill || 0) : 0;
+  var bonusPerPosition = data ? (data.bonus_per_position != null ? data.bonus_per_position : bonusMax) : bonusMax;
+  var bonusCashPerPos  = data ? (data.bonus_cash_per_position || 0) : 0;
+  var bonusStepupPerPos= data ? (data.bonus_stepup_per_position || 0) : 0;
+  var bonusPoolTotal   = data ? (data.bonus_pool_total || bonusMax) : bonusMax;
+  var stepUpBalance    = data ? (data.step_up_balance || 0) : 0;
+  var unilevelLevels   = data ? (data.unilevel_levels || 8) : 8;
+  var bonusCashEarned  = data ? (data.bonus_cash_earned || 0) : 0;
+  var bonusStepupEarned= data ? (data.bonus_stepup_earned || 0) : 0;
+  var gridBonusEarned  = planV2 ? (bonusCashEarned + bonusStepupEarned) : completionBonusPaid;
+
   // Board the member is viewing: the live filling grid (default) or a completed
   // advance they tapped. Only the LEFT board card swaps; right-hand stats stay live.
   var viewedCompleted = viewAdvance !== null ? completedGrids.find(function(g){ return g.advance === viewAdvance; }) : null;
@@ -163,9 +180,14 @@ export default function GridVisualiser() {
   var boardPct = Math.round(boardFilled / boardTotal * 100);
   var boardSeatsToUnlock = Math.max(0, boardTotal - boardFilled);
   var currentAdvanceNum = data ? data.advance : (completedAdvances + 1);
+  // v2 grids pay at every 4th seat; v1 (and legacy 36-seat boards) pay once at the end.
+  var boardBonusPositions = (planV2 && boardTotal === 16) ? [4, 8, 12, 16] : [boardTotal];
+  // next unfilled bonus seat (for the "next bonus" card + progress countdown)
+  var nextBonusSeat = boardBonusPositions.filter(function(p){ return p > boardFilled; })[0] || boardTotal;
+  var seatsToNextBonus = Math.max(0, nextBonusSeat - boardFilled);
 
   return (
-    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title="Profit Grid" subtitle={'Your ' + Math.round(Math.sqrt(liveSeats)) + '×' + Math.round(Math.sqrt(liveSeats)) + ' spillover grid — bonus at seat ' + liveSeats}>
+    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title="Profit Grid" subtitle={planV2 ? 'Your 4×4 grid — bonuses at seats 4, 8, 12 & 16' : ('Your ' + Math.round(Math.sqrt(liveSeats)) + '×' + Math.round(Math.sqrt(liveSeats)) + ' spillover grid — bonus at seat ' + liveSeats)}>
       <style>{css}</style>
       <div style={{ maxWidth:1180, margin:'0 auto' }}>
 
@@ -173,7 +195,9 @@ export default function GridVisualiser() {
             Scoped to Campaign Tiers / Profit Grid with the proof breakdown. */}
         <div className="lgv-claim">
           <span className="big">SuperAdPro shares <b>100% of Campaign Tier revenue</b> back to the community</span>
-          <span className="split">100% of Profit Grid commissions go to affiliates — 30% direct · 50% across the 8-level uni-level · 20% completion bonus · 0% to the company</span>
+          <span className="split">{planV2
+            ? '100% of Profit Grid commissions go to affiliates — 40% direct · 20% across 4 uni-levels · 15% welcome bonus · 25% bonus pool · 0% to the company'
+            : '100% of Profit Grid commissions go to affiliates — 30% direct · 50% across the 8-level uni-level · 20% completion bonus · 0% to the company'}</span>
         </div>
 
         {/* Enlarged tier cards — two rows of four, each showing all three ways
@@ -181,8 +205,8 @@ export default function GridVisualiser() {
         <div className="lgv-tiers-grid">
           {TIERS.map(function(t) {
             var isActive = activeTier === t.t;
-            var direct = t.price * 0.30;
-            var spill = t.price * 0.0625;
+            var direct = t.price * (planV2 ? 0.40 : 0.30);
+            var spill = t.price * (planV2 ? 0.05 : 0.0625);
             return (
               <div key={t.t} className={'lgv-tcard' + (isActive ? ' active' : '')}
                    style={{ background: TIER_GRADS[t.t] }}
@@ -194,7 +218,7 @@ export default function GridVisualiser() {
                 <div className="tpay">
                   <div className="r"><span className="lbl">Direct seat</span><span className="g">+${direct.toFixed(2)}</span></div>
                   <div className="r"><span className="lbl">Spillover seat</span><span className="g">+${spill.toFixed(2)}</span></div>
-                  <div className="r"><span className="lbl">Completion bonus</span><span className="g">+${t.bonus.toLocaleString()}</span></div>
+                  <div className="r"><span className="lbl">{planV2 ? 'Bonus seat ×4' : 'Completion bonus'}</span><span className="g">+${planV2 ? t.price.toFixed(2) : t.bonus.toLocaleString()}</span></div>
                 </div>
               </div>
             );
@@ -239,8 +263,8 @@ export default function GridVisualiser() {
               ) : null}
               {/* Progress row with countdown */}
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, fontSize:14 }}>
-                <div style={{ color:'#475569', fontWeight:700 }}>Progress to bonus</div>
-                <div style={{ color: viewedCompleted ? '#10b981' : '#0891b2', fontWeight:700, fontFamily:'JetBrains Mono,monospace' }}>{viewedCompleted ? 'Complete ✓' : (boardSeatsToUnlock + ' seats to ♛')}</div>
+                <div style={{ color:'#475569', fontWeight:700 }}>{planV2 ? 'Progress to next bonus' : 'Progress to bonus'}</div>
+                <div style={{ color: viewedCompleted ? '#10b981' : (planV2 ? VIOLET : '#0891b2'), fontWeight:700, fontFamily:'JetBrains Mono,monospace' }}>{viewedCompleted ? 'Complete ✓' : (planV2 ? (seatsToNextBonus + ' seats to seat ' + nextBonusSeat + ' ★') : (boardSeatsToUnlock + ' seats to ♛'))}</div>
               </div>
               <div style={{ height:8, background:'#f1f5f9', borderRadius:4, overflow:'hidden', marginBottom:18 }}>
                 <div className="lgv-progress-fill" style={{ height:'100%', width:boardPct+'%', background:CYAN_PROGRESS, borderRadius:4, transition:'width .6s ease' }}/>
@@ -249,7 +273,7 @@ export default function GridVisualiser() {
               <div style={{ display:'flex', gap:18, justifyContent:'center', marginBottom:18, fontSize:13, color:'#475569', fontWeight:600, flexWrap:'wrap' }}>
                 <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:DIRECT_GRAD }}/> Direct referral</span>
                 <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:SPILLOVER_GRAD }}/> Spillover</span>
-                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:BONUS_GRAD }}/> Bonus seat</span>
+                <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background: planV2 ? BONUS_GRAD_V2 : BONUS_GRAD }}/> {planV2 ? ('Bonus seat — $' + bonusPerPosition.toFixed(0)) : 'Bonus seat'}</span>
                 <span style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ width:15, height:15, borderRadius:4, background:'#fafbff', border:'2px dashed #cbd5e1' }}/> Empty</span>
               </div>
               {/* 6×6 tile grid — or, for a completed grid whose seat records were
@@ -268,23 +292,37 @@ export default function GridVisualiser() {
                 {Array.from({length:boardTotal}, function(_,i) {
                   var pos = i + 1;
                   var seat = boardSeats.find(function(s){ return s.position === pos; });
-                  var isCompletionSeat = pos === boardTotal;
+                  var isBonusSeat = boardBonusPositions.indexOf(pos) !== -1;
                   if (seat) {
                     var isDirect = seat.is_direct;
-                    var bg = isCompletionSeat ? BONUS_GRAD : (isDirect ? DIRECT_GRAD : SPILLOVER_GRAD);
-                    var tileClass = 'lgv-tile ' + (isCompletionSeat ? 'completion-filled' : (isDirect ? 'direct' : 'spillover'));
-                    var seatMoney = isCompletionSeat ? boardBonus : (isDirect ? directPerFill : unilevelPerFill);
+                    var bg = isBonusSeat ? (planV2 ? BONUS_GRAD_V2 : BONUS_GRAD) : (isDirect ? DIRECT_GRAD : SPILLOVER_GRAD);
+                    var tileClass = 'lgv-tile ' + (isBonusSeat ? 'completion-filled' : (isDirect ? 'direct' : 'spillover'));
+                    var seatMoney = isBonusSeat ? bonusPerPosition : (isDirect ? directPerFill : unilevelPerFill);
                     return (
                       <div key={i} className={tileClass} style={{ background:bg }}
-                           title={seat.username + ' · ' + (isDirect ? 'Direct' : 'Spillover') + ' · ' + seat.member_id + (isCompletionSeat ? ' · Completion seat' : '')}>
+                           title={seat.username + ' · ' + (isBonusSeat ? 'Bonus' : (isDirect ? 'Direct' : 'Spillover')) + ' · ' + seat.member_id}>
                         <div className="lgv-pos">{pos}</div>
-                        {!isCompletionSeat ? <div className={'lgv-star ' + (isDirect ? 'gold' : 'cyan')}><span className="lgv-star-ico">★</span></div> : null}
+                        {isBonusSeat
+                          ? <div style={{ position:'absolute', top:7, right:9, color:'#fff', fontSize:14 }}>★</div>
+                          : <div className={'lgv-star ' + (isDirect ? 'gold' : 'cyan')}><span className="lgv-star-ico">★</span></div>}
                         <div className="lgv-uname">{seat.username}</div>
                         <div className="lgv-money">+${seatMoney.toFixed(2)}</div>
+                        {isBonusSeat && planV2 ? <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:8.5, color:'rgba(255,255,255,0.85)', marginTop:2 }}>${bonusCashPerPos.toFixed(0)} cash · ${bonusStepupPerPos.toFixed(0)} step-up</div> : null}
                       </div>
                     );
                   }
-                  if (isCompletionSeat) {
+                  if (isBonusSeat) {
+                    if (planV2) {
+                      return (
+                        <div key={i} className="lgv-tile" style={{ border:'2px dashed '+VIOLET_B, background:'rgba(124,58,237,0.07)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}
+                             title={'Seat ' + pos + ' — bonus seat, pays one tier-price split cash/step-up'}>
+                          <div className="lgv-pos" style={{ color:VIOLET, fontWeight:800 }}>{pos}</div>
+                          <div style={{ fontSize:18, lineHeight:1, color:VIOLET, margin:'2px 0' }}>★</div>
+                          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:VIOLET }}>${bonusPerPosition.toFixed(0)}</div>
+                          <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:9, fontWeight:700, color:VIOLET, marginTop:3 }}>SEAT {pos} · BONUS</div>
+                        </div>
+                      );
+                    }
                     return (
                       <div key={i} className="lgv-tile completion-empty" style={{ background:BONUS_GRAD }}
                            title={'Position ' + boardTotal + ' — fill this to unlock the completion bonus'}>
@@ -319,7 +357,7 @@ export default function GridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Direct referrals</div>
-                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>30% direct sponsor</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{planV2 ? '40% direct sponsor' : '30% direct sponsor'}</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, letterSpacing:'-0.4px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
                     ${directEarned.toFixed(2)}
@@ -329,7 +367,7 @@ export default function GridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Uni-level fills</div>
-                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>6.25% × 8 levels</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{planV2 ? '5% × 4 levels' : '6.25% × 8 levels'}</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#0891b2', letterSpacing:'-0.4px' }}>
                     ${unilevelEarned.toFixed(2)}
@@ -337,7 +375,31 @@ export default function GridVisualiser() {
                 </div>
                 {/* Completion bonuses paid — the third stream, previously missing
                     entirely from this card so members had no record of bonuses earned */}
-                {completionBonusPaid > 0 ? (
+                {/* Bonus stream — v2: Grid bonuses (25%, every 4 seats) with the
+                    cash/step-up split; v1: Completion bonuses (only when paid). */}
+                {planV2 ? (
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Grid bonuses</div>
+                      <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#6d28d9', background:'#f5f3ff', border:'1px solid #e9d5ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>25% · every 4 seats</div>
+                      <div style={{ display:'flex', gap:7, marginTop:8 }}>
+                        <div style={{ flex:1, border:'1px solid #ddd6fe', background:'#faf5ff', borderRadius:9, padding:'7px 10px' }}>
+                          <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:10, fontWeight:700, color:VIOLET }}>CASH</div>
+                          <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:15, color:'#0a1438' }}>${bonusCashEarned.toFixed(2)}</div>
+                          <div style={{ fontSize:10.5, color:'#64748b' }}>withdrawable</div>
+                        </div>
+                        <div style={{ flex:1, border:'1px solid #ddd6fe', background:'#faf5ff', borderRadius:9, padding:'7px 10px' }}>
+                          <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:10, fontWeight:700, color:VIOLET }}>STEP-UP</div>
+                          <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:15, color:'#0a1438' }}>${bonusStepupEarned.toFixed(2)}</div>
+                          <div style={{ fontSize:10.5, color:'#64748b' }}>toward next tier</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, background:BONUS_GRAD_V2, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', letterSpacing:'-0.4px', marginLeft:12 }}>
+                      ${gridBonusEarned.toFixed(2)}
+                    </div>
+                  </div>
+                ) : (completionBonusPaid > 0 ? (
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                     <div>
                       <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Completion bonuses</div>
@@ -347,7 +409,7 @@ export default function GridVisualiser() {
                       ${completionBonusPaid.toFixed(2)}
                     </div>
                   </div>
-                ) : null}
+                ) : null)}
                 {/* Total */}
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0' }}>
                   <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Total earned · all grids</div>
@@ -358,30 +420,58 @@ export default function GridVisualiser() {
               </div>
             </div>
 
-            {/* Completion bonus card — white with purple accents */}
+            {/* Bonus card — v2: next bonus seat (every 4 seats); v1: completion bonus */}
             <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden', position:'relative', borderLeft:'4px solid #7c3aed' }}>
               <div style={{ position:'absolute', top:'-30%', right:'-20%', width:240, height:'200%', background:'radial-gradient(circle,rgba(196,181,253,0.18),transparent 65%)', pointerEvents:'none' }}/>
               <div style={{ padding:'16px 18px', position:'relative' }}>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:12, fontWeight:800, color:'#7c3aed', textTransform:'uppercase', letterSpacing:'1px', marginBottom:8, display:'flex', alignItems:'center', gap:8 }}>
-                  <span style={{ fontSize:15, color:'#7c3aed' }}>♛</span>Completion bonus
+                  <span style={{ fontSize:15, color:'#7c3aed' }}>♛</span>{planV2 ? 'Next bonus seat' : 'Completion bonus'}
                 </div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, background:BONUS_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', letterSpacing:'-1px', lineHeight:1, marginBottom:5 }}>
-                  ${bonusMax.toFixed(2)}
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, background:(planV2?BONUS_GRAD_V2:BONUS_GRAD), WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent', letterSpacing:'-1px', lineHeight:1, marginBottom:5 }}>
+                  ${(planV2 ? bonusPerPosition : bonusMax).toFixed(2)}
                 </div>
                 <div style={{ fontSize:13, color:'#475569', fontWeight:600, marginBottom:11 }}>
-                  20% × {liveSeats} seats × ${tier.price} tier
+                  {planV2
+                    ? ('Seat ' + nextBonusSeat + ' · $' + bonusCashPerPos.toFixed(0) + ' cash + $' + bonusStepupPerPos.toFixed(0) + ' step-up')
+                    : ('20% × ' + liveSeats + ' seats × $' + tier.price + ' tier')}
                 </div>
                 <div style={{ display:'inline-block', background:'linear-gradient(135deg,#7c3aed 0%,#a78bfa 100%)', color:'#fff', fontSize:12, fontWeight:800, padding:'6px 14px', borderRadius:99, marginTop:4, fontFamily:'JetBrains Mono,monospace', letterSpacing:'0.4px', boxShadow:'0 3px 10px rgba(124,58,237,0.3)' }}>
-                  {seatsToUnlock} seats to unlock
+                  {(planV2 ? seatsToNextBonus : seatsToUnlock)} seats to unlock
                 </div>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:13, paddingTop:13, borderTop:'1px solid #f1f5f9' }}>
-                  <div style={{ fontSize:13, color:'#475569', fontWeight:700 }}>Accrued</div>
+                  <div style={{ fontSize:13, color:'#475569', fontWeight:700 }}>{planV2 ? 'Accrued this grid' : 'Accrued'}</div>
                   <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:12.5, color:'#7c3aed', fontWeight:800, background:'#f5f3ff', padding:'4px 10px', borderRadius:6, border:'1px solid #e9d5ff', letterSpacing:'0.5px' }}>
-                    ${bonusAccrued.toFixed(2)} / ${bonusMax.toFixed(0)} ({bonusPct}%)
+                    ${bonusAccrued.toFixed(2)} / ${(planV2 ? bonusPoolTotal : bonusMax).toFixed(0)} ({planV2 ? 25 : bonusPct}%)
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* v2 — welcome bonus + step-up wallet */}
+            {planV2 ? (
+              <div style={{ display:'flex', gap:10 }}>
+                <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'space-between', border:'1px solid #e2e8f0', borderRadius:12, padding:'13px 15px', background:'#fbfcfe' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <span style={{ width:32, height:32, borderRadius:9, background:'#eef2ff', color:'#4f46e5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15 }}>🔒</span>
+                    <div>
+                      <div style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:13 }}>Welcome bonus</div>
+                      <div style={{ fontSize:11, color:'#64748b' }}>15% · on activation</div>
+                    </div>
+                  </div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:16, color:'#0a1438' }}>${welcomePerFill.toFixed(2)}</div>
+                </div>
+                <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'space-between', border:'1px solid #ddd6fe', borderRadius:12, padding:'13px 15px', background:'#faf5ff' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <span style={{ width:32, height:32, borderRadius:9, background:'#ede9fe', color:VIOLET, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15 }}>↗</span>
+                    <div>
+                      <div style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:13 }}>Step-up wallet</div>
+                      <div style={{ fontSize:11, color:'#64748b' }}>climbs you up</div>
+                    </div>
+                  </div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:16, color:VIOLET }}>${stepUpBalance.toFixed(2)}</div>
+                </div>
+              </div>
+            ) : null}
 
             {/* 2×2 stats grid — icon-led cards, larger captions */}
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, flex:1 }}>

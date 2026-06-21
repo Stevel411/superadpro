@@ -3782,6 +3782,9 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     unilevel_fills = 0
     completion_bonus_paid = 0.0
     completion_bonus_count = 0
+    v2_bonus_cash_earned = 0.0
+    v2_bonus_stepup_earned = 0.0
+    v2_welcome_earned = 0.0
 
     # Cumulative grid commission breakdown — ALL tiers, lifetime.
     #
@@ -3840,6 +3843,24 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         if bonus_row:
             completion_bonus_paid = float(bonus_row[0] or 0)
             completion_bonus_count = int(bonus_row[1] or 0)
+
+        # v2 bonus streams (New Profit Grid) — cash + step-up + welcome rebate.
+        # These commission types only exist post-go-live; summing them now reads
+        # 0 until the flip, then populates the v2 panel correctly.
+        for _ctype, _key in (("grid_bonus_cash", "cash"),
+                             ("grid_bonus_stepup", "stepup"),
+                             ("welcome_bonus", "welcome")):
+            _r = db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
+                Commission.to_user_id == user.id,
+                Commission.status == "paid",
+                Commission.commission_type == _ctype,
+            ).scalar()
+            if _key == "cash":
+                v2_bonus_cash_earned = float(_r or 0)
+            elif _key == "stepup":
+                v2_bonus_stepup_earned = float(_r or 0)
+            else:
+                v2_welcome_earned = float(_r or 0)
 
     total_earned = direct_earned + unilevel_earned + completion_bonus_paid
 
@@ -3960,6 +3981,9 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         "bonus_stepup_per_position": v2_bonus_stepup,
         "bonus_pool_total": v2_bonus_pool_total,
         "step_up_balance": v2_step_up_balance,
+        "bonus_cash_earned": round(v2_bonus_cash_earned, 2),
+        "bonus_stepup_earned": round(v2_bonus_stepup_earned, 2),
+        "welcome_earned": round(v2_welcome_earned, 2),
     })
 
 
