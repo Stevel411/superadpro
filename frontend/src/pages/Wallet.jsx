@@ -240,10 +240,18 @@ export default function Wallet() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
           {/* Affiliate Wallet Withdraw */}
           <Card title={t("wallet.affiliateWallet")} dotColor="var(--sap-green)">
-            <div style={{ padding:'10px 14px', background:'var(--sap-green-bg)', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
-              <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-green-dark)', marginBottom:2 }}>{t('wallet.alwaysWithdrawable')}</div>
-              <div style={{ fontSize:16, color:'var(--sap-text-secondary)', lineHeight:1.6 }}>{t('wallet.affiliateWalletDesc')}</div>
-            </div>
+            {d.watched_today === false ? (
+              <div style={{ padding:'10px 14px', background:'#fffbeb', border:'1px solid #fde68a', borderRadius:10, marginBottom:14 }}>
+                <div style={{ fontSize:16, fontWeight:700, color:'#92400e', marginBottom:2 }}>🔒 Watch today's video to unlock</div>
+                <div style={{ fontSize:15, color:'var(--sap-text-secondary)', lineHeight:1.6, marginBottom:8 }}>One short video keeps your wallet active for the day — withdrawals unlock the moment you've watched.</div>
+                <Link to="/watch" style={{ display:'inline-block', background:'var(--sap-accent)', color:'#fff', fontWeight:700, fontSize:14, padding:'8px 16px', borderRadius:8, textDecoration:'none' }}>Watch now →</Link>
+              </div>
+            ) : (
+              <div style={{ padding:'10px 14px', background:'var(--sap-green-bg)', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
+                <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-green-dark)', marginBottom:2 }}>{d.watched_today ? "✓ Unlocked for today" : t('wallet.alwaysWithdrawable')}</div>
+                <div style={{ fontSize:16, color:'var(--sap-text-secondary)', lineHeight:1.6 }}>{t('wallet.affiliateWalletDesc')}</div>
+              </div>
+            )}
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-green)', textAlign:'center', marginBottom:14 }}>${formatMoney(d.balance)}</div>
             {d.wallet_address ? (
               d.balance >= 10 ? (
@@ -280,7 +288,7 @@ export default function Wallet() {
                     </div>
                   )}
                   <div style={payoutNoteStyle}>⏱ Payouts are reviewed and processed within 5 days of request, for your account's security.</div>
-                  <button onClick={() => handleWithdraw('affiliate')} disabled={withdrawing} style={{...btnPrimary, opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawAffiliate')}</button>
+                  <button onClick={() => handleWithdraw('affiliate')} disabled={withdrawing || d.watched_today === false} style={{...btnPrimary, opacity: (withdrawing || d.watched_today === false) ? 0.6 : 1}}>{withdrawing ? 'Processing...' : (d.watched_today === false ? 'Watch today to unlock' : t('wallet.withdrawAffiliate'))}</button>
                   <div style={{ fontSize:15, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
                   {withdrawResult && withdrawResult.wallet === 'affiliate' && (
                     <div style={{ padding:'11px 14px', borderRadius:8, fontSize:16, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>

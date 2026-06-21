@@ -8828,11 +8828,26 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "wallet_address": user.wallet_address or "",
         "wallet_network": user.wallet_network or "",
         "kyc_status": getattr(user, 'kyc_status', 'none'),
+        "watched_today": _wallet_watched_today(db, user),
         "commissions": commissions,
         "withdrawals": withdrawals,
         "renewal": renewal,
         "p2p_history": p2p_history,
     }
+
+
+def _wallet_watched_today(db, user) -> bool:
+    """Has the member met today's one-video Watch-to-Earn requirement? Drives
+    the affiliate-wallet withdraw gate (21 Jun 2026) on the wallet page. Mirrors
+    validate_affiliate_withdrawal exactly. Admins + watch-exempt always True."""
+    if getattr(user, "is_admin", False):
+        return True
+    from datetime import date as _date
+    today_str = str(_date.today())
+    q = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+    required = 0 if (q and q.daily_required == 0) else 1
+    watched = (q.today_watched or 0) if (q and q.today_date == today_str) else 0
+    return watched >= required
 @app.get("/social-share")
 def social_share(request: Request):
     """Serve React SPA — Social Share page."""
