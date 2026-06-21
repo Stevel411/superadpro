@@ -40,7 +40,7 @@ from .database import (
     GRID_WIDTH, GRID_LEVELS, GRID_TOTAL, NEW_GRID_SEATS, UNILEVEL_DEPTH,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT, BONUS_POOL_PCT,
     bonus_pct_for,
-    v2_live, V2_DIRECT_PCT, V2_PER_LEVEL_PCT, V2_UNILEVEL_DEPTH, V2_WELCOME_PCT,
+    v2_live, V2_DIRECT_PCT, V2_PER_LEVEL_PCT, V2_UNILEVEL_DEPTH,
     GRID_PACKAGES, GRID_COMPLETION_BONUS, CAMPAIGN_GRACE_DAYS
 )
 from datetime import datetime, timedelta
@@ -244,11 +244,6 @@ def process_tier_purchase(
     _pay_direct_sponsor(db, buyer, price, package_tier, source_event_id=source_event_id)
     _pay_unilevel_chain(db, buyer, price, package_tier, source_event_id=source_event_id)
     _record_platform_fee(db, price, package_tier, buyer_id)
-
-    # v2 welcome bonus — 15% of the entry rebated to the buyer's own wallet.
-    # Gated: inert under the live plan (v1 has no welcome bonus).
-    if v2_live():
-        _pay_welcome_bonus(db, buyer, price, package_tier, source_event_id=source_event_id)
 
     # Create the buyer's own grid at this tier (so they can receive spillover)
     # and flag it as a GENUINE purchase — this is the one place the grid owner
@@ -1033,27 +1028,6 @@ def _send_release_email(db: Session, buyer: User, released: list) -> None:
         logging.getLogger(__name__).warning(
             f"Release-confirmation email failed for user {recipient.id}"
         )
-
-
-def _pay_welcome_bonus(db: Session, buyer: User, price: float, package_tier: int, source_event_id: str = None):
-    """v2 welcome bonus — 15% of the entry rebated to the buyer's OWN withdrawable
-    campaign wallet. This is the 'locked welcome bonus' promised at registration,
-    released the moment they purchase (the purchase IS the activation, Steve 21
-    Jun). The entrant receives part of their own activation money back.
-
-    Recorded with from_user_id=None (no upstream payer — it is carved from the
-    buyer's own entry) so it never reads as a self-referral in the anomaly checks.
-    Credited to campaign_balance (withdrawable, same wallet as the cash bonus) but
-    deliberately NOT added to total_earned/grid_earnings: it is a rebate of the
-    buyer's own money, not commission earned from the network. v2-only."""
-    amount = round(float(price) * V2_WELCOME_PCT, 2)
-    if amount <= 0:
-        return
-    buyer.campaign_balance = Decimal(str(buyer.campaign_balance or 0)) + Decimal(str(amount))
-    db.add(buyer)
-    _record_commission(db, None, buyer.id, amount, "welcome_bonus",
-                       f"Welcome bonus {int(V2_WELCOME_PCT*100)}% rebate — buyer {buyer.id} on own ${price} activation",
-                       package_tier, source_event_id=source_event_id)
 
 
 def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: int, source_event_id: str = None):

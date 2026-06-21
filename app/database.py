@@ -485,23 +485,7 @@ class Grid(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
     completed_at    = Column(DateTime, nullable=True)
 
-
-class StepUpBalance(Base):
-    """v2 step-up wallet (New Profit Grid plan, 21 Jun 2026). Holds the
-    non-withdrawable half of each bonus-pool payout — credit that can only be
-    spent climbing to the next tier. When it reaches the next tier's price the
-    grid auto-opens that tier (Steve, 21 Jun). Separate table (not a User column)
-    so it can be queried exclusively from v2-gated code: while GRID_V2_LIVE is
-    False nothing reads this table, so the row/table can be created any time
-    before go-live without a model/schema chicken-and-egg on Railway
-    (SKIP_MIGRATIONS=true). One row per user, created on first credit."""
-    __tablename__ = "step_up_balance"
-    id          = Column(Integer, primary_key=True, index=True)
-    user_id     = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
-    amount      = Column(Money, default=0.0)   # non-withdrawable; climb-only
-    updated_at  = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
+class GridPosition(Base):
     """A single person's position inside someone's grid."""
     __tablename__ = "grid_positions"
     id              = Column(Integer, primary_key=True, index=True)
