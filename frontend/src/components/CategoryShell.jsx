@@ -10,8 +10,7 @@ const SHELL_CSS = `
   --shadow:0 10px 30px rgba(10,20,56,.08);--shadow-lg:0 22px 50px rgba(10,20,56,.16);
   --lift:inset 0 1px 0 rgba(255,255,255,.9),0 2px 6px rgba(10,20,56,.09),0 20px 44px rgba(10,20,56,.18);
   font-family:'DM Sans',system-ui,sans-serif;color:var(--text);min-height:100vh;
-  background:radial-gradient(900px 500px at 12% -8%,rgba(34,211,238,.16),transparent 60%),
-    radial-gradient(800px 520px at 96% 4%,rgba(30,58,138,.16),transparent 55%),var(--bg);
+  background:#FFFFFF;
   padding:20px clamp(14px,4vw,40px) 60px;}
 .cat *{margin:0;padding:0;box-sizing:border-box;}
 .cat h1,.cat h2,.cat h3,.cat h4{font-family:'Sora','DM Sans',sans-serif;}

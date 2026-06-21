@@ -139,7 +139,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
           fullHeight ? { height: '100dvh', minHeight: 0 } : {}
         )}>
         {catMode && (
-          <div style={{ padding: isMobile ? '14px 16px' : '18px 24px', background: '#f0f3f9' }}>
+          <div style={{ padding: isMobile ? '14px 16px' : '18px 24px', background: '#FFFFFF' }}>
             <CategoryTopBar backTo={categoryBack.to} backLabel={categoryBack.label} />
           </div>
         )}
@@ -169,7 +169,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
         {/* Persistent Learn tabs strip. */}
         {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isLearnFamilyRoute(location.pathname) && <LearnTabs />}
         <main className="flex-1 overflow-y-auto" style={Object.assign(
-          {background:'#f0f3f9', padding: isMobile ? '16px' : '24px'},
+          {background: catMode ? '#FFFFFF' : '#f0f3f9', padding: isMobile ? '16px' : '24px'},
           // Tab-bar pages (Watch / Dashboard / Wallet / home): leave space
           // for the 60px tab bar at the bottom. The tab bar handles its
           // own iPhone home-indicator safe-area padding.

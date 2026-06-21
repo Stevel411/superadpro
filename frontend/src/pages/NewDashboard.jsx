@@ -21,9 +21,7 @@ const CSS = `
 .nd{
   font-family:'DM Sans',system-ui,sans-serif;color:var(--text);
   background:
-    radial-gradient(900px 500px at 12% -8%, rgba(34,211,238,.16), transparent 60%),
-    radial-gradient(800px 520px at 96% 4%, rgba(30,58,138,.16), transparent 55%),
-    var(--bg);
+    #FFFFFF;
   min-height:100vh;padding:22px clamp(14px,4vw,40px) 60px;
 }
 .nd h1,.nd h2,.nd h3,.nd .disp{font-family:'Sora',sans-serif;}
