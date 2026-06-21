@@ -141,6 +141,9 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
         {catMode && (
           <div style={{ padding: isMobile ? '14px 16px' : '18px 24px', background: '#FFFFFF' }}>
             <CategoryTopBar backTo={categoryBack.to} backLabel={categoryBack.label} />
+            {topbarActions && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>{topbarActions}</div>
+            )}
           </div>
         )}
         {!hideTopbar && !catMode && (

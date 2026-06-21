@@ -247,7 +247,7 @@ export default function LinkTools() {
   const totalClicks = links.reduce((a, l) => a + (l.click_count || 0), 0) + rotators.reduce((a, r) => a + (r.click_count || 0), 0);
 
   if (loading) return (
-    <AppLayout title={t('linkTools.title')}>
+    <AppLayout categoryBack={{ to: '/marketing', label: 'Marketing' }} title={t('linkTools.title')}>
       <div style={{display:'flex',justifyContent:'center',padding:80}}>
         <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -256,8 +256,8 @@ export default function LinkTools() {
   );
 
   return (
-    <AppLayout title={t("linkTools.title")} subtitle={t("linkTools.subtitle")} topbarActions={
-      <button onClick={() => setShowHelp(true)} style={{display:'flex',alignItems:'center',gap:5,padding:'7px 14px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:'rgba(255,255,255,0.08)',color:'var(--sap-accent-light)'}}>
+    <AppLayout categoryBack={{ to: '/marketing', label: 'Marketing' }} title={t("linkTools.title")} subtitle={t("linkTools.subtitle")} topbarActions={
+      <button onClick={() => setShowHelp(true)} style={{display:'flex',alignItems:'center',gap:5,padding:'7px 14px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:'#eff6ff',color:'#0284c7',border:'1px solid #dbeafe'}}>
         <HelpCircle size={14}/> Help
       </button>
     }>
