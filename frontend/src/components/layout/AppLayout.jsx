@@ -9,6 +9,7 @@ import MyMarketingTabs, { isMyMarketingFamilyRoute } from './MyMarketingTabs';
 import BusinessHubTabs, { isBusinessHubFamilyRoute } from './BusinessHubTabs';
 import CampaignVideosTabs, { isCampaignVideosFamilyRoute } from './CampaignVideosTabs';
 import InstallPrompt from '../InstallPrompt';
+import CategoryTopBar from '../CategoryTopBar';
 import { useLocation } from 'react-router-dom';
 
 function useIsMobile() {
@@ -24,12 +25,17 @@ function useIsMobile() {
 
 var MOBILE_TABS = ['/watch', '/dashboard', '/wallet', '/'];
 
-export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight, hideSidebar, hideTopbar }) {
+export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight, hideSidebar, hideTopbar, categoryBack }) {
   var [sidebarOpen, setSidebarOpen] = useState(false);
   var closeSidebar = useCallback(function() { setSidebarOpen(false); }, []);
   var openSidebar = useCallback(function() { setSidebarOpen(true); }, []);
   var isMobile = useIsMobile();
   var location = useLocation();
+  // Category mode (21 Jun 2026): no-sidebar full-width chrome for category
+  // DESTINATION pages. When categoryBack={{to,label}} is passed, the sidebar +
+  // old contextual tab strips + Topbar are replaced by CategoryTopBar (logo ->
+  // dashboard, back -> parent category). Opt-in: zero change to any other page.
+  var catMode = !!categoryBack;
 
   // Desktop collapse state — persisted in localStorage so the user's preference
   // survives reloads. Default is 'open' so new members see the full labels.
@@ -119,7 +125,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
           this to claim the full viewport for the three-panel layout
           (inspector / canvas / blocks). When hidden, --sidebar-offset is
           forced to 0 below so main content fills the screen edge-to-edge. */}
-      {!hideSidebar && (
+      {!hideSidebar && !catMode && (
         <Sidebar open={sidebarOpen} onClose={closeSidebar}
                  collapsed={!isMobile && collapsed}
                  onToggleCollapsed={!isMobile ? function() { dismissFirstView(); toggleCollapsed(); } : undefined}
@@ -132,7 +138,12 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
           { marginLeft: 'var(--sidebar-offset,0)' },
           fullHeight ? { height: '100dvh', minHeight: 0 } : {}
         )}>
-        {!hideTopbar && (
+        {catMode && (
+          <div style={{ padding: isMobile ? '14px 16px' : '18px 24px', background: '#f0f3f9' }}>
+            <CategoryTopBar backTo={categoryBack.to} backLabel={categoryBack.label} />
+          </div>
+        )}
+        {!hideTopbar && !catMode && (
           <Topbar title={title} subtitle={subtitle} onMenuClick={openSidebar}>
             {topbarActions}
           </Topbar>
@@ -148,15 +159,15 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
             → Tools → Learn. Campaign Videos claims /watch, /create-campaign,
             /video-library and /campaign-analytics (previously Income-family).
             /campaign-tiers stays in the Business family on purpose. */}
-        {isBusinessHubFamilyRoute(location.pathname) && <BusinessHubTabs />}
-        {!isBusinessHubFamilyRoute(location.pathname) && isCampaignVideosFamilyRoute(location.pathname) && <CampaignVideosTabs />}
-        {!isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && isMyMarketingFamilyRoute(location.pathname) && <MyMarketingTabs />}
+        {!catMode && isBusinessHubFamilyRoute(location.pathname) && <BusinessHubTabs />}
+        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && isCampaignVideosFamilyRoute(location.pathname) && <CampaignVideosTabs />}
+        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && isMyMarketingFamilyRoute(location.pathname) && <MyMarketingTabs />}
         {/* Persistent Income tabs strip — Wallet, Comp Plan, Membership etc. */}
-        {!isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isIncomeFamilyRoute(location.pathname) && <IncomeTabs />}
+        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isIncomeFamilyRoute(location.pathname) && <IncomeTabs />}
         {/* Persistent Tools tabs strip. */}
-        {!isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isToolsFamilyRoute(location.pathname) && <ToolsTabs />}
+        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isToolsFamilyRoute(location.pathname) && <ToolsTabs />}
         {/* Persistent Learn tabs strip. */}
-        {!isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isLearnFamilyRoute(location.pathname) && <LearnTabs />}
+        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isLearnFamilyRoute(location.pathname) && <LearnTabs />}
         <main className="flex-1 overflow-y-auto" style={Object.assign(
           {background:'#f0f3f9', padding: isMobile ? '16px' : '24px'},
           // Tab-bar pages (Watch / Dashboard / Wallet / home): leave space
@@ -185,7 +196,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
       {/* CSS to handle sidebar offset on desktop only + MOBILE RESPONSIVE */}
       <style>{`
         @media(min-width:768px){
-          :root { --sidebar-offset: ${hideSidebar ? 0 : desktopOffset}px; }
+          :root { --sidebar-offset: ${(hideSidebar || catMode) ? 0 : desktopOffset}px; }
         }
         @media(max-width:767px){
           :root { --sidebar-offset: 0px; }

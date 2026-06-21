@@ -4,7 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiPost } from '../utils/api';
 import { Bot, Sparkles, Copy, Check, RefreshCw, Wand2 } from 'lucide-react';
 
-export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLabel }) {
+export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLabel, categoryBack }) {
   var { t } = useTranslation();
   var [values, setValues] = useState({});
   var [result, setResult] = useState('');
@@ -34,7 +34,7 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
   }
 
   return (
-    <AppLayout title={title} subtitle={subtitle}>
+    <AppLayout categoryBack={categoryBack} title={title} subtitle={subtitle}>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,alignItems:'stretch'}}>
 
         {/* LEFT — Input Form */}

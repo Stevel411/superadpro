@@ -611,7 +611,7 @@ export default function CreativeStudio() {
   //  RENDER
   // ══════════════════════════════════════════════════
   return (
-    <AppLayout title={t("creativeStudio.title")} subtitle={t("creativeStudio.subtitle")}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t("creativeStudio.title")} subtitle={t("creativeStudio.subtitle")}>
 
       <div className="cs-page">
 

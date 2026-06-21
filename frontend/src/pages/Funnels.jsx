@@ -231,10 +231,10 @@ export default function Funnels() {
   // they fed the three small stat cards above 'Your Pages' which we deleted
   // (they duplicated the ROI strip data at the top of the page).
 
-  if (loading) return <AppLayout title={t('superPages.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
+  if (loading) return <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('superPages.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
-    <AppLayout>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }}>
       {/* Error banner — visible when /api/funnels fails so the user
           isn't left looking at an empty page wondering what's wrong.
           Replaces the previous silent .catch() pattern. */}

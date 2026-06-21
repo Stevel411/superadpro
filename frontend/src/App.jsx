@@ -365,7 +365,7 @@ function AppRoutes() {
       <Route path="/create-campaign" element={<ProtectedRoute><RequireTier tier="basic"><CreateCampaign /></RequireTier></ProtectedRoute>} />
 
       {/* AI Marketing Tools — Pro-tier per Tools page spec */}
-      <Route path="/campaign-studio" element={<ProtectedRoute><RequireTier tier="basic"><AiTool title={'Campaign Studio'} subtitle={'AI-powered campaign generator'} apiEndpoint="/api/campaign-studio/generate"
+      <Route path="/campaign-studio" element={<ProtectedRoute><RequireTier tier="basic"><AiTool categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={'Campaign Studio'} subtitle={'AI-powered campaign generator'} apiEndpoint="/api/campaign-studio/generate"
         fields={[{key:'niche',label:'Your Niche',placeholder:'e.g. crypto trading, fitness, real estate'},{key:'audience',label:'Target Audience',placeholder:'e.g. beginners, professionals, women 25-45'},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Urgent','Inspirational','Educational']},{key:'goal',label:'Campaign Goal',type:'select',options:['Lead Generation','Sales','Brand Awareness','Recruitment']}]}
         resultLabel="Your Campaign" /></RequireTier></ProtectedRoute>} />
       <Route path="/niche-finder" element={<Navigate to="/tools" replace />} />

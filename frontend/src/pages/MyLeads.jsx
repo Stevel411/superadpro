@@ -72,10 +72,10 @@ export default function MyLeads() {
 
   useEffect(function() { refresh(); }, [refresh]);
 
-  if (loading) return <AppLayout title={t('myLeads.superLeadsTitle')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-indigo)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
+  if (loading) return <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-indigo)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
-    <AppLayout title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
