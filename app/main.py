@@ -55189,6 +55189,60 @@ def admin_grid_plan_feedback(
     })
 
 
+@app.get("/admin/api/in-flight-grids")
+def admin_in_flight_grids(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: every grid that is PARTIALLY filled right now
+    (positions_filled between 1 and total_seats-1, not complete, not retired).
+
+    These are the only grids a v1→v2 close-out would actually reset — empty
+    grids just open as v2, completed grids already paid out. Tells us the exact
+    blast radius before go-live. Read-only, GET (phone-friendly)."""
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    rows = (
+        db.query(Grid, User.username)
+        .join(User, User.id == Grid.owner_id)
+        .filter(
+            Grid.is_complete == False,
+            Grid.positions_filled > 0,
+            Grid.total_seats.isnot(None),
+            Grid.positions_filled < Grid.total_seats,
+            Grid.retired_at.is_(None),
+        )
+        .order_by(Grid.positions_filled.desc())
+        .all()
+    )
+    out = []
+    total_accrued = 0.0
+    for g, uname in rows:
+        accrued = float(g.bonus_pool_accrued or 0)
+        total_accrued += accrued
+        out.append({
+            "grid_id": g.id,
+            "owner_id": g.owner_id,
+            "username": uname,
+            "tier": g.package_tier,
+            "tier_price": float(g.package_price or 0),
+            "filled": g.positions_filled,
+            "seats": g.total_seats,
+            "bonus_accrued_usd": round(accrued, 2),
+            "created_at": g.created_at.isoformat() if g.created_at else None,
+        })
+    return JSONResponse({
+        "ok": True,
+        "in_flight_grid_count": len(out),
+        "total_bonus_accrued_usd": round(total_accrued, 2),
+        "grids": out,
+        "note": "These partial grids are the ONLY ones a close-out would reset. Empty grids open straight as v2; completed grids already paid. A small count + small accrued total = the switchover is effectively invisible to members beyond the new visuals.",
+    })
+
+
 @app.get("/admin/api/ad-studio-persist-test")
 def admin_ad_studio_persist_test(
     url: str,
