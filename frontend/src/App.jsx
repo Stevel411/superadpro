@@ -73,6 +73,7 @@ const MyLeads = React.lazy(() => import('./pages/MyLeads'));
 const LinkTools = React.lazy(() => import('./pages/LinkTools'));
 const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const PassupVisualiser = React.lazy(() => import('./pages/PassupVisualiser'));
+const ProposedGrid = React.lazy(() => import('./pages/ProposedGrid'));
 const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminNetworkTree = React.lazy(() => import('./pages/AdminNetworkTree'));
@@ -163,6 +164,7 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/MyLeads'),
   () => import('./pages/LinkTools'),
   () => import('./pages/PassupVisualiser'),
+  () => import('./pages/ProposedGrid'),
   () => import('./pages/ProSeller'),
   () => import('./pages/Funnels'),
   () => import('./pages/LinkHub'),
@@ -437,7 +439,8 @@ function AppRoutes() {
       <Route path="/content-creator" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Content Creator…'}</div>}><ContentCreatorPage /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><RequireTier tier="pro"><MyLeads /></RequireTier></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><RequireTier tier="basic"><LinkTools /></RequireTier></ProtectedRoute>} />
-      <Route path="/passup-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><PassupVisualiser /></RequireTier></ProtectedRoute>} />
+      <Route path="/new-grid" element={<ProtectedRoute><ProposedGrid /></ProtectedRoute>} />
+      <Route path="/passup-visualiser" element={<Navigate to="/new-grid" replace />} />
       <Route path="/network" element={<Navigate to="/income" replace />} />
       <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
       <Route path="/income/membership" element={<ProtectedRoute><IncomeMembershipPage /></ProtectedRoute>} />

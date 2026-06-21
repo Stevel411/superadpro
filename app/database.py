@@ -5759,3 +5759,29 @@ class TeamPulseAction(Base):
 
     sponsor = relationship("User", foreign_keys=[sponsor_user_id])
     target  = relationship("User", foreign_keys=[target_user_id])
+
+class GridPlanFeedback(Base):
+    """Member feedback on the PROPOSED new Profit Grid affiliate plan
+    (the New-Profit-Grid-Plan-50 proposal — 40% direct / 20% uni-level over
+    4 levels / 15% locked welcome bonus / 25% bonus pool with step-up credit).
+
+    The proposal is shown at /new-grid as a feedback page BEFORE any of it
+    goes live. This table captures structured member reaction so Steve can
+    read the signal in admin instead of scattered emails.
+
+    One row per member (unique user_id) — re-submitting UPSERTs the same row,
+    so a member can change their mind and the latest answer wins. Built
+    21 Jun 2026 alongside the proposal page. NOT tied to any live commission
+    logic — pure feedback capture.
+    """
+    __tablename__ = "grid_plan_feedback"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True, index=True)
+    sentiment  = Column(String(20), nullable=False)
+                            # 'love' | 'good' | 'unsure' | 'no' — the 4-point scale on the page
+    comment    = Column(Text, nullable=True)        # optional free-text, what they'd change
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id])

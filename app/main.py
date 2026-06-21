@@ -31,6 +31,7 @@ from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTrac
 # payment_method on User tracks which rail; renewals route by that value.
 from . import stripe_service
 from .database import StripeCharge
+from .database import GridPlanFeedback
 from .database import CREDIT_PACKS  # 23 May 2026: needed at module level for Stripe Nexus checkout route
 from .database import AppConfig  # used by security-watch helpers (and others) at module scope
 STRIPE_BOOST_PACKS = {}  # legacy compat — kept until any consumer is rewritten
@@ -5836,6 +5837,14 @@ def api_labs_grid_visualiser(request: Request, user: User = Depends(get_current_
 @app.get("/passup-visualiser")
 def passup_visualiser(request: Request):
     """Serve React SPA."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/new-grid")
+def new_grid(request: Request):
+    """Serve React SPA — Proposed Profit Grid feedback page. (Old
+    /passup-visualiser route now redirects here client-side.)"""
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -55015,6 +55024,158 @@ def admin_apply_ad_studio_schema(
         "ok": True,
         "results": results,
         "note": "Ad Studio ad_assets table is ready.",
+    })
+
+
+# ── Proposed Profit Grid — member feedback capture ───────────────────────────
+# Backs the /new-grid proposal page (the New-Profit-Grid-Plan-50 proposal).
+# Pure feedback; touches no live commission logic.
+
+_GRID_PLAN_SENTIMENTS = ("love", "good", "unsure", "no")
+
+
+@app.get("/admin/api/apply-grid-plan-feedback")
+def admin_apply_grid_plan_feedback(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: create the grid_plan_feedback table behind the New Profit Grid
+    proposal page. Needed because SKIP_MIGRATIONS=true on production means
+    create_all()/run_migrations() don't build it on deploy. Idempotent
+    (CREATE TABLE / INDEX IF NOT EXISTS). Admin-only, GET (phone-friendly).
+    Tap once after the deploy lands."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    results = {}
+    try:
+        db.execute(_text("""
+            CREATE TABLE IF NOT EXISTS grid_plan_feedback (
+                id         SERIAL PRIMARY KEY,
+                user_id    INTEGER NOT NULL UNIQUE REFERENCES users(id),
+                sentiment  VARCHAR(20) NOT NULL,
+                comment    TEXT,
+                created_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'),
+                updated_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc')
+            )
+        """))
+        db.commit()
+        results["table"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["table"] = f"error: {e}"
+        return JSONResponse({"ok": False, "results": results}, status_code=500)
+
+    try:
+        db.execute(_text(
+            "CREATE INDEX IF NOT EXISTS idx_grid_plan_feedback_sentiment "
+            "ON grid_plan_feedback(sentiment)"
+        ))
+        db.commit()
+        results["index"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["index"] = f"error: {e}"
+
+    return JSONResponse({
+        "ok": True,
+        "results": results,
+        "note": "grid_plan_feedback table is ready.",
+    })
+
+
+@app.get("/api/grid-plan-feedback")
+def api_grid_plan_feedback_get(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Return the current member's existing feedback on the proposed grid plan
+    (so the page can pre-select their answer), or null if they haven't responded."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    row = db.query(GridPlanFeedback).filter(GridPlanFeedback.user_id == user.id).first()
+    if not row:
+        return JSONResponse({"mine": None})
+    return JSONResponse({"mine": {"sentiment": row.sentiment, "comment": row.comment or ""}})
+
+
+@app.post("/api/grid-plan-feedback")
+def api_grid_plan_feedback_post(
+    payload: dict = Body(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upsert the member's feedback on the proposed grid plan. One row per
+    member — re-submitting overwrites (latest answer wins). Body:
+    {"sentiment": "love"|"good"|"unsure"|"no", "comment": "..."(optional)}."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    sentiment = (payload.get("sentiment") or "").strip().lower()
+    if sentiment not in _GRID_PLAN_SENTIMENTS:
+        return JSONResponse(
+            {"error": f"sentiment must be one of {_GRID_PLAN_SENTIMENTS}"},
+            status_code=400,
+        )
+    comment = (payload.get("comment") or "").strip()[:1000] or None
+
+    row = db.query(GridPlanFeedback).filter(GridPlanFeedback.user_id == user.id).first()
+    if row:
+        row.sentiment = sentiment
+        row.comment = comment
+    else:
+        row = GridPlanFeedback(user_id=user.id, sentiment=sentiment, comment=comment)
+        db.add(row)
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=500)
+
+    return JSONResponse({"ok": True, "saved": {"sentiment": sentiment, "comment": comment or ""}})
+
+
+@app.get("/admin/api/grid-plan-feedback")
+def admin_grid_plan_feedback(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin readout of proposed-grid feedback: counts by sentiment + every
+    comment with who left it. Admin-only, GET (phone-friendly)."""
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    rows = (
+        db.query(GridPlanFeedback, User)
+        .join(User, User.id == GridPlanFeedback.user_id)
+        .order_by(GridPlanFeedback.updated_at.desc())
+        .all()
+    )
+    counts = {s: 0 for s in _GRID_PLAN_SENTIMENTS}
+    comments = []
+    for fb, u in rows:
+        counts[fb.sentiment] = counts.get(fb.sentiment, 0) + 1
+        if fb.comment:
+            comments.append({
+                "user_id": u.id,
+                "username": u.username,
+                "sentiment": fb.sentiment,
+                "comment": fb.comment,
+                "at": (fb.updated_at or fb.created_at).isoformat() if (fb.updated_at or fb.created_at) else None,
+            })
+    return JSONResponse({
+        "ok": True,
+        "total": len(rows),
+        "counts": counts,
+        "comments": comments,
     })
 
 
