@@ -40,6 +40,7 @@ from .database import (
     GRID_WIDTH, GRID_LEVELS, GRID_TOTAL, NEW_GRID_SEATS, UNILEVEL_DEPTH,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT, BONUS_POOL_PCT,
     bonus_pct_for,
+    v2_live, V2_DIRECT_PCT, V2_PER_LEVEL_PCT, V2_UNILEVEL_DEPTH,
     GRID_PACKAGES, GRID_COMPLETION_BONUS, CAMPAIGN_GRACE_DAYS
 )
 from datetime import datetime, timedelta
@@ -1039,13 +1040,14 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
     (commission-spec.md §"Tier qualification rule"): qualify at the tier or the
     slot passes up to the company. No grace claim on the direct 30%.
     """
-    amount = round(float(price) * DIRECT_PCT, 2)
+    _direct_pct = V2_DIRECT_PCT if v2_live() else DIRECT_PCT
+    amount = round(float(price) * _direct_pct, 2)
 
     if not buyer.sponsor_id:
         # No sponsor at all — money goes to company directly, no escrow.
         # There's nobody who could "catch up" to claim it.
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
-                           f"No sponsor — {int(DIRECT_PCT*100)}% company absorb on ${price}",
+                           f"No sponsor — {int(_direct_pct*100)}% company absorb on ${price}",
                            package_tier, source_event_id=source_event_id)
         return
 
@@ -1057,15 +1059,15 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
         sponsor.total_earned  = Decimal(str(sponsor.total_earned or 0)) + Decimal(str(amount))
         sponsor.grid_earnings = Decimal(str(sponsor.grid_earnings or 0)) + Decimal(str(amount))
         _record_commission(db, buyer.id, sponsor.id, amount, "direct_sponsor",
-                           f"Direct sponsor {int(DIRECT_PCT*100)}% — buyer {buyer.id} on ${price} package",
+                           f"Direct sponsor {int(_direct_pct*100)}% — buyer {buyer.id} on ${price} package",
                            package_tier, source_event_id=source_event_id)
     else:
         # Sponsor unqualified at this tier (or record missing) — the 40%
         # passes up to the company as recipient of last resort. No escrow:
         # the direct line does not hold a grace claim (Steve, 8 Jun 2026).
         _note = (f"Sponsor {buyer.sponsor_id} unqualified at tier {package_tier} "
-                 f"— {int(DIRECT_PCT*100)}% company absorb on ${price}") if sponsor else \
-                (f"Sponsor {buyer.sponsor_id} not found — {int(DIRECT_PCT*100)}% company absorb")
+                 f"— {int(_direct_pct*100)}% company absorb on ${price}") if sponsor else \
+                (f"Sponsor {buyer.sponsor_id} not found — {int(_direct_pct*100)}% company absorb")
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
                            _note, package_tier, source_event_id=source_event_id)
 
@@ -1075,20 +1077,22 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
     Each level checked individually — if unqualified at this tier, that
     slot passes up to the company (recipient of last resort), no escrow.
 
-    25 May 2026: uses UNILEVEL_DEPTH (=8), decoupled from GRID_LEVELS (=6).
+    25 May 2026: uses _depth (=8), decoupled from GRID_LEVELS (=6).
     Grid visualises 6 levels; commissions still walk 8 levels of sponsor chain.
     8 Jun 2026 (Steve): reverted the 26-May escrow divergence — unqualified
     uni-level slots are company-absorbed, matching the spec + the direct line.
     """
-    per_level = round(float(price) * PER_LEVEL_PCT, 2)
+    _per_level = round(V2_PER_LEVEL_PCT if v2_live() else PER_LEVEL_PCT, 4)
+    _depth = V2_UNILEVEL_DEPTH if v2_live() else UNILEVEL_DEPTH
+    per_level = round(float(price) * _per_level, 2)
     current_id = buyer.id
 
-    for lvl in range(1, UNILEVEL_DEPTH + 1):
+    for lvl in range(1, _depth + 1):
         current_user = db.query(User).filter(User.id == current_id).first()
         if not current_user or not current_user.sponsor_id:
             # Chain ended (top of tree) — remaining levels go to company.
             # No escrow because there's nobody to claim.
-            for remaining in range(lvl, UNILEVEL_DEPTH + 1):
+            for remaining in range(lvl, _depth + 1):
                 _record_commission(db, buyer.id, None, per_level, "uni_level",
                                    f"Uni-level {remaining} — chain ended, company absorb",
                                    package_tier, source_event_id=source_event_id)
