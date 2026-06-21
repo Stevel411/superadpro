@@ -35,12 +35,13 @@
 from sqlalchemy.orm import Session
 from decimal import Decimal
 from .database import (
-    User, Grid, GridPosition, Commission, VideoCampaign,
+    User, Grid, GridPosition, StepUpBalance, Commission, VideoCampaign,
     CourseCommission, CreditMatrixCommission,
     GRID_WIDTH, GRID_LEVELS, GRID_TOTAL, NEW_GRID_SEATS, UNILEVEL_DEPTH,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT, BONUS_POOL_PCT,
     bonus_pct_for,
     v2_live, V2_DIRECT_PCT, V2_PER_LEVEL_PCT, V2_UNILEVEL_DEPTH, V2_WELCOME_PCT,
+    V2_BONUS_POOL_PCT, V2_BONUS_CASH_SHARE, V2_STEPUP_MAX_TIER_PRICE,
     GRID_PACKAGES, GRID_COMPLETION_BONUS, CAMPAIGN_GRACE_DAYS
 )
 from datetime import datetime, timedelta
@@ -86,8 +87,14 @@ def _policy_bonus_target(package_tier: int, total_seats: int = GRID_TOTAL) -> fl
     5% rate, or pre-25-May 64-seat geometry) so members still receive the
     full advertised bonus. The pool is what gets PAID, but the target is
     what gets PROMISED, and the promise wins.
+
+    v2 (New Profit Grid): under the live plan the pool rate is 25% across the
+    16 seats (V2_BONUS_POOL_PCT). In v2 the pool is display-only — payouts are
+    fixed tier-price installments at seats 4/8/12/16 — but the cap must track
+    25% so the accrued figure shown on the grid stays consistent.
     """
-    return float(GRID_PACKAGES.get(package_tier, 0)) * float(total_seats) * float(bonus_pct_for(total_seats))
+    _pct = V2_BONUS_POOL_PCT if v2_live() else bonus_pct_for(total_seats)
+    return float(GRID_PACKAGES.get(package_tier, 0)) * float(total_seats) * float(_pct)
 
 
 def _accrue_to_pool(grid: Grid, raw_accrual: float) -> Decimal:
@@ -108,6 +115,75 @@ def _accrue_to_pool(grid: Grid, raw_accrual: float) -> Decimal:
     proposed = current + Decimal(str(raw_accrual))
     grid.bonus_pool_accrued = min(proposed, target)
     return grid.bonus_pool_accrued
+
+
+def _credit_step_up(db: Session, user_id: int, amount: float) -> None:
+    """Add `amount` to a user's step-up wallet (v2 New Profit Grid plan). The
+    step-up balance is non-withdrawable, climb-only credit: when it reaches the
+    next tier's price the grid auto-opens that tier (phase 2d). One row per user,
+    lazily created. Only ever called from v2-gated code, so the step_up_balance
+    table is guaranteed to exist (applied via /admin/api/apply-grid-v2-schema
+    before go-live)."""
+    if amount <= 0:
+        return
+    row = db.query(StepUpBalance).filter(StepUpBalance.user_id == user_id).first()
+    if not row:
+        row = StepUpBalance(user_id=user_id, amount=0)
+        db.add(row)
+        db.flush()
+    row.amount = Decimal(str(row.amount or 0)) + Decimal(str(amount))
+    db.add(row)
+
+
+def _pay_v2_bonus_installment(db: Session, grid: Grid, seat: int) -> None:
+    """v2 bonus-pool installment — fired when a 16-seat grid reaches seat 4, 8,
+    12 or 16. Each installment pays the grid OWNER exactly ONE tier-price
+    (deterministic: 4 seats × 25% accrual = one tier-price), split per the plan:
+
+      • tier price ≤ $400  → 50% cash (withdrawable campaign wallet)
+                             + 50% step-up credit (climb-only wallet)
+      • tier price >  $400  → 100% cash (no step-up above $400 — members climb
+                             these tiers manually, Steve 21 Jun)
+
+    Qualification gate matches the v1 completion bonus: if the owner isn't
+    qualified at this tier the installment is company-absorbed (no escrow),
+    consistent with the 8/12 Jun unqualified-commission rule. Cash counts toward
+    earnings stats; step-up does not (it's locked climb credit, surfaced as its
+    own balance). v2-only — never called while GRID_V2_LIVE is False."""
+    price = float(grid.package_price or GRID_PACKAGES.get(grid.package_tier, 0))
+    if price <= 0:
+        return
+    tier = grid.package_tier
+    owner = db.query(User).filter(User.id == grid.owner_id).first()
+    qualified = _owner_has_active_campaign(db, grid.owner_id, tier)
+
+    if not owner or not qualified:
+        # Unqualified at this milestone — the installment passes to the company.
+        _record_commission(db, grid.owner_id, None, round(price, 2), "grid_bonus_unqualified",
+                           f"v2 bonus seat {seat} tier {tier} adv {grid.advance_number} "
+                           f"— owner unqualified, ${price:.2f} company absorb", tier)
+        return
+
+    if price <= V2_STEPUP_MAX_TIER_PRICE:
+        cash   = round(price * V2_BONUS_CASH_SHARE, 2)
+        stepup = round(price - cash, 2)     # remainder, so cash+stepup == price exactly
+    else:
+        cash   = round(price, 2)            # above $400: full cash, no step-up
+        stepup = 0.0
+
+    # Cash half → withdrawable campaign wallet + earnings stats.
+    owner.campaign_balance = Decimal(str(owner.campaign_balance or 0)) + Decimal(str(cash))
+    owner.total_earned     = Decimal(str(owner.total_earned or 0)) + Decimal(str(cash))
+    owner.bonus_earnings   = Decimal(str(owner.bonus_earnings or 0)) + Decimal(str(cash))
+    db.add(owner)
+    _record_commission(db, grid.owner_id, grid.owner_id, cash, "grid_bonus_cash",
+                       f"v2 bonus seat {seat} tier {tier} adv {grid.advance_number} — ${cash:.2f} cash", tier)
+
+    # Step-up half → dedicated climb-only wallet.
+    if stepup > 0:
+        _credit_step_up(db, grid.owner_id, stepup)
+        _record_commission(db, grid.owner_id, grid.owner_id, stepup, "grid_bonus_stepup",
+                           f"v2 bonus seat {seat} tier {tier} adv {grid.advance_number} — ${stepup:.2f} step-up", tier)
 
 
 def process_tier_purchase(
@@ -481,8 +557,20 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                 # policy target. The cap matters because retroactive top-ups
                 # (26 May 2026) may have already set this grid's pool to the full
                 # target — further accrual must not push past it.
-                bonus_amount = round(float(price) * bonus_pct_for(grid.total_seats), 2)
+                # v2 (New Profit Grid): accrue at 25% (V2_BONUS_POOL_PCT). The
+                # pool is display-only in v2 — payouts are fixed installments.
+                _accrual_rate = V2_BONUS_POOL_PCT if v2_live() else bonus_pct_for(grid.total_seats)
+                bonus_amount = round(float(price) * _accrual_rate, 2)
                 _accrue_to_pool(grid, bonus_amount)
+
+                # v2 bonus cadence: pay one tier-price installment to the owner
+                # each time a 16-seat grid reaches seat 4/8/12/16 (split cash /
+                # step-up). Fires exactly once per milestone because positions
+                # increment one at a time inside this loop. Gated + 16-seat-only
+                # so legacy 36-seat grids are never touched.
+                if v2_live() and grid.total_seats == NEW_GRID_SEATS \
+                        and grid.positions_filled % 4 == 0:
+                    _pay_v2_bonus_installment(db, grid, grid.positions_filled)
 
                 # NOTE: legacy code used to do `owner.total_team += 1` here.
                 # Removed 1 May 2026: total_team is no longer a denormalised
@@ -1164,6 +1252,49 @@ def _record_platform_fee(db: Session, price: float, package_tier: int, buyer_id:
                        package_tier)
 
 
+def _complete_grid_v2(db: Session, grid: Grid, owner) -> None:
+    """v2 grid completion (New Profit Grid plan). The four bonus installments
+    (seats 4/8/12/16) have already paid out via _pay_v2_bonus_installment, and
+    the climb to the next tier is funded by the step-up wallet (phase 2d) — NOT
+    by completion. So this just:
+      • opens a fresh same-tier advance so the owner keeps earning at this tier,
+      • marks the grid paid (installments are done),
+      • notifies the owner.
+    No lump-sum bonus, no climb_pending, no rollover — those are all v1 concepts
+    that the installment cadence + step-up wallet replace. Called only from
+    _complete_grid under v2_live()."""
+    new_grid = Grid(
+        owner_id       = grid.owner_id,
+        package_tier   = grid.package_tier,
+        package_price  = grid.package_price,
+        advance_number = grid.advance_number + 1,
+        total_seats    = grid.total_seats,
+    )
+    db.add(new_grid)
+    db.flush()
+
+    grid.bonus_paid = True   # all four installments paid across the fill
+    grid.owner_paid = True
+
+    try:
+        from .database import Notification
+        if owner:
+            db.add(Notification(
+                user_id=grid.owner_id,
+                type="commission",
+                icon="🎉",
+                title=f"🎉 Grid Tier {grid.package_tier} complete!",
+                message=(f"Your Tier {grid.package_tier} grid (advance {grid.advance_number}) filled all "
+                         f"{grid.total_seats} seats — all four bonus payouts are in. A fresh Tier "
+                         f"{grid.package_tier} grid (advance {grid.advance_number + 1}) is open and keeps earning."),
+                link="/grid-visualiser",
+            ))
+    except Exception as e:
+        import logging
+        logging.getLogger("superadpro.grid").warning(f"v2 completion notif failed: {e}")
+    return
+
+
 def _complete_grid(db: Session, grid: Grid):
     """
     Mark complete. Check if owner is qualified at this tier.
@@ -1188,6 +1319,13 @@ def _complete_grid(db: Session, grid: Grid):
     grid.completed_at = datetime.utcnow()
 
     owner = db.query(User).filter(User.id == grid.owner_id).first()
+
+    # ── v2 (New Profit Grid): the bonus was already paid in four tier-price
+    # installments at seats 4/8/12/16, and the climb is driven by the step-up
+    # wallet (not by completion). So completion here is purely structural: open
+    # a fresh same-tier advance and notify. No lump bonus, no climb_pending. ──
+    if v2_live():
+        return _complete_grid_v2(db, grid, owner)
 
     # Pay the HIGHER of actual-accrued vs policy-target. Grids that accrued
     # under historical rates (pre-21-May 5%, pre-25-May 64-seat) might fall
