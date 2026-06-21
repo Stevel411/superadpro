@@ -26,7 +26,7 @@ const CSS = `
 }
 .nd h1,.nd h2,.nd h3,.nd .disp{font-family:'Sora',sans-serif;}
 .nd .mono{font-family:'JetBrains Mono',monospace;}
-.nd .wrap{max-width:1120px;margin:0 auto;}
+.nd .wrap{width:100%;}
 .nd /* top bar */
 .top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:26px;}
 .nd .brand{display:flex;align-items:center;gap:10px;}
