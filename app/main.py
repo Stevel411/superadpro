@@ -55037,6 +55037,62 @@ def admin_apply_ad_studio_schema(
     })
 
 
+@app.get("/admin/api/apply-grid-v2-schema")
+def admin_apply_grid_v2_schema(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: create the step_up_balance table for the New Profit Grid plan
+    (v2). Holds the non-withdrawable, climb-only half of each bonus-pool payout.
+    Needed because SKIP_MIGRATIONS=true on production means create_all() doesn't
+    build it on deploy. amount is NUMERIC(18,6) to match the Money column type.
+    Idempotent, admin-only, GET (phone-friendly). MUST be tapped once BEFORE
+    GRID_V2_LIVE is flipped on — while the flag is False nothing reads this table,
+    so it's safe to apply at any point in the run-up to go-live."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    results = {}
+
+    try:
+        db.execute(_text("""
+            CREATE TABLE IF NOT EXISTS step_up_balance (
+                id          SERIAL PRIMARY KEY,
+                user_id     INTEGER NOT NULL UNIQUE REFERENCES users(id),
+                amount      NUMERIC(18,6) NOT NULL DEFAULT 0,
+                updated_at  TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc')
+            )
+        """))
+        db.commit()
+        results["table"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["table"] = f"error: {e}"
+        return JSONResponse({"ok": False, "results": results}, status_code=500)
+
+    try:
+        db.execute(_text(
+            "CREATE INDEX IF NOT EXISTS idx_step_up_balance_user "
+            "ON step_up_balance(user_id)"
+        ))
+        db.commit()
+        results["index"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["index"] = f"error: {e}"
+        return JSONResponse({"ok": False, "results": results}, status_code=500)
+
+    return JSONResponse({
+        "ok": True,
+        "results": results,
+        "note": "step_up_balance table ready. Tap this BEFORE flipping GRID_V2_LIVE on.",
+    })
+
+
 # ── Proposed Profit Grid — member feedback capture ───────────────────────────
 # Backs the /new-grid proposal page (the New-Profit-Grid-Plan-50 proposal).
 # Pure feedback; touches no live commission logic.
