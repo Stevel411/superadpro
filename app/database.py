@@ -153,6 +153,43 @@ BONUS_POOL_PCT = 0.20  # 20% → Grid completion bonus pool (8 Jun 2026: +10%, d
 LEGACY_BONUS_POOL_PCT = 0.10  # 36-seat grandfathered grids keep the old 10% rate (12 Jun 2026 cut-off)
 
 
+# ── NEW PROFIT GRID PLAN (v2) — APPROVED 21 Jun 2026, NOT YET LIVE ────────────
+# Per docs/platform-assets/new-grid-plan-mockup.html + commission-spec. A grid
+# uses these rates ONLY if it was created on/after GRID_V2_LAUNCH (grandfather
+# gate — existing grids finish on the v1 rates above). While GRID_V2_LAUNCH is
+# None the whole subsystem is INERT: grid_plan_version() always returns 1 and
+# nothing reads the v2 constants. Go-live = set GRID_V2_LAUNCH to a UTC datetime.
+# Split: 40 direct / 20 uni-level (5%×4) / 15 locked welcome bonus / 25 bonus
+# pool (half cash, half step-up credit) / 0 company = 100% to members.
+GRID_V2_LAUNCH = None          # set to a datetime.datetime (UTC) at go-live; None = off
+
+V2_DIRECT_PCT      = 0.40      # 40% → direct sponsor
+V2_UNILEVEL_PCT    = 0.20      # 20% total → split across 4 levels (5% each)
+V2_PER_LEVEL_PCT   = 0.05      # 5% → each of 4 levels
+V2_UNILEVEL_DEPTH  = 4         # 4 levels (was 8)
+V2_WELCOME_PCT     = 0.15      # 15% → locked welcome bonus, rebated to the entrant, unlocks on activation
+V2_BONUS_POOL_PCT  = 0.25      # 25% → bonus pool, paid at seats 4/8/12/16
+V2_BONUS_CASH_SHARE = 0.50     # half of each bonus seat = withdrawable cash
+V2_BONUS_STEPUP_SHARE = 0.50   # half = step-up credit toward the next tier
+# Option A cutoff (Steve, 21 Jun): step-up applies up to & incl. the $400 tier;
+# from $600 up, the bonus pays full cash (no step-up). 400.0 is the last splitting price.
+V2_STEPUP_MAX_TIER_PRICE = 400.0
+
+
+def grid_plan_version(grid) -> int:
+    """Which commission plan a grid runs on. 2 = new plan (created on/after the
+    go-live timestamp); 1 = current/legacy economics. Grandfathers every
+    in-flight grid automatically: a grid keeps the rules it was born under for
+    its whole life. INERT until GRID_V2_LAUNCH is set."""
+    if GRID_V2_LAUNCH is None:
+        return 1
+    try:
+        created = getattr(grid, "created_at", None)
+        return 2 if (created is not None and created >= GRID_V2_LAUNCH) else 1
+    except Exception:
+        return 1
+
+
 def bonus_pct_for(total_seats) -> float:
     """Seat-aware completion-bonus rate. New 16-seat grids earn the 20% pool;
     legacy 36-seat (grandfathered) grids keep 10%. Keying the rate off the
