@@ -9865,6 +9865,8 @@ def admin_api_wallet_reconciliation(
     over = []
     buckets = {"gt_5": 0, "gt_20": 0, "gt_50": 0, "gt_100": 0}
     total_surplus = 0.0
+    total_affiliate_all = 0.0   # sum of affiliate wallets (always withdrawable)
+    total_campaign_all = 0.0    # sum of campaign wallets (withdrawable only when qualified)
     surplus_users = 0
     reconciled_or_spent = 0
     scanned = 0
@@ -9875,6 +9877,8 @@ def admin_api_wallet_reconciliation(
         withdrawn = wd_map.get(uid, 0.0)
         affiliate = float(bal or 0)
         campaign = float(camp or 0)
+        total_affiliate_all += affiliate
+        total_campaign_all += campaign
         surplus = round(affiliate + campaign + withdrawn - received, 2)
         if surplus > 0.005:
             surplus_users += 1
@@ -9907,6 +9911,12 @@ def admin_api_wallet_reconciliation(
             "surplus_buckets": buckets,
             "users_reconciled_or_spent_down": reconciled_or_spent,
             "threshold_usd": threshold,
+        },
+        "withdrawal_exposure": {
+            "affiliate_wallets_total_usd": round(total_affiliate_all, 2),
+            "campaign_wallets_total_usd": round(total_campaign_all, 2),
+            "max_withdrawable_ceiling_usd": round(total_affiliate_all + total_campaign_all, 2),
+            "note": "affiliate_wallets_total = always-withdrawable floor (members can cash this out any time). campaign_wallets_total = only withdrawable by members with an active tier + met watch quota, so the realistic campaign-side demand is LOWER than this. max_withdrawable_ceiling = absolute theoretical worst case if every member cashed out both wallets at once.",
         },
         "top_over_credited": over[:limit],
         "truncated": truncated,
