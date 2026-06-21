@@ -63,7 +63,7 @@ export default function CampaignVideos() {
   ];
 
   return (
-    <AppLayout title={t('campaignVideos.title', { defaultValue: 'My Campaign Videos' })}
+    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t('campaignVideos.title', { defaultValue: 'My Campaign Videos' })}
                subtitle={t('campaignVideos.subtitle', { defaultValue: 'Watch, create and track your video advertising campaigns' })}>
       <style>{css}</style>
       <div data-build="2026-06-01a" style={{ maxWidth: 1180, margin: '0 auto' }}>

@@ -132,7 +132,7 @@ export default function CampaignTiers() {
   }, []);
 
   if (loading) return (
-    <AppLayout title={t('campaignTiers.title')}>
+    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t('campaignTiers.title')}>
       <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}>
         <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: 'var(--sap-accent)', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -142,7 +142,7 @@ export default function CampaignTiers() {
 
   const tier = tiers.find(function (x) { return x.tier === sel; }) || tiers[0];
   if (!tier) return (
-    <AppLayout title={t('campaignTiers.title')}>
+    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t('campaignTiers.title')}>
       <div style={{ padding: 40, textAlign: 'center', color: 'var(--sap-text-muted)' }}>No campaign tiers available right now.</div>
     </AppLayout>
   );
@@ -150,7 +150,7 @@ export default function CampaignTiers() {
   const grid = tier.grid;
 
   return (
-    <AppLayout title={t('campaignTiers.title')}>
+    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t('campaignTiers.title')}>
       <style>{CONFIG_CSS}</style>
       <div className="ctcfg">
 

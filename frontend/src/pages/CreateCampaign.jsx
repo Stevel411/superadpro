@@ -81,7 +81,7 @@ export default function CreateCampaign() {
   // straight to /campaign-tiers rather than seeing a form that fails on submit.
   // Mirrors the pattern shipped on Watch.jsx in commit 1472d316.
   if (user && !user.is_admin && !(user.highest_tier && user.highest_tier > 0)) return (
-    <AppLayout title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
+    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
       <div style={{maxWidth:520,margin:'80px auto',textAlign:'center',padding:'48px 32px',background:'#fff',borderRadius:20,border:'1px solid #e2e8f0',boxShadow:'0 8px 32px rgba(0,0,0,0.06)'}}>
         <div style={{fontSize:64,marginBottom:16,lineHeight:1}}>🔒</div>
         <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,marginBottom:12,color:'var(--sap-text-primary)'}}>
@@ -103,7 +103,7 @@ export default function CreateCampaign() {
   );
 
   return (
-    <AppLayout title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
+    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
 
       {/* Hero */}
       <div style={{ background:'linear-gradient(135deg,#0f172a,#1e3a8a,#4338ca)', borderRadius:18, padding:'32px 36px', marginBottom:20, position:'relative', overflow:'hidden' }}>

@@ -54,7 +54,7 @@ export default function CommandCentre() {
 
   if (loading) {
     return (
-      <AppLayout title={t('commandCentre.pageTitle')}>
+      <AppLayout categoryBack={{ to: '/team', label: 'Team' }} title={t('commandCentre.pageTitle')}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
           <div style={{ width: 44, height: 44, borderRadius: '50%', border: '3px solid #e2e8f0', borderTopColor: 'var(--sap-accent)', animation: 'spin 0.8s linear infinite' }} />
           <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -153,7 +153,7 @@ export default function CommandCentre() {
   const subLabel = { fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 10 };
 
   return (
-    <AppLayout title={t('commandCentre.pageTitle')}>
+    <AppLayout categoryBack={{ to: '/team', label: 'Team' }} title={t('commandCentre.pageTitle')}>
 
       <SubPageHero
         user={user}

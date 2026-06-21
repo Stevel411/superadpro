@@ -119,7 +119,7 @@ export default function Leaderboard() {
     apiGet('/api/leaderboard').then(function(d){ setData(d); setLoading(false); }).catch(function(){ setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title={t("leaderboard.title")}><Spin/></AppLayout>;
+  if (loading) return <AppLayout categoryBack={{ to: '/team', label: 'Team' }} title={t("leaderboard.title")}><Spin/></AppLayout>;
 
   var d = data || {};
   var allData = {
@@ -135,7 +135,7 @@ export default function Leaderboard() {
   var myRank = leaders.findIndex(function(u){ return u.id===user?.id; });
 
   return (
-    <AppLayout title={t("leaderboard.title")} subtitle={t("leaderboard.subtitle")}>
+    <AppLayout categoryBack={{ to: '/team', label: 'Team' }} title={t("leaderboard.title")} subtitle={t("leaderboard.subtitle")}>
       <style>{`
         @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
