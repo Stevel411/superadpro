@@ -3923,25 +3923,35 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     # live page can be eyeballed in v2 mode before the global flip (members never
     # see the preview path). Additive: the v1 page ignores the new keys.
     from .grid import v2_live as _v2_live
+    # Read the LIVE v2 economics from the single source of truth (database.py
+    # constants) rather than hardcoding — hardcoded values drifted to the old
+    # *proposed* plan (40% direct / 4 levels / 15% welcome) after the 22-Jun
+    # fold-in to 50/25/25 and were displaying numbers the payout never paid.
+    from .database import (
+        V2_DIRECT_PCT, V2_PER_LEVEL_PCT, V2_UNILEVEL_DEPTH, V2_WELCOME_PCT,
+        V2_BONUS_POOL_PCT, V2_BONUS_CASH_SHARE, V2_STEPUP_MAX_TIER_PRICE,
+    )
     _price = GRID_PACKAGES.get(tier, 0)
     _is_admin = bool(getattr(user, "is_admin", False))
     _preview_v2 = _is_admin and (request.query_params.get("preview_v2") in ("1", "true", "yes"))
     plan_version = 2 if (_v2_live() or _preview_v2) else 1
 
     if plan_version == 2:
-        v2_direct_per_fill   = round(_price * 0.40, 2)
-        v2_unilevel_per_fill = round(_price * 0.05, 2)
-        v2_unilevel_levels   = 4
-        v2_welcome_per_fill  = round(_price * 0.15, 2)
+        v2_direct_per_fill   = round(_price * V2_DIRECT_PCT, 2)        # 50% → direct sponsor
+        v2_unilevel_per_fill = round(_price * V2_PER_LEVEL_PCT, 2)     # 5% per level
+        v2_unilevel_levels   = V2_UNILEVEL_DEPTH                       # 5 levels
+        v2_welcome_per_fill  = round(_price * V2_WELCOME_PCT, 2)       # 0 — scrapped 22 Jun
         v2_bonus_positions   = [4, 8, 12, 16]
-        v2_bonus_per_pos     = round(_price, 2)                 # one tier-price per starred seat
-        if _price <= 400:
-            v2_bonus_cash   = round(_price * 0.5, 2)
-            v2_bonus_stepup = round(_price - v2_bonus_cash, 2)
+        # Bonus pool = 25% × 16 seats = 4 × price, paid in 4 equal installments
+        # at seats 4/8/12/16 → one tier-price per starred seat.
+        v2_bonus_pool_total = round(_price * V2_BONUS_POOL_PCT * NEW_GRID_SEATS, 2)
+        v2_bonus_per_pos    = round(v2_bonus_pool_total / len(v2_bonus_positions), 2)
+        if _price <= V2_STEPUP_MAX_TIER_PRICE:
+            v2_bonus_cash   = round(v2_bonus_per_pos * V2_BONUS_CASH_SHARE, 2)
+            v2_bonus_stepup = round(v2_bonus_per_pos - v2_bonus_cash, 2)
         else:
-            v2_bonus_cash   = round(_price, 2)                  # >$400: full cash, no step-up
+            v2_bonus_cash   = round(v2_bonus_per_pos, 2)               # >$400: full cash, no step-up
             v2_bonus_stepup = 0.0
-        v2_bonus_pool_total = round(_price * 4, 2)              # 25% × 16 seats = 4 × price
         # Step-up wallet balance (guard: table may not exist before the schema
         # endpoint is tapped; never break the page on its absence).
         v2_step_up_balance = 0.0

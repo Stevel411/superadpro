@@ -3,31 +3,34 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 
 /*
- * Profit Grid Visualiser — 4×4 / 16-seat model (12 Jun 2026).
+ * Profit Grid Visualiser — 4×4 / 16-seat model.
  *
- * Steve cut the grid from 8×8/64 to 6×6/36. Uni-level commission depth
- * stays at 8 (unchanged) — the grid is now a visualisation of a slice
- * of uni-level activity. Completion bonus pays at position 36 (10% of
- * 36 × tier_price). Same total $/year delivered in tighter cycles.
+ * Live economics (v2, GRID_V2_LIVE since 21 Jun 2026): per entry at tier
+ * price P → 50% direct / 25% uni-level (5% × 5 levels) / 25% bonus pool /
+ * 0% company. Bonus pool = 25% × 16 seats = 4 × P, paid in 4 equal
+ * installments at seats 4/8/12/16. Welcome bonus scrapped 22 Jun 2026.
+ *
+ * The TIERS array below is a fallback only (shown for the split second
+ * before /api/grid-visualiser hydrates). bonus = 4 × price.
  *
  * Visual treatment:
  *   - Direct referrals  → gold gradient tiles
  *   - Spillover         → cyan gradient tiles
- *   - Completion seat   → royal purple, pulsing, position 36
+ *   - Bonus seats       → royal purple, pulsing, seats 4/8/12/16
  *   - Headers           → platform-canonical cobalt (#172554 → #1e3a8a)
  *
- * Spec: docs/commission-spec.md §2. Final mockup approved 25 May 2026.
+ * Spec: docs/commission-spec.md §2. Live constants: app/database.py.
  */
 
 var TIERS = [
-  { t:1, name:'Starter',   price:20,   bonus:64   },
-  { t:2, name:'Builder',   price:50,   bonus:160  },
-  { t:3, name:'Pro',       price:100,  bonus:320  },
-  { t:4, name:'Advanced',  price:200,  bonus:640  },
-  { t:5, name:'Premium',   price:400,  bonus:1280 },
-  { t:6, name:'Elite',     price:600,  bonus:1920 },
-  { t:7, name:'Master',    price:800,  bonus:2560 },
-  { t:8, name:'Champion',  price:1000, bonus:3200 },
+  { t:1, name:'Starter',   price:20,   bonus:80   },
+  { t:2, name:'Builder',   price:50,   bonus:200  },
+  { t:3, name:'Pro',       price:100,  bonus:400  },
+  { t:4, name:'Advanced',  price:200,  bonus:800  },
+  { t:5, name:'Premium',   price:400,  bonus:1600 },
+  { t:6, name:'Elite',     price:600,  bonus:2400 },
+  { t:7, name:'Master',    price:800,  bonus:3200 },
+  { t:8, name:'Champion',  price:1000, bonus:4000 },
 ];
 
 var DEFAULT_SEATS = 16;
@@ -147,8 +150,8 @@ export default function GridVisualiser() {
   var totalEarned = data ? data.total_earned : 0;
   var directFills = data ? data.direct_fills : 0;
   var unilevelFills = data ? data.unilevel_fills : 0;
-  var directPerFill = data ? data.direct_per_fill : tier.price * 0.30;
-  var unilevelPerFill = data ? data.unilevel_per_fill : tier.price * 0.0625;
+  var directPerFill = data ? data.direct_per_fill : tier.price * 0.50;
+  var unilevelPerFill = data ? data.unilevel_per_fill : tier.price * 0.05;
   var directCount = data ? data.direct_count : 0;
   var completedAdvances = data ? data.completed_advances : 0;
   var seatsToUnlock = Math.max(0, liveSeats - filled);
@@ -164,7 +167,7 @@ export default function GridVisualiser() {
   var bonusStepupPerPos= data ? (data.bonus_stepup_per_position || 0) : 0;
   var bonusPoolTotal   = data ? (data.bonus_pool_total || bonusMax) : bonusMax;
   var stepUpBalance    = data ? (data.step_up_balance || 0) : 0;
-  var unilevelLevels   = data ? (data.unilevel_levels || 8) : 8;
+  var unilevelLevels   = data ? (data.unilevel_levels || 5) : 5;
   var bonusCashEarned  = data ? (data.bonus_cash_earned || 0) : 0;
   var bonusStepupEarned= data ? (data.bonus_stepup_earned || 0) : 0;
   var gridBonusEarned  = planV2 ? (bonusCashEarned + bonusStepupEarned) : completionBonusPaid;

@@ -265,8 +265,15 @@ def completion_bonus_for(total_seats, price) -> float:
     fallback for tier-level displays that have no grid in scope.
 
     12 Jun 2026: rate is now seat-aware via bonus_pct_for — 16-seat grids 20%,
-    legacy 36-seat grids 10%."""
-    return float(total_seats) * float(price) * float(bonus_pct_for(total_seats))
+    legacy 36-seat grids 10%.
+
+    22 Jun 2026: v2-aware. While GRID_V2_LIVE is True the pool is 25%
+    (V2_BONUS_POOL_PCT) — mirrors the live payout in grid.py (`_pct =
+    V2_BONUS_POOL_PCT if v2_live() else bonus_pct_for(...)`). Without this the
+    helper returned the old 20% ($64 on a $20 grid) while members were paid 25%
+    ($80) — a display/payout mismatch on every surface that calls it."""
+    _pct = V2_BONUS_POOL_PCT if v2_live() else bonus_pct_for(total_seats)
+    return float(total_seats) * float(price) * float(_pct)
 
 # ── Campaign View Targets per Tier ───────────────────────────
 # Views delivered per campaign purchase/repurchase cycle
