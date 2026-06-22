@@ -274,6 +274,7 @@ export default function Funnels() {
 
   return (
     <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }}>
+    <div style={{maxWidth:1200,margin:'0 auto'}}>
       {/* Error banner — visible when /api/funnels fails so the user
           isn't left looking at an empty page wondering what's wrong.
           Replaces the previous silent .catch() pattern. */}
@@ -406,13 +407,13 @@ export default function Funnels() {
           <span style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:700,color:'var(--sap-text-primary)'}}>Start new</span>
           <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,fontWeight:700,color:'var(--sap-text-muted)'}}>one tap → editor</span>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(158px,1fr))',gap:12}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:14}}>
           <button onClick={() => createFromTemplate(null)} disabled={creating}
             style={{textAlign:'left',cursor:creating?'wait':'pointer',border:'none',borderRadius:15,padding:12,
                     background:'linear-gradient(150deg,#0a1438,#1e3a8a 72%)',color:'#fff',
                     opacity:(creating&&creatingKey!=='blank')?.55:1,display:'flex',flexDirection:'column',
                     boxShadow:'0 8px 20px -12px rgba(10,20,56,.5)'}}>
-            <div style={{height:90,borderRadius:9,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.14)',
+            <div style={{height:132,borderRadius:9,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.14)',
                          display:'flex',alignItems:'center',justifyContent:'center',marginBottom:10}}>
               <span style={{fontSize:30,fontWeight:300,fontFamily:'Sora,sans-serif'}}>{creatingKey==='blank'?'…':'+'}</span>
             </div>
@@ -425,8 +426,8 @@ export default function Funnels() {
               style={{textAlign:'left',cursor:creating?'wait':'pointer',border:'1px solid #e6ecf5',borderRadius:15,padding:12,
                       background:'#fff',opacity:(creating&&creatingKey!==tpl.key)?.55:1,display:'flex',flexDirection:'column',
                       boxShadow:'0 6px 16px -12px rgba(10,20,56,.2)'}}>
-              <div style={{height:90,borderRadius:9,overflow:'hidden',border:'1px solid #e8eef6',marginBottom:10,background:'#f4f7fb'}}>
-                <PagePreview html={tpl.__html} height={90} />
+              <div style={{height:132,borderRadius:9,overflow:'hidden',border:'1px solid #e8eef6',marginBottom:10,background:'#f4f7fb'}}>
+                <PagePreview html={tpl.__html} height={132} />
               </div>
               <span style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>{tpl.title}</span>
               <span style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:2,lineHeight:1.35}}>{tpl.desc}</span>
@@ -446,51 +447,8 @@ export default function Funnels() {
           template grid that used to greet new users at the top of
           the dashboard. */}
       {!loading && pages.length === 0 && !loadError && (
-        <div style={{
-          background:'#fff',
-          border:'1.5px dashed #cbd5e1',
-          borderRadius:14,
-          padding:'40px 24px',
-          textAlign:'center',
-          marginBottom:24,
-        }}>
-          <div style={{
-            width:56,
-            height:56,
-            borderRadius:14,
-            background:'linear-gradient(135deg,#0a1438,#1e3a8a)',
-            display:'flex',
-            alignItems:'center',
-            justifyContent:'center',
-            margin:'0 auto 14px',
-          }}>
-            <Plus size={24} color="#fff" strokeWidth={2}/>
-          </div>
-          <h3 style={{margin:'0 0 6px',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700,color:'#0a1438'}}>
-            Build your first SuperPage
-          </h3>
-          <p style={{margin:'0 0 16px',fontSize:13,color:'#64748b',maxWidth:380,marginLeft:'auto',marginRight:'auto'}}>
-            Pick a template, generate one with AI, or start from blank.
-            Leads land in your CRM automatically.
-          </p>
-          <a
-            href="/pro/funnels/new"
-            style={{
-              display:'inline-flex',
-              alignItems:'center',
-              gap:6,
-              padding:'10px 20px',
-              borderRadius:10,
-              background:'linear-gradient(135deg,#0a1438,#1e3a8a)',
-              color:'#fff',
-              fontSize:13,
-              fontWeight:700,
-              fontFamily:'Sora,sans-serif',
-              textDecoration:'none',
-              boxShadow:'0 4px 12px rgba(10,20,56,.18)',
-            }}>
-            Get started <ArrowRight size={14}/>
-          </a>
+        <div style={{padding:'16px 18px',border:'1px dashed #d4ddec',borderRadius:14,background:'#fff',fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.5}}>
+          No pages yet — pick a starting point above and they'll show up here. Leads land in your CRM automatically.
         </div>
       )}
 
@@ -996,6 +954,7 @@ export default function Funnels() {
           </div>
         </div>
       )}
+    </div>
     </AppLayout>
   );
 }
