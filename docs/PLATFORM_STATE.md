@@ -293,7 +293,7 @@ After the cleanup commit `b064405`, this is the WHOLE system:
 |---|---|---|
 | `daily-briefing-cron` | `0 6 * * * UTC` | ✅ Live — image `curlimages/curl:latest`, calls `/cron/daily-briefing?secret=$CRON_SECRET`. **CRON_SECRET sync fixed 27 May** (was mismatched with main service). Email to `stevelawsonmarketing@gmail.com`. Idempotent per UTC date. |
 | `stuck-lapsed-alert-cron` | (per Railway) | ✅ Live — same secret-sync issue as daily-briefing; **fixed 27 May**. |
-| `process_auto_renewals` | (in-process) | ✅ Live — wallet-balance renewals for monthly members. Stripe renewals handled by Stripe directly. |
+| `process_auto_renewals` | `0 6 * * * UTC` (rides daily-briefing) | ✅ Live (22 Jun 2026) — **runs inside the daily-briefing cron**, not a separate service and NOT in-process (there is no app scheduler; the Procfile is web-only). Maintenance-guarded (money-cron wall) + skipped on dryrun; idempotent per member-month. Result counts (renewed/warned/grace/lapsed) appear in the daily-briefing email for visibility. Manual trigger: `/admin/process-renewals` or `/cron/process-renewals?secret=$CRON_SECRET`. Wallet-balance renewals for monthly members; Stripe renewals handled by Stripe natively. **Prior note claiming "(in-process) Live" was inaccurate — nothing was scheduling it.** |
 | BSC scanner | (in-process, 30s interval) | ⚠️ Live but stall-prone — see Open Issue #1. Multi-replica safe via `pg_try_advisory_lock(1885347291)`, but orphaned-lock recovery is only via service restart. |
 
 ---

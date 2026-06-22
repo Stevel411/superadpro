@@ -1007,6 +1007,25 @@ def process_auto_renewals(db: Session) -> dict:
     now       = datetime.utcnow()
     results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": []}
 
+    def _renewal_email(u, subject, html_body):
+        """Best-effort email alongside the in-app notification. Crypto members
+        who don't log in daily would otherwise never see a renewal reminder —
+        and the manual-renewal crowd are exactly the ones who need warning.
+        Never raises: an email failure must not break the renewal cron."""
+        try:
+            from app.email_utils import send_email
+            if u and getattr(u, "email", None):
+                send_email(to_email=u.email, subject=subject, html_body=html_body)
+        except Exception as _ee:
+            import logging
+            logging.getLogger(__name__).warning(f"Renewal email to user {getattr(u,'id','?')} failed: {_ee}")
+
+    def _wrap(inner):
+        return (f'<div style="font-family:sans-serif;max-width:560px;margin:0 auto;'
+                f'background:#0a1438;color:#e8f0fe;border-radius:12px;padding:32px">{inner}'
+                f'<p style="color:#64748b;font-size:12px;margin-top:24px">SuperAdPro · '
+                f'<a href="https://www.superadpro.com" style="color:#22d3ee">superadpro.com</a></p></div>')
+
     renewals = db.query(MembershipRenewal).all()
 
     for renewal in renewals:
@@ -1058,6 +1077,22 @@ def process_auto_renewals(db: Session) -> dict:
                 except Exception as exc:
                     import logging
                     logging.getLogger(__name__).warning(f"Renewal warning notification failed for user {user.id}: {exc}")
+                _renewal_email(
+                    user,
+                    "⏰ Your SuperAdPro membership renews in 3 days",
+                    _wrap(
+                        f'<h2 style="color:#fff;margin:0 0 12px">Renewal in 3 days</h2>'
+                        f'<p style="line-height:1.6">Your membership renews on '
+                        f'<b>{renewal.next_renewal_date.strftime("%d %b")}</b>, but your wallet balance '
+                        f'is below the <b>${user_fee_for_warning:.0f}</b> fee. Top up before then or your '
+                        f'membership enters a 5-day grace period.</p>'
+                        f'<p style="line-height:1.6">An active membership is required to earn commissions '
+                        f'and make withdrawals.</p>'
+                        f'<p><a href="https://www.superadpro.com/wallet" style="display:inline-block;'
+                        f'background:#22d3ee;color:#0a1438;font-weight:700;text-decoration:none;'
+                        f'padding:12px 22px;border-radius:8px;margin-top:8px">Top up your wallet →</a></p>'
+                    ),
+                )
 
         # ── Renewal due ─────────────────────────────────────────
         if now >= renewal.next_renewal_date and not renewal.in_grace_period:
@@ -1119,6 +1154,22 @@ def process_auto_renewals(db: Session) -> dict:
                 except Exception as exc:
                     import logging
                     logging.getLogger(__name__).warning(f"Grace period notification failed for user {user.id}: {exc}")
+                _renewal_email(
+                    user,
+                    "⚠️ Action needed — your SuperAdPro membership is in its grace period",
+                    _wrap(
+                        f'<h2 style="color:#fff;margin:0 0 12px">5 days to renew</h2>'
+                        f'<p style="line-height:1.6">Your membership renewal didn\'t go through '
+                        f'(not enough wallet balance). You have <b>5 days</b> to renew before your '
+                        f'account becomes inactive — after which commissions and withdrawals are paused '
+                        f'until you reactivate.</p>'
+                        f'<p style="line-height:1.6">Top up your wallet to auto-renew, or renew now '
+                        f'with USDT or card.</p>'
+                        f'<p><a href="https://www.superadpro.com/upgrade" style="display:inline-block;'
+                        f'background:#22d3ee;color:#0a1438;font-weight:700;text-decoration:none;'
+                        f'padding:12px 22px;border-radius:8px;margin-top:8px">Renew now →</a></p>'
+                    ),
+                )
 
         # ── Grace period expired (5 days) ───────────────────────
         elif renewal.in_grace_period and renewal.grace_period_start:
@@ -1141,6 +1192,20 @@ def process_auto_renewals(db: Session) -> dict:
                 except Exception as exc:
                     import logging
                     logging.getLogger(__name__).warning(f"Lapse notification failed for user {user.id}: {exc}")
+                _renewal_email(
+                    user,
+                    "🔒 Your SuperAdPro membership has lapsed",
+                    _wrap(
+                        f'<h2 style="color:#fff;margin:0 0 12px">Membership lapsed</h2>'
+                        f'<p style="line-height:1.6">Your grace period ended without a renewal, so your '
+                        f'membership has lapsed. Commissions and withdrawals are paused until you '
+                        f'reactivate — but <b>your data, team and earnings history are all preserved</b>.</p>'
+                        f'<p style="line-height:1.6">Reactivate any time with USDT or card:</p>'
+                        f'<p><a href="https://www.superadpro.com/upgrade" style="display:inline-block;'
+                        f'background:#22d3ee;color:#0a1438;font-weight:700;text-decoration:none;'
+                        f'padding:12px 22px;border-radius:8px;margin-top:8px">Reactivate →</a></p>'
+                    ),
+                )
 
     db.commit()
     return results
