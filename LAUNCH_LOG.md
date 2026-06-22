@@ -8,6 +8,20 @@
 
 ---
 
+## Status as of 2026-06-22 — GRID v2 50/25/25 + UX RELIT + COMP-PLAN PDF + DECK MOCKUP
+
+HEAD = `65aff4f`. Full detail in `handover-2026-06-22.md`.
+
+**Shipped (all live):** `547f00c` Grid v2 finalised to **50/25/25** (welcome bonus scrapped → folded into +10% direct, +5% uni-level as a 5th level) + `/campaign-tiers` stale-rate display fixed · `4a34ed8`+`bd07e7f`+`122215f` Pages hub (5 screens → 2 taps, layout fixed, Blank tile light/right) · `1f59582` editor top bar → light theme · `c05ee70`+`91188aa` custom-domain help page rebuilt (action-first rail; 4 big SVGs → clean DNS record table, −284 lines) · `65aff4f` admin-only Admin link in the hamburger (gated on `user.is_admin`).
+
+**Verified current economics (ground truth — see handover for the full table):** Membership $10/mo flat per active direct (no caps), annual $100 upfront. Grid v2 **50% direct / 25% uni-level (5%×5) / 25% bonus pool / 0% company**; 16-seat; bonus = 4× tier price (seats 4/8/12/16), ≤$400 half-cash/half-step-up, >$400 all cash; per-tier bonus **$80→$4,000**. Launchpad $10 → $5 direct / $40 bonus. Creator Credits flat 20%. Watch-to-Earn = withdrawal gate. Withdrawals $1. Courses omitted (unconfirmed/likely cut).
+
+**Deliverables (in outputs, not repo):** `SuperAdPro-Compensation-Plan.pdf` (6 pages, **approved**). 3-Income-Streams **deck mockup approved** — building the 8-slide `.pptx` is the immediate next task next session.
+
+**Next:** build the deck `.pptx` → public Home pages redesign → stale-rate sweep (start `/new-grid`, still shows the scrapped welcome-bonus plan).
+
+---
+
 ## Status as of 2026-06-17 — CREATIVE STUDIO RELIABILITY PASS + GRID 4×4/16 TRUTH SWEEP
 
 HEAD = `992a74f`. Full detail in `handover-2026-06-17.md`.
