@@ -31,11 +31,16 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
   var openSidebar = useCallback(function() { setSidebarOpen(true); }, []);
   var isMobile = useIsMobile();
   var location = useLocation();
-  // Category mode (21 Jun 2026): no-sidebar full-width chrome for category
-  // DESTINATION pages. When categoryBack={{to,label}} is passed, the sidebar +
-  // old contextual tab strips + Topbar are replaced by CategoryTopBar (logo ->
-  // dashboard, back -> parent category). Opt-in: zero change to any other page.
-  var catMode = !!categoryBack;
+  // Sidebar RETIRED for members (22 Jun 2026): every non-admin page now
+  // defaults to the no-sidebar CategoryTopBar chrome (logo -> dashboard, back
+  // -> the categoryBack target, or Dashboard when none is given). This kills
+  // the old sidebar + contextual tab strips + Topbar across the member app in
+  // one move. Admin routes (/admin*) keep their existing layout (separate
+  // track). Full-screen surfaces opt out via hideSidebar. A page's specific
+  // categoryBack still sets its back-target when provided.
+  var isAdminRoute = location.pathname.indexOf('/admin') === 0;
+  var catMode = !isAdminRoute && !hideSidebar;
+  var backTarget = categoryBack || { to: '/home-preview', label: 'Dashboard' };
 
   // Desktop collapse state — persisted in localStorage so the user's preference
   // survives reloads. Default is 'open' so new members see the full labels.
@@ -140,7 +145,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
         )}>
         {catMode && (
           <div style={{ padding: isMobile ? '14px 16px' : '18px 24px', background: '#FFFFFF' }}>
-            <CategoryTopBar backTo={categoryBack.to} backLabel={categoryBack.label} />
+            <CategoryTopBar backTo={backTarget.to} backLabel={backTarget.label} />
             {topbarActions && (
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>{topbarActions}</div>
             )}
