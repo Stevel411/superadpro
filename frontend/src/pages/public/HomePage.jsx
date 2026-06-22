@@ -260,7 +260,14 @@ var CSS_HOMEPAGE = `
      the 10 May 2026 launch-day mobile audit). To keep the bar tidy on
      small screens, only Sign-in is hidden — Explore + Lang picker +
      Get Started CTA all render. */
-  .home-page .float-nav-link[href="/login"] { display: none; }
+  /* Sign-in MUST stay reachable on mobile — existing members need a visible
+     path to log in (Steve, 22 Jun 2026). Previously hidden for top-bar
+     declutter, which left mobile members with no obvious login. Instead of
+     hiding it, compact every pill so Explore + Lang + Sign in + Get Started
+     all fit the top-right bar on a phone. */
+  .home-page .float-nav-link,
+  .home-page .float-nav-cta { padding: 7px 11px; font-size: 11.5px; }
+  .home-page .float-nav{gap:5px}
   .home-page .brand-hero-mark{width:56px;height:56px}
   .home-page .brand-hero-name{font-size:40px}
   .home-page h1.headline{font-size:clamp(36px,10vw,54px)}
