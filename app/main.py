@@ -50655,7 +50655,9 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     """JSON campaign tier data with active status from both campaigns and grids."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    from .database import GRID_PACKAGES, GRID_TIER_NAMES, CAMPAIGN_VIEW_TARGETS, GRID_COMPLETION_BONUS
+    from .database import (GRID_PACKAGES, GRID_TIER_NAMES, CAMPAIGN_VIEW_TARGETS, GRID_COMPLETION_BONUS,
+                           v2_live, V2_DIRECT_PCT, V2_PER_LEVEL_PCT, V2_UNILEVEL_DEPTH, V2_BONUS_POOL_PCT,
+                           DIRECT_PCT, PER_LEVEL_PCT, UNILEVEL_DEPTH, NEW_GRID_SEATS)
 
     # Check active video campaigns (qualification)
     active_campaigns = db.query(VideoCampaign).filter(
@@ -50706,13 +50708,25 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     # Admin always active at all tiers
     is_admin = user.is_admin
 
+    # Commission rates — read straight off the same v2_live()-gated constants the
+    # GRID PAYOUT uses (grid.py _pay_direct_sponsor / _pay_unilevel_chain /
+    # _accrue_to_pool), so this display can never drift from what members are
+    # actually paid. If GRID_V2_LIVE is ever flipped back to v1 this auto-reverts.
+    _is_v2          = v2_live()
+    _direct_pct     = V2_DIRECT_PCT     if _is_v2 else DIRECT_PCT
+    _per_level_pct  = V2_PER_LEVEL_PCT  if _is_v2 else PER_LEVEL_PCT
+    _uni_depth      = V2_UNILEVEL_DEPTH if _is_v2 else UNILEVEL_DEPTH
+
     # Build tier data
     tiers = []
     for tier_num in range(0, 9):
         price = GRID_PACKAGES.get(tier_num, 0)
-        direct_comm = round(price * 0.30, 2)
-        uni_level_per_member = round(price * 0.0625, 2)
-        bonus = completion_bonus_for(NEW_GRID_SEATS, price)
+        direct_comm = round(price * _direct_pct, 2)
+        uni_level_per_member = round(price * _per_level_pct, 2)            # per single level ($1/level on Starter)
+        uni_level_total = round(price * _per_level_pct * _uni_depth, 2)    # across all levels ($5 on Starter)
+        # Bonus pool: v2 pays a fixed 25% pool over the 16 seats (V2_BONUS_POOL_PCT
+        # × NEW_GRID_SEATS × price). v1 uses the seat-aware completion_bonus_for.
+        bonus = round(price * NEW_GRID_SEATS * V2_BONUS_POOL_PCT, 2) if _is_v2 else completion_bonus_for(NEW_GRID_SEATS, price)
         views = CAMPAIGN_VIEW_TARGETS.get(tier_num, 0)
         is_active = is_admin or (tier_num in active_campaign_tiers) or (tier_num in grid_by_tier) or (tier_num in completed_tier_set)
         grid_info = grid_by_tier.get(tier_num)
@@ -50725,7 +50739,15 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
             "views_target": views,
             "direct_commission": direct_comm,
             "uni_level_per_member": uni_level_per_member,
+            "uni_level_total": uni_level_total,
             "completion_bonus": bonus,
+            # Rate metadata so the page renders its labels from data, never
+            # hard-coded percentages (the bug that left this page on v1 numbers).
+            "direct_pct": round(_direct_pct * 100, 2),
+            "per_level_pct": round(_per_level_pct * 100, 2),
+            "uni_level_depth": _uni_depth,
+            "bonus_pool_pct": round((V2_BONUS_POOL_PCT if _is_v2 else 0.20) * 100, 2),
+            "plan_version": 2 if _is_v2 else 1,
             "is_active": is_active,
             "grid": grid_info,
             # Campaign progress on the user's active campaigns at this tier

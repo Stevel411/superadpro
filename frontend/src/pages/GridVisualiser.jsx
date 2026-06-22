@@ -349,7 +349,7 @@ export default function GridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Direct referrals</div>
-                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{planV2 ? '40% direct sponsor' : '30% direct sponsor'}</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{planV2 ? '50% direct sponsor' : '30% direct sponsor'}</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, letterSpacing:'-0.4px', background:DIRECT_GRAD, WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>
                     ${directEarned.toFixed(2)}
@@ -359,7 +359,7 @@ export default function GridVisualiser() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'13px 0', borderBottom:'1px solid #f1f5f9' }}>
                   <div>
                     <div style={{ fontSize:15, color:'#0f172a', fontWeight:700 }}>Uni-level fills</div>
-                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{planV2 ? '5% × 4 levels' : '6.25% × 8 levels'}</div>
+                    <div style={{ display:'inline-block', marginTop:5, fontSize:12, fontWeight:600, color:'#1e3a8a', background:'#eef4ff', border:'1px solid #dbe6ff', borderRadius:6, padding:'2px 8px', fontFamily:'JetBrains Mono,monospace' }}>{planV2 ? '5% × 5 levels' : '6.25% × 8 levels'}</div>
                   </div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#0891b2', letterSpacing:'-0.4px' }}>
                     ${unilevelEarned.toFixed(2)}
@@ -439,19 +439,9 @@ export default function GridVisualiser() {
               </div>
             </div>
 
-            {/* v2 — welcome bonus + step-up wallet */}
+            {/* v2 — step-up wallet (welcome bonus scrapped 22 Jun 2026) */}
             {planV2 ? (
               <div style={{ display:'flex', gap:10 }}>
-                <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'space-between', border:'1px solid #e2e8f0', borderRadius:12, padding:'13px 15px', background:'#fbfcfe' }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    <span style={{ width:32, height:32, borderRadius:9, background:'#eef2ff', color:'#4f46e5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15 }}>🔒</span>
-                    <div>
-                      <div style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:13 }}>Welcome bonus</div>
-                      <div style={{ fontSize:11, color:'#64748b' }}>15% · on activation</div>
-                    </div>
-                  </div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:16, color:'#0a1438' }}>${welcomePerFill.toFixed(2)}</div>
-                </div>
                 <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'space-between', border:'1px solid #ddd6fe', borderRadius:12, padding:'13px 15px', background:'#faf5ff' }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                     <span style={{ width:32, height:32, borderRadius:9, background:'#ede9fe', color:VIOLET, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15 }}>↗</span>
@@ -520,7 +510,7 @@ export default function GridVisualiser() {
         <div className="lgv-claim" style={{ marginTop:18 }}>
           <span className="big">SuperAdPro shares <b>100% of Campaign Tier revenue</b> back to the community</span>
           <span className="split">{planV2
-            ? '100% of Profit Grid commissions go to affiliates — 40% direct · 20% across 4 uni-levels · 15% welcome bonus · 25% bonus pool · 0% to the company'
+            ? '100% of Profit Grid commissions go to affiliates — 50% direct · 25% across 5 uni-levels · 25% bonus pool · 0% to the company'
             : '100% of Profit Grid commissions go to affiliates — 30% direct · 50% across the 8-level uni-level · 20% completion bonus · 0% to the company'}</span>
         </div>
       </div>

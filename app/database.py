@@ -160,15 +160,18 @@ LEGACY_BONUS_POOL_PCT = 0.10  # 36-seat grandfathered grids keep the old 10% rat
 # gain the v2 cadence/visuals). So the gate is one GLOBAL flip, not a per-grid
 # date. While GRID_V2_LIVE is False the whole subsystem is INERT: v2_live()
 # returns False and no v2 constant is read anywhere. GO-LIVE = set it True.
-# Split: 40 direct / 20 uni-level (5%×4) / 15 locked welcome bonus / 25 bonus
-# pool (half cash, half step-up credit) / 0 company = 100% to members.
+# Split: 50 direct / 25 uni-level (5%×5) / 25 bonus pool (half cash, half
+# step-up credit) / 0 welcome / 0 company = 100% to members.
+# 22 Jun 2026 (Steve): scrapped the 15% welcome bonus. Folded +10% into the
+# direct sponsor (40→50) and +5% into uni-level as a 5th level (20→25, 5%×5),
+# so the whole reward weights toward bringing a new member in.
 GRID_V2_LIVE = True            # LIVE 21 Jun 2026. Flip to False = instant rollback to v1.
 
-V2_DIRECT_PCT      = 0.40      # 40% → direct sponsor
-V2_UNILEVEL_PCT    = 0.20      # 20% total → split across 4 levels (5% each)
-V2_PER_LEVEL_PCT   = 0.05      # 5% → each of 4 levels
-V2_UNILEVEL_DEPTH  = 4         # 4 levels (was 8)
-V2_WELCOME_PCT     = 0.15      # 15% → locked welcome bonus, rebated to the entrant, unlocks on activation
+V2_DIRECT_PCT      = 0.50      # 50% → direct sponsor
+V2_UNILEVEL_PCT    = 0.25      # 25% total → split across 5 levels (5% each)
+V2_PER_LEVEL_PCT   = 0.05      # 5% → each of 5 levels
+V2_UNILEVEL_DEPTH  = 5         # 5 levels (was 4; was 8 in v1)
+V2_WELCOME_PCT     = 0.00      # scrapped 22 Jun 2026 — folded into direct + uni-level
 V2_BONUS_POOL_PCT  = 0.25      # 25% → bonus pool, paid at seats 4/8/12/16
 V2_BONUS_CASH_SHARE = 0.50     # half of each bonus seat = withdrawable cash (→ campaign wallet)
 V2_BONUS_STEPUP_SHARE = 0.50   # half = step-up credit (→ dedicated step-up wallet, climb-only)

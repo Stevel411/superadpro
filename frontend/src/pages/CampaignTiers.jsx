@@ -201,22 +201,22 @@ export default function CampaignTiers() {
               </div>
               <div className="ct-gridlbl">16-seat Profit Grid · example fill</div>
               <div className="ct-legend">
-                <div className="ct-leg"><span className="sw d" /> Direct referral — you earn 30%</div>
-                <div className="ct-leg"><span className="sw i" /> Indirect referral — 6.25% / level</div>
+                <div className="ct-leg"><span className="sw d" /> Direct — you earn {tier.direct_pct}%</div>
+                <div className="ct-leg"><span className="sw i" /> Uni-level — {tier.per_level_pct}% × {tier.uni_level_depth} levels</div>
               </div>
             </div>
 
             <div className="ct-comp">
               <div className="ct-crow">
-                <div className="ct-clbl">Direct commission<small>per member you personally refer</small></div>
+                <div className="ct-clbl">Direct commission<small>{tier.direct_pct}% · per member you personally refer</small></div>
                 <div className="ct-camt cyan">{money(tier.direct_commission)}</div>
               </div>
               <div className="ct-crow">
-                <div className="ct-clbl">Indirect commission<small>per fill, 8 levels deep · 6.25% each</small></div>
-                <div className="ct-camt amber">{money(tier.uni_level_per_member)}</div>
+                <div className="ct-clbl">Uni-level commission<small>{tier.per_level_pct}% each · {tier.uni_level_depth} levels deep ({money(tier.uni_level_per_member)}/level)</small></div>
+                <div className="ct-camt amber">{money(tier.uni_level_total != null ? tier.uni_level_total : tier.uni_level_per_member)}</div>
               </div>
               <div className="ct-crow">
-                <div className="ct-clbl">Grid completion bonus<small>paid when your 16 seats fill</small></div>
+                <div className="ct-clbl">Bonus pool<small>{tier.bonus_pool_pct}% · paid as your 16 seats fill (4 / 8 / 12 / 16)</small></div>
                 <div className="ct-camt cyan">{money(tier.completion_bonus)}</div>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function CampaignTiers() {
         </div>
 
         <p className="ct-disc">
-          Commission figures are the maximums defined by the Profit Grid and depend entirely on your own referral activity — they are not income guarantees, and many members simply use the advertising without referring anyone. Direct = 30% of tier price · indirect = 6.25% per level across 8 levels · completion bonus = the 20% grid pool. Company retains 0% of campaign revenue. All tiers are one-time payments — no subscriptions.
+          Commission figures are the maximums defined by the Profit Grid and depend entirely on your own referral activity — they are not income guarantees, and many members simply use the advertising without referring anyone. Direct = {tier.direct_pct}% of tier price · uni-level = {tier.per_level_pct}% per level across {tier.uni_level_depth} levels · bonus pool = the {tier.bonus_pool_pct}% grid pool. Company retains 0% of campaign revenue. All tiers are one-time payments — no subscriptions.
         </p>
 
       </div>

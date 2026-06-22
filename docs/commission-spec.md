@@ -74,6 +74,29 @@ If you encounter any of these in code, copy, templates, or AI prompts, flag for 
 
 ## 2. Campaign Grid (Stream 02) ✅
 
+> ### ⚡ CURRENT LIVE PLAN — v2 "New Profit Grid" (live 21 Jun 2026, split amended 22 Jun 2026)
+>
+> **This banner is authoritative. The detailed tables further down this section still describe the v1 split (30/50/20 over 8 levels) and are HISTORICAL / pending a full rewrite — do not quote them as current.**
+>
+> The live grid runs on the **v2 plan**, gated globally by `database.py::GRID_V2_LIVE = True` (`v2_live()`). Both the payout (`app/grid.py`) and every display surface read the v2 constants, so they cannot diverge.
+>
+> **Current live split (16-seat 4×4 grid):**
+>
+> | Slice | Rate | $20 Starter | Constant |
+> |---|---|---|---|
+> | Direct (to sponsor) | **50%** | **$10** | `V2_DIRECT_PCT = 0.50` |
+> | Uni-level | **5% × 5 levels = 25%** | **$5** ($1/level) | `V2_PER_LEVEL_PCT = 0.05`, `V2_UNILEVEL_DEPTH = 5` |
+> | Bonus pool | **25%** | **$80** (16 × $5; half cash, half step-up ≤ $400 tier) | `V2_BONUS_POOL_PCT = 0.25`, paid at seats 4/8/12/16 |
+> | Welcome bonus | **0% — SCRAPPED 22 Jun 2026** | — | `V2_WELCOME_PCT = 0.00` |
+> | Company | **0%** | $0 | `PLATFORM_PCT = 0.00` |
+>
+> **= 100% to members.** Per single $20 entry: $10 direct + $5 uni-level + $5 to pool = $20.
+>
+> **History of the v2 split:**
+> - **21 Jun 2026 — v2 went live** at 40 direct / 20 uni-level (5%×4) / 15 locked welcome bonus / 25 bonus pool. In-place migration: in-flight grids kept filled seats + accrued bonus.
+> - **22 Jun 2026 (Steve) — welcome bonus scrapped.** A $3 self-rebate was too thin an incentive. The 15% was folded into the sponsor reward: +10% to direct (40→50) and +5% to uni-level as a **5th level** (20→25, still 5%/level). Rationale: weight the whole plan toward bringing a new member in. Zero commissions had been paid under the original v2 split (verified via `commission_audit`), so no member was affected retroactively.
+> - **Instant rollback:** flip `GRID_V2_LIVE = False` → everything reverts to the v1 split documented below.
+
 **Last updated:** 14 Jun 2026 — **the legacy 6×6 36-seat grids have all completed and cycled out. The ONLY live grid model is the new 4×4 16-seat grid.** Going forward, only the 16-seat setup matters.
 
 Changes that led here:
