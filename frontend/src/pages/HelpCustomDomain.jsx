@@ -84,18 +84,202 @@ export default function HelpCustomDomain() {
         </div>
       </div>
 
-      {/* Hero flow — sets expectations before they read a word */}
-      <div style={{ ...cardStyle, marginBottom: 18, padding: 0, overflow: 'hidden' }}>
-        <HeroFlowDiagram />
+      {/* Start panel — action first. Lets the user begin immediately and
+          anchors the whole page on the primary task. */}
+      <div style={{
+        ...cardStyle, marginBottom: 14,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 20, flexWrap: 'wrap',
+      }}>
+        <div>
+          <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 16, fontWeight: 700, color: '#0a1438' }}>
+            Ready in 6 short steps
+          </div>
+          <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+            About 10 minutes of setup, then up to an hour for DNS to update.
+          </div>
+        </div>
+        <Link to="/custom-domain" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 9,
+          padding: '13px 24px', borderRadius: 11,
+          background: 'linear-gradient(135deg,#0a1438,#1e3a8a)',
+          color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap',
+          fontFamily: "'Sora', sans-serif", fontSize: 14.5, fontWeight: 700,
+          boxShadow: '0 6px 16px rgba(10,20,56,.18)',
+        }}>
+          Open the Custom Domain page <ArrowRight size={17} />
+        </Link>
       </div>
 
-      {/* ── FAQ: "I already have a website at this domain" ────────────────
-          Pre-empts the single most common source of confusion before
-          members start adding records. Three scenarios cover the bulk of
-          real-world setups. Sits above the steps so members read it before
-          touching DNS — placing it after the steps would catch fewer eyes. */}
-      <div style={{ ...cardStyle, marginBottom: 18 }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 14 }}>
+      {/* The 6 steps — at a glance. Numbered titles + where each step happens,
+          so the user sees the whole (short) journey before diving in. Each row
+          anchors to its full step below. */}
+      <div style={{ ...cardStyle, marginBottom: 18, paddingTop: 18, paddingBottom: 14 }}>
+        <div style={{
+          fontFamily: "'Sora', sans-serif", fontSize: 12.5, fontWeight: 800,
+          letterSpacing: '.06em', textTransform: 'uppercase', color: '#64748b',
+          marginBottom: 12,
+        }}>
+          The 6 steps
+        </div>
+        {[
+          { n: 1, t: 'Pick a subdomain', w: 'you' },
+          { n: 2, t: 'Claim it on SuperAdPro', w: 'superadpro' },
+          { n: 3, t: 'Open your DNS settings', w: 'registrar' },
+          { n: 4, t: 'Add the 2 DNS records', w: 'registrar' },
+          { n: 5, t: 'Cloudflare? Use the grey cloud', w: 'if it applies' },
+          { n: 6, t: 'Come back & click Check now', w: 'go live' },
+        ].map((st, i, arr) => (
+          <a key={st.n} href={`#step-${st.n}`} style={{
+            display: 'flex', alignItems: 'center', gap: 13,
+            padding: '9px 0', textDecoration: 'none',
+            borderBottom: i < arr.length - 1 ? '1px solid #f4f7fb' : 'none',
+          }}>
+            <span style={{
+              width: 26, height: 26, borderRadius: 8, flexShrink: 0,
+              background: '#eef4ff', color: '#1e3a8a',
+              fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 13,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{st.n}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#0a1438' }}>{st.t}</span>
+            <span style={{
+              marginLeft: 'auto', fontSize: 11, color: '#94a3b8',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            }}>{st.w}</span>
+          </a>
+        ))}
+        <div style={{
+          marginTop: 6, paddingTop: 13, borderTop: '1px solid #f1f5f9',
+          fontSize: 13, color: '#475569',
+        }}>
+          Already have a live website on this domain?{' '}
+          <a href="#special-situations" style={{ color: '#0369a1', fontWeight: 700, textDecoration: 'none' }}>
+            Read special situations first ↓
+          </a>
+        </div>
+      </div>
+
+      {/* Steps */}
+      <div style={cardStyle}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+
+          {/* Step 1 */}
+          <StepBlock id="step-1" num={1} title="Pick a subdomain">
+            <p style={{ margin: 0 }}>
+              Decide what subdomain you want to use. Format is always{' '}
+              <code style={codeInline}>yoursubdomain.yourbrand.com</code> — a short prefix you
+              pick, sitting in front of the domain you already own:
+            </p>
+            <SubdomainAnatomyDiagram />
+            <p style={{ margin: 0 }}>Popular prefixes:</p>
+            <ul style={ulStyle}>
+              <li><code style={codeInline}>pages.yourbrand.com</code> — neutral, works for anything</li>
+              <li><code style={codeInline}>go.yourbrand.com</code> — feels like a launch destination</li>
+              <li><code style={codeInline}>join.yourbrand.com</code> — natural for signup pages</li>
+              <li><code style={codeInline}>links.yourbrand.com</code> — perfect for LinkHub</li>
+            </ul>
+            <Callout tone="warn" icon={<AlertTriangle size={16} />}>
+              <strong>Use a subdomain, not your root domain.</strong> Root domains
+              (like <code style={codeInline}>yourbrand.com</code> with no prefix) don't support
+              CNAME records cleanly. Always use a subdomain.
+            </Callout>
+          </StepBlock>
+
+          {/* Step 2 */}
+          <StepBlock id="step-2" num={2} title="Claim it on SuperAdPro first">
+            <p style={{ margin: 0 }}>
+              On the <Link to="/custom-domain" style={linkStyle}>Custom Domain page</Link>,
+              type your full subdomain (e.g. <code style={codeInline}>pages.yourbrand.com</code>) into the box
+              and click <strong>Claim</strong>. The page will then show you the <strong>2 DNS records</strong> you
+              need to add at your domain provider.
+            </p>
+            <Callout tone="tip" icon={<Lightbulb size={16} />}>
+              Keep the SuperAdPro page open in one tab. Open your domain provider in a
+              second tab — you'll be copy-pasting between the two.
+            </Callout>
+          </StepBlock>
+
+          {/* Step 3 */}
+          <StepBlock id="step-3" num={3} title="Log in to your domain provider">
+            <p style={{ margin: 0 }}>
+              Go to wherever you bought your domain — GoDaddy, Namecheap, Cloudflare, Hover,
+              IONOS, etc. — and find the <strong>DNS settings</strong> for your domain. It's
+              usually a tab called <em>DNS</em>, <em>DNS Records</em>, <em>Zone File</em>,
+              or <em>Domain Management</em>.
+            </p>
+          </StepBlock>
+
+          {/* Step 4 */}
+          <StepBlock id="step-4" num={4} title="Add the 2 DNS records">
+            <p style={{ margin: 0 }}>
+              Add both records using the exact values shown on the SuperAdPro Custom Domain page.
+              The diagram below shows where each value goes:
+            </p>
+
+            <DnsMappingDiagram />
+
+            <Callout tone="warn" icon={<AlertTriangle size={16} />}>
+              <strong>For the Name (Host) field, enter just the subdomain part</strong> —
+              e.g. <code style={codeInline}>pages</code>, not the full{' '}
+              <code style={codeInline}>pages.yourbrand.com</code>. Most providers add
+              the rest automatically. If yours asks for the full domain, then type the full domain.
+            </Callout>
+          </StepBlock>
+
+          {/* Step 5 — special Cloudflare warning */}
+          <StepBlock id="step-5" num={5} title="If you use Cloudflare: grey cloud, not orange">
+            <p style={{ margin: 0 }}>
+              Cloudflare users only: after adding the CNAME record, make sure the{' '}
+              <strong>proxy status</strong> is set to <strong>DNS only</strong> (grey cloud icon),
+              not Proxied (orange cloud). Orange cloud breaks HTTPS because Cloudflare and Railway both
+              try to handle the SSL certificate.
+            </p>
+            <CloudflareCompareDiagram />
+            <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
+              Not on Cloudflare? Skip this step.
+            </p>
+          </StepBlock>
+
+          {/* Step 6 */}
+          <StepBlock id="step-6" num={6} title="Come back and click Check now">
+            <p style={{ margin: 0 }}>
+              Head back to the <Link to="/custom-domain" style={linkStyle}>Custom Domain page</Link> and
+              click <strong>Check now</strong> next to your domain. You'll see the status pass through these stages:
+            </p>
+            <StatusTimelineDiagram />
+            <Callout tone="info" icon={<Clock size={16} />}>
+              Most domains go live within 10-15 minutes. If you're still on Pending after
+              60 minutes, check the troubleshooting section below.
+            </Callout>
+          </StepBlock>
+
+        </div>
+      </div>
+
+      {/* CTA to start */}
+      <div style={{
+        marginTop: 22,
+        display: 'flex', justifyContent: 'center',
+      }}>
+        <Link
+          to="/custom-domain"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 10,
+            padding: '14px 28px', borderRadius: 12,
+            background: 'linear-gradient(135deg,#0a1438,#1e3a8a)',
+            color: '#fff', textDecoration: 'none',
+            fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 700,
+            boxShadow: '0 6px 16px rgba(10,20,56,.18)',
+          }}>
+          Set up my custom domain <ArrowRight size={18} />
+        </Link>
+      </div>
+
+      {/* Special situations — the A/B/C setups, demoted below the steps so
+          they're reference material rather than a wall of text before Step 1.
+          Slim pointer in the step rail above links down here. */}
+      <div id="special-situations" style={{ ...cardStyle, marginTop: 28, scrollMarginTop: 84 }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 6 }}>
           <div style={{
             width: 36, height: 36, borderRadius: 10, flexShrink: 0,
             background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)',
@@ -108,12 +292,12 @@ export default function HelpCustomDomain() {
               margin: 0, fontFamily: "'Sora', sans-serif",
               fontSize: 18, fontWeight: 700, color: '#0a1438', lineHeight: 1.25,
             }}>
-              Already have a website at this domain?
+              Special situations
             </h2>
-            <p style={{
-              margin: '4px 0 0', fontSize: 13.5, color: '#475569', lineHeight: 1.55,
-            }}>
-              Read this first — it'll save you from accidentally taking your existing site offline.
+            <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#475569', lineHeight: 1.55 }}>
+              Already have a website at this domain, or want <code style={codeInline}>www</code> or
+              the bare root? Read the matching setup before you touch DNS — it'll save you from
+              accidentally taking an existing site offline.
             </p>
           </div>
         </div>
@@ -192,122 +376,6 @@ export default function HelpCustomDomain() {
         </FaqScenario>
       </div>
 
-      {/* Steps */}
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-
-          {/* Step 1 */}
-          <StepBlock num={1} title="Pick a subdomain">
-            <p style={{ margin: 0 }}>
-              Decide what subdomain you want to use. Format is always{' '}
-              <code style={codeInline}>yoursubdomain.yourbrand.com</code> — a short prefix you
-              pick, sitting in front of the domain you already own:
-            </p>
-            <SubdomainAnatomyDiagram />
-            <p style={{ margin: 0 }}>Popular prefixes:</p>
-            <ul style={ulStyle}>
-              <li><code style={codeInline}>pages.yourbrand.com</code> — neutral, works for anything</li>
-              <li><code style={codeInline}>go.yourbrand.com</code> — feels like a launch destination</li>
-              <li><code style={codeInline}>join.yourbrand.com</code> — natural for signup pages</li>
-              <li><code style={codeInline}>links.yourbrand.com</code> — perfect for LinkHub</li>
-            </ul>
-            <Callout tone="warn" icon={<AlertTriangle size={16} />}>
-              <strong>Use a subdomain, not your root domain.</strong> Root domains
-              (like <code style={codeInline}>yourbrand.com</code> with no prefix) don't support
-              CNAME records cleanly. Always use a subdomain.
-            </Callout>
-          </StepBlock>
-
-          {/* Step 2 */}
-          <StepBlock num={2} title="Claim it on SuperAdPro first">
-            <p style={{ margin: 0 }}>
-              On the <Link to="/custom-domain" style={linkStyle}>Custom Domain page</Link>,
-              type your full subdomain (e.g. <code style={codeInline}>pages.yourbrand.com</code>) into the box
-              and click <strong>Claim</strong>. The page will then show you the <strong>2 DNS records</strong> you
-              need to add at your domain provider.
-            </p>
-            <Callout tone="tip" icon={<Lightbulb size={16} />}>
-              Keep the SuperAdPro page open in one tab. Open your domain provider in a
-              second tab — you'll be copy-pasting between the two.
-            </Callout>
-          </StepBlock>
-
-          {/* Step 3 */}
-          <StepBlock num={3} title="Log in to your domain provider">
-            <p style={{ margin: 0 }}>
-              Go to wherever you bought your domain — GoDaddy, Namecheap, Cloudflare, Hover,
-              IONOS, etc. — and find the <strong>DNS settings</strong> for your domain. It's
-              usually a tab called <em>DNS</em>, <em>DNS Records</em>, <em>Zone File</em>,
-              or <em>Domain Management</em>.
-            </p>
-          </StepBlock>
-
-          {/* Step 4 */}
-          <StepBlock num={4} title="Add the 2 DNS records">
-            <p style={{ margin: 0 }}>
-              Add both records using the exact values shown on the SuperAdPro Custom Domain page.
-              The diagram below shows where each value goes:
-            </p>
-
-            <DnsMappingDiagram />
-
-            <Callout tone="warn" icon={<AlertTriangle size={16} />}>
-              <strong>For the Name (Host) field, enter just the subdomain part</strong> —
-              e.g. <code style={codeInline}>pages</code>, not the full{' '}
-              <code style={codeInline}>pages.yourbrand.com</code>. Most providers add
-              the rest automatically. If yours asks for the full domain, then type the full domain.
-            </Callout>
-          </StepBlock>
-
-          {/* Step 5 — special Cloudflare warning */}
-          <StepBlock num={5} title="If you use Cloudflare: grey cloud, not orange">
-            <p style={{ margin: 0 }}>
-              Cloudflare users only: after adding the CNAME record, make sure the{' '}
-              <strong>proxy status</strong> is set to <strong>DNS only</strong> (grey cloud icon),
-              not Proxied (orange cloud). Orange cloud breaks HTTPS because Cloudflare and Railway both
-              try to handle the SSL certificate.
-            </p>
-            <CloudflareCompareDiagram />
-            <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: 13 }}>
-              Not on Cloudflare? Skip this step.
-            </p>
-          </StepBlock>
-
-          {/* Step 6 */}
-          <StepBlock num={6} title="Come back and click Check now">
-            <p style={{ margin: 0 }}>
-              Head back to the <Link to="/custom-domain" style={linkStyle}>Custom Domain page</Link> and
-              click <strong>Check now</strong> next to your domain. You'll see the status pass through these stages:
-            </p>
-            <StatusTimelineDiagram />
-            <Callout tone="info" icon={<Clock size={16} />}>
-              Most domains go live within 10-15 minutes. If you're still on Pending after
-              60 minutes, check the troubleshooting section below.
-            </Callout>
-          </StepBlock>
-
-        </div>
-      </div>
-
-      {/* CTA to start */}
-      <div style={{
-        marginTop: 22,
-        display: 'flex', justifyContent: 'center',
-      }}>
-        <Link
-          to="/custom-domain"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10,
-            padding: '14px 28px', borderRadius: 12,
-            background: 'linear-gradient(135deg,#0a1438,#1e3a8a)',
-            color: '#fff', textDecoration: 'none',
-            fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 700,
-            boxShadow: '0 6px 16px rgba(10,20,56,.18)',
-          }}>
-          Set up my custom domain <ArrowRight size={18} />
-        </Link>
-      </div>
-
       {/* Troubleshooting */}
       <div style={{ ...cardStyle, marginTop: 28 }}>
         <h2 style={{
@@ -362,9 +430,9 @@ export default function HelpCustomDomain() {
 
 // ─── Building-block components ─────────────────────────────────────────
 
-function StepBlock({ num, title, children }) {
+function StepBlock({ num, title, children, id }) {
   return (
-    <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+    <div id={id} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', scrollMarginTop: 84 }}>
       <div style={{
         flexShrink: 0, width: 36, height: 36, borderRadius: '50%',
         background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)',
