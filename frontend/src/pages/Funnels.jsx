@@ -408,19 +408,6 @@ export default function Funnels() {
           <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,fontWeight:700,color:'var(--sap-text-muted)'}}>one tap → editor</span>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:14}}>
-          <button onClick={() => createFromTemplate(null)} disabled={creating}
-            style={{textAlign:'left',cursor:creating?'wait':'pointer',border:'none',borderRadius:15,padding:12,
-                    background:'linear-gradient(150deg,#0a1438,#1e3a8a 72%)',color:'#fff',
-                    opacity:(creating&&creatingKey!=='blank')?.55:1,display:'flex',flexDirection:'column',
-                    boxShadow:'0 8px 20px -12px rgba(10,20,56,.5)'}}>
-            <div style={{height:132,borderRadius:9,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.14)',
-                         display:'flex',alignItems:'center',justifyContent:'center',marginBottom:10}}>
-              <span style={{fontSize:30,fontWeight:300,fontFamily:'Sora,sans-serif'}}>{creatingKey==='blank'?'…':'+'}</span>
-            </div>
-            <span style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700}}>Blank canvas</span>
-            <span style={{fontSize:11,color:'#9fc3f0',marginTop:2}}>Start from scratch</span>
-            <span style={{marginTop:9,fontFamily:'JetBrains Mono,monospace',fontSize:9.5,fontWeight:700,color:'#7dd3fc'}}>▸ OPENS EDITOR</span>
-          </button>
           {HUB_TEMPLATES.map(tpl => (
             <button key={tpl.key} onClick={() => createFromTemplate(tpl)} disabled={creating}
               style={{textAlign:'left',cursor:creating?'wait':'pointer',border:'1px solid #e6ecf5',borderRadius:15,padding:12,
@@ -434,6 +421,19 @@ export default function Funnels() {
               <span style={{marginTop:9,fontFamily:'JetBrains Mono,monospace',fontSize:9.5,fontWeight:700,color:'var(--sap-accent)'}}>{creatingKey===tpl.key?'CREATING…':'▸ OPENS EDITOR'}</span>
             </button>
           ))}
+          <button onClick={() => createFromTemplate(null)} disabled={creating}
+            style={{textAlign:'left',cursor:creating?'wait':'pointer',border:'1.5px dashed #c5d2e8',borderRadius:15,padding:12,
+                    background:'#fff',color:'var(--sap-text-primary)',
+                    opacity:(creating&&creatingKey!=='blank')?.55:1,display:'flex',flexDirection:'column',
+                    boxShadow:'0 6px 16px -12px rgba(10,20,56,.2)'}}>
+            <div style={{height:132,borderRadius:9,background:'#eef4ff',border:'1px solid #dbe6ff',
+                         display:'flex',alignItems:'center',justifyContent:'center',marginBottom:10}}>
+              <span style={{fontSize:34,fontWeight:300,fontFamily:'Sora,sans-serif',color:'#1e3a8a'}}>{creatingKey==='blank'?'…':'+'}</span>
+            </div>
+            <span style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>Blank canvas</span>
+            <span style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:2}}>Start from scratch</span>
+            <span style={{marginTop:9,fontFamily:'JetBrains Mono,monospace',fontSize:9.5,fontWeight:700,color:'var(--sap-accent)'}}>{creatingKey==='blank'?'CREATING…':'▸ OPENS EDITOR'}</span>
+          </button>
         </div>
       </div>
 
