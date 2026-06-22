@@ -6631,7 +6631,7 @@ def register_process(
         except Exception:
             pass
 
-    response = RedirectResponse(url="/dashboard", status_code=303)
+    response = RedirectResponse(url="/home-preview", status_code=303)
     set_secure_cookie(response, user.id)
     response.delete_cookie("ref")
     return response
@@ -6665,7 +6665,7 @@ def login_process(
             response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
             return response
         # No 2FA — log in directly
-        response = RedirectResponse(url="/dashboard", status_code=303)
+        response = RedirectResponse(url="/home-preview", status_code=303)
         set_secure_cookie(response, user.id)
         return response
     record_failed_attempt(username)
@@ -6870,7 +6870,7 @@ def login_2fa_verify(
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code.strip(), valid_window=1):
         # Code valid — grant full session
-        response = RedirectResponse(url="/dashboard", status_code=303)
+        response = RedirectResponse(url="/home-preview", status_code=303)
         set_secure_cookie(response, user.id)
         response.delete_cookie("pre_auth")
         return response

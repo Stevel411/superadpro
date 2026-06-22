@@ -310,7 +310,7 @@ function SmartHome() {
   const { user, loading } = useAuth();
   if (loading) return null;
   const preview = new URLSearchParams(window.location.search).has('preview');
-  if (user && !preview) return <Navigate to="/dashboard" replace />;
+  if (user && !preview) return <Navigate to="/home-preview" replace />;
   return <HomePage />;
 }
 
