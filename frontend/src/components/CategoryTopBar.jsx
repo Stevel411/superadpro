@@ -55,7 +55,7 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
   const [menuOpen, setMenuOpen] = useState(false);
   const acctRef = useRef(null);
   const name = (user && (user.first_name || user.username)) || 'there';
-  const bal = Number((user && user.balance) || 0);
+  const bal = Number((user && (user.available_total != null ? user.available_total : user.balance)) || 0);
 
   useEffect(function () {
     if (!menuOpen) return undefined;

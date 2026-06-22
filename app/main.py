@@ -3380,6 +3380,15 @@ def api_me(request: Request, db: Session = Depends(get_db)):
     # Live earnings + descendant counts — see compute_user_earnings()
     _earn = compute_user_earnings(db, user.id)
     _desc = compute_descendant_counts(db, user.id)
+    # Available-to-withdraw truth (22 Jun 2026): affiliate wallet PLUS campaign
+    # wallet, but campaign only counts when it can actually be withdrawn — the
+    # SAME structural gate validate_campaign_withdrawal enforces (active non-
+    # complete grid + watch quota not paused; admins exempt). So the dashboard
+    # "Available" figure never overstates what a member can take. Members who
+    # can't yet withdraw campaign see just their affiliate floor.
+    from .withdrawals import _validate_campaign_structural
+    _campaign_withdrawable = bool(_validate_campaign_structural(db, user).get("valid", False))
+    _available_total = float(user.balance or 0) + (float(user.campaign_balance or 0) if _campaign_withdrawable else 0.0)
     return {
         "id": user.id,
         "username": user.username,
@@ -3401,6 +3410,8 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         # card-paying members. Defaults to 'crypto' for all legacy members.
         "payment_method": getattr(user, "payment_method", None) or "crypto",
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
+        "campaign_withdrawable": _campaign_withdrawable,
+        "available_total": _available_total,
         "total_earned": _earn["total_earned"],
         "total_withdrawn": compute_total_withdrawn(db, user.id),
         "grid_earnings": _earn["grid_earnings"],

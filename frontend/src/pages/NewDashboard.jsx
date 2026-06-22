@@ -202,7 +202,7 @@ export default function NewDashboard() {
   const initials = ((user?.first_name || name || 'M').charAt(0) + (user?.last_name ? user.last_name.charAt(0) : '')).toUpperCase();
   const tierRaw = (user?.membership_tier || d.membership_tier || '').toString();
   const tierLabel = tierRaw ? tierRaw.charAt(0).toUpperCase() + tierRaw.slice(1) : null;
-  const balance = Number(d.balance != null ? d.balance : (user?.balance || 0));
+  const balance = Number(user?.available_total != null ? user.available_total : (d.balance != null ? d.balance : (user?.balance || 0)));
   const gs = d.grid_stats || {};
   const filled = Number(gs.filled != null ? gs.filled : (gs.seats_filled != null ? gs.seats_filled : (gs.total_filled || 0)));
   const total = Number(gs.total != null ? gs.total : (gs.seats || 16)) || 16;
@@ -298,7 +298,7 @@ export default function NewDashboard() {
 
           <div className="door income">
             <div className="d-head"><div><div className="eyebrow">Income</div></div><div className="d-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="2.2" strokeLinecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div></div>
-            <div className="earned"><div className="big">{formatMoney(balance)}</div><div className="sub">current wallet balance &middot; available to withdraw</div></div>
+            <div className="earned"><div className="big">{formatMoney(balance)}</div><div className="sub">available to withdraw</div></div>
             <div className="gridbar"><div className="gl"><span>Profit Grid</span><b>{filled} / {total} seats</b></div><div className="track"><div className="fill" style={{ width: pct + '%' }}></div></div></div>
             <div className="metrics">
               <div className="metric"><div className="mn">{team}</div><div className="ml">Team</div></div>
