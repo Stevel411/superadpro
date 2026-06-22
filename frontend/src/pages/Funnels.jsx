@@ -8,6 +8,24 @@ import CampaignSetupModal from '../components/CampaignSetupModal';
 import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
 import exportHTML from './labs-superpages/exportHTML';
 import PagePreview from '../components/PagePreview';
+import { LABS_TEMPLATES } from './labs-superpages/labsTemplates';
+
+// "Start new" template tiles (22 Jun 2026): the separate create screen
+// (/pro/funnels/new) + its list/sequence modal were folded into this hub, so
+// the path is dashboard -> here -> editor. Source = the rebuilt full-design
+// labs templates (ready:true). Each is created via /api/funnels/save with NO
+// list/sequence binding — that gets attached later inside the editor, which
+// mounts the same CampaignSetupModal. __html is the real exported page, shown
+// as a live scaled thumbnail in the tile.
+const HUB_TEMPLATES = LABS_TEMPLATES.filter(t => t.ready).map(t => {
+  const canvasBg = t.canvasBg || '#ffffff';
+  const canvasBgImage = t.canvasBgImage || '';
+  return {
+    key: t.id, title: t.name, desc: t.description,
+    __content: { els: t.els, canvasBg, canvasBgImage },
+    __html: exportHTML(t.els, canvasBg, canvasBgImage),
+  };
+});
 
 
 // ─── CardStat ─ compact stat tile used inside the My Pages cards ──
@@ -81,6 +99,27 @@ export default function Funnels() {
   // Members have dedicated analytics surfaces elsewhere; this page
   // exists to store and access pages, not to be yet another dashboard.
   const navigate = useNavigate();
+
+  // Create-and-go: tile click creates the page and drops straight into the
+  // editor. NO list/sequence modal — that binding is attached later inside the
+  // editor (same CampaignSetupModal). tpl=null => blank canvas. 22 Jun 2026.
+  const createFromTemplate = async (tpl) => {
+    if (creating) return;
+    setCreating(true);
+    setCreatingKey(tpl ? tpl.key : 'blank');
+    try {
+      const payload = (!tpl || tpl.key === 'blank')
+        ? { title: 'Untitled Page', status: 'draft' }
+        : { title: tpl.title, status: 'draft', gjs_css: JSON.stringify(tpl.__content) };
+      const res = await apiPost('/api/funnels/save', payload);
+      if (res && res.id) { window.location.href = `/pro/funnel/${res.id}/edit`; return; }
+      alert("Couldn't create the page — please try again.");
+    } catch (e) {
+      alert(`Couldn't create page: ${e.message || e}`);
+    }
+    setCreating(false);
+    setCreatingKey(null);
+  };
 
   const load = () => apiGet('/api/funnels').then(d => {
     setPages(d.funnels || d.pages || []);
@@ -290,9 +329,9 @@ export default function Funnels() {
           </svg>
           <div>
             <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)',lineHeight:1}}>
-              Super<span style={{color:'var(--sap-accent)'}}>Pages</span>
+              Build a <span style={{color:'var(--sap-accent)'}}>page</span>
             </h1>
-            <p style={{margin:'4px 0 0',fontSize:12,color:'var(--sap-text-muted)'}}>Your campaign pages, lists, and earnings — at a glance.</p>
+            <p style={{margin:'4px 0 0',fontSize:12,color:'var(--sap-text-muted)'}}>Pick a starting point — you're in the editor in one tap. Your pages are below.</p>
           </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
@@ -352,14 +391,56 @@ export default function Funnels() {
               gap: 6,
               boxShadow: '0 4px 12px rgba(10,20,56,.18)',
             }}>
-            <Plus size={14}/> New page
+            <Plus size={14}/> More templates
           </a>
         </div>
       </div>
 
 
 
-      {/* Templates moved to /pro/funnels/new — see "+ New page" button above */}
+      {/* ── Start new (create screen + list/sequence modal folded in, 22 Jun 2026) ──
+          Tap a template or Blank canvas → page is created and we go straight to
+          the editor. List/sequence are attached later inside the editor. */}
+      <div style={{marginBottom:28}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+          <span style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:700,color:'var(--sap-text-primary)'}}>Start new</span>
+          <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,fontWeight:700,color:'var(--sap-text-muted)'}}>one tap → editor</span>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(158px,1fr))',gap:12}}>
+          <button onClick={() => createFromTemplate(null)} disabled={creating}
+            style={{textAlign:'left',cursor:creating?'wait':'pointer',border:'none',borderRadius:15,padding:12,
+                    background:'linear-gradient(150deg,#0a1438,#1e3a8a 72%)',color:'#fff',
+                    opacity:(creating&&creatingKey!=='blank')?.55:1,display:'flex',flexDirection:'column',
+                    boxShadow:'0 8px 20px -12px rgba(10,20,56,.5)'}}>
+            <div style={{height:90,borderRadius:9,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.14)',
+                         display:'flex',alignItems:'center',justifyContent:'center',marginBottom:10}}>
+              <span style={{fontSize:30,fontWeight:300,fontFamily:'Sora,sans-serif'}}>{creatingKey==='blank'?'…':'+'}</span>
+            </div>
+            <span style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700}}>Blank canvas</span>
+            <span style={{fontSize:11,color:'#9fc3f0',marginTop:2}}>Start from scratch</span>
+            <span style={{marginTop:9,fontFamily:'JetBrains Mono,monospace',fontSize:9.5,fontWeight:700,color:'#7dd3fc'}}>▸ OPENS EDITOR</span>
+          </button>
+          {HUB_TEMPLATES.map(tpl => (
+            <button key={tpl.key} onClick={() => createFromTemplate(tpl)} disabled={creating}
+              style={{textAlign:'left',cursor:creating?'wait':'pointer',border:'1px solid #e6ecf5',borderRadius:15,padding:12,
+                      background:'#fff',opacity:(creating&&creatingKey!==tpl.key)?.55:1,display:'flex',flexDirection:'column',
+                      boxShadow:'0 6px 16px -12px rgba(10,20,56,.2)'}}>
+              <div style={{height:90,borderRadius:9,overflow:'hidden',border:'1px solid #e8eef6',marginBottom:10,background:'#f4f7fb'}}>
+                <PagePreview html={tpl.__html} height={90} />
+              </div>
+              <span style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>{tpl.title}</span>
+              <span style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:2,lineHeight:1.35}}>{tpl.desc}</span>
+              <span style={{marginTop:9,fontFamily:'JetBrains Mono,monospace',fontSize:9.5,fontWeight:700,color:'var(--sap-accent)'}}>{creatingKey===tpl.key?'CREATING…':'▸ OPENS EDITOR'}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Your pages */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+        <span style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:700,color:'var(--sap-text-primary)'}}>Your pages</span>
+        {pages.length > 0 && <span style={{fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>{pages.length} page{pages.length===1?'':'s'}</span>}
+      </div>
 
       {/* Empty state — shown when user has zero pages. Replaces the
           template grid that used to greet new users at the top of

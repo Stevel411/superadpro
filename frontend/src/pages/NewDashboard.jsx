@@ -313,6 +313,16 @@ export default function NewDashboard() {
 
           <div className="door tools">
             <div className="d-head"><div><div className="eyebrow">Your Business</div><h3>Build &amp; grow</h3></div><div className="d-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.3 2.3-2.7-.7-.7-2.7z"/></svg></div></div>
+            <Link to="/pro/funnels" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:12,padding:'13px 15px',borderRadius:14,marginBottom:12,background:'linear-gradient(135deg,#0a1438,#1e3a8a 75%)',boxShadow:'0 10px 24px -14px rgba(10,20,56,.6)'}}>
+              <span style={{width:38,height:38,borderRadius:11,background:'rgba(255,255,255,.12)',display:'flex',alignItems:'center',justifyContent:'center',flex:'none'}}>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/></svg>
+              </span>
+              <span style={{flex:1,minWidth:0}}>
+                <span style={{display:'block',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:700,color:'#fff'}}>Build a page</span>
+                <span style={{display:'block',fontSize:12,color:'#9fc3f0',marginTop:1}}>Landing pages &amp; funnels — one tap to the editor</span>
+              </span>
+              <span style={{color:'#7dd3fc',display:'flex',flex:'none'}}>{chev}</span>
+            </Link>
             <div className="tgrid">
               {BIZ.map(function (b) {
                 return (
