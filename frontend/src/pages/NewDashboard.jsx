@@ -48,7 +48,7 @@ const CSS = `
 .nd .bal .ico{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--cyan),#0ea5e9);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
 .nd .bal .txt{display:flex;flex-direction:column;line-height:1.05;}
 .nd .bal .l{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);}
-.nd .bal .a{font-family:'Sora';font-size:15px;font-weight:800;color:var(--ink);}
+.nd .bal .a{font-family:'Sora';font-size:15px;font-weight:800;color:#16a34a;}
 @media(max-width:560px){
   .nd .bal{padding:6px 12px 6px 10px;gap:7px;}
   .nd .bal .ico{width:26px;height:26px;}
@@ -109,7 +109,7 @@ const CSS = `
 .nd .d-head .eyebrow{font-family:'JetBrains Mono';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyans);}
 .nd .d-icon{width:40px;height:40px;border-radius:11px;background:rgba(34,211,238,.16);display:flex;align-items:center;justify-content:center;}
 .nd .earned{margin-top:18px;z-index:1;}
-.nd .earned .big{font-family:'Sora';font-weight:800;font-size:clamp(34px,5vw,44px);line-height:1;color:var(--cyanb);letter-spacing:-1px;}
+.nd .earned .big{font-family:'Sora';font-weight:800;font-size:clamp(34px,5vw,44px);line-height:1;color:#22c55e;letter-spacing:-1px;}
 .nd .earned .sub{font-size:13px;color:#bcd0f0;margin-top:6px;}
 .nd .d-cta-spacer{}
 .nd .earned .sub b{color:#fff;}

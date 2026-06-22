@@ -208,7 +208,7 @@ export default function Wallet() {
       {/* 4 Stat Pills */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
         <StatPill value={`$${formatMoney(d.balance)}`} label={t("wallet.affiliateWallet")} gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
-        <StatPill value={`$${formatMoney(d.campaign_balance || 0)}`} label={t("wallet.campaignWallet")} gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
+        <StatPill value={`$${formatMoney(d.campaign_balance || 0)}`} label={t("wallet.campaignWallet")} gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
         <StatPill value={`$${formatMoney(d.total_earned)}`} label={t("wallet.totalEarned")} gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
         <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label={t("wallet.totalWithdrawn")} gradient="linear-gradient(90deg,#f59e0b,#fbbf24)" />
       </div>

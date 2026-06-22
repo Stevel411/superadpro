@@ -25,7 +25,7 @@ const CSS = `
 .ctb .bal .ico{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
 .ctb .bal .txt{display:flex;flex-direction:column;line-height:1.05;}
 .ctb .bal .l{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#64748b;}
-.ctb .bal .a{font-family:'Sora','DM Sans',sans-serif;font-size:15px;font-weight:800;color:#0a1438;}
+.ctb .bal .a{font-family:'Sora','DM Sans',sans-serif;font-size:15px;font-weight:800;color:#16a34a;}
 .ctb .acct{position:relative;}
 .ctb .burger{width:48px;height:44px;border-radius:12px;background:#fff;border:1px solid #e4eaf3;box-shadow:0 10px 30px rgba(10,20,56,.08);display:flex;align-items:center;justify-content:center;color:#0a1438;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s;}
 .ctb .burger:hover{border-color:#22d3ee;box-shadow:0 22px 50px rgba(10,20,56,.16);}
