@@ -56,7 +56,7 @@ export default function UpgradeFromBalance() {
           // wait); the alternative of awaiting it would just leave the
           // user staring at the activating spinner for an extra ~200ms.
           refreshUser();
-          navigate('/dashboard?activated=balance');
+          navigate('/home-preview?activated=balance');
         } else {
           setError((res && res.error) || t('upgradeFromBalance.errorGeneric', { defaultValue: 'Something went wrong. Please try again.' }));
           setActivating(false);
@@ -71,7 +71,7 @@ export default function UpgradeFromBalance() {
   function handleKeep() {
     // Keep earnings — dismiss and go back to dashboard. The offer
     // notification was already marked read (or will be on next earn).
-    navigate('/dashboard');
+    navigate('/home-preview');
   }
 
   if (loading) {
@@ -110,7 +110,7 @@ export default function UpgradeFromBalance() {
           <p style={{ color: 'var(--sap-text-muted)', marginBottom: 24 }}>
             {t('upgradeFromBalance.alreadyActiveBody', { defaultValue: 'Your membership is already active. There\'s nothing to do here.' })}
           </p>
-          <button onClick={function(){ navigate('/dashboard'); }}
+          <button onClick={function(){ navigate('/home-preview'); }}
             style={{
               padding: '12px 24px', borderRadius: 10,
               background: 'var(--sap-cobalt-deep, #172554)',

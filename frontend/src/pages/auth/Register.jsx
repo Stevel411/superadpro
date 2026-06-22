@@ -123,7 +123,7 @@ export default function Register() {
             const fromParam = claimResult.gifter_name
               ? '&from=' + encodeURIComponent(claimResult.gifter_name)
               : '';
-            window.location.href = '/dashboard?just_claimed=1' + fromParam;
+            window.location.href = '/home-preview?just_claimed=1' + fromParam;
             return;
           }
           // Claim returned without success — the user got a real account but
@@ -140,7 +140,7 @@ export default function Register() {
         }
       }
 
-      window.location.href = '/dashboard';
+      window.location.href = '/home-preview';
     } catch (err) {
       setError(err.message || t('auth.registerFailed'));
     } finally {
