@@ -3389,6 +3389,10 @@ def api_me(request: Request, db: Session = Depends(get_db)):
     from .withdrawals import _validate_campaign_structural
     _campaign_withdrawable = bool(_validate_campaign_structural(db, user).get("valid", False))
     _available_total = float(user.balance or 0) + (float(user.campaign_balance or 0) if _campaign_withdrawable else 0.0)
+    # Founder pricing is NEW-members-only (22 Jun 2026): a member who has paid
+    # before is not eligible for the $15 lock, so the /upgrade page must quote
+    # them $20. False = has activated before (returning/lapsed member).
+    _founder_eligible = not _is_returning_member(db, user)
     return {
         "id": user.id,
         "username": user.username,
@@ -3412,6 +3416,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "campaign_withdrawable": _campaign_withdrawable,
         "available_total": _available_total,
+        "founder_eligible": _founder_eligible,
         "total_earned": _earn["total_earned"],
         "total_withdrawn": compute_total_withdrawn(db, user.id),
         "grid_earnings": _earn["grid_earnings"],
@@ -18187,7 +18192,7 @@ def api_membership_activate_from_balance(
         founding_count = founding_count_row.cnt if founding_count_row else 0
         # Deadline check (added 27 May 2026) — see _founder_offer_still_open.
         deadline_open = _founder_offer_still_open(db)
-        if founding_count < 100 and deadline_open:
+        if founding_count < 100 and deadline_open and not _is_returning_member(db, user):
             fee = decimal.Decimal("15.00")
             founding_spot_claimed = founding_count + 1
             logger.info(
@@ -19212,6 +19217,31 @@ def _founder_offer_still_open(db) -> bool:
     return current_count < 100
 
 
+def _is_returning_member(db, user) -> bool:
+    """True if this user has activated a paid membership before — used to deny
+    the $15 Founder price + spot to lapsed/returning members (Founder = NEW
+    members only). Closes the lapse-and-rejoin loophole: a Partner can't let
+    their membership lapse and reactivate at the Founder price.
+
+    Signal: `activated_at` is the first-activation timestamp, set AFTER the
+    founder claim on first activation, preserved across renewals, and never
+    cleared on lapse — so it reliably marks anyone who has ever paid. The
+    renewal-record check is a belt-and-braces fallback (also created after the
+    claim, unique per user, never deleted). A genuine first-time activator has
+    neither at claim time."""
+    if not user:
+        return False
+    if getattr(user, "activated_at", None) is not None:
+        return True
+    try:
+        from .database import MembershipRenewal
+        return db.query(MembershipRenewal.id).filter(
+            MembershipRenewal.user_id == user.id
+        ).first() is not None
+    except Exception:
+        return False
+
+
 def _classify_membership_activation(user, target_tier: str, target_billing: str) -> str:
     """Determine what kind of activation this is from the user's CURRENT state.
 
@@ -19451,7 +19481,7 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
             #     100 as long as COUNT < 100. Gap-fill is still collision-
             #     safe under the advisory lock (we hold FOUNDING_LOCK_KEY).
             deadline_open = _founder_offer_still_open(db)
-            if current_count < FOUNDING_TOTAL and deadline_open:
+            if current_count < FOUNDING_TOTAL and deadline_open and not _is_returning_member(db, user):
                 # Find the lowest unused spot number in [1, FOUNDING_TOTAL].
                 # generate_series(1,100) LEFT JOIN against taken spots;
                 # pick the smallest with no match. Single query, race-safe
@@ -23067,7 +23097,7 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
                 founding_count = db.execute(text(
                     "SELECT COUNT(*) FROM users WHERE is_founding_member = TRUE"
                 )).scalar() or 0
-                if founding_count < 100:
+                if founding_count < 100 and not _is_returning_member(db, user):
                     price_usd = Decimal("150.00") if is_annual else Decimal("15.00")
                     logger.info(
                         f"NOWPayments: founding price ${price_usd} quoted to "
