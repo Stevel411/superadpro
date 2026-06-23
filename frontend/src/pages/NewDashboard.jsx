@@ -166,6 +166,12 @@ const CSS = `
 @media (max-width:860px){.nd .sharebar{flex-wrap:wrap;} .nd .sharebar .sl{order:2;width:calc(100% - 56px);} .nd .sharebar .si{order:1;} .nd .sharebar .acts{order:3;width:100%;} .nd .sharebar .copy{flex:1;justify-content:center;}}
 @media (max-width:860px){.nd .doors{grid-template-columns:1fr;} .nd .watch{flex-direction:column;align-items:flex-start;gap:24px;} .nd .w-right{text-align:left;align-self:stretch;} .nd .streak,.nd .w-status{justify-content:flex-start;}}
 @media (prefers-reduced-motion:reduce){.nd *{animation:none!important;transition:none!important;} .nd .door{opacity:1;transform:none;} .nd .fill{width:37.5%;}}
+/* Become a Partner — free members only (gated in JSX on !user.is_active) */
+.nd .partner{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#06b6d4,#22d3ee);color:#06283a;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;border-radius:12px;padding:10px 16px;text-decoration:none;white-space:nowrap;box-shadow:0 10px 22px -12px rgba(6,182,212,.7);transition:transform .18s,box-shadow .2s;flex:0 0 auto;}
+.nd .partner:hover{transform:translateY(-1px);box-shadow:0 14px 26px -12px rgba(6,182,212,.85);}
+.nd .partner svg{width:14px;height:14px;}
+.nd .partner .p-short{display:none;}
+@media(max-width:560px){.nd .partner{padding:9px 13px;font-size:12.5px;} .nd .partner .p-full{display:none;} .nd .partner .p-short{display:inline;}}
 `;
 
 const chev = <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>;
@@ -232,6 +238,12 @@ export default function NewDashboard() {
             <span className="wordmark">SuperAd<span className="pro">Pro</span></span>
           </div>
           <div className="rt">
+            {user && !user.is_active && (
+              <Link className="partner" to="/upgrade" aria-label="Become a Partner — unlock the full membership">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#06283a" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                <span className="p-full">Become a Partner</span><span className="p-short">Partner</span>
+              </Link>
+            )}
             <Link className="bal" to="/wallet" aria-label="Wallet — available balance">
               <span className="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 14h2"/></svg></span>
               <span className="txt"><span className="l">Available</span><span className="a">${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
