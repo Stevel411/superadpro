@@ -53,7 +53,7 @@ export default function MarketingMaterials() {
   }, []);
 
   var selected = LANGUAGES.find(function(l) { return l.code === selectedLang; }) || LANGUAGES[0];
-  var downloadUrl = '/static/downloads/income-streams/SuperAdPro-3-Income-Streams-EN.pptx';
+  var downloadUrl = '/static/downloads/income-streams/SuperAdPro-3-Income-Streams-EN.pptx?v=20260623';
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.origin + downloadUrl);
