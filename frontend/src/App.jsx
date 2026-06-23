@@ -462,23 +462,23 @@ function AppRoutes() {
 
       {/* Explore hub + sub-pages (new) */}
       <Route path="/explore" element={<ExploreHub />} />
-      <Route path="/explore/live" element={<ExplorePage defaultTab="activity" hideTabs={true} />} />
-      <Route path="/explore/stories" element={<ExplorePage defaultTab="stories" hideTabs={true} />} />
-      <Route path="/explore/showcase" element={<ExplorePage defaultTab="showcase" hideTabs={true} />} />
-      <Route path="/explore/free-tools" element={<FreeTools />} />
-      <Route path="/explore/watch-to-earn" element={<ForAdvertisers />} />
+      <Route path="/explore/live" element={<Navigate to="/explore" replace />} />
+      <Route path="/explore/stories" element={<Navigate to="/explore" replace />} />
+      <Route path="/explore/showcase" element={<Navigate to="/explore" replace />} />
+      <Route path="/explore/free-tools" element={<Navigate to="/explore" replace />} />
+      <Route path="/explore/watch-to-earn" element={<Navigate to="/compensation" replace />} />
 
       {/* Old public pages — replaced by /explore hub. Redirect preserves any
           search-engine rank + honours any existing bookmarks/shared links. */}
       <Route path="/how-it-works" element={<Navigate to="/explore" replace />} />
       <Route path="/what-you-get" element={<Navigate to="/explore" replace />} />
       <Route path="/earn" element={<Navigate to="/explore" replace />} />
-      <Route path="/tools" element={<Navigate to="/explore/free-tools" replace />} />
+      <Route path="/tools" element={<Navigate to="/explore" replace />} />
 
-      <Route path="/for-advertisers" element={<Navigate to="/explore/watch-to-earn" replace />} />
-      <Route path="/grid" element={<Lazy><GridStreamPage /></Lazy>} />
-      <Route path="/membership" element={<Lazy><MembershipStreamPage /></Lazy>} />
-      <Route path="/explore/compensation" element={<Lazy><CompensationHubPage /></Lazy>} />
+      <Route path="/for-advertisers" element={<Navigate to="/compensation" replace />} />
+      <Route path="/grid" element={<Navigate to="/compensation" replace />} />
+      <Route path="/membership" element={<Navigate to="/explore" replace />} />
+      <Route path="/explore/compensation" element={<Navigate to="/compensation" replace />} />
       <Route path="/compensation" element={<Lazy><CompensationPublic /></Lazy>} />
       <Route path="/start" element={<Lazy><StartPage /></Lazy>} />
       <Route path="/faq" element={<FAQ />} />

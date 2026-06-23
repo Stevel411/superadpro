@@ -3567,10 +3567,9 @@ def income_disclaimer(request: Request):
 
 @app.get("/grid")
 def grid_stream_page(request: Request):
-    """Serve React SPA for the Stream 02 Grid compensation page. Public."""
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/", status_code=302)
+    """Retired 23 Jun 2026 — orphaned stream page (carried stale v1 economics).
+    Redirect to the live dynamic compensation plan."""
+    return RedirectResponse(url="/compensation", status_code=302)
 
 
 @app.get("/grid/activate")
@@ -3591,17 +3590,14 @@ def grid_activate_page(request: Request):
 
 @app.get("/membership")
 def membership_stream_page(request: Request):
-    """Serve React SPA for the Stream 01 Membership compensation page. Public."""
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/", status_code=302)
+    """Retired 23 Jun 2026 — orphaned stream page. Redirect to /explore
+    (the live membership/tools pitch)."""
+    return RedirectResponse(url="/explore", status_code=302)
 
 @app.get("/explore/compensation")
 def compensation_hub_page(request: Request):
-    """Serve React SPA for the public compensation hub page. Public."""
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/", status_code=302)
+    """Retired 23 Jun 2026 — replaced by the new dynamic /compensation page."""
+    return RedirectResponse(url="/compensation", status_code=302)
 
 @app.get("/nexus")
 def nexus_stream_page(request: Request):
@@ -6207,12 +6203,14 @@ def explore_page(request: Request):
 @app.get("/explore/stories")
 @app.get("/explore/showcase")
 @app.get("/explore/free-tools")
-@app.get("/explore/watch-to-earn")
 def explore_subpages(request: Request):
-    """React SPA subpages under /explore — served by React Router on the client."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
+    """Retired 23 Jun 2026 — orphaned /explore sub-pages. Redirect to /explore."""
+    return RedirectResponse(url="/explore", status_code=302)
+
+@app.get("/explore/watch-to-earn")
+def explore_watch_to_earn(request: Request):
+    """Retired 23 Jun 2026 — advertising story now lives on /compensation."""
+    return RedirectResponse(url="/compensation", status_code=302)
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
     if _react_index.exists():
