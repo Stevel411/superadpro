@@ -141,7 +141,7 @@ export default function HomePage() {
               <div className="hp-scard s2"><div className="hp-strip"></div><div className="hp-tag">Stream 2 · Video advertising</div><h4>100% to members</h4><div className="hp-big">$80–$4,000</div><div className="hp-lab">a revenue-share advertising product — full breakdown below</div></div>
               <div className="hp-scard s3"><div className="hp-strip"></div><div className="hp-tag">Stream 3 · Creator Credits</div><h4>Flat share on packs</h4><div className="hp-big">20%</div><div className="hp-lab">to you on every credit pack your referrals buy — first buy &amp; every repurchase</div></div>
             </div>
-            <div className="hp-center"><Link to="/explore/compensation" className="hp-btn hp-btn-ghost">See the full compensation plan &nbsp;→</Link></div>
+            <div className="hp-center"><Link to="/compensation" className="hp-btn hp-btn-ghost">See the full compensation plan &nbsp;→</Link></div>
           </div>
         </section>
 
@@ -233,8 +233,8 @@ export default function HomePage() {
               <p>The all-in-one platform for creators to build, market and grow — from one simple membership.</p>
             </div>
             <div className="hp-cols">
-              <div className="hp-col"><h5>Product</h5><Link to="/explore">Explore</Link><Link to="/explore/free-tools">Free tools</Link><Link to="/explore/compensation">Campaign Grid</Link><Link to="/register">Pricing</Link></div>
-              <div className="hp-col"><h5>Company</h5><Link to="/faq">FAQ</Link><Link to="/explore/compensation">Compensation plan</Link><Link to="/login">Sign in</Link></div>
+              <div className="hp-col"><h5>Product</h5><Link to="/explore">Explore</Link><Link to="/explore">Free tools</Link><Link to="/compensation">Campaign Grid</Link><Link to="/register">Pricing</Link></div>
+              <div className="hp-col"><h5>Company</h5><Link to="/faq">FAQ</Link><Link to="/compensation">Compensation plan</Link><Link to="/login">Sign in</Link></div>
               <div className="hp-col"><h5>Legal</h5><Link to="/legal">Terms &amp; legal</Link><Link to="/legal/income-disclosure">Income disclosure</Link><Link to="/legal">Privacy</Link></div>
             </div>
           </div>

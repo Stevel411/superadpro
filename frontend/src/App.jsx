@@ -112,6 +112,7 @@ const GridCalculator = React.lazy(() => import('./pages/GridCalculator'));
 const GridStreamPage = React.lazy(() => import('./pages/public/GridStreamPage'));
 const MembershipStreamPage = React.lazy(() => import('./pages/public/MembershipStreamPage'));
 const CompensationHubPage = React.lazy(() => import('./pages/public/CompensationHubPage'));
+const CompensationPublic = React.lazy(() => import('./pages/public/CompensationPublic'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const CreativeStudio = React.lazy(() => import('./pages/creative-studio/CreativeStudio'));
 const StudioShell = React.lazy(() => import('./pages/studio/StudioShell'));
@@ -478,6 +479,7 @@ function AppRoutes() {
       <Route path="/grid" element={<Lazy><GridStreamPage /></Lazy>} />
       <Route path="/membership" element={<Lazy><MembershipStreamPage /></Lazy>} />
       <Route path="/explore/compensation" element={<Lazy><CompensationHubPage /></Lazy>} />
+      <Route path="/compensation" element={<Lazy><CompensationPublic /></Lazy>} />
       <Route path="/start" element={<Lazy><StartPage /></Lazy>} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/legal" element={<Legal />} />

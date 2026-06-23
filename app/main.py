@@ -3516,6 +3516,13 @@ def compensation_plan(request: Request, user: User = Depends(get_current_user)):
         return _spa_shell()
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/compensation")
+def compensation_public(request: Request):
+    """Serve React SPA for the public dynamic compensation plan page."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/", status_code=302)
+
 @app.get("/home-preview")
 def home_preview(request: Request):
     """Serve React SPA for the three-door dashboard preview (platform simplification)."""
