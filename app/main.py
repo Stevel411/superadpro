@@ -6213,9 +6213,8 @@ def explore_watch_to_earn(request: Request):
     return RedirectResponse(url="/compensation", status_code=302)
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/register", status_code=302)
+    """Retired 23 Jun 2026 — advertising story now lives on /compensation."""
+    return RedirectResponse(url="/compensation", status_code=302)
 
 # ── Referral video sales page ─────────────────────────────────
 # Shipped 26 May 2026. Personalised /ref/{username}/video page that
