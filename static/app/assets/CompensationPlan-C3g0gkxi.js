@@ -1,12 +1,4 @@
-import AppLayout from '../components/layout/AppLayout';
-
-// Light-theme "3 Income Streams" compensation plan — web rendering of the
-// marketing deck. Rebuilt 23 Jun 2026 to the LIVE v2 grid economics
-// (50% direct / 25% uni-level [5% x 5 levels] / 25% bonus pool / 0% company),
-// matching app/database.py V2_* constants and the SuperAdPro-3-Income-Streams
-// deck. All numbers reconciled to the live grid engine. Styles scoped under
-// .cproot / cp-prefixed so they cannot collide with the rest of the app.
-var CP_HTML = `
+import{j as e}from"./vendor-HWJ98Vpn.js";import{A as t}from"./index-De1SW4SN.js";import"./vendor-charts-sutgcRna.js";var i=`
 <style>
 .cproot{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
 .cproot .cpsora{font-family:'Sora',sans-serif}
@@ -247,12 +239,4 @@ var CP_HTML = `
   <div style="text-align:center"><a class="cpdl" href="/static/downloads/income-streams/SuperAdPro-3-Income-Streams-EN.pptx?v=20260623" download><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>Download the presentation</a></div>
   <div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:10px">Earnings depend on individual effort, referrals and tier activity. No income is guaranteed.</div>
 </div>
-`;
-
-export default function CompensationPlan() {
-  return (
-    <AppLayout title="Compensation Plan" subtitle="The 3 ways to earn with SuperAdPro">
-      <div className="cproot" dangerouslySetInnerHTML={{ __html: CP_HTML }} />
-    </AppLayout>
-  );
-}
+`;function s(){return e.jsx(t,{title:"Compensation Plan",subtitle:"The 3 ways to earn with SuperAdPro",children:e.jsx("div",{className:"cproot",dangerouslySetInnerHTML:{__html:i}})})}export{s as default};
