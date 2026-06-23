@@ -5950,11 +5950,13 @@ def passup_visualiser(request: Request):
 
 @app.get("/new-grid")
 def new_grid(request: Request):
-    """Serve React SPA — Proposed Profit Grid feedback page. (Old
-    /passup-visualiser route now redirects here client-side.)"""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
+    """Retired 23 Jun 2026. The Proposed Profit Grid page (ProposedGrid.jsx)
+    showed the old welcome-bonus proposal that was superseded by the live
+    50/25/25 v2 plan (welcome scrapped 22 Jun). It displayed economics the
+    platform no longer pays, so it's redirected to the live grid surface.
+    /passup-visualiser (which used to point here) now also goes straight to
+    /campaign-tiers."""
+    return RedirectResponse(url="/campaign-tiers", status_code=302)
 
 @app.get("/packages")
 def packages(request: Request):
