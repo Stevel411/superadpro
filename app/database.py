@@ -5789,6 +5789,153 @@ class CustomDomain(Base):
     user            = relationship("User", foreign_keys=[user_id])
 
 
+# ════════════════════════════════════════════════════════════════════════════
+# MEMBER SITE & BLOG PLATFORM  (flagship — 23 Jun 2026)
+# One-click member website + blog. Gated to is_pro() (Partner/Founder).
+# Full spec: docs/blog-system-spec.md. These are the Phase-1 foundation models.
+# NOTE: SKIP_MIGRATIONS=true on prod means create_all() does NOT build these on
+# deploy — the idempotent admin endpoint /admin/api/setup-blog-tables creates
+# them on production (tap once after deploy).
+# ════════════════════════════════════════════════════════════════════════════
+
+class Blog(Base):
+    """One website/blog per paid member. The hub for their whole web presence."""
+    __tablename__ = "blogs"
+    id                 = Column(Integer, primary_key=True, index=True)
+    member_id          = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True, index=True)
+    title              = Column(String, nullable=False, default="My Blog")
+    tagline            = Column(String, nullable=True)
+    subdomain_slug     = Column(String, nullable=False, unique=True, index=True)
+    theme              = Column(String, default="banner")          # see spec §4 launch set
+    font               = Column(String, default="classic-serif")
+    custom_domain_id   = Column(Integer, ForeignKey("custom_domains.id"), nullable=True, index=True)
+    social_links       = Column(Text, nullable=True)               # JSON string {instagram,x,youtube,tiktok,linkedin}
+    comments_enabled   = Column(Boolean, default=True)
+    is_published       = Column(Boolean, default=True, index=True) # unpublishes if member lapses
+    policy_accepted_at = Column(DateTime, nullable=True)
+    created_at         = Column(DateTime, default=datetime.utcnow, index=True)
+    member             = relationship("User", foreign_keys=[member_id])
+
+
+class BlogPost(Base):
+    """A blog post. status: draft | scheduled | published."""
+    __tablename__ = "blog_posts"
+    id              = Column(Integer, primary_key=True, index=True)
+    blog_id         = Column(Integer, ForeignKey("blogs.id"), nullable=False, index=True)
+    slug            = Column(String, nullable=False, index=True)
+    title           = Column(String, nullable=False)
+    excerpt         = Column(Text, nullable=True)
+    body            = Column(Text, nullable=True)                  # rich HTML/JSON (text + image embeds)
+    cover_image     = Column(String, nullable=True)
+    status          = Column(String, default="draft", index=True)  # draft|scheduled|published
+    scheduled_at    = Column(DateTime, nullable=True)              # auto-publish time (cron)
+    published_at    = Column(DateTime, nullable=True)
+    view_count      = Column(Integer, default=0)                  # fast counter (analytics)
+    seo_title       = Column(String, nullable=True)
+    seo_description = Column(Text, nullable=True)
+    og_image        = Column(String, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    __table_args__  = (UniqueConstraint("blog_id", "slug", name="uq_blogpost_blog_slug"),)
+
+
+class BlogPage(Base):
+    """A static page (About/Services/Contact…). SuperPages-style block body."""
+    __tablename__ = "blog_pages"
+    id              = Column(Integer, primary_key=True, index=True)
+    blog_id         = Column(Integer, ForeignKey("blogs.id"), nullable=False, index=True)
+    slug            = Column(String, nullable=False, index=True)
+    title           = Column(String, nullable=False)
+    body            = Column(Text, nullable=True)
+    status          = Column(String, default="draft", index=True)
+    show_in_nav     = Column(Boolean, default=False)
+    nav_order       = Column(Integer, default=0)
+    seo_title       = Column(String, nullable=True)
+    seo_description = Column(Text, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    __table_args__  = (UniqueConstraint("blog_id", "slug", name="uq_blogpage_blog_slug"),)
+
+
+class BlogTag(Base):
+    """A tag within a blog. Each tag gets its own public listing page."""
+    __tablename__ = "blog_tags"
+    id      = Column(Integer, primary_key=True, index=True)
+    blog_id = Column(Integer, ForeignKey("blogs.id"), nullable=False, index=True)
+    name    = Column(String, nullable=False)
+    slug    = Column(String, nullable=False, index=True)
+    __table_args__ = (UniqueConstraint("blog_id", "slug", name="uq_blogtag_blog_slug"),)
+
+
+class BlogPostTag(Base):
+    """Many-to-many: posts <-> tags."""
+    __tablename__ = "blog_post_tags"
+    id      = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("blog_posts.id"), nullable=False, index=True)
+    tag_id  = Column(Integer, ForeignKey("blog_tags.id"), nullable=False, index=True)
+    __table_args__ = (UniqueConstraint("post_id", "tag_id", name="uq_blogposttag"),)
+
+
+class BlogMenu(Base):
+    """A nav menu item. link_type: page|post|tag|home|external."""
+    __tablename__ = "blog_menu_items"
+    id         = Column(Integer, primary_key=True, index=True)
+    blog_id    = Column(Integer, ForeignKey("blogs.id"), nullable=False, index=True)
+    label      = Column(String, nullable=False)
+    link_type  = Column(String, default="page")
+    target     = Column(String, nullable=True)                   # slug or URL
+    position   = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class BlogOptinForm(Base):
+    """Email-capture form → drops a MemberLead into a SuperLeads LeadList."""
+    __tablename__ = "blog_optin_forms"
+    id              = Column(Integer, primary_key=True, index=True)
+    blog_id         = Column(Integer, ForeignKey("blogs.id"), nullable=False, index=True)
+    title           = Column(String, default="Subscribe")
+    button_label    = Column(String, default="Subscribe")
+    success_message = Column(String, default="Thanks for subscribing!")
+    lead_list_id    = Column(Integer, ForeignKey("lead_lists.id"), nullable=True, index=True)
+    placement       = Column(String, default="footer")           # inline|footer|popup
+    is_active       = Column(Boolean, default=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+
+class BlogComment(Base):
+    """A reader comment. status: pending | approved | spam. Member moderates."""
+    __tablename__ = "blog_comments"
+    id           = Column(Integer, primary_key=True, index=True)
+    post_id      = Column(Integer, ForeignKey("blog_posts.id"), nullable=False, index=True)
+    author_name  = Column(String, nullable=False)
+    author_email = Column(String, nullable=True)
+    body         = Column(Text, nullable=False)
+    status       = Column(String, default="pending", index=True)
+    created_at   = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class BlogMedia(Base):
+    """An uploaded media asset (image-only for now; video deferred)."""
+    __tablename__ = "blog_media"
+    id         = Column(Integer, primary_key=True, index=True)
+    blog_id    = Column(Integer, ForeignKey("blogs.id"), nullable=False, index=True)
+    kind       = Column(String, default="image")
+    url        = Column(String, nullable=False)
+    width      = Column(Integer, nullable=True)
+    height     = Column(Integer, nullable=True)
+    alt        = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class BlogPostView(Base):
+    """One row per post view, for time-series analytics (counter lives on BlogPost)."""
+    __tablename__ = "blog_post_views"
+    id        = Column(Integer, primary_key=True, index=True)
+    post_id   = Column(Integer, ForeignKey("blog_posts.id"), nullable=False, index=True)
+    viewed_at = Column(DateTime, default=datetime.utcnow, index=True)
+    referrer  = Column(String, nullable=True)
+
+
 class TeamPulseAction(Base):
     """One row per (sponsor, target, prompt_kind) combination the sponsor has
     actioned from the dashboard Team Pulse card.

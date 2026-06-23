@@ -55291,6 +55291,188 @@ def admin_apply_grid_v2_schema(
     })
 
 
+# ── Member Site & Blog platform — table provisioning ─────────────────────────
+# SKIP_MIGRATIONS=true on prod means create_all()/run_migrations() don't build
+# the blog tables on deploy. This idempotent admin GET creates all 10 tables +
+# indexes. Tap once after the deploy lands. See docs/blog-system-spec.md.
+
+_BLOG_TABLE_DDL = [
+    ("blogs", """
+        CREATE TABLE IF NOT EXISTS blogs (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER NOT NULL UNIQUE REFERENCES users(id),
+            title VARCHAR NOT NULL DEFAULT 'My Blog',
+            tagline VARCHAR,
+            subdomain_slug VARCHAR NOT NULL UNIQUE,
+            theme VARCHAR DEFAULT 'banner',
+            font VARCHAR DEFAULT 'classic-serif',
+            custom_domain_id INTEGER REFERENCES custom_domains(id),
+            social_links TEXT,
+            comments_enabled BOOLEAN DEFAULT TRUE,
+            is_published BOOLEAN DEFAULT TRUE,
+            policy_accepted_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc')
+        )"""),
+    ("blog_posts", """
+        CREATE TABLE IF NOT EXISTS blog_posts (
+            id SERIAL PRIMARY KEY,
+            blog_id INTEGER NOT NULL REFERENCES blogs(id),
+            slug VARCHAR NOT NULL,
+            title VARCHAR NOT NULL,
+            excerpt TEXT,
+            body TEXT,
+            cover_image VARCHAR,
+            status VARCHAR DEFAULT 'draft',
+            scheduled_at TIMESTAMP,
+            published_at TIMESTAMP,
+            view_count INTEGER DEFAULT 0,
+            seo_title VARCHAR,
+            seo_description TEXT,
+            og_image VARCHAR,
+            created_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'),
+            updated_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'),
+            UNIQUE (blog_id, slug)
+        )"""),
+    ("blog_pages", """
+        CREATE TABLE IF NOT EXISTS blog_pages (
+            id SERIAL PRIMARY KEY,
+            blog_id INTEGER NOT NULL REFERENCES blogs(id),
+            slug VARCHAR NOT NULL,
+            title VARCHAR NOT NULL,
+            body TEXT,
+            status VARCHAR DEFAULT 'draft',
+            show_in_nav BOOLEAN DEFAULT FALSE,
+            nav_order INTEGER DEFAULT 0,
+            seo_title VARCHAR,
+            seo_description TEXT,
+            created_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'),
+            updated_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'),
+            UNIQUE (blog_id, slug)
+        )"""),
+    ("blog_tags", """
+        CREATE TABLE IF NOT EXISTS blog_tags (
+            id SERIAL PRIMARY KEY,
+            blog_id INTEGER NOT NULL REFERENCES blogs(id),
+            name VARCHAR NOT NULL,
+            slug VARCHAR NOT NULL,
+            UNIQUE (blog_id, slug)
+        )"""),
+    ("blog_post_tags", """
+        CREATE TABLE IF NOT EXISTS blog_post_tags (
+            id SERIAL PRIMARY KEY,
+            post_id INTEGER NOT NULL REFERENCES blog_posts(id),
+            tag_id INTEGER NOT NULL REFERENCES blog_tags(id),
+            UNIQUE (post_id, tag_id)
+        )"""),
+    ("blog_menu_items", """
+        CREATE TABLE IF NOT EXISTS blog_menu_items (
+            id SERIAL PRIMARY KEY,
+            blog_id INTEGER NOT NULL REFERENCES blogs(id),
+            label VARCHAR NOT NULL,
+            link_type VARCHAR DEFAULT 'page',
+            target VARCHAR,
+            position INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc')
+        )"""),
+    ("blog_optin_forms", """
+        CREATE TABLE IF NOT EXISTS blog_optin_forms (
+            id SERIAL PRIMARY KEY,
+            blog_id INTEGER NOT NULL REFERENCES blogs(id),
+            title VARCHAR DEFAULT 'Subscribe',
+            button_label VARCHAR DEFAULT 'Subscribe',
+            success_message VARCHAR DEFAULT 'Thanks for subscribing!',
+            lead_list_id INTEGER REFERENCES lead_lists(id),
+            placement VARCHAR DEFAULT 'footer',
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc')
+        )"""),
+    ("blog_comments", """
+        CREATE TABLE IF NOT EXISTS blog_comments (
+            id SERIAL PRIMARY KEY,
+            post_id INTEGER NOT NULL REFERENCES blog_posts(id),
+            author_name VARCHAR NOT NULL,
+            author_email VARCHAR,
+            body TEXT NOT NULL,
+            status VARCHAR DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc')
+        )"""),
+    ("blog_media", """
+        CREATE TABLE IF NOT EXISTS blog_media (
+            id SERIAL PRIMARY KEY,
+            blog_id INTEGER NOT NULL REFERENCES blogs(id),
+            kind VARCHAR DEFAULT 'image',
+            url VARCHAR NOT NULL,
+            width INTEGER,
+            height INTEGER,
+            alt VARCHAR,
+            created_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc')
+        )"""),
+    ("blog_post_views", """
+        CREATE TABLE IF NOT EXISTS blog_post_views (
+            id SERIAL PRIMARY KEY,
+            post_id INTEGER NOT NULL REFERENCES blog_posts(id),
+            viewed_at TIMESTAMP DEFAULT (now() AT TIME ZONE 'utc'),
+            referrer VARCHAR
+        )"""),
+]
+
+_BLOG_INDEX_DDL = [
+    "CREATE INDEX IF NOT EXISTS idx_blog_posts_blog ON blog_posts(blog_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_pages_blog ON blog_pages(blog_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_tags_blog ON blog_tags(blog_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_post_tags_post ON blog_post_tags(post_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_post_tags_tag ON blog_post_tags(tag_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_menu_blog ON blog_menu_items(blog_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_optin_blog ON blog_optin_forms(blog_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_comments_post ON blog_comments(post_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_comments_status ON blog_comments(status)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_media_blog ON blog_media(blog_id)",
+    "CREATE INDEX IF NOT EXISTS idx_blog_post_views_post ON blog_post_views(post_id)",
+]
+
+
+@app.get("/admin/api/setup-blog-tables")
+def admin_setup_blog_tables(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: create the Member Site & Blog platform tables (10) + indexes.
+    Needed because SKIP_MIGRATIONS=true on production means create_all()/
+    run_migrations() don't build them on deploy. Idempotent (CREATE ... IF NOT
+    EXISTS). Admin-only, GET (phone-friendly). Tap once after the deploy lands."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    results = {}
+    # Tables first, in FK-dependency order.
+    for name, ddl in _BLOG_TABLE_DDL:
+        try:
+            db.execute(_text(ddl)); db.commit(); results[name] = "ok"
+        except Exception as e:
+            db.rollback(); results[name] = f"error: {e}"
+            return JSONResponse({"ok": False, "results": results}, status_code=500)
+    # Indexes.
+    idx_ok = 0
+    for ddl in _BLOG_INDEX_DDL:
+        try:
+            db.execute(_text(ddl)); db.commit(); idx_ok += 1
+        except Exception as e:
+            db.rollback(); results["index_error"] = f"{ddl[:60]}... -> {e}"
+    results["indexes"] = f"{idx_ok}/{len(_BLOG_INDEX_DDL)} ok"
+
+    return JSONResponse({
+        "ok": True,
+        "results": results,
+        "note": "Blog platform tables ready. Foundation data layer is live.",
+    })
+
+
 # ── Proposed Profit Grid — member feedback capture ───────────────────────────
 # Backs the /new-grid proposal page (the New-Profit-Grid-Plan-50 proposal).
 # Pure feedback; touches no live commission logic.
