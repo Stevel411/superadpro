@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== CINEMATIC THEME · dark premium · glowing gradient hero ===== */
+:root{--bg:#0a0a12;--card:#13131f;--ink:#f3f2f8;--soft:#9a98ad;--line:#23222f;--g1:#a855f7;--g2:#ec4899;--g3:#22d3ee}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg);width:1200px}
+h1,h2,h3{font-family:'Sora',sans-serif}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 40px}
+.chead{display:flex;align-items:center;height:80px;gap:24px;border-bottom:1px solid var(--line)}
+.cname{font-family:'Sora';font-weight:800;font-size:22px;background:linear-gradient(110deg,#fff,#c9c7d6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cnav{margin-left:auto;display:flex;gap:4px;align-items:center}
+.cnav a{font-size:14.5px;font-weight:500;color:var(--soft);padding:9px 14px;border-radius:9px}
+.cnav a:hover{color:#fff}
+.cnav .sub{background:linear-gradient(110deg,var(--g1),var(--g2));color:#fff!important;font-weight:600;padding:10px 18px!important;border-radius:10px}
+/* hero */
+.hero{position:relative;border-radius:24px;overflow:hidden;margin:34px 0 14px;min-height:420px;display:flex;align-items:flex-end;padding:48px;background:radial-gradient(120% 120% at 80% 10%,rgba(168,85,247,.5),transparent 50%),radial-gradient(120% 120% at 10% 90%,rgba(236,72,153,.42),transparent 55%),linear-gradient(135deg,#1a1430,#0c0c18)}
+.hero::after{content:"";position:absolute;inset:0;border-radius:24px;border:1px solid rgba(255,255,255,.08)}
+.hero .in{position:relative;max-width:640px}
+.hero .cat{font-family:'Sora';font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--g3)}
+.hero h1{font-weight:800;font-size:46px;line-height:1.08;letter-spacing:-1px;margin:14px 0}
+.hero .ex{font-size:17px;color:#c7c5d6;line-height:1.55;max-width:54ch}
+.hero .meta{font-size:13.5px;color:var(--soft);margin-top:18px;display:flex;align-items:center;gap:9px}
+.hero .av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--g2),var(--g1))}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:34px 0 50px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.2s}
+.card .img{aspect-ratio:16/10;position:relative}
+.c1 .img{background:linear-gradient(135deg,#3b1d63,#1a1430)}
+.c2 .img{background:linear-gradient(135deg,#5e1f4a,#1a1430)}
+.c3 .img{background:linear-gradient(135deg,#1d3a5e,#1a1430)}
+.c4 .img{background:linear-gradient(135deg,#5e3a1d,#1a1430)}
+.c5 .img{background:linear-gradient(135deg,#1d5e4a,#1a1430)}
+.c6 .img{background:linear-gradient(135deg,#4a1d5e,#1a1430)}
+.card .body{padding:20px}
+.card .cat{font-family:'Sora';font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g1)}
+.card h3{font-weight:700;font-size:18px;line-height:1.25;margin:8px 0 8px}
+.card .ex{font-size:13.5px;color:var(--soft);line-height:1.5}
+.card .m{font-size:12px;color:#6a6880;margin-top:12px}
+/* sub band */
+.subband{border-radius:20px;padding:44px;text-align:center;background:radial-gradient(100% 140% at 50% 0%,rgba(168,85,247,.3),transparent 60%),var(--card);border:1px solid var(--line);margin-bottom:40px}
+.subband h3{font-weight:800;font-size:26px}
+.subband p{color:var(--soft);font-size:15px;margin:10px 0 22px}
+.subband .f{display:flex;gap:9px;max-width:430px;margin:0 auto}
+.subband input{flex:1;background:#0a0a12;border:1px solid var(--line);border-radius:11px;padding:14px 16px;color:#fff;font-family:'Inter';font-size:14px}
+.subband button{background:linear-gradient(110deg,var(--g1),var(--g2));color:#fff;border:none;border-radius:11px;padding:0 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Sora'}
+.cfoot{border-top:1px solid var(--line);padding:34px 0;display:flex;justify-content:space-between;align-items:center}
+.cfoot .social{display:flex;gap:9px}
+.cfoot .social span{width:38px;height:38px;border-radius:11px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--soft);font-size:14px}
+.powered{font-size:13px;color:var(--soft)}.powered .mk{color:#fff;font-weight:700;background:var(--card);border:1px solid var(--line);padding:7px 12px;border-radius:9px;margin-left:5px;display:inline-flex;align-items:center;gap:6px}
+.powered .mk .d{width:15px;height:15px;border-radius:4px;background:linear-gradient(135deg,#06b6d4,#1e3a8a);display:inline-grid;place-items:center}.powered .mk .d svg{width:8px;height:8px}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="chead">
+    <a class="cname">The Maker's Field</a>
+    <div class="cnav"><a>Home</a><a>Articles</a><a>About</a><a>Contact</a><a class="sub">Subscribe</a></div>
+  </div>
+  <!-- HERO -->
+  <div class="hero"><div class="in">
+    <div class="cat">Marketing · Email</div>
+    <h1>The 200-subscriber newsletter that pays my rent</h1>
+    <p class="ex">Two years chasing followers taught me the only number that ever mattered was the one I could email. Here's how I built it.</p>
+    <div class="meta"><span class="av"></span> Alex Rivera · June 21, 2026 · 8 min read</div>
+  </div></div>
+  <!-- GRID -->
+  <div class="grid">
+    <a class="card c1"><div class="img"></div><div class="body"><div class="cat">Pages</div><h3>A landing page in an afternoon</h3><p class="ex">The five blocks every offer page needs.</p><div class="m">Jun 14 · 6 min</div></div></a>
+    <a class="card c2"><div class="img"></div><div class="body"><div class="cat">Story</div><h3>A year of publishing weekly</h3><p class="ex">52 posts later: the real numbers.</p><div class="m">Jun 7 · 9 min</div></div></a>
+    <a class="card c3"><div class="img"></div><div class="body"><div class="cat">Tools</div><h3>One subscription runs my stack</h3><p class="ex">Six tools, cut down to one.</p><div class="m">May 30 · 5 min</div></div></a>
+    <a class="card c4"><div class="img"></div><div class="body"><div class="cat">Video</div><h3>30 videos made with AI</h3><p class="ex">The prompts, flops, and wins.</p><div class="m">May 22 · 7 min</div></div></a>
+    <a class="card c5"><div class="img"></div><div class="body"><div class="cat">Mindset</div><h3>On charging what you're worth</h3><p class="ex">The pricing script I use now.</p><div class="m">May 15 · 4 min</div></div></a>
+    <a class="card c6"><div class="img"></div><div class="body"><div class="cat">Marketing</div><h3>SEO for people who hate SEO</h3><p class="ex">The boring 20% that wins.</p><div class="m">May 8 · 6 min</div></div></a>
+  </div>
+  <!-- SUB -->
+  <div class="subband"><h3>Get the next one in your inbox</h3><p>New field notes on marketing and building by hand.</p><div class="f"><input placeholder="you@email.com"><button>Subscribe</button></div></div>
+</div>
+<div class="wrap"><div class="cfoot"><div class="social"><span>▶</span><span>𝕏</span><span>◎</span><span>in</span></div><div class="powered">Powered by <span class="mk"><span class="d"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span> SuperAdPro</span> — build your own site free</div></div></div>
+</body></html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== BANNER THEME (default) · sample member blog · editorial palette ===== */
+:root{
+  --ink:#1a2620;--soft:#5c6b63;--line:#e3e8e4;--bg:#fcfdfc;--card:#fff;
+  --accent:#0f6e4f;--accent2:#14855f;--gold:#b8893a;--paper:#f5f7f4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg);width:1200px}
+h1,h2,h3,.serif{font-family:'Merriweather',serif}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 40px}
+
+/* header */
+.bhead{border-bottom:1px solid var(--line);background:#fff}
+.bhead .in{display:flex;align-items:center;height:74px;gap:24px}
+.blogname{font-family:'Merriweather',serif;font-weight:900;font-size:24px;letter-spacing:-.3px}
+.bnav{margin-left:auto;display:flex;gap:4px;align-items:center}
+.bnav a{font-size:15px;font-weight:500;color:var(--soft);padding:9px 14px;border-radius:8px}
+.bnav a.active,.bnav a:hover{color:var(--ink)}
+.subbtn{background:var(--accent);color:#fff!important;font-weight:600;padding:10px 18px!important;border-radius:9px;font-size:14px}
+
+/* banner hero */
+.banner{background:linear-gradient(135deg,#0f6e4f,#0a4d37);color:#fff;text-align:center;padding:74px 24px;position:relative;overflow:hidden}
+.banner::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 120% at 50% 0%,rgba(255,255,255,.12),transparent 60%)}
+.banner .k{font-family:'Inter';font-weight:600;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#a7e0c9;position:relative}
+.banner h1{font-weight:900;font-size:52px;line-height:1.08;margin:16px auto 0;max-width:16ch;position:relative}
+.banner p{font-size:19px;color:#d6ece2;margin:18px auto 0;max-width:54ch;position:relative;font-style:italic;font-family:'Merriweather',serif}
+
+/* feed */
+.feed{padding:64px 0 30px}
+.lead-post{display:grid;grid-template-columns:1.15fr 1fr;gap:38px;align-items:center;margin-bottom:60px}
+.lead-post .img{aspect-ratio:16/11;border-radius:16px;background:linear-gradient(135deg,#cfe8dd,#a7d3c0);overflow:hidden;box-shadow:0 24px 50px -28px rgba(15,110,79,.5)}
+.tagrow{display:flex;gap:8px;margin-bottom:14px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:#e7f3ee;padding:5px 10px;border-radius:6px}
+.lead-post h2{font-weight:900;font-size:36px;line-height:1.12;letter-spacing:-.5px}
+.lead-post .ex{font-size:17px;color:var(--soft);line-height:1.6;margin:16px 0 18px}
+.meta{font-size:13px;color:var(--soft);display:flex;align-items:center;gap:8px}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d9a85a)}
+.divider{border:none;border-top:1px solid var(--line);margin:0 0 50px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.card .img{aspect-ratio:16/10;border-radius:13px;overflow:hidden;margin-bottom:16px}
+.card.c1 .img{background:linear-gradient(135deg,#f3e6d0,#e6c894)}
+.card.c2 .img{background:linear-gradient(135deg,#dbe7f5,#aac6e6)}
+.card.c3 .img{background:linear-gradient(135deg,#ecdcef,#cbabd6)}
+.card.c4 .img{background:linear-gradient(135deg,#d3ece4,#a3cdbb)}
+.card.c5 .img{background:linear-gradient(135deg,#f6dcd8,#e6aaa0)}
+.card.c6 .img{background:linear-gradient(135deg,#e2e8d8,#bcca9c)}
+.card h3{font-weight:700;font-size:20px;line-height:1.25;margin-bottom:9px}
+.card .ex{font-size:14.5px;color:var(--soft);line-height:1.55;margin-bottom:12px}
+
+/* footer */
+.bfoot{margin-top:70px;background:var(--paper);border-top:1px solid var(--line);padding:46px 0}
+.bfoot .in{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.bfoot .social{display:flex;gap:10px}
+.bfoot .social span{width:38px;height:38px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--soft);font-size:15px}
+.powered{font-size:13px;color:var(--soft)}
+.powered a{color:var(--accent);font-weight:700}
+.powered .mk{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:7px 13px;border-radius:8px;margin-left:4px}
+.powered .mk .d{width:16px;height:16px;border-radius:5px;background:linear-gradient(135deg,#06b6d4,#1e3a8a);display:inline-grid;place-items:center}
+.powered .mk .d svg{width:8px;height:8px}
+</style></head>
+<body>
+
+<!-- HEADER -->
+<div class="bhead"><div class="wrap in">
+  <a class="blogname">The Maker's Field</a>
+  <div class="bnav">
+    <a class="active">Home</a><a>Articles</a><a>About</a><a>Work with me</a><a>Contact</a>
+    <a class="subbtn">Subscribe</a>
+  </div>
+</div></div>
+
+<!-- BANNER -->
+<div class="banner">
+  <div class="k">Notes on craft &amp; independent business</div>
+  <h1>Building a business by hand</h1>
+  <p>Field notes from a maker figuring out marketing, one experiment at a time.</p>
+</div>
+
+<!-- FEED -->
+<div class="wrap feed">
+  <!-- lead post -->
+  <a class="lead-post">
+    <div class="img"></div>
+    <div>
+      <div class="tagrow"><span class="tag">Marketing</span><span class="tag">Email</span></div>
+      <h2>The 200-subscriber newsletter that pays my rent</h2>
+      <p class="ex">I spent two years chasing followers before I realised the only number that mattered was the one in my email list. Here's exactly how I built it — and the opt-in that changed everything.</p>
+      <div class="meta"><span class="avatar"></span> Alex Rivera · Jun 21, 2026 · 8 min read</div>
+    </div>
+  </a>
+  <hr class="divider">
+  <!-- grid -->
+  <div class="grid">
+    <a class="card c1"><div class="img"></div><div class="tagrow"><span class="tag">Pages</span></div><h3>A landing page in an afternoon (no designer)</h3><p class="ex">The five blocks every offer page needs — and the order that converts.</p><div class="meta">Jun 14, 2026 · 6 min</div></a>
+    <a class="card c2"><div class="img"></div><div class="tagrow"><span class="tag">Story</span></div><h3>What a year of publishing weekly taught me</h3><p class="ex">52 posts later, the numbers — and the things I'd do differently.</p><div class="meta">Jun 7, 2026 · 9 min</div></a>
+    <a class="card c3"><div class="img"></div><div class="tagrow"><span class="tag">Tools</span></div><h3>My whole stack runs on one subscription now</h3><p class="ex">How I cut six tools down to one — and what I do with the savings.</p><div class="meta">May 30, 2026 · 5 min</div></a>
+    <a class="card c4"><div class="img"></div><div class="tagrow"><span class="tag">Video</span></div><h3>I made 30 videos with AI. Here's what worked</h3><p class="ex">The prompts, the flops, and the three that actually drove sales.</p><div class="meta">May 22, 2026 · 7 min</div></a>
+    <a class="card c5"><div class="img"></div><div class="tagrow"><span class="tag">Mindset</span></div><h3>On charging what you're worth</h3><p class="ex">The pricing conversation I avoided for years — and the script I use now.</p><div class="meta">May 15, 2026 · 4 min</div></a>
+    <a class="card c6"><div class="img"></div><div class="tagrow"><span class="tag">Marketing</span></div><h3>SEO for people who hate SEO</h3><p class="ex">The boring 20% that gets you 80% of the search traffic.</p><div class="meta">May 8, 2026 · 6 min</div></a>
+  </div>
+</div>
+
+<!-- FOOTER (referral loop) -->
+<div class="bfoot"><div class="wrap in">
+  <div class="social"><span>▶</span><span>𝕏</span><span>◎</span><span>in</span></div>
+  <div class="powered">Powered by
+    <a class="mk" href="#"><span class="d"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span> SuperAdPro</a>
+    — build your own site free
+  </div>
+</div></div>
+
+</body></html>

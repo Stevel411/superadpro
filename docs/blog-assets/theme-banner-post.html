@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a2620;--soft:#5c6b63;--line:#e3e8e4;--bg:#fcfdfc;--card:#fff;--accent:#0f6e4f;--gold:#b8893a;--paper:#f5f7f4}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg);width:1200px}
+h1,h2,h3,.serif{font-family:'Merriweather',serif}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 40px}
+.article{max-width:720px;margin:0 auto;padding:0 40px}
+
+.bhead{border-bottom:1px solid var(--line);background:#fff}
+.bhead .in{display:flex;align-items:center;height:74px;gap:24px}
+.blogname{font-family:'Merriweather',serif;font-weight:900;font-size:24px;letter-spacing:-.3px}
+.bnav{margin-left:auto;display:flex;gap:4px;align-items:center}
+.bnav a{font-size:15px;font-weight:500;color:var(--soft);padding:9px 14px;border-radius:8px}
+.bnav a:hover{color:var(--ink)}
+.subbtn{background:var(--accent);color:#fff!important;font-weight:600;padding:10px 18px!important;border-radius:9px;font-size:14px}
+
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:#e7f3ee;padding:5px 10px;border-radius:6px}
+.tagrow{display:flex;gap:8px;justify-content:center}
+
+.post-top{text-align:center;padding:58px 0 30px}
+.post-top h1{font-weight:900;font-size:46px;line-height:1.12;letter-spacing:-.6px;margin:18px auto;max-width:18ch}
+.post-meta{display:inline-flex;align-items:center;gap:10px;color:var(--soft);font-size:14.5px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d9a85a)}
+.cover{aspect-ratio:16/8;border-radius:18px;background:linear-gradient(135deg,#cfe8dd,#9ecdb8);margin:14px auto 0;max-width:1000px;box-shadow:0 28px 60px -32px rgba(15,110,79,.45)}
+
+.body{font-family:'Merriweather',serif;font-size:19px;line-height:1.78;color:#26332c}
+.body p{margin:26px 0}
+.body .lead-para{font-size:21px}
+.body h2{font-size:30px;font-weight:900;letter-spacing:-.4px;margin:46px 0 4px;line-height:1.2}
+.body .inline-img{aspect-ratio:16/9;border-radius:14px;background:linear-gradient(135deg,#f3e6d0,#e6c894);margin:34px 0 10px}
+.body .cap{font-family:'Inter';font-size:13px;color:var(--soft);text-align:center;margin-bottom:30px}
+.body blockquote{border-left:4px solid var(--accent);padding:6px 0 6px 26px;margin:34px 0;font-size:24px;font-style:italic;color:var(--ink);line-height:1.5}
+
+.share-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0;margin:48px 0 0;font-family:'Inter'}
+.share-row .tags2{display:flex;gap:8px}
+.share-row .btns{display:flex;gap:9px}
+.share-row .btns span{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;color:var(--soft);font-size:15px}
+.share-row .lbl{font-size:13px;color:var(--soft);margin-right:4px;align-self:center}
+
+/* opt-in */
+.optin{background:linear-gradient(135deg,#0f6e4f,#0a4d37);border-radius:20px;padding:44px;text-align:center;color:#fff;margin:54px 0;font-family:'Inter'}
+.optin h3{font-family:'Merriweather';font-weight:900;font-size:28px;color:#fff}
+.optin p{color:#cfe8dd;font-size:16px;margin:12px 0 24px}
+.optin .form{display:flex;gap:10px;max-width:440px;margin:0 auto}
+.optin input{flex:1;border:none;border-radius:11px;padding:15px 18px;font-size:15px;font-family:'Inter'}
+.optin button{background:#fff;color:var(--accent);font-weight:700;border:none;border-radius:11px;padding:0 26px;font-size:15px;cursor:pointer;font-family:'Inter'}
+.optin .tiny{font-size:12px;color:#a7e0c9;margin-top:14px}
+
+/* comments */
+.comments{font-family:'Inter';margin-top:10px}
+.comments h3{font-family:'Merriweather';font-weight:900;font-size:24px;margin-bottom:24px}
+.cbox{display:flex;gap:14px;margin-bottom:26px}
+.cbox .av{width:42px;height:42px;border-radius:50%;flex:none}
+.cbox.x1 .av{background:linear-gradient(135deg,#aac6e6,#7ba3d4)}
+.cbox.x2 .av{background:linear-gradient(135deg,#e6aaa0,#d98a7c)}
+.cbody{flex:1}
+.cbody .who{font-weight:700;font-size:14.5px}.cbody .when{color:var(--soft);font-size:12.5px;margin-left:8px;font-weight:400}
+.cbody p{font-size:14.5px;color:#33403a;line-height:1.55;margin-top:5px}
+.cform{border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--paper)}
+.cform textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:'Inter';font-size:14.5px;resize:none;height:80px}
+.cform .row{display:flex;justify-content:flex-end;margin-top:10px}
+.cform button{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-weight:600;font-size:14px;cursor:pointer}
+
+.bfoot{margin-top:64px;background:var(--paper);border-top:1px solid var(--line);padding:42px 0}
+.bfoot .in{display:flex;justify-content:space-between;align-items:center;gap:24px}
+.bfoot .social{display:flex;gap:10px}
+.bfoot .social span{width:38px;height:38px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--soft);font-size:15px}
+.powered{font-size:13px;color:var(--soft)}
+.powered .mk{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:7px 13px;border-radius:8px;margin-left:4px}
+.powered .mk .d{width:16px;height:16px;border-radius:5px;background:linear-gradient(135deg,#06b6d4,#1e3a8a);display:inline-grid;place-items:center}
+.powered .mk .d svg{width:8px;height:8px}
+.powered a{color:var(--accent);font-weight:700}
+</style></head>
+<body>
+
+<div class="bhead"><div class="wrap in">
+  <a class="blogname">The Maker's Field</a>
+  <div class="bnav"><a>Home</a><a>Articles</a><a>About</a><a>Work with me</a><a>Contact</a><a class="subbtn">Subscribe</a></div>
+</div></div>
+
+<div class="post-top wrap">
+  <div class="tagrow"><span class="tag">Marketing</span><span class="tag">Email</span></div>
+  <h1>The 200-subscriber newsletter that pays my rent</h1>
+  <div class="post-meta"><span class="avatar"></span> Alex Rivera · Jun 21, 2026 · 8 min read</div>
+</div>
+<div class="cover"></div>
+
+<article class="article">
+  <div class="body">
+    <p class="lead-para">I spent two years chasing followers before I realised the only number that actually mattered was the one I could email. Here's the whole story — and the single opt-in form that changed everything.</p>
+    <p>When I started, I did what everyone tells you to do. I posted daily. I chased the algorithm. I watched my follower count tick up and felt, for a while, like it was working. It wasn't. A good month of content would vanish the moment I stopped posting.</p>
+    <h2>The shift that changed everything</h2>
+    <p>The turning point was embarrassingly simple: I added an email signup to the bottom of every post. Not a popup, not a lead magnet funnel — just a quiet box that said "want the next one?"</p>
+    <div class="inline-img"></div>
+    <div class="cap">The opt-in box, exactly as it appears at the end of each post.</div>
+    <p>Within a month I had more engaged readers on my list than I'd gathered in two years of chasing follows. And unlike followers, I owned the relationship.</p>
+    <blockquote>"Followers are rented. An email list is owned. Build the thing you own."</blockquote>
+    <p>That's the entire lesson. Everything else — the cadence, the subject lines, the offers — is detail. Start the list today, even if it's just you and your mum on it.</p>
+  </div>
+
+  <!-- tags + share -->
+  <div class="share-row">
+    <div class="tags2"><span class="tag">Marketing</span><span class="tag">Email</span></div>
+    <div style="display:flex;align-items:center"><span class="lbl">Share</span><div class="btns"><span>𝕏</span><span>f</span><span>in</span><span>🔗</span></div></div>
+  </div>
+
+  <!-- opt-in (the moat) -->
+  <div class="optin">
+    <h3>Get the next one in your inbox</h3>
+    <p>New field notes on marketing and building by hand — about once a week.</p>
+    <div class="form"><input placeholder="you@email.com"><button>Subscribe</button></div>
+    <div class="tiny">No spam. Unsubscribe anytime.</div>
+  </div>
+
+  <!-- comments -->
+  <div class="comments">
+    <h3>4 comments</h3>
+    <div class="cbox x1"><div class="av"></div><div class="cbody"><div class="who">Jordan M.<span class="when">2 days ago</span></div><p>This is exactly the kick I needed. Added a signup box to my site this morning — thank you!</p></div></div>
+    <div class="cbox x2"><div class="av"></div><div class="cbody"><div class="who">Priya S.<span class="when">1 day ago</span></div><p>"Followers are rented" is going on my wall. Such a clear way to put it.</p></div></div>
+    <div class="cform"><textarea placeholder="Join the conversation…"></textarea><div class="row"><button>Post comment</button></div></div>
+  </div>
+</article>
+
+<div class="bfoot"><div class="wrap in">
+  <div class="social"><span>▶</span><span>𝕏</span><span>◎</span><span>in</span></div>
+  <div class="powered">Powered by <a class="mk" href="#"><span class="d"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span> SuperAdPro</a> — build your own site free</div>
+</div></div>
+
+</body></html>

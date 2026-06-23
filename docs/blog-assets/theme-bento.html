@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== BENTO THEME · modern modular tile grid · indigo/coral ===== */
+:root{--ink:#15131f;--soft:#6a6580;--line:#eceaf2;--bg:#f6f5fa;--indigo:#5b21b6;--violet:#7c3aed;--coral:#f0598a;--amber:#f5a623;--teal:#0ea5a0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--bg);width:1200px}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 40px}
+.bhead{display:flex;align-items:center;height:84px;gap:24px}
+.bname{font-family:'Space Grotesk';font-weight:700;font-size:24px;letter-spacing:-.5px}
+.bnav{margin-left:auto;display:flex;gap:4px;align-items:center}
+.bnav a{font-size:14.5px;font-weight:600;color:var(--soft);padding:9px 14px;border-radius:10px}
+.bnav a:hover{color:var(--ink);background:#fff}
+.bnav .sub{background:var(--ink);color:#fff!important;padding:10px 18px!important;border-radius:11px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:200px;gap:18px;padding:14px 0 40px}
+.tile{border-radius:22px;padding:26px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.tile .cat{font-family:'Space Grotesk';font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.8;margin-bottom:8px}
+.tile h2,.tile h3{font-weight:700;line-height:1.15;letter-spacing:-.3px}
+/* featured 2x2 */
+.feat{grid-column:span 2;grid-row:span 2;background:linear-gradient(150deg,var(--violet),var(--indigo));color:#fff}
+.feat h2{font-size:30px}
+.feat .ex{font-size:15px;opacity:.9;margin-top:10px;line-height:1.5}
+.feat .meta{font-family:'DM Sans';font-size:13px;opacity:.85;margin-top:14px}
+/* post tiles */
+.t-img{grid-row:span 2;color:#fff}
+.t-coral{background:linear-gradient(150deg,var(--coral),#d83f72)}
+.t-teal{background:linear-gradient(150deg,var(--teal),#0c7d79)}
+.t-amber{background:linear-gradient(150deg,var(--amber),#e08a10);color:#3a2606}
+.t-white{background:#fff;border:1px solid var(--line)}
+.t-img h3{font-size:19px}
+.t-white h3{font-size:18px}.t-white .cat{color:var(--violet);opacity:1}
+.t-white .ex{font-size:13.5px;color:var(--soft);margin-top:6px;line-height:1.5}
+/* subscribe tile */
+.t-sub{background:var(--ink);color:#fff;grid-column:span 2}
+.t-sub h3{font-size:21px}.t-sub p{font-size:13.5px;opacity:.7;margin:8px 0 14px}
+.t-sub .f{display:flex;gap:8px}
+.t-sub input{flex:1;border:none;border-radius:10px;padding:11px 13px;font-family:'DM Sans';font-size:13.5px}
+.t-sub button{background:var(--violet);color:#fff;border:none;border-radius:10px;padding:0 18px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:'Space Grotesk'}
+/* tags tile */
+.t-tags{background:#fff;border:1px solid var(--line)}
+.t-tags h3{font-size:15px;margin-bottom:12px}
+.t-tags .ts{display:flex;flex-wrap:wrap;gap:7px}
+.t-tags .ts span{font-size:12px;font-weight:600;color:var(--soft);background:var(--bg);padding:6px 11px;border-radius:20px}
+.bfoot{border-top:1px solid var(--line);padding:34px 0;display:flex;justify-content:space-between;align-items:center}
+.bfoot .social{display:flex;gap:9px}
+.bfoot .social span{width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--soft);font-size:14px}
+.powered{font-size:13px;color:var(--soft)}.powered .mk{color:var(--violet);font-weight:700;background:#fff;border:1px solid var(--line);padding:7px 12px;border-radius:9px;margin-left:5px;display:inline-flex;align-items:center;gap:6px}
+.powered .mk .d{width:15px;height:15px;border-radius:4px;background:linear-gradient(135deg,#06b6d4,#1e3a8a);display:inline-grid;place-items:center}.powered .mk .d svg{width:8px;height:8px}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="bhead">
+    <a class="bname">◆ The Maker's Field</a>
+    <div class="bnav"><a>Home</a><a>Articles</a><a>About</a><a>Contact</a><a class="sub">Subscribe</a></div>
+  </div>
+  <div class="grid">
+    <a class="tile feat"><div><div class="cat">Marketing · Email</div><h2>The 200-subscriber newsletter that pays my rent</h2><p class="ex">Two years chasing followers taught me the only number that mattered was the one I could email.</p><div class="meta">Alex Rivera · 8 min read</div></div></a>
+    <a class="tile t-img t-coral"><div><div class="cat">Pages</div><h3>A landing page in an afternoon</h3></div></a>
+    <a class="tile t-img t-teal"><div><div class="cat">Story</div><h3>A year of publishing weekly</h3></div></a>
+    <a class="tile t-white"><div class="cat">Tools</div><h3>One subscription runs my whole stack</h3><p class="ex">Six tools, cut down to one.</p></a>
+    <a class="tile t-img t-amber"><div><div class="cat">Video</div><h3>30 videos made with AI</h3></div></a>
+    <div class="tile t-tags"><h3>Topics</h3><div class="ts"><span>Marketing</span><span>Email</span><span>Pages</span><span>Tools</span><span>Mindset</span><span>Video</span></div></div>
+    <div class="tile t-sub"><h3>Get the next one</h3><p>New notes about once a week.</p><div class="f"><input placeholder="you@email.com"><button>Join</button></div></div>
+    <a class="tile t-white"><div class="cat">Mindset</div><h3>On charging what you're worth</h3><p class="ex">The pricing script I use now.</p></a>
+  </div>
+</div>
+<div class="wrap"><div class="bfoot"><div class="social"><span>▶</span><span>𝕏</span><span>◎</span><span>in</span></div><div class="powered">Powered by <span class="mk"><span class="d"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span> SuperAdPro</span> — build your own site free</div></div></div>
+</body></html>
