@@ -55552,6 +55552,9 @@ def blog_public_feed(slug: str, request: Request, db: Session = Depends(get_db))
     member = db.query(User).filter(User.id == blog.member_id).first()
     base = f"/sites/{slug}"
     ctx = _blog_context(blog, member, db, base)
+    _pv = request.query_params.get("theme")
+    if _pv and _pv in _blogrender.THEMES:
+        ctx.theme = _pv
     posts = (db.query(BlogPost)
                .filter(BlogPost.blog_id == blog.id, BlogPost.status == "published")
                .order_by(BlogPost.published_at.desc().nullslast(),
@@ -55575,6 +55578,9 @@ def blog_public_post(slug: str, post_slug: str, request: Request, db: Session = 
     member = db.query(User).filter(User.id == blog.member_id).first()
     base = f"/sites/{slug}"
     ctx = _blog_context(blog, member, db, base)
+    _pv = request.query_params.get("theme")
+    if _pv and _pv in _blogrender.THEMES:
+        ctx.theme = _pv
     ctx.post = _blog_post_view(post, _blog_tags_for([post.id], db))
     ua = request.headers.get("user-agent", "").lower()
     _bots = ("googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot",
