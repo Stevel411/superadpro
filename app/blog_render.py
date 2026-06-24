@@ -171,7 +171,10 @@ def _palette_css(ctx):
     if not p or p == "default" or p not in PALETTES:
         return ""
     a, d, _ = PALETTES[p]
-    return f":root{{--accent:{a};--accent-dark:{d}}}"
+    # Drive the structural dark token too (--navy), so picking a scheme recolours the
+    # whole theme (header/footer/subbox in classic-sidebar) instead of only the accents.
+    # Themes that don't use --navy are unaffected; their --accent still follows.
+    return f":root{{--accent:{a};--accent-dark:{d};--navy:{d}}}"
 
 
 # ── data carriers ────────────────────────────────────────────────────────────
@@ -386,7 +389,7 @@ _BANNER_CSS = """
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:inherit}
-.wrap{max-width:1080px;margin:0 auto;padding:0 40px}.article{max-width:720px;margin:0 auto;padding:0 40px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}.article{max-width:720px;margin:0 auto;padding:0 40px}
 .bhead{border-bottom:1px solid var(--line);background:#fff}.bhead .in{display:flex;align-items:center;height:74px;gap:24px}
 .blogname{font-family:'Merriweather',serif;font-weight:900;font-size:24px;letter-spacing:-.3px}
 .bnav{margin-left:auto;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
@@ -774,7 +777,7 @@ def render_cs_post(ctx):
 _JN_CSS = """
 :root{--ink:#1c1a17;--soft:#7a746c;--line:#e7e2d9;--bg:#faf8f3;--card:#fff;--accent:#1c1a17;--accent-dark:#000000;--hfont:'Spectral',serif;--bfont:'Spectral',serif}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Spectral',serif;color:var(--ink);background:var(--bg)}
-a{text-decoration:none;color:inherit}.col{max-width:660px;margin:0 auto;padding:0 40px}
+a{text-decoration:none;color:inherit}.col{max-width:660px;margin:0 auto;padding:0 clamp(20px,5vw,40px)}
 .jhead{text-align:center;padding:64px 0 16px}.jname{font-weight:800;font-size:32px;letter-spacing:-.4px}
 .jtag{font-style:italic;color:var(--soft);font-size:16px;margin-top:8px}
 .jnav{display:flex;justify-content:center;gap:26px;margin-top:22px;padding-bottom:30px;border-bottom:1px solid var(--line)}
@@ -822,7 +825,7 @@ _BN_CSS = """
 :root{--ink:#15131f;--soft:#6a6580;--line:#eceaf2;--bg:#f6f5fa;--card:#fff;--accent:#7c3aed;--accent-dark:#5b21b6;--violet:#7c3aed;--indigo:#5b21b6;--coral:#f0598a;--teal:#0ea5a0;--amber:#f5a623;--hfont:'Space Grotesk',sans-serif;--bfont:'DM Sans',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3{font-family:'Space Grotesk',sans-serif}a{text-decoration:none;color:inherit}
-.wrap{max-width:1080px;margin:0 auto;padding:0 40px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}
 .bhead{display:flex;align-items:center;height:84px;gap:24px}.bname{font-weight:700;font-size:24px;letter-spacing:-.5px}
 .bnav{margin-left:auto;display:flex;gap:4px;align-items:center}.bnav a{font-size:14.5px;font-weight:600;color:var(--soft);padding:9px 14px;border-radius:10px}.bnav a:hover{color:var(--ink);background:#fff}
 .bnav .sub{background:var(--ink);color:#fff!important;padding:10px 18px!important;border-radius:11px}
@@ -885,7 +888,7 @@ _CN_CSS = """
 :root{--bg:#0a0a12;--card:#13131f;--ink:#f3f2f8;--soft:#9a98ad;--line:#23222f;--accent:#a855f7;--accent-dark:#7c3aed;--g1:#a855f7;--g2:#ec4899;--g3:#22d3ee;--hfont:'Sora',sans-serif;--bfont:'Inter',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3{font-family:'Sora',sans-serif}a{text-decoration:none;color:inherit}
-.wrap{max-width:1080px;margin:0 auto;padding:0 40px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}
 .chead{display:flex;align-items:center;height:80px;gap:24px;border-bottom:1px solid var(--line)}
 .cname{font-weight:800;font-size:22px;background:linear-gradient(110deg,#fff,#c9c7d6);-webkit-background-clip:text;background-clip:text;color:transparent}
 .cnav{margin-left:auto;display:flex;gap:4px;align-items:center}.cnav a{font-size:14.5px;font-weight:500;color:var(--soft);padding:9px 14px;border-radius:9px}.cnav a:hover{color:#fff}
@@ -940,7 +943,7 @@ _GL_CSS = """
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;color:var(--ink);min-height:100vh;background:radial-gradient(50% 50% at 12% 18%,#b8e6ff 0,transparent 60%),radial-gradient(45% 45% at 88% 12%,#ffd6ec 0,transparent 55%),radial-gradient(55% 55% at 75% 85%,#d7c9ff 0,transparent 60%),radial-gradient(50% 50% at 20% 92%,#c7f5e3 0,transparent 55%),linear-gradient(135deg,#eef2ff,#fdf2f8);background-attachment:fixed}
 h1,h2,h3{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
-.wrap{max-width:1060px;margin:0 auto;padding:0 40px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}
 .glass{background:rgba(255,255,255,.45);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);border:1px solid rgba(255,255,255,.55);box-shadow:0 16px 50px -20px rgba(80,70,160,.32)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.glass{background:rgba(255,255,255,.92)}}
 .ghead{position:sticky;top:18px;z-index:20;margin:18px auto 0;max-width:1060px;border-radius:18px;padding:0 26px}.ghead .in{display:flex;align-items:center;height:64px;gap:20px}
