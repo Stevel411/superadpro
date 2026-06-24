@@ -55810,6 +55810,33 @@ def api_blog_launch(request: Request, db: Session = Depends(get_db)):
     return {"ok": True, "slug": blog.subdomain_slug, "url": f"/sites/{blog.subdomain_slug}"}
 
 
+_VALID_THEMES = {"banner", "classic-sidebar", "journal", "bento", "cinematic", "glass"}
+_VALID_PALETTES = {"default", "forest", "cobalt", "plum", "terracotta", "rose", "slate", "ink"}
+
+
+@app.patch("/api/blog")
+@limiter.limit("60/minute")
+async def api_blog_update(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    """Owner-gated blog updates. Appearance now (theme/palette); Settings fields
+    (title/tagline/social/comments) extend this later. Unknown values rejected."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    if "theme" in payload:
+        t = (payload.get("theme") or "").strip()
+        if t in _VALID_THEMES:
+            blog.theme = t
+    if "palette" in payload:
+        p = (payload.get("palette") or "").strip()
+        if p in _VALID_PALETTES:
+            blog.palette = p
+    db.commit()
+    return {"ok": True, "theme": blog.theme, "palette": getattr(blog, "palette", "default") or "default"}
+
+
 @app.get("/my-site")
 def my_site_shell(request: Request):
     """Serve React SPA (the member blog dashboard)."""

@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
-import { apiGet, apiPost } from '../utils/api';
+import { apiGet, apiPost, apiPatch } from '../utils/api';
 import {
   PenSquare, Eye, Copy, Check, FileText, Edit3, MoreHorizontal,
   Lock, Globe, Palette, Mail, Sparkles, ArrowRight,
@@ -28,6 +28,25 @@ const C = {
 };
 const sora = "'Sora',sans-serif";
 const mono = "'JetBrains Mono',monospace";
+
+const THEMES = [
+  { key: 'banner',         name: 'Banner',         desc: 'Bold full-width header, editorial serif.' },
+  { key: 'classic-sidebar',name: 'Classic Sidebar',desc: 'Timeless two-column blog layout.' },
+  { key: 'journal',        name: 'Journal',        desc: 'Minimal, text-first and personal.' },
+  { key: 'bento',          name: 'Bento',          desc: 'Modern grid of content cards.' },
+  { key: 'cinematic',      name: 'Cinematic',      desc: 'Dark, image-forward and dramatic.' },
+  { key: 'glass',          name: 'Glass',          desc: 'Frosted depth, clean and modern.' },
+];
+const PALETTES = [
+  { key: 'default',    name: 'Default',    color: 'conic-gradient(from 210deg,#06b6d4,#1e3a8a,#06b6d4)' },
+  { key: 'forest',     name: 'Forest',     color: '#0f6e4f' },
+  { key: 'cobalt',     name: 'Cobalt',     color: '#1e3a8a' },
+  { key: 'plum',       name: 'Plum',       color: '#7c3aed' },
+  { key: 'terracotta', name: 'Terracotta', color: '#c2622d' },
+  { key: 'rose',       name: 'Rose',       color: '#c43f63' },
+  { key: 'slate',      name: 'Slate',      color: '#1f3354' },
+  { key: 'ink',        name: 'Ink',        color: '#1a1a1a' },
+];
 
 const STATUS = {
   published: { bg: '#e7f6ee', fg: '#15803d', label: 'Published' },
@@ -49,13 +68,20 @@ export default function MySite() {
   const [launching, setLaunching] = useState(false);
   const [data, setData] = useState(null);
   const [tab, setTab] = useState('posts');
+  const [theme, setTheme] = useState('banner');
+  const [palette, setPalette] = useState('default');
+  const [savingAppr, setSavingAppr] = useState(false);
+  const [apprSaved, setApprSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [err, setErr] = useState('');
 
   const load = async () => {
     setLoading(true);
-    try { setData(await apiGet('/api/blog/me')); } catch (e) { setErr(e.message); }
+    try {
+      const d = await apiGet('/api/blog/me'); setData(d);
+      if (d.blog) { setTheme(d.blog.theme || 'banner'); setPalette(d.blog.palette || 'default'); }
+    } catch (e) { setErr(e.message); }
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -65,6 +91,13 @@ export default function MySite() {
     try { await apiPost('/api/blog/launch', {}); await load(); }
     catch (e) { setErr(e.message); }
     setLaunching(false);
+  };
+
+  const saveAppearance = async () => {
+    setSavingAppr(true); setErr('');
+    try { await apiPatch('/api/blog', { theme, palette }); setApprSaved(true); setTimeout(() => setApprSaved(false), 2500); }
+    catch (e) { setErr(e.message); }
+    setSavingAppr(false);
   };
 
   const copyUrl = (url) => {
@@ -230,7 +263,54 @@ export default function MySite() {
           </div>
         )}
 
-        {tab !== 'posts' && (
+        {tab === 'appearance' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 22, alignItems: 'start' }}>
+            <div>
+              <div style={{ ...cardStyle(), padding: 20, marginBottom: 18 }}>
+                <div style={sectionLabel}>Theme</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {THEMES.map((th) => (
+                    <div key={th.key} onClick={() => setTheme(th.key)} style={{
+                      border: `1.5px solid ${theme === th.key ? C.cy2 : C.line}`, borderRadius: 11,
+                      padding: '12px 13px', cursor: 'pointer', position: 'relative',
+                      background: theme === th.key ? '#f0fbfe' : '#fff' }}>
+                      {theme === th.key && <Check size={14} color={C.cy1} style={{ position: 'absolute', top: 10, right: 10 }} />}
+                      <div style={{ fontFamily: sora, fontWeight: 700, fontSize: 14, color: C.ink }}>{th.name}</div>
+                      <div style={{ fontSize: 11.5, color: C.dim, marginTop: 3, lineHeight: 1.4 }}>{th.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ ...cardStyle(), padding: 20, marginBottom: 18 }}>
+                <div style={sectionLabel}>Colour palette</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                  {PALETTES.map((pl) => (
+                    <div key={pl.key} onClick={() => setPalette(pl.key)} style={{ textAlign: 'center', cursor: 'pointer', width: 54 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', margin: '0 auto', background: pl.color,
+                        border: palette === pl.key ? `3px solid ${C.cy2}` : `2px solid ${C.line}`, display: 'grid', placeItems: 'center' }}>
+                        {palette === pl.key && <Check size={15} color="#fff" />}
+                      </div>
+                      <div style={{ fontSize: 11, color: palette === pl.key ? C.ink : C.dim, marginTop: 5, fontWeight: palette === pl.key ? 600 : 500 }}>{pl.name}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <button onClick={saveAppearance} disabled={savingAppr} style={{ ...btn('primary'), width: '100%', justifyContent: 'center' }}>
+                {savingAppr ? 'Saving…' : apprSaved ? <><Check size={16} /> Saved</> : 'Save appearance'}
+              </button>
+              <div style={{ fontSize: 12, color: C.dim, marginTop: 10, textAlign: 'center' }}>Changes go live on your site when you save.</div>
+            </div>
+            <div style={{ ...cardStyle(), overflow: 'hidden', position: 'sticky', top: 20 }}>
+              <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.line}`, fontSize: 12.5, color: C.dim, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
+                <Eye size={14} /> Live preview — {THEMES.find((t) => t.key === theme)?.name}
+              </div>
+              <iframe title="Site preview" src={`${blog.url}?theme=${theme}&palette=${palette}`}
+                style={{ width: '100%', height: 580, border: 'none', display: 'block', background: '#fff' }} />
+            </div>
+          </div>
+        )}
+
+        {(tab === 'pages' || tab === 'settings') && (
           <div style={{ ...cardStyle(), padding: 48, textAlign: 'center', color: C.dim }}>
             <Sparkles size={22} style={{ marginBottom: 10, opacity: 0.6 }} />
             <div style={{ fontFamily: sora, fontWeight: 600, color: C.ink2, marginBottom: 4, textTransform: 'capitalize' }}>{tab}</div>
@@ -249,6 +329,7 @@ function btn(kind) {
   if (kind === 'primary') return { ...base, background: 'linear-gradient(135deg,#0891b2,#0ea5e9)', color: '#fff' };
   return { ...base, background: '#fff', border: `1px solid ${C.line}`, color: C.ink2 };
 }
+const sectionLabel = { fontFamily: sora, fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.dim, marginBottom: 13 };
 const iconBtn = { width: 32, height: 32, borderRadius: 8, border: `1px solid ${C.line}`, display: 'grid', placeItems: 'center', color: C.dim, cursor: 'pointer' };
 const errBox = { background: '#fdecec', border: '1px solid #f5c2c2', color: '#b42318', borderRadius: 10, padding: '11px 14px', fontSize: 13.5, marginBottom: 16 };
 const noticeBox = { background: '#e8f7fb', border: '1px solid #b6e3ef', color: '#0e7490', borderRadius: 10, padding: '11px 14px', fontSize: 13.5, marginBottom: 16, fontWeight: 500 };
