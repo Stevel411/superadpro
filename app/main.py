@@ -55554,6 +55554,8 @@ def _blog_post_view(post, tags_map):
         cover_image=post.cover_image or "", body=body,
         published_at=post.published_at or post.created_at,
         read_minutes=rm, tags=tags_map.get(post.id, []), seed=post.id or 0,
+        seo_title=post.seo_title or "", seo_description=post.seo_description or "",
+        og_image=post.og_image or "",
     )
 
 

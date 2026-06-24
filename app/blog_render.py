@@ -153,6 +153,9 @@ class PostView:
     read_minutes: int = 4
     tags: list = field(default_factory=list)   # list[(name, slug)]
     seed: int = 0
+    seo_title: str = ""
+    seo_description: str = ""
+    og_image: str = ""
 
     @property
     def date_str(self) -> str:
