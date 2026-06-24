@@ -45,6 +45,29 @@ def _grad(seed: int) -> str:
     return f"linear-gradient(135deg,{a},{b})"
 
 
+# Curated accent palettes (research-informed, 2026). A palette swaps the --accent
+# / --accent-dark tokens; each theme keeps its own structural neutrals + signature
+# decorative colours. "default" = the theme's own built-in accent (no override).
+PALETTES = {
+    "forest":     ("#0f6e4f", "#0a4d37", "Forest"),
+    "cobalt":     ("#1e3a8a", "#122456", "Cobalt"),
+    "plum":       ("#7c3aed", "#5b21b6", "Plum"),
+    "terracotta": ("#c2622d", "#92481f", "Terracotta"),
+    "rose":       ("#c43f63", "#922b46", "Rose"),
+    "slate":      ("#1f3354", "#13213a", "Slate"),
+    "ink":        ("#1a1a1a", "#000000", "Ink"),
+}
+
+
+def _palette_css(ctx):
+    """Token override block; empty for the default (theme keeps its own accent)."""
+    p = getattr(ctx, "palette", "default")
+    if not p or p == "default" or p not in PALETTES:
+        return ""
+    a, d, _ = PALETTES[p]
+    return f":root{{--accent:{a};--accent-dark:{d}}}"
+
+
 # ── data carriers ────────────────────────────────────────────────────────────
 @dataclass
 class PostView:
@@ -83,6 +106,7 @@ class BlogRenderContext:
     optin_title: str = "Get the next one in your inbox"
     optin_sub: str = "New posts straight to your inbox."
     base_path: str = ""                            # e.g. /sites/{slug}
+    palette: str = "default"                       # accent palette key (see PALETTES)
 
     def post_url(self, post: PostView) -> str:
         return f"{self.base_path}/p/{post.slug}"
@@ -153,7 +177,7 @@ def _share_html(ctx, btn_cls):
 # docs/blog-assets/theme-banner-home.html / -post.html.
 # ════════════════════════════════════════════════════════════════════════════
 _BANNER_CSS = """
-:root{--ink:#1a2620;--soft:#5c6b63;--line:#e3e8e4;--bg:#fcfdfc;--accent:#0f6e4f;--gold:#b8893a;--paper:#f5f7f4}
+:root{--ink:#1a2620;--soft:#5c6b63;--line:#e3e8e4;--bg:#fcfdfc;--accent:#0f6e4f;--accent-dark:#0a4d37;--gold:#b8893a;--paper:#f5f7f4}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:inherit}
@@ -164,16 +188,16 @@ h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:in
 .bnav a{font-size:15px;font-weight:500;color:var(--soft);padding:9px 14px;border-radius:8px}
 .bnav a.active,.bnav a:hover{color:var(--ink)}
 .subbtn{background:var(--accent);color:#fff!important;font-weight:600;padding:10px 18px!important;border-radius:9px;font-size:14px}
-.banner{background:linear-gradient(135deg,#0f6e4f,#0a4d37);color:#fff;text-align:center;padding:74px 24px;position:relative;overflow:hidden}
+.banner{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;text-align:center;padding:74px 24px;position:relative;overflow:hidden}
 .banner::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 120% at 50% 0%,rgba(255,255,255,.12),transparent 60%)}
 .banner .k{font-weight:600;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#a7e0c9;position:relative}
 .banner h1{font-weight:900;font-size:52px;line-height:1.08;margin:16px auto 0;max-width:16ch;position:relative}
 .banner p{font-size:19px;color:#d6ece2;margin:18px auto 0;max-width:54ch;position:relative;font-style:italic;font-family:'Merriweather',serif}
 .feed{padding:64px 0 30px}
 .lead-post{display:grid;grid-template-columns:1.15fr 1fr;gap:38px;align-items:center;margin-bottom:60px}
-.lead-post .img{aspect-ratio:16/11;border-radius:16px;overflow:hidden;box-shadow:0 24px 50px -28px rgba(15,110,79,.5)}
+.lead-post .img{aspect-ratio:16/11;border-radius:16px;overflow:hidden;box-shadow:0 24px 50px -28px rgba(20,40,70,.4)}
 .tagrow{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}.tagrow.center{justify-content:center}
-.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:#e7f3ee;padding:5px 10px;border-radius:6px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,#fff);padding:5px 10px;border-radius:6px}
 .lead-post h2{font-weight:900;font-size:36px;line-height:1.12;letter-spacing:-.5px}
 .lead-post .ex{font-size:17px;color:var(--soft);line-height:1.6;margin:16px 0 18px}
 .meta{font-size:13px;color:var(--soft);display:flex;align-items:center;gap:8px}.meta.center{justify-content:center}
@@ -186,7 +210,7 @@ h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:in
 .empty{text-align:center;color:var(--soft);padding:80px 0;font-size:17px}
 .post-top{text-align:center;padding:58px 0 30px}
 .post-top h1{font-weight:900;font-size:46px;line-height:1.12;letter-spacing:-.6px;margin:18px auto;max-width:18ch}
-.cover{aspect-ratio:16/8;border-radius:18px;margin:14px auto 0;max-width:1000px;box-shadow:0 28px 60px -32px rgba(15,110,79,.45)}
+.cover{aspect-ratio:16/8;border-radius:18px;margin:14px auto 0;max-width:1000px;box-shadow:0 28px 60px -32px rgba(20,40,70,.35)}
 .body{font-family:'Merriweather',serif;font-size:19px;line-height:1.78;color:#26332c}
 .body p{margin:26px 0}.body h2{font-size:30px;font-weight:900;margin:46px 0 4px;line-height:1.2}
 .body img{max-width:100%;border-radius:14px;margin:30px 0}
@@ -194,7 +218,7 @@ h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:in
 .share-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0;margin:48px 0 0}
 .share-row .btns{display:flex;gap:9px}.share-row .lbl{font-size:13px;color:var(--soft);margin-right:4px}
 .share-row .btns span,.sb{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;color:var(--soft);font-size:15px;cursor:pointer}
-.optin{background:linear-gradient(135deg,#0f6e4f,#0a4d37);border-radius:20px;padding:44px;text-align:center;color:#fff;margin:54px 0}
+.optin{background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:20px;padding:44px;text-align:center;color:#fff;margin:54px 0}
 .optin h3{font-family:'Merriweather';font-weight:900;font-size:28px;color:#fff}
 .optin p{color:#cfe8dd;font-size:16px;margin:12px 0 24px}
 .optin .form{display:flex;gap:10px;max-width:440px;margin:0 auto}
@@ -232,7 +256,7 @@ def _tagrow(post, center=False):
 
 def render_banner_feed(ctx):
     head = _seo_head(ctx, ctx.blog_title, ctx.tagline, canonical=f"{BASE_URL}{ctx.base_path}")
-    body = [f"{head}<style>{_BANNER_CSS}</style></head><body>", _banner_header(ctx, active="Home")]
+    body = [f"{head}<style>{_BANNER_CSS}{_palette_css(ctx)}</style></head><body>", _banner_header(ctx, active="Home")]
     body.append(
         f'<div class="banner"><div class="k">{escape(ctx.tagline or "")}</div>'
         f'<h1>{escape(ctx.blog_title)}</h1></div>'
@@ -268,7 +292,7 @@ def render_banner_post(ctx):
     p = ctx.post
     head = _seo_head(ctx, f"{p.title} — {ctx.blog_title}", p.excerpt,
                      og_image=p.cover_image, canonical=f"{BASE_URL}{ctx.post_url(p)}")
-    body = [f"{head}<style>{_BANNER_CSS}</style></head><body>", _banner_header(ctx)]
+    body = [f"{head}<style>{_BANNER_CSS}{_palette_css(ctx)}</style></head><body>", _banner_header(ctx)]
     body.append(
         f'<div class="post-top wrap">{_tagrow(p, center=True)}<h1>{escape(p.title)}</h1>'
         f'<div class="meta center"><span class="avatar"></span> {escape(ctx.username)} · {p.date_str} · {p.read_minutes} min read</div></div>'
@@ -361,7 +385,7 @@ def _article_markup(ctx):
 def _post_page(ctx, theme_css, header_html, footer_html):
     head = _seo_head(ctx, f"{ctx.post.title} — {ctx.blog_title}", ctx.post.excerpt,
                      og_image=ctx.post.cover_image, canonical=f"{BASE_URL}{ctx.post_url(ctx.post)}")
-    return (f"{head}<style>{theme_css}{_ARTICLE_CSS}</style></head><body>"
+    return (f"{head}<style>{theme_css}{_palette_css(ctx)}{_ARTICLE_CSS}</style></head><body>"
             f"{header_html}{_article_markup(ctx)}{footer_html}</body></html>")
 
 
@@ -386,7 +410,7 @@ def _navlinks(ctx, cls):
 # CLASSIC SIDEBAR — navy/burgundy, PT Serif, main column + widgets
 # ════════════════════════════════════════════════════════════════════════════
 _CS_CSS = """
-:root{--ink:#1d2330;--soft:#646c7e;--line:#e6e8ee;--bg:#fbfbfd;--card:#fff;--accent:#8a1f3d;--navy:#1d2c4a;--paper:#f4f5f8;--hfont:'PT Serif',serif;--bfont:'PT Serif',serif}
+:root{--ink:#1d2330;--soft:#646c7e;--line:#e6e8ee;--bg:#fbfbfd;--card:#fff;--accent:#8a1f3d;--accent-dark:#6a1730;--navy:#1d2c4a;--paper:#f4f5f8;--hfont:'PT Serif',serif;--bfont:'PT Serif',serif}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3,h4{font-family:'PT Serif',serif}a{text-decoration:none;color:inherit}
 .wrap{max-width:1080px;margin:0 auto;padding:0 40px}
@@ -432,7 +456,7 @@ def render_cs_feed(ctx):
     topics="".join(f'<span>{escape(n)}</span>' for n in list(tagset.values())[:8])
     popular="".join(f'<a href="{ctx.post_url(p)}" style="display:block;font-size:14.5px;font-weight:600;padding:9px 0;border-bottom:1px solid var(--line);color:#2a3142">{escape(p.title)}</a>' for p in ctx.posts[:3])
     head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
-    return (f"{head}<style>{_CS_CSS}</style></head><body>{_cs_header(ctx)}"
+    return (f"{head}<style>{_CS_CSS}{_palette_css(ctx)}</style></head><body>{_cs_header(ctx)}"
         f'<div class="wrap layout"><div class="main">{posts_html}</div>'
         f'<aside class="side"><div class="widget"><h4>About</h4><p style="font-size:14px;color:var(--soft);line-height:1.6">{escape(ctx.tagline or ctx.blog_title)}</p></div>'
         f'<div class="widget subbox" id="subscribe"><h4>Subscribe</h4><p>New posts in your inbox.</p><input placeholder="you@email.com"><button>Join the list</button></div>'
@@ -447,7 +471,7 @@ def render_cs_post(ctx):
 # JOURNAL — minimal single column, Spectral, cream
 # ════════════════════════════════════════════════════════════════════════════
 _JN_CSS = """
-:root{--ink:#1c1a17;--soft:#7a746c;--line:#e7e2d9;--bg:#faf8f3;--card:#fff;--accent:#1c1a17;--hfont:'Spectral',serif;--bfont:'Spectral',serif}
+:root{--ink:#1c1a17;--soft:#7a746c;--line:#e7e2d9;--bg:#faf8f3;--card:#fff;--accent:#1c1a17;--accent-dark:#000000;--hfont:'Spectral',serif;--bfont:'Spectral',serif}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Spectral',serif;color:var(--ink);background:var(--bg)}
 a{text-decoration:none;color:inherit}.col{max-width:660px;margin:0 auto;padding:0 40px}
 .jhead{text-align:center;padding:64px 0 16px}.jname{font-weight:800;font-size:32px;letter-spacing:-.4px}
@@ -481,7 +505,7 @@ def render_jn_feed(ctx):
             f'<div class="etags">{tg}{" · " if tg else ""}{p.read_minutes} min read</div></article>')
     if not ctx.posts: entries='<div class="entry" style="text-align:center;color:var(--soft)">No posts yet.</div>'
     head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
-    return (f"{head}<style>{_JN_CSS}</style></head><body>{_jn_header(ctx)}"
+    return (f"{head}<style>{_JN_CSS}{_palette_css(ctx)}</style></head><body>{_jn_header(ctx)}"
         f'<div class="col">{entries}</div>'
         f'<div class="col jsub" id="subscribe"><h3>Subscribe</h3><p>New field notes, about once a week.</p>'
         f'<div class="f"><input placeholder="you@email.com"><button>Join</button></div></div>'
@@ -494,7 +518,7 @@ def render_jn_post(ctx):
 # BENTO — modular tile grid, Space Grotesk, indigo/violet
 # ════════════════════════════════════════════════════════════════════════════
 _BN_CSS = """
-:root{--ink:#15131f;--soft:#6a6580;--line:#eceaf2;--bg:#f6f5fa;--card:#fff;--accent:#7c3aed;--violet:#7c3aed;--indigo:#5b21b6;--coral:#f0598a;--teal:#0ea5a0;--amber:#f5a623;--hfont:'Space Grotesk',sans-serif;--bfont:'DM Sans',sans-serif}
+:root{--ink:#15131f;--soft:#6a6580;--line:#eceaf2;--bg:#f6f5fa;--card:#fff;--accent:#7c3aed;--accent-dark:#5b21b6;--violet:#7c3aed;--indigo:#5b21b6;--coral:#f0598a;--teal:#0ea5a0;--amber:#f5a623;--hfont:'Space Grotesk',sans-serif;--bfont:'DM Sans',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3{font-family:'Space Grotesk',sans-serif}a{text-decoration:none;color:inherit}
 .wrap{max-width:1080px;margin:0 auto;padding:0 40px}
@@ -505,12 +529,12 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}a{text-decoration:none;color:inh
 .tile{border-radius:22px;padding:26px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
 .tile .cat{font-family:'Space Grotesk';font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.85;margin-bottom:8px}
 .tile h2,.tile h3{font-weight:700;line-height:1.15;letter-spacing:-.3px}
-.feat{grid-column:span 2;grid-row:span 2;background:linear-gradient(150deg,var(--violet),var(--indigo));color:#fff}
+.feat{grid-column:span 2;grid-row:span 2;background:linear-gradient(150deg,var(--accent),var(--accent-dark));color:#fff}
 .feat h2{font-size:28px}.feat .ex{font-size:14.5px;opacity:.9;margin-top:10px;line-height:1.5}.feat .meta{font-size:13px;opacity:.85;margin-top:14px}
 .t-img{grid-row:span 2;color:#fff}.t-white{background:#fff;border:1px solid var(--line)}
-.t-white .cat{color:var(--violet);opacity:1}.t-white h3{font-size:18px}.t-white .ex{font-size:13.5px;color:var(--soft);margin-top:6px;line-height:1.5}
+.t-white .cat{color:var(--accent);opacity:1}.t-white h3{font-size:18px}.t-white .ex{font-size:13.5px;color:var(--soft);margin-top:6px;line-height:1.5}
 .t-sub{background:var(--ink);color:#fff;grid-column:span 2}.t-sub h3{font-size:21px}.t-sub p{font-size:13.5px;opacity:.7;margin:8px 0 14px}
-.t-sub .f{display:flex;gap:8px}.t-sub input{flex:1;border:none;border-radius:10px;padding:11px 13px;font-size:13.5px}.t-sub button{background:var(--violet);color:#fff;border:none;border-radius:10px;padding:0 18px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:'Space Grotesk'}
+.t-sub .f{display:flex;gap:8px}.t-sub input{flex:1;border:none;border-radius:10px;padding:11px 13px;font-size:13.5px}.t-sub button{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:0 18px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:'Space Grotesk'}
 .t-tags{background:#fff;border:1px solid var(--line)}.t-tags h3{font-size:15px;margin-bottom:12px}.t-tags .ts{display:flex;flex-wrap:wrap;gap:7px}.t-tags .ts span{font-size:12px;font-weight:600;color:var(--soft);background:var(--bg);padding:6px 11px;border-radius:20px}
 .bfoot{border-top:1px solid var(--line);padding:34px 0;display:flex;justify-content:space-between;align-items:center}
 .bfoot .social{display:flex;gap:9px}.bfoot .social a{width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--soft);font-size:14px}
@@ -547,7 +571,7 @@ def render_bn_feed(ctx):
         f'<div class="tile t-sub" id="subscribe"><h3>Get the next one</h3><p>New notes about once a week.</p>'
         f'<div class="f"><input placeholder="you@email.com"><button>Join</button></div></div>')
     head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
-    return (f"{head}<style>{_BN_CSS}</style></head><body>{_bn_header(ctx)}"
+    return (f"{head}<style>{_BN_CSS}{_palette_css(ctx)}</style></head><body>{_bn_header(ctx)}"
         f'<div class="wrap"><div class="grid">{tiles}</div></div>{_bn_footer(ctx)}</body></html>')
 def render_bn_post(ctx):
     return _post_page(ctx,_BN_CSS,_bn_header(ctx),_bn_footer(ctx))
@@ -557,14 +581,14 @@ def render_bn_post(ctx):
 # CINEMATIC — dark premium, glowing gradient hero, Sora
 # ════════════════════════════════════════════════════════════════════════════
 _CN_CSS = """
-:root{--bg:#0a0a12;--card:#13131f;--ink:#f3f2f8;--soft:#9a98ad;--line:#23222f;--accent:#a855f7;--g1:#a855f7;--g2:#ec4899;--g3:#22d3ee;--hfont:'Sora',sans-serif;--bfont:'Inter',sans-serif}
+:root{--bg:#0a0a12;--card:#13131f;--ink:#f3f2f8;--soft:#9a98ad;--line:#23222f;--accent:#a855f7;--accent-dark:#7c3aed;--g1:#a855f7;--g2:#ec4899;--g3:#22d3ee;--hfont:'Sora',sans-serif;--bfont:'Inter',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3{font-family:'Sora',sans-serif}a{text-decoration:none;color:inherit}
 .wrap{max-width:1080px;margin:0 auto;padding:0 40px}
 .chead{display:flex;align-items:center;height:80px;gap:24px;border-bottom:1px solid var(--line)}
 .cname{font-weight:800;font-size:22px;background:linear-gradient(110deg,#fff,#c9c7d6);-webkit-background-clip:text;background-clip:text;color:transparent}
 .cnav{margin-left:auto;display:flex;gap:4px;align-items:center}.cnav a{font-size:14.5px;font-weight:500;color:var(--soft);padding:9px 14px;border-radius:9px}.cnav a:hover{color:#fff}
-.cnav .sub{background:linear-gradient(110deg,var(--g1),var(--g2));color:#fff!important;font-weight:600;padding:10px 18px!important;border-radius:10px}
+.cnav .sub{background:linear-gradient(110deg,var(--accent),var(--accent-dark));color:#fff!important;font-weight:600;padding:10px 18px!important;border-radius:10px}
 .hero{position:relative;border-radius:24px;overflow:hidden;margin:34px 0 14px;min-height:380px;display:flex;align-items:flex-end;padding:48px;background:radial-gradient(120% 120% at 80% 10%,rgba(168,85,247,.5),transparent 50%),radial-gradient(120% 120% at 10% 90%,rgba(236,72,153,.42),transparent 55%),linear-gradient(135deg,#1a1430,#0c0c18)}
 .hero::after{content:"";position:absolute;inset:0;border-radius:24px;border:1px solid rgba(255,255,255,.08)}
 .hero .in{position:relative;max-width:640px}.hero .cat{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--g3)}
@@ -572,13 +596,13 @@ h1,h2,h3{font-family:'Sora',sans-serif}a{text-decoration:none;color:inherit}
 .hero .meta{font-size:13.5px;color:var(--soft);margin-top:18px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:34px 0 50px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}.card .img{aspect-ratio:16/10}
-.card .cbody{padding:20px}.card .cat{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g1)}
+.card .cbody{padding:20px}.card .cat{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 .card h3{font-weight:700;font-size:18px;line-height:1.25;margin:8px 0 8px}.card .ex{font-size:13.5px;color:var(--soft);line-height:1.5}.card .m{font-size:12px;color:#6a6880;margin-top:12px}
 .card .tagrow{display:none}
 .subband{border-radius:20px;padding:44px;text-align:center;background:radial-gradient(100% 140% at 50% 0%,rgba(168,85,247,.3),transparent 60%),var(--card);border:1px solid var(--line);margin-bottom:40px}
 .subband h3{font-weight:800;font-size:26px}.subband p{color:var(--soft);font-size:15px;margin:10px 0 22px}
 .subband .f{display:flex;gap:9px;max-width:430px;margin:0 auto}.subband input{flex:1;background:#0a0a12;border:1px solid var(--line);border-radius:11px;padding:14px 16px;color:#fff;font-size:14px}
-.subband button{background:linear-gradient(110deg,var(--g1),var(--g2));color:#fff;border:none;border-radius:11px;padding:0 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Sora'}
+.subband button{background:linear-gradient(110deg,var(--accent),var(--accent-dark));color:#fff;border:none;border-radius:11px;padding:0 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Sora'}
 .cfoot{border-top:1px solid var(--line);padding:34px 0;display:flex;justify-content:space-between;align-items:center}
 .cfoot .social{display:flex;gap:9px}.cfoot .social a{width:38px;height:38px;border-radius:11px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--soft);font-size:14px}
 .powered{font-size:13px;color:var(--soft)}.powered .mk{color:#fff;font-weight:700;background:var(--card);border:1px solid var(--line);padding:7px 12px;border-radius:9px;margin-left:5px;display:inline-flex;align-items:center;gap:6px}
@@ -599,7 +623,7 @@ def render_cn_feed(ctx):
         hero=f'<a href="{ctx.post_url(f)}" style="display:block">{hero}</a>'
     cards=_cards_html(ctx,ctx.posts[1:],"card","img")
     head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
-    return (f"{head}<style>{_CN_CSS}</style></head><body>{_cn_header(ctx)}"
+    return (f"{head}<style>{_CN_CSS}{_palette_css(ctx)}</style></head><body>{_cn_header(ctx)}"
         f'<div class="wrap">{hero}<div class="grid">{cards}</div>'
         f'<div class="subband" id="subscribe"><h3>Get the next one in your inbox</h3><p>New posts, straight to your inbox.</p>'
         f'<div class="f"><input placeholder="you@email.com"><button>Subscribe</button></div></div></div>{_cn_footer(ctx)}</body></html>')
@@ -611,7 +635,7 @@ def render_cn_post(ctx):
 # GLASS — frosted cards on pastel mesh, Outfit, violet
 # ════════════════════════════════════════════════════════════════════════════
 _GL_CSS = """
-:root{--ink:#1a1830;--soft:#5e5a78;--line:rgba(255,255,255,.55);--card:rgba(255,255,255,.45);--bg:#eef2ff;--accent:#6d28d9;--hfont:'Outfit',sans-serif;--bfont:'Inter',sans-serif}
+:root{--ink:#1a1830;--soft:#5e5a78;--line:rgba(255,255,255,.55);--card:rgba(255,255,255,.45);--bg:#eef2ff;--accent:#6d28d9;--accent-dark:#5b21b6;--hfont:'Outfit',sans-serif;--bfont:'Inter',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;color:var(--ink);min-height:100vh;background:radial-gradient(50% 50% at 12% 18%,#b8e6ff 0,transparent 60%),radial-gradient(45% 45% at 88% 12%,#ffd6ec 0,transparent 55%),radial-gradient(55% 55% at 75% 85%,#d7c9ff 0,transparent 60%),radial-gradient(50% 50% at 20% 92%,#c7f5e3 0,transparent 55%),linear-gradient(135deg,#eef2ff,#fdf2f8);background-attachment:fixed}
 h1,h2,h3{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
@@ -658,7 +682,7 @@ def render_gl_feed(ctx):
             f'<div class="cbody"><div class="cat">{escape(cat)}</div><h3>{escape(p.title)}</h3>'
             f'<p class="ex">{escape(p.excerpt)}</p><div class="m">{p.date_str} · {p.read_minutes} min</div></div></a>')
     head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
-    return (f"{head}<style>{_GL_CSS}</style></head><body>{_gl_header(ctx)}"
+    return (f"{head}<style>{_GL_CSS}{_palette_css(ctx)}</style></head><body>{_gl_header(ctx)}"
         f'<div class="wrap"><div class="ghero"><div class="k">{escape(ctx.tagline or "")}</div><h1>{escape(ctx.blog_title)}</h1></div>'
         f'{body}<div class="grid">{cards}</div>'
         f'<div class="gsub glass" id="subscribe"><h3>Get the next one in your inbox</h3><p>New posts, straight to your inbox.</p>'

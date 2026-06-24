@@ -55431,6 +55431,7 @@ _BLOG_INDEX_DDL = [
     "CREATE INDEX IF NOT EXISTS idx_blog_comments_status ON blog_comments(status)",
     "CREATE INDEX IF NOT EXISTS idx_blog_media_blog ON blog_media(blog_id)",
     "CREATE INDEX IF NOT EXISTS idx_blog_post_views_post ON blog_post_views(post_id)",
+    "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS palette VARCHAR DEFAULT 'default'",
 ]
 
 
@@ -55533,6 +55534,7 @@ def _blog_context(blog, member, db, base_path):
         blog_title=blog.title, tagline=blog.tagline or "", slug=blog.subdomain_slug,
         username=member.username if member else "member",
         theme=blog.theme or "banner", font=blog.font or "classic-serif",
+        palette=getattr(blog, "palette", None) or "default",
         nav=nav, social=social, base_path=base_path,
     )
 
@@ -55555,6 +55557,9 @@ def blog_public_feed(slug: str, request: Request, db: Session = Depends(get_db))
     _pv = request.query_params.get("theme")
     if _pv and _pv in _blogrender.THEMES:
         ctx.theme = _pv
+    _pp = request.query_params.get("palette")
+    if _pp and (_pp == "default" or _pp in _blogrender.PALETTES):
+        ctx.palette = _pp
     posts = (db.query(BlogPost)
                .filter(BlogPost.blog_id == blog.id, BlogPost.status == "published")
                .order_by(BlogPost.published_at.desc().nullslast(),
@@ -55581,6 +55586,9 @@ def blog_public_post(slug: str, post_slug: str, request: Request, db: Session = 
     _pv = request.query_params.get("theme")
     if _pv and _pv in _blogrender.THEMES:
         ctx.theme = _pv
+    _pp = request.query_params.get("palette")
+    if _pp and (_pp == "default" or _pp in _blogrender.PALETTES):
+        ctx.palette = _pp
     ctx.post = _blog_post_view(post, _blog_tags_for([post.id], db))
     ua = request.headers.get("user-agent", "").lower()
     _bots = ("googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot",

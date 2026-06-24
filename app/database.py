@@ -5808,6 +5808,7 @@ class Blog(Base):
     subdomain_slug     = Column(String, nullable=False, unique=True, index=True)
     theme              = Column(String, default="banner")          # see spec §4 launch set
     font               = Column(String, default="classic-serif")
+    palette            = Column(String, default="default")        # accent palette (see blog_render.PALETTES)
     custom_domain_id   = Column(Integer, ForeignKey("custom_domains.id"), nullable=True, index=True)
     social_links       = Column(Text, nullable=True)               # JSON string {instagram,x,youtube,tiktok,linkedin}
     comments_enabled   = Column(Boolean, default=True)
