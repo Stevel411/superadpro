@@ -160,7 +160,7 @@ export default function BlogEditor({ kind = 'post' }) {
               placeholder={isPage ? "Page title" : "Post title"}
               style={{ width: '100%', border: 'none', outline: 'none', fontFamily: sora, fontSize: 38, fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.12, color: C.ink, marginBottom: 20 }}
             />
-            {ready && <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} placeholder="Write your post… use the toolbar for headings, quotes, images and links." />}
+            {ready && <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} richBlocks placeholder="Write your post… use the toolbar for headings, callouts, video, buttons, images and links." />}
           </div>
         </div>
 

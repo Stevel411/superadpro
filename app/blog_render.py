@@ -32,14 +32,16 @@ import json
 _SANITIZE_TAGS = {
     "p", "br", "hr", "h1", "h2", "h3", "h4", "strong", "b", "em", "i", "u",
     "s", "strike", "del", "ul", "ol", "li", "blockquote", "pre", "code",
-    "a", "img", "span", "figure", "figcaption",
+    "a", "img", "span", "figure", "figcaption", "div", "iframe",
 }
 _SANITIZE_ATTRS = {
-    "a": ["href", "title", "target", "rel"],
-    "img": ["src", "alt", "title", "width", "height"],
-    "span": ["class"], "p": ["class"],
+    "a": ["href", "title", "target", "rel", "class"],
+    "img": ["src", "alt", "title", "width", "height", "loading"],
+    "span": ["class"], "p": ["class"], "div": ["class", "data-type"],
     "h1": ["class"], "h2": ["class"], "h3": ["class"],
     "code": ["class"], "pre": ["class"],
+    "iframe": ["src", "width", "height", "frameborder", "allow",
+               "allowfullscreen", "loading", "title"],
 }
 _SANITIZE_PROTOCOLS = ["http", "https", "mailto"]
 try:
@@ -49,16 +51,50 @@ except Exception:
     _HAVE_BLEACH = False
 
 
+import re as _re
+
+# Only these hosts may appear in an <iframe src>. Even though the editor only
+# ever inserts nocookie YouTube / Vimeo embeds, the post body is also accepted
+# raw via the API, so we re-check server-side: any iframe whose src host is not
+# allowlisted is dropped entirely. This is what makes allowing <iframe> safe.
+_ALLOWED_IFRAME_HOSTS = (
+    "www.youtube-nocookie.com", "youtube-nocookie.com",
+    "www.youtube.com", "youtube.com", "player.vimeo.com",
+)
+
+
+def _strip_unsafe_iframes(html):
+    if "<iframe" not in html.lower():
+        return html
+
+    def _repl(m):
+        tag = m.group(0)
+        sm = _re.search(r'src\s*=\s*["\']([^"\']+)["\']', tag, _re.I)
+        if not sm:
+            return ""
+        src = sm.group(1)
+        host = _re.sub(r'^https?://', '', src).split('/')[0].split(':')[0].lower()
+        return tag if host in _ALLOWED_IFRAME_HOSTS else ""
+
+    return _re.sub(
+        r'<iframe\b[^>]*>.*?</iframe>|<iframe\b[^>]*/?>',
+        _repl, html, flags=_re.I | _re.S,
+    )
+
+
 def sanitize_html(html):
-    """Strip scripts/handlers/unsafe URLs; keep a safe formatting allowlist."""
+    """Strip scripts/handlers/unsafe URLs; keep a safe formatting allowlist.
+    Allows a small set of content-block markup (callout div, CTA link, embed
+    iframe) and then domain-restricts any iframe to known video hosts."""
     if not html:
         return ""
     if not _HAVE_BLEACH:
         return escape(html)
-    return _bleach.clean(
+    cleaned = _bleach.clean(
         html, tags=_SANITIZE_TAGS, attributes=_SANITIZE_ATTRS,
         protocols=_SANITIZE_PROTOCOLS, strip=True,
     )
+    return _strip_unsafe_iframes(cleaned)
 
 BASE_URL = "https://www.superadpro.com"
 FONT_LINK = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
@@ -378,7 +414,7 @@ def render_banner_post(ctx):
     _t = p.seo_title if (p.seo_title and p.seo_title != p.title) else f"{p.title} — {ctx.blog_title}"
     head = _seo_head(ctx, _t, (p.seo_description or p.excerpt),
                      og_image=(p.og_image or p.cover_image), canonical=f"{ctx.base_url}{ctx.post_url(p)}")
-    body = [f"{head}<style>{_BANNER_CSS}{_palette_css(ctx)}</style></head><body>", _banner_header(ctx)]
+    body = [f"{head}<style>{_BANNER_CSS}{_palette_css(ctx)}{_BLOCKS_CSS}</style></head><body>", _banner_header(ctx)]
     body.append(
         f'<div class="post-top wrap">{_tagrow(p, center=True)}<h1>{escape(p.title)}</h1>'
         f'<div class="meta center"><span class="avatar"></span> {escape(ctx.username)} · {p.date_str} · {p.read_minutes} min read</div></div>'
@@ -426,6 +462,23 @@ def render_blog_post(ctx) -> str:
 # themes. Each theme defines :root tokens (--ink/--soft/--line/--bg/--card/
 # --accent/--hfont/--bfont); this adapts to them (incl. dark Cinematic).
 # ════════════════════════════════════════════════════════════════════════════
+_BLOCKS_CSS = """
+.bn-callout{display:flex;gap:13px;padding:16px 18px;border-radius:12px;margin:22px 0;border-left:4px solid var(--accent);background:#f0f7ff;background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.bn-callout::before{content:'i';flex:0 0 22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-style:italic;display:grid;place-items:center;font-size:14px;margin-top:1px}
+.bn-callout>*{margin:0}
+.bn-callout[data-type="tip"]{border-left-color:#16a34a;background:#f0fdf4;background:color-mix(in srgb,#16a34a 8%,transparent)}
+.bn-callout[data-type="tip"]::before{content:'\2726';background:#16a34a;font-style:normal}
+.bn-callout[data-type="warning"]{border-left-color:#d97706;background:#fffbeb;background:color-mix(in srgb,#d97706 9%,transparent)}
+.bn-callout[data-type="warning"]::before{content:'!';background:#d97706;font-style:normal}
+.bn-callout[data-type="success"]{border-left-color:#7c3aed;background:#faf5ff;background:color-mix(in srgb,#7c3aed 8%,transparent)}
+.bn-callout[data-type="success"]::before{content:'\2713';background:#7c3aed;font-style:normal}
+.bn-embed{position:relative;padding-bottom:56.25%;height:0;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
+.bn-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.bn-btn-wrap{margin:26px 0;text-align:center}
+.bn-btn{display:inline-block;padding:13px 30px;background:var(--accent);color:#fff;border-radius:9px;font-weight:700;text-decoration:none;font-family:var(--hfont)}
+.bn-btn:hover{filter:brightness(1.06)}
+"""
+
 _ARTICLE_CSS = """
 .art-top{text-align:center;padding:52px 24px 24px;max-width:1080px;margin:0 auto}
 .art-top h1{font-family:var(--hfont);font-weight:800;font-size:44px;line-height:1.12;letter-spacing:-.5px;color:var(--ink);max-width:18ch;margin:16px auto}
@@ -506,7 +559,7 @@ def _post_page(ctx, theme_css, header_html, footer_html):
     _t = _p.seo_title if (_p.seo_title and _p.seo_title != _p.title) else f"{_p.title} — {ctx.blog_title}"
     head = _seo_head(ctx, _t, (_p.seo_description or _p.excerpt),
                      og_image=(_p.og_image or _p.cover_image), canonical=f"{ctx.base_url}{ctx.post_url(_p)}")
-    return (f"{head}<style>{theme_css}{_palette_css(ctx)}{_ARTICLE_CSS}</style></head><body>"
+    return (f"{head}<style>{theme_css}{_palette_css(ctx)}{_ARTICLE_CSS}{_BLOCKS_CSS}</style></head><body>"
             f"{header_html}{_article_markup(ctx)}{footer_html}</body></html>")
 
 

@@ -6,20 +6,29 @@ import ImageExt from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Callout, VideoEmbed, CtaButton, toEmbedUrl } from './blogBlocks';
 import { useState } from 'react';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered,
   Heading1, Heading2, Heading3, Quote, Code, Link as LinkIcon, Image,
-  AlignLeft, AlignCenter, AlignRight, Undo, Redo, Minus
+  AlignLeft, AlignCenter, AlignRight, Undo, Redo, Minus,
+  Info, Video, Megaphone
 } from 'lucide-react';
 
-export default function RichTextEditor({ content, onChange, placeholder, onImageUpload }) {
+export default function RichTextEditor({ content, onChange, placeholder, onImageUpload, richBlocks }) {
 
   var { t } = useTranslation();
   var [linkUrl, setLinkUrl] = useState('');
   var [showLinkInput, setShowLinkInput] = useState(false);
   var [showImageInput, setShowImageInput] = useState(false);
   var [imageUrl, setImageUrl] = useState('');
+  var [showEmbed, setShowEmbed] = useState(false);
+  var [embedUrl, setEmbedUrl] = useState('');
+  var [embedErr, setEmbedErr] = useState('');
+  var [showCta, setShowCta] = useState(false);
+  var [ctaLabel, setCtaLabel] = useState('');
+  var [ctaUrl, setCtaUrl] = useState('');
+  var [showCallout, setShowCallout] = useState(false);
 
   var editor = useEditor({
     extensions: [
@@ -30,6 +39,7 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
       ImageExt.configure({ inline: false, allowBase64: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Underline,
+      Callout, VideoEmbed, CtaButton,
       Placeholder.configure({ placeholder: placeholder || 'Start writing your lesson content...' }),
     ],
     content: content || '',
@@ -71,6 +81,22 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
     setImageUrl('');
   }
 
+  function addEmbed() {
+    var src = toEmbedUrl(embedUrl);
+    if (!src) { setEmbedErr('Paste a YouTube or Vimeo link'); return; }
+    editor.chain().focus().setVideoEmbed(src).run();
+    setShowEmbed(false); setEmbedUrl(''); setEmbedErr('');
+  }
+  function addCta() {
+    var url = (ctaUrl || '').trim();
+    if (url && !/^https?:\/\//i.test(url) && url.charAt(0) !== '/') url = 'https://' + url;
+    editor.chain().focus().setCtaButton({ href: url || '#', label: (ctaLabel || '').trim() || 'Learn more' }).run();
+    setShowCta(false); setCtaLabel(''); setCtaUrl('');
+  }
+  function insertCallout(type) {
+    editor.chain().focus().toggleCallout({ type: type }).run();
+    setShowCallout(false);
+  }
   async function handleImageUpload(e) {
     var file = e.target.files[0];
     if (!file) return;
@@ -131,6 +157,14 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         {/* Image */}
         {btn(false, function(){setShowImageInput(!showImageInput);setShowLinkInput(false);}, Image, 'Image')}
 
+        {richBlocks && (<>
+        <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
+        {/* Content blocks */}
+        {btn(editor.isActive('callout'), function(){setShowCallout(!showCallout);setShowEmbed(false);setShowCta(false);}, Info, 'Callout')}
+        {btn(false, function(){setShowEmbed(!showEmbed);setShowCallout(false);setShowCta(false);setEmbedErr('');}, Video, 'Embed video')}
+        {btn(false, function(){setShowCta(!showCta);setShowCallout(false);setShowEmbed(false);}, Megaphone, 'Button')}
+        </>)}
+
         <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
 
         {/* Undo/Redo */}
@@ -166,6 +200,44 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         </div>
       )}
 
+      {/* Callout type popover */}
+      {showCallout && (
+        <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid #e8ecf2',background:'#f5f3ff',flexWrap:'wrap',alignItems:'center'}}>
+          <span style={{fontSize:11,fontWeight:700,color:'#64748b'}}>Callout:</span>
+          {[['info','Info','#0ea5e9'],['tip','Tip','#16a34a'],['warning','Warning','#d97706'],['success','Success','#7c3aed']].map(function(c){
+            return <button key={c[0]} onClick={function(){insertCallout(c[0]);}} style={{padding:'6px 12px',borderRadius:6,border:'1px solid '+c[2],background:'#fff',color:c[2],fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{c[1]}</button>;
+          })}
+          <button onClick={function(){setShowCallout(false);}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit',marginLeft:'auto'}}>Cancel</button>
+        </div>
+      )}
+
+      {/* Video embed popover */}
+      {showEmbed && (
+        <div style={{padding:'8px 12px',borderBottom:'1px solid #e8ecf2',background:'#eff6ff'}}>
+          <div style={{display:'flex',gap:6}}>
+            <input value={embedUrl} onChange={function(e){setEmbedUrl(e.target.value);setEmbedErr('');}} placeholder="Paste a YouTube or Vimeo link" autoFocus
+              onKeyDown={function(e){if(e.key==='Enter')addEmbed();}}
+              style={{flex:1,padding:'6px 10px',border:'1px solid #e2e8f0',borderRadius:6,fontSize:12,fontFamily:'inherit',outline:'none'}}/>
+            <button onClick={addEmbed} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#0ea5e9',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Embed</button>
+            <button onClick={function(){setShowEmbed(false);setEmbedUrl('');setEmbedErr('');}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+          </div>
+          {embedErr && <div style={{fontSize:11,color:'#b42318',marginTop:5}}>{embedErr}</div>}
+        </div>
+      )}
+
+      {/* CTA button popover */}
+      {showCta && (
+        <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid #e8ecf2',background:'#fdf4ff',flexWrap:'wrap'}}>
+          <input value={ctaLabel} onChange={function(e){setCtaLabel(e.target.value);}} placeholder="Button text" autoFocus
+            style={{flex:'1 1 130px',padding:'6px 10px',border:'1px solid #e2e8f0',borderRadius:6,fontSize:12,fontFamily:'inherit',outline:'none'}}/>
+          <input value={ctaUrl} onChange={function(e){setCtaUrl(e.target.value);}} placeholder="Link URL"
+            onKeyDown={function(e){if(e.key==='Enter')addCta();}}
+            style={{flex:'2 1 190px',padding:'6px 10px',border:'1px solid #e2e8f0',borderRadius:6,fontSize:12,fontFamily:'inherit',outline:'none'}}/>
+          <button onClick={addCta} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#7c3aed',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Add</button>
+          <button onClick={function(){setShowCta(false);setCtaLabel('');setCtaUrl('');}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+        </div>
+      )}
+
       {/* Editor content area */}
       <EditorContent editor={editor} />
 
@@ -195,6 +267,19 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         .tiptap img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
         .editor-link { color: #0ea5e9; text-decoration: underline; cursor: pointer; }
         .tiptap p.is-editor-empty:first-child::before { color: #94a3b8; content: attr(data-placeholder); float: left; height: 0; pointer-events: none; }
+        .tiptap .bn-callout { display: flex; gap: 11px; padding: 14px 16px; border-radius: 10px; margin: 16px 0; border-left: 4px solid #0ea5e9; background: #f0f9ff; }
+        .tiptap .bn-callout::before { content: 'i'; flex: 0 0 20px; height: 20px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 800; font-style: italic; display: grid; place-items: center; font-size: 13px; }
+        .tiptap .bn-callout > * { margin: 0; }
+        .tiptap .bn-callout[data-type="tip"] { border-left-color: #16a34a; background: #f0fdf4; }
+        .tiptap .bn-callout[data-type="tip"]::before { content: '✦'; background: #16a34a; font-style: normal; }
+        .tiptap .bn-callout[data-type="warning"] { border-left-color: #d97706; background: #fffbeb; }
+        .tiptap .bn-callout[data-type="warning"]::before { content: '!'; background: #d97706; font-style: normal; }
+        .tiptap .bn-callout[data-type="success"] { border-left-color: #7c3aed; background: #faf5ff; }
+        .tiptap .bn-callout[data-type="success"]::before { content: '✓'; background: #7c3aed; font-style: normal; }
+        .tiptap .bn-embed { position: relative; padding-bottom: 56.25%; height: 0; margin: 18px 0; border-radius: 10px; overflow: hidden; background: #000; }
+        .tiptap .bn-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        .tiptap .bn-btn-wrap { margin: 18px 0; }
+        .tiptap .bn-btn { display: inline-block; padding: 11px 22px; background: #0ea5e9; color: #fff; border-radius: 8px; font-weight: 700; text-decoration: none; }
       `}</style>
     </div>
   );
