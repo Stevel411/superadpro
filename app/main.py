@@ -56969,6 +56969,121 @@ async def api_blog_post_newsletter(post_id: int, request: Request, db: Session =
     return {"ok": True, "job_id": job_id, "total": total, "status": "queued"}
 
 
+# ── AI writing assist ────────────────────────────────────────────────────────
+# Wire the platform's text AI (Grok 4.1 Fast, Haiku fallback) into the blog
+# editor so members can draft, rewrite, tighten, expand, continue, outline, and
+# generate titles / meta descriptions without leaving the page. One endpoint,
+# mode-dispatched. Partner/Founder only (the editor is is_pro-gated) and rate
+# limited to keep provider cost bounded.
+
+_AI_BLOG_MODES = {
+    "improve":  ("Improve the clarity, flow and impact of the passage below while keeping "
+                 "its meaning, voice and roughly its length. Return ONLY the improved prose, "
+                 "no preamble, no quotes, no markdown fences.", 1200),
+    "rewrite":  ("Rewrite the passage below in a fresh way while preserving its meaning and "
+                 "intent. Return ONLY the rewritten prose, no preamble.", 1200),
+    "shorten":  ("Make the passage below more concise while keeping the key points and voice. "
+                 "Return ONLY the shortened prose, no preamble.", 900),
+    "lengthen": ("Expand the passage below with more detail, examples and explanation while "
+                 "keeping the same voice and topic. Return ONLY the expanded prose, no preamble.", 1400),
+    "continue": ("Continue writing this blog post naturally from where it ends. Match the "
+                 "voice, tone and topic. Write one or two short paragraphs. Return ONLY the "
+                 "continuation prose, no preamble.", 900),
+    "fix":      ("Fix spelling, grammar and punctuation in the passage below. Do not change "
+                 "the meaning, voice or style. Return ONLY the corrected prose.", 1200),
+    "outline":  ("Create a clear, logical blog-post outline for the topic below. Return HTML "
+                 "using <h2> for section headings and <ul><li> for the points under each. "
+                 "Return ONLY the HTML, no preamble, no code fences.", 900),
+    "draft":    ("Write a complete, engaging and well-structured blog post draft on the topic "
+                 "below. Use HTML: <h2> subheadings, <p> paragraphs, and <ul><li> lists where "
+                 "useful. Around 400-600 words, in a warm, credible voice. Return ONLY the "
+                 "HTML body, no preamble, no <html>/<body> wrapper, no code fences.", 2200),
+    "titles":   ("Suggest 6 compelling, varied, specific blog-post titles for the topic or "
+                 "content below. Avoid clickbait. Return them as a plain list, one title per "
+                 "line, with no numbering, bullets or quotes.", 500),
+    "meta":     ("Write a single compelling SEO meta description for the blog post below. "
+                 "Maximum 155 characters, active voice, includes the main idea, no quotes. "
+                 "Return ONLY the description text on one line.", 200),
+}
+
+
+def _ai_clean(text: str) -> str:
+    """Strip code fences / stray wrappers the model sometimes adds."""
+    t = (text or "").strip()
+    if t.startswith("```"):
+        t = _re.sub(r"^```[a-zA-Z]*\n?", "", t)
+        t = _re.sub(r"\n?```$", "", t).strip()
+    return t
+
+
+@app.post("/api/blog/ai/assist")
+@limiter.limit("30/minute")
+async def api_blog_ai_assist(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    """AI writing assist for the blog editor. Body: {mode, text?, topic?}.
+
+    Returns {result: "..."} for prose/HTML modes, or {results: [...]} for the
+    'titles' mode. Errors return a friendly message, never a stack trace.
+    """
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "AI writing assist is included with Partner membership."},
+                            status_code=403)
+
+    mode = (payload.get("mode") or "").strip()
+    spec = _AI_BLOG_MODES.get(mode)
+    if not spec:
+        return JSONResponse({"error": "Unknown assist mode"}, status_code=400)
+    instruction, max_tokens = spec
+
+    text = (payload.get("text") or "").strip()
+    topic = (payload.get("topic") or "").strip()
+    # Cap input so a huge post can't blow the context / cost.
+    text = text[:8000]
+    topic = topic[:500]
+
+    if mode in ("draft", "outline", "titles"):
+        if not topic and not text:
+            return JSONResponse({"error": "Add a title or some text first so I have a topic to work from."},
+                                status_code=400)
+        subject = topic or text[:500]
+        prompt = f"{instruction}\n\nTOPIC:\n{subject}"
+    elif mode == "meta":
+        subject = (topic + "\n\n" + text).strip()
+        if not subject:
+            return JSONResponse({"error": "Write some content first."}, status_code=400)
+        prompt = f"{instruction}\n\nBLOG POST:\n{subject[:4000]}"
+    else:
+        if not text:
+            return JSONResponse({"error": "Select some text first, or write a little to work from."},
+                                status_code=400)
+        prompt = f"{instruction}\n\nPASSAGE:\n{text}"
+
+    try:
+        from .grok_service import ai_text_generate
+        out = await ai_text_generate(
+            prompt=prompt,
+            system="You are an expert blog writing assistant. You write clean, engaging, "
+                   "credible prose. You follow the requested output format exactly and never "
+                   "add preamble, sign-offs or meta-commentary.",
+            max_tokens=max_tokens, temperature=0.7)
+        out = _ai_clean(out)
+        if not out:
+            return JSONResponse({"error": "No suggestion came back — please try again."}, status_code=502)
+        if mode == "titles":
+            lines = [l.strip(" -•\t").strip() for l in out.splitlines()]
+            results = [l for l in lines if l][:6]
+            return {"ok": True, "results": results}
+        if mode == "meta":
+            out = out.splitlines()[0].strip().strip('"')[:160]
+        return {"ok": True, "result": out}
+    except Exception as e:
+        logger.error(f"[blog-ai] {mode} failed: {e}")
+        return JSONResponse({"error": "The writing assistant is unavailable right now. Please try again in a moment."},
+                            status_code=503)
+
+
 def _sub_result_page(msg, slug, ok=True):
     from html import escape as _esc
     icon = "✓" if ok else "!"

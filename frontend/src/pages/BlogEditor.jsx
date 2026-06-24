@@ -12,7 +12,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
 import {
-  ArrowLeft, Eye, Trash2, Image as ImageIcon, X, Plus, Check,
+  ArrowLeft, Eye, Trash2, Image as ImageIcon, X, Plus, Check, Sparkles,
 } from 'lucide-react';
 
 const C = {
@@ -47,6 +47,9 @@ export default function BlogEditor({ kind = 'post' }) {
   const [seoDescription, setSeoDescription] = useState('');
   const [ogImage, setOgImage] = useState('');
   const [ogUploading, setOgUploading] = useState(false);
+  const [aiTitles, setAiTitles] = useState([]);
+  const [aiBusy, setAiBusy] = useState('');
+  const [aiErr, setAiErr] = useState('');
   const bodyRef = useRef('');
 
   useEffect(() => {
@@ -114,6 +117,23 @@ export default function BlogEditor({ kind = 'post' }) {
     try { setOgImage(await uploadImage(file)); } catch (err) { setErr(err.message); }
     setOgUploading(false);
   };
+  const stripHtml = (h) => (h || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const suggestTitles = async () => {
+    setAiBusy('titles'); setAiErr('');
+    try {
+      const r = await apiPost('/api/blog/ai/assist', { mode: 'titles', topic: title, text: stripHtml(bodyRef.current).slice(0, 2000) });
+      setAiTitles(r.results || []);
+    } catch (e) { setAiErr(e.message || 'AI unavailable'); }
+    setAiBusy('');
+  };
+  const generateMeta = async () => {
+    setAiBusy('meta'); setAiErr('');
+    try {
+      const r = await apiPost('/api/blog/ai/assist', { mode: 'meta', topic: title, text: stripHtml(bodyRef.current).slice(0, 4000) });
+      if (r.result) setSeoDescription(r.result);
+    } catch (e) { setAiErr(e.message || 'AI unavailable'); }
+    setAiBusy('');
+  };
   const onCover = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -160,6 +180,27 @@ export default function BlogEditor({ kind = 'post' }) {
               placeholder={isPage ? "Page title" : "Post title"}
               style={{ width: '100%', border: 'none', outline: 'none', fontFamily: sora, fontSize: 38, fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.12, color: C.ink, marginBottom: 20 }}
             />
+            {!isPage && (
+              <div style={{ marginTop: -8, marginBottom: 20 }}>
+                <button onClick={suggestTitles} disabled={aiBusy === 'titles'}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: sora, fontSize: 12.5, fontWeight: 600, color: '#6d28d9', background: '#f5f3ff', border: '1px solid #ede9fe', borderRadius: 8, padding: '7px 12px', cursor: aiBusy === 'titles' ? 'default' : 'pointer' }}>
+                  <Sparkles size={13} /> {aiBusy === 'titles' ? 'Thinking…' : 'Suggest titles'}
+                </button>
+                {aiErr && <span style={{ marginLeft: 10, fontSize: 12, color: '#b42318' }}>{aiErr}</span>}
+                {aiTitles.length > 0 && (
+                  <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {aiTitles.map((tt, i) => (
+                      <div key={i} onClick={() => { setTitle(tt); setAiTitles([]); }}
+                        style={{ cursor: 'pointer', fontSize: 14, color: C.ink2, padding: '9px 13px', background: '#fff', border: `1px solid ${C.line}`, borderRadius: 8, transition: 'border-color .12s' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#a78bfa')}
+                        onMouseLeave={(e) => (e.currentTarget.style.borderColor = C.line)}>
+                        {tt}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             {ready && <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} richBlocks placeholder="Write your post… use the toolbar for headings, callouts, video, buttons, images and links." />}
           </div>
         </div>
@@ -201,7 +242,10 @@ export default function BlogEditor({ kind = 'post' }) {
             <input value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} maxLength={70}
               placeholder={title || 'Defaults to the post title'} style={seoInput} />
             <div style={seoHint}>{(seoTitle || title || '').length}/70 — the clickable headline in Google.</div>
-            <div style={{ ...seoLbl, marginTop: 13 }}>Meta description</div>
+            <div style={{ ...seoLbl, marginTop: 13, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>Meta description</span>
+              <span onClick={generateMeta} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: '#6d28d9', cursor: aiBusy === 'meta' ? 'default' : 'pointer' }}><Sparkles size={11} /> {aiBusy === 'meta' ? '…' : 'Generate'}</span>
+            </div>
             <textarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={3} maxLength={160}
               placeholder={excerpt || 'Defaults to your excerpt — a compelling 1–2 sentence summary.'}
               style={{ ...seoInput, resize: 'vertical', lineHeight: 1.5 }} />

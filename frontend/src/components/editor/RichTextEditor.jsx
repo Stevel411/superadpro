@@ -12,7 +12,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered,
   Heading1, Heading2, Heading3, Quote, Code, Link as LinkIcon, Image,
   AlignLeft, AlignCenter, AlignRight, Undo, Redo, Minus,
-  Info, Video, Megaphone
+  Info, Video, Megaphone, Sparkles
 } from 'lucide-react';
 
 export default function RichTextEditor({ content, onChange, placeholder, onImageUpload, richBlocks }) {
@@ -29,6 +29,9 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
   var [ctaLabel, setCtaLabel] = useState('');
   var [ctaUrl, setCtaUrl] = useState('');
   var [showCallout, setShowCallout] = useState(false);
+  var [showAiMenu, setShowAiMenu] = useState(false);
+  var [aiBusy, setAiBusy] = useState('');
+  var [aiErr, setAiErr] = useState('');
 
   var editor = useEditor({
     extensions: [
@@ -92,6 +95,39 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
     if (url && !/^https?:\/\//i.test(url) && url.charAt(0) !== '/') url = 'https://' + url;
     editor.chain().focus().setCtaButton({ href: url || '#', label: (ctaLabel || '').trim() || 'Learn more' }).run();
     setShowCta(false); setCtaLabel(''); setCtaUrl('');
+  }
+  function aiToParas(t) {
+    return (t || '').split(/\n\s*\n/).map(function (p) {
+      return '<p>' + p.replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</p>';
+    }).join('');
+  }
+  async function runAi(mode) {
+    setShowAiMenu(false);
+    var sel = editor.state.selection;
+    var from = sel.from, to = sel.to, empty = sel.empty;
+    var selText = empty ? '' : editor.state.doc.textBetween(from, to, '\n');
+    var needsSel = ['improve', 'rewrite', 'fix', 'shorten', 'lengthen'].indexOf(mode) !== -1;
+    if (needsSel && !selText.trim()) { setAiErr('Select some text first.'); setTimeout(function(){setAiErr('');}, 3500); return; }
+    var text = mode === 'continue' ? editor.getText().slice(-4000) : selText;
+    setAiBusy(mode); setAiErr('');
+    try {
+      var res = await fetch('/api/blog/ai/assist', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: mode, text: text }),
+      });
+      var data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || 'AI unavailable');
+      var out = data.result || '';
+      if (!out) throw new Error('No suggestion came back');
+      var html = aiToParas(out);
+      if (mode === 'continue') {
+        editor.chain().focus().insertContentAt(editor.state.doc.content.size, html).run();
+      } else {
+        editor.chain().focus().insertContentAt({ from: from, to: to }, html).run();
+      }
+    } catch (e) { setAiErr((e && e.message) || 'AI unavailable'); setTimeout(function(){setAiErr('');}, 4500); }
+    setAiBusy('');
   }
   function insertCallout(type) {
     editor.chain().focus().toggleCallout({ type: type }).run();
@@ -163,6 +199,7 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         {btn(editor.isActive('callout'), function(){setShowCallout(!showCallout);setShowEmbed(false);setShowCta(false);}, Info, 'Callout')}
         {btn(false, function(){setShowEmbed(!showEmbed);setShowCallout(false);setShowCta(false);setEmbedErr('');}, Video, 'Embed video')}
         {btn(false, function(){setShowCta(!showCta);setShowCallout(false);setShowEmbed(false);}, Megaphone, 'Button')}
+        {btn(showAiMenu, function(){setShowAiMenu(!showAiMenu);setShowCallout(false);setShowEmbed(false);setShowCta(false);}, Sparkles, 'AI assist')}
         </>)}
 
         <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
@@ -236,6 +273,22 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
           <button onClick={addCta} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#7c3aed',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Add</button>
           <button onClick={function(){setShowCta(false);setCtaLabel('');setCtaUrl('');}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
         </div>
+      )}
+
+      {/* AI assist popover */}
+      {showAiMenu && (
+        <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid #e8ecf2',background:'#f5f3ff',flexWrap:'wrap',alignItems:'center'}}>
+          <span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,fontWeight:700,color:'#7c3aed'}}><Sparkles size={13}/> AI:</span>
+          {[['improve','Improve'],['rewrite','Rewrite'],['fix','Fix grammar'],['shorten','Make shorter'],['lengthen','Make longer'],['continue','Continue writing']].map(function(a){
+            return <button key={a[0]} disabled={!!aiBusy} onClick={function(){runAi(a[0]);}}
+              style={{padding:'6px 11px',borderRadius:6,border:'1px solid #ddd6fe',background:aiBusy===a[0]?'#7c3aed':'#fff',color:aiBusy===a[0]?'#fff':'#6d28d9',fontSize:11,fontWeight:700,cursor:aiBusy?'default':'pointer',fontFamily:'inherit'}}>
+              {aiBusy===a[0]?'Working…':a[1]}</button>;
+          })}
+          <button onClick={function(){setShowAiMenu(false);}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit',marginLeft:'auto'}}>Close</button>
+        </div>
+      )}
+      {aiErr && (
+        <div style={{padding:'7px 12px',borderBottom:'1px solid #e8ecf2',background:'#fef2f2',color:'#b42318',fontSize:11.5}}>{aiErr}</div>
       )}
 
       {/* Editor content area */}
