@@ -13,6 +13,7 @@
  * /api/blog/launch.
  */
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
@@ -43,6 +44,7 @@ function fmtDate(iso) {
 
 export default function MySite() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [launching, setLaunching] = useState(false);
   const [data, setData] = useState(null);
@@ -176,7 +178,7 @@ export default function MySite() {
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
             <a href={blog.url} target="_blank" rel="noopener noreferrer" style={btn('ghost')}>View site <Eye size={15} /></a>
-            <button onClick={flagEditor} style={btn('primary')}><PenSquare size={15} /> Write new post</button>
+            <button onClick={() => navigate('/my-site/new')} style={btn('primary')}><PenSquare size={15} /> Write new post</button>
           </div>
         </div>
 
@@ -219,7 +221,7 @@ export default function MySite() {
                   <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 9px', borderRadius: 20, background: st.bg, color: st.fg }}>{st.label}</span>
                   <div style={{ fontFamily: mono, fontSize: 13, color: C.dim, width: 60, textAlign: 'right' }}>{p.status === 'published' ? p.views : '—'}</div>
                   <div style={{ display: 'flex', gap: 6, marginLeft: 8 }}>
-                    <span onClick={flagEditor} style={iconBtn}><Edit3 size={14} /></span>
+                    <span onClick={() => navigate(`/my-site/edit/${p.id}`)} style={iconBtn}><Edit3 size={14} /></span>
                     <span style={iconBtn}><MoreHorizontal size={14} /></span>
                   </div>
                 </div>

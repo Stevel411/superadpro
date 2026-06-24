@@ -55798,6 +55798,171 @@ def my_site_shell(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+# ── Blog post editor: CRUD (owner-gated) ─────────────────────────────────────
+def _member_blog(user, db):
+    return db.query(Blog).filter(Blog.member_id == user.id).first()
+
+
+def _owned_post(post_id, user, db):
+    post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    if not post:
+        return None, None
+    blog = db.query(Blog).filter(Blog.id == post.blog_id, Blog.member_id == user.id).first()
+    return (post, blog) if blog else (None, None)
+
+
+def _unique_post_slug(blog_id, base, db, exclude_id=None):
+    slug = _blog_slugify(base) or "post"
+    base_slug, n = slug, 1
+    while True:
+        q = db.query(BlogPost).filter(BlogPost.blog_id == blog_id, BlogPost.slug == slug)
+        if exclude_id:
+            q = q.filter(BlogPost.id != exclude_id)
+        if not q.first():
+            return slug
+        n += 1
+        slug = f"{base_slug}-{n}"
+
+
+def _set_post_tags(post, blog_id, names, db):
+    db.query(BlogPostTag).filter(BlogPostTag.post_id == post.id).delete(synchronize_session=False)
+    seen = set()
+    for name in (names or [])[:10]:
+        name = (name or "").strip()
+        if not name:
+            continue
+        tslug = _blog_slugify(name)
+        if tslug in seen:
+            continue
+        seen.add(tslug)
+        tag = db.query(BlogTag).filter(BlogTag.blog_id == blog_id, BlogTag.slug == tslug).first()
+        if not tag:
+            tag = BlogTag(blog_id=blog_id, name=name, slug=tslug)
+            db.add(tag); db.commit(); db.refresh(tag)
+        db.add(BlogPostTag(post_id=post.id, tag_id=tag.id))
+    db.commit()
+
+
+def _post_full(post, blog, db):
+    tags = [t.name for _, t in (db.query(BlogPostTag, BlogTag)
+            .join(BlogTag, BlogPostTag.tag_id == BlogTag.id)
+            .filter(BlogPostTag.post_id == post.id).all())]
+    return {
+        "id": post.id, "title": post.title, "slug": post.slug,
+        "excerpt": post.excerpt or "", "body": post.body or "",
+        "cover_image": post.cover_image or "", "status": post.status,
+        "tags": tags, "seo_title": post.seo_title or "", "seo_description": post.seo_description or "",
+        "scheduled_at": post.scheduled_at.isoformat() if post.scheduled_at else None,
+        "published_at": post.published_at.isoformat() if post.published_at else None,
+        "url": f"/sites/{blog.subdomain_slug}/p/{post.slug}",
+    }
+
+
+@app.get("/api/blog/post/{post_id}")
+def api_blog_post_get(post_id: int, request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    post, blog = _owned_post(post_id, user, db)
+    if not post:
+        return JSONResponse({"error": "Post not found"}, status_code=404)
+    return _post_full(post, blog, db)
+
+
+def _apply_post_payload(post, blog, payload, db):
+    title = (payload.get("title") or "").strip() or "Untitled"
+    post.title = title
+    post.body = payload.get("body") or ""
+    post.excerpt = (payload.get("excerpt") or "").strip()
+    post.cover_image = (payload.get("cover_image") or "").strip()
+    # slug: explicit if provided, else from title; keep unique within blog
+    requested = (payload.get("slug") or "").strip() or title
+    post.slug = _unique_post_slug(blog.id, requested, db, exclude_id=post.id)
+    # auto SEO if not explicitly provided
+    post.seo_title = (payload.get("seo_title") or "").strip() or title
+    post.seo_description = (payload.get("seo_description") or "").strip() or post.excerpt
+    post.og_image = post.cover_image or None
+    # status transitions
+    status = payload.get("status") or post.status or "draft"
+    if status == "published":
+        post.status = "published"
+        if not post.published_at:
+            post.published_at = datetime.utcnow()
+    elif status == "scheduled" and payload.get("scheduled_at"):
+        post.status = "scheduled"
+        try:
+            post.scheduled_at = datetime.fromisoformat(payload["scheduled_at"].replace("Z", "+00:00")).replace(tzinfo=None)
+        except Exception:
+            post.status = "draft"
+    else:
+        post.status = "draft"
+
+
+@app.post("/api/blog/post")
+def api_blog_post_create(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "Partner membership required."}, status_code=403)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    post = BlogPost(blog_id=blog.id, slug="draft", title="Untitled", status="draft")
+    db.add(post); db.commit(); db.refresh(post)
+    _apply_post_payload(post, blog, payload, db)
+    db.commit()
+    _set_post_tags(post, blog.id, payload.get("tags"), db)
+    db.refresh(post)
+    return _post_full(post, blog, db)
+
+
+@app.put("/api/blog/post/{post_id}")
+def api_blog_post_update(post_id: int, payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    post, blog = _owned_post(post_id, user, db)
+    if not post:
+        return JSONResponse({"error": "Post not found"}, status_code=404)
+    _apply_post_payload(post, blog, payload, db)
+    db.commit()
+    if "tags" in payload:
+        _set_post_tags(post, blog.id, payload.get("tags"), db)
+    db.refresh(post)
+    return _post_full(post, blog, db)
+
+
+@app.delete("/api/blog/post/{post_id}")
+def api_blog_post_delete(post_id: int, request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    post, blog = _owned_post(post_id, user, db)
+    if not post:
+        return JSONResponse({"error": "Post not found"}, status_code=404)
+    db.query(BlogPostView).filter(BlogPostView.post_id == post.id).delete(synchronize_session=False)
+    db.query(BlogPostTag).filter(BlogPostTag.post_id == post.id).delete(synchronize_session=False)
+    db.query(BlogComment).filter(BlogComment.post_id == post.id).delete(synchronize_session=False)
+    db.query(BlogPost).filter(BlogPost.id == post.id).delete(synchronize_session=False)
+    db.commit()
+    return {"ok": True}
+
+
+@app.get("/my-site/new")
+def my_site_new_shell(request: Request):
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/my-site/edit/{post_id}")
+def my_site_edit_shell(post_id: int, request: Request):
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/admin/api/delete-blog")
 def admin_delete_blog(request: Request, user_id: int,
                       user: User = Depends(get_current_user), db: Session = Depends(get_db)):

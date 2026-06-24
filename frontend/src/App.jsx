@@ -74,6 +74,7 @@ const LinkTools = React.lazy(() => import('./pages/LinkTools'));
 const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const MySite = React.lazy(() => import('./pages/MySite'));
+const BlogEditor = React.lazy(() => import('./pages/BlogEditor'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminNetworkTree = React.lazy(() => import('./pages/AdminNetworkTree'));
 const AdminRotatorState = React.lazy(() => import('./pages/admin/AdminRotatorState'));
@@ -397,6 +398,8 @@ function AppRoutes() {
       <Route path="/linkhub" element={<ProtectedRoute><RequireTier tier="basic"><LinkHubPage /></RequireTier></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><RequireTier tier="pro"><ProSeller /></RequireTier></ProtectedRoute>} />
       <Route path="/my-site" element={<ProtectedRoute><MySite /></ProtectedRoute>} />
+      <Route path="/my-site/new" element={<ProtectedRoute><BlogEditor /></ProtectedRoute>} />
+      <Route path="/my-site/edit/:id" element={<ProtectedRoute><BlogEditor /></ProtectedRoute>} />
       {/* SuperSeller removed */}
       <Route path="/training" element={<ProtectedRoute><TrainingCentre /></ProtectedRoute>} />
       <Route path="/videos" element={<ProtectedRoute><Videos /></ProtectedRoute>} />
