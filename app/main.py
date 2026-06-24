@@ -55459,6 +55459,29 @@ _BLOG_INDEX_DDL = [
 ]
 
 
+@app.get("/admin/api/setup-blog-suspend")
+def admin_setup_blog_suspend(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: add blogs.admin_suspended (admin-only kill-switch flag, kept
+    separate from member-controlled is_published so a member can take their site
+    offline without being able to override an admin takedown). Idempotent.
+    Admin-only GET — tap once, then the soft-unpublish toggle ships safely."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    try:
+        db.execute(_text("ALTER TABLE blogs ADD COLUMN IF NOT EXISTS admin_suspended BOOLEAN DEFAULT FALSE"))
+        db.commit()
+        return JSONResponse({"ok": True, "column": "blogs.admin_suspended ready"})
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
+
+
 @app.get("/admin/api/setup-blog-tables")
 def admin_setup_blog_tables(
     request: Request,
