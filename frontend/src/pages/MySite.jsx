@@ -113,12 +113,12 @@ export default function MySite() {
       <AppLayout title="My Site">
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <div style={{ ...cardStyle(), overflow: 'hidden' }}>
-            <div style={{ background: 'linear-gradient(135deg,#0a1438,#13224a)', color: '#fff', padding: '52px 50px', textAlign: 'center', position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(60% 100% at 50% 0%,rgba(14,165,233,.25),transparent 60%)' }} />
+            <div style={{ background: 'linear-gradient(135deg,#06b6d4,#1e3a8a)', color: '#fff', padding: '52px 50px', textAlign: 'center', position: 'relative' }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(70% 110% at 50% 0%,rgba(255,255,255,.18),transparent 60%)' }} />
               <div style={{ position: 'relative' }}>
-                <div style={{ display: 'inline-block', background: 'rgba(14,165,233,.18)', border: '1px solid rgba(14,165,233,.3)', color: '#7dd3fc', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', padding: '6px 14px', borderRadius: 20, marginBottom: 20 }}>Included with your membership</div>
+                <div style={{ display: 'inline-block', background: 'rgba(255,255,255,.18)', border: '1px solid rgba(255,255,255,.3)', color: '#fff', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', padding: '6px 14px', borderRadius: 20, marginBottom: 20 }}>Included with your membership</div>
                 <h1 style={{ fontFamily: sora, fontSize: 36, fontWeight: 800, lineHeight: 1.1, letterSpacing: '-1px' }}>Launch your own website</h1>
-                <p style={{ fontSize: 17, color: '#c3d2ee', margin: '16px auto 0', maxWidth: '46ch', lineHeight: 1.6 }}>A real blog and website — your posts, your pages, your brand, your custom domain. Built to bring you readers and grow your audience.</p>
+                <p style={{ fontSize: 17, color: 'rgba(255,255,255,.92)', margin: '16px auto 0', maxWidth: '46ch', lineHeight: 1.6 }}>A real blog and website — your posts, your pages, your brand, your custom domain. Built to bring you readers and grow your audience.</p>
               </div>
             </div>
             <div style={{ padding: '38px 50px' }}>
