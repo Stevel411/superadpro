@@ -96,6 +96,10 @@ export default function MySite() {
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [analytics, setAnalytics] = useState(null);
+  const [domain, setDomain] = useState(null);
+  const [domainInput, setDomainInput] = useState('');
+  const [domainBusy, setDomainBusy] = useState(false);
+  const [domainErr, setDomainErr] = useState('');
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [err, setErr] = useState('');
@@ -161,6 +165,30 @@ export default function MySite() {
       else await apiPost(`/api/blog/comment/${id}/${action}`, {});
       await loadComments(); await load();
     } catch (e) { setErr(e.message); }
+  };
+
+  const loadDomain = async () => {
+    try { const r = await apiGet('/api/blog/domain'); setDomain(r.domain || null); } catch (e) {}
+  };
+  useEffect(() => { if (tab === 'settings') loadDomain(); }, [tab]);
+  const connectDomain = async () => {
+    setDomainBusy(true); setDomainErr('');
+    try { const r = await apiPost('/api/blog/domain', { domain: domainInput.trim() }); setDomain(r.domain || null); setDomainInput(''); }
+    catch (e) { setDomainErr(e.message || 'Could not connect domain.'); }
+    setDomainBusy(false);
+  };
+  const verifyDomain = async () => {
+    setDomainBusy(true); setDomainErr('');
+    try { const r = await apiPost('/api/blog/domain/verify', {}); setDomain(r.domain || null); }
+    catch (e) { setDomainErr(e.message); }
+    setDomainBusy(false);
+  };
+  const removeDomain = async () => {
+    if (!window.confirm('Disconnect this custom domain?')) return;
+    setDomainBusy(true); setDomainErr('');
+    try { await apiDelete('/api/blog/domain'); setDomain(null); }
+    catch (e) { setDomainErr(e.message); }
+    setDomainBusy(false);
   };
 
   const saveSettings = async () => {
@@ -515,6 +543,47 @@ export default function MySite() {
             <button onClick={saveSettings} disabled={savingSettings} style={{ ...btn('primary'), width: '100%', justifyContent: 'center' }}>
               {savingSettings ? 'Saving…' : settingsSaved ? <><Check size={16} /> Saved</> : 'Save settings'}
             </button>
+
+            <div style={{ ...cardStyle(), padding: 24, marginTop: 18 }}>
+              <div style={sectionLabel}>Custom domain</div>
+              {!domain && (
+                <>
+                  <div style={{ fontSize: 13.5, color: C.dim, marginBottom: 12, lineHeight: 1.5 }}>Serve your site on your own domain (e.g. blog.yourbrand.com) instead of the SuperAdPro URL.</div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input value={domainInput} onChange={(e) => setDomainInput(e.target.value)} placeholder="blog.yourbrand.com" style={{ ...fullInput, flex: 1 }} />
+                    <button onClick={connectDomain} disabled={domainBusy || !domainInput.trim()} style={btn('primary')}>{domainBusy ? 'Connecting…' : 'Connect'}</button>
+                  </div>
+                </>
+              )}
+              {domain && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+                    <span style={{ fontFamily: mono, fontSize: 14.5, color: C.ink, fontWeight: 600 }}>{domain.domain}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, background: domain.verification_status === 'verified' ? '#e7f6ee' : '#fdf4e3', color: domain.verification_status === 'verified' ? '#15803d' : '#b45309' }}>
+                      {domain.verification_status === 'verified' ? 'Verified & live' : 'Pending DNS'}
+                    </span>
+                  </div>
+                  {domain.verification_status !== 'verified' && domain.dns_records && domain.dns_records.length > 0 && (
+                    <div style={{ background: '#f7f9fc', border: `1px solid ${C.line}`, borderRadius: 10, padding: 14, marginBottom: 14 }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 600, color: C.dim, marginBottom: 8 }}>Add this DNS record at your registrar, then check status:</div>
+                      {domain.dns_records.map((r, i) => (
+                        <div key={i} style={{ fontFamily: mono, fontSize: 12.5, color: C.ink2, padding: '4px 0', wordBreak: 'break-all' }}>
+                          <b>{(r.type || 'CNAME').toUpperCase()}</b> &nbsp; {r.name || r.host || '@'} &nbsp;→&nbsp; {r.value || r.data || r.target}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {domain.last_error && domain.verification_status !== 'verified' && (
+                    <div style={{ fontSize: 12.5, color: '#b45309', marginBottom: 12 }}>{domain.last_error}</div>
+                  )}
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {domain.verification_status !== 'verified' && <button onClick={verifyDomain} disabled={domainBusy} style={btn('ghost')}>{domainBusy ? 'Checking…' : 'Check status'}</button>}
+                    <button onClick={removeDomain} disabled={domainBusy} style={{ background: '#fff', border: '1px solid #e5a3a3', color: '#b42318', fontFamily: sora, fontWeight: 600, fontSize: 14, borderRadius: 9, padding: '10px 16px', cursor: 'pointer' }}>Disconnect</button>
+                  </div>
+                </>
+              )}
+              {domainErr && <div style={{ fontSize: 13, color: '#b42318', marginTop: 10 }}>{domainErr}</div>}
+            </div>
 
             <div style={{ ...cardStyle(), padding: 24, marginTop: 28, border: '1px solid #f3c2c2' }}>
               <div style={{ fontFamily: sora, fontWeight: 700, fontSize: 14, color: '#b42318', marginBottom: 6 }}>Danger zone</div>
