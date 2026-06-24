@@ -55576,10 +55576,14 @@ def blog_public_post(slug: str, post_slug: str, request: Request, db: Session = 
     if not blog:
         return HTMLResponse("<h2>Site not found</h2>", status_code=404)
     post = (db.query(BlogPost)
-              .filter(BlogPost.blog_id == blog.id, BlogPost.slug == post_slug,
-                      BlogPost.status == "published").first())
+              .filter(BlogPost.blog_id == blog.id, BlogPost.slug == post_slug).first())
     if not post:
         return HTMLResponse("<h2>Post not found</h2>", status_code=404)
+    if post.status != "published":
+        # only the blog's owner may preview a draft/scheduled post (?preview=1)
+        _viewer = get_current_user(request, db)
+        if not (request.query_params.get("preview") == "1" and _viewer and _viewer.id == blog.member_id):
+            return HTMLResponse("<h2>Post not found</h2>", status_code=404)
     member = db.query(User).filter(User.id == blog.member_id).first()
     base = f"/sites/{slug}"
     ctx = _blog_context(blog, member, db, base)

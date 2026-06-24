@@ -73,8 +73,9 @@ export default function BlogEditor() {
         window.history.replaceState(null, '', `/my-site/edit/${res.id}`);
       }
       setSlug(res.slug); setStatus(res.status); setSavedAt(Date.now());
-    } catch (e) { setErr(e.message); }
-    setSaving(false);
+      setSaving(false);
+      return res;
+    } catch (e) { setErr(e.message); setSaving(false); return null; }
   };
 
   const remove = async () => {
@@ -119,7 +120,7 @@ export default function BlogEditor() {
         <span style={{ fontSize: 13, color: C.dim }}>{saving ? 'Saving…' : savedLabel}</span>
         {err && <span style={{ fontSize: 13, color: '#b42318' }}>{err}</span>}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 9 }}>
-          {postId && <a href={`/sites/preview/p/${slug}`} onClick={(e) => { e.preventDefault(); save('draft'); }} style={btn('ghost')}><Eye size={15} /> Preview</a>}
+          <button onClick={async () => { const r = await save(status); if (r && r.url) window.open(r.url + '?preview=1', '_blank'); }} style={btn('ghost')}><Eye size={15} /> Preview</button>
           <button onClick={remove} style={{ ...btn('ghost'), color: '#b42318' }}><Trash2 size={15} /></button>
           <button onClick={() => save('draft')} disabled={saving} style={btn('ghost')}>Save draft</button>
           <button onClick={() => save('published')} disabled={saving} style={btn('primary')}>{status === 'published' ? 'Update' : 'Publish'} →</button>
