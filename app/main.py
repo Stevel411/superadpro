@@ -846,6 +846,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        if request.url.path.startswith("/sites/"):
+            # Public member blog pages carry NO inline scripts, so we forbid all
+            # script execution here — a hard backstop behind body sanitization.
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; img-src 'self' https: data:; "
+                "style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; "
+                "script-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'")
         return response
 
 app.add_middleware(SecurityHeadersMiddleware)
@@ -55560,10 +55567,15 @@ def blog_public_feed(slug: str, request: Request, db: Session = Depends(get_db))
     _pp = request.query_params.get("palette")
     if _pp and (_pp == "default" or _pp in _blogrender.PALETTES):
         ctx.palette = _pp
+    from sqlalchemy import or_ as _or, and_ as _and
+    _now = datetime.utcnow()
+    _pub = _or(BlogPost.status == "published",
+               _and(BlogPost.status == "scheduled", BlogPost.scheduled_at != None,  # noqa: E711
+                    BlogPost.scheduled_at <= _now))
     posts = (db.query(BlogPost)
-               .filter(BlogPost.blog_id == blog.id, BlogPost.status == "published")
+               .filter(BlogPost.blog_id == blog.id, _pub)
                .order_by(BlogPost.published_at.desc().nullslast(),
-                         BlogPost.created_at.desc()).all())
+                         BlogPost.created_at.desc()).limit(50).all())
     tags_map = _blog_tags_for([p.id for p in posts], db)
     ctx.posts = [_blog_post_view(p, tags_map) for p in posts]
     return HTMLResponse(_blogrender.render_blog_feed(ctx))
@@ -55579,8 +55591,11 @@ def blog_public_post(slug: str, post_slug: str, request: Request, db: Session = 
               .filter(BlogPost.blog_id == blog.id, BlogPost.slug == post_slug).first())
     if not post:
         return HTMLResponse("<h2>Post not found</h2>", status_code=404)
-    if post.status != "published":
-        # only the blog's owner may preview a draft/scheduled post (?preview=1)
+    _now = datetime.utcnow()
+    _is_public = (post.status == "published" or
+                  (post.status == "scheduled" and post.scheduled_at and post.scheduled_at <= _now))
+    if not _is_public:
+        # only the blog's owner may preview a draft/scheduled-future post (?preview=1)
         _viewer = get_current_user(request, db)
         if not (request.query_params.get("preview") == "1" and _viewer and _viewer.id == blog.member_id):
             return HTMLResponse("<h2>Post not found</h2>", status_code=404)
@@ -56055,6 +56070,127 @@ def admin_blog_sanitize_all(request: Request, user: User = Depends(get_current_u
     db.commit()
     return JSONResponse({"ok": True, "posts": len(posts),
                          "bodies_sanitized": bodies, "covers_migrated": covers})
+
+
+@app.get("/admin/api/blog-takedown")
+def admin_blog_takedown(request: Request, member_id: int, restore: int = 0,
+                        user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin kill-switch: take a member's whole site offline (restore=0) or
+    bring it back (restore=1). Offline sites 404 to the public."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    blog = db.query(Blog).filter(Blog.member_id == member_id).first()
+    if not blog:
+        return JSONResponse({"error": "No blog for that user."}, status_code=404)
+    blog.is_published = bool(restore)
+    db.commit()
+    return JSONResponse({"ok": True, "slug": blog.subdomain_slug,
+                         "is_published": blog.is_published,
+                         "state": "restored" if blog.is_published else "taken down"})
+
+
+@app.get("/sites/{slug}/report")
+def blog_report_form(slug: str, request: Request, db: Session = Depends(get_db)):
+    from html import escape as _esc
+    blog = _resolve_blog(slug, db)
+    if not blog:
+        return HTMLResponse("<h2>Site not found</h2>", status_code=404)
+    u = _esc(request.query_params.get("u", "") or f"/sites/{slug}")[:300]
+    html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Report content</title><style>body{{font-family:system-ui,sans-serif;background:#f4f7fc;margin:0;color:#0a1438}}
+.wrap{{max-width:520px;margin:60px auto;background:#fff;border:1px solid #e6edf8;border-radius:16px;padding:34px}}
+h1{{font-size:22px;margin:0 0 6px}}p{{color:#5b6b8c;font-size:14px;line-height:1.6}}
+textarea{{width:100%;height:120px;border:1px solid #e6edf8;border-radius:9px;padding:11px;font:inherit;box-sizing:border-box;margin-top:10px}}
+button{{margin-top:14px;background:linear-gradient(135deg,#0891b2,#0ea5e9);color:#fff;border:0;border-radius:9px;padding:12px 22px;font-weight:600;cursor:pointer}}</style></head>
+<body><div class="wrap"><h1>Report this content</h1>
+<p>Tell us what's wrong with this page and our team will review it. Reporting page: <b>{u}</b></p>
+<form method="post" action="/sites/{_esc(slug)}/report">
+<input type="hidden" name="url" value="{u}">
+<textarea name="reason" placeholder="Describe the problem (spam, abuse, illegal content, etc.)" required></textarea>
+<button type="submit">Submit report</button></form></div></body></html>"""
+    return HTMLResponse(html)
+
+
+@app.post("/sites/{slug}/report")
+@limiter.limit("5/hour")
+async def blog_report_submit(slug: str, request: Request, db: Session = Depends(get_db)):
+    from html import escape as _esc
+    form = await request.form()
+    reason = (form.get("reason") or "").strip()[:2000]
+    url = (form.get("url") or "").strip()[:300]
+    blog = _resolve_blog(slug, db)
+    if blog and reason:
+        try:
+            from app.email_utils import send_email
+            send_email("stevelawsonmarketing@gmail.com", f"[Blog report] {slug}",
+                       f"<p>Reported page: {_esc(url)}</p><p>Site: /sites/{_esc(slug)} "
+                       f"(member #{blog.member_id})</p><p>Reason:</p><p>{_esc(reason)}</p>")
+        except Exception:
+            pass
+    return HTMLResponse("<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='robots' content='noindex'>"
+                        "<title>Thank you</title></head><body style='font-family:system-ui,sans-serif;background:#f4f7fc'>"
+                        "<div style='max-width:520px;margin:80px auto;background:#fff;border:1px solid #e6edf8;"
+                        "border-radius:16px;padding:40px;text-align:center;color:#0a1438'>"
+                        "<h1 style='font-size:22px'>Thank you</h1>"
+                        "<p style='color:#5b6b8c'>Your report has been received and will be reviewed by our team.</p>"
+                        "</div></body></html>")
+
+
+def _blog_public_posts(blog, db, limit=None):
+    from sqlalchemy import or_ as _or, and_ as _and
+    _now = datetime.utcnow()
+    _pub = _or(BlogPost.status == "published",
+               _and(BlogPost.status == "scheduled", BlogPost.scheduled_at != None,  # noqa: E711
+                    BlogPost.scheduled_at <= _now))
+    q = (db.query(BlogPost).filter(BlogPost.blog_id == blog.id, _pub)
+           .order_by(BlogPost.published_at.desc().nullslast(), BlogPost.created_at.desc()))
+    if limit:
+        q = q.limit(limit)
+    return q.all()
+
+
+@app.get("/sites/{slug}/sitemap.xml")
+def blog_sitemap(slug: str, request: Request, db: Session = Depends(get_db)):
+    from html import escape as _esc
+    from fastapi.responses import Response
+    blog = _resolve_blog(slug, db)
+    if not blog:
+        return Response("Not found", status_code=404)
+    base = f"{_blogrender.BASE_URL}/sites/{slug}"
+    rows = [f"<url><loc>{_esc(base)}</loc><changefreq>daily</changefreq></url>"]
+    for p in _blog_public_posts(blog, db):
+        lm = p.updated_at or p.published_at or p.created_at
+        loc = f"{base}/p/{p.slug}"
+        rows.append(f"<url><loc>{_esc(loc)}</loc>" +
+                    (f"<lastmod>{lm.strftime('%Y-%m-%d')}</lastmod>" if lm else "") + "</url>")
+    xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+           "\n".join(rows) + "\n</urlset>")
+    return Response(content=xml, media_type="application/xml")
+
+
+@app.get("/sites/{slug}/rss.xml")
+def blog_rss(slug: str, request: Request, db: Session = Depends(get_db)):
+    from html import escape as _esc
+    from fastapi.responses import Response
+    blog = _resolve_blog(slug, db)
+    if not blog:
+        return Response("Not found", status_code=404)
+    base = f"{_blogrender.BASE_URL}/sites/{slug}"
+    items = []
+    for p in _blog_public_posts(blog, db, limit=30):
+        pub = p.published_at or p.created_at
+        pubstr = pub.strftime("%a, %d %b %Y %H:%M:%S +0000") if pub else ""
+        link = f"{base}/p/{p.slug}"
+        items.append(f"<item><title>{_esc(p.title)}</title><link>{_esc(link)}</link>"
+                     f"<guid>{_esc(link)}</guid><pubDate>{pubstr}</pubDate>"
+                     f"<description>{_esc(p.excerpt or '')}</description></item>")
+    rss = ('<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel>'
+           f"<title>{_esc(blog.title)}</title><link>{_esc(base)}</link>"
+           f"<description>{_esc(blog.tagline or blog.title)}</description>" +
+           "".join(items) + "</channel></rss>")
+    return Response(content=rss, media_type="application/rss+xml")
 
 
 @app.get("/admin/api/delete-blog")

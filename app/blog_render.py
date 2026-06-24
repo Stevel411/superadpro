@@ -160,6 +160,7 @@ def _seo_head(ctx, page_title, description, og_image="", canonical=""):
     title = escape(page_title)
     og = f'<meta property="og:image" content="{escape(og_image)}">' if og_image else ""
     canon = f'<link rel="canonical" href="{escape(canonical)}">' if canonical else ""
+    rss = f'<link rel="alternate" type="application/rss+xml" title="{escape(ctx.blog_title)} RSS" href="{BASE_URL}/sites/{escape(ctx.slug)}/rss.xml">'
     return f"""<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
@@ -167,7 +168,7 @@ def _seo_head(ctx, page_title, description, og_image="", canonical=""):
 <meta property="og:type" content="article"><meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}"><meta property="og:site_name" content="{escape(ctx.blog_title)}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}">
-<meta name="twitter:description" content="{desc}">{og}{canon}
+<meta name="twitter:description" content="{desc}">{og}{canon}{rss}
 {FONT_LINK}{font_hrefs}
 """
 
@@ -197,10 +198,12 @@ def _social_html(ctx, span_cls):
 def _powered_footer(ctx, mk_cls="powered"):
     """Non-removable referral footer — links through the member's /ref/{username}."""
     ref = f"{BASE_URL}/ref/{escape(ctx.username)}"
+    report = f"{BASE_URL}/sites/{escape(ctx.slug)}/report"
     return (f'<div class="{mk_cls}">Powered by '
             f'<a class="mk" href="{ref}"><span class="d">'
             f'<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span> '
-            f'SuperAdPro</a></div>')
+            f'SuperAdPro</a>'
+            f'<a class="mk" href="{report}" style="opacity:.45;font-size:11px;margin-left:12px">Report</a></div>')
 
 
 def _share_html(ctx, btn_cls):
