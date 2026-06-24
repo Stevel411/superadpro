@@ -19,7 +19,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost, apiPatch, apiPut, apiDelete } from '../utils/api';
 import {
   PenSquare, Eye, Copy, Check, FileText, Edit3, MoreHorizontal,
-  Lock, Globe, Palette, Mail, Sparkles, ArrowRight, Plus, Trash2, X, MessageSquare,
+  Lock, Globe, Palette, Mail, Send, Sparkles, ArrowRight, Plus, Trash2, X, MessageSquare,
 } from 'lucide-react';
 
 const C = {
@@ -103,6 +103,7 @@ export default function MySite() {
   const [domainErr, setDomainErr] = useState('');
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
+  const [news, setNews] = useState(null);  // newsletter send progress {postId,total,sent,status}
   const [err, setErr] = useState('');
 
   const load = async () => {
@@ -197,6 +198,28 @@ export default function MySite() {
     try { await apiPatch('/api/blog', { is_published: !blog.is_published }); await load(); }
     catch (e) { setErr(e.message); }
     setVisBusy(false);
+  };
+
+  const sendNewsletter = async (p) => {
+    const subs = (data?.blog?.subscribers) || 0;
+    if (subs === 0) { setErr("You don't have any subscribers yet. Share your site to grow your list, then send your first newsletter."); return; }
+    const again = p.newsletter_sent_at ? '\n\nThis post has already been emailed once — sending again will deliver it to your subscribers a second time.' : '';
+    if (!window.confirm(`Send "${p.title}" to ${subs} subscriber${subs === 1 ? '' : 's'} by email?${again}`)) return;
+    setErr(''); setNews({ postId: p.id, total: subs, sent: 0, status: 'queued' });
+    try {
+      const r = await apiPost(`/api/blog/post/${p.id}/newsletter`, {});
+      const jobId = r.job_id;
+      setNews({ postId: p.id, total: r.total || subs, sent: 0, status: r.status || 'queued' });
+      const poll = async () => {
+        try {
+          const s = await apiGet(`/api/leads/broadcast-status?job_id=${jobId}`);
+          setNews({ postId: p.id, total: s.total, sent: s.sent, status: s.status });
+          if (s.status === 'sending' || s.status === 'queued') { setTimeout(poll, 1500); }
+          else { setTimeout(() => { setNews(null); load(); }, 4000); }
+        } catch (e) { setNews(null); }
+      };
+      setTimeout(poll, 1200);
+    } catch (e) { setErr(e.message); setNews(null); }
   };
 
   const saveSettings = async () => {
@@ -366,7 +389,7 @@ export default function MySite() {
               const st = STATUS[p.status] || STATUS.draft;
               const meta = p.status === 'scheduled' && p.scheduled_at ? `Scheduled for ${fmtDate(p.scheduled_at)}`
                 : p.status === 'draft' ? (p.updated_at ? `Last edited ${fmtDate(p.updated_at)}` : 'Draft')
-                : `${p.tags[0] ? p.tags[0] + ' · ' : ''}${fmtDate(p.published_at)}`;
+                : `${p.tags[0] ? p.tags[0] + ' · ' : ''}${fmtDate(p.published_at)}${p.newsletter_sent_at ? ' · Emailed' : ''}`;
               return (
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 22px', borderBottom: i < posts.length - 1 ? `1px solid ${C.line2}` : 'none' }}>
                   <div style={{ width: 52, height: 38, borderRadius: 8, background: gradFor(p.id), flexShrink: 0 }} />
@@ -376,10 +399,22 @@ export default function MySite() {
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 9px', borderRadius: 20, background: st.bg, color: st.fg }}>{st.label}</span>
                   <div style={{ fontFamily: mono, fontSize: 13, color: C.dim, width: 60, textAlign: 'right' }}>{p.status === 'published' ? p.views : '—'}</div>
-                  <div style={{ display: 'flex', gap: 6, marginLeft: 8 }}>
-                    <span onClick={() => navigate(`/my-site/edit/${p.id}`)} style={iconBtn}><Edit3 size={14} /></span>
-                    <span style={iconBtn}><MoreHorizontal size={14} /></span>
-                  </div>
+                  {news && news.postId === p.id ? (
+                    <div style={{ fontFamily: mono, fontSize: 12, color: news.status === 'error' ? '#b42318' : C.cob, whiteSpace: 'nowrap', minWidth: 120, textAlign: 'right' }}>
+                      {news.status === 'done' ? `✓ Sent to ${news.sent}` : news.status === 'error' ? 'Send failed' : `Sending ${news.sent}/${news.total}…`}
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', gap: 6, marginLeft: 8 }}>
+                      {p.status === 'published' && (
+                        <span onClick={() => sendNewsletter(p)}
+                          title={p.newsletter_sent_at ? 'Resend as newsletter' : 'Send as newsletter'}
+                          style={{ ...iconBtn, color: p.newsletter_sent_at ? C.dim : C.cob, borderColor: p.newsletter_sent_at ? C.line : C.cob }}>
+                          <Send size={13} />
+                        </span>
+                      )}
+                      <span onClick={() => navigate(`/my-site/edit/${p.id}`)} style={iconBtn}><Edit3 size={14} /></span>
+                    </div>
+                  )}
                 </div>
               );
             })}

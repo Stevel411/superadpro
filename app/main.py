@@ -55816,7 +55816,7 @@ def admin_seed_demo_blog(request: Request, user_id: int,
 
 
 # ── Member blog dashboard API + shell ────────────────────────────────────────
-def _blog_post_brief(p, blog_slug, tags_map):
+def _blog_post_brief(p, blog_slug, tags_map, news_map=None):
     return {
         "id": p.id, "title": p.title, "slug": p.slug, "status": p.status,
         "views": p.view_count or 0, "excerpt": p.excerpt or "",
@@ -55825,6 +55825,7 @@ def _blog_post_brief(p, blog_slug, tags_map):
         "updated_at": (p.updated_at.isoformat() if getattr(p, "updated_at", None) else None),
         "scheduled_at": (p.scheduled_at.isoformat() if getattr(p, "scheduled_at", None) else None),
         "url": f"/sites/{blog_slug}/p/{p.slug}",
+        "newsletter_sent_at": (news_map or {}).get(p.id),
     }
 
 
@@ -55840,6 +55841,7 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
     posts = (db.query(BlogPost).filter(BlogPost.blog_id == blog.id)
                .order_by(BlogPost.created_at.desc()).all())
     tags_map = _blog_tags_for([p.id for p in posts], db)
+    news_map = _blog_newsletter_map([p.id for p in posts], db)
     published = sum(1 for p in posts if p.status == "published")
     drafts = sum(1 for p in posts if p.status == "draft")
     scheduled = sum(1 for p in posts if p.status == "scheduled")
@@ -55861,7 +55863,7 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
             "pending_comments": (db.query(BlogComment).join(BlogPost, BlogComment.post_id == BlogPost.id)
                                  .filter(BlogPost.blog_id == blog.id, BlogComment.status == "pending").count()),
         },
-        "posts": [_blog_post_brief(p, blog.subdomain_slug, tags_map) for p in posts],
+        "posts": [_blog_post_brief(p, blog.subdomain_slug, tags_map, news_map) for p in posts],
     }
 
 
@@ -56775,6 +56777,186 @@ def _ensure_blog_lead_list(blog, owner, db):
         optin.lead_list_id = ll.id
     db.commit()
     return ll.id
+
+
+# ── Newsletter send ──────────────────────────────────────────────────────────
+# Publish a post, then email it to the blog's subscribers in one action — the
+# defining feature of every modern publishing platform (Ghost / Beehiiv /
+# Substack). Reuses the member broadcast engine (_run_broadcast_job) so the send
+# inherits every protection already built for member email: spam-complaint
+# account pause, one-live-send-per-member double-send guard, daily-allowance
+# reservation paced under the SES rate cap, per-lead one-click unsubscribe, and
+# EmailSendLog audit. We add only (a) post -> email rendering and (b) a small
+# send-history table for "last sent" UI and resend confirmation.
+
+def _ensure_blog_newsletter_table(db: Session):
+    """Lazy migration — create blog_newsletter_sends on first send.
+
+    SKIP_MIGRATIONS=true on prod means tables aren't auto-created on deploy, so
+    (like broadcast_log) we create this idempotently on first use. One row per
+    newsletter send: history, 'last sent X ago', and resend confirmation.
+    """
+    db.execute(text("""
+        CREATE TABLE IF NOT EXISTS blog_newsletter_sends (
+            id SERIAL PRIMARY KEY,
+            post_id INTEGER NOT NULL,
+            blog_id INTEGER NOT NULL,
+            subject VARCHAR(300),
+            recipients INTEGER DEFAULT 0,
+            job_id VARCHAR(64),
+            sent_at TIMESTAMP DEFAULT NOW()
+        )
+    """))
+    db.execute(text("CREATE INDEX IF NOT EXISTS idx_blog_news_post ON blog_newsletter_sends(post_id)"))
+    db.execute(text("CREATE INDEX IF NOT EXISTS idx_blog_news_blog ON blog_newsletter_sends(blog_id)"))
+    db.commit()
+
+
+def _blog_newsletter_map(post_ids, db):
+    """{post_id: last_sent_iso} for the given posts. Tolerant of the table not
+    existing yet (no newsletter ever sent) so /api/blog/me never 500s before the
+    first send creates it."""
+    if not post_ids:
+        return {}
+    try:
+        rows = db.execute(text(
+            "SELECT post_id, MAX(sent_at) AS last_sent FROM blog_newsletter_sends "
+            "WHERE post_id = ANY(:ids) GROUP BY post_id"
+        ), {"ids": list(post_ids)}).fetchall()
+        out = {}
+        for r in rows:
+            ls = r[1]
+            out[r[0]] = ls.isoformat() if hasattr(ls, "isoformat") else (str(ls) if ls else None)
+        return out
+    except Exception:
+        db.rollback()
+        return {}
+
+
+def _blog_post_newsletter_html(post, post_url):
+    """Render a published post as the inner content of a newsletter email.
+
+    Returns inner HTML only — wrap_email_html() (applied by _run_broadcast_job)
+    adds the member identity header + one-click unsubscribe footer. This focuses
+    on the post: title, cover, body, and a 'Read on the web' CTA. Email-safe
+    inline styles, 600px column, system fonts. Body is the member's own already-
+    sanitised post HTML and must NOT be escaped; only attributes/text are.
+    """
+    from html import escape as _esc
+    title = _esc(post.title or "Untitled")
+    cover = ""
+    if post.cover_image:
+        cover = (
+            '<img src="' + _esc(post.cover_image) + '" alt="" width="600" '
+            'style="display:block;width:100%;max-width:600px;height:auto;'
+            'border-radius:10px;margin:0 0 22px;" />'
+        )
+    body = post.body or ""
+    cta = (
+        '<table role="presentation" cellpadding="0" cellspacing="0" '
+        'style="margin:30px auto 6px;"><tr><td style="border-radius:8px;'
+        'background:#0ea5e9;"><a href="' + _esc(post_url) + '" '
+        'style="display:inline-block;padding:13px 28px;font-family:-apple-system,'
+        'Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;'
+        'color:#ffffff;text-decoration:none;">Read on the web &rarr;</a></td></tr></table>'
+    )
+    return (
+        '<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,'
+        'sans-serif;color:#1e293b;line-height:1.65;">'
+        '<h1 style="font-size:26px;line-height:1.25;margin:0 0 18px;color:#0f172a;'
+        'font-weight:800;">' + title + '</h1>'
+        + cover +
+        '<div style="font-size:16px;color:#334155;">' + body + '</div>'
+        + cta +
+        '</div>'
+    )
+
+
+@app.post("/api/blog/post/{post_id}/newsletter")
+async def api_blog_post_newsletter(post_id: int, request: Request, db: Session = Depends(get_db)):
+    """Email a published post to the blog's subscribers (newsletter send).
+
+    Feeds the rendered post into the existing member broadcast engine, filtered
+    to the blog's subscriber lead list, so it inherits all member-email
+    protections. Returns a job_id; progress is polled via the existing
+    /api/leads/broadcast-status endpoint.
+    """
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    post = (db.query(BlogPost)
+              .filter(BlogPost.id == post_id, BlogPost.blog_id == blog.id).first())
+    if not post:
+        return JSONResponse({"error": "Post not found"}, status_code=404)
+    if post.status != "published":
+        return JSONResponse(
+            {"error": "Publish the post before sending it as a newsletter."},
+            status_code=400)
+
+    # Same spam-complaint account pause that guards every member send.
+    if getattr(user, "email_sending_paused", False):
+        return JSONResponse({
+            "error": "Email sending is paused on your account following a spam "
+                     "complaint from one of your contacts. Please contact support "
+                     "to review and re-enable sending."
+        }, status_code=403)
+
+    # One live send per member — never start a second concurrent broadcast.
+    existing_id = _BROADCAST_ACTIVE.get(user.id)
+    if existing_id and existing_id in _BROADCAST_JOBS:
+        j = _BROADCAST_JOBS[existing_id]
+        if j["status"] in ("queued", "sending"):
+            out = {"ok": True, "already_running": True}
+            out.update(_broadcast_job_public(j))
+            return out
+
+    list_id = _ensure_blog_lead_list(blog, user, db)
+    total = (db.query(MemberLead)
+               .filter(MemberLead.list_id == list_id,
+                       MemberLead.status != "unsubscribed").count())
+    if total == 0:
+        return JSONResponse(
+            {"error": "You don't have any subscribers yet. Share your site to grow "
+                      "your list, then send your first newsletter."},
+            status_code=400)
+
+    # Reserve the whole send against the member's daily email allowance up front.
+    allowed, reason = _check_email_allowance(user, db, total)
+    if not allowed:
+        return JSONResponse({"error": reason}, status_code=429)
+
+    base, burl = _blog_origin(request, blog.subdomain_slug)
+    post_url = f"{burl}{base}/p/{post.slug}"
+    subject = ((post.seo_title or post.title or "New post").strip())[:200]
+    html_content = _blog_post_newsletter_html(post, post_url)
+
+    _prune_broadcast_jobs()
+    job_id = _uuid.uuid4().hex
+    # Record the send for history / 'last sent' UI (lazy-creates the table).
+    try:
+        _ensure_blog_newsletter_table(db)
+        db.execute(text(
+            "INSERT INTO blog_newsletter_sends (post_id, blog_id, subject, recipients, job_id) "
+            "VALUES (:p, :b, :s, :r, :j)"
+        ), {"p": post.id, "b": blog.id, "s": subject, "r": total, "j": job_id})
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"[blog-newsletter] history write failed: {e}")
+
+    _BROADCAST_JOBS[job_id] = {
+        "job_id": job_id, "user_id": user.id, "status": "queued",
+        "total": total, "sent": 0, "failed": 0, "failure_summary": {},
+        "started_at": datetime.utcnow().isoformat(), "finished_at": None,
+        "error": None,
+    }
+    _BROADCAST_ACTIVE[user.id] = job_id
+    asyncio.create_task(_run_broadcast_job(
+        job_id, user.id, subject, html_content, "all", list_id))
+    return {"ok": True, "job_id": job_id, "total": total, "status": "queued"}
 
 
 def _sub_result_page(msg, slug, ok=True):
