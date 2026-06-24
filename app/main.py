@@ -37,6 +37,7 @@ from .database import AppConfig  # used by security-watch helpers (and others) a
 STRIPE_BOOST_PACKS = {}  # legacy compat — kept until any consumer is rewritten
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
+from .database import Blog, BlogPost, BlogPage, BlogTag, BlogPostTag, BlogMenu, BlogOptinForm, BlogComment, BlogMedia, BlogPostView
 from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_user, cache_invalidate_leaderboard, cache_stats
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
@@ -55471,6 +55472,248 @@ def admin_setup_blog_tables(
         "results": results,
         "note": "Blog platform tables ready. Foundation data layer is live.",
     })
+
+
+# ── Member Site & Blog platform — public rendering engine ────────────────────
+# Server-rendered HTML (NOT React) for SEO. See app/blog_render.py.
+from . import blog_render as _blogrender
+import re as _re_blog
+
+
+def _blog_slugify(val):
+    out = _re_blog.sub(r"[^a-z0-9]+", "-", (val or "").lower()).strip("-")
+    return out or "item"
+
+
+def _blog_tags_for(post_ids, db):
+    out = {}
+    if not post_ids:
+        return out
+    rows = (db.query(BlogPostTag, BlogTag)
+              .join(BlogTag, BlogPostTag.tag_id == BlogTag.id)
+              .filter(BlogPostTag.post_id.in_(post_ids)).all())
+    for pt, tag in rows:
+        out.setdefault(pt.post_id, []).append((tag.name, tag.slug))
+    return out
+
+
+def _blog_post_view(post, tags_map):
+    body = post.body or ""
+    words = len(_re_blog.sub("<[^>]+>", " ", body).split())
+    rm = max(1, round(words / 200)) if words else 4
+    return _blogrender.PostView(
+        title=post.title, slug=post.slug, excerpt=post.excerpt or "",
+        cover_image=post.cover_image or "", body=body,
+        published_at=post.published_at or post.created_at,
+        read_minutes=rm, tags=tags_map.get(post.id, []), seed=post.id or 0,
+    )
+
+
+def _blog_context(blog, member, db, base_path):
+    nav = []
+    for m in (db.query(BlogMenu).filter(BlogMenu.blog_id == blog.id)
+                .order_by(BlogMenu.position).all()):
+        if m.link_type == "home":
+            nav.append((m.label, base_path or "/"))
+        elif m.link_type == "post":
+            nav.append((m.label, f"{base_path}/p/{m.target}"))
+        elif m.link_type == "tag":
+            nav.append((m.label, f"{base_path}/t/{m.target}"))
+        elif m.link_type == "external":
+            nav.append((m.label, m.target or "#"))
+        else:  # page
+            nav.append((m.label, f"{base_path}/{m.target}"))
+    social = []
+    if blog.social_links:
+        try:
+            social = [(k, v) for k, v in json.loads(blog.social_links).items() if v]
+        except Exception:
+            social = []
+    return _blogrender.BlogRenderContext(
+        blog_title=blog.title, tagline=blog.tagline or "", slug=blog.subdomain_slug,
+        username=member.username if member else "member",
+        theme=blog.theme or "banner", font=blog.font or "classic-serif",
+        nav=nav, social=social, base_path=base_path,
+    )
+
+
+def _resolve_blog(slug, db):
+    return (db.query(Blog)
+              .filter(Blog.subdomain_slug == slug, Blog.is_published == True)  # noqa: E712
+              .first())
+
+
+@app.get("/sites/{slug}")
+def blog_public_feed(slug: str, request: Request, db: Session = Depends(get_db)):
+    """Public blog home (post feed), server-rendered in the member's theme."""
+    blog = _resolve_blog(slug, db)
+    if not blog:
+        return HTMLResponse("<h2>Site not found</h2>", status_code=404)
+    member = db.query(User).filter(User.id == blog.member_id).first()
+    base = f"/sites/{slug}"
+    ctx = _blog_context(blog, member, db, base)
+    posts = (db.query(BlogPost)
+               .filter(BlogPost.blog_id == blog.id, BlogPost.status == "published")
+               .order_by(BlogPost.published_at.desc().nullslast(),
+                         BlogPost.created_at.desc()).all())
+    tags_map = _blog_tags_for([p.id for p in posts], db)
+    ctx.posts = [_blog_post_view(p, tags_map) for p in posts]
+    return HTMLResponse(_blogrender.render_blog_feed(ctx))
+
+
+@app.get("/sites/{slug}/p/{post_slug}")
+def blog_public_post(slug: str, post_slug: str, request: Request, db: Session = Depends(get_db)):
+    """Public single-post page, server-rendered, with view counting."""
+    blog = _resolve_blog(slug, db)
+    if not blog:
+        return HTMLResponse("<h2>Site not found</h2>", status_code=404)
+    post = (db.query(BlogPost)
+              .filter(BlogPost.blog_id == blog.id, BlogPost.slug == post_slug,
+                      BlogPost.status == "published").first())
+    if not post:
+        return HTMLResponse("<h2>Post not found</h2>", status_code=404)
+    member = db.query(User).filter(User.id == blog.member_id).first()
+    base = f"/sites/{slug}"
+    ctx = _blog_context(blog, member, db, base)
+    ctx.post = _blog_post_view(post, _blog_tags_for([post.id], db))
+    ua = request.headers.get("user-agent", "").lower()
+    _bots = ("googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot",
+             "curl", "python-requests", "wget", "headlesschrome", "facebot", "semrush", "ahrefsbot")
+    if request.query_params.get("preview") != "1" and ua and not any(b in ua for b in _bots):
+        try:
+            post.view_count = (post.view_count or 0) + 1
+            db.add(BlogPostView(post_id=post.id,
+                                referrer=(request.headers.get("referer", "") or "")[:300] or None))
+            db.commit()
+        except Exception:
+            db.rollback()
+    return HTMLResponse(_blogrender.render_blog_post(ctx))
+
+
+def _provision_blog(member, db, with_samples=True):
+    """Create a member's blog + starter content. Returns existing if present."""
+    existing = db.query(Blog).filter(Blog.member_id == member.id).first()
+    if existing:
+        return existing
+    base_slug = _blog_slugify(member.username)
+    slug, n = base_slug, 1
+    while db.query(Blog).filter(Blog.subdomain_slug == slug).first():
+        n += 1
+        slug = f"{base_slug}-{n}"
+    blog = Blog(member_id=member.id, title=f"{member.username}'s Blog",
+                tagline="Notes, ideas, and updates", subdomain_slug=slug,
+                theme="banner", font="classic-serif", comments_enabled=True,
+                is_published=True, policy_accepted_at=datetime.utcnow())
+    db.add(blog); db.commit(); db.refresh(blog)
+    if with_samples:
+        db.add(BlogPost(blog_id=blog.id, slug="welcome", title="Welcome to my new site",
+                        excerpt="This is your first post — edit it or delete it and make this space your own.",
+                        body=("<p class='lead-para'>This is your very first post. Everything you see here "
+                              "is yours to change.</p><p>Head into the editor to write your first real "
+                              "article, swap the theme, or connect your own domain.</p>"),
+                        status="published", published_at=datetime.utcnow()))
+        db.add(BlogPage(blog_id=blog.id, slug="about", title="About",
+                        body="<p>Tell your readers who you are.</p>", status="published",
+                        show_in_nav=True, nav_order=1))
+        db.add(BlogMenu(blog_id=blog.id, label="Home", link_type="home", position=0))
+        db.add(BlogMenu(blog_id=blog.id, label="About", link_type="page", target="about", position=1))
+        db.commit()
+    return blog
+
+
+_DEMO_POSTS = [
+    ("the-200-subscriber-newsletter", "The 200-subscriber newsletter that pays my rent",
+     "I spent two years chasing followers before I realised the only number that mattered was the one in my email list.",
+     ["Marketing", "Email"],
+     "<p class='lead-para'>I spent two years chasing followers before I realised the only number that "
+     "actually mattered was the one I could email. Here's the whole story.</p>"
+     "<h2>The shift that changed everything</h2><p>The turning point was embarrassingly simple: I added an "
+     "email signup to the bottom of every post.</p><blockquote>Followers are rented. An email list is "
+     "owned. Build the thing you own.</blockquote><p>That's the entire lesson. Start the list today.</p>"),
+    ("landing-page-in-an-afternoon", "A landing page in an afternoon (no designer)",
+     "The five blocks every offer page needs — and the order that converts.",
+     ["Pages"],
+     "<p class='lead-para'>You don't need a designer to ship a page that converts.</p><p>Here are the five "
+     "blocks every offer page needs, in the order that works.</p>"),
+    ("a-year-of-publishing-weekly", "What a year of publishing weekly taught me",
+     "52 posts later — the numbers, and the things I'd do differently.",
+     ["Story"],
+     "<p class='lead-para'>Fifty-two posts. Here's what a year of showing up actually produced.</p>"),
+    ("one-subscription-runs-my-stack", "My whole stack runs on one subscription now",
+     "How I cut six tools down to one — and what I do with the savings.",
+     ["Tools"],
+     "<p class='lead-para'>I was paying for six tools. Now I pay for one. Here's how the math worked out.</p>"),
+    ("on-charging-what-youre-worth", "On charging what you're worth",
+     "The pricing conversation I avoided for years — and the script I use now.",
+     ["Mindset"],
+     "<p class='lead-para'>For years I undercharged. Here's the script that fixed it.</p>"),
+    ("seo-for-people-who-hate-seo", "SEO for people who hate SEO",
+     "The boring 20% that gets you 80% of the search traffic.",
+     ["Marketing"],
+     "<p class='lead-para'>You don't need to love SEO. You need the boring 20%. Here it is.</p>"),
+]
+
+
+@app.get("/admin/api/seed-demo-blog")
+def admin_seed_demo_blog(request: Request, user_id: int,
+                         user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin-only: provision a demo blog with rich sample content for `user_id`,
+    to test the rendering engine end-to-end. Idempotent-ish (skips dupes)."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    member = db.query(User).filter(User.id == user_id).first()
+    if not member:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+    # Make a nicely-branded demo blog (not the bare starter)
+    blog = db.query(Blog).filter(Blog.member_id == member.id).first()
+    if not blog:
+        slug = _blog_slugify(member.username + "-demo")
+        blog = Blog(member_id=member.id, title="The Maker's Field",
+                    tagline="Notes on craft & independent business", subdomain_slug=slug,
+                    theme="banner", font="classic-serif",
+                    social_links=json.dumps({"instagram": "https://instagram.com",
+                                             "x": "https://x.com", "youtube": "https://youtube.com"}),
+                    comments_enabled=True, is_published=True, policy_accepted_at=datetime.utcnow())
+        db.add(blog); db.commit(); db.refresh(blog)
+    # tags
+    tag_ids = {}
+    for _, _, _, tags, _ in _DEMO_POSTS:
+        for t in tags:
+            if t not in tag_ids:
+                ts = _blog_slugify(t)
+                row = db.query(BlogTag).filter(BlogTag.blog_id == blog.id, BlogTag.slug == ts).first()
+                if not row:
+                    row = BlogTag(blog_id=blog.id, name=t, slug=ts)
+                    db.add(row); db.commit(); db.refresh(row)
+                tag_ids[t] = row.id
+    # posts
+    from datetime import timedelta
+    created = 0
+    for i, (pslug, title, excerpt, tags, body) in enumerate(_DEMO_POSTS):
+        if db.query(BlogPost).filter(BlogPost.blog_id == blog.id, BlogPost.slug == pslug).first():
+            continue
+        post = BlogPost(blog_id=blog.id, slug=pslug, title=title, excerpt=excerpt, body=body,
+                        status="published", published_at=datetime.utcnow() - timedelta(days=i * 7))
+        db.add(post); db.commit(); db.refresh(post)
+        for t in tags:
+            db.add(BlogPostTag(post_id=post.id, tag_id=tag_ids[t]))
+        db.commit(); created += 1
+    # menu + about page
+    if not db.query(BlogMenu).filter(BlogMenu.blog_id == blog.id).first():
+        db.add(BlogMenu(blog_id=blog.id, label="Home", link_type="home", position=0))
+        db.add(BlogMenu(blog_id=blog.id, label="Articles", link_type="home", position=1))
+        db.add(BlogMenu(blog_id=blog.id, label="About", link_type="page", target="about", position=2))
+        db.commit()
+    if not db.query(BlogPage).filter(BlogPage.blog_id == blog.id, BlogPage.slug == "about").first():
+        db.add(BlogPage(blog_id=blog.id, slug="about", title="About",
+                        body="<p>Hi, I'm a maker writing honest field notes.</p>",
+                        status="published", show_in_nav=True, nav_order=1))
+        db.commit()
+    return JSONResponse({"ok": True, "slug": blog.subdomain_slug,
+                         "url": f"/sites/{blog.subdomain_slug}",
+                         "posts_created": created,
+                         "note": "Demo blog ready. Open the url to see the rendering engine live."})
+
 
 
 # ── Proposed Profit Grid — member feedback capture ───────────────────────────
