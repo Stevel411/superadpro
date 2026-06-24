@@ -375,8 +375,9 @@ def render_banner_feed(ctx):
 
 def render_banner_post(ctx):
     p = ctx.post
-    head = _seo_head(ctx, f"{p.title} — {ctx.blog_title}", p.excerpt,
-                     og_image=p.cover_image, canonical=f"{ctx.base_url}{ctx.post_url(p)}")
+    _t = p.seo_title if (p.seo_title and p.seo_title != p.title) else f"{p.title} — {ctx.blog_title}"
+    head = _seo_head(ctx, _t, (p.seo_description or p.excerpt),
+                     og_image=(p.og_image or p.cover_image), canonical=f"{ctx.base_url}{ctx.post_url(p)}")
     body = [f"{head}<style>{_BANNER_CSS}{_palette_css(ctx)}</style></head><body>", _banner_header(ctx)]
     body.append(
         f'<div class="post-top wrap">{_tagrow(p, center=True)}<h1>{escape(p.title)}</h1>'
@@ -501,8 +502,10 @@ def _comments_html(ctx):
 
 
 def _post_page(ctx, theme_css, header_html, footer_html):
-    head = _seo_head(ctx, f"{ctx.post.title} — {ctx.blog_title}", ctx.post.excerpt,
-                     og_image=ctx.post.cover_image, canonical=f"{ctx.base_url}{ctx.post_url(ctx.post)}")
+    _p = ctx.post
+    _t = _p.seo_title if (_p.seo_title and _p.seo_title != _p.title) else f"{_p.title} — {ctx.blog_title}"
+    head = _seo_head(ctx, _t, (_p.seo_description or _p.excerpt),
+                     og_image=(_p.og_image or _p.cover_image), canonical=f"{ctx.base_url}{ctx.post_url(_p)}")
     return (f"{head}<style>{theme_css}{_palette_css(ctx)}{_ARTICLE_CSS}</style></head><body>"
             f"{header_html}{_article_markup(ctx)}{footer_html}</body></html>")
 

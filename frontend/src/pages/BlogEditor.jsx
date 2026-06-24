@@ -43,6 +43,10 @@ export default function BlogEditor({ kind = 'post' }) {
   const [status, setStatus] = useState('draft');
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [ogImage, setOgImage] = useState('');
+  const [ogUploading, setOgUploading] = useState(false);
   const bodyRef = useRef('');
 
   useEffect(() => {
@@ -54,6 +58,7 @@ export default function BlogEditor({ kind = 'post' }) {
         setBody(p.body || ''); bodyRef.current = p.body || '';
         setExcerpt(p.excerpt || ''); setCover(p.cover_image || '');
         setSlug(p.slug || ''); setStatus(p.status || 'draft'); setTags(p.tags || []);
+        setSeoTitle(p.seo_title || ''); setSeoDescription(p.seo_description || ''); setOgImage(p.og_image || '');
       } catch (e) { setErr(e.message); }
       setLoading(false); setReady(true);
     })();
@@ -76,6 +81,7 @@ export default function BlogEditor({ kind = 'post' }) {
       title, body: bodyRef.current, excerpt, cover_image: cover,
       slug, tags, status: nextStatus,
     };
+    if (!isPage) { payload.seo_title = seoTitle; payload.seo_description = seoDescription; payload.og_image = ogImage; }
     try {
       let res;
       if (postId) res = await apiPut(`/api/blog/${API}/${postId}`, payload);
@@ -101,6 +107,12 @@ export default function BlogEditor({ kind = 'post' }) {
     const v = (val || '').trim().replace(/,$/, '');
     if (v && !tags.includes(v) && tags.length < 10) setTags([...tags, v]);
     setTagInput('');
+  };
+  const onOg = async (e) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    setOgUploading(true); setErr('');
+    try { setOgImage(await uploadImage(file)); } catch (err) { setErr(err.message); }
+    setOgUploading(false);
   };
   const onCover = async (e) => {
     const file = e.target.files && e.target.files[0];
@@ -183,6 +195,31 @@ export default function BlogEditor({ kind = 'post' }) {
                 style={{ border: 'none', outline: 'none', fontSize: 12.5, background: 'transparent', minWidth: 60, color: C.ink2 }} />
             </div>
           </Rail>
+
+          <Rail label="SEO & sharing">
+            <div style={seoLbl}>Search title</div>
+            <input value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} maxLength={70}
+              placeholder={title || 'Defaults to the post title'} style={seoInput} />
+            <div style={seoHint}>{(seoTitle || title || '').length}/70 — the clickable headline in Google.</div>
+            <div style={{ ...seoLbl, marginTop: 13 }}>Meta description</div>
+            <textarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={3} maxLength={160}
+              placeholder={excerpt || 'Defaults to your excerpt — a compelling 1–2 sentence summary.'}
+              style={{ ...seoInput, resize: 'vertical', lineHeight: 1.5 }} />
+            <div style={seoHint}>{(seoDescription || excerpt || '').length}/160 — the grey summary under the title in search.</div>
+            <div style={{ ...seoLbl, marginTop: 13 }}>Social share image</div>
+            <div style={seoHint}>Shown when your post is shared. Falls back to the cover image.</div>
+            {ogImage ? (
+              <div style={{ marginTop: 7 }}>
+                <div style={{ aspectRatio: '1.91/1', borderRadius: 9, background: `url(${ogImage}) center/cover`, border: `1px solid ${C.line}` }} />
+                <span onClick={() => setOgImage('')} style={{ fontSize: 12, color: '#b42318', cursor: 'pointer', display: 'inline-block', marginTop: 5 }}>Remove</span>
+              </div>
+            ) : (
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 7, fontFamily: sora, fontSize: 12.5, fontWeight: 600, color: C.ink2, background: '#fff', border: `1px solid ${C.line}`, borderRadius: 8, padding: '8px 12px', cursor: ogUploading ? 'default' : 'pointer' }}>
+                <ImageIcon size={14} /> {ogUploading ? 'Uploading…' : 'Upload image'}
+                <input type="file" accept="image/*" hidden onChange={onOg} />
+              </label>
+            )}
+          </Rail>
           </>)}
 
           <Rail label="URL slug">
@@ -203,6 +240,10 @@ function Rail({ label, children }) {
     </div>
   );
 }
+
+const seoLbl = { fontFamily: sora, fontSize: 12.5, fontWeight: 600, color: C.ink2, marginBottom: 5 };
+const seoHint = { fontFamily: sora, fontSize: 11, color: C.dim, marginTop: 5, lineHeight: 1.45 };
+const seoInput = { width: '100%', boxSizing: 'border-box', fontFamily: sora, fontSize: 13, color: C.ink, background: '#fff', border: `1px solid ${C.line}`, borderRadius: 8, padding: '9px 11px', outline: 'none' };
 
 function btn(kind) {
   const base = { fontFamily: sora, fontWeight: 600, fontSize: 13.5, border: 'none', borderRadius: 9, padding: '9px 15px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, textDecoration: 'none' };

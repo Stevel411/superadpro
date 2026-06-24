@@ -56388,6 +56388,7 @@ def _post_full(post, blog, db):
         "excerpt": post.excerpt or "", "body": post.body or "",
         "cover_image": post.cover_image or "", "status": post.status,
         "tags": tags, "seo_title": post.seo_title or "", "seo_description": post.seo_description or "",
+        "og_image": post.og_image or "",
         "scheduled_at": post.scheduled_at.isoformat() if post.scheduled_at else None,
         "published_at": post.published_at.isoformat() if post.published_at else None,
         "url": f"/sites/{blog.subdomain_slug}/p/{post.slug}",
@@ -56444,7 +56445,7 @@ def _apply_post_payload(post, blog, payload, db, user):
     # auto SEO if not explicitly provided
     post.seo_title = ((payload.get("seo_title") or "").strip() or title)[:200]
     post.seo_description = ((payload.get("seo_description") or "").strip() or post.excerpt)[:300]
-    post.og_image = post.cover_image or None
+    post.og_image = _normalize_blog_image(payload.get("og_image"), user) or post.cover_image or None
     # status transitions
     status = payload.get("status") or post.status or "draft"
     if status == "published":
