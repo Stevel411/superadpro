@@ -55798,6 +55798,33 @@ def my_site_shell(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/admin/api/delete-blog")
+def admin_delete_blog(request: Request, user_id: int,
+                      user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin-only: fully delete a user's blog + all associated rows (FK-safe)."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    blog = db.query(Blog).filter(Blog.member_id == user_id).first()
+    if not blog:
+        return JSONResponse({"ok": True, "note": "No blog for that user — nothing to delete."})
+    bid, slug = blog.id, blog.subdomain_slug
+    post_ids = [r[0] for r in db.query(BlogPost.id).filter(BlogPost.blog_id == bid).all()]
+    if post_ids:
+        db.query(BlogPostView).filter(BlogPostView.post_id.in_(post_ids)).delete(synchronize_session=False)
+        db.query(BlogPostTag).filter(BlogPostTag.post_id.in_(post_ids)).delete(synchronize_session=False)
+        db.query(BlogComment).filter(BlogComment.post_id.in_(post_ids)).delete(synchronize_session=False)
+    db.query(BlogPost).filter(BlogPost.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogPage).filter(BlogPage.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogTag).filter(BlogTag.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogMenu).filter(BlogMenu.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogOptinForm).filter(BlogOptinForm.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogMedia).filter(BlogMedia.blog_id == bid).delete(synchronize_session=False)
+    db.query(Blog).filter(Blog.id == bid).delete(synchronize_session=False)
+    db.commit()
+    return JSONResponse({"ok": True, "deleted_blog": slug, "posts_deleted": len(post_ids),
+                         "note": "Blog removed. Open /my-site to see the launch screen."})
+
+
 
 
 # ── Proposed Profit Grid — member feedback capture ───────────────────────────
