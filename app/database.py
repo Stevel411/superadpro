@@ -5813,6 +5813,7 @@ class Blog(Base):
     social_links       = Column(Text, nullable=True)               # JSON string {instagram,x,youtube,tiktok,linkedin}
     comments_enabled   = Column(Boolean, default=True)
     is_published       = Column(Boolean, default=True, index=True) # unpublishes if member lapses
+    admin_suspended    = Column(Boolean, default=False, index=True) # admin kill-switch, override-proof
     policy_accepted_at = Column(DateTime, nullable=True)
     created_at         = Column(DateTime, default=datetime.utcnow, index=True)
     member             = relationship("User", foreign_keys=[member_id])
