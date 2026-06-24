@@ -28,7 +28,7 @@ import {
   // AI Content tool icons
   Sparkles, FileText, Monitor, Image, Smile, QrCode, Star,
   // Builder tool icons
-  Globe, Link2, LayoutGrid, Mail, Search, GraduationCap,
+  Globe, Link2, LayoutGrid, Mail, Search, GraduationCap, Newspaper,
 } from 'lucide-react';
 
 // ──────────────────────────────────────────────────────────────────
@@ -56,6 +56,7 @@ export function getBuilderTools(t) {
     { id: 'auto',      icon: Mail,          name: t('tools.builder.auto.name', { defaultValue: 'AutoResponder' }), desc: t('tools.builder.auto.desc', { defaultValue: 'Email sequences, broadcasts, lead nurture. Powered by Brevo.' }), to: '/pro/leads' },
     { id: 'leads',     icon: Search,        name: t('tools.builder.leads.name', { defaultValue: 'Lead Finder' }), desc: t('tools.builder.leads.desc', { defaultValue: 'Outscraper-powered local business and web prospect finder.' }), to: '/lead-finder' },
     { id: 'proseller', icon: GraduationCap, name: t('tools.builder.seller.name', { defaultValue: 'ProSeller' }), desc: t('tools.builder.seller.desc', { defaultValue: 'Personal AI sales coach. Strategy, copy, objection handling.' }), to: '/proseller' },
+    { id: 'mysite',    icon: Newspaper,     name: t('tools.builder.mysite.name', { defaultValue: 'My Site' }), desc: t('tools.builder.mysite.desc', { defaultValue: 'Your own blog & website. Posts, pages, themes, custom domain.' }), to: '/my-site' },
   ];
 }
 

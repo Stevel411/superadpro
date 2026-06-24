@@ -55729,6 +55729,76 @@ def admin_seed_demo_blog(request: Request, user_id: int,
                          "note": "Demo blog ready. Open the url to see the rendering engine live."})
 
 
+# ── Member blog dashboard API + shell ────────────────────────────────────────
+def _blog_post_brief(p, blog_slug, tags_map):
+    return {
+        "id": p.id, "title": p.title, "slug": p.slug, "status": p.status,
+        "views": p.view_count or 0, "excerpt": p.excerpt or "",
+        "tags": [n for n, _ in tags_map.get(p.id, [])],
+        "published_at": (p.published_at.isoformat() if p.published_at else None),
+        "updated_at": (p.updated_at.isoformat() if getattr(p, "updated_at", None) else None),
+        "scheduled_at": (p.scheduled_at.isoformat() if getattr(p, "scheduled_at", None) else None),
+        "url": f"/sites/{blog_slug}/p/{p.slug}",
+    }
+
+
+@app.get("/api/blog/me")
+def api_blog_me(request: Request, db: Session = Depends(get_db)):
+    """Current member's blog + stats + posts (or {blog: null} if not launched)."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = db.query(Blog).filter(Blog.member_id == user.id).first()
+    if not blog:
+        return {"blog": None, "is_pro": is_pro(user)}
+    posts = (db.query(BlogPost).filter(BlogPost.blog_id == blog.id)
+               .order_by(BlogPost.created_at.desc()).all())
+    tags_map = _blog_tags_for([p.id for p in posts], db)
+    published = sum(1 for p in posts if p.status == "published")
+    drafts = sum(1 for p in posts if p.status == "draft")
+    scheduled = sum(1 for p in posts if p.status == "scheduled")
+    total_views = sum((p.view_count or 0) for p in posts)
+    return {
+        "is_pro": is_pro(user),
+        "blog": {
+            "id": blog.id, "title": blog.title, "tagline": blog.tagline or "",
+            "slug": blog.subdomain_slug, "theme": blog.theme or "banner",
+            "palette": getattr(blog, "palette", None) or "default",
+            "font": blog.font or "classic-serif",
+            "url": f"/sites/{blog.subdomain_slug}",
+            "is_published": bool(blog.is_published),
+            "published": published, "drafts": drafts, "scheduled": scheduled,
+            "total_views": total_views, "subscribers": 0,
+        },
+        "posts": [_blog_post_brief(p, blog.subdomain_slug, tags_map) for p in posts],
+    }
+
+
+@app.post("/api/blog/launch")
+def api_blog_launch(request: Request, db: Session = Depends(get_db)):
+    """One-click 'Launch my site' — provision the member's blog + starter content."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "Your own website is included with Partner membership. Activate to launch your site."}, status_code=403)
+    existing = db.query(Blog).filter(Blog.member_id == user.id).first()
+    if existing:
+        return {"ok": True, "slug": existing.subdomain_slug,
+                "url": f"/sites/{existing.subdomain_slug}", "already": True}
+    blog = _provision_blog(user, db, with_samples=True)
+    return {"ok": True, "slug": blog.subdomain_slug, "url": f"/sites/{blog.subdomain_slug}"}
+
+
+@app.get("/my-site")
+def my_site_shell(request: Request):
+    """Serve React SPA (the member blog dashboard)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+
 
 # ── Proposed Profit Grid — member feedback capture ───────────────────────────
 # Backs the /new-grid proposal page (the New-Profit-Grid-Plan-50 proposal).
