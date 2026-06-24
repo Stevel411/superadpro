@@ -56110,6 +56110,54 @@ def api_blog_comment_delete(comment_id: int, request: Request, db: Session = Dep
     return {"ok": True}
 
 
+def _clean_referrer(ref):
+    if not ref:
+        return "Direct / none"
+    try:
+        from urllib.parse import urlparse
+        host = urlparse(ref if "://" in ref else "http://" + ref).netloc or "Other"
+        if host.startswith("www."):
+            host = host[4:]
+        return (host or "Other")[:80]
+    except Exception:
+        return "Other"
+
+
+@app.get("/api/blog/analytics")
+def api_blog_analytics(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    empty = {"views_30d": [], "top_referrers": [], "top_posts": [], "total_30d": 0}
+    if not blog:
+        return empty
+    posts = db.query(BlogPost).filter(BlogPost.blog_id == blog.id).all()
+    post_ids = [p.id for p in posts]
+    if not post_ids:
+        return empty
+    from datetime import timedelta
+    from collections import Counter
+    now = datetime.utcnow()
+    since = now - timedelta(days=30)
+    rows = (db.query(BlogPostView.viewed_at, BlogPostView.referrer)
+              .filter(BlogPostView.post_id.in_(post_ids), BlogPostView.viewed_at >= since).all())
+    by_day, refs = Counter(), Counter()
+    for viewed_at, referrer in rows:
+        if viewed_at:
+            by_day[viewed_at.strftime("%Y-%m-%d")] += 1
+        refs[_clean_referrer(referrer)] += 1
+    series = []
+    for i in range(29, -1, -1):
+        d = (now - timedelta(days=i)).strftime("%Y-%m-%d")
+        series.append({"date": d, "count": by_day.get(d, 0)})
+    top_referrers = [{"referrer": r, "count": c} for r, c in refs.most_common(8)]
+    top_posts = sorted([{"title": p.title, "slug": p.slug, "views": p.view_count or 0} for p in posts],
+                       key=lambda x: -x["views"])[:6]
+    return {"views_30d": series, "top_referrers": top_referrers, "top_posts": top_posts,
+            "total_30d": sum(by_day.values())}
+
+
 @app.get("/my-site")
 def my_site_shell(request: Request):
     """Serve React SPA (the member blog dashboard)."""

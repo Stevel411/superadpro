@@ -95,6 +95,7 @@ export default function MySite() {
   const [deletingSite, setDeletingSite] = useState(false);
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [err, setErr] = useState('');
@@ -109,6 +110,7 @@ export default function MySite() {
         setSocial(d.blog.social || {}); setCommentsOn(d.blog.comments_enabled !== false);
         try { const pg = await apiGet('/api/blog/pages'); setPages(pg.pages || []); } catch (e) {}
         try { const mn = await apiGet('/api/blog/menu'); setMenu(mn.menu || []); } catch (e) {}
+        try { const an = await apiGet('/api/blog/analytics'); setAnalytics(an); } catch (e) {}
       }
     } catch (e) { setErr(e.message); }
     setLoading(false);
@@ -320,6 +322,8 @@ export default function MySite() {
         </div>
 
         {tab === 'posts' && (
+          <>
+            {analytics && analytics.total_30d > 0 && <AnalyticsCard analytics={analytics} />}
           <div style={{ ...cardStyle(), overflow: 'hidden' }}>
             {posts.length === 0 && <div style={{ padding: 48, textAlign: 'center', color: C.dim }}>No posts yet. Your starter post is on its way.</div>}
             {posts.map((p, i) => {
@@ -344,6 +348,7 @@ export default function MySite() {
               );
             })}
           </div>
+          </>
         )}
 
         {tab === 'comments' && (
@@ -526,6 +531,34 @@ export default function MySite() {
 }
 
 // ── style helpers ────────────────────────────────────────────────────────────
+function AnalyticsCard({ analytics }) {
+  const series = analytics.views_30d || [];
+  const max = Math.max(1, ...series.map((d) => d.count));
+  return (
+    <div style={{ ...cardStyle(), padding: 20, marginBottom: 18 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div style={sectionLabel}>Last 30 days</div>
+        <div style={{ fontFamily: mono, fontSize: 13, color: C.dim }}>{(analytics.total_30d || 0).toLocaleString()} views</div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 60, marginBottom: 18 }}>
+        {series.map((d, i) => (
+          <div key={i} title={`${d.date}: ${d.count}`} style={{ flex: 1, height: `${Math.max(4, (d.count / max) * 100)}%`, background: d.count ? C.cy2 : C.line, borderRadius: 2 }} />
+        ))}
+      </div>
+      {analytics.top_referrers && analytics.top_referrers.length > 0 && (
+        <div>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: C.dim, marginBottom: 8 }}>Top sources</div>
+          {analytics.top_referrers.slice(0, 5).map((r, i, arr) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13.5, padding: '6px 0', borderBottom: i < arr.length - 1 ? `1px solid ${C.line2}` : 'none' }}>
+              <span style={{ color: C.ink2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '72%' }}>{r.referrer}</span>
+              <span style={{ fontFamily: mono, color: C.dim }}>{r.count}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 function StatusPill({ status }) {
   const m = { pending: ['Pending', '#b45309', '#fdf4e3'], approved: ['Approved', '#15803d', '#e7f6ee'], rejected: ['Rejected', '#9ca3af', '#f1f3f7'] };
   const [label, color, bg] = m[status] || m.pending;
