@@ -429,6 +429,37 @@ def _post_page(ctx, theme_css, header_html, footer_html):
             f"{header_html}{_article_markup(ctx)}{footer_html}</body></html>")
 
 
+# ── Static page rendering (About/Contact/etc.) ───────────────────────────────
+# Pages are clean title+body documents (no date/share/subscribe). Rendered in a
+# simple palette-aware layout that works across all themes.
+_PAGE_CSS = """:root{--accent:#0f6e4f;--accent-dark:#0a4d37;--hfont:'Georgia',serif;--bfont:'Georgia',serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;color:#1a2030;background:#fff;line-height:1.65}
+.pg-nav{border-bottom:1px solid #eceff5;padding:18px 24px;display:flex;align-items:center;gap:22px;max-width:1080px;margin:0 auto;flex-wrap:wrap}
+.pg-nav .home{font-weight:800;font-size:19px;color:#0a1438;text-decoration:none}
+.pg-nav a.lnk{color:#5b6b8c;font-size:14px;text-decoration:none;font-weight:500}
+.pg-nav a.lnk:hover{color:var(--accent)}
+.pg-nav .sp{margin-left:auto}
+.pg-wrap{max-width:720px;margin:0 auto;padding:54px 24px 90px}
+.pg-wrap h1{font-family:var(--hfont);font-size:40px;font-weight:800;letter-spacing:-.5px;color:#0a1438;margin-bottom:30px;line-height:1.12}
+"""
+
+
+def render_blog_page(ctx):
+    """Render a standalone page (ctx.post carries title/slug/body)."""
+    desc = (ctx.post.excerpt or ctx.tagline or ctx.blog_title)
+    head = _seo_head(ctx, f"{ctx.post.title} — {ctx.blog_title}", desc,
+                     canonical=f"{BASE_URL}/sites/{ctx.slug}/{ctx.post.slug}")
+    nav = "".join(f'<a class="lnk" href="{escape(h)}">{escape(l)}</a>'
+                  for l, h in (ctx.nav or [("Home", f"/sites/{ctx.slug}")]))
+    return (f"{head}<style>{_PAGE_CSS}{_palette_css(ctx)}{_ARTICLE_CSS}</style></head><body>"
+            f'<div class="pg-nav"><a class="home" href="/sites/{escape(ctx.slug)}">{escape(ctx.blog_title)}</a>'
+            f'<span class="sp"></span>{nav}</div>'
+            f'<div class="pg-wrap"><h1>{escape(ctx.post.title)}</h1>'
+            f'<div class="art-body">{sanitize_html(ctx.post.body)}</div></div>'
+            f'{_powered_footer(ctx)}</body></html>')
+
+
 def _cards_html(ctx, posts, card_cls, img_cls, h_tag="h3"):
     out = []
     for p in posts:

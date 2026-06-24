@@ -16,10 +16,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
-import { apiGet, apiPost, apiPatch } from '../utils/api';
+import { apiGet, apiPost, apiPatch, apiPut, apiDelete } from '../utils/api';
 import {
   PenSquare, Eye, Copy, Check, FileText, Edit3, MoreHorizontal,
-  Lock, Globe, Palette, Mail, Sparkles, ArrowRight,
+  Lock, Globe, Palette, Mail, Sparkles, ArrowRight, Plus, Trash2, X,
 } from 'lucide-react';
 
 const C = {
@@ -72,6 +72,10 @@ export default function MySite() {
   const [palette, setPalette] = useState('default');
   const [savingAppr, setSavingAppr] = useState(false);
   const [apprSaved, setApprSaved] = useState(false);
+  const [pages, setPages] = useState([]);
+  const [menu, setMenu] = useState([]);
+  const [savingMenu, setSavingMenu] = useState(false);
+  const [menuSaved, setMenuSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [err, setErr] = useState('');
@@ -80,7 +84,11 @@ export default function MySite() {
     setLoading(true);
     try {
       const d = await apiGet('/api/blog/me'); setData(d);
-      if (d.blog) { setTheme(d.blog.theme || 'banner'); setPalette(d.blog.palette || 'default'); }
+      if (d.blog) {
+        setTheme(d.blog.theme || 'banner'); setPalette(d.blog.palette || 'default');
+        try { const pg = await apiGet('/api/blog/pages'); setPages(pg.pages || []); } catch (e) {}
+        try { const mn = await apiGet('/api/blog/menu'); setMenu(mn.menu || []); } catch (e) {}
+      }
     } catch (e) { setErr(e.message); }
     setLoading(false);
   };
@@ -98,6 +106,24 @@ export default function MySite() {
     try { await apiPatch('/api/blog', { theme, palette }); setApprSaved(true); setTimeout(() => setApprSaved(false), 2500); }
     catch (e) { setErr(e.message); }
     setSavingAppr(false);
+  };
+
+  const deletePage = async (id) => {
+    if (!window.confirm('Delete this page permanently?')) return;
+    try { await apiDelete(`/api/blog/page/${id}`); await load(); } catch (e) { setErr(e.message); }
+  };
+  const saveMenu = async () => {
+    setSavingMenu(true); setErr('');
+    try { await apiPut('/api/blog/menu', { items: menu }); setMenuSaved(true); setTimeout(() => setMenuSaved(false), 2500); }
+    catch (e) { setErr(e.message); }
+    setSavingMenu(false);
+  };
+  const addMenuItem = () => setMenu([...menu, { label: 'New link', link_type: 'home', target: '' }]);
+  const updateMenuItem = (i, patch) => setMenu(menu.map((m, idx) => (idx === i ? { ...m, ...patch } : m)));
+  const removeMenuItem = (i) => setMenu(menu.filter((_, idx) => idx !== i));
+  const moveMenuItem = (i, dir) => {
+    const j = i + dir; if (j < 0 || j >= menu.length) return;
+    const m = [...menu]; [m[i], m[j]] = [m[j], m[i]]; setMenu(m);
   };
 
   const copyUrl = (url) => {
@@ -310,10 +336,61 @@ export default function MySite() {
           </div>
         )}
 
-        {(tab === 'pages' || tab === 'settings') && (
+        {tab === 'pages' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 22, alignItems: 'start' }}>
+            <div style={{ ...cardStyle(), overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', padding: '15px 20px', borderBottom: `1px solid ${C.line}` }}>
+                <div style={sectionLabel2}>Pages</div>
+                <button onClick={() => navigate('/my-site/pages/new')} style={{ ...btn('primary'), marginLeft: 'auto', padding: '8px 14px', fontSize: 13 }}><Plus size={14} /> New page</button>
+              </div>
+              {pages.length === 0 && <div style={{ padding: 36, textAlign: 'center', color: C.dim, fontSize: 14 }}>No pages yet.</div>}
+              {pages.map((pg, i) => (
+                <div key={pg.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', borderBottom: i < pages.length - 1 ? `1px solid ${C.line2}` : 'none' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14.5, color: C.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pg.title}</div>
+                    <div style={{ fontFamily: mono, fontSize: 12, color: C.dim, marginTop: 2 }}>/{pg.slug}</div>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 9px', borderRadius: 20, background: pg.status === 'published' ? '#e7f6ee' : '#fdf4e3', color: pg.status === 'published' ? '#15803d' : '#b45309' }}>{pg.status === 'published' ? 'Published' : 'Draft'}</span>
+                  <span onClick={() => navigate(`/my-site/pages/edit/${pg.id}`)} style={iconBtn}><Edit3 size={14} /></span>
+                  <span onClick={() => deletePage(pg.id)} style={{ ...iconBtn, color: '#b42318' }}><Trash2 size={14} /></span>
+                </div>
+              ))}
+            </div>
+            <div style={{ ...cardStyle(), padding: 20 }}>
+              <div style={sectionLabel}>Navigation menu</div>
+              {menu.length === 0 && <div style={{ fontSize: 13, color: C.dim, marginBottom: 12 }}>No menu links yet.</div>}
+              {menu.map((m, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9, padding: 9, border: `1px solid ${C.line}`, borderRadius: 10 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+                    <span onClick={() => moveMenuItem(i, -1)} style={{ cursor: 'pointer', color: C.dim, fontSize: 10 }}>▲</span>
+                    <span onClick={() => moveMenuItem(i, 1)} style={{ cursor: 'pointer', color: C.dim, fontSize: 10 }}>▼</span>
+                  </div>
+                  <input value={m.label} onChange={(e) => updateMenuItem(i, { label: e.target.value })} placeholder="Label" style={miniInput(80)} />
+                  <select value={m.link_type} onChange={(e) => updateMenuItem(i, { link_type: e.target.value, target: '' })} style={miniSelect}>
+                    <option value="home">Home</option>
+                    <option value="page">Page</option>
+                    <option value="external">URL</option>
+                  </select>
+                  {m.link_type === 'page' && (
+                    <select value={m.target} onChange={(e) => updateMenuItem(i, { target: e.target.value })} style={miniSelect}>
+                      <option value="">Select…</option>
+                      {pages.map((pg) => <option key={pg.id} value={pg.slug}>{pg.title}</option>)}
+                    </select>
+                  )}
+                  {m.link_type === 'external' && <input value={m.target} onChange={(e) => updateMenuItem(i, { target: e.target.value })} placeholder="https://…" style={miniInput(110)} />}
+                  <span onClick={() => removeMenuItem(i)} style={{ ...iconBtn, marginLeft: 'auto', color: '#b42318', flexShrink: 0 }}><X size={14} /></span>
+                </div>
+              ))}
+              <button onClick={addMenuItem} style={{ ...btn('ghost'), width: '100%', justifyContent: 'center', marginTop: 4 }}><Plus size={14} /> Add menu item</button>
+              <button onClick={saveMenu} disabled={savingMenu} style={{ ...btn('primary'), width: '100%', justifyContent: 'center', marginTop: 10 }}>{savingMenu ? 'Saving…' : menuSaved ? <><Check size={15} /> Saved</> : 'Save menu'}</button>
+            </div>
+          </div>
+        )}
+
+        {tab === 'settings' && (
           <div style={{ ...cardStyle(), padding: 48, textAlign: 'center', color: C.dim }}>
             <Sparkles size={22} style={{ marginBottom: 10, opacity: 0.6 }} />
-            <div style={{ fontFamily: sora, fontWeight: 600, color: C.ink2, marginBottom: 4, textTransform: 'capitalize' }}>{tab}</div>
+            <div style={{ fontFamily: sora, fontWeight: 600, color: C.ink2, marginBottom: 4 }}>Settings</div>
             <div style={{ fontSize: 14 }}>This section arrives in an upcoming update.</div>
           </div>
         )}
@@ -330,6 +407,9 @@ function btn(kind) {
   return { ...base, background: '#fff', border: `1px solid ${C.line}`, color: C.ink2 };
 }
 const sectionLabel = { fontFamily: sora, fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.dim, marginBottom: 13 };
+const sectionLabel2 = { fontFamily: sora, fontSize: 14, fontWeight: 700, color: C.ink };
+const miniSelect = { border: `1px solid ${C.line}`, borderRadius: 7, padding: '7px 8px', fontSize: 12.5, color: C.ink2, background: '#fff', outline: 'none', flex: 1, minWidth: 0 };
+const miniInput = (w) => ({ border: `1px solid ${C.line}`, borderRadius: 7, padding: '7px 9px', fontSize: 12.5, color: C.ink2, outline: 'none', width: w, flex: '0 1 auto', minWidth: 0 });
 const iconBtn = { width: 32, height: 32, borderRadius: 8, border: `1px solid ${C.line}`, display: 'grid', placeItems: 'center', color: C.dim, cursor: 'pointer' };
 const errBox = { background: '#fdecec', border: '1px solid #f5c2c2', color: '#b42318', borderRadius: 10, padding: '11px 14px', fontSize: 13.5, marginBottom: 16 };
 const noticeBox = { background: '#e8f7fb', border: '1px solid #b6e3ef', color: '#0e7490', borderRadius: 10, padding: '11px 14px', fontSize: 13.5, marginBottom: 16, fontWeight: 500 };

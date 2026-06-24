@@ -55837,6 +55837,150 @@ async def api_blog_update(payload: dict = Body(...), request: Request = None, db
     return {"ok": True, "theme": blog.theme, "palette": getattr(blog, "palette", "default") or "default"}
 
 
+# ── Pages CRUD ───────────────────────────────────────────────────────────────
+def _owned_page(page_id, user, db):
+    page = db.query(BlogPage).filter(BlogPage.id == page_id).first()
+    if not page:
+        return None, None
+    blog = db.query(Blog).filter(Blog.id == page.blog_id, Blog.member_id == user.id).first()
+    return (page, blog) if blog else (None, None)
+
+
+def _unique_page_slug(blog_id, base, db, exclude_id=None):
+    slug = _blog_slugify(base) or "page"
+    base_slug, n = slug, 1
+    while True:
+        q = db.query(BlogPage).filter(BlogPage.blog_id == blog_id, BlogPage.slug == slug)
+        if exclude_id:
+            q = q.filter(BlogPage.id != exclude_id)
+        if not q.first():
+            return slug
+        n += 1
+        slug = f"{base_slug}-{n}"
+
+
+def _page_full(page, blog):
+    return {"id": page.id, "title": page.title, "slug": page.slug, "body": page.body or "",
+            "status": page.status, "url": f"/sites/{blog.subdomain_slug}/{page.slug}"}
+
+
+def _apply_page_payload(page, blog, payload, db):
+    title = ((payload.get("title") or "").strip() or "Untitled")[:200]
+    page.title = title
+    page.body = _blogrender.sanitize_html(payload.get("body") or "")[:300000]
+    requested = ((payload.get("slug") or "").strip() or title)[:120]
+    page.slug = _unique_page_slug(blog.id, requested, db, exclude_id=page.id)
+    page.status = "published" if (payload.get("status") or page.status) == "published" else "draft"
+
+
+@app.get("/api/blog/pages")
+def api_blog_pages(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return {"pages": []}
+    pages = db.query(BlogPage).filter(BlogPage.blog_id == blog.id).order_by(BlogPage.id).all()
+    return {"pages": [{"id": p.id, "title": p.title, "slug": p.slug, "status": p.status,
+                       "url": f"/sites/{blog.subdomain_slug}/{p.slug}"} for p in pages]}
+
+
+@app.get("/api/blog/page/{page_id}")
+def api_blog_page_get(page_id: int, request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    page, blog = _owned_page(page_id, user, db)
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+    return _page_full(page, blog)
+
+
+@app.post("/api/blog/page")
+@limiter.limit("60/minute")
+async def api_blog_page_create(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "Partner membership required."}, status_code=403)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    page = BlogPage(blog_id=blog.id, slug="page", title="Untitled", status="draft")
+    db.add(page); db.commit(); db.refresh(page)
+    _apply_page_payload(page, blog, payload, db); db.commit(); db.refresh(page)
+    return _page_full(page, blog)
+
+
+@app.put("/api/blog/page/{page_id}")
+@limiter.limit("120/minute")
+async def api_blog_page_update(page_id: int, payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    page, blog = _owned_page(page_id, user, db)
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+    _apply_page_payload(page, blog, payload, db); db.commit(); db.refresh(page)
+    return _page_full(page, blog)
+
+
+@app.delete("/api/blog/page/{page_id}")
+def api_blog_page_delete(page_id: int, request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    page, blog = _owned_page(page_id, user, db)
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+    db.query(BlogMenu).filter(BlogMenu.blog_id == blog.id, BlogMenu.link_type == "page",
+                              BlogMenu.target == page.slug).delete(synchronize_session=False)
+    db.query(BlogPage).filter(BlogPage.id == page.id).delete(synchronize_session=False)
+    db.commit()
+    return {"ok": True}
+
+
+# ── Nav menu (replace-whole-menu) ────────────────────────────────────────────
+@app.get("/api/blog/menu")
+def api_blog_menu_get(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return {"menu": []}
+    items = db.query(BlogMenu).filter(BlogMenu.blog_id == blog.id).order_by(BlogMenu.position).all()
+    return {"menu": [{"id": m.id, "label": m.label, "link_type": m.link_type, "target": m.target or ""} for m in items]}
+
+
+@app.put("/api/blog/menu")
+@limiter.limit("60/minute")
+async def api_blog_menu_set(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    items = payload.get("items") or []
+    db.query(BlogMenu).filter(BlogMenu.blog_id == blog.id).delete(synchronize_session=False)
+    pos = 0
+    for it in items[:20]:
+        label = (it.get("label") or "").strip()[:60]
+        if not label:
+            continue
+        ltype = (it.get("link_type") or "page").strip()
+        if ltype not in {"home", "page", "post", "tag", "external"}:
+            ltype = "page"
+        target = (it.get("target") or "").strip()[:300]
+        db.add(BlogMenu(blog_id=blog.id, label=label, link_type=ltype, target=target or None, position=pos))
+        pos += 1
+    db.commit()
+    return {"ok": True}
+
+
 @app.get("/my-site")
 def my_site_shell(request: Request):
     """Serve React SPA (the member blog dashboard)."""
@@ -56039,6 +56183,20 @@ def my_site_edit_shell(post_id: int, request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/my-site/pages/new")
+def my_site_page_new_shell(request: Request):
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/my-site/pages/edit/{page_id}")
+def my_site_page_edit_shell(page_id: int, request: Request):
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.post("/api/blog/upload-image")
 @limiter.limit("40/minute")
 async def api_blog_upload_image(file: UploadFile = File(...), request: Request = None, db: Session = Depends(get_db)):
@@ -56218,6 +56376,34 @@ def blog_rss(slug: str, request: Request, db: Session = Depends(get_db)):
            f"<description>{_esc(blog.tagline or blog.title)}</description>" +
            "".join(items) + "</channel></rss>")
     return Response(content=rss, media_type="application/rss+xml")
+
+
+@app.get("/sites/{slug}/{page_slug}")
+def blog_public_page(slug: str, page_slug: str, request: Request, db: Session = Depends(get_db)):
+    """Public static page (About/etc.). Registered after the specific /sites/
+    routes so they match first; reserved slugs are guarded as a backstop."""
+    if page_slug in {"p", "report", "sitemap.xml", "rss.xml", "feed"}:
+        return HTMLResponse("<h2>Not found</h2>", status_code=404)
+    blog = _resolve_blog(slug, db)
+    if not blog:
+        return HTMLResponse("<h2>Site not found</h2>", status_code=404)
+    page = db.query(BlogPage).filter(BlogPage.blog_id == blog.id, BlogPage.slug == page_slug).first()
+    if not page:
+        return HTMLResponse("<h2>Page not found</h2>", status_code=404)
+    if page.status != "published":
+        _viewer = get_current_user(request, db)
+        if not (request.query_params.get("preview") == "1" and _viewer and _viewer.id == blog.member_id):
+            return HTMLResponse("<h2>Page not found</h2>", status_code=404)
+    member = db.query(User).filter(User.id == blog.member_id).first()
+    ctx = _blog_context(blog, member, db, f"/sites/{slug}")
+    _pv = request.query_params.get("theme")
+    if _pv and _pv in _blogrender.THEMES:
+        ctx.theme = _pv
+    _pp = request.query_params.get("palette")
+    if _pp:
+        ctx.palette = _pp
+    ctx.post = _blogrender.PostView(title=page.title, slug=page.slug, body=page.body or "", excerpt="")
+    return HTMLResponse(_blogrender.render_blog_page(ctx))
 
 
 @app.get("/admin/api/delete-blog")

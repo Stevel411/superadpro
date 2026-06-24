@@ -400,6 +400,8 @@ function AppRoutes() {
       <Route path="/my-site" element={<ProtectedRoute><MySite /></ProtectedRoute>} />
       <Route path="/my-site/new" element={<ProtectedRoute><BlogEditor /></ProtectedRoute>} />
       <Route path="/my-site/edit/:id" element={<ProtectedRoute><BlogEditor /></ProtectedRoute>} />
+      <Route path="/my-site/pages/new" element={<ProtectedRoute><BlogEditor kind="page" /></ProtectedRoute>} />
+      <Route path="/my-site/pages/edit/:id" element={<ProtectedRoute><BlogEditor kind="page" /></ProtectedRoute>} />
       {/* SuperSeller removed */}
       <Route path="/training" element={<ProtectedRoute><TrainingCentre /></ProtectedRoute>} />
       <Route path="/videos" element={<ProtectedRoute><Videos /></ProtectedRoute>} />

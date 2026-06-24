@@ -22,7 +22,9 @@ const C = {
 const sora = "'Sora',sans-serif";
 const mono = "'JetBrains Mono',monospace";
 
-export default function BlogEditor() {
+export default function BlogEditor({ kind = 'post' }) {
+  const isPage = kind === 'page';
+  const API = isPage ? 'page' : 'post';
   const { id } = useParams();
   const navigate = useNavigate();
   const [postId, setPostId] = useState(id || null);
@@ -47,7 +49,7 @@ export default function BlogEditor() {
     if (!id) return;
     (async () => {
       try {
-        const p = await apiGet(`/api/blog/post/${id}`);
+        const p = await apiGet(`/api/blog/${API}/${id}`);
         setTitle(p.title === 'Untitled' ? '' : p.title);
         setBody(p.body || ''); bodyRef.current = p.body || '';
         setExcerpt(p.excerpt || ''); setCover(p.cover_image || '');
@@ -76,11 +78,11 @@ export default function BlogEditor() {
     };
     try {
       let res;
-      if (postId) res = await apiPut(`/api/blog/post/${postId}`, payload);
+      if (postId) res = await apiPut(`/api/blog/${API}/${postId}`, payload);
       else {
-        res = await apiPost('/api/blog/post', payload);
+        res = await apiPost(`/api/blog/${API}`, payload);
         setPostId(res.id);
-        window.history.replaceState(null, '', `/my-site/edit/${res.id}`);
+        window.history.replaceState(null, '', `/my-site/${isPage ? 'pages/' : ''}edit/${res.id}`);
       }
       setSlug(res.slug); setStatus(res.status); setSavedAt(Date.now());
       setSaving(false);
@@ -91,7 +93,7 @@ export default function BlogEditor() {
   const remove = async () => {
     if (!postId) { navigate('/my-site'); return; }
     if (!window.confirm('Delete this post permanently?')) return;
-    try { await apiDelete(`/api/blog/post/${postId}`); navigate('/my-site'); }
+    try { await apiDelete(`/api/blog/${API}/${postId}`); navigate('/my-site'); }
     catch (e) { setErr(e.message); }
   };
 
@@ -143,7 +145,7 @@ export default function BlogEditor() {
           <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 50px 80px' }}>
             <input
               value={title} onChange={(e) => setTitle(e.target.value)}
-              placeholder="Post title"
+              placeholder={isPage ? "Page title" : "Post title"}
               style={{ width: '100%', border: 'none', outline: 'none', fontFamily: sora, fontSize: 38, fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.12, color: C.ink, marginBottom: 20 }}
             />
             {ready && <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} placeholder="Write your post… use the toolbar for headings, quotes, images and links." />}
@@ -152,6 +154,7 @@ export default function BlogEditor() {
 
         {/* settings rail */}
         <div style={{ background: '#fbfcfe', borderLeft: `1px solid ${C.line}`, padding: '24px 22px', overflow: 'auto' }}>
+          {!isPage && (<>
           <Rail label="Cover image">
             <label style={{ display: 'block', cursor: 'pointer' }}>
               <div style={{ aspectRatio: '16/9', borderRadius: 11, background: cover ? `url(${cover}) center/cover` : '#eef3fa', border: `1px dashed ${C.line}`, display: 'grid', placeItems: 'center', color: cover ? '#fff' : C.dim, fontSize: 13 }}>
@@ -180,6 +183,7 @@ export default function BlogEditor() {
                 style={{ border: 'none', outline: 'none', fontSize: 12.5, background: 'transparent', minWidth: 60, color: C.ink2 }} />
             </div>
           </Rail>
+          </>)}
 
           <Rail label="URL slug">
             <input value={slug} onChange={(e) => setSlug(e.target.value)}
