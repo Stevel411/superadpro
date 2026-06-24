@@ -13,7 +13,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, Undo, Redo, Minus
 } from 'lucide-react';
 
-export default function RichTextEditor({ content, onChange, placeholder }) {
+export default function RichTextEditor({ content, onChange, placeholder, onImageUpload }) {
 
   var { t } = useTranslation();
   var [linkUrl, setLinkUrl] = useState('');
@@ -71,15 +71,20 @@ export default function RichTextEditor({ content, onChange, placeholder }) {
     setImageUrl('');
   }
 
-  function handleImageUpload(e) {
+  async function handleImageUpload(e) {
     var file = e.target.files[0];
     if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      editor.chain().focus().setImage({ src: ev.target.result }).run();
-    };
-    reader.readAsDataURL(file);
     setShowImageInput(false);
+    if (onImageUpload) {
+      try {
+        var url = await onImageUpload(file);
+        if (url) editor.chain().focus().setImage({ src: url }).run();
+      } catch (err) { /* surfaced by caller */ }
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(ev) { editor.chain().focus().setImage({ src: ev.target.result }).run(); };
+    reader.readAsDataURL(file);
   }
 
   return (

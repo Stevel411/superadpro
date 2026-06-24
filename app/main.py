@@ -55779,6 +55779,7 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
 
 
 @app.post("/api/blog/launch")
+@limiter.limit("10/hour")
 def api_blog_launch(request: Request, db: Session = Depends(get_db)):
     """One-click 'Launch my site' — provision the member's blog + starter content."""
     user = get_current_user(request, db)
@@ -55832,7 +55833,7 @@ def _set_post_tags(post, blog_id, names, db):
     db.query(BlogPostTag).filter(BlogPostTag.post_id == post.id).delete(synchronize_session=False)
     seen = set()
     for name in (names or [])[:10]:
-        name = (name or "").strip()
+        name = (name or "").strip()[:40]
         if not name:
             continue
         tslug = _blog_slugify(name)
@@ -55873,18 +55874,45 @@ def api_blog_post_get(post_id: int, request: Request, db: Session = Depends(get_
     return _post_full(post, blog, db)
 
 
-def _apply_post_payload(post, blog, payload, db):
-    title = (payload.get("title") or "").strip() or "Untitled"
+def _normalize_blog_image(value, user):
+    """Never store base64 in the DB. A data: URI is uploaded to R2 and replaced
+    with its real URL (good for SEO/og:image and DB size); a normal URL is kept
+    (length-capped). Returns "" if a data: URI can't be persisted."""
+    value = (value or "").strip()
+    if not value:
+        return ""
+    if not value.startswith("data:"):
+        return value[:2000]
+    try:
+        import base64 as _b64
+        header, b64 = value.split(",", 1)
+        data = _b64.b64decode(b64)
+        if len(data) > 5 * 1024 * 1024:
+            return ""
+        ctype = header.split(":", 1)[1].split(";", 1)[0] if ":" in header else "image/jpeg"
+        ext = {"image/png": "png", "image/jpeg": "jpg", "image/jpg": "jpg",
+               "image/gif": "gif", "image/webp": "webp"}.get(ctype, "jpg")
+        from app.r2_storage import r2_available, upload_image
+        if r2_available():
+            return upload_image(data, "blog-images", ext, ctype)
+    except Exception:
+        return ""
+    return ""
+
+
+def _apply_post_payload(post, blog, payload, db, user):
+    title = ((payload.get("title") or "").strip() or "Untitled")[:200]
     post.title = title
-    post.body = payload.get("body") or ""
-    post.excerpt = (payload.get("excerpt") or "").strip()
-    post.cover_image = (payload.get("cover_image") or "").strip()
+    # sanitize rich body (XSS) + cap length
+    post.body = _blogrender.sanitize_html(payload.get("body") or "")[:300000]
+    post.excerpt = (payload.get("excerpt") or "").strip()[:500]
+    post.cover_image = _normalize_blog_image(payload.get("cover_image"), user)
     # slug: explicit if provided, else from title; keep unique within blog
-    requested = (payload.get("slug") or "").strip() or title
+    requested = ((payload.get("slug") or "").strip() or title)[:120]
     post.slug = _unique_post_slug(blog.id, requested, db, exclude_id=post.id)
     # auto SEO if not explicitly provided
-    post.seo_title = (payload.get("seo_title") or "").strip() or title
-    post.seo_description = (payload.get("seo_description") or "").strip() or post.excerpt
+    post.seo_title = ((payload.get("seo_title") or "").strip() or title)[:200]
+    post.seo_description = ((payload.get("seo_description") or "").strip() or post.excerpt)[:300]
     post.og_image = post.cover_image or None
     # status transitions
     status = payload.get("status") or post.status or "draft"
@@ -55903,6 +55931,7 @@ def _apply_post_payload(post, blog, payload, db):
 
 
 @app.post("/api/blog/post")
+@limiter.limit("60/minute")
 def api_blog_post_create(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
@@ -55914,7 +55943,7 @@ def api_blog_post_create(payload: dict = Body(...), request: Request = None, db:
         return JSONResponse({"error": "Launch your site first."}, status_code=400)
     post = BlogPost(blog_id=blog.id, slug="draft", title="Untitled", status="draft")
     db.add(post); db.commit(); db.refresh(post)
-    _apply_post_payload(post, blog, payload, db)
+    _apply_post_payload(post, blog, payload, db, user)
     db.commit()
     _set_post_tags(post, blog.id, payload.get("tags"), db)
     db.refresh(post)
@@ -55922,6 +55951,7 @@ def api_blog_post_create(payload: dict = Body(...), request: Request = None, db:
 
 
 @app.put("/api/blog/post/{post_id}")
+@limiter.limit("120/minute")
 def api_blog_post_update(post_id: int, payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
@@ -55929,7 +55959,7 @@ def api_blog_post_update(post_id: int, payload: dict = Body(...), request: Reque
     post, blog = _owned_post(post_id, user, db)
     if not post:
         return JSONResponse({"error": "Post not found"}, status_code=404)
-    _apply_post_payload(post, blog, payload, db)
+    _apply_post_payload(post, blog, payload, db, user)
     db.commit()
     if "tags" in payload:
         _set_post_tags(post, blog.id, payload.get("tags"), db)
@@ -55965,6 +55995,66 @@ def my_site_edit_shell(post_id: int, request: Request):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.post("/api/blog/upload-image")
+@limiter.limit("40/minute")
+async def api_blog_upload_image(file: UploadFile = File(...), request: Request = None, db: Session = Depends(get_db)):
+    """Upload a blog image (cover or inline) to R2; return a real public URL.
+    Reuses the funnel image pipeline (validate -> optimise -> R2). SVG is
+    disallowed for blog images since it can carry scripts (XSS)."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "Partner membership required."}, status_code=403)
+    allowed = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+    if file.content_type not in allowed:
+        return JSONResponse({"error": "Only JPEG, PNG, GIF and WebP images are allowed."}, status_code=400)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        return JSONResponse({"error": "Image too large. Maximum size is 5MB."}, status_code=400)
+    import uuid, os
+    ext = os.path.splitext(file.filename or "image.jpg")[1].lower().lstrip(".")
+    if ext not in {"jpg", "jpeg", "png", "gif", "webp"}:
+        ext = "jpg"
+    try:
+        from app.image_optimise import optimise_image
+        contents, ext, ctype = optimise_image(contents, ext)
+    except Exception:
+        ctype = file.content_type
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        url = upload_image(contents, "blog-images", ext, ctype)
+    else:
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        filename = f"blog_{user.id}_{uuid.uuid4().hex[:12]}.{ext}"
+        with open(os.path.join(upload_dir, filename), "wb") as fh:
+            fh.write(contents)
+        url = f"/static/uploads/{filename}"
+    return JSONResponse({"success": True, "url": url})
+
+
+@app.get("/admin/api/blog-sanitize-all")
+def admin_blog_sanitize_all(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """One-time/idempotent: sanitize all stored post bodies and migrate any
+    legacy base64 cover images to R2."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    posts = db.query(BlogPost).all()
+    bodies, covers = 0, 0
+    for p in posts:
+        clean = _blogrender.sanitize_html(p.body or "")
+        if clean != (p.body or ""):
+            p.body = clean; bodies += 1
+        if p.cover_image and p.cover_image.startswith("data:"):
+            newc = _normalize_blog_image(p.cover_image, user)
+            if newc != p.cover_image:
+                p.cover_image = newc; p.og_image = newc or None; covers += 1
+    db.commit()
+    return JSONResponse({"ok": True, "posts": len(posts),
+                         "bodies_sanitized": bodies, "covers_migrated": covers})
 
 
 @app.get("/admin/api/delete-blog")

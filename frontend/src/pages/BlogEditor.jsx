@@ -36,6 +36,7 @@ export default function BlogEditor() {
   const [body, setBody] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [cover, setCover] = useState('');
+  const [coverUploading, setCoverUploading] = useState(false);
   const [slug, setSlug] = useState('');
   const [status, setStatus] = useState('draft');
   const [tags, setTags] = useState([]);
@@ -55,6 +56,15 @@ export default function BlogEditor() {
       setLoading(false); setReady(true);
     })();
   }, [id]);
+
+  const uploadImage = async (file) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/blog/upload-image', { method: 'POST', credentials: 'include', body: fd });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.url) throw new Error(data.error || 'Upload failed');
+    return data.url;
+  };
 
   const onBody = (html) => { bodyRef.current = html; };
 
@@ -90,12 +100,12 @@ export default function BlogEditor() {
     if (v && !tags.includes(v) && tags.length < 10) setTags([...tags, v]);
     setTagInput('');
   };
-  const onCover = (e) => {
+  const onCover = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    const r = new FileReader();
-    r.onload = (ev) => setCover(ev.target.result);
-    r.readAsDataURL(file);
+    setCoverUploading(true); setErr('');
+    try { setCover(await uploadImage(file)); } catch (err) { setErr(err.message); }
+    setCoverUploading(false);
   };
 
   const savedLabel = savedAt ? 'Saved' : 'Not saved yet';
@@ -136,7 +146,7 @@ export default function BlogEditor() {
               placeholder="Post title"
               style={{ width: '100%', border: 'none', outline: 'none', fontFamily: sora, fontSize: 38, fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.12, color: C.ink, marginBottom: 20 }}
             />
-            {ready && <RichTextEditor content={body} onChange={onBody} placeholder="Write your post… use the toolbar for headings, quotes, images and links." />}
+            {ready && <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} placeholder="Write your post… use the toolbar for headings, quotes, images and links." />}
           </div>
         </div>
 
@@ -145,7 +155,7 @@ export default function BlogEditor() {
           <Rail label="Cover image">
             <label style={{ display: 'block', cursor: 'pointer' }}>
               <div style={{ aspectRatio: '16/9', borderRadius: 11, background: cover ? `url(${cover}) center/cover` : '#eef3fa', border: `1px dashed ${C.line}`, display: 'grid', placeItems: 'center', color: cover ? '#fff' : C.dim, fontSize: 13 }}>
-                {!cover && <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ImageIcon size={16} /> Upload cover</span>}
+                {!cover && <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><ImageIcon size={16} /> {coverUploading ? 'Uploading…' : 'Upload cover'}</span>}
               </div>
               <input type="file" accept="image/*" onChange={onCover} style={{ display: 'none' }} />
             </label>

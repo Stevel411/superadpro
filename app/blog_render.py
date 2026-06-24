@@ -23,6 +23,43 @@ from datetime import datetime
 from html import escape
 import json
 
+# ── HTML sanitization (XSS defense) ──────────────────────────────────────────
+# Post bodies are rich HTML authored by members and rendered to the public, so
+# they MUST be sanitized with a strict allowlist before storage and before
+# render (defense in depth). bleach is already a project dependency; if it ever
+# fails to import we fail safe by escaping the entire body (formatting lost, but
+# no script can execute). Swapping to nh3 later is a one-function change.
+_SANITIZE_TAGS = {
+    "p", "br", "hr", "h1", "h2", "h3", "h4", "strong", "b", "em", "i", "u",
+    "s", "strike", "del", "ul", "ol", "li", "blockquote", "pre", "code",
+    "a", "img", "span", "figure", "figcaption",
+}
+_SANITIZE_ATTRS = {
+    "a": ["href", "title", "target", "rel"],
+    "img": ["src", "alt", "title", "width", "height"],
+    "span": ["class"], "p": ["class"],
+    "h1": ["class"], "h2": ["class"], "h3": ["class"],
+    "code": ["class"], "pre": ["class"],
+}
+_SANITIZE_PROTOCOLS = ["http", "https", "mailto"]
+try:
+    import bleach as _bleach
+    _HAVE_BLEACH = True
+except Exception:
+    _HAVE_BLEACH = False
+
+
+def sanitize_html(html):
+    """Strip scripts/handlers/unsafe URLs; keep a safe formatting allowlist."""
+    if not html:
+        return ""
+    if not _HAVE_BLEACH:
+        return escape(html)
+    return _bleach.clean(
+        html, tags=_SANITIZE_TAGS, attributes=_SANITIZE_ATTRS,
+        protocols=_SANITIZE_PROTOCOLS, strip=True,
+    )
+
 BASE_URL = "https://www.superadpro.com"
 FONT_LINK = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
              '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>')
@@ -298,7 +335,7 @@ def render_banner_post(ctx):
         f'<div class="meta center"><span class="avatar"></span> {escape(ctx.username)} · {p.date_str} · {p.read_minutes} min read</div></div>'
         f'<div class="cover" style="{p.cover_style()}"></div>'
     )
-    body.append(f'<article class="article"><div class="body">{p.body or ""}</div>')
+    body.append(f'<article class="article"><div class="body">{sanitize_html(p.body)}</div>')
     # tags + share
     body.append(
         f'<div class="share-row"><div class="tagrow">'
@@ -375,7 +412,7 @@ def _article_markup(ctx):
         f'<div class="art-top">{trow}<h1>{escape(p.title)}</h1>'
         f'<div class="art-meta"><span class="art-av"></span> {escape(ctx.username)} · {p.date_str} · {p.read_minutes} min read</div></div>'
         f'<div class="art-cover" style="{p.cover_style()}"></div>'
-        f'<article class="art-wrap"><div class="art-body">{p.body or ""}</div>'
+        f'<article class="art-wrap"><div class="art-body">{sanitize_html(p.body)}</div>'
         f'<div class="art-share"><div>{shtags}</div><div><span class="lbl">Share</span>{shbtns}</div></div>'
         f'<div class="art-optin" id="subscribe"><h3>{escape(ctx.optin_title)}</h3><p>{escape(ctx.optin_sub)}</p>'
         f'<div class="f"><input placeholder="you@email.com"><button>Subscribe</button></div></div></article>'
