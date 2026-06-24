@@ -350,7 +350,7 @@ def render_banner_post(ctx):
     body.append(
         f'<div class="optin" id="subscribe"><h3>{escape(ctx.optin_title)}</h3>'
         f'<p>{escape(ctx.optin_sub)}</p>'
-        f'<div class="form"><input placeholder="you@email.com"><button>Subscribe</button></div>'
+        f'<div class="form"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Subscribe</button></form></div>'
         f'<div class="tiny">No spam. Unsubscribe anytime.</div></div>'
     )
     body.append('</article>')
@@ -418,7 +418,7 @@ def _article_markup(ctx):
         f'<article class="art-wrap"><div class="art-body">{sanitize_html(p.body)}</div>'
         f'<div class="art-share"><div>{shtags}</div><div><span class="lbl">Share</span>{shbtns}</div></div>'
         f'<div class="art-optin" id="subscribe"><h3>{escape(ctx.optin_title)}</h3><p>{escape(ctx.optin_sub)}</p>'
-        f'<div class="f"><input placeholder="you@email.com"><button>Subscribe</button></div></div></article>'
+        f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Subscribe</button></form></div></div></article>'
     )
 
 
@@ -530,7 +530,7 @@ def render_cs_feed(ctx):
     return (f"{head}<style>{_CS_CSS}{_palette_css(ctx)}</style></head><body>{_cs_header(ctx)}"
         f'<div class="wrap layout"><div class="main">{posts_html}</div>'
         f'<aside class="side"><div class="widget"><h4>About</h4><p style="font-size:14px;color:var(--soft);line-height:1.6">{escape(ctx.tagline or ctx.blog_title)}</p></div>'
-        f'<div class="widget subbox" id="subscribe"><h4>Subscribe</h4><p>New posts in your inbox.</p><input placeholder="you@email.com"><button>Join the list</button></div>'
+        f'<div class="widget subbox" id="subscribe"><h4>Subscribe</h4><p>New posts in your inbox.</p><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join the list</button></form></div>'
         f'<div class="widget"><h4>Popular</h4>{popular}</div>'
         f'<div class="widget"><h4>Topics</h4><div class="tags">{topics}</div></div></aside></div>'
         f"{_cs_footer(ctx)}</body></html>")
@@ -579,7 +579,7 @@ def render_jn_feed(ctx):
     return (f"{head}<style>{_JN_CSS}{_palette_css(ctx)}</style></head><body>{_jn_header(ctx)}"
         f'<div class="col">{entries}</div>'
         f'<div class="col jsub" id="subscribe"><h3>Subscribe</h3><p>New field notes, about once a week.</p>'
-        f'<div class="f"><input placeholder="you@email.com"><button>Join</button></div></div>'
+        f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join</button></form></div></div>'
         f"{_jn_footer(ctx)}</body></html>")
 def render_jn_post(ctx):
     return _post_page(ctx,_JN_CSS,_jn_header(ctx),_jn_footer(ctx))
@@ -640,7 +640,7 @@ def render_bn_feed(ctx):
     topics="".join(f'<span>{escape(n)}</span>' for n in list(tagset.values())[:6])
     tiles+=(f'<div class="tile t-tags"><h3>Topics</h3><div class="ts">{topics}</div></div>'
         f'<div class="tile t-sub" id="subscribe"><h3>Get the next one</h3><p>New notes about once a week.</p>'
-        f'<div class="f"><input placeholder="you@email.com"><button>Join</button></div></div>')
+        f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join</button></form></div></div>')
     head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
     return (f"{head}<style>{_BN_CSS}{_palette_css(ctx)}</style></head><body>{_bn_header(ctx)}"
         f'<div class="wrap"><div class="grid">{tiles}</div></div>{_bn_footer(ctx)}</body></html>')
@@ -697,7 +697,7 @@ def render_cn_feed(ctx):
     return (f"{head}<style>{_CN_CSS}{_palette_css(ctx)}</style></head><body>{_cn_header(ctx)}"
         f'<div class="wrap">{hero}<div class="grid">{cards}</div>'
         f'<div class="subband" id="subscribe"><h3>Get the next one in your inbox</h3><p>New posts, straight to your inbox.</p>'
-        f'<div class="f"><input placeholder="you@email.com"><button>Subscribe</button></div></div></div>{_cn_footer(ctx)}</body></html>')
+        f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Subscribe</button></form></div></div></div>{_cn_footer(ctx)}</body></html>')
 def render_cn_post(ctx):
     return _post_page(ctx,_CN_CSS,_cn_header(ctx),_cn_footer(ctx))
 
@@ -757,7 +757,7 @@ def render_gl_feed(ctx):
         f'<div class="wrap"><div class="ghero"><div class="k">{escape(ctx.tagline or "")}</div><h1>{escape(ctx.blog_title)}</h1></div>'
         f'{body}<div class="grid">{cards}</div>'
         f'<div class="gsub glass" id="subscribe"><h3>Get the next one in your inbox</h3><p>New posts, straight to your inbox.</p>'
-        f'<div class="f"><input placeholder="you@email.com"><button>Subscribe</button></div></div></div>{_gl_footer(ctx)}</body></html>')
+        f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Subscribe</button></form></div></div></div>{_gl_footer(ctx)}</body></html>')
 def render_gl_post(ctx):
     return _post_page(ctx,_GL_CSS,_gl_header(ctx),_gl_footer(ctx))
 

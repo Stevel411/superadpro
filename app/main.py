@@ -55789,7 +55789,7 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
             "url": f"/sites/{blog.subdomain_slug}",
             "is_published": bool(blog.is_published),
             "published": published, "drafts": drafts, "scheduled": scheduled,
-            "total_views": total_views, "subscribers": 0,
+            "total_views": total_views, "subscribers": _blog_subscriber_count(blog, db),
         },
         "posts": [_blog_post_brief(p, blog.subdomain_slug, tags_map) for p in posts],
     }
@@ -56438,7 +56438,7 @@ def blog_rss(slug: str, request: Request, db: Session = Depends(get_db)):
 def blog_public_page(slug: str, page_slug: str, request: Request, db: Session = Depends(get_db)):
     """Public static page (About/etc.). Registered after the specific /sites/
     routes so they match first; reserved slugs are guarded as a backstop."""
-    if page_slug in {"p", "report", "sitemap.xml", "rss.xml", "feed"}:
+    if page_slug in {"p", "report", "sitemap.xml", "rss.xml", "feed", "subscribe"}:
         return HTMLResponse("<h2>Not found</h2>", status_code=404)
     blog = _resolve_blog(slug, db)
     if not blog:
@@ -56460,6 +56460,73 @@ def blog_public_page(slug: str, page_slug: str, request: Request, db: Session = 
         ctx.palette = _pp
     ctx.post = _blogrender.PostView(title=page.title, slug=page.slug, body=page.body or "", excerpt="")
     return HTMLResponse(_blogrender.render_blog_page(ctx))
+
+
+def _blog_subscriber_count(blog, db):
+    optin = db.query(BlogOptinForm).filter(BlogOptinForm.blog_id == blog.id).first()
+    if optin and optin.lead_list_id:
+        return db.query(MemberLead).filter(MemberLead.list_id == optin.lead_list_id).count()
+    return 0
+
+
+def _ensure_blog_lead_list(blog, owner, db):
+    optin = db.query(BlogOptinForm).filter(BlogOptinForm.blog_id == blog.id).first()
+    if optin and optin.lead_list_id:
+        return optin.lead_list_id
+    ll = LeadList(user_id=owner.id, name=(f"{blog.title} subscribers")[:100],
+                  description="Subscribers from your blog", color="#0ea5e9")
+    db.add(ll); db.commit(); db.refresh(ll)
+    if not optin:
+        optin = BlogOptinForm(blog_id=blog.id, lead_list_id=ll.id)
+        db.add(optin)
+    else:
+        optin.lead_list_id = ll.id
+    db.commit()
+    return ll.id
+
+
+def _sub_result_page(msg, slug, ok=True):
+    from html import escape as _esc
+    icon = "✓" if ok else "!"
+    color = "#0891b2" if ok else "#b45309"
+    return (f"<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='robots' content='noindex'>"
+            f"<meta name='viewport' content='width=device-width,initial-scale=1'><title>{_esc(msg)}</title></head>"
+            f"<body style='font-family:system-ui,sans-serif;background:#f4f7fc;margin:0'>"
+            f"<div style='max-width:480px;margin:90px auto;background:#fff;border:1px solid #e6edf8;"
+            f"border-radius:16px;padding:42px;text-align:center;color:#0a1438'>"
+            f"<div style='width:54px;height:54px;border-radius:50%;background:{color};color:#fff;"
+            f"font-size:26px;display:grid;place-items:center;margin:0 auto 18px'>{icon}</div>"
+            f"<h1 style='font-size:21px;margin:0 0 8px'>{_esc(msg)}</h1>"
+            f"<a href='/sites/{_esc(slug)}' style='color:#0891b2;text-decoration:none;font-size:14px'>← Back to the blog</a>"
+            f"</div></body></html>")
+
+
+@app.post("/sites/{slug}/subscribe")
+@limiter.limit("10/minute")
+async def blog_subscribe(slug: str, request: Request, db: Session = Depends(get_db)):
+    blog = _resolve_blog(slug, db)
+    if not blog:
+        return HTMLResponse("<h2>Site not found</h2>", status_code=404)
+    form = await request.form()
+    email = (form.get("email") or "").strip().lower()[:200]
+    import re as _re
+    if not email or not _re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        return HTMLResponse(_sub_result_page("Please enter a valid email address.", slug, ok=False))
+    owner = db.query(User).filter(User.id == blog.member_id).first()
+    if not owner:
+        return HTMLResponse("<h2>Site not found</h2>", status_code=404)
+    list_id = _ensure_blog_lead_list(blog, owner, db)
+    existing = (db.query(MemberLead)
+                  .filter(MemberLead.user_id == owner.id, MemberLead.email == email,
+                          MemberLead.list_id == list_id).first())
+    if not existing:
+        db.add(MemberLead(user_id=owner.id, email=email, source_url=f"/sites/{slug}",
+                          list_id=list_id, status="new"))
+        ll = db.query(LeadList).filter(LeadList.id == list_id).first()
+        if ll:
+            ll.lead_count = (ll.lead_count or 0) + 1
+        db.commit()
+    return HTMLResponse(_sub_result_page("Thanks for subscribing!", slug, ok=True))
 
 
 @app.get("/admin/api/delete-blog")
