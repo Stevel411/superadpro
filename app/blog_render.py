@@ -139,7 +139,7 @@ def _powered_footer(ctx, mk_cls="powered"):
     return (f'<div class="{mk_cls}">Powered by '
             f'<a class="mk" href="{ref}"><span class="d">'
             f'<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span> '
-            f'SuperAdPro</a> — build your own site free</div>')
+            f'SuperAdPro</a></div>')
 
 
 def _share_html(ctx, btn_cls):
