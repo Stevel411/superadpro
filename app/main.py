@@ -42,7 +42,7 @@ from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_us
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
 from .database import CoPilotBriefing
-from .database import MemberLead
+from .database import MemberLead, LeadList
 from .database import ShareCode
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .database import MemberStory, MemberShowcase
