@@ -506,13 +506,18 @@ def _post_page(ctx, theme_css, header_html, footer_html):
 # simple palette-aware layout that works across all themes.
 _PAGE_CSS = """:root{--accent:#0f6e4f;--accent-dark:#0a4d37;--hfont:'Georgia',serif;--bfont:'Georgia',serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;color:#1a2030;background:#fff;line-height:1.65}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;color:#1a2030;background:#fff;line-height:1.65;min-height:100vh;display:flex;flex-direction:column}
 .pg-nav{border-bottom:1px solid #eceff5;padding:18px 24px;display:flex;align-items:center;gap:22px;max-width:1080px;margin:0 auto;flex-wrap:wrap}
 .pg-nav .home{font-weight:800;font-size:19px;color:#0a1438;text-decoration:none}
 .pg-nav a.lnk{color:#5b6b8c;font-size:14px;text-decoration:none;font-weight:500}
 .pg-nav a.lnk:hover{color:var(--accent)}
 .pg-nav .sp{margin-left:auto}
-.pg-wrap{max-width:720px;margin:0 auto;padding:54px 24px 90px}
+.pg-wrap{max-width:720px;margin:0 auto;padding:54px 24px 90px;flex:1 0 auto;width:100%}
+.pg-foot{flex-shrink:0;background:#f7f8fa;border-top:1px solid #eceff5;padding:30px 24px;display:flex;justify-content:center;align-items:center}
+.pg-foot .powered{font-size:13px;color:#5b6b8c;display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center}
+.pg-foot .powered .mk{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #e6edf8;padding:7px 13px;border-radius:8px;margin-left:4px;color:var(--accent);font-weight:700;text-decoration:none}
+.pg-foot .powered .mk .d{width:16px;height:16px;border-radius:5px;background:linear-gradient(135deg,#06b6d4,#1e3a8a);display:inline-grid;place-items:center}
+.pg-foot .powered .mk .d svg{width:8px;height:8px;fill:#fff}
 .pg-wrap h1{font-family:var(--hfont);font-size:40px;font-weight:800;letter-spacing:-.5px;color:#0a1438;margin-bottom:30px;line-height:1.12}
 """
 
@@ -522,14 +527,15 @@ def render_blog_page(ctx):
     desc = (ctx.post.excerpt or ctx.tagline or ctx.blog_title)
     head = _seo_head(ctx, f"{ctx.post.title} — {ctx.blog_title}", desc,
                      canonical=f"{ctx.base_url}{ctx.base_path}/{ctx.post.slug}")
+    home_href = ctx.base_path or "/"
     nav = "".join(f'<a class="lnk" href="{escape(h)}">{escape(l)}</a>'
-                  for l, h in (ctx.nav or [("Home", f"/sites/{ctx.slug}")]))
+                  for l, h in (ctx.nav or [("Home", home_href)]))
     return (f"{head}<style>{_PAGE_CSS}{_palette_css(ctx)}{_ARTICLE_CSS}</style></head><body>"
-            f'<div class="pg-nav"><a class="home" href="/sites/{escape(ctx.slug)}">{escape(ctx.blog_title)}</a>'
+            f'<div class="pg-nav"><a class="home" href="{escape(home_href)}">{escape(ctx.blog_title)}</a>'
             f'<span class="sp"></span>{nav}</div>'
             f'<div class="pg-wrap"><h1>{escape(ctx.post.title)}</h1>'
             f'<div class="art-body">{sanitize_html(ctx.post.body)}</div></div>'
-            f'{_powered_footer(ctx)}</body></html>')
+            f'<div class="pg-foot">{_powered_footer(ctx)}</div></body></html>')
 
 
 def _cards_html(ctx, posts, card_cls, img_cls, h_tag="h3"):
