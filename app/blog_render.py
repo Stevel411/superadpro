@@ -467,11 +467,11 @@ _BLOCKS_CSS = """
 .bn-callout::before{content:'i';flex:0 0 22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-style:italic;display:grid;place-items:center;font-size:14px;margin-top:1px}
 .bn-callout>*{margin:0}
 .bn-callout[data-type="tip"]{border-left-color:#16a34a;background:#f0fdf4;background:color-mix(in srgb,#16a34a 8%,transparent)}
-.bn-callout[data-type="tip"]::before{content:'\2726';background:#16a34a;font-style:normal}
+.bn-callout[data-type="tip"]::before{content:'✦';background:#16a34a;font-style:normal}
 .bn-callout[data-type="warning"]{border-left-color:#d97706;background:#fffbeb;background:color-mix(in srgb,#d97706 9%,transparent)}
 .bn-callout[data-type="warning"]::before{content:'!';background:#d97706;font-style:normal}
 .bn-callout[data-type="success"]{border-left-color:#7c3aed;background:#faf5ff;background:color-mix(in srgb,#7c3aed 8%,transparent)}
-.bn-callout[data-type="success"]::before{content:'\2713';background:#7c3aed;font-style:normal}
+.bn-callout[data-type="success"]::before{content:'✓';background:#7c3aed;font-style:normal}
 .bn-embed{position:relative;padding-bottom:56.25%;height:0;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
 .bn-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .bn-btn-wrap{margin:26px 0;text-align:center}
