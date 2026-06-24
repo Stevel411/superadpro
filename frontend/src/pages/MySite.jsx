@@ -99,6 +99,7 @@ export default function MySite() {
   const [domain, setDomain] = useState(null);
   const [domainInput, setDomainInput] = useState('');
   const [domainBusy, setDomainBusy] = useState(false);
+  const [visBusy, setVisBusy] = useState(false);
   const [domainErr, setDomainErr] = useState('');
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
@@ -189,6 +190,13 @@ export default function MySite() {
     try { await apiDelete('/api/blog/domain'); setDomain(null); }
     catch (e) { setDomainErr(e.message); }
     setDomainBusy(false);
+  };
+
+  const toggleVisibility = async () => {
+    setVisBusy(true); setErr('');
+    try { await apiPatch('/api/blog', { is_published: !blog.is_published }); await load(); }
+    catch (e) { setErr(e.message); }
+    setVisBusy(false);
   };
 
   const saveSettings = async () => {
@@ -511,6 +519,25 @@ export default function MySite() {
 
         {tab === 'settings' && (
           <div style={{ maxWidth: 620 }}>
+            <div style={{ ...cardStyle(), padding: 20, marginBottom: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ minWidth: 240 }}>
+                <div style={{ fontFamily: sora, fontWeight: 700, fontSize: 15, color: C.ink }}>Site visibility</div>
+                <div style={{ fontSize: 13, color: blog.admin_suspended ? '#b42318' : C.dim, marginTop: 3, lineHeight: 1.45 }}>
+                  {blog.admin_suspended
+                    ? 'Your site has been suspended by an administrator. Please contact support.'
+                    : blog.is_published
+                      ? 'Live — visible to anyone with the link.'
+                      : 'Offline — only you can see it. Posts and settings are safe.'}
+                </div>
+              </div>
+              {!blog.admin_suspended && (
+                <button onClick={toggleVisibility} disabled={visBusy} style={{
+                  background: blog.is_published ? '#fff' : C.grn, color: blog.is_published ? '#b45309' : '#fff',
+                  border: blog.is_published ? '1px solid #e6c79a' : 'none', fontFamily: sora, fontWeight: 600,
+                  fontSize: 14, borderRadius: 9, padding: '10px 18px', cursor: visBusy ? 'default' : 'pointer', whiteSpace: 'nowrap',
+                }}>{visBusy ? '…' : blog.is_published ? 'Take offline' : 'Go live'}</button>
+              )}
+            </div>
             <div style={{ ...cardStyle(), padding: 24, marginBottom: 18 }}>
               <div style={sectionLabel}>Site details</div>
               <Field label="Site title">

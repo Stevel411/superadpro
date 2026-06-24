@@ -55586,10 +55586,33 @@ def _blog_context(blog, member, db, base_path):
     )
 
 
+def _blog_admin_suspended(db, blog_id):
+    """Read blogs.admin_suspended via raw SQL, tolerant of the column not yet
+    existing (before /admin/api/setup-blog-suspend is tapped). Returns False on
+    any error/missing column, so behaviour is identical to today pre-tap."""
+    try:
+        from sqlalchemy import text as _text
+        row = db.execute(_text("SELECT admin_suspended FROM blogs WHERE id = :id"),
+                         {"id": blog_id}).first()
+        return bool(row[0]) if row and row[0] is not None else False
+    except Exception:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return False
+
+
 def _resolve_blog(slug, db):
-    return (db.query(Blog)
+    blog = (db.query(Blog)
               .filter(Blog.subdomain_slug == slug, Blog.is_published == True)  # noqa: E712
               .first())
+    if not blog:
+        return None
+    # Public visibility = member-published AND NOT admin-suspended.
+    if _blog_admin_suspended(db, blog.id):
+        return None
+    return blog
 
 
 def _blog_origin(request, slug):
@@ -55852,6 +55875,7 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
             "comments_enabled": bool(blog.comments_enabled),
             "url": f"/sites/{blog.subdomain_slug}",
             "is_published": bool(blog.is_published),
+            "admin_suspended": _blog_admin_suspended(db, blog.id),
             "published": published, "drafts": drafts, "scheduled": scheduled,
             "total_views": total_views, "subscribers": _blog_subscriber_count(blog, db),
             "pending_comments": (db.query(BlogComment).join(BlogPost, BlogComment.post_id == BlogPost.id)
@@ -55909,6 +55933,8 @@ async def api_blog_update(payload: dict = Body(...), request: Request = None, db
         blog.tagline = (payload.get("tagline") or "").strip()[:200]
     if "comments_enabled" in payload:
         blog.comments_enabled = bool(payload.get("comments_enabled"))
+    if "is_published" in payload:
+        blog.is_published = bool(payload.get("is_published"))
     if "social" in payload and isinstance(payload.get("social"), dict):
         import json as _json
         allowed = {"instagram", "x", "youtube", "tiktok", "linkedin", "facebook", "website"}
@@ -55922,7 +55948,7 @@ async def api_blog_update(payload: dict = Body(...), request: Request = None, db
     db.commit()
     return {"ok": True, "theme": blog.theme, "palette": getattr(blog, "palette", "default") or "default",
             "title": blog.title, "tagline": blog.tagline or "",
-            "comments_enabled": bool(blog.comments_enabled), "social": _blog_social_dict(blog)}
+            "comments_enabled": bool(blog.comments_enabled), "is_published": bool(blog.is_published), "social": _blog_social_dict(blog)}
 
 
 # ── Pages CRUD ───────────────────────────────────────────────────────────────
@@ -56604,11 +56630,24 @@ def admin_blog_takedown(request: Request, member_id: int, restore: int = 0,
     blog = db.query(Blog).filter(Blog.member_id == member_id).first()
     if not blog:
         return JSONResponse({"error": "No blog for that user."}, status_code=404)
-    blog.is_published = bool(restore)
-    db.commit()
+    suspend = not bool(restore)
+    from sqlalchemy import text as _text
+    try:
+        db.execute(_text("UPDATE blogs SET admin_suspended = :v WHERE id = :id"),
+                   {"v": suspend, "id": blog.id})
+        db.commit()
+        mechanism = "admin_suspended"
+    except Exception:
+        db.rollback()
+        # Column not present yet (setup endpoint not tapped) — fall back to the
+        # is_published flag so takedown still works. Tap setup-blog-suspend to
+        # upgrade to the override-proof flag.
+        blog.is_published = bool(restore)
+        db.commit()
+        mechanism = "is_published(fallback)"
     return JSONResponse({"ok": True, "slug": blog.subdomain_slug,
-                         "is_published": blog.is_published,
-                         "state": "restored" if blog.is_published else "taken down"})
+                         "mechanism": mechanism,
+                         "state": "restored" if restore else "taken down"})
 
 
 @app.get("/sites/{slug}/report")
