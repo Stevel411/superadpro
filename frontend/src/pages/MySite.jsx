@@ -48,6 +48,16 @@ const PALETTES = [
   { key: 'ink',        name: 'Ink',        color: '#1a1a1a' },
 ];
 
+const SOCIALS = [
+  { key: 'x',         name: 'X / Twitter', ph: 'https://x.com/you' },
+  { key: 'instagram', name: 'Instagram',   ph: 'https://instagram.com/you' },
+  { key: 'youtube',   name: 'YouTube',     ph: 'https://youtube.com/@you' },
+  { key: 'tiktok',    name: 'TikTok',      ph: 'https://tiktok.com/@you' },
+  { key: 'facebook',  name: 'Facebook',    ph: 'https://facebook.com/you' },
+  { key: 'linkedin',  name: 'LinkedIn',    ph: 'https://linkedin.com/in/you' },
+  { key: 'website',   name: 'Website',     ph: 'https://yoursite.com' },
+];
+
 const STATUS = {
   published: { bg: '#e7f6ee', fg: '#15803d', label: 'Published' },
   draft:     { bg: '#fdf4e3', fg: '#b45309', label: 'Draft' },
@@ -76,6 +86,13 @@ export default function MySite() {
   const [menu, setMenu] = useState([]);
   const [savingMenu, setSavingMenu] = useState(false);
   const [menuSaved, setMenuSaved] = useState(false);
+  const [siteTitle, setSiteTitle] = useState('');
+  const [siteTagline, setSiteTagline] = useState('');
+  const [social, setSocial] = useState({});
+  const [commentsOn, setCommentsOn] = useState(true);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSaved, setSettingsSaved] = useState(false);
+  const [deletingSite, setDeletingSite] = useState(false);
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [err, setErr] = useState('');
@@ -86,6 +103,8 @@ export default function MySite() {
       const d = await apiGet('/api/blog/me'); setData(d);
       if (d.blog) {
         setTheme(d.blog.theme || 'banner'); setPalette(d.blog.palette || 'default');
+        setSiteTitle(d.blog.title || ''); setSiteTagline(d.blog.tagline || '');
+        setSocial(d.blog.social || {}); setCommentsOn(d.blog.comments_enabled !== false);
         try { const pg = await apiGet('/api/blog/pages'); setPages(pg.pages || []); } catch (e) {}
         try { const mn = await apiGet('/api/blog/menu'); setMenu(mn.menu || []); } catch (e) {}
       }
@@ -124,6 +143,26 @@ export default function MySite() {
   const moveMenuItem = (i, dir) => {
     const j = i + dir; if (j < 0 || j >= menu.length) return;
     const m = [...menu]; [m[i], m[j]] = [m[j], m[i]]; setMenu(m);
+  };
+
+  const saveSettings = async () => {
+    setSavingSettings(true); setErr('');
+    const soc = {};
+    Object.keys(social).forEach((k) => {
+      let v = (social[k] || '').trim();
+      if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v;
+      if (v) soc[k] = v;
+    });
+    try { await apiPatch('/api/blog', { title: siteTitle, tagline: siteTagline, social: soc, comments_enabled: commentsOn }); setSettingsSaved(true); setTimeout(() => setSettingsSaved(false), 2500); await load(); }
+    catch (e) { setErr(e.message); }
+    setSavingSettings(false);
+  };
+  const deleteSite = async () => {
+    if (!window.confirm('Delete your entire site and all posts and pages? This cannot be undone.')) return;
+    if (!window.confirm('Are you absolutely sure? Everything will be permanently removed.')) return;
+    setDeletingSite(true);
+    try { await apiDelete('/api/blog'); await load(); } catch (e) { setErr(e.message); }
+    setDeletingSite(false);
   };
 
   const copyUrl = (url) => {
@@ -388,10 +427,47 @@ export default function MySite() {
         )}
 
         {tab === 'settings' && (
-          <div style={{ ...cardStyle(), padding: 48, textAlign: 'center', color: C.dim }}>
-            <Sparkles size={22} style={{ marginBottom: 10, opacity: 0.6 }} />
-            <div style={{ fontFamily: sora, fontWeight: 600, color: C.ink2, marginBottom: 4 }}>Settings</div>
-            <div style={{ fontSize: 14 }}>This section arrives in an upcoming update.</div>
+          <div style={{ maxWidth: 620 }}>
+            <div style={{ ...cardStyle(), padding: 24, marginBottom: 18 }}>
+              <div style={sectionLabel}>Site details</div>
+              <Field label="Site title">
+                <input value={siteTitle} onChange={(e) => setSiteTitle(e.target.value)} style={fullInput} />
+              </Field>
+              <Field label="Tagline">
+                <input value={siteTagline} onChange={(e) => setSiteTagline(e.target.value)} placeholder="A short line under your blog name" style={fullInput} />
+              </Field>
+            </div>
+
+            <div style={{ ...cardStyle(), padding: 24, marginBottom: 18 }}>
+              <div style={sectionLabel}>Social links</div>
+              {SOCIALS.map((soc) => (
+                <Field key={soc.key} label={soc.name}>
+                  <input value={social[soc.key] || ''} onChange={(e) => setSocial({ ...social, [soc.key]: e.target.value })} placeholder={soc.ph} style={fullInput} />
+                </Field>
+              ))}
+            </div>
+
+            <div style={{ ...cardStyle(), padding: 24, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: sora, fontWeight: 600, fontSize: 14.5, color: C.ink }}>Comments</div>
+                <div style={{ fontSize: 13, color: C.dim, marginTop: 2 }}>Let readers comment on your posts.</div>
+              </div>
+              <div onClick={() => setCommentsOn(!commentsOn)} style={{ width: 46, height: 26, borderRadius: 20, background: commentsOn ? C.cy2 : '#cdd6e6', position: 'relative', cursor: 'pointer', transition: 'background .15s', flexShrink: 0 }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#fff', position: 'absolute', top: 3, left: commentsOn ? 23 : 3, transition: 'left .15s' }} />
+              </div>
+            </div>
+
+            <button onClick={saveSettings} disabled={savingSettings} style={{ ...btn('primary'), width: '100%', justifyContent: 'center' }}>
+              {savingSettings ? 'Saving…' : settingsSaved ? <><Check size={16} /> Saved</> : 'Save settings'}
+            </button>
+
+            <div style={{ ...cardStyle(), padding: 24, marginTop: 28, border: '1px solid #f3c2c2' }}>
+              <div style={{ fontFamily: sora, fontWeight: 700, fontSize: 14, color: '#b42318', marginBottom: 6 }}>Danger zone</div>
+              <div style={{ fontSize: 13.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>Deleting your site permanently removes all posts, pages and settings. This can't be undone.</div>
+              <button onClick={deleteSite} disabled={deletingSite} style={{ background: '#fff', border: '1px solid #e5a3a3', color: '#b42318', fontFamily: sora, fontWeight: 600, fontSize: 14, borderRadius: 9, padding: '11px 18px', cursor: 'pointer' }}>
+                {deletingSite ? 'Deleting…' : 'Delete my site'}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -400,6 +476,10 @@ export default function MySite() {
 }
 
 // ── style helpers ────────────────────────────────────────────────────────────
+function Field({ label, children }) {
+  return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 12.5, fontWeight: 600, color: C.dim, marginBottom: 6 }}>{label}</div>{children}</div>;
+}
+const fullInput = { width: '100%', border: `1px solid ${C.line}`, borderRadius: 9, padding: '10px 13px', fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: C.ink2, outline: 'none', boxSizing: 'border-box' };
 function cardStyle() { return { background: C.card, border: `1px solid ${C.line}`, borderRadius: 16 }; }
 function btn(kind) {
   const base = { fontFamily: sora, fontWeight: 600, fontSize: 14, border: 'none', borderRadius: 10, padding: '11px 18px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' };

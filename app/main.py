@@ -55784,6 +55784,8 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
             "slug": blog.subdomain_slug, "theme": blog.theme or "banner",
             "palette": getattr(blog, "palette", None) or "default",
             "font": blog.font or "classic-serif",
+            "social": _blog_social_dict(blog),
+            "comments_enabled": bool(blog.comments_enabled),
             "url": f"/sites/{blog.subdomain_slug}",
             "is_published": bool(blog.is_published),
             "published": published, "drafts": drafts, "scheduled": scheduled,
@@ -55833,8 +55835,28 @@ async def api_blog_update(payload: dict = Body(...), request: Request = None, db
         p = (payload.get("palette") or "").strip()
         if p in _VALID_PALETTES:
             blog.palette = p
+    if "title" in payload:
+        t = (payload.get("title") or "").strip()[:120]
+        if t:
+            blog.title = t
+    if "tagline" in payload:
+        blog.tagline = (payload.get("tagline") or "").strip()[:200]
+    if "comments_enabled" in payload:
+        blog.comments_enabled = bool(payload.get("comments_enabled"))
+    if "social" in payload and isinstance(payload.get("social"), dict):
+        import json as _json
+        allowed = {"instagram", "x", "youtube", "tiktok", "linkedin", "facebook", "website"}
+        clean = {}
+        for k, v in payload["social"].items():
+            if k in allowed and v:
+                v = str(v).strip()[:300]
+                if v.startswith("http://") or v.startswith("https://"):
+                    clean[k] = v
+        blog.social_links = _json.dumps(clean) if clean else None
     db.commit()
-    return {"ok": True, "theme": blog.theme, "palette": getattr(blog, "palette", "default") or "default"}
+    return {"ok": True, "theme": blog.theme, "palette": getattr(blog, "palette", "default") or "default",
+            "title": blog.title, "tagline": blog.tagline or "",
+            "comments_enabled": bool(blog.comments_enabled), "social": _blog_social_dict(blog)}
 
 
 # ── Pages CRUD ───────────────────────────────────────────────────────────────
@@ -55981,6 +56003,32 @@ async def api_blog_menu_set(payload: dict = Body(...), request: Request = None, 
     return {"ok": True}
 
 
+@app.delete("/api/blog")
+def api_blog_delete_self(request: Request, db: Session = Depends(get_db)):
+    """Member deletes their own site + all content (FK-safe)."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return {"ok": True, "note": "No blog."}
+    bid = blog.id
+    post_ids = [r[0] for r in db.query(BlogPost.id).filter(BlogPost.blog_id == bid).all()]
+    if post_ids:
+        db.query(BlogPostView).filter(BlogPostView.post_id.in_(post_ids)).delete(synchronize_session=False)
+        db.query(BlogPostTag).filter(BlogPostTag.post_id.in_(post_ids)).delete(synchronize_session=False)
+        db.query(BlogComment).filter(BlogComment.post_id.in_(post_ids)).delete(synchronize_session=False)
+    db.query(BlogPost).filter(BlogPost.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogPage).filter(BlogPage.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogTag).filter(BlogTag.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogMenu).filter(BlogMenu.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogOptinForm).filter(BlogOptinForm.blog_id == bid).delete(synchronize_session=False)
+    db.query(BlogMedia).filter(BlogMedia.blog_id == bid).delete(synchronize_session=False)
+    db.query(Blog).filter(Blog.id == bid).delete(synchronize_session=False)
+    db.commit()
+    return {"ok": True}
+
+
 @app.get("/my-site")
 def my_site_shell(request: Request):
     """Serve React SPA (the member blog dashboard)."""
@@ -55992,6 +56040,14 @@ def my_site_shell(request: Request):
 # ── Blog post editor: CRUD (owner-gated) ─────────────────────────────────────
 def _member_blog(user, db):
     return db.query(Blog).filter(Blog.member_id == user.id).first()
+
+
+def _blog_social_dict(blog):
+    import json as _json
+    try:
+        return _json.loads(blog.social_links) if blog.social_links else {}
+    except Exception:
+        return {}
 
 
 def _owned_post(post_id, user, db):
