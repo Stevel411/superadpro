@@ -144,6 +144,8 @@ class BlogRenderContext:
     optin_sub: str = "New posts straight to your inbox."
     base_path: str = ""                            # e.g. /sites/{slug}
     palette: str = "default"                       # accent palette key (see PALETTES)
+    comments_enabled: bool = False
+    comments: list = field(default_factory=list)   # list[(author_name, body_text, date_str)]
 
     def post_url(self, post: PostView) -> str:
         return f"{self.base_path}/p/{post.slug}"
@@ -403,6 +405,18 @@ _ARTICLE_CSS = """
 .art-optin .f{display:flex;gap:9px;max-width:430px;margin:0 auto}
 .art-optin input{flex:1;border:none;border-radius:11px;padding:14px 16px;font-size:14.5px}
 .art-optin button{background:#fff;color:var(--accent);border:none;border-radius:11px;padding:0 24px;font-weight:700;font-size:14.5px;cursor:pointer}
+.art-comments{margin-top:50px}
+.art-comments h3{font-family:var(--hfont);font-size:21px;margin-bottom:18px;color:var(--ink)}
+.cmt{border-top:1px solid var(--line);padding:18px 0}
+.cmt-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+.cmt-a{font-weight:700;font-size:14.5px;color:var(--ink)}
+.cmt-d{font-size:12.5px;color:var(--soft);white-space:nowrap}
+.cmt-b{font-size:15px;line-height:1.6;color:var(--ink);word-wrap:break-word}
+.cmt-empty{color:var(--soft);font-size:14.5px;padding:14px 0 4px}
+.cmt-form{margin-top:26px;display:flex;flex-direction:column;gap:11px;border-top:1px solid var(--line);padding-top:24px}
+.cmt-in{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14.5px;font-family:inherit;outline:none;max-width:280px}
+.cmt-ta{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14.5px;font-family:inherit;outline:none;min-height:96px;resize:vertical}
+.cmt-btn{align-self:flex-start;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-weight:700;font-size:14.5px;cursor:pointer}
 """
 
 
@@ -418,8 +432,29 @@ def _article_markup(ctx):
         f'<article class="art-wrap"><div class="art-body">{sanitize_html(p.body)}</div>'
         f'<div class="art-share"><div>{shtags}</div><div><span class="lbl">Share</span>{shbtns}</div></div>'
         f'<div class="art-optin" id="subscribe"><h3>{escape(ctx.optin_title)}</h3><p>{escape(ctx.optin_sub)}</p>'
-        f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Subscribe</button></form></div></div></article>'
+        f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Subscribe</button></form></div></div>{_comments_html(ctx)}</article>'
     )
+
+
+def _comments_html(ctx):
+    if not getattr(ctx, "comments_enabled", False):
+        return ""
+    cmts = getattr(ctx, "comments", []) or []
+    rows = ""
+    for name, body_text, date in cmts:
+        safe = escape(body_text).replace("\n", "<br>")
+        rows += (f'<div class="cmt"><div class="cmt-h"><span class="cmt-a">{escape(name)}</span>'
+                 f'<span class="cmt-d">{escape(date)}</span></div><div class="cmt-b">{safe}</div></div>')
+    if not rows:
+        rows = '<div class="cmt-empty">Be the first to comment.</div>'
+    action = f"/sites/{escape(ctx.slug)}/p/{escape(ctx.post.slug)}/comment"
+    form = (f'<form class="cmt-form" method="post" action="{action}">'
+            f'<input class="cmt-in" name="author_name" required maxlength="80" placeholder="Your name">'
+            f'<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">'
+            f'<textarea class="cmt-ta" name="body" required maxlength="5000" placeholder="Write a comment…"></textarea>'
+            f'<button class="cmt-btn" type="submit">Post comment</button></form>')
+    return f'<div class="art-comments"><h3>Comments ({len(cmts)})</h3>{rows}{form}</div>'
+
 
 
 def _post_page(ctx, theme_css, header_html, footer_html):

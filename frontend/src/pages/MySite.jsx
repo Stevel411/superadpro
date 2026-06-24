@@ -19,7 +19,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost, apiPatch, apiPut, apiDelete } from '../utils/api';
 import {
   PenSquare, Eye, Copy, Check, FileText, Edit3, MoreHorizontal,
-  Lock, Globe, Palette, Mail, Sparkles, ArrowRight, Plus, Trash2, X,
+  Lock, Globe, Palette, Mail, Sparkles, ArrowRight, Plus, Trash2, X, MessageSquare,
 } from 'lucide-react';
 
 const C = {
@@ -93,6 +93,8 @@ export default function MySite() {
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
   const [deletingSite, setDeletingSite] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(false);
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState('');
   const [err, setErr] = useState('');
@@ -143,6 +145,20 @@ export default function MySite() {
   const moveMenuItem = (i, dir) => {
     const j = i + dir; if (j < 0 || j >= menu.length) return;
     const m = [...menu]; [m[i], m[j]] = [m[j], m[i]]; setMenu(m);
+  };
+
+  const loadComments = async () => {
+    setLoadingComments(true);
+    try { const r = await apiGet('/api/blog/comments'); setComments(r.comments || []); } catch (e) {}
+    setLoadingComments(false);
+  };
+  useEffect(() => { if (tab === 'comments') loadComments(); }, [tab]);
+  const moderate = async (id, action) => {
+    try {
+      if (action === 'delete') await apiDelete(`/api/blog/comment/${id}`);
+      else await apiPost(`/api/blog/comment/${id}/${action}`, {});
+      await loadComments(); await load();
+    } catch (e) { setErr(e.message); }
   };
 
   const saveSettings = async () => {
@@ -255,7 +271,7 @@ export default function MySite() {
     ['Total views', blog.total_views.toLocaleString(), C.cy1],
     ['Subscribers', blog.subscribers, C.grn],
   ];
-  const tabs = ['posts', 'pages', 'appearance', 'settings'];
+  const tabs = ['posts', 'pages', 'comments', 'appearance', 'settings'];
 
   return (
     <AppLayout title="My Site">
@@ -297,7 +313,9 @@ export default function MySite() {
               padding: '12px 18px', fontFamily: sora, fontSize: 14.5, cursor: 'pointer', textTransform: 'capitalize',
               fontWeight: tab === tb ? 600 : 500, color: tab === tb ? C.ink : C.dim,
               borderBottom: tab === tb ? `2px solid ${C.cy1}` : '2px solid transparent',
-            }}>{tb}</a>
+            }}>{tb}{tb === 'comments' && data?.blog?.pending_comments > 0 && (
+              <span style={{ marginLeft: 7, fontSize: 11, fontWeight: 700, background: '#ef4444', color: '#fff', borderRadius: 20, padding: '1px 7px', verticalAlign: 'middle' }}>{data.blog.pending_comments}</span>
+            )}</a>
           ))}
         </div>
 
@@ -325,6 +343,38 @@ export default function MySite() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {tab === 'comments' && (
+          <div>
+            {loadingComments && <div style={{ padding: 30, textAlign: 'center', color: C.dim }}>Loading…</div>}
+            {!loadingComments && comments.length === 0 && (
+              <div style={{ ...cardStyle(), padding: 48, textAlign: 'center', color: C.dim }}>
+                <MessageSquare size={22} style={{ marginBottom: 10, opacity: 0.6 }} />
+                <div style={{ fontFamily: sora, fontWeight: 600, color: C.ink2, marginBottom: 4 }}>No comments yet</div>
+                <div style={{ fontSize: 14 }}>When readers comment, they'll appear here for you to approve.</div>
+              </div>
+            )}
+            {!loadingComments && comments.length > 0 && (
+              <div style={{ ...cardStyle(), overflow: 'hidden' }}>
+                {comments.map((c, i) => (
+                  <div key={c.id} style={{ padding: '16px 20px', borderBottom: i < comments.length - 1 ? `1px solid ${C.line2}` : 'none', background: c.status === 'pending' ? '#fffdf5' : 'transparent' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7, flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>{c.author_name}</span>
+                      <span style={{ fontSize: 12.5, color: C.dim }}>on “{c.post_title}”</span>
+                      <StatusPill status={c.status} />
+                    </div>
+                    <div style={{ fontSize: 14.5, color: C.ink2, lineHeight: 1.55, whiteSpace: 'pre-wrap', wordBreak: 'break-word', marginBottom: 12 }}>{c.body}</div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {c.status !== 'approved' && <button onClick={() => moderate(c.id, 'approve')} style={pillBtn('#15803d', '#e7f6ee')}><Check size={13} /> Approve</button>}
+                      {c.status !== 'rejected' && <button onClick={() => moderate(c.id, 'reject')} style={pillBtn('#b45309', '#fdf4e3')}>Reject</button>}
+                      <button onClick={() => moderate(c.id, 'delete')} style={pillBtn('#b42318', '#fbeaea')}><Trash2 size={13} /> Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -476,6 +526,12 @@ export default function MySite() {
 }
 
 // ── style helpers ────────────────────────────────────────────────────────────
+function StatusPill({ status }) {
+  const m = { pending: ['Pending', '#b45309', '#fdf4e3'], approved: ['Approved', '#15803d', '#e7f6ee'], rejected: ['Rejected', '#9ca3af', '#f1f3f7'] };
+  const [label, color, bg] = m[status] || m.pending;
+  return <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, background: bg, color }}>{label}</span>;
+}
+const pillBtn = (color, bg) => ({ display: 'inline-flex', alignItems: 'center', gap: 5, background: bg, color, border: 'none', borderRadius: 8, padding: '7px 13px', fontSize: 13, fontWeight: 600, fontFamily: sora, cursor: 'pointer' });
 function Field({ label, children }) {
   return <div style={{ marginBottom: 14 }}><div style={{ fontSize: 12.5, fontWeight: 600, color: C.dim, marginBottom: 6 }}>{label}</div>{children}</div>;
 }

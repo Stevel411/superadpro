@@ -55609,6 +55609,13 @@ def blog_public_post(slug: str, post_slug: str, request: Request, db: Session = 
     if _pp and (_pp == "default" or _pp in _blogrender.PALETTES):
         ctx.palette = _pp
     ctx.post = _blog_post_view(post, _blog_tags_for([post.id], db))
+    ctx.comments_enabled = bool(blog.comments_enabled)
+    if ctx.comments_enabled:
+        _cmts = (db.query(BlogComment)
+                   .filter(BlogComment.post_id == post.id, BlogComment.status == "approved")
+                   .order_by(BlogComment.created_at.asc()).all())
+        ctx.comments = [(c.author_name, c.body,
+                         c.created_at.strftime("%b %-d, %Y") if c.created_at else "") for c in _cmts]
     ua = request.headers.get("user-agent", "").lower()
     _bots = ("googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider", "yandexbot",
              "curl", "python-requests", "wget", "headlesschrome", "facebot", "semrush", "ahrefsbot")
@@ -55790,6 +55797,8 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
             "is_published": bool(blog.is_published),
             "published": published, "drafts": drafts, "scheduled": scheduled,
             "total_views": total_views, "subscribers": _blog_subscriber_count(blog, db),
+            "pending_comments": (db.query(BlogComment).join(BlogPost, BlogComment.post_id == BlogPost.id)
+                                 .filter(BlogPost.blog_id == blog.id, BlogComment.status == "pending").count()),
         },
         "posts": [_blog_post_brief(p, blog.subdomain_slug, tags_map) for p in posts],
     }
@@ -56025,6 +56034,78 @@ def api_blog_delete_self(request: Request, db: Session = Depends(get_db)):
     db.query(BlogOptinForm).filter(BlogOptinForm.blog_id == bid).delete(synchronize_session=False)
     db.query(BlogMedia).filter(BlogMedia.blog_id == bid).delete(synchronize_session=False)
     db.query(Blog).filter(Blog.id == bid).delete(synchronize_session=False)
+    db.commit()
+    return {"ok": True}
+
+
+def _owned_comment(comment_id, user, db):
+    c = db.query(BlogComment).filter(BlogComment.id == comment_id).first()
+    if not c:
+        return None, None
+    post = db.query(BlogPost).filter(BlogPost.id == c.post_id).first()
+    if not post:
+        return None, None
+    blog = db.query(Blog).filter(Blog.id == post.blog_id, Blog.member_id == user.id).first()
+    return (c, blog) if blog else (None, None)
+
+
+@app.get("/api/blog/comments")
+def api_blog_comments(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return {"comments": []}
+    posts = db.query(BlogPost).filter(BlogPost.blog_id == blog.id).all()
+    if not posts:
+        return {"comments": []}
+    title_map = {p.id: (p.title, p.slug) for p in posts}
+    cmts = (db.query(BlogComment).filter(BlogComment.post_id.in_(list(title_map.keys()))).all())
+    order = {"pending": 0, "approved": 1, "rejected": 2}
+    cmts.sort(key=lambda c: (order.get(c.status, 3), -c.id))
+    return {"comments": [{
+        "id": c.id, "author_name": c.author_name, "author_email": c.author_email or "",
+        "body": c.body, "status": c.status,
+        "post_title": title_map.get(c.post_id, ("", ""))[0],
+        "post_slug": title_map.get(c.post_id, ("", ""))[1],
+        "created_at": c.created_at.isoformat() if c.created_at else "",
+    } for c in cmts]}
+
+
+@app.post("/api/blog/comment/{comment_id}/approve")
+def api_blog_comment_approve(comment_id: int, request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    c, blog = _owned_comment(comment_id, user, db)
+    if not c:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    c.status = "approved"; db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/blog/comment/{comment_id}/reject")
+def api_blog_comment_reject(comment_id: int, request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    c, blog = _owned_comment(comment_id, user, db)
+    if not c:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    c.status = "rejected"; db.commit()
+    return {"ok": True}
+
+
+@app.delete("/api/blog/comment/{comment_id}")
+def api_blog_comment_delete(comment_id: int, request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    c, blog = _owned_comment(comment_id, user, db)
+    if not c:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    db.query(BlogComment).filter(BlogComment.id == c.id).delete(synchronize_session=False)
     db.commit()
     return {"ok": True}
 
@@ -56527,6 +56608,31 @@ async def blog_subscribe(slug: str, request: Request, db: Session = Depends(get_
             ll.lead_count = (ll.lead_count or 0) + 1
         db.commit()
     return HTMLResponse(_sub_result_page("Thanks for subscribing!", slug, ok=True))
+
+
+@app.post("/sites/{slug}/p/{post_slug}/comment")
+@limiter.limit("5/minute")
+async def blog_comment_submit(slug: str, post_slug: str, request: Request, db: Session = Depends(get_db)):
+    blog = _resolve_blog(slug, db)
+    if not blog:
+        return HTMLResponse("<h2>Site not found</h2>", status_code=404)
+    if not blog.comments_enabled:
+        return HTMLResponse(_sub_result_page("Comments are turned off for this blog.", slug, ok=False))
+    post = (db.query(BlogPost).filter(BlogPost.blog_id == blog.id, BlogPost.slug == post_slug,
+                                      BlogPost.status == "published").first())
+    if not post:
+        return HTMLResponse("<h2>Post not found</h2>", status_code=404)
+    form = await request.form()
+    if (form.get("website") or "").strip():
+        return HTMLResponse(_sub_result_page("Thanks! Your comment is awaiting approval.", slug, ok=True))
+    name = (form.get("author_name") or "").strip()[:80]
+    body = (form.get("body") or "").strip()[:5000]
+    email = ((form.get("author_email") or "").strip()[:200]) or None
+    if not name or len(body) < 2:
+        return HTMLResponse(_sub_result_page("Please add your name and a comment.", slug, ok=False))
+    db.add(BlogComment(post_id=post.id, author_name=name, author_email=email, body=body, status="pending"))
+    db.commit()
+    return HTMLResponse(_sub_result_page("Thanks! Your comment is awaiting approval.", slug, ok=True))
 
 
 @app.get("/admin/api/delete-blog")
