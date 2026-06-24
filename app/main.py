@@ -55555,7 +55555,7 @@ def _blog_post_view(post, tags_map):
         published_at=post.published_at or post.created_at,
         read_minutes=rm, tags=tags_map.get(post.id, []), seed=post.id or 0,
         seo_title=post.seo_title or "", seo_description=post.seo_description or "",
-        og_image=post.og_image or "",
+        og_image=post.og_image or "", updated_at=getattr(post, "updated_at", None),
     )
 
 
@@ -56696,6 +56696,13 @@ def blog_sitemap(slug: str, request: Request, db: Session = Depends(get_db)):
     for p in _blog_public_posts(blog, db):
         lm = p.updated_at or p.published_at or p.created_at
         loc = f"{base}/p/{p.slug}"
+        rows.append(f"<url><loc>{_esc(loc)}</loc>" +
+                    (f"<lastmod>{lm.strftime('%Y-%m-%d')}</lastmod>" if lm else "") + "</url>")
+    # Published standalone pages (About, Contact, etc.) — also indexable.
+    for pg in (db.query(BlogPage)
+                 .filter(BlogPage.blog_id == blog.id, BlogPage.status == "published").all()):
+        lm = getattr(pg, "updated_at", None) or getattr(pg, "created_at", None)
+        loc = f"{base}/{pg.slug}"
         rows.append(f"<url><loc>{_esc(loc)}</loc>" +
                     (f"<lastmod>{lm.strftime('%Y-%m-%d')}</lastmod>" if lm else "") + "</url>")
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'

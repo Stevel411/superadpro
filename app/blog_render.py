@@ -156,6 +156,7 @@ class PostView:
     seo_title: str = ""
     seo_description: str = ""
     og_image: str = ""
+    updated_at: datetime = None
 
     @property
     def date_str(self) -> str:
@@ -194,38 +195,91 @@ class BlogRenderContext:
 
 # ── shared helpers (used by every theme) ─────────────────────────────────────
 def _jsonld(ctx):
-    """SEO structured data (schema.org). Emitted as a nonce'd data block so it
-    passes the strict blog CSP. < is unicode-escaped to prevent </script> breakout."""
-    import json as _json
+    """SEO structured data (schema.org). Emits BlogPosting (with author/publisher,
+    dates, keywords, word count, reading time), a BreadcrumbList, and — when the
+    post embeds a video — a VideoObject, so posts are eligible for article, video
+    and breadcrumb rich results. Each block is a nonce'd data block (strict CSP);
+    < is unicode-escaped to prevent </script> breakout."""
+    import json as _json, re as _re2
+    blocks = []
     if ctx.post:
-        is_article = bool(ctx.post.published_at)
-        url = (f"{ctx.base_url}{ctx.post_url(ctx.post)}" if is_article
-               else f"{ctx.base_url}{ctx.base_path}/{ctx.post.slug}")
+        p = ctx.post
+        is_article = bool(p.published_at)
+        url = (f"{ctx.base_url}{ctx.post_url(p)}" if is_article
+               else f"{ctx.base_url}{ctx.base_path}/{p.slug}")
+        author_url = f"{ctx.base_url}/ref/{ctx.username}" if ctx.username else ctx.base_url
+        img = getattr(p, "og_image", "") or p.cover_image or ""
+        desc = (getattr(p, "seo_description", "") or p.excerpt or ctx.tagline or ctx.blog_title)
         data = {
             "@context": "https://schema.org",
             "@type": "BlogPosting" if is_article else "WebPage",
-            "headline": ctx.post.title,
+            "headline": p.title[:110],
             "url": url,
-            "author": {"@type": "Person", "name": ctx.username},
+            "mainEntityOfPage": {"@type": "WebPage", "@id": url},
+            "author": {"@type": "Person", "name": ctx.username or ctx.blog_title, "url": author_url},
             "publisher": {"@type": "Organization", "name": ctx.blog_title},
+            "description": desc[:300],
         }
         if is_article:
-            data["datePublished"] = ctx.post.published_at.isoformat()
-        if ctx.post.cover_image:
-            data["image"] = ctx.post.cover_image
-        if ctx.post.excerpt:
-            data["description"] = ctx.post.excerpt
+            data["datePublished"] = p.published_at.isoformat()
+            _dm = getattr(p, "updated_at", None) or p.published_at
+            data["dateModified"] = _dm.isoformat()
+        if img:
+            data["image"] = [img]
+        _tags = [(t[0] if isinstance(t, (list, tuple)) else t) for t in (p.tags or [])]
+        if _tags:
+            data["keywords"] = ", ".join(_tags)
+            data["articleSection"] = _tags[0]
+        _words = len(_re2.sub("<[^>]+>", " ", p.body or "").split())
+        if _words:
+            data["wordCount"] = _words
+        if getattr(p, "read_minutes", 0):
+            data["timeRequired"] = f"PT{int(p.read_minutes)}M"
+        blocks.append(data)
+
+        # Breadcrumb: blog home > post
+        home = f"{ctx.base_url}{ctx.base_path or '/'}"
+        blocks.append({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": ctx.blog_title, "item": home},
+                {"@type": "ListItem", "position": 2, "name": p.title, "item": url},
+            ],
+        })
+
+        # VideoObject when the post embeds a YouTube/Vimeo video
+        vm = _re2.search(
+            r'<iframe[^>]+src="(https://(?:www\.)?(?:youtube-nocookie\.com|youtube\.com|player\.vimeo\.com)[^"]+)"',
+            p.body or "")
+        if vm:
+            vid = {
+                "@context": "https://schema.org",
+                "@type": "VideoObject",
+                "name": p.title[:110],
+                "description": desc[:300],
+                "embedUrl": vm.group(1),
+            }
+            if is_article:
+                vid["uploadDate"] = p.published_at.isoformat()
+            if img:
+                vid["thumbnailUrl"] = [img]
+            blocks.append(vid)
     else:
-        data = {
+        blocks.append({
             "@context": "https://schema.org",
             "@type": "Blog",
             "name": ctx.blog_title,
             "url": f"{ctx.base_url}{ctx.base_path or '/'}",
             "description": ctx.tagline or ctx.blog_title,
-        }
+            "publisher": {"@type": "Organization", "name": ctx.blog_title},
+        })
     nonce_attr = f' nonce="{ctx.csp_nonce}"' if getattr(ctx, "csp_nonce", "") else ""
-    payload = _json.dumps(data).replace("<", "\\u003c")
-    return f'<script type="application/ld+json"{nonce_attr}>{payload}</script>'
+    out = []
+    for d in blocks:
+        payload = _json.dumps(d).replace("<", "\\u003c")
+        out.append(f'<script type="application/ld+json"{nonce_attr}>{payload}</script>')
+    return "".join(out)
 
 
 def _seo_head(ctx, page_title, description, og_image="", canonical=""):
