@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== GLASS THEME · frosted glass on mesh gradient · premium modern ===== */
+/* Build note: .glass uses backdrop-filter with an @supports solid fallback so
+   devices without blur support get an opaque card, never a broken layout. */
+:root{--ink:#1a1830;--soft:#5e5a78;--g-border:rgba(255,255,255,.55);--accent:#6d28d9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;color:var(--ink);width:1200px;min-height:100%;
+  background:
+    radial-gradient(50% 50% at 12% 18%, #b8e6ff 0%, transparent 60%),
+    radial-gradient(45% 45% at 88% 12%, #ffd6ec 0%, transparent 55%),
+    radial-gradient(55% 55% at 75% 85%, #d7c9ff 0%, transparent 60%),
+    radial-gradient(50% 50% at 20% 92%, #c7f5e3 0%, transparent 55%),
+    linear-gradient(135deg,#eef2ff,#fdf2f8);
+  background-attachment:fixed}
+h1,h2,h3{font-family:'Outfit',sans-serif}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1060px;margin:0 auto;padding:0 40px}
+/* glass primitive */
+.glass{background:rgba(255,255,255,.45);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);border:1px solid var(--g-border);box-shadow:0 16px 50px -20px rgba(80,70,160,.32)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.glass{background:rgba(255,255,255,.92)}}
+/* header */
+.ghead{position:sticky;top:18px;z-index:20;margin:18px auto 0;max-width:1060px;border-radius:18px;padding:0 26px}
+.ghead .in{display:flex;align-items:center;height:64px;gap:20px}
+.gname{font-family:'Outfit';font-weight:800;font-size:21px;letter-spacing:-.4px}
+.gnav{margin-left:auto;display:flex;gap:3px;align-items:center}
+.gnav a{font-size:14.5px;font-weight:600;color:var(--soft);padding:8px 13px;border-radius:10px}
+.gnav a:hover{color:var(--ink);background:rgba(255,255,255,.5)}
+.gnav .sub{background:var(--accent);color:#fff!important;padding:9px 17px!important;border-radius:11px}
+/* hero */
+.ghero{text-align:center;padding:64px 24px 40px}
+.ghero .k{font-family:'Outfit';font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.ghero h1{font-weight:800;font-size:52px;line-height:1.06;letter-spacing:-1.4px;margin:16px auto 0;max-width:15ch}
+.ghero p{font-size:18px;color:var(--soft);margin:16px auto 0;max-width:50ch}
+/* feed */
+.feat{border-radius:24px;padding:14px;display:grid;grid-template-columns:1.1fr 1fr;gap:8px;align-items:stretch;margin-bottom:26px}
+.feat .img{border-radius:16px;background:linear-gradient(135deg,#a5b4fc,#f0abfc);min-height:300px}
+.feat .tx{padding:30px 26px;display:flex;flex-direction:column;justify-content:center}
+.feat .cat{font-family:'Outfit';font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.feat h2{font-weight:800;font-size:30px;line-height:1.15;letter-spacing:-.5px;margin:10px 0}
+.feat .ex{font-size:15px;color:var(--soft);line-height:1.6}
+.feat .meta{font-size:13px;color:var(--soft);margin-top:16px;display:flex;align-items:center;gap:8px}
+.feat .av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f0abfc,#a5b4fc)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{border-radius:20px;overflow:hidden}
+.card .img{aspect-ratio:16/10}
+.g1 .img{background:linear-gradient(135deg,#bae6fd,#7dd3fc)}
+.g2 .img{background:linear-gradient(135deg,#fbcfe8,#f9a8d4)}
+.g3 .img{background:linear-gradient(135deg,#c7f5e3,#86efac)}
+.card .body{padding:20px}
+.card .cat{font-family:'Outfit';font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.card h3{font-weight:700;font-size:18px;line-height:1.25;margin:8px 0 8px}
+.card .ex{font-size:13.5px;color:var(--soft);line-height:1.5}
+.card .m{font-size:12px;color:#8682a0;margin-top:12px}
+/* sub */
+.gsub{border-radius:22px;padding:44px;text-align:center;margin:30px 0}
+.gsub h3{font-family:'Outfit';font-weight:800;font-size:26px}
+.gsub p{color:var(--soft);font-size:15px;margin:10px 0 22px}
+.gsub .f{display:flex;gap:9px;max-width:420px;margin:0 auto}
+.gsub input{flex:1;border:1px solid var(--g-border);background:rgba(255,255,255,.6);border-radius:12px;padding:14px 16px;font-family:'Inter';font-size:14px}
+.gsub button{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:0 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Outfit'}
+/* footer */
+.gfoot{border-radius:18px;padding:26px 30px;margin:0 0 40px;display:flex;justify-content:space-between;align-items:center}
+.gfoot .social{display:flex;gap:9px}
+.gfoot .social span{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.5);border:1px solid var(--g-border);display:grid;place-items:center;color:var(--soft);font-size:14px}
+.powered{font-size:13px;color:var(--soft)}.powered .mk{color:var(--accent);font-weight:700;background:rgba(255,255,255,.6);border:1px solid var(--g-border);padding:7px 12px;border-radius:9px;margin-left:5px;display:inline-flex;align-items:center;gap:6px}
+.powered .mk .d{width:15px;height:15px;border-radius:4px;background:linear-gradient(135deg,#06b6d4,#1e3a8a);display:inline-grid;place-items:center}.powered .mk .d svg{width:8px;height:8px}
+</style></head>
+<body>
+<div class="ghead glass"><div class="in">
+  <a class="gname">◈ The Maker's Field</a>
+  <div class="gnav"><a>Home</a><a>Articles</a><a>About</a><a>Contact</a><a class="sub">Subscribe</a></div>
+</div></div>
+
+<div class="wrap">
+  <div class="ghero">
+    <div class="k">Notes on craft &amp; independent business</div>
+    <h1>Building a business by hand</h1>
+    <p>Field notes from a maker figuring out marketing, one experiment at a time.</p>
+  </div>
+
+  <div class="feat glass">
+    <div class="img"></div>
+    <div class="tx">
+      <div class="cat">Marketing · Email</div>
+      <h2>The 200-subscriber newsletter that pays my rent</h2>
+      <p class="ex">Two years chasing followers taught me the only number that mattered was the one I could email. Here's exactly how I built it.</p>
+      <div class="meta"><span class="av"></span> Alex Rivera · Jun 21, 2026 · 8 min read</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <a class="card glass g1"><div class="img"></div><div class="body"><div class="cat">Pages</div><h3>A landing page in an afternoon</h3><p class="ex">The five blocks every offer page needs.</p><div class="m">Jun 14 · 6 min</div></div></a>
+    <a class="card glass g2"><div class="img"></div><div class="body"><div class="cat">Story</div><h3>A year of publishing weekly</h3><p class="ex">52 posts later: the real numbers.</p><div class="m">Jun 7 · 9 min</div></div></a>
+    <a class="card glass g3"><div class="img"></div><div class="body"><div class="cat">Tools</div><h3>One subscription runs my stack</h3><p class="ex">Six tools, cut down to one.</p><div class="m">May 30 · 5 min</div></div></a>
+  </div>
+
+  <div class="gsub glass"><h3>Get the next one in your inbox</h3><p>New field notes on marketing and building by hand.</p><div class="f"><input placeholder="you@email.com"><button>Subscribe</button></div></div>
+
+  <div class="gfoot glass"><div class="social"><span>▶</span><span>𝕏</span><span>◎</span><span>in</span></div><div class="powered">Powered by <span class="mk"><span class="d"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span> SuperAdPro</span> — build your own site free</div></div>
+</div>
+</body></html>

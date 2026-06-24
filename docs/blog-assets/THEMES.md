@@ -18,5 +18,7 @@ chrome + the footer mark).
 | theme-journal.html | **Journal** | Minimal single column, distraction-free, literary | Spectral |
 | theme-bento.html | **Bento** | Modern modular tile grid (featured 2x2 + tiles) | Space Grotesk |
 | theme-cinematic.html | **Cinematic** | Dark premium, glowing gradient hero | Sora |
+| theme-glass.html | **Glass** | Frosted glass cards on a pastel mesh gradient (solid fallback for no-blur devices) | Outfit |
 
-Deferred: **Glass** (frosted/mesh — needs cross-device hardening).
+Launch set is now **6 themes** (Glass added 23 Jun 2026 at Steve's request — built with an
+`@supports` solid fallback so no-blur devices never see a broken layout).

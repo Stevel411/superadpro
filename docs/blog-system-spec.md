@@ -28,7 +28,7 @@ optional growth loop, never a paywall on reading.
 ## 4. Themes + typography (LOCKED)
 - Theme = layout + token set (`Blog.theme`); content-agnostic, instant switch; live preview in
   **Site → Appearance**. Footer + referral persist on every theme.
-- Launch themes (5): Banner (default), Classic Sidebar, Journal, Bento, Cinematic. (Glass later.)
+- Launch themes (6): Banner (default), Classic Sidebar, Journal, Bento, Cinematic, Glass.
 - Curated heading+body font pairings (`Blog.font`), ~6 to start, instant switch, live preview.
 
 ## 5. Reuses (in codebase)
