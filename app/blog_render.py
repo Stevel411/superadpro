@@ -144,6 +144,7 @@ class BlogRenderContext:
     optin_sub: str = "New posts straight to your inbox."
     base_path: str = ""                            # e.g. /sites/{slug} ("" on custom domain)
     base_url: str = BASE_URL                       # scheme+host (custom domain overrides)
+    csp_nonce: str = ""                            # per-request nonce for JSON-LD
     palette: str = "default"                       # accent palette key (see PALETTES)
     comments_enabled: bool = False
     comments: list = field(default_factory=list)   # list[(author_name, body_text, date_str)]
@@ -153,6 +154,41 @@ class BlogRenderContext:
 
 
 # ── shared helpers (used by every theme) ─────────────────────────────────────
+def _jsonld(ctx):
+    """SEO structured data (schema.org). Emitted as a nonce'd data block so it
+    passes the strict blog CSP. < is unicode-escaped to prevent </script> breakout."""
+    import json as _json
+    if ctx.post:
+        is_article = bool(ctx.post.published_at)
+        url = (f"{ctx.base_url}{ctx.post_url(ctx.post)}" if is_article
+               else f"{ctx.base_url}{ctx.base_path}/{ctx.post.slug}")
+        data = {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting" if is_article else "WebPage",
+            "headline": ctx.post.title,
+            "url": url,
+            "author": {"@type": "Person", "name": ctx.username},
+            "publisher": {"@type": "Organization", "name": ctx.blog_title},
+        }
+        if is_article:
+            data["datePublished"] = ctx.post.published_at.isoformat()
+        if ctx.post.cover_image:
+            data["image"] = ctx.post.cover_image
+        if ctx.post.excerpt:
+            data["description"] = ctx.post.excerpt
+    else:
+        data = {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "name": ctx.blog_title,
+            "url": f"{ctx.base_url}{ctx.base_path or '/'}",
+            "description": ctx.tagline or ctx.blog_title,
+        }
+    nonce_attr = f' nonce="{ctx.csp_nonce}"' if getattr(ctx, "csp_nonce", "") else ""
+    payload = _json.dumps(data).replace("<", "\\u003c")
+    return f'<script type="application/ld+json"{nonce_attr}>{payload}</script>'
+
+
 def _seo_head(ctx, page_title, description, og_image="", canonical=""):
     fonts = _THEME_FONTS.get(ctx.theme, _THEME_FONTS["banner"])
     font_hrefs = "".join(
@@ -172,7 +208,7 @@ def _seo_head(ctx, page_title, description, og_image="", canonical=""):
 <meta property="og:description" content="{desc}"><meta property="og:site_name" content="{escape(ctx.blog_title)}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}">{og}{canon}{rss}
-{FONT_LINK}{font_hrefs}
+{FONT_LINK}{font_hrefs}{_jsonld(ctx)}
 """
 
 

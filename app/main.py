@@ -839,6 +839,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
+        import secrets
+        nonce = secrets.token_urlsafe(16)
+        request.state.csp_nonce = nonce
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "SAMEORIGIN"
@@ -847,12 +850,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         if request.url.path.startswith("/sites/"):
-            # Public member blog pages carry NO inline scripts, so we forbid all
-            # script execution here — a hard backstop behind body sanitization.
+            # Public member blog pages carry NO executable scripts. We allow only
+            # a single nonce'd JSON-LD data block (for SEO rich results); any other
+            # script — including stored-content injection — is blocked.
             response.headers["Content-Security-Policy"] = (
                 "default-src 'self'; img-src 'self' https: data:; "
                 "style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; "
-                "script-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'")
+                f"script-src 'nonce-{nonce}'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'")
         return response
 
 app.add_middleware(SecurityHeadersMiddleware)
@@ -55588,6 +55592,7 @@ def blog_public_feed(slug: str, request: Request, db: Session = Depends(get_db))
     base, _burl = _blog_origin(request, slug)
     ctx = _blog_context(blog, member, db, base)
     ctx.base_url = _burl
+    ctx.csp_nonce = getattr(request.state, "csp_nonce", "")
     _pv = request.query_params.get("theme")
     if _pv and _pv in _blogrender.THEMES:
         ctx.theme = _pv
@@ -55630,6 +55635,7 @@ def blog_public_post(slug: str, post_slug: str, request: Request, db: Session = 
     base, _burl = _blog_origin(request, slug)
     ctx = _blog_context(blog, member, db, base)
     ctx.base_url = _burl
+    ctx.csp_nonce = getattr(request.state, "csp_nonce", "")
     _pv = request.query_params.get("theme")
     if _pv and _pv in _blogrender.THEMES:
         ctx.theme = _pv
@@ -56708,6 +56714,7 @@ def blog_public_page(slug: str, page_slug: str, request: Request, db: Session = 
     _bp, _burl = _blog_origin(request, slug)
     ctx = _blog_context(blog, member, db, _bp)
     ctx.base_url = _burl
+    ctx.csp_nonce = getattr(request.state, "csp_nonce", "")
     _pv = request.query_params.get("theme")
     if _pv and _pv in _blogrender.THEMES:
         ctx.theme = _pv
