@@ -320,8 +320,14 @@ def _banner_header(ctx, active=""):
             f'<div class="bnav">{_nav_html(ctx, "", "subbtn", active)}</div></div></div>')
 
 
+def _foot_just(ctx):
+    """Centre the footer row when the member has no social links (otherwise the
+    2-col social-left/powered-right layout pushes 'Powered by' to one side)."""
+    return "" if ctx.social else ' style="justify-content:center"'
+
+
 def _banner_footer(ctx):
-    return (f'<div class="bfoot"><div class="wrap in">'
+    return (f'<div class="bfoot"><div class="wrap in"{_foot_just(ctx)}>'
             f'<div class="social">{_social_html(ctx, "")}</div>'
             f'{_powered_footer(ctx)}</div></div>')
 
@@ -589,7 +595,7 @@ h1,h2,h3,h4{font-family:'PT Serif',serif}a{text-decoration:none;color:inherit}
 def _cs_header(ctx):
     return f'<div class="chead"><div class="wrap in"><a class="cname" href="{ctx.base_path or "/"}">{escape(ctx.blog_title)}</a><div class="cnav">{_navlinks(ctx,"")}</div></div></div><div class="strip"></div>'
 def _cs_footer(ctx):
-    return f'<div class="cfoot"><div class="wrap in"><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
+    return f'<div class="cfoot"><div class="wrap in"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
 def render_cs_feed(ctx):
     posts_html=""
     for p in ctx.posts:
@@ -695,7 +701,7 @@ _BN_IMGCLS=["","background:linear-gradient(150deg,#f0598a,#d83f72)","background:
 def _bn_header(ctx):
     return f'<div class="wrap"><div class="bhead"><a class="bname" href="{ctx.base_path or "/"}">◆ {escape(ctx.blog_title)}</a><div class="bnav">{_navlinks(ctx,"")}<a class="sub" href="#subscribe">Subscribe</a></div></div></div>'
 def _bn_footer(ctx):
-    return f'<div class="wrap"><div class="bfoot"><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
+    return f'<div class="wrap"><div class="bfoot"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
 def render_bn_feed(ctx):
     tiles=""
     if ctx.posts:
@@ -761,7 +767,7 @@ h1,h2,h3{font-family:'Sora',sans-serif}a{text-decoration:none;color:inherit}
 def _cn_header(ctx):
     return f'<div class="wrap"><div class="chead"><a class="cname" href="{ctx.base_path or "/"}">{escape(ctx.blog_title)}</a><div class="cnav">{_navlinks(ctx,"")}<a class="sub" href="#subscribe">Subscribe</a></div></div></div>'
 def _cn_footer(ctx):
-    return f'<div class="wrap"><div class="cfoot"><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
+    return f'<div class="wrap"><div class="cfoot"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
 def render_cn_feed(ctx):
     hero=""
     if ctx.posts:
@@ -816,7 +822,7 @@ h1,h2,h3{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
 def _gl_header(ctx):
     return f'<div class="ghead glass"><div class="in"><a class="gname" href="{ctx.base_path or "/"}">◈ {escape(ctx.blog_title)}</a><div class="gnav">{_navlinks(ctx,"")}<a class="sub" href="#subscribe">Subscribe</a></div></div></div>'
 def _gl_footer(ctx):
-    return f'<div class="wrap"><div class="gfoot glass"><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
+    return f'<div class="wrap"><div class="gfoot glass"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
 def render_gl_feed(ctx):
     body=""
     if ctx.posts:
