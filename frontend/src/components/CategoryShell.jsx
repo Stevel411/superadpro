@@ -41,7 +41,7 @@ const SHELL_CSS = `
 .cat .sect{display:flex;align-items:baseline;gap:12px;margin:0 2px 16px;}
 .cat .sect h3{font-family:'Sora';font-size:18px;font-weight:800;color:var(--ink);}
 .cat .sect span{font-size:13px;color:var(--muted);}
-.cat .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.cat .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;}
 .cat .tile{position:relative;background:#fff;border:1px solid #d4ddea;border-radius:16px;padding:20px;cursor:pointer;box-shadow:var(--lift);transition:border-color .2s;display:flex;flex-direction:column;gap:10px;text-decoration:none;}
 .cat .tile:hover{border-color:var(--cyanb);}
 .cat .tile .ti{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;}
