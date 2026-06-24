@@ -5769,6 +5769,19 @@ async def custom_domain_router(request: Request, call_next):
             db.close()
             return await call_next(request)
 
+        # Blog binding takes precedence: if a Blog is attached to this domain,
+        # serve the blog (feed/posts/pages) rather than funnel pages. We rewrite
+        # the path to /sites/{slug}{tail} and flag blog_host so the blog handlers
+        # render root-relative links + custom-domain canonicals.
+        bound_blog = db.query(Blog).filter(Blog.custom_domain_id == row.id).first()
+        if bound_blog:
+            db.close()
+            tail = request.url.path
+            request.scope["path"] = f"/sites/{bound_blog.subdomain_slug}" + ("" if tail == "/" else tail)
+            request.scope["raw_path"] = request.scope["path"].encode()
+            request.scope["blog_host"] = host_clean
+            return await call_next(request)
+
         # Resolve path → page
         path = request.url.path.lstrip("/")
         if not path:
@@ -55552,6 +55565,19 @@ def _resolve_blog(slug, db):
               .first())
 
 
+def _blog_origin(request, slug):
+    """(base_path, base_url) for rendering a blog: platform path on our own host,
+    or root-relative + custom-domain origin when served via a bound custom domain."""
+    bh = None
+    try:
+        bh = request.scope.get("blog_host")
+    except Exception:
+        bh = None
+    if bh:
+        return "", f"https://{bh}"
+    return f"/sites/{slug}", _blogrender.BASE_URL
+
+
 @app.get("/sites/{slug}")
 def blog_public_feed(slug: str, request: Request, db: Session = Depends(get_db)):
     """Public blog home (post feed), server-rendered in the member's theme."""
@@ -55559,8 +55585,9 @@ def blog_public_feed(slug: str, request: Request, db: Session = Depends(get_db))
     if not blog:
         return HTMLResponse("<h2>Site not found</h2>", status_code=404)
     member = db.query(User).filter(User.id == blog.member_id).first()
-    base = f"/sites/{slug}"
+    base, _burl = _blog_origin(request, slug)
     ctx = _blog_context(blog, member, db, base)
+    ctx.base_url = _burl
     _pv = request.query_params.get("theme")
     if _pv and _pv in _blogrender.THEMES:
         ctx.theme = _pv
@@ -55600,8 +55627,9 @@ def blog_public_post(slug: str, post_slug: str, request: Request, db: Session = 
         if not (request.query_params.get("preview") == "1" and _viewer and _viewer.id == blog.member_id):
             return HTMLResponse("<h2>Post not found</h2>", status_code=404)
     member = db.query(User).filter(User.id == blog.member_id).first()
-    base = f"/sites/{slug}"
+    base, _burl = _blog_origin(request, slug)
     ctx = _blog_context(blog, member, db, base)
+    ctx.base_url = _burl
     _pv = request.query_params.get("theme")
     if _pv and _pv in _blogrender.THEMES:
         ctx.theme = _pv
@@ -56158,6 +56186,101 @@ def api_blog_analytics(request: Request, db: Session = Depends(get_db)):
             "total_30d": sum(by_day.values())}
 
 
+@app.get("/api/blog/domain")
+def api_blog_domain_get(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog or not blog.custom_domain_id:
+        return {"domain": None}
+    row = db.query(CustomDomain).filter(CustomDomain.id == blog.custom_domain_id).first()
+    if not row:
+        return {"domain": None}
+    return {"domain": _customdomain_to_dict(row)}
+
+
+@app.post("/api/blog/domain")
+@limiter.limit("10/minute")
+async def api_blog_domain_set(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "Custom domains require a Partner or Founder membership."}, status_code=403)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    raw = (payload.get("domain") or "").strip()
+    domain = _customdomain_helper.normalize_domain(raw)
+    if not domain:
+        return JSONResponse({"error": "Domain is required"}, status_code=400)
+    if not _customdomain_helper.is_valid_domain_format(domain):
+        return JSONResponse({"error": f"'{domain}' isn't a valid domain. Use the form: blog.yourbrand.com"}, status_code=400)
+    if _customdomain_helper.is_blocked_domain(domain):
+        return JSONResponse({"error": f"'{domain}' cannot be used as a custom domain."}, status_code=400)
+    existing = db.query(CustomDomain).filter(CustomDomain.domain == domain).first()
+    if existing and existing.user_id != user.id:
+        return JSONResponse({"error": "This domain is already claimed by another member."}, status_code=400)
+    if existing:
+        row = existing
+    else:
+        if db.query(CustomDomain).filter(CustomDomain.user_id == user.id).count() >= 3:
+            return JSONResponse({"error": "Maximum 3 custom domains per account."}, status_code=400)
+        row = CustomDomain(user_id=user.id, domain=domain, verification_status="pending")
+        db.add(row); db.commit(); db.refresh(row)
+    blog.custom_domain_id = row.id
+    db.commit()
+    try:
+        _customdomain_helper.verify_one(row, db); db.commit(); db.refresh(row)
+    except Exception:
+        db.rollback()
+    return {"domain": _customdomain_to_dict(row)}
+
+
+@app.post("/api/blog/domain/verify")
+def api_blog_domain_verify(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog or not blog.custom_domain_id:
+        return JSONResponse({"error": "No domain attached"}, status_code=404)
+    row = db.query(CustomDomain).filter(CustomDomain.id == blog.custom_domain_id,
+                                        CustomDomain.user_id == user.id).first()
+    if not row:
+        return JSONResponse({"error": "Domain not found"}, status_code=404)
+    try:
+        _customdomain_helper.verify_one(row, db); db.commit(); db.refresh(row)
+    except Exception:
+        db.rollback()
+    return {"domain": _customdomain_to_dict(row)}
+
+
+@app.delete("/api/blog/domain")
+def api_blog_domain_delete(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return {"ok": True}
+    dom_id = blog.custom_domain_id
+    blog.custom_domain_id = None
+    db.commit()
+    if dom_id:
+        row = db.query(CustomDomain).filter(CustomDomain.id == dom_id, CustomDomain.user_id == user.id).first()
+        if row:
+            if row.railway_domain_id:
+                try:
+                    from . import railway_api as _rapi
+                    _rapi.delete_custom_domain(row.railway_domain_id)
+                except Exception:
+                    pass
+            db.delete(row); db.commit()
+    return {"ok": True}
+
+
 @app.get("/my-site")
 def my_site_shell(request: Request):
     """Serve React SPA (the member blog dashboard)."""
@@ -56527,7 +56650,8 @@ def blog_sitemap(slug: str, request: Request, db: Session = Depends(get_db)):
     blog = _resolve_blog(slug, db)
     if not blog:
         return Response("Not found", status_code=404)
-    base = f"{_blogrender.BASE_URL}/sites/{slug}"
+    _bp, _burl = _blog_origin(request, slug)
+    base = f"{_burl}{_bp}"
     rows = [f"<url><loc>{_esc(base)}</loc><changefreq>daily</changefreq></url>"]
     for p in _blog_public_posts(blog, db):
         lm = p.updated_at or p.published_at or p.created_at
@@ -56547,7 +56671,8 @@ def blog_rss(slug: str, request: Request, db: Session = Depends(get_db)):
     blog = _resolve_blog(slug, db)
     if not blog:
         return Response("Not found", status_code=404)
-    base = f"{_blogrender.BASE_URL}/sites/{slug}"
+    _bp, _burl = _blog_origin(request, slug)
+    base = f"{_burl}{_bp}"
     items = []
     for p in _blog_public_posts(blog, db, limit=30):
         pub = p.published_at or p.created_at
@@ -56580,7 +56705,9 @@ def blog_public_page(slug: str, page_slug: str, request: Request, db: Session = 
         if not (request.query_params.get("preview") == "1" and _viewer and _viewer.id == blog.member_id):
             return HTMLResponse("<h2>Page not found</h2>", status_code=404)
     member = db.query(User).filter(User.id == blog.member_id).first()
-    ctx = _blog_context(blog, member, db, f"/sites/{slug}")
+    _bp, _burl = _blog_origin(request, slug)
+    ctx = _blog_context(blog, member, db, _bp)
+    ctx.base_url = _burl
     _pv = request.query_params.get("theme")
     if _pv and _pv in _blogrender.THEMES:
         ctx.theme = _pv

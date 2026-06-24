@@ -142,7 +142,8 @@ class BlogRenderContext:
     post: PostView = None                          # single-post view
     optin_title: str = "Get the next one in your inbox"
     optin_sub: str = "New posts straight to your inbox."
-    base_path: str = ""                            # e.g. /sites/{slug}
+    base_path: str = ""                            # e.g. /sites/{slug} ("" on custom domain)
+    base_url: str = BASE_URL                       # scheme+host (custom domain overrides)
     palette: str = "default"                       # accent palette key (see PALETTES)
     comments_enabled: bool = False
     comments: list = field(default_factory=list)   # list[(author_name, body_text, date_str)]
@@ -162,7 +163,7 @@ def _seo_head(ctx, page_title, description, og_image="", canonical=""):
     title = escape(page_title)
     og = f'<meta property="og:image" content="{escape(og_image)}">' if og_image else ""
     canon = f'<link rel="canonical" href="{escape(canonical)}">' if canonical else ""
-    rss = f'<link rel="alternate" type="application/rss+xml" title="{escape(ctx.blog_title)} RSS" href="{BASE_URL}/sites/{escape(ctx.slug)}/rss.xml">'
+    rss = f'<link rel="alternate" type="application/rss+xml" title="{escape(ctx.blog_title)} RSS" href="{ctx.base_url}{ctx.base_path}/rss.xml">'
     return f"""<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
@@ -200,7 +201,7 @@ def _social_html(ctx, span_cls):
 def _powered_footer(ctx, mk_cls="powered"):
     """Non-removable referral footer — links through the member's /ref/{username}."""
     ref = f"{BASE_URL}/ref/{escape(ctx.username)}"
-    report = f"{BASE_URL}/sites/{escape(ctx.slug)}/report"
+    report = f"{ctx.base_url}{ctx.base_path}/report"
     return (f'<div class="{mk_cls}">Powered by '
             f'<a class="mk" href="{ref}"><span class="d">'
             f'<svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span> '
@@ -297,7 +298,7 @@ def _tagrow(post, center=False):
 
 
 def render_banner_feed(ctx):
-    head = _seo_head(ctx, ctx.blog_title, ctx.tagline, canonical=f"{BASE_URL}{ctx.base_path}")
+    head = _seo_head(ctx, ctx.blog_title, ctx.tagline, canonical=f"{ctx.base_url}{ctx.base_path or '/'}")
     body = [f"{head}<style>{_BANNER_CSS}{_palette_css(ctx)}</style></head><body>", _banner_header(ctx, active="Home")]
     body.append(
         f'<div class="banner"><div class="k">{escape(ctx.tagline or "")}</div>'
@@ -333,7 +334,7 @@ def render_banner_feed(ctx):
 def render_banner_post(ctx):
     p = ctx.post
     head = _seo_head(ctx, f"{p.title} — {ctx.blog_title}", p.excerpt,
-                     og_image=p.cover_image, canonical=f"{BASE_URL}{ctx.post_url(p)}")
+                     og_image=p.cover_image, canonical=f"{ctx.base_url}{ctx.post_url(p)}")
     body = [f"{head}<style>{_BANNER_CSS}{_palette_css(ctx)}</style></head><body>", _banner_header(ctx)]
     body.append(
         f'<div class="post-top wrap">{_tagrow(p, center=True)}<h1>{escape(p.title)}</h1>'
@@ -459,7 +460,7 @@ def _comments_html(ctx):
 
 def _post_page(ctx, theme_css, header_html, footer_html):
     head = _seo_head(ctx, f"{ctx.post.title} — {ctx.blog_title}", ctx.post.excerpt,
-                     og_image=ctx.post.cover_image, canonical=f"{BASE_URL}{ctx.post_url(ctx.post)}")
+                     og_image=ctx.post.cover_image, canonical=f"{ctx.base_url}{ctx.post_url(ctx.post)}")
     return (f"{head}<style>{theme_css}{_palette_css(ctx)}{_ARTICLE_CSS}</style></head><body>"
             f"{header_html}{_article_markup(ctx)}{footer_html}</body></html>")
 
@@ -484,7 +485,7 @@ def render_blog_page(ctx):
     """Render a standalone page (ctx.post carries title/slug/body)."""
     desc = (ctx.post.excerpt or ctx.tagline or ctx.blog_title)
     head = _seo_head(ctx, f"{ctx.post.title} — {ctx.blog_title}", desc,
-                     canonical=f"{BASE_URL}/sites/{ctx.slug}/{ctx.post.slug}")
+                     canonical=f"{ctx.base_url}{ctx.base_path}/{ctx.post.slug}")
     nav = "".join(f'<a class="lnk" href="{escape(h)}">{escape(l)}</a>'
                   for l, h in (ctx.nav or [("Home", f"/sites/{ctx.slug}")]))
     return (f"{head}<style>{_PAGE_CSS}{_palette_css(ctx)}{_ARTICLE_CSS}</style></head><body>"
@@ -561,7 +562,7 @@ def render_cs_feed(ctx):
         for n,sl in p.tags: tagset[sl]=n
     topics="".join(f'<span>{escape(n)}</span>' for n in list(tagset.values())[:8])
     popular="".join(f'<a href="{ctx.post_url(p)}" style="display:block;font-size:14.5px;font-weight:600;padding:9px 0;border-bottom:1px solid var(--line);color:#2a3142">{escape(p.title)}</a>' for p in ctx.posts[:3])
-    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
+    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{ctx.base_url}{ctx.base_path or '/'}")
     return (f"{head}<style>{_CS_CSS}{_palette_css(ctx)}</style></head><body>{_cs_header(ctx)}"
         f'<div class="wrap layout"><div class="main">{posts_html}</div>'
         f'<aside class="side"><div class="widget"><h4>About</h4><p style="font-size:14px;color:var(--soft);line-height:1.6">{escape(ctx.tagline or ctx.blog_title)}</p></div>'
@@ -610,7 +611,7 @@ def render_jn_feed(ctx):
             f'<a href="{ctx.post_url(p)}"><h2>{escape(p.title)}</h2></a><p class="ex">{escape(p.excerpt)}</p>'
             f'<div class="etags">{tg}{" · " if tg else ""}{p.read_minutes} min read</div></article>')
     if not ctx.posts: entries='<div class="entry" style="text-align:center;color:var(--soft)">No posts yet.</div>'
-    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
+    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{ctx.base_url}{ctx.base_path or '/'}")
     return (f"{head}<style>{_JN_CSS}{_palette_css(ctx)}</style></head><body>{_jn_header(ctx)}"
         f'<div class="col">{entries}</div>'
         f'<div class="col jsub" id="subscribe"><h3>Subscribe</h3><p>New field notes, about once a week.</p>'
@@ -676,7 +677,7 @@ def render_bn_feed(ctx):
     tiles+=(f'<div class="tile t-tags"><h3>Topics</h3><div class="ts">{topics}</div></div>'
         f'<div class="tile t-sub" id="subscribe"><h3>Get the next one</h3><p>New notes about once a week.</p>'
         f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join</button></form></div></div>')
-    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
+    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{ctx.base_url}{ctx.base_path or '/'}")
     return (f"{head}<style>{_BN_CSS}{_palette_css(ctx)}</style></head><body>{_bn_header(ctx)}"
         f'<div class="wrap"><div class="grid">{tiles}</div></div>{_bn_footer(ctx)}</body></html>')
 def render_bn_post(ctx):
@@ -728,7 +729,7 @@ def render_cn_feed(ctx):
             f'<div class="meta">{escape(ctx.username)} · {f.date_str} · {f.read_minutes} min read</div></div></div>')
         hero=f'<a href="{ctx.post_url(f)}" style="display:block">{hero}</a>'
     cards=_cards_html(ctx,ctx.posts[1:],"card","img")
-    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
+    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{ctx.base_url}{ctx.base_path or '/'}")
     return (f"{head}<style>{_CN_CSS}{_palette_css(ctx)}</style></head><body>{_cn_header(ctx)}"
         f'<div class="wrap">{hero}<div class="grid">{cards}</div>'
         f'<div class="subband" id="subscribe"><h3>Get the next one in your inbox</h3><p>New posts, straight to your inbox.</p>'
@@ -787,7 +788,7 @@ def render_gl_feed(ctx):
         cards+=(f'<a class="card glass" href="{ctx.post_url(p)}"><div class="img" style="{p.cover_style()}"></div>'
             f'<div class="cbody"><div class="cat">{escape(cat)}</div><h3>{escape(p.title)}</h3>'
             f'<p class="ex">{escape(p.excerpt)}</p><div class="m">{p.date_str} · {p.read_minutes} min</div></div></a>')
-    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{BASE_URL}{ctx.base_path}")
+    head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{ctx.base_url}{ctx.base_path or '/'}")
     return (f"{head}<style>{_GL_CSS}{_palette_css(ctx)}</style></head><body>{_gl_header(ctx)}"
         f'<div class="wrap"><div class="ghero"><div class="k">{escape(ctx.tagline or "")}</div><h1>{escape(ctx.blog_title)}</h1></div>'
         f'{body}<div class="grid">{cards}</div>'
