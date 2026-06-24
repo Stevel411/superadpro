@@ -96,6 +96,39 @@ def sanitize_html(html):
     )
     return _strip_unsafe_iframes(cleaned)
 
+
+def _cover_lcp(p, cls):
+    """LCP-optimised post cover. The cover is the largest above-the-fold paint,
+    so when one exists we render a real <img> with eager load + high fetch
+    priority + async decode (a CSS background-image is discovered late and tanks
+    LCP). No cover -> the gradient placeholder div. width/height match the 16:8
+    CSS box so there's no layout shift. Markup-level — no transform pipeline."""
+    cover = getattr(p, "cover_image", "") or ""
+    if cover:
+        return (f'<img class="{cls}" src="{escape(cover)}" alt="{escape(p.title)}" '
+                f'width="1000" height="500" loading="eager" fetchpriority="high" '
+                f'decoding="async">')
+    return f'<div class="{cls}" style="background:{_grad(p.seed)}"></div>'
+
+
+def _optimize_body_images(html):
+    """Add loading=lazy + decoding=async to body <img> tags that lack them, so
+    below-the-fold images defer and never block the main paint (Core Web Vitals
+    INP/LCP). Cover stays eager via _cover_lcp; only article-body images here."""
+    if "<img" not in html:
+        return html
+
+    def _add(m):
+        tag = m.group(0)
+        ins = ""
+        if "loading=" not in tag:
+            ins += ' loading="lazy"'
+        if "decoding=" not in tag:
+            ins += ' decoding="async"'
+        return (tag[:-1] + ins + ">") if ins else tag
+
+    return _re.sub(r"<img\b[^>]*>", _add, html, flags=_re.I)
+
 BASE_URL = "https://www.superadpro.com"
 FONT_LINK = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
              '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>')
@@ -382,7 +415,7 @@ h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:in
 .empty{text-align:center;color:var(--soft);padding:80px 0;font-size:17px}
 .post-top{text-align:center;padding:58px 0 30px}
 .post-top h1{font-weight:900;font-size:46px;line-height:1.12;letter-spacing:-.6px;margin:18px auto;max-width:18ch}
-.cover{aspect-ratio:16/8;border-radius:18px;margin:14px auto 0;max-width:1000px;box-shadow:0 28px 60px -32px rgba(20,40,70,.35)}
+.cover{aspect-ratio:16/8;border-radius:18px;margin:14px auto 0;max-width:1000px;width:100%;object-fit:cover;display:block;box-shadow:0 28px 60px -32px rgba(20,40,70,.35)}
 .body{font-family:'Merriweather',serif;font-size:19px;line-height:1.78;color:#26332c}
 .body p{margin:26px 0}.body h2{font-size:30px;font-weight:900;margin:46px 0 4px;line-height:1.2}
 .body img{max-width:100%;border-radius:14px;margin:30px 0}
@@ -475,9 +508,9 @@ def render_banner_post(ctx):
     body.append(
         f'<div class="post-top wrap">{_tagrow(p, center=True)}<h1>{escape(p.title)}</h1>'
         f'<div class="meta center"><span class="avatar"></span> {escape(ctx.username)} · {p.date_str} · {p.read_minutes} min read</div></div>'
-        f'<div class="cover" style="{p.cover_style()}"></div>'
+        f'{_cover_lcp(p, "cover")}'
     )
-    body.append(f'<article class="article"><div class="body">{sanitize_html(p.body)}</div>')
+    body.append(f'<article class="article"><div class="body">{_optimize_body_images(sanitize_html(p.body))}</div>')
     # tags + share
     body.append(
         f'<div class="share-row"><div class="tagrow">'
@@ -543,7 +576,7 @@ _ARTICLE_CSS = """
 .art-av{width:30px;height:30px;border-radius:50%;background:var(--accent);opacity:.85}
 .art-trow{display:flex;gap:8px;justify-content:center;margin-bottom:6px}
 .art-tag{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);padding:5px 10px;border-radius:6px}
-.art-cover{aspect-ratio:16/8;border-radius:18px;max-width:1000px;margin:8px auto 0;box-shadow:0 26px 60px -34px rgba(20,20,50,.4)}
+.art-cover{aspect-ratio:16/8;border-radius:18px;max-width:1000px;width:100%;object-fit:cover;display:block;margin:8px auto 0;box-shadow:0 26px 60px -34px rgba(20,20,50,.4)}
 .art-wrap{max-width:720px;margin:0 auto;padding:0 40px}
 .art-body{font-family:var(--bfont);font-size:19px;line-height:1.78;color:var(--ink);padding-top:12px}
 .art-body p{margin:24px 0}.art-body .lead-para{font-size:21px}
@@ -582,8 +615,8 @@ def _article_markup(ctx):
     return (
         f'<div class="art-top">{trow}<h1>{escape(p.title)}</h1>'
         f'<div class="art-meta"><span class="art-av"></span> {escape(ctx.username)} · {p.date_str} · {p.read_minutes} min read</div></div>'
-        f'<div class="art-cover" style="{p.cover_style()}"></div>'
-        f'<article class="art-wrap"><div class="art-body">{sanitize_html(p.body)}</div>'
+        f'{_cover_lcp(p, "art-cover")}'
+        f'<article class="art-wrap"><div class="art-body">{_optimize_body_images(sanitize_html(p.body))}</div>'
         f'<div class="art-share"><div>{shtags}</div><div><span class="lbl">Share</span>{shbtns}</div></div>'
         f'<div class="art-optin" id="subscribe"><h3>{escape(ctx.optin_title)}</h3><p>{escape(ctx.optin_sub)}</p>'
         f'<div class="f"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Subscribe</button></form></div></div>{_comments_html(ctx)}</article>'
