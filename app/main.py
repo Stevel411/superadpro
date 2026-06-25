@@ -55607,27 +55607,48 @@ def _clean_link_widgets(raw):
     return out
 
 
+_WIDGET_POSITIONS = ("top", "middle", "bottom")
+
+
+def _norm_widget_position(p):
+    p = str(p or "").strip().lower()
+    return p if p in _WIDGET_POSITIONS else "middle"
+
+
 def _get_blog_link_widgets(db: Session, blog_id: int):
-    """Parsed link widgets for a blog (or [] on any error). Safe on every render."""
+    """Parsed link-widget config: {"position": str, "widgets": [...]}.
+    Tolerates the old list-only storage format. Safe on every render."""
+    empty = {"position": "middle", "widgets": []}
     try:
         _ensure_blog_link_widgets_table(db)
         row = db.execute(
             text("SELECT widgets_json FROM blog_link_widgets WHERE blog_id=:b"),
             {"b": blog_id}).fetchone()
         if not row or not row[0]:
-            return []
-        return _clean_link_widgets(json.loads(row[0]))
+            return dict(empty)
+        data = json.loads(row[0])
+        if isinstance(data, list):                       # legacy shape
+            return {"position": "middle", "widgets": _clean_link_widgets(data)}
+        return {"position": _norm_widget_position(data.get("position")),
+                "widgets": _clean_link_widgets(data.get("widgets"))}
     except Exception:
         try:
             db.rollback()
         except Exception:
             pass
-        return []
+        return dict(empty)
 
 
-def _save_blog_link_widgets(db: Session, blog_id: int, widgets):
-    """Upsert a blog's link widgets (one JSON row). Returns the cleaned list."""
-    clean = _clean_link_widgets(widgets)
+def _save_blog_link_widgets(db: Session, blog_id: int, payload):
+    """Upsert a blog's link-widget config (one JSON row {position, widgets}).
+    Accepts a {position, widgets} dict or a bare widgets list. Returns the
+    cleaned config dict."""
+    if isinstance(payload, dict):
+        position = _norm_widget_position(payload.get("position"))
+        widgets = payload.get("widgets")
+    else:
+        position, widgets = "middle", payload
+    clean = {"position": position, "widgets": _clean_link_widgets(widgets)}
     _ensure_blog_link_widgets_table(db)
     db.execute(text("""
         INSERT INTO blog_link_widgets (blog_id, widgets_json, updated_at)
@@ -55659,13 +55680,14 @@ def _blog_context(blog, member, db, base_path):
             social = [(k, v) for k, v in json.loads(blog.social_links).items() if v]
         except Exception:
             social = []
+    _lw = _get_blog_link_widgets(db, blog.id)
     return _blogrender.BlogRenderContext(
         blog_title=blog.title, tagline=blog.tagline or "", slug=blog.subdomain_slug,
         username=member.username if member else "member",
         theme=blog.theme or "banner", font=blog.font or "classic-serif",
         palette=getattr(blog, "palette", None) or "default",
         nav=nav, social=social, base_path=base_path,
-        link_widgets=_get_blog_link_widgets(db, blog.id),
+        link_widgets=_lw["widgets"], widget_position=_lw["position"],
     )
 
 
@@ -56025,7 +56047,7 @@ def api_blog_link_widgets_get(request: Request, db: Session = Depends(get_db)):
     blog = _member_blog(user, db)
     if not blog:
         return JSONResponse({"error": "Launch your site first."}, status_code=400)
-    return {"ok": True, "widgets": _get_blog_link_widgets(db, blog.id)}
+    return {"ok": True, **_get_blog_link_widgets(db, blog.id)}
 
 
 @app.put("/api/blog/link-widgets")
@@ -56042,14 +56064,15 @@ async def api_blog_link_widgets_put(payload: dict = Body(...), request: Request 
     if not isinstance(widgets, list):
         return JSONResponse({"error": "widgets must be a list"}, status_code=400)
     try:
-        clean = _save_blog_link_widgets(db, blog.id, widgets)
+        clean = _save_blog_link_widgets(db, blog.id, {
+            "position": payload.get("position"), "widgets": widgets})
     except Exception as e:
         try:
             db.rollback()
         except Exception:
             pass
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
-    return {"ok": True, "widgets": clean}
+    return {"ok": True, **clean}
 
 
 # ── Pages CRUD ───────────────────────────────────────────────────────────────

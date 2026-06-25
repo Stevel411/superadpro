@@ -225,6 +225,7 @@ class BlogRenderContext:
     comments_enabled: bool = False
     comments: list = field(default_factory=list)   # list[(author_name, body_text, date_str)]
     link_widgets: list = field(default_factory=list)  # [{title, links:[{label,url}], new_tab}]
+    widget_position: str = "middle"                 # top|middle|bottom of sidebar (sidebar themes)
     widgets_in_sidebar: bool = False                # set True once rendered in a sidebar (gates footer strip)
 
     def post_url(self, post: PostView) -> str:
@@ -817,12 +818,18 @@ def render_cs_feed(ctx):
     topics="".join(f'<span>{escape(n)}</span>' for n in list(tagset.values())[:8])
     popular="".join(f'<a href="{ctx.post_url(p)}" style="display:block;font-size:14.5px;font-weight:600;padding:9px 0;border-bottom:1px solid var(--line);color:#2a3142">{escape(p.title)}</a>' for p in ctx.posts[:3])
     head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{ctx.base_url}{ctx.base_path or '/'}")
+    _lw=_link_widgets_sidebar(ctx)                       # builds once; sets widgets_in_sidebar
+    _pos=getattr(ctx,"widget_position","middle")
+    _lw_top=_lw if _pos=="top" else ""
+    _lw_mid=_lw if _pos=="middle" else ""
+    _lw_bot=_lw if _pos=="bottom" else ""
+    _about=f'<div class="widget"><h4>About</h4><p style="font-size:14px;color:var(--soft);line-height:1.6">{escape(ctx.tagline or ctx.blog_title)}</p></div>'
+    _sub=f'<div class="widget subbox" id="subscribe"><h4>Subscribe</h4><p>New posts in your inbox.</p><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join the list</button></form></div>'
+    _popw=f'<div class="widget"><h4>Popular</h4>{popular}</div>'
+    _topw=f'<div class="widget"><h4>Topics</h4><div class="tags">{topics}</div></div>'
     return (f"{head}<style>{_CS_CSS}{_palette_css(ctx)}</style></head><body>{_cs_header(ctx)}"
         f'<div class="wrap layout"><div class="main">{posts_html}</div>'
-        f'<aside class="side"><div class="widget"><h4>About</h4><p style="font-size:14px;color:var(--soft);line-height:1.6">{escape(ctx.tagline or ctx.blog_title)}</p></div>'
-        f'{_link_widgets_sidebar(ctx)}<div class="widget subbox" id="subscribe"><h4>Subscribe</h4><p>New posts in your inbox.</p><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join the list</button></form></div>'
-        f'<div class="widget"><h4>Popular</h4>{popular}</div>'
-        f'<div class="widget"><h4>Topics</h4><div class="tags">{topics}</div></div></aside></div>'
+        f'<aside class="side">{_lw_top}{_about}{_lw_mid}{_sub}{_popw}{_topw}{_lw_bot}</aside></div>'
         f"{_cs_footer(ctx)}</body></html>")
 def render_cs_post(ctx):
     return _post_page(ctx,_CS_CSS,_cs_header(ctx),_cs_footer(ctx))
