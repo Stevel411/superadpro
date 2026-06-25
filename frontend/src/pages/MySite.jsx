@@ -114,6 +114,16 @@ export default function MySite() {
   const [news, setNews] = useState(null);  // newsletter send progress {postId,total,sent,status}
   const [err, setErr] = useState('');
 
+  // appearance two-pane: controls scroll in their own panel, preview stays fixed
+  const [vw, setVw] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  useEffect(() => {
+    const f = () => setVw(window.innerWidth);
+    window.addEventListener('resize', f);
+    return () => window.removeEventListener('resize', f);
+  }, []);
+  const apprWide = vw >= 900;
+  const apprPaneH = 'calc(100vh - 140px)';   // viewport minus page hero + tab bar + margins
+
   const load = async () => {
     setLoading(true);
     try {
@@ -542,8 +552,8 @@ export default function MySite() {
         )}
 
         {tab === 'appearance' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 22, alignItems: 'start' }}>
-            <div>
+          <div style={{ display: 'grid', gridTemplateColumns: apprWide ? '380px 1fr' : '1fr', gap: 22, alignItems: 'start' }}>
+            <div style={apprWide ? { maxHeight: apprPaneH, overflowY: 'auto', overflowX: 'hidden', paddingRight: 10 } : undefined}>
               <div style={{ ...cardStyle(), padding: 20, marginBottom: 18 }}>
                 <div style={sectionLabel}>Theme</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -664,15 +674,15 @@ export default function MySite() {
                 </div>
               </div>
             </div>
-            <div style={{ alignSelf: 'stretch' }}>
-              <div style={{ ...cardStyle(), overflow: 'hidden', position: 'sticky', top: 16 }}>
-                <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.line}`, fontSize: 12.5, color: C.dim, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
+            <div style={apprWide ? { position: 'sticky', top: 16 } : { alignSelf: 'stretch' }}>
+              <div style={{ ...cardStyle(), overflow: 'hidden', display: 'flex', flexDirection: 'column', height: apprWide ? apprPaneH : 'auto' }}>
+                <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.line}`, fontSize: 12.5, color: C.dim, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7, flex: '0 0 auto' }}>
                   <Eye size={14} /> Live preview — {THEMES.find((t) => t.key === previewTheme)?.name}
                   {previewLoading && <span style={{ fontWeight: 500, color: C.cy1 }}>· updating…</span>}
                   {previewTheme !== theme && !previewLoading && <span style={{ fontWeight: 500, color: C.cy1 }}>· not your saved theme</span>}
                 </div>
                 <iframe title="Site preview" srcDoc={previewHtml}
-                  style={{ width: '100%', height: 'calc(100vh - 120px)', minHeight: 560, border: 'none', display: 'block', background: '#fff' }} />
+                  style={{ width: '100%', height: apprWide ? 'auto' : 'calc(100vh - 120px)', flex: apprWide ? 1 : 'none', minHeight: apprWide ? 0 : 560, border: 'none', display: 'block', background: '#fff' }} />
               </div>
             </div>
           </div>
