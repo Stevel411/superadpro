@@ -665,14 +665,14 @@ export default function MySite() {
               </div>
             </div>
             <div style={{ alignSelf: 'stretch' }}>
-              <div style={{ ...cardStyle(), overflow: 'hidden', position: 'sticky', top: 20 }}>
+              <div style={{ ...cardStyle(), overflow: 'hidden', position: 'sticky', top: 16 }}>
                 <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.line}`, fontSize: 12.5, color: C.dim, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
                   <Eye size={14} /> Live preview — {THEMES.find((t) => t.key === previewTheme)?.name}
                   {previewLoading && <span style={{ fontWeight: 500, color: C.cy1 }}>· updating…</span>}
                   {previewTheme !== theme && !previewLoading && <span style={{ fontWeight: 500, color: C.cy1 }}>· not your saved theme</span>}
                 </div>
                 <iframe title="Site preview" srcDoc={previewHtml}
-                  style={{ width: '100%', height: 580, border: 'none', display: 'block', background: '#fff' }} />
+                  style={{ width: '100%', height: 'calc(100vh - 120px)', minHeight: 560, border: 'none', display: 'block', background: '#fff' }} />
               </div>
             </div>
           </div>
