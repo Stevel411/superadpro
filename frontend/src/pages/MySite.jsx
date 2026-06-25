@@ -553,7 +553,14 @@ export default function MySite() {
 
         {tab === 'appearance' && (
           <div style={{ display: 'grid', gridTemplateColumns: apprWide ? '380px 1fr' : '1fr', gap: 22, alignItems: 'start' }}>
-            <div style={apprWide ? { maxHeight: apprPaneH, overflowY: 'auto', overflowX: 'hidden', paddingRight: 10 } : undefined}>
+            <style>{`
+              .apprScroll{scrollbar-width:thin;scrollbar-color:#d6deeb transparent}
+              .apprScroll::-webkit-scrollbar{width:6px}
+              .apprScroll::-webkit-scrollbar-track{background:transparent}
+              .apprScroll::-webkit-scrollbar-thumb{background:#dbe2ee;border-radius:99px}
+              .apprScroll:hover::-webkit-scrollbar-thumb{background:#c7d0e0}
+            `}</style>
+            <div className="apprScroll" style={apprWide ? { maxHeight: apprPaneH, overflowY: 'auto', overflowX: 'hidden', paddingRight: 10 } : undefined}>
               <div style={{ ...cardStyle(), padding: 20, marginBottom: 18 }}>
                 <div style={sectionLabel}>Theme</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
