@@ -400,7 +400,7 @@ def _share_html(ctx, btn_cls):
 # docs/blog-assets/theme-banner-home.html / -post.html.
 # ════════════════════════════════════════════════════════════════════════════
 _BANNER_CSS = """
-:root{--ink:#1a2620;--soft:#5c6b63;--line:#e3e8e4;--bg:#fcfdfc;--accent:#0f6e4f;--accent-dark:#0a4d37;--gold:#b8893a;--paper:#f5f7f4}
+:root{--ink:#1a2620;--soft:#5c6b63;--line:#e3e8e4;--bg:#fcfdfc;--accent:#0f6e4f;--accent-dark:#0a4d37;--gold:#b8893a;--paper:#f5f7f4;--hfont:'Merriweather',serif;--bfont:'Inter',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:inherit}
