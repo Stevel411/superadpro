@@ -332,6 +332,18 @@ def _seo_head(ctx, page_title, description, og_image="", canonical=""):
     og = f'<meta property="og:image" content="{escape(og_image)}">' if og_image else ""
     canon = f'<link rel="canonical" href="{escape(canonical)}">' if canonical else ""
     rss = f'<link rel="alternate" type="application/rss+xml" title="{escape(ctx.blog_title)} RSS" href="{ctx.base_url}{ctx.base_path}/rss.xml">'
+    _sub_nonce = f' nonce="{ctx.csp_nonce}"' if getattr(ctx, "csp_nonce", "") else ""
+    _sub_script = (
+        "<script" + _sub_nonce + ">"
+        "document.addEventListener('click',function(e){"
+        "var a=e.target.closest?e.target.closest('a[href=\"#subscribe\"]'):null;"
+        "if(!a)return;e.preventDefault();"
+        "var t=document.getElementById('subscribe');if(!t)return;"
+        "t.scrollIntoView({behavior:'smooth',block:'center'});"
+        "var i=t.querySelector('input');"
+        "if(i){setTimeout(function(){try{i.focus({preventScroll:true});}catch(_){}}, 480);}"
+        "});</script>"
+    )
     return f"""<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
@@ -340,7 +352,7 @@ def _seo_head(ctx, page_title, description, og_image="", canonical=""):
 <meta property="og:description" content="{desc}"><meta property="og:site_name" content="{escape(ctx.blog_title)}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}">{og}{canon}{rss}
-{FONT_LINK}{font_hrefs}{_jsonld(ctx)}
+{FONT_LINK}{font_hrefs}{_jsonld(ctx)}{_sub_script}
 """
 
 
@@ -571,6 +583,12 @@ def render_banner_feed(ctx):
                 )
             body.append('</div>')
         body.append('</div>')
+    body.append(
+        f'<div class="wrap"><div class="optin" id="subscribe"><h3>{escape(ctx.optin_title)}</h3>'
+        f'<p>{escape(ctx.optin_sub)}</p>'
+        f'<div class="form"><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join</button></form></div>'
+        f'<div class="tiny">No spam. Unsubscribe anytime.</div></div></div>'
+    )
     body.append(_banner_footer(ctx))
     body.append("</body></html>")
     return "".join(body)
@@ -918,6 +936,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}a{text-decoration:none;color:inh
 .bhead{display:flex;align-items:center;height:84px;gap:24px}.bname{font-weight:700;font-size:24px;letter-spacing:-.5px}
 .bnav{margin-left:auto;display:flex;gap:4px;align-items:center}.bnav a{font-size:14.5px;font-weight:600;color:var(--soft);padding:9px 14px;border-radius:10px}.bnav a:hover{color:var(--ink);background:#fff}
 .bnav .sub{background:var(--ink);color:#fff!important;padding:10px 18px!important;border-radius:11px}
+.bnav .sub:hover{background:var(--ink);color:#fff!important;opacity:.9}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:200px;gap:18px;padding:14px 0 40px}
 .tile{border-radius:22px;padding:26px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
 .tile .cat{font-family:'Space Grotesk';font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.85;margin-bottom:8px}
@@ -1040,6 +1059,7 @@ h1,h2,h3{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
 .gname{font-weight:800;font-size:21px;letter-spacing:-.4px}.gnav{margin-left:auto;display:flex;gap:3px;align-items:center}
 .gnav a{font-size:14.5px;font-weight:600;color:var(--soft);padding:8px 13px;border-radius:10px}.gnav a:hover{color:var(--ink);background:rgba(255,255,255,.5)}
 .gnav .sub{background:var(--accent);color:#fff!important;padding:9px 17px!important;border-radius:11px}
+.gnav .sub:hover{background:var(--accent-dark);color:#fff!important}
 .ghero{text-align:center;padding:60px 24px 36px}.ghero .k{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
 .ghero h1{font-weight:800;font-size:50px;line-height:1.06;letter-spacing:-1.4px;margin:16px auto 0;max-width:15ch}.ghero p{font-size:18px;color:var(--soft);margin:16px auto 0;max-width:50ch}
 .feat{border-radius:24px;padding:14px;display:grid;grid-template-columns:1.1fr 1fr;gap:8px;align-items:stretch;margin-bottom:26px}
