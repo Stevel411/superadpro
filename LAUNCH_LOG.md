@@ -8,6 +8,22 @@
 
 ---
 
+## Status as of 2026-06-25 — BLOG SIDEBAR ARRANGE SYSTEM + THEME AUDIT (0 ISSUES)
+
+HEAD = `d95ab1c66`. Full detail in `handover-2026-06-25.md`.
+
+**Shipped (all live):** `756c6a0b0` **Sidebar Arrange-and-Preview system** — every blog sidebar block (About, Subscribe optin, each link-widget group, Popular, Topics) is reorderable + show/hide with a live preview that re-renders on change; storage is `blog_link_widgets` JSON `{widgets, layout:[{id,show}]}` (lazy table, no model columns — safe under `SKIP_MIGRATIONS`); new owner-gated `POST /api/blog/preview-render` renders the draft into the editor iframe · `7e0d1d29c`+`4de3fa5be`+`369c67b6d` editor Appearance tab → **two-pane** (controls scroll left, preview fixed full-height right) + thin scrollbar · `e0b422a11` "My Site" → **"My Blog"** (both tools hubs + page title) · `ab38494fe`+`c95a4db86` member **link widgets** (sidebar cards / footer strip).
+
+**Theme bug sweep (all live):** `59e7cf145` empty **Topics** card hidden when no tags (Bento + Classic) + duplicate **Subscribe** button fixed (every optin form button standardised to **"Join"**; header CTA stays "Subscribe" = scroll-to-form) · `bcb5b66c0` Subscribe button: dead Banner-feed anchor fixed (added optin to banner feed), **white-on-white hover** fixed (Glass + Bento), and a scroll-and-focus handler added in `_seo_head` so the button smooth-scrolls to the form + focuses the email field on every theme · `d95ab1c66` Banner now defines `--hfont`/`--bfont` (font-token gap caught by the audit).
+
+**Audit:** all 6 themes (banner, classic-sidebar, journal, bento, cinematic, glass) × feed + post × empty/one/many posts × tags/no-tags × 8 palettes × link-widgets shown/hidden/reordered × malicious input → checked for render errors, valid HTML, subscribe flow, dead links, white-on-white, link-widget placement/rel, escaping/sanitisation, and undefined CSS vars. **Result: 0 issues.** Edge case (all sidebar blocks hidden) degrades gracefully.
+
+**New rule:** Claude self-screenshots every blog/theme change in its sandbox (render all 6 themes) before shipping — Steve confirms, not finds bugs.
+
+**Open / next:** Editor itself untested by Claude (no browser/auth) — rests on Steve's screenshots. The one unverified loop is editor reorder/hide → **Save sidebar** → live-blog round-trip. **Next session: connect Claude in Chrome** (scoped to blog only, "Ask before acting", away from payments/admin) so Claude can run that round-trip directly. Watch items: two-pane height estimate (`calc(100vh-140px)`); all-blocks-hidden leaves a blank right column (cosmetic); header Subscribe button is a one-line removal if unwanted.
+
+---
+
 ## Status as of 2026-06-22 — GRID v2 50/25/25 + UX RELIT + COMP-PLAN PDF + DECK MOCKUP
 
 HEAD = `65aff4f`. Full detail in `handover-2026-06-22.md`.
