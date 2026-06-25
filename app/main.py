@@ -55607,48 +55607,84 @@ def _clean_link_widgets(raw):
     return out
 
 
-_WIDGET_POSITIONS = ("top", "middle", "bottom")
+_BUILTIN_SIDEBAR_BLOCKS = ["about", "subscribe", "popular", "topics"]
 
 
-def _norm_widget_position(p):
-    p = str(p or "").strip().lower()
-    return p if p in _WIDGET_POSITIONS else "middle"
+def _default_sidebar_layout(n_widgets, position="middle"):
+    """Default block order. Honours the legacy top/middle/bottom position for
+    where the link-widget group(s) sit relative to the built-ins."""
+    lw = [f"lw:{i}" for i in range(max(0, n_widgets))]
+    if position == "top":
+        order = lw + ["about", "subscribe", "popular", "topics"]
+    elif position == "bottom":
+        order = ["about", "subscribe", "popular", "topics"] + lw
+    else:
+        order = ["about"] + lw + ["subscribe", "popular", "topics"]
+    return [{"id": i, "show": True} for i in order]
+
+
+def _reconcile_sidebar_layout(raw_layout, n_widgets):
+    """Keep a valid, de-duped, fully-covered layout: every built-in block and
+    every current link-widget group appears exactly once. Unknown/stale ids are
+    dropped; newly-added blocks are appended in canonical order (visible)."""
+    valid = set(_BUILTIN_SIDEBAR_BLOCKS) | {f"lw:{i}" for i in range(max(0, n_widgets))}
+    out, seen = [], set()
+    for e in (raw_layout or []):
+        if not isinstance(e, dict):
+            continue
+        bid = e.get("id")
+        if bid in valid and bid not in seen:
+            out.append({"id": bid, "show": bool(e.get("show", True))})
+            seen.add(bid)
+    # append any valid ids not yet present, in canonical default order
+    for e in _default_sidebar_layout(n_widgets):
+        if e["id"] not in seen:
+            out.append({"id": e["id"], "show": True})
+            seen.add(e["id"])
+    return out
 
 
 def _get_blog_link_widgets(db: Session, blog_id: int):
-    """Parsed link-widget config: {"position": str, "widgets": [...]}.
-    Tolerates the old list-only storage format. Safe on every render."""
-    empty = {"position": "middle", "widgets": []}
+    """Parsed config: {"widgets": [...], "layout": [{"id","show"},...]}.
+    Tolerates the legacy list-only and {position,widgets} formats. Safe on
+    every render."""
     try:
         _ensure_blog_link_widgets_table(db)
         row = db.execute(
             text("SELECT widgets_json FROM blog_link_widgets WHERE blog_id=:b"),
             {"b": blog_id}).fetchone()
         if not row or not row[0]:
-            return dict(empty)
+            return {"widgets": [], "layout": _default_sidebar_layout(0)}
         data = json.loads(row[0])
-        if isinstance(data, list):                       # legacy shape
-            return {"position": "middle", "widgets": _clean_link_widgets(data)}
-        return {"position": _norm_widget_position(data.get("position")),
-                "widgets": _clean_link_widgets(data.get("widgets"))}
+        if isinstance(data, list):                         # oldest shape
+            widgets = _clean_link_widgets(data)
+            return {"widgets": widgets, "layout": _default_sidebar_layout(len(widgets))}
+        widgets = _clean_link_widgets(data.get("widgets"))
+        if "layout" in data:                               # current shape
+            layout = _reconcile_sidebar_layout(data.get("layout"), len(widgets))
+        else:                                              # {position,widgets}
+            pos = str(data.get("position") or "middle").lower()
+            layout = _default_sidebar_layout(len(widgets), pos if pos in ("top", "middle", "bottom") else "middle")
+        return {"widgets": widgets, "layout": layout}
     except Exception:
         try:
             db.rollback()
         except Exception:
             pass
-        return dict(empty)
+        return {"widgets": [], "layout": _default_sidebar_layout(0)}
 
 
 def _save_blog_link_widgets(db: Session, blog_id: int, payload):
-    """Upsert a blog's link-widget config (one JSON row {position, widgets}).
-    Accepts a {position, widgets} dict or a bare widgets list. Returns the
-    cleaned config dict."""
+    """Upsert {widgets, layout}. Accepts a {widgets, layout} dict (or a bare
+    widgets list). Reconciles the layout against the cleaned widget count.
+    Returns the cleaned config dict."""
     if isinstance(payload, dict):
-        position = _norm_widget_position(payload.get("position"))
-        widgets = payload.get("widgets")
+        widgets = _clean_link_widgets(payload.get("widgets"))
+        layout = _reconcile_sidebar_layout(payload.get("layout"), len(widgets))
     else:
-        position, widgets = "middle", payload
-    clean = {"position": position, "widgets": _clean_link_widgets(widgets)}
+        widgets = _clean_link_widgets(payload)
+        layout = _default_sidebar_layout(len(widgets))
+    clean = {"widgets": widgets, "layout": layout}
     _ensure_blog_link_widgets_table(db)
     db.execute(text("""
         INSERT INTO blog_link_widgets (blog_id, widgets_json, updated_at)
@@ -55687,7 +55723,7 @@ def _blog_context(blog, member, db, base_path):
         theme=blog.theme or "banner", font=blog.font or "classic-serif",
         palette=getattr(blog, "palette", None) or "default",
         nav=nav, social=social, base_path=base_path,
-        link_widgets=_lw["widgets"], widget_position=_lw["position"],
+        link_widgets=_lw["widgets"], sidebar_layout=_lw["layout"],
     )
 
 
@@ -56065,7 +56101,7 @@ async def api_blog_link_widgets_put(payload: dict = Body(...), request: Request 
         return JSONResponse({"error": "widgets must be a list"}, status_code=400)
     try:
         clean = _save_blog_link_widgets(db, blog.id, {
-            "position": payload.get("position"), "widgets": widgets})
+            "widgets": widgets, "layout": payload.get("layout")})
     except Exception as e:
         try:
             db.rollback()
@@ -56073,6 +56109,46 @@ async def api_blog_link_widgets_put(payload: dict = Body(...), request: Request 
             pass
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
     return {"ok": True, **clean}
+
+
+@app.post("/api/blog/preview-render")
+@limiter.limit("180/minute")
+async def api_blog_preview_render(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    """Owner-only: render the member's blog with a DRAFT theme/palette/layout/widgets
+    (not yet saved) so the editor can show a live preview while they arrange the
+    sidebar. Returns full HTML for the editor to drop into an iframe (srcdoc)."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    member = db.query(User).filter(User.id == blog.member_id).first()
+    base = f"/sites/{blog.subdomain_slug}"
+    ctx = _blog_context(blog, member, db, base)
+    theme = (payload.get("theme") or "").strip()
+    if theme in _blogrender.THEMES:
+        ctx.theme = theme
+    pal = (payload.get("palette") or "").strip()
+    if pal == "default" or pal in _blogrender.PALETTES:
+        ctx.palette = pal
+    widgets = _clean_link_widgets(payload.get("widgets"))
+    ctx.link_widgets = widgets
+    ctx.sidebar_layout = _reconcile_sidebar_layout(payload.get("layout"), len(widgets))
+    ctx.base_url = _blogrender.BASE_URL
+    ctx.csp_nonce = getattr(getattr(request, "state", None), "csp_nonce", "")
+    from sqlalchemy import or_ as _or, and_ as _and
+    _now = datetime.utcnow()
+    _pub = _or(BlogPost.status == "published",
+               _and(BlogPost.status == "scheduled", BlogPost.scheduled_at != None,  # noqa: E711
+                    BlogPost.scheduled_at <= _now))
+    posts = (db.query(BlogPost)
+               .filter(BlogPost.blog_id == blog.id, _pub)
+               .order_by(BlogPost.published_at.desc().nullslast(),
+                         BlogPost.created_at.desc()).limit(12).all())
+    tags_map = _blog_tags_for([p.id for p in posts], db)
+    ctx.posts = [_blog_post_view(p, tags_map) for p in posts]
+    return HTMLResponse(_blogrender.render_blog_feed(ctx))
 
 
 # ── Pages CRUD ───────────────────────────────────────────────────────────────

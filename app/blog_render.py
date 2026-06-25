@@ -225,7 +225,7 @@ class BlogRenderContext:
     comments_enabled: bool = False
     comments: list = field(default_factory=list)   # list[(author_name, body_text, date_str)]
     link_widgets: list = field(default_factory=list)  # [{title, links:[{label,url}], new_tab}]
-    widget_position: str = "middle"                 # top|middle|bottom of sidebar (sidebar themes)
+    sidebar_layout: list = field(default_factory=list) # ordered [{id, show}] — about|subscribe|popular|topics|lw:i
     widgets_in_sidebar: bool = False                # set True once rendered in a sidebar (gates footer strip)
 
     def post_url(self, post: PostView) -> str:
@@ -470,19 +470,33 @@ def _lw_items(ctx):
 def _lw_attrs(new_tab):
     return ' target="_blank" rel="noopener"' if new_tab else ''
 
+def _link_widget_card(title, new_tab, links):
+    """One link-widget group rendered as a single sidebar card."""
+    btns="".join(
+        f'<a class="lw-link" href="{escape(u)}"{_lw_attrs(new_tab)}>{escape(lbl)}<span class="arr">→</span></a>'
+        for lbl,u in links)
+    return f'<div class="widget"><h4>{escape(title)}</h4><div class="lw-links">{btns}</div></div>'
+
+def _lw_hidden_set(ctx):
+    """Indices of link-widget groups the member has switched off in the sidebar
+    layout. A hidden group appears in neither the sidebar nor the footer strip."""
+    hidden=set()
+    for e in (getattr(ctx,"sidebar_layout",None) or []):
+        if isinstance(e,dict) and not e.get("show",True):
+            bid=e.get("id","")
+            if isinstance(bid,str) and bid.startswith("lw:"):
+                try: hidden.add(int(bid[3:]))
+                except Exception: pass
+    return hidden
+
 def _link_widgets_sidebar(ctx):
-    """Sidebar widget cards (themes with a sidebar). Marks widgets as shown so the
-    footer strip is suppressed and we never render them twice."""
+    """All link-widget groups as sidebar cards (legacy single-block helper kept
+    for callers that don't drive a full layout). Marks widgets as shown so the
+    footer strip is suppressed."""
     items=_lw_items(ctx)
     if not items: return ""
     ctx.widgets_in_sidebar=True
-    out=[]
-    for title,new_tab,links in items:
-        btns="".join(
-            f'<a class="lw-link" href="{escape(u)}"{_lw_attrs(new_tab)}>{escape(lbl)}<span class="arr">→</span></a>'
-            for lbl,u in links)
-        out.append(f'<div class="widget"><h4>{escape(title)}</h4><div class="lw-links">{btns}</div></div>')
-    return "".join(out)
+    return "".join(_link_widget_card(t,nt,ls) for t,nt,ls in items)
 
 _LW_STRIP_CSS=("<style>.lw-strip{background:var(--accent-dark);color:#fff;padding:clamp(26px,4vw,34px) 0}"
     ".lw-strip .lw-in{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}"
@@ -495,9 +509,11 @@ _LW_STRIP_CSS=("<style>.lw-strip{background:var(--accent-dark);color:#fff;paddin
 
 def _link_widgets_strip(ctx):
     """Palette-matched footer band for sidebar-less contexts (most themes + all
-    post pages). Suppressed when the sidebar already rendered the widgets."""
+    post pages). Suppressed when the sidebar already rendered the widgets, and
+    skips any groups the member has switched off."""
     if getattr(ctx,"widgets_in_sidebar",False): return ""
-    items=_lw_items(ctx)
+    hidden=_lw_hidden_set(ctx)
+    items=[it for i,it in enumerate(_lw_items(ctx)) if i not in hidden]
     if not items: return ""
     grps=[]
     for title,new_tab,links in items:
@@ -818,18 +834,27 @@ def render_cs_feed(ctx):
     topics="".join(f'<span>{escape(n)}</span>' for n in list(tagset.values())[:8])
     popular="".join(f'<a href="{ctx.post_url(p)}" style="display:block;font-size:14.5px;font-weight:600;padding:9px 0;border-bottom:1px solid var(--line);color:#2a3142">{escape(p.title)}</a>' for p in ctx.posts[:3])
     head=_seo_head(ctx,ctx.blog_title,ctx.tagline,canonical=f"{ctx.base_url}{ctx.base_path or '/'}")
-    _lw=_link_widgets_sidebar(ctx)                       # builds once; sets widgets_in_sidebar
-    _pos=getattr(ctx,"widget_position","middle")
-    _lw_top=_lw if _pos=="top" else ""
-    _lw_mid=_lw if _pos=="middle" else ""
-    _lw_bot=_lw if _pos=="bottom" else ""
     _about=f'<div class="widget"><h4>About</h4><p style="font-size:14px;color:var(--soft);line-height:1.6">{escape(ctx.tagline or ctx.blog_title)}</p></div>'
     _sub=f'<div class="widget subbox" id="subscribe"><h4>Subscribe</h4><p>New posts in your inbox.</p><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join the list</button></form></div>'
     _popw=f'<div class="widget"><h4>Popular</h4>{popular}</div>'
     _topw=f'<div class="widget"><h4>Topics</h4><div class="tags">{topics}</div></div>'
+    blocks={"about":_about,"subscribe":_sub,"popular":_popw,"topics":_topw}
+    _items=_lw_items(ctx)
+    for _i,(_t,_nt,_ls) in enumerate(_items):
+        blocks[f"lw:{_i}"]=_link_widget_card(_t,_nt,_ls)
+    layout=getattr(ctx,"sidebar_layout",None) or [
+        {"id":_b,"show":True} for _b in
+        (["about"]+[f"lw:{i}" for i in range(len(_items))]+["subscribe","popular","topics"])]
+    _side=[]
+    for e in layout:
+        if not (isinstance(e,dict) and e.get("show",True)): continue
+        h=blocks.get(e.get("id"))
+        if not h: continue
+        _side.append(h)
+        if str(e.get("id","")).startswith("lw:"): ctx.widgets_in_sidebar=True
     return (f"{head}<style>{_CS_CSS}{_palette_css(ctx)}</style></head><body>{_cs_header(ctx)}"
         f'<div class="wrap layout"><div class="main">{posts_html}</div>'
-        f'<aside class="side">{_lw_top}{_about}{_lw_mid}{_sub}{_popw}{_topw}{_lw_bot}</aside></div>'
+        f'<aside class="side">{"".join(_side)}</aside></div>'
         f"{_cs_footer(ctx)}</body></html>")
 def render_cs_post(ctx):
     return _post_page(ctx,_CS_CSS,_cs_header(ctx),_cs_footer(ctx))

@@ -18,8 +18,9 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost, apiPatch, apiPut, apiDelete } from '../utils/api';
 import {
-  PenSquare, Eye, Copy, Check, FileText, Edit3, MoreHorizontal,
+  PenSquare, Eye, EyeOff, Copy, Check, FileText, Edit3, MoreHorizontal,
   Lock, Globe, Palette, Mail, Send, Sparkles, ArrowRight, Plus, Trash2, X, MessageSquare,
+  ChevronUp, ChevronDown, GripVertical,
 } from 'lucide-react';
 
 const C = {
@@ -83,11 +84,12 @@ export default function MySite() {
   const [savingAppr, setSavingAppr] = useState(false);
   const [apprSaved, setApprSaved] = useState(false);
   const [linkWidgets, setLinkWidgets] = useState([]);
-  const [lwPosition, setLwPosition] = useState('middle');
+  const [sidebarLayout, setSidebarLayout] = useState([]);
   const [lwSaving, setLwSaving] = useState(false);
   const [lwSaved, setLwSaved] = useState(false);
-  const [previewVer, setPreviewVer] = useState(0);
   const [previewTheme, setPreviewTheme] = useState('banner');
+  const [previewHtml, setPreviewHtml] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [pages, setPages] = useState([]);
   const [menu, setMenu] = useState([]);
   const [savingMenu, setSavingMenu] = useState(false);
@@ -124,7 +126,7 @@ export default function MySite() {
         try { const pg = await apiGet('/api/blog/pages'); setPages(pg.pages || []); } catch (e) {}
         try { const mn = await apiGet('/api/blog/menu'); setMenu(mn.menu || []); } catch (e) {}
         try { const an = await apiGet('/api/blog/analytics'); setAnalytics(an); } catch (e) {}
-        try { const lw = await apiGet('/api/blog/link-widgets'); setLinkWidgets(lw.widgets || []); setLwPosition(lw.position || 'middle'); } catch (e) {}
+        try { const lw = await apiGet('/api/blog/link-widgets'); setLinkWidgets(lw.widgets || []); setSidebarLayout(lw.layout || []); } catch (e) {}
       }
     } catch (e) { setErr(e.message); }
     setLoading(false);
@@ -145,24 +147,82 @@ export default function MySite() {
     setSavingAppr(false);
   };
 
-  // ── Link widgets (sidebar / footer buttons out to the member's other sites) ──
+  // ── Link widgets + sidebar arrangement ──────────────────────────────────────
   const saveLinkWidgets = async () => {
     setLwSaving(true); setErr('');
     try {
-      const r = await apiPut('/api/blog/link-widgets', { widgets: linkWidgets, position: lwPosition });
-      setLinkWidgets(r.widgets || []); setLwPosition(r.position || 'middle');
+      const r = await apiPut('/api/blog/link-widgets', { widgets: linkWidgets, layout: sidebarLayout });
+      setLinkWidgets(r.widgets || []); setSidebarLayout(r.layout || []);
       setLwSaved(true); setTimeout(() => setLwSaved(false), 2500);
-      setPreviewVer((v) => v + 1);
     } catch (e) { setErr(e.message); }
     setLwSaving(false);
   };
   const lwUpdate = (next) => setLinkWidgets(next);
-  const addWidget = () => lwUpdate([...linkWidgets, { title: '', new_tab: true, links: [{ label: '', url: '' }] }]);
-  const removeWidget = (wi) => lwUpdate(linkWidgets.filter((_, i) => i !== wi));
+  const addWidget = () => {
+    const newIdx = linkWidgets.length;
+    setLinkWidgets([...linkWidgets, { title: '', new_tab: true, links: [{ label: '', url: '' }] }]);
+    setSidebarLayout([...sidebarLayout, { id: `lw:${newIdx}`, show: true }]);
+  };
+  const removeWidget = (wi) => {
+    setLinkWidgets(linkWidgets.filter((_, i) => i !== wi));
+    const next = [];
+    for (const e of sidebarLayout) {
+      if (!e.id || !String(e.id).startsWith('lw:')) { next.push(e); continue; }
+      const j = parseInt(String(e.id).slice(3), 10);
+      if (j === wi) continue;                              // drop the removed group
+      next.push(j > wi ? { ...e, id: `lw:${j - 1}` } : e); // shift later groups down
+    }
+    setSidebarLayout(next);
+  };
   const setWidget = (wi, patch) => lwUpdate(linkWidgets.map((w, i) => (i === wi ? { ...w, ...patch } : w)));
   const addLink = (wi) => setWidget(wi, { links: [...(linkWidgets[wi].links || []), { label: '', url: '' }] });
   const removeLink = (wi, li) => setWidget(wi, { links: linkWidgets[wi].links.filter((_, i) => i !== li) });
   const setLink = (wi, li, patch) => setWidget(wi, { links: linkWidgets[wi].links.map((ln, i) => (i === li ? { ...ln, ...patch } : ln)) });
+
+  // arrange: block display metadata + reorder/show-hide ops
+  const BLOCK_META = {
+    about: { name: 'About', desc: 'Your blog intro' },
+    subscribe: { name: 'Subscribe', desc: 'Email signup box' },
+    popular: { name: 'Popular', desc: 'Your top posts' },
+    topics: { name: 'Topics', desc: 'Tag cloud' },
+  };
+  const blockInfo = (id) => {
+    if (id && String(id).startsWith('lw:')) {
+      const i = parseInt(String(id).slice(3), 10);
+      const w = linkWidgets[i];
+      const n = w && w.links ? w.links.length : 0;
+      return { name: (w && w.title && w.title.trim()) || 'Link widget', desc: `${n} link${n === 1 ? '' : 's'}`, kind: 'links' };
+    }
+    return { ...(BLOCK_META[id] || { name: id, desc: '' }), kind: id === 'subscribe' ? 'optin' : 'builtin' };
+  };
+  const moveBlock = (idx, dir) => {
+    const j = idx + dir;
+    if (j < 0 || j >= sidebarLayout.length) return;
+    const next = sidebarLayout.slice();
+    [next[idx], next[j]] = [next[j], next[idx]];
+    setSidebarLayout(next);
+  };
+  const toggleBlock = (idx) => setSidebarLayout(
+    sidebarLayout.map((e, i) => (i === idx ? { ...e, show: !(e.show !== false) } : e)));
+
+  // ── Live preview: render the blog with the current (unsaved) draft ──────────
+  useEffect(() => {
+    if (!data || !data.blog) return;
+    setPreviewLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/blog/preview-render', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme: previewTheme, palette, widgets: linkWidgets, layout: sidebarLayout }),
+        });
+        if (res.ok) setPreviewHtml(await res.text());
+      } catch (e) { /* keep last good preview */ }
+      setPreviewLoading(false);
+    }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, previewTheme, palette, linkWidgets, sidebarLayout]);
 
   const deletePage = async (id) => {
     if (!window.confirm('Delete this page permanently?')) return;
@@ -519,27 +579,45 @@ export default function MySite() {
               <div style={{ fontSize: 12, color: C.dim, marginTop: 10, textAlign: 'center' }}>Changes go live on your site when you save.</div>
 
               <div style={{ ...cardStyle(), padding: 20, marginTop: 18 }}>
-                <div style={sectionLabel}>Link widgets</div>
+                <div style={sectionLabel}>Sidebar layout</div>
                 <div style={{ fontSize: 12.5, color: C.dim, marginTop: -7, marginBottom: 14, lineHeight: 1.5 }}>
-                  Buttons that send readers to your other sites. They show in the sidebar on themes that have one, and as a footer strip on the rest.
+                  Reorder any block with the arrows and use the eye to show or hide it — the preview updates as you go. On themes without a sidebar, these blocks appear in a strip above the footer instead.
                 </div>
 
-                {linkWidgets.length > 0 && (
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 600, color: C.ink2, marginBottom: 7 }}>Position</div>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      {[['top', 'Top'], ['middle', 'Middle'], ['bottom', 'Bottom']].map(([k, lbl]) => (
-                        <button key={k} onClick={() => setLwPosition(k)} style={{
-                          flex: 1, padding: '9px 6px', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', borderRadius: 8, fontFamily: sora,
-                          border: `1.5px solid ${lwPosition === k ? C.cy2 : C.line}`, background: lwPosition === k ? '#f0fbfe' : '#fff',
-                          color: lwPosition === k ? C.ink : C.dim }}>{lbl}</button>
-                      ))}
+                {sidebarLayout.map((e, idx) => {
+                  const info = blockInfo(e.id);
+                  const shown = e.show !== false;
+                  const tag = info.kind === 'links' ? { bg: '#f1e9fe', fg: '#6d28d9', label: 'Link widget' }
+                    : info.kind === 'optin' ? { bg: '#e7f7fb', fg: '#0e7490', label: 'Optin' }
+                    : { bg: '#eef2fb', fg: '#5566a0', label: 'Built-in' };
+                  return (
+                    <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, border: `1px solid ${C.line}`,
+                      borderRadius: 11, padding: '10px 11px', marginBottom: 8, background: shown ? '#fcfdff' : '#f6f7fa', opacity: shown ? 1 : 0.62 }}>
+                      <GripVertical size={15} color="#b4bdd2" style={{ flex: '0 0 auto' }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                          <span style={{ fontFamily: sora, fontWeight: 700, fontSize: 14, color: C.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{info.name}</span>
+                          <span style={{ fontFamily: mono, fontSize: 9, letterSpacing: '.05em', textTransform: 'uppercase', padding: '2px 6px', borderRadius: 5, background: tag.bg, color: tag.fg, flex: '0 0 auto' }}>{tag.label}</span>
+                        </div>
+                        <div style={{ fontSize: 11.5, color: C.dim, marginTop: 1 }}>{shown ? info.desc : "Hidden — won't show on your blog"}</div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', flex: '0 0 auto' }}>
+                        <span onClick={() => moveBlock(idx, -1)} style={{ cursor: idx === 0 ? 'default' : 'pointer', color: idx === 0 ? '#e1e7f2' : '#9aa6c0', lineHeight: 0.6 }}><ChevronUp size={15} /></span>
+                        <span onClick={() => moveBlock(idx, 1)} style={{ cursor: idx === sidebarLayout.length - 1 ? 'default' : 'pointer', color: idx === sidebarLayout.length - 1 ? '#e1e7f2' : '#9aa6c0', lineHeight: 0.6 }}><ChevronDown size={15} /></span>
+                      </div>
+                      <span onClick={() => toggleBlock(idx)} title={shown ? 'Showing — tap to hide' : 'Hidden — tap to show'} style={{
+                        width: 30, height: 30, borderRadius: 8, border: `1px solid ${shown ? '#bfe9f2' : C.line}`, display: 'grid', placeItems: 'center',
+                        cursor: 'pointer', background: shown ? '#f0fbfe' : '#fff', color: shown ? C.cy1 : '#aab2c6', flex: '0 0 auto' }}>
+                        {shown ? <Eye size={15} /> : <EyeOff size={15} />}
+                      </span>
                     </div>
-                    <div style={{ fontSize: 11.5, color: C.dim, marginTop: 7, lineHeight: 1.4 }}>
-                      Where the links sit in the sidebar. On themes without a sidebar they always appear above the footer.
-                    </div>
-                  </div>
-                )}
+                  );
+                })}
+
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: C.ink2, margin: '18px 0 4px', fontFamily: sora }}>Link widgets</div>
+                <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.5 }}>
+                  Groups of buttons out to your other sites. Each group is one of the blocks above — position or hide it there.
+                </div>
 
                 {linkWidgets.map((w, wi) => (
                   <div key={wi} style={{ border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, marginBottom: 12, background: '#fcfdff' }}>
@@ -567,11 +645,11 @@ export default function MySite() {
 
                 <button onClick={addWidget} style={{ ...btn(), width: '100%', justifyContent: 'center', borderStyle: 'dashed', color: C.cy1 }}><Plus size={15} /> New widget</button>
                 <button onClick={saveLinkWidgets} disabled={lwSaving} style={{ ...btn('primary'), width: '100%', justifyContent: 'center', marginTop: 11 }}>
-                  {lwSaving ? 'Saving…' : lwSaved ? <><Check size={16} /> Saved</> : 'Save link widgets'}
+                  {lwSaving ? 'Saving…' : lwSaved ? <><Check size={16} /> Saved</> : 'Save sidebar'}
                 </button>
 
                 <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.line}` }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: C.ink2, marginBottom: 8 }}>See where they land on each style</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: C.ink2, marginBottom: 8 }}>See it on each style</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {THEMES.map((th) => (
                       <button key={th.key} onClick={() => setPreviewTheme(th.key)} style={{
@@ -581,7 +659,7 @@ export default function MySite() {
                     ))}
                   </div>
                   <div style={{ fontSize: 11.5, color: C.dim, marginTop: 8, lineHeight: 1.4 }}>
-                    Flips the preview on the right to that style — your saved theme doesn't change. Save first to see your latest edits.
+                    Flips the preview to that style so you can check placement — your saved theme doesn't change. Edits preview live; hit Save sidebar to publish them.
                   </div>
                 </div>
               </div>
@@ -589,10 +667,11 @@ export default function MySite() {
             <div style={{ alignSelf: 'stretch' }}>
               <div style={{ ...cardStyle(), overflow: 'hidden', position: 'sticky', top: 20 }}>
                 <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.line}`, fontSize: 12.5, color: C.dim, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <Eye size={14} /> Preview — {THEMES.find((t) => t.key === previewTheme)?.name}
-                  {previewTheme !== theme && <span style={{ fontWeight: 500, color: C.cy1 }}>· not your saved theme</span>}
+                  <Eye size={14} /> Live preview — {THEMES.find((t) => t.key === previewTheme)?.name}
+                  {previewLoading && <span style={{ fontWeight: 500, color: C.cy1 }}>· updating…</span>}
+                  {previewTheme !== theme && !previewLoading && <span style={{ fontWeight: 500, color: C.cy1 }}>· not your saved theme</span>}
                 </div>
-                <iframe title="Site preview" src={`${blog.url}?theme=${previewTheme}&palette=${palette}&v=${previewVer}`}
+                <iframe title="Site preview" srcDoc={previewHtml}
                   style={{ width: '100%', height: 580, border: 'none', display: 'block', background: '#fff' }} />
               </div>
             </div>
