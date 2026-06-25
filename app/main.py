@@ -55559,6 +55559,86 @@ def _blog_post_view(post, tags_map):
     )
 
 
+def _ensure_blog_link_widgets_table(db: Session):
+    """Lazy migration — one row per blog holding its link widgets as JSON.
+
+    SKIP_MIGRATIONS=true on prod means tables aren't auto-created on deploy, so
+    (like broadcast_log) we create this idempotently on first use. A standalone
+    table — NOT a column on blogs — so it can never 500 a live blog read while a
+    migration is pending, and needs no admin tap.
+    """
+    db.execute(text("""
+        CREATE TABLE IF NOT EXISTS blog_link_widgets (
+            blog_id INTEGER PRIMARY KEY,
+            widgets_json TEXT,
+            updated_at TIMESTAMP DEFAULT NOW()
+        )
+    """))
+
+
+def _clean_link_widgets(raw):
+    """Validate/normalise editor payload into the stored shape. Drops anything
+    invalid; bounds everything. Returns list[{title, new_tab, links:[{label,url}]}].
+    Caps: 8 widgets, 12 links each. URLs must be http(s) (auto-prefixed https://)."""
+    out = []
+    if not isinstance(raw, list):
+        return out
+    for w in raw[:8]:
+        if not isinstance(w, dict):
+            continue
+        title = str(w.get("title") or "").strip()[:80]
+        new_tab = bool(w.get("new_tab", True))
+        links = []
+        for ln in (w.get("links") or [])[:12]:
+            if not isinstance(ln, dict):
+                continue
+            label = str(ln.get("label") or "").strip()[:80]
+            url = str(ln.get("url") or "").strip()[:500]
+            if not label or not url:
+                continue
+            low = url.lower()
+            if low.startswith("javascript:") or low.startswith("data:"):
+                continue
+            if not (low.startswith("http://") or low.startswith("https://")):
+                url = "https://" + url
+            links.append({"label": label, "url": url})
+        if title and links:
+            out.append({"title": title, "new_tab": new_tab, "links": links})
+    return out
+
+
+def _get_blog_link_widgets(db: Session, blog_id: int):
+    """Parsed link widgets for a blog (or [] on any error). Safe on every render."""
+    try:
+        _ensure_blog_link_widgets_table(db)
+        row = db.execute(
+            text("SELECT widgets_json FROM blog_link_widgets WHERE blog_id=:b"),
+            {"b": blog_id}).fetchone()
+        if not row or not row[0]:
+            return []
+        return _clean_link_widgets(json.loads(row[0]))
+    except Exception:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return []
+
+
+def _save_blog_link_widgets(db: Session, blog_id: int, widgets):
+    """Upsert a blog's link widgets (one JSON row). Returns the cleaned list."""
+    clean = _clean_link_widgets(widgets)
+    _ensure_blog_link_widgets_table(db)
+    db.execute(text("""
+        INSERT INTO blog_link_widgets (blog_id, widgets_json, updated_at)
+        VALUES (:b, :j, NOW())
+        ON CONFLICT (blog_id) DO UPDATE
+            SET widgets_json = EXCLUDED.widgets_json, updated_at = NOW()
+    """), {"b": blog_id, "j": json.dumps(clean)})
+    db.commit()
+    return clean
+
+
 def _blog_context(blog, member, db, base_path):
     nav = []
     for m in (db.query(BlogMenu).filter(BlogMenu.blog_id == blog.id)
@@ -55585,6 +55665,7 @@ def _blog_context(blog, member, db, base_path):
         theme=blog.theme or "banner", font=blog.font or "classic-serif",
         palette=getattr(blog, "palette", None) or "default",
         nav=nav, social=social, base_path=base_path,
+        link_widgets=_get_blog_link_widgets(db, blog.id),
     )
 
 
@@ -55933,6 +56014,42 @@ async def api_blog_update(payload: dict = Body(...), request: Request = None, db
     return {"ok": True, "theme": blog.theme, "palette": getattr(blog, "palette", "default") or "default",
             "title": blog.title, "tagline": blog.tagline or "",
             "comments_enabled": bool(blog.comments_enabled), "is_published": bool(blog.is_published), "social": _blog_social_dict(blog)}
+
+
+@app.get("/api/blog/link-widgets")
+def api_blog_link_widgets_get(request: Request, db: Session = Depends(get_db)):
+    """Owner: current link widgets for their blog."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    return {"ok": True, "widgets": _get_blog_link_widgets(db, blog.id)}
+
+
+@app.put("/api/blog/link-widgets")
+@limiter.limit("60/minute")
+async def api_blog_link_widgets_put(payload: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    """Owner: replace the blog's link widgets. Validated + bounded server-side."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    blog = _member_blog(user, db)
+    if not blog:
+        return JSONResponse({"error": "Launch your site first."}, status_code=400)
+    widgets = payload.get("widgets")
+    if not isinstance(widgets, list):
+        return JSONResponse({"error": "widgets must be a list"}, status_code=400)
+    try:
+        clean = _save_blog_link_widgets(db, blog.id, widgets)
+    except Exception as e:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
+    return {"ok": True, "widgets": clean}
 
 
 # ── Pages CRUD ───────────────────────────────────────────────────────────────

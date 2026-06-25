@@ -82,6 +82,10 @@ export default function MySite() {
   const [palette, setPalette] = useState('default');
   const [savingAppr, setSavingAppr] = useState(false);
   const [apprSaved, setApprSaved] = useState(false);
+  const [linkWidgets, setLinkWidgets] = useState([]);
+  const [lwSaving, setLwSaving] = useState(false);
+  const [lwSaved, setLwSaved] = useState(false);
+  const [previewVer, setPreviewVer] = useState(0);
   const [pages, setPages] = useState([]);
   const [menu, setMenu] = useState([]);
   const [savingMenu, setSavingMenu] = useState(false);
@@ -117,6 +121,7 @@ export default function MySite() {
         try { const pg = await apiGet('/api/blog/pages'); setPages(pg.pages || []); } catch (e) {}
         try { const mn = await apiGet('/api/blog/menu'); setMenu(mn.menu || []); } catch (e) {}
         try { const an = await apiGet('/api/blog/analytics'); setAnalytics(an); } catch (e) {}
+        try { const lw = await apiGet('/api/blog/link-widgets'); setLinkWidgets(lw.widgets || []); } catch (e) {}
       }
     } catch (e) { setErr(e.message); }
     setLoading(false);
@@ -136,6 +141,25 @@ export default function MySite() {
     catch (e) { setErr(e.message); }
     setSavingAppr(false);
   };
+
+  // ── Link widgets (sidebar / footer buttons out to the member's other sites) ──
+  const saveLinkWidgets = async () => {
+    setLwSaving(true); setErr('');
+    try {
+      const r = await apiPut('/api/blog/link-widgets', { widgets: linkWidgets });
+      setLinkWidgets(r.widgets || []);
+      setLwSaved(true); setTimeout(() => setLwSaved(false), 2500);
+      setPreviewVer((v) => v + 1);
+    } catch (e) { setErr(e.message); }
+    setLwSaving(false);
+  };
+  const lwUpdate = (next) => setLinkWidgets(next);
+  const addWidget = () => lwUpdate([...linkWidgets, { title: '', new_tab: true, links: [{ label: '', url: '' }] }]);
+  const removeWidget = (wi) => lwUpdate(linkWidgets.filter((_, i) => i !== wi));
+  const setWidget = (wi, patch) => lwUpdate(linkWidgets.map((w, i) => (i === wi ? { ...w, ...patch } : w)));
+  const addLink = (wi) => setWidget(wi, { links: [...(linkWidgets[wi].links || []), { label: '', url: '' }] });
+  const removeLink = (wi, li) => setWidget(wi, { links: linkWidgets[wi].links.filter((_, i) => i !== li) });
+  const setLink = (wi, li, patch) => setWidget(wi, { links: linkWidgets[wi].links.map((ln, i) => (i === li ? { ...ln, ...patch } : ln)) });
 
   const deletePage = async (id) => {
     if (!window.confirm('Delete this page permanently?')) return;
@@ -490,12 +514,48 @@ export default function MySite() {
                 {savingAppr ? 'Saving…' : apprSaved ? <><Check size={16} /> Saved</> : 'Save appearance'}
               </button>
               <div style={{ fontSize: 12, color: C.dim, marginTop: 10, textAlign: 'center' }}>Changes go live on your site when you save.</div>
+
+              <div style={{ ...cardStyle(), padding: 20, marginTop: 18 }}>
+                <div style={sectionLabel}>Link widgets</div>
+                <div style={{ fontSize: 12.5, color: C.dim, marginTop: -7, marginBottom: 14, lineHeight: 1.5 }}>
+                  Buttons that send readers to your other sites. They show in the sidebar on themes that have one, and as a footer strip on the rest.
+                </div>
+
+                {linkWidgets.map((w, wi) => (
+                  <div key={wi} style={{ border: `1px solid ${C.line}`, borderRadius: 12, padding: 14, marginBottom: 12, background: '#fcfdff' }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 11 }}>
+                      <input value={w.title || ''} onChange={(e) => setWidget(wi, { title: e.target.value })}
+                        placeholder="Widget heading — e.g. My Links" style={{ ...fullInput, fontWeight: 600 }} />
+                      <span onClick={() => removeWidget(wi)} title="Remove widget" style={{ ...iconBtn, color: '#b42318', flex: '0 0 auto' }}><Trash2 size={14} /></span>
+                    </div>
+                    {(w.links || []).map((ln, li) => (
+                      <div key={li} style={{ display: 'flex', gap: 7, alignItems: 'center', marginBottom: 7 }}>
+                        <input value={ln.label || ''} onChange={(e) => setLink(wi, li, { label: e.target.value })}
+                          placeholder="Label" style={{ ...fullInput, flex: '0 0 40%', padding: '9px 11px', fontSize: 13.5 }} />
+                        <input value={ln.url || ''} onChange={(e) => setLink(wi, li, { url: e.target.value })}
+                          placeholder="example.com" style={{ ...fullInput, flex: 1, padding: '9px 11px', fontFamily: mono, fontSize: 12.5 }} />
+                        <span onClick={() => removeLink(wi, li)} title="Remove link" style={{ ...iconBtn, width: 28, height: 28, flex: '0 0 auto' }}><X size={13} /></span>
+                      </div>
+                    ))}
+                    <button onClick={() => addLink(wi)} style={{ ...btn(), padding: '8px 12px', fontSize: 13, marginTop: 3 }}><Plus size={13} /> Add link</button>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 12, paddingTop: 11, borderTop: `1px dashed ${C.line}`, fontSize: 13, color: C.ink2, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={w.new_tab !== false} onChange={(e) => setWidget(wi, { new_tab: e.target.checked })} style={{ width: 15, height: 15, accentColor: C.cy2 }} />
+                      Open links in a new tab
+                    </label>
+                  </div>
+                ))}
+
+                <button onClick={addWidget} style={{ ...btn(), width: '100%', justifyContent: 'center', borderStyle: 'dashed', color: C.cy1 }}><Plus size={15} /> New widget</button>
+                <button onClick={saveLinkWidgets} disabled={lwSaving} style={{ ...btn('primary'), width: '100%', justifyContent: 'center', marginTop: 11 }}>
+                  {lwSaving ? 'Saving…' : lwSaved ? <><Check size={16} /> Saved</> : 'Save link widgets'}
+                </button>
+              </div>
             </div>
             <div style={{ ...cardStyle(), overflow: 'hidden', position: 'sticky', top: 20 }}>
               <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.line}`, fontSize: 12.5, color: C.dim, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
                 <Eye size={14} /> Live preview — {THEMES.find((t) => t.key === theme)?.name}
               </div>
-              <iframe title="Site preview" src={`${blog.url}?theme=${theme}&palette=${palette}`}
+              <iframe title="Site preview" src={`${blog.url}?theme=${theme}&palette=${palette}&v=${previewVer}`}
                 style={{ width: '100%', height: 580, border: 'none', display: 'block', background: '#fff' }} />
             </div>
           </div>

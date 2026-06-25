@@ -224,6 +224,8 @@ class BlogRenderContext:
     palette: str = "default"                       # accent palette key (see PALETTES)
     comments_enabled: bool = False
     comments: list = field(default_factory=list)   # list[(author_name, body_text, date_str)]
+    link_widgets: list = field(default_factory=list)  # [{title, links:[{label,url}], new_tab}]
+    widgets_in_sidebar: bool = False                # set True once rendered in a sidebar (gates footer strip)
 
     def post_url(self, post: PostView) -> str:
         return f"{self.base_path}/p/{post.slug}"
@@ -449,6 +451,61 @@ def _banner_header(ctx, active=""):
             f'<div class="bnav">{_nav_html(ctx, "", "subbtn", active)}</div></div></div>')
 
 
+def _lw_items(ctx):
+    """Normalised list of the member's link widgets (defensive against bad shapes)."""
+    out=[]
+    for w in (getattr(ctx,"link_widgets",None) or []):
+        if not isinstance(w,dict): continue
+        title=str(w.get("title") or "").strip()
+        links=[]
+        for ln in (w.get("links") or []):
+            if not isinstance(ln,dict): continue
+            label=str(ln.get("label") or "").strip()
+            url=str(ln.get("url") or "").strip()
+            if label and url: links.append((label,url))
+        if title and links: out.append((title,bool(w.get("new_tab",True)),links))
+    return out
+
+def _lw_attrs(new_tab):
+    return ' target="_blank" rel="noopener"' if new_tab else ''
+
+def _link_widgets_sidebar(ctx):
+    """Sidebar widget cards (themes with a sidebar). Marks widgets as shown so the
+    footer strip is suppressed and we never render them twice."""
+    items=_lw_items(ctx)
+    if not items: return ""
+    ctx.widgets_in_sidebar=True
+    out=[]
+    for title,new_tab,links in items:
+        btns="".join(
+            f'<a class="lw-link" href="{escape(u)}"{_lw_attrs(new_tab)}>{escape(lbl)}<span class="arr">→</span></a>'
+            for lbl,u in links)
+        out.append(f'<div class="widget"><h4>{escape(title)}</h4><div class="lw-links">{btns}</div></div>')
+    return "".join(out)
+
+_LW_STRIP_CSS=("<style>.lw-strip{background:var(--accent-dark);color:#fff;padding:clamp(26px,4vw,34px) 0}"
+    ".lw-strip .lw-in{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}"
+    ".lw-strip .lw-grp{margin-bottom:18px}.lw-strip .lw-grp:last-child{margin-bottom:0}"
+    ".lw-strip h4{font-family:var(--hfont,inherit);font-size:15px;font-weight:700;margin-bottom:12px;opacity:.96}"
+    ".lw-row{display:flex;flex-wrap:wrap;gap:10px}"
+    ".lw-pill{display:inline-flex;align-items:center;gap:7px;text-decoration:none;font-weight:600;font-size:13.5px;"
+    "color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:9px 15px;transition:background .15s}"
+    ".lw-pill:hover{background:rgba(255,255,255,.26)}</style>")
+
+def _link_widgets_strip(ctx):
+    """Palette-matched footer band for sidebar-less contexts (most themes + all
+    post pages). Suppressed when the sidebar already rendered the widgets."""
+    if getattr(ctx,"widgets_in_sidebar",False): return ""
+    items=_lw_items(ctx)
+    if not items: return ""
+    grps=[]
+    for title,new_tab,links in items:
+        pills="".join(
+            f'<a class="lw-pill" href="{escape(u)}"{_lw_attrs(new_tab)}>{escape(lbl)} →</a>'
+            for lbl,u in links)
+        grps.append(f'<div class="lw-grp"><h4>{escape(title)}</h4><div class="lw-row">{pills}</div></div>')
+    return f'{_LW_STRIP_CSS}<section class="lw-strip"><div class="lw-in">{"".join(grps)}</div></section>'
+
 def _foot_just(ctx):
     """Centre the footer row when the member has no social links (otherwise the
     2-col social-left/powered-right layout pushes 'Powered by' to one side)."""
@@ -456,7 +513,7 @@ def _foot_just(ctx):
 
 
 def _banner_footer(ctx):
-    return (f'<div class="bfoot"><div class="wrap in"{_foot_just(ctx)}>'
+    return (_link_widgets_strip(ctx)+f'<div class="bfoot"><div class="wrap in"{_foot_just(ctx)}>'
             f'<div class="social">{_social_html(ctx, "")}</div>'
             f'{_powered_footer(ctx)}</div></div>')
 
@@ -740,11 +797,11 @@ h1,h2,h3,h4{font-family:'PT Serif',serif}a{text-decoration:none;color:inherit}
 .powered{font-size:13px}.powered .mk{color:#fff;font-weight:700;background:rgba(255,255,255,.1);padding:6px 12px;border-radius:7px;margin-left:5px;display:inline-flex;align-items:center;gap:6px}
 .powered .mk .d{width:15px;height:15px;border-radius:4px;background:linear-gradient(135deg,#06b6d4,#1e3a8a);display:inline-grid;place-items:center}.powered .mk .d svg{width:8px;height:8px}
 @media(max-width:980px){.layout{grid-template-columns:1fr;gap:40px}.side{position:static}}@media(max-width:560px){.cnav{display:none}}
-"""
+\n.lw-links{display:flex;flex-direction:column;gap:9px}.lw-link{display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;font-weight:600;font-size:14.5px;color:var(--accent-dark);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;transition:all .15s}.lw-link .arr{color:var(--accent);transition:transform .15s}.lw-link:hover{border-color:var(--accent);background:var(--accent);color:#fff}.lw-link:hover .arr{color:#fff;transform:translateX(3px)}\n"""
 def _cs_header(ctx):
     return f'<div class="chead"><div class="wrap in"><a class="cname" href="{ctx.base_path or "/"}">{escape(ctx.blog_title)}</a><div class="cnav">{_navlinks(ctx,"")}</div></div></div><div class="strip"></div>'
 def _cs_footer(ctx):
-    return f'<div class="cfoot"><div class="wrap in"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
+    return _link_widgets_strip(ctx)+f'<div class="cfoot"><div class="wrap in"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
 def render_cs_feed(ctx):
     posts_html=""
     for p in ctx.posts:
@@ -763,7 +820,7 @@ def render_cs_feed(ctx):
     return (f"{head}<style>{_CS_CSS}{_palette_css(ctx)}</style></head><body>{_cs_header(ctx)}"
         f'<div class="wrap layout"><div class="main">{posts_html}</div>'
         f'<aside class="side"><div class="widget"><h4>About</h4><p style="font-size:14px;color:var(--soft);line-height:1.6">{escape(ctx.tagline or ctx.blog_title)}</p></div>'
-        f'<div class="widget subbox" id="subscribe"><h4>Subscribe</h4><p>New posts in your inbox.</p><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join the list</button></form></div>'
+        f'{_link_widgets_sidebar(ctx)}<div class="widget subbox" id="subscribe"><h4>Subscribe</h4><p>New posts in your inbox.</p><form method="post" action="/sites/{escape(ctx.slug)}/subscribe" style="display:contents"><input name="email" type="email" required placeholder="you@email.com"><button type="submit">Join the list</button></form></div>'
         f'<div class="widget"><h4>Popular</h4>{popular}</div>'
         f'<div class="widget"><h4>Topics</h4><div class="tags">{topics}</div></div></aside></div>'
         f"{_cs_footer(ctx)}</body></html>")
@@ -799,7 +856,7 @@ a{text-decoration:none;color:inherit}.col{max-width:660px;margin:0 auto;padding:
 def _jn_header(ctx):
     return f'<div class="col jhead"><div class="jname">{escape(ctx.blog_title)}</div><div class="jtag">{escape(ctx.tagline or "")}</div><div class="jnav">{_navlinks(ctx,"")}</div></div>'
 def _jn_footer(ctx):
-    return f'<div class="col jfoot"><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div>'
+    return _link_widgets_strip(ctx)+f'<div class="col jfoot"><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div>'
 def render_jn_feed(ctx):
     entries=""
     for p in ctx.posts:
@@ -850,7 +907,7 @@ _BN_IMGCLS=["","background:linear-gradient(150deg,#f0598a,#d83f72)","background:
 def _bn_header(ctx):
     return f'<div class="wrap"><div class="bhead"><a class="bname" href="{ctx.base_path or "/"}">◆ {escape(ctx.blog_title)}</a><div class="bnav">{_navlinks(ctx,"")}<a class="sub" href="#subscribe">Subscribe</a></div></div></div>'
 def _bn_footer(ctx):
-    return f'<div class="wrap"><div class="bfoot"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
+    return _link_widgets_strip(ctx)+f'<div class="wrap"><div class="bfoot"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
 def render_bn_feed(ctx):
     tiles=""
     if ctx.posts:
@@ -916,7 +973,7 @@ h1,h2,h3{font-family:'Sora',sans-serif}a{text-decoration:none;color:inherit}
 def _cn_header(ctx):
     return f'<div class="wrap"><div class="chead"><a class="cname" href="{ctx.base_path or "/"}">{escape(ctx.blog_title)}</a><div class="cnav">{_navlinks(ctx,"")}<a class="sub" href="#subscribe">Subscribe</a></div></div></div>'
 def _cn_footer(ctx):
-    return f'<div class="wrap"><div class="cfoot"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
+    return _link_widgets_strip(ctx)+f'<div class="wrap"><div class="cfoot"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
 def render_cn_feed(ctx):
     hero=""
     if ctx.posts:
@@ -971,7 +1028,7 @@ h1,h2,h3{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
 def _gl_header(ctx):
     return f'<div class="ghead glass"><div class="in"><a class="gname" href="{ctx.base_path or "/"}">◈ {escape(ctx.blog_title)}</a><div class="gnav">{_navlinks(ctx,"")}<a class="sub" href="#subscribe">Subscribe</a></div></div></div>'
 def _gl_footer(ctx):
-    return f'<div class="wrap"><div class="gfoot glass"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
+    return _link_widgets_strip(ctx)+f'<div class="wrap"><div class="gfoot glass"{_foot_just(ctx)}><div class="social">{_social_html(ctx,"")}</div>{_powered_footer(ctx)}</div></div>'
 def render_gl_feed(ctx):
     body=""
     if ctx.posts:
