@@ -586,13 +586,15 @@ export default function MySite() {
                 </div>
               </div>
             </div>
-            <div style={{ ...cardStyle(), overflow: 'hidden', position: 'sticky', top: 20 }}>
-              <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.line}`, fontSize: 12.5, color: C.dim, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
-                <Eye size={14} /> Preview — {THEMES.find((t) => t.key === previewTheme)?.name}
-                {previewTheme !== theme && <span style={{ fontWeight: 500, color: C.cy1 }}>· not your saved theme</span>}
+            <div style={{ alignSelf: 'stretch' }}>
+              <div style={{ ...cardStyle(), overflow: 'hidden', position: 'sticky', top: 20 }}>
+                <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.line}`, fontSize: 12.5, color: C.dim, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <Eye size={14} /> Preview — {THEMES.find((t) => t.key === previewTheme)?.name}
+                  {previewTheme !== theme && <span style={{ fontWeight: 500, color: C.cy1 }}>· not your saved theme</span>}
+                </div>
+                <iframe title="Site preview" src={`${blog.url}?theme=${previewTheme}&palette=${palette}&v=${previewVer}`}
+                  style={{ width: '100%', height: 580, border: 'none', display: 'block', background: '#fff' }} />
               </div>
-              <iframe title="Site preview" src={`${blog.url}?theme=${previewTheme}&palette=${palette}&v=${previewVer}`}
-                style={{ width: '100%', height: 580, border: 'none', display: 'block', background: '#fff' }} />
             </div>
           </div>
         )}
