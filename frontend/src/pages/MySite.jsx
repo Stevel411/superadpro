@@ -280,7 +280,7 @@ export default function MySite() {
   };
 
   if (loading) {
-    return <AppLayout title="My Site"><div style={{ padding: 60, textAlign: 'center', color: C.dim, fontFamily: sora }}>Loading your site…</div></AppLayout>;
+    return <AppLayout title="My Blog"><div style={{ padding: 60, textAlign: 'center', color: C.dim, fontFamily: sora }}>Loading your site…</div></AppLayout>;
   }
 
   const isPro = data?.is_pro;
@@ -289,7 +289,7 @@ export default function MySite() {
   // ── gated (not a paid member) ──────────────────────────────────────────────
   if (!isPro) {
     return (
-      <AppLayout title="My Site">
+      <AppLayout title="My Blog">
         <div style={{ maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
           <div style={{ width: 64, height: 64, borderRadius: 18, background: '#eef3fa', display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
             <Lock size={26} color={C.dim} />
@@ -314,7 +314,7 @@ export default function MySite() {
       [Globe, 'Your own domain', 'Connect a custom domain, or use a free address.'],
     ];
     return (
-      <AppLayout title="My Site">
+      <AppLayout title="My Blog">
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <div style={{ ...cardStyle(), overflow: 'hidden' }}>
             <div style={{ background: 'linear-gradient(135deg,#06b6d4,#1e3a8a)', color: '#fff', padding: '52px 50px', textAlign: 'center', position: 'relative' }}>
@@ -362,7 +362,7 @@ export default function MySite() {
   const tabs = ['posts', 'pages', 'comments', 'appearance', 'settings'];
 
   return (
-    <AppLayout title="My Site">
+    <AppLayout title="My Blog">
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         {notice && <div style={{ ...noticeBox }}>{notice}</div>}
 
