@@ -50741,7 +50741,51 @@ def api_leaderboard(db: Session = Depends(get_db)):
     total_earned_course = float(db.query(func.sum(CourseCommission.amount)).scalar() or 0)
     total_earned = total_earned_grid + total_earned_matrix + total_earned_course
 
+    # ── Unified members board (redesigned leaderboard) ────────────────
+    # ONE ranked list powering the new leaderboard, with three live metrics:
+    #   income   = compute_user_earnings()['total_earned']  (paid ledger)
+    #   downline = compute_descendant_counts()['total']      (recursive CTE)
+    #   signups  = compute_user_earnings()['personal_referrals'] (direct refs)
+    # Every displayed number is recomputed live from the canonical helpers —
+    # NEVER the denormalised User.total_earned / total_team / personal_referrals
+    # columns, which drift (same reason descendant counts + earnings have
+    # dedicated helpers). Candidate pool is selected cheaply via those stored
+    # counters (selection only — approximate ordering is fine), then measured
+    # live. Bounded to a small union; per-user helper results are cached 60s
+    # and this whole endpoint is cached 5 min, so the live recompute cost is
+    # paid at most once per 5 minutes per cold replica.
+    member_cands = {}
+    for u in db.query(User).filter(User.is_active == True).order_by(User.total_earned.desc()).limit(30).all():
+        member_cands[u.id] = u
+    for u in db.query(User).filter(User.is_active == True).order_by(User.total_team.desc()).limit(30).all():
+        member_cands[u.id] = u
+
+    members_board = []
+    for u in member_cands.values():
+        earn = compute_user_earnings(db, u.id)
+        desc = compute_descendant_counts(db, u.id)
+        income = round(float(earn.get("total_earned") or 0), 2)
+        downline = int(desc.get("total") or 0)
+        signups = int(earn.get("personal_referrals") or 0)
+        # Only real participants belong on the board — skip anyone with no
+        # earnings, no downline and no sign-ups (would just be $0/0/0 noise).
+        if income <= 0 and downline <= 0 and signups <= 0:
+            continue
+        members_board.append({
+            "id": u.id,
+            "username": u.username,
+            "first_name": u.first_name or u.username,
+            "avatar_url": u.avatar_url or None,
+            "membership_tier": u.membership_tier or "free",
+            "income": income,
+            "downline": downline,
+            "signups": signups,
+        })
+    # Default order = income desc; the frontend re-sorts client-side on toggle.
+    members_board.sort(key=lambda m: m["income"], reverse=True)
+
     result = {
+        "members": members_board,
         "ref_leaders": [user_data(u) for u in ref_leaders],
         "signup_users": [user_data(u) for u in signup_users],
         "grid_users": [user_data(u) for u in grid_users],

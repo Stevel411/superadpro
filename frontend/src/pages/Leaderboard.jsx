@@ -3,640 +3,244 @@ import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
-import { Trophy, Users, UserPlus, Zap, Layers, GraduationCap, Crown, TrendingUp } from 'lucide-react';
+import { Crown, Info, Lock, TrendingUp } from 'lucide-react';
 
-// TABS moved inside component
+// Redesigned leaderboard (members-only via ProtectedRoute). ONE board with a
+// metric toggle — Income / Downline / Sign-ups — all served live from
+// /api/leaderboard's `members` payload (paid-ledger income, recursive
+// descendant count, direct referrals). Income is always rendered in money
+// green; downline + sign-ups are neutral counts.
 
-var RANK_STYLES = [
-  { bg: 'linear-gradient(135deg,#fef3c7,#fde68a)', color: '#92400e', border: '#fcd34d', glow: 'rgba(251,191,36,0.4)' },
-  { bg: 'linear-gradient(135deg,#f1f5f9,#e2e8f0)', color: 'var(--sap-text-secondary)', border: 'var(--sap-text-ghost)', glow: 'rgba(148,163,184,0.4)' },
-  { bg: 'linear-gradient(135deg,#fed7aa,#fdba74)', color: '#9a3412', border: '#fb923c', glow: 'rgba(251,146,60,0.4)' },
-];
+const TIER_LABELS = { founder: 'Founder', partner: 'Partner', pro: 'Partner', launchpad: 'Launchpad', free: 'Free' };
 
-function PodiumCard({ user, place, tab }) {
-  // First place gets the visual emphasis: bigger avatar, taller pedestal,
-  // floating crown. 2nd and 3rd are smaller, sit lower on the podium.
-  var heights = { 1: 120, 2: 90, 3: 70 };
-  var sizes =   { 1: 76,  2: 60, 3: 56 };
-  var medals =  { 1: '🥇', 2: '🥈', 3: '🥉' };
-  var rs = RANK_STYLES[place - 1];
-  var val = tab.metric(user);
-  var isFirst = place === 1;
+function metricValue(m, key) {
+  if (key === 'income') return m.income || 0;
+  if (key === 'downline') return m.downline || 0;
+  return m.signups || 0;
+}
+function fmtValue(m, key) {
+  if (key === 'income') return '$' + Math.round(m.income || 0).toLocaleString();
+  return metricValue(m, key).toLocaleString();
+}
+
+function Spin() {
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      flex: isFirst ? '0 0 200px' : '0 0 160px',
-    }}>
-      {/* Crown reserved for 1st place — fixed height block keeps 2nd/3rd
-          aligned to the same baseline as 1st despite the crown's extra space. */}
-      {isFirst
-        ? <div style={{ fontSize: 30, marginBottom: 8, animation: 'float 3s ease-in-out infinite' }}>👑</div>
-        : <div style={{ height: 38 }} />
-      }
-      <div style={{ position: 'relative', marginBottom: 12 }}>
-        {user.avatar_url ? (
-          <img src={user.avatar_url} alt=""
-            style={{
-              width: sizes[place], height: sizes[place],
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: '3px solid ' + rs.border,
-              boxShadow: '0 0 ' + (isFirst ? 32 : 18) + 'px ' + rs.glow,
-              display: 'block',
-            }}
-           loading="lazy" />
-        ) : (
-          <div style={{
-            width: sizes[place], height: sizes[place],
-            borderRadius: '50%',
-            background: tab.grad,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: sizes[place] * 0.42, fontWeight: 800, color: '#fff',
-            fontFamily: 'Sora, sans-serif',
-            border: '3px solid ' + rs.border,
-            boxShadow: '0 0 ' + (isFirst ? 32 : 18) + 'px ' + rs.glow,
-          }}>{(user.first_name || user.username || 'U')[0].toUpperCase()}</div>
-        )}
-        <div style={{
-          position: 'absolute', bottom: -6, right: -6,
-          fontSize: isFirst ? 26 : 20,
-          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
-        }}>{medals[place]}</div>
-      </div>
-      <div style={{
-        fontWeight: 800, fontSize: isFirst ? 15 : 13,
-        color: 'var(--sap-text-primary)', textAlign: 'center',
-        marginBottom: 4, maxWidth: 150,
-        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-      }}>{user.first_name || user.username}</div>
-      <div style={{
-        fontFamily: 'Sora, sans-serif',
-        fontSize: isFirst ? 22 : 16, fontWeight: 900,
-        color: tab.color, marginBottom: 14,
-      }}>{val}</div>
-      {/* Pedestal */}
-      <div style={{
-        width: '100%', height: heights[place],
-        background: 'linear-gradient(180deg, ' + tab.color + '20, ' + tab.color + '06)',
-        border: '1px solid ' + tab.color + '25',
-        borderBottom: 'none',
-        borderRadius: '14px 14px 0 0',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <span style={{
-          fontFamily: 'Sora, sans-serif',
-          fontSize: isFirst ? 56 : 40, fontWeight: 900,
-          color: tab.color + '20',
-        }}>{place}</span>
-      </div>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 280 }}>
+      <div style={{ width: 36, height: 36, border: '3px solid var(--sap-border)', borderTopColor: 'var(--sap-accent)', borderRadius: '50%', animation: 'sapSpin 0.8s linear infinite' }} />
+      <style>{`@keyframes sapSpin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }
 
-function Spin() {
-  return <div style={{ display:'flex', justifyContent:'center', padding:80 }}><div style={{ width:40, height:40, border:'3px solid #e5e7eb', borderTopColor:'var(--sap-accent)', borderRadius:'50%', animation:'spin .8s linear infinite' }}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>;
+function Avatar({ m, size, ring }) {
+  const initial = (m.first_name || m.username || 'U')[0].toUpperCase();
+  return (
+    <div style={{
+      position: 'relative', width: size, height: size, borderRadius: '50%', overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      background: 'var(--sap-bg-hover)', color: 'var(--sap-text-secondary)',
+      fontFamily: 'var(--sap-font-heading)', fontWeight: 700, fontSize: Math.round(size * 0.4),
+      boxShadow: ring ? '0 0 0 2px var(--sap-bg-card), 0 0 0 4px var(--sap-accent)' : 'none',
+    }}>
+      {initial}
+      {m.avatar_url && (
+        <img src={m.avatar_url} alt="" loading="lazy"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+      )}
+    </div>
+  );
+}
+
+function YouTag() {
+  return <span style={{ fontSize: 10, fontWeight: 700, background: 'var(--sap-accent)', color: '#fff', padding: '1px 7px', borderRadius: 6 }}>You</span>;
+}
+
+function TierBadge({ tier }) {
+  const label = TIER_LABELS[tier] || (tier ? tier[0].toUpperCase() + tier.slice(1) : 'Free');
+  const paid = tier === 'founder' || tier === 'partner' || tier === 'pro';
+  return (
+    <span style={{
+      fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 6,
+      color: paid ? 'var(--sap-accent)' : 'var(--sap-text-secondary)',
+      background: paid ? 'var(--sap-accent-bg, #e8f6fe)' : 'var(--sap-bg-elevated)',
+    }}>{label}</span>
+  );
+}
+
+function PodiumCard({ m, place, metric, isYou }) {
+  const isWin = place === 1;
+  const moneyColor = metric === 'income' ? 'var(--sap-green)' : 'var(--sap-text-primary)';
+  return (
+    <div style={{
+      background: 'var(--sap-bg-card)', borderRadius: 'var(--sap-radius-lg)', padding: '16px 14px', textAlign: 'center', position: 'relative',
+      border: isWin ? '2px solid var(--sap-accent)' : '1px solid var(--sap-border-light)',
+      boxShadow: isWin ? '0 6px 22px rgba(14,165,233,0.16)' : 'var(--sap-shadow-sm)',
+    }}>
+      <div style={{
+        position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)',
+        width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'var(--sap-font-heading)', fontWeight: 700, fontSize: 11, color: '#fff',
+        background: isWin ? 'var(--sap-accent)' : 'var(--sap-cobalt-mid)', border: '2px solid var(--sap-bg-card)',
+      }}>{place}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0 10px' }}>
+        <Avatar m={m} size={52} ring={isYou} />
+      </div>
+      <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 600, fontSize: 15, display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center' }}>
+        {m.first_name || m.username}
+        {isWin && <Crown size={15} style={{ color: 'var(--sap-accent)' }} />}
+        {isYou && <YouTag />}
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 8 }}>#{place} · {TIER_LABELS[m.membership_tier] || 'Free'}</div>
+      <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: moneyColor }}>{fmtValue(m, metric)}</div>
+      <div style={{ fontSize: 11, color: 'var(--sap-text-secondary)', marginTop: 3 }}>{m.downline.toLocaleString()} downline · {m.signups} sign-ups</div>
+    </div>
+  );
+}
+
+function thStyle(align) {
+  return { fontSize: 11, fontWeight: 600, color: 'var(--sap-text-faint)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: align, padding: '8px 14px', borderBottom: '1px solid var(--sap-border-light)' };
+}
+function tdStyle(align) {
+  return { padding: '12px 14px', borderBottom: '1px solid var(--sap-border-light)', fontSize: 14, textAlign: align, fontVariantNumeric: 'tabular-nums' };
 }
 
 export default function Leaderboard() {
-  var { t } = useTranslation();
-  var { user } = useAuth();
-  // Five leaderboard categories. Sign-ups (any join via your link) +
-  // Active Members (paid-only via personal_referrals) + the three income
-  // streams. Default to 'signups' since it fills up faster on new
-  // platforms and gives early adopters something to climb.
-  var TABS = [
-    { key: 'signups',   label: t('leaderboard.signupsLabel', { defaultValue: 'Sign-ups' }),                 icon: UserPlus,      color: '#0ea5e9',                grad: 'linear-gradient(135deg,#0284c7,#38bdf8)', metric: function(u){ return u.total_team || 0; },                  metricLabel: t('leaderboard.signupsMetric', { defaultValue: 'Sign-ups' }) },
-    { key: 'referrals', label: t('leaderboard.activeMembersLabel', { defaultValue: 'Active Members' }),     icon: Users,         color: 'var(--sap-green-mid)',  grad: 'linear-gradient(135deg,#059669,#34d399)', metric: function(u){ return u.personal_referrals || 0; },          metricLabel: t('leaderboard.referrals', { defaultValue: 'Active' }) },
-    { key: 'grid',      label: t('leaderboard.profitGridLabel', { defaultValue: 'Profit Grid' }),           icon: Zap,           color: '#f59e0b',                grad: 'linear-gradient(135deg,#b45309,#f59e0b)', metric: function(u){ return u._grid_count || u.grid_count || 0; }, metricLabel: t('leaderboard.grid', { defaultValue: 'Team' }) },
-    { key: 'nexus',     label: t('leaderboard.nexusLabel', { defaultValue: 'Creator Credits' }),                      icon: Layers,        color: '#06b6d4',                grad: 'linear-gradient(135deg,#1e3a8a,#06b6d4)', metric: function(u){ return u._nexus_count || 0; },                  metricLabel: t('leaderboard.nexusMetric', { defaultValue: 'Credits referrals' }) },
-    { key: 'courses',   label: t('leaderboard.courseSales', { defaultValue: 'Course Sales' }),              icon: GraduationCap, color: 'var(--sap-amber-dark)', grad: 'linear-gradient(135deg,#9a3412,#ea580c)', metric: function(u){ return u.course_sale_count || u._course_count || 0; }, metricLabel: t('leaderboard.sales', { defaultValue: 'Sales' }) },
-  ];
-  var [data, setData] = useState(null);
-  var [loading, setLoading] = useState(true);
-  var [tab, setTab] = useState('signups');
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [metric, setMetric] = useState('income');
 
-  useEffect(function() {
-    apiGet('/api/leaderboard').then(function(d){ setData(d); setLoading(false); }).catch(function(){ setLoading(false); });
+  useEffect(() => {
+    apiGet('/api/leaderboard').then((d) => { setData(d); setLoading(false); }).catch(() => { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout categoryBack={{ to: '/team', label: 'Team' }} title={t("leaderboard.title")}><Spin/></AppLayout>;
+  const METRICS = [
+    { key: 'income', label: t('leaderboard.income', { defaultValue: 'Income' }) },
+    { key: 'downline', label: t('leaderboard.downline', { defaultValue: 'Downline' }) },
+    { key: 'signups', label: t('leaderboard.signupsLabel', { defaultValue: 'Sign-ups' }) },
+  ];
 
-  var d = data || {};
-  var allData = {
-    signups:   d.signup_users || [],
-    referrals: d.ref_leaders  || [],
-    grid:      d.grid_users   || [],
-    nexus:     d.nexus_users  || [],
-    courses:   d.course_users || [],
-  };
-  var activeTab = TABS.find(function(tb){ return tb.key===tab; })||TABS[0];
-  var leaders = allData[tab]||[];
-  var maxVal = leaders.length>0 ? Math.max(1, activeTab.metric(leaders[0])) : 1;
-  var myRank = leaders.findIndex(function(u){ return u.id===user?.id; });
+  const title = t('leaderboard.title', { defaultValue: 'Leaderboard' });
+  const subtitle = t('leaderboard.subtitle', { defaultValue: 'Top performers across the SuperAdPro network' });
+
+  if (loading) return <AppLayout categoryBack={{ to: '/team', label: 'Team' }} title={title}><Spin /></AppLayout>;
+
+  const members = ((data && data.members) || []).slice();
+  members.sort((a, b) => metricValue(b, metric) - metricValue(a, metric));
+  const top3 = members.slice(0, 3);
+  const meId = user && user.id;
+  const myRank = members.findIndex((m) => m.id === meId);
+  const activeMetric = METRICS.find((x) => x.key === metric) || METRICS[0];
 
   return (
-    <AppLayout categoryBack={{ to: '/team', label: 'Team' }} title={t("leaderboard.title")} subtitle={t("leaderboard.subtitle")}>
-      <style>{`
-        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-      `}</style>
+    <AppLayout categoryBack={{ to: '/team', label: 'Team' }} title={title} subtitle={subtitle}>
+      <style>{`@media(max-width:600px){.lb-su{display:none!important;}.lb-handle{display:none!important;}}`}</style>
+      <div style={{ maxWidth: 860, margin: '0 auto' }}>
 
-      {/* ── Hero — matches Dashboard cobalt pattern ── */}
-      <div style={{
-        background: 'linear-gradient(135deg, var(--sap-cobalt-deep, #172554), var(--sap-cobalt-mid, #1e3a8a))',
-        borderRadius: 18,
-        padding: '22px 28px',
-        marginBottom: 16,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 20,
-        flexWrap: 'wrap',
-        boxShadow: '0 8px 32px rgba(30,58,138,0.35)',
-      }}>
-        {/* Left — trophy icon + identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0 }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: 18,
-            background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 0 28px rgba(251,191,36,0.45)',
-          }}>
-            <Trophy size={34} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: 2,
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)',
-              marginBottom: 4,
-            }}>{t('leaderboard.heroEyebrow', { defaultValue: 'Affiliate Leaderboard' })}</div>
-            <div style={{
-              fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 900,
-              color: '#fff', marginBottom: 6, lineHeight: 1.1,
-              letterSpacing: '-0.3px',
-            }}>{t('leaderboard.heroTitle', { defaultValue: 'Top performers' })}</div>
-            <div style={{
-              fontSize: 13, color: 'rgba(255,255,255,0.65)',
-            }}>{t('leaderboard.heroSubtitle', { defaultValue: 'Across the SuperAdPro network' })}</div>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--sap-font-mono)', fontSize: 11, color: 'var(--sap-text-secondary)', background: 'var(--sap-bg-card)', border: '1px solid var(--sap-border-light)', padding: '6px 11px', borderRadius: 'var(--sap-radius-full)' }}>
+            <Lock size={13} style={{ color: 'var(--sap-accent)' }} /> {t('leaderboard.membersOnly', { defaultValue: 'Members only' })}
+          </span>
         </div>
 
-        {/* Right — Your Rank card */}
-        {myRank >= 0 && (
-          <div style={{
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            borderRadius: 12,
-            padding: '12px 24px',
-            textAlign: 'center',
-            flexShrink: 0,
-            minWidth: 180,
-          }}>
-            <div style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: 1.5,
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)',
-              marginBottom: 4,
-            }}>{t('leaderboard.yourRank', { defaultValue: 'Your rank' })}</div>
-            <div style={{
-              fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900,
-              color: 'var(--sap-amber-bright, #fbbf24)', lineHeight: 1,
-            }}>#{myRank+1}</div>
-            <div style={{
-              fontSize: 12, color: 'rgba(255,255,255,0.45)',
-              marginTop: 4,
-            }}>{t('leaderboard.of', { count: leaders.length, defaultValue: 'of {{count}}' })}</div>
-          </div>
-        )}
-      </div>
+        <div style={{ background: 'var(--sap-bg-card)', border: '1px solid var(--sap-border-light)', borderRadius: 'var(--sap-radius-2xl)', boxShadow: 'var(--sap-shadow-md)', overflow: 'hidden' }}>
 
-      {/* ── Category pill row — same styling as the new top-of-page nav pills.
-          Five tabs: Sign-ups · Active Members · Profit Grid · Nexus · Course Sales.
-          White bg, cobalt text, soft dark-grey shadow lift. Active pill
-          gets cobalt border + stronger shadow + filled icon halo so the
-          "you're viewing this leaderboard" cue reads clearly. */}
-      <div style={{
-        display: 'flex', gap: 8, flexWrap: 'wrap',
-        marginBottom: 20,
-      }}>
-        {TABS.map(function(tb) {
-          var count = (allData[tb.key]||[]).length;
-          var Icon = tb.icon;
-          var isActive = tab === tb.key;
-          return (
-            <button key={tb.key} onClick={function(){ setTab(tb.key); }}
-              style={{
-                flex: '1 1 180px',
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '10px 14px',
-                background: '#fff',
-                border: isActive ? '1px solid var(--sap-cobalt-deep, #172554)' : '1px solid #e2e8f0',
-                borderRadius: 14,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                textAlign: 'left',
-                transition: 'all 0.15s',
-                boxShadow: isActive
-                  ? '0 4px 12px rgba(15,23,42,0.12), 0 1px 3px rgba(15,23,42,0.08)'
-                  : '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
-              }}
-              onMouseEnter={function(e){ if (!isActive) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 14px rgba(15,23,42,0.1), 0 2px 4px rgba(15,23,42,0.06)'; } }}
-              onMouseLeave={function(e){ if (!isActive) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)'; } }}
-            >
-              <div style={{
-                width: 34, height: 34, borderRadius: 9,
-                background: isActive ? tb.grad : tb.color + '15',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-                boxShadow: isActive ? '0 0 14px ' + tb.color + '50' : 'none',
-                transition: 'all 0.2s',
-              }}>
-                <Icon size={16} color={isActive ? '#fff' : tb.color} strokeWidth={2.2} />
+          <div style={{ padding: '20px 24px 18px', borderBottom: '1px solid var(--sap-border-light)' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 700, fontSize: 20, letterSpacing: '-0.01em', color: 'var(--sap-text-primary)' }}>{t('leaderboard.heading', { defaultValue: 'Affiliate leaderboard' })}</div>
+                <div style={{ fontSize: 13, color: 'var(--sap-text-secondary)', marginTop: 2 }}>{subtitle}</div>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 13, fontWeight: 700,
-                  color: 'var(--sap-cobalt-deep, #172554)',
-                  marginBottom: 2,
-                }}>{tb.label}</div>
-                <div style={{
-                  fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 900,
-                  color: tb.color, lineHeight: 1,
-                }}>{count} <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--sap-text-muted, #64748b)' }}>{t('leaderboard.onTheBoard', { defaultValue: 'on the board' })}</span></div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {leaders.length===0 ? (
-        <div style={{ textAlign:'center', padding:'64px 32px', background:'#fff', borderRadius:16, border:'1px solid #e8ecf2' }}>
-          <div style={{ fontSize:56, marginBottom:12, opacity:0.25 }}>🏆</div>
-          <div style={{ fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:6 }}>{t('leaderboard.noActivityYet')}</div>
-          <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>{t('leaderboard.beFirst')}</div>
-        </div>
-      ) : (
-        <>
-          {/* ── Podium ── */}
-          {leaders.length >= 3 && (
-            <div style={{
-              background: '#fff', borderRadius: 18,
-              border: '1px solid #e8ecf2',
-              padding: '28px 28px 0',
-              marginBottom: 16, overflow: 'hidden',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-            }}>
-              <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                <span style={{
-                  fontSize: 11, fontWeight: 800,
-                  letterSpacing: 2, textTransform: 'uppercase',
-                  color: 'var(--sap-text-muted)',
-                }}>{t('leaderboard.topPerformersLabel', { defaultValue: 'Top performers' })}</span>
-              </div>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'flex-end',
-                gap: 12,
-              }}>
-                <PodiumCard user={leaders[1]} place={2} tab={activeTab} />
-                <PodiumCard user={leaders[0]} place={1} tab={activeTab} />
-                <PodiumCard user={leaders[2]} place={3} tab={activeTab} />
-              </div>
+              {myRank >= 0 && (
+                <div style={{ textAlign: 'right', background: 'var(--sap-bg-elevated)', border: '1px solid var(--sap-border-light)', borderRadius: 'var(--sap-radius-md)', padding: '8px 14px' }}>
+                  <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t('leaderboard.yourRank', { defaultValue: 'Your rank' })}</div>
+                  <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 800, fontSize: 18, color: 'var(--sap-text-primary)' }}>
+                    <span style={{ color: 'var(--sap-accent)' }}>#{myRank + 1}</span> {t('leaderboard.ofCount', { defaultValue: 'of' })} {members.length}
+                  </div>
+                </div>
+              )}
             </div>
+            <div style={{ display: 'inline-flex', background: 'var(--sap-bg-elevated)', border: '1px solid var(--sap-border-light)', borderRadius: 'var(--sap-radius-full)', padding: 4, marginTop: 16, gap: 2 }}>
+              {METRICS.map((mx) => (
+                <button key={mx.key} onClick={() => setMetric(mx.key)} style={{
+                  fontFamily: 'var(--sap-font-body)', fontWeight: 600, fontSize: 13, cursor: 'pointer', border: 'none',
+                  padding: '8px 16px', borderRadius: 'var(--sap-radius-full)',
+                  background: metric === mx.key ? 'var(--sap-accent)' : 'transparent',
+                  color: metric === mx.key ? '#fff' : 'var(--sap-text-secondary)',
+                  boxShadow: metric === mx.key ? '0 2px 8px rgba(14,165,233,0.35)' : 'none',
+                }}>{mx.label}</button>
+              ))}
+            </div>
+          </div>
+
+          {members.length === 0 ? (
+            <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--sap-text-secondary)' }}>
+              {t('leaderboard.empty', { defaultValue: 'No ranked members yet — be the first to climb the board.' })}
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(165px,1fr))', gap: 12, padding: '20px 24px' }}>
+                {top3.map((m, i) => (
+                  <PodiumCard key={m.id} m={m} place={i + 1} metric={metric} isYou={m.id === meId} />
+                ))}
+              </div>
+
+              <div style={{ padding: '0 14px 6px' }}>
+                <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 600, fontSize: 13, color: 'var(--sap-text-secondary)', padding: '4px 10px 8px', display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <TrendingUp size={15} style={{ color: 'var(--sap-accent)' }} /> {t('leaderboard.fullRankings', { defaultValue: 'Full rankings' })} · <span style={{ color: 'var(--sap-accent)' }}>{t('leaderboard.byMetric', { defaultValue: 'by' })} {activeMetric.label.toLowerCase()}</span>
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th colSpan={2} style={thStyle('left')}>{t('leaderboard.member', { defaultValue: 'Member' })}</th>
+                        <th className="lb-su" style={thStyle('right')}>{t('leaderboard.signupsLabel', { defaultValue: 'Sign-ups' })}</th>
+                        <th style={thStyle('right')}>{t('leaderboard.downline', { defaultValue: 'Downline' })}</th>
+                        <th style={thStyle('right')}>{t('leaderboard.income', { defaultValue: 'Income' })}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {members.map((m, i) => {
+                        const isYou = m.id === meId;
+                        return (
+                          <tr key={m.id} style={{ background: isYou ? 'var(--sap-accent-bg, #e8f6fe)' : 'transparent' }}>
+                            <td style={{ ...tdStyle('center'), width: 42, boxShadow: isYou ? 'inset 3px 0 0 var(--sap-accent)' : 'none' }}>
+                              <span style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 700, color: isYou ? 'var(--sap-accent)' : (i < 3 ? 'var(--sap-cobalt-mid)' : 'var(--sap-text-faint)') }}>{i + 1}</span>
+                            </td>
+                            <td style={tdStyle('left')}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                                <Avatar m={m} size={34} ring={isYou} />
+                                <div>
+                                  <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    {m.first_name || m.username}{isYou && <YouTag />}<TierBadge tier={m.membership_tier} />
+                                  </div>
+                                  <div className="lb-handle" style={{ fontFamily: 'var(--sap-font-mono)', fontSize: 11, color: 'var(--sap-text-faint)' }}>@{m.username}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="lb-su" style={{ ...tdStyle('right'), color: metric === 'signups' ? 'var(--sap-accent)' : 'var(--sap-text-primary)' }}>{m.signups.toLocaleString()}</td>
+                            <td style={{ ...tdStyle('right'), color: metric === 'downline' ? 'var(--sap-accent)' : 'var(--sap-text-primary)' }}>{m.downline.toLocaleString()}</td>
+                            <td style={{ ...tdStyle('right'), fontFamily: 'var(--sap-font-heading)', fontWeight: 700, color: 'var(--sap-green)' }}>${Math.round(m.income).toLocaleString()}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
 
-          {/* ── Rankings Table ── */}
-          <div style={{
-            background: '#fff', borderRadius: 16,
-            border: '1px solid #e8ecf2',
-            overflow: 'hidden',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-            animation: 'fadeUp .3s ease-out',
-          }}>
-            <div style={{
-              padding: '18px 22px',
-              borderBottom: '1px solid #f1f5f9',
-              display: 'flex', alignItems: 'center', gap: 10,
-            }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: 9,
-                background: activeTab.color + '15',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <TrendingUp size={16} color={activeTab.color} strokeWidth={2.4} />
-              </div>
-              <div>
-                <div style={{
-                  fontFamily: 'Sora, sans-serif', fontSize: 15, fontWeight: 800,
-                  color: 'var(--sap-text-primary)', lineHeight: 1.2,
-                }}>{t('leaderboard.fullRankings', { defaultValue: 'Full rankings' })}</div>
-                <div style={{
-                  fontSize: 12, color: 'var(--sap-text-muted)',
-                  marginTop: 2,
-                }}>{activeTab.label}</div>
-              </div>
-            </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#fafbfc' }}>
-                  {[t('leaderboard.rank', { defaultValue: 'Rank' }),
-                    t('leaderboard.member', { defaultValue: 'Member' }),
-                    t('leaderboard.tierLabel', { defaultValue: 'Tier' }),
-                    activeTab.metricLabel,
-                    t('leaderboard.progress', { defaultValue: 'Progress' })].map(function(h, i) {
-                    return <th key={h} style={{
-                      fontSize: 11, fontWeight: 800,
-                      color: 'var(--sap-text-muted)',
-                      textTransform: 'uppercase', letterSpacing: 1,
-                      padding: '12px 18px',
-                      borderBottom: '1px solid #e8ecf2',
-                      textAlign: i >= 3 ? 'right' : 'left',
-                    }}>{h}</th>;
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {leaders.slice(0, 20).map(function(u, i) {
-                  var isMe = u.id === user?.id;
-                  var val = activeTab.metric(u);
-                  var pct = Math.round((val / maxVal) * 100);
-                  var rs = RANK_STYLES[i] || null;
-                  var medals = ['🥇', '🥈', '🥉'];
-                  return (
-                    <tr key={u.id || i}
-                      style={{
-                        background: isMe ? activeTab.color + '08' : 'transparent',
-                        borderLeft: isMe ? '3px solid ' + activeTab.color : '3px solid transparent',
-                        transition: 'background .15s',
-                      }}
-                      onMouseEnter={function(e) { if (!isMe) e.currentTarget.style.background = '#fafbfc'; }}
-                      onMouseLeave={function(e) { if (!isMe) e.currentTarget.style.background = 'transparent'; }}
-                    >
-                      <td style={{ padding: '14px 18px', borderBottom: '1px solid #f5f6f8' }}>
-                        {i < 3 ? (
-                          <div style={{
-                            width: 36, height: 36, borderRadius: 10,
-                            background: rs.bg,
-                            border: '1px solid ' + rs.border,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 17,
-                            boxShadow: '0 2px 8px ' + rs.glow,
-                          }}>{medals[i]}</div>
-                        ) : (
-                          <div style={{
-                            width: 36, height: 36, borderRadius: 10,
-                            background: '#f1f5f9',
-                            border: '1px solid #e2e8f0',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontFamily: 'Sora, sans-serif',
-                            fontSize: 14, fontWeight: 800,
-                            color: 'var(--sap-text-muted)',
-                          }}>{i + 1}</div>
-                        )}
-                      </td>
-                      <td style={{ padding: '14px 18px', borderBottom: '1px solid #f5f6f8' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          {u.avatar_url ? (
-                            <img src={u.avatar_url} alt=""
-                              style={{
-                                width: 40, height: 40, borderRadius: 12,
-                                objectFit: 'cover',
-                                flexShrink: 0,
-                                boxShadow: i < 3 ? '0 2px 8px ' + activeTab.color + '30' : 'none',
-                              }}
-                             loading="lazy" />
-                          ) : (
-                            <div style={{
-                              width: 40, height: 40, borderRadius: 12,
-                              background: i < 3 ? activeTab.grad : 'linear-gradient(135deg,#e2e8f0,#cbd5e1)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: 16, fontWeight: 800,
-                              color: i < 3 ? '#fff' : 'var(--sap-text-muted)',
-                              flexShrink: 0,
-                              fontFamily: 'Sora, sans-serif',
-                              boxShadow: i < 3 ? '0 2px 8px ' + activeTab.color + '30' : 'none',
-                            }}>{(u.first_name || u.username || 'U')[0].toUpperCase()}</div>
-                          )}
-                          <div>
-                            <div style={{
-                              fontSize: 14, fontWeight: 700,
-                              color: 'var(--sap-text-primary)',
-                              display: 'flex', alignItems: 'center', gap: 6,
-                              marginBottom: 1,
-                            }}>
-                              {u.first_name || u.username}
-                              {isMe && <span style={{
-                                fontSize: 11, fontWeight: 700,
-                                padding: '2px 8px', borderRadius: 5,
-                                background: activeTab.color + '15',
-                                color: activeTab.color,
-                              }}>{t('leaderboard.you', { defaultValue: 'You' })}</span>}
-                              {i === 0 && <Crown size={13} color="var(--sap-amber)" />}
-                            </div>
-                            <div style={{
-                              fontSize: 12, color: 'var(--sap-text-muted)',
-                            }}>@{u.username}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '14px 18px', borderBottom: '1px solid #f5f6f8' }}>
-                        <span style={{
-                          fontSize: 12, fontWeight: 700,
-                          padding: '4px 10px', borderRadius: 6,
-                          background: activeTab.color + '10',
-                          color: activeTab.color,
-                          border: '1px solid ' + activeTab.color + '20',
-                        }}>{t('leaderboard.tierLabel', { defaultValue: 'Tier' })} {u.grid_tier || 0}</span>
-                      </td>
-                      <td style={{
-                        padding: '14px 18px',
-                        borderBottom: '1px solid #f5f6f8',
-                        textAlign: 'right',
-                      }}>
-                        <span style={{
-                          fontFamily: 'Sora, sans-serif',
-                          fontSize: 18, fontWeight: 900,
-                          color: i < 3 ? activeTab.color : 'var(--sap-text-primary)',
-                        }}>{val}</span>
-                        <div style={{
-                          fontSize: 11, color: 'var(--sap-text-muted)',
-                          fontWeight: 600, marginTop: 2,
-                          textTransform: 'uppercase', letterSpacing: 0.6,
-                        }}>{activeTab.metricLabel}</div>
-                      </td>
-                      <td style={{
-                        padding: '14px 18px',
-                        borderBottom: '1px solid #f5f6f8',
-                        textAlign: 'right', width: 160,
-                      }}>
-                        <div style={{
-                          display: 'flex', alignItems: 'center', gap: 10,
-                          justifyContent: 'flex-end',
-                        }}>
-                          <div style={{
-                            flex: 1, height: 7,
-                            background: '#f1f5f9',
-                            borderRadius: 99, overflow: 'hidden',
-                            minWidth: 90,
-                          }}>
-                            <div style={{
-                              height: '100%', borderRadius: 99,
-                              background: i < 3 ? activeTab.grad : activeTab.color + '60',
-                              width: pct + '%',
-                              transition: 'width .8s ease-out',
-                            }} />
-                          </div>
-                          <span style={{
-                            fontSize: 12, fontWeight: 700,
-                            color: 'var(--sap-text-muted)',
-                            minWidth: 32, textAlign: 'right',
-                          }}>{pct}%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            {leaders.length > 20 && (
-              <div style={{
-                padding: '14px 22px', textAlign: 'center',
-                fontSize: 12, color: 'var(--sap-text-muted)',
-                borderTop: '1px solid #f1f5f9',
-                background: '#fafbfc',
-              }}>{t('leaderboard.showingTop', { count: leaders.length, defaultValue: 'Showing top 20 of {{count}}' })}</div>
-            )}
-          </div>
-        </>
-      )}
-
-      {/* ── Community Activity Feed + Platform Stats ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:16, marginTop:20 }}>
-        {/* Activity Feed */}
-        <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', overflow:'hidden' }}>
-          <div style={{ padding:'16px 20px', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ width:8, height:8, borderRadius:'50%', background:'var(--sap-green-bright)', animation:'pulse 2s infinite' }}/>
-            <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'var(--sap-text-primary)' }}>{t('leaderboard.liveActivity')}</span>
-          </div>
-          <div style={{ maxHeight:340, overflowY:'auto' }}>
-            {(d.activity||[]).length === 0 ? (
-              <div style={{ padding:'40px 20px', textAlign:'center', color:'var(--sap-text-muted)', fontSize:13 }}>{t('leaderboard.noRecentActivity')}</div>
-            ) : (d.activity||[]).map(function(a, i) {
-              var timeAgo = '';
-              if (a.time) {
-                var diff = (Date.now() - new Date(a.time).getTime()) / 1000;
-                if (diff < 60) timeAgo = t('leaderboard.justNow');
-                else if (diff < 3600) timeAgo = t('leaderboard.mAgo', {m: Math.floor(diff / 60)});
-                else if (diff < 86400) timeAgo = t('leaderboard.hAgo', {h: Math.floor(diff / 3600)});
-                else timeAgo = t('leaderboard.dAgo', {d: Math.floor(diff / 86400)});
-              }
-              return (
-                <div key={i} style={{ padding:'12px 20px', borderBottom:'1px solid #f8f9fb', display:'flex', alignItems:'center', gap:12 }}>
-                  <div style={{ fontSize:18, flexShrink:0 }}>{a.icon}</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, color:'var(--sap-text-primary)', fontWeight:500 }}>{a.text}</div>
-                  </div>
-                  <div style={{ fontSize:13, color:'var(--sap-text-ghost)', flexShrink:0 }}>{timeAgo}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Platform Stats — clean white cards matching the rest of the page.
-            Removed the heavy cobalt-navy and emerald-green gradient backgrounds
-            that felt out of place against the white podium and table. */}
-        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          <div style={{
-            background: '#fff',
-            border: '1px solid #e8ecf2',
-            borderRadius: 16,
-            padding: '20px 22px',
-            textAlign: 'center',
-            boxShadow: '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
-            position: 'relative',
-          }}>
-            <div style={{
-              position: 'absolute', top: 14, left: 14,
-              width: 6, height: 6, borderRadius: '50%',
-              background: 'var(--sap-cobalt-mid, #1e3a8a)',
-            }} />
-            <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: 1.5,
-              textTransform: 'uppercase',
-              color: 'var(--sap-text-muted)',
-              marginBottom: 8,
-            }}>{t('leaderboard.activeMembers')}</div>
-            <div style={{
-              fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900,
-              color: 'var(--sap-cobalt-deep, #172554)',
-              lineHeight: 1,
-            }}>{(d.stats||{}).total_members||0}</div>
-            <div style={{
-              fontSize: 12, color: 'var(--sap-text-muted)',
-              marginTop: 6,
-            }}>{t('leaderboard.andGrowing')}</div>
-          </div>
-          <div style={{
-            background: '#fff',
-            border: '1px solid #e8ecf2',
-            borderRadius: 16,
-            padding: '20px 22px',
-            textAlign: 'center',
-            boxShadow: '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
-            position: 'relative',
-          }}>
-            <div style={{
-              position: 'absolute', top: 14, left: 14,
-              width: 6, height: 6, borderRadius: '50%',
-              background: 'var(--sap-green-mid, #10b981)',
-            }} />
-            <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: 1.5,
-              textTransform: 'uppercase',
-              color: 'var(--sap-text-muted)',
-              marginBottom: 8,
-            }}>{t('leaderboard.totalEarnedByMembers')}</div>
-            <div style={{
-              fontFamily: 'Sora, sans-serif', fontSize: 30, fontWeight: 900,
-              color: 'var(--sap-green-mid, #10b981)',
-              lineHeight: 1,
-            }}>${Math.round((d.stats||{}).total_earned||0).toLocaleString()}</div>
-            <div style={{
-              fontSize: 12, color: 'var(--sap-text-muted)',
-              marginTop: 6,
-            }}>{t('leaderboard.paidOut')}</div>
-          </div>
-          <div style={{
-            background: '#fff',
-            border: '1px solid #e8ecf2',
-            borderRadius: 16,
-            padding: '20px',
-            textAlign: 'center',
-            boxShadow: '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
-          }}>
-            <div style={{
-              fontSize: 14, fontWeight: 800,
-              color: 'var(--sap-text-primary)',
-              marginBottom: 6,
-            }}>{t('leaderboard.wantToBeOnBoard')}</div>
-            <div style={{
-              fontSize: 12, color: 'var(--sap-text-muted)',
-              lineHeight: 1.6, marginBottom: 14,
-            }}>{t('leaderboard.shareAndClimb')}</div>
-            <a href="/affiliate" style={{
-              display: 'inline-block',
-              padding: '10px 22px', borderRadius: 10,
-              background: 'var(--sap-cobalt-deep, #172554)',
-              color: '#fff', fontSize: 13, fontWeight: 700,
-              textDecoration: 'none',
-            }}>{t('leaderboard.shareYourLink')}</a>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '16px 24px 22px', background: 'var(--sap-bg-elevated)', borderTop: '1px solid var(--sap-border-light)' }}>
+            <Info size={16} style={{ color: 'var(--sap-text-faint)', flexShrink: 0, marginTop: 1 }} />
+            <p style={{ fontSize: 12, lineHeight: 1.65, color: 'var(--sap-text-secondary)', margin: 0 }}>
+              {t('leaderboard.disclaimer', { defaultValue: 'Earnings shown are real and individual. What each member earns depends on the time, effort and skill they put into building their business. Results vary and are not guaranteed.' })}
+            </p>
           </div>
         </div>
       </div>
-
-      <style>{'@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}'}</style>
     </AppLayout>
   );
 }
