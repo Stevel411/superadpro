@@ -50487,259 +50487,24 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
     }
 @app.get("/api/leaderboard")
 def api_leaderboard(db: Session = Depends(get_db)):
-    """JSON leaderboard data with full user info + recent activity feed. Cached 5 min.
+    """JSON data for the leaderboard: one ranked `members` board. Cached 5 min.
 
-    Performance: this endpoint used to N+1-query — three separate
-    queries per user (active grid, nexus team count, live referral
-    count) inside user_data(), called for up to 20 users across 5
-    boards = ~300 round-trips per cache miss. Plus another N queries
-    in the activity feed for resolving commission earners.
+    Returns a single list of members measured LIVE from the canonical ledger
+    helpers (compute_user_earnings + compute_descendant_counts), each carrying
+    income / downline / signups. The frontend (pages/Leaderboard.jsx) re-sorts
+    client-side on the metric toggle.
 
-    Refactored 5 May 2026 to bulk-load each per-user dimension once
-    up front, then look up by user_id from a dict. Drops cache-miss
-    cost from ~300 queries to ~10. The 5-minute cache hides this
-    most of the time, but cold starts (every Railway replica restart,
-    every cache TTL expiry under low traffic) felt sluggish to users
-    — that's what triggered the rewrite.
+    History: this endpoint previously served five separate boards (referrals,
+    sign-ups, grid, nexus, course) plus an activity feed and platform stats,
+    consumed by the old multi-tab leaderboard. The 26 Jun 2026 redesign
+    collapsed it to the single unified board; the dead board queries, bulk-load
+    dicts, user_data() builder, activity feed and stats were removed with it.
     """
-    from sqlalchemy import func
-
     # Check cache first (leaderboard is same for everyone)
     cache_key = "leaderboard:main"
     cached = cache_get(cache_key)
     if cached:
         return cached
-
-    # ── Pull the user sets for each board ─────────────────────────────
-    # Top referrers — by paid personal_referrals (active members only)
-    ref_leaders = db.query(User).filter(
-        User.is_active == True, User.personal_referrals > 0
-    ).order_by(User.personal_referrals.desc()).limit(20).all()
-
-    # Top sign-up sponsors — by total_team (anyone joined via your link,
-    # paid or not). This board fills up faster than ref_leaders since it
-    # doesn't require the downline to be on a paid plan.
-    signup_users = db.query(User).filter(
-        User.total_team > 0
-    ).order_by(User.total_team.desc()).limit(20).all()
-
-    # Top grid builders (by total team size)
-    grid_users = db.query(User).filter(
-        User.is_active == True, User.total_team > 0
-    ).order_by(User.total_team.desc()).limit(20).all()
-
-    # Top course sellers
-    course_users = db.query(User).filter(
-        User.is_active == True, User.course_sale_count > 0
-    ).order_by(User.course_sale_count.desc()).limit(20).all()
-
-    # Top Nexus builders — by unique users across all owned matrixes.
-    # Computed via a subquery so we can ORDER BY the count.
-    from sqlalchemy import func as sa_func
-    nexus_team_subq = (
-        db.query(
-            CreditMatrix.owner_id.label("owner_id"),
-            sa_func.count(sa_func.distinct(CreditMatrixPosition.user_id)).label("team_count"),
-        )
-        .join(CreditMatrixPosition, CreditMatrixPosition.matrix_id == CreditMatrix.id)
-        .group_by(CreditMatrix.owner_id)
-        .subquery()
-    )
-    nexus_users_q = (
-        db.query(User)
-        .join(nexus_team_subq, nexus_team_subq.c.owner_id == User.id)
-        .filter(User.is_active == True, nexus_team_subq.c.team_count > 1)
-        .order_by(nexus_team_subq.c.team_count.desc())
-        .limit(20)
-        .all()
-    )
-
-    # ── Bulk-load per-user dimensions in 3 queries (was 3 per user) ──
-    # Collect every user_id appearing on any board so we only fetch what
-    # we'll actually display. set() deduplicates across boards.
-    all_user_ids = list({
-        u.id
-        for board in (ref_leaders, signup_users, grid_users, course_users, nexus_users_q)
-        for u in board
-    })
-
-    # 1. Active grid per user — highest tier, not complete.
-    # SQL: SELECT owner_id, MAX(package_tier), SUM(positions_filled)
-    #      FROM grids WHERE owner_id IN (...) AND is_complete = false
-    #      GROUP BY owner_id
-    # We want the highest tier AND its positions_filled. MAX(tier) is
-    # easy in SQL, but pairing it with positions_filled from THE SAME
-    # row (rather than max positions across all tiers) needs a small
-    # window-function trick OR a follow-up. Simpler: fetch the matching
-    # rows, sort in Python (max 20 rows total — trivial).
-    grid_by_owner = {}
-    if all_user_ids:
-        grid_rows = db.query(Grid).filter(
-            Grid.owner_id.in_(all_user_ids),
-            Grid.is_complete == False,
-        ).all()
-        for g in grid_rows:
-            existing = grid_by_owner.get(g.owner_id)
-            if existing is None or g.package_tier > existing.package_tier:
-                grid_by_owner[g.owner_id] = g
-
-    # 2. Nexus team size per user — distinct user count across all
-    # matrixes they own, minus self. Single GROUP BY query.
-    nexus_count_by_owner = {}
-    if all_user_ids:
-        nexus_rows = (
-            db.query(
-                CreditMatrix.owner_id,
-                sa_func.count(sa_func.distinct(CreditMatrixPosition.user_id)).label("c"),
-            )
-            .join(CreditMatrixPosition, CreditMatrixPosition.matrix_id == CreditMatrix.id)
-            .filter(CreditMatrix.owner_id.in_(all_user_ids))
-            .group_by(CreditMatrix.owner_id)
-            .all()
-        )
-        # Subtract self (CreditMatrix seeds owner at root)
-        nexus_count_by_owner = {row.owner_id: max(0, row.c - 1) for row in nexus_rows}
-
-    # 3. Live personal-referrals — count of current users sponsored by
-    # each leaderboard user. Replaces the stored counter that doesn't
-    # decrement on user deletion. Single GROUP BY query — no N+1.
-    referrals_by_sponsor = {}
-    if all_user_ids:
-        ref_rows = (
-            db.query(User.sponsor_id, sa_func.count(User.id).label("c"))
-            .filter(User.sponsor_id.in_(all_user_ids))
-            .group_by(User.sponsor_id)
-            .all()
-        )
-        referrals_by_sponsor = {row.sponsor_id: row.c for row in ref_rows}
-
-    def user_data(u):
-        """Build per-user payload from pre-loaded dicts. No DB calls
-        here — all dimensions were bulk-loaded above."""
-        active_grid = grid_by_owner.get(u.id)
-        grid_tier = active_grid.package_tier if active_grid else 0
-        grid_count = active_grid.positions_filled if active_grid else 0
-        nexus_team = nexus_count_by_owner.get(u.id, 0)
-        live_refs = referrals_by_sponsor.get(u.id, 0)
-
-        return {
-            "id": u.id,
-            "username": u.username,
-            "first_name": u.first_name or u.username,
-            "last_name": u.last_name or "",
-            "avatar_url": u.avatar_url or None,
-            "personal_referrals": live_refs,
-            "total_team": u.total_team or 0,
-            "total_earned": float(u.total_earned or 0),
-            "course_sale_count": u.course_sale_count or 0,
-            "grid_tier": grid_tier,
-            "_grid_count": grid_count,
-            "_course_count": u.course_sale_count or 0,
-            "_nexus_count": nexus_team,
-            "membership_tier": u.membership_tier or "free",
-        }
-
-    # ── Recent activity feed (last 20 events) ──
-    from datetime import timedelta
-    week_ago = datetime.utcnow() - timedelta(days=7)
-
-    # Recent signups
-    recent_joins = db.query(User).filter(
-        User.created_at >= week_ago, User.is_active == True
-    ).order_by(User.created_at.desc()).limit(10).all()
-
-    # Recent commissions — across all 3 commission tables.
-    # Only membership-related Commission rows are shown from the
-    # Commission table (that was the original intent of this filter
-    # — to surface "X earned" moments rather than internal grid plumbing).
-    # CreditMatrixCommission + CourseCommission added 7 May 2026 so
-    # Credit Nexus and Course earners also show up in the public feed.
-    recent_comms = db.query(Commission).filter(
-        Commission.created_at >= week_ago,
-        Commission.status == "paid",
-        Commission.commission_type.in_(["membership_sponsor", "membership_renewal", "gift_membership_sponsor"])
-    ).order_by(Commission.created_at.desc()).limit(10).all()
-
-    recent_matrix = db.query(CreditMatrixCommission).filter(
-        CreditMatrixCommission.created_at >= week_ago,
-        CreditMatrixCommission.status == "paid",
-    ).order_by(CreditMatrixCommission.created_at.desc()).limit(10).all()
-
-    recent_course = db.query(CourseCommission).filter(
-        CourseCommission.created_at >= week_ago,
-    ).order_by(CourseCommission.created_at.desc()).limit(10).all()
-
-    # Bulk-load earners across all 3 sources in one query (was N+1).
-    earner_by_id = {}
-    earner_ids = list({
-        *(c.to_user_id for c in recent_comms if c.to_user_id),
-        *(c.earner_id for c in recent_matrix if c.earner_id),
-        *(c.earner_id for c in recent_course if c.earner_id),
-    })
-    if earner_ids:
-        earner_rows = db.query(User).filter(User.id.in_(earner_ids)).all()
-        earner_by_id = {u.id: u for u in earner_rows}
-
-    activity = []
-    for u in recent_joins:
-        activity.append({
-            "type": "join",
-            "icon": "👋",
-            "text": f"{u.first_name or u.username} joined SuperAdPro",
-            "time": u.created_at.isoformat() if u.created_at else None,
-        })
-    for c in recent_comms:
-        earner = earner_by_id.get(c.to_user_id)
-        if earner:
-            activity.append({
-                "type": "earning",
-                "icon": "💰",
-                "text": f"{earner.first_name or earner.username} earned a commission",
-                "time": c.created_at.isoformat() if c.created_at else None,
-            })
-    for c in recent_matrix:
-        earner = earner_by_id.get(c.earner_id)
-        if earner:
-            activity.append({
-                "type": "earning",
-                "icon": "💎",
-                "text": f"{earner.first_name or earner.username} earned a Credit Nexus commission",
-                "time": c.created_at.isoformat() if c.created_at else None,
-            })
-    for c in recent_course:
-        earner = earner_by_id.get(c.earner_id)
-        if earner:
-            activity.append({
-                "type": "earning",
-                "icon": "🎓",
-                "text": f"{earner.first_name or earner.username} earned a course commission",
-                "time": c.created_at.isoformat() if c.created_at else None,
-            })
-
-    # Sort by time, newest first
-    activity.sort(key=lambda x: x.get("time") or "", reverse=True)
-    activity = activity[:20]
-
-    # Platform stats — commissions paid OUT TO MEMBERS only.
-    # Filter to_user_id IS NOT NULL (Commission table) excludes platform
-    # fees and overflow-to-company commissions (where to_user_id is None).
-    # Without this filter the headline "paid out to members" number is
-    # inflated by company-routed revenue, which is misleading on a
-    # leaderboard marketed as showing what members have earned.
-    # (Fix 4 May 2026.)
-    # Updated 7 May 2026 to sum across all 3 commission tables —
-    # previously only counted Commission, undercounting Credit Nexus
-    # + Course payouts.
-    total_members = db.query(User).filter(User.is_active == True).count()
-    total_earned_grid = float(db.query(func.sum(Commission.amount_usdt)).filter(
-        Commission.status == "paid",
-        Commission.to_user_id.isnot(None),
-    ).scalar() or 0)
-    total_earned_matrix = float(db.query(func.sum(CreditMatrixCommission.amount)).filter(
-        CreditMatrixCommission.status == "paid",
-    ).scalar() or 0)
-    total_earned_course = float(db.query(func.sum(CourseCommission.amount)).scalar() or 0)
-    total_earned = total_earned_grid + total_earned_matrix + total_earned_course
 
     # ── Unified members board (redesigned leaderboard) ────────────────
     # ONE ranked list powering the new leaderboard, with three live metrics:
@@ -50784,19 +50549,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
     # Default order = income desc; the frontend re-sorts client-side on toggle.
     members_board.sort(key=lambda m: m["income"], reverse=True)
 
-    result = {
-        "members": members_board,
-        "ref_leaders": [user_data(u) for u in ref_leaders],
-        "signup_users": [user_data(u) for u in signup_users],
-        "grid_users": [user_data(u) for u in grid_users],
-        "nexus_users": [user_data(u) for u in nexus_users_q],
-        "course_users": [user_data(u) for u in course_users],
-        "activity": activity,
-        "stats": {
-            "total_members": total_members,
-            "total_earned": total_earned,
-        }
-    }
+    result = {"members": members_board}
 
     # Cache for 5 minutes (same for all users)
     cache_set(cache_key, result, ttl=300)
