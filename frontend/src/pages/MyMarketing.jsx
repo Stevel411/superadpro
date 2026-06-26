@@ -40,10 +40,6 @@ export default function MyMarketing() {
           title: t('myMarketing.affiliateLink', { defaultValue: 'Affiliate Link & Social Share' }),
           desc: t('myMarketing.affiliateLinkDesc', { defaultValue: 'Your referral link, QR code and ready-made social posts.' }),
           onClick: go('/social-share') },
-        { key: 'leadmagnets', icon: Magnet, grad: 'linear-gradient(135deg,#0a1438,#0ea5e9)',
-          title: t('myMarketing.leadMagnets', { defaultValue: 'Lead Magnets' }),
-          desc: t('myMarketing.leadMagnetsDesc', { defaultValue: 'Free done-for-you giveaways — share to grow your list automatically.' }),
-          onClick: go('/my-marketing/lead-magnets') },
         { key: 'gift', icon: Gift, grad: 'linear-gradient(135deg,#db2777,#f472b6)',
           title: t('myMarketing.payItForward', { defaultValue: 'Pay It Forward' }),
           desc: t('myMarketing.payItForwardDesc', { defaultValue: 'Gift a free voucher to invite someone in — generate and send gift links.' }),
@@ -103,6 +99,19 @@ export default function MyMarketing() {
           <p>{t('myMarketing.heroSub', { defaultValue: 'Everything you need to promote your business and share SuperAdPro — your link, gifts, posters, decks, videos and the plan, all in one place.' })}</p>
         </div>
 
+        <div className="mm-feature"
+             onClick={go('/my-marketing/lead-magnets')}
+             role="button" tabIndex={0}
+             onKeyDown={function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('/my-marketing/lead-magnets')(); } }}>
+          <div className="mm-feature-ico"><Magnet size={27} color="#fff" /></div>
+          <div className="mm-feature-txt">
+            <div className="mm-feature-tag">{t('myMarketing.leadMagnetsTag', { defaultValue: 'FREE · DONE-FOR-YOU' })}</div>
+            <h2>{t('myMarketing.leadMagnets', { defaultValue: 'Lead Magnets' })}</h2>
+            <p>{t('myMarketing.leadMagnetsFeatureDesc', { defaultValue: 'Two ready-to-share pages that grow your list on autopilot — share your link, and every signup joins your list and your welcome sequence automatically.' })}</p>
+          </div>
+          <div className="mm-feature-cta">{t('myMarketing.leadMagnetsCta', { defaultValue: 'Open Lead Magnets' })} →</div>
+        </div>
+
         {sections.map(function (sec) {
           return (
             <div key={sec.heading}>
@@ -139,6 +148,16 @@ var css = `
   .mm-hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:24px;color:#fff;margin:0 0 5px;letter-spacing:-0.4px}
   .mm-hero p{font-size:14.5px;color:#9fb4d8;margin:0;font-weight:500;max-width:580px;line-height:1.5}
   .mm-hero-ico{position:absolute;right:-6px;top:-10px;color:rgba(56,189,248,0.10);transform:rotate(-12deg);pointer-events:none}
+  .mm-feature{position:relative;display:flex;align-items:center;gap:18px;background:#fff;border:1.5px solid #bfe3fb;border-radius:16px;padding:18px 22px 18px 26px;margin-bottom:8px;cursor:pointer;overflow:hidden;transition:transform .15s ease, box-shadow .15s ease;box-shadow:0 8px 24px rgba(14,116,180,0.10)}
+  .mm-feature::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#0ea5e9,#16a34a)}
+  .mm-feature:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(14,116,180,0.16)}
+  .mm-feature:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(34,211,238,0.35)}
+  .mm-feature-ico{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#0a1438,#0ea5e9);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .mm-feature-txt{flex:1;min-width:0}
+  .mm-feature-tag{font-family:'Sora',sans-serif;font-size:10px;font-weight:800;letter-spacing:0.1em;color:#0284c7;margin-bottom:3px}
+  .mm-feature-txt h2{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#0a1438;margin:0 0 3px}
+  .mm-feature-txt p{font-size:13px;color:#475569;margin:0;font-weight:500;line-height:1.45;max-width:640px}
+  .mm-feature-cta{flex-shrink:0;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;color:#fff;background:linear-gradient(135deg,#1e3a8a,#0ea5e9);padding:12px 20px;border-radius:11px;white-space:nowrap;box-shadow:0 4px 12px rgba(14,116,180,0.3)}
   .mm-sect{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.06em;margin:20px 2px 12px}
   .mm-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:6px}
   .mm-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 17px;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;position:relative;text-align:left}
@@ -151,5 +170,5 @@ var css = `
   .mm-card p{font-size:12.5px;color:#64748b;margin:0;font-weight:500;line-height:1.45}
   .mm-tag{position:absolute;top:13px;right:14px;font-size:9.5px;font-weight:800;letter-spacing:0.5px;padding:2px 8px;border-radius:5px;font-family:'Sora',sans-serif}
   .mm-tag.soon{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}
-  @media (max-width:900px){ .mm-row{grid-template-columns:1fr} }
+  @media (max-width:900px){ .mm-row{grid-template-columns:1fr} .mm-feature{flex-direction:column;align-items:flex-start;gap:13px} .mm-feature-cta{width:100%;text-align:center} }
 `;
