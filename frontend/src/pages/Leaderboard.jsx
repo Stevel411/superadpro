@@ -11,7 +11,9 @@ import { Crown, Info, Lock, TrendingUp } from 'lucide-react';
 // descendant count, direct referrals). Income is always rendered in money
 // green; downline + sign-ups are neutral counts.
 
-const TIER_LABELS = { founder: 'Founder', partner: 'Partner', pro: 'Partner', launchpad: 'Launchpad', free: 'Free' };
+const TIER_LABELS = { founding: 'Founder', founder: 'Founder', partner: 'Partner', pro: 'Partner', launchpad: 'Launchpad', free: 'Free' };
+const PAID_TIERS = new Set(['founding', 'founder', 'partner', 'pro']);
+function tierLabel(tier) { return TIER_LABELS[tier] || (tier ? tier[0].toUpperCase() + tier.slice(1) : 'Free'); }
 
 function metricValue(m, key) {
   if (key === 'income') return m.income || 0;
@@ -57,8 +59,8 @@ function YouTag() {
 }
 
 function TierBadge({ tier }) {
-  const label = TIER_LABELS[tier] || (tier ? tier[0].toUpperCase() + tier.slice(1) : 'Free');
-  const paid = tier === 'founder' || tier === 'partner' || tier === 'pro';
+  const label = tierLabel(tier);
+  const paid = PAID_TIERS.has(tier);
   return (
     <span style={{
       fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 6,
@@ -91,7 +93,7 @@ function PodiumCard({ m, place, metric, isYou }) {
         {isWin && <Crown size={15} style={{ color: 'var(--sap-accent)' }} />}
         {isYou && <YouTag />}
       </div>
-      <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 8 }}>#{place} · {TIER_LABELS[m.membership_tier] || 'Free'}</div>
+      <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 8 }}>#{place} · {tierLabel(m.membership_tier)}</div>
       <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: moneyColor }}>{fmtValue(m, metric)}</div>
       <div style={{ fontSize: 11, color: 'var(--sap-text-secondary)', marginTop: 3 }}>{m.downline.toLocaleString()} downline · {m.signups} sign-ups</div>
     </div>
