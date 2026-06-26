@@ -90,33 +90,52 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   // ── Media ──
   const audio = $('audio');
   ok('audio_present', !!audio && !!(audio.getAttribute('src') || audio.querySelector('source')), audio ? '' : 'no <audio>');
-  const vid = $$('iframe').find(f => /youtube|vimeo|player/.test(f.getAttribute('src') || ''));
-  ok('video_present', !!vid, vid ? '' : 'no video iframe');
+  const facade = $('[data-sp-facade]');
+  const directVid = $$('iframe').find(f => /youtube|vimeo|player/.test(f.getAttribute('src') || ''));
+  ok('video_present', !!(facade || directVid), (facade || directVid) ? (facade ? 'facade' : 'iframe') : 'no video');
+  // Facade click-to-load: clicking must swap in a real iframe.
+  if (facade) {
+    facade.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    await sleep(20);
+    const loaded = $('[data-sp-facade]') === null && !!$$('iframe').find(f => /youtube|vimeo/.test(f.getAttribute('src') || ''));
+    ok('video_facade_loads', loaded, loaded ? 'iframe injected on click' : 'facade did not load iframe');
+  }
 
-  // ── FAQ accordion (class-driven; needs a delegated handler to expand) ──
+  // ── FAQ accordion — must expand on click ──
   const faqQ = $('.sp-faq-q');
   ok('faq_present', !!faqQ, faqQ ? '' : 'no .sp-faq-q');
+  if (faqQ) {
+    const item = faqQ.closest('.sp-faq-item');
+    const ans = item.querySelector('.sp-faq-a');
+    const visibleBefore = window.getComputedStyle(ans).display !== 'none';
+    faqQ.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    await sleep(20);
+    const visibleAfter = window.getComputedStyle(ans).display !== 'none';
+    ok('faq_toggles', visibleBefore !== visibleAfter, `display ${visibleBefore?'open':'closed'} -> ${visibleAfter?'open':'closed'}`);
+  }
 
-  // ── Dismissible banner — informational. Its close × uses an inline onclick
-  // that the save-sanitiser strips, so on a published page it won't dismiss.
+  // ── Dismissible banner — must hide on clicking × ──
   const banner = $('[data-sap-dismissible]');
   const closeX = banner?.querySelector('.sap-banner-close');
-  const hasInlineHandler = closeX ? !!closeX.getAttribute('onclick') : false;
-  ok('banner_dismiss_works', banner ? hasInlineHandler : true,
-     banner ? (hasInlineHandler ? '' : 'KNOWN: inline onclick stripped by sanitizer — × is dead on published pages') : 'no dismissible banner');
+  if (banner && closeX) {
+    closeX.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    await sleep(20);
+    const hidden = banner.style.display === 'none' || window.getComputedStyle(banner).display === 'none';
+    ok('banner_dismiss_works', hidden, hidden ? 'hides on × click' : 'still visible after × click');
+  } else {
+    ok('banner_dismiss_works', !banner, banner ? 'no close button' : 'no dismissible banner');
+  }
 
   // ── Report ──
   const pad = (s) => s.padEnd(22);
   let fails = 0, warns = 0;
   console.log(`\nSmoke test: ${fileArg || url}\n` + '─'.repeat(60));
   for (const r of results) {
-    const critical = !['banner_dismiss_works'].includes(r.name);
-    const mark = r.pass ? 'PASS' : (critical ? 'FAIL' : 'WARN');
-    if (!r.pass && critical) fails++;
-    if (!r.pass && !critical) warns++;
+    const mark = r.pass ? 'PASS' : 'FAIL';
+    if (!r.pass) fails++;
     console.log(`  ${mark}  ${pad(r.name)} ${r.detail || ''}`);
   }
   console.log('─'.repeat(60));
-  console.log(fails === 0 ? `ALL CRITICAL PASS${warns ? ` (${warns} warning)` : ''}` : `${fails} FAILED`);
+  console.log(fails === 0 ? `ALL PASS` : `${fails} FAILED`);
   process.exit(fails ? 1 : 0);
 })().catch(e => { console.error('smoke-test error:', e.message); process.exit(2); });

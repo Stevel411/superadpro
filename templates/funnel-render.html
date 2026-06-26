@@ -498,6 +498,70 @@ document.querySelectorAll('[data-target]').forEach(el => {
   setInterval(update, 1000);
 });
 </script>
+<style>
+/* FAQ accordion — progressive enhancement: only collapse once JS has run
+   (body.sp-fx). If JS fails, answers stay visible (no regression on existing
+   published pages). */
+body.sp-fx #gjsContent .sp-faq-a{display:none}
+body.sp-fx #gjsContent .sp-faq-item.sp-open .sp-faq-a{display:block}
+</style>
+<script>
+/* Delegated, CSP-safe handlers for canvas elements whose inline on* handlers
+   are stripped by the save-time sanitiser (so they were dead once published):
+   FAQ accordion, dismissible banner ×, and the click-to-load video facade.
+   Own isolated block — a throw here can't affect the countdown/scale/track
+   script above it. */
+(function(){
+  try { document.body.classList.add('sp-fx'); } catch(_){}
+
+  // FAQ accordion (.sp-faq-q markup from exportHTML) — toggle the answer.
+  document.addEventListener('click', function(e){
+    var q = e.target.closest && e.target.closest('.sp-faq-q'); if(!q) return;
+    var item = q.closest('.sp-faq-item'); if(!item) return;
+    item.classList.toggle('sp-open');
+    var t = item.querySelector('.sp-faq-toggle');
+    if(t) t.textContent = item.classList.contains('sp-open') ? '\u2212' : '+';
+  });
+
+  // Dismissible banner close ×.
+  document.addEventListener('click', function(e){
+    var x = e.target.closest && e.target.closest('.sap-banner-close'); if(!x) return;
+    e.preventDefault(); e.stopPropagation();
+    var b = x.closest('[data-sap-dismissible]') || x.closest('[id]'); if(!b) return;
+    b.style.display='none';
+    try { if(b.id) localStorage.setItem('sap-bn-'+b.id,'1'); } catch(_){}
+  });
+  // Re-hide banners the visitor dismissed on a previous visit.
+  try {
+    document.querySelectorAll('[data-sap-dismissible][id]').forEach(function(b){
+      try { if(localStorage.getItem('sap-bn-'+b.id)==='1') b.style.display='none'; } catch(_){}
+    });
+  } catch(_){}
+
+  // Video facade — click the thumbnail to load the real embed (autoplay).
+  document.addEventListener('click', function(e){
+    var f = e.target.closest && e.target.closest('[data-sp-facade]'); if(!f) return;
+    var src = f.getAttribute('data-sp-facade'); if(!src) return;
+    var ifr = document.createElement('iframe');
+    ifr.src = src;
+    ifr.setAttribute('allow','autoplay; encrypted-media; fullscreen');
+    ifr.setAttribute('allowfullscreen','');
+    ifr.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:12px';
+    f.innerHTML=''; f.appendChild(ifr); f.removeAttribute('data-sp-facade');
+  });
+
+  // Facade thumbnail fallback: maxresdefault 404s for ~5% of videos — swap to
+  // hqdefault. Replaces the stripped inline onerror; capture phase because the
+  // img 'error' event doesn't bubble. Fallback URL is derived, not stored.
+  document.addEventListener('error', function(e){
+    var img = e.target;
+    if(img && img.tagName==='IMG' && img.closest && img.closest('[data-sp-facade]')
+       && img.src.indexOf('maxresdefault')>-1){
+      img.src = img.src.replace('maxresdefault','hqdefault');
+    }
+  }, true);
+})();
+</script>
 {% include "_tawk.html" %}
 </body>
 </html>

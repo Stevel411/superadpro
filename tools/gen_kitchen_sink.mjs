@@ -34,7 +34,7 @@ const els = [
   mk('progress'),                                  // static
   mk('socialicons', { _links: { youtube: 'https://youtube.com', instagram: 'https://instagram.com', x: 'https://x.com' } }),
   mk('audio', { txt: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }),
-  mk('video', { txt: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }),
+  mk('video', { txt: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', _ytFacade: true }),  // facade click-to-load test
 ];
 
 const html = exportHTML(els, '#0b1020', '', {}, '');
