@@ -4,7 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import {
   Megaphone, Link2, Gift, PlayCircle, FileText, Tv,
-  Sparkles, Image, Files, Mail,
+  Sparkles, Image, Files, Mail, Magnet,
 } from 'lucide-react';
 
 // ── My Marketing hub ────────────────────────────────────────────────
@@ -40,6 +40,10 @@ export default function MyMarketing() {
           title: t('myMarketing.affiliateLink', { defaultValue: 'Affiliate Link & Social Share' }),
           desc: t('myMarketing.affiliateLinkDesc', { defaultValue: 'Your referral link, QR code and ready-made social posts.' }),
           onClick: go('/social-share') },
+        { key: 'leadmagnets', icon: Magnet, grad: 'linear-gradient(135deg,#0a1438,#0ea5e9)',
+          title: t('myMarketing.leadMagnets', { defaultValue: 'Lead Magnets' }),
+          desc: t('myMarketing.leadMagnetsDesc', { defaultValue: 'Free done-for-you giveaways — share to grow your list automatically.' }),
+          onClick: go('/my-marketing/lead-magnets') },
         { key: 'gift', icon: Gift, grad: 'linear-gradient(135deg,#db2777,#f472b6)',
           title: t('myMarketing.payItForward', { defaultValue: 'Pay It Forward' }),
           desc: t('myMarketing.payItForwardDesc', { defaultValue: 'Gift a free voucher to invite someone in — generate and send gift links.' }),

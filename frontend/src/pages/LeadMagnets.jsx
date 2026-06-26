@@ -1,0 +1,146 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AppLayout from '../components/layout/AppLayout';
+import { apiGet } from '../utils/api';
+import { Copy, Check, SlidersHorizontal, Lock, Library } from 'lucide-react';
+
+// Lead Magnets library — the member's home for free done-for-you giveaways.
+// Each live magnet (from /api/lead-magnets) auto-provisions a personal opt-in
+// page + leads list + nurture sequence. Reached from the Marketing Hub.
+
+function Cover({ m, height }) {
+  if (m.cover === 'traffic') {
+    return (
+      <div style={{ height, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, color: '#fff', background: 'linear-gradient(150deg,#0a1438 0%,#15346b 55%,#0ea5e9 135%)' }}>
+        <div style={{ position: 'absolute', top: -34, right: -30, width: 110, height: 110, borderRadius: '50%', background: 'rgba(125,211,238,0.16)' }} />
+        {m.badge && <span style={{ position: 'absolute', top: 12, left: 14, fontFamily: 'var(--sap-font-mono)', fontSize: 9, letterSpacing: '0.08em', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.28)', padding: '3px 9px', borderRadius: 999 }}>{m.badge}</span>}
+        <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 800, fontSize: 21, lineHeight: 1.03, position: 'relative', zIndex: 1 }}>{m.cover_title}</div>
+      </div>
+    );
+  }
+  return <div style={{ height, background: 'var(--sap-bg-hover)' }} />;
+}
+
+function Stat({ value, label, money }) {
+  return (
+    <div style={{ flex: 1, minWidth: 150, background: 'var(--sap-bg-card)', border: '1px solid var(--sap-border-light)', borderRadius: 'var(--sap-radius-lg)', padding: '14px 16px', boxShadow: 'var(--sap-shadow-sm)' }}>
+      <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: money ? 'var(--sap-green)' : 'var(--sap-text-primary)' }}>{value}</div>
+      <div style={{ fontSize: 12, color: 'var(--sap-text-secondary)', marginTop: 1 }}>{label}</div>
+    </div>
+  );
+}
+
+const btn = (variant) => ({
+  flex: 1, fontFamily: 'var(--sap-font-body)', fontWeight: 600, fontSize: 13, padding: '10px 12px',
+  borderRadius: 'var(--sap-radius-md)', cursor: variant === 'soon' ? 'default' : 'pointer',
+  border: '1px solid var(--sap-border-light)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+  background: variant === 'pri' ? 'var(--sap-accent)' : (variant === 'soon' ? 'transparent' : 'var(--sap-bg-card)'),
+  color: variant === 'pri' ? '#fff' : (variant === 'soon' ? 'var(--sap-text-faint)' : 'var(--sap-text-primary)'),
+  borderColor: variant === 'pri' ? 'var(--sap-accent)' : 'var(--sap-border-light)',
+  boxShadow: variant === 'pri' ? '0 2px 8px rgba(14,165,233,0.3)' : 'none',
+});
+
+export default function LeadMagnets() {
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [copiedKey, setCopiedKey] = useState(null);
+  const [toast, setToast] = useState('');
+
+  useEffect(() => {
+    apiGet('/api/lead-magnets').then((d) => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  function showToast(msg) {
+    setToast(msg);
+    window.clearTimeout(window.__lmToast);
+    window.__lmToast = window.setTimeout(() => setToast(''), 2200);
+  }
+  function copyLink(m) {
+    const url = m.share_url || '';
+    const done = () => { setCopiedKey(m.key); showToast('Link copied to clipboard'); window.setTimeout(() => setCopiedKey(null), 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(done);
+    else done();
+  }
+
+  const magnets = (data && data.magnets) || [];
+  const live = magnets.filter((m) => m.status === 'live');
+  const totalLeads = live.reduce((s, m) => s + (m.lead_count || 0), 0);
+
+  const comingSoon = [0, 1];
+
+  return (
+    <AppLayout categoryBack={{ to: '/my-marketing', label: 'My Marketing' }}
+               title="Lead Magnets"
+               subtitle="Free done-for-you giveaways you can share to grow your list">
+      {toast ? (
+        <div style={{ position: 'fixed', left: '50%', bottom: 26, transform: 'translateX(-50%)', background: 'var(--sap-text-primary)', color: '#fff', fontSize: 13, fontWeight: 500, padding: '10px 18px', borderRadius: 999, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8, boxShadow: 'var(--sap-shadow-md)' }}>
+          <Check size={15} style={{ color: 'var(--sap-accent-light, #38bdf8)' }} /> {toast}
+        </div>
+      ) : null}
+
+      <div style={{ maxWidth: 920, margin: '0 auto' }}>
+        <div style={{ marginBottom: 18 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontFamily: 'var(--sap-font-mono)', fontSize: 11, letterSpacing: '0.04em', color: 'var(--sap-accent)', background: 'var(--sap-accent-bg, #e8f6fe)', border: '1px solid var(--sap-border-light)', padding: '5px 11px', borderRadius: 999, marginBottom: 12 }}>
+            <Library size={13} /> Your library · grows over time
+          </span>
+          <p style={{ fontSize: 14, color: 'var(--sap-text-secondary)', maxWidth: 600 }}>
+            Pick a magnet, share your link, and every signup joins your list — and your follow-up sequence — automatically.
+          </p>
+        </div>
+
+        {!loading && (
+          <div style={{ display: 'flex', gap: 12, margin: '0 0 18px', flexWrap: 'wrap' }}>
+            <Stat value={live.length} label="Lead magnets live" />
+            <Stat value={totalLeads.toLocaleString()} label="Leads captured" money />
+            <Stat value={live.length} label="Auto follow-up sequences" />
+          </div>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 16 }}>
+          {live.map((m) => (
+            <div key={m.key} style={{ background: 'var(--sap-bg-card)', border: '1px solid var(--sap-border-light)', borderRadius: 'var(--sap-radius-xl)', boxShadow: 'var(--sap-shadow-md)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <Cover m={m} height={128} />
+              <div style={{ padding: '16px 17px 17px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 700, fontSize: 16 }}>{m.title}</div>
+                <div style={{ fontSize: 12.5, color: 'var(--sap-text-secondary)', margin: '4px 0 12px', lineHeight: 1.45, flex: 1 }}>{m.desc}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: 'var(--sap-text-secondary)', marginBottom: 14 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--sap-green)' }} />
+                  <b style={{ color: 'var(--sap-text-primary)', fontFamily: 'var(--sap-font-heading)', fontWeight: 700 }}>{(m.lead_count || 0).toLocaleString()}</b> leads captured · <span style={{ color: 'var(--sap-accent)' }}>Live</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button style={btn('pri')} onClick={() => copyLink(m)}>
+                    {copiedKey === m.key ? <Check size={15} /> : <Copy size={15} />} {copiedKey === m.key ? 'Copied!' : 'Copy link'}
+                  </button>
+                  <button style={btn()} onClick={() => navigate(m.manage_path)}>
+                    <SlidersHorizontal size={15} /> Manage
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {comingSoon.map((i) => (
+            <div key={'soon' + i} style={{ background: '#f7faff', border: '1.5px dashed #cdd9ea', borderRadius: 'var(--sap-radius-xl)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: 128, background: 'var(--sap-bg-page, #eef3fb)', color: 'var(--sap-text-faint)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1.5px dashed #dde6f2' }}>
+                <Lock size={30} />
+              </div>
+              <div style={{ padding: '16px 17px 17px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 700, fontSize: 16, color: 'var(--sap-text-secondary)' }}>New lead magnet</div>
+                <div style={{ fontSize: 12.5, color: 'var(--sap-text-faint)', margin: '4px 0 12px', lineHeight: 1.45, flex: 1 }}>More free done-for-you giveaways are on the way — each one a ready-to-share page that builds your list.</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: 'var(--sap-text-faint)', marginBottom: 14 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--sap-text-faint)' }} /> Coming soon
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}><button style={btn('soon')} disabled>Coming soon</button></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 20, fontSize: 12.5, color: 'var(--sap-text-faint)', textAlign: 'center' }}>
+          Every lead magnet tags signups to you automatically and feeds your own list.
+        </div>
+      </div>
+    </AppLayout>
+  );
+}

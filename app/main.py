@@ -8927,6 +8927,22 @@ def my_marketing(request: Request):
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
+
+@app.get("/my-marketing/lead-magnets")
+def my_marketing_lead_magnets(request: Request):
+    """Serve React SPA — Lead Magnets library."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/my-marketing/lead-magnets/{key}")
+def my_marketing_lead_magnet_detail(key: str, request: Request):
+    """Serve React SPA — per-magnet lead-magnet detail / share page."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/business-hub")
 def business_hub(request: Request):
     """Serve React SPA — Business Hub (My Business) door."""
@@ -64823,6 +64839,54 @@ def _provision_course_funnel(db, user):
     return f"https://www.superadpro.com/course/{user.username}"
 
 
+# ── Lead-magnet catalog ───────────────────────────────────────────────
+# The library of free, done-for-you giveaways surfaced in the Marketing Hub
+# (/my-marketing/lead-magnets). Each LIVE magnet idempotently provisions a
+# per-member opt-in page + leads list + nurture sequence on demand, so adding
+# a magnet = append an entry here once its page + provisioner exist. Only the
+# Traffic Course is live today; more get appended as they're built.
+# "provision" returns the member's shareable page URL.
+LEAD_MAGNETS = [
+    {
+        "key": "traffic-course",
+        "title": "The Complete Traffic Course",
+        "desc": "Every realistic way to get traffic to any website in 2026 — free and "
+                "paid channels, AI search, a directory of real traffic sources, and a "
+                "90-day plan. No income claims.",
+        "cover": "traffic",
+        "cover_title": "The Traffic Course.",
+        "badge": "27-PAGE PDF · FREE",
+        "pdf_url": "https://www.superadpro.com/static/downloads/traffic-course.pdf",
+        "list_name": "Traffic Course leads",
+        "status": "live",
+        "provision": _provision_course_funnel,
+    },
+]
+
+
+def _lead_magnet_payload(db, user, m):
+    """Per-member view of one catalog magnet: shareable URL + live lead count.
+    Lead count is read live from member_leads (not LeadList.lead_count, which
+    is a denormalised counter that drifts)."""
+    from .database import LeadList, MemberLead
+    if m.get("status") != "live":
+        return {"key": m["key"], "title": m["title"], "desc": m.get("desc", ""),
+                "cover": m.get("cover"), "status": m.get("status", "soon")}
+    share_url = m["provision"](db, user)
+    lst = db.query(LeadList).filter(LeadList.user_id == user.id,
+                                    LeadList.name == m["list_name"]).first()
+    lead_count = (db.query(MemberLead).filter(MemberLead.user_id == user.id,
+                                              MemberLead.list_id == lst.id).count()
+                  if lst else 0)
+    return {
+        "key": m["key"], "title": m["title"], "desc": m["desc"],
+        "cover": m["cover"], "cover_title": m["cover_title"], "badge": m["badge"],
+        "pdf_url": m["pdf_url"], "status": "live",
+        "share_url": share_url, "lead_count": lead_count,
+        "manage_path": f"/my-marketing/lead-magnets/{m['key']}",
+    }
+
+
 _COURSE_PAGE_TMPL = """<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Complete Traffic Course — free</title>
@@ -64934,6 +64998,17 @@ def api_my_course_page(user: User = Depends(get_current_user), db: Session = Dep
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     url = _provision_course_funnel(db, user)
     return {"ok": True, "url": url, "share_url": url}
+
+
+@app.get("/api/lead-magnets")
+def api_lead_magnets(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member-facing lead-magnet library — each magnet's shareable page URL and
+    live captured-lead count. Powers /my-marketing/lead-magnets and the per-magnet
+    detail view."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    magnets = [_lead_magnet_payload(db, user, m) for m in LEAD_MAGNETS]
+    return {"magnets": magnets}
 
 
 # ── Lead unsubscribe (app-owned — the Brevo unsubscribe webhook is dead on SES) ──
