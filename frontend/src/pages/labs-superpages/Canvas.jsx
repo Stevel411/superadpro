@@ -14,6 +14,48 @@ import { apiPost } from '../../utils/api';
 // for now; we'll migrate them once these three are solid on production.
 const TIPTAP_TYPES = ['heading', 'text', 'label', 'badge'];
 
+// Live-ticking countdown preview for the canvas. The editor previously
+// rendered four hardcoded "00" cells, so a dropped countdown looked dead
+// even though the published /f/ page ticks fine — members read it as broken.
+// This mirrors the published page-render ticker (Days/Hrs/Min/Sec from
+// _targetDate, clamped at zero) so the editor reflects the live behaviour.
+// Styling props mirror the export so canvas and published page agree.
+function CountdownPreview({ el }) {
+  const digCol = el._cdDigitColor || '#fff';
+  const digSize = el._cdDigitSize || 28;
+  const lblCol = el._cdLabelColor || '#64748b';
+  const lblSize = el._cdLabelSize !== undefined ? el._cdLabelSize : 13;
+  const cdStyle = el._cdCardStyle || 'card';
+  const fontFam = el._cdFontFamily || 'Sora,sans-serif';
+  const cardCss = cdStyle === 'minimal'
+    ? { background: 'transparent', border: 'none', padding: '0 4px' }
+    : { background: 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '8px 14px', border: '1px solid rgba(255,255,255,0.08)' };
+
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const t = el._targetDate ? new Date(el._targetDate).getTime() : NaN;
+  let diff = isNaN(t) ? 0 : t - now;
+  if (diff < 0) diff = 0;
+  const cells = [
+    ['Days', Math.floor(diff / 86400000)],
+    ['Hrs', Math.floor((diff % 86400000) / 3600000)],
+    ['Min', Math.floor((diff % 3600000) / 60000)],
+    ['Sec', Math.floor((diff % 60000) / 1000)],
+  ];
+  return <div style={{ display: 'flex', gap: 12, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+    {cells.map(([l, v]) => (
+      <div key={l} style={{ textAlign: 'center' }}>
+        <div style={{ fontFamily: fontFam, fontSize: digSize, fontWeight: 900, color: digCol, minWidth: 50, ...cardCss }}>{String(v).padStart(2, '0')}</div>
+        <div style={{ fontSize: lblSize, color: lblCol, marginTop: 4, textTransform: 'uppercase', letterSpacing: '.5px' }}>{l}</div>
+      </div>
+    ))}
+  </div>;
+}
+
 // Element types that have been ported to the new left-rail Inspector panel
 // (ElementInspectorPanel.jsx). For these, the floating canvas toolbar's
 // ✎ EDIT / ✎ LINK chip is hidden — the Inspector covers everything the
@@ -942,27 +984,10 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       }} dangerouslySetInnerHTML={{__html: el.txt || 'Button'}} />;
     }
     if (el.type === 'countdown') {
-      // 22 May 2026 — countdown gets a full set of styling controls.
-      // Old hardcoded values assumed dark page: digits #fff on a light
-      // translucent card, labels #64748b — on white pages both were
-      // effectively invisible. Defaults preserved for pre-change pages.
-      const digCol = el._cdDigitColor || '#fff';
-      const digSize = el._cdDigitSize || 28;
-      const lblCol = el._cdLabelColor || '#64748b';
-      const lblSize = el._cdLabelSize || 13;
-      const cdStyle = el._cdCardStyle || 'card'; // 'card' | 'minimal'
-      const fontFam = el._cdFontFamily || 'Sora,sans-serif';
-      const cardCss = cdStyle === 'minimal'
-        ? { background: 'transparent', border: 'none', padding: '0 4px' }
-        : { background: 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '8px 14px', border: '1px solid rgba(255,255,255,0.08)' };
-      return <div style={{ display: 'flex', gap: 12, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-        {['Days', 'Hrs', 'Min', 'Sec'].map(l => (
-          <div key={l} style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: fontFam, fontSize: digSize, fontWeight: 900, color: digCol, minWidth: 50, ...cardCss }}>00</div>
-            <div style={{ fontSize: lblSize, color: lblCol, marginTop: 4, textTransform: 'uppercase', letterSpacing: '.5px' }}>{l}</div>
-          </div>
-        ))}
-      </div>;
+      // Live-ticking preview (mirrors the published page ticker) so the
+      // editor reflects real behaviour instead of four frozen "00" cells.
+      // Styling controls (22 May 2026) live inside CountdownPreview.
+      return <CountdownPreview el={el} />;
     }
     if (el.type === 'progress') {
       const pct = el._percent || 75, lbl = el._label || 'Progress', clr = el._color || 'var(--sap-accent)';

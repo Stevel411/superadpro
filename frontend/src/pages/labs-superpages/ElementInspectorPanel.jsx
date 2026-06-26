@@ -33,7 +33,7 @@
 //     even before the next render cycle propagates the canvas update.
 
 import { useEffect, useState } from 'react';
-import { FONTS } from './elementDefaults';
+import { FONTS, localDateTimeInput } from './elementDefaults';
 import FontPicker from './FontPicker';
 import ScriptsPanel from './ScriptsPanel';
 
@@ -3750,7 +3750,10 @@ function SpacerProperties({ el, updateElement, markDirty }) {
 // Inspector exposes the datetime picker plus a brief explanation
 // of how the countdown behaves at zero.
 function CountdownProperties({ el, updateElement, markDirty }) {
-  const [date, setDate] = useState(el._targetDate || '');
+  // Normalise any stored value (legacy ISO/Z strings included) into the
+  // "YYYY-MM-DDTHH:mm" local format the datetime-local input can actually
+  // display — otherwise the picker renders blank and looks unset.
+  const [date, setDate] = useState(localDateTimeInput(el._targetDate));
   // 22 May 2026 — styling controls. Pre-change every countdown shipped
   // with hardcoded styles meant for dark pages; on white member pages
   // both the digits (#fff) and labels (#64748b) were invisible.
@@ -3766,7 +3769,7 @@ function CountdownProperties({ el, updateElement, markDirty }) {
   const [fontFamily, setFontFamily] = useState(el._cdFontFamily || 'Sora,sans-serif');
 
   useEffect(() => {
-    setDate(el._targetDate || '');
+    setDate(localDateTimeInput(el._targetDate));
     setDigitColor(el._cdDigitColor || '#fff');
     setDigitSize(el._cdDigitSize || 28);
     setLabelColor(el._cdLabelColor || '#64748b');

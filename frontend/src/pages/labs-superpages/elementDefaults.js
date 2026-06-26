@@ -332,3 +332,28 @@ export function migrateTypographyDefaults(els) {
   });
 }
 
+
+// ── Countdown target-date helpers ────────────────────────────────────────────
+// Single source of truth for the countdown target format. A <input
+// type="datetime-local"> can ONLY hold/display "YYYY-MM-DDTHH:mm" in LOCAL
+// time — it silently renders BLANK for any ISO string carrying seconds,
+// milliseconds, or a "Z"/offset (e.g. "2026-07-03T14:30:00.000Z"). Older
+// countdowns (and the previous defaults) stored .toISOString(), so the
+// Inspector picker showed empty even though a target existed. localDateTimeInput
+// normalises any stored value back into the input-safe local format; it is also
+// used to MINT defaults so storage stays uniform. Both the export and the live
+// page-render ticker parse the stored string with new Date(...), which handles
+// the local format and legacy Z-strings identically — so this is display/seed
+// only and does not change live countdown timing.
+export function localDateTimeInput(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '';
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+// Default countdown target = `days` out from now, in input-safe local format.
+export function defaultCountdownTarget(days = 7) {
+  return localDateTimeInput(new Date(Date.now() + days * 24 * 60 * 60 * 1000));
+}

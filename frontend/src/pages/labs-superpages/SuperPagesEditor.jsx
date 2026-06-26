@@ -14,7 +14,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import { useAuth } from '../../hooks/useAuth';
 import './LabsChrome.css';
 import { loadSandboxPage, saveSandboxPage, exportToProductionPayload } from './sandboxStore';
-import { FONTS, FONT_SIZES, migrateTypographyDefaults } from './elementDefaults';
+import { FONTS, FONT_SIZES, migrateTypographyDefaults, defaultCountdownTarget } from './elementDefaults';
 import ElementInspectorPanel from './ElementInspectorPanel';
 import CampaignSetupModal from '../../components/CampaignSetupModal';
 import { loadGoogleFont } from './FontPicker';
@@ -531,7 +531,7 @@ export default function LabsSuperPagesEditor() {
     // member updates the real date via the Inspector. Audit C-C-7
     // (21 May 2026). Matches the dynamic default in useEditorState
     // for elements dropped via the palette.
-    const sevenDaysOut = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const sevenDaysOut = defaultCountdownTarget(7);
     const freshEls = tpl.els.map((el, i) => {
       const next = { ...el, id: 'tpl_' + stamp + '_' + i };
       if (next.type === 'countdown' && !next._targetDate) {

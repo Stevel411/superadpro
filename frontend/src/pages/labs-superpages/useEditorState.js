@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { ELEMENT_TYPES, CENTRE_TYPES, CANVAS_WIDTH, MAX_HISTORY } from './elementDefaults';
+import { ELEMENT_TYPES, CENTRE_TYPES, CANVAS_WIDTH, MAX_HISTORY, defaultCountdownTarget } from './elementDefaults';
 
 const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 
@@ -213,7 +213,7 @@ export default function useEditorState(initialEls = [], initialBg = '#ffffff', i
         // via the Inspector. Computed at create-time, not module-load
         // time, so the value reflects "now" when the element is dropped.
         ...(type === 'countdown'
-            ? { _targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() }
+            ? { _targetDate: defaultCountdownTarget(7) }
             : (defaults._targetDate !== undefined ? { _targetDate: defaults._targetDate } : {})),
         ...(defaults._percent !== undefined ? { _percent: defaults._percent, _label: defaults._label, _color: defaults._color } : {}),
         ...(defaults._statValue !== undefined ? { _statValue: defaults._statValue, _statLabel: defaults._statLabel, _statColor: defaults._statColor } : {}),
